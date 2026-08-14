@@ -53,8 +53,6 @@ public class OperatorOverlayService extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
-    private WindowManager.LayoutParams guardParams;
-    private View touchGuard;
     private LinearLayout root;
     private LinearLayout details;
     private TextView dragHandle;
@@ -147,7 +145,6 @@ public class OperatorOverlayService extends Service {
         handler.removeCallbacksAndMessages(null);
         if (spotifyClient != null) spotifyClient.close();
         removeView(root);
-        removeView(touchGuard);
         super.onDestroy();
     }
 
@@ -245,22 +242,6 @@ public class OperatorOverlayService extends Service {
                 dp(OverlayUiPolicy.DRAG_THRESHOLD_DP),
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
-
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
-        touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
-        touchGuard.setOnTouchListener((view, event) -> true);
-        guardParams = new WindowManager.LayoutParams(
-                1,
-                1,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        guardParams.gravity = Gravity.TOP | Gravity.START;
-        windowManager.addView(touchGuard, guardParams);
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -581,7 +562,6 @@ public class OperatorOverlayService extends Service {
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
                 OverlayUiPolicy.VisibilityAction.HIDE));
-        syncTouchGuard(false);
         root.setVisibility(View.GONE);
         updateNotification();
     }
@@ -637,20 +617,6 @@ public class OperatorOverlayService extends Service {
         latest.post(this::clampAndPersistPosition);
     }
 
-    private void syncTouchGuard(boolean active) {
-        if (windowManager == null || touchGuard == null || guardParams == null) return;
-        // The overlay never owns an invisible full-screen input surface. Remote
-        // actions remain bounded by the visible local consent state.
-        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (guardParams.flags != flags) {
-            guardParams.flags = flags;
-            windowManager.updateViewLayout(touchGuard, guardParams);
-        }
-        touchGuard.setBackgroundColor(Color.TRANSPARENT);
-    }
-
     private void refreshUi() {
         if (root == null) return;
         long now = System.currentTimeMillis();
@@ -663,13 +629,6 @@ public class OperatorOverlayService extends Service {
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
         boolean hidden = OperatorState.overlayHidden(this);
-
-        boolean guardActive = OverlayUiPolicy.touchGuardActive(
-                enabled,
-                online,
-                screenActive,
-                screenYield) && !hidden;
-        syncTouchGuard(guardActive);
 
         String state;
         String compactState;
