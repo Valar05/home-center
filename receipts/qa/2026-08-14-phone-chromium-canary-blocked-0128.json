@@ -1,0 +1,62 @@
+{
+  "schema": "fortress.phone-chromium-qa.blocked.v2",
+  "recordedAt": "2026-08-14T01:28:00-05:00",
+  "owner": "Phone Canary Swarm",
+  "verdict": "BLOCKED_NOT_ACCEPTED",
+  "requestedAcceptance": {
+    "remoteDurableCommandArrivesWithoutDrewTypingInTermux": true,
+    "chromiumForegrounds": true,
+    "deterministicUrlOpens": true,
+    "secondNavigationOccurs": true,
+    "browserDeathRecoveryTestedWhenSafe": true,
+    "durableReceiptIncludesDeviceAndStateTransitions": true
+  },
+  "sourceTruth": {
+    "mainHeadObserved": "dd5f81579174d986ad9ee765f0ed5de6d32136c3",
+    "queueGuardianCommit": "dd5f81579174d986ad9ee765f0ed5de6d32136c3",
+    "chromiumControllerIntegratedCommit": "80efd21c288eb99c786006627b0bc82f15c39756",
+    "integrationPr": 318,
+    "integrationPrHeadObserved": "a936d6221297b56e47c90c3d46fd56c513c698cc",
+    "integrationPrState": "ACTIVE_NOT_ACCEPTED"
+  },
+  "freshPhysicalIngressObservation": {
+    "queueRootId": "1-o7UO5c5Qzfj1w1lJ8N-euhdpP6CHRzc",
+    "inboxFolderId": "1WkGN-Qtj4jojfimtlW3IRg8ED0HJhEBD",
+    "runningFolderId": "1Jc1Dmqro_pHTusoGGutm7Ps_e_r-YYO1",
+    "runningCount": 0,
+    "strandedInbox": [
+      {"id":"1LQOd17ENNSxPsG8dD6mhxnqW_SzTn_xf","name":"context-organs-ingress-liveness-20260814-0057.task"},
+      {"id":"1keQ-UoKxerGDo8RqDTo3wdL34-1gdiCR","name":"probe-git-fetch-night-core.task"},
+      {"id":"1E_Xq0JnxQGE1aEAp0uICUWROWj3_PyP_","name":"probe-repo-projects.task"},
+      {"id":"1sQFbuwMiyXoTfPnznvyP8Puys_xlVwkm","name":"probe-repo-src.task"}
+    ],
+    "livenessProbePayload": "#!/usr/bin/env bash\nset -Eeuo pipefail\ntest -d \"$HOME/home-center/.git\"",
+    "interpretation": "Existing queue consumer is not consuming even the minimal bounded liveness probe. Queue presence is not execution evidence."
+  },
+  "lastRealPhysicalCommandReceipt": {
+    "driveFileId": "1QA40M8Mg4XwljHo_Mlk7sMDez9KEK54Q",
+    "commandId": "fortress-night-core-phone-canary-20260814-0027",
+    "startedAt": "2026-08-14T05:25:52Z",
+    "finishedAt": "2026-08-14T05:26:03Z",
+    "deviceField": "localhost",
+    "ok": false,
+    "exitCode": 128,
+    "failure": "git worktree creation triggered Git LFS smudge; referenced LFS object returned 404; no Chromium physical acceptance followed",
+    "meaning": "Raw remote queue execution worked earlier, but this failed receipt is not Chromium acceptance and does not prove current consumer liveness."
+  },
+  "recoveryEdgesExhaustedThisRun": {
+    "directPhoneActuatorOnThisSurface": "NOT_CALLABLE",
+    "existingDriveQueue": "STALLED_CONSUMER",
+    "fortressSwarmRuntimeGitBranch": "NOT_DEPLOYED_OR_NOT_PRESENT",
+    "repositoryMutation": "NOT_PHYSICAL_EXECUTION",
+    "schedulerWake": "NOT_PHYSICAL_EXECUTION"
+  },
+  "exactFailingGate": {
+    "gate": "remote_durable_command_arrival_current_liveness",
+    "detail": "The existing Fortress Device Command Queue has an empty running folder while four bounded tasks remain stranded in inbox. The already-written queue guardian exists in source but cannot be installed through a dead queue. No already-authorized direct physical-phone actuator is callable from this worker surface, and the alternate fortress-swarm-runtime bus described in Library is not present as a deployed Git branch. Uploading another Chromium task would only create another ticket and is explicitly rejected as evidence.",
+    "smallestRepair": "Use an already-authorized direct phone edge to start/install the existing fortress-device-queue / tools/fortress_queue_guardian.sh, then prove one existing bounded inbox probe transitions INBOX -> RUNNING -> DONE/FAILED. Only after that transition dispatch the existing Chromium canary and require fortress.android-chromium-canary.v1 physical state receipts."
+  },
+  "chromiumCanaryDispatchedThisRun": false,
+  "reasonNotDispatched": "Queue consumer liveness failed; adding another task would be queue theater rather than execution.",
+  "acceptance": false
+}
