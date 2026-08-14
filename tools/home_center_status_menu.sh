@@ -8,11 +8,12 @@ PLAN="$STATE/adam-daemon/venice-plan-review-last.json"
 STOP="$STATE/adam-daemon/venice-review-last.json"
 FORGE_STATE="$STATE/forge-campaign/latest.json"
 ADAM_STATE="$STATE/adam-do/current.json"
+INTAKE_STATE="$STATE/campaign-intake/current.json"
 ID=6410
 MODE="${1:-main}"
 PROBE=0
 [ "$MODE" = "probe" ] && { PROBE=1; MODE=main; }
-mkdir -p "$STATE/fortress-campaign"
+mkdir -p "$STATE/fortress-campaign" "$STATE/adam-do" "$STATE/campaign-intake"
 
 campaign_summary="Fortress ready"
 if [ -f "$CAMPAIGN_STATE" ]; then
@@ -51,13 +52,21 @@ except Exception: print('forge=?')
 PY
 )"
 adam_summary="$(python3 - "$ADAM_STATE" <<'PY'
-import json,sys,time,os
+import json,sys,time
 try:
  d=json.load(open(sys.argv[1],encoding='utf-8'))
  hb=int(d.get('heartbeatAtEpoch') or d.get('updatedAtEpoch') or 0)
  age=max(0,int(time.time())-hb) if hb else -1
  print(f"Adam: {d.get('status','?')} / {d.get('phase','?')} / hb {age}s")
 except Exception: print('Adam: idle')
+PY
+)"
+intake_summary="$(python3 - "$INTAKE_STATE" <<'PY'
+import json,sys
+try:
+ d=json.load(open(sys.argv[1],encoding='utf-8'))
+ idx=int(d.get('index',0)); print(f"Intake: {d.get('status','?')} / q{min(idx+1,6)}/6")
+except Exception: print('Intake: idle')
 PY
 )"
 
@@ -76,21 +85,31 @@ ADAM_STATUS="adam --status >\"$STATE/adam-do/menu-status.log\" 2>&1; $SELF adam"
 ADAM_STOP="adam --stop >\"$STATE/adam-do/menu-stop.log\" 2>&1; $SELF adam"
 ADAM_RESUME="adam --resume >\"$STATE/adam-do/menu-resume.log\" 2>&1; $SELF adam"
 ADAM_RECEIPTS="adam --receipts >\"$STATE/adam-do/menu-receipts.log\" 2>&1; $SELF adam-more"
+INTAKE="python3 tools/campaign_intake_shera.py start >\"$STATE/campaign-intake/menu.log\" 2>&1"
+INTAKE_STATUS="python3 tools/campaign_intake_shera.py status >\"$STATE/campaign-intake/menu-status.log\" 2>&1; $SELF intake"
+INTAKE_CANCEL="python3 tools/campaign_intake_shera.py cancel >\"$STATE/campaign-intake/menu-cancel.log\" 2>&1; $SELF main"
 
 case "$MODE" in
   main)
     title='Fortress'
-    content="$campaign_summary — $adam_summary — $ssh_summary"
-    b1='Resume'; a1="$(action "$CAMPAIGN")"
+    content="$campaign_summary — $adam_summary — $intake_summary"
+    b1='New campaign'; a1="$(action "$INTAKE")"
     b2='Adam'; a2="$(action "$SELF adam")"
     b3='Recovery'; a3="$(action "$SELF recovery")"
     ;;
   status)
     title='Fortress status'
-    content="$campaign_summary — $adam_summary — $ssh_summary — $forge_summary — $review_summary"
+    content="$campaign_summary — $adam_summary — $intake_summary — $ssh_summary — $forge_summary — $review_summary"
     b1='Refresh'; a1="$(action "$SELF status")"
-    b2='Adam'; a2="$(action "$SELF adam")"
+    b2='Intake'; a2="$(action "$SELF intake")"
     b3='Back'; a3="$(action "$SELF main")"
+    ;;
+  intake)
+    title='She-Ra campaign intake'
+    content="$intake_summary — she interrogates until the real commission is exposed"
+    b1='Continue'; a1="$(action "$INTAKE")"
+    b2='Status'; a2="$(action "$INTAKE_STATUS")"
+    b3='Cancel'; a3="$(action "$INTAKE_CANCEL")"
     ;;
   adam)
     title='Adam operator'
@@ -115,9 +134,9 @@ case "$MODE" in
     ;;
   receipts)
     title='Fortress receipts'
-    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) adam=$([ -f "$STATE/adam-do/last.json" ] && echo yes || echo no) ssh=$([ -f "$STATE/phone-ssh/latest.json" ] && echo yes || echo no) forge=$([ -f "$FORGE_STATE" ] && echo yes || echo no)"
+    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) adam=$([ -f "$STATE/adam-do/last.json" ] && echo yes || echo no) intake=$([ -f "$INTAKE_STATE" ] && echo yes || echo no)"
     b1='Adam'; a1="$(action "$SELF adam")"
-    b2='Recovery'; a2="$(action "$SELF recovery")"
+    b2='Intake'; a2="$(action "$SELF intake")"
     b3='Back'; a3="$(action "$SELF main")"
     ;;
   recovery)
