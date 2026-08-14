@@ -24,15 +24,26 @@ print(json.dumps(obj,sort_keys=True))
 PY
 }
 
+# A running sshd is not listener proof. Prefer kernel listener tables; on
+# stripped Termux installs, actively connect to localhost and require an SSH
+# identification banner. If neither probe is available, health fails closed.
 listener_ok(){
   if command -v ss >/dev/null 2>&1; then
     ss -ltn 2>/dev/null | grep -Eq "[:.]${PORT}([[:space:]]|$)"
   elif command -v netstat >/dev/null 2>&1; then
     netstat -ltn 2>/dev/null | grep -Eq "[:.]${PORT}[[:space:]]"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 - "$PORT" <<'PY' >/dev/null 2>&1
+import socket,sys
+port=int(sys.argv[1])
+with socket.create_connection(('127.0.0.1',port),timeout=0.8) as sock:
+    sock.settimeout(0.8)
+    banner=sock.recv(128)
+if not banner.startswith(b'SSH-'):
+    raise SystemExit(2)
+PY
   else
-    # On stripped Termux installs, process presence is the strongest local-only
-    # observation available. External SSH Axis remains the callability gate.
-    pgrep -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1
+    return 1
   fi
 }
 
@@ -40,7 +51,7 @@ process_ok(){ pgrep -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1; }
 healthy_local(){ process_ok && listener_ok; }
 
 status(){
-  if healthy_local; then emit status 1 listening "sshd process and local listener present"; return 0; fi
+  if healthy_local; then emit status 1 listening "sshd process and listener are independently proven on port ${PORT}"; return 0; fi
   if process_ok; then emit status 0 process_without_listener "sshd exists but port ${PORT} is not proven listening"; return 2; fi
   emit status 0 stopped "sshd is not running"; return 2
 }
@@ -71,7 +82,7 @@ start_sshd(){
 }
 
 failure_detail(){
-  local proc='absent' listener='absent'
+  local proc='absent' listener='unproven'
   process_ok && proc='present' || true
   listener_ok && listener='present' || true
   printf 'process=%s listener=%s port=%s; %s' "$proc" "$listener" "$PORT" "$(tail -c 1600 "$DIAG" 2>/dev/null || true)"
@@ -80,17 +91,17 @@ failure_detail(){
 ensure(){
   if healthy_local; then emit ensure 1 listening "sshd remains healthy on port ${PORT}"; return 0; fi
   install_deps || return $?
-  if start_sshd; then emit ensure 1 listening "sshd started and port ${PORT} is listening"; return 0; fi
+  if start_sshd; then emit ensure 1 listening "sshd started and port ${PORT} is proven listening"; return 0; fi
   emit ensure 0 start_failed "$(failure_detail)"; return 4
 }
 
 repair(){
   if healthy_local; then emit repair 1 healthy "SSH already healthy; no restart required"; return 0; fi
   install_deps || return $?
-  if start_sshd; then emit repair 1 recovered "SSH recovered without destructive restart"; return 0; fi
+  if start_sshd; then emit repair 1 recovered "SSH recovered and listener is proven"; return 0; fi
   pkill -TERM -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1 || true
   sleep 1
-  if start_sshd; then emit repair 1 recovered "sshd restarted and listener restored"; return 0; fi
+  if start_sshd; then emit repair 1 recovered "sshd restarted and listener is proven"; return 0; fi
   emit repair 0 failed "$(failure_detail)"; return 5
 }
 
