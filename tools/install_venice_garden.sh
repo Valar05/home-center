@@ -35,8 +35,8 @@ EOF
   systemctl --user enable --now home-center-venice-garden.service
   mode="systemd-user"
 elif command -v tmux >/dev/null 2>&1; then
-  tmux has-session -t venice-garden-governor 2>/dev/null || \
-    tmux new-session -d -s venice-garden-governor "cd '$ROOT' && '${PYTHON:-python3}' tools/venice_garden.py daemon"
+  tmux has-session -t venice-garden-governor-core 2>/dev/null || \
+    tmux new-session -d -s venice-garden-governor-core "cd '$ROOT' && '${PYTHON:-python3}' tools/venice_garden.py daemon"
   mode="tmux"
 else
   nohup "${PYTHON:-python3}" "$ROOT/tools/venice_garden.py" daemon >>"$STATE/governor.log" 2>&1 &
