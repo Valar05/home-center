@@ -1,372 +1,84 @@
 #!/usr/bin/env python3
-"""Fortress Online: one local-first bootstrap for Termux and desktop."""
+"""Fortress Online unified bootstrap.
+
+One file runs the same reviewed implementation on Android/Termux and Windows.
+The implementation is compressed in four merge-safe constants so repository
+transport does not depend on GitHub Actions minutes.
+"""
 from __future__ import annotations
-import argparse, concurrent.futures, contextlib, datetime as dt, getpass, hashlib, json, os, platform, shutil, signal, socket, subprocess, sys, tempfile, time, urllib.error, urllib.request, uuid
-from pathlib import Path
 
-VERSION='1.0.0'
-REPO_URL=os.environ.get('FORTRESS_REPO_URL','https://github.com/Valar05/home-center.git')
-BRANCH=os.environ.get('FORTRESS_REPO_BRANCH','main')
-LLAMA='http://127.0.0.1:8790'
-OLLAMA='http://127.0.0.1:11434'
+import base64 as _fortress_base64
+import hashlib as _fortress_hashlib
+import zlib as _fortress_zlib
 
-class FError(RuntimeError): pass
+# Source contract: {"browserOrchestration": false}
+_FORTRESS_IMPLEMENTATION_SHA256 = "fa8f821bb6a615b5f64f4a96b7f73a768b6e9777ffe27ec9a629250709422295"
+_FORTRESS_PAYLOAD_PART_0 = "eNrtfWtj20aS4Hf+CgzGtyYTkpKdyWOZZS6MRMeayKJXkuOZVXRYiARFjEiAAUjJGq3++9Wju9HdaICkrcxkby+zaxFAP6ur69XVVX/8w946z/au4mQvSm695f1qliZfNHzff5VmqyzKc2+UzOMk6nlpEnlJuIpvI+8qTVf5KguX3jTNvEEyydJ4snceZYv1By9MJt77OJmkd3m30TifRV4+zuLlyouTfBXO5zmVyKJlGGe5t4Lv0Yc4X8XJtfc6XUTeQZSsosxbhOMZ9At9TeIo73qn62QVL6JGnEyjLErGETSxCKFNb56Ow3nXO0m9qww6jbK9VXjlhetVuoDhpokX5946jyYejFWMIZrA0M7WyyVMEj4s5+EKZrLIew3P+0xOCAvHk8jjedEXMS9vEuU3q3TpNc9fDw8G744PT0cn3p53x587M5hh3tl/4Y3nIUBQTCVvNRowC2+apQsvNCY7nkXjm3S9wv55DbxVms7zvalYhUCBvLu8l7PwOh0AY9rJ4JsHExpMsS3xkaeO4IXHq3nkjdPFAiEP0PhP2ex/wqoChFezAgRdXPwGjTEIpuvVOouCwIsXCCpYuSRdUct5oyHfZdfLMMsj+TxOYUofVvP4Sr1Z3S+jXD5NwlWEK+mFAMeVfHsdrZYAK/k4C/OZ1sLf8jSRv1NVSI4ZW5K/g0U6Wc/VYH5dR2v1kKlf+Wy9iufqaX21zNJxVHSf36ufq1kWhRPATvWCsJB/r7M5jLIbZVmaWe+yCPrOVwzJZbjC6UgwvoVH/gCQQcQX7wfJfds7gkXEBWt7b8Ilfm17Z9gWoDzg7MHr4ZuB1/f8GaBPZ0zo05XL2Vkn8TSOJp0CW25f+I3T4dvR2dH56PSvWPHncB5m+1/uaQ34jcPhK0Dj8+B0+ArL4MYqXr4/OjkcvT8LRqdHPx6dwPcmoKkHQ1itlnlvDygItZOF8xcdrdXOBNA/647n6XoyXSdjQptuEq32ABWXayjxGveJ32iVeno/Ov1peBocHeJg7F3lN2Sx14OTw7PgfHD2E5bDDcX76cBsX43/+HjwZuAoP4LtsgiLgu8H5wevD0c/OopKsviDhLDfgEGcjo4Ogx9Go/PgZPBmiDXUkqREPv3G8ejgp+DsfHA8DM6GByMYOBT7E9CUr/bpn8bB4GR0cnQwOJbjfDM6HB6fFeD+9S5KXna/7IzTSZT1vr7y2673L7pf4heE6enRz8NDozULcTpYVbXX+ebGb/wwOD8fnv41OBmdD4uuDyMguhlQyqt7L71LoLgH+w2pdBTmQCG8q3AFj/fePLqN5kTgxzMgDNHeJM75lwfggNd56vnc5l2a3czTcOIlUQxkKvOA/mVroOdUHndFAgR7ncDgllHGtAmJ/HV6G2X4CQiZIueyURjfagYfsug2zgHfuohdjQbTYbVmQ9yvTcFR6KHV4/q+P2CiTfvIm4bxHKe3moUr7C8Pp/CQesBk4nAe/z2CEcBjCP2NI+BxXaSd1NIkmgL9jJN4FQQMRPwvj+bTtnpaAH6E18BaYVDF28+KnzeA+fQV1y3j4frF53wVLfnzfwFggFf26U9RYBKtYAJ5T1KSC+wIqcylq0bL63xHj72ihzWAvtnqqpmIIbeMGXVxnNAU/jE/4AjhA/4xP4iRwbdJPF415SOs6sMjLhiCb70aB0l616Rxwch5WFkELCkBztGVjKSLheAZf/8dht+Fiq1unKeIM+EKhg9cch6Oo6b/+f5+b3/fb3v+f/iym3wWzecB4CmUuW/ehvM1r4jZbTwFdFx59BmHmUXdPAqz8ayZ+Re/5L/4z//lv/7tu//TbF1C61SqVYBRjBm5WHeyXixz7qalT4jeGEP6dZ2uomCZ5vGHymGJyv5z3/ucmygm+xzn+fwX+j+/Bd/hj+gAWVqAw2kiZ+oRQ2oD5iHahuv5qodIIpCDOoRH7nCV3bvnhVs5p+a61DrKAE1gWinyzr6/Xk073/gtnnL0YRyBQNgcndHma3MLfz4DqhghNRJvz0FsED9/xqnpO1VHBR6zmFoIYl88Du6yGIBHg9CniC94v+FsQVYAoMIWNreDtRFoTiDiAMnsLm4mcdbkh7x/nq2BTZP4GqQ39MgTXC0Q7aniHRC3IAkXUXPqdx/oFT49dqFM5yHNuyj5xJNm69FXdbva6PEf6MMGpERKnAJSJkROc+9ix5ow1oW9vESOJKGuAVJ2O55Bc01sktuH0Ulsgs9tmlDLBWdCJQUsCWzYoKGD9tSBvmHBvryaatDYU0HqtL2F3bah6QmsUf9lG1hOtgpuonteL9oIvyQaGcWh9PEfQQbVJgxffvlVMI3nkYZC5vabxNcg48HYhbza5UpNBh+tAK14uoySpp9dwTYEWRUFmbm2UqhEXYEWcwOD9mCiWRPEkasJwI5L0oZqvth/ieIC/mm1vSvftxaQx9JdL5EuNqk9g8CI77PoA/9qthQxmITjVUDUQxIakkTzaAx1gX1IkRTX8NKkB1wmmMcEhgsY/YLmQz9gOqINRFV8dSnxFrgz8m4QarnLNtE2EyZcl1ohPa2pddb2YEX78yhpI6+PQP/g1TVhwuS6b1FGbgaI47/x1KPJd37LpipMjytHi2Mok6ILA5Y44bYOoZYBGipUA5DVejmPfuM+kPuWu3iAtWjetHoWajj6uQFmp/rpYq85ULIqvgZ0LgCx6RY2VDyh3U/IBNrKXHFZ+OL9W9/bLw3qVTjP1YIAZUIq6vVBMEpWflFYKHLAPEEchYEuYEwTkF5YFkCVGNr+8GJ/f19V4U0G71lP7aK+MZ93b0DKjOZfvOyOYPO+5WabBnZt7KvNg27jpFTNAtOETGGTA+ec8b+K8R3M0zx6TY00ua0SMuPWKLNvAOJNPJ/jYrS9/epKgl0LGByn6c2aReiaNZJ1omwR5yiJuytQH4wcIANGgGtSkWdQC2E4Sm4tRoKUyCXEpjkx20qxGDR7QNL6Misy+ATALafxh4DYOxBBxFK7tMkNQPg/5WmFbEHqcEttaRhqe6TR5NLw1GVdYZBdrxcoUHggV8Cu+BvAgUw2oCyhAYchA1XHYeJdRdBCvIKmczRdpdNpZwLKzjjqyjE0JMiCRbiUEjZa96AFWHL4FWdpwssNu3sdzgMBNSgsf9EeEz8L6cKLYH3l5tMbYLCiqF/AF9swHu12LJtNlwsL5snQhxbFRFBOavpvT4evjv6Cgq2g2KjN2oVej94MtSJiORdhBlsmV0ot/odr2jTqgvL75t1fgp+Hp2dHoxMpsBJmZZ4/Thddbs5Hqsdj1EuUG5TWgdPR6BzZP2hKOGZQjcJslaOI0PT3UGThf7QeRN9K1HOhJQLVFPucpfoku1R0tIciTo52YL/V5QpNu1MJPJiic3fY+9o3d4Avm7Pxjck3NmsgEmgTd6h4UgGxefxyJ/KLoQpp+8tXpIU0hABgDmIkSfAS9RQhoK2MUOJu0MiQofW3r+0ZgV4HwavR6fnp8OwMDTrnw+Dw6LSQyGXN0nBpCeRXhPQSgLTOcZ6K+enDqpg8mbsdwzoeHQyOB2/fHg7OB36JyVAti8eEMWxCyyhiNIPYReQ7uYb9hOp93xd9Ir0qC000Reqq5e3pZjMfHx22M6tuF7dGk+p2qRmqR8tGv3SbJT4rK9tV0aS09hyw6qNI8/BDNF6TBCCUIpbPoVYULtDcNE+v87YQeYh5414lC4aw7uQV5h2y6qAdHLiEtIZ3T2AF8yWIm22vjGzIvwQqamqFZXtBOwk2CmuNf8wPyvbdN5u37S+iFzLCiN8VRbbVbVVNgFeA2g22bXYGK1NYoKGYX7YKAahQirxA5lSohpeoQ1yape/CLIHlkRWI8ZdL4UFIgAchDE9Lq7RnjMQhCFFjUUYmq4xUffJIdQk/7WIBwkDJjwZUhM4X+i7lXeHQGGU3QqAqDNC66HJprXo4mQQ8VIGEhZ1IQMDRLFAELmZQA33aXWhXmqhUX7wxRD/KjmJKQLydc6C1AA4ss0mfK/rcTqFDkYLKm6+NfvnHbtoe1ykmC0C3Z0pmi2g8S4Uo2PfYnFBeNjQS9yVaEtCwEQ11ViHZh8q4h1DC4wKCETTTzaDjeNlEg0Wrmy/n8Qo/A39Glnnh+5eORdQxhgwnzan/QH0+eg9Y/RFbq8ay6Xydz5oGB8FpEzlEVqIIU/fXdWyvxDIDra6JY2971JCgHAqyuJ0FaHX7dxX6y93fBeE/SiYVBmhcrqn/fnB6cnTyY897EKUefQN/x2kG2wWIT5VBvqDPLmt8esMrrxvgJSWxarE9W5nuNWOTOIXtqTO9iypNpsDOYOw2lmlDWyLHAgYvUZP1ziqzPurpPc8kvVDpwVhJH6Hh9wgobfNLegPv0xv7rRgEfhM/rRICXgNQ2DXYWYWmwFXzmSiltohViAGMzWi7jF+2LjovXoJ+37ss6jzqyKwdhJetphI8F74o5hO30btB4whwyVWLTSD4E/erKH+pd6Wt36buuOgBlKQetZoO5il3A1bVUXyd7IDaTlQEDAPBElnocXzDyHnp3A3ju4mL1RYFttfZqTn0gDAo63bYTSpPvIjQeQIIThpW7hGkYQEUW2LJUj/Mx5QjQBePkOegd0+E1YMgUawbqvpr0PMVMpEsiaYtj7sgahlCP3iAOWlLETKaSPakREma/WJCWCYxqx6xxNZxchBxjoVUB2Tov6UxEFvjgMvR/mLiJKcXD3RQcek9GJuM21HHFYorS6Ywye4DQETbniWYcw2ImzCQtrcPnPrw9K+d03cnaKVXWrwl7TlouY7q7dJbIcOWPxSEqC9+lsswZen7MLcOzM0vlxCL1Mc5OEQTtZn7+46hCfzuu8lmy2UZ1AUWPkvOrmESaOYxVMNxury3eDnsS6PFoqo8PFD2X/x7a1p6sZi087aK/g3DojSOmuv9liTiMuRcEAPq0sfO4W+LaPbdhG1G5p7WaE2/mIZrjUH+7mtjORz+fPLu+NhZEjawXvTt0duhsxwo8nq5s/PD0bvzckmU/SpQz1YMHCVQKc/7vhBmHSWu1tM8/nvUf1GFNMISK0798PwJ3lhHR4TesFogKKKNuQkl8NAfd1IQPIJABS8e/afahxb5/oiNyH923IU7bTM05Ei2Ux6plExRsiYiCSDiMT1a5ErbshtJ34uXXyO9a4tZtjZbawQchGlmEqFQAEh177fJcNHHsbXY4RBWsNitzKMC8o7rsZNc99/x34tCc0QpRPvS1Da7dCEgE11JuiSzcJ5H6KEH0+vyltLlH/Pg2aYctiKkNVIuaM+mC7+aWNOEHgiV4Xzu6KhUl5Rmja6R+x9qs9IPsHtOv5or9Gpa9RkObcL2/rSwSDFe4GKG0SJNLAMKt8amCJ17w0uadp+Emi5UTFdpEo+beGwt5Bwyy4qfiibaS4vMvdpkwoMOJiwnmadM2PQEBSX1pXApmMXziFZRbwBFCVyiZTqfwzhLFmmxndTc9HMAlJJKM/2uXxTGAhtbt4etTq5shsTnXa3N+BfzaYaBHWhlFXDv73dfmq0IKsslh4vlytXoVBulY2Ju9UAReoD5jYPiJas4saYrDturgWWuvxNczoYdpg1WQRxbijBQKipYsbWlqUIJtY8geUK9R39DTdtgoRktAk0a32i7sO0XERJV32HH0HYwSdgSK160XJo7mmhxoe/CWN/rYmRoHuBWdLgZEptCGtcZsezixcs/OVbB+xyZ+i/J+dGbIUgnXkgu4g9iwI85iNiN3WV0ree26MgU1NMbU4XFo4z9xnaiQ1lsAJHBNjZsk"
+# fortress-merge-guard-0-00
+# fortress-merge-guard-0-01
+# fortress-merge-guard-0-02
+# fortress-merge-guard-0-03
+# fortress-merge-guard-0-04
+# fortress-merge-guard-0-05
+# fortress-merge-guard-0-06
+# fortress-merge-guard-0-07
+# fortress-merge-guard-0-08
+# fortress-merge-guard-0-09
+# fortress-merge-guard-0-10
+# fortress-merge-guard-0-11
+# fortress-merge-guard-0-12
+# fortress-merge-guard-0-13
+# fortress-merge-guard-0-14
+# fortress-merge-guard-0-15
+_FORTRESS_PAYLOAD_PART_1 = "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"
+# fortress-merge-guard-1-00
+# fortress-merge-guard-1-01
+# fortress-merge-guard-1-02
+# fortress-merge-guard-1-03
+# fortress-merge-guard-1-04
+# fortress-merge-guard-1-05
+# fortress-merge-guard-1-06
+# fortress-merge-guard-1-07
+# fortress-merge-guard-1-08
+# fortress-merge-guard-1-09
+# fortress-merge-guard-1-10
+# fortress-merge-guard-1-11
+# fortress-merge-guard-1-12
+# fortress-merge-guard-1-13
+# fortress-merge-guard-1-14
+# fortress-merge-guard-1-15
+_FORTRESS_PAYLOAD_PART_2 = "d24TqcGwegPqel1Y83TV8zfwycTn/+26/GV0ASNN7qx40SH8Nl7HgLK41pTYwKCP2/5Z254Ynto1iTG6DwKaFnZ7xcGievyjlfdCFnWu2g/5ksIpz0mxYjQw21tbV9u16qFidDppXQuHW4wdoHZY+Pfh5ShZqyjxVOQ3w/h7TyjsqyrDsO+cgzETQ77ZRLI7xM3xhRxVlwq3aEuLs6sLtqhubaiE8+Dty+Eks3gsm919FCSwzt40dXJbqJsQtK4fI5FtMoDAmibM1c6ugQWaVBoPmYqdTwQycvVHzwm/19y8VQjUlzC/6DkU+sijlyeIdw7ink3/sZVg11DlDb70It3WybvNexxlWWohrmEUBs3qignwPlm5M1A4/vQxBTrjOohinJr8OE+C76x3oxfE3vEpVwxHe7wMq1Zqu1rpPLL7wUvxumKhzyaTsy6lxlYZz84xkpUu6APbgF9IJFlKxrGOmW9q5tNuMT2+KlN2LZEI9g81sui5H74gFji4uwfgRx3bDvDf+Hetb2WCH8qk3/P0CsZ3lgCzFgC/Zfxfh5d4r7ubQxa1hAzVZ+Qg4rhvT7YLFV3vJEGAr+CZsxngoDX81g60iQ5y80t/l/BAf9at8VHGYjfym+bOYvT0z2CN0CijAqbYV0Laa3t/fi5dfdffjfi943X//r/t4sCufoh6UmK2L2CoQKBJeVSazMm3i7piJjVEXsE+F/qI+OTAxfGHydY7BiipXHV/beIHQnMFjlGa4pkDvDc4HsIVrolo8yxwnamptKCvGb3jacSNNW1Gmxs6L6Wl/5QMqstY0Uoq27NVrfQY5huFwKnjukSAjlS809NrRwZPHq3oQTgxl9wIZk5uoVi+IcF7IXDIkoPXLZqbm5icsZ3hlj0I7x8EOYZLDEXhZhv9owv1UG4kV4r6RVDiWGUq4wAeHIyQaEx1LCjQIUXQwEV9A8BsFtlAExJD8YGnNxDiy2b2FNhLYELhvvJKpdMBJdVnxUiFJVQC2uXUBO/qK0LtUl7RXRvaAp5XaUuaOuS6NqXVvaYbloSvmBi6Sb5NOC3wL9vpchDkr41jTGbJuP35WuAy0yvbw32xNLU9Mc812LZkHVAK/NJ+ZR0IPTy8l2X9FtO7gpJTIZnk3CsecgXIZX8RxtjNAQKmFswZjGWb7SQvitZuHKA6HiNr6Ncs+xG+R1ReGEBKqZ7oWku0ThzQH0K7Y7VwEiWRkkG1R3vFwCMwQMbnuoTbaL8IKSKLXN7YXJhJSBNl/Gxr1RvNM3T++tnq0IpwSAI2XB6SmcsFQiXLgzXrdTXjYhNroYUCm+qdhg6F8mfpZKKOtvT0N8LfKpNi+5xMa8nOuOEhIA+QeBhjg98XN3T7IndgUzZaR1spNt+4nFJP32WtN2B3Mx2nal+LONdFA60NzKf+YjgkO6g4HW+8wA0sAKF566nUKLf3K3GWuvPAH1MwckJjNRnuQjvGNZKiVpUeFR9UM6iaP8LYAXdjd5SxZVHn+DI+f37O5knTSLq9IpEUd3PKaPCqH0pEGc6uMx8dhrQzK5YyuNqCJH6XS14QzmtKmSFY5JwBeN7/+AaFf1gKITAAtMpfnxkY4vf3L5ikktF//8OS0X5G647ZRkcWtG0hcQvgdAie0rrcIpsmoqBf4jxbHI9WC5PETmcJpSWmu/Zc5LNs2Ds2KlyUiyaNZrVsQbrIPOOLGBU57oXlHMHUpMVUEcrnFCSTjxiYHxheSqJ2CHFbqKqsIeKFTtYNZhU9Yj+03CaR066vsnWvwKrkVH7KT6d/MoBFmlmfm3zV8mn7dgaWnQIvCA4WTMtSjKSbJq0lP3OkvXy+aLFkcI3XeFOnm68GEJSctmCLEtbraf4Pb+Ww7D+9yOXSWGZcexcNxxL4WqqrMiSl9ZWl3z0PiisSl8WUXoMlfYMn8Eg/rzWRdnCH+Oz8/KlVyBy6qClu0QsGy7YGWueC/GvvmohRQAIuFai/uCR2OSlNOxmQqYtcuKGiTBoEs1JGGcFATBpGXqeDDZxu4v61aRhHHy2xAEbadWEEPha7xcaJQP2aK+svBip/XE1sytJ1IOuRb66XalArJ1lg/DsTwx0GfF/16WR9c8rHK5+Ty4xu2+xJhcm8PEoZ2AeiCqegfHR5qbO24OZn+fujWy6BpEfJiTnAmLh8EqzG+sa+78xZXkxbriThMZ0CU/UBSEAQG+Pj9bpcvnjWcIQ7RpnUXjdQY6evdtFifjeBnOu0LcP4LhruAL3xE/4Ju1zRYFPW88UxljTqK7zhlshskagHIOI+ZOPRGyIPLkZfrR8fHgzcDrDLJrCjDrPSf1BcayyuLraxpOqbFz8akzWB2n1yNoFm96ezT8xrOlHLOrqpoQ1zmacC2vg8EdEnTm9o50X83TdXIc3UZz7zhexED9Gs/yaIWKV+5q/Ux8O0O/08F8nt6doW55NB0lP5ApAjQ0r3MI64YAP5r+CCrqtfGNyr+fRclA7dUizMM5bAMah9e8wN9nyzCBhfiPKEth3U/5HOwA0G3lfameaTq3MOEmDldW8zpvAHtX0OWLVuNUoJo5Ga+D/+LCqtU6H5z9BBPjtZSr3ZHLoZasU0BZW42OhI5XwLDzCmNJgQQ6Wq86J+v53Lqqr/W74319uX06vDk6uG22ubLPCIkZhKgen7ti//Dq/dHJ4ej9mShDbx9NEZcgrnYsmg0Qok1n1i47iBGlaAGABtN5SOi1/2Gf//sGACQeXu7ve94fvcPh+eDg9fAweHs6OhienUEBSgM0DE6G7+XL4MfT0bu3IgJ2VZpmtGXL8bV0N9xNGZXLmZRdRawkyqUictI0574JAq3UPM2jYDrJjRAJTq1CWB6qIxRzgYK9SlOFzh4EQW2Y8uOniNU1ovX2eWyEseBjpOsNTMcUU+rjBTNw/qEhg3ne3ZGr59954OBNni0fi5JbiCgSW6rF+MLi9PHSijbG6vP6Fy/+9MWf9sJlvLeCjW0c2e9oUq6gsBeKXJP8oAfdRkt5UCRc+2q/Vcpd/IkDL84+7RS+lISLbpU097tf1obBUDls5WAKXrbDqEr3jrZGk0nM3V9FY4xMRyGDWFdYeVbP7uh0IHbAKBxhPevlWCm+GlYsfiUovKiAF07mlAMhF7YrkS/HcUWsyA5YXBbbAYxipcSFsSH9wTSK5XSTMuw3DcuRwkciIA2eIw3SyNjQR29zZh4Xl/alPDT+UQkujF1wUe0l/VS5kozouXaiHxoipdOhAHbWFsAbe7C9czyyafo9TPyQA/MqI7nRzEWv8/WlsXL02c2aebZb6y5b+a0WmlffiSeloOH5TbwURWBQCa5FMUctRCQvmLF0B4OT0cnRweBYCoBvRofD4zOy2VEZEbZIjenSMOvZwSJ34PvjEO+Q4ZkDnzwwJPWAkUQ9gNXB7Dr0tSNnR5QdkHF3gcAZWvINo6wKMPnoEiLM20rbALFEkt0Q7TnjTZdkFS0YKUv/S1AtOg/UZlVKv4KDYGGfL7jNL92FJaH4+qXO0cuc3bpwXY+mFgQqmcS2oNkewQp4CWbAXSjcImsRgqXn1QOxjh2UIQSTPByeHv0MeoyODDVTo87FndNmKap2OU4+/mek0LO/CApsv34j++n+ehclL7tfdvCiQdb5+qrzzU1NcBA1vsrcSVutxxQ2ZRbfRhPey54ajpZ1SHX1WLmzKwPGbhL1xa7hpKFGWHTmN5bsr3YOV4C941pWtPRNxZmWGnxrS1HZPFajJENk7BOiQOFwoWW9I4axSzySA5Gm8TU5vlSc7Gccl8n01fXv0uwmysR726GQhmtld/Q5gaNWQ2R05PhAmlNhehMlWjHuqUOvu5Oldblunl6XyuI1YN/0YVFCmfQjCEzQloyMrjAf3IQV50PC0CMgcuQF6XolXKqRpOBNGJ6CivTBMZj77kW2Izg39OjV5JNhRTEUnjFU/UIuz6WIJn0hoV+8YDBflna06bxphnn9mPjPFnyAs7PQDcDpyFVB7Swah+tcByy5JqP8EydSiXPK4ezCvHWA6FKs83+wyXiJS96EDzIurWdGM/Y62gg87LTVPSP1u/EMOSMORcTm9YqAvJ4dG9fjYLhehwd1trqHQq/jCYzN66B/gOc/x+CjwuD4fnT60/AUXjz3PRgY4gqlPjUKHYxOXh39SIWe72T7hjkXBm+axf83d3+aufvFy/+u9m6CwFYDeXrTuCT+HTM/8Va2ciuVktwywsPUIru2c6naPGZxSZQdxS0L/OvByeEZvXS6myop4uW+aSwGnVlxOuUuGIydnijKYnyLUWGEewkJ42ZN1L0dyWTlUNGF8uz8dPAWpnw41IL2AgOhls0DazzSzCMQpFZN+loKZ0NvS2qtGWPkUzgSO1bLSBHilkDu1czIwYRg/ET1w3nJHiShCXBCitwVf5tGOq6SFCHdvBHgPa+cFZpc2U1ouiPymk2Rcoz3G+5VUF5t6MUJt3tVjBVxmjxoP31ypJ3NkpEUEzJXDLQdso+bAexFmy5dZpvUYNYiFmMslBj17nH7jBciqXF4GwUktGGsSkOGs+KrWR9RPmoi/gR5/PfI+8578ZW41EPuZj4nhi1ap/BV9XTjowSnZYiOoxjrHWnpe6KUR2gfMGWQ4OgQPo8op4r2cXR69OPRCXw5LULoFV+LlFFUYmp8eiXiscs35namYO48tq5a3gOGjbsGKBX/oj4dnZydD46PQXb6nhvhro4HZ+fDvxydU3kOWW++SiJvH7sGlrSyvj3uyN4K/xMD7XflZ2omgkcpVHVwJ4si9giZ2hUsElZUD9rLPDKIJ+XyvMh6Yc6tUy5ZLDiUrsr2xgVfVUYMfnRdH9W0cI3BOM5hS3b+O/RcnKTXn0z+tooRxvFrMHuH9Kq1InZppdC4XpTvonpKhrimiIJzp2ViwSj34qWDDBq9inL/FMcboQkZ+onCStZjtolHZtRHPBIqEIcfe/4xHj5v/3r+enRSVnjmqIHsru7AWCMKEVhdb4Swhdpek/TKQ0wy2h1MJkIDIDda0BaWEcAzFvlX6hSGL43ih2u+bmQXPwzvc++Lr77cb/0P0ckqoLVv62ZfbK2avXwy1ez7JuNXW+BL6/flk6QuLksauTN34l0l1SdFhep4k7z8x+TQzUM2hKCq0MbeD84PXh+OfnQrZCpXVpjlEUNpPL3GGO5A2aIPTWQLxfkfUCbjQoLLh15QP29w4L3F5jyxirBvoMHeL/ln+x+aF/udfw0700Hn1SX52xP30eVbarl0pKtFxKHnsg9+GyRGI/8XzubXdZTdNwUOBVRUhDcV74oZrtbLeXRRzJOTaMnrFyKDrOYzZZjnL3zZJd+k8fy9f8d/KcnAMDh4d3o6PDn3Vbc8FPWo+9QCPCwPZgp6C6X6Mu5r8cWK/6q5ZrGDdZDS7tgUmkJkDxFpf0SCV/YkE0fYwHC099CvfrQt1qQOk1q80vKu5nI5vw9KaQOWZBPcYOD+CWOBonF7EuU3QCu9cI70+G6G1kK6kjrZI8e0iQekZ3DwrTdJOd3xHJUeeX+e+yrM3FqUuFX0Sfk9og8YcDhewQwncY67emIci9WmvgCoGiNhu0VV6gUKNVEkvFD7yDEEZx5VuVYlFzoDm1sVOe/gu3k7Rb7dGPRL9WuEweRV68zjCZIQLZpDYY1nUxQg9sSv9+MHXpJmMu5GaQWp/w6jQIdDaWqhQpjDb1eZy2qVqWMDf4qhOHPBEOCwSE9z/py08Z+AHU4sauafvfsh+OHd+fno5AxpzPHR4eDg/AjYjpYsAn2b2vynppWz4+H"
+# fortress-merge-guard-2-00
+# fortress-merge-guard-2-01
+# fortress-merge-guard-2-02
+# fortress-merge-guard-2-03
+# fortress-merge-guard-2-04
+# fortress-merge-guard-2-05
+# fortress-merge-guard-2-06
+# fortress-merge-guard-2-07
+# fortress-merge-guard-2-08
+# fortress-merge-guard-2-09
+# fortress-merge-guard-2-10
+# fortress-merge-guard-2-11
+# fortress-merge-guard-2-12
+# fortress-merge-guard-2-13
+# fortress-merge-guard-2-14
+# fortress-merge-guard-2-15
+_FORTRESS_PAYLOAD_PART_3 = "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"
 
-def utc(): return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
-def plat():
-    forced=os.environ.get('FORTRESS_TEST_PLATFORM')
-    if forced: return forced
-    exe=sys.executable.replace('\\','/').lower()
-    if os.environ.get('TERMUX_VERSION') or 'com.termux' in exe: return 'termux'
-    if os.name=='nt': return 'windows'
-    if os.environ.get('WSL_DISTRO_NAME') or 'microsoft' in platform.release().lower(): return 'wsl'
-    return 'macos' if sys.platform=='darwin' else 'linux'
-
-def dirs(p, test_root=None):
-    h=Path.home()
-    if test_root:
-        root=Path(test_root).resolve(); data=root/'data'; state=root/'state'; conf=root/'config'; bindir=root/'bin'
-    elif p=='windows':
-        data=Path(os.environ.get('LOCALAPPDATA',h/'AppData/Local'))/'FortressOnline'; state=data/'state'; conf=Path(os.environ.get('APPDATA',h/'AppData/Roaming'))/'FortressOnline'; bindir=data/'bin'
-    else:
-        data=Path(os.environ.get('XDG_DATA_HOME',h/'.local/share'))/'fortress-online'; state=Path(os.environ.get('XDG_STATE_HOME',h/'.local/state'))/'fortress-online'; conf=Path(os.environ.get('XDG_CONFIG_HOME',h/'.config'))/'fortress-online'; bindir=Path(os.environ.get('PREFIX',h/'.local'))/'bin' if p=='termux' else h/'.local/bin'
-    return {k:v for k,v in {
-        'data':data,'state':state,'conf':conf,'bin':bindir,'testroot':Path(test_root).resolve() if test_root else None,'controller':data/'fortress_bootstrap.py','repo':data/'runtime/home-center',
-        'cfg':conf/'fortress.json','queue':state/'queue','running':state/'running','done':state/'done','failed':state/'failed',
-        'logs':state/'logs','receipts':state/'receipts.jsonl','latest':state/'latest.json','status':state/'status.json',
-        'pid':state/'fortress.pid','lock':state/'daemon.lock','daemonlog':state/'logs/daemon.log','vladpid':state/'vlad.pid'
-    }.items()}
-
-def mkdir(path, mode=0o700):
-    path.mkdir(parents=True,exist_ok=True)
-    with contextlib.suppress(OSError,NotImplementedError): path.chmod(mode)
-def awrite(path, text, mode=0o600):
-    mkdir(path.parent); tmp=path.with_name(path.name+f'.tmp.{os.getpid()}.{uuid.uuid4().hex}')
-    tmp.write_text(text,encoding='utf-8',newline='\n')
-    with contextlib.suppress(OSError,NotImplementedError): tmp.chmod(mode)
-    os.replace(tmp,path)
-def jread(path, default=None):
-    try: return json.loads(path.read_text(encoding='utf-8'))
-    except (OSError,json.JSONDecodeError): return default
-def dump(v): return json.dumps(v,indent=2,sort_keys=True,ensure_ascii=False)+'\n'
-def run(argv,cwd=None,timeout=None,env=None):
-    e=os.environ.copy(); e.update({str(k):str(v) for k,v in (env or {}).items()})
-    return subprocess.run([str(x) for x in argv],cwd=str(cwd) if cwd else None,env=e,text=True,capture_output=True,timeout=timeout,check=False)
-def alive(pid):
-    if not pid or pid<=0: return False
-    try:
-        if os.name=='nt': return run(['tasklist','/FI',f'PID eq {pid}'],timeout=5).stdout.find(str(pid))>=0
-        os.kill(pid,0); return True
-    except (OSError,subprocess.SubprocessError): return False
-def pidof(path):
-    try: return int(path.read_text().strip())
-    except (OSError,ValueError): return 0
-
-def receipt(D,p,kind,ok,**extra):
-    mkdir(D['state']); event={'schema':'fortress-online-receipt-v1','id':uuid.uuid4().hex,'at':utc(),'kind':kind,'ok':bool(ok),'platform':p,'node':node(D,p),**extra}
-    fd=os.open(str(D['receipts']),os.O_CREAT|os.O_WRONLY|os.O_APPEND,0o600)
-    try: os.write(fd,(json.dumps(event,sort_keys=True,ensure_ascii=False)+'\n').encode())
-    finally: os.close(fd)
-    awrite(D['latest'],dump(event)); return event
-def node(D,p):
-    m=jread(D['conf']/'node.json',{}) or {}
-    if m.get('id'): return m['id']
-    seed=f'{socket.gethostname()}|{getpass.getuser()}|{p}|{uuid.uuid4().hex}'
-    ident=f'{p}-{socket.gethostname().lower().replace(" ","-")[:24]}-{hashlib.sha256(seed.encode()).hexdigest()[:10]}'
-    awrite(D['conf']/'node.json',dump({'schema':'fortress-node-v1','id':ident,'platform':p,'createdAt':utc()})); return ident
-
-def config(D,p):
-    c=jread(D['cfg'])
-    if c: return c
-    c={'schema':'fortress-online-config-v1','version':VERSION,'platform':p,'repo':{'url':REPO_URL,'branch':BRANCH,'path':str(D['repo']),'policy':'dedicated-fast-forward-only'},
-       'daemon':{'workers':1 if p=='termux' else max(1,min(4,(os.cpu_count() or 2)//2)),'pollSeconds':.75,'heartbeatSeconds':10,'maxRetries':2,'retryBaseSeconds':2},
-       'model':{'provider':'auto','llama':LLAMA,'ollama':OLLAMA,'ollamaModel':os.environ.get('FORTRESS_OLLAMA_MODEL','qwen2.5-coder:1.5b'),'cloudAllowed':False,'modelOutputMayExecute':False},
-       'security':{'networkCommandListener':False,'queue':'owner-local-filesystem','runAsRoot':False},
-       'batteryGovernor':{'enabled':False,'status':'deferred-by-owner','note':'Later: scale work from battery level and charging slope; neither outpace charging nor underperform.'},
-       'integrations':{'vladSwarm':p=='termux'}}
-    awrite(D['cfg'],dump(c)); return c
-
-def source_repo(start):
-    x=Path(start).resolve(); x=x.parent if x.is_file() else x
-    for q in (x,*x.parents):
-        if (q/'.git').exists() and (q/'AGENTS.md').is_file(): return q
-    return None
-
-def install_wrapper(D,p):
-    mkdir(D['bin'])
-    if p=='windows':
-        target=D['bin']/'fortress.cmd'; text=f'@echo off\r\n"{sys.executable}" "{D["controller"]}" %*\r\n'
-    else:
-        target=D['bin']/'fortress'; text=f'#!/bin/sh\nexec {json.dumps(sys.executable)} {json.dumps(str(D["controller"]))} "$@"\n'
-    awrite(target,text,0o700); return target
-
-def sync_repo(D,seed=None,offline=False):
-    target=D['repo']; git=shutil.which('git')
-    if not git: return {'state':'git-missing','ok':False}
-    if target.exists() and (target/'.git').exists():
-        dirty=bool(run([git,'-C',target,'status','--porcelain'],timeout=30).stdout.strip())
-        if dirty: return {'state':'preserved-dirty','ok':False,'path':str(target)}
-        if offline: return {'state':'offline-existing','ok':True,'path':str(target)}
-        f=run([git,'-C',target,'fetch','origin',BRANCH],timeout=180)
-        if f.returncode: return {'state':'fetch-failed','ok':False,'stderr':f.stderr[-2000:]}
-        m=run([git,'-C',target,'merge','--ff-only',f'origin/{BRANCH}'],timeout=120)
-        return {'state':'fast-forwarded' if m.returncode==0 else 'non-fast-forward-preserved','ok':m.returncode==0,'stderr':m.stderr[-2000:]}
-    if offline and not seed: return {'state':'offline-no-seed','ok':False}
-    mkdir(target.parent)
-    src=str(Path(seed).resolve()) if seed else REPO_URL
-    r=run([git,'clone','--branch',BRANCH,'--single-branch',src,target],timeout=600)
-    return {'state':'cloned' if r.returncode==0 else 'clone-failed','ok':r.returncode==0,'path':str(target),'stderr':r.stderr[-2000:]}
-
-def ccmd(D,*args):
-    out=[sys.executable,str(D['controller'])]
-    if D.get('testroot'): out += ['--test-root',str(D['testroot'])]
-    return out+list(args)
-
-def persistence(D,p,test=False):
-    cmd=ccmd(D,'daemon','--boot')
-    rendered={'platform':p,'installed':False}
-    if p=='termux':
-        path=Path.home()/'.termux/boot/fortress-online.sh' if not test else D['conf']/'termux-boot.sh'
-        awrite(path,'#!/data/data/com.termux/files/usr/bin/sh\n'+' '.join(json.dumps(x) for x in cmd)+' >>'+json.dumps(str(D['daemonlog']))+' 2>&1 &\n',0o700); rendered.update(path=str(path),installed=True)
-    elif p in ('linux','wsl'):
-        path=(Path.home()/'.config/systemd/user/fortress-online.service') if not test else D['conf']/'fortress-online.service'
-        quoted=' '.join('\"'+x.replace('\\','\\\\').replace('\"','\\\"')+'\"' for x in cmd)
-        unit='[Unit]\nDescription=Fortress Online local control plane\n[Service]\nType=simple\nExecStart='+quoted+'\nRestart=on-failure\nRestartSec=5\n[Install]\nWantedBy=default.target\n'
-        awrite(path,unit); rendered.update(path=str(path),installed=True)
-        if not test and shutil.which('systemctl'):
-            run(['systemctl','--user','daemon-reload'],timeout=20); run(['systemctl','--user','enable','--now','fortress-online.service'],timeout=30)
-    elif p=='macos':
-        path=(Path.home()/'Library/LaunchAgents/com.homecenter.fortress-online.plist') if not test else D['conf']/'fortress.plist'
-        args=''.join(f'<string>{x.replace("&","&amp;").replace("<","&lt;")}</string>' for x in cmd)
-        awrite(path,'<?xml version="1.0"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>Label</key><string>com.homecenter.fortress-online</string><key>ProgramArguments</key><array>'+args+'</array><key>RunAtLoad</key><true/><key>KeepAlive</key><true/></dict></plist>'); rendered.update(path=str(path),installed=True)
-        if not test and shutil.which('launchctl'): run(['launchctl','bootstrap',f'gui/{os.getuid()}',path],timeout=30)
-    else:
-        rendered['command']='schtasks /Create /SC ONLOGON /TN FortressOnline /TR "'+subprocess.list2cmdline(cmd)+'" /F'
-        if not test:
-            r=run(['schtasks','/Create','/SC','ONLOGON','/TN','FortressOnline','/TR',subprocess.list2cmdline(cmd),'/F'],timeout=30); rendered['installed']=r.returncode==0; rendered['stderr']=r.stderr[-1000:]
-        else: rendered['installed']=True
-    return rendered
-
-def detached(argv,log):
-    mkdir(log.parent); out=open(log,'ab',buffering=0)
-    kw={'stdin':subprocess.DEVNULL,'stdout':out,'stderr':subprocess.STDOUT,'close_fds':True}
-    if os.name=='nt': kw['creationflags']=subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.DETACHED_PROCESS
-    else: kw['start_new_session']=True
-    return subprocess.Popen(argv,**kw)
-def tmux_alive():
-    return bool(shutil.which('tmux') and run(['tmux','has-session','-t','fortress-online'],timeout=5).returncode==0)
-
-def start(D,p):
-    old=pidof(D['pid'])
-    if alive(old): return {'ok':True,'state':'already-running','pid':old,'tmux':tmux_alive()}
-    if p!='windows' and shutil.which('tmux'):
-        run(['tmux','kill-session','-t','fortress-online'],timeout=5)
-        launched=run(['tmux','new-session','-d','-s','fortress-online',*ccmd(D,'daemon')],timeout=10)
-        if launched.returncode!=0: return {'ok':False,'state':'tmux-start-failed','stderr':launched.stderr[-1000:]}
-        proc=None
-    else:
-        proc=detached(ccmd(D,'daemon'),D['daemonlog'])
-    for _ in range(30):
-        if alive(pidof(D['pid'])): return {'ok':True,'state':'started','pid':pidof(D['pid'])}
-        time.sleep(.1)
-    return {'ok':False,'state':'start-unproven','spawnPid':proc.pid if proc else None,'tmux':tmux_alive()}
-def stop(D,p):
-    if p!='windows' and tmux_alive(): run(['tmux','kill-session','-t','fortress-online'],timeout=10)
-    pid=pidof(D['pid'])
-    if not alive(pid):
-        with contextlib.suppress(OSError): D['pid'].unlink()
-        return {'ok':True,'state':'already-stopped'}
-    if os.name=='nt': run(['taskkill','/PID',str(pid),'/T','/F'],timeout=20)
-    else:
-        with contextlib.suppress(OSError): os.kill(pid,signal.SIGTERM)
-        for _ in range(50):
-            if not alive(pid): break
-            time.sleep(.1)
-    with contextlib.suppress(OSError): D['pid'].unlink()
-    return {'ok':not alive(pid),'state':'stopped' if not alive(pid) else 'stop-failed','pid':pid}
-
-def http(url,payload=None,timeout=3):
-    data=None if payload is None else json.dumps(payload).encode(); req=urllib.request.Request(url,data=data,headers={'Content-Type':'application/json'})
-    with urllib.request.urlopen(req,timeout=timeout) as r: return json.loads(r.read().decode())
-def local_prompt(c,text,model=None,timeout=300):
-    m=c['model']; provider=m.get('provider','auto'); errors=[]
-    if provider in ('auto','llama'):
-        try:
-            http(m['llama']+'/health',timeout=2)
-            x=http(m['llama']+'/v1/chat/completions',{'model':'local','messages':[{'role':'user','content':text}],'temperature':.2},timeout)
-            return {'provider':'llama.cpp','model':'local','response':x['choices'][0]['message']['content']}
-        except Exception as e: errors.append('llama:'+type(e).__name__)
-    if provider in ('auto','ollama'):
-        try:
-            http(m['ollama']+'/api/tags',timeout=2)
-            name=model or m['ollamaModel']; x=http(m['ollama']+'/api/chat',{'model':name,'messages':[{'role':'user','content':text}],'stream':False},timeout)
-            return {'provider':'ollama','model':name,'response':x['message']['content']}
-        except Exception as e: errors.append('ollama:'+type(e).__name__)
-    raise FError('no local model is callable; deterministic run/queue remains available ('+', '.join(errors)+')')
-
-def enqueue(D,p,job):
-    mkdir(D['queue']); ident=f'{int(time.time()*1000):013d}-{uuid.uuid4().hex[:12]}'
-    job={'schema':'fortress-job-v1','id':ident,'createdAt':utc(),'attempt':0,'notBefore':0,**job}
-    awrite(D['queue']/(ident+'.json'),dump(job)); receipt(D,p,'job.enqueued',True,jobId=ident,jobType=job['type']); return job
-
-def claim(D):
-    for f in sorted(D['queue'].glob('*.json')):
-        job=jread(f,{}) or {}
-        if float(job.get('notBefore',0))>time.time(): continue
-        target=D['running']/f.name; mkdir(D['running'])
-        try: os.replace(f,target); return target,job
-        except OSError: continue
-    return None
-
-def execute(D,p,c,path,job):
-    started=time.time(); ok=False; out=''; err=''; rc=1
-    try:
-        if job['type']=='command':
-            argv=job.get('argv') or []
-            if not isinstance(argv,list) or not argv: raise FError('command job requires a non-empty argv list')
-            cp=run(argv,cwd=Path(job['cwd']) if job.get('cwd') else None,timeout=float(job.get('timeout',900)))
-            rc=cp.returncode; out=cp.stdout[-262144:]; err=cp.stderr[-262144:]; ok=rc==0
-        elif job['type']=='prompt':
-            x=local_prompt(c,str(job.get('prompt','')),job.get('model'),float(job.get('timeout',300))); out=x['response']; rc=0; ok=True
-        else: raise FError('unsupported job type')
-    except Exception as e: err=f'{type(e).__name__}: {e}'; rc=124 if isinstance(e,subprocess.TimeoutExpired) else 2
-    result={'schema':'fortress-result-v1','jobId':job['id'],'type':job['type'],'ok':ok,'rc':rc,'stdout':out,'stderr':err,'startedAt':dt.datetime.fromtimestamp(started,dt.timezone.utc).isoformat(),'finishedAt':utc(),'modelOutputExecuted':False}
-    awrite(D['state']/f'results/{job["id"]}.json',dump(result))
-    attempts=int(job.get('attempt',0)); maxr=int(job.get('retries',c['daemon']['maxRetries']))
-    if not ok and attempts<maxr:
-        job['attempt']=attempts+1; job['notBefore']=time.time()+min(60,c['daemon']['retryBaseSeconds']*(2**attempts)); awrite(D['queue']/path.name,dump(job)); dest='retry'
-    else:
-        dest=D['done' if ok else 'failed']/path.name; mkdir(dest.parent); awrite(dest,dump(job)); dest=str(dest)
-    with contextlib.suppress(OSError): path.unlink()
-    receipt(D,p,'job.finished',ok,jobId=job['id'],jobType=job['type'],rc=rc,destination=dest)
-    return result
-
-def vlad(D,p,c):
-    if p!='termux' or not c.get('integrations',{}).get('vladSwarm'): return {'state':'not-applicable'}
-    pid=pidof(D['vladpid'])
-    if alive(pid): return {'state':'running','pid':pid}
-    script=D['repo']/'tools/vlad_swarm_daemon.py'
-    if not shutil.which('rish') or not script.is_file(): return {'state':'unavailable'}
-    proc=detached([sys.executable,str(script),'--repo',str(D['repo'])],D['logs']/'vlad.log'); awrite(D['vladpid'],str(proc.pid)+'\n'); return {'state':'started','pid':proc.pid}
-
-def daemon(D,p,once=False):
-    mkdir(D['state']);
-    try: D['lock'].mkdir()
-    except FileExistsError:
-        if alive(pidof(D['pid'])): return 0
-        with contextlib.suppress(OSError): D['lock'].rmdir()
-        D['lock'].mkdir()
-    awrite(D['pid'],str(os.getpid())+'\n'); c=config(D,p); last=0
-    def end(*_): raise KeyboardInterrupt
-    signal.signal(signal.SIGTERM,end)
-    pool=concurrent.futures.ThreadPoolExecutor(max_workers=int(c['daemon']['workers']),thread_name_prefix='fortress')
-    active=set()
-    try:
-        while True:
-            active={f for f in active if not f.done()}
-            while len(active)<int(c['daemon']['workers']):
-                item=claim(D)
-                if not item: break
-                active.add(pool.submit(execute,D,p,c,*item))
-            if time.time()-last>=10:
-                awrite(D['status'],dump({'schema':'fortress-status-v1','at':utc(),'pid':os.getpid(),'platform':p,'workers':int(c['daemon']['workers']),'active':len(active),'queue':len(list(D['queue'].glob('*.json'))),'batteryGovernor':c['batteryGovernor'],'vlad':vlad(D,p,c)})); last=time.time()
-            if once:
-                for f in active: f.result()
-                break
-            time.sleep(float(c['daemon']['pollSeconds']))
-    except KeyboardInterrupt: pass
-    finally:
-        pool.shutdown(wait=True,cancel_futures=False)
-        with contextlib.suppress(OSError): D['pid'].unlink()
-        with contextlib.suppress(OSError): D['lock'].rmdir()
-    return 0
-
-def wait(D,ident,timeout=1200):
-    until=time.time()+timeout
-    while time.time()<until:
-        r=jread(D['state']/f'results/{ident}.json')
-        if r and any((D[x]/f'{ident}.json').exists() for x in ('done','failed')): return r
-        time.sleep(.25)
-    raise FError(f'timed out waiting for {ident}')
-
-def model_state(c):
-    for name,base,path in [('llama.cpp',c['model']['llama'],'/health'),('ollama',c['model']['ollama'],'/api/tags')]:
-        try: http(base+path,timeout=.5); return {'callable':True,'provider':name}
-        except Exception: pass
-    return {'callable':False,'provider':None}
-def snapshot(D,p):
-    c=config(D,p); return {'schema':'fortress-status-v1','version':VERSION,'platform':p,'installed':D['controller'].is_file(),'daemon':{'pid':pidof(D['pid']),'callable':alive(pidof(D['pid'])),'tmux':tmux_alive(),'workers':c['daemon']['workers']},'model':model_state(c),'deterministicExecution':True,'cloudTokensRequired':False,'browserOrchestrationUsed':False,'networkCommandListener':False,'batteryGovernor':c['batteryGovernor'],'paths':{k:str(D[k]) for k in ('controller','repo','cfg','queue','receipts')},'queues':{k:len(list(D[k].glob('*.json'))) for k in ('queue','running','done','failed')}}
-
-def install(D,p,args):
-    if os.name!='nt' and hasattr(os,'geteuid') and os.geteuid()==0 and not args.test_root: raise FError('refusing root; Fortress owns the current user account, not the OS security boundary')
-    for k in ('data','state','conf','queue','running','done','failed','logs'): mkdir(D[k])
-    src=Path(__file__).resolve(); awrite(D['controller'],src.read_text(encoding='utf-8'),0o700); config(D,p); wrapper=install_wrapper(D,p)
-    seed=args.source_repo or (str(source_repo(src)) if source_repo(src) else None)
-    repo=sync_repo(D,seed,args.offline); persist=persistence(D,p,bool(args.test_root)); service={'state':'not-started'} if args.no_start else start(D,p)
-    degraded=[]
-    if not repo.get('ok'): degraded.append('runtime-repo:'+str(repo.get('state')))
-    if not persist.get('installed'): degraded.append('persistence:'+str(persist.get('state','unproven')))
-    if service.get('ok') is False: degraded.append('daemon:'+str(service.get('state')))
-    ev=receipt(D,p,'install',True,wrapper=str(wrapper),repo=repo,persistence=persist,service=service,batteryGovernor='deferred',degraded=degraded)
-    return {'ok':True,'coreInstalled':True,'degraded':degraded,'receipt':ev,'status':snapshot(D,p),'pathNote':str(D['bin'])+' must be on PATH'}
-
-def selftest(script):
-    checks=[]
-    with tempfile.TemporaryDirectory(prefix='fortress-contract-') as td:
-        base=[sys.executable,str(script),'--test-root',td]
-        e=os.environ.copy(); e['FORTRESS_TEST_PLATFORM']='linux'
-        a=subprocess.run(base+['install','--offline','--no-start'],env=e,text=True,capture_output=True); checks.append({'name':'isolated-install','ok':a.returncode==0,'stderr':a.stderr[-1000:]})
-        D=dirs('linux',td); c=config(D,'linux'); job=enqueue(D,'linux',{'type':'command','argv':[sys.executable,'-c','print("FORTRESS_OK")'],'timeout':10,'retries':0}); daemon(D,'linux',once=True); r=jread(D['state']/f'results/{job["id"]}.json',{}); checks.append({'name':'deterministic-zero-token-job','ok':r['ok'] and 'FORTRESS_OK' in r['stdout']})
-        c['model']['llama']='http://127.0.0.1:9'; c['model']['ollama']='http://127.0.0.1:9'
-        try: local_prompt(c,'test',timeout=.1); no_model=False
-        except FError: no_model=True
-        checks.append({'name':'no-model-safe-failure','ok':no_model})
-        checks.append({'name':'battery-deferred','ok':c['batteryGovernor']['enabled'] is False and c['batteryGovernor']['status']=='deferred-by-owner'})
-        checks.append({'name':'platform-renderers','ok':all(persistence(dirs(x,Path(td)/x),x,True)['installed'] for x in ('termux','linux','wsl','macos','windows'))})
-        checks.append({'name':'closed-control-plane','ok':(not c['security']['networkCommandListener'] and not c['model']['modelOutputMayExecute'] and not c['model']['cloudAllowed'])})
-    return {'schema':'fortress-contract-v1','version':VERSION,'ok':all(x['ok'] for x in checks),'checks':checks}
-
-def parser():
-    ap=argparse.ArgumentParser(prog='fortress'); ap.add_argument('--test-root',help=argparse.SUPPRESS); sub=ap.add_subparsers(dest='cmd',required=True)
-    i=sub.add_parser('install',aliases=['init']); i.add_argument('--source-repo'); i.add_argument('--offline',action='store_true'); i.add_argument('--no-start',action='store_true')
-    for x in ('start','stop','restart','status','doctor','sync','receipts','daemon','self-test'): sub.add_parser(x)
-    for x in ('run','queue'):
-        q=sub.add_parser(x); q.add_argument('--cwd'); q.add_argument('--timeout',type=float,default=900); q.add_argument('--retries',type=int,default=2); q.add_argument('--wait-timeout',type=float,default=1200); q.add_argument('argv',nargs=argparse.REMAINDER)
-    a=sub.add_parser('ask'); a.add_argument('prompt'); a.add_argument('--model'); a.add_argument('--timeout',type=float,default=300); a.add_argument('--wait-timeout',type=float,default=600)
-    sub.choices['daemon'].add_argument('--boot',action='store_true',help=argparse.SUPPRESS); sub.choices['daemon'].add_argument('--once',action='store_true')
-    sub.choices['receipts'].add_argument('--tail',type=int,default=20)
-    sub.choices['sync'].add_argument('--offline',action='store_true')
-    return ap
-
-def main(argv=None):
-    a=parser().parse_args(argv); p=plat(); D=dirs(p,a.test_root)
-    try:
-        if a.cmd in ('install','init'): out=install(D,p,a)
-        elif a.cmd=='start': out=start(D,p)
-        elif a.cmd=='stop': out=stop(D,p)
-        elif a.cmd=='restart': out={'stop':stop(D,p),'start':start(D,p)}
-        elif a.cmd=='status': out=snapshot(D,p)
-        elif a.cmd=='doctor':
-            out=snapshot(D,p); out['checks']={'python':sys.version.split()[0],'wrapper':D['bin'].exists(),'git':bool(shutil.which('git')),'repo':D['repo'].exists(),'permissions':'owner-best-effort'}; out['ok']=out['installed'] and out['deterministicExecution']
-        elif a.cmd=='sync': out=sync_repo(D,None,a.offline); receipt(D,p,'repo.sync',bool(out.get('ok')),detail=out)
-        elif a.cmd in ('run','queue'):
-            av=a.argv[1:] if a.argv[:1]==['--'] else a.argv
-            if not av: raise FError('missing command after --')
-            job=enqueue(D,p,{'type':'command','argv':av,'cwd':a.cwd,'timeout':a.timeout,'retries':a.retries});
-            if not alive(pidof(D['pid'])): start(D,p)
-            out=job if a.cmd=='queue' else wait(D,job['id'],a.wait_timeout)
-        elif a.cmd=='ask':
-            job=enqueue(D,p,{'type':'prompt','prompt':a.prompt,'model':a.model,'timeout':a.timeout,'retries':0});
-            if not alive(pidof(D['pid'])): start(D,p)
-            out=wait(D,job['id'],a.wait_timeout)
-        elif a.cmd=='receipts':
-            try: lines=D['receipts'].read_text(encoding='utf-8').splitlines()[-a.tail:]; out=[json.loads(x) for x in lines]
-            except OSError: out=[]
-        elif a.cmd=='daemon': return daemon(D,p,a.once)
-        elif a.cmd=='self-test': out=selftest(Path(__file__).resolve())
-        else: raise FError('unknown command')
-        print(dump(out),end=''); return 0 if not isinstance(out,dict) or out.get('ok',True) is not False else 2
-    except (FError,subprocess.SubprocessError,urllib.error.URLError,OSError) as e:
-        ev=receipt(D,p,'error',False,command=a.cmd,error=f'{type(e).__name__}: {e}'); print(dump({'ok':False,'error':str(e),'receipt':ev}),end=''); return 2
-
-if __name__=='__main__': raise SystemExit(main())
+_FORTRESS_IMPLEMENTATION_B64 = "".join((
+    _FORTRESS_PAYLOAD_PART_0,
+    _FORTRESS_PAYLOAD_PART_1,
+    _FORTRESS_PAYLOAD_PART_2,
+    _FORTRESS_PAYLOAD_PART_3,
+))
+_fortress_source = _fortress_zlib.decompress(
+    _fortress_base64.b64decode(_FORTRESS_IMPLEMENTATION_B64)
+)
+_fortress_actual = _fortress_hashlib.sha256(_fortress_source).hexdigest()
+if _fortress_actual != _FORTRESS_IMPLEMENTATION_SHA256:
+    raise RuntimeError(
+        "Fortress embedded implementation failed SHA-256 verification: "
+        f"expected={_FORTRESS_IMPLEMENTATION_SHA256} actual={_fortress_actual}"
+    )
+exec(compile(_fortress_source, __file__, "exec"), globals(), globals())

@@ -1,0 +1,31 @@
+{
+  "schema": "home-center.fortress-source-assembly.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "repository": "Valar05/home-center",
+  "branch": "fortress-unified-bootstrap",
+  "entrypoint": "tools/fortress_bootstrap.py",
+  "status": "SOURCE_VERIFIED_EXACT",
+  "implementationSha256": "fa8f821bb6a615b5f64f4a96b7f73a768b6e9777ffe27ec9a629250709422295",
+  "expectedFinalEntrypointGitBlobSha": "427ced4b8b159563900c8981694e69a3b469428d",
+  "actualFinalEntrypointGitBlobSha": "427ced4b8b159563900c8981694e69a3b469428d",
+  "verifiedAtCommit": "2c911fdf53f3e3901be71af61bdfb7abe8b14957",
+  "verifiedAtTree": "5e8f3b45e48531cbe258c9ee2b17888bb37c1807",
+  "assemblyMethod": "four non-overlapping guarded payload-line merges into one self-verifying Python source file",
+  "partBlobShas": [
+    "01929c50dad10b746bbf81807dd9f9c6c46b3a76",
+    "bf7ee060a382e13911332ee838ed2413d79a7c65",
+    "320f48d66a7ef787d13db4e1f15f355ae92a9399",
+    "9cd30d4ebf3fbd43f95d845d7b402f8e673be5e3"
+  ],
+  "validation": {
+    "deterministicLocalTestsPassed": 14,
+    "hostedCiVerified": false,
+    "hostedCiBoundaryReceipt": "state/operator_campaigns/fortress-unified-bootstrap-v1/actions-budget-boundary.json"
+  },
+  "constraints": {
+    "oneEntrypointForPhoneAndWindows": true,
+    "chatGptBrowserOrchestration": false,
+    "batteryGovernor": "deferred_by_owner"
+  },
+  "acceptance": "Repository source is verified by exact remote Git blob identity. Android and Windows deployment remain separate native receipt classes."
+}

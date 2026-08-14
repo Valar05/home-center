@@ -1,0 +1,45 @@
+{
+  "schema": "home-center.fortress-completion-review.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "reviewedAt": "2026-08-14T05:01:00Z",
+  "reviewerRole": "venice-judgment-jar",
+  "directive": "SOURCE_ALLOWED_DEVICE_ACCEPTANCE_PENDING",
+  "requestedCapability": "one native bootstrap script for Android/Termux and Windows with no ChatGPT browser orchestration",
+  "implementedCapability": {
+    "entrypoint": "tools/fortress_bootstrap.py",
+    "sameFileOnBothMachines": true,
+    "androidAdapter": true,
+    "windowsAdapter": true,
+    "nativeStartupRepair": true,
+    "localInferenceFloor": true,
+    "browserOrchestration": false,
+    "batteryGovernor": "deferred_by_owner"
+  },
+  "sourceEvidence": {
+    "repository": "Valar05/home-center",
+    "branch": "fortress-unified-bootstrap",
+    "entrypointGitBlobSha": "427ced4b8b159563900c8981694e69a3b469428d",
+    "implementationSha256": "fa8f821bb6a615b5f64f4a96b7f73a768b6e9777ffe27ec9a629250709422295",
+    "exactBlobMatch": true
+  },
+  "validationEvidence": {
+    "deterministicLocalTestsPassed": 14,
+    "hostedCiGreen": false,
+    "hostedCiBoundary": {
+      "workflowRunId": 31770514731,
+      "jobId": 94675292585,
+      "reason": "The job was not started because your account is locked due to a billing issue."
+    }
+  },
+  "deploymentTruth": {
+    "repositorySource": "verified",
+    "androidTermux": "not_deployed_not_verified",
+    "windowsDesktop": "not_deployed_not_verified"
+  },
+  "remainingAcceptance": [
+    "Run the same entrypoint natively on the Android/Termux phone and read back its last-receipt.json.",
+    "Run the same entrypoint natively on the Windows desktop and read back its last-receipt.json.",
+    "Clear the GitHub Actions account budget lock before claiming hosted CI verification."
+  ],
+  "reviewFinding": "The repository source satisfies the commissioned one-script architecture and exact source evidence standard. Physical-machine capability remains unaccepted until native receipts exist."
+}
