@@ -21,6 +21,7 @@ const {synthesizeGeminiArtifact} = require('./gemini_tts_artifact_service');
 const voiceTierPolicy = require('./voice_tier_policy');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
+const {runMotionToDocsScan} = require('./motion_to_docs_service');
 const {
   beginDriveBinaryReadOperation,
   readDriveBinarySessionChunkOperation,
@@ -91,9 +92,9 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-03.voice-tiers-host-file-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-13.motion-to-docs-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
-const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact', 'motion_to_docs_scan']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
 const MCP_LEGACY_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_AUTHORIZATION_SERVER_BASE}/.well-known/oauth-protected-resource`;
@@ -1173,9 +1174,27 @@ function driveIngestFileCatalogInputSchema() {
   };
 }
 
+function motionToDocsCatalogInputSchema() {
+  return {
+    type: 'object',
+    $defs: {OpenAIFile: openAiFileCatalogDefinition()},
+    properties: {
+      requestId: {type: 'string', description: 'Stable idempotency and audit request id.'},
+      file: hostFileUploadInputSchema({description: 'Required top-level Work Mode video upload.'}),
+      mode: {type: 'string', enum: ['perceptual', 'exact'], default: 'perceptual'},
+      distanceThreshold: {type: 'integer', minimum: 0, maximum: 64, default: 6},
+      outputFolderId: {type: 'string', description: 'Optional existing Drive folder. Defaults to the private Motion Scans folder.'},
+      callerNote: {type: 'string', description: 'Optional audit summary.'},
+    },
+    required: ['requestId', 'file'],
+    additionalProperties: false,
+  };
+}
+
 function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
   if (name === 'drive_ingest_file') return driveIngestFileCatalogInputSchema();
   if (name === 'storage_ingest_artifact') return storageIngestArtifactCatalogInputSchema();
+  if (name === 'motion_to_docs_scan') return motionToDocsCatalogInputSchema();
   return mcpToolJsonSchema(schema, pipeStrategy);
 }
 
@@ -6444,6 +6463,15 @@ function homeCenterCapabilitiesPayload(server) {
         verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
       },
       {
+        name: 'motion_to_docs_scan',
+        required: ['requestId', 'file'],
+        inputs: {
+          file: {binding: 'openai/fileParams', type: 'object', required: ['download_url', 'file_id'], optional: ['mime_type', 'file_name']},
+        },
+        maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES,
+        verification: ['host-file SHA-256', 'scanner source SHA-256', 'Google Document Drive readback'],
+      },
+      {
         name: 'storage_ingest_artifact',
         required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
         inputs: {
@@ -6667,6 +6695,47 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const result = await ingestArtifactUploadOperation({admin, user: context.user, args: {...(args || {}), file: uploaded}, recordAudit: recordActionAudit});
     result.filesystem = await projectArtifactOperation({admin, user: context.user, artifactId: result.artifactId, requestId: 'project-' + result.artifactId + '-' + result.destination.sha256.slice(0, 16)});
     return textResult(result);
+  });
+
+  server.registerTool('motion_to_docs_scan', {
+    title: 'Motion video to Google Doc',
+    description: 'Upload one Work Mode video, keep every exact or perceptually unique frame, compose ordered contact sheets, and return the verified Google Document.',
+    inputSchema: {
+      requestId: z.string().describe('Stable idempotency and audit request id.'),
+      file: openAiFileParamZodSchema(z, 'Required top-level Work Mode video file. Paths, handles, raw URLs, Base64 values, refs, and nested descriptors are rejected.'),
+      mode: z.enum(['perceptual', 'exact']).optional().default('perceptual'),
+      distanceThreshold: z.number().int().min(0).max(64).optional().default(6),
+      outputFolderId: z.string().optional().describe('Optional existing Drive folder. Defaults to the private Motion Scans folder.'),
+      callerNote: z.string().optional().describe('Optional audit summary.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES, 'openai/fileParams': ['file']},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'motion_to_docs_scan'});
+    const uploaded = await materializeOpenAiHostFileToTemp(args && args.file, {maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    try {
+      const result = await runMotionToDocsScan({google, admin, auth: context.auth, user: context.user, args: args || {}, uploaded});
+      const audit = await auditWrite(admin, {
+        actor: context.user.email,
+        authKind: context.user.authKind,
+        tool: 'motion_to_docs_scan',
+        operation: 'motion.toDocsScan',
+        requestId: stableRequestId(args && args.requestId),
+        fileId: result.document.id,
+        affectedFileIds: [result.document.id, result.outputFolder.id],
+        oldMetadata: null,
+        newMetadata: {document: result.document, scan: result.scan, input: result.input},
+        oldParents: [],
+        newParents: result.document.parents || [],
+        reversible: false,
+        callerNote: args && args.callerNote,
+        providerSummary: 'Created a verified Motion-to-Docs Google Document.',
+      });
+      return textResult({...result, audit: audit.audit});
+    } finally {
+      await uploaded.cleanup();
+    }
   });
 
   server.registerTool('drive_ingest_file', {

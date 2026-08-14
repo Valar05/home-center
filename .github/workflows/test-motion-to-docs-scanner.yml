@@ -1,0 +1,47 @@
+name: Test Motion-to-Docs Scanner
+
+on:
+  pull_request:
+    paths:
+      - 'services/motion-to-docs-scanner/**'
+      - 'functions/host_file_ingress.js'
+      - 'functions/home_center_mcp.js'
+      - 'contracts/home-center-top-level-mcp.v1.json'
+      - 'tools/*motion*docs*'
+      - '.github/workflows/test-motion-to-docs-scanner.yml'
+  push:
+    branches:
+      - feature/motion-to-docs-scanner
+    paths:
+      - 'services/motion-to-docs-scanner/**'
+      - '.github/workflows/test-motion-to-docs-scanner.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/motion-to-docs-scanner/requirements.txt
+      - name: Install scanner dependencies
+        run: pip install -r services/motion-to-docs-scanner/requirements.txt
+      - name: Run scanner tests
+        run: python -m unittest discover -s services/motion-to-docs-scanner -p 'test_*.py' -v
+      - name: Parse Google Workflow YAML
+        run: |
+          pip install PyYAML==6.0.2
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          workflow = yaml.safe_load(Path('services/motion-to-docs-scanner/workflow.yaml').read_text())
+          assert workflow['main']['params'] == ['args']
+          assert workflow['main']['steps'][-1]['returnResult']['return']['document']['webViewLink']
+          PY
+      - name: Test Work Mode upload contract
+        run: node --test tools/motion_to_docs_contract_test.mjs

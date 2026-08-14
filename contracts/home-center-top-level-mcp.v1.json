@@ -3672,6 +3672,252 @@
   },
   {
     "_meta": {
+      "openai/fileParams": [
+        "file"
+      ],
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Upload one Work Mode video, keep every exact or perceptually unique frame, compose ordered contact sheets, and return the verified Google Document.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$defs": {
+        "OpenAIFile": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "anyOf": [
+                {
+                  "required": [
+                    "download_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "file_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "image_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "url"
+                  ]
+                }
+              ],
+              "properties": {
+                "bytes": {
+                  "type": "number"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "file_url": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "image_url": {
+                  "type": "string"
+                },
+                "mimeType": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "items": {
+                "additionalProperties": false,
+                "anyOf": [
+                  {
+                    "required": [
+                      "download_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "file_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "image_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "url"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "download_url": {
+                    "type": "string"
+                  },
+                  "file_id": {
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "type": "string"
+                  },
+                  "file_url": {
+                    "type": "string"
+                  },
+                  "filename": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "mimeType": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "maxItems": 1,
+              "minItems": 1,
+              "type": "array"
+            }
+          ],
+          "description": "ChatGPT host file supplied through openai/fileParams."
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "description": "Stable idempotency and audit request id."
+        },
+        "file": {
+          "$ref": "#/$defs/OpenAIFile"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "perceptual",
+            "exact"
+          ],
+          "default": "perceptual"
+        },
+        "distanceThreshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64,
+          "default": 6
+        },
+        "outputFolderId": {
+          "type": "string",
+          "description": "Optional existing Drive folder. Defaults to the private Motion Scans folder."
+        },
+        "callerNote": {
+          "type": "string",
+          "description": "Optional audit summary."
+        }
+      },
+      "required": [
+        "requestId",
+        "file"
+      ],
+      "type": "object"
+    },
+    "name": "motion_to_docs_scan",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Motion video to Google Doc"
+  },
+  {
+    "_meta": {
       "securitySchemes": [
         {
           "scopes": [
