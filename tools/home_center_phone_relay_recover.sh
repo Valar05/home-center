@@ -15,6 +15,7 @@ MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-90}"
 STARTUP_WAIT_SECONDS="${HC_PHONE_RELAY_STARTUP_WAIT_SECONDS:-120}"
 PYTHON="${HC_PHONE_PYTHON:-python}"
 RELAY="$ROOT/tools/android_phone_home_center_relay.py"
+RECOVERY_REASON="status_check"
 
 mkdir -p "$STATE_DIR"
 
@@ -69,9 +70,9 @@ wait_for_heartbeat() {
 print_receipt() {
   status="$1"
   pids="$(relay_pids | tr '\n' ' ' | sed 's/[[:space:]]*$//')"
-  "$PYTHON" - "$status" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" <<'PY'
+  "$PYTHON" - "$status" "$RECOVERY_REASON" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" <<'PY'
 import json,os,sys,time
-status,root,relay,pids,heartbeat,log,receipts,latest=sys.argv[1:]
+status,recovery_reason,root,relay,pids,heartbeat,log,receipts,latest=sys.argv[1:]
 now=int(time.time())
 hb={'present':False}
 if os.path.isfile(heartbeat):
@@ -92,6 +93,7 @@ obj={
     'schema':'home-center-phone-relay-recovery-v1',
     'checkedAtEpoch':now,
     'status':status,
+    'recoveryReason':recovery_reason,
     'deviceId':'primary-phone',
     'repo':root,
     'relay':relay,
@@ -112,6 +114,7 @@ PY
 }
 
 if [ ! -f "$RELAY" ]; then
+  RECOVERY_REASON="missing_relay_source"
   say "BLOCKED: relay script missing: $RELAY"
   print_receipt "blocked_missing_relay"
   exit 2
@@ -120,14 +123,18 @@ fi
 if relay_alive; then
   existing_pid="$(relay_pids | head -n1)"
   if heartbeat_ok "$existing_pid"; then
+    RECOVERY_REASON="fresh_home_center_heartbeat"
     say "relay process has a fresh Home Center poll heartbeat"
     printf '%s\n' "$existing_pid" > "$PIDFILE"
     print_receipt "healthy"
     exit 0
   fi
+  RECOVERY_REASON="stale_or_unproven_existing_relay"
   say "relay process exists but Home Center liveness is not proven; attempting bounded recovery"
   for pid in $(relay_pids); do kill "$pid" 2>/dev/null || true; done
   sleep 1
+else
+  RECOVERY_REASON="relay_absent"
 fi
 
 say "starting one fresh relay instance"
