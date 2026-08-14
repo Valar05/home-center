@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "checkpoint_id": "judgment-jars-vlad-fast-access-20260813",
+  "recorded_at": "2026-08-13T00:00:00Z",
+  "commission": {
+    "outcome": "Put every authoritative Judgment Jar into fast access for Vlad and synchronize usage with the Home Center daemon.",
+    "owner": "home-center",
+    "consumer": "vlad",
+    "authoritative_lane": "Home Center Drive v2 and Home Center daemon",
+    "exclusions": [
+      "parallel jar library",
+      "hard-coded incomplete jar list",
+      "Google Drive connector as source truth",
+      "unreceipted jar invocation",
+      "local cache promoted to canon"
+    ]
+  },
+  "capability_state": {
+    "requested": true,
+    "implemented": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "implemented_artifacts": [
+    "config/judgment-jars.v1.json",
+    "functions/judgment_jar_registry.js",
+    "functions/judgment_jar_registry.test.js",
+    "tools/vlad_judgment_jars.py",
+    "tools/vlad_judgment_jars_test.py",
+    ".github/workflows/judgment-jars.yml",
+    "docs/JUDGMENT_JARS_FAST_ACCESS.md"
+  ],
+  "implemented_behavior": [
+    "Dynamic complete-snapshot discovery contract for all authoritative jars",
+    "O(1) canonical-id and normalized-alias lookup backed by SQLite",
+    "Local full-text fallback search",
+    "Loopback-only fast-access HTTP API for Vlad",
+    "Two-phase receipt for every actual jar use",
+    "Output-kind, output-reference, input/output digest, jar-revision, request, worker, campaign, and terminal-status receipts",
+    "Append-only oldest-first receipt outbox",
+    "Offline last-verified-snapshot behavior",
+    "Atomic snapshot import and safe tombstoning only from complete snapshots",
+    "Home Center snapshot compiler and idempotent receipt-ingestion service",
+    "Deterministic Python and Node tests plus a narrow CI workflow"
+  ],
+  "verification_required": [
+    "GitHub branch CI is green",
+    "Home Center daemon source adapter enumerates every current authoritative jar",
+    "Home Center exposes judgment_jars.snapshot and judgment_jars.receipts.ingest through its authenticated existing lane",
+    "Vlad daemon runs on an authorized body with the verified SQLite cache",
+    "Live canary resolves one jar by alias, opens a receipt, closes it with output_kind, and receives Home Center ingest/readback"
+  ],
+  "next_transition": {
+    "state": "tested_then_deployed",
+    "authorized_lane": "Home Center daemon plus Vlad authorized local body",
+    "blocker": "This ChatGPT surface does not expose the callable Home Center daemon/body ingress needed for live deployment and end-to-end receipts.",
+    "do_not_substitute": "Do not claim sync from repository files or CI alone."
+  }
+}

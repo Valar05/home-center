@@ -1,65 +1,33 @@
 {
-  "version": 1,
+  "version": 4,
+  "cockpit": {
+    "title": "Fortress Cockpit",
+    "subtitle": "Phone command center — deterministic, local, config-driven"
+  },
   "places": {
     "home": "$HOME",
     "home-center": "/storage/emulated/0/Documents/GodotProjects/home-center",
     "projects": "/storage/emulated/0/Documents/GodotProjects"
   },
   "intents": [
-    {
-      "name": "fortress-status",
-      "phrases": ["status", "fortress status", "what is alive", "what's alive"],
-      "argv": ["python", "{repo}/tools/fortress_prompt.py", "--self-status"]
-    },
-    {
-      "name": "git-status",
-      "phrases": ["git status", "repo status", "is this dirty"],
-      "argv": ["git", "status", "--short", "--branch"]
-    },
-    {
-      "name": "git-pull",
-      "phrases": ["git pull", "pull", "update this repo"],
-      "argv": ["git", "pull", "--ff-only"]
-    },
-    {
-      "name": "git-clean-preview",
-      "phrases": ["git clean", "clean preview", "what is junk"],
-      "argv": ["git", "clean", "-nd"]
-    },
-    {
-      "name": "phone-relay-status",
-      "phrases": ["phone relay status", "relay status", "is phone relay alive"],
-      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh", "status"]
-    },
-    {
-      "name": "phone-relay-recover",
-      "phrases": ["recover phone relay", "fix phone relay", "relay recover"],
-      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh"]
-    },
-    {
-      "name": "eve-status",
-      "phrases": ["eve status", "weed schedule status", "session status"],
-      "argv": ["{home}/bin/eve-session", "status"]
-    },
-    {
-      "name": "eve-begin",
-      "phrases": ["eve begin", "begin session", "start session"],
-      "argv": ["{home}/bin/eve-session", "begin"]
-    },
-    {
-      "name": "eve-end",
-      "phrases": ["eve end", "end session", "stop session"],
-      "argv": ["{home}/bin/eve-session", "end"]
-    },
-    {
-      "name": "eve-skip",
-      "phrases": ["eve skip", "skip tonight", "skip session"],
-      "argv": ["{home}/bin/eve-session", "skip"]
-    },
-    {
-      "name": "continue-here",
-      "phrases": ["continue here", "code here", "continue"],
-      "argv": ["cn"]
-    }
+    {"name":"fortress-status","phrases":["status","fortress status","what is alive","what's alive"],"argv":["python","{repo}/tools/fortress_prompt.py","--self-status"],"ui":{"label":"Fortress status","group":"Fortress","prominent":true,"description":"Compiler, config, and grammar health"}},
+    {"name":"kernel-status","phrases":["kernel status","phone kernel status","beachhead status","is adam alive"],"argv":["python","{repo}/tools/fortress_phone_kernel.py","status"],"ui":{"label":"Beachhead status","group":"Fortress","prominent":true,"description":"SQLite queue, connectivity, and local orchestration health"}},
+    {"name":"kernel-tick","phrases":["kernel tick","work the queue","advance queue","driver advance"],"argv":["python","{repo}/tools/fortress_phone_kernel.py","tick"],"ui":{"label":"Advance queue","group":"Fortress","prominent":true,"description":"Run one deterministic scheduling pass now"}},
+    {"name":"multimedia-status","phrases":["multimedia status","arsenal status","forge status"],"argv":["python","{repo}/tools/fortress_multimedia.py","status"],"ui":{"label":"Arsenal status","group":"Create","prominent":true,"description":"Profile this device and show available Venice, media, Blender, and game lanes"}},
+    {"name":"multimedia-profile","phrases":["profile device","device profile","use the whole device"],"argv":["python","{repo}/tools/fortress_multimedia.py","profile"],"ui":{"label":"Profile device","group":"Create","description":"CPU, memory, storage, battery, thermal, codecs, and GPU-adjacent capability probe"}},
+    {"name":"combined-arms-plan","phrases":["combined arms","multimedia plan","game generation plan","forge a game"],"argv":["python","{repo}/tools/fortress_multimedia.py","plan"],"ui":{"label":"Combined arms","group":"Create","prominent":true,"description":"Route multimedia game generation across phone, media, Venice, Blender, and fleet GPU lanes"}},
+    {"name":"venice-media-status","phrases":["venice status","venice media status","is venice listening"],"argv":["python","{repo}/tools/fortress_multimedia.py","run","venice-status"],"ui":{"label":"Venice status","group":"Venice","description":"Inspect reactor state; no raw audio or speech recognition"}},
+    {"name":"venice-media-mine","phrases":["mine venice","venice mine","mine audio shape"],"argv":["python","{repo}/tools/fortress_multimedia.py","run","venice-mine"],"ui":{"label":"Mine audio shape","group":"Venice","description":"Summarize recent audio-shape events without retaining raw audio"}},
+    {"name":"multimedia-catalog","phrases":["arsenal","multimedia catalog","show creative tools"],"argv":["python","{repo}/tools/fortress_multimedia.py","catalog"],"ui":{"label":"Creative arsenal","group":"Create","description":"Show registered organs, lanes, and deterministic recipes"}},
+    {"name":"git-status","phrases":["git status","repo status","is this dirty"],"argv":["git","status","--short","--branch"],"ui":{"label":"Repo status","group":"Repository"}},
+    {"name":"git-pull","phrases":["git pull","pull","update this repo"],"argv":["git","pull","--ff-only"],"ui":{"label":"Update repo","group":"Repository"}},
+    {"name":"git-clean-preview","phrases":["git clean","clean preview","what is junk"],"argv":["git","clean","-nd"],"ui":{"label":"Preview junk","group":"Repository","description":"Dry preview only"}},
+    {"name":"phone-relay-status","phrases":["phone relay status","relay status","is phone relay alive"],"argv":["sh","{repo}/tools/home_center_phone_relay_recover.sh","status"],"ui":{"label":"Relay status","group":"Phone","prominent":true}},
+    {"name":"phone-relay-recover","phrases":["recover phone relay","fix phone relay","relay recover"],"argv":["sh","{repo}/tools/home_center_phone_relay_recover.sh"],"ui":{"label":"Recover relay","group":"Phone","description":"Restart the Home Center phone relay"}},
+    {"name":"eve-status","phrases":["eve status","weed schedule status","session status"],"argv":["{home}/bin/eve-session","status"],"ui":{"label":"Eve status","group":"Eve"}},
+    {"name":"eve-begin","phrases":["eve begin","begin session","start session"],"argv":["{home}/bin/eve-session","begin"],"ui":{"label":"Begin window","group":"Eve"}},
+    {"name":"eve-end","phrases":["eve end","end session","stop session"],"argv":["{home}/bin/eve-session","end"],"ui":{"label":"End window","group":"Eve"}},
+    {"name":"eve-skip","phrases":["eve skip","skip tonight","skip session"],"argv":["{home}/bin/eve-session","skip"],"ui":{"label":"Skip tonight","group":"Eve"}},
+    {"name":"continue-here","phrases":["continue here","code here","continue"],"argv":["cn"],"ui":{"label":"Continue here","group":"Coding","prominent":true,"description":"Open the coding CLI in the current context"}}
   ]
 }

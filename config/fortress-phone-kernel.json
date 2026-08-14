@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "stateDir": "$HOME/.local/state/home-center/fortress-phone-kernel",
+  "pollSeconds": 15,
+  "maxConcurrent": 2,
+  "offlineFirst": true,
+  "ollama": {
+    "enabled": false,
+    "role": "fallback-classifier-only",
+    "endpoint": "http://127.0.0.1:11434",
+    "model": "qwen2.5:3b",
+    "timeoutSeconds": 20
+  },
+  "lanes": {
+    "local": {"enabled": true, "priority": 100},
+    "chromium-throne": {"enabled": true, "priority": 80, "requiresNetwork": true},
+    "gemini-free": {"enabled": true, "priority": 70, "requiresNetwork": true, "paidFallback": false},
+    "fleet": {"enabled": true, "priority": 60, "requiresNetwork": true},
+    "ollama": {"enabled": false, "priority": 10, "requiresNetwork": false}
+  },
+  "policies": {
+    "noSilentCloudEscalation": true,
+    "noPaidFallback": true,
+    "requireReceipts": true,
+    "preferDeterministic": true,
+    "persistBeforeDispatch": true,
+    "resumeAfterReboot": true
+  }
+}

@@ -1,0 +1,96 @@
+name: Fortress Cockpit Android
+
+on:
+  pull_request:
+    paths:
+      - 'android/fortress-cockpit/**'
+      - 'tools/fortress_prompt.py'
+      - 'tools/fortress_multimedia.py'
+      - 'tools/fortress_multimedia_test.py'
+      - 'tools/fortress_phone_kernel.py'
+      - 'tools/fortress_phone_kernel_test.py'
+      - 'tools/fortress_cli.py'
+      - 'tools/fortress_read_aloud.py'
+      - 'tools/fortress_read_aloud_test.py'
+      - 'tools/android_phone_status_tts.py'
+      - 'tools/bootstrap_fortress_bridge_fork.ps1'
+      - 'tools/setup_fortress_cockpit.sh'
+      - 'tools/setup_fortress_phone_kernel.sh'
+      - 'skills/daemon-loop/SKILL.md'
+      - 'config/fortress-prompt.json'
+      - 'config/fortress-multimedia.json'
+      - 'config/fortress-phone-kernel.json'
+      - '.github/workflows/fortress-cockpit-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify compiler, phone kernel, CLI, read aloud, multimedia arsenal, and Android build
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py tools/fortress_read_aloud.py tools/fortress_read_aloud_test.py tools/android_phone_status_tts.py
+          python tools/fortress_multimedia_test.py
+          python tools/fortress_phone_kernel_test.py
+          python tools/fortress_read_aloud_test.py
+          HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py --status >/tmp/fortress-cli-status.json
+          HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py -c 'fortress status' >/tmp/fortress-cli-command.txt
+          python tools/fortress_read_aloud.py --doctor >/tmp/fortress-read-doctor.json
+          python - <<'PY'
+          import importlib.util, pathlib
+          p=pathlib.Path('tools/fortress_read_aloud.py')
+          s=importlib.util.spec_from_file_location('r',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          text=('Sentence one. ' * 120).strip()
+          chunks=list(m.chunks_from_text(text))
+          assert chunks and max(map(len,chunks)) <= m.MAX_CHUNK + 1
+          assert ''.join(chunks)
+          tmp=pathlib.Path('/tmp/fortress-read-long.txt')
+          tmp.write_text(('Paragraph words. '*100+'\n\n')*50)
+          count=0
+          for chunk in m.chunks_from_file(str(tmp)):
+              assert len(chunk) <= m.MAX_CHUNK + 1
+              count += 1
+          assert count > 20
+          PY
+          FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py profile >/tmp/fortress-device-profile.json
+          FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py plan >/tmp/fortress-combined-arms-plan.json
+          python -m json.tool config/fortress-prompt.json >/dev/null
+          python -m json.tool config/fortress-multimedia.json >/dev/null
+          python -m json.tool config/fortress-phone-kernel.json >/dev/null
+          bash -n tools/setup_fortress_cockpit.sh tools/setup_fortress_phone_kernel.sh
+          git diff --check
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          export ANDROID_SDK_ROOT="$SDK_ROOT" ANDROID_HOME="$SDK_ROOT"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1)"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+
+          GRADLE_HOME=/tmp/gradle-8.9
+          if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+            curl -fsSL --retry 3 https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+            unzip -q /tmp/gradle.zip -d /tmp
+          fi
+
+          cd android/fortress-cockpit
+          "$GRADLE_HOME/bin/gradle" :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Artifact receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/fortress-cockpit/app/build/outputs/apk/debug/app-debug.apk
+          echo "source=${GITHUB_SHA}"
+          echo "bytes=$(stat -c '%s' "$APK")"
+          echo "sha256=$(sha256sum "$APK" | awk '{print $1}')"

@@ -1,0 +1,267 @@
+{
+  "kind": "fortress.online.campaign-state.v1",
+  "campaign": "fortress-cockpit-combined-arms",
+  "owner": "Drew Clarke",
+  "branch": "feat/fortress-cockpit-android",
+  "pullRequest": 244,
+  "updatedAt": "2026-08-13T19:17:56.787-05:00",
+  "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
+  "constraints": [
+    "phone is sovereign control plane; cloud is optional muscle",
+    "Termux is execution substrate, not the primary UX",
+    "SQLite is local queue/event truth",
+    "Fish/Python deterministic compiler remains the execution grammar",
+    "behavior and controls evolve primarily through config",
+    "offline local jobs continue; network jobs defer durably",
+    "Ollama disabled by default and never used as scheduler or execution truth",
+    "no raw shell hidden behind natural-language commands",
+    "no silent cloud escalation or paid fallback",
+    "browser/Gemini/fleet outputs require deterministic artifact verification",
+    "use phone compute aggressively but thermally humanely",
+    "keep requested, implemented, tested, deployed, callable, delivered, and accepted distinct",
+    "physical phone receipts are required for phone deployment acceptance",
+    "wireless debugging may remain enabled continuously when it provides a durable trusted phone-laptop control network; do not optimize it away merely for CPU/power neatness",
+    "Fortress Bridge should prefer a persistent trusted-WLAN bootstrap relationship and automatic recovery whenever Android-authorized state permits it",
+    "after reboot or Android revocation, any physical action requirement must be represented explicitly as managed bridge state rather than an unexplained rish traceback",
+    "daemon means observe -> compare -> decide -> act if warranted -> verify -> persist -> sleep/backoff -> observe; unchanged state must sleep rather than poll or narrate"
+  ],
+  "capabilityState": {
+    "phoneSovereignKernel": {
+      "requested": true,
+      "implemented": "SQLite WAL job/event kernel, config-driven lane registry, offline deferral, receipts, deterministic tick/daemon, Termux:Boot installer",
+      "tested": "UNKNOWN on current head: GitHub Actions failed at startup before meaningful source-test evidence; native deterministic verification required",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "deterministicPromptCompiler": {
+      "requested": true,
+      "implemented": true,
+      "tested": "UNKNOWN on current head: GitHub Actions failed at startup before meaningful source-test evidence; native deterministic verification required",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "androidCockpit": {
+      "requested": true,
+      "implemented": true,
+      "tested": "UNKNOWN on current head: GitHub Actions failed at startup before meaningful source-test evidence; native deterministic verification required",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "combinedArmsMultimedia": {
+      "requested": true,
+      "implemented": true,
+      "tested": "UNKNOWN on current head: GitHub Actions failed at startup before meaningful source-test evidence; native deterministic verification required",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "veniceReactorIntegration": {
+      "requested": true,
+      "implemented": true,
+      "tested": "existing deterministic reactor present; runtime acceptance pending",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "fleetGpuRouting": {
+      "requested": true,
+      "implemented": "planner/capability routing present",
+      "tested": "live remote reachability not proven",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "chatgptBrowserFreeCompute": {
+      "requested": true,
+      "implemented": "existing Chromium Throne branch is known but not yet wired as a proven phone-kernel adapter on this lineage",
+      "tested": false,
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "geminiFreeCompute": {
+      "requested": true,
+      "implemented": "lane reserved; adapter intentionally blocks until authoritative free-quota worker exists",
+      "tested": false,
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "ollamaFallback": {
+      "requested": true,
+      "implemented": "config gate present, disabled by default; execution lane rejected",
+      "tested": "kernel test asserts disabled/rejected behavior",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "daemonLoopSkill": {
+      "requested": true,
+      "implemented": "skills/daemon-loop/SKILL.md defines transition-driven observe/act/sleep/backoff semantics and daemon_loop_violation",
+      "tested": "loaded by existing all-SKILL discovery contract; dedicated V2 regression integration still pending",
+      "deployed": false,
+      "callable": false,
+      "delivered": true,
+      "accepted": false
+    },
+    "fortressBridge": {
+      "requested": true,
+      "implemented": "Home Center now contains a THECAULDRON bootstrap driver that creates/verifies a genuine GitHub fork, clones it, preserves upstream machinery, applies distinct package/permission/app identity, commits/pushes a fortress-bridge branch, and can build the debug APK. fortress-read now exposes managed bridge status and classifies Server is not running instead of false-green doctor state. Genuine Valar05/Shizuku fork itself is not yet established.",
+      "tested": "managed rish lifecycle regression test is present; GitHub Actions is poisoned at the current head; laptop fork/bootstrap has not executed",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false,
+      "designConstraint": "Genuine fork of RikkaApps/Shizuku under Drew ownership, preserving Binder/server machinery while rebranding identity and managing non-root trusted-WLAN bootstrap/recovery. Continuous wireless debugging is allowed and preferred when it creates a durable phone-laptop network."
+    },
+    "judgmentJarRegistry": {
+      "requested": true,
+      "implemented": "Config-backed v1 registry, Home Center snapshot/receipt service, Vlad SQLite cache and loopback fast-access API, plus regression tests are present in repository source at exact head 6f90f9624ba1090222dab5b982798f0935c43b16.",
+      "tested": "UNKNOWN on current head: Judgment Jars Actions run 31698249761 produced failed job 94440902743 with zero step summaries, so native deterministic verification is still required.",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "persistentRecoveryControls": {
+      "requested": true,
+      "implemented": "Ongoing Android notification surface provides SSH Repair, Relay Repair, and Fortress Status actions without opening Termux. Retired Command Center naming introduced at dd30795297037c6111e3952e34ef7bfa76cfb053 was removed under Drew's binding architecture correction in exact source commit 43fd61566e7592faae40cff4ec9c3c54c680a251.",
+      "tested": "UNKNOWN: source correction is committed, but GitHub Actions remains an untrusted startup-failure lane; native Android build and phone notification/action receipts are required.",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    }
+  },
+  "evidence": {
+    "pullRequest": 244,
+    "headBeforeBeachhead": "0818ead1a483cd4d6c083d46501a6d08eb36e352",
+    "beachheadCommits": [
+      "027b2f98a7a532f705a4478f7d4e662a04faba27",
+      "dda712b70f08d2a05f192496e72a7d72f7591237",
+      "73120b4089ad9e432a105056fc9fc5ff5d0ed4f8",
+      "c07f3cad2d21f23ec08ef8c1690e8fbdd593c2a4",
+      "baea7ea5095f648c1487e05857b0c9cdba18e779",
+      "2add4e09adaf2eb2f673450941823fa698cf9c7e"
+    ],
+    "daemonSkillCommit": "84a21bb4dfed4604c96116f5e062ba55d596b2e7",
+    "bridgeBootstrapDriverCommit": "904b4a3492e13903901822257768e8d9dd93b83c",
+    "bridgeManagedStateCommit": "7f31538ca485e0a9ec4568d8f4c6d40d6767fd13",
+    "bridgeRegressionCommit": "ac312f41d8ad09d3699bbc4d26c4fa1e8c979f97",
+    "ciWiringCommit": "7c0014ad383495a8d1bb6367e5e421619a6d59a0",
+    "bridgeResearch": {
+      "upstreamRepository": "RikkaApps/Shizuku, Apache-2.0, default branch master",
+      "upstreamBootReceiver": "On Android 13+ with WRITE_SECURE_SETTINGS and last launch mode ADB, BootCompleteReceiver enables adb_wifi_enabled and ADB_ENABLED, sets adb_allowed_connection_time to 0, discovers TLS ADB via mDNS, reuses persisted ADB key, and runs Starter.internalCommand through localhost ADB.",
+      "implication": "Fortress Bridge should preserve and instrument this proven boot organ rather than invent another privilege transport."
+    },
+    "latestHead": "43fd61566e7592faae40cff4ec9c3c54c680a251",
+    "ciObservation": "At pre-repair head dd30795297037c6111e3952e34ef7bfa76cfb053, Fortress Cockpit Android 31700135784, Build Android 31700135768, Fortress Prompt 31700135759, Home Center CI 31700135707, and Judgment Jars 31700135757 all completed failure. This repeated poisoned control-plane pattern does not prove source tests executed. Source correction 43fd61566e7592faae40cff4ec9c3c54c680a251 has not been promoted to tested; native deterministic verification still governs.",
+    "ciRunsAtLatestHead": [],
+    "ciAuthority": "GitHub Actions is not an acceptance lane for this campaign while the control plane fails before meaningful execution. Native phone/laptop deterministic receipts govern tested/deployed/callable states.",
+    "judgmentJarRegistrySourceHead": "6f90f9624ba1090222dab5b982798f0935c43b16",
+    "judgmentJarRegistrySourceEvidence": [
+      "config/judgment-jars.v1.json",
+      "functions/judgment_jar_registry.js",
+      "functions/judgment_jar_registry.test.js",
+      "tools/vlad_judgment_jars.py",
+      "tools/vlad_judgment_jars_test.py",
+      "docs/JUDGMENT_JARS_FAST_ACCESS.md",
+      ".github/workflows/judgment-jars.yml"
+    ],
+    "persistentRecoveryControls": {
+      "introducedAt": "dd30795297037c6111e3952e34ef7bfa76cfb053",
+      "hardGate": "Command Center is retired/nonexistent for active architecture.",
+      "correctedAt": "43fd61566e7592faae40cff4ec9c3c54c680a251",
+      "sourcePath": "android/fortress-cockpit/app/src/main/java/com/homecenter/fortresscockpit/FortressNotification.java",
+      "correctedSurface": "Fortress Recovery Controls",
+      "actions": [
+        "SSH Repair",
+        "Relay Repair",
+        "Fortress Status"
+      ]
+    },
+    "ciRunsAtPreRepairHead": [
+      {
+        "name": "Fortress Cockpit Android",
+        "runId": 31700135784,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Build Android",
+        "runId": 31700135768,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Fortress Prompt",
+        "runId": 31700135759,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Home Center CI",
+        "runId": 31700135707,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Judgment Jars",
+        "runId": 31700135757,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      }
+    ],
+    "adamCliPhoneRecovery": {
+      "observedAt": "2026-08-13T19:17:56.787-05:00",
+      "pr244Head": "2358355f3df3b60e25019b668ddb2edc8f353061",
+      "phoneRegistryLastSeenAtMs": 1786627600085,
+      "registryVerdict": "STALE_DO_NOT_TRUST_ONLINE_LABEL",
+      "expiredTicket": {
+        "commandId": "fortress-adam-hands-inspect-20260813-v1",
+        "status": "queued",
+        "leaseOwner": "",
+        "result": null,
+        "retryForbidden": true
+      },
+      "recoveryInventory": {
+        "ticketId": "hands-adam-cli-phone-poller-inventory-20260813-v1",
+        "status": "completed",
+        "exitCode": 0,
+        "pixelAdbEndpoint": "192.168.1.3:36667",
+        "pixelAdbState": "device",
+        "tailscalePeer": "pixel-10-pro-xl",
+        "tailscaleAddress": "100.117.17.119"
+      },
+      "pollerObservation": {
+        "ticketId": "hands-adam-cli-phone-poller-observe-20260813-v1",
+        "status": "cancelled",
+        "reason": "No result or progress update after bounded 10s, 20s, 40s, and 60s observation backoff.",
+        "capabilityPromotion": false
+      }
+    }
+  },
+  "nextAction": "Use the verified attached-phone ADB route only to reobserve or restore the existing Phone Hands/Termux poller without visible UI. Require a newer lastSeenAtMs plus an exact claimed/completed Phone Hands receipt before enqueueing exactly one new idempotent read-only phone_shell inspection. Never retry fortress-adam-hands-inspect-20260813-v1 and do not create a parallel conductor.",
+  "blockedBy": [
+    "genuine Valar05/Shizuku fork bootstrap has not yet executed on THECAULDRON",
+    "current worker surface still does not expose the existing Home Center/Computer Hands invocation operation directly",
+    "kernel not installed on primary phone",
+    "Cockpit not installed on primary phone",
+    "physical-phone bridge/playback acceptance still pending",
+    "GitHub Actions control plane remains poisoned; the last observed five workflows failed without trustworthy source-execution evidence, so native verification is required for exact head 43fd61566e7592faae40cff4ec9c3c54c680a251",
+    "Primary phone is reachable over ADB/Tailscale, but the Home Center Phone Hands heartbeat remains stale and the bounded poller observation was cancelled without a result; no installed/callable Adam CLI state may be promoted."
+  ],
+  "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence. Daemon loops back off and sleep on unchanged state instead of hammering connectors."
+}
