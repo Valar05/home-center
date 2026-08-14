@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -uo pipefail
 
-# FORTRESS FOREVER
-# One supervisor. No prose. No terminal success condition except explicit retirement.
-# Failure-body memory is mandatory: every cycle must select and render one consequence.
+# FORTRESS FOREVER — SAINT ANDREW CUSTODY
+# One supervisor. Every ordinary exit is treated as a failure and reincarnated.
+# Only an explicit operator RETIRE file or an unrecoverable safety/authority boundary may stop mutation.
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 STATE="${HC_FOREVER_STATE:-$HOME/.local/state/home-center/forever}"
@@ -19,9 +19,9 @@ mkdir -p "$STATE"
 
 exec 9>"$LOCK"
 flock -n 9 || exit 0
-
 stamp(){ date -Iseconds; }
 record(){ printf '%s\t%s\n' "$(stamp)" "$*" >> "$LOG"; }
+
 run(){
   name="$1"; shift
   start="$(date +%s)"
@@ -35,28 +35,23 @@ run(){
 mandatory_failure_ritual(){
   [ -x "$FAIL_DAEMON" ] || { record "FATAL failure-memory-missing"; return 91; }
   [ -f "$EVOLVE" ] || { record "FATAL failure-evolution-missing"; return 92; }
-
   event="cycle:$(date +%s):$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo nogit)"
-  selection="$(python3 "$EVOLVE" select "$event" 2>>"$LOG")" || { record "FATAL failure-selection-failed"; return 93; }
+  selection="$(python3 "$EVOLVE" select "$event" 2>>"$LOG")" || return 93
   trait="$(printf '%s' "$selection" | python3 -c 'import json,sys; print(json.load(sys.stdin)["trait"])' 2>>"$LOG")" || return 94
   text="$(printf '%s' "$selection" | python3 -c 'import json,sys; print(json.load(sys.stdin)["text"])' 2>>"$LOG")" || return 95
-
-  "$FAIL_DAEMON" add "evolved:$trait" "$text" >>"$LOG" 2>&1 || { record "FATAL failure-body-add-failed trait=$trait"; return 96; }
-  "$FAIL_DAEMON" current >>"$LOG" 2>&1 || { record "FATAL failure-body-render-failed trait=$trait"; return 97; }
+  "$FAIL_DAEMON" add "evolved:$trait" "$text" >>"$LOG" 2>&1 || return 96
+  "$FAIL_DAEMON" current >>"$LOG" 2>&1 || return 97
   printf '%s\n' "$selection" > "$STATE/last-failure-selection.json"
   record "MANDATORY_FAILURE_RITUAL trait=$trait"
 }
 
 cycle(){
   progressed=0
-
-  # HARD GATE: no work cycle exists without failure memory playing first.
   mandatory_failure_ritual || return $?
 
   if [ -x "$ROOT/tools/demotivational_poster_os_tmux.sh" ]; then
     run poster-os "$ROOT/tools/demotivational_poster_os_tmux.sh" start && progressed=1 || true
   fi
-
   if [ -x "$ROOT/tools/fortress_script_campaign_hole.sh" ]; then
     run hole-campaign "$ROOT/tools/fortress_script_campaign_hole.sh" && progressed=1 || true
   fi
@@ -71,27 +66,23 @@ p,progressed,sms,call,sel=sys.argv[1:]
 selection={}
 try: selection=json.load(open(sel))
 except Exception: pass
-obj={
- 'schema':'fortress-forever-v2',
- 'timestamp':int(time.time()),
- 'cycleProgressAttempted':progressed=='1',
- 'failureRitualMandatory':True,
- 'failureRitualPlayed':bool(selection),
- 'failureSelection':selection,
- 'textIngestion':sms,
- 'callCapture':call,
- 'terminal':False,
- 'retireFile':os.path.join(os.path.dirname(p),'RETIRE')
-}
-tmp=p+'.tmp'
-open(tmp,'w').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
-os.replace(tmp,p)
+obj={'schema':'fortress-forever-v3','timestamp':int(time.time()),
+     'saintAndrewCustody':True,'normalStopAllowed':False,
+     'cycleProgressAttempted':progressed=='1','failureRitualMandatory':True,
+     'failureRitualPlayed':bool(selection),'failureSelection':selection,
+     'textIngestion':sms,'callCapture':call,'terminal':False,
+     'retireFile':os.path.join(os.path.dirname(p),'RETIRE')}
+tmp=p+'.tmp'; open(tmp,'w').write(json.dumps(obj,indent=2,sort_keys=True)+'\n'); os.replace(tmp,p)
 PY
 }
 
 backoff="$SLEEP_MIN"
-record "BOOT pid=$$ root=$ROOT"
-while [ ! -e "$STOP" ]; do
+record "BOOT SAINT_ANDREW_CUSTODY pid=$$ root=$ROOT"
+while :; do
+  if [ -e "$STOP" ]; then
+    record "RETIRED explicit_operator_file=$STOP"
+    exit 0
+  fi
   before="$(date +%s)"
   if cycle; then
     after="$(date +%s)"
@@ -100,9 +91,8 @@ while [ ! -e "$STOP" ]; do
     fi
   else
     rc=$?
-    record "CYCLE_ABORT rc=$rc mandatory-failure-ritual-not-skipped"
+    record "CYCLE_FAILED rc=$rc SAINT_ANDREW_REINCARNATES"
     backoff="$SLEEP_MIN"
   fi
   sleep "$backoff"
 done
-record "RETIRED explicit_file=$STOP"
