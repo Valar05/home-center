@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import importlib.util
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location("venice_garden", HERE / "venice_garden.py")
 vg = importlib.util.module_from_spec(SPEC)
+sys.modules["venice_garden"] = vg
 SPEC.loader.exec_module(vg)
 
 
