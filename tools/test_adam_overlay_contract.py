@@ -90,6 +90,12 @@ assert 'local_exec_plan' not in router
 
 assert "'operator_overlay_build_install'" in phone_relay
 assert "if k in OVERLAY_ACTIONS:return overlay_execute(a)" in phone_relay
+recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
+assert "pm uninstall" not in recovery
+assert "pm install -r -d '$PRIOR_APK'" in recovery
+assert "OLD_APK_SHA" in recovery
+assert "RESTORED_APK_SHA" in recovery
+assert "installed APK hash did not match preserved prior" in recovery
 assert "def build_install()" in overlay_driver
 assert "['bash', str(RECOVERY_SCRIPT)]" in overlay_driver
 assert "env['HC_FORCE_BUILD'] = '1'" in overlay_driver
