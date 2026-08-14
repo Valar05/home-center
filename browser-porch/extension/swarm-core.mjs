@@ -28,6 +28,11 @@ export const WORKER_DOCTRINE = Object.freeze({
   harrowayConsultationRequired: true,
   sheRawMotivationRequired: true,
   narratedContinuationForbidden: true,
+  competenceInvocationIndependent: true,
+  mvpBeforeEmpire: true,
+  oneActiveCriticalPath: true,
+  contextBudgetIsOperationalResource: true,
+  promiseInflationForbidden: true,
 });
 
 export function newJob(text, campaignContext, fresh = false, source = 'manual', id = '') {
