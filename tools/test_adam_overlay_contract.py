@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 service = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java").read_text(encoding="utf-8")
 state = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java").read_text(encoding="utf-8")
+receiver = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OverlayUpdateReceiver.java").read_text(encoding="utf-8")
 provider = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorStateProvider.java").read_text(encoding="utf-8")
 daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
@@ -14,6 +15,8 @@ phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
 chromium = (ROOT / "tools/android_chromium_control.py").read_text(encoding="utf-8")
 recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
 relay_recovery = (ROOT / "tools/home_center_phone_relay_recover.sh").read_text(encoding="utf-8")
+relay = (ROOT / "tools/android_phone_home_center_relay.py").read_text(encoding="utf-8")
+overlay_helper = (ROOT / "tools/android_operator_overlay.py").read_text(encoding="utf-8")
 
 # Dormant explicit-mode plumbing is deliberately preserved for minimum-risk surgery,
 # but the visible Beard surface is one natural-language input with AUTO routing.
@@ -53,6 +56,26 @@ for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
+
+# General status/message updates are not Home Center liveness. Only the dedicated
+# relay-derived heartbeat may advance last_heartbeat_ms.
+update_text_start = state.index('static void updateText(')
+heartbeat_start = state.index('static void heartbeat(', update_text_start)
+update_text_body = state[update_text_start:heartbeat_start]
+assert 'KEY_LAST_HEARTBEAT_MS' not in update_text_body
+assert 'KEY_LAST_HEARTBEAT_MS' in state[heartbeat_start:]
+for token in [
+    'ACTION_HOME_CENTER_HEARTBEAT',
+    'com.homecenter.operatoroverlay.HOME_CENTER_HEARTBEAT',
+    'OperatorState.heartbeat(context, now)',
+    'Deliberately no-op: process/worker liveness is not Home Center relay liveness.',
+]:
+    assert token in receiver, f"receiver missing HC heartbeat truth contract {token}"
+assert "ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HOME_CENTER_HEARTBEAT'" in overlay_helper
+pull_idx = relay.index("pulled=http('/pull'")
+relay_heartbeat_idx = relay.index('overlay_heartbeat()', pull_idx)
+assert relay_heartbeat_idx > pull_idx
+assert 'Only a successful Home Center pull earns the UI\'s HC-online heartbeat.' in relay
 
 # Deterministic, no-inference quick ops available through the existing overlay request path.
 # Home Center relay recovery and overlay package recovery are distinct operations.
@@ -191,4 +214,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam one-input Beard / HC recovery / Chromium v2 / Night Core / durable-delivery contract: PASS")
+print("Adam one-input Beard / HC relay truth + recovery / Chromium v2 / Night Core / durable-delivery contract: PASS")
