@@ -13,6 +13,7 @@ reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
 chromium = (ROOT / "tools/android_chromium_control.py").read_text(encoding="utf-8")
 recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
+relay_recovery = (ROOT / "tools/home_center_phone_relay_recover.sh").read_text(encoding="utf-8")
 
 # Dormant explicit-mode plumbing is deliberately preserved for minimum-risk surgery,
 # but the visible Beard surface is one natural-language input with AUTO routing.
@@ -54,9 +55,12 @@ for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"
     assert token in provider, f"provider missing {token}"
 
 # Deterministic, no-inference quick ops available through the existing overlay request path.
+# Home Center relay recovery and overlay package recovery are distinct operations.
 for token in [
     'deterministicTerminalAlias',
+    'bash tools/fortress_phone_ops.sh home-center-recover',
     'bash tools/fortress_phone_ops.sh overlay-restart',
+    'key.equals("turn hc on")',
     'bash tools/fortress_phone_ops.sh status',
     'bash tools/fortress_phone_ops.sh chrome-open',
     'bash tools/fortress_phone_ops.sh chrome-reload',
@@ -64,10 +68,13 @@ for token in [
 ]:
     assert token in state, f"state missing deterministic quick op {token}"
 
-# Phone-ops v2 delegates Chromium truth to the dedicated observed-state controller.
+# Phone-ops v2 delegates recovery and Chromium truth to their established bounded bodies.
 for token in [
     'fortress.phone-ops.v2',
     'android_chromium_control.py',
+    'home_center_recover()',
+    'RELAY_RECOVER="$ROOT/tools/home_center_phone_relay_recover.sh"',
+    'home-center-recover|restart-hc|turn-hc-on|restart',
     'chrome_open()',
     'chrome_reload()',
     'chrome_back()',
@@ -75,6 +82,15 @@ for token in [
     'exec python3 "$CHROMIUM" canary',
 ]:
     assert token in phone_ops, f"phone ops missing {token}"
+for token in [
+    'home-center-phone-relay-recovery-v1',
+    'phone-relay-recovery-receipts.jsonl',
+    'phone-relay-recovery-latest.json',
+    'fresh_home_center_heartbeat',
+    'stale_or_unproven_existing_relay',
+    'wait_for_heartbeat',
+]:
+    assert token in relay_recovery, f"relay recovery missing receipt-backed contract {token}"
 for token in [
     'fortress.android-chromium-control.v1',
     'fortress.android-chromium-canary.v1',
@@ -103,7 +119,7 @@ for token in [
 ]:
     assert token in phone_ops, f"Night Core phone policy missing {token}"
 night_start = phone_ops.index('night_status()')
-night_end = phone_ops.index('overlay_restart()', night_start)
+night_end = phone_ops.index('home_center_recover()', night_start)
 night_body = phone_ops[night_start:night_end]
 assert 'android_chromium_control.py' not in night_body
 assert 'screencap' not in night_body
@@ -175,4 +191,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam one-input Beard / Chromium v2 / Night Core / durable-delivery contract: PASS")
+print("Adam one-input Beard / HC recovery / Chromium v2 / Night Core / durable-delivery contract: PASS")
