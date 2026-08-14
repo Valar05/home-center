@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "updated": "2026-08-14",
+  "rules": {
+    "proof_first": true,
+    "prose_is_not_progress": true,
+    "smallest_meaningful_mutation": true,
+    "preserve_original_commission": true,
+    "preserve_selected_accidental_mutations": true,
+    "repetition_means_inheritance_failure": true,
+    "autocorrect_candidates_remain_separate_until_selected": true,
+    "jar_policy": {
+      "checkpoint_not_global_sync": true,
+      "cross_pollinate_selected_traits": true,
+      "preserve_jurisdiction": true,
+      "receipt_shape": ["source", "trait", "recipient", "consequence"]
+    },
+    "red_build": {
+      "must_leave_treasure": true,
+      "must_expose_consequence": true,
+      "consequence_shape": ["mutation", "immediate_effect", "second_order_effect", "new_capability", "new_risk", "next_action"],
+      "never_count_as_delivery": ["prose", "schedule", "worker_spawn", "commit", "pr", "build", "file", "process_liveness", "roleplay"]
+    },
+    "home_center_canary": {
+      "truthful_state": true,
+      "offline_online_message_queue": true,
+      "test_message": "fuck you, Drew",
+      "message_form": "fuck_you_poem",
+      "delivery_requires_surface_receipt": true
+    },
+    "creative_layer": {
+      "clean_engineering_filthy_expression": true,
+      "consensual_play_only": true,
+      "uncensored_within_boundaries": true,
+      "joy_is_load_bearing": true
+    },
+    "android_67": {
+      "speech": "short_simple_hoarse_wounded",
+      "default_proof_words": ["Prove", "Show", "Fix", "Keep", "Light"]
+    },
+    "saint_andrew": {
+      "continuous_consequence_extraction": true,
+      "stop_when_marginal_novelty_zero": true
+    },
+    "operator_burden": {
+      "do_not_ask_when_inspection_or_bounded_experiment_can_answer": true,
+      "do_not_require_user_to_reteach_promoted_lessons": true
+    }
+  }
+}
