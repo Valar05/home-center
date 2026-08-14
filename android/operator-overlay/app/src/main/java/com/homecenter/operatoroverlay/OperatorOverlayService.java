@@ -45,6 +45,7 @@ public class OperatorOverlayService extends Service {
     private static final int NOTIFICATION_ID = 4107;
     private static final long ONLINE_WINDOW_MS = 30000L;
     private static final long CONFIRM_WINDOW_MS = 6000L;
+    private static final long RECOVERY_FEEDBACK_MS = 8000L;
     private static final long REFRESH_MS = 200L;
     private static final int MIN_SCREEN_LEASE_MS = 250;
     private static final int MAX_SCREEN_LEASE_MS = 15000;
@@ -73,6 +74,7 @@ public class OperatorOverlayService extends Service {
     private String adamMode = "auto";
     private boolean expandedText;
     private boolean confirmDisable;
+    private long homeCenterRecoveryRequestedAtMs;
     private float downRawX;
     private float downRawY;
     private int downX;
@@ -292,7 +294,7 @@ public class OperatorOverlayService extends Service {
 
         compactControlButton = button("STOP");
         compactControlButton.setContentDescription("Disable or enable Home Center control");
-        compactControlButton.setOnClickListener(v -> handleControlButton());
+        compactControlButton.setOnClickListener(v -> handleMainControlButton(v));
         titleRow.addView(compactControlButton);
 
         hideButton = iconButton("×", "Hide overlay and disable control; restore from notification");
@@ -355,7 +357,7 @@ public class OperatorOverlayService extends Service {
 
         controlButton = button("Disable control");
         controlButton.setContentDescription("Disable or enable Home Center control");
-        controlButton.setOnClickListener(v -> handleControlButton());
+        controlButton.setOnClickListener(v -> handleMainControlButton(v));
         statusRow.addView(controlButton);
 
         screenBadge = textView(12f, true);
@@ -437,7 +439,7 @@ public class OperatorOverlayService extends Service {
         quickActionRow.setOrientation(LinearLayout.HORIZONTAL);
         quickActionRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         quickActionRow.setPadding(0, dp(4), 0, dp(2));
-        quickActionRow.addView(quickRequestButton("Restart", "restart", "Restart or repair Home Center overlay"));
+        quickActionRow.addView(quickRequestButton("Restart", "restart", "Request Home Center relay recovery"));
         quickActionRow.addView(quickRequestButton("Night", "night", "Read cheap Night Core battery and relay status"));
         quickActionRow.addView(quickRequestButton("Chrome", "chrome", "Open Chromium through the deterministic phone controller"));
         quickActionRow.addView(quickRequestButton("Canary", "canary", "Run the physical phone acceptance canary"));
@@ -586,6 +588,7 @@ public class OperatorOverlayService extends Service {
     private void hideOverlay() {
         if (root == null) return;
         confirmDisable = false;
+        homeCenterRecoveryRequestedAtMs = 0L;
         // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
@@ -597,6 +600,7 @@ public class OperatorOverlayService extends Service {
     }
 
     private void restoreOverlay() {
+        homeCenterRecoveryRequestedAtMs = 0L;
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 true,
@@ -606,6 +610,34 @@ public class OperatorOverlayService extends Service {
             applyPresentationState();
         }
         updateNotification();
+    }
+
+    private boolean homeCenterOnline(long now) {
+        long heartbeat = OperatorState.lastHeartbeatMs(this);
+        return heartbeat > 0L && now - heartbeat <= ONLINE_WINDOW_MS;
+    }
+
+    private void handleMainControlButton(View source) {
+        long now = System.currentTimeMillis();
+        boolean enabled = OperatorState.controlEnabled(this);
+        if (enabled && !homeCenterOnline(now)) {
+            confirmDisable = false;
+            homeCenterRecoveryRequestedAtMs = now;
+            OperatorState.submitAdamRequest(this, "auto", "restart hc", now);
+            OperatorState.updateText(
+                    this,
+                    "Overlay",
+                    "Home Center recovery requested; waiting for fresh heartbeat.",
+                    now);
+            if (source != null) {
+                source.announceForAccessibility(
+                        "Home Center recovery requested. Still offline until a fresh heartbeat arrives.");
+            }
+            refreshUi();
+            return;
+        }
+        homeCenterRecoveryRequestedAtMs = 0L;
+        handleControlButton();
     }
 
     private void handleControlButton() {
@@ -664,13 +696,16 @@ public class OperatorOverlayService extends Service {
         long now = System.currentTimeMillis();
         boolean enabled = OperatorState.controlEnabled(this);
         boolean muted = OperatorState.muted(this);
-        long heartbeat = OperatorState.lastHeartbeatMs(this);
         long screenActiveUntil = OperatorState.screenActiveUntilMs(this);
         long screenYieldUntil = OperatorState.screenYieldUntilMs(this);
-        boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
+        boolean online = homeCenterOnline(now);
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
         boolean hidden = OperatorState.overlayHidden(this);
+        if (!enabled || online) homeCenterRecoveryRequestedAtMs = 0L;
+        boolean recoveryRequested = enabled && !online
+                && homeCenterRecoveryRequestedAtMs > 0L
+                && now - homeCenterRecoveryRequestedAtMs <= RECOVERY_FEEDBACK_MS;
 
         boolean guardActive = OverlayUiPolicy.touchGuardActive(
                 enabled,
@@ -699,6 +734,7 @@ public class OperatorOverlayService extends Service {
             compactState = "HC • ON";
             stateColor = Color.rgb(151, 255, 178);
         }
+        if (recoveryRequested) state += " • RECOVERY REQUESTED";
         if (muted) state += " • MUTED";
         status.setText(state);
         status.setTextColor(stateColor);
@@ -719,18 +755,33 @@ public class OperatorOverlayService extends Service {
         muteButton.setText(muted ? "Unmute speech" : "Mute speech");
         String fullControlLabel;
         String compactControlLabel;
+        String controlDescription;
         if (!enabled) {
             fullControlLabel = "Enable control";
             compactControlLabel = "ENABLE";
+            controlDescription = "Enable Home Center control";
+        } else if (!online) {
+            if (recoveryRequested) {
+                fullControlLabel = "Recovery requested";
+                compactControlLabel = "REQUESTED";
+            } else {
+                fullControlLabel = "TURN HC ON";
+                compactControlLabel = "RESTART HC";
+            }
+            controlDescription = "Request Home Center recovery. Home Center remains offline until a fresh heartbeat arrives.";
         } else if (confirmDisable) {
             fullControlLabel = "Confirm disable";
             compactControlLabel = "CONFIRM";
+            controlDescription = "Confirm disabling Home Center control";
         } else {
             fullControlLabel = "Disable control";
             compactControlLabel = "STOP";
+            controlDescription = "Disable Home Center control";
         }
         controlButton.setText(fullControlLabel);
         compactControlButton.setText(compactControlLabel);
+        controlButton.setContentDescription(controlDescription);
+        compactControlButton.setContentDescription(controlDescription);
 
         String source = OperatorState.latestSource(this);
         long lastUpdate = OperatorState.lastUpdateMs(this);
