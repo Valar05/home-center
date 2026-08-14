@@ -126,7 +126,10 @@ final class OperatorState {
         String key = exact.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
         String urlAlias = prefixedUrlAlias(exact, exact.toLowerCase(Locale.ROOT));
         if (!urlAlias.isEmpty()) return urlAlias;
-        if (key.equals("restart") || key.equals("restart hc") || key.equals("restart home center") || key.equals("restart overlay") || key.equals("repair overlay")) {
+        if (key.equals("restart") || key.equals("restart hc") || key.equals("restart home center") || key.equals("turn hc on") || key.equals("turn home center on")) {
+            return "bash tools/fortress_phone_ops.sh home-center-recover";
+        }
+        if (key.equals("restart overlay") || key.equals("repair overlay")) {
             return "bash tools/fortress_phone_ops.sh overlay-restart";
         }
         if (key.equals("status") || key.equals("phone status") || key.equals("fortress status")) {
