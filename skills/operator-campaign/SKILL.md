@@ -18,6 +18,16 @@ Every campaign must provide, where materially applicable:
 8. **Continuing operations** — health/status, recovery controls, accumulated reviewer memory, and useful monitoring remain available after the first successful run.
 9. **Control surface** — on the Android phone, the persistent Home Center notification is a menu for campaigns and recovery. It must include a path to resume/status campaigns, recover Phone Hands, and turn the Adam overlay back on.
 10. **Idempotence** — rerunning the campaign should converge toward healthy state rather than duplicate side effects or require new instructions.
+11. **Operator-owned process isolation** — long-running work must not capture Drew's shell. The operator-facing launcher must return control promptly, persist the commission before launch, supervise work in a separate process group/session, and provide an out-of-band kill path that survives loss or freezing of the launching Termux tab.
+12. **Visible liveness** — immediately identify the run and expose status, phase, heartbeat age, elapsed time, last meaningful action, log, and receipt path. Silence from an inference worker must not look like a dead tool.
+13. **Stop means stop** — STOP must target the entire worker process tree, escalate TERM to KILL after a bounded grace period, and remain callable from another shell/control surface. Ctrl-C while merely following logs must detach the viewer without killing the campaign.
+14. **Prompt transport safety** — naked prose is never a shell handoff. Any bootstrap/recovery transport must fail closed, terminate cleanly, and be canary-tested against quotes, apostrophes, Unicode, dollar signs, command-substitution-looking text, multiline content, and truncated input. Payload text must remain inert shell data.
+15. **Canary before acceptance** — the installed phone surface must prove process isolation and out-of-band kill behavior before declaring READY. A launcher that can strand the operator in an unresponsive Termux tab is not deployable.
+
+## Phone Adam acceptance
+Bare `adam "commission"` is an operator submission action, not a foreground worker. It must durably record the commission, start supervised work, print a run identity and controls, and return the shell. `adam --status`, `adam --follow`, `adam --stop`, `adam --resume`, and `adam --receipts` are first-class operator controls. The same essential controls must be reachable through the existing Home Center operator surface; they are not secret debugging incantations.
+
+A frozen or abandoned Termux tab must not own the campaign. Opening another tab and issuing STOP/STATUS/RESUME must remain sufficient because the durable state and process-group identity live outside the original shell.
 
 ## Checkpoint continuation
 
@@ -42,7 +52,7 @@ A fresh worker must consume the latest durable checkpoint before acting and pres
 `STOP_ALLOWED` remains the campaign-level stopping gate. A worker may yield at a checkpoint before `STOP_ALLOWED`, but the campaign remains explicitly open and resumable until Venice permits actual stopping or Drew changes/cancels the mission.
 
 ## Acceptance
-A campaign is not accepted merely because its immediate task passed or a worker reached a checkpoint. It must prove that the stable entrypoint, durable state/history, checkpoint/resume path, recovery path, status/control surface, and future rerun behavior exist and remain callable. True campaign completion still requires the applicable Venice stop review.
+A campaign is not accepted merely because its immediate task passed or a worker reached a checkpoint. It must prove that the stable entrypoint, durable state/history, checkpoint/resume path, recovery path, status/control surface, future rerun behavior, process isolation, and out-of-band stop path exist and remain callable. True campaign completion still requires the applicable Venice stop review.
 
 ## Compact law
-Do not hand Drew a command. Leave him a machine that keeps helping. Work in bounded checkpoints; yield workers freely, but never confuse yielding with being done.
+Do not hand Drew a command. Leave him a machine that keeps helping. Work in bounded checkpoints; yield workers freely, but never confuse yielding with being done. Never let the machine take the operator's shell hostage.
