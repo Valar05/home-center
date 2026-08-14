@@ -28,16 +28,23 @@ jobs:
       - name: Syntax
         run: |
           node --check browser-porch/extension/service-worker.js
-          node --check browser-porch/extension/sidepanel.js
+          node --check browser-porch/extension/throne-panel.mjs
           node --check browser-porch/extension/swarm-core.mjs
       - name: Throne behavior
         run: |
-          node --test browser-porch/extension/swarm-core.test.mjs
-          node --test browser-porch/extension/throne_context.test.mjs
+          node --test browser-porch/extension/swarm-core.test.mjs browser-porch/extension/throne_context.test.mjs
       - name: Installer contract
         shell: pwsh
         run: |
           $src = Get-Content tools/install_chromium_throne.ps1 -Raw
-          if ($src -notmatch "0\.5\.0") { throw 'installer not pinned to Chromium Throne 0.5.0' }
-          if ($src -notmatch "automaticSwarmBabysitting = \$true") { throw 'installer receipt does not assert swarm babysitting' }
-          if ($src -notmatch "maxSwarmSlices = 12") { throw 'installer receipt does not bound swarm slices' }
+          if ($src -notmatch "0\.7\.0") { throw 'installer not pinned to Chromium Throne 0.7.0' }
+          if ($src -notmatch "workerModel = 'ChatGPT Pro reasoning'") { throw 'installer receipt does not assert Pro reasoning' }
+          if ($src -notmatch "instantDefault = \$false") { throw 'installer receipt permits Instant default' }
+          if ($src -notmatch "persistentProWorker = \$true") { throw 'installer receipt does not assert persistent Pro worker' }
+          if ($src -notmatch "maxParallelWorkers = 1") { throw 'installer receipt does not enforce one persistent worker' }
+          if ($src -notmatch "maxSwarmSlicesPerWave = 12") { throw 'installer receipt does not bound a checkpoint wave' }
+          if ($src -notmatch "boundedWaveIsTerminal = \$false") { throw 'installer receipt allows checkpoint exhaustion to masquerade as mission completion' }
+          if ($src -notmatch "responseBoundaryNeverStopsMission = \$true") { throw 'installer receipt does not preserve continuation across response boundaries' }
+          if ($src -notmatch "continueRequiredAutomaticallyContinues = \$true") { throw 'installer receipt does not enforce CONTINUE_REQUIRED' }
+          if ($src -notmatch "chatGptMaySelfAcceptCampaign = \$false") { throw 'installer receipt allows worker self-acceptance' }
+          if ($src -notmatch "requiredRealEvolutionGenerations = 2") { throw 'installer receipt does not require real runtime evolution canaries' }
