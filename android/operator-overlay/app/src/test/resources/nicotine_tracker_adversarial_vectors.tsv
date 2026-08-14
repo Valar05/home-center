@@ -23,6 +23,8 @@ QUARANTINE	/tr\uFE0Fack hunger strong	strong
 QUARANTINE	/tr\u034Fack hunger strong	strong
 QUARANTINE	/\uff54\uff52\uff41\uff43\uff4b hunger strong	strong
 QUARANTINE	/tr\U000E0100ack hunger strong	strong
+QUARANTINE	/tr\u093Eack hunger strong	strong
+QUARANTINE	/tr\uFFF0ack hunger strong	strong
 ORDINARY	Please keep working on the overlay.	-
 ORDINARY	Track the package delivery.	-
 ORDINARY	The game has a hunger mechanic.	-

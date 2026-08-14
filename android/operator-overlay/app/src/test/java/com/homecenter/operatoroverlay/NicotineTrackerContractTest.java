@@ -121,7 +121,7 @@ public class NicotineTrackerContractTest {
                 rows++;
             }
         }
-        assertEquals(31, rows);
+        assertEquals(33, rows);
     }
 
     private static String decodeEscapes(String value) {

@@ -132,6 +132,7 @@ final class NicotineTrackerContract {
             int type = Character.getType(codePoint);
             if (type != Character.FORMAT
                     && type != Character.NON_SPACING_MARK
+                    && type != Character.COMBINING_SPACING_MARK
                     && type != Character.ENCLOSING_MARK
                     && !isDefaultIgnorable(codePoint)) {
                 normalized.appendCodePoint(codePoint);
@@ -153,6 +154,7 @@ final class NicotineTrackerContract {
                 || codePoint == 0x3164
                 || between(codePoint, 0xFE00, 0xFE0F)
                 || codePoint == 0xFEFF
+                || between(codePoint, 0xFFF0, 0xFFF8)
                 || codePoint == 0xFFA0
                 || between(codePoint, 0x1BCA0, 0x1BCA3)
                 || between(codePoint, 0x1D173, 0x1D17A)

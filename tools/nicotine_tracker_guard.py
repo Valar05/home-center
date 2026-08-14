@@ -27,6 +27,7 @@ def _default_ignorable(codepoint: int) -> bool:
         or codepoint == 0x3164
         or 0xFE00 <= codepoint <= 0xFE0F
         or codepoint == 0xFEFF
+        or 0xFFF0 <= codepoint <= 0xFFF8
         or codepoint == 0xFFA0
         or 0x1BCA0 <= codepoint <= 0x1BCA3
         or 0x1D173 <= codepoint <= 0x1D17A
@@ -40,7 +41,7 @@ def classification_text(value: str) -> str:
     return "".join(
         character
         for character in normalized
-        if unicodedata.category(character) not in {"Cf", "Mn", "Me"}
+        if unicodedata.category(character) not in {"Cf", "Mn", "Mc", "Me"}
         and not _default_ignorable(ord(character))
     )
 

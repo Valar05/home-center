@@ -57,7 +57,7 @@ def adversarial_vectors() -> list[tuple[str, str, str]]:
         fields = line.split("\t")
         assert len(fields) == 3, f"invalid shared corpus row: {line!r}"
         rows.append((fields[0], decode_escapes(fields[1]), fields[2]))
-    assert len(rows) == 31
+    assert len(rows) == 33
     return rows
 
 
@@ -92,6 +92,7 @@ def assert_java_contract() -> None:
         "Normalizer.Form.NFKD",
         "Character.FORMAT",
         "Character.NON_SPACING_MARK",
+        "Character.COMBINING_SPACING_MARK",
         "Character.ENCLOSING_MARK",
         "isDefaultIgnorable(codePoint)",
         "compatibility.codePointAt(offset)",
@@ -99,7 +100,7 @@ def assert_java_contract() -> None:
         assert token in parser, f"Unicode classification contract missing {token!r}"
     guard = read(TOOLS / "nicotine_tracker_guard.py")
     assert 'unicodedata.normalize("NFKD"' in guard
-    assert '{"Cf", "Mn", "Me"}' in guard
+    assert '{"Cf", "Mn", "Mc", "Me"}' in guard
     assert "_default_ignorable(ord(character))" in guard
 
     parse_at = service.index("NicotineTrackerContract.parse(raw)")
