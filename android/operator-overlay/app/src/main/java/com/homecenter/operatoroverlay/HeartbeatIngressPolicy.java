@@ -15,6 +15,24 @@ package com.homecenter.operatoroverlay;
  * operations through {@link Sink}.</p>
  */
 public final class HeartbeatIngressPolicy {
+    /**
+     * Exact failure class for caller-invalid optional heartbeat-light telemetry.
+     *
+     * <p>This is deliberately narrower than {@link IllegalArgumentException}. A
+     * persistence implementation may throw an unrelated argument/programmer error;
+     * treating that as bad caller telemetry would hide an internal wound and then
+     * incorrectly advance the independent heartbeat.</p>
+     */
+    public static final class CallerInvalidPayloadException extends IllegalArgumentException {
+        public CallerInvalidPayloadException(String message) {
+            super(message);
+        }
+
+        public CallerInvalidPayloadException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
     public interface Sink {
         void persistHeartbeatLights(String payloadJson);
         void heartbeat();
@@ -45,11 +63,11 @@ public final class HeartbeatIngressPolicy {
     /**
      * Apply one heartbeat event through the existing state owner.
      *
-     * <p>Only {@link IllegalArgumentException} from optional payload persistence is
-     * classified as caller-invalid telemetry. That rejection preserves the old
-     * payload and still invokes the independent heartbeat sink. Other runtime
-     * failures (for example a SharedPreferences commit failure) propagate unchanged
-     * instead of being hidden behind a healthy liveness claim.</p>
+     * <p>Only {@link CallerInvalidPayloadException} from optional payload
+     * persistence is classified as caller-invalid telemetry. That rejection
+     * preserves the old payload and still invokes the independent heartbeat sink.
+     * Unrelated {@link IllegalArgumentException}s and other runtime/storage failures
+     * propagate unchanged instead of being hidden behind a healthy liveness claim.</p>
      *
      * <p>A returned {@code heartbeatInvoked=true} proves only that the supplied
      * heartbeat operation returned normally. The current OperatorState heartbeat
@@ -68,7 +86,7 @@ public final class HeartbeatIngressPolicy {
 
         try {
             sink.persistHeartbeatLights(payloadJson);
-        } catch (IllegalArgumentException invalidPayload) {
+        } catch (CallerInvalidPayloadException invalidPayload) {
             sink.heartbeat();
             return new Result(
                     true,
@@ -81,7 +99,7 @@ public final class HeartbeatIngressPolicy {
         return new Result(true, true, true, "");
     }
 
-    private static String rejectionBoundary(IllegalArgumentException failure) {
+    private static String rejectionBoundary(CallerInvalidPayloadException failure) {
         String message = failure == null ? "" : failure.getMessage();
         String clean = cleanBoundary(message);
         if (clean.isEmpty()) {
