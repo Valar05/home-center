@@ -128,12 +128,80 @@ public class HeartbeatFrameAccessibilityTest {
 
         assertTrue(description.contains("20 material skill lights"));
         assertTrue(description.contains("States: active 5, blocked 5, fault 5, recovered 5"));
-        assertTrue(description.contains(compactPrefix + ", active"));
-        assertTrue(description.contains(compactPrefix + ", recovered"));
+        assertTrue(description.contains(compactPrefix + ", blocked"));
+        assertTrue(description.contains(compactPrefix + ", fault"));
         assertTrue(description.contains("8 more material lights are available by touch"));
         assertFalse(description.contains("long consequence"));
         assertFalse(description.contains(longLabel + ", active"));
         assertTrue(description.length() < 2048);
+    }
+
+    @Test
+    public void attentionStatesAreNamedBeforeEarlierActiveLightsWithoutChangingFocusOrder() {
+        List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
+        for (int index = 0; index < 14; index++) {
+            candidates.add(typed(
+                    "active-" + index,
+                    "Active " + index,
+                    HeartbeatSkillPolicy.State.ACTIVE,
+                    "Active source change " + index,
+                    "active-evidence-" + index));
+        }
+        candidates.add(typed(
+                "late-fault",
+                "Late Fault",
+                HeartbeatSkillPolicy.State.FAULT,
+                "A serious boundary must not be buried by speech order",
+                "fault-evidence"));
+
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-attention",
+                candidates,
+                true,
+                null);
+        String description = HeartbeatFrameAccessibility.collapsedContentDescription(frame);
+
+        assertTrue(description.contains("States: active 14, blocked 0, fault 1, recovered 0"));
+        assertTrue(description.contains("Late Fault, fault"));
+        assertTrue(description.indexOf("Late Fault, fault") < description.indexOf("Active 0, active"));
+        assertTrue(description.contains("3 more material lights are available by touch"));
+        assertEquals(14, HeartbeatFrameAccessibility.focusIndexForId(frame, "late-fault"));
+    }
+
+    @Test
+    public void attentionFirstSummaryPreservesVisibleOrderWithinAttentionGroup() {
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-attention-order",
+                Arrays.asList(
+                        typed(
+                                "active-first",
+                                "Active First",
+                                HeartbeatSkillPolicy.State.ACTIVE,
+                                "Active change",
+                                "active-evidence"),
+                        typed(
+                                "blocked-first",
+                                "Blocked First",
+                                HeartbeatSkillPolicy.State.BLOCKED,
+                                "Blocked boundary",
+                                "blocked-evidence"),
+                        typed(
+                                "fault-second",
+                                "Fault Second",
+                                HeartbeatSkillPolicy.State.FAULT,
+                                "Fault boundary",
+                                "fault-evidence")),
+                true,
+                null);
+
+        String description = HeartbeatFrameAccessibility.collapsedContentDescription(frame);
+        assertTrue(description.indexOf("Blocked First, blocked")
+                < description.indexOf("Fault Second, fault"));
+        assertTrue(description.indexOf("Fault Second, fault")
+                < description.indexOf("Active First, active"));
+        assertEquals(0, HeartbeatFrameAccessibility.focusIndexForId(frame, "active-first"));
+        assertEquals(1, HeartbeatFrameAccessibility.focusIndexForId(frame, "blocked-first"));
+        assertEquals(2, HeartbeatFrameAccessibility.focusIndexForId(frame, "fault-second"));
     }
 
     @Test
