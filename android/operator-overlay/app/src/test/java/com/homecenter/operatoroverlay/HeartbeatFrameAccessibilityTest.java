@@ -92,6 +92,8 @@ public class HeartbeatFrameAccessibilityTest {
     public void collapsedDescriptionBoundsBroadConstellationWithoutHidingStateTotals() {
         List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
         String hugeConsequence = repeat("long consequence ", 100);
+        String longLabel = repeat("Label", 32);
+        String compactPrefix = longLabel.substring(0, 64) + "…";
         for (int index = 0; index < 20; index++) {
             HeartbeatSkillPolicy.State state;
             switch (index % 4) {
@@ -111,7 +113,7 @@ public class HeartbeatFrameAccessibilityTest {
             }
             candidates.add(typed(
                     "light-" + index,
-                    "Skill " + index,
+                    longLabel,
                     state,
                     hugeConsequence + index,
                     "evidence-" + index));
@@ -126,12 +128,32 @@ public class HeartbeatFrameAccessibilityTest {
 
         assertTrue(description.contains("20 material skill lights"));
         assertTrue(description.contains("States: active 5, blocked 5, fault 5, recovered 5"));
-        assertTrue(description.contains("Skill 0, active"));
-        assertTrue(description.contains("Skill 11, recovered"));
-        assertFalse(description.contains("Skill 12, active"));
+        assertTrue(description.contains(compactPrefix + ", active"));
+        assertTrue(description.contains(compactPrefix + ", recovered"));
         assertTrue(description.contains("8 more material lights are available by touch"));
         assertFalse(description.contains("long consequence"));
+        assertFalse(description.contains(longLabel + ", active"));
         assertTrue(description.length() < 2048);
+    }
+
+    @Test
+    public void collapsedLabelTruncationDoesNotSplitUnicodeCodePoint() {
+        String emoji = "🦢";
+        String longLabel = repeat(emoji, 70);
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-unicode",
+                Collections.singletonList(typed(
+                        "swan",
+                        longLabel,
+                        HeartbeatSkillPolicy.State.ACTIVE,
+                        "Unicode remains inert semantic data",
+                        "unicode-fixture")),
+                true,
+                null);
+
+        String description = HeartbeatFrameAccessibility.collapsedContentDescription(frame);
+        assertTrue(description.contains(repeat(emoji, 64) + "…, active"));
+        assertFalse(description.contains(repeat(emoji, 65)));
     }
 
     @Test
