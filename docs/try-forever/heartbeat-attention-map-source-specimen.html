@@ -77,13 +77,13 @@
     <div class="scar">SOURCE ONLY • NOT OPERATOR-OVERLAY RUNTIME PROOF</div>
     <h1>Warm Wall Attention Surgery</h1>
     <p class="muted">A touch/keyboard source specimen for a broad heartbeat. The wall keeps visual scene order; collapsed speech moves fault/blocker identities to the front without stealing their actual focus positions.</p>
-    <div class="wire" aria-hidden="true">WALL ─●─●─□─●─◇─×─●─□─●─●─◇─●─□─●─×─●─●─◇─●─□─ WALL</div>
+    <div class="wire" aria-hidden="true">WALL ─●─●─□─●─◇─×─●─□─●─●─●─●─●─●─×─●─●─●─●─□─ WALL</div>
   </header>
 
   <div class="grid">
     <section aria-labelledby="scene-title">
       <h2 id="scene-title">Warm wall scene order</h2>
-      <p class="muted">Twenty material sample lights. Native buttons, minimum 48px targets, non-color state tokens, no autoplay, no decorative blink loop.</p>
+      <p class="muted">Twenty materially engaged lights from this source slice. Native buttons, minimum 48px targets, non-color state tokens, no autoplay, no decorative blink loop.</p>
       <div class="lights" id="lights"></div>
     </section>
 
@@ -114,13 +114,13 @@ const lights = [
   ['talkback','Accessibility / TalkBack','active','doctrine','Accessibility/TalkBack','Broad speech could bury a fault','Attention states are named first','HeartbeatFrameAccessibility source'],
   ['touch','Touch Semantics','active','repository_skill','skills/embodied-communication/SKILL.md','Touchable presentation is first-class','48px semantic controls preserved','Source specimen contract'],
   ['routing','Deterministic Routing','active','doctrine','deterministic routing','Speech order must be reproducible','Attention groups preserve scene order','Regression source'],
-  ['checkpoint','Checkpoint / Idempotence','recovered','doctrine','recovery/checkpointing/idempotence','Last-good contact survived refresh rules','No new transport body required','Existing frame checkpoint source'],
+  ['repo','Repository Truth','active','jar','.continue/rules/20-judgement-jar-repository-truth.md','Current branch evidence governed edits','All source work stayed on the authoritative PR branch','GitHub compare/readback'],
   ['hunger','Hunger','active','doctrine','Hunger','Another status poster would be decorative','This pulse produced a different touchable artifact','attention-map source specimen'],
   ['warm','Warm Walls','active','doctrine','warm walls','The scene is spatial but semantics carry state','Wall art remains source-only','this HTML specimen'],
-  ['christmas','Christmas-Light Graph','active','doctrine','Christmas-light scene graph','Blinking without consequence is forbidden','Motion remains consequence-gated','scene graph source'],
-  ['contact','Contact Preservation','active','doctrine','Contact Preservation','A rejected refresh must not erase the last good scene','Speech derives from visible frame only','scene graph contract'],
+  ['christmas','Christmas-Light Graph','active','doctrine','Christmas-light scene graph','Blinking without consequence is forbidden','No decorative motion was introduced','source specimen + scene contract'],
+  ['contact','Contact Preservation','active','doctrine','Contact Preservation','Speech must describe the preserved visible frame','Attention ordering did not reorder the scene/focus graph','HeartbeatFrameAccessibility source'],
   ['autoselect','Canon Auto-Select','active','doctrine','Canon Auto-Select','Relevant lights are selected by material consequence','Broad constellation is not a favorites list','heartbeat policy'],
-  ['autocorrect','Autocorrect Judgment Jar','recovered','jar','Autocorrect Judgment Jar','Ambiguous tokens are treated as evidence branches','No token literalism entered this slice','durable doctrine'],
+  ['plan','Fortress Plan Gate','active','repository_skill','skills/fortress-plan-gate/SKILL.md','Mutation required a fresh plan gate','PLAN_ALLOWED was durably recorded before source edits','1000 Venice plan receipt'],
   ['originality','Originality Tax','active','doctrine','Originality Tax','The same failed CI action cannot count twice','No unchanged-condition workflow retry','Actions budget boundary'],
   ['phone','P0 / Phone Surface','blocked','runtime_boundary','P0 FORTRESS FIREWALL','Shared physical execution surface is reserved','Zero phone/queue/P0 mutations','binding firewall']
 ];
@@ -149,13 +149,20 @@ function selectLight(item, button) {
 }
 lights.forEach((item, index) => {
   const b = document.createElement('button');
+  const tokenSpan = document.createElement('span');
+  const label = document.createElement('strong');
+  const state = document.createElement('span');
   b.className = 'light';
   b.type = 'button';
   b.setAttribute('aria-pressed','false');
   b.setAttribute('aria-label', `Skill ${item[1]}, ${item[2]}. ${item[6]}.`);
-  b.innerHTML = `<span class="token" aria-hidden="true">${token[item[2]]}</span><strong></strong><span class="state"></span>`;
-  b.querySelector('strong').textContent = item[1];
-  b.querySelector('.state').textContent = `${index}: ${item[2]}`;
+  tokenSpan.className = 'token';
+  tokenSpan.setAttribute('aria-hidden','true');
+  tokenSpan.textContent = token[item[2]];
+  label.textContent = item[1];
+  state.className = 'state';
+  state.textContent = `${index}: ${item[2]}`;
+  b.append(tokenSpan, label, state);
   b.addEventListener('click', () => selectLight(item,b));
   container.appendChild(b);
 });
