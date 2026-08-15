@@ -8,7 +8,7 @@
   :root { color-scheme: dark; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: #17130f; color: #fff7e9; display: grid; place-items: center; padding: 20px; }
-  main { width: min(820px, 100%); border: 2px solid #8b6f47; border-radius: 28px; padding: 22px; background: radial-gradient(circle at 50% 10%, #372718, #1a1510 58%); box-shadow: inset 0 0 0 8px #241b13; }
+  main { width: min(860px, 100%); border: 2px solid #8b6f47; border-radius: 28px; padding: 22px; background: radial-gradient(circle at 50% 10%, #372718, #1a1510 58%); box-shadow: inset 0 0 0 8px #241b13; }
   h1 { margin: 0 0 4px; font-size: clamp(1.3rem, 4vw, 2rem); }
   .scar { margin: 0 0 18px; color: #ffce84; font-weight: 800; }
   .wall { position: relative; min-height: 300px; border: 1px solid #6d5235; border-radius: 22px; padding: 24px; overflow: hidden; }
@@ -20,14 +20,16 @@
   .labels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
   .node { min-height: 64px; border: 1px solid #7d6241; border-radius: 16px; padding: 12px; background: #211a13; }
   .token { font-size: 1.4rem; margin-right: .35rem; }
-  .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
   button { min-height: 52px; border: 2px solid #8b6f47; border-radius: 14px; background: #271d14; color: inherit; font: inherit; font-weight: 800; cursor: pointer; }
   button[aria-pressed="true"] { outline: 3px solid #ffd99b; outline-offset: 2px; }
   button:focus-visible { outline: 4px solid #fff1c6; outline-offset: 3px; }
   .detail { margin-top: 16px; border-left: 5px solid #d7aa6e; padding: 12px 14px; min-height: 92px; background: #211a13; }
+  .speech-budget { margin-top: 12px; padding: 12px 14px; border: 1px dashed #8b6f47; border-radius: 14px; }
   .status { position: absolute; width: 1px; height: 1px; clip: rect(0 0 0 0); overflow: hidden; white-space: nowrap; }
   [data-state="invalid"] .payload { fill: #2c1a16; stroke: #ffad8a; }
   [data-state="invalid"] .pulse { animation: onePulse .55s ease-out 1; }
+  [data-state="internal"] .payload, [data-state="internal"] .pulse,
   [data-state="storage"] .payload, [data-state="storage"] .pulse { fill: #2c1a16; stroke: #ffad8a; }
   @keyframes onePulse { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
@@ -42,7 +44,7 @@
     <h2 id="wall-title">Heartbeat ingress separation</h2>
     <svg class="wires" viewBox="0 0 760 150" role="img" aria-labelledby="wire-title wire-desc">
       <title id="wire-title">Heartbeat sink and optional skill-light payload follow separate source semantics</title>
-      <desc id="wire-desc">A caller-invalid optional skill-light payload can be rejected while the independent heartbeat sink is still invoked. An internal storage failure is not relabeled as success.</desc>
+      <desc id="wire-desc">Only a dedicated caller-invalid telemetry exception permits the optional payload to be rejected while the independent heartbeat sink continues. Unrelated argument errors and storage failures propagate.</desc>
       <path class="wire" d="M80 76 C210 76 230 40 360 40 S520 76 680 76"/>
       <path class="wire" d="M360 40 C360 92 460 112 600 112"/>
       <circle class="pulse" cx="80" cy="76" r="24"/>
@@ -53,18 +55,20 @@
       <text x="548" y="145" fill="currentColor">BOUNDARY</text>
     </svg>
     <div class="labels">
-      <div class="node"><span class="token" id="live-token">●</span><strong id="live-state">Heartbeat sink INVOKED</strong><br><span id="live-copy">Source ordering keeps the independent heartbeat call after caller-invalid optional telemetry.</span></div>
+      <div class="node"><span class="token" id="live-token">●</span><strong id="live-state">Heartbeat sink INVOKED</strong><br><span id="live-copy">Dedicated caller-invalid telemetry may be rejected without suppressing the independent heartbeat call.</span></div>
       <div class="node"><span class="token" id="payload-token">□</span><strong id="payload-state">Payload BLOCKED</strong><br><span id="payload-copy">The previously stored skill-light payload is not overwritten by the rejected input.</span></div>
     </div>
   </section>
 
   <div class="controls" aria-label="Choose source-semantic state">
     <button type="button" data-mode="valid" aria-pressed="false">◇ VALID PAYLOAD</button>
-    <button type="button" data-mode="invalid" aria-pressed="true">□ INVALID OPTIONAL</button>
+    <button type="button" data-mode="invalid" aria-pressed="true">□ CALLER INVALID</button>
+    <button type="button" data-mode="internal" aria-pressed="false">× INTERNAL ARGUMENT</button>
     <button type="button" data-mode="storage" aria-pressed="false">× STORAGE FAILURE</button>
   </div>
 
-  <div class="detail" id="detail" tabindex="0">Caller-invalid optional payload: reject the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. This does not claim durable heartbeat persistence or runtime/device proof.</div>
+  <div class="detail" id="detail" tabindex="0">Dedicated caller-invalid optional payload: reject only the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. A generic IllegalArgumentException does not get this privilege.</div>
+  <div class="speech-budget" aria-label="TalkBack detail budget contract"><strong>VOICE ≠ DATABASE.</strong> Complete typed reason, consequence, evidence, and provenance stay in the semantic model. Expanded TalkBack speech gets Unicode-safe field budgets and says when a field is truncated.</div>
   <div class="status" id="status" role="status" aria-live="polite"></div>
 </main>
 <script>
@@ -87,9 +91,14 @@
       detail: 'Valid payload: store optional skill-light telemetry first, then invoke the heartbeat sink. This source specimen proves only the intended ordering contract.'
     },
     invalid: {
-      liveToken: '●', liveState: 'Heartbeat sink INVOKED', liveCopy: 'Source ordering keeps the independent heartbeat call after caller-invalid optional telemetry.',
+      liveToken: '●', liveState: 'Heartbeat sink INVOKED', liveCopy: 'Dedicated caller-invalid telemetry may be rejected without suppressing the independent heartbeat call.',
       payloadToken: '□', payloadState: 'Payload BLOCKED', payloadCopy: 'The previously stored skill-light payload is not overwritten by the rejected input.',
-      detail: 'Caller-invalid optional payload: reject the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. This does not claim durable heartbeat persistence or runtime/device proof.'
+      detail: 'Dedicated caller-invalid optional payload: reject only the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. A generic IllegalArgumentException does not get this privilege.'
+    },
+    internal: {
+      liveToken: '×', liveState: 'Heartbeat NOT INVOKED', liveCopy: 'An unrelated IllegalArgumentException is an internal wound unless explicitly typed otherwise.',
+      payloadToken: '×', payloadState: 'INTERNAL FAULT', payloadCopy: 'The failure propagates; it is not relabeled as bad caller telemetry.',
+      detail: 'Internal argument failure: propagate it and do not invoke the heartbeat sink. Catching every IllegalArgumentException would turn a future programmer error into false liveness.'
     },
     storage: {
       liveToken: '×', liveState: 'Heartbeat NOT CLAIMED', liveCopy: 'Internal/storage failure propagates before the heartbeat sink is invoked.',
