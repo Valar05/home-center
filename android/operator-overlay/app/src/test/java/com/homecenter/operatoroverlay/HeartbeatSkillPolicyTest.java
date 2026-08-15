@@ -108,6 +108,45 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
+    public void expandedAccessibilityDetailBoundsSpeechButPreservesExactCandidateData() {
+        String swan = "🦢";
+        String longReason = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS + 7);
+        String longConsequence = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS + 9);
+        String longEvidence = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS + 11);
+        String longLocator = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS + 13);
+        HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
+                "swan-detail",
+                "Swan Detail",
+                "doctrine",
+                longLocator,
+                longReason,
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                longConsequence,
+                longEvidence);
+
+        String detail = HeartbeatSkillPolicy.detailContentDescription(typed);
+
+        assertTrue(detail.contains(
+                "Why: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS)
+                        + "… (truncated)."));
+        assertTrue(detail.contains(
+                "Consequence: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS)
+                        + "… (truncated)."));
+        assertTrue(detail.contains(
+                "Evidence: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS)
+                        + "… (truncated)."));
+        assertTrue(detail.contains(
+                "Source: doctrine " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS)
+                        + "… (truncated)."));
+        assertFalse(detail.contains("\uFFFD"));
+        assertEquals(longReason, typed.activationReason);
+        assertEquals(longConsequence, typed.consequence);
+        assertEquals(longEvidence, typed.evidenceBoundary);
+        assertEquals(longLocator, typed.provenanceLocator);
+    }
+
+    @Test
     public void collapsedDescriptionPreservesMaterialOrderExactStatesAndConsequences() {
         String description = HeartbeatSkillPolicy.collapsedContentDescription(
                 Arrays.asList(
