@@ -92,7 +92,7 @@ public final class HeartbeatPersistedEnvelopeProjection {
 
         if (updatedMs <= 0L) {
             return storageReject(
-                    "Stored heartbeat update timestamp is missing.",
+                    "Stored heartbeat update identity is missing.",
                     lastGood,
                     observedBytes,
                     observedSha256,
