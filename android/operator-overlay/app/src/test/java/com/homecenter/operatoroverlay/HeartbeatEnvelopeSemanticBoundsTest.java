@@ -43,6 +43,47 @@ public class HeartbeatEnvelopeSemanticBoundsTest {
     }
 
     @Test
+    public void protocolTokensRejectDecodedControlsBeforeTrimming() {
+        String tabEscape = "\\" + "u0009";
+        String nulEscape = "\\" + "u0000";
+
+        HeartbeatEnvelopeParser.Result schema = HeartbeatEnvelopeParser.parse(
+                envelopeWithSchema(
+                        tabEscape + HeartbeatEnvelopeParser.SCHEMA,
+                        "pulse-schema-control",
+                        lightWithLabel("Warm Wall")));
+        HeartbeatEnvelopeParser.Result state = HeartbeatEnvelopeParser.parse(
+                envelope(
+                        "pulse-state-control",
+                        lightWithState("active" + nulEscape)));
+
+        assertFalse(schema.accepted());
+        assertTrue(schema.boundary.contains("schema contains a decoded control character"));
+        assertFalse(state.accepted());
+        assertTrue(state.boundary.contains("state contains a decoded control character"));
+    }
+
+    @Test
+    public void protocolTokensRejectUnpairedUnicodeSurrogates() {
+        String highSurrogateEscape = "\\" + "uD83E";
+
+        HeartbeatEnvelopeParser.Result schema = HeartbeatEnvelopeParser.parse(
+                envelopeWithSchema(
+                        HeartbeatEnvelopeParser.SCHEMA + highSurrogateEscape,
+                        "pulse-schema-surrogate",
+                        lightWithLabel("Warm Wall")));
+        HeartbeatEnvelopeParser.Result state = HeartbeatEnvelopeParser.parse(
+                envelope(
+                        "pulse-state-surrogate",
+                        lightWithState("active" + highSurrogateEscape)));
+
+        assertFalse(schema.accepted());
+        assertTrue(schema.boundary.contains("schema contains an unpaired surrogate"));
+        assertFalse(state.accepted());
+        assertTrue(state.boundary.contains("state contains an unpaired surrogate"));
+    }
+
+    @Test
     public void unpairedUnicodeSurrogateFailsClosed() {
         String highSurrogateEscape = "\\" + "uD83E";
 
@@ -80,20 +121,37 @@ public class HeartbeatEnvelopeSemanticBoundsTest {
     }
 
     private static String envelope(String pulseId, String light) {
-        return "{\"schema\":\"heartbeat-skill-lights.v1\","
+        return envelopeWithSchema(HeartbeatEnvelopeParser.SCHEMA, pulseId, light);
+    }
+
+    /** schemaJsonContents is already JSON-string content, not a decoded Java token. */
+    private static String envelopeWithSchema(
+            String schemaJsonContents,
+            String pulseId,
+            String light) {
+        return "{\"schema\":\"" + schemaJsonContents + "\","
                 + "\"pulseId\":\"" + escape(pulseId) + "\","
                 + "\"complete\":true,\"lights\":[" + light + "]}";
     }
 
     /** labelJsonContents is already JSON-string content, not a decoded Java label. */
     private static String lightWithLabel(String labelJsonContents) {
+        return light(labelJsonContents, "active");
+    }
+
+    /** stateJsonContents is already JSON-string content, not a decoded Java state token. */
+    private static String lightWithState(String stateJsonContents) {
+        return light("Warm Wall", stateJsonContents);
+    }
+
+    private static String light(String labelJsonContents, String stateJsonContents) {
         return "{"
                 + "\"id\":\"warm-wall\","
                 + "\"label\":\"" + labelJsonContents + "\","
                 + "\"provenanceKind\":\"doctrine\","
                 + "\"provenanceLocator\":\"Warm Walls\","
                 + "\"activationReason\":\"Accessibility semantics are material.\","
-                + "\"state\":\"active\","
+                + "\"state\":\"" + stateJsonContents + "\","
                 + "\"changedThisPulse\":true,"
                 + "\"consequence\":\"Semantic text remains bounded and speakable.\","
                 + "\"evidenceBoundary\":\"Pure parser source fixture.\""
