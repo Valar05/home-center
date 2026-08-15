@@ -1,0 +1,107 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewId": "try-forever-heartbeat-2026-08-15-0800-completion",
+  "reviewerRole": "venice-judgment-jar",
+  "commissionIdentity": "TRY FOREVER heartbeat broad-skill source-only swarm under binding P0/phone firewalls",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-0800-plan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice-correction.json",
+  "reviewedSourceHead": "d56a5191b32f9682a714e449186433b6e1b7d5ac",
+  "reviewBase": "9b47934d653be8663ff03c6b50e567f523f18b9f",
+  "codeReviewFirst": true,
+  "sourceIdentity": {
+    "parserBlob": "f10d536f0871798ebce31ddc2e4dcab9fe98e3e3",
+    "semanticBoundsTestBlob": "0e96041f31c85efefa042c83a3bf8ccee8c94632",
+    "checkpointBlob": "4b55681bf61265f143f6d7a0005837cceaa67b3e",
+    "checkpointTestBlob": "5c71b266b8be1443d52d628dc00b7798ea76b364",
+    "accessibilityBlob": "2871117bc1dcc76824203680d3e48149b1cec2f2",
+    "accessibilityTestBlob": "1dac38525ad78ec359967de8ff6a0ddd935bf919",
+    "contactSheetBlob": "deacd14ddedb9e99927d434d5a4c1a4576012651",
+    "skillDoctrineBlob": "1b0b373f6ea561c4f651767f9caea98d7986823f"
+  },
+  "selectedJudgmentJars": [
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/20-judgement-jar-repository-truth.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    ".continue/rules/40-judgement-jar-failure-recovery.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md"
+  ],
+  "review": {
+    "missionFidelity": {
+      "result": "PASS",
+      "detail": "The slice stays entirely in GitHub repository/source work authorized while P0 is blocked. It does not consume the shared phone surface, mutate recovery queues, or retask P0 owners."
+    },
+    "regressionRisk": {
+      "result": "PASS_WITH_TEST_BLOCKER",
+      "detail": "The changes extend the existing heartbeat parser/scene organs with pure helpers and source fixtures. No existing public phone/runtime contract is promoted or replaced. Regression source is present but cannot be called executed."
+    },
+    "correctness": {
+      "result": "PASS_SOURCE_REVIEW",
+      "detail": "Parser semantic validation now happens on decoded raw text before trimming, closing the edge-control normalization hole found during review. Field-specific bounds are explicit. Valid Unicode surrogate pairs remain inert data while controls/unpaired surrogates fail closed. HeartbeatFrameCheckpoint uses length-prefixed canonical material and separates contact identity from transition identity. HeartbeatFrameAccessibility consumes only the preserved Frame, so discarded attempted candidates cannot be announced as current state."
+    },
+    "verification": {
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "On code head 0792c171f7b74ca94a9412273e5e81662f689549, automatic Operator Overlay Android run 31886406449 / job 95016233725 executed zero steps. GitHub annotation: The job was not started because an Actions budget is preventing further use. The later edge-control correction has source readback but no executed deterministic workflow evidence. No manual unchanged-condition retry was fired."
+    },
+    "runtimeTruth": {
+      "result": "PASS_BOUNDARY",
+      "detail": "No claim is made that persisted runtime heartbeat payloads are parsed by the live overlay, that Android renders the scene, that TalkBack ran, or that any phone displayed/accepted the interface."
+    },
+    "durabilityRecovery": {
+      "result": "PASS_SOURCE",
+      "detail": "The new checkpoint identities make last-good contact and transition semantics deterministically comparable in source. The review itself preserves the first Regnet receipt and appends a correction rather than rewriting history."
+    },
+    "simplicity": {
+      "result": "PASS",
+      "detail": "No alternate overlay controller, renderer owner, ingress path, Home Center recovery daemon, P0 coordinator, or phone executor was introduced. The contact sheet is explicitly a source specimen, not an architecture seam."
+    },
+    "quality": {
+      "result": "MIXED",
+      "detail": "The source slice is materially stronger and inspectable, but deterministic tests still have not executed and none of the new pure helpers are wired into the runtime renderer. That is an evidence/runtime gap, not permission to inflate source into delivery."
+    }
+  },
+  "sheRaw": {
+    "authoritativeAttempted": true,
+    "result": "FAULT",
+    "surface": "She-Raw.she_raw_ambient",
+    "boundary": "HTTP 400: We couldn't connect your account. Please try again.",
+    "syntheticSubstituteUsed": false
+  },
+  "p0Firewall": {
+    "held": true,
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "runtimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "veniceOutput": {
+    "verdict": "approve",
+    "quality": "mixed",
+    "code_review_first": true,
+    "critique": "Approve yielding this bounded source slice only. Multiple independent fronts advanced through the authorized repository lane: semantic ingress safety, deterministic contact/transition checkpoints, visible-scene TalkBack projection, and a non-raster warm-wall contact sheet. The review found and corrected an edge-control normalization defect before approval. GitHub Actions still executes zero steps because of the Actions budget, so TESTED remains BLOCKED_UNKNOWN, and no runtime or phone capability state advances. The P0/phone firewall held with zero mutations and no duplicate architecture.",
+    "next": ""
+  },
+  "stopScope": "This approval permits this bounded source slice to yield. It is not merge approval, campaign completion, runtime authorization, phone delivery, or Drew acceptance.",
+  "reviewedAt": "2026-08-15T13:21:00Z"
+}
