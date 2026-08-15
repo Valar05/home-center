@@ -1,0 +1,162 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "slice": "1700",
+  "commission": "Broad non-phone TRY FOREVER heartbeat with materially active skill lights and binding P0/phone firewall.",
+  "reviewed_source_head": "4f10cf4f08beb613d4c8366a05cf1489a291c5cd",
+  "campaign_state": "CONTINUE_REQUIRED",
+  "lights": [
+    {
+      "id": "failure-is-the-shovel",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Failure Is The Shovel / Originality Tax",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The deterministic CI blocker was unchanged.",
+      "consequence": "The swarm did not retry the dead CI path; it found and repaired a different pre-parser ingress coupling defect.",
+      "evidence": "Home Center CI on reviewed head 4f10cf4f08beb613d4c8366a05cf1489a291c5cd ran zero steps because the Actions budget prevented start; manual retry count remained zero."
+    },
+    {
+      "id": "canon-auto-select",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Canon Auto-Select",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Repository-grounded skill selection was required instead of a fixed decorative list.",
+      "consequence": "Loaded and materially applied fortress-core, execution-truth, embodied-communication, heartbeat-skill-lights, and the newly codified heartbeat-ingress-separation skill.",
+      "evidence": "Exact repository SKILL.md readbacks on PR #329 branch."
+    },
+    {
+      "id": "execution-truth",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/execution-truth/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The first source result name overstated what SharedPreferences.apply() can prove.",
+      "consequence": "heartbeatAccepted was corrected to heartbeatInvoked; source art/tests were corrected so invocation is not reported as durable liveness, deployment, or device proof.",
+      "evidence": "HeartbeatIngressPolicy.java blob 8f8f5719647e9b2286d03b2747a84a3b4dfe38eb and regression blob 6a751698b1dace29800d78931d9f3c264390bbf2."
+    },
+    {
+      "id": "fortress-core",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/fortress-core/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Non-trivial mutation required mission-boundary preservation, Venice plan review, and the P0 firewall.",
+      "consequence": "A durable PLAN_ALLOWED receipt preceded mutation; the work composed the existing receiver/state owner and performed zero P0/phone mutations.",
+      "evidence": "receipts/venice/2026-08-15-try-forever-heartbeat-1700-plan-review.json and zero-mutation ledger below."
+    },
+    {
+      "id": "heartbeat-ingress-separation",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/heartbeat-ingress-separation/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Caller-invalid optional skill-light telemetry could abort ACTION_HEARTBEAT before the independent heartbeat sink ran.",
+      "consequence": "The existing receiver now routes optional telemetry through a pure ordering/error policy: caller-invalid optional payload rejection still invokes heartbeat; storage/runtime failure is not swallowed.",
+      "evidence": "OverlayUpdateReceiver.java blob f1bb946bcb86d4f42e7e434035666126e54c8242; HeartbeatIngressPolicy.java blob 8f8f5719647e9b2286d03b2747a84a3b4dfe38eb."
+    },
+    {
+      "id": "contact-preservation",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Heartbeat Skill Lights / Contact preservation",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Invalid optional telemetry must not destroy the last stored skill-light identity merely to report its own failure.",
+      "consequence": "Known caller-invalid validation remains before state write; the new policy invokes heartbeat without manufacturing a replacement fault payload.",
+      "evidence": "OperatorState.updateHeartbeatLights validation ordering plus HeartbeatIngressPolicy rejection path."
+    },
+    {
+      "id": "embodied-communication",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/embodied-communication/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The source specimen is a perceivable UI reference and must not collapse rendered source into physical/device effect.",
+      "consequence": "The new warm-wall specimen uses semantic buttons, >=48px targets, non-color tokens, visible focus, one live region, reduced motion, DOM/SVG only, and an explicit source-only scar.",
+      "evidence": "heartbeat-ingress-separation-source-specimen.html blob 850f6480f03ef87d0ec1379155560f3684b4a9d6."
+    },
+    {
+      "id": "regnet",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "receipts/regnet/2026-08-15-try-forever-heartbeat-1700-source-review.json",
+      "state": "blocked",
+      "changedThisPulse": true,
+      "why": "Source implementation and deterministic test evidence must remain separate.",
+      "consequence": "Bounded source/readback review passes, but TESTED remains NO/BLOCKED_UNKNOWN because the exact-head CI job executed zero steps.",
+      "evidence": "Home Center CI run 31911472939, job 95077074162, Actions-budget annotation."
+    },
+    {
+      "id": "venice",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "receipts/venice/2026-08-15-try-forever-heartbeat-1700-completion-review.json",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Fortress requires separate Judgment-Jar plan and completion review.",
+      "consequence": "Code-first review found and forced correction of the heartbeatAccepted evidence overclaim; STOP_ALLOWED applies only to the bounded source slice.",
+      "evidence": "1700 Venice plan and completion receipts."
+    },
+    {
+      "id": "she-raw",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "She-Raw.she_raw_ambient",
+      "state": "fault",
+      "changedThisPulse": false,
+      "why": "Authoritative adversarial motivation was materially relevant before execution.",
+      "consequence": "Consultation could not contribute because account connection returned HTTP 400; no synthetic She-Raw was substituted.",
+      "evidence": "Authoritative connector call returned: We couldn't connect your account. Please try again."
+    },
+    {
+      "id": "autocorrect-judgment-jar",
+      "provenanceKind": "jar",
+      "provenanceLocator": "Autocorrect Judgment Jar",
+      "state": "dark",
+      "changedThisPulse": false,
+      "why": "No material phrase/token ambiguity required recursive autocorrect resolution.",
+      "consequence": "Stayed dark; no decorative activation.",
+      "evidence": "No unresolved ambiguous token affected execution."
+    },
+    {
+      "id": "phone-runtime-phone-hands",
+      "provenanceKind": "runtime_boundary",
+      "provenanceLocator": "P0 Fortress / primary-phone surface firewall",
+      "state": "dark",
+      "changedThisPulse": false,
+      "why": "The shared phone surface remains P0-owned and no fresh execution-predicate evidence reopened a non-overlapping phone front.",
+      "consequence": "Stayed dark and untouched rather than manufacturing activity.",
+      "evidence": "Zero-mutation ledger below."
+    }
+  ],
+  "cross_pollination": [
+    "Execution Truth turned the discovered receiver ordering bug into an exact failure-class membrane instead of a generic catch-and-continue.",
+    "Contact preservation prevented the rejection path from manufacturing a new fault payload that would overwrite last-good telemetry.",
+    "Embodied Communication then caught the same capability-language risk in the source art, forcing 'heartbeat sink invoked' language instead of fake durable liveness.",
+    "Failure Is The Shovel redirected the unchanged Actions-budget failure into source code, regression, skill doctrine, art, and review rather than another CI retry.",
+    "Regnet kept those source advances from crossing into TESTED/DEPLOYED/PHONE claims."
+  ],
+  "zero_mutation_ledger": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_reads_or_mutations": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "duplicate_controllers_or_daemons": 0
+  },
+  "capability_membrane": {
+    "requested": "YES",
+    "implemented_source": "YES",
+    "exact_github_readback": "YES",
+    "regression_source": "YES",
+    "tested": "NO_BLOCKED_UNKNOWN",
+    "runtime_persisted_payload_projection_wired": "NO",
+    "ui_rendered": "NO",
+    "talkback_runtime": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}
