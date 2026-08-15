@@ -30,10 +30,13 @@ public final class HeartbeatFrameAccessibility {
      * exact total, exact state histogram, and a deterministic bounded set of
      * label/state identities. FAULT/BLOCKED nodes are named before non-attention
      * nodes while preserving visible scene order inside both groups, so a serious
-     * boundary cannot be buried behind twelve earlier active lights. Full
-     * label/reason/consequence/evidence/provenance remains available through node
-     * detail. Interrupted refresh detail is appended after the last-good summary;
-     * discarded attempted candidate content is never announced as current state.
+     * boundary cannot be buried behind twelve earlier active lights. If there are
+     * more attention nodes than the naming budget, the exact omitted attention
+     * count is spoken explicitly rather than hiding urgent boundaries inside the
+     * generic remainder count. Full label/reason/consequence/evidence/provenance
+     * remains available through node detail. Interrupted refresh detail is appended
+     * after the last-good summary; discarded attempted candidate content is never
+     * announced as current state.
      */
     public static String collapsedContentDescription(HeartbeatSceneGraph.Frame frame) {
         if (frame == null) return "Heartbeat scene unavailable.";
@@ -46,6 +49,7 @@ public final class HeartbeatFrameAccessibility {
             int blocked = 0;
             int fault = 0;
             int recovered = 0;
+            int attentionTotal = 0;
             for (HeartbeatSceneGraph.Node node : frame.nodes) {
                 if (node.state == null) continue;
                 switch (node.state) {
@@ -54,9 +58,11 @@ public final class HeartbeatFrameAccessibility {
                         break;
                     case BLOCKED:
                         blocked++;
+                        attentionTotal++;
                         break;
                     case FAULT:
                         fault++;
+                        attentionTotal++;
                         break;
                     case RECOVERED:
                         recovered++;
@@ -79,12 +85,14 @@ public final class HeartbeatFrameAccessibility {
 
             List<HeartbeatSceneGraph.Node> summaryNodes = attentionFirst(frame.nodes);
             int named = Math.min(summaryNodes.size(), MAX_COLLAPSED_NAMED_LIGHTS);
+            int namedAttention = 0;
             for (int index = 0; index < named; index++) {
                 HeartbeatSceneGraph.Node node = summaryNodes.get(index);
                 if (index > 0) out.append("; ");
                 out.append(compactLabel(node.label))
                         .append(", ")
                         .append(stateName(node.state));
+                if (isAttentionState(node.state)) namedAttention++;
             }
             out.append('.');
 
@@ -95,6 +103,15 @@ public final class HeartbeatFrameAccessibility {
                         .append(remaining == 1
                                 ? " more material light is available by touch."
                                 : " more material lights are available by touch.");
+            }
+
+            int omittedAttention = Math.max(0, attentionTotal - namedAttention);
+            if (omittedAttention > 0) {
+                out.append(' ')
+                        .append(omittedAttention)
+                        .append(omittedAttention == 1
+                                ? " of those is an additional blocked or fault attention light."
+                                : " of those are additional blocked or fault attention lights.");
             }
         }
 
