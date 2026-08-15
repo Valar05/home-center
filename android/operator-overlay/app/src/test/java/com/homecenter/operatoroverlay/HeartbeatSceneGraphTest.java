@@ -20,6 +20,21 @@ public class HeartbeatSceneGraphTest {
                 consequence);
     }
 
+    private static HeartbeatSkillPolicy.Candidate typedActive(
+            String id,
+            String evidenceBoundary) {
+        return new HeartbeatSkillPolicy.Candidate(
+                id,
+                id,
+                "repository_skill",
+                "skills/" + id + "/SKILL.md",
+                "Materially constrained this pulse",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                "Preserved capability-state truth",
+                evidenceBoundary);
+    }
+
     @Test
     public void materialOrderBecomesStableFocusOrderWithAccessibleTouchTargets() {
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
@@ -42,6 +57,24 @@ public class HeartbeatSceneGraphTest {
         assertEquals("●", frame.nodes.get(0).stateToken);
         assertEquals("□", frame.nodes.get(1).stateToken);
         assertTrue(frame.nodes.get(1).contentDescription.contains("blocked"));
+    }
+
+    @Test
+    public void typedNodeCarriesReasonEvidenceAndProvenanceForTouchDetail() {
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-typed",
+                Collections.singletonList(typedActive("execution-truth", "Exact branch blob")),
+                true,
+                null);
+        HeartbeatSceneGraph.Node node = frame.nodes.get(0);
+
+        assertEquals("repository_skill", node.provenanceKind);
+        assertEquals("skills/execution-truth/SKILL.md", node.provenanceLocator);
+        assertEquals("Materially constrained this pulse", node.activationReason);
+        assertEquals("Exact branch blob", node.evidenceBoundary);
+        assertTrue(node.detailContentDescription.contains("Why: Materially constrained this pulse"));
+        assertTrue(node.detailContentDescription.contains("Evidence: Exact branch blob"));
+        assertTrue(node.detailContentDescription.contains("Source: repository_skill skills/execution-truth/SKILL.md"));
     }
 
     @Test
@@ -108,6 +141,25 @@ public class HeartbeatSceneGraphTest {
         assertTrue(first.transitionMotionAllowed);
         assertFalse(second.transitionMotionAllowed);
         assertFalse(second.nodes.get(0).transitionMotion);
+    }
+
+    @Test
+    public void evidenceOnlyMetadataChangeDoesNotCreateDecorativeBlink() {
+        HeartbeatSceneGraph.Frame first = HeartbeatSceneGraph.build(
+                "pulse-1",
+                Collections.singletonList(typedActive("execution-truth", "Blob A")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame second = HeartbeatSceneGraph.build(
+                "pulse-2",
+                Collections.singletonList(typedActive("execution-truth", "Blob B")),
+                true,
+                first);
+
+        assertFalse(second.transitionMotionAllowed);
+        assertFalse(second.nodes.get(0).transitionMotion);
+        assertEquals("Blob B", second.nodes.get(0).evidenceBoundary);
+        assertTrue(second.nodes.get(0).detailContentDescription.contains("Evidence: Blob B"));
     }
 
     @Test
