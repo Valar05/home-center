@@ -1,0 +1,89 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone source fronts while P0 and the primary-phone surface remain firewalled; preserve capability-state truth and avoid decorative progress.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "058271039f594f649dcc530abb618c3c0738e31c",
+  "timestamp": "2026-08-15T15:58:04Z",
+  "research": [
+    "PR #329 current body/head/capability ledger",
+    "skills/heartbeat-skill-lights/SKILL.md",
+    "skills/venice-review-memory/SKILL.md",
+    "HeartbeatSceneGraph.java",
+    "HeartbeatSceneGraphTest.java",
+    "HeartbeatFrameCheckpoint.java",
+    "heartbeat-contact-sheet-source-specimen.html"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0/phone ownership, execution lane, exclusions, and delivery surface are binding."
+    },
+    {
+      "id": "change-discipline",
+      "source": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "Repair the existing scene/checkpoint organs rather than create another renderer/controller."
+    },
+    {
+      "id": "venice-review-memory",
+      "source": "skills/venice-review-memory/SKILL.md",
+      "why": "Apply scars for evidence laundering, planning bypass, duplicate architecture, and decorative status work."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Interrupted refreshes must preserve contact and never earn Christmas-light motion."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_consult",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "plan": [
+    "Front A — Motion clamp: repair HeartbeatSceneGraph.preserveLastGood so an interrupted/rejected refresh preserves last-good semantics but clears every node-level transitionMotion flag. The frame-level transitionMotionAllowed=false contract must not contradict child-node motion flags.",
+    "Front B — Idempotent pulse identity: inspect and, if compatible with the existing checkpoint contract, fail closed when the same visible pulseId is reused with different visible contact semantics. A retry identity must not mutate underneath itself.",
+    "Front C — Regression source: replace the existing assertSame assumptions that preserve stale motion bits; add fixtures proving interrupted refreshes keep contact identity, clear all node motion flags, and preserve exact rejection boundaries. If Front B is adopted, add same-pulse collision and exact-retry fixtures.",
+    "Front D — Touchable source art: advance the existing non-raster contact-preservation lane with one bounded source specimen or source-sheet refinement only if it can encode the newly repaired motion/idempotence contract without creating a neighboring renderer/controller.",
+    "Front E — Review/evidence: exact GitHub readback, bounded Regnet/Venice review receipts, PR body/capability ledger refresh, no unchanged-condition CI hammering, and no promotion beyond source/readback evidence."
+  ],
+  "outsideScope": [
+    "primary-phone execution",
+    "Phone Hands tickets or queue reads/mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore playback",
+    "Pocket TTS",
+    "Chromium control",
+    "Context Organs",
+    "new overlay controller, renderer, accessibility service, phone ingress path, recovery daemon, or coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "antagonism": [
+    "A frame-level no-motion flag is insufficient if preserved nodes still advertise transitionMotion=true; remove the contradiction at the node contract itself.",
+    "Do not preserve Java object identity merely because an old test asserted it; preserve semantic contact identity instead.",
+    "Do not invent same-pulse collision semantics unless they fit the existing checkpoint/idempotence contract and can be expressed as a targeted fail-closed rule.",
+    "Do not create a new art specimen merely to have an art front; only advance art if it materially teaches the repaired contract.",
+    "Do not retry the unchanged Actions-budget failure as activity.",
+    "Do not synthesize a She-Raw opinion after the authoritative connector fault.",
+    "Do not touch the phone/P0 surface."
+  ],
+  "acceptance": [
+    "Interrupted/rejected refresh preserves visible pulse, node semantic detail, contact checkpoint identity, and exact boundary while every preserved node reports transitionMotion=false.",
+    "No renderer/controller/transport/phone/P0 organ is created or mutated.",
+    "Regression source explicitly catches stale node-level motion on interrupted refresh.",
+    "If same-pulse identity hardening is implemented, exact retry is accepted without motion and same-id semantic collision preserves last-good with an explicit boundary.",
+    "Changed artifacts survive exact GitHub readback.",
+    "P0/phone mutations remain zero.",
+    "TESTED remains NO/BLOCKED_UNKNOWN unless a deterministic job actually executes."
+  ],
+  "veniceDirective": "PLAN_ALLOWED",
+  "veniceFindings": [
+    "Current preserveLastGood returns lastGood.nodes verbatim. A node that earned transitionMotion=true in the last accepted frame therefore remains transitionMotion=true inside a new interrupted frame even though frame.transitionMotionAllowed=false. That is a contradictory source contract and a plausible renderer bug.",
+    "The existing checkpoint helper fingerprints semantic contact fields, not object identity or motion flags, so the contact surface can remain exactly identical while preserved nodes are safely re-materialized with motion disabled.",
+    "The same pulseId collision question is a legitimate idempotence seam but must remain subordinate to the targeted motion-clamp repair."
+  ]
+}
