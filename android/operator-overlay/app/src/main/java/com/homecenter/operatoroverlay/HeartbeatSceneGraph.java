@@ -95,6 +95,32 @@ public final class HeartbeatSceneGraph {
     }
 
     /**
+     * Compose the canonical parser result into the existing semantic scene.
+     * Parser rejection preserves last-good contact and carries the exact parse
+     * boundary forward. This remains pure source composition; it does not wire a
+     * renderer, transport, phone surface, or P0 owner.
+     */
+    public static Frame build(HeartbeatEnvelopeParser.Result parsed, Frame lastGood) {
+        if (parsed == null) {
+            return preserveLastGood("", lastGood, "Heartbeat envelope result is missing.");
+        }
+        if (!parsed.accepted()) {
+            String boundary = parsed.boundary.isEmpty()
+                    ? "Heartbeat envelope was rejected."
+                    : parsed.boundary;
+            return preserveLastGood("", lastGood, boundary);
+        }
+        if (parsed.pulse == null) {
+            return preserveLastGood("", lastGood, "Heartbeat envelope pulse is missing.");
+        }
+        return build(
+                parsed.pulse.pulseId,
+                parsed.pulse.candidates,
+                parsed.pulse.complete,
+                lastGood);
+    }
+
+    /**
      * Build the next semantic frame.
      *
      * Incomplete or semantically invalid pulses preserve the last complete frame
