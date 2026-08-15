@@ -15,6 +15,10 @@ final class OperatorState {
     static final String KEY_LATEST_SOURCE = "latest_source";
     static final String KEY_LAST_UPDATE_MS = "last_update_ms";
     static final String KEY_LAST_HEARTBEAT_MS = "last_heartbeat_ms";
+    static final String KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64 = "heartbeat_lights_payload_b64";
+    static final String KEY_HEARTBEAT_LIGHTS_BYTES = "heartbeat_lights_bytes";
+    static final String KEY_HEARTBEAT_LIGHTS_SHA256 = "heartbeat_lights_sha256";
+    static final String KEY_HEARTBEAT_LIGHTS_UPDATED_MS = "heartbeat_lights_updated_ms";
     static final String KEY_SCREEN_ACTIVE_UNTIL_MS = "screen_active_until_ms";
     static final String KEY_SCREEN_YIELD_UNTIL_MS = "screen_yield_until_ms";
     static final String KEY_PANEL_COLLAPSED = "panel_collapsed";
@@ -30,6 +34,7 @@ final class OperatorState {
     static final String KEY_SPOTIFY_RECEIPT_B64 = "spotify_receipt_b64";
     static final String KEY_SPOTIFY_SUMMARY = "spotify_summary";
     static final String KEY_SPOTIFY_UPDATED_MS = "spotify_updated_ms";
+    static final int MAX_HEARTBEAT_LIGHTS_BYTES = 32768;
 
     private OperatorState() {}
 
@@ -40,6 +45,10 @@ final class OperatorState {
     static String latestSource(Context context) { return prefs(context).getString(KEY_LATEST_SOURCE, "ChatGPT"); }
     static long lastUpdateMs(Context context) { return prefs(context).getLong(KEY_LAST_UPDATE_MS, 0L); }
     static long lastHeartbeatMs(Context context) { return prefs(context).getLong(KEY_LAST_HEARTBEAT_MS, 0L); }
+    static String heartbeatLightsPayloadB64(Context context) { return prefs(context).getString(KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, ""); }
+    static long heartbeatLightsBytes(Context context) { return prefs(context).getLong(KEY_HEARTBEAT_LIGHTS_BYTES, 0L); }
+    static String heartbeatLightsSha256(Context context) { return prefs(context).getString(KEY_HEARTBEAT_LIGHTS_SHA256, ""); }
+    static long heartbeatLightsUpdatedMs(Context context) { return prefs(context).getLong(KEY_HEARTBEAT_LIGHTS_UPDATED_MS, 0L); }
     static long screenActiveUntilMs(Context context) { return prefs(context).getLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L); }
     static long screenYieldUntilMs(Context context) { return prefs(context).getLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L); }
     static boolean panelCollapsed(Context context) { return prefs(context).getBoolean(KEY_PANEL_COLLAPSED, true); }
@@ -179,6 +188,23 @@ final class OperatorState {
         if (cleanSummary.length() > 240) cleanSummary = cleanSummary.substring(0, 240);
         return cleanSummary;
     }
+
+    static void updateHeartbeatLights(Context context, String payloadJson, long nowMs) {
+        if (payloadJson == null || payloadJson.trim().isEmpty()) return;
+        byte[] bytes = payloadJson.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > MAX_HEARTBEAT_LIGHTS_BYTES) {
+            throw new IllegalArgumentException("heartbeat lights payload exceeds " + MAX_HEARTBEAT_LIGHTS_BYTES + " bytes");
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        boolean committed = prefs(context).edit()
+                .putString(KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, encoded)
+                .putLong(KEY_HEARTBEAT_LIGHTS_BYTES, bytes.length)
+                .putString(KEY_HEARTBEAT_LIGHTS_SHA256, sha256(bytes))
+                .putLong(KEY_HEARTBEAT_LIGHTS_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+        if (!committed) throw new IllegalStateException("heartbeat lights commit failed");
+    }
+
     static void updateText(Context context, String source, String text, long nowMs) {
         String clean = text == null ? "" : text.trim(); if (clean.length() > 8000) clean = clean.substring(0, 8000);
         String cleanSource = source == null || source.trim().isEmpty() ? "ChatGPT" : source.trim(); if (cleanSource.length() > 80) cleanSource = cleanSource.substring(0, 80);
