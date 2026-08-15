@@ -58,11 +58,11 @@ public final class HeartbeatPersistedEnvelopeProjection {
      * Verify exact persisted identity before delegating accepted bytes to the
      * canonical parser and scene graph.
      *
-     * <p>Storage-integrity rejection returns the exact prior frame reference. It
-     * must not manufacture a new semantic frame from bytes whose persisted
-     * identity is inconsistent. Parser/scene rejection after storage acceptance is
-     * delegated to {@link HeartbeatSceneGraph}, which preserves last-good contact
-     * with its ordinary interrupted-refresh semantics.</p>
+     * <p>Storage-integrity rejection delegates to the existing scene-preservation
+     * organ so visible contact/checkpoint identity survives while every one-shot
+     * motion bit is clamped off and the exact integrity boundary remains visible.
+     * Parser/scene rejection after storage acceptance uses the same preservation
+     * semantics through {@link HeartbeatSceneGraph}.</p>
      */
     public static Result project(
             String payloadJson,
@@ -154,12 +154,16 @@ public final class HeartbeatPersistedEnvelopeProjection {
             int observedBytes,
             String observedSha256,
             long updatedMs) {
+        HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "",
+                lastGood,
+                boundary);
         return new Result(
                 false,
                 false,
                 false,
                 false,
-                lastGood,
+                preserved,
                 boundary,
                 observedBytes,
                 observedSha256,
