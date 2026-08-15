@@ -82,4 +82,28 @@ public class HeartbeatSkillPolicyTest {
                 "Skill Regnet QA, blocked. UI consumer not wired yet.",
                 HeartbeatSkillPolicy.contentDescription(candidate));
     }
+
+    @Test
+    public void collapsedDescriptionPreservesMaterialOrderExactStatesAndConsequences() {
+        String description = HeartbeatSkillPolicy.collapsedContentDescription(
+                Arrays.asList(
+                        new HeartbeatSkillPolicy.Candidate(
+                                "execution-truth", "Execution truth", HeartbeatSkillPolicy.State.ACTIVE,
+                                true, "Collapsed UI keeps proof visible"),
+                        new HeartbeatSkillPolicy.Candidate(
+                                "decorative", "Decorative", HeartbeatSkillPolicy.State.ACTIVE,
+                                false, "Must remain dark"),
+                        new HeartbeatSkillPolicy.Candidate(
+                                "regnet", "Regnet QA", HeartbeatSkillPolicy.State.BLOCKED,
+                                false, "UI consumer not wired yet"),
+                        new HeartbeatSkillPolicy.Candidate(
+                                "REGNET", "Duplicate Regnet", HeartbeatSkillPolicy.State.FAULT,
+                                false, "Must dedupe by stable id")));
+
+        assertEquals(
+                "2 material skill lights. "
+                        + "Skill Execution truth, active. Collapsed UI keeps proof visible. "
+                        + "Skill Regnet QA, blocked. UI consumer not wired yet.",
+                description);
+    }
 }
