@@ -1,0 +1,74 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone source fronts while the P0/primary-phone firewall remains binding; only materially consequential skill lights may illuminate.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "d846c328d09653c579fc68b38b6a9e29e573bf3a",
+  "timestamp": "2026-08-15T20:59:10Z",
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "The P0 and shared-phone firewalls prohibit runtime, queue, recovery, or physical-phone work; this slice must remain independent source work."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "The persisted-identity seam currently receives a Java String and therefore cannot itself prove that decoded storage bytes were valid, lossless UTF-8 before semantic ingestion."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "Source/readback, regression source, runtime ingestion, rendering, deployment, phone callability, delivery, and acceptance must stay separate."
+    },
+    {
+      "id": "fortress-plan-gate",
+      "source": "skills/fortress-plan-gate/SKILL.md",
+      "why": "This pulse mutates repository source and must preserve a pre-execution Venice plan receipt before substantive mutation."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "The new byte-to-text boundary is an integrity and recovery seam; malformed encoding and last-good contact need adversarial failure-path review."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "antagonism": [
+    "Do not decode Android Base64, read SharedPreferences, wire a renderer, issue phone work, touch P0 queues, or create a neighboring runtime owner.",
+    "Do not let a lossy UTF-8 String decode silently replace malformed bytes before persisted byte-count/SHA verification.",
+    "Do not duplicate the persisted identity checks in a second controller; extend the existing pure projection seam instead.",
+    "Do not claim a byte-first source API as runtime ingestion until the existing overlay owner actually supplies decoded persisted bytes to it.",
+    "Do not add a new decorative artifact if the existing warm-wall motion-clamp specimen can teach the new encoding wound in place.",
+    "Do not manually retry the unchanged Actions-budget blocker or count regression source as executed tests."
+  ],
+  "plan": [
+    "Front A — Byte-first integrity seam: extend HeartbeatPersistedEnvelopeProjection with a strict byte[] entry point that verifies declared byte count and SHA on exact stored bytes, rejects malformed UTF-8 with CharsetDecoder REPORT before semantic parsing, then delegates only valid decoded text to the existing parser/scene path. Keep the String entry point as a source compatibility adapter without creating runtime ownership.",
+    "Front B — Recovery/idempotence regression source: add deterministic pure-JVM regression coverage for malformed UTF-8 rejection preserving last-good contact/motion clamp, valid astral Unicode, byte-count/SHA mismatch ordering, and equivalence between valid byte-first and String source paths.",
+    "Front C — Warm-wall/accessibility specimen in place: extend heartbeat-motion-clamp-source-specimen.html only if the new encoding boundary materially changes what should be taught; preserve semantic native controls, keyboard reachability, >=48px targets, non-color state, one live region, reduced motion, and SOURCE ONLY scarring.",
+    "Front D — Doctrine/evidence: update heartbeat-skill-lights doctrine only where the byte-first contract changes, perform exact remote readback, inspect automatic CI without blind retry, then persist Regnet, Venice completion, and compact swarm receipts.",
+    "Front E — P0 finding discipline: if source work reveals a P0/runtime defect, record one concise read-only finding for the canonical P0 owner; do not mutate or coordinate the recovery chain."
+  ],
+  "outsideScope": [
+    "primary-phone execution or Phone Hands",
+    "queue/device probes or mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore, Pocket TTS, Chromium, Context Organs",
+    "Android renderer/runtime wiring or a new controller",
+    "merging PR #329 as delivered capability"
+  ],
+  "acceptance": [
+    "Persisted raw bytes can be integrity-checked and strict-UTF-8-decoded before semantic parsing without creating a runtime owner.",
+    "Malformed UTF-8 fails before parser trust, preserves last-good contact, and clamps all transition motion in regression source.",
+    "Valid Unicode survives byte-first projection exactly; byte/SHA mismatches remain storage-integrity wounds.",
+    "Any warm-wall change encodes the new exact wound rather than decorative motion.",
+    "Exact GitHub readback proves implemented source only; TESTED remains bounded by actual CI evidence; P0/phone mutations remain zero."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}
