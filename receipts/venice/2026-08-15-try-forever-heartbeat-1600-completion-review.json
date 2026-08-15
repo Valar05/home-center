@@ -1,0 +1,76 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "47250a6b22dd080582e8a8ca766281066c0158d2",
+  "timestamp": "2026-08-15T21:09:00Z",
+  "commission": "Review whether the bounded 1600 TRY FOREVER non-phone source slice may yield after closing lossy Unicode persistence/projection gaps, without promoting source work into runtime, phone, delivery, acceptance, or P0 capability.",
+  "planReceipts": [
+    "receipts/venice/2026-08-15-try-forever-heartbeat-1600-plan-review.json",
+    "receipts/venice/2026-08-15-try-forever-heartbeat-1600-replan-review.json"
+  ],
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1600-source-review.json",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "heartbeat-skill-lights",
+    "execution-truth",
+    "Originality Tax",
+    "Regnet QA"
+  ],
+  "codeFirstReview": {
+    "initialFinding": "The first 1600 pass added strict raw-byte projection but assumed persisted bytes still faithfully represented the incoming Java String.",
+    "evidenceThatBrokeTheAssumption": "OperatorState.updateHeartbeatLights used String.getBytes(StandardCharsets.UTF_8), whose replacement semantics can normalize unpaired UTF-16 before persisted byte-count/SHA evidence exists.",
+    "replanResponse": "A fresh Venice replan preceded repair. The existing OperatorState persistence owner now REPORT-encodes heartbeat JSON before SharedPreferences mutation; byte-first downstream projection verifies exact bytes/SHA and REPORT-decodes UTF-8 before parser trust. Regression source attacks both sides. A second code review also corrected pre-decode SHA/size boundary language so it does not pretend malformed raw bytes are already decoded UTF-8.",
+    "postRepairReadback": {
+      "HeartbeatPersistedEnvelopeProjection.java": "66260cfa89a38534054b5d46600eca54e0966d3c",
+      "HeartbeatPersistedEnvelopeProjectionTest.java": "ff0b22c3b76dd83b21da546ce1b0afdc01bfac43",
+      "OperatorState.java": "57874058f04057926492bf74e9172a33fd8d27af",
+      "OperatorStateHeartbeatLightsEncodingTest.java": "c6ee86bffe8adc283cdff011af10b2e03a451c8b",
+      "heartbeat-motion-clamp-source-specimen.html": "e7271b76bfa569e151ff3a0a392c579637011028"
+    },
+    "result": "PASS_FOR_BOUNDED_SOURCE_SLICE"
+  },
+  "missionReview": [
+    "Failure Is The Shovel and Originality Tax paid rent: the unchanged Actions-budget blocker was not manually retried; effort moved into a different reachable source integrity seam and then replanned when source archaeology broke the first assumption.",
+    "The byte-first projection snapshots mutable input, verifies exact raw identity, strictly decodes UTF-8, and preserves last-good contact with motion clamped on any pre-parser wound.",
+    "The existing OperatorState ingress owner now fails malformed Unicode before persistence mutation instead of replacement-encoding it; no second controller, persistence owner, parser, or phone path was introduced.",
+    "Regression source covers well-formed astral Unicode, unpaired high/low surrogate ingress rejection, malformed raw UTF-8, mismatch ordering, and contact/transition preservation. It remains source, not executed evidence.",
+    "The existing warm-wall motion-clamp specimen was extended in place to an eighth encoding scar and preserved semantic controls, keyboard focus, >=48px targets, one live status region, non-color state, reduced-motion behavior, no autoplay, and explicit SOURCE ONLY scarring.",
+    "She-Raw was attempted once and faulted at account connection HTTP 400; no synthetic reviewer was substituted.",
+    "The P0/phone ownership chain was not coordinated, probed, mutated, woken, retasked, or used for evidence."
+  ],
+  "deterministicBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31908532057,
+    "jobId": 95070002807,
+    "headSha": "47250a6b22dd080582e8a8ca766281066c0158d2",
+    "stepsExecuted": 0,
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "allMutationCounts": 0,
+    "held": true
+  },
+  "directive": "STOP_ALLOWED",
+  "directiveScope": "This bounded 1600 source slice only. The recurring TRY FOREVER campaign remains active. No merge permission, runtime wiring permission, phone execution permission, deployment claim, delivery claim, acceptance claim, or P0 authority is granted.",
+  "nextExactBoundary": "Runtime integration remains unimplemented: the existing Operator Overlay owner still does not Base64-decode OperatorState's persisted heartbeat bytes, call projectBytes with the exact stored identity, render the resulting scene, or expose it through TalkBack on device. The shared phone surface remains P0-owned."
+}
