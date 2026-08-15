@@ -47,6 +47,12 @@ If the intended body is outside its own liveness freshness window, record `TEST_
 
 The next RED BUILD pass rechecks the same already-authorized body first. If it is fresh and available, execute the smallest exact-head test immediately. If it is still unavailable, preserve the boundary once, metabolize any newly learned failure trait, and advance another non-conflicting authorized edge rather than repeating probes that cannot change the evidence state.
 
+## Evidence rank and Drew Durable
+
+When evidence classes conflict, commissioned-surface evidence outranks speech about that surface. For visual UI claims, a screenshot of the commissioned surface outranks narration, logs, implementation notes, intent, and source readback; without that screenshot preserve `VISUAL_PROOF_UNPROVEN`. Source hash/readback proves source bytes only and never promotes runtime state.
+
+Every run-facing receipt begins by answering `WHAT ACTUALLY CHANGED?` with the concrete mutation and exact durable identifier. If the only material transition is a newly evidenced boundary, name that boundary and the next eligible edge. Narration-only checkpoints do not satisfy RED BUILD.
+
 ## Slash-a-Rat
 
 A rat is ceremony between commission and delivered evidence that no longer buys useful information, safety, control, or capability. Slash it. Examples: duplicate workers, scheduler-as-progress, skill-fetch dependency for baseline judgment, prose-as-execution, repeated rediscovery of known blockers, and user-as-command-bus.
