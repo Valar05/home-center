@@ -13,7 +13,7 @@
 <main>
 <header>
 <h1>WARM WALL / MOTION CLAMP</h1>
-<p>A heartbeat can preserve contact without preserving yesterday's twitch. Touch the four source states below. Interrupted refresh and identity collision keep the last-good semantics visible while every motion bit is clamped off.</p>
+<p>A heartbeat can preserve contact without preserving yesterday's twitch. Touch the five source states below. Interrupted refresh, identity collision, and poisoned protocol tokens keep the last-good semantics visible while every motion bit is clamped off.</p>
 <span class="scar">SOURCE ONLY · DOM/VECTOR · NOT OPERATOR-OVERLAY RUNTIME PROOF</span>
 </header>
 <nav id="controls" class="controls" aria-label="Motion-clamp source states"></nav>
@@ -27,7 +27,7 @@
 <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 <section class="detail" aria-label="Specimen contract">
 <h2>Contract</h2>
-<p><strong>Visible contact</strong> is semantic identity. <strong>Motion</strong> is ephemeral. Exact retry may reuse a pulse identity without blinking. Same pulse identity with different contact semantics fails closed.</p>
+<p><strong>Visible contact</strong> is semantic identity. <strong>Motion</strong> is ephemeral. Exact retry may reuse a pulse identity without blinking. Same pulse identity with different contact semantics fails closed. A schema/state token containing a decoded control character or unpaired surrogate is rejected before normalization and never replaces the last-good frame.</p>
 </section>
 </main>
 <script>
@@ -37,7 +37,8 @@ const frames=[
 {id:'accepted',label:'01 · accepted transition',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:true,boundary:'A material consequence changed. Frame and changed node may pulse once.',lights:base},
 {id:'interrupted',label:'02 · interrupted wound',visible:'pulse-clamp',attempted:'pulse-next',interrupted:true,motion:false,boundary:'Refresh incomplete. Preserve pulse-clamp contact, but rematerialize preserved nodes with transitionMotion=false.',lights:base},
 {id:'retry',label:'03 · exact retry',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:false,boundary:'Same pulse id + exact same contact semantics is an idempotent retry. No new Christmas motion.',lights:base},
-{id:'collision',label:'04 · identity collision',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:true,motion:false,boundary:'Same pulse id + different contact semantics is rejected. Last-good contact survives; attempted mutation does not leak.',lights:base}
+{id:'collision',label:'04 · identity collision',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:true,motion:false,boundary:'Same pulse id + different contact semantics is rejected. Last-good contact survives; attempted mutation does not leak.',lights:base},
+{id:'protocol',label:'05 · protocol scar',visible:'pulse-clamp',attempted:'pulse-poisoned',interrupted:true,motion:false,boundary:'Decoded control or unpaired surrogate in schema/state is rejected before normalization. Last-good contact survives; poisoned protocol text never reaches the scene.',lights:base}
 ];
 const controls=document.getElementById('controls'),stage=document.getElementById('stage'),title=document.getElementById('title'),meta=document.getElementById('meta'),contract=document.getElementById('contract'),lights=document.getElementById('lights'),status=document.getElementById('status');
 function el(name,text){const n=document.createElement(name);n.textContent=String(text??'');return n}
