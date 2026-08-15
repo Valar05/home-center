@@ -5,7 +5,7 @@ package com.homecenter.operatoroverlay;
  *
  * <p>The heartbeat-light envelope is optional telemetry layered on top of the
  * independent liveness heartbeat. A caller-invalid optional payload must not
- * suppress liveness or erase the previously durable payload. Internal/storage
+ * suppress liveness or erase the previously stored payload. Internal/storage
  * failures are different: they are not swallowed or relabeled as a healthy
  * heartbeat.</p>
  *
