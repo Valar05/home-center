@@ -1,0 +1,53 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat 1600: strict byte-first persisted identity without crossing the P0/phone firewall.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeReplan": "7bc25df4810f9612ed3a80841c7f9cca2754c3b3",
+  "timestamp": "2026-08-15T21:05:00Z",
+  "trigger": "Code-first review of the existing ingress owner showed OperatorState.updateHeartbeatLights uses String.getBytes(StandardCharsets.UTF_8). That encoder replaces malformed UTF-16 input rather than reporting it. A byte-first downstream verifier cannot recover evidence that was already normalized away before persistence.",
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "Repair must stay in the existing ingress owner and pure source/test surfaces; no phone/P0/runtime deployment work."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Semantic safety says malformed Unicode must fail closed rather than be normalized into canonical telemetry."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "A source repair is not deployed runtime behavior and must remain below TESTED/DEPLOYED/CALLABLE."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "The newly discovered upstream normalization path is a reachable failure path that invalidates the first plan's completeness assumption."
+    }
+  ],
+  "antagonism": [
+    "Do not pretend projectBytes alone closes the encoding wound if OperatorState has already replaced malformed UTF-16 before Base64 persistence.",
+    "Do not add a second persistence owner or semantic parser in the receiver; preserve opaque ingress architecture.",
+    "Do not convert this source repair into phone execution, deployment, or P0 coordination.",
+    "Do not change valid payload bytes: strict encoding of well-formed Unicode must remain byte-for-byte equal to StandardCharsets.UTF_8 for ordinary input.",
+    "Do not silently swallow the invalid payload as success; preserve prior stored heartbeat by failing before SharedPreferences mutation."
+  ],
+  "revisedPlan": [
+    "Front A2 — Existing ingress owner: change OperatorState.updateHeartbeatLights to encode heartbeat JSON with a strict UTF-8 CharsetEncoder configured to REPORT malformed/unmappable input before any SharedPreferences mutation. Keep the same byte ceiling, Base64, SHA, timestamp, and atomic commit contract.",
+    "Front B2 — Regression source: add a package-visible pure helper on OperatorState only if needed for deterministic unit coverage; prove well-formed astral Unicode encodes identically and unpaired surrogate input is rejected before persistence. Do not introduce another controller or codec owner.",
+    "Front C2 — Byte-first downstream projection remains as implemented: exact persisted bytes are cloned, byte/SHA checked, then strict-decoded before parser trust. Together the two seams make normalization failure explicit on both sides of persistence.",
+    "Front D2 — Update warm-wall semantics only if needed after review; otherwise preserve the existing new UTF-8 encoding scar. Persist Regnet/Venice/swarm receipts with the discovered assumption and repair."
+  ],
+  "acceptance": [
+    "Malformed UTF-16 heartbeat JSON cannot be silently replacement-encoded into persisted canonical bytes by OperatorState source.",
+    "Well-formed Unicode retains exact UTF-8 bytes and existing Base64/SHA persistence semantics.",
+    "No new persistence/controller/runtime owner is created and no phone/P0 surface is touched.",
+    "Source/readback and regression source do not promote TESTED or later capability states."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}
