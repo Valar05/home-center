@@ -23,17 +23,18 @@ public final class HeartbeatIngressPolicy {
     public static final class Result {
         public final boolean payloadPresent;
         public final boolean payloadAccepted;
-        public final boolean heartbeatAccepted;
+        /** True only when the heartbeat sink returned normally; this is not a disk-durability claim. */
+        public final boolean heartbeatInvoked;
         public final String boundary;
 
         private Result(
                 boolean payloadPresent,
                 boolean payloadAccepted,
-                boolean heartbeatAccepted,
+                boolean heartbeatInvoked,
                 String boundary) {
             this.payloadPresent = payloadPresent;
             this.payloadAccepted = payloadAccepted;
-            this.heartbeatAccepted = heartbeatAccepted;
+            this.heartbeatInvoked = heartbeatInvoked;
             this.boundary = cleanBoundary(boundary);
         }
     }
@@ -46,9 +47,15 @@ public final class HeartbeatIngressPolicy {
      *
      * <p>Only {@link IllegalArgumentException} from optional payload persistence is
      * classified as caller-invalid telemetry. That rejection preserves the old
-     * payload and still advances the independent heartbeat. Other runtime failures
-     * (for example a SharedPreferences commit failure) propagate unchanged instead
-     * of being hidden behind a healthy liveness claim.</p>
+     * payload and still invokes the independent heartbeat sink. Other runtime
+     * failures (for example a SharedPreferences commit failure) propagate unchanged
+     * instead of being hidden behind a healthy liveness claim.</p>
+     *
+     * <p>A returned {@code heartbeatInvoked=true} proves only that the supplied
+     * heartbeat operation returned normally. The current OperatorState heartbeat
+     * uses SharedPreferences.apply(), so this source result deliberately does not
+     * claim durable disk persistence, deployment, runtime observation, or phone
+     * acceptance.</p>
      */
     public static Result apply(String payloadJson, Sink sink) {
         if (sink == null) throw new IllegalArgumentException("heartbeat ingress sink is required");
