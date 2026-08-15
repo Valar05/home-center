@@ -51,6 +51,29 @@ public final class HeartbeatSceneGraph {
             this.detailContentDescription = HeartbeatSkillPolicy.detailContentDescription(candidate);
             this.transitionMotion = transitionMotion;
         }
+
+        /**
+         * Re-materialize preserved contact while overriding ephemeral motion state.
+         * Semantic/touch/TalkBack fields remain byte-for-byte equivalent at the
+         * Java String level; an interrupted refresh must not inherit a prior pulse's
+         * one-shot animation bit merely because the last-good node object is reused.
+         */
+        private Node(Node source, boolean transitionMotion) {
+            this.id = source.id;
+            this.label = source.label;
+            this.provenanceKind = source.provenanceKind;
+            this.provenanceLocator = source.provenanceLocator;
+            this.activationReason = source.activationReason;
+            this.state = source.state;
+            this.consequence = source.consequence;
+            this.evidenceBoundary = source.evidenceBoundary;
+            this.focusIndex = source.focusIndex;
+            this.touchTargetDp = source.touchTargetDp;
+            this.stateToken = source.stateToken;
+            this.contentDescription = source.contentDescription;
+            this.detailContentDescription = source.detailContentDescription;
+            this.transitionMotion = transitionMotion;
+        }
     }
 
     public static final class Frame {
@@ -126,6 +149,11 @@ public final class HeartbeatSceneGraph {
      * Incomplete or semantically invalid pulses preserve the last complete frame
      * instead of replacing it with partial, anonymous, or untyped state. No motion
      * is permitted for a rejected refresh.
+     *
+     * A pulse id is also an idempotent semantic identity. Reusing the currently
+     * visible pulse id is permitted only for an exact visible-contact retry. If the
+     * same id arrives with different contact semantics, fail closed instead of
+     * allowing one identity to mutate underneath checkpoints or retry logic.
      */
     public static Frame build(
             String pulseId,
@@ -165,7 +193,16 @@ public final class HeartbeatSceneGraph {
             nodes.add(new Node(candidate, index, changed));
         }
 
-        return new Frame(attempted, attempted, nodes, false, "", anyTransition);
+        Frame next = new Frame(attempted, attempted, nodes, false, "", anyTransition);
+        if (lastGood != null
+                && attempted.equals(lastGood.visiblePulseId)
+                && !HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, next)) {
+            return preserveLastGood(
+                    attempted,
+                    lastGood,
+                    "Pulse identity collision: the visible pulse id was reused with different contact semantics.");
+        }
+        return next;
     }
 
     private static Frame preserveLastGood(String attempted, Frame lastGood, String boundary) {
@@ -181,10 +218,26 @@ public final class HeartbeatSceneGraph {
         return new Frame(
                 lastGood.visiblePulseId,
                 attempted,
-                lastGood.nodes,
+                withoutMotion(lastGood.nodes),
                 true,
                 boundary,
                 false);
+    }
+
+    /**
+     * Preserve all visible semantics while clearing one-shot motion flags.
+     *
+     * Frame.transitionMotionAllowed=false is the aggregate contract, but later
+     * renderers may reasonably inspect node.transitionMotion. Returning stale node
+     * objects would therefore leave contradictory source truth inside an interrupted
+     * frame. Re-materialization keeps contact identity while making the no-motion
+     * contract true at both levels.
+     */
+    private static List<Node> withoutMotion(List<Node> nodes) {
+        if (nodes == null || nodes.isEmpty()) return Collections.emptyList();
+        List<Node> preserved = new ArrayList<>(nodes.size());
+        for (Node node : nodes) preserved.add(new Node(node, false));
+        return preserved;
     }
 
     private static Map<String, Node> indexById(Frame frame) {
