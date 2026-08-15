@@ -1,0 +1,153 @@
+{
+  "schema": "try-forever-heartbeat-source-hardening.v1",
+  "commission": "Advance independent TRY FOREVER heartbeat skill-light source work while the P0 and primary-phone surfaces remain firewalled.",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "sourceHeadBeforeReceipt": "93f9570bd3f08e8ba428823afe1574a6767b3184",
+  "fronts": [
+    {
+      "id": "typed-envelope-fail-closed",
+      "state": "implemented_source",
+      "change": "Canonical heartbeat envelopes now reject unknown root and light fields instead of silently accepting typoed or aspirational capability claims.",
+      "evidence": {
+        "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+        "blob": "67cbd5105f8d710a3f104ca83bf4d923e10fd6c1"
+      }
+    },
+    {
+      "id": "repository-skill-provenance-shape",
+      "state": "implemented_source",
+      "change": "repository_skill typed provenance now requires an exact skills/<id>/SKILL.md-shaped locator and rejects traversal, backslashes, duplicate separators, and non-skill paths. This is syntax validation only; repository existence remains a repository-harvest responsibility.",
+      "evidence": {
+        "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java",
+        "blob": "f663863b90691833fe50ad9ee6073d3122ac2de1"
+      }
+    },
+    {
+      "id": "parser-scene-contact-composition",
+      "state": "implemented_source",
+      "change": "HeartbeatSceneGraph can consume HeartbeatEnvelopeParser.Result directly; parser rejection preserves the last-good scene and carries the exact parse boundary without creating a renderer, transport owner, or runtime controller.",
+      "evidence": {
+        "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java",
+        "blob": "44e07685dd1a23aae12b7c9887dc17dc43bd32c8"
+      }
+    },
+    {
+      "id": "typed-source-regression-source",
+      "state": "implemented_source_unexecuted",
+      "change": "Added source regressions for unknown envelope members, repository-skill provenance path shape, parser rejection preserving last-good contact, and accepted parser-to-scene composition.",
+      "evidence": {
+        "path": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatTypedSourceHardeningTest.java",
+        "blob": "dabe870e66514ecb6a0bb0d478c1ed94000b8a4f"
+      }
+    },
+    {
+      "id": "accessible-selection-semantics",
+      "state": "implemented_source",
+      "change": "The touchable warm-wall DOM specimen now models persistent selection with aria-pressed rather than falsely describing the always-present shared detail surface as expanded/collapsed. Keyboard reachability, 48px minimum targets, non-color tokens, live selection status, textContent detail construction, and reduced-motion behavior remain intact.",
+      "evidence": {
+        "path": "docs/try-forever/heartbeat-skill-lights-source-specimen.html",
+        "blob": "9f799026cb2f88f6a798b89bf51bd029cf1978ba"
+      }
+    }
+  ],
+  "skillLights": [
+    {
+      "id": "heartbeat-skill-lights",
+      "provenance": "skills/heartbeat-skill-lights/SKILL.md",
+      "consequence": "Typed light telemetry hardened instead of adding decorative lights."
+    },
+    {
+      "id": "execution-truth",
+      "provenance": "skills/execution-truth/SKILL.md",
+      "consequence": "Source changes remain source changes; no later capability state is inferred."
+    },
+    {
+      "id": "operator-campaign",
+      "provenance": "skills/operator-campaign/SKILL.md",
+      "consequence": "Advanced callable GitHub source work rather than narrating a next action or creating a duplicate runtime organ."
+    },
+    {
+      "id": "regnet-qa",
+      "provenance": "skills/renee-qa/SKILL.md",
+      "consequence": "Regression source was added, while deterministic execution remains BLOCKED_UNKNOWN."
+    },
+    {
+      "id": "embodied-communication",
+      "provenance": "skills/embodied-communication/SKILL.md",
+      "consequence": "Touchable DOM source is explicitly not physical presentation or phone delivery evidence."
+    },
+    {
+      "id": "venice-review-memory",
+      "provenance": "skills/venice-review-memory/SKILL.md",
+      "consequence": "Prior evidence-laundering and status-without-capability scars were applied; no fresh Venice ruling was invented."
+    },
+    {
+      "id": "failure-is-the-shovel",
+      "provenance": "doctrine:Failure Is The Shovel",
+      "consequence": "The unchanged Actions-budget failure was not manually retried; the pulse changed strategy to independent source invariants, regression fixtures, and accessibility semantics."
+    },
+    {
+      "id": "p0-phone-firewall",
+      "provenance": "jar:P0 Fortress Firewall / Phone Resource Firewall",
+      "consequence": "No primary-phone execution, Phone Hands/queue mutation, P0 recovery, Nightcore, Pocket TTS, Chromium, or Context Organs action was attempted."
+    }
+  ],
+  "review": {
+    "sheRaw": {
+      "attempted": true,
+      "surface": "She-Raw.she_raw_critique",
+      "result": "fault",
+      "boundary": "HTTP 400: We couldn't connect your account. Please try again.",
+      "syntheticSubstituteUsed": false
+    },
+    "venice": {
+      "freshAuthoritativeReviewAvailable": false,
+      "priorReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-source-review.json",
+      "priorReceiptScope": "Earlier bounded source pulse only; it does not authorize later runtime/phone work or automatically approve this source-hardening slice.",
+      "freshDirectiveInvented": false
+    },
+    "regnet": {
+      "provenance": "synthetic rule application from skills/renee-qa/SKILL.md",
+      "implementedSource": "PASS_BY_GITHUB_READBACK",
+      "tested": "BLOCKED_UNKNOWN",
+      "stopAuthority": false
+    }
+  },
+  "deterministicTestBoundary": {
+    "head": "93f9570bd3f08e8ba428823afe1574a6767b3184",
+    "workflow": "Operator Overlay Android",
+    "runId": 31883838723,
+    "jobId": 95010077208,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryPerformed": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source_present": true,
+    "tested": false,
+    "persisted_runtime_payload_consumed_by_parser": false,
+    "ui_rendered": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "p0Mutation": false,
+    "phoneQueueMutation": false,
+    "primaryPhoneConsumed": false,
+    "phoneHandsMutation": false,
+    "nightcoreMutation": false,
+    "pocketTtsMutation": false,
+    "chromiumMutation": false,
+    "contextOrgansMutation": false,
+    "duplicateControllerCreated": false,
+    "homeCenterRecoveryDaemonCreated": false
+  },
+  "nextAuthorizedSourceSeam": "When an authorized deterministic test lane can actually execute, run the heartbeat parser/policy/scene regressions. Runtime parsing/rendering remains a separate owner/capability state and must not be inferred from this receipt."
+}
