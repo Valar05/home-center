@@ -19,12 +19,17 @@ public final class HeartbeatSceneGraph {
     public static final class Node {
         public final String id;
         public final String label;
+        public final String provenanceKind;
+        public final String provenanceLocator;
+        public final String activationReason;
         public final HeartbeatSkillPolicy.State state;
         public final String consequence;
+        public final String evidenceBoundary;
         public final int focusIndex;
         public final int touchTargetDp;
         public final String stateToken;
         public final String contentDescription;
+        public final String detailContentDescription;
         public final boolean transitionMotion;
 
         private Node(
@@ -33,12 +38,17 @@ public final class HeartbeatSceneGraph {
                 boolean transitionMotion) {
             this.id = candidate.id;
             this.label = candidate.label;
+            this.provenanceKind = candidate.provenanceKind;
+            this.provenanceLocator = candidate.provenanceLocator;
+            this.activationReason = candidate.activationReason;
             this.state = candidate.state;
             this.consequence = candidate.consequence;
+            this.evidenceBoundary = candidate.evidenceBoundary;
             this.focusIndex = focusIndex;
             this.touchTargetDp = MIN_TOUCH_TARGET_DP;
             this.stateToken = tokenFor(candidate.state);
             this.contentDescription = HeartbeatSkillPolicy.contentDescription(candidate);
+            this.detailContentDescription = HeartbeatSkillPolicy.detailContentDescription(candidate);
             this.transitionMotion = transitionMotion;
         }
     }
