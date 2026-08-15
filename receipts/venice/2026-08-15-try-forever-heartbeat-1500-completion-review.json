@@ -1,0 +1,74 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "6e1bc6a98c456298ad75aefc28903aeedb48144e",
+  "timestamp": "2026-08-15T20:06:00Z",
+  "commission": "Review whether the bounded 1500 TRY FOREVER non-phone source slice may yield after repairing the false wall-clock monotonicity assumption, without promoting source work into runtime, phone, delivery, acceptance, or P0 capability.",
+  "planReceipts": [
+    "receipts/venice/2026-08-15-try-forever-heartbeat-1500-plan-review.json",
+    "receipts/venice/2026-08-15-try-forever-heartbeat-1500-replan-review.json"
+  ],
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1500-source-review.json",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "heartbeat-skill-lights",
+    "execution-truth",
+    "Originality Tax",
+    "Regnet QA"
+  ],
+  "codeFirstReview": {
+    "initialFinding": "The first 1500 implementation treated updatedMs as a monotonic replay identity and added rollback/equal-timestamp collision rejection.",
+    "evidenceThatBrokeTheAssumption": "OverlayUpdateReceiver assigns updatedMs from System.currentTimeMillis(), which is wall-clock observation time and may move backward or collide within one millisecond.",
+    "replanResponse": "A fresh Venice replan preceded repair. All timestamp-order/collision semantics were removed; only positive timestamp presence remains. The useful constant-drift repair was retained by aliasing the projection ceiling to OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES. The regression fixture was renamed Observation rather than Freshness, and the warm-wall rollback fault became a wall-clock witness.",
+    "postRepairReadback": {
+      "HeartbeatPersistedEnvelopeProjection.java": "93e1d3c400b2ae52de887edf29ed55ee4106b6c6",
+      "HeartbeatPersistedEnvelopeObservationTest.java": "810fd52e433fd5bc914499057b9141b4e89d3ac7",
+      "heartbeat-motion-clamp-source-specimen.html": "a922bddf91e31faf97c7743755b92d63beaf95a7",
+      "OperatorState.java": "4ed4c6acf4c922800fdac3abb58012c5acab93c8"
+    },
+    "result": "PASS_FOR_BOUNDED_SOURCE_SLICE"
+  },
+  "missionReview": [
+    "The previous Regnet 32768 drift risk is materially repaired without a new controller or runtime owner: projection now aliases the existing OperatorState ingress constant rather than repeating the numeric literal.",
+    "The wall-clock finding paid Originality Tax: the first design was not defended or cosmetically rewritten; it was removed after direct source evidence disproved its premise.",
+    "The warm-wall specimen was mutated in place and now teaches timestamp ordering as blocked evidence, while retaining semantic controls, keyboard reachability, >=48px targets, non-color state tokens, reduced-motion handling, and explicit SOURCE ONLY scarring.",
+    "HeartbeatFrameAccessibility was inspected for an independent defect. None was established, so accessibility remained dark rather than receiving decorative churn.",
+    "She-Raw was attempted once and faulted at account connection HTTP 400; no synthetic She-Raw was substituted.",
+    "The P0/phone ownership chain was not coordinated, probed, mutated, woken, retasked, or used for evidence."
+  ],
+  "deterministicBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31905644148,
+    "jobId": 95062863616,
+    "headSha": "6e1bc6a98c456298ad75aefc28903aeedb48144e",
+    "stepsExecuted": 0,
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "allMutationCounts": 0,
+    "held": true
+  },
+  "directive": "STOP_ALLOWED",
+  "directiveScope": "This bounded 1500 source slice only. The recurring TRY FOREVER campaign remains active. No merge permission, runtime wiring permission, phone execution permission, deployment claim, delivery claim, acceptance claim, or P0 authority is granted.",
+  "nextExactBoundary": "Runtime integration remains unimplemented: the existing Operator Overlay owner still does not decode OperatorState's persisted base64 payload, call HeartbeatPersistedEnvelopeProjection, render the resulting scene, or expose it through TalkBack on device. The shared phone surface remains P0-owned."
+}
