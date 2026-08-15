@@ -1,0 +1,57 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewerRole": "SYNTHETIC_REGNET",
+  "commission": "TRY FOREVER heartbeat 1200 non-phone source slice under the P0 Fortress firewall.",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedHead": "dd5816152ad26b8625b40ce149415995f2ab663a",
+  "boundedClaim": "Accessibility attention-overflow semantics, transition checkpoint reorder semantics, the existing warm-wall source specimen, doctrine, and regression source are implemented on the PR branch and survive exact GitHub readback. No runtime, phone, deployment, or acceptance claim is made.",
+  "capabilityState": "implemented_source",
+  "acceptance": [
+    "A collapsed summary names FAULT/BLOCKED states before non-attention lights and, when more than 12 attention identities exist, states the exact number of omitted blocked/fault attention lights while preserving the bounded naming budget.",
+    "A pure scene reorder changes contact/focus identity but does not change transition identity or earn transition motion; add/remove and state/consequence changes still change transition identity.",
+    "The existing attention-map DOM specimen teaches the new overflow contract with semantic buttons, minimum 48px targets, non-color state tokens, reduced-motion handling, no raster, no autoplay, and an explicit source-only scar.",
+    "Repository doctrine matches the source semantics and does not promote source evidence into runtime capability.",
+    "P0/phone mutations remain zero."
+  ],
+  "evidence": {
+    "HeartbeatFrameAccessibility.java": "3c57ab01f3bc011d13335ef48acf65d3e34fe662",
+    "HeartbeatFrameAccessibilityTest.java": "a120c6259c5d8a8399cc59a748feb34c819bac1c",
+    "HeartbeatFrameCheckpoint.java": "aba7b8865a22a2ecffebdf0480b2b6f04dc43e37",
+    "HeartbeatFrameCheckpointTest.java": "527998d7513a7d670586e441956d1b1e0e8a2cba",
+    "heartbeat-attention-map-source-specimen.html": "0a13f5fb29a227d0cdb49e95fd668e92546cff4b",
+    "skills/heartbeat-skill-lights/SKILL.md": "fadf8897704e4bfc784c4a00c44fe0dc53e737a3",
+    "venicePlanReceipt": "30725ebbdbc4307c19d02ee704bd7446a65b2e5c",
+    "operatorOverlayRun": 31897252222,
+    "operatorOverlayJob": 95042339347,
+    "operatorOverlayExecutedSteps": 0,
+    "testBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "attacks": [
+    {
+      "category": "capability-state laundering",
+      "finding": "Exact GitHub source readback proves implementation only. The current-head Android job executed zero steps, so TESTED cannot advance."
+    },
+    {
+      "category": "checkpoint semantic mismatch",
+      "finding": "The repaired transition fingerprint now canonicalizes by stable semantic id, matching the scene rule that pure reorder does not earn motion while contact/focus remains order-sensitive."
+    },
+    {
+      "category": "accessibility hidden-attention overflow",
+      "finding": "The repaired collapsed speech preserves its 12-name bound but no longer hides 13th+ urgent states inside a generic remainder count."
+    },
+    {
+      "category": "planned-front incompleteness",
+      "finding": "The 1200 Venice plan also identified a parser protocol-token asymmetry: schema/state still use requiredString while semantic fields reject decoded controls before trim. That planned front is not repaired in this reviewed head."
+    },
+    {
+      "category": "duplicate architecture / P0 firewall",
+      "finding": "No renderer, controller, transport path, phone ingress, queue mutation, recovery daemon, or P0 owner was created or touched."
+    }
+  ],
+  "sourceVerdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testVerdict": "BLOCKED_UNKNOWN",
+  "sliceVerdict": "REVISE_REQUIRED",
+  "continueReason": "Finish or explicitly supersede the planned parser protocol-token hardening before treating the full 1200 plan as complete; do not retry the unchanged Actions-budget failure.",
+  "p0PhoneMutations": 0
+}
