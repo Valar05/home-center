@@ -19,13 +19,13 @@ public class OperatorStateHeartbeatLightsEncodingTest {
     }
 
     @Test
-    public void unpairedHighSurrogateIsRejectedBeforePersistenceEncoding() {
+    public void unpairedHighSurrogateIsRejectedAsCallerInvalidTelemetryBeforePersistenceEncoding() {
         String payload = "heartbeat-" + (char) 0xD800 + "-invalid";
 
         try {
             OperatorState.strictHeartbeatLightsUtf8(payload);
             fail("Expected malformed UTF-16 to be rejected.");
-        } catch (IllegalArgumentException expected) {
+        } catch (HeartbeatIngressPolicy.CallerInvalidPayloadException expected) {
             assertEquals(
                     "heartbeat lights payload contains invalid Unicode",
                     expected.getMessage());
@@ -33,13 +33,13 @@ public class OperatorStateHeartbeatLightsEncodingTest {
     }
 
     @Test
-    public void unpairedLowSurrogateIsRejectedBeforePersistenceEncoding() {
+    public void unpairedLowSurrogateIsRejectedAsCallerInvalidTelemetryBeforePersistenceEncoding() {
         String payload = "heartbeat-" + (char) 0xDC00 + "-invalid";
 
         try {
             OperatorState.strictHeartbeatLightsUtf8(payload);
             fail("Expected malformed UTF-16 to be rejected.");
-        } catch (IllegalArgumentException expected) {
+        } catch (HeartbeatIngressPolicy.CallerInvalidPayloadException expected) {
             assertEquals(
                     "heartbeat lights payload contains invalid Unicode",
                     expected.getMessage());
