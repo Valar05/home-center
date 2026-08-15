@@ -48,6 +48,8 @@ Canonical heartbeat text eventually becomes spoken/touched detail, evidence disp
 
 Decoded semantic text must reject ISO control characters and unpaired UTF-16 surrogates. Valid surrogate pairs remain ordinary inert Unicode data. This is a semantic-ingestion rule, not an execution filter: command-looking text remains data and must never be evaluated or sent to a shell merely because it appears inside a heartbeat field.
 
+Wire protocol tokens are not exempt from decoded-string safety merely because they are short. `schema` and `state` must validate decoded control characters and surrogate structure **before** trimming/normalization, then apply their own narrow token bounds. A control character or unpaired surrogate that trim could otherwise erase is a fail-closed protocol wound, not a canonical token. This source rule does not imply that persisted runtime payloads are already routed through the parser.
+
 ## Runtime semantics
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
 
@@ -108,6 +110,8 @@ The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-so
 
 The source-only contact-preservation specimen at `docs/try-forever/heartbeat-contact-sheet-source-specimen.html` visualizes complete, interrupted-preserved, evidence-only refresh, and materially recovered frames. It has no autoplay loop: one brief semantic motion is allowed only on a selected frame whose transition fingerprint changes, and `prefers-reduced-motion` disables that motion. The specimen is repository source art only, not Android runtime proof.
 
+The source-only motion-clamp specimen at `docs/try-forever/heartbeat-motion-clamp-source-specimen.html` additionally demonstrates that malformed `schema`/`state` protocol text is a rejected attempted refresh: the last-good visible contact stays present and no transition motion is earned. It is a teaching/reference organism only, not evidence that the Android overlay has parsed or rendered such a rejection.
+
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
 
@@ -124,6 +128,8 @@ Opaque ingress persistence must be atomic enough that a failed write does not ma
 A pulse that is syntactically marked complete but is semantically anonymous or contains material lights without the typed display contract is still incomplete for presentation purposes. Preserve last-good contact and expose the exact rejection boundary instead of clearing the surface or displaying downgraded telemetry.
 
 A syntactically valid JSON envelope with unknown canonical members is also invalid for presentation. Preserve last-good contact; do not accept schema drift by silence.
+
+A syntactically valid envelope whose decoded `schema` or `state` token contains a control character or unpaired surrogate is likewise invalid for presentation even if trimming would reveal a familiar token. Preserve the last-good frame and expose the parser boundary; malformed protocol text never earns motion or a new contact checkpoint.
 
 ## Done
 This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually parses, renders, and exposes the payload on device through an authorized lane.
