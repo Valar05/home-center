@@ -81,8 +81,9 @@ Until an existing renderer consumes this model and runtime evidence proves it, t
 `HeartbeatFrameCheckpoint` is a pure source-side fingerprint helper over the already-built semantic frame. It does not persist anything and does not become a new controller.
 
 - `contactSha256(frame)` fingerprints the exact visible last-good contact semantics, including pulse identity and touch/TalkBack provenance/evidence detail. Attempted refresh identity and rejection text are excluded so a failed refresh cannot mutate the fingerprint of what remains visible.
-- `transitionSha256(frame)` fingerprints only ordered light identity, state, and consequence: exactly the fields allowed to earn transition motion. Pulse identity, evidence, provenance, and timestamps cannot manufacture another Christmas blink.
+- `transitionSha256(frame)` fingerprints stable light identity, state, and consequence in stable-id canonical order: exactly the fields allowed to earn transition motion. Pulse identity, evidence, provenance, timestamps, and pure visible-scene reorder cannot manufacture another Christmas blink.
 - an evidence-only complete refresh may change contact identity while preserving transition identity;
+- a pure reorder may change contact identity/focus positions while preserving transition identity and `transitionMotionAllowed=false`;
 - an incomplete/rejected refresh preserves both last-good identities;
 - a real state/consequence/add/remove transition changes transition identity.
 
@@ -98,7 +99,7 @@ Skill lights are first-class controls/semantics, not color dots.
 - Compact content description form: `Skill <label>, <state>. <consequence>.`
 - Typed detail additionally exposes `Why`, `Evidence`, and `Source`; legacy records must not invent those fields.
 - A light must never silently toggle operator authority, remote input, or execution mode.
-- When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states.
+- When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states. FAULT/BLOCKED identities are named before non-attention lights within the bounded naming budget; if attention itself exceeds that budget, the summary must state the exact number of omitted blocked/fault attention lights that remain available by touch.
 - Persistent selection of one light controlling a shared always-present detail surface uses selection semantics such as `aria-pressed`; do not claim `aria-expanded` unless content is actually expanded/collapsed by that control.
 
 `HeartbeatFrameAccessibility` derives collapsed and detail speech from the already-built visible `HeartbeatSceneGraph.Frame`, not from raw candidates. This is deliberate: when refresh fails closed, TalkBack must describe the same last-good lights the scene preserves and may append the exact interrupted-refresh boundary, but must never announce discarded attempted content as current state. Stable detail lookup uses the visible scene focus index only.
