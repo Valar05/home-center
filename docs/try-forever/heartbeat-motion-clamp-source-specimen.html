@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRY FOREVER — Motion Clamp</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;--wall:#2b211f;--panel:#161313;--ink:#fff4df;--wire:#d8ad76;--muted:#d2bea4;--focus:#fff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#3a2d28,var(--wall));color:var(--ink);min-height:100vh}main{max-width:74rem;margin:auto;padding:1rem}header,.stage,.detail{background:var(--panel);border:2px solid var(--wire);border-radius:1rem;padding:1rem}h1{margin:0}.scar{display:inline-block;margin-top:.7rem;padding:.35rem .55rem;background:var(--ink);color:#171313;border-radius:.35rem;font:800 .78rem ui-monospace,monospace}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.65rem;margin:1rem 0}.controls button,.light{min-width:48px;min-height:48px;border:2px solid var(--wire);background:#1d1817;color:var(--ink);border-radius:.8rem;padding:.75rem;text-align:left;cursor:pointer}.controls button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ink)}button:focus-visible{outline:4px solid var(--focus);outline-offset:3px}.wire{height:.35rem;background:var(--wire);border-radius:999px;margin:1rem 0}.lights{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.7rem}.light strong{display:block;font-size:1.05rem}.meta{margin-top:.35rem;color:var(--muted);font:750 .8rem ui-monospace,monospace}.contract{margin:.8rem 0 0;padding:.7rem;border-left:.4rem solid var(--wire);background:rgba(255,255,255,.04)}.pulse .token{display:inline-block;animation:pulse .22s ease-out 1}@keyframes pulse{50%{transform:scale(1.16)}}@media(prefers-reduced-motion:reduce){.pulse .token{animation:none}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>WARM WALL / MOTION CLAMP</h1>
+<p>A heartbeat can preserve contact without preserving yesterday's twitch. Touch the four source states below. Interrupted refresh and identity collision keep the last-good semantics visible while every motion bit is clamped off.</p>
+<span class="scar">SOURCE ONLY · DOM/VECTOR · NOT OPERATOR-OVERLAY RUNTIME PROOF</span>
+</header>
+<nav id="controls" class="controls" aria-label="Motion-clamp source states"></nav>
+<section id="stage" class="stage" aria-live="polite" aria-atomic="false">
+<h2 id="title"></h2>
+<div id="meta" class="meta"></div>
+<p id="contract" class="contract"></p>
+<div class="wire" aria-hidden="true"></div>
+<div id="lights" class="lights"></div>
+</section>
+<p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+<section class="detail" aria-label="Specimen contract">
+<h2>Contract</h2>
+<p><strong>Visible contact</strong> is semantic identity. <strong>Motion</strong> is ephemeral. Exact retry may reuse a pulse identity without blinking. Same pulse identity with different contact semantics fails closed.</p>
+</section>
+</main>
+<script>
+(()=>{
+const base=[['●','Contact Preservation','active','Last-good semantics remain touchable.'],['●','Christmas Motion','active','One meaningful transition was earned.'],['□','Regnet QA','blocked','Regression source exists; deterministic execution remains blocked.']];
+const frames=[
+{id:'accepted',label:'01 · accepted transition',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:true,boundary:'A material consequence changed. Frame and changed node may pulse once.',lights:base},
+{id:'interrupted',label:'02 · interrupted wound',visible:'pulse-clamp',attempted:'pulse-next',interrupted:true,motion:false,boundary:'Refresh incomplete. Preserve pulse-clamp contact, but rematerialize preserved nodes with transitionMotion=false.',lights:base},
+{id:'retry',label:'03 · exact retry',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:false,boundary:'Same pulse id + exact same contact semantics is an idempotent retry. No new Christmas motion.',lights:base},
+{id:'collision',label:'04 · identity collision',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:true,motion:false,boundary:'Same pulse id + different contact semantics is rejected. Last-good contact survives; attempted mutation does not leak.',lights:base}
+];
+const controls=document.getElementById('controls'),stage=document.getElementById('stage'),title=document.getElementById('title'),meta=document.getElementById('meta'),contract=document.getElementById('contract'),lights=document.getElementById('lights'),status=document.getElementById('status');
+function el(name,text){const n=document.createElement(name);n.textContent=String(text??'');return n}
+function render(i){const f=frames[i];[...controls.querySelectorAll('button')].forEach((b,j)=>b.setAttribute('aria-pressed',j===i?'true':'false'));stage.classList.remove('pulse');title.textContent=f.label;meta.textContent=`visible=${f.visible} · attempted=${f.attempted} · interrupted=${f.interrupted} · motion=${f.motion?'ALLOWED ONCE':'FORBIDDEN'}`;contract.textContent=f.boundary;lights.replaceChildren();for(const [token,label,state,why] of f.lights){const b=document.createElement('button');b.type='button';b.className='light';b.setAttribute('aria-label',`${label}, ${state}. ${why}`);const strong=el('strong',`${token} ${label}`);const m=el('span',`${state.toUpperCase()} · ${why}`);m.className='meta';b.append(strong,m);b.addEventListener('click',()=>{status.textContent=`${label}, ${state}. ${why}`});lights.append(b)}if(f.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(()=>stage.classList.add('pulse'));status.textContent=`Selected ${f.label}. Motion ${f.motion?'allowed once':'forbidden'}.`}
+frames.forEach((f,i)=>{const b=el('button',f.label);b.type='button';b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>render(i));controls.append(b)});render(0);
+})();
+</script>
+</body>
+</html>
