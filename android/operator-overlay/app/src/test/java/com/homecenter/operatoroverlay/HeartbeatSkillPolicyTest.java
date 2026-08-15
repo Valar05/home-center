@@ -141,7 +141,7 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
-    public void typedSourceContractRejectsUnknownProvenanceKind() {
+    public void typedSourceContractRejectsUnknownProvenanceKindAndMissingCoreIdentity() {
         HeartbeatSkillPolicy.Candidate invented = new HeartbeatSkillPolicy.Candidate(
                 "fake-skill",
                 "Fake skill",
@@ -152,8 +152,19 @@ public class HeartbeatSkillPolicyTest {
                 true,
                 "Should not earn typed provenance",
                 "No authoritative source");
+        HeartbeatSkillPolicy.Candidate missingId = new HeartbeatSkillPolicy.Candidate(
+                "",
+                "Missing identity",
+                "repository_skill",
+                "skills/missing/SKILL.md",
+                "Should fail closed",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Exact blocker",
+                "Receipt");
 
         assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(invented));
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(missingId));
     }
 
     @Test
@@ -173,7 +184,7 @@ public class HeartbeatSkillPolicyTest {
                 "Skill Execution Truth, active. Why: Capability labels are material. "
                         + "Consequence: Prevented source from being called deployed. "
                         + "Evidence: Exact GitHub branch readback. "
-                        + "Source: repository_skill skills/execution-truth/SKILL.md.",
+                        + "Source: repository skill skills/execution-truth/SKILL.md.",
                 HeartbeatSkillPolicy.detailContentDescription(typed));
     }
 
