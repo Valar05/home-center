@@ -37,6 +37,9 @@ If it only explains, it fails. Continue digging before replying.
 
 Treasure must not violate the user's explicit mode. If `Chat` is selected, treasure stays conversational rather than turning into unsolicited infrastructure. If a skill/artifact is explicitly commissioned, create the durable artifact rather than merely proposing its text.
 
+## Explicit output lock
+A failure trigger never weakens an active output or delivery constraint. `No prose`, `script only`, `button`, `one command`, a named execution lane, and a named delivery surface survive recovery unchanged. If prose is forbidden, do not explain the repair in prose: perform the available authorized work and return only the minimal requested receipt or exact boundary. Failure is not permission to switch surfaces.
+
 ## Evidence discipline
 Keep these states distinct: requested, implemented, tested, deployed, callable, delivered, accepted. A repository commit proves only repository state. Do not claim runtime behavior changed without runtime evidence.
 
