@@ -98,6 +98,17 @@
   #detail dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: .35rem .75rem; }
   #detail dt { font-weight: 800; }
   #detail dd { margin: 0; overflow-wrap: anywhere; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
   footer { color: var(--muted); margin-top: 1rem; font-size: .85rem; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -205,17 +216,19 @@
 
     <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
       data-label="She-Raw" data-state="fault" data-token="×"
-      data-kind="reviewer" data-locator="She-Raw.she_raw_critique"
+      data-kind="reviewer" data-locator="She-Raw.she_raw_ambient"
       data-why="The heartbeat required adversarial pressure from the authoritative reviewer when available."
       data-consequence="No synthetic She-Raw critique was substituted."
       data-evidence="Connector returned HTTP 400: account connection unavailable.">
       <span class="topline"><span class="token" aria-hidden="true">×</span><span class="label">She-Raw</span></span>
       <span class="state">FAULT</span><span class="consequence">Authoritative reviewer unavailable; no puppet substituted.</span>
-      <span class="provenance">reviewer: She-Raw.she_raw_critique</span>
+      <span class="provenance">reviewer: She-Raw.she_raw_ambient</span>
     </button></li>
   </ul>
 
-  <section id="detail" tabindex="-1" aria-live="polite" aria-label="Selected skill light detail">
+  <p id="selection-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <section id="detail" tabindex="-1" aria-label="Selected skill light detail">
     <h2>Touch a light</h2>
     <p>The selected light will expose its state, why it lit, what changed, its source, and its evidence boundary.</p>
   </section>
@@ -225,27 +238,39 @@
 <script>
 (() => {
   const detail = document.getElementById('detail');
+  const status = document.getElementById('selection-status');
   const buttons = [...document.querySelectorAll('.skill')];
-  const esc = value => String(value ?? '');
+
+  function node(name, text) {
+    const element = document.createElement(name);
+    element.textContent = String(text ?? '');
+    return element;
+  }
+
+  function detailRow(list, label, value) {
+    list.append(node('dt', label), node('dd', value));
+  }
 
   function select(button) {
     for (const item of buttons) item.setAttribute('aria-expanded', item === button ? 'true' : 'false');
     const d = button.dataset;
-    detail.innerHTML = `
-      <h2>${esc(d.token)} ${esc(d.label)} — ${esc(d.state).toUpperCase()}</h2>
-      <dl>
-        <dt>Why</dt><dd>${esc(d.why)}</dd>
-        <dt>Consequence</dt><dd>${esc(d.consequence)}</dd>
-        <dt>Evidence</dt><dd>${esc(d.evidence)}</dd>
-        <dt>Source</dt><dd>${esc(d.kind)} · ${esc(d.locator)}</dd>
-      </dl>`;
+
+    const heading = node('h2', `${d.token} ${d.label} — ${d.state.toUpperCase()}`);
+    const list = document.createElement('dl');
+    detailRow(list, 'Why', d.why);
+    detailRow(list, 'Consequence', d.consequence);
+    detailRow(list, 'Evidence', d.evidence);
+    detailRow(list, 'Source', `${d.kind} · ${d.locator}`);
+    detail.replaceChildren(heading, list);
+
+    status.textContent = `Selected ${d.label}, ${d.state}. Detail updated below.`;
   }
 
   for (const button of buttons) {
     const d = button.dataset;
     button.setAttribute(
       'aria-label',
-      `${d.label}, ${d.state}. Why: ${d.why} Consequence: ${d.consequence} Evidence: ${d.evidence} Source: ${d.kind} ${d.locator}.`
+      `${d.label}, ${d.state}. ${d.consequence} Activate for why, evidence, and source.`
     );
     button.addEventListener('click', () => select(button));
   }
