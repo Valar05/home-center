@@ -2,7 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -124,12 +124,14 @@ public class HeartbeatSceneGraphTest {
     }
 
     @Test
-    public void incompleteRefreshPreservesLastCompleteContactSurface() {
+    public void incompleteRefreshPreservesContactButClampsEveryMotionBit() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
                 Collections.singletonList(active("contact", "Contact established")),
                 true,
                 null);
+        assertTrue(lastGood.transitionMotionAllowed);
+        assertTrue(lastGood.nodes.get(0).transitionMotion);
 
         HeartbeatSceneGraph.Frame interrupted = HeartbeatSceneGraph.build(
                 "pulse-broken",
@@ -141,9 +143,12 @@ public class HeartbeatSceneGraphTest {
         assertEquals("pulse-good", interrupted.visiblePulseId);
         assertEquals("pulse-broken", interrupted.attemptedPulseId);
         assertEquals(1, interrupted.nodes.size());
-        assertSame(lastGood.nodes.get(0), interrupted.nodes.get(0));
+        assertNotSame(lastGood.nodes.get(0), interrupted.nodes.get(0));
         assertEquals("contact", interrupted.nodes.get(0).id);
+        assertFalse(interrupted.nodes.get(0).transitionMotion);
         assertFalse(interrupted.transitionMotionAllowed);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, interrupted));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(lastGood, interrupted));
         assertEquals("Pulse is incomplete.", interrupted.refreshBoundary);
         assertTrue(interrupted.interruptedRefreshDescription().contains("pulse-good"));
         assertTrue(interrupted.interruptedRefreshDescription().contains("Pulse is incomplete"));
@@ -172,9 +177,12 @@ public class HeartbeatSceneGraphTest {
         assertTrue(rejected.refreshInterrupted);
         assertEquals("pulse-good", rejected.visiblePulseId);
         assertEquals("pulse-invalid", rejected.attemptedPulseId);
-        assertSame(lastGood.nodes.get(0), rejected.nodes.get(0));
+        assertNotSame(lastGood.nodes.get(0), rejected.nodes.get(0));
+        assertEquals("contact", rejected.nodes.get(0).id);
+        assertFalse(rejected.nodes.get(0).transitionMotion);
         assertTrue(rejected.refreshBoundary.contains("typed source/evidence contract"));
         assertFalse(rejected.transitionMotionAllowed);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, rejected));
     }
 
     @Test
@@ -194,9 +202,12 @@ public class HeartbeatSceneGraphTest {
         assertTrue(rejected.refreshInterrupted);
         assertEquals("pulse-good", rejected.visiblePulseId);
         assertEquals("", rejected.attemptedPulseId);
-        assertSame(lastGood.nodes.get(0), rejected.nodes.get(0));
+        assertNotSame(lastGood.nodes.get(0), rejected.nodes.get(0));
+        assertEquals("contact", rejected.nodes.get(0).id);
+        assertFalse(rejected.nodes.get(0).transitionMotion);
         assertEquals("Pulse identity is missing.", rejected.refreshBoundary);
         assertFalse(rejected.transitionMotionAllowed);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, rejected));
     }
 
     @Test
@@ -271,6 +282,52 @@ public class HeartbeatSceneGraphTest {
         assertTrue(second.transitionMotionAllowed);
         assertFalse(second.nodes.get(0).transitionMotion);
         assertEquals(1, second.nodes.size());
+    }
+
+    @Test
+    public void exactRetryMayReuseVisiblePulseIdentityWithoutMotion() {
+        HeartbeatSceneGraph.Frame first = HeartbeatSceneGraph.build(
+                "pulse-retry",
+                Collections.singletonList(active("checkpoint", "Stable consequence")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame retry = HeartbeatSceneGraph.build(
+                "pulse-retry",
+                Collections.singletonList(active("checkpoint", "Stable consequence")),
+                true,
+                first);
+
+        assertFalse(retry.refreshInterrupted);
+        assertEquals("pulse-retry", retry.visiblePulseId);
+        assertEquals("pulse-retry", retry.attemptedPulseId);
+        assertFalse(retry.transitionMotionAllowed);
+        assertFalse(retry.nodes.get(0).transitionMotion);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(first, retry));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(first, retry));
+    }
+
+    @Test
+    public void samePulseIdentityWithDifferentContactFailsClosed() {
+        HeartbeatSceneGraph.Frame first = HeartbeatSceneGraph.build(
+                "pulse-collision",
+                Collections.singletonList(active("checkpoint", "Consequence A")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame collision = HeartbeatSceneGraph.build(
+                "pulse-collision",
+                Collections.singletonList(active("checkpoint", "Consequence B")),
+                true,
+                first);
+
+        assertTrue(collision.refreshInterrupted);
+        assertEquals("pulse-collision", collision.visiblePulseId);
+        assertEquals("pulse-collision", collision.attemptedPulseId);
+        assertEquals("Consequence A", collision.nodes.get(0).consequence);
+        assertFalse(collision.transitionMotionAllowed);
+        assertFalse(collision.nodes.get(0).transitionMotion);
+        assertTrue(collision.refreshBoundary.contains("Pulse identity collision"));
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(first, collision));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(first, collision));
     }
 
     @Test
