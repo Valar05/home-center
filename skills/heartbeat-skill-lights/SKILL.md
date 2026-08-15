@@ -6,9 +6,11 @@ Make every swarm heartbeat visibly expose which repository skills materially cha
 ## Auto-selection
 At the start of each heartbeat, discover applicable `SKILL.md` files and active judgment doctrines from the commissioned project. Do not use a fixed tiny favorites list. Select by current evidence and mission fit.
 
+A light claimed as a **repository skill** must resolve to an actual repository skill path. A named law, jar, persona, or doctrine that has no matching `SKILL.md` may still be materially active, but its provenance must say `doctrine`/`jar` rather than pretending it is a repository skill. Discovery truth is part of the light.
+
 Every selected light records:
 
-- stable skill id/path;
+- stable skill id/path or explicit doctrine/jar provenance;
 - human label;
 - activation reason;
 - state: `active`, `blocked`, `fault`, or `recovered`;
@@ -21,6 +23,22 @@ Every selected light records:
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
 
 A light may summarize a skill, but it may not claim a later capability state than its evidence proves. Preserve `requested -> implemented -> tested -> deployed -> callable -> executed -> delivered -> accepted` distinctions.
+
+Repository/source progress does not unlock a shared physical execution surface. A green source/test light must not be interpreted as transport, connector-egress, phone execution, deployment, or physical acceptance.
+
+## Deterministic scene specimen
+`HeartbeatSceneGraph` is a pure, non-rendering specimen that composes `HeartbeatSkillPolicy`. It does **not** own the overlay, transport, queue, phone runtime, or execution authority.
+
+The specimen exists to make later rendering boring and auditable:
+
+- material-light order becomes stable focus order;
+- each node carries a minimum 48 dp touch target contract;
+- state is exposed by text/semantic description plus a non-color token;
+- motion is allowed only when state or consequence actually changes;
+- an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
+- an interrupted refresh never receives celebratory/Christmas-light motion.
+
+Until an existing renderer consumes this model and runtime evidence proves it, the scene graph remains source-only implementation.
 
 ## Touch and TalkBack
 Skill lights are first-class controls/semantics, not color dots.
@@ -43,4 +61,4 @@ A repeated failure cannot merely relight the same fault. The next pulse must eit
 Do not erase the prior successful heartbeat before the new one is durable. A crash during refresh must leave the last known good skill-light receipt readable, with the interrupted pulse distinguishable as incomplete.
 
 ## Done
-This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the Operator Overlay actually renders and exposes the payload on device.
+This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually renders and exposes the payload on device.
