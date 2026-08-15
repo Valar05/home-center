@@ -60,7 +60,9 @@ public final class HeartbeatSceneGraph {
         public final String attemptedPulseId;
         public final List<Node> nodes;
         public final boolean refreshInterrupted;
-        /** True only when at least one node changed state or consequence. */
+        /** Exact source-side reason why an attempted refresh was rejected. */
+        public final String refreshBoundary;
+        /** True only when a node was added/removed or changed state/consequence. */
         public final boolean transitionMotionAllowed;
 
         private Frame(
@@ -68,21 +70,24 @@ public final class HeartbeatSceneGraph {
                 String attemptedPulseId,
                 List<Node> nodes,
                 boolean refreshInterrupted,
+                String refreshBoundary,
                 boolean transitionMotionAllowed) {
             this.visiblePulseId = clean(visiblePulseId);
             this.attemptedPulseId = clean(attemptedPulseId);
             this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));
             this.refreshInterrupted = refreshInterrupted;
+            this.refreshBoundary = clean(refreshBoundary);
             this.transitionMotionAllowed = transitionMotionAllowed;
         }
 
         public String interruptedRefreshDescription() {
             if (!refreshInterrupted) return "";
+            String boundary = refreshBoundary.isEmpty() ? "" : " Boundary: " + refreshBoundary;
             if (visiblePulseId.isEmpty()) {
-                return "Heartbeat refresh interrupted. No complete heartbeat is available.";
+                return "Heartbeat refresh interrupted. No complete heartbeat is available." + boundary;
             }
             return "Heartbeat refresh interrupted. Showing last complete heartbeat "
-                    + visiblePulseId + ".";
+                    + visiblePulseId + "." + boundary;
         }
     }
 
@@ -92,9 +97,9 @@ public final class HeartbeatSceneGraph {
     /**
      * Build the next semantic frame.
      *
-     * If the pulse is incomplete, the last complete frame is preserved instead of
-     * replacing it with partial or aspirational state. No animation is permitted
-     * for an interrupted refresh.
+     * Incomplete or semantically invalid pulses preserve the last complete frame
+     * instead of replacing it with partial, anonymous, or untyped state. No motion
+     * is permitted for a rejected refresh.
      */
     public static Frame build(
             String pulseId,
@@ -103,22 +108,26 @@ public final class HeartbeatSceneGraph {
             Frame lastGood) {
         String attempted = clean(pulseId);
         if (!pulseComplete) {
-            if (lastGood == null) {
-                return new Frame("", attempted, Collections.emptyList(), true, false);
-            }
-            return new Frame(
-                    lastGood.visiblePulseId,
-                    attempted,
-                    lastGood.nodes,
-                    true,
-                    false);
+            return preserveLastGood(attempted, lastGood, "Pulse is incomplete.");
+        }
+        if (attempted.isEmpty()) {
+            return preserveLastGood("", lastGood, "Pulse identity is missing.");
         }
 
-        List<HeartbeatSkillPolicy.Candidate> selected =
+        List<HeartbeatSkillPolicy.Candidate> material =
                 HeartbeatSkillPolicy.selectMaterialLights(candidates);
+        List<HeartbeatSkillPolicy.Candidate> selected =
+                HeartbeatSkillPolicy.selectDisplayReadyLights(candidates);
+        if (material.size() != selected.size()) {
+            return preserveLastGood(
+                    attempted,
+                    lastGood,
+                    "At least one material light lacks the complete typed source/evidence contract.");
+        }
+
         Map<String, Node> previous = indexById(lastGood);
         List<Node> nodes = new ArrayList<>();
-        boolean anyTransition = false;
+        boolean anyTransition = previous.size() != selected.size();
 
         for (int index = 0; index < selected.size(); index++) {
             HeartbeatSkillPolicy.Candidate candidate = selected.get(index);
@@ -130,7 +139,26 @@ public final class HeartbeatSceneGraph {
             nodes.add(new Node(candidate, index, changed));
         }
 
-        return new Frame(attempted, attempted, nodes, false, anyTransition);
+        return new Frame(attempted, attempted, nodes, false, "", anyTransition);
+    }
+
+    private static Frame preserveLastGood(String attempted, Frame lastGood, String boundary) {
+        if (lastGood == null) {
+            return new Frame(
+                    "",
+                    attempted,
+                    Collections.emptyList(),
+                    true,
+                    boundary,
+                    false);
+        }
+        return new Frame(
+                lastGood.visiblePulseId,
+                attempted,
+                lastGood.nodes,
+                true,
+                boundary,
+                false);
     }
 
     private static Map<String, Node> indexById(Frame frame) {
