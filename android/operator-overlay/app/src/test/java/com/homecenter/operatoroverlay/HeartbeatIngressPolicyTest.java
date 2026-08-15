@@ -13,27 +13,27 @@ import org.junit.Test;
 
 public class HeartbeatIngressPolicyTest {
     @Test
-    public void absentOptionalPayloadStillAdvancesHeartbeat() {
+    public void absentOptionalPayloadStillInvokesHeartbeatSink() {
         RecordingSink sink = new RecordingSink();
 
         HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("   ", sink);
 
         assertFalse(result.payloadPresent);
         assertFalse(result.payloadAccepted);
-        assertTrue(result.heartbeatAccepted);
+        assertTrue(result.heartbeatInvoked);
         assertEquals("", result.boundary);
         assertEquals(Arrays.asList("heartbeat"), sink.events);
     }
 
     @Test
-    public void validOptionalPayloadPersistsBeforeHeartbeat() {
+    public void validOptionalPayloadPersistsBeforeHeartbeatSinkInvocation() {
         RecordingSink sink = new RecordingSink();
 
         HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
 
         assertTrue(result.payloadPresent);
         assertTrue(result.payloadAccepted);
-        assertTrue(result.heartbeatAccepted);
+        assertTrue(result.heartbeatInvoked);
         assertEquals("", result.boundary);
         assertEquals(
                 Arrays.asList("persist:{\"schema\":\"ok\"}", "heartbeat"),
@@ -41,7 +41,7 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
-    public void callerInvalidOptionalPayloadPreservesIndependentHeartbeat() {
+    public void callerInvalidOptionalPayloadStillInvokesIndependentHeartbeatSink() {
         RecordingSink sink = new RecordingSink();
         sink.invalidPayload = new IllegalArgumentException("invalid Unicode\nfrom optional lights");
 
@@ -49,7 +49,7 @@ public class HeartbeatIngressPolicyTest {
 
         assertTrue(result.payloadPresent);
         assertFalse(result.payloadAccepted);
-        assertTrue(result.heartbeatAccepted);
+        assertTrue(result.heartbeatInvoked);
         assertEquals(
                 "Heartbeat skill-light payload rejected: invalid Unicode from optional lights",
                 result.boundary);
@@ -57,7 +57,7 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
-    public void storageFailureIsNotSwallowedOrRelabeledAsHealthyHeartbeat() {
+    public void storageFailureIsNotSwallowedOrRelabeledAsHeartbeatSuccess() {
         RecordingSink sink = new RecordingSink();
         sink.storageFailure = new IllegalStateException("commit failed");
 
@@ -72,15 +72,15 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
-    public void heartbeatFailureAfterAcceptedPayloadAlsoPropagates() {
+    public void heartbeatSinkFailureAfterAcceptedPayloadAlsoPropagates() {
         RecordingSink sink = new RecordingSink();
-        sink.heartbeatFailure = new IllegalStateException("heartbeat commit failed");
+        sink.heartbeatFailure = new IllegalStateException("heartbeat sink failed");
 
         try {
             HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
-            fail("Expected heartbeat failure to propagate");
+            fail("Expected heartbeat sink failure to propagate");
         } catch (IllegalStateException expected) {
-            assertEquals("heartbeat commit failed", expected.getMessage());
+            assertEquals("heartbeat sink failed", expected.getMessage());
         }
 
         assertEquals(
