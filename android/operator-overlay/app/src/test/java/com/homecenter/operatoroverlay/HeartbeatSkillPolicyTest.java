@@ -84,6 +84,30 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
+    public void compactAccessibilityDescriptionBoundsConsequenceWithoutSplittingUnicode() {
+        String swan = "🦢";
+        String longConsequence = repeat(swan, 170);
+        HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
+                "swan-veil",
+                "Swan Veil",
+                "doctrine",
+                "Swan Veil",
+                "Keep the touch focus useful",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                longConsequence,
+                "Full consequence remains available in explicit detail");
+
+        String compact = HeartbeatSkillPolicy.contentDescription(typed);
+        String detail = HeartbeatSkillPolicy.detailContentDescription(typed);
+
+        assertTrue(compact.contains(repeat(swan, 160) + "…."));
+        assertFalse(compact.contains(repeat(swan, 161)));
+        assertTrue(detail.contains("Consequence: " + longConsequence));
+        assertTrue(detail.contains("Evidence: Full consequence remains available in explicit detail"));
+    }
+
+    @Test
     public void collapsedDescriptionPreservesMaterialOrderExactStatesAndConsequences() {
         String description = HeartbeatSkillPolicy.collapsedContentDescription(
                 Arrays.asList(
@@ -236,5 +260,11 @@ public class HeartbeatSkillPolicyTest {
         assertEquals(
                 HeartbeatSkillPolicy.contentDescription(legacy),
                 HeartbeatSkillPolicy.detailContentDescription(legacy));
+    }
+
+    private static String repeat(String value, int count) {
+        StringBuilder out = new StringBuilder();
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
     }
 }
