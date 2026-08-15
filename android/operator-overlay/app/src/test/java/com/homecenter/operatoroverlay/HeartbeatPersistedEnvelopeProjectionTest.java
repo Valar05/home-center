@@ -34,6 +34,106 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
     }
 
     @Test
+    public void exactStoredBytesProjectThroughStrictUtf8Path() {
+        String payload = canonicalEnvelope("pulse-storage-bytes", "true")
+                .replace("Execution Truth", "Execution Truth 🦢");
+        byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
+
+        HeartbeatPersistedEnvelopeProjection.Result result =
+                HeartbeatPersistedEnvelopeProjection.projectBytes(
+                        bytes,
+                        bytes.length,
+                        sha256(bytes),
+                        1500L,
+                        null);
+
+        assertTrue(result.storageAccepted);
+        assertTrue(result.semanticAttempted);
+        assertTrue(result.parserAccepted);
+        assertTrue(result.presentationAccepted);
+        assertEquals("Execution Truth 🦢", result.frame.nodes.get(0).label);
+        assertEquals(bytes.length, result.observedBytes);
+        assertEquals(sha256(bytes), result.observedSha256);
+    }
+
+    @Test
+    public void validByteFirstAndStringPathsProduceSameVisibleContact() {
+        String payload = canonicalEnvelope("pulse-equivalent", "true");
+        byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
+
+        HeartbeatPersistedEnvelopeProjection.Result fromString =
+                HeartbeatPersistedEnvelopeProjection.project(
+                        payload,
+                        bytes.length,
+                        sha256(bytes),
+                        1600L,
+                        null);
+        HeartbeatPersistedEnvelopeProjection.Result fromBytes =
+                HeartbeatPersistedEnvelopeProjection.projectBytes(
+                        bytes,
+                        bytes.length,
+                        sha256(bytes),
+                        1600L,
+                        null);
+
+        assertTrue(fromString.presentationAccepted);
+        assertTrue(fromBytes.presentationAccepted);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(
+                fromString.frame,
+                fromBytes.frame));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(
+                fromString.frame,
+                fromBytes.frame));
+    }
+
+    @Test
+    public void malformedUtf8RejectsBeforeParserPreservesContactAndClampsMotion() {
+        HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-before-invalid-utf8");
+        assertTrue(lastGood.transitionMotionAllowed);
+        assertTrue(lastGood.nodes.get(0).transitionMotion);
+        byte[] malformed = new byte[] {(byte) 0xC3, (byte) 0x28};
+
+        HeartbeatPersistedEnvelopeProjection.Result result =
+                HeartbeatPersistedEnvelopeProjection.projectBytes(
+                        malformed,
+                        malformed.length,
+                        sha256(malformed),
+                        1700L,
+                        lastGood);
+
+        assertFalse(result.storageAccepted);
+        assertFalse(result.semanticAttempted);
+        assertFalse(result.parserAccepted);
+        assertFalse(result.presentationAccepted);
+        assertEquals("Stored heartbeat payload is not valid UTF-8.", result.boundary);
+        assertEquals(result.boundary, result.frame.refreshBoundary);
+        assertTrue(result.frame.refreshInterrupted);
+        assertFalse(result.frame.transitionMotionAllowed);
+        assertFalse(result.frame.nodes.get(0).transitionMotion);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(lastGood, result.frame));
+    }
+
+    @Test
+    public void byteCountMismatchWinsBeforeMalformedUtf8Decode() {
+        HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-before-byte-mismatch");
+        byte[] malformed = new byte[] {(byte) 0xC3, (byte) 0x28};
+
+        HeartbeatPersistedEnvelopeProjection.Result result =
+                HeartbeatPersistedEnvelopeProjection.projectBytes(
+                        malformed,
+                        malformed.length + 1L,
+                        sha256(malformed),
+                        1800L,
+                        lastGood);
+
+        assertFalse(result.storageAccepted);
+        assertFalse(result.semanticAttempted);
+        assertTrue(result.boundary.startsWith("Stored heartbeat byte-count mismatch:"));
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
+    }
+
+    @Test
     public void byteCountMismatchRejectsBeforeParserPreservesContactAndClampsMotion() {
         HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-last-good");
         assertTrue(lastGood.transitionMotionAllowed);
@@ -191,9 +291,12 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
     }
 
     private static String sha256(String value) {
+        return sha256(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String sha256(byte[] value) {
         try {
-            byte[] hash = MessageDigest.getInstance("SHA-256")
-                    .digest(value.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(value);
             StringBuilder out = new StringBuilder(hash.length * 2);
             for (byte b : hash) out.append(String.format(Locale.ROOT, "%02x", b & 0xff));
             return out.toString();
