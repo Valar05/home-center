@@ -43,7 +43,8 @@ public class HeartbeatIngressPolicyTest {
     @Test
     public void callerInvalidOptionalPayloadStillInvokesIndependentHeartbeatSink() {
         RecordingSink sink = new RecordingSink();
-        sink.invalidPayload = new IllegalArgumentException("invalid Unicode\nfrom optional lights");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                "invalid Unicode\nfrom optional lights");
 
         HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
 
@@ -54,6 +55,21 @@ public class HeartbeatIngressPolicyTest {
                 "Heartbeat skill-light payload rejected: invalid Unicode from optional lights",
                 result.boundary);
         assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
+    public void unrelatedIllegalArgumentExceptionPropagatesWithoutHeartbeat() {
+        RecordingSink sink = new RecordingSink();
+        sink.argumentFailure = new IllegalArgumentException("internal persistence contract failed");
+
+        try {
+            HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
+            fail("Expected unrelated argument failure to propagate");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("internal persistence contract failed", expected.getMessage());
+        }
+
+        assertEquals(Arrays.asList("persist:{\"schema\":\"ok\"}"), sink.events);
     }
 
     @Test
@@ -90,7 +106,8 @@ public class HeartbeatIngressPolicyTest {
 
     private static final class RecordingSink implements HeartbeatIngressPolicy.Sink {
         final List<String> events = new ArrayList<>();
-        IllegalArgumentException invalidPayload;
+        HeartbeatIngressPolicy.CallerInvalidPayloadException invalidPayload;
+        IllegalArgumentException argumentFailure;
         IllegalStateException storageFailure;
         IllegalStateException heartbeatFailure;
 
@@ -98,6 +115,7 @@ public class HeartbeatIngressPolicyTest {
         public void persistHeartbeatLights(String payloadJson) {
             events.add("persist:" + payloadJson);
             if (invalidPayload != null) throw invalidPayload;
+            if (argumentFailure != null) throw argumentFailure;
             if (storageFailure != null) throw storageFailure;
         }
 
