@@ -2,7 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -34,8 +34,10 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
     }
 
     @Test
-    public void byteCountMismatchRejectsBeforeParserAndPreservesExactFrameReference() {
+    public void byteCountMismatchRejectsBeforeParserPreservesContactAndClampsMotion() {
         HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-last-good");
+        assertTrue(lastGood.transitionMotionAllowed);
+        assertTrue(lastGood.nodes.get(0).transitionMotion);
         String poisonedSemanticPayload = "not-json";
 
         HeartbeatPersistedEnvelopeProjection.Result result =
@@ -50,12 +52,17 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
         assertFalse(result.semanticAttempted);
         assertFalse(result.parserAccepted);
         assertFalse(result.presentationAccepted);
-        assertSame(lastGood, result.frame);
+        assertNotSame(lastGood, result.frame);
+        assertTrue(result.frame.refreshInterrupted);
+        assertFalse(result.frame.transitionMotionAllowed);
+        assertFalse(result.frame.nodes.get(0).transitionMotion);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
         assertTrue(result.boundary.startsWith("Stored heartbeat byte-count mismatch:"));
+        assertEquals(result.boundary, result.frame.refreshBoundary);
     }
 
     @Test
-    public void shaMismatchRejectsBeforeParserAndPreservesExactFrameReference() {
+    public void shaMismatchRejectsBeforeParserAndPreservesContact() {
         HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-sha-last-good");
         String payload = canonicalEnvelope("pulse-would-parse", "true");
         String wrongHash = "0".repeat(64);
@@ -71,10 +78,13 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
 
         assertFalse(result.storageAccepted);
         assertFalse(result.semanticAttempted);
-        assertSame(lastGood, result.frame);
+        assertTrue(result.frame.refreshInterrupted);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
+        assertFalse(result.frame.transitionMotionAllowed);
         assertEquals(
                 "Stored heartbeat SHA-256 mismatch: declared identity does not match decoded UTF-8 payload.",
                 result.boundary);
+        assertEquals(result.boundary, result.frame.refreshBoundary);
     }
 
     @Test
@@ -99,13 +109,13 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
 
         assertFalse(uppercaseHash.storageAccepted);
         assertFalse(uppercaseHash.semanticAttempted);
-        assertSame(lastGood, uppercaseHash.frame);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, uppercaseHash.frame));
         assertEquals(
                 "Stored heartbeat SHA-256 metadata is not canonical lowercase hex.",
                 uppercaseHash.boundary);
         assertFalse(missingUpdated.storageAccepted);
         assertFalse(missingUpdated.semanticAttempted);
-        assertSame(lastGood, missingUpdated.frame);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, missingUpdated.frame));
         assertEquals("Stored heartbeat update identity is missing.", missingUpdated.boundary);
     }
 
