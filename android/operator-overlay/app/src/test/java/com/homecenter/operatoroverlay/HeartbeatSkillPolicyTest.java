@@ -141,6 +141,42 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
+    public void displayReadySelectionRejectsLegacyAndUnknownProvenanceWithoutInventingEvidence() {
+        HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
+                "execution-truth",
+                "Execution Truth",
+                "repository_skill",
+                "skills/execution-truth/SKILL.md",
+                "Capability-state truth is material",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                "Prevented source from becoming deployed",
+                "Exact branch readback");
+        HeartbeatSkillPolicy.Candidate legacy = new HeartbeatSkillPolicy.Candidate(
+                "legacy",
+                "Legacy",
+                HeartbeatSkillPolicy.State.FAULT,
+                false,
+                "Material fault with no typed provenance");
+        HeartbeatSkillPolicy.Candidate invented = new HeartbeatSkillPolicy.Candidate(
+                "invented",
+                "Invented",
+                "mystical_skill",
+                "skills/invented/SKILL.md",
+                "Looks authoritative",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Must not cross the display gate",
+                "No valid provenance");
+
+        List<HeartbeatSkillPolicy.Candidate> selected =
+                HeartbeatSkillPolicy.selectDisplayReadyLights(Arrays.asList(typed, legacy, invented));
+
+        assertEquals(1, selected.size());
+        assertEquals("execution-truth", selected.get(0).id);
+    }
+
+    @Test
     public void typedSourceContractRejectsUnknownProvenanceKindAndMissingCoreIdentity() {
         HeartbeatSkillPolicy.Candidate invented = new HeartbeatSkillPolicy.Candidate(
                 "fake-skill",
