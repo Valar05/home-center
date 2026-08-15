@@ -26,7 +26,7 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
-    public void validOptionalPayloadPersistsBeforeHeartbeatSinkInvocation() {
+    public void validOptionalPayloadIsAcceptedBeforeHeartbeatSinkInvocation() {
         RecordingSink sink = new RecordingSink();
 
         HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
