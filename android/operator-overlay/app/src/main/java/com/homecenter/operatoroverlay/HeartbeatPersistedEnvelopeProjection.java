@@ -167,7 +167,7 @@ public final class HeartbeatPersistedEnvelopeProjection {
         }
         if (observedBytes > MAX_PAYLOAD_BYTES) {
             return storageReject(
-                    "Stored heartbeat payload exceeds " + MAX_PAYLOAD_BYTES + " UTF-8 bytes.",
+                    "Stored heartbeat payload exceeds " + MAX_PAYLOAD_BYTES + " bytes.",
                     lastGood,
                     observedBytes,
                     observedSha256,
@@ -194,7 +194,7 @@ public final class HeartbeatPersistedEnvelopeProjection {
         }
         if (!observedSha256.equals(declaredHash)) {
             return storageReject(
-                    "Stored heartbeat SHA-256 mismatch: declared identity does not match decoded UTF-8 payload.",
+                    "Stored heartbeat SHA-256 mismatch: declared identity does not match exact payload bytes.",
                     lastGood,
                     observedBytes,
                     observedSha256,
