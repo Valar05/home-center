@@ -1,0 +1,88 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewer": "Regnet QA",
+  "provenance": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedHead": "40dcb4180a80e232ab87daca000dac27eeb0941e",
+  "timestamp": "2026-08-15T19:12:00Z",
+  "boundedClaim": "The 1400 heartbeat source now has a pure persisted-envelope integrity seam that checks decoded UTF-8 byte count, canonical SHA-256, payload ceiling, and update identity before semantic parsing; storage-integrity rejection preserves last-good visible-contact/checkpoint identity while clamping stale one-shot motion. This claim is IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK only.",
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "acceptanceReview": [
+    {
+      "criterion": "Integrity is checked before semantic parsing.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjection.project rejects missing update identity, oversized payload, byte-count mismatch, malformed/noncanonical SHA metadata, and SHA mismatch before HeartbeatEnvelopeParser.parse is invoked.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Storage rejection preserves contact without preserving stale transition motion.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjection.storageReject delegates to HeartbeatSceneGraph.preserveRejectedRefresh; that delegates to the existing preserveLastGood organ, which re-materializes nodes with transitionMotion=false and frame transitionMotionAllowed=false.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Regression source reaches the stale-motion failure path.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjectionTest starts from an accepted frame whose transition motion is true, injects a byte-count wound, then requires a distinct preserved frame with sameVisibleContact=true, refreshInterrupted=true, aggregate and node motion false, and exact refreshBoundary.",
+      "state": "regression_source_only"
+    },
+    {
+      "criterion": "Storage-valid semantic failure remains semantically classified rather than being laundered into a storage fault.",
+      "sourceEvidence": "Regression source requires storageAccepted=true and semanticAttempted=true for malformed JSON, parserAccepted=false, presentationAccepted=false, and existing scene fail-closed contact preservation.",
+      "state": "regression_source_only"
+    },
+    {
+      "criterion": "No duplicate controller/runtime/P0 owner is introduced.",
+      "sourceEvidence": "The new helper is pure source composition; the only new scene API delegates to the existing preservation organ. No phone/queue/recovery/controller surface was invoked or created.",
+      "state": "pass_for_source_scope"
+    }
+  ],
+  "codeFirstFinding": {
+    "severity": "major_then_repaired",
+    "finding": "The first 1400 implementation returned the exact lastGood frame object on storage rejection. That would have preserved a prior node.transitionMotion=true bit and reintroduced the stale-motion contradiction repaired by earlier scene-graph work.",
+    "repair": "A fresh Venice replan changed the contract to semantic/contact checkpoint preservation. Storage rejection now composes the existing HeartbeatSceneGraph preservation seam, and regression source explicitly asserts stale motion is cleared."
+  },
+  "remainingRisk": {
+    "severity": "minor_integration_boundary",
+    "finding": "The 32768-byte ceiling is repeated in the pure projection source rather than mechanically shared with OperatorState. Runtime wiring must reconcile that contract before deployment so source ceilings cannot drift.",
+    "effectOnBoundedClaim": "Does not invalidate the current source-only integrity semantics because both current values match by GitHub readback; blocks any claim that runtime integration is complete."
+  },
+  "deterministicExecution": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31903005423,
+    "jobId": 95056522320,
+    "headSha": "8d6cd64f66c598556d151983668103f2c53b7d74",
+    "stepsExecuted": 0,
+    "conclusion": "failure",
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "p0PhoneFirewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedVerdict": "BLOCKED_UNKNOWN",
+  "mergeVerdict": "NOT_GRANTED"
+}
