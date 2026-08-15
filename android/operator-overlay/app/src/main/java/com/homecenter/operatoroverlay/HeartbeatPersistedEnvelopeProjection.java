@@ -1,5 +1,8 @@
 package com.homecenter.operatoroverlay;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,9 +14,10 @@ import java.util.Locale;
  *
  * <p>This class deliberately does not read SharedPreferences, decode Android
  * Base64, own transport, render UI, touch a phone, or mutate P0 recovery. A later
- * existing overlay owner may supply the exact decoded UTF-8 payload together with
+ * existing overlay owner may supply the exact decoded UTF-8 bytes together with
  * the byte-count/SHA/update metadata already persisted by {@link OperatorState}.
- * Integrity must pass before semantic parsing is attempted.</p>
+ * Integrity and strict UTF-8 decoding must pass before semantic parsing is
+ * attempted.</p>
  */
 public final class HeartbeatPersistedEnvelopeProjection {
     /** Alias the canonical ingress ceiling rather than repeating its numeric literal. */
@@ -56,20 +60,14 @@ public final class HeartbeatPersistedEnvelopeProjection {
     }
 
     /**
-     * Verify exact persisted content identity before delegating accepted bytes to
-     * the canonical parser and scene graph.
+     * Source-compatibility adapter for callers that already possess a Java String.
      *
-     * <p>The persisted update timestamp is currently produced from
-     * {@code System.currentTimeMillis()}. It proves only that a positive observation
-     * timestamp was stored; it is not a monotonic sequence and must not be used to
-     * reject a self-consistent payload merely because wall time moved backward or
-     * two broadcasts shared the same millisecond.</p>
-     *
-     * <p>Storage-integrity rejection delegates to the existing scene-preservation
-     * organ so visible contact/checkpoint identity survives while every one-shot
-     * motion bit is clamped off and the exact integrity boundary remains visible.
-     * Parser/scene rejection after storage acceptance uses the same preservation
-     * semantics through {@link HeartbeatSceneGraph}.</p>
+     * <p>This path preserves the original decoded String for semantic validation, so
+     * malformed UTF-16 such as an unpaired surrogate remains visible to
+     * {@link HeartbeatEnvelopeParser}. It cannot prove anything about a prior
+     * Base64-to-bytes decode because those bytes have already been discarded. New
+     * persisted-storage consumers should prefer {@link #projectBytes(byte[], long,
+     * String, long, HeartbeatSceneGraph.Frame)}.</p>
      */
     public static Result project(
             String payloadJson,
@@ -85,8 +83,77 @@ public final class HeartbeatPersistedEnvelopeProjection {
                     "",
                     updatedMs);
         }
-
         byte[] utf8 = payloadJson.getBytes(StandardCharsets.UTF_8);
+        return projectVerifiedBytes(
+                utf8,
+                payloadJson,
+                declaredBytes,
+                declaredSha256,
+                updatedMs,
+                lastGood);
+    }
+
+    /**
+     * Byte-first persisted-identity projection.
+     *
+     * <p>The caller supplies the exact bytes produced by the existing persisted
+     * Base64 identity. This method snapshots the mutable array, verifies byte count
+     * and SHA-256 on that exact snapshot, then performs strict UTF-8 decoding with
+     * malformed/unmappable input set to REPORT. Lossy replacement decoding is never
+     * allowed to manufacture semantic JSON. Only after storage identity and encoding
+     * both pass does the canonical parser receive text.</p>
+     *
+     * <p>This is still pure source composition. It does not decode Android Base64,
+     * read OperatorState, wire the existing overlay owner, render UI, or consume any
+     * phone/P0 execution surface.</p>
+     */
+    public static Result projectBytes(
+            byte[] payloadUtf8,
+            long declaredBytes,
+            String declaredSha256,
+            long updatedMs,
+            HeartbeatSceneGraph.Frame lastGood) {
+        if (payloadUtf8 == null || payloadUtf8.length == 0) {
+            return storageReject(
+                    "Stored heartbeat payload is empty.",
+                    lastGood,
+                    0,
+                    "",
+                    updatedMs);
+        }
+        byte[] exact = payloadUtf8.clone();
+        return projectVerifiedBytes(
+                exact,
+                null,
+                declaredBytes,
+                declaredSha256,
+                updatedMs,
+                lastGood);
+    }
+
+    /**
+     * Verify exact persisted content identity before delegating accepted bytes to
+     * the canonical parser and scene graph.
+     *
+     * <p>The persisted update timestamp is currently produced from
+     * {@code System.currentTimeMillis()}. It proves only that a positive observation
+     * timestamp was stored; it is not a monotonic sequence and must not be used to
+     * reject a self-consistent payload merely because wall time moved backward or
+     * two broadcasts shared the same millisecond.</p>
+     *
+     * <p>Storage-integrity or strict-decoding rejection delegates to the existing
+     * scene-preservation organ so visible contact/checkpoint identity survives while
+     * every one-shot motion bit is clamped off and the exact boundary remains
+     * visible. Parser/scene rejection after storage acceptance uses the same
+     * preservation semantics through {@link HeartbeatSceneGraph}.</p>
+     */
+    private static Result projectVerifiedBytes(
+            byte[] utf8,
+            String alreadyDecodedText,
+            long declaredBytes,
+            String declaredSha256,
+            long updatedMs,
+            HeartbeatSceneGraph.Frame lastGood) {
         int observedBytes = utf8.length;
         String observedSha256 = sha256(utf8);
 
@@ -134,6 +201,19 @@ public final class HeartbeatPersistedEnvelopeProjection {
                     updatedMs);
         }
 
+        String payloadJson = alreadyDecodedText;
+        if (payloadJson == null) {
+            payloadJson = decodeUtf8Strict(utf8);
+            if (payloadJson == null) {
+                return storageReject(
+                        "Stored heartbeat payload is not valid UTF-8.",
+                        lastGood,
+                        observedBytes,
+                        observedSha256,
+                        updatedMs);
+            }
+        }
+
         HeartbeatEnvelopeParser.Result parsed = HeartbeatEnvelopeParser.parse(payloadJson);
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(parsed, lastGood);
         boolean parserAccepted = parsed.accepted();
@@ -153,6 +233,19 @@ public final class HeartbeatPersistedEnvelopeProjection {
                 observedBytes,
                 observedSha256,
                 updatedMs);
+    }
+
+    private static String decodeUtf8Strict(byte[] bytes) {
+        try {
+            return StandardCharsets.UTF_8
+                    .newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(bytes))
+                    .toString();
+        } catch (CharacterCodingException invalidEncoding) {
+            return null;
+        }
     }
 
     private static Result storageReject(
