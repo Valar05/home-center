@@ -32,6 +32,17 @@ public class HeartbeatEnvelopeSemanticBoundsTest {
     }
 
     @Test
+    public void edgeControlCharacterIsRejectedBeforeTrimming() {
+        String tabEscape = "\\" + "u0009";
+
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(
+                envelope("pulse-edge-control", lightWithLabel(tabEscape + "Warm Wall")));
+
+        assertFalse(result.accepted());
+        assertTrue(result.boundary.contains("label contains a decoded control character"));
+    }
+
+    @Test
     public void unpairedUnicodeSurrogateFailsClosed() {
         String highSurrogateEscape = "\\" + "uD83E";
 
