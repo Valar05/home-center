@@ -1,0 +1,95 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "provenance": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "sourceHeadReviewed": "f279412d5954fcb04140ef002cf205824d235f41",
+  "timestamp": "2026-08-15T15:08:30Z",
+  "boundedClaim": "The 1000 TRY FOREVER source slice materially improves broad-heartbeat accessibility by preventing fault/blocker identities from being buried in collapsed speech, bounding compact per-light consequence speech while retaining full typed detail, adds deterministic regression source and a touchable non-raster warm-wall attention specimen, preserves P0/phone ownership, and survives exact GitHub readback. This claim does not include TESTED, UI rendered, deployed, callable, executed, delivered, or accepted.",
+  "acceptance": [
+    "Collapsed frame speech preserves exact material-light total and exact active/blocked/fault/recovered counts.",
+    "FAULT/BLOCKED identities are named before non-attention identities within the existing twelve-name speech ceiling while actual scene/focus order remains unchanged.",
+    "Compact per-node content description bounds consequence speech by Unicode code points without splitting a surrogate pair.",
+    "Typed detail retains complete reason, consequence, evidence, and source after compact speech is bounded.",
+    "Regression source covers attention-first ordering, stable order inside the attention group, unchanged focus indexes, Unicode-safe compaction, and full-detail retention.",
+    "The new attention-map specimen is touch/keyboard reachable DOM/vector source, uses non-color state tokens, native buttons, textContent/DOM construction, and no decorative motion loop.",
+    "The specimen does not light a doctrine merely because it was named in the automation prompt; its twenty shown lights each carry a material constraint/action/review/boundary for this source slice.",
+    "No P0/phone mutation or duplicate controller is introduced.",
+    "Regression source exists, but TESTED is not promoted without executed checks."
+  ],
+  "codeFirstFindings": [
+    {
+      "severity": "high",
+      "finding": "The prior bounded collapsed summary could name twelve early ACTIVE/RECOVERED lights while a later FAULT or BLOCKED light was only represented in the histogram and never identified by name.",
+      "action": "Corrected in HeartbeatFrameAccessibility: collapsed speech now projects attention states first while leaving the underlying Frame nodes and focus indexes in original scene order.",
+      "regressionTarget": "A fault at visual focus index 14 is named before earlier active lights while focusIndexForId still returns 14; attention states preserve their original relative order."
+    },
+    {
+      "severity": "medium",
+      "finding": "HeartbeatSkillPolicy.contentDescription could speak a consequence up to the parser's multi-kilobyte semantic allowance on ordinary focus movement, making per-light navigation noisy even after the collapsed summary was bounded.",
+      "action": "Compact consequence speech is now limited to 160 Unicode code points with code-point-safe truncation; fully typed detail remains unabridged for explicit inspection.",
+      "regressionTarget": "A 170-swan consequence yields exactly the 160-code-point compact prefix plus ellipsis while typed detail still contains the complete consequence and evidence."
+    },
+    {
+      "severity": "medium",
+      "finding": "The first attention-map art draft used innerHTML despite the existing source specimen having already paid to remove that pattern, and it displayed Autocorrect/Checkpoint as current material lights despite neither producing a concrete change in this pulse.",
+      "action": "Repaired before completion: the specimen now constructs nodes with createElement/textContent and replaces decorative/non-material lights with Repository Truth and Fortress Plan Gate, both actually consumed in this slice.",
+      "regressionTarget": "Source specimen contains no innerHTML assignment and the displayed constellation is tied to concrete current-slice consequences/boundaries rather than a fixed favorites list."
+    },
+    {
+      "severity": "info",
+      "finding": "Attention ordering is an accessibility projection, not permission to reorder the scene graph or create a new attention controller.",
+      "action": "Kept attentionFirst private to HeartbeatFrameAccessibility and the source specimen; no renderer, service, controller, queue, transport, or phone ownership changed."
+    }
+  ],
+  "exactReadback": {
+    "HeartbeatFrameAccessibility.java": "ab1598cd3618e9cc36e3d2f07b8c1d090b2792a1",
+    "HeartbeatSkillPolicy.java": "f99570be4e2355537eca6c2e00c2db16cb922ae2",
+    "HeartbeatFrameAccessibilityTest.java": "2a61d045f23bb639d9f3404a40da7f06fece56ea",
+    "HeartbeatSkillPolicyTest.java": "caa2a99fd4cd6daa1d46b78de5c951e426ecc3ff",
+    "heartbeat-attention-map-source-specimen.html": "5d311de83eb633261b28ae71af2986743cd20a04",
+    "venicePlanReceipt": "ad6b8beea9e35f4978c1977ec09b9d59e87428f2"
+  },
+  "deterministicTestEvidence": {
+    "operatorOverlayRun": 31891813186,
+    "operatorOverlayJob": 95029099894,
+    "headSha": "f279412d5954fcb04140ef002cf205824d235f41",
+    "executedSteps": 0,
+    "status": "completed",
+    "conclusion": "failure",
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "verdicts": {
+    "IMPLEMENTED_SOURCE_PLUS_EXACT_GITHUB_READBACK": "PASS",
+    "REGRESSION_SOURCE_PRESENT": "PASS",
+    "TESTED": "BLOCKED_UNKNOWN",
+    "UI_RENDERED": "BLOCKED_UNKNOWN",
+    "TALKBACK_RUNTIME_EXERCISED": "BLOCKED_UNKNOWN",
+    "DEPLOYED": "BLOCKED_UNKNOWN",
+    "CALLABLE": "BLOCKED_UNKNOWN",
+    "EXECUTED": "BLOCKED_UNKNOWN",
+    "DELIVERED": "BLOCKED_UNKNOWN",
+    "ACCEPTED": "BLOCKED_UNKNOWN"
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "sheRaw": {
+    "authoritativeSurfaceAttempted": "She-Raw.she_raw_consult",
+    "result": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacementUsed": false,
+    "retryHammered": false
+  },
+  "finalVerdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testVerdict": "BLOCKED_UNKNOWN"
+}
