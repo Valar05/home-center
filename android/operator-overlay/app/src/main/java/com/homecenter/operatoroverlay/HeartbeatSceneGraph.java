@@ -144,6 +144,25 @@ public final class HeartbeatSceneGraph {
     }
 
     /**
+     * Preserve last-good visible contact for a rejection that happens before the
+     * canonical parser can safely produce a pulse (for example persisted-byte/SHA
+     * identity failure). This delegates to the same preservation organ used by
+     * parser and scene rejection, so all one-shot node motion is re-materialized
+     * off and the exact rejection boundary remains visible.
+     *
+     * <p>This is pure source composition only. It does not own storage, transport,
+     * rendering, phone execution, or P0 recovery.</p>
+     */
+    public static Frame preserveRejectedRefresh(
+            String attemptedPulseId,
+            Frame lastGood,
+            String boundary) {
+        String exactBoundary = clean(boundary);
+        if (exactBoundary.isEmpty()) exactBoundary = "Heartbeat refresh was rejected.";
+        return preserveLastGood(attemptedPulseId, lastGood, exactBoundary);
+    }
+
+    /**
      * Build the next semantic frame.
      *
      * Incomplete or semantically invalid pulses preserve the last complete frame
