@@ -11,12 +11,10 @@ import java.util.Locale;
  * focus mutation, or P0 execution authority.
  */
 public final class HeartbeatFrameAccessibility {
-    /**
-     * Keep the collapsed surface useful even when the heartbeat legitimately
-     * contains a broad constellation. The exact total/state counts remain spoken;
-     * verbose consequence/evidence stays reachable on the individual light.
-     */
+    /** Maximum number of named lights in the collapsed summary. */
     public static final int MAX_COLLAPSED_NAMED_LIGHTS = 12;
+    /** Maximum code points from one label spoken in the collapsed summary. */
+    public static final int MAX_COLLAPSED_LABEL_CODE_POINTS = 64;
 
     private HeartbeatFrameAccessibility() {
     }
@@ -25,12 +23,13 @@ public final class HeartbeatFrameAccessibility {
      * Compact collapsed-overlay description of the exact visible scene.
      *
      * A broad valid pulse may contain up to 64 lights and multi-kilobyte semantic
-     * fields. Reading every consequence in the collapsed label would turn TalkBack
-     * into an unbounded monologue. This summary therefore preserves the exact total,
-     * exact state histogram, and a deterministic prefix of label/state identities.
-     * Full reason/consequence/evidence/provenance remains available through node
-     * detail. Interrupted refresh detail is appended after the last-good summary;
-     * discarded attempted candidate content is never announced as current state.
+     * fields. Reading every consequence or full long label in the collapsed label
+     * would turn TalkBack into a monologue. This summary therefore preserves the
+     * exact total, exact state histogram, and a deterministic bounded prefix of
+     * label/state identities. Full label/reason/consequence/evidence/provenance
+     * remains available through node detail. Interrupted refresh detail is appended
+     * after the last-good summary; discarded attempted candidate content is never
+     * announced as current state.
      */
     public static String collapsedContentDescription(HeartbeatSceneGraph.Frame frame) {
         if (frame == null) return "Heartbeat scene unavailable.";
@@ -78,7 +77,7 @@ public final class HeartbeatFrameAccessibility {
             for (int index = 0; index < named; index++) {
                 HeartbeatSceneGraph.Node node = frame.nodes.get(index);
                 if (index > 0) out.append("; ");
-                out.append(node.label)
+                out.append(compactLabel(node.label))
                         .append(", ")
                         .append(stateName(node.state));
             }
@@ -153,6 +152,14 @@ public final class HeartbeatFrameAccessibility {
             if (node.id.toLowerCase(Locale.ROOT).equals(target)) return node.focusIndex;
         }
         return -1;
+    }
+
+    private static String compactLabel(String label) {
+        String value = clean(label);
+        int codePoints = value.codePointCount(0, value.length());
+        if (codePoints <= MAX_COLLAPSED_LABEL_CODE_POINTS) return value;
+        int end = value.offsetByCodePoints(0, MAX_COLLAPSED_LABEL_CODE_POINTS);
+        return value.substring(0, end) + "…";
     }
 
     private static String stateName(HeartbeatSkillPolicy.State state) {
