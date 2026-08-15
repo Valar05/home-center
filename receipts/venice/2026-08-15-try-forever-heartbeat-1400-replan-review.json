@@ -1,0 +1,54 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER 1400 heartbeat replan after code-first review found a contact/motion contradiction in the new persisted-envelope integrity seam.",
+  "repository": "Valar05/home-center",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeReplanExecution": "d1903c08f241c317a10d6e62f9ae4597be4e5fc8",
+  "timestamp": "2026-08-15T19:08:00Z",
+  "selectedJudgmentJars": [
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Interrupted/rejected refreshes must preserve contact while clamping all stale transition motion."
+    },
+    {
+      "id": "originality-tax",
+      "source": "doctrine:Originality Tax",
+      "why": "The new seam must not reintroduce the stale-motion failure already repaired in HeartbeatSceneGraph."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "Repair remains source-only and must not be promoted into runtime or test claims."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "The failure path must be reachable in regression source and preserve checkpoint semantics."
+    }
+  ],
+  "finding": {
+    "severity": "major",
+    "originalPlanDefect": "The first plan required storage-integrity rejection to return the exact prior frame object. That preserves contact identity but can also preserve a prior one-shot node.transitionMotion=true bit, reintroducing the stale-motion contradiction that HeartbeatSceneGraph previously repaired for interrupted refreshes.",
+    "evidence": [
+      "HeartbeatSceneGraph already re-materializes preserved nodes with transitionMotion=false for rejected/incomplete refreshes.",
+      "HeartbeatPersistedEnvelopeProjection.storageReject currently returns lastGood directly."
+    ],
+    "decision": "Do not keep exact object identity. Preserve semantic/contact checkpoint identity instead and route storage rejection through the existing scene preservation organ so all motion is clamped and the exact storage boundary remains visible."
+  },
+  "revisedPlan": [
+    "Expose one bounded public HeartbeatSceneGraph rejection-preservation seam that delegates to its existing private preserveLastGood implementation; this is composition of the existing organ, not a neighboring controller.",
+    "Change HeartbeatPersistedEnvelopeProjection storage rejection to use that seam with the exact integrity boundary.",
+    "Strengthen regression source: storage rejection must preserve contactSha256, mark refreshInterrupted, surface the exact boundary, set transitionMotionAllowed=false, and clear every node.transitionMotion even when the prior frame had earned motion.",
+    "Correct doctrine and warm-wall wording from exact frame-reference preservation to exact visible-contact preservation with motion re-materialized off.",
+    "Re-read all source identities, then perform Regnet/Venice completion review under the same P0/phone firewall."
+  ],
+  "outsideScope": [
+    "phone execution",
+    "P0 recovery chain",
+    "new renderer/controller",
+    "Android deployment or physical acceptance"
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}
