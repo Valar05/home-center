@@ -103,11 +103,44 @@ public final class HeartbeatSkillPolicy {
         }
     }
 
+    /**
+     * True only when the candidate carries the complete typed source envelope.
+     *
+     * This deliberately does not change legacy materiality. Legacy candidates stay
+     * selectable until the existing ingress owner is migrated, but callers can now
+     * distinguish them from records that satisfy the durable source contract.
+     */
+    public static boolean hasTypedSourceContract(Candidate candidate) {
+        if (candidate == null) return false;
+        if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
+        return !candidate.provenanceLocator.isEmpty()
+                && !candidate.activationReason.isEmpty()
+                && !candidate.evidenceBoundary.isEmpty();
+    }
+
     public static String contentDescription(Candidate candidate) {
         if (!isMaterial(candidate)) return "";
         return "Skill " + candidate.label + ", "
                 + candidate.state.name().toLowerCase(Locale.ROOT)
                 + ". " + candidate.consequence + ".";
+    }
+
+    /**
+     * Expanded TalkBack/touch detail for a fully typed heartbeat source record.
+     *
+     * Legacy candidates intentionally fall back to the compact description rather
+     * than inventing provenance, activation reason, or evidence they do not carry.
+     */
+    public static String detailContentDescription(Candidate candidate) {
+        if (!isMaterial(candidate)) return "";
+        if (!hasTypedSourceContract(candidate)) return contentDescription(candidate);
+        return "Skill " + candidate.label + ", "
+                + candidate.state.name().toLowerCase(Locale.ROOT)
+                + ". Why: " + candidate.activationReason
+                + ". Consequence: " + candidate.consequence
+                + ". Evidence: " + candidate.evidenceBoundary
+                + ". Source: " + candidate.provenanceKind
+                + " " + candidate.provenanceLocator + ".";
     }
 
     /**
@@ -129,6 +162,19 @@ public final class HeartbeatSkillPolicy {
             out.append(contentDescription(candidate)).append(' ');
         }
         return out.toString().trim();
+    }
+
+    private static boolean isAllowedProvenanceKind(String provenanceKind) {
+        switch (provenanceKind) {
+            case "repository_skill":
+            case "doctrine":
+            case "jar":
+            case "reviewer":
+            case "runtime_boundary":
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static String clean(String value) {
