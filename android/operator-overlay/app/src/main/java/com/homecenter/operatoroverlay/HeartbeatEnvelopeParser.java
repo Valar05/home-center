@@ -2,6 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -21,6 +22,18 @@ public final class HeartbeatEnvelopeParser {
     public static final int MAX_LIGHTS = 64;
     private static final int MAX_JSON_DEPTH = 32;
     private static final int MAX_STRING_CHARS = 8192;
+    private static final Set<String> ROOT_FIELDS = allowedKeys(
+            "schema", "pulseId", "complete", "lights");
+    private static final Set<String> LIGHT_FIELDS = allowedKeys(
+            "id",
+            "label",
+            "provenanceKind",
+            "provenanceLocator",
+            "activationReason",
+            "state",
+            "changedThisPulse",
+            "consequence",
+            "evidenceBoundary");
 
     public static final class Pulse {
         public final String pulseId;
@@ -61,6 +74,7 @@ public final class HeartbeatEnvelopeParser {
         try {
             Object parsed = new JsonCursor(payloadJson).parseDocument();
             Map<String, Object> root = asObject(parsed, "Heartbeat envelope root must be an object.");
+            requireOnlyKeys(root, ROOT_FIELDS, "Heartbeat envelope");
 
             String schema = requiredString(root, "schema");
             if (!SCHEMA.equals(schema)) {
@@ -100,6 +114,7 @@ public final class HeartbeatEnvelopeParser {
     private static HeartbeatSkillPolicy.Candidate parseCandidate(
             Map<String, Object> light,
             int index) {
+        requireOnlyKeys(light, LIGHT_FIELDS, "Light " + index);
         String id = requiredString(light, "id");
         String label = requiredString(light, "label");
         String provenanceKind = requiredString(light, "provenanceKind");
@@ -167,6 +182,21 @@ public final class HeartbeatEnvelopeParser {
             throw new ParseFailure("Heartbeat field " + key + " must be a boolean.");
         }
         return (Boolean) value;
+    }
+
+    private static Set<String> allowedKeys(String... keys) {
+        return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(keys)));
+    }
+
+    private static void requireOnlyKeys(
+            Map<String, Object> object,
+            Set<String> allowed,
+            String context) {
+        for (String key : object.keySet()) {
+            if (!allowed.contains(key)) {
+                throw new ParseFailure(context + " has unknown field: " + key + ".");
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
