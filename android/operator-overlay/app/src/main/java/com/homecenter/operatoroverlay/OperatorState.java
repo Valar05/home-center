@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -189,9 +193,34 @@ final class OperatorState {
         return cleanSummary;
     }
 
+    /**
+     * Encode heartbeat JSON without replacement semantics. Standard String#getBytes
+     * silently replaces unpaired UTF-16 surrogates, which would destroy evidence
+     * before the persisted byte-count/SHA identity exists. This helper rejects that
+     * input before SharedPreferences mutation while remaining byte-identical to
+     * ordinary UTF-8 encoding for well-formed Unicode.
+     */
+    static byte[] strictHeartbeatLightsUtf8(String payloadJson) {
+        String exact = payloadJson == null ? "" : payloadJson;
+        try {
+            ByteBuffer encoded = StandardCharsets.UTF_8
+                    .newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .encode(CharBuffer.wrap(exact));
+            byte[] bytes = new byte[encoded.remaining()];
+            encoded.get(bytes);
+            return bytes;
+        } catch (CharacterCodingException invalidEncoding) {
+            throw new IllegalArgumentException(
+                    "heartbeat lights payload contains invalid Unicode",
+                    invalidEncoding);
+        }
+    }
+
     static void updateHeartbeatLights(Context context, String payloadJson, long nowMs) {
         if (payloadJson == null || payloadJson.trim().isEmpty()) return;
-        byte[] bytes = payloadJson.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = strictHeartbeatLightsUtf8(payloadJson);
         if (bytes.length > MAX_HEARTBEAT_LIGHTS_BYTES) {
             throw new IllegalArgumentException("heartbeat lights payload exceeds " + MAX_HEARTBEAT_LIGHTS_BYTES + " bytes");
         }
