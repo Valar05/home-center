@@ -204,19 +204,27 @@ public final class HeartbeatEnvelopeParser {
 
     /**
      * Semantic text is later spoken, touched, fingerprinted, or shown in detail.
-     * Bound it per field and reject decoded control/unpaired-surrogate text so a
-     * syntactically valid JSON string cannot become pathological UI telemetry.
+     * Inspect the decoded string before trimming so edge control characters cannot
+     * be silently normalized away, then apply the field-specific display bound.
      */
     private static String requiredSemanticString(
             Map<String, Object> object,
             String key,
             int maxChars) {
-        String value = requiredString(object, key);
+        Object rawValue = object.get(key);
+        if (!(rawValue instanceof String)) {
+            throw new ParseFailure("Heartbeat field " + key + " must be a string.");
+        }
+        String raw = (String) rawValue;
+        requireSafeSemanticText(raw, key);
+        String value = clean(raw);
+        if (value.isEmpty()) {
+            throw new ParseFailure("Heartbeat field " + key + " must not be empty.");
+        }
         if (value.length() > maxChars) {
             throw new ParseFailure(
                     "Heartbeat field " + key + " exceeds " + maxChars + " characters.");
         }
-        requireSafeSemanticText(value, key);
         return value;
     }
 
