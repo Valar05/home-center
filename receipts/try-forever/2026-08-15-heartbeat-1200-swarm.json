@@ -1,0 +1,150 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "commission": "Broad Harroway operator-mode TRY FOREVER heartbeat under binding P0/phone ownership firewalls.",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "startingHead": "2835b350c1124b6b2e0d3b28c69bee1dbd30f439",
+  "reviewedSourceHead": "dd5816152ad26b8625b40ce149415995f2ab663a",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1200-plan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1200-source-review.json",
+  "veniceCompletionReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1200-completion-review.json",
+  "lights": [
+    {
+      "id": "heartbeat-skill-lights",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/heartbeat-skill-lights/SKILL.md",
+      "state": "active",
+      "why": "Broad heartbeat semantics themselves changed.",
+      "consequence": "Doctrine now makes pure reorder transition-inert and requires exact omitted urgent-attention counts in bounded TalkBack summaries.",
+      "evidence": "fadf8897704e4bfc784c4a00c44fe0dc53e737a3"
+    },
+    {
+      "id": "fortress-core",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/fortress-core/SKILL.md",
+      "state": "active",
+      "why": "The mutation required a pre-execution plan gate, durable review, capability-state separation, and no blind retry.",
+      "consequence": "A repository-durable PLAN_ALLOWED receipt preceded mutation; source and runtime states remain separated; current CI failure was inspected rather than manually retried.",
+      "evidence": "1200 Venice plan receipt + current-head CI annotation"
+    },
+    {
+      "id": "execution-truth",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/execution-truth/SKILL.md",
+      "state": "active",
+      "why": "Source work risked being confused with a delivered Operator Overlay.",
+      "consequence": "Capability membrane remains explicit: implementation/readback advanced; TESTED/runtime/deployed/callable/executed/delivered/accepted did not.",
+      "evidence": "080f3537ac1c1e32176aad02d6b61044fc785ed2 + PR capability ledger"
+    },
+    {
+      "id": "regnet-qa",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/renee-qa/SKILL.md",
+      "state": "blocked",
+      "why": "Regression evidence and capability-state truth are material.",
+      "consequence": "Bounded source/readback claim passes, but TESTED remains BLOCKED_UNKNOWN and the full 1200 plan is REVISE_REQUIRED because parser protocol-token hardening remains unfinished.",
+      "evidence": "receipts/regnet/2026-08-15-try-forever-heartbeat-1200-source-review.json"
+    },
+    {
+      "id": "venice-judgment-jars",
+      "provenanceKind": "jar",
+      "provenanceLocator": "venice-judgment-jar",
+      "state": "active",
+      "why": "Fresh plan and completion adversarial review are mandatory.",
+      "consequence": "Venice granted PLAN_ALLOWED before mutation, then returned CONTINUE_REQUIRED because parser schema/state tokens still bypass decoded-control validation.",
+      "evidence": "1200 plan + completion receipts"
+    },
+    {
+      "id": "failure-is-the-shovel-originality-tax",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Failure Is The Shovel + Originality Tax",
+      "state": "active",
+      "why": "GitHub Actions remains blocked by the same budget condition.",
+      "consequence": "The swarm did not manually retry CI; it redirected effort into accessibility overflow, checkpoint consistency, doctrine, touchable source art, and durable review.",
+      "evidence": "Operator Overlay Android job 95042339347 steps=[]; Actions-budget annotation"
+    },
+    {
+      "id": "accessibility-talkback",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Accessibility/TalkBack",
+      "state": "active",
+      "why": "A broad constellation can exceed the collapsed speech naming budget.",
+      "consequence": "The summary keeps a 12-name bound but now states the exact number of omitted blocked/fault attention lights rather than hiding them in a generic remainder.",
+      "evidence": "HeartbeatFrameAccessibility.java 3c57ab01f3bc011d13335ef48acf65d3e34fe662 + test a120c6259c5d8a8399cc59a748feb34c819bac1c"
+    },
+    {
+      "id": "checkpoint-idempotence-christmas-motion",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "recovery/checkpointing/idempotence + Christmas-light scene graph",
+      "state": "active",
+      "why": "Transition hash and transition-motion rules disagreed on pure scene reorder.",
+      "consequence": "Transition identity now stable-id canonicalizes nodes, so reorder changes visible contact/focus but cannot manufacture a Christmas blink; add/remove and state/consequence changes still do.",
+      "evidence": "HeartbeatFrameCheckpoint.java aba7b8865a22a2ecffebdf0480b2b6f04dc43e37 + test 527998d7513a7d670586e441956d1b1e0e8a2cba"
+    },
+    {
+      "id": "warm-walls-hunger",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "warm walls + Hunger",
+      "state": "active",
+      "why": "The art front had to teach a real new contract instead of multiplying decorative specimens.",
+      "consequence": "The existing touchable attention-map DOM specimen was refined in place to model urgent-overflow truth while preserving >=48px controls, non-color states, reduced motion, no raster, and source-only scarring.",
+      "evidence": "0a13f5fb29a227d0cdb49e95fd668e92546cff4b"
+    },
+    {
+      "id": "she-raw",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "She-Raw.she_raw_ambient",
+      "state": "fault",
+      "why": "Adversarial motivation/review was materially requested.",
+      "consequence": "Authoritative consultation failed at account connection; no synthetic She-Raw verdict was substituted and the connector was not hammered.",
+      "evidence": "HTTP 400: We couldn't connect your account. Please try again."
+    },
+    {
+      "id": "p0-phone-firewall",
+      "provenanceKind": "runtime_boundary",
+      "provenanceLocator": "P0 FORTRESS FIREWALL",
+      "state": "blocked",
+      "why": "The shared phone surface and canonical P0 recovery chain are owned elsewhere.",
+      "consequence": "Zero primary-phone commands, Phone Hands tickets, device/queue probes, P0 mutations, Nightcore, Pocket TTS, Chromium, Context Organs, or duplicate controller/daemon activity occurred.",
+      "evidence": "Binding commission boundary; no P0/phone tool invocation in this slice"
+    }
+  ],
+  "darkBecauseNotMaterial": [
+    "Autocorrect Judgment Jar: no ambiguous/autocorrect token required resolution in this pulse.",
+    "Phone Runtime / Phone Hands recovery: deliberately dark as an action lane because the P0/phone firewall forbids consumption of the shared surface.",
+    "Canon Auto-Select as a decorative label: not separately lit; repository discovery materially contributed through the concrete fortress-core, execution-truth, heartbeat-skill-lights, and Regnet skills above."
+  ],
+  "crossPollination": [
+    "Broad accessibility pressure exposed urgent-state overflow beyond the 12-name TalkBack budget; that became both regression source and a source-art refinement.",
+    "Christmas-motion doctrine exposed an inconsistency in transition checkpoint hashing; contact preservation stayed order-sensitive while transition identity became reorder-insensitive.",
+    "The blocked CI condition fed Failure Is The Shovel/Originality Tax into independent source fronts instead of another blind workflow retry.",
+    "Execution Truth and Venice prevented exact GitHub readback from being promoted into TESTED, runtime rendering, phone callability, delivery, or acceptance.",
+    "Code review exposed the next non-P0 wound: schema/state protocol tokens still use trim-before-safety validation, so Venice requires continuation rather than a fake completion stamp."
+  ],
+  "currentTestBoundary": {
+    "workflow": "Operator Overlay Android",
+    "run": 31897252222,
+    "job": 95042339347,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "testedBoundary": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextAuthorizedWound": "HeartbeatEnvelopeParser protocol-token validation asymmetry for schema/state; non-phone source-only continuation is authorized.",
+  "veniceDirective": "CONTINUE_REQUIRED",
+  "p0PhoneMutations": 0
+}
