@@ -26,21 +26,46 @@ public final class HeartbeatSkillPolicy {
     public static final class Candidate {
         public final String id;
         public final String label;
+        public final String provenanceKind;
+        public final String provenanceLocator;
+        public final String activationReason;
         public final State state;
         public final boolean changedThisPulse;
         public final String consequence;
+        public final String evidenceBoundary;
 
+        /**
+         * Legacy source-only constructor. Typed provenance remains explicitly empty
+         * until an upstream owner supplies the full heartbeat source contract.
+         */
         public Candidate(
                 String id,
                 String label,
                 State state,
                 boolean changedThisPulse,
                 String consequence) {
+            this(id, label, "", "", "", state, changedThisPulse, consequence, "");
+        }
+
+        public Candidate(
+                String id,
+                String label,
+                String provenanceKind,
+                String provenanceLocator,
+                String activationReason,
+                State state,
+                boolean changedThisPulse,
+                String consequence,
+                String evidenceBoundary) {
             this.id = clean(id);
             this.label = clean(label);
+            this.provenanceKind = clean(provenanceKind);
+            this.provenanceLocator = clean(provenanceLocator);
+            this.activationReason = clean(activationReason);
             this.state = state == null ? State.DARK : state;
             this.changedThisPulse = changedThisPulse;
             this.consequence = clean(consequence);
+            this.evidenceBoundary = clean(evidenceBoundary);
         }
     }
 
