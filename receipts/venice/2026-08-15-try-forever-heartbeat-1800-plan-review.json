@@ -1,0 +1,91 @@
+{
+  "schema": "home-center.venice-judgment-jar-plan-review.v1",
+  "commission": "Advance TRY FOREVER heartbeat skill lights through independent non-phone source fronts while preserving the P0/primary-phone firewall and capability-state truth.",
+  "slice": "2026-08-15-heartbeat-1800",
+  "verdict": "PLAN_ALLOWED",
+  "reviewer": {
+    "kind": "judgment_jar_venice",
+    "implementation": "same_worker_separate_adversarial_pass"
+  },
+  "selectedJars": [
+    {
+      "id": "mission-boundary",
+      "reason": "Keeps all phone/P0 owners read-only and forbids adjacent execution lanes."
+    },
+    {
+      "id": "repository-truth",
+      "reason": "Requires branch-head source readback before making source claims."
+    },
+    {
+      "id": "change-discipline",
+      "reason": "The new slice must preserve all earlier heartbeat source contracts instead of regression soup."
+    },
+    {
+      "id": "failure-recovery",
+      "reason": "The unchanged Actions-budget blocker must feed a different authorized front, not another retry."
+    },
+    {
+      "id": "venice-review-gate",
+      "reason": "Code/config changes require a separate completion review before the bounded slice may yield."
+    }
+  ],
+  "research": {
+    "pr": "Valar05/home-center#329",
+    "headObserved": "340a9ff856aa84687d51d09ea3f8c2d853e3d8d6",
+    "sourceFindings": [
+      "HeartbeatIngressPolicy currently catches every IllegalArgumentException from optional payload persistence and classifies it as caller-invalid telemetry.",
+      "OperatorState currently throws IllegalArgumentException for malformed Unicode and oversize heartbeat-light payloads, while storage commit failure uses IllegalStateException.",
+      "The broad catch is coupled to today's implementation detail and can silently swallow a future/internal IllegalArgumentException from persistence, incorrectly invoking the independent heartbeat afterward.",
+      "HeartbeatSkillPolicy expanded TalkBack detail can include parser-bounded but still very large activation/evidence/consequence/provenance fields; detail is an on-demand speech projection but remains vulnerable to multi-kilobyte speech bursts."
+    ]
+  },
+  "antagonism": [
+    "Do not catch RuntimeException or generic IllegalArgumentException as caller-invalid telemetry.",
+    "Do not create another receiver/controller/daemon; compose the existing OverlayUpdateReceiver -> HeartbeatIngressPolicy -> OperatorState owner.",
+    "Do not truncate or mutate stored semantic data merely to bound speech; bound only the TalkBack projection and explicitly mark truncation.",
+    "Do not touch Phone Hands, primary-phone queues, Nightcore, Pocket TTS, Chromium, Context Organs, recovery scheduling, PR317/PR318, or physical acceptance.",
+    "Do not claim TESTED merely because regression source is added; CI remains an independent evidence gate."
+  ],
+  "authorizedFronts": [
+    {
+      "front": "typed_ingress_rejection_taxonomy",
+      "action": "Introduce a dedicated caller-invalid optional-payload exception and catch only that type; make unrelated IllegalArgumentException propagate without invoking heartbeat."
+    },
+    {
+      "front": "accessibility_detail_speech_budget",
+      "action": "Bound expanded TalkBack fields by Unicode code points while preserving complete Candidate data and adding explicit truncation wording."
+    },
+    {
+      "front": "regression_source",
+      "action": "Add fixtures for generic IllegalArgumentException propagation and Unicode-safe detail truncation."
+    },
+    {
+      "front": "durable_skill_and_art",
+      "action": "Update the existing heartbeat-ingress-separation skill and mutate an existing non-raster specimen in place; no new runtime owner."
+    },
+    {
+      "front": "evidence_review",
+      "action": "Perform exact GitHub readback, Regnet bounded-source review, Venice completion review, compact swarm receipt, and PR-front-page capability ledger update."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "Authoritative she_raw_ambient returned HTTP 400 account-connection failure; no synthetic She-Raw substitute is authorized."
+  },
+  "p0Firewall": {
+    "mutationsAuthorized": false,
+    "phoneSurfaceAuthorized": false,
+    "expectedP0Mutations": 0
+  },
+  "capabilityCeiling": {
+    "implementedSourceMayAdvance": true,
+    "regressionSourceMayAdvance": true,
+    "testedMayAdvanceWithoutExecutedTests": false,
+    "deployedMayAdvance": false,
+    "callableMayAdvance": false,
+    "executedMayAdvance": false,
+    "deliveredMayAdvance": false,
+    "acceptedMayAdvance": false
+  }
+}
