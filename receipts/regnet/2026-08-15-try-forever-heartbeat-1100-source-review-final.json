@@ -1,0 +1,61 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewerRole": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedCodeArtHead": "859a5b3138c2ec7071423811b7938f3405fd4916",
+  "supersedesForCurrentSlice": "receipts/regnet/2026-08-15-try-forever-heartbeat-1100-source-review.json",
+  "boundedClaim": "Heartbeat scene source preserves last-good semantic contact while clamping node-level transition motion on rejected refreshes, treats pulseId as an idempotent contact identity, and exposes the repaired contract through regression source plus a touchable non-raster specimen, without phone/P0 mutation.",
+  "capabilityState": "implemented_source",
+  "exactReadback": {
+    "HeartbeatSceneGraph.java": "45e2cefd76819205cb026d4e32e0c4d8af85ea0a",
+    "HeartbeatSceneGraphTest.java": "30345adde9eb28d4122e317092aaa942343e75b0",
+    "heartbeat-motion-clamp-source-specimen.html": "cadf0d49d6a412b6addecc3212996f88a3d5c938",
+    "venicePlanReceipt": "0ba66029209c309d033862ab9a7067fce9c431ff"
+  },
+  "findings": [
+    {
+      "state": "repaired",
+      "finding": "Interrupted frames could carry stale node.transitionMotion=true even though frame.transitionMotionAllowed=false because preserveLastGood reused prior node objects.",
+      "repair": "Preserved semantic nodes are re-materialized with transitionMotion=false; checkpoint equality, not object identity, is the preserved invariant."
+    },
+    {
+      "state": "repaired",
+      "finding": "The same visible pulseId could previously be reused with changed contact semantics, weakening idempotent retry identity.",
+      "repair": "Exact same-id retry is accepted only when visible contact SHA is unchanged; a same-id semantic collision fails closed with an explicit boundary and preserved last-good contact."
+    },
+    {
+      "state": "repaired",
+      "finding": "The first art draft wired animation to a selector no rendered node had.",
+      "repair": "Animation now targets the real light heading nodes."
+    },
+    {
+      "state": "repaired",
+      "finding": "The art draft exposed both the whole changing stage and a dedicated status node as polite live regions, risking duplicate TalkBack announcements.",
+      "repair": "The stage is no longer a live region; the dedicated atomic status node is the sole change announcement surface."
+    }
+  ],
+  "deterministicExecution": {
+    "state": "BLOCKED_UNKNOWN",
+    "reviewedJavaHead": "a46e2deeb940015094600fd5a1f1d722b2788c7d",
+    "workflow": "Operator Overlay Android",
+    "runId": 31894346632,
+    "jobId": 95035201047,
+    "executedSteps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "scopeAttack": [
+    "No new overlay controller, renderer, phone ingress path, recovery daemon, P0 coordinator, Nightcore lane, Pocket TTS lane, Chromium lane, or Context Organs deployer was created.",
+    "No primary-phone command, Phone Hands ticket, queue read/mutation, or P0 recovery mutation occurred.",
+    "Source/art/readback evidence cannot advance runtime parsing, UI rendering, TalkBack runtime exercise, deployment, phone callability, execution, delivery, or acceptance."
+  ],
+  "verdict": {
+    "implementedSource": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+    "exactReadback": "PASS",
+    "regressionSource": "PASS_PRESENT_NOT_EXECUTED",
+    "tested": "BLOCKED_UNKNOWN",
+    "runtime": "NOT_PROVEN",
+    "mergeAsDeliveredInterface": "STOP_SHIP"
+  }
+}
