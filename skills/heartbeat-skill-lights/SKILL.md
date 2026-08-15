@@ -43,6 +43,18 @@ The pure policy performs source-shape validation for `repository_skill` locators
 
 The existing `ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState` ingress may persist an exact bounded heartbeat-light JSON payload as opaque UTF-8 identity: base64 bytes, byte count, SHA-256, and update timestamp. `OperatorStateProvider` may expose that same stored identity through its existing read-only query surface. This is ingress persistence only. It does **not** validate the JSON into typed candidates, render a scene, prove TalkBack behavior, deploy to a phone, or establish physical acceptance.
 
+### Persisted identity before semantic ingestion
+Opaque persistence is not trustworthy merely because all four metadata fields exist. `HeartbeatPersistedEnvelopeProjection` is the pure source seam that checks the decoded UTF-8 payload against its persisted identity **before** semantic parsing is attempted.
+
+- decoded payload byte length must stay within the same 32768-byte ingress ceiling and exactly equal the declared stored byte count;
+- stored SHA-256 metadata must be canonical lowercase 64-character hex and must exactly match the decoded UTF-8 payload;
+- the persisted update identity must be present (`updatedMs > 0`);
+- a storage-integrity rejection must not invoke `HeartbeatEnvelopeParser`; it returns the exact prior last-good frame reference plus an exact integrity boundary;
+- storage acceptance advances only to semantic-attempt permission. The canonical parser may still reject the envelope, and an accepted parser result may still be presentation-incomplete (for example `complete=false`);
+- valid storage identity, parser acceptance, presentation acceptance, rendered UI, deployment, phone callability, execution, delivery, and acceptance remain separate capability states.
+
+The helper deliberately does **not** read `SharedPreferences`, decode Android base64, own `OperatorState`, render the overlay, touch transport, consume the phone surface, or mutate P0 recovery. Until the existing overlay owner actually decodes the stored payload and calls this seam, persisted runtime payload consumption remains **NO** even though the pure integrity/projection source exists.
+
 ### Semantic text safety
 Canonical heartbeat text eventually becomes spoken/touched detail, evidence display, and checkpoint identity. The pure parser therefore applies field-specific character limits to `pulseId`, `id`, `label`, provenance, activation reason, consequence, and evidence boundary rather than relying only on the raw JSON-string ceiling.
 
@@ -57,7 +69,7 @@ A light may summarize a skill, but it may not claim a later capability state tha
 
 Repository/source progress does not unlock a shared physical execution surface. A green source/test light must not be interpreted as transport, connector-egress, phone execution, deployment, or physical acceptance.
 
-Raw heartbeat payload persistence is not semantic ingestion. Until the existing overlay owner parses the persisted envelope into validated candidates, consumes the scene model, renders the controls, and produces authorized runtime evidence, UI-rendered/deployed/callable/delivered/accepted remain separate unresolved states.
+Raw heartbeat payload persistence is not semantic ingestion. A pure persisted-identity verifier/projection is also not runtime ingestion until the existing overlay owner actually supplies stored bytes/metadata to it. Until the overlay parses the persisted envelope into validated candidates, consumes the scene model, renders the controls, and produces authorized runtime evidence, UI-rendered/deployed/callable/delivered/accepted remain separate unresolved states.
 
 ## Deterministic scene specimen
 `HeartbeatSceneGraph` is a pure, non-rendering specimen that composes `HeartbeatSkillPolicy`. It does **not** own the overlay, transport, queue, phone runtime, or execution authority.
@@ -110,7 +122,7 @@ The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-so
 
 The source-only contact-preservation specimen at `docs/try-forever/heartbeat-contact-sheet-source-specimen.html` visualizes complete, interrupted-preserved, evidence-only refresh, and materially recovered frames. It has no autoplay loop: one brief semantic motion is allowed only on a selected frame whose transition fingerprint changes, and `prefers-reduced-motion` disables that motion. The specimen is repository source art only, not Android runtime proof.
 
-The source-only motion-clamp specimen at `docs/try-forever/heartbeat-motion-clamp-source-specimen.html` additionally demonstrates that malformed `schema`/`state` protocol text is a rejected attempted refresh: the last-good visible contact stays present and no transition motion is earned. It is a teaching/reference organism only, not evidence that the Android overlay has parsed or rendered such a rejection.
+The source-only motion-clamp specimen at `docs/try-forever/heartbeat-motion-clamp-source-specimen.html` additionally demonstrates two distinct fail-closed wounds: malformed `schema`/`state` protocol text after valid persisted identity, and persisted byte-count/SHA mismatch **before** semantic parsing. Both preserve the last-good visible contact and earn no transition motion. It is a teaching/reference organism only, not evidence that the Android overlay has consumed the persisted identity, parsed the JSON, or rendered either rejection.
 
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
@@ -123,7 +135,7 @@ A repeated failure cannot merely relight the same fault. The next pulse must eit
 ## Contact preservation
 Do not erase the prior successful heartbeat before the new one is durable. A crash during refresh must leave the last known good skill-light receipt readable, with the interrupted pulse distinguishable as incomplete.
 
-Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone.
+Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone. Before semantic parsing, decoded UTF-8 bytes must be checked against that persisted byte count and SHA. A mismatch is a storage-integrity wound: preserve the exact prior frame and do not invoke the semantic parser on untrusted identity.
 
 A pulse that is syntactically marked complete but is semantically anonymous or contains material lights without the typed display contract is still incomplete for presentation purposes. Preserve last-good contact and expose the exact rejection boundary instead of clearing the surface or displaying downgraded telemetry.
 
@@ -132,4 +144,4 @@ A syntactically valid JSON envelope with unknown canonical members is also inval
 A syntactically valid envelope whose decoded `schema` or `state` token contains a control character or unpaired surrogate is likewise invalid for presentation even if trimming would reveal a familiar token. Preserve the last-good frame and expose the parser boundary; malformed protocol text never earns motion or a new contact checkpoint.
 
 ## Done
-This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually parses, renders, and exposes the payload on device through an authorized lane.
+This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually decodes the persisted payload, verifies its identity, parses it, renders it, and exposes it on device through an authorized lane.
