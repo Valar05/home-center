@@ -1,0 +1,54 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat 1200: broad materially active non-phone source swarm under the binding P0/phone firewall.",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1200-plan-review.json",
+  "reviewedSourceHead": "dd5816152ad26b8625b40ce149415995f2ab663a",
+  "regnetReview": "receipts/regnet/2026-08-15-try-forever-heartbeat-1200-source-review.json",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "change-discipline",
+    "venice-review-memory",
+    "heartbeat-skill-lights",
+    "evidence-truth"
+  ],
+  "observations": [
+    "Accessibility source now exposes the exact omitted blocked/fault attention count when urgent identities exceed the 12-name collapsed speech budget.",
+    "Transition checkpoint source now canonicalizes by stable semantic id so a pure visual/focus reorder does not manufacture transition identity or Christmas-light motion; contact identity remains order-sensitive.",
+    "Regression source covers attention overflow, pure reorder, add/remove, evidence-only refresh, and consequence change.",
+    "The existing attention-map DOM specimen was refined instead of creating another renderer/controller; it remains source-only and carries native buttons, >=48px targets, non-color tokens, reduced-motion behavior, and no decorative autoplay.",
+    "The heartbeat skill doctrine was updated to match the repaired accessibility and checkpoint semantics.",
+    "Authoritative She-Raw ambient consultation was attempted before execution and failed at the account-connection boundary; no synthetic reviewer verdict replaced it.",
+    "Current-head Operator Overlay Android CI executed zero steps because the Actions budget prevents further use. No unchanged-condition manual retry was fired.",
+    "The binding P0/phone firewall held with zero phone commands, Phone Hands tickets, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organ, or duplicate-controller activity."
+  ],
+  "blockingFinding": {
+    "category": "planned-front incompleteness",
+    "observation": "The 1200 plan explicitly selected semantic-token hardening as Front A. HeartbeatEnvelopeParser still validates schema and state with requiredString, which trims before any decoded-control/surrogate safety check, while operator-facing semantic fields use requiredSemanticString.",
+    "inference": "A protocol token containing an escaped decoded edge control can be normalized by trim() into an otherwise accepted schema/state token instead of failing closed. This is a source-contract asymmetry, not a phone/P0 defect.",
+    "preventionRule": "Protocol tokens that participate in heartbeat schema/state identity must pass decoded-control and surrogate validation before normalization, with regression fixtures proving the fail-closed behavior.",
+    "regressionTarget": "schema/state JSON strings containing escaped decoded controls or unpaired surrogates are rejected before token matching."
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "testedBoundary": "BLOCKED_UNKNOWN: Operator Overlay Android job 95042339347 executed zero steps; Actions budget prevents further use.",
+    "runtimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "veniceDirective": "CONTINUE_REQUIRED",
+  "directiveScope": "Continue the same non-phone source commission on the parser protocol-token asymmetry. Do not touch P0/phone ownership and do not hammer unchanged CI.",
+  "mergePermission": false,
+  "stopPermission": false
+}
