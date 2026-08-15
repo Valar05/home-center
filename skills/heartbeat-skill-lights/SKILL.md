@@ -34,7 +34,9 @@ A future renderer must receive explicit provenance and evidence rather than reve
 
 A source record is invalid for display when `id`, `label`, `provenanceKind`, `provenanceLocator`, `activationReason`, `consequence`, or `evidenceBoundary` is empty. `repository_skill` additionally requires `provenanceLocator` to resolve to an actual `skills/<id>/SKILL.md` or another exact repository skill path. Do not infer provenance from the label.
 
-This contract is source semantics only. It does not imply that `HeartbeatSkillPolicy.Candidate`, `OperatorState`, or the existing Operator Overlay already carries these fields. Until those existing owners are changed and tested through an authorized lane, the gap remains explicit rather than being hidden behind prose.
+`HeartbeatSkillPolicy.Candidate` may carry the complete typed envelope, and `hasTypedSourceContract(...)` distinguishes those records from legacy candidates whose provenance fields are intentionally empty. Legacy materiality is not silently changed during migration.
+
+The existing `ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState` ingress may persist an exact bounded heartbeat-light JSON payload as opaque UTF-8 identity: base64 bytes, byte count, SHA-256, and update timestamp. `OperatorStateProvider` may expose that same stored identity through its existing read-only query surface. This is ingress persistence only. It does **not** validate the JSON into typed candidates, render a scene, prove TalkBack behavior, deploy to a phone, or establish physical acceptance.
 
 ## Runtime semantics
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
@@ -42,6 +44,8 @@ The Operator Overlay should consume a typed heartbeat-light payload rather than 
 A light may summarize a skill, but it may not claim a later capability state than its evidence proves. Preserve `requested -> implemented -> tested -> deployed -> callable -> executed -> delivered -> accepted` distinctions.
 
 Repository/source progress does not unlock a shared physical execution surface. A green source/test light must not be interpreted as transport, connector-egress, phone execution, deployment, or physical acceptance.
+
+Raw heartbeat payload persistence is not semantic ingestion. Until the existing overlay owner parses the persisted envelope into validated candidates, consumes the scene model, renders the controls, and produces authorized runtime evidence, UI-rendered/deployed/callable/delivered/accepted remain separate unresolved states.
 
 ## Deterministic scene specimen
 `HeartbeatSceneGraph` is a pure, non-rendering specimen that composes `HeartbeatSkillPolicy`. It does **not** own the overlay, transport, queue, phone runtime, or execution authority.
@@ -51,7 +55,8 @@ The specimen exists to make later rendering boring and auditable:
 - material-light order becomes stable focus order;
 - each node carries a minimum 48 dp touch target contract;
 - state is exposed by text/semantic description plus a non-color token;
-- motion is allowed only when state or consequence actually changes;
+- a typed node preserves provenance, activation reason, concrete consequence, and evidence boundary for touch/TalkBack detail;
+- motion is allowed only when state or consequence actually changes; evidence/provenance metadata refresh alone does not earn Christmas-light motion;
 - an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
 - an interrupted refresh never receives celebratory/Christmas-light motion.
 
@@ -62,9 +67,10 @@ Skill lights are first-class controls/semantics, not color dots.
 
 - Minimum touch target: 48 dp.
 - Do not use color as the only state signal; pair it with text/state semantics.
-- Tap exposes or announces the skill label, state, reason, concrete consequence, and evidence/boundary.
+- Tap exposes or announces the skill label, state, reason, concrete consequence, evidence/boundary, and typed provenance when available.
 - Stable focus order follows the rendered light order.
-- Content description form: `Skill <label>, <state>. <consequence>.`
+- Compact content description form: `Skill <label>, <state>. <consequence>.`
+- Typed detail additionally exposes `Why`, `Evidence`, and `Source`; legacy records must not invent those fields.
 - A light must never silently toggle operator authority, remote input, or execution mode.
 - When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states.
 
@@ -77,5 +83,7 @@ A repeated failure cannot merely relight the same fault. The next pulse must eit
 ## Contact preservation
 Do not erase the prior successful heartbeat before the new one is durable. A crash during refresh must leave the last known good skill-light receipt readable, with the interrupted pulse distinguishable as incomplete.
 
+Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone.
+
 ## Done
-This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually renders and exposes the payload on device.
+This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually parses, renders, and exposes the payload on device through an authorized lane.
