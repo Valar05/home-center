@@ -86,6 +86,26 @@ public final class HeartbeatSkillPolicy {
         return Collections.unmodifiableList(selected);
     }
 
+    /**
+     * Strict source-side gate for candidates that are both materially relevant and
+     * complete enough to be rendered later.
+     *
+     * This does not wire the overlay and does not change legacy material selection;
+     * it gives the future renderer/parser a fail-closed path that cannot silently
+     * promote legacy candidates with missing provenance/evidence into display-ready
+     * state.
+     */
+    public static List<Candidate> selectDisplayReadyLights(List<Candidate> candidates) {
+        List<Candidate> material = selectMaterialLights(candidates);
+        if (material.isEmpty()) return material;
+
+        List<Candidate> displayReady = new ArrayList<>();
+        for (Candidate candidate : material) {
+            if (hasTypedSourceContract(candidate)) displayReady.add(candidate);
+        }
+        return Collections.unmodifiableList(displayReady);
+    }
+
     public static boolean isMaterial(Candidate candidate) {
         if (candidate == null || candidate.id.isEmpty() || candidate.label.isEmpty()) return false;
         if (candidate.consequence.isEmpty()) return false;
