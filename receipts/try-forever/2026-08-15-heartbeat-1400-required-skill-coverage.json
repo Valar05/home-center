@@ -1,0 +1,111 @@
+{
+  "schema": "try-forever-required-skill-coverage.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "timestamp": "2026-08-15T19:17:00Z",
+  "purpose": "Prove every required heartbeat light was considered without forcing decorative illumination. Lit means the concept materially changed or bounded this pulse; dark means it was considered and correctly contributed nothing.",
+  "required": [
+    {
+      "id": "failure-is-the-shovel",
+      "state": "lit",
+      "why": "The unchanged Actions-budget failure redirected work into storage-integrity source, regression, art, and review instead of another retry."
+    },
+    {
+      "id": "canon-auto-select",
+      "state": "lit",
+      "why": "Current repository skills were discovered and selected by mission fit rather than replaying a fixed list."
+    },
+    {
+      "id": "autocorrect-judgment-jar",
+      "state": "dark",
+      "why": "No ambiguous or autocorrect-generated token affected this source slice."
+    },
+    {
+      "id": "originality-tax",
+      "state": "lit",
+      "why": "The first implementation repeated the stale-motion failure; a replan forced a materially different recovery through the existing scene-preservation organ."
+    },
+    {
+      "id": "hunger",
+      "state": "lit",
+      "why": "The persisted-identity wound was not left isolated: it was consumed across code, reachable regression paths, touchable art, doctrine, Regnet, Venice, and PR evidence."
+    },
+    {
+      "id": "ever-polished-interpreter-eat-everything",
+      "state": "lit",
+      "why": "Code-first review reinterpreted 'preserve exact prior frame' against older scene semantics, discovered the hidden motion contradiction, and propagated the corrected meaning across every affected artifact."
+    },
+    {
+      "id": "operator-campaign",
+      "state": "lit",
+      "why": "The work remained on the existing durable PR/branch/receipt campaign surface with plan/replan/checkpoint evidence instead of spawning an adjacent architecture."
+    },
+    {
+      "id": "harroway-operator-discipline",
+      "state": "lit",
+      "why": "The exact authorized non-phone lane was preserved; no local proof, phone substitution, P0 trespass, or merge-as-delivery claim was accepted."
+    },
+    {
+      "id": "she-raw-adversarial-motivation",
+      "state": "fault",
+      "why": "Authoritative She-Raw was called once and failed at account connection HTTP 400; no synthetic substitute was used."
+    },
+    {
+      "id": "venice-judgment-jars",
+      "state": "lit",
+      "why": "Venice plan review preceded mutation, replan review preceded the stale-motion repair, and completion review bounded STOP_ALLOWED to source only."
+    },
+    {
+      "id": "regnet-qa",
+      "state": "lit",
+      "why": "Regnet preserved reachable failure paths and capability truth, passed only the source/readback claim, and kept TESTED at BLOCKED_UNKNOWN."
+    },
+    {
+      "id": "accessibility-talkback-touch",
+      "state": "lit",
+      "why": "The existing warm-wall specimen retained native semantic buttons, keyboard reachability, >=48px targets, non-color state tokens, live text status, and reduced-motion behavior."
+    },
+    {
+      "id": "phone-runtime-phone-hands-recovery",
+      "state": "dark",
+      "why": "Binding P0/primary-phone firewall; no fresh P0 evidence reopened a non-overlapping phone-local front. Zero phone/queue/device mutations occurred."
+    },
+    {
+      "id": "deterministic-routing",
+      "state": "lit",
+      "why": "The source path now has an explicit deterministic gate: stored UTF-8 identity -> byte/SHA/update validation -> parser attempt -> scene presentation, with exact failure classification at each transition."
+    },
+    {
+      "id": "evidence-capability-state-discipline",
+      "state": "lit",
+      "why": "Storage acceptance, semantic attempt, parser acceptance, presentation acceptance, testing, rendering, deployment, phone execution, delivery, and acceptance remain independent states."
+    },
+    {
+      "id": "recovery-checkpoint-idempotence",
+      "state": "lit",
+      "why": "The repair switched from Java object identity to contactSha256 semantics and reused the existing rejection-preservation organ to clear stale one-shot motion while keeping contact stable."
+    },
+    {
+      "id": "strange-non-raster-vector-dom-native-art",
+      "state": "lit",
+      "why": "The existing DOM/vector motion-clamp organism gained a storage-integrity scar without raster assets, autoplay, or a neighboring renderer."
+    },
+    {
+      "id": "warm-walls",
+      "state": "lit",
+      "why": "The warm-wall specimen made the storage/protocol distinction touchable and persistent rather than another prose-only heartbeat."
+    },
+    {
+      "id": "christmas-light-scene-graph",
+      "state": "lit",
+      "why": "The repaired failure path explicitly clamps aggregate and node motion; only accepted material transition may pulse once."
+    },
+    {
+      "id": "contact-preservation",
+      "state": "lit",
+      "why": "Storage rejection now preserves exact visible-contact/checkpoint identity while exposing the integrity boundary and clearing stale motion."
+    }
+  ],
+  "antiDecorationCheck": "PASS — every lit/fault entry names a concrete consequence or exact boundary; required concepts with no material consequence remain dark.",
+  "p0PhoneMutationCount": 0
+}
