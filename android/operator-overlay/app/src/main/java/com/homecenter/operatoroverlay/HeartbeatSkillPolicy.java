@@ -85,6 +85,27 @@ public final class HeartbeatSkillPolicy {
                 + ". " + candidate.consequence + ".";
     }
 
+    /**
+     * TalkBack description for the collapsed overlay.
+     *
+     * Collapsing the visual panel must not collapse away the material states. The
+     * description reuses the same selected order/dedupe policy as the rendered
+     * lights and carries each exact state + consequence instead of reporting only
+     * a decorative count.
+     */
+    public static String collapsedContentDescription(List<Candidate> candidates) {
+        List<Candidate> selected = selectMaterialLights(candidates);
+        if (selected.isEmpty()) return "No material skill lights.";
+
+        StringBuilder out = new StringBuilder();
+        out.append(selected.size())
+                .append(selected.size() == 1 ? " material skill light. " : " material skill lights. ");
+        for (Candidate candidate : selected) {
+            out.append(contentDescription(candidate)).append(' ');
+        }
+        return out.toString().trim();
+    }
+
     private static String clean(String value) {
         return value == null ? "" : value.trim();
     }
