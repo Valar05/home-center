@@ -49,7 +49,7 @@ Opaque persistence is not trustworthy merely because all four metadata fields ex
 - decoded payload byte length must stay within the same 32768-byte ingress ceiling and exactly equal the declared stored byte count;
 - stored SHA-256 metadata must be canonical lowercase 64-character hex and must exactly match the decoded UTF-8 payload;
 - the persisted update identity must be present (`updatedMs > 0`);
-- a storage-integrity rejection must not invoke `HeartbeatEnvelopeParser`; it returns the exact prior last-good frame reference plus an exact integrity boundary;
+- a storage-integrity rejection must not invoke `HeartbeatEnvelopeParser`; it preserves the exact visible-contact/checkpoint identity through the existing scene-preservation organ, re-materializes all one-shot motion off, and exposes the exact integrity boundary;
 - storage acceptance advances only to semantic-attempt permission. The canonical parser may still reject the envelope, and an accepted parser result may still be presentation-incomplete (for example `complete=false`);
 - valid storage identity, parser acceptance, presentation acceptance, rendered UI, deployment, phone callability, execution, delivery, and acceptance remain separate capability states.
 
@@ -87,7 +87,7 @@ The specimen exists to make later rendering boring and auditable:
 - an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
 - an interrupted refresh never receives celebratory/Christmas-light motion.
 
-The scene may consume `HeartbeatEnvelopeParser.Result` directly as a **pure source composition seam**. An accepted parsed pulse delegates to the ordinary scene builder. A rejected parser result preserves last-good contact and carries the exact parser boundary into `refreshBoundary`. This does not wire `OperatorState`, a renderer, Android UI, transport, or phone execution; it merely prevents a later consumer from needing to invent a weaker parser-to-scene handoff.
+The scene may consume `HeartbeatEnvelopeParser.Result` directly as a **pure source composition seam**. An accepted parsed pulse delegates to the ordinary scene builder. A rejected parser result preserves last-good contact and carries the exact parser boundary into `refreshBoundary`. Pre-parser integrity wounds may use `preserveRejectedRefresh(...)`, which delegates to the same preservation organ and clamps all preserved node motion off. These seams do not wire `OperatorState`, a renderer, Android UI, transport, or phone execution; they merely prevent a later consumer from inventing weaker handoffs.
 
 Until an existing renderer consumes this model and runtime evidence proves it, the scene graph remains source-only implementation.
 
@@ -135,7 +135,7 @@ A repeated failure cannot merely relight the same fault. The next pulse must eit
 ## Contact preservation
 Do not erase the prior successful heartbeat before the new one is durable. A crash during refresh must leave the last known good skill-light receipt readable, with the interrupted pulse distinguishable as incomplete.
 
-Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone. Before semantic parsing, decoded UTF-8 bytes must be checked against that persisted byte count and SHA. A mismatch is a storage-integrity wound: preserve the exact prior frame and do not invoke the semantic parser on untrusted identity.
+Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone. Before semantic parsing, decoded UTF-8 bytes must be checked against that persisted byte count and SHA. A mismatch is a storage-integrity wound: preserve exact visible-contact/checkpoint identity through the existing scene-preservation seam, re-materialize all preserved motion off, expose the integrity boundary, and do not invoke the semantic parser on untrusted identity.
 
 A pulse that is syntactically marked complete but is semantically anonymous or contains material lights without the typed display contract is still incomplete for presentation purposes. Preserve last-good contact and expose the exact rejection boundary instead of clearing the surface or displaying downgraded telemetry.
 
