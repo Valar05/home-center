@@ -20,6 +20,8 @@ import java.util.Set;
 public final class HeartbeatEnvelopeParser {
     public static final String SCHEMA = "heartbeat-skill-lights.v1";
     public static final int MAX_LIGHTS = 64;
+    public static final int MAX_SCHEMA_TOKEN_CHARS = 64;
+    public static final int MAX_STATE_TOKEN_CHARS = 16;
     public static final int MAX_PULSE_ID_CHARS = 160;
     public static final int MAX_ID_CHARS = 96;
     public static final int MAX_LABEL_CHARS = 160;
@@ -84,7 +86,10 @@ public final class HeartbeatEnvelopeParser {
             Map<String, Object> root = asObject(parsed, "Heartbeat envelope root must be an object.");
             requireOnlyKeys(root, ROOT_FIELDS, "Heartbeat envelope");
 
-            String schema = requiredString(root, "schema");
+            String schema = requiredProtocolToken(
+                    root,
+                    "schema",
+                    MAX_SCHEMA_TOKEN_CHARS);
             if (!SCHEMA.equals(schema)) {
                 throw new ParseFailure("Unsupported heartbeat envelope schema: " + schema);
             }
@@ -140,7 +145,9 @@ public final class HeartbeatEnvelopeParser {
                 light,
                 "activationReason",
                 MAX_ACTIVATION_REASON_CHARS);
-        HeartbeatSkillPolicy.State state = parseState(requiredString(light, "state"), index);
+        HeartbeatSkillPolicy.State state = parseState(
+                requiredProtocolToken(light, "state", MAX_STATE_TOKEN_CHARS),
+                index);
         boolean changedThisPulse = requiredBoolean(light, "changedThisPulse");
         String consequence = requiredSemanticString(
                 light,
@@ -190,16 +197,30 @@ public final class HeartbeatEnvelopeParser {
         }
     }
 
-    private static String requiredString(Map<String, Object> object, String key) {
-        Object value = object.get(key);
-        if (!(value instanceof String)) {
+    /**
+     * Protocol tokens participate in the wire contract rather than operator prose.
+     * Validate the decoded token before trim can normalize edge controls away, then
+     * apply a narrow token-specific bound. This remains source parsing only.
+     */
+    private static String requiredProtocolToken(
+            Map<String, Object> object,
+            String key,
+            int maxChars) {
+        Object rawValue = object.get(key);
+        if (!(rawValue instanceof String)) {
             throw new ParseFailure("Heartbeat field " + key + " must be a string.");
         }
-        String clean = clean((String) value);
-        if (clean.isEmpty()) {
+        String raw = (String) rawValue;
+        requireSafeSemanticText(raw, key);
+        String value = clean(raw);
+        if (value.isEmpty()) {
             throw new ParseFailure("Heartbeat field " + key + " must not be empty.");
         }
-        return clean;
+        if (value.length() > maxChars) {
+            throw new ParseFailure(
+                    "Heartbeat field " + key + " exceeds " + maxChars + " characters.");
+        }
+        return value;
     }
 
     /**
