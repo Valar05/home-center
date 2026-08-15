@@ -3,6 +3,10 @@ package com.homecenter.operatoroverlay;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Pure source-side checkpoint fingerprints for heartbeat scenes.
@@ -50,7 +54,14 @@ public final class HeartbeatFrameCheckpoint {
 
     /**
      * Identity of only the fields allowed to earn Christmas-light transition
-     * motion. Pulse IDs and evidence/provenance refreshes are excluded on purpose.
+     * motion. Pulse IDs, evidence/provenance refreshes, and pure scene reorder are
+     * excluded on purpose.
+     *
+     * Scene order is a visible/contact concern because it changes focus positions,
+     * so contactSha256 remains order-sensitive. HeartbeatSceneGraph deliberately
+     * does not grant transition motion for reorder alone, however; this fingerprint
+     * therefore canonicalizes nodes by stable semantic id before hashing state and
+     * consequence so sameTransitionState agrees with transitionMotionAllowed.
      */
     public static String transitionSha256(HeartbeatSceneGraph.Frame frame) {
         Canonical out = new Canonical("heartbeat-transition.v1");
@@ -59,9 +70,18 @@ public final class HeartbeatFrameCheckpoint {
             return sha256(out.text());
         }
 
-        out.integer(frame.nodes.size());
-        for (HeartbeatSceneGraph.Node node : frame.nodes) {
-            out.value(node.id);
+        List<HeartbeatSceneGraph.Node> ordered = new ArrayList<>(frame.nodes);
+        Collections.sort(ordered, new Comparator<HeartbeatSceneGraph.Node>() {
+            @Override
+            public int compare(HeartbeatSceneGraph.Node left, HeartbeatSceneGraph.Node right) {
+                int folded = left.id.compareToIgnoreCase(right.id);
+                return folded != 0 ? folded : left.id.compareTo(right.id);
+            }
+        });
+
+        out.integer(ordered.size());
+        for (HeartbeatSceneGraph.Node node : ordered) {
+            out.value(node.id.toLowerCase(java.util.Locale.ROOT));
             out.value(node.state == null ? "" : node.state.name());
             out.value(node.consequence);
         }
