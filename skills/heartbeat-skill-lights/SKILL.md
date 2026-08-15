@@ -36,6 +36,11 @@ A source record is invalid for display when `id`, `label`, `provenanceKind`, `pr
 
 `HeartbeatSkillPolicy.Candidate` may carry the complete typed envelope, and `hasTypedSourceContract(...)` distinguishes those records from legacy candidates whose provenance fields are intentionally empty. Legacy materiality is not silently changed during migration.
 
+### Closed-world v1 envelope
+`heartbeat-skill-lights.v1` is a closed-world canonical envelope. Unknown root members and unknown light members are rejected rather than ignored. This prevents misspelled fields or aspirational capability fields such as `deployed`/`uiRendered` from silently hitchhiking beside valid telemetry and later being mistaken for evidence.
+
+The pure policy performs source-shape validation for `repository_skill` locators: they must be exact `skills/.../SKILL.md`-shaped forward-slash paths and must reject traversal, backslashes, duplicate separators, or non-skill files. **That source-shape check does not prove repository existence.** Actual existence is earned only by repository-grounded discovery/readback. Never promote syntax validation into provenance verification.
+
 The existing `ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState` ingress may persist an exact bounded heartbeat-light JSON payload as opaque UTF-8 identity: base64 bytes, byte count, SHA-256, and update timestamp. `OperatorStateProvider` may expose that same stored identity through its existing read-only query surface. This is ingress persistence only. It does **not** validate the JSON into typed candidates, render a scene, prove TalkBack behavior, deploy to a phone, or establish physical acceptance.
 
 ## Runtime semantics
@@ -63,6 +68,8 @@ The specimen exists to make later rendering boring and auditable:
 - an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
 - an interrupted refresh never receives celebratory/Christmas-light motion.
 
+The scene may consume `HeartbeatEnvelopeParser.Result` directly as a **pure source composition seam**. An accepted parsed pulse delegates to the ordinary scene builder. A rejected parser result preserves last-good contact and carries the exact parser boundary into `refreshBoundary`. This does not wire `OperatorState`, a renderer, Android UI, transport, or phone execution; it merely prevents a later consumer from needing to invent a weaker parser-to-scene handoff.
+
 Until an existing renderer consumes this model and runtime evidence proves it, the scene graph remains source-only implementation.
 
 ## Touch and TalkBack
@@ -76,8 +83,9 @@ Skill lights are first-class controls/semantics, not color dots.
 - Typed detail additionally exposes `Why`, `Evidence`, and `Source`; legacy records must not invent those fields.
 - A light must never silently toggle operator authority, remote input, or execution mode.
 - When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states.
+- Persistent selection of one light controlling a shared always-present detail surface uses selection semantics such as `aria-pressed`; do not claim `aria-expanded` unless content is actually expanded/collapsed by that control.
 
-The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: semantic buttons, minimum 48px targets, explicit non-color tokens, focus visibility, detail disclosure, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.
+The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: semantic buttons, minimum 48px targets, explicit non-color tokens, focus visibility, persistent pressed selection, detail disclosure, live selection status, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.
 
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
@@ -93,6 +101,8 @@ Do not erase the prior successful heartbeat before the new one is durable. A cra
 Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone.
 
 A pulse that is syntactically marked complete but is semantically anonymous or contains material lights without the typed display contract is still incomplete for presentation purposes. Preserve last-good contact and expose the exact rejection boundary instead of clearing the surface or displaying downgraded telemetry.
+
+A syntactically valid JSON envelope with unknown canonical members is also invalid for presentation. Preserve last-good contact; do not accept schema drift by silence.
 
 ## Done
 This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually parses, renders, and exposes the payload on device through an authorized lane.
