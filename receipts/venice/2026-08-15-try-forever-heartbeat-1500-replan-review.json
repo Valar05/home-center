@@ -1,0 +1,26 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat 1500 repair after code-first review exposed a false monotonicity assumption.",
+  "repository": "Valar05/home-center",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "timestamp": "2026-08-15T20:03:00Z",
+  "evidence": {
+    "overlayUpdateReceiver": "OverlayUpdateReceiver assigns heartbeat updatedMs from System.currentTimeMillis().",
+    "finding": "Wall-clock milliseconds are presence/observation metadata, not a monotonic sequence. Treating an older positive updatedMs as a replay wound would reject legitimate heartbeats after clock correction and would exceed the proven contract. Equal millisecond timestamps can also occur across distinct broadcasts, so equality is not a unique persistence identity."
+  },
+  "antagonism": [
+    "Do not ship rollback or equal-timestamp collision rejection on top of System.currentTimeMillis().",
+    "Do not invent a new monotonic sequence/controller merely to save the first design; that would expand architecture and runtime ownership.",
+    "Keep the useful part: remove the duplicated 32768 literal by aliasing the projection ceiling to the existing OperatorState ingress constant.",
+    "Regression/art/doctrine must teach that byte count + SHA prove content identity while updatedMs currently proves only that an update timestamp was recorded and is positive.",
+    "Repair source before creating completion receipts; do not hide the abandoned first implementation."
+  ],
+  "revisedPlan": [
+    "Repair HeartbeatPersistedEnvelopeProjection by removing the prior-update overload and all timestamp-order/collision semantics, retaining only positive timestamp presence plus exact byte/SHA integrity and the canonical ingress-size alias.",
+    "Replace the freshness regression source with contract fixtures proving the shared byte ceiling and that positive update timestamps are accepted independently of their absolute wall-clock value; no test may imply monotonic ordering.",
+    "Repair the warm-wall specimen so its seventh state is a clock-skew witness, not a rollback fault: self-consistent bytes/SHA with a positive timestamp may proceed to semantic ingestion; timestamp ordering earns no fault or motion by itself.",
+    "Record the wall-clock discovery in doctrine/evidence and leave accessibility dark unless a separate concrete defect is found."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}
