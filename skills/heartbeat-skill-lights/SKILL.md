@@ -19,6 +19,23 @@ Every selected light records:
 
 `active` and `recovered` require an actual state change in this heartbeat. `blocked` and `fault` may remain visible without progress only when they expose a current exact boundary. Empty consequences are dark.
 
+## Typed source contract
+A future renderer must receive explicit provenance and evidence rather than reverse-engineer meaning from labels or prose. The canonical source record is:
+
+- `id`: stable lowercase identity used for deterministic dedupe;
+- `label`: human-facing name;
+- `provenanceKind`: one of `repository_skill`, `doctrine`, `jar`, `reviewer`, or `runtime_boundary`;
+- `provenanceLocator`: exact repository path, doctrine/jar identifier, reviewer surface, or receipt/boundary locator;
+- `activationReason`: why this light was selected for the current pulse;
+- `state`: `active`, `blocked`, `fault`, or `recovered`;
+- `changedThisPulse`: whether the represented condition materially changed in the current pulse;
+- `consequence`: what the selected skill/jar/reviewer/boundary changed or prevented;
+- `evidenceBoundary`: the receipt, source readback, exact blocker, or other evidence that earns the state.
+
+A source record is invalid for display when `id`, `label`, `provenanceKind`, `provenanceLocator`, `activationReason`, `consequence`, or `evidenceBoundary` is empty. `repository_skill` additionally requires `provenanceLocator` to resolve to an actual `skills/<id>/SKILL.md` or another exact repository skill path. Do not infer provenance from the label.
+
+This contract is source semantics only. It does not imply that `HeartbeatSkillPolicy.Candidate`, `OperatorState`, or the existing Operator Overlay already carries these fields. Until those existing owners are changed and tested through an authorized lane, the gap remains explicit rather than being hidden behind prose.
+
 ## Runtime semantics
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
 
