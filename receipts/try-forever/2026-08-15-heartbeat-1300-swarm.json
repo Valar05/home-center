@@ -1,0 +1,74 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "25dbed74d17a83581510010e71c847cab8c6911d",
+  "fronts": [
+    "parser protocol-token validation hardened before normalization",
+    "regression source added for decoded-control, Unicode-structure, and token-bound cases",
+    "existing warm-wall motion specimen refined in place and corrected after review",
+    "heartbeat doctrine updated and repository execution/accessibility skills applied",
+    "Regnet and Venice receipts persisted"
+  ],
+  "lights": {
+    "active": [
+      "failure-is-the-shovel",
+      "originality-tax",
+      "canon-auto-select",
+      "eat-everything",
+      "fortress-core",
+      "venice-judgment-jars",
+      "accessibility-talkback-touch",
+      "warm-walls",
+      "christmas-light-scene-graph",
+      "contact-preservation"
+    ],
+    "blocked": ["regnet-qa:test-execution"],
+    "fault": ["she-raw:HTTP-400-account-connection"],
+    "dark": [
+      "autocorrect-judgment-jar:no-ambiguity",
+      "phone-runtime-phone-hands:P0-firewall",
+      "deterministic-routing-checkpoint-idempotence:no-source-change"
+    ]
+  },
+  "crossPollination": [
+    "Parser safety work produced regression fixtures and doctrine changes.",
+    "Contact preservation became a fifth touchable state in the existing motion-clamp specimen.",
+    "Review found the specimen was still marking Christmas Motion active on motion-forbidden frames; that contradiction was repaired.",
+    "Blocked CI redirected work into distinct source and review fronts instead of another retry."
+  ],
+  "sourceIdentity": {
+    "HeartbeatEnvelopeParser.java": "2a7b4ca5edf6b8f28625a9e07b6688659bbd4c6d",
+    "HeartbeatEnvelopeSemanticBoundsTest.java": "b43f3b55c27fb1bf782297e2d116d518e7431e11",
+    "heartbeat-motion-clamp-source-specimen.html": "4154a184004e4bf5a78fbac64dfad39a62207b08",
+    "skills/heartbeat-skill-lights/SKILL.md": "d2e48b0b2689df0c6a1006db919a5111665fefdd"
+  },
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31900294387,
+    "jobId": 95049881839,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRenderedFromParsedCandidates": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneMutations": 0,
+  "veniceDirective": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "mergePermission": false,
+  "runtimePermission": false,
+  "campaignComplete": false
+}
