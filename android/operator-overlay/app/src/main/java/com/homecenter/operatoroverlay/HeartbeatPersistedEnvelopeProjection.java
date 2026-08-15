@@ -16,7 +16,8 @@ import java.util.Locale;
  * Integrity must pass before semantic parsing is attempted.</p>
  */
 public final class HeartbeatPersistedEnvelopeProjection {
-    public static final int MAX_PAYLOAD_BYTES = 32768;
+    /** Alias the canonical ingress ceiling rather than repeating its numeric literal. */
+    public static final int MAX_PAYLOAD_BYTES = OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES;
 
     public static final class Result {
         public final boolean storageAccepted;
@@ -55,8 +56,34 @@ public final class HeartbeatPersistedEnvelopeProjection {
     }
 
     /**
+     * Backward-compatible source seam when no prior accepted persisted identity is
+     * available to compare. Callers that retain one should use the overload below
+     * so rollback/collision checks can fail closed before semantic parsing.
+     */
+    public static Result project(
+            String payloadJson,
+            long declaredBytes,
+            String declaredSha256,
+            long updatedMs,
+            HeartbeatSceneGraph.Frame lastGood) {
+        return project(
+                payloadJson,
+                declaredBytes,
+                declaredSha256,
+                updatedMs,
+                0L,
+                "",
+                lastGood);
+    }
+
+    /**
      * Verify exact persisted identity before delegating accepted bytes to the
      * canonical parser and scene graph.
+     *
+     * <p>When a prior accepted storage identity is supplied, an older update is a
+     * rollback wound and the same update identity carrying a different SHA is an
+     * identity-collision wound. Equality with the same SHA is an idempotent retry
+     * and may continue through ordinary semantic/scene dedupe.</p>
      *
      * <p>Storage-integrity rejection delegates to the existing scene-preservation
      * organ so visible contact/checkpoint identity survives while every one-shot
@@ -69,6 +96,8 @@ public final class HeartbeatPersistedEnvelopeProjection {
             long declaredBytes,
             String declaredSha256,
             long updatedMs,
+            long lastAcceptedUpdatedMs,
+            String lastAcceptedSha256,
             HeartbeatSceneGraph.Frame lastGood) {
         if (payloadJson == null || payloadJson.isEmpty()) {
             return storageReject(
@@ -125,6 +154,36 @@ public final class HeartbeatPersistedEnvelopeProjection {
                     observedBytes,
                     observedSha256,
                     updatedMs);
+        }
+
+        if (lastAcceptedUpdatedMs > 0L) {
+            String lastAcceptedHash = clean(lastAcceptedSha256);
+            if (!isCanonicalSha256(lastAcceptedHash)) {
+                return storageReject(
+                        "Last-accepted heartbeat SHA-256 identity is not canonical lowercase hex.",
+                        lastGood,
+                        observedBytes,
+                        observedSha256,
+                        updatedMs);
+            }
+            if (updatedMs < lastAcceptedUpdatedMs) {
+                return storageReject(
+                        "Stored heartbeat update identity rolled back: observed "
+                                + updatedMs + " last accepted " + lastAcceptedUpdatedMs + ".",
+                        lastGood,
+                        observedBytes,
+                        observedSha256,
+                        updatedMs);
+            }
+            if (updatedMs == lastAcceptedUpdatedMs
+                    && !observedSha256.equals(lastAcceptedHash)) {
+                return storageReject(
+                        "Stored heartbeat update identity collision: equal update identity carries different payload SHA-256.",
+                        lastGood,
+                        observedBytes,
+                        observedSha256,
+                        updatedMs);
+            }
         }
 
         HeartbeatEnvelopeParser.Result parsed = HeartbeatEnvelopeParser.parse(payloadJson);
