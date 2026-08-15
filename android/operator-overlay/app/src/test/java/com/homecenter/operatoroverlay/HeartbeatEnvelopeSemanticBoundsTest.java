@@ -84,6 +84,33 @@ public class HeartbeatEnvelopeSemanticBoundsTest {
     }
 
     @Test
+    public void protocolTokensHaveNarrowIndependentBounds() {
+        String oversizedSchema = repeat('s', HeartbeatEnvelopeParser.MAX_SCHEMA_TOKEN_CHARS + 1);
+        String oversizedState = repeat('s', HeartbeatEnvelopeParser.MAX_STATE_TOKEN_CHARS + 1);
+
+        HeartbeatEnvelopeParser.Result schema = HeartbeatEnvelopeParser.parse(
+                envelopeWithSchema(
+                        oversizedSchema,
+                        "pulse-schema-bound",
+                        lightWithLabel("Warm Wall")));
+        HeartbeatEnvelopeParser.Result state = HeartbeatEnvelopeParser.parse(
+                envelope(
+                        "pulse-state-bound",
+                        lightWithState(oversizedState)));
+
+        assertFalse(schema.accepted());
+        assertTrue(schema.boundary.contains(
+                "Heartbeat field schema exceeds "
+                        + HeartbeatEnvelopeParser.MAX_SCHEMA_TOKEN_CHARS
+                        + " characters"));
+        assertFalse(state.accepted());
+        assertTrue(state.boundary.contains(
+                "Heartbeat field state exceeds "
+                        + HeartbeatEnvelopeParser.MAX_STATE_TOKEN_CHARS
+                        + " characters"));
+    }
+
+    @Test
     public void unpairedUnicodeSurrogateFailsClosed() {
         String highSurrogateEscape = "\\" + "uD83E";
 
