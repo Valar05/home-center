@@ -1,5 +1,7 @@
 package com.homecenter.operatoroverlay;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -25,11 +27,13 @@ public final class HeartbeatFrameAccessibility {
      * A broad valid pulse may contain up to 64 lights and multi-kilobyte semantic
      * fields. Reading every consequence or full long label in the collapsed label
      * would turn TalkBack into a monologue. This summary therefore preserves the
-     * exact total, exact state histogram, and a deterministic bounded prefix of
-     * label/state identities. Full label/reason/consequence/evidence/provenance
-     * remains available through node detail. Interrupted refresh detail is appended
-     * after the last-good summary; discarded attempted candidate content is never
-     * announced as current state.
+     * exact total, exact state histogram, and a deterministic bounded set of
+     * label/state identities. FAULT/BLOCKED nodes are named before non-attention
+     * nodes while preserving visible scene order inside both groups, so a serious
+     * boundary cannot be buried behind twelve earlier active lights. Full
+     * label/reason/consequence/evidence/provenance remains available through node
+     * detail. Interrupted refresh detail is appended after the last-good summary;
+     * discarded attempted candidate content is never announced as current state.
      */
     public static String collapsedContentDescription(HeartbeatSceneGraph.Frame frame) {
         if (frame == null) return "Heartbeat scene unavailable.";
@@ -73,9 +77,10 @@ public final class HeartbeatFrameAccessibility {
                     .append(", recovered ").append(recovered)
                     .append(". Lights: ");
 
-            int named = Math.min(frame.nodes.size(), MAX_COLLAPSED_NAMED_LIGHTS);
+            List<HeartbeatSceneGraph.Node> summaryNodes = attentionFirst(frame.nodes);
+            int named = Math.min(summaryNodes.size(), MAX_COLLAPSED_NAMED_LIGHTS);
             for (int index = 0; index < named; index++) {
-                HeartbeatSceneGraph.Node node = frame.nodes.get(index);
+                HeartbeatSceneGraph.Node node = summaryNodes.get(index);
                 if (index > 0) out.append("; ");
                 out.append(compactLabel(node.label))
                         .append(", ")
@@ -152,6 +157,23 @@ public final class HeartbeatFrameAccessibility {
             if (node.id.toLowerCase(Locale.ROOT).equals(target)) return node.focusIndex;
         }
         return -1;
+    }
+
+    private static List<HeartbeatSceneGraph.Node> attentionFirst(
+            List<HeartbeatSceneGraph.Node> nodes) {
+        List<HeartbeatSceneGraph.Node> ordered = new ArrayList<>(nodes.size());
+        for (HeartbeatSceneGraph.Node node : nodes) {
+            if (isAttentionState(node.state)) ordered.add(node);
+        }
+        for (HeartbeatSceneGraph.Node node : nodes) {
+            if (!isAttentionState(node.state)) ordered.add(node);
+        }
+        return ordered;
+    }
+
+    private static boolean isAttentionState(HeartbeatSkillPolicy.State state) {
+        return state == HeartbeatSkillPolicy.State.FAULT
+                || state == HeartbeatSkillPolicy.State.BLOCKED;
     }
 
     private static String compactLabel(String label) {
