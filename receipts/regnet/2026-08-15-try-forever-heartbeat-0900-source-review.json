@@ -1,0 +1,82 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "provenance": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "sourceHeadReviewed": "d25a304ee2d0b8bbe476a47b49151e719b8bcd57",
+  "timestamp": "2026-08-15T14:06:30Z",
+  "boundedClaim": "The 0900 TRY FOREVER source slice materially improves heartbeat accessibility and stable touch semantics, adds a broad non-raster constellation source specimen, preserves P0/phone ownership, and survives exact GitHub readback. This claim does not include TESTED, UI rendered, deployed, callable, executed, delivered, or accepted.",
+  "acceptance": [
+    "Collapsed TalkBack cannot read every multi-kilobyte consequence from a broad constellation.",
+    "Collapsed output retains exact material-light total and exact active/blocked/fault/recovered counts.",
+    "A deterministic bounded prefix names light identity/state; verbose detail remains available per light.",
+    "Selection can be retained by stable semantic light id across scene reorder without breaking focus-index compatibility.",
+    "The new warm-wall constellation is DOM/vector source with native buttons, non-color state tokens, focus visibility, pressed selection, and no decorative blink loop.",
+    "No P0/phone mutation or duplicate controller is introduced.",
+    "Regression source exists, but TESTED is not promoted without executed checks."
+  ],
+  "codeFirstFindings": [
+    {
+      "severity": "medium",
+      "finding": "The first collapsed-summary revision bounded the number of named lights but not each label, so twelve valid 160-character labels could still produce an unnecessarily long announcement.",
+      "action": "Corrected before review completion: collapsed labels are now limited to 64 Unicode code points with code-point-safe truncation; full labels remain available in per-light detail.",
+      "regressionTarget": "Broad 20-light source fixture with long labels/consequences remains under 2048 characters while preserving exact state counts; Unicode swan label truncation must not split a surrogate pair."
+    },
+    {
+      "severity": "medium",
+      "finding": "Focus-index-only detail lookup is not stable under auto-selected scene reorder and can make a persisted selection point at a different skill.",
+      "action": "Added stable node-id detail lookup plus focusIndexForId while preserving the existing focus-index API.",
+      "regressionTarget": "Reordered frame resolves the same semantic id to its new focus index and exact detail."
+    },
+    {
+      "severity": "info",
+      "finding": "The new 16-light warm-wall specimen is useful only if its provenance/capability scar remains explicit.",
+      "action": "Specimen labels itself SOURCE / DOM/VECTOR PRIMITIVES / NOT OPERATOR-OVERLAY RUNTIME PROOF and carries repository_skill/doctrine/reviewer/runtime_boundary provenance."
+    }
+  ],
+  "exactReadback": {
+    "HeartbeatFrameAccessibility.java": "a42c6cda6869b9d3a5f95848cab9c04c219f45c0",
+    "HeartbeatFrameAccessibilityTest.java": "13a737f372abb75afb556f289c8e178ddc81b6a4",
+    "heartbeat-constellation-source-specimen.html": "6913a726e90275a5206a088306167e0565a89402",
+    "planReceiptCommit": "e5c3bed1da8d99bc7e51aafbe7da98ae0cd173b1"
+  },
+  "deterministicTestEvidence": {
+    "operatorOverlayRun": 31888902174,
+    "operatorOverlayJob": 95022098420,
+    "headSha": "d25a304ee2d0b8bbe476a47b49151e719b8bcd57",
+    "executedSteps": 0,
+    "status": "completed",
+    "conclusion": "failure",
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "verdicts": {
+    "IMPLEMENTED_SOURCE_PLUS_EXACT_GITHUB_READBACK": "PASS",
+    "REGRESSION_SOURCE_PRESENT": "PASS",
+    "TESTED": "BLOCKED_UNKNOWN",
+    "UI_RENDERED": "BLOCKED_UNKNOWN",
+    "DEPLOYED": "BLOCKED_UNKNOWN",
+    "CALLABLE": "BLOCKED_UNKNOWN",
+    "EXECUTED": "BLOCKED_UNKNOWN",
+    "DELIVERED": "BLOCKED_UNKNOWN",
+    "ACCEPTED": "BLOCKED_UNKNOWN"
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "sheRaw": {
+    "authoritativeSurfaceAttempted": "She-Raw.she_raw_ambient",
+    "result": "fault",
+    "boundary": "HTTP 400: account could not connect",
+    "syntheticReplacementUsed": false
+  },
+  "finalVerdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testVerdict": "BLOCKED_UNKNOWN"
+}
