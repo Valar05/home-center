@@ -76,7 +76,7 @@
   <header>
     <div class="scar">SOURCE ONLY • NOT OPERATOR-OVERLAY RUNTIME PROOF</div>
     <h1>Warm Wall Attention Surgery</h1>
-    <p class="muted">A touch/keyboard source specimen for a broad heartbeat. The wall keeps visual scene order; collapsed speech moves fault/blocker identities to the front without stealing their actual focus positions.</p>
+    <p class="muted">A touch/keyboard source specimen for a broad heartbeat. The wall keeps visual scene order; collapsed speech moves fault/blocker identities to the front without stealing their actual focus positions. If attention itself exceeds the speech budget, the summary names the exact number of urgent lights that remain available by touch.</p>
     <div class="wire" aria-hidden="true">WALL ─●─●─□─●─◇─×─●─□─●─●─●─●─●─●─×─●─●─●─●─□─ WALL</div>
   </header>
 
@@ -89,7 +89,7 @@
 
     <section aria-labelledby="attention-title">
       <h2 id="attention-title">Attention queue</h2>
-      <p class="muted">Speech projection only. Visual/focus order stays untouched.</p>
+      <p class="muted">Speech projection only. Visual/focus order stays untouched; a bounded summary must still say when urgent identities overflow the naming budget.</p>
       <ol class="attention" id="attention"></ol>
       <div class="modes" role="group" aria-label="Summary projection">
         <button class="mode" id="sceneMode" aria-pressed="false">Scene-order summary</button>
@@ -108,19 +108,19 @@ const lights = [
   ['operator','Operator Campaign','active','repository_skill','skills/operator-campaign/SKILL.md','Existing campaign seam remains owner','No neighboring controller was created','Existing source campaign'],
   ['harroway','Harroway Discipline','active','doctrine','Harroway operator discipline','Operator lane constrains substitution','Non-phone source lane only','Mission boundary'],
   ['shovel','Failure Is The Shovel','recovered','doctrine','Failure Is The Shovel','Blocked CI forced a different useful front','Accessibility defects became source work','Actions budget boundary'],
-  ['sheraw','She-Raw','fault','reviewer','She-Raw.she_raw_consult','Authoritative adversarial review was attempted','Connector account connection failed','HTTP 400 connector boundary'],
-  ['venice','Venice Judgment Jars','active','jar','venice-judgment-jar','Fresh plan gate preceded mutation','Attention-first semantics stayed inside scope','1000 Venice plan receipt'],
-  ['regnet','Regnet QA','blocked','repository_skill','skills/renee-qa/SKILL.md','Regression evidence is material','TESTED remains unresolved','Actions executed zero steps'],
-  ['talkback','Accessibility / TalkBack','active','doctrine','Accessibility/TalkBack','Broad speech could bury a fault','Attention states are named first','HeartbeatFrameAccessibility source'],
+  ['sheraw','She-Raw','fault','reviewer','She-Raw.she_raw_ambient','Authoritative adversarial review was attempted','Connector account connection failed','HTTP 400 connector boundary'],
+  ['venice','Venice Judgment Jars','active','jar','venice-judgment-jar','Fresh plan gate preceded mutation','Attention-first semantics stayed inside scope','1200 Venice plan receipt'],
+  ['regnet','Regnet QA','blocked','repository_skill','skills/renee-qa/SKILL.md','Regression evidence is material','TESTED remains unresolved','Actions budget boundary'],
+  ['talkback','Accessibility / TalkBack','active','doctrine','Accessibility/TalkBack','Broad speech can overflow its urgent naming budget','Omitted fault/blocker count is explicit','HeartbeatFrameAccessibility source'],
   ['touch','Touch Semantics','active','repository_skill','skills/embodied-communication/SKILL.md','Touchable presentation is first-class','48px semantic controls preserved','Source specimen contract'],
   ['routing','Deterministic Routing','active','doctrine','deterministic routing','Speech order must be reproducible','Attention groups preserve scene order','Regression source'],
-  ['repo','Repository Truth','active','jar','.continue/rules/20-judgement-jar-repository-truth.md','Current branch evidence governed edits','All source work stayed on the authoritative PR branch','GitHub compare/readback'],
-  ['hunger','Hunger','active','doctrine','Hunger','Another status poster would be decorative','This pulse produced a different touchable artifact','attention-map source specimen'],
+  ['repo','Repository Truth','active','jar','.continue/rules/20-judgement-jar-repository-truth.md','Current branch evidence governed edits','All source work stayed on the authoritative PR branch','GitHub readback'],
+  ['hunger','Hunger','active','doctrine','Hunger','Another status poster would be decorative','Existing touchable artifact learned a new contract instead of multiplying specimens','attention-map source specimen'],
   ['warm','Warm Walls','active','doctrine','warm walls','The scene is spatial but semantics carry state','Wall art remains source-only','this HTML specimen'],
-  ['christmas','Christmas-Light Graph','active','doctrine','Christmas-light scene graph','Blinking without consequence is forbidden','No decorative motion was introduced','source specimen + scene contract'],
+  ['christmas','Christmas-Light Graph','active','doctrine','Christmas-light scene graph','Blinking without consequence is forbidden','Pure reorder does not earn transition identity or motion','checkpoint + scene contract'],
   ['contact','Contact Preservation','active','doctrine','Contact Preservation','Speech must describe the preserved visible frame','Attention ordering did not reorder the scene/focus graph','HeartbeatFrameAccessibility source'],
   ['autoselect','Canon Auto-Select','active','doctrine','Canon Auto-Select','Relevant lights are selected by material consequence','Broad constellation is not a favorites list','heartbeat policy'],
-  ['plan','Fortress Plan Gate','active','repository_skill','skills/fortress-plan-gate/SKILL.md','Mutation required a fresh plan gate','PLAN_ALLOWED was durably recorded before source edits','1000 Venice plan receipt'],
+  ['plan','Fortress Plan Gate','active','repository_skill','skills/fortress-plan-gate/SKILL.md','Mutation required a fresh plan gate','PLAN_ALLOWED was durably recorded before source edits','1200 Venice plan receipt'],
   ['originality','Originality Tax','active','doctrine','Originality Tax','The same failed CI action cannot count twice','No unchanged-condition workflow retry','Actions budget boundary'],
   ['phone','P0 / Phone Surface','blocked','runtime_boundary','P0 FORTRESS FIREWALL','Shared physical execution surface is reserved','Zero phone/queue/P0 mutations','binding firewall']
 ];
@@ -138,9 +138,15 @@ function attentionOrdered() {
 function compactSummary() {
   const ordered = attentionFirst ? attentionOrdered() : lights;
   const counts = Object.fromEntries(['active','blocked','fault','recovered'].map(s => [s, lights.filter(x => x[2] === s).length]));
-  const named = ordered.slice(0,12).map(x => `${x[1]}, ${x[2]}`).join('; ');
-  const remaining = lights.length - Math.min(lights.length,12);
-  summary.textContent = `${lights.length} material skill lights. States: active ${counts.active}, blocked ${counts.blocked}, fault ${counts.fault}, recovered ${counts.recovered}. Lights: ${named}.${remaining ? ` ${remaining} more material lights are available by touch.` : ''}`;
+  const namedRows = ordered.slice(0,12);
+  const named = namedRows.map(x => `${x[1]}, ${x[2]}`).join('; ');
+  const remaining = lights.length - namedRows.length;
+  const attentionTotal = lights.filter(x => x[2] === 'fault' || x[2] === 'blocked').length;
+  const namedAttention = namedRows.filter(x => x[2] === 'fault' || x[2] === 'blocked').length;
+  const omittedAttention = Math.max(0, attentionTotal - namedAttention);
+  const remainderText = remaining ? ` ${remaining} more material lights are available by touch.` : '';
+  const urgentText = omittedAttention ? ` ${omittedAttention} of those ${omittedAttention === 1 ? 'is an additional blocked or fault attention light' : 'are additional blocked or fault attention lights'}.` : '';
+  summary.textContent = `${lights.length} material skill lights. States: active ${counts.active}, blocked ${counts.blocked}, fault ${counts.fault}, recovered ${counts.recovered}. Lights: ${named}.${remainderText}${urgentText}`;
 }
 function selectLight(item, button) {
   document.querySelectorAll('.light').forEach(b => b.setAttribute('aria-pressed','false'));
