@@ -182,7 +182,7 @@ public class HeartbeatPersistedEnvelopeProjectionTest {
         assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
         assertFalse(result.frame.transitionMotionAllowed);
         assertEquals(
-                "Stored heartbeat SHA-256 mismatch: declared identity does not match decoded UTF-8 payload.",
+                "Stored heartbeat SHA-256 mismatch: declared identity does not match exact payload bytes.",
                 result.boundary);
         assertEquals(result.boundary, result.frame.refreshBoundary);
     }
