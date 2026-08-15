@@ -212,7 +212,7 @@ final class OperatorState {
             encoded.get(bytes);
             return bytes;
         } catch (CharacterCodingException invalidEncoding) {
-            throw new IllegalArgumentException(
+            throw new HeartbeatIngressPolicy.CallerInvalidPayloadException(
                     "heartbeat lights payload contains invalid Unicode",
                     invalidEncoding);
         }
@@ -222,7 +222,8 @@ final class OperatorState {
         if (payloadJson == null || payloadJson.trim().isEmpty()) return;
         byte[] bytes = strictHeartbeatLightsUtf8(payloadJson);
         if (bytes.length > MAX_HEARTBEAT_LIGHTS_BYTES) {
-            throw new IllegalArgumentException("heartbeat lights payload exceeds " + MAX_HEARTBEAT_LIGHTS_BYTES + " bytes");
+            throw new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                    "heartbeat lights payload exceeds " + MAX_HEARTBEAT_LIGHTS_BYTES + " bytes");
         }
         String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
         boolean committed = prefs(context).edit()
