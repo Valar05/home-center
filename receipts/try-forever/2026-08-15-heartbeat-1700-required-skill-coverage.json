@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-required-skill-coverage.v1",
+  "slice": "1700",
+  "rule": "Every commissioned required light is explicitly considered. A light is active only when it materially changed or constrained this pulse; otherwise it remains dark/fault/blocked with an exact reason.",
+  "coverage": [
+    {"light":"Failure Is The Shovel","state":"active","material_consequence":"Unchanged CI was not retried; work moved to a newly discovered ingress coupling defect."},
+    {"light":"Canon Auto-Select","state":"active","material_consequence":"Repository-grounded skills were discovered/read and selected by mission fit, including a new durable heartbeat-ingress-separation skill."},
+    {"light":"Autocorrect Judgment Jar","state":"dark","material_consequence":"No unresolved autocorrect/phonetic ambiguity affected the mission; activating it would be decorative."},
+    {"light":"Originality Tax","state":"active","material_consequence":"The repeated Actions-budget failure paid for a different recovery/evidence path instead of another retry."},
+    {"light":"Hunger","state":"active","material_consequence":"The pre-parser wound was not left as a note; it was consumed into source, regression, skill doctrine, art, and review."},
+    {"light":"Ever-Polished Interpreter / Eat Everything","state":"active","material_consequence":"Code-first review propagated the evidence-language correction from policy to tests and source art rather than fixing only one surface."},
+    {"light":"Operator Campaign","state":"active","material_consequence":"The bounded campaign advanced multiple independent non-phone fronts and persisted durable receipts instead of a single isolated patch."},
+    {"light":"Harroway operator discipline","state":"active","material_consequence":"Existing ACTION_HEARTBEAT/OperatorState ownership was preserved; no adjacent controller or easier delivery lane was substituted."},
+    {"light":"She-Raw adversarial motivation","state":"fault","material_consequence":"Authoritative ambient consultation returned HTTP 400 account-connection failure; no synthetic She-Raw verdict replaced it."},
+    {"light":"Venice Judgment Jars","state":"active","material_consequence":"PLAN_ALLOWED preceded mutation; code-first completion review found heartbeatAccepted overclaim and required correction before bounded STOP_ALLOWED."},
+    {"light":"Regnet QA","state":"blocked","material_consequence":"Source/readback review passes only; TESTED remains NO/BLOCKED_UNKNOWN because the exact-head CI job executed zero steps."},
+    {"light":"accessibility/TalkBack and touch semantics","state":"active","material_consequence":"The source specimen uses semantic native buttons, >=48px targets, aria-pressed, visible focus, one live region, non-color states, and reduced-motion handling."},
+    {"light":"Phone Runtime / Phone Hands recovery","state":"dark","material_consequence":"Binding P0/phone firewall remained intact; zero phone commands, tickets, queue/device reads, or recovery mutations were consumed."},
+    {"light":"deterministic routing","state":"active","material_consequence":"Heartbeat ingress now has an explicit deterministic order/error contract: optional payload attempt first; caller-invalid rejection still invokes heartbeat; internal failure propagates."},
+    {"light":"evidence/capability-state discipline","state":"active","material_consequence":"heartbeatAccepted was renamed heartbeatInvoked because SharedPreferences.apply() does not prove synchronous durability; all later capability states remain NO."},
+    {"light":"recovery/checkpointing/idempotence","state":"dark","material_consequence":"Existing contact/checkpoint organs were inspected as context but no checkpoint/idempotence source changed in this slice; no decorative activation."},
+    {"light":"strange non-raster vector/DOM/native UI art","state":"active","material_consequence":"A new inline-SVG/DOM warm-wall ingress-separation specimen was persisted with no raster dependency and explicit source-only scarring."},
+    {"light":"warm walls","state":"active","material_consequence":"The ingress split was made touchable as a warm-wall source organism rather than described only in prose."},
+    {"light":"Christmas-light scene graph","state":"active","material_consequence":"Art motion remained consequence-bound: no autoplay/decorative blink, one bounded semantic pulse, and prefers-reduced-motion disables it."},
+    {"light":"contact preservation","state":"active","material_consequence":"Caller-invalid optional telemetry no longer needs to overwrite last-good light identity to preserve the independent heartbeat call; no replacement fault payload is manufactured."}
+  ],
+  "anti_decoration_check": "PASS",
+  "p0_phone_mutations": 0,
+  "tested": "NO_BLOCKED_UNKNOWN",
+  "reviewed_source_head": "4f10cf4f08beb613d4c8366a05cf1489a291c5cd"
+}
