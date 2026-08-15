@@ -106,4 +106,88 @@ public class HeartbeatSkillPolicyTest {
                         + "Skill Regnet QA, blocked. UI consumer not wired yet.",
                 description);
     }
+
+    @Test
+    public void fullConstructorPreservesTypedSourceContractAndLegacyRemainsExplicitlyUntyped() {
+        HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
+                "fortress-core",
+                "Fortress Core",
+                "repository_skill",
+                "skills/fortress-core/SKILL.md",
+                "P0 firewall constrained this pulse",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                "Kept phone ownership read-only",
+                "PR #329 pre-execution plan receipt");
+        HeartbeatSkillPolicy.Candidate legacy = new HeartbeatSkillPolicy.Candidate(
+                "legacy",
+                "Legacy",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Still material but not typed");
+
+        assertEquals("repository_skill", typed.provenanceKind);
+        assertEquals("skills/fortress-core/SKILL.md", typed.provenanceLocator);
+        assertEquals("P0 firewall constrained this pulse", typed.activationReason);
+        assertEquals("PR #329 pre-execution plan receipt", typed.evidenceBoundary);
+        assertTrue(HeartbeatSkillPolicy.hasTypedSourceContract(typed));
+
+        assertEquals("", legacy.provenanceKind);
+        assertEquals("", legacy.provenanceLocator);
+        assertEquals("", legacy.activationReason);
+        assertEquals("", legacy.evidenceBoundary);
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(legacy));
+        assertTrue(HeartbeatSkillPolicy.isMaterial(legacy));
+    }
+
+    @Test
+    public void typedSourceContractRejectsUnknownProvenanceKind() {
+        HeartbeatSkillPolicy.Candidate invented = new HeartbeatSkillPolicy.Candidate(
+                "fake-skill",
+                "Fake skill",
+                "mystical_skill",
+                "skills/fake/SKILL.md",
+                "Looks impressive",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                "Should not earn typed provenance",
+                "No authoritative source");
+
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(invented));
+    }
+
+    @Test
+    public void detailDescriptionCarriesReasonConsequenceEvidenceAndSource() {
+        HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
+                "execution-truth",
+                "Execution Truth",
+                "repository_skill",
+                "skills/execution-truth/SKILL.md",
+                "Capability labels are material",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                true,
+                "Prevented source from being called deployed",
+                "Exact GitHub branch readback");
+
+        assertEquals(
+                "Skill Execution Truth, active. Why: Capability labels are material. "
+                        + "Consequence: Prevented source from being called deployed. "
+                        + "Evidence: Exact GitHub branch readback. "
+                        + "Source: repository_skill skills/execution-truth/SKILL.md.",
+                HeartbeatSkillPolicy.detailContentDescription(typed));
+    }
+
+    @Test
+    public void legacyDetailDescriptionDoesNotInventMissingProvenance() {
+        HeartbeatSkillPolicy.Candidate legacy = new HeartbeatSkillPolicy.Candidate(
+                "regnet",
+                "Regnet QA",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Deterministic suite did not execute");
+
+        assertEquals(
+                HeartbeatSkillPolicy.contentDescription(legacy),
+                HeartbeatSkillPolicy.detailContentDescription(legacy));
+    }
 }
