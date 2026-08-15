@@ -11,15 +11,17 @@ Compose the existing `ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState
 
 When the optional payload reaches `OperatorState.updateHeartbeatLights(...)`:
 
-- caller-invalid input rejected with `IllegalArgumentException` (for example malformed Unicode or the bounded payload ceiling) rejects only that optional payload;
+- caller-invalid input rejected with `HeartbeatIngressPolicy.CallerInvalidPayloadException` (for example malformed Unicode or the bounded payload ceiling) rejects only that optional payload;
 - the previously stored heartbeat-light identity remains untouched because validation fails before the state write;
 - the independent heartbeat sink is still invoked;
 - the rejection boundary may be logged/reviewed, but it must not be promoted into a new visible light payload that overwrites last-good contact.
 
 ## Failure-class boundary
-Catch only the failure class that the existing ingress owner explicitly uses for caller-invalid optional telemetry. Do **not** catch every `RuntimeException`.
+Catch only the dedicated `HeartbeatIngressPolicy.CallerInvalidPayloadException` that the existing ingress owner explicitly uses for caller-invalid optional telemetry. Do **not** catch every `IllegalArgumentException`, `RuntimeException`, or every failure emitted by the persistence sink.
 
-An internal/storage failure such as `IllegalStateException` from a failed heartbeat-light commit propagates. The heartbeat sink is not invoked after that failure, because claiming a healthy liveness update would conceal an implementation/storage wound.
+A generic/unrelated `IllegalArgumentException` from persistence is an internal/programmer-contract wound unless an explicit typed boundary says otherwise. It propagates and the heartbeat sink is not invoked. This prevents a future implementation mistake from being silently relabeled as bad caller data merely because it shares a Java base exception type.
+
+An internal/storage failure such as `IllegalStateException` from a failed heartbeat-light commit also propagates. The heartbeat sink is not invoked after that failure, because claiming a healthy liveness update would conceal an implementation/storage wound.
 
 If the heartbeat sink itself fails, that failure also propagates. No returned source result may claim heartbeat success.
 
@@ -51,6 +53,8 @@ Source specimens may visualize the split between optional payload acceptance and
 
 A source specimen never proves Android rendering, TalkBack runtime behavior, deployment, phone callability, delivery, or acceptance.
 
+For TalkBack speech projections, keep complete typed source/evidence fields in the semantic model but independently bound long spoken fields by Unicode code point and mark truncation. Accessibility is not permission to discard evidence, and evidence richness is not permission to make one focus action speak several kilobytes.
+
 ## P0 Fortress firewall
 This skill owns no Phone Hands, queue, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work. Those surfaces remain under their canonical owners. A source-side ingress defect may be repaired without consuming the shared phone surface; physical proof waits for the authorized owner lane.
 
@@ -59,8 +63,10 @@ Lock at least these cases in pure regression source:
 
 1. blank optional payload -> heartbeat sink invoked;
 2. valid optional payload -> payload sink returns, then heartbeat sink invoked;
-3. caller-invalid optional payload -> payload rejected, heartbeat sink still invoked, bounded exact rejection reason retained;
-4. internal/storage payload failure -> failure propagates, heartbeat sink not invoked;
-5. heartbeat-sink failure -> failure propagates and no success result is returned.
+3. dedicated caller-invalid optional payload -> payload rejected, heartbeat sink still invoked, bounded exact rejection reason retained;
+4. unrelated/generic `IllegalArgumentException` -> failure propagates, heartbeat sink not invoked;
+5. internal/storage payload failure -> failure propagates, heartbeat sink not invoked;
+6. heartbeat-sink failure -> failure propagates and no success result is returned;
+7. expanded TalkBack detail -> long Unicode fields are speech-bounded without changing the exact Candidate data or splitting surrogate pairs.
 
 Blind CI retries do not count as progress. When deterministic CI cannot start for an unchanged external reason, preserve `TESTED = NO/BLOCKED_UNKNOWN` and advance a materially different authorized front instead.
