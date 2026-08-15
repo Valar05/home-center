@@ -136,8 +136,10 @@ public final class HeartbeatSkillPolicy {
                 || candidate.label.isEmpty()
                 || candidate.consequence.isEmpty()) return false;
         if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
-        return !candidate.provenanceLocator.isEmpty()
-                && !candidate.activationReason.isEmpty()
+        if (!isAllowedProvenanceLocator(candidate.provenanceKind, candidate.provenanceLocator)) {
+            return false;
+        }
+        return !candidate.activationReason.isEmpty()
                 && !candidate.evidenceBoundary.isEmpty();
     }
 
@@ -198,6 +200,25 @@ public final class HeartbeatSkillPolicy {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Source-side provenance shape validation. Repository existence is deliberately
+     * not claimed here: the pure policy cannot query GitHub. It can, however, reject
+     * a repository-skill record whose locator is not an exact skill-file-shaped path.
+     */
+    private static boolean isAllowedProvenanceLocator(
+            String provenanceKind,
+            String provenanceLocator) {
+        String locator = clean(provenanceLocator);
+        if (locator.isEmpty()) return false;
+        if (!"repository_skill".equals(provenanceKind)) return true;
+        return locator.startsWith("skills/")
+                && locator.endsWith("/SKILL.md")
+                && locator.indexOf('\\') < 0
+                && !locator.contains("../")
+                && !locator.contains("/./")
+                && !locator.contains("//");
     }
 
     private static String humanizeProvenanceKind(String provenanceKind) {
