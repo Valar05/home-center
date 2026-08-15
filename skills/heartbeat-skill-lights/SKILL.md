@@ -56,7 +56,10 @@ The specimen exists to make later rendering boring and auditable:
 - each node carries a minimum 48 dp touch target contract;
 - state is exposed by text/semantic description plus a non-color token;
 - a typed node preserves provenance, activation reason, concrete consequence, and evidence boundary for touch/TalkBack detail;
-- motion is allowed only when state or consequence actually changes; evidence/provenance metadata refresh alone does not earn Christmas-light motion;
+- the scene itself consumes only `selectDisplayReadyLights(...)`; a material candidate missing the complete typed source/evidence contract rejects the attempted frame rather than silently becoming a weaker node;
+- a complete pulse with a blank pulse identity is invalid and cannot replace the last complete contact surface;
+- rejected/incomplete refreshes expose an exact `refreshBoundary`, preserve the last complete frame, and never earn transition motion;
+- motion is allowed only when state or consequence actually changes, or when a material light is added or removed; evidence/provenance metadata refresh alone does not earn Christmas-light motion;
 - an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
 - an interrupted refresh never receives celebratory/Christmas-light motion.
 
@@ -74,8 +77,12 @@ Skill lights are first-class controls/semantics, not color dots.
 - A light must never silently toggle operator authority, remote input, or execution mode.
 - When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states.
 
+The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: semantic buttons, minimum 48px targets, explicit non-color tokens, focus visibility, detail disclosure, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.
+
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
+
+The SVG and DOM source specimens are implementation references only. Their existence proves source art exists; it does not prove an Android renderer consumed them or that a phone displayed them.
 
 ## Failure Is The Shovel
 A repeated failure cannot merely relight the same fault. The next pulse must either change recovery method/evidence path or preserve the fault with a new exact reason. Originality is paid in recovery strategy, not wording.
@@ -84,6 +91,8 @@ A repeated failure cannot merely relight the same fault. The next pulse must eit
 Do not erase the prior successful heartbeat before the new one is durable. A crash during refresh must leave the last known good skill-light receipt readable, with the interrupted pulse distinguishable as incomplete.
 
 Opaque ingress persistence must be atomic enough that a failed write does not masquerade as a new durable heartbeat. The stored byte count and SHA-256 exist so later consumers can prove which exact payload they observed rather than trusting a timestamp alone.
+
+A pulse that is syntactically marked complete but is semantically anonymous or contains material lights without the typed display contract is still incomplete for presentation purposes. Preserve last-good contact and expose the exact rejection boundary instead of clearing the surface or displaying downgraded telemetry.
 
 ## Done
 This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually parses, renders, and exposes the payload on device through an authorized lane.
