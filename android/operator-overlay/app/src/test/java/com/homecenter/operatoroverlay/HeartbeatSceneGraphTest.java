@@ -74,7 +74,7 @@ public class HeartbeatSceneGraphTest {
         assertEquals("Exact branch blob", node.evidenceBoundary);
         assertTrue(node.detailContentDescription.contains("Why: Materially constrained this pulse"));
         assertTrue(node.detailContentDescription.contains("Evidence: Exact branch blob"));
-        assertTrue(node.detailContentDescription.contains("Source: repository_skill skills/execution-truth/SKILL.md"));
+        assertTrue(node.detailContentDescription.contains("Source: repository skill skills/execution-truth/SKILL.md"));
     }
 
     @Test
