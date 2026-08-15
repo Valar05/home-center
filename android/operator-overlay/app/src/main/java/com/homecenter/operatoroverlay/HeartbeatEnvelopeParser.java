@@ -20,6 +20,14 @@ import java.util.Set;
 public final class HeartbeatEnvelopeParser {
     public static final String SCHEMA = "heartbeat-skill-lights.v1";
     public static final int MAX_LIGHTS = 64;
+    public static final int MAX_PULSE_ID_CHARS = 160;
+    public static final int MAX_ID_CHARS = 96;
+    public static final int MAX_LABEL_CHARS = 160;
+    public static final int MAX_PROVENANCE_KIND_CHARS = 32;
+    public static final int MAX_PROVENANCE_LOCATOR_CHARS = 512;
+    public static final int MAX_ACTIVATION_REASON_CHARS = 1024;
+    public static final int MAX_CONSEQUENCE_CHARS = 2048;
+    public static final int MAX_EVIDENCE_BOUNDARY_CHARS = 4096;
     private static final int MAX_JSON_DEPTH = 32;
     private static final int MAX_STRING_CHARS = 8192;
     private static final Set<String> ROOT_FIELDS = allowedKeys(
@@ -81,7 +89,10 @@ public final class HeartbeatEnvelopeParser {
                 throw new ParseFailure("Unsupported heartbeat envelope schema: " + schema);
             }
 
-            String pulseId = requiredString(root, "pulseId");
+            String pulseId = requiredSemanticString(
+                    root,
+                    "pulseId",
+                    MAX_PULSE_ID_CHARS);
             boolean complete = requiredBoolean(root, "complete");
             List<Object> rawLights = requiredArray(root, "lights");
             if (rawLights.size() > MAX_LIGHTS) {
@@ -115,15 +126,30 @@ public final class HeartbeatEnvelopeParser {
             Map<String, Object> light,
             int index) {
         requireOnlyKeys(light, LIGHT_FIELDS, "Light " + index);
-        String id = requiredString(light, "id");
-        String label = requiredString(light, "label");
-        String provenanceKind = requiredString(light, "provenanceKind");
-        String provenanceLocator = requiredString(light, "provenanceLocator");
-        String activationReason = requiredString(light, "activationReason");
+        String id = requiredSemanticString(light, "id", MAX_ID_CHARS);
+        String label = requiredSemanticString(light, "label", MAX_LABEL_CHARS);
+        String provenanceKind = requiredSemanticString(
+                light,
+                "provenanceKind",
+                MAX_PROVENANCE_KIND_CHARS);
+        String provenanceLocator = requiredSemanticString(
+                light,
+                "provenanceLocator",
+                MAX_PROVENANCE_LOCATOR_CHARS);
+        String activationReason = requiredSemanticString(
+                light,
+                "activationReason",
+                MAX_ACTIVATION_REASON_CHARS);
         HeartbeatSkillPolicy.State state = parseState(requiredString(light, "state"), index);
         boolean changedThisPulse = requiredBoolean(light, "changedThisPulse");
-        String consequence = requiredString(light, "consequence");
-        String evidenceBoundary = requiredString(light, "evidenceBoundary");
+        String consequence = requiredSemanticString(
+                light,
+                "consequence",
+                MAX_CONSEQUENCE_CHARS);
+        String evidenceBoundary = requiredSemanticString(
+                light,
+                "evidenceBoundary",
+                MAX_EVIDENCE_BOUNDARY_CHARS);
 
         if ((state == HeartbeatSkillPolicy.State.ACTIVE
                 || state == HeartbeatSkillPolicy.State.RECOVERED)
@@ -174,6 +200,45 @@ public final class HeartbeatEnvelopeParser {
             throw new ParseFailure("Heartbeat field " + key + " must not be empty.");
         }
         return clean;
+    }
+
+    /**
+     * Semantic text is later spoken, touched, fingerprinted, or shown in detail.
+     * Bound it per field and reject decoded control/unpaired-surrogate text so a
+     * syntactically valid JSON string cannot become pathological UI telemetry.
+     */
+    private static String requiredSemanticString(
+            Map<String, Object> object,
+            String key,
+            int maxChars) {
+        String value = requiredString(object, key);
+        if (value.length() > maxChars) {
+            throw new ParseFailure(
+                    "Heartbeat field " + key + " exceeds " + maxChars + " characters.");
+        }
+        requireSafeSemanticText(value, key);
+        return value;
+    }
+
+    private static void requireSafeSemanticText(String value, String key) {
+        for (int index = 0; index < value.length(); index++) {
+            char c = value.charAt(index);
+            if (Character.isISOControl(c)) {
+                throw new ParseFailure(
+                        "Heartbeat field " + key + " contains a decoded control character.");
+            }
+            if (Character.isHighSurrogate(c)) {
+                if (index + 1 >= value.length()
+                        || !Character.isLowSurrogate(value.charAt(index + 1))) {
+                    throw new ParseFailure(
+                            "Heartbeat field " + key + " contains an unpaired surrogate.");
+                }
+                index++;
+            } else if (Character.isLowSurrogate(c)) {
+                throw new ParseFailure(
+                        "Heartbeat field " + key + " contains an unpaired surrogate.");
+            }
+        }
     }
 
     private static boolean requiredBoolean(Map<String, Object> object, String key) {
