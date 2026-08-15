@@ -1,0 +1,100 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "timestamp": "2026-08-15T14:08:00Z",
+  "commission": "Advance a broad material heartbeat skill constellation through independent non-phone fronts while the P0/primary-phone surface remains firewalled.",
+  "sourceHeadReviewed": "d25a304ee2d0b8bbe476a47b49151e719b8bcd57",
+  "fronts": [
+    {
+      "id": "talkback-load",
+      "state": "implemented_source",
+      "changed": "Collapsed heartbeat speech now preserves exact total/state counts, names at most 12 lights, truncates each collapsed label to 64 Unicode code points without splitting a code point, and leaves verbose reason/consequence/evidence/provenance in per-light detail.",
+      "evidence": "HeartbeatFrameAccessibility.java blob a42c6cda6869b9d3a5f95848cab9c04c219f45c0"
+    },
+    {
+      "id": "stable-selection",
+      "state": "implemented_source",
+      "changed": "Accessibility detail can now resolve by stable semantic light id and recover the current focus index after scene reorder while preserving the original focus-index API.",
+      "evidence": "HeartbeatFrameAccessibility.java blob a42c6cda6869b9d3a5f95848cab9c04c219f45c0"
+    },
+    {
+      "id": "regression-source",
+      "state": "implemented_source_unexecuted",
+      "changed": "Regression source covers broad 20-light overload, state histogram truth, omission of verbose consequences, long-label compaction, Unicode swan code-point safety, and stable-id selection across reorder.",
+      "evidence": "HeartbeatFrameAccessibilityTest.java blob 13a737f372abb75afb556f289c8e178ddc81b6a4"
+    },
+    {
+      "id": "warm-wall-constellation",
+      "state": "implemented_source",
+      "changed": "A 16-light touchable DOM/vector warm-wall constellation now demonstrates repository_skill/doctrine/reviewer/runtime_boundary provenance, exact state counts, bounded collapsed summary, native buttons, focus visibility, pressed selection, live selection status, and per-light detail without raster or decorative blink loops.",
+      "evidence": "heartbeat-constellation-source-specimen.html blob 6913a726e90275a5206a088306167e0565a89402"
+    },
+    {
+      "id": "evidence-review",
+      "state": "implemented_source",
+      "changed": "Fresh Venice plan gate and Regnet source review were persisted. Source inspection found and repaired the first collapsed-summary bound defect before completion review.",
+      "evidence": "receipts/venice/2026-08-15-try-forever-heartbeat-0900-plan-review.json + receipts/regnet/2026-08-15-try-forever-heartbeat-0900-source-review.json"
+    }
+  ],
+  "heartbeatLights": [
+    {"label":"Heartbeat Skill Lights","state":"active","provenance":"skills/heartbeat-skill-lights/SKILL.md","changed":"Broad constellation is encoded as semantic telemetry rather than decorative favorites."},
+    {"label":"Execution Truth","state":"active","provenance":"skills/execution-truth/SKILL.md","changed":"Source/readback remains separate from TESTED/UI/deployed/callable/delivered/accepted."},
+    {"label":"Operator Campaign","state":"active","provenance":"skills/operator-campaign/SKILL.md","changed":"The slice stays on the existing source campaign and does not invent a new control plane."},
+    {"label":"Vlad Swarm","state":"active","provenance":"skills/vlad-swarm/SKILL.md","changed":"Continuation/routing doctrine converted the blocked test lane into independent source fronts."},
+    {"label":"Fortress Plan Gate","state":"active","provenance":"skills/fortress-plan-gate/SKILL.md","changed":"Research, jar selection, antagonism, and Venice PLAN_ALLOWED preceded source mutation."},
+    {"label":"Regnet QA","state":"blocked","provenance":"skills/renee-qa/SKILL.md","changed":"Source/readback passes; TESTED remains BLOCKED_UNKNOWN because zero test steps executed."},
+    {"label":"Vlad Judgment Jars","state":"active","provenance":"skills/vlad-judgment-jars/SKILL.md","changed":"Mission-boundary/change-discipline/reviewer provenance was made explicit and durable."},
+    {"label":"Venice Review Memory","state":"active","provenance":"skills/venice-review-memory/SKILL.md","changed":"Paid-for scars against status theater, planning bypass, evidence laundering, and dead jokes constrained the slice."},
+    {"label":"Embodied Communication","state":"active","provenance":"skills/embodied-communication/SKILL.md","changed":"The new source art is touch/keyboard reachable with 48px minimum targets and semantic detail."},
+    {"label":"Failure Is The Shovel","state":"recovered","provenance":"doctrine:Failure Is The Shovel","changed":"The unchanged Actions failure produced different accessibility/identity/art work instead of another retry."},
+    {"label":"Originality Tax","state":"active","provenance":"doctrine:Originality Tax","changed":"No unchanged-condition CI retry was used as fake activity."},
+    {"label":"Contact Preservation","state":"active","provenance":"doctrine:Contact Preservation","changed":"Collapsed speech continues to derive only from the preserved visible Frame, never discarded attempted content."},
+    {"label":"Accessibility / TalkBack","state":"active","provenance":"doctrine:Accessibility/TalkBack","changed":"Broad valid constellations no longer imply an unbounded collapsed screen-reader monologue."},
+    {"label":"She-Raw","state":"fault","provenance":"reviewer:She-Raw.she_raw_ambient","changed":"Authoritative critique was attempted; HTTP 400 account-connection fault preserved; no synthetic replacement."},
+    {"label":"P0 Fortress Firewall","state":"blocked","provenance":"runtime_boundary:P0 FORTRESS FIREWALL","changed":"Shared phone/recovery surfaces remained untouched."},
+    {"label":"Hunger","state":"active","provenance":"doctrine:Hunger","changed":"The pulse produced a materially different 16-light touchable artifact rather than another status poster."}
+  ],
+  "crossPollination": [
+    "The broad-constellation requirement exposed a TalkBack load problem that only becomes visible when many material lights coexist.",
+    "Accessibility pressure exposed focus-index instability under auto-selected reorder, producing stable-id selection semantics.",
+    "Regnet-style code-first review found that limiting only light count was not enough; long labels were then bounded by Unicode code point.",
+    "Failure Is The Shovel and Originality Tax converted the unchanged Actions-budget failure into source accessibility, identity, and art fronts rather than a retry storm.",
+    "Warm-wall art now demonstrates the same bounded-summary and provenance rules as the source accessibility contract instead of being decorative theater."
+  ],
+  "deterministicBoundary": {
+    "head": "d25a304ee2d0b8bbe476a47b49151e719b8bcd57",
+    "workflow": "Operator Overlay Android",
+    "run": 31888902174,
+    "job": 95022098420,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackExercisedOnRuntimeUi": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
