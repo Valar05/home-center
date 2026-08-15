@@ -131,6 +131,7 @@ public class HeartbeatFrameAccessibilityTest {
         assertTrue(description.contains(compactPrefix + ", blocked"));
         assertTrue(description.contains(compactPrefix + ", fault"));
         assertTrue(description.contains("8 more material lights are available by touch"));
+        assertFalse(description.contains("additional blocked or fault attention lights"));
         assertFalse(description.contains("long consequence"));
         assertFalse(description.contains(longLabel + ", active"));
         assertTrue(description.length() < 2048);
@@ -165,7 +166,44 @@ public class HeartbeatFrameAccessibilityTest {
         assertTrue(description.contains("Late Fault, fault"));
         assertTrue(description.indexOf("Late Fault, fault") < description.indexOf("Active 0, active"));
         assertTrue(description.contains("3 more material lights are available by touch"));
+        assertFalse(description.contains("additional blocked or fault attention light"));
         assertEquals(14, HeartbeatFrameAccessibility.focusIndexForId(frame, "late-fault"));
+    }
+
+    @Test
+    public void attentionOverflowReportsExactOmittedUrgentCount() {
+        List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
+        for (int index = 0; index < 14; index++) {
+            candidates.add(typed(
+                    "attention-" + index,
+                    "Attention " + index,
+                    index % 2 == 0
+                            ? HeartbeatSkillPolicy.State.FAULT
+                            : HeartbeatSkillPolicy.State.BLOCKED,
+                    "Urgent boundary " + index,
+                    "attention-evidence-" + index));
+        }
+        candidates.add(typed(
+                "active-tail",
+                "Active Tail",
+                HeartbeatSkillPolicy.State.ACTIVE,
+                "A non-attention change follows the urgent queue",
+                "active-tail-evidence"));
+
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-attention-overflow",
+                candidates,
+                true,
+                null);
+        String description = HeartbeatFrameAccessibility.collapsedContentDescription(frame);
+
+        assertTrue(description.contains("States: active 1, blocked 7, fault 7, recovered 0"));
+        assertTrue(description.contains("3 more material lights are available by touch"));
+        assertTrue(description.contains(
+                "2 of those are additional blocked or fault attention lights"));
+        assertFalse(description.contains("Attention 12, fault"));
+        assertFalse(description.contains("Attention 13, blocked"));
+        assertTrue(description.length() < 2048);
     }
 
     @Test
