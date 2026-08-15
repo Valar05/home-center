@@ -154,8 +154,9 @@ public final class HeartbeatSkillPolicy {
     /**
      * Compact focus description. The consequence is deliberately bounded so focus
      * movement across a broad constellation cannot trigger a multi-kilobyte speech
-     * burst. Fully typed detail remains available through
-     * {@link #detailContentDescription(Candidate)}.
+     * burst. Expanded typed speech detail is available through
+     * {@link #detailContentDescription(Candidate)} while the exact typed fields stay
+     * on {@link Candidate} for non-speech inspection and evidence handling.
      */
     public static String contentDescription(Candidate candidate) {
         if (!isMaterial(candidate)) return "";
