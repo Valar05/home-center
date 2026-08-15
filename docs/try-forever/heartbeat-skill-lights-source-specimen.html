@@ -126,7 +126,7 @@
   <div class="wire" aria-hidden="true"></div>
 
   <ul class="grid" aria-label="Material heartbeat skill lights">
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Heartbeat Skill Lights" data-state="active" data-token="●"
       data-kind="repository skill" data-locator="skills/heartbeat-skill-lights/SKILL.md"
       data-why="The pulse needed truthful broad skill telemetry rather than decorative lights."
@@ -137,7 +137,7 @@
       <span class="provenance">skills/heartbeat-skill-lights/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Execution Truth" data-state="active" data-token="●"
       data-kind="repository skill" data-locator="skills/execution-truth/SKILL.md"
       data-why="Source progress must not impersonate phone or deployed capability."
@@ -148,7 +148,7 @@
       <span class="provenance">skills/execution-truth/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Operator Campaign" data-state="active" data-token="●"
       data-kind="repository skill" data-locator="skills/operator-campaign/SKILL.md"
       data-why="The heartbeat required executable source progress instead of narration."
@@ -159,7 +159,7 @@
       <span class="provenance">skills/operator-campaign/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Regnet QA" data-state="blocked" data-token="□"
       data-kind="repository skill" data-locator="skills/renee-qa/SKILL.md"
       data-why="The new source needs deterministic regression evidence before it can be called tested."
@@ -170,7 +170,7 @@
       <span class="provenance">skills/renee-qa/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Venice Review Memory" data-state="active" data-token="●"
       data-kind="repository skill" data-locator="skills/venice-review-memory/SKILL.md"
       data-why="Prior scars prohibit status-without-capability and evidence laundering."
@@ -181,7 +181,7 @@
       <span class="provenance">skills/venice-review-memory/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Embodied Communication" data-state="active" data-token="●"
       data-kind="repository skill" data-locator="skills/embodied-communication/SKILL.md"
       data-why="Touchable source art is not the same thing as a physical interface effect."
@@ -192,7 +192,7 @@
       <span class="provenance">skills/embodied-communication/SKILL.md</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Failure Is The Shovel" data-state="recovered" data-token="◇"
       data-kind="doctrine" data-locator="Failure Is The Shovel"
       data-why="The CI lane is budget-blocked and repeating it would add no evidence."
@@ -203,7 +203,7 @@
       <span class="provenance">doctrine: Failure Is The Shovel</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="Mission Boundary" data-state="active" data-token="●"
       data-kind="jar" data-locator="P0 Fortress Firewall / Phone Resource Firewall"
       data-why="Shared phone and recovery ownership are reserved to the canonical P0 conductor."
@@ -214,7 +214,7 @@
       <span class="provenance">jar: P0 / phone resource firewall</span>
     </button></li>
 
-    <li><button class="skill" type="button" aria-controls="detail" aria-expanded="false"
+    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
       data-label="She-Raw" data-state="fault" data-token="×"
       data-kind="reviewer" data-locator="She-Raw.she_raw_ambient"
       data-why="The heartbeat required adversarial pressure from the authoritative reviewer when available."
@@ -233,7 +233,7 @@
     <p>The selected light will expose its state, why it lit, what changed, its source, and its evidence boundary.</p>
   </section>
 
-  <footer>State is never color-only: ● active · □ blocked · × fault · ◇ recovered. Selection is keyboard and touch reachable. Motion is user-action-only; there is no decorative heartbeat loop.</footer>
+  <footer>State is never color-only: ● active · □ blocked · × fault · ◇ recovered. Selection is keyboard and touch reachable and exposed as pressed state. Motion is user-action-only; there is no decorative heartbeat loop.</footer>
 </main>
 <script>
 (() => {
@@ -252,7 +252,7 @@
   }
 
   function select(button) {
-    for (const item of buttons) item.setAttribute('aria-expanded', item === button ? 'true' : 'false');
+    for (const item of buttons) item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
     const d = button.dataset;
 
     const heading = node('h2', `${d.token} ${d.label} — ${d.state.toUpperCase()}`);
