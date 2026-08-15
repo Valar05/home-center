@@ -111,7 +111,10 @@ public final class HeartbeatSkillPolicy {
      * distinguish them from records that satisfy the durable source contract.
      */
     public static boolean hasTypedSourceContract(Candidate candidate) {
-        if (candidate == null) return false;
+        if (candidate == null
+                || candidate.id.isEmpty()
+                || candidate.label.isEmpty()
+                || candidate.consequence.isEmpty()) return false;
         if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
         return !candidate.provenanceLocator.isEmpty()
                 && !candidate.activationReason.isEmpty()
@@ -139,7 +142,7 @@ public final class HeartbeatSkillPolicy {
                 + ". Why: " + candidate.activationReason
                 + ". Consequence: " + candidate.consequence
                 + ". Evidence: " + candidate.evidenceBoundary
-                + ". Source: " + candidate.provenanceKind
+                + ". Source: " + humanizeProvenanceKind(candidate.provenanceKind)
                 + " " + candidate.provenanceLocator + ".";
     }
 
@@ -175,6 +178,10 @@ public final class HeartbeatSkillPolicy {
             default:
                 return false;
         }
+    }
+
+    private static String humanizeProvenanceKind(String provenanceKind) {
+        return provenanceKind.replace('_', ' ');
     }
 
     private static String clean(String value) {
