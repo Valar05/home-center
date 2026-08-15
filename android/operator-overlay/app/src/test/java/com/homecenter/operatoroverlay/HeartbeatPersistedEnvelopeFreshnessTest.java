@@ -1,7 +1,6 @@
 package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -9,6 +8,11 @@ import java.security.MessageDigest;
 import java.util.Locale;
 import org.junit.Test;
 
+/**
+ * Regression source for persisted observation metadata. The current updatedMs
+ * value comes from System.currentTimeMillis(), so positive presence is testable;
+ * monotonic ordering is not part of the contract.
+ */
 public class HeartbeatPersistedEnvelopeFreshnessTest {
     @Test
     public void projectionUsesCanonicalIngressByteCeiling() {
@@ -18,111 +22,54 @@ public class HeartbeatPersistedEnvelopeFreshnessTest {
     }
 
     @Test
-    public void olderPersistedUpdateRejectsBeforeSemanticParsingAndPreservesContact() {
-        HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-last-good");
-        String payload = canonicalEnvelope("pulse-older", "Older payload remains inert.");
+    public void anyPositiveWallClockTimestampMayReachSemanticProjection() {
+        String payload = canonicalEnvelope("pulse-clock-witness");
 
         HeartbeatPersistedEnvelopeProjection.Result result =
                 HeartbeatPersistedEnvelopeProjection.project(
                         payload,
                         utf8Bytes(payload),
                         sha256(payload),
-                        7000L,
-                        8000L,
-                        sha256(canonicalEnvelope("pulse-last-good", "Last-good contact.")),
-                        lastGood);
-
-        assertFalse(result.storageAccepted);
-        assertFalse(result.semanticAttempted);
-        assertFalse(result.presentationAccepted);
-        assertTrue(result.frame.refreshInterrupted);
-        assertFalse(result.frame.transitionMotionAllowed);
-        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
-        assertEquals(
-                "Stored heartbeat update identity rolled back: observed 7000 last accepted 8000.",
-                result.boundary);
-    }
-
-    @Test
-    public void equalUpdateIdentityWithDifferentShaRejectsAsCollision() {
-        HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-collision-base");
-        String prior = canonicalEnvelope("pulse-collision-base", "Prior contact.");
-        String conflicting = canonicalEnvelope("pulse-collision-new", "Conflicting contact.");
-
-        HeartbeatPersistedEnvelopeProjection.Result result =
-                HeartbeatPersistedEnvelopeProjection.project(
-                        conflicting,
-                        utf8Bytes(conflicting),
-                        sha256(conflicting),
-                        9000L,
-                        9000L,
-                        sha256(prior),
-                        lastGood);
-
-        assertFalse(result.storageAccepted);
-        assertFalse(result.semanticAttempted);
-        assertTrue(result.frame.refreshInterrupted);
-        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
-        assertEquals(
-                "Stored heartbeat update identity collision: equal update identity carries different payload SHA-256.",
-                result.boundary);
-    }
-
-    @Test
-    public void equalUpdateIdentityWithSameShaIsIdempotentAndMayReachSemanticScene() {
-        String payload = canonicalEnvelope("pulse-exact-retry", "Exact retry contact.");
-        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
-                HeartbeatEnvelopeParser.parse(payload),
-                null);
-
-        HeartbeatPersistedEnvelopeProjection.Result result =
-                HeartbeatPersistedEnvelopeProjection.project(
-                        payload,
-                        utf8Bytes(payload),
-                        sha256(payload),
-                        10000L,
-                        10000L,
-                        sha256(payload),
-                        lastGood);
+                        1L,
+                        null);
 
         assertTrue(result.storageAccepted);
         assertTrue(result.semanticAttempted);
         assertTrue(result.parserAccepted);
         assertTrue(result.presentationAccepted);
-        assertFalse(result.frame.transitionMotionAllowed);
-        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
+        assertEquals(1L, result.updatedMs);
+        assertEquals("pulse-clock-witness", result.frame.visiblePulseId);
     }
 
     @Test
-    public void priorUpdateIdentityRequiresCanonicalShaBeforeSemanticParsing() {
-        HeartbeatSceneGraph.Frame lastGood = goodFrame("pulse-prior-hash");
-        String payload = canonicalEnvelope("pulse-next", "Next contact.");
+    public void wallClockMagnitudeDoesNotChangeContentIdentity() {
+        String payload = canonicalEnvelope("pulse-same-content");
 
-        HeartbeatPersistedEnvelopeProjection.Result result =
+        HeartbeatPersistedEnvelopeProjection.Result early =
                 HeartbeatPersistedEnvelopeProjection.project(
                         payload,
                         utf8Bytes(payload),
                         sha256(payload),
-                        12000L,
-                        11000L,
-                        "NOT-A-CANONICAL-HASH",
-                        lastGood);
+                        2L,
+                        null);
+        HeartbeatPersistedEnvelopeProjection.Result later =
+                HeartbeatPersistedEnvelopeProjection.project(
+                        payload,
+                        utf8Bytes(payload),
+                        sha256(payload),
+                        Long.MAX_VALUE,
+                        null);
 
-        assertFalse(result.storageAccepted);
-        assertFalse(result.semanticAttempted);
-        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, result.frame));
+        assertTrue(early.storageAccepted);
+        assertTrue(later.storageAccepted);
+        assertEquals(early.observedBytes, later.observedBytes);
+        assertEquals(early.observedSha256, later.observedSha256);
         assertEquals(
-                "Last-accepted heartbeat SHA-256 identity is not canonical lowercase hex.",
-                result.boundary);
+                HeartbeatFrameCheckpoint.contactSha256(early.frame),
+                HeartbeatFrameCheckpoint.contactSha256(later.frame));
     }
 
-    private static HeartbeatSceneGraph.Frame goodFrame(String pulseId) {
-        return HeartbeatSceneGraph.build(
-                HeartbeatEnvelopeParser.parse(canonicalEnvelope(pulseId, "Last-good contact.")),
-                null);
-    }
-
-    private static String canonicalEnvelope(String pulseId, String consequence) {
+    private static String canonicalEnvelope(String pulseId) {
         return "{\"schema\":\"heartbeat-skill-lights.v1\","
                 + "\"pulseId\":\"" + pulseId + "\","
                 + "\"complete\":true,"
@@ -131,11 +78,11 @@ public class HeartbeatPersistedEnvelopeFreshnessTest {
                 + "\"label\":\"Execution Truth\","
                 + "\"provenanceKind\":\"repository_skill\","
                 + "\"provenanceLocator\":\"skills/execution-truth/SKILL.md\","
-                + "\"activationReason\":\"Persisted identity must remain monotonic and collision-safe.\","
+                + "\"activationReason\":\"Persisted content identity and wall-clock observation metadata must remain distinct.\","
                 + "\"state\":\"active\","
                 + "\"changedThisPulse\":true,"
-                + "\"consequence\":\"" + consequence + "\","
-                + "\"evidenceBoundary\":\"Pure source freshness fixture.\""
+                + "\"consequence\":\"Byte count and SHA define content identity; positive updatedMs records observation time only.\","
+                + "\"evidenceBoundary\":\"Pure source wall-clock fixture.\""
                 + "}]}";
     }
 
