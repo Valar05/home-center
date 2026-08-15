@@ -41,20 +41,20 @@
   <section class="wall" aria-labelledby="wall-title">
     <h2 id="wall-title">Heartbeat ingress separation</h2>
     <svg class="wires" viewBox="0 0 760 150" role="img" aria-labelledby="wire-title wire-desc">
-      <title id="wire-title">Heartbeat liveness and optional skill-light payload are separate channels</title>
-      <desc id="wire-desc">The liveness pulse can remain valid when caller-invalid optional skill-light telemetry is rejected. Internal storage failure is not relabeled as healthy.</desc>
+      <title id="wire-title">Heartbeat sink and optional skill-light payload follow separate source semantics</title>
+      <desc id="wire-desc">A caller-invalid optional skill-light payload can be rejected while the independent heartbeat sink is still invoked. An internal storage failure is not relabeled as success.</desc>
       <path class="wire" d="M80 76 C210 76 230 40 360 40 S520 76 680 76"/>
       <path class="wire" d="M360 40 C360 92 460 112 600 112"/>
       <circle class="pulse" cx="80" cy="76" r="24"/>
       <rect class="payload" x="330" y="16" width="60" height="48" rx="12"/>
       <path class="wound" d="M582 94 h36 l14 18 -14 18 h-36 l-14-18z"/>
-      <text x="48" y="128" fill="currentColor">LIVENESS</text>
+      <text x="48" y="128" fill="currentColor">HEARTBEAT SINK</text>
       <text x="302" y="92" fill="currentColor">LIGHT PAYLOAD</text>
       <text x="548" y="145" fill="currentColor">BOUNDARY</text>
     </svg>
     <div class="labels">
-      <div class="node"><span class="token" id="live-token">●</span><strong id="live-state">Heartbeat ACTIVE</strong><br><span id="live-copy">Liveness is preserved after caller-invalid optional telemetry.</span></div>
-      <div class="node"><span class="token" id="payload-token">□</span><strong id="payload-state">Payload BLOCKED</strong><br><span id="payload-copy">Last durable skill-light payload remains untouched.</span></div>
+      <div class="node"><span class="token" id="live-token">●</span><strong id="live-state">Heartbeat sink INVOKED</strong><br><span id="live-copy">Source ordering keeps the independent heartbeat call after caller-invalid optional telemetry.</span></div>
+      <div class="node"><span class="token" id="payload-token">□</span><strong id="payload-state">Payload BLOCKED</strong><br><span id="payload-copy">The previously stored skill-light payload is not overwritten by the rejected input.</span></div>
     </div>
   </section>
 
@@ -64,7 +64,7 @@
     <button type="button" data-mode="storage" aria-pressed="false">× STORAGE FAILURE</button>
   </div>
 
-  <div class="detail" id="detail" tabindex="0">Caller-invalid optional payload: reject the payload, preserve the previous durable payload, and still advance the independent liveness heartbeat. No decorative retry loop.</div>
+  <div class="detail" id="detail" tabindex="0">Caller-invalid optional payload: reject the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. This does not claim durable heartbeat persistence or runtime/device proof.</div>
   <div class="status" id="status" role="status" aria-live="polite"></div>
 </main>
 <script>
@@ -82,19 +82,19 @@
 
   const states = {
     valid: {
-      liveToken: '◇', liveState: 'Heartbeat RECOVERED', liveCopy: 'Valid optional telemetry persists, then liveness advances.',
-      payloadToken: '●', payloadState: 'Payload ACTIVE', payloadCopy: 'Exact payload moves through the existing state owner.',
-      detail: 'Valid payload: persist optional skill-light telemetry first, then advance liveness. This source specimen proves only the intended ordering contract.'
+      liveToken: '◇', liveState: 'Heartbeat sink INVOKED', liveCopy: 'Valid optional telemetry is stored first, then the heartbeat sink is called.',
+      payloadToken: '●', payloadState: 'Payload ACCEPTED', payloadCopy: 'The exact payload is passed through the existing state owner.',
+      detail: 'Valid payload: store optional skill-light telemetry first, then invoke the heartbeat sink. This source specimen proves only the intended ordering contract.'
     },
     invalid: {
-      liveToken: '●', liveState: 'Heartbeat ACTIVE', liveCopy: 'Liveness is preserved after caller-invalid optional telemetry.',
-      payloadToken: '□', payloadState: 'Payload BLOCKED', payloadCopy: 'Last durable skill-light payload remains untouched.',
-      detail: 'Caller-invalid optional payload: reject the payload, preserve the previous durable payload, and still advance the independent liveness heartbeat. No decorative retry loop.'
+      liveToken: '●', liveState: 'Heartbeat sink INVOKED', liveCopy: 'Source ordering keeps the independent heartbeat call after caller-invalid optional telemetry.',
+      payloadToken: '□', payloadState: 'Payload BLOCKED', payloadCopy: 'The previously stored skill-light payload is not overwritten by the rejected input.',
+      detail: 'Caller-invalid optional payload: reject the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. This does not claim durable heartbeat persistence or runtime/device proof.'
     },
     storage: {
-      liveToken: '×', liveState: 'Heartbeat NOT CLAIMED', liveCopy: 'Internal/storage failure propagates instead of being painted green.',
+      liveToken: '×', liveState: 'Heartbeat NOT CLAIMED', liveCopy: 'Internal/storage failure propagates before the heartbeat sink is invoked.',
       payloadToken: '×', payloadState: 'Payload FAULT', payloadCopy: 'A storage failure is not downgraded into caller-invalid telemetry.',
-      detail: 'Internal storage failure: propagate the failure. Do not swallow it, do not claim liveness success, and do not use a warm Christmas light to hide an implementation wound.'
+      detail: 'Internal storage failure: propagate the failure. Do not swallow it, do not claim heartbeat success, and do not use a warm Christmas light to hide an implementation wound.'
     }
   };
 
