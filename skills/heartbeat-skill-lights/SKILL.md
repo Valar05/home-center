@@ -43,6 +43,11 @@ The pure policy performs source-shape validation for `repository_skill` locators
 
 The existing `ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState` ingress may persist an exact bounded heartbeat-light JSON payload as opaque UTF-8 identity: base64 bytes, byte count, SHA-256, and update timestamp. `OperatorStateProvider` may expose that same stored identity through its existing read-only query surface. This is ingress persistence only. It does **not** validate the JSON into typed candidates, render a scene, prove TalkBack behavior, deploy to a phone, or establish physical acceptance.
 
+### Semantic text safety
+Canonical heartbeat text eventually becomes spoken/touched detail, evidence display, and checkpoint identity. The pure parser therefore applies field-specific character limits to `pulseId`, `id`, `label`, provenance, activation reason, consequence, and evidence boundary rather than relying only on the raw JSON-string ceiling.
+
+Decoded semantic text must reject ISO control characters and unpaired UTF-16 surrogates. Valid surrogate pairs remain ordinary inert Unicode data. This is a semantic-ingestion rule, not an execution filter: command-looking text remains data and must never be evaluated or sent to a shell merely because it appears inside a heartbeat field.
+
 ## Runtime semantics
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
 
@@ -72,6 +77,17 @@ The scene may consume `HeartbeatEnvelopeParser.Result` directly as a **pure sour
 
 Until an existing renderer consumes this model and runtime evidence proves it, the scene graph remains source-only implementation.
 
+### Checkpoint and idempotence identity
+`HeartbeatFrameCheckpoint` is a pure source-side fingerprint helper over the already-built semantic frame. It does not persist anything and does not become a new controller.
+
+- `contactSha256(frame)` fingerprints the exact visible last-good contact semantics, including pulse identity and touch/TalkBack provenance/evidence detail. Attempted refresh identity and rejection text are excluded so a failed refresh cannot mutate the fingerprint of what remains visible.
+- `transitionSha256(frame)` fingerprints only ordered light identity, state, and consequence: exactly the fields allowed to earn transition motion. Pulse identity, evidence, provenance, and timestamps cannot manufacture another Christmas blink.
+- an evidence-only complete refresh may change contact identity while preserving transition identity;
+- an incomplete/rejected refresh preserves both last-good identities;
+- a real state/consequence/add/remove transition changes transition identity.
+
+These hashes are source contracts for future consumers. Their existence does not prove any runtime persistence, rendering, retry dedupe, or device behavior.
+
 ## Touch and TalkBack
 Skill lights are first-class controls/semantics, not color dots.
 
@@ -85,7 +101,11 @@ Skill lights are first-class controls/semantics, not color dots.
 - When collapsed, the overlay may summarize the count, but TalkBack must still expose the material states.
 - Persistent selection of one light controlling a shared always-present detail surface uses selection semantics such as `aria-pressed`; do not claim `aria-expanded` unless content is actually expanded/collapsed by that control.
 
+`HeartbeatFrameAccessibility` derives collapsed and detail speech from the already-built visible `HeartbeatSceneGraph.Frame`, not from raw candidates. This is deliberate: when refresh fails closed, TalkBack must describe the same last-good lights the scene preserves and may append the exact interrupted-refresh boundary, but must never announce discarded attempted content as current state. Stable detail lookup uses the visible scene focus index only.
+
 The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: semantic buttons, minimum 48px targets, explicit non-color tokens, focus visibility, persistent pressed selection, detail disclosure, live selection status, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.
+
+The source-only contact-preservation specimen at `docs/try-forever/heartbeat-contact-sheet-source-specimen.html` visualizes complete, interrupted-preserved, evidence-only refresh, and materially recovered frames. It has no autoplay loop: one brief semantic motion is allowed only on a selected frame whose transition fingerprint changes, and `prefers-reduced-motion` disables that motion. The specimen is repository source art only, not Android runtime proof.
 
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
