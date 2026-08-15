@@ -1,0 +1,78 @@
+{
+  "schema": "home-center.regnet-source-review.v1",
+  "slice": "2026-08-15-heartbeat-1800",
+  "reviewedSourceHead": "70933b5c3460f93b7eb1483b5f95e2852a73b3e7",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "reviewedIdentities": {
+    "HeartbeatIngressPolicy.java": "34cfe7c51a17f6bf81e0e91d668b9b73142099ba",
+    "OperatorState.java": "94772cc4e9a3b42591832337420de4c416aa18e4",
+    "HeartbeatSkillPolicy.java": "84debc9051632e44872673e65dd19b6e62309cb1",
+    "HeartbeatIngressPolicyTest.java": "d8acfbab397a5f51baadf608ada2c612e5e3ccb2",
+    "HeartbeatSkillPolicyTest.java": "de5a6c37eb19c966e342a5c70afdee7322b2989e",
+    "OperatorStateHeartbeatLightsEncodingTest.java": "cc3721e5f9e02707e992c237ca34027bca32c225",
+    "heartbeat-ingress-separation-source-specimen.html": "0878e3184ce142c3e1d1720af69a291fdaf092ef",
+    "skills/heartbeat-ingress-separation/SKILL.md": "a71fbb2c7dfd517220188029055a2f2a9a4e0888"
+  },
+  "findings": [
+    {
+      "severity": "repaired",
+      "finding": "HeartbeatIngressPolicy previously caught generic IllegalArgumentException from the persistence sink, so a future/internal argument failure could be relabeled as caller-invalid telemetry and then advance heartbeat liveness.",
+      "repair": "Introduced HeartbeatIngressPolicy.CallerInvalidPayloadException, changed OperatorState's malformed-Unicode and oversize-payload validation to throw it, and catch only that dedicated type. Generic IllegalArgumentException now propagates without heartbeat invocation."
+    },
+    {
+      "severity": "repaired",
+      "finding": "Expanded TalkBack detail could concatenate parser-legal reason, consequence, evidence, and provenance fields into a multi-kilobyte speech burst.",
+      "repair": "Bound spoken detail fields by Unicode code point with explicit truncation markers while preserving the exact Candidate data for non-speech evidence handling."
+    },
+    {
+      "severity": "repaired",
+      "finding": "The first accessibility hardening pass left compact-description Javadoc implying the speech-detail method still exposed full typed detail.",
+      "repair": "Corrected the documentation so bounded speech projection and exact Candidate evidence remain explicitly separate."
+    }
+  ],
+  "regressionSource": [
+    "Dedicated caller-invalid optional payload still invokes heartbeat.",
+    "Unrelated IllegalArgumentException propagates and heartbeat is not invoked.",
+    "Malformed UTF-16 is typed as caller-invalid before persistence encoding.",
+    "Expanded detail truncates long swan-Unicode fields without replacing/splitting Unicode and leaves Candidate fields unchanged."
+  ],
+  "deterministicTestGate": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31913972065,
+    "jobId": 95083067848,
+    "headSha": "70933b5c3460f93b7eb1483b5f95e2852a73b3e7",
+    "executedSteps": 0,
+    "conclusion": "failure",
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrgansActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "remainingBoundaries": [
+    "Regression source has not executed because the exact-head GitHub Actions job started zero steps.",
+    "Persisted payload is not wired through strict byte projection -> semantic parser -> scene -> existing Android renderer.",
+    "TalkBack behavior is not exercised on the runtime overlay.",
+    "No deployment, phone callability, phone execution, physical delivery, or acceptance is claimed."
+  ]
+}
