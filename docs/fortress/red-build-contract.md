@@ -39,6 +39,14 @@ If durable Home Center/scheduler evidence identifies an existing dedicated Joy s
 
 P0 Fortress Swarm Scheduler remains sole conductor for Home Center recovery. RED BUILD may inspect that artery read-only for dependency/evidence state but may not retask, replace, wake, or seize the recovery chain unless Drew explicitly changes conductor authority.
 
+## Authorized body gate
+
+A source change cannot advance to `TESTED_BODY` until the exact candidate head executes on an already-authorized body and produces attributable test evidence.
+
+If the intended body is outside its own liveness freshness window, record `TEST_BODY_UNAVAILABLE` with the body identity, last-seen evidence, freshness threshold, queue depth/active-lane context when available, and exact candidate head. Do not enqueue speculative work onto that stale body merely to rediscover the outage. Do not wake, retask, replace, or borrow the P0 recovery conductor or its downstream phone lanes to manufacture a test body. Do not substitute ChatGPT-local execution, repository readback, or a known-blocked GitHub Actions lane for body execution.
+
+The next RED BUILD pass rechecks the same already-authorized body first. If it is fresh and available, execute the smallest exact-head test immediately. If it is still unavailable, preserve the boundary once, metabolize any newly learned failure trait, and advance another non-conflicting authorized edge rather than repeating probes that cannot change the evidence state.
+
 ## Slash-a-Rat
 
 A rat is ceremony between commission and delivered evidence that no longer buys useful information, safety, control, or capability. Slash it. Examples: duplicate workers, scheduler-as-progress, skill-fetch dependency for baseline judgment, prose-as-execution, repeated rediscovery of known blockers, and user-as-command-bus.
