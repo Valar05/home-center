@@ -1,0 +1,57 @@
+{
+  "schema": "home-center.venice-judgment-jar-completion-review.v1",
+  "slice": "2026-08-15-heartbeat-1800",
+  "reviewedSourceHead": "70933b5c3460f93b7eb1483b5f95e2852a73b3e7",
+  "verdict": "STOP_ALLOWED",
+  "scope": "bounded_source_slice_only",
+  "campaignState": "CONTINUE_REQUIRED",
+  "reviewer": {
+    "kind": "judgment_jar_venice",
+    "implementation": "same_worker_separate_adversarial_pass"
+  },
+  "codeFirstReview": {
+    "result": "PASS_WITH_TEST_GATE_BLOCKED",
+    "observations": [
+      "Typed caller-invalid telemetry now has a dedicated exception boundary; generic IllegalArgumentException no longer earns the recovery path.",
+      "OperatorState emits the dedicated type only for malformed Unicode and the payload-size caller boundary; commit failure remains an internal IllegalStateException.",
+      "Expanded TalkBack detail now has Unicode-safe speech budgets while the exact Candidate fields remain unchanged.",
+      "Review caught and repaired stale documentation that could have blurred bounded speech with full evidence availability.",
+      "The existing ingress owner, scene/contact organs, and warm-wall specimen were composed in place; no neighboring controller or recovery daemon was introduced."
+    ]
+  },
+  "judgmentJarChecks": {
+    "missionBoundary": "PASS: P0 and primary-phone ownership remained read-only and untouched.",
+    "repositoryTruth": "PASS: exact GitHub blob readback exists for changed source/test/skill/art files.",
+    "changeDiscipline": "PASS: earlier ingress separation, contact preservation, capability membrane, accessibility, and no-raster constraints were preserved.",
+    "failureRecovery": "PASS: unchanged Actions-budget failure was not manually retried and instead fed distinct source fronts.",
+    "veniceReviewGate": "PASS for yielding this bounded source slice only."
+  },
+  "sheRaw": {
+    "state": "FAULT",
+    "attempted": true,
+    "boundary": "Authoritative she_raw_ambient returned HTTP 400 account-connection failure; no synthetic reviewer was substituted."
+  },
+  "testGate": {
+    "state": "NO/BLOCKED_UNKNOWN",
+    "runId": 31913972065,
+    "jobId": 95083067848,
+    "executedSteps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capabilityMembrane": {
+    "requested": "YES",
+    "implementedSource": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "runtimeSemanticIntegration": "NO",
+    "uiRendered": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "stopMeaning": "This receipt permits the 1800 source slice to yield after durable receipts and PR summary are persisted. It does not end TRY FOREVER, authorize merge as a delivered interface, reopen phone/P0 surfaces, or promote source work into runtime capability."
+}
