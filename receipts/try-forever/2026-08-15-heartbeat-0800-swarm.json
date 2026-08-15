@@ -1,0 +1,261 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "commission": "Real multi-front TRY FOREVER heartbeat with broad materially selected skills/jars, strict P0/phone firewall, exact capability-state truth, and durable repository evidence.",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-0800-plan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice-correction.json",
+  "veniceCompletionReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-0800-completion-review.json",
+  "reviewedSourceHead": "d56a5191b32f9682a714e449186433b6e1b7d5ac",
+  "veniceReceiptCommit": "374dc8b9c0721fdae5059d7b3cc753386f72d7b0",
+  "fronts": [
+    {
+      "id": "semantic-ingress-safety",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "HeartbeatEnvelopeParser now applies per-field semantic bounds and validates decoded controls/surrogate pairing before trimming. Code review found and repaired the edge-control normalization hole before completion approval.",
+      "paths": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeSemanticBoundsTest.java"
+      ],
+      "blobs": [
+        "f10d536f0871798ebce31ddc2e4dcab9fe98e3e3",
+        "0e96041f31c85efefa042c83a3bf8ccee8c94632"
+      ],
+      "tested": false
+    },
+    {
+      "id": "checkpoint-idempotence",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "HeartbeatFrameCheckpoint adds separate deterministic SHA-256 identities for exact visible contact and transition-worthy state/consequence semantics, preserving idempotence and preventing evidence-only Christmas motion.",
+      "paths": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameCheckpoint.java",
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatFrameCheckpointTest.java"
+      ],
+      "blobs": [
+        "4b55681bf61265f143f6d7a0005837cceaa67b3e",
+        "5c71b266b8be1443d52d628dc00b7798ea76b364"
+      ],
+      "tested": false
+    },
+    {
+      "id": "visible-scene-accessibility",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "HeartbeatFrameAccessibility derives collapsed/detail speech from the exact preserved Frame so interrupted attempts cannot be announced as current TalkBack state.",
+      "paths": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java",
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibilityTest.java"
+      ],
+      "blobs": [
+        "2871117bc1dcc76824203680d3e48149b1cec2f2",
+        "1dac38525ad78ec359967de8ff6a0ddd935bf919"
+      ],
+      "tested": false
+    },
+    {
+      "id": "warm-wall-contact-sheet",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Added a touch/keyboard reachable DOM/CSS/vector contact sheet with last-good, interrupted-preserved, evidence-only, and recovered frames; no raster, autoplay, or decorative blink loop; reduced-motion honored.",
+      "paths": [
+        "docs/try-forever/heartbeat-contact-sheet-source-specimen.html"
+      ],
+      "blobs": [
+        "deacd14ddedb9e99927d434d5a4c1a4576012651"
+      ],
+      "tested": false,
+      "runtimeProof": false
+    },
+    {
+      "id": "durable-doctrine-and-review",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Heartbeat doctrine now records semantic text safety, checkpoint/transition identity, frame-derived accessibility, contact-sheet motion law, and capability-state caveats. Fresh plan, corrected Regnet, and Venice completion receipts were persisted.",
+      "paths": [
+        "skills/heartbeat-skill-lights/SKILL.md",
+        "receipts/venice/2026-08-15-try-forever-heartbeat-0800-plan-review.json",
+        "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice.json",
+        "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice-correction.json",
+        "receipts/venice/2026-08-15-try-forever-heartbeat-0800-completion-review.json"
+      ],
+      "skillDoctrineBlob": "1b0b373f6ea561c4f651767f9caea98d7986823f"
+    }
+  ],
+  "heartbeatLights": [
+    {
+      "label": "Heartbeat Skill Lights",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/heartbeat-skill-lights/SKILL.md",
+      "state": "active",
+      "why": "The pulse needed broad truthful semantic telemetry and durable rules for new source fronts.",
+      "consequence": "Doctrine gained semantic safety, checkpoint identity, visible-scene accessibility, and contact-sheet motion rules.",
+      "evidence": "skill blob 1b0b373f6ea561c4f651767f9caea98d7986823f"
+    },
+    {
+      "label": "Execution Truth",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/execution-truth/SKILL.md",
+      "state": "active",
+      "why": "Repository progress could easily be laundered into runtime/phone claims.",
+      "consequence": "Every new artifact is source-only and the capability membrane remains explicit.",
+      "evidence": "Fresh Regnet and Venice capability ledgers"
+    },
+    {
+      "label": "Failure Is The Shovel",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Failure Is The Shovel",
+      "state": "recovered",
+      "why": "GitHub Actions remained budget-blocked with zero executed steps.",
+      "consequence": "No blind CI retry was fired; the pulse changed fronts to parser safety, checkpointing, accessibility, contact art, and review.",
+      "evidence": "Operator Overlay Android run 31886406449 / job 95016233725, zero steps"
+    },
+    {
+      "label": "Originality Tax",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Originality Tax",
+      "state": "active",
+      "why": "Repeating the same blocked test attempt would have produced no evidence.",
+      "consequence": "The recovery/evidence strategy materially changed instead of cosmetically rewording the same failure.",
+      "evidence": "Multiple new source fronts plus no manual workflow retry"
+    },
+    {
+      "label": "Canon Auto-Select",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Canon Auto-Select",
+      "state": "active",
+      "why": "The heartbeat required relevant skills to be discovered rather than using a fixed favorites list.",
+      "consequence": "Repository skill cabinet and relevant Judgment Jars were read before planning/review; irrelevant phone skills remained dark under the firewall.",
+      "evidence": "GitHub readback of skills directory and selected SKILL.md/Jar sources"
+    },
+    {
+      "label": "Regnet QA",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/renee-qa/SKILL.md",
+      "state": "blocked",
+      "why": "Deterministic evidence sufficiency and capability truth are material.",
+      "consequence": "Implemented-source/readback passed; TESTED remains BLOCKED_UNKNOWN. A code-inspection correction was appended instead of rewriting the first receipt.",
+      "evidence": "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice-correction.json"
+    },
+    {
+      "label": "Venice Judgment Jars",
+      "provenanceKind": "jar",
+      "provenanceLocator": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "state": "active",
+      "why": "Repository code changed and source-slice stop permission required code-first review.",
+      "consequence": "Venice found the edge-control normalization defect, required its repair before approval, then approved yielding only the bounded source slice with quality mixed.",
+      "evidence": "receipts/venice/2026-08-15-try-forever-heartbeat-0800-completion-review.json"
+    },
+    {
+      "label": "Accessibility / TalkBack",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Accessibility/TalkBack",
+      "state": "active",
+      "why": "Contact preservation must include spoken truth, not only pixels.",
+      "consequence": "Collapsed/detail semantics now derive from the preserved Frame, and semantic text gets source-side safety bounds.",
+      "evidence": "HeartbeatFrameAccessibility + HeartbeatEnvelopeParser source readback"
+    },
+    {
+      "label": "Recovery / Checkpoint / Idempotence",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Recovery/Checkpoint/Idempotence",
+      "state": "active",
+      "why": "Last-good contact and transition motion needed deterministic identities independent of timestamps.",
+      "consequence": "Separate contact and transition SHA-256 source identities now exist with regression source.",
+      "evidence": "HeartbeatFrameCheckpoint blob 4b55681bf61265f143f6d7a0005837cceaa67b3e"
+    },
+    {
+      "label": "Warm Walls / Christmas-Light Scene",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Warm Walls / Christmas-Light Scene Graph",
+      "state": "active",
+      "why": "The commissioned art needed to become a contact-preserving temporal surface instead of another static poster.",
+      "consequence": "The contact sheet visualizes four semantic frames and permits one pulse only for a transition fingerprint change.",
+      "evidence": "contact-sheet blob deacd14ddedb9e99927d434d5a4c1a4576012651"
+    },
+    {
+      "label": "Hunger",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Hunger",
+      "state": "active",
+      "why": "The static light specimen was insufficiently alive for the requested warm-wall organism.",
+      "consequence": "The source art now has last-good, wound, evidence-refresh, and materially recovered states rather than one frozen panel.",
+      "evidence": "docs/try-forever/heartbeat-contact-sheet-source-specimen.html"
+    },
+    {
+      "label": "She-Raw",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "She-Raw.she_raw_ambient",
+      "state": "fault",
+      "why": "Authoritative adversarial motivation was materially relevant before execution.",
+      "consequence": "No synthetic reviewer was substituted; plan antagonism proceeded from repository Venice/Jar precedent only.",
+      "evidence": "HTTP 400: We couldn't connect your account. Please try again."
+    },
+    {
+      "label": "Phone Runtime / Phone Hands",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/phone-runtime/SKILL.md",
+      "state": "dark",
+      "why": "Binding P0/phone resource firewall reserves that execution chain to the canonical P0 conductor.",
+      "consequence": "No Try Forever phone action was allowed or attempted.",
+      "evidence": "P0/phone firewall; mutation counts all zero"
+    },
+    {
+      "label": "Autocorrect Judgment Jar",
+      "provenanceKind": "jar",
+      "provenanceLocator": "Autocorrect Judgment Jar",
+      "state": "dark",
+      "why": "No ambiguous or corrupted operator token materially affected this source slice.",
+      "consequence": "No invented autocorrect branch was necessary.",
+      "evidence": "No ambiguity requiring resolution in this pulse"
+    }
+  ],
+  "ciBoundary": {
+    "latestExecutedAutomaticAndroidCodeHead": "0792c171f7b74ca94a9412273e5e81662f689549",
+    "run": 31886406449,
+    "job": 95016233725,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false,
+    "currentCorrectedSourceTestState": "BLOCKED_UNKNOWN"
+  },
+  "sheRawBoundary": {
+    "attempted": true,
+    "surface": "She-Raw.she_raw_ambient",
+    "result": "FAULT",
+    "error": "HTTP 400: We couldn't connect your account. Please try again.",
+    "syntheticSubstitute": false
+  },
+  "p0Firewall": {
+    "held": true,
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "crossPollination": [
+    "Actions-budget failure -> Failure Is The Shovel / Originality Tax -> switch from retry theater to independent source fronts.",
+    "Contact preservation -> separate contact/transition checkpoint identities -> Christmas-light motion can be gated by semantic transition rather than timestamps.",
+    "Accessibility -> derive speech from preserved Frame -> interrupted attempts cannot leak into current TalkBack state.",
+    "Code-first Venice review -> edge-control trimming defect discovered -> parser now validates decoded semantic text before normalization -> regression source added.",
+    "Repository Truth + Regnet -> source art/checkpoints stay implemented source while TESTED/runtime/device states remain unresolved."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "runtimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "boundedSliceVerdict": "VENICE_APPROVED_TO_YIELD_MIXED_QUALITY_SOURCE_ONLY",
+  "campaignComplete": false
+}
