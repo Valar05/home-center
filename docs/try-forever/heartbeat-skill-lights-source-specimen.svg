@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+  <title id="title">TRY FOREVER heartbeat skill lights source specimen</title>
+  <desc id="desc">A warm-wall vector contact sheet showing four semantic heartbeat skill-light states. Each cell uses a non-color state token, text label, reason, consequence, evidence boundary, and a minimum forty-eight logical-unit touch target. This is source specimen art, not rendered Operator Overlay evidence.</desc>
+  <defs>
+    <style>
+      .wall { fill: #2b2524; stroke: #c8a982; stroke-width: 3; }
+      .panel { fill: #171515; stroke: #e0c7a6; stroke-width: 2; }
+      .wire { fill: none; stroke: #d7b78e; stroke-width: 3; stroke-linecap: round; }
+      .bulb { fill: #f4dfb9; stroke: #171515; stroke-width: 2; }
+      .label { fill: #fff7e8; font: 700 20px sans-serif; }
+      .small { fill: #eee0cc; font: 15px sans-serif; }
+      .tiny { fill: #d6c5ad; font: 13px monospace; }
+      .token { fill: #fff7e8; font: 700 28px monospace; }
+      .stamp { fill: #171515; font: 700 18px monospace; letter-spacing: 1px; }
+      .touch { fill: none; stroke: #fff7e8; stroke-width: 1.5; stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+
+  <rect class="wall" x="18" y="18" width="924" height="604" rx="34"/>
+  <path class="wire" d="M70 92 C210 35 330 140 470 82 S745 40 890 102"/>
+  <circle class="bulb" cx="114" cy="76" r="10"/>
+  <circle class="bulb" cx="238" cy="75" r="10"/>
+  <circle class="bulb" cx="366" cy="98" r="10"/>
+  <circle class="bulb" cx="494" cy="73" r="10"/>
+  <circle class="bulb" cx="624" cy="69" r="10"/>
+  <circle class="bulb" cx="754" cy="78" r="10"/>
+  <circle class="bulb" cx="866" cy="94" r="10"/>
+
+  <text class="label" x="70" y="145">HEARTBEAT LIGHTS / CONTACT SHEET</text>
+  <rect x="648" y="118" width="242" height="42" rx="8" fill="#f4dfb9"/>
+  <text class="stamp" x="666" y="145">SOURCE • NOT UI PROOF</text>
+
+  <g id="active" data-state="active" data-min-touch-target-dp="48" aria-label="Execution Truth, active. Capability states remain separated. Evidence is the exact Home Center GitHub readback.">
+    <rect class="panel" x="70" y="190" width="390" height="150" rx="18"/>
+    <rect class="touch" x="86" y="206" width="58" height="58" rx="10"/>
+    <text class="token" x="100" y="244">●</text>
+    <text class="label" x="160" y="226">EXECUTION TRUTH</text>
+    <text class="small" x="160" y="251">ACTIVE · changed this pulse</text>
+    <text class="small" x="90" y="288">why: provenance contract became explicit</text>
+    <text class="tiny" x="90" y="316">evidence: exact branch blob readback</text>
+  </g>
+
+  <g id="blocked" data-state="blocked" data-min-touch-target-dp="48" aria-label="Regnet QA, blocked. Deterministic test execution has not occurred. Evidence boundary is the unavailable authorized non-P0 test lane.">
+    <rect class="panel" x="500" y="190" width="390" height="150" rx="18"/>
+    <rect class="touch" x="516" y="206" width="58" height="58" rx="10"/>
+    <text class="token" x="529" y="244">□</text>
+    <text class="label" x="590" y="226">REGNET QA</text>
+    <text class="small" x="590" y="251">BLOCKED · exact boundary stays visible</text>
+    <text class="small" x="520" y="288">why: tests need authorized execution evidence</text>
+    <text class="tiny" x="520" y="316">boundary: no executed deterministic suite</text>
+  </g>
+
+  <g id="fault" data-state="fault" data-min-touch-target-dp="48" aria-label="She-Raw, fault. Reviewer connector account connection failed. No synthetic reviewer was substituted.">
+    <rect class="panel" x="70" y="372" width="390" height="150" rx="18"/>
+    <rect class="touch" x="86" y="388" width="58" height="58" rx="10"/>
+    <text class="token" x="100" y="426">×</text>
+    <text class="label" x="160" y="408">SHE-RAW</text>
+    <text class="small" x="160" y="433">FAULT · reviewer unavailable</text>
+    <text class="small" x="90" y="470">why: account connection returned HTTP 400</text>
+    <text class="tiny" x="90" y="498">boundary: no impersonated contribution</text>
+  </g>
+
+  <g id="recovered" data-state="recovered" data-min-touch-target-dp="48" aria-label="Failure Is The Shovel, recovered. The work changed from adding more untested runtime code to source-only semantic and vector specimens.">
+    <rect class="panel" x="500" y="372" width="390" height="150" rx="18"/>
+    <rect class="touch" x="516" y="388" width="58" height="58" rx="10"/>
+    <text class="token" x="528" y="426">◇</text>
+    <text class="label" x="590" y="408">FAILURE IS THE SHOVEL</text>
+    <text class="small" x="590" y="433">RECOVERED · strategy changed</text>
+    <text class="small" x="520" y="470">why: stopped piling code onto blocked tests</text>
+    <text class="tiny" x="520" y="498">consequence: source-only contract + specimen</text>
+  </g>
+
+  <path class="wire" d="M108 554 C235 600 345 536 478 568 S745 603 852 552"/>
+  <circle class="bulb" cx="116" cy="557" r="9"/>
+  <circle class="bulb" cx="264" cy="574" r="9"/>
+  <circle class="bulb" cx="408" cy="558" r="9"/>
+  <circle class="bulb" cx="548" cy="574" r="9"/>
+  <circle class="bulb" cx="696" cy="580" r="9"/>
+  <circle class="bulb" cx="836" cy="558" r="9"/>
+  <text class="tiny" x="70" y="605">warm walls carry state • bulbs do not blink without transition • previous good contact survives interruption</text>
+</svg>
