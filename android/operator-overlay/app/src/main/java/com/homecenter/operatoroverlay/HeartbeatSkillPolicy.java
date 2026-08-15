@@ -15,6 +15,9 @@ import java.util.Set;
  * blocked/fault boundary that the operator needs to know about.
  */
 public final class HeartbeatSkillPolicy {
+    /** Maximum consequence speech in the compact focus description. */
+    public static final int MAX_COMPACT_CONSEQUENCE_CODE_POINTS = 160;
+
     public enum State {
         DARK,
         ACTIVE,
@@ -143,11 +146,20 @@ public final class HeartbeatSkillPolicy {
                 && !candidate.evidenceBoundary.isEmpty();
     }
 
+    /**
+     * Compact focus description. The consequence is deliberately bounded so focus
+     * movement across a broad constellation cannot trigger a multi-kilobyte speech
+     * burst. Fully typed detail remains available through
+     * {@link #detailContentDescription(Candidate)}.
+     */
     public static String contentDescription(Candidate candidate) {
         if (!isMaterial(candidate)) return "";
         return "Skill " + candidate.label + ", "
                 + candidate.state.name().toLowerCase(Locale.ROOT)
-                + ". " + candidate.consequence + ".";
+                + ". " + compactSpeechField(
+                        candidate.consequence,
+                        MAX_COMPACT_CONSEQUENCE_CODE_POINTS)
+                + ".";
     }
 
     /**
@@ -171,10 +183,10 @@ public final class HeartbeatSkillPolicy {
     /**
      * TalkBack description for the collapsed overlay.
      *
-     * Collapsing the visual panel must not collapse away the material states. The
-     * description reuses the same selected order/dedupe policy as the rendered
-     * lights and carries each exact state + consequence instead of reporting only
-     * a decorative count.
+     * This legacy candidate-level projection is retained for compatibility. New
+     * scene consumers should use HeartbeatFrameAccessibility so interrupted contact,
+     * broad-summary bounds, and attention-first naming are derived from the exact
+     * visible frame.
      */
     public static String collapsedContentDescription(List<Candidate> candidates) {
         List<Candidate> selected = selectMaterialLights(candidates);
@@ -223,6 +235,15 @@ public final class HeartbeatSkillPolicy {
 
     private static String humanizeProvenanceKind(String provenanceKind) {
         return provenanceKind.replace('_', ' ');
+    }
+
+    private static String compactSpeechField(String value, int maxCodePoints) {
+        String clean = clean(value);
+        if (clean.isEmpty() || maxCodePoints <= 0) return clean;
+        int codePoints = clean.codePointCount(0, clean.length());
+        if (codePoints <= maxCodePoints) return clean;
+        int end = clean.offsetByCodePoints(0, maxCodePoints);
+        return clean.substring(0, end) + "…";
     }
 
     private static String clean(String value) {
