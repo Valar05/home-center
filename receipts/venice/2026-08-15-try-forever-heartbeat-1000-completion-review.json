@@ -1,0 +1,102 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone skill-light fronts while P0 and the shared phone surface remain firewalled; keep every lit skill materially consequential and preserve capability-state truth.",
+  "timestamp": "2026-08-15T15:10:30Z",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1000-plan-review.json",
+  "sourceHeadReviewed": "f279412d5954fcb04140ef002cf205824d235f41",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1000-source-review.json",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "change-discipline",
+    "repository-truth",
+    "venice-review-memory",
+    "regnet-qa"
+  ],
+  "codeFirstReview": [
+    {
+      "finding": "A broad valid constellation could expose exact fault/blocker counts yet still bury those identities after twelve earlier active/recovered names.",
+      "resolution": "HeartbeatFrameAccessibility now uses an attention-first speech projection for FAULT/BLOCKED while leaving Frame node order and focus indexes unchanged."
+    },
+    {
+      "finding": "Compact per-light focus speech could still read a very large consequence even after the collapsed summary was bounded.",
+      "resolution": "HeartbeatSkillPolicy compact consequence speech is bounded to 160 Unicode code points; explicit typed detail remains complete."
+    },
+    {
+      "finding": "The first attention-map specimen repeated an already-paid-for innerHTML mistake and lit two prompt-favorite concepts that had not actually changed this pulse.",
+      "resolution": "The specimen was repaired to createElement/textContent and the decorative lights were replaced with Repository Truth and Fortress Plan Gate, both materially consumed by this source slice."
+    }
+  ],
+  "sourceEvidence": {
+    "HeartbeatFrameAccessibility.java": "ab1598cd3618e9cc36e3d2f07b8c1d090b2792a1",
+    "HeartbeatSkillPolicy.java": "f99570be4e2355537eca6c2e00c2db16cb922ae2",
+    "HeartbeatFrameAccessibilityTest.java": "2a61d045f23bb639d9f3404a40da7f06fece56ea",
+    "HeartbeatSkillPolicyTest.java": "caa2a99fd4cd6daa1d46b78de5c951e426ecc3ff",
+    "heartbeat-attention-map-source-specimen.html": "5d311de83eb633261b28ae71af2986743cd20a04",
+    "venicePlanReceipt": "ad6b8beea9e35f4978c1977ec09b9d59e87428f2"
+  },
+  "deterministicBoundary": {
+    "workflow": "Operator Overlay Android",
+    "run": 31891813186,
+    "job": 95029099894,
+    "headSha": "f279412d5954fcb04140ef002cf205824d235f41",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "sheRaw": {
+    "authoritativeSurface": "She-Raw.she_raw_consult",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false,
+    "retryHammered": false
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackExercisedOnRuntimeUi": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "veniceVerdict": "approve",
+  "quality": "mixed",
+  "stopDirective": "STOP_ALLOWED_FOR_THIS_BOUNDED_SOURCE_SLICE_ONLY",
+  "findings": [
+    "The source slice materially advances accessibility, deterministic speech projection, regression source, and touchable non-raster art without creating a second runtime body.",
+    "Regnet's source/readback claim is supported; the deterministic test claim is not. TESTED stays BLOCKED_UNKNOWN because the exact automatic job executed zero steps.",
+    "The P0/phone firewall held exactly; no shared physical execution resource was consumed.",
+    "She-Raw's authoritative connector fault remains an explicit review gap and was not papered over with synthetic opinion.",
+    "The repaired attention-map specimen is useful source art only. It cannot be reported as Operator Overlay UI, deployment, callability, delivery, or acceptance."
+  ],
+  "notAuthorizedByThisReview": [
+    "merge approval as delivered capability",
+    "campaign completion",
+    "runtime wiring",
+    "phone execution",
+    "P0 recovery mutation",
+    "deployment",
+    "physical presentation",
+    "owner acceptance"
+  ]
+}
