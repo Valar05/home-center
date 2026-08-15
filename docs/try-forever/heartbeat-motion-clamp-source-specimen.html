@@ -13,7 +13,7 @@
 <main>
 <header>
 <h1>WARM WALL / MOTION CLAMP</h1>
-<p>A heartbeat can preserve contact without preserving yesterday's twitch. Touch the seven source states below. Interrupted refresh, identity collision, poisoned protocol tokens, and persisted byte/SHA wounds keep the last-good semantics visible while every motion bit is clamped off. The seventh state is deliberately different: wall-clock skew is a witness, not a replay verdict.</p>
+<p>A heartbeat can preserve contact without preserving yesterday's twitch. Touch the eight source states below. Interrupted refresh, identity collision, poisoned protocol tokens, persisted byte/SHA wounds, and malformed raw UTF-8 keep the last-good semantics visible while every motion bit is clamped off. The eighth state is deliberately different: wall-clock skew is a witness, not a replay verdict.</p>
 <span class="scar">SOURCE ONLY · DOM/VECTOR · NOT OPERATOR-OVERLAY RUNTIME PROOF</span>
 </header>
 <nav id="controls" class="controls" aria-label="Motion-clamp source states"></nav>
@@ -27,19 +27,20 @@
 <p id="status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 <section class="detail" aria-label="Specimen contract">
 <h2>Contract</h2>
-<p><strong>Visible contact</strong> is semantic identity. <strong>Motion</strong> is ephemeral. Exact retry may reuse a pulse identity without blinking. Same pulse identity with different contact semantics fails closed. A schema/state token containing a decoded control character or unpaired surrogate is rejected before normalization. A persisted heartbeat whose decoded UTF-8 byte count or SHA-256 disagrees with its stored identity is rejected before semantic parsing. The current <code>updatedMs</code> comes from wall-clock time, so only positive presence is trusted: lower or equal absolute time is not independently a rollback/collision wound. Content identity comes from exact bytes + SHA. None of the actual wounds replaces the last-good frame or earns motion.</p>
+<p><strong>Visible contact</strong> is semantic identity. <strong>Motion</strong> is ephemeral. Exact retry may reuse a pulse identity without blinking. Same pulse identity with different contact semantics fails closed. A schema/state token containing a decoded control character or unpaired surrogate is rejected before normalization. A persisted heartbeat whose exact raw bytes disagree with stored byte count or SHA-256 is rejected before semantic parsing. Even when byte count and SHA match, malformed UTF-8 is rejected by strict byte-first decoding rather than being repaired with replacement characters. The current <code>updatedMs</code> comes from wall-clock time, so only positive presence is trusted: lower or equal absolute time is not independently a rollback/collision wound. Content identity comes from exact bytes + SHA; semantic trust additionally requires lossless UTF-8. None of the actual wounds replaces the last-good frame or earns motion.</p>
 </section>
 </main>
 <script>
 (()=>{
 const frames=[
-{id:'accepted',label:'01 · accepted transition',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:true,boundary:'Persisted byte count and SHA matched; a material consequence then changed. Frame and changed node may pulse once.'},
+{id:'accepted',label:'01 · accepted transition',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:true,boundary:'Persisted byte count and SHA matched; strict UTF-8 decoding succeeded; a material consequence then changed. Frame and changed node may pulse once.'},
 {id:'interrupted',label:'02 · interrupted wound',visible:'pulse-clamp',attempted:'pulse-next',interrupted:true,motion:false,boundary:'Refresh incomplete. Preserve pulse-clamp contact, but rematerialize preserved nodes with transitionMotion=false.'},
 {id:'retry',label:'03 · exact retry',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:false,boundary:'Same pulse id + exact same contact semantics is an idempotent retry. No new Christmas motion.'},
 {id:'collision',label:'04 · semantic identity collision',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:true,motion:false,boundary:'Same pulse id + different contact semantics is rejected. Last-good contact survives; attempted mutation does not leak.'},
-{id:'protocol',label:'05 · protocol scar',visible:'pulse-clamp',attempted:'pulse-poisoned',interrupted:true,motion:false,boundary:'Persisted identity matched, then decoded control or unpaired surrogate in schema/state was rejected before normalization. Last-good contact survives; poisoned protocol text never reaches the scene.'},
-{id:'storage',label:'06 · storage integrity scar',visible:'pulse-clamp',attempted:'persisted-pulse-corrupt',interrupted:true,motion:false,boundary:'Decoded UTF-8 byte count or SHA-256 disagrees with persisted metadata. Semantic parsing is not attempted. Last-good contact survives unchanged and no transition motion is earned.'},
-{id:'clock',label:'07 · wall-clock witness',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:false,boundary:'Exact bytes and SHA still match and updatedMs is positive. Wall time moving backward is not independently a storage wound because System.currentTimeMillis() is not a monotonic sequence. Same semantic contact stays quiet.'}
+{id:'protocol',label:'05 · protocol scar',visible:'pulse-clamp',attempted:'pulse-poisoned',interrupted:true,motion:false,boundary:'Persisted identity matched and strict UTF-8 decoded, then decoded control or unpaired surrogate in schema/state was rejected before normalization. Last-good contact survives; poisoned protocol text never reaches the scene.'},
+{id:'storage',label:'06 · storage identity scar',visible:'pulse-clamp',attempted:'persisted-pulse-corrupt',interrupted:true,motion:false,boundary:'Exact raw byte count or SHA-256 disagrees with persisted metadata. UTF-8 decoding and semantic parsing are not attempted. Last-good contact survives unchanged and no transition motion is earned.'},
+{id:'encoding',label:'07 · UTF-8 encoding scar',visible:'pulse-clamp',attempted:'persisted-pulse-malformed-utf8',interrupted:true,motion:false,boundary:'Raw byte count and SHA-256 match the stored identity, but the exact bytes are malformed UTF-8. Strict decoding rejects them before semantic parsing; replacement characters are never manufactured.'},
+{id:'clock',label:'08 · wall-clock witness',visible:'pulse-clamp',attempted:'pulse-clamp',interrupted:false,motion:false,boundary:'Exact bytes and SHA still match, strict UTF-8 is valid, and updatedMs is positive. Wall time moving backward is not independently a storage wound because System.currentTimeMillis() is not a monotonic sequence. Same semantic contact stays quiet.'}
 ];
 const controls=document.getElementById('controls'),stage=document.getElementById('stage'),title=document.getElementById('title'),meta=document.getElementById('meta'),contract=document.getElementById('contract'),lights=document.getElementById('lights'),status=document.getElementById('status');
 function el(name,text){const n=document.createElement(name);n.textContent=String(text??'');return n}
@@ -47,9 +48,13 @@ function lightRows(f){const rows=[
 ['●','Contact Preservation','active','Last-good semantics remain touchable.'],
 f.motion?['●','Christmas Motion','active','One meaningful transition was earned.']:['□','Christmas Motion','blocked','No material transition was earned; motion stays clamped.']
 ];
-if(f.id==='accepted')rows.push(['●','Persisted Identity','active','Exact decoded UTF-8 byte count and SHA-256 matched before semantic ingestion.']);
-if(f.id==='protocol')rows.push(['●','Persisted Identity','active','Storage identity matched; the later protocol parser rejected malformed semantic input.']);
-if(f.id==='storage')rows.push(['×','Persisted Identity','fault','Stored byte count or SHA-256 did not match decoded UTF-8 payload; parser was not invoked.']);
+if(f.id==='accepted')rows.push(['●','Persisted Identity','active','Exact raw byte count and SHA-256 matched, then strict UTF-8 decoding succeeded before semantic ingestion.']);
+if(f.id==='protocol')rows.push(['●','Persisted Identity','active','Raw storage identity and strict UTF-8 passed; the later protocol parser rejected malformed semantic input.']);
+if(f.id==='storage')rows.push(['×','Persisted Identity','fault','Stored byte count or SHA-256 did not match exact raw bytes; decoder and parser were not invoked.']);
+if(f.id==='encoding'){
+rows.push(['●','Byte/SHA Identity','active','Exact raw byte count and SHA-256 matched persisted metadata.']);
+rows.push(['×','Strict UTF-8','fault','Malformed raw bytes were rejected before parser trust; no replacement decode was allowed.']);
+}
 if(f.id==='clock')rows.push(['□','Timestamp Ordering','blocked','Wall-clock magnitude is observation metadata, not a monotonic replay sequence.']);
 rows.push(['□','Regnet QA','blocked','Regression source exists; deterministic execution remains blocked.']);
 return rows}
