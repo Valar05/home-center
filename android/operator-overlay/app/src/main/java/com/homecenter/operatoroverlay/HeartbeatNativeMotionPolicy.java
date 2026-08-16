@@ -16,6 +16,7 @@ public final class HeartbeatNativeMotionPolicy {
     public enum Boundary {
         MATERIAL_TRANSITION,
         NODE_HAS_NO_TRANSITION,
+        NODE_OWNS_TRANSITION,
         FRAME_MOTION_CLAMPED,
         SURFACE_NOT_PRESENTED,
         PLATFORM_ANIMATORS_DISABLED
@@ -79,8 +80,11 @@ public final class HeartbeatNativeMotionPolicy {
             boolean anyNodeTransitionMotion,
             boolean heartbeatSurfaceVisible,
             boolean platformAnimatorsEnabled) {
-        if (!frameTransitionMotionAllowed || anyNodeTransitionMotion) {
-            return new Decision(false, Boundary.NODE_HAS_NO_TRANSITION);
+        if (!frameTransitionMotionAllowed) {
+            return new Decision(false, Boundary.FRAME_MOTION_CLAMPED);
+        }
+        if (anyNodeTransitionMotion) {
+            return new Decision(false, Boundary.NODE_OWNS_TRANSITION);
         }
         if (!heartbeatSurfaceVisible) {
             return new Decision(false, Boundary.SURFACE_NOT_PRESENTED);
