@@ -20,6 +20,9 @@ Use separate deterministic identities for separate work:
 
 Do not use wall-clock timestamps as semantic identities. Do not rebuild or announce merely because the service poll ran again.
 
+## Cold-start rule
+An empty previous announcement identity means **unknown history**, not a proven transition. The first model may render, but automatic speech must stay quiet until there is an established prior semantic baseline and a later announcement identity differs. Do not narrate stale persisted state as though the service just witnessed it happen.
+
 ## Stable selection
 Retain selection by semantic light `id`, never by focus index. Reordering the scene may move a control's focus position without changing which light the user selected. If the selected id disappears from the new accepted/preserved model, clear selection rather than silently selecting a different light.
 
