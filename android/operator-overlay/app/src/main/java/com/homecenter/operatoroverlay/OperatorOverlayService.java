@@ -1,5 +1,6 @@
 package com.homecenter.operatoroverlay;
 
+import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -158,6 +159,7 @@ public class OperatorOverlayService extends Service {
     @Override
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        resetHeartbeatNativeMotion();
         if (spotifyClient != null) spotifyClient.close();
         removeView(root);
         removeView(touchGuard);
@@ -605,6 +607,7 @@ public class OperatorOverlayService extends Service {
         invalidateHeartbeatViewportRestore();
         boolean collapsed = OperatorState.panelCollapsed(this);
         details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        if (collapsed) resetHeartbeatNativeMotion();
         hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         compactControlButton.setVisibility(collapsed ? View.VISIBLE : View.GONE);
         collapseButton.setText(collapsed ? "+" : "−");
@@ -624,6 +627,7 @@ public class OperatorOverlayService extends Service {
         if (root == null) return;
         confirmDisable = false;
         invalidateHeartbeatViewportRestore();
+        resetHeartbeatNativeMotion();
         // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
@@ -657,10 +661,6 @@ public class OperatorOverlayService extends Service {
         if (!confirmDisable) {
             confirmDisable = true;
             refreshUi();
-            handler.postDelayed(() -> {
-                confirmDisable = false;
-                refreshUi();
-            }, CONFIRM_WINDOW_MS);
             return;
         }
         confirmDisable = false;
@@ -793,6 +793,12 @@ public class OperatorOverlayService extends Service {
             boolean heartbeatSurfaceVisible) {
         if (heartbeatSummary == null || heartbeatLights == null || heartbeatDetail == null) return;
 
+        boolean heartbeatSurfacePresented = overlayVisible && heartbeatSurfaceVisible;
+        boolean platformAnimatorsEnabled = ValueAnimator.areAnimatorsEnabled();
+        if (!heartbeatSurfacePresented || !platformAnimatorsEnabled) {
+            resetHeartbeatNativeMotion();
+        }
+
         String encoded = OperatorState.heartbeatLightsPayloadB64(this);
         long declaredBytes = OperatorState.heartbeatLightsBytes(this);
         String declaredSha256 = OperatorState.heartbeatLightsSha256(this);
@@ -832,6 +838,9 @@ public class OperatorOverlayService extends Service {
                 next);
         boolean refreshContent = HeartbeatOverlayRefreshPlan.shouldRefreshContent(
                 heartbeatRenderIdentity,
+                next);
+        boolean semanticTransitionObserved = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                heartbeatAnnouncementIdentity,
                 next);
         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
                 heartbeatAnnouncementIdentity,
@@ -888,6 +897,13 @@ public class OperatorOverlayService extends Service {
                 mutationMayDestroyKeyboardFocus = true;
             }
             mutatedHeartbeatViews = true;
+        }
+        if (mutatedHeartbeatViews) {
+            applyHeartbeatNativeMotion(
+                    next.model,
+                    semanticTransitionObserved,
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
         }
         if (mutatedHeartbeatViews
                 && viewportRestoreTicket != null
@@ -1097,6 +1113,85 @@ public class OperatorOverlayService extends Service {
                     "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
                     false);
         }
+    }
+
+    /**
+     * Consume the pure native-motion policy inside the existing Android owner only.
+     * A semantic transition may have arrived while hidden/collapsed or while system
+     * animators were disabled; in those cases history still advances but the view
+     * properties are reset and revealing/enabling later cannot replay the old cue.
+     */
+    private void applyHeartbeatNativeMotion(
+            HeartbeatOverlayViewModel.Model model,
+            boolean semanticTransitionObserved,
+            boolean heartbeatSurfacePresented,
+            boolean platformAnimatorsEnabled) {
+        if (model == null
+                || !semanticTransitionObserved
+                || !heartbeatSurfacePresented
+                || !platformAnimatorsEnabled) {
+            resetHeartbeatNativeMotion();
+            return;
+        }
+
+        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+            View light = heartbeatChildById(control.id);
+            if (light == null) continue;
+            resetHeartbeatNativeMotionView(light);
+            HeartbeatNativeMotionPolicy.Decision decision = model.motionDecisionFor(
+                    control.id,
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+            if (decision.animate) animateHeartbeatNativeView(light, decision);
+        }
+
+        if (heartbeatSummary != null) {
+            resetHeartbeatNativeMotionView(heartbeatSummary);
+            HeartbeatNativeMotionPolicy.Decision summaryDecision = model.summaryMotionDecision(
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+            if (summaryDecision.animate) {
+                animateHeartbeatNativeView(heartbeatSummary, summaryDecision);
+            }
+        }
+    }
+
+    private void animateHeartbeatNativeView(
+            View view,
+            HeartbeatNativeMotionPolicy.Decision decision) {
+        if (view == null || decision == null || !decision.animate) return;
+        view.animate().cancel();
+        view.setScaleX(decision.startScale);
+        view.setScaleY(decision.startScale);
+        view.setAlpha(decision.startAlpha);
+        view.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(decision.durationMs)
+                .withEndAction(() -> {
+                    view.setScaleX(1f);
+                    view.setScaleY(1f);
+                    view.setAlpha(1f);
+                })
+                .start();
+    }
+
+    private void resetHeartbeatNativeMotion() {
+        if (heartbeatLights != null) {
+            for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+                resetHeartbeatNativeMotionView(heartbeatLights.getChildAt(index));
+            }
+        }
+        resetHeartbeatNativeMotionView(heartbeatSummary);
+    }
+
+    private void resetHeartbeatNativeMotionView(View view) {
+        if (view == null) return;
+        view.animate().cancel();
+        view.setScaleX(1f);
+        view.setScaleY(1f);
+        view.setAlpha(1f);
     }
 
     private void refreshHeartbeatSelection() {
