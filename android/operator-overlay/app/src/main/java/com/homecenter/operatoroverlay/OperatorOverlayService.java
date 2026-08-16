@@ -77,6 +77,7 @@ public class OperatorOverlayService extends Service {
     private EditText adamInput;
     private String adamMode = "terminal";
     private String heartbeatSelectedId = "";
+    private String heartbeatStructureIdentity = "";
     private String heartbeatRenderIdentity = "";
     private String heartbeatAnnouncementIdentity = "";
     private HeartbeatSceneGraph.Frame heartbeatFrame;
@@ -816,7 +817,10 @@ public class OperatorOverlayService extends Service {
             next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
         }
 
-        boolean rebuild = HeartbeatOverlayRefreshPlan.shouldRebuild(
+        boolean rebuildStructure = HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                heartbeatStructureIdentity,
+                next);
+        boolean refreshContent = HeartbeatOverlayRefreshPlan.shouldRefreshContent(
                 heartbeatRenderIdentity,
                 next);
         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
@@ -827,13 +831,22 @@ public class OperatorOverlayService extends Service {
 
         heartbeatFrame = next.frame;
         heartbeatSelectedId = next.selectedControlId;
-        if (rebuild) rebuildHeartbeatLights(next.model);
+        if (rebuildStructure) {
+            rebuildHeartbeatLights(next.model);
+        } else if (refreshContent && !refreshHeartbeatLightsInPlace(next.model)) {
+            // structureIdentity is the normal authority. A child/tag mismatch means
+            // Android view state drifted from that source contract, so fail safe by
+            // rebuilding the existing owner's children rather than updating the
+            // wrong semantic control in place.
+            rebuildHeartbeatLights(next.model);
+        }
         if (announce) {
             heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
         }
 
         // Advance identities even while muted/hidden. Restoring presentation later
         // must not replay an old transition as though it happened at restore time.
+        heartbeatStructureIdentity = next.structureIdentity;
         heartbeatRenderIdentity = next.renderIdentity;
         heartbeatAnnouncementIdentity = next.announcementIdentity;
     }
@@ -842,6 +855,74 @@ public class OperatorOverlayService extends Service {
         if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
         heartbeatLights.removeAllViews();
 
+        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+            heartbeatLights.addView(createHeartbeatLight(control));
+        }
+        applyHeartbeatModelChrome(model);
+        heartbeatLights.requestLayout();
+        heartbeatLights.post(this::clampAndPersistPosition);
+    }
+
+    /**
+     * Refresh mutable content on the existing semantic-id Buttons without
+     * destroying the native objects that may currently own keyboard/TalkBack focus.
+     * Returns false if the live child structure no longer matches the deterministic
+     * structure identity, allowing the caller to fall back to the rebuild path.
+     */
+    private boolean refreshHeartbeatLightsInPlace(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatLights == null || heartbeatSummary == null) return false;
+        if (heartbeatLights.getChildCount() != model.controls.size()) return false;
+
+        for (int index = 0; index < model.controls.size(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            if (!(child instanceof Button)) return false;
+            HeartbeatOverlayViewModel.LightControl control = model.controls.get(index);
+            Object tag = child.getTag();
+            if (tag == null || !tag.toString().equalsIgnoreCase(control.id)) return false;
+        }
+
+        for (int index = 0; index < model.controls.size(); index++) {
+            Button light = (Button) heartbeatLights.getChildAt(index);
+            applyHeartbeatLight(light, model.controls.get(index));
+        }
+        applyHeartbeatModelChrome(model);
+        heartbeatLights.requestLayout();
+        heartbeatLights.post(this::clampAndPersistPosition);
+        return true;
+    }
+
+    private Button createHeartbeatLight(HeartbeatOverlayViewModel.LightControl control) {
+        Button light = button(control.visibleLabel);
+        light.setTextSize(10f);
+        light.setMaxLines(2);
+        applyHeartbeatLight(light, control);
+        return light;
+    }
+
+    private void applyHeartbeatLight(
+            Button light,
+            HeartbeatOverlayViewModel.LightControl control) {
+        if (light == null || control == null) return;
+        int targetDp = Math.max(
+                OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
+                control.minTouchTargetDp);
+        light.setText(control.visibleLabel);
+        light.setMinHeight(dp(targetDp));
+        light.setMinimumHeight(dp(targetDp));
+        light.setMinWidth(dp(targetDp));
+        light.setMinimumWidth(dp(targetDp));
+        light.setTag(control.id);
+        light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
+        light.setContentDescription(control.contentDescription);
+        light.setOnClickListener(v -> {
+            heartbeatSelectedId = control.id;
+            refreshHeartbeatSelection();
+            showHeartbeatDetail(control.detailContentDescription, true);
+        });
+    }
+
+    private void applyHeartbeatModelChrome(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatSummary == null) return;
         int count = model.controls.size();
         if (count == 0) {
             heartbeatSummary.setText(model.refreshInterrupted
@@ -852,28 +933,6 @@ public class OperatorOverlayService extends Service {
                     + (model.refreshInterrupted ? " • CONTACT HELD" : ""));
         }
         heartbeatSummary.setContentDescription(model.collapsedContentDescription);
-
-        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
-            Button light = button(control.visibleLabel);
-            light.setTextSize(10f);
-            light.setMaxLines(2);
-            int targetDp = Math.max(
-                    OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
-                    control.minTouchTargetDp);
-            light.setMinHeight(dp(targetDp));
-            light.setMinimumHeight(dp(targetDp));
-            light.setMinWidth(dp(targetDp));
-            light.setMinimumWidth(dp(targetDp));
-            light.setTag(control.id);
-            light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
-            light.setContentDescription(control.contentDescription);
-            light.setOnClickListener(v -> {
-                heartbeatSelectedId = control.id;
-                refreshHeartbeatSelection();
-                showHeartbeatDetail(control.detailContentDescription, true);
-            });
-            heartbeatLights.addView(light);
-        }
 
         HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
         if (selected != null) {
@@ -887,8 +946,6 @@ public class OperatorOverlayService extends Service {
                     "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
                     false);
         }
-        heartbeatLights.requestLayout();
-        heartbeatLights.post(this::clampAndPersistPosition);
     }
 
     private void refreshHeartbeatSelection() {
