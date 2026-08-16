@@ -1,0 +1,26 @@
+{
+  "schema": "try-forever.venice-completion.v1",
+  "heartbeat": "2100",
+  "review_mode": "same_worker_judgment_jar",
+  "reviewed_source_head": "d0caf63875d4a2275c07c5a0b0b19c87b198a735",
+  "decision": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "quality": "mixed",
+  "why": [
+    "The source repair is materially different from prior bidi/parser work: it separates exact retained evidence from bounded spoken projection.",
+    "The first pass was not accepted untouched; review found an edge-control trim regression in refreshBoundary handling and forced a second source repair before this receipt.",
+    "The warm-wall specimen changed in place and remains explicitly source-only; no decorative parallel controller was introduced.",
+    "Deterministic tests did not execute because GitHub Actions budget blocked the job before step 1, so this receipt cannot authorize merge/runtime/deployment/delivery claims."
+  ],
+  "continuation": "CONTINUE_REQUIRED_FOR_RECURRING_TRY_FOREVER_CAMPAIGN",
+  "forbidden_promotions": [
+    "TESTED",
+    "UI_RENDERED",
+    "DEPLOYED",
+    "CALLABLE",
+    "EXECUTED",
+    "DELIVERED",
+    "ACCEPTED"
+  ],
+  "p0_phone_surface_touched": false,
+  "she_raw": "faulted_account_connection_http_400_no_substitution"
+}
