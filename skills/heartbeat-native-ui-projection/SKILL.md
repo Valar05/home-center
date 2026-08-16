@@ -30,17 +30,24 @@ Each projected light control carries:
 Visible labels are bounded by Unicode code point. Truncation must not split surrogate pairs. Full detail remains separately available through the existing bounded TalkBack projection.
 
 ## Existing-owner source wiring
-The existing service source may:
+The existing service source now:
 
-1. read the existing `OperatorState` persisted Base64/byte-count/SHA/update identity;
-2. decode Base64 to exact bytes and enter `HeartbeatOverlayRefreshPlan.projectPersisted`;
-3. compare render/announcement identities before rebuilding or speaking;
-4. rebuild only the existing heartbeat child container with native buttons;
-5. retain selection by semantic light id;
-6. expose compact content descriptions on each control and explicit detail on touch;
-7. suppress automatic and explicit heartbeat speech while globally muted.
+1. reads the existing `OperatorState` persisted Base64/byte-count/SHA/update identity;
+2. decodes Base64 to exact bytes and enters `HeartbeatOverlayRefreshPlan.projectPersisted`;
+3. compares **structure**, render/content, and announcement identities independently;
+4. replaces native heartbeat child objects only when ordered semantic ids change, or when live child identity has drifted from the deterministic contract;
+5. when structure is stable, verifies child count/order/tag identity and refreshes the **same native Button objects in place** rather than using `removeAllViews()`;
+6. refreshes visible label, both-axis touch minimums, semantic tag, selected state, compact content description, and the current click-detail closure on those stable objects;
+7. retains selection by semantic light id;
+8. exposes compact content descriptions on each control and explicit detail on touch;
+9. suppresses automatic and explicit heartbeat speech while globally muted while still advancing semantic announcement history.
+
+If live child count/order/tag identity disagrees with the planned structure, the service must fail safe to the existing canonical rebuild path. It must never guess which changed child corresponds to which semantic light.
 
 A scroll/container wrapper must not become a competing TalkBack destination that masks child controls.
+
+## Focus truth
+Stable semantic selection is not the same claim as stable native focus. The source now avoids destroying stable child objects on content-only changes, which preserves the **opportunity** for keyboard/TalkBack focus to remain on the same native object. This is an implemented source property only. Actual Android focus retention and TalkBack behavior remain unproven until an authorized runtime/test body observes them.
 
 ## Collapsed semantics
 Collapsed description comes from `HeartbeatFrameAccessibility.collapsedContentDescription(frame)`. Do not rebuild attention ordering, counts, or interrupted-refresh speech in a second implementation.
@@ -53,7 +60,7 @@ Keep these states separate:
 
 `requested -> implemented source -> regression source -> tested -> existing-owner source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
+GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
 
 ## Done for one source pulse
 A pulse may count this skill as lit only when the projection, existing-owner source wiring, regression source, or review materially changes. If no projection consequence changes, leave the light dark rather than listing the skill decoratively.
