@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever.regnet-source-review.v1",
+  "heartbeat": "2026-08-15T22:00:00-05:00",
+  "reviewerMode": "SYNTHETIC_REGNET",
+  "boundedClaim": "IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedVerdict": "BLOCKED_UNKNOWN",
+  "reviewedSourceHead": "76f521b1dafd1ff6732de2a55e194f5f6ab3e222",
+  "sourceEvidence": {
+    "HeartbeatOverlayViewModel.java": "2b655a80956be0bc78263bbfc46b2f56c7272810",
+    "HeartbeatOverlayViewModelTest.java": "e32f79dd435bd17022036ce0096e676308299a87",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "de2ef9cf0cde211a7ec854686611199a96c60111"
+  },
+  "checks": {
+    "existingSceneIsSoleInput": "PASS",
+    "discardedAttemptedCandidatesCannotBecomeCurrentControls": "PASS",
+    "stableSemanticIdLookup": "PASS",
+    "minimumTouchTargetPropagatedFromScene": "PASS",
+    "nonColorTokenAndStateWordPresentInVisibleLabel": "PASS",
+    "collapsedSpeechDelegatesToHeartbeatFrameAccessibility": "PASS",
+    "unicodeLabelTruncationUsesCodePoints": "PASS",
+    "duplicateArchitectureIntroduced": "NO",
+    "runtimeRendererWired": "NO",
+    "phoneOrP0SurfaceTouched": "NO"
+  },
+  "deterministicTestBoundary": {
+    "workflow": "Operator Overlay Android",
+    "run": 31923458203,
+    "job": 95107106538,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "sceneToUiReadyViewModelSource": true,
+    "existingOverlayServiceWiredToViewModel": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
