@@ -39,12 +39,18 @@
   },
   "test_evidence": {
     "regression_source_present": true,
-    "authorized_test_body_executed_on_reviewed_head": false,
-    "workflow_runs_observed_on_reviewed_head": 0,
-    "combined_statuses_observed_on_reviewed_head": 0,
+    "automatic_carrier_head": "816d8fd4e05085c45ecc354898956b85d2ca54f3",
+    "operator_overlay_run": 31928431729,
+    "operator_overlay_job": 95119532514,
+    "operator_overlay_steps_executed": 0,
+    "home_center_ci_run": 31928431728,
+    "home_center_ci_job": 95119532576,
+    "home_center_ci_steps_executed": 0,
+    "exact_annotation": "The job was not started because an Actions budget is preventing further use.",
+    "authorized_test_body_executed": false,
     "tested": false,
-    "state": "NO_CURRENT_HEAD_EXECUTION_EVIDENCE",
-    "last_known_test_lane_boundary": "Earlier exact heads repeatedly failed to start because an Actions budget prevented further use; no unchanged-condition manual retry was fired in this pulse."
+    "state": "BLOCKED_UNKNOWN",
+    "manual_retry_fired": false
   },
   "capability_membrane": {
     "requested": true,
