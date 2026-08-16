@@ -132,6 +132,24 @@ public final class HeartbeatOverlayRefreshPlan {
         return !previous.equals(next.announcementIdentity);
     }
 
+    /**
+     * Existing-overlay runtime gate for automatic heartbeat speech.
+     *
+     * <p>Mute and visibility are presentation policy, not semantic identity. The
+     * caller should still advance the remembered announcement identity while muted
+     * or hidden so unmuting/restoring later does not replay a stale transition as a
+     * new event. This helper only decides whether the current semantic transition is
+     * allowed to speak now.</p>
+     */
+    public static boolean shouldAnnounce(
+            String previousAnnouncementIdentity,
+            Plan next,
+            boolean muted,
+            boolean overlayVisible) {
+        if (muted || !overlayVisible) return false;
+        return shouldAnnounce(previousAnnouncementIdentity, next);
+    }
+
     private static String digest(String schema, String... values) {
         StringBuilder canonical = new StringBuilder();
         append(canonical, schema);
