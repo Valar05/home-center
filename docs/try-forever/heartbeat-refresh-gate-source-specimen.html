@@ -8,44 +8,46 @@
   :root { color-scheme: dark; font-family: system-ui, sans-serif; }
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: #17191e; color: #f5f1e8; display: grid; place-items: center; padding: 20px; }
-  main { width: min(820px, 100%); border: 1px solid #6f7788; border-radius: 22px; padding: 18px; background: #20232a; box-shadow: inset 0 0 0 6px #292d35; }
+  main { width: min(860px, 100%); border: 1px solid #6f7788; border-radius: 22px; padding: 18px; background: #20232a; box-shadow: inset 0 0 0 6px #292d35; }
   h1 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: .08em; }
   .scar { margin: 0 0 16px; font-size: .78rem; opacity: .82; }
-  .wall { position: relative; min-height: 240px; border: 1px solid #596271; border-radius: 18px; overflow: hidden; background: #1b1e24; }
-  svg { width: 100%; height: 240px; display: block; }
+  .wall { position: relative; min-height: 260px; border: 1px solid #596271; border-radius: 18px; overflow: hidden; background: #1b1e24; }
+  svg { width: 100%; height: 260px; display: block; }
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 14px; }
   button { min-height: 48px; min-width: 48px; border-radius: 14px; border: 1px solid #788394; background: #2a2f38; color: inherit; font: inherit; padding: 8px 12px; }
   button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
-  .readout { margin-top: 14px; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .readout { margin-top: 14px; display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
   .meter { border: 1px solid #505866; border-radius: 12px; padding: 10px; min-height: 72px; }
   .meter b { display: block; font-size: 1.35rem; }
   #detail { margin: 12px 0 0; min-height: 48px; border-left: 4px solid #778294; padding: 8px 12px; }
-  @media (max-width: 660px) { .readout { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 720px) { .readout { grid-template-columns: repeat(2,1fr); } }
   @media (max-width: 520px) { .controls, .readout { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>WARM WALL / THREE-CHAMBER PACEMAKER / OWNER WIRED</h1>
-  <p class="scar">EXISTING-OWNER SOURCE WIRED • STABLE BUTTON OBJECTS ON CONTENT REFRESH • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
+  <h1>WARM WALL / THREE WORK IDENTITIES + VIEWPORT SCAR</h1>
+  <p class="scar">EXISTING-OWNER BUTTON RECONCILIATION WIRED • VIEWPORT-ANCHOR POLICY + REGRESSION SOURCE IMPLEMENTED • SERVICE CONSUMPTION NOT YET WIRED • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
 
-  <section class="wall" aria-label="Heartbeat refresh gate diagram">
-    <svg viewBox="0 0 780 240" role="img" aria-labelledby="title desc">
-      <title id="title">Three heartbeat work identities consumed by the existing owner</title>
-      <desc id="desc">Persisted heartbeat contact enters the existing semantic pipeline. The existing Operator Overlay service now consumes structure identity before replacing native child objects. Stable structure updates existing semantic-id buttons in place. Render identity decides whether their content changes. Announcement identity decides whether an established transition may speak. Live child drift fails safe to the canonical rebuild path.</desc>
-      <path d="M24 120 H188" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
-      <path d="M592 120 H756" stroke="currentColor" stroke-width="4" fill="none"/>
-      <rect x="188" y="36" width="404" height="168" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
-      <text x="390" y="69" text-anchor="middle" fill="currentColor" font-size="17">EXISTING OPERATOR OVERLAY OWNER</text>
-      <text x="390" y="96" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes → scene → model → refresh plan → service</text>
-      <text x="390" y="126" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE SHA → replace only when ids/order change or live children drift</text>
-      <text x="390" y="151" text-anchor="middle" fill="currentColor" font-size="13">RENDER SHA → mutate stable semantic-id Buttons in place</text>
-      <text x="390" y="176" text-anchor="middle" fill="currentColor" font-size="13">SPEECH SHA → announce established transition once</text>
-      <circle cx="52" cy="120" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
-      <circle cx="728" cy="120" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
-      <text x="52" y="163" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
-      <text x="728" y="163" text-anchor="middle" fill="currentColor" font-size="13">NATIVE</text>
+  <section class="wall" aria-label="Heartbeat refresh gate and viewport-anchor diagram">
+    <svg viewBox="0 0 820 260" role="img" aria-labelledby="title desc">
+      <title id="title">Heartbeat refresh work identities with a separate semantic viewport-contact scar</title>
+      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Structure identity controls native child replacement, render identity controls in-place content refresh, and announcement identity controls established transition speech. Stable Button identity does not itself preserve horizontal viewport contact when labels change width. A deterministic viewport-anchor policy now exists in source and regression fixtures, but the existing Android service does not yet consume it.</desc>
+      <path d="M22 125 H174" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+      <path d="M646 125 H798" stroke="currentColor" stroke-width="4" fill="none"/>
+      <rect x="174" y="26" width="472" height="198" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
+      <text x="410" y="57" text-anchor="middle" fill="currentColor" font-size="17">EXISTING OPERATOR OVERLAY OWNER</text>
+      <text x="410" y="83" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes → scene → model → refresh plan → service</text>
+      <text x="410" y="112" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE SHA → replace only when ids/order change or live children drift</text>
+      <text x="410" y="138" text-anchor="middle" fill="currentColor" font-size="13">RENDER SHA → mutate stable semantic-id Buttons in place</text>
+      <text x="410" y="164" text-anchor="middle" fill="currentColor" font-size="13">SPEECH SHA → announce established transition once</text>
+      <path d="M252 190 H568" stroke="currentColor" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
+      <text x="410" y="211" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT OFFSET POLICY → SOURCE YES / SERVICE WIRING NO</text>
+      <circle cx="50" cy="125" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="770" cy="125" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="50" y="168" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
+      <text x="770" y="168" text-anchor="middle" fill="currentColor" font-size="13">NATIVE</text>
     </svg>
   </section>
 
@@ -54,6 +56,7 @@
     <button type="button" data-action="evidence">◇ Evidence refresh — same Button objects, new detail</button>
     <button type="button" data-action="state">● State change — same Button objects, new content + speech</button>
     <button type="button" data-action="reorder">↕ Reorder — replace child structure</button>
+    <button type="button" data-action="viewport">↔ Width shift — anchor policy exists, service still unwired</button>
     <button type="button" data-action="wound">× Wound — same last-good Buttons, wound changes once</button>
     <button type="button" data-action="muted">□ Muted transition — content changes, speech history advances</button>
     <button type="button" data-action="drift">× Live child/tag drift — fail safe to canonical rebuild</button>
@@ -64,18 +67,20 @@
     <div class="meter">structure rebuilds<b id="structures">0</b></div>
     <div class="meter">content refreshes<b id="contents">0</b></div>
     <div class="meter">announcements<b id="announcements">0</b></div>
+    <div class="meter">viewport policy calls<b id="anchors">0</b></div>
   </div>
-  <p id="detail" role="status" aria-live="polite">Touch a source control. The existing Android service is now source-wired to separate child replacement from in-place content refresh; Android runtime focus behavior remains unproven.</p>
+  <p id="detail" role="status" aria-live="polite">Touch a source control. Stable native Button objects are source-wired. Semantic viewport-anchor math is implemented and regression-specified, but the existing Android service does not yet capture or restore that anchor.</p>
 </main>
 <script>
 (() => {
-  const state = { polls: 0, structures: 0, contents: 0, announcements: 0, woundOpen: false };
+  const state = { polls: 0, structures: 0, contents: 0, announcements: 0, anchors: 0, woundOpen: false };
   const $ = id => document.getElementById(id);
   const render = message => {
     $('polls').textContent = state.polls;
     $('structures').textContent = state.structures;
     $('contents').textContent = state.contents;
     $('announcements').textContent = state.announcements;
+    $('anchors').textContent = state.anchors;
     $('detail').textContent = message;
   };
   document.querySelectorAll('button[data-action]').forEach(button => {
@@ -83,7 +88,7 @@
       state.polls += 1;
       switch (button.dataset.action) {
         case 'poll':
-          render('Exact retry. Structure, render, and announcement identities stay still. Nothing earns work.');
+          render('Exact retry. Structure, render, announcement, and viewport geometry remain still. Nothing earns work.');
           break;
         case 'evidence':
           state.contents += 1;
@@ -99,7 +104,13 @@
           state.structures += 1;
           state.contents += 1;
           state.woundOpen = false;
-          render('Ordered semantic ids changed. This is the expensive case: native child structure replacement is actually earned.');
+          render('Ordered semantic ids changed. Native child structure replacement is actually earned; a stale viewport anchor must not guess by index.');
+          break;
+        case 'viewport':
+          state.contents += 1;
+          state.anchors += 1;
+          state.woundOpen = false;
+          render('A preceding label widened and shifted the same semantic Button. The pure source policy can compute the bounded scroll needed to preserve its captured viewport offset. This specimen demonstrates policy semantics only: OperatorOverlayService does not yet consume that anchor, so Android viewport preservation remains NO.');
           break;
         case 'wound':
           state.contents += state.woundOpen ? 0 : 1;
