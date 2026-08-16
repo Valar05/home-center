@@ -1,0 +1,20 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "time": "2026-08-16T09:00:00-05:00",
+  "commission": "Advance independent TRY FOREVER heartbeat source work without touching the P0/primary-phone chain.",
+  "plan": [
+    "Harden viewport-contact source policy so a semantic selection that is actually offscreen cannot masquerade as visible contact.",
+    "Add hostile pure-Java regression source for fully visible, partially visible, fully offscreen, zero-width, and overflow-adjacent geometry.",
+    "Synchronize heartbeat-viewport-contact doctrine with the new visibility gate and keep existing-service consumption a separate NO capability state until wired.",
+    "Mutate the existing non-raster viewport scar in place to show OFFSCREEN SELECTED -> NO ANCHOR rather than spawning another artifact.",
+    "Run code-first source review, preserve the She-Raw connector fault honestly, and update PR evidence without claiming Android execution or phone delivery."
+  ],
+  "constraints": {
+    "p0_phone_mutations": 0,
+    "duplicate_architecture": false,
+    "ci_manual_retry": false,
+    "runtime_claims_allowed": false,
+    "she_raw": "attempt authoritative ambient consult once; preserve connector failure if unavailable"
+  },
+  "status": "PLAN_ALLOWED_FOR_BOUNDED_SOURCE_SLICE"
+}
