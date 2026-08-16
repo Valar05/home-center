@@ -103,7 +103,7 @@ public final class HeartbeatSceneGraph {
             this.attemptedPulseId = clean(attemptedPulseId);
             this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));
             this.refreshInterrupted = refreshInterrupted;
-            this.refreshBoundary = clean(refreshBoundary);
+            this.refreshBoundary = raw(refreshBoundary);
             this.transitionMotionAllowed = transitionMotionAllowed;
         }
 
@@ -182,7 +182,7 @@ public final class HeartbeatSceneGraph {
             String attemptedPulseId,
             Frame lastGood,
             String boundary) {
-        String exactBoundary = clean(boundary);
+        String exactBoundary = raw(boundary);
         if (exactBoundary.isEmpty()) exactBoundary = "Heartbeat refresh was rejected.";
         String safeAttempted = HeartbeatSkillPolicy.isSafeSemanticText(attemptedPulseId)
                 ? attemptedPulseId
@@ -323,13 +323,19 @@ public final class HeartbeatSceneGraph {
             String value,
             int maxCodePoints,
             String unsafePlaceholder) {
-        String clean = clean(value);
+        String exact = raw(value);
+        if (exact.isEmpty()) return exact;
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(exact)) return unsafePlaceholder;
+        String clean = clean(exact);
         if (clean.isEmpty()) return clean;
-        if (!HeartbeatSkillPolicy.isSafeSemanticText(clean)) return unsafePlaceholder;
         int codePoints = clean.codePointCount(0, clean.length());
         if (codePoints <= maxCodePoints) return clean;
         int end = clean.offsetByCodePoints(0, maxCodePoints);
         return clean.substring(0, end) + "… (truncated)";
+    }
+
+    private static String raw(String value) {
+        return value == null ? "" : value;
     }
 
     private static String clean(String value) {
