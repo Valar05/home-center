@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport contact source scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing one selected semantic heartbeat light staying at the same viewport offset while preceding content grows. Source policy only; runtime behavior is unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="390" viewBox="0 0 960 390" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport contact existing-owner source scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing the existing Operator Overlay owner capturing one selected or keyboard-focused semantic heartbeat light before an in-place content mutation and restoring its bounded viewport offset after layout. Source wired; Android runtime behavior remains unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -14,31 +14,32 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="32" width="904" height="292" rx="30"/>
+  <rect class="wall" x="28" y="32" width="904" height="322" rx="30"/>
   <text class="big" x="56" y="72">WARM WALL / VIEWPORT CONTACT</text>
-  <text class="tiny" x="56" y="98">SOURCE POLICY • NOT ANDROID RUNTIME PROOF • NOT PHONE DELIVERY</text>
+  <text class="tiny" x="56" y="98">EXISTING OWNER SOURCE WIRED • RUNTIME UNPROVEN • NOT PHONE DELIVERY</text>
 
   <rect class="wall" x="70" y="126" width="350" height="112" rx="18"/>
-  <text class="label" x="90" y="154">BEFORE</text>
+  <text class="label" x="90" y="154">CAPTURE BEFORE MUTATION</text>
   <line class="wire" x1="112" y1="193" x2="378" y2="193"/>
   <rect class="node" x="122" y="170" width="74" height="48" rx="12"/>
   <text class="tiny" x="143" y="199">A</text>
   <rect class="scar" x="226" y="170" width="118" height="48" rx="12"/>
   <text class="tiny" x="244" y="199">● SELECTED</text>
-  <text class="tiny" x="90" y="260">viewport offset = 36px</text>
+  <text class="tiny" x="90" y="260">semantic id + viewport offset = 36px</text>
 
   <path class="wire" d="M438 193 C472 154 488 232 522 193"/>
   <text class="label" x="446" y="154">HUNGER</text>
-  <text class="tiny" x="448" y="214">label grows</text>
+  <text class="tiny" x="440" y="214">in-place labels change</text>
 
   <rect class="wall" x="540" y="126" width="350" height="112" rx="18"/>
-  <text class="label" x="560" y="154">AFTER LAYOUT</text>
+  <text class="label" x="560" y="154">RESTORE AFTER LAYOUT</text>
   <line class="wire" x1="582" y1="193" x2="848" y2="193"/>
   <rect class="node" x="592" y="170" width="154" height="48" rx="12"/>
   <text class="tiny" x="609" y="199">A GOT WIDER</text>
   <rect class="scar" x="776" y="170" width="94" height="48" rx="12"/>
   <text class="tiny" x="786" y="199">● SAME ID</text>
-  <text class="tiny" x="560" y="260">restore bounded scroll → same 36px viewport offset</text>
+  <text class="tiny" x="560" y="260">anchoredScrollX → same 36px offset</text>
 
-  <text class="tiny" x="56" y="299">SELECTED ID wins → keyboard focus fallback → stale ids produce no anchor → TalkBack focus is not inferred.</text>
+  <text class="tiny" x="56" y="299">SELECTED ID wins → direct keyboard focus fallback → stale ids / rebuild fallback produce no anchor claim.</text>
+  <text class="tiny" x="56" y="324">TalkBack accessibility focus is neither queried nor synthesized. Scroll restoration is not a semantic announcement.</text>
 </svg>
