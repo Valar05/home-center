@@ -153,6 +153,56 @@ public class HeartbeatOverlayRefreshPlanTest {
     }
 
     @Test
+    public void mutedAndHiddenPresentationSuppressesSpeechWithoutChangingSemanticIdentity() {
+        HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
+                "pulse-one",
+                Collections.singletonList(typed(
+                        "warm-walls",
+                        "Warm Walls",
+                        HeartbeatSkillPolicy.State.BLOCKED,
+                        false,
+                        "Waiting",
+                        "Boundary")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame recovered = HeartbeatSceneGraph.build(
+                "pulse-two",
+                Collections.singletonList(typed(
+                        "warm-walls",
+                        "Warm Walls",
+                        HeartbeatSkillPolicy.State.RECOVERED,
+                        true,
+                        "Contact returned",
+                        "Boundary")),
+                true,
+                firstFrame);
+
+        HeartbeatOverlayRefreshPlan.Plan first =
+                HeartbeatOverlayRefreshPlan.fromFrame(firstFrame, "warm-walls");
+        HeartbeatOverlayRefreshPlan.Plan next =
+                HeartbeatOverlayRefreshPlan.fromFrame(recovered, "warm-walls");
+
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                first.announcementIdentity,
+                next,
+                false,
+                true));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                first.announcementIdentity,
+                next,
+                true,
+                true));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                first.announcementIdentity,
+                next,
+                false,
+                false));
+        assertEquals(
+                next.announcementIdentity,
+                HeartbeatOverlayRefreshPlan.fromFrame(recovered, "warm-walls").announcementIdentity);
+    }
+
+    @Test
     public void interruptedRefreshPreservesSelectionAndAnnouncesWoundOnce() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
