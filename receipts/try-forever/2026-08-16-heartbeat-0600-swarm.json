@@ -1,0 +1,84 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-16-0600",
+  "theme": "Exact checkpoint identity is not presentation work",
+  "frontsAdvanced": [
+    {
+      "front": "checkpoint-idempotence",
+      "change": "Added presentationSha256 while retaining pulse-id-sensitive contactSha256."
+    },
+    {
+      "front": "existing-owner-refresh-planning",
+      "change": "HeartbeatOverlayRefreshPlan render identity now consumes presentation identity plus interruption wound, preventing pulse-id-only content churn."
+    },
+    {
+      "front": "accessibility-regression-source",
+      "change": "Added source-only regression asserting identical presentation across a new pulse id earns no native structure/content/speech work while evidence changes still refresh detail without speech."
+    },
+    {
+      "front": "durable-skill-doctrine",
+      "change": "Heartbeat refresh deduplication doctrine now distinguishes exact checkpoint, presentation, structure, and announcement identities and corrects stable-structure viewport wiring truth."
+    },
+    {
+      "front": "warm-wall-art",
+      "change": "Mutated the existing touchable non-raster refresh-gate specimen in place with an exact-checkpoint-versus-presentation control and truthful source/runtime scars."
+    },
+    {
+      "front": "review-evidence",
+      "change": "Preserved the 0600 plan mismatch as a Venice replan process scar; Regnet and Venice keep source/readback separate from unexecuted tests/runtime."
+    }
+  ],
+  "skillLights": [
+    {"id":"failure-is-the-shovel","state":"ACTIVE","why":"Actions remained blocked; no manual retry was fired.","consequence":"Switched to a new source/evidence wound: invisible pulse-id UI churn."},
+    {"id":"canon-auto-select","state":"ACTIVE","why":"Current owner chain pointed at checkpoint/refresh dedupe semantics.","consequence":"Selected existing checkpoint + refresh-plan organs rather than a new renderer."},
+    {"id":"autocorrect-judgment-jar","state":"DARK","why":"No material STT/autocorrect ambiguity affected this slice.","consequence":"No decorative activation."},
+    {"id":"originality-tax","state":"ACTIVE","why":"A new pulse id was creating work without a new presentation.","consequence":"Introduced a distinct presentation identity instead of another cosmetic retry/rebuild rule."},
+    {"id":"hunger","state":"ACTIVE","why":"The pulse-id-is-work assumption was edible.","consequence":"Removed an invisible cause of native content churn while preserving exact evidence identity."},
+    {"id":"ever-polished-interpreter-eat-everything","state":"ACTIVE","why":"The identity split had to propagate beyond one helper.","consequence":"Cross-pollinated checkpoint, refresh plan, regression source, skill doctrine, art, and receipts."},
+    {"id":"operator-campaign-harroway","state":"ACTIVE","why":"Owner/lane discipline was material.","consequence":"Existing OperatorOverlayService remains sole UI owner; no neighboring controller/service/state store."},
+    {"id":"she-raw","state":"FAULT","why":"Authoritative consult was attempted.","consequence":"Account connection returned HTTP 400; no synthetic reviewer was substituted."},
+    {"id":"venice-judgment-jars","state":"ACTIVE","why":"Plan drift occurred after source archaeology.","consequence":"Preserved the mutation-before-replan ordering scar and bounded completion verdict."},
+    {"id":"regnet-qa","state":"ACTIVE","why":"Evidence sufficiency required a bounded review.","consequence":"Implemented-source/readback passes; TESTED remains false because zero workflow steps executed."},
+    {"id":"accessibility-talkback-touch","state":"ACTIVE","why":"Unnecessary native refresh is a focus/chatter hazard.","consequence":"Pulse-id-only accepted refresh earns no content or speech work; warm-wall controls remain native keyboard/touch targets with >=48px minimums."},
+    {"id":"phone-runtime-phone-hands","state":"DARK_FIREWALLED","why":"Canonical P0 owners retain first claim and no fresh predicate reopened the surface.","consequence":"Zero phone commands, tickets, queue/device probes, or physical acceptance actions."},
+    {"id":"deterministic-routing","state":"ACTIVE","why":"One identity was doing two different jobs.","consequence":"Exact checkpoint and presentation work now have deterministic independent fingerprints."},
+    {"id":"evidence-capability-state","state":"ACTIVE","why":"Source advancement must not become runtime proof.","consequence":"Exact GitHub readback is YES; tests/runtime/deployment/callability/delivery/acceptance stay NO."},
+    {"id":"recovery-checkpoint-idempotence","state":"ACTIVE","why":"Retries and new pulse identities need different consequences.","consequence":"Exact checkpoint may advance while identical presentation remains idempotently quiet."},
+    {"id":"strange-non-raster-art-warm-walls","state":"ACTIVE","why":"The new identity distinction needed a touchable source surface.","consequence":"Existing DOM/inline-SVG-style specimen mutated in place; no raster/autoplay/decorative blink and no runtime claim."},
+    {"id":"christmas-light-scene-graph","state":"ACTIVE","why":"Motion/speech must be consequence-earned.","consequence":"An otherwise invisible pulse-id advance earns no content refresh, announcement, or Christmas twitch."},
+    {"id":"contact-preservation","state":"ACTIVE","why":"Exact evidence identity must survive UI deduplication.","consequence":"contactSha256 stays pulse-sensitive while presentationSha256 is UI-work-sensitive."},
+    {"id":"heartbeat-refresh-deduplication","state":"ACTIVE","why":"Repository skill doctrine materially changed.","consequence":"Four identity jobs and current stable-viewport wiring truth are durable for future workers."}
+  ],
+  "crossPollination": "fast polling + exact contact hash exposed invisible pulse-id churn -> checkpoint truth split from presentation truth -> existing render planner consumes presentation -> accessibility avoids unnecessary native refresh/speech -> skill doctrine and warm wall absorb the rule -> Regnet/Venice keep source progress behind the runtime membrane",
+  "processScar": "Initial 0600 plan targeted structural-rebuild viewport restoration; first identity mutations landed before the corrective replan receipt. Structural-rebuild viewport restoration and pending pre-draw generation gating remain unimplemented and unclaimed.",
+  "ci": {
+    "sourceHead":"69f524a48350c9bd21a618f86f1068c02748d31d",
+    "operatorOverlayRunId":31943591022,
+    "operatorOverlayJobId":95156204652,
+    "stepsExecuted":0,
+    "annotation":"The job was not started because an Actions budget is preventing further use.",
+    "manualRetry":false
+  },
+  "capabilityMembrane": {
+    "requested":true,
+    "implementedSource":true,
+    "exactGitHubReadback":true,
+    "regressionSource":true,
+    "existingOwnerConsumesRenderIdentity":true,
+    "pulseIdOnlyPresentationDedupSource":true,
+    "stableStructureViewportAnchorSourceWired":true,
+    "structuralRebuildViewportAnchorSourceWired":false,
+    "pendingViewportRestoreGenerationGateSource":false,
+    "tested":false,
+    "runtimeUiObserved":false,
+    "runtimeViewportObserved":false,
+    "runtimeTalkBackObserved":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  },
+  "p0PhoneMutations":0,
+  "largerCampaign":"CONTINUE_REQUIRED"
+}
