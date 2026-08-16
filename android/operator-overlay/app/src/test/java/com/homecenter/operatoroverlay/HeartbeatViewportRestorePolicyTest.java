@@ -228,6 +228,77 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
+    public void visibleCaptureRecordsWhyKeyboardFocusOwnedTheTicket() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                17L,
+                "selected",
+                false,
+                "focused",
+                true,
+                22,
+                accepted);
+
+        assertEquals("focused", ticket.semanticId);
+        assertEquals("selected", ticket.selectedControlIdAtCapture);
+        assertEquals("focused", ticket.keyboardFocusedControlIdAtCapture);
+        assertEquals(22, ticket.viewportOffsetPx);
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                17L,
+                accepted,
+                "selected",
+                "focused"));
+    }
+
+    @Test
+    public void visibleKeyboardTicketRejectsSameGenerationInteractionChanges() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                18L,
+                "selected",
+                false,
+                "focused",
+                true,
+                22,
+                accepted);
+
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                18L,
+                accepted,
+                "other",
+                "focused"));
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                18L,
+                accepted,
+                "selected",
+                "other"));
+    }
+
+    @Test
+    public void visibleSelectionTicketDoesNotCareIfKeyboardFocusMovesLater() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "first", "second");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                19L,
+                "selected",
+                true,
+                "first",
+                true,
+                30,
+                accepted);
+
+        assertEquals("selected", ticket.semanticId);
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                19L,
+                accepted,
+                "selected",
+                "second"));
+    }
+
+    @Test
     public void visibilityDoesNotResurrectSemanticIdsMissingFromAcceptedModel() {
         HeartbeatOverlayViewModel.Model accepted = model("other");
 
@@ -237,6 +308,14 @@ public class HeartbeatViewportRestorePolicyTest {
                 "focused",
                 true,
                 accepted));
+        assertFalse(HeartbeatViewportRestorePolicy.captureVisible(
+                20L,
+                "selected",
+                true,
+                "focused",
+                true,
+                10,
+                accepted).hasAnchor());
     }
 
     @Test
