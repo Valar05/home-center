@@ -839,16 +839,25 @@ public class OperatorOverlayService extends Service {
             heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
                     heartbeatViewportRestoreGeneration);
             String keyboardFocusedControlId = heartbeatKeyboardFocusedControlId();
-            String viewportAnchorId = HeartbeatOverlayRefreshPlan.viewportAnchorId(
+            View selectedControl = heartbeatChildById(next.selectedControlId);
+            View keyboardFocusedControl = heartbeatChildById(keyboardFocusedControlId);
+            boolean selectedHasVisibleContact = heartbeatHasVisibleViewportContact(selectedControl);
+            boolean keyboardFocusHasVisibleContact = heartbeatHasVisibleViewportContact(
+                    keyboardFocusedControl);
+            String viewportAnchorId = HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
                     next.selectedControlId,
+                    selectedHasVisibleContact,
                     keyboardFocusedControlId,
+                    keyboardFocusHasVisibleContact,
                     next.model);
             View anchor = heartbeatChildById(viewportAnchorId);
             if (anchor != null) {
-                viewportRestoreTicket = HeartbeatViewportRestorePolicy.capture(
+                viewportRestoreTicket = HeartbeatViewportRestorePolicy.captureVisible(
                         heartbeatViewportRestoreGeneration,
                         next.selectedControlId,
+                        selectedHasVisibleContact,
                         keyboardFocusedControlId,
+                        keyboardFocusHasVisibleContact,
                         anchor.getLeft() - heartbeatScroller.getScrollX(),
                         next.model);
             }
@@ -948,6 +957,19 @@ public class OperatorOverlayService extends Service {
         return null;
     }
 
+    private boolean heartbeatHasVisibleViewportContact(View control) {
+        if (heartbeatScroller == null || control == null) return false;
+        int viewportWidth = Math.max(0,
+                heartbeatScroller.getWidth()
+                        - heartbeatScroller.getPaddingLeft()
+                        - heartbeatScroller.getPaddingRight());
+        return HeartbeatViewportRestorePolicy.hasVisibleViewportContact(
+                control.getLeft(),
+                control.getWidth(),
+                heartbeatScroller.getScrollX(),
+                viewportWidth);
+    }
+
     private void invalidateHeartbeatViewportRestore() {
         heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
                 heartbeatViewportRestoreGeneration);
@@ -980,7 +1002,7 @@ public class OperatorOverlayService extends Service {
                 || !ticket.hasAnchor()) return;
         HeartbeatOverlayViewModel.Model currentModel = HeartbeatOverlayViewModel.fromFrame(
                 heartbeatFrame);
-        if (!HeartbeatViewportRestorePolicy.shouldRestore(
+        if (!HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 heartbeatViewportRestoreGeneration,
                 currentModel,
