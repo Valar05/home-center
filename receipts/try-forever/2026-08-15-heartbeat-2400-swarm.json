@@ -1,0 +1,74 @@
+{
+  "schema": "try-forever.heartbeat-swarm.v1",
+  "heartbeat": "2400",
+  "reviewed_source_head": "bb9f11f7f813754b9b7fa9bf56e93d728955f7e4",
+  "fronts_advanced": [
+    {
+      "front": "existing-overlay-native-source-wiring",
+      "changed": "OperatorOverlayService now reads existing persisted heartbeat identity, projects through existing semantic organs, dedupes render/speech work, and rebuilds native child controls only when earned."
+    },
+    {
+      "front": "accessibility-and-touch",
+      "changed": "Native light buttons retain semantic IDs, token+state words, compact and explicit detail descriptions, child focus, mute/visibility speech gates, and 48dp-or-higher two-axis touch targets."
+    },
+    {
+      "front": "refresh-idempotence-and-contact",
+      "changed": "Cold start stays silent; muted/hidden transitions advance history without stale replay; repeated wounds keep last-good contact and do not chatter."
+    },
+    {
+      "front": "warm-wall-source-art",
+      "changed": "Existing semantic-pacemaker specimen was mutated in place to distinguish source-wired/native from runtime-unproven and to expose muted/restore behavior without raster or autoplay."
+    },
+    {
+      "front": "durable-skill-doctrine",
+      "changed": "Native UI projection and refresh-deduplication skills now encode existing-owner source wiring and the capability membrane instead of describing wiring as merely future."
+    }
+  ],
+  "skill_lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","consequence":"Did not retry unchanged CI; advanced the missing existing-owner source seam."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","consequence":"Selected existing OperatorState/projection/scene/view-model/refresh-plan/service organs; no adjacent architecture."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","consequence":"No material STT/autocorrect ambiguity in this source pulse."},
+    {"name":"Originality Tax","state":"ACTIVE","consequence":"Mutated existing owner and existing warm-wall specimen rather than creating another controller or decorative artifact."},
+    {"name":"Hunger","state":"ACTIVE","consequence":"Converted source-only semantic lights into source-wired native controls inside the existing owner."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Code-first review found and repaired scroller focus, mute leakage, and two-axis touch-target wounds."},
+    {"name":"Operator Campaign","state":"ACTIVE","consequence":"Preserved exact owner, lane, evidence, and delivery boundaries."},
+    {"name":"Harroway operator discipline","state":"ACTIVE","consequence":"Source wiring occurred through GitHub durable branch evidence with no phone substitution."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative ambient consult hit account-connection HTTP 400; no synthetic replacement."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","consequence":"Fresh plan receipt preceded mutation; completion allows only bounded source slice to yield."},
+    {"name":"Regnet QA","state":"ACTIVE","consequence":"Passes implemented-source/readback claim only; keeps TESTED/runtime/deployed states false."},
+    {"name":"accessibility/TalkBack and touch semantics","state":"ACTIVE","consequence":"Native child focus, compact/detail semantics, mute/visibility gates, stable selection, and 48dp minimums changed materially."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Zero phone/P0 actions; canonical owners retain the shared surface."},
+    {"name":"deterministic routing","state":"ACTIVE","consequence":"Exact persisted byte/SHA identity flows through one semantic chain; selection is retained by semantic id."},
+    {"name":"evidence/capability-state discipline","state":"ACTIVE","consequence":"Existing-owner source wired YES is kept distinct from tested/runtime/deployed/callable/delivered/accepted NO."},
+    {"name":"recovery/checkpointing/idempotence","state":"ACTIVE","consequence":"Render/announcement identities and last-good scene preservation prevent poll/retry/wound churn."},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"ACTIVE","consequence":"Existing warm-wall DOM/SVG specimen mutated in place; existing service source gained native controls."},
+    {"name":"warm walls","state":"ACTIVE","consequence":"Warm wall now distinguishes source wiring from runtime proof and preserves contact through wounds."},
+    {"name":"Christmas-light scene graph","state":"ACTIVE","consequence":"No poll earns a blink; state/wound semantics alone earn transition work."},
+    {"name":"contact preservation","state":"ACTIVE","consequence":"Rejected Base64/storage/parser refreshes retain last-good current controls and clamp discarded attempts."},
+    {"name":"Heartbeat Native UI Projection","state":"ACTIVE","consequence":"Repository skill updated to describe exact existing-owner source composition and its runtime evidence boundary."},
+    {"name":"Heartbeat Refresh Deduplication","state":"ACTIVE","consequence":"Repository skill updated with mute/visibility/stale-replay and native child-focus rules."}
+  ],
+  "cross_pollination": "The 200ms refresh hazard supplied work identities; those identities made existing-service source wiring safe; wiring exposed a TalkBack-container wound and a mute leak; accessibility repair then sharpened the reusable skills and the warm-wall specimen; Regnet/Venice prevented source wiring from being reported as runtime delivery.",
+  "test_boundary": {
+    "reviewed_head_workflow_runs_observed": 0,
+    "reviewed_head_combined_statuses_observed": 0,
+    "tested": false,
+    "note": "No manual unchanged-condition CI retry. Previous exact heads established an Actions-budget blocker, but this reviewed head has no current execution receipt."
+  },
+  "p0_phone_mutations": 0,
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "existing_owner_source_wired": true,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
