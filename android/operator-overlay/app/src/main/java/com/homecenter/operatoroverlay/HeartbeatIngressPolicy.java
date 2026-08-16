@@ -15,6 +15,9 @@ package com.homecenter.operatoroverlay;
  * operations through {@link Sink}.</p>
  */
 public final class HeartbeatIngressPolicy {
+    /** Maximum Unicode code points in a human-facing/loggable ingress boundary. */
+    public static final int MAX_BOUNDARY_CODE_POINTS = 320;
+
     /**
      * Exact failure class for caller-invalid optional heartbeat-light telemetry.
      *
@@ -108,11 +111,43 @@ public final class HeartbeatIngressPolicy {
         return "Heartbeat skill-light payload rejected: " + clean;
     }
 
-    private static String cleanBoundary(String value) {
-        String clean = value == null ? "" : value.trim();
-        clean = clean.replace('\r', ' ').replace('\n', ' ');
-        while (clean.contains("  ")) clean = clean.replace("  ", " ");
-        if (clean.length() > 320) clean = clean.substring(0, 320);
-        return clean;
+    /**
+     * Produce one bounded human-facing boundary without laundering it into raw
+     * exception identity. All ISO controls and whitespace classes collapse to one
+     * ordinary space, malformed lone UTF-16 surrogates become U+FFFD, and truncation
+     * happens by Unicode code point so a valid surrogate pair is never bisected.
+     */
+    static String cleanBoundary(String value) {
+        if (value == null || value.isEmpty()) return "";
+
+        StringBuilder normalized = new StringBuilder();
+        boolean pendingSpace = false;
+        for (int offset = 0; offset < value.length();) {
+            int codePoint = value.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+
+            if (codePoint >= Character.MIN_SURROGATE
+                    && codePoint <= Character.MAX_SURROGATE) {
+                codePoint = 0xfffd;
+            }
+
+            if (Character.isISOControl(codePoint)
+                    || Character.isWhitespace(codePoint)
+                    || Character.isSpaceChar(codePoint)) {
+                if (normalized.length() > 0) pendingSpace = true;
+                continue;
+            }
+
+            if (pendingSpace) {
+                normalized.append(' ');
+                pendingSpace = false;
+            }
+            normalized.appendCodePoint(codePoint);
+        }
+
+        int codePoints = normalized.codePointCount(0, normalized.length());
+        if (codePoints <= MAX_BOUNDARY_CODE_POINTS) return normalized.toString();
+        int end = normalized.offsetByCodePoints(0, MAX_BOUNDARY_CODE_POINTS);
+        return normalized.substring(0, end);
     }
 }
