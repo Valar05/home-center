@@ -47,11 +47,30 @@ public class HeartbeatFrameCheckpointTest {
 
         assertTrue(interrupted.refreshInterrupted);
         assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(complete, interrupted));
+        assertTrue(HeartbeatFrameCheckpoint.samePresentation(complete, interrupted));
         assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(complete, interrupted));
     }
 
     @Test
-    public void evidenceOnlyRefreshChangesContactIdentityButNotTransitionIdentity() {
+    public void newPulseIdentityWithoutSurfaceChangeIsNewCheckpointButSamePresentation() {
+        HeartbeatSceneGraph.Frame before = HeartbeatSceneGraph.build(
+                "pulse-a",
+                Collections.singletonList(typed("evidence-a", "Stable consequence")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame after = HeartbeatSceneGraph.build(
+                "pulse-b",
+                Collections.singletonList(typed("evidence-a", "Stable consequence")),
+                true,
+                before);
+
+        assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
+        assertTrue(HeartbeatFrameCheckpoint.samePresentation(before, after));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
+    }
+
+    @Test
+    public void evidenceOnlyRefreshChangesContactAndPresentationButNotTransitionIdentity() {
         HeartbeatSceneGraph.Frame before = HeartbeatSceneGraph.build(
                 "pulse-a",
                 Collections.singletonList(typed("evidence-a", "Stable consequence")),
@@ -65,11 +84,12 @@ public class HeartbeatFrameCheckpointTest {
 
         assertFalse(after.transitionMotionAllowed);
         assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
+        assertFalse(HeartbeatFrameCheckpoint.samePresentation(before, after));
         assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
     }
 
     @Test
-    public void pureSceneReorderChangesContactButNotTransitionIdentity() {
+    public void pureSceneReorderChangesContactAndPresentationButNotTransitionIdentity() {
         HeartbeatSkillPolicy.Candidate alpha = typed(
                 "alpha",
                 "evidence-alpha",
@@ -91,6 +111,7 @@ public class HeartbeatFrameCheckpointTest {
 
         assertFalse(after.transitionMotionAllowed);
         assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
+        assertFalse(HeartbeatFrameCheckpoint.samePresentation(before, after));
         assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
     }
 
@@ -134,6 +155,7 @@ public class HeartbeatFrameCheckpointTest {
 
         assertTrue(after.transitionMotionAllowed);
         assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
+        assertFalse(HeartbeatFrameCheckpoint.samePresentation(before, after));
         assertFalse(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
     }
 }
