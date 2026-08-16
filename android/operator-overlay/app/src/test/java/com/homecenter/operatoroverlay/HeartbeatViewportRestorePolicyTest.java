@@ -252,7 +252,7 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
-    public void visibleKeyboardTicketRejectsSameGenerationInteractionChanges() {
+    public void keyboardDerivedTicketSurvivesMutationCausedFocusLossButNotCompetingFocus() {
         HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
         HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
                 18L,
@@ -263,12 +263,18 @@ public class HeartbeatViewportRestorePolicyTest {
                 22,
                 accepted);
 
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                18L,
+                accepted,
+                "selected",
+                ""));
         assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 18L,
                 accepted,
                 "other",
-                "focused"));
+                ""));
         assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 18L,
