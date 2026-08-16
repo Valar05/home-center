@@ -77,6 +77,27 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
+     * Stronger owner check for after-layout callbacks. Even with the same generation,
+     * a user can move direct keyboard focus before pre-draw. Recompute the current
+     * semantic owner from accepted selection/focus and reject the old ticket unless
+     * it still owns viewport contact. TalkBack accessibility focus remains outside
+     * this source contract and is neither queried nor inferred.
+     */
+    public static boolean shouldRestore(
+            Ticket ticket,
+            long currentGeneration,
+            HeartbeatOverlayViewModel.Model currentAcceptedModel,
+            String selectedControlId,
+            String keyboardFocusedControlId) {
+        if (!shouldRestore(ticket, currentGeneration, currentAcceptedModel)) return false;
+        String currentOwner = HeartbeatOverlayRefreshPlan.viewportAnchorId(
+                selectedControlId,
+                keyboardFocusedControlId,
+                currentAcceptedModel);
+        return ticket.semanticId.equalsIgnoreCase(currentOwner);
+    }
+
+    /**
      * Delegate final geometry to the existing bounded anchor calculation. Callers
      * must first establish {@link #shouldRestore(Ticket, long, HeartbeatOverlayViewModel.Model)}.
      */
