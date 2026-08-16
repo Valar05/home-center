@@ -1,0 +1,47 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "heartbeat": "2026-08-16-1700",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "JUDGMENT_JAR_VENICE",
+  "plan_receipt": "receipts/heartbeat-skill-lights/2026-08-16-1700-plan.json",
+  "review_mode": "code_first_then_evidence",
+  "mission_fidelity": "PASS",
+  "duplicate_architecture": "PASS",
+  "p0_firewall": "PASS_ZERO_CONSUMPTION",
+  "source_taste": {
+    "verdict": "PASS",
+    "reason": "Semantic Christmas-light motion now has one bounded consequence in the existing Android owner instead of a neighboring animation organism. The existing warm wall was mutated in place and still labels source/runtime truth explicitly."
+  },
+  "accessibility": {
+    "verdict": "PASS_SOURCE_ONLY",
+    "reason": "Motion remains supplementary, respects heartbeat-surface presentation and system animator enablement, preserves non-color/text/touch/TalkBack semantics, and cannot autoplay persisted cold-start history. Runtime behavior is still unobserved."
+  },
+  "review_scar": {
+    "verdict": "REPAIRED_BEFORE_COMPLETION",
+    "reason": "The first owner mutation accidentally removed the pre-existing disable-confirmation timeout. Constraint-ledger diff caught it and restored the CONFIRM_WINDOW_MS reset before this review."
+  },
+  "capability_truth": {
+    "semantic_motion_source": true,
+    "native_motion_policy_source": true,
+    "ui_ready_motion_projection_source": true,
+    "pure_removal_summary_fallback_source": true,
+    "existing_owner_consumes_native_motion_policy": true,
+    "cold_start_replay_clamp_source": true,
+    "stale_motion_reset_source": true,
+    "regression_source": true,
+    "warm_wall_source": true,
+    "tested": false,
+    "tested_boundary": "BLOCKED_ACTIONS_BUDGET",
+    "runtime_observed": false,
+    "runtime_reduced_motion_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "she_raw": "AUTHORITATIVE_ATTEMPT_FAILED_ACCOUNT_CONNECTION_400",
+  "next_exact_wound": "Do not keep polishing native motion while CI and runtime evidence are blocked. On the next pulse, auto-select a materially different independent non-P0 source wound; this source seam is closed at existing-owner consumption and may advance further only when deterministic test/runtime evidence becomes available.",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}
