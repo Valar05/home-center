@@ -1,0 +1,37 @@
+{
+  "schema": "venice-completion-review.v1",
+  "commission": "TRY FOREVER heartbeat 2000 semantic text safety source slice",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "c92a84a4053be64390f0a725f752b1cc3ade592c",
+  "inputs": {
+    "plan": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-plan-review.json",
+    "replan": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-replan-review.json",
+    "regnet": "receipts/regnet/2026-08-15-try-forever-heartbeat-2000-source-review.json"
+  },
+  "review": {
+    "planOrder": "PASS — initial plan and corrective replan were durable before their respective source mutations.",
+    "missionBoundary": "PASS — all mutations stayed in non-phone source/doctrine/test/art/receipt surfaces and composed existing heartbeat organs.",
+    "duplicateArchitecture": "PASS — no neighboring overlay controller, persistence owner, phone ingress path, P0 coordinator, recovery daemon, Nightcore/Pocket TTS/Chromium/context deployer was created.",
+    "accessibility": "PASS_FOR_SOURCE — directional semantic spoofing is rejected before display/speech, valid ZWJ remains allowed, unsafe legacy collapsed speech reports omission, existing DOM specimen remains semantic/touchable/reduced-motion source only.",
+    "contactPreservation": "PASS_FOR_SOURCE — parser/direct/pre-parser unsafe attempted ids fail closed without replacing last-good contact or inheriting transition motion.",
+    "evidenceDiscipline": "PASS — exact remote blob identities are recorded; regression source is not called executed evidence; runtime/deployment/phone states remain NO.",
+    "testGate": "BLOCKED_UNKNOWN — exact reviewed source head received an automatic Operator Overlay Android job with zero executed steps because GitHub Actions budget prevented job start.",
+    "sheRaw": "FAULT — authoritative ambient surface returned account-connection HTTP 400; no synthetic reviewer substituted."
+  },
+  "codeFirstScarsPreserved": [
+    "All-FORMAT rejection was rejected as overbroad because it would break ZWJ; canonical directional-control scope was narrowed by replan.",
+    "Unsafe pre-parser attempted ids were found after the first scene defense and suppressed without altering the trusted rejection boundary.",
+    "Direct Candidate compatibility trim was found capable of hiding edge controls; raw decoded safety is now retained before trim.",
+    "Legacy collapsed speech was found capable of counting a poisoned material light while naming nothing; it now reports exact omission.",
+    "Unknown/duplicate JSON member names were found capable of poisoning parser rejection prose; unsafe names now become bounded placeholders."
+  ],
+  "quality": "mixed",
+  "qualityReason": "Source/readback/review quality is coherent and materially improved, but deterministic tests did not execute and no runtime renderer/phone evidence exists.",
+  "capabilityMembrane": "Requested YES; Implemented source YES; exact GitHub readback YES; regression source YES; Tested NO/BLOCKED_UNKNOWN; runtime semantic consumption NO; UI rendered NO; runtime TalkBack NO; Deployed NO; Callable NO; Executed NO; Delivered NO; Accepted NO.",
+  "p0MutationCount": 0,
+  "verdict": "STOP_ALLOWED",
+  "scopeOfStop": "This bounded non-phone source slice may yield. This is not merge permission, runtime permission, P0 permission, delivery/acceptance, or completion of the recurring TRY FOREVER campaign.",
+  "campaignDirective": "CONTINUE_REQUIRED"
+}
