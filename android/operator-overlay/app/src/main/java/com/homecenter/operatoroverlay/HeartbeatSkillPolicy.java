@@ -41,6 +41,8 @@ public final class HeartbeatSkillPolicy {
         public final boolean changedThisPulse;
         public final String consequence;
         public final String evidenceBoundary;
+        /** Captures decoded safety before constructor trim can normalize edge controls away. */
+        private final boolean semanticTextSafeAtIngress;
 
         /**
          * Legacy source-only constructor. Typed provenance remains explicitly empty
@@ -65,6 +67,13 @@ public final class HeartbeatSkillPolicy {
                 boolean changedThisPulse,
                 String consequence,
                 String evidenceBoundary) {
+            this.semanticTextSafeAtIngress = isSafeSemanticText(id)
+                    && isSafeSemanticText(label)
+                    && isSafeSemanticText(provenanceKind)
+                    && isSafeSemanticText(provenanceLocator)
+                    && isSafeSemanticText(activationReason)
+                    && isSafeSemanticText(consequence)
+                    && isSafeSemanticText(evidenceBoundary);
             this.id = clean(id);
             this.label = clean(label);
             this.provenanceKind = clean(provenanceKind);
@@ -311,6 +320,7 @@ public final class HeartbeatSkillPolicy {
 
     private static boolean hasSafeSemanticSurface(Candidate candidate) {
         return candidate != null
+                && candidate.semanticTextSafeAtIngress
                 && isSafeSemanticText(candidate.id)
                 && isSafeSemanticText(candidate.label)
                 && isSafeSemanticText(candidate.provenanceKind)
