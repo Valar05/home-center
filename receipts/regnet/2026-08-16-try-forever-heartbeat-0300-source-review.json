@@ -1,0 +1,59 @@
+{
+  "schema": "try-forever.regnet-source-review.v1",
+  "heartbeat": "2026-08-16T03:00:00-05:00",
+  "review_scope": "bounded non-phone viewport-contact source slice",
+  "verdict": "PASS_FOR_BOUNDED_POLICY_SOURCE_ONLY",
+  "campaign_gate": "CONTINUE_REQUIRED",
+  "code_first_findings": [
+    {
+      "severity": "material",
+      "finding": "Stable native Button object identity does not guarantee stable horizontal viewport contact when in-place label/content changes alter child widths.",
+      "status": "SOURCE_POLICY_AND_REGRESSION_ADDED_SERVICE_CONSUMPTION_PENDING"
+    },
+    {
+      "severity": "evidence_truth",
+      "finding": "The first viewport-policy Javadoc said the existing owner captures/restores the anchor even though OperatorOverlayService does not yet consume the helper.",
+      "status": "REPAIRED_BEFORE_REVIEW_COMPLETION",
+      "repair": "Javadoc now says a future existing-owner wiring step can capture/restore the anchor and explicitly disclaims existing-service consumption."
+    }
+  ],
+  "source_readback": {
+    "HeartbeatOverlayRefreshPlan.java": "f779c1c753e676e7bdd455b07c3b60dfca8c4cd4",
+    "HeartbeatViewportAnchorPolicyTest.java": "7eed7d5600bfab2cb66a4dae99eb3971e77d5ed0",
+    "skills/heartbeat-refresh-deduplication/SKILL.md": "0fa595733cc4fb391233762f3382c3a9450ab5bf",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "9fdf505939afab6d4f1ab36179749d2583603f06",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "6b654b5f29cc923afe83aafb5e8911901ecd0d55"
+  },
+  "policy_review": {
+    "determinism": "PASS: nextAnchorLeft - capturedViewportOffset, clamped to current scroll range; long arithmetic prevents int subtraction overflow.",
+    "idempotence": "PASS_AT_POLICY_LEVEL: unchanged geometry maps to the same scroll position; no timestamp or poll count participates.",
+    "edge_clamping": "PASS_AS_SOURCE_REVIEW: leading edge, trailing edge, negative range, and overflow cases are present in regression source.",
+    "semantic_identity": "PARTIAL: semantic-id capture/lookup remains an existing-service wiring task; the pure helper accepts geometry only.",
+    "accessibility": "PASS_FOR_SOURCE_BOUNDARY: doctrine distinguishes native object identity, keyboard focus opportunity, viewport contact, and unproven TalkBack accessibility focus.",
+    "duplicate_architecture": "PASS: no new service/controller/renderer/state store/phone path was created.",
+    "p0_firewall": "PASS: zero phone/queue/recovery/Nightcore/Pocket TTS/Chromium/Context Organ mutations."
+  },
+  "test_state": {
+    "regression_source_present": true,
+    "tests_executed": false,
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "reason": "GitHub Actions budget continues to prevent jobs from starting; no manual unchanged-condition retry is authorized."
+  },
+  "capability_state": {
+    "requested": true,
+    "implemented_viewport_policy_source": true,
+    "exact_github_readback": true,
+    "regression_source_present": true,
+    "tested": false,
+    "existing_service_consumes_viewport_anchor_policy": false,
+    "runtime_viewport_contact_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "next_authorized_seam": "Wire the existing OperatorOverlayService/HorizontalScrollView owner to capture a selected or direct keyboard-focused semantic id plus viewport offset before stable-structure mutation and restore that offset after layout using anchoredScrollX; do not infer TalkBack accessibility-focus ownership and do not create another renderer/controller.",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
