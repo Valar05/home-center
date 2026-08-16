@@ -4,7 +4,7 @@
 
 Preserve *visible contact* for the existing Operator Overlay heartbeat controls when semantic heartbeat content changes width or the ordered child structure changes while a surviving semantic control remains relevant.
 
-Stable object identity is not sufficient: a surviving Button can slide horizontally out of the user's viewport when preceding content changes width. Rebuilds add a second hazard: the old native object may disappear even though the same semantic light still exists in the accepted next model. Delayed after-layout work adds a third: an older restore callback must not move the viewport after a later mutation, explicit selection, or direct keyboard-focus move has superseded it. A fourth hazard is explicit: **semantic selection is not proof of visible contact**. A durable selected light may be completely offscreen after the user scrolls elsewhere.
+Stable object identity is not sufficient: a surviving Button can slide horizontally out of the user's viewport when preceding content changes width. Rebuilds add a second hazard: the old native object may disappear even though the same semantic light still exists in the accepted next model. Delayed after-layout work adds a third: an older restore callback must not move the viewport after a later mutation, explicit selection, or direct keyboard-focus move has superseded it. A fourth hazard is explicit: **semantic selection is not proof of visible contact**. A durable selected light may be completely offscreen after the user scrolls elsewhere. A fifth hazard follows from rebuilds: **mutation-caused loss of native keyboard focus is not proof that the user superseded the captured anchor**.
 
 ## Ownership
 
@@ -12,7 +12,7 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 - `HeartbeatOverlayRefreshPlan` owns accepted semantic-anchor selection and bounded scroll math.
 - `HeartbeatViewportRestorePolicy` owns pure restore-ticket identity, stale-work rejection, visible-contact geometry, and captured interaction-owner revalidation; it owns no Android views, callbacks, renderer, controller, service, state store, transport, phone path, or P0 owner.
 - The existing owner consumes the restore-ticket policy for stable in-place refreshes, structural rebuilds, and drift-triggered fallback rebuilds. This is **source wiring only**, not Android execution or runtime viewport proof.
-- The existing owner now also consumes the geometry-aware visible-contact gate before capture. This is durable source wiring, not runtime viewport or TalkBack evidence.
+- The existing owner also consumes the geometry-aware visible-contact gate before capture. This is durable source wiring, not runtime viewport or TalkBack evidence.
 
 ## Source contract
 
@@ -26,9 +26,9 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 8. Advance a restore-generation token whenever a later content/structure mutation, presentation-state mutation, hide, or explicit semantic selection supersedes older pending after-layout work.
 9. After layout, restore only when the pending ticket's generation still equals the current generation, the semantic anchor still exists in the accepted current model/live children, and the captured interaction owner has not been superseded.
 10. Do **not** re-run capture-time visibility against post-mutation geometry to decide whether the ticket is still owned; the mutation itself is allowed to move the anchor and is exactly why restoration exists. Revalidate interaction ownership, not mutation-caused geometry.
-11. A same-generation direct keyboard-focus move can invalidate an older keyboard-derived ticket without pretending focus motion is a new heartbeat generation.
+11. For a keyboard-derived ticket, an observed different non-empty keyboard-focused heartbeat id is a supersession; an empty post-mutation keyboard focus is allowed because a structural rebuild may have destroyed the old native Button. This does not claim focus preservation.
 12. Use `HeartbeatViewportRestorePolicy.targetScrollX(...)` / `HeartbeatOverlayRefreshPlan.anchoredScrollX(...)` for the bounded target. Do not manufacture negative/out-of-range scroll motion.
-13. If the anchor disappeared, capture-time geometry is unavailable, the pending ticket is stale, or current accepted interaction semantics no longer match the captured owner, do not claim visible contact.
+13. If the anchor disappeared, capture-time geometry is unavailable, the pending ticket is stale, the accepted selection changed, or a different non-empty direct keyboard focus now competes with a keyboard-derived ticket, do not claim visible contact.
 14. Viewport anchoring must not alter semantic selection, evidence identity, announcement identity, or Christmas-motion eligibility.
 15. Direct keyboard focus is read only from the existing heartbeat `Button` objects; accessibility focus is deliberately neither queried nor synthesized.
 
@@ -39,7 +39,8 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 - Selection, keyboard focus, visible viewport contact, and TalkBack accessibility focus are four separate states. Never report one as another.
 - A selected control that is completely outside the current horizontal viewport does **not** possess visible contact merely because its semantic id is durable.
 - A visible keyboard-focused control may be the source-policy fallback when a durable selection is offscreen; this is still not TalkBack accessibility-focus evidence.
-- A structural rebuild may preserve the *semantic viewport target* when the id survives, but source wiring does not prove keyboard focus or accessibility focus survived object replacement.
+- A structural rebuild may preserve the *semantic viewport target* when the id survives even if the rebuild itself clears native keyboard focus. That is viewport-source behavior, not proof that keyboard focus survived.
+- A different surviving direct keyboard focus observed after mutation is a competing interaction owner and cancels an older keyboard-derived viewport ticket.
 - Do not announce scroll restoration, restore-generation churn, or geometry-only visibility decisions as semantic heartbeat transitions.
 - Stable Button identity plus viewport restoration is an accessibility opportunity, not proof that TalkBack retained accessibility focus.
 
@@ -50,7 +51,8 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 - Generation is an ordering token, not wall-clock evidence.
 - A later mutation/selection advances generation and invalidates earlier pending tickets.
 - Same generation is still insufficient when the captured interaction owner has changed.
-- A keyboard-derived ticket remains valid only while both the accepted selection state that lost the visibility contest and the direct keyboard-focus state remain unchanged.
+- A keyboard-derived ticket requires the accepted selection state that lost the visibility contest to remain unchanged. After mutation, the current direct keyboard focus may be the same captured id or empty; a different non-empty accepted focused id invalidates the ticket.
+- Empty post-rebuild keyboard focus is treated as mutation-caused focus loss, not as proof of a user supersession. This is not a claim that keyboard focus was preserved.
 - A selection-derived ticket remains valid while that accepted selection remains the same; later keyboard-focus motion alone does not steal its ownership.
 - A current generation is still insufficient if the semantic id disappeared from the accepted model.
 - Capture-time visibility is source evidence for *which* live control owned contact before mutation. Post-mutation geometry is not user-intent evidence and must not invalidate a ticket merely because the mutation moved the anchor.
@@ -68,7 +70,7 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 5. captures the chosen anchor's pre-mutation viewport offset plus the accepted selected/focused ownership state;
 6. applies the same ticket path to stable in-place refresh, structural rebuild, and structure-drift fallback rebuild;
 7. schedules one-shot pre-draw restoration on the existing `heartbeatLights` owner;
-8. revalidates generation, current accepted model membership, and captured interaction ownership before scroll;
+8. revalidates generation, current accepted model membership, and captured interaction ownership before scroll, allowing mutation-caused absence of direct keyboard focus but rejecting a different non-empty focused heartbeat id;
 9. re-finds the semantic anchor and applies bounded scroll geometry only after layout;
 10. invalidates pending restore work on presentation-state changes, hide, and explicit heartbeat selection.
 
@@ -89,6 +91,7 @@ Current source truth:
 - existing-owner structural-rebuild viewport wiring: **YES**
 - existing-owner restore-generation/idempotence wiring: **YES**
 - captured interaction-owner revalidation source: **YES**
+- mutation-caused keyboard-focus-loss distinction source: **YES**
 - existing-owner visible-contact gate consumption: **YES**
 - tested/runtime viewport/runtime keyboard focus/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO** until their own authorized evidence exists.
 
@@ -103,7 +106,7 @@ At minimum cover:
 - stale/missing ids producing no anchor;
 - a later mutation invalidating an older pending restore ticket;
 - a removed semantic id refusing restore even when generation is current;
-- a same-generation keyboard-focus move invalidating an older keyboard-derived ticket;
+- a same-generation keyboard-focus move invalidating an older semantic-only ticket;
 - explicit selection superseding an older keyboard-derived ticket;
 - durable semantic selection remaining owner while keyboard focus moves elsewhere;
 - whole and partial horizontal viewport intersection;
@@ -112,7 +115,8 @@ At minimum cover:
 - overflow-adjacent geometry using long arithmetic;
 - offscreen durable selection yielding to a visible keyboard-focused fallback;
 - visible capture recording the selected/focused ownership state that produced the ticket;
-- keyboard-derived tickets rejecting same-generation selection/focus changes;
+- keyboard-derived ticket surviving mutation-caused empty focus after rebuild;
+- keyboard-derived ticket rejecting a different non-empty competing focus or changed selection;
 - selection-derived tickets ignoring unrelated later keyboard-focus motion;
 - geometry truth never resurrecting semantic ids missing from the accepted model;
 - bounded anchor math at leading/trailing edges and width-growth cases;
