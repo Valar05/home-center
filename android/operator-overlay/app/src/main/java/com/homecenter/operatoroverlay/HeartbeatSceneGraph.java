@@ -150,6 +150,11 @@ public final class HeartbeatSceneGraph {
      * parser and scene rejection, so all one-shot node motion is re-materialized
      * off and the exact rejection boundary remains visible.
      *
+     * <p>An attempted id is diagnostic semantics too. If a pre-parser caller passes
+     * an unsafe id containing controls, malformed UTF-16, or directional bidi
+     * controls, suppress that id rather than echoing it into a visible/TalkBack frame.
+     * The original rejection boundary remains unchanged.</p>
+     *
      * <p>This is pure source composition only. It does not own storage, transport,
      * rendering, phone execution, or P0 recovery.</p>
      */
@@ -159,7 +164,10 @@ public final class HeartbeatSceneGraph {
             String boundary) {
         String exactBoundary = clean(boundary);
         if (exactBoundary.isEmpty()) exactBoundary = "Heartbeat refresh was rejected.";
-        return preserveLastGood(attemptedPulseId, lastGood, exactBoundary);
+        String safeAttempted = HeartbeatSkillPolicy.isSafeSemanticText(attemptedPulseId)
+                ? attemptedPulseId
+                : "";
+        return preserveLastGood(safeAttempted, lastGood, exactBoundary);
     }
 
     /**
