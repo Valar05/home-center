@@ -25,6 +25,15 @@ public final class HeartbeatOverlayRefreshPlan {
         public final HeartbeatSceneGraph.Frame frame;
         public final HeartbeatOverlayViewModel.Model model;
         public final String selectedControlId;
+        /**
+         * Changes only when the ordered semantic control identities change.
+         *
+         * <p>This is deliberately narrower than {@link #renderIdentity}. A stable
+         * control structure can refresh text/detail in place without destroying and
+         * recreating the native Button objects that may currently hold keyboard or
+         * accessibility focus.</p>
+         */
+        public final String structureIdentity;
         /** Changes when the visible/touchable contact or interruption wound changes. */
         public final String renderIdentity;
         /** Changes only for transition semantics or a new interruption wound. */
@@ -34,11 +43,13 @@ public final class HeartbeatOverlayRefreshPlan {
                 HeartbeatSceneGraph.Frame frame,
                 HeartbeatOverlayViewModel.Model model,
                 String selectedControlId,
+                String structureIdentity,
                 String renderIdentity,
                 String announcementIdentity) {
             this.frame = frame;
             this.model = model;
             this.selectedControlId = clean(selectedControlId);
+            this.structureIdentity = clean(structureIdentity);
             this.renderIdentity = clean(renderIdentity);
             this.announcementIdentity = clean(announcementIdentity);
         }
@@ -100,7 +111,12 @@ public final class HeartbeatOverlayRefreshPlan {
         String interrupted = frame != null && frame.refreshInterrupted ? "1" : "0";
         String exactBoundary = frame == null ? "Heartbeat scene unavailable." : raw(frame.refreshBoundary);
 
-        // Exact evidence/detail changes should rebuild touchable content, but a pure
+        // Ordered semantic ids define whether the native child structure itself
+        // must change. Label/state/detail/touch semantics can be updated on the
+        // existing child object when this identity is stable, preserving focus.
+        String structureIdentity = structureIdentity(model);
+
+        // Exact evidence/detail changes should refresh touchable content, but a pure
         // evidence/provenance refresh must not become unsolicited speech.
         String renderIdentity = digest(
                 "heartbeat-overlay-render.v1",
@@ -112,12 +128,45 @@ public final class HeartbeatOverlayRefreshPlan {
                 transition,
                 interrupted,
                 exactBoundary);
-        return new Plan(frame, model, selected, renderIdentity, announcementIdentity);
+        return new Plan(
+                frame,
+                model,
+                selected,
+                structureIdentity,
+                renderIdentity,
+                announcementIdentity);
     }
 
-    public static boolean shouldRebuild(String previousRenderIdentity, Plan next) {
+    /**
+     * Whether the native child structure must be rebuilt.
+     *
+     * <p>A stable ordered semantic-id set means existing buttons can be refreshed in
+     * place. This narrow identity exists specifically to avoid unnecessary
+     * keyboard/TalkBack focus churn on evidence, state, consequence, or label-only
+     * refreshes.</p>
+     */
+    public static boolean shouldRebuildStructure(
+            String previousStructureIdentity,
+            Plan next) {
+        if (next == null) return false;
+        return !clean(previousStructureIdentity).equals(next.structureIdentity);
+    }
+
+    /** Whether visible/touchable content changed and should be refreshed. */
+    public static boolean shouldRefreshContent(
+            String previousRenderIdentity,
+            Plan next) {
         if (next == null) return false;
         return !clean(previousRenderIdentity).equals(next.renderIdentity);
+    }
+
+    /**
+     * Existing service compatibility: until the owner consumes structureIdentity,
+     * a render-identity change still means its current full rebuild path should run.
+     * New wiring should prefer shouldRebuildStructure + shouldRefreshContent.
+     */
+    public static boolean shouldRebuild(String previousRenderIdentity, Plan next) {
+        return shouldRefreshContent(previousRenderIdentity, next);
     }
 
     /**
@@ -151,13 +200,31 @@ public final class HeartbeatOverlayRefreshPlan {
         return shouldAnnounce(previousAnnouncementIdentity, next);
     }
 
+    private static String structureIdentity(HeartbeatOverlayViewModel.Model model) {
+        StringBuilder canonical = new StringBuilder();
+        append(canonical, "heartbeat-overlay-structure.v1");
+        if (model == null) {
+            append(canonical, "<no-model>");
+        } else {
+            canonical.append('#').append(model.controls.size()).append(';');
+            for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+                append(canonical, raw(control.id).toLowerCase(Locale.ROOT));
+            }
+        }
+        return sha256(canonical.toString());
+    }
+
     private static String digest(String schema, String... values) {
         StringBuilder canonical = new StringBuilder();
         append(canonical, schema);
         for (String value : values) append(canonical, raw(value));
+        return sha256(canonical.toString());
+    }
+
+    private static String sha256(String canonical) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = digest.digest(canonical.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] bytes = digest.digest(canonical.getBytes(StandardCharsets.UTF_8));
             StringBuilder hex = new StringBuilder(bytes.length * 2);
             for (byte value : bytes) {
                 hex.append(String.format(Locale.ROOT, "%02x", value & 0xff));
