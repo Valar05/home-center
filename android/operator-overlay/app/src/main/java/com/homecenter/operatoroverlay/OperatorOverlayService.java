@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -63,6 +65,9 @@ public class OperatorOverlayService extends Service {
     private TextView meta;
     private TextView latest;
     private TextView spotifyStatus;
+    private TextView heartbeatSummary;
+    private LinearLayout heartbeatLights;
+    private TextView heartbeatDetail;
     private SpotifyShizukuClient spotifyClient;
     private Button collapseButton;
     private Button hideButton;
@@ -71,6 +76,10 @@ public class OperatorOverlayService extends Service {
     private Button controlButton;
     private EditText adamInput;
     private String adamMode = "terminal";
+    private String heartbeatSelectedId = "";
+    private String heartbeatRenderIdentity = "";
+    private String heartbeatAnnouncementIdentity = "";
+    private HeartbeatSceneGraph.Frame heartbeatFrame;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -367,6 +376,32 @@ public class OperatorOverlayService extends Service {
         meta.setTextColor(Color.rgb(190, 198, 212));
         meta.setPadding(0, dp(6), 0, dp(2));
 
+        heartbeatSummary = textView(12f, true);
+        heartbeatSummary.setText("HEARTBEAT • waiting");
+        heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
+        heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+
+        heartbeatLights = new LinearLayout(this);
+        heartbeatLights.setOrientation(LinearLayout.HORIZONTAL);
+        heartbeatLights.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+
+        HorizontalScrollView heartbeatScroller = new HorizontalScrollView(this);
+        heartbeatScroller.setHorizontalScrollBarEnabled(false);
+        heartbeatScroller.setFillViewport(false);
+        heartbeatScroller.setContentDescription("Heartbeat skill lights. Swipe horizontally to explore material lights.");
+        heartbeatScroller.addView(heartbeatLights, new HorizontalScrollView.LayoutParams(
+                HorizontalScrollView.LayoutParams.WRAP_CONTENT,
+                HorizontalScrollView.LayoutParams.WRAP_CONTENT));
+
+        heartbeatDetail = textView(11f, false);
+        heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
+        heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
+        heartbeatDetail.setMaxLines(5);
+        heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);
+        heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
+        heartbeatDetail.setContentDescription(
+                "Touch a heartbeat light for why, consequence, evidence, and source detail.");
+
         latest = textView(14f, false);
         latest.setText(OperatorState.latestText(this));
         latest.setMaxLines(2);
@@ -436,6 +471,9 @@ public class OperatorOverlayService extends Service {
         details.addView(statusRow);
         details.addView(screenBadge);
         details.addView(meta);
+        details.addView(heartbeatSummary);
+        details.addView(heartbeatScroller);
+        details.addView(heartbeatDetail);
         details.addView(latest);
         details.addView(adamModeRow);
         details.addView(adamInputRow);
@@ -736,6 +774,138 @@ public class OperatorOverlayService extends Service {
         if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
             spotifyStatus.setText(spotifySummary);
         }
+        refreshHeartbeatLights(muted, !hidden && root.getVisibility() == View.VISIBLE);
+    }
+
+    private void refreshHeartbeatLights(boolean muted, boolean overlayVisible) {
+        if (heartbeatSummary == null || heartbeatLights == null || heartbeatDetail == null) return;
+
+        String encoded = OperatorState.heartbeatLightsPayloadB64(this);
+        long declaredBytes = OperatorState.heartbeatLightsBytes(this);
+        String declaredSha256 = OperatorState.heartbeatLightsSha256(this);
+        long updatedMs = OperatorState.heartbeatLightsUpdatedMs(this);
+
+        if (updatedMs <= 0L && TextUtils.isEmpty(encoded)) {
+            if (heartbeatFrame == null) {
+                heartbeatSummary.setText("HEARTBEAT • waiting");
+                heartbeatSummary.setContentDescription(
+                        "Heartbeat skill lights waiting for a material pulse.");
+            }
+            return;
+        }
+
+        HeartbeatOverlayRefreshPlan.Plan next;
+        try {
+            byte[] exactPayload = Base64.decode(encoded == null ? "" : encoded, Base64.NO_WRAP);
+            HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
+                    HeartbeatOverlayRefreshPlan.projectPersisted(
+                            exactPayload,
+                            declaredBytes,
+                            declaredSha256,
+                            updatedMs,
+                            heartbeatFrame,
+                            heartbeatSelectedId);
+            next = persisted.plan;
+        } catch (IllegalArgumentException invalidBase64) {
+            HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                    "",
+                    heartbeatFrame,
+                    "Stored heartbeat Base64 identity is invalid.");
+            next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+        }
+
+        boolean rebuild = HeartbeatOverlayRefreshPlan.shouldRebuild(
+                heartbeatRenderIdentity,
+                next);
+        boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                heartbeatAnnouncementIdentity,
+                next,
+                muted,
+                overlayVisible);
+
+        heartbeatFrame = next.frame;
+        heartbeatSelectedId = next.selectedControlId;
+        if (rebuild) rebuildHeartbeatLights(next.model);
+        if (announce) {
+            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
+        }
+
+        // Advance identities even while muted/hidden. Restoring presentation later
+        // must not replay an old transition as though it happened at restore time.
+        heartbeatRenderIdentity = next.renderIdentity;
+        heartbeatAnnouncementIdentity = next.announcementIdentity;
+    }
+
+    private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
+        heartbeatLights.removeAllViews();
+
+        int count = model.controls.size();
+        if (count == 0) {
+            heartbeatSummary.setText(model.refreshInterrupted
+                    ? "HEARTBEAT • CONTACT HELD"
+                    : "HEARTBEAT • waiting");
+        } else {
+            heartbeatSummary.setText("HEARTBEAT • " + count + " LIGHT" + (count == 1 ? "" : "S")
+                    + (model.refreshInterrupted ? " • CONTACT HELD" : ""));
+        }
+        heartbeatSummary.setContentDescription(model.collapsedContentDescription);
+
+        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+            Button light = button(control.visibleLabel);
+            light.setTextSize(10f);
+            light.setMaxLines(2);
+            light.setMinHeight(dp(Math.max(
+                    OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
+                    control.minTouchTargetDp)));
+            light.setMinimumHeight(dp(Math.max(
+                    OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
+                    control.minTouchTargetDp)));
+            light.setTag(control.id);
+            light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
+            light.setContentDescription(control.contentDescription);
+            light.setOnClickListener(v -> {
+                heartbeatSelectedId = control.id;
+                refreshHeartbeatSelection();
+                showHeartbeatDetail(control.detailContentDescription, true);
+            });
+            heartbeatLights.addView(light);
+        }
+
+        HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
+        if (selected != null) {
+            showHeartbeatDetail(selected.detailContentDescription, false);
+        } else if (model.refreshInterrupted) {
+            showHeartbeatDetail(
+                    "Refresh rejected. Last good heartbeat contact is preserved; no discarded attempted light is current.",
+                    false);
+        } else {
+            showHeartbeatDetail(
+                    "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
+                    false);
+        }
+        heartbeatLights.requestLayout();
+        heartbeatLights.post(this::clampAndPersistPosition);
+    }
+
+    private void refreshHeartbeatSelection() {
+        if (heartbeatLights == null) return;
+        for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            Object tag = child.getTag();
+            child.setSelected(tag != null
+                    && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+        }
+    }
+
+    private void showHeartbeatDetail(String detail, boolean announce) {
+        if (heartbeatDetail == null) return;
+        String safe = detail == null || detail.trim().isEmpty()
+                ? "No heartbeat detail available."
+                : detail.trim();
+        heartbeatDetail.setText(safe);
+        heartbeatDetail.setContentDescription(safe);
+        if (announce) heartbeatDetail.announceForAccessibility(safe);
     }
 
     private Button adamModeButton(String label, String mode, String description) {
