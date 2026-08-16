@@ -358,7 +358,7 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
-    public void visibleSelectionTicketDoesNotCareIfKeyboardFocusMovesLater() {
+    public void newerKeyboardFocusSupersedesVisibleSelectionTicket() {
         HeartbeatOverlayViewModel.Model accepted = model("selected", "first", "second");
         HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
                 19L,
@@ -370,12 +370,44 @@ public class HeartbeatViewportRestorePolicyTest {
                 accepted);
 
         assertEquals("selected", ticket.semanticId);
-        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 19L,
                 accepted,
                 "selected",
-                "second"));
+                "second",
+                false,
+                true));
+    }
+
+    @Test
+    public void selectionTicketCanProceedWhenExplicitScopeProvesNoDirectFocus() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                24L,
+                "selected",
+                true,
+                "",
+                false,
+                30,
+                accepted);
+
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                24L,
+                accepted,
+                "selected",
+                "",
+                false,
+                false));
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                24L,
+                accepted,
+                "selected",
+                "",
+                false,
+                true));
     }
 
     @Test
