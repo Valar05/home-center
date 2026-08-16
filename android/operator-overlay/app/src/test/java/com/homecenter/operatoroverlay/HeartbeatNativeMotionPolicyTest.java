@@ -149,6 +149,62 @@ public class HeartbeatNativeMotionPolicyTest {
     }
 
     @Test
+    public void summaryFallbackStillHonorsPresentationAndAnimatorGates() {
+        HeartbeatNativeMotionPolicy.Decision hidden =
+                HeartbeatNativeMotionPolicy.decideSummaryFallback(true, false, false, true);
+        HeartbeatNativeMotionPolicy.Decision reducedMotion =
+                HeartbeatNativeMotionPolicy.decideSummaryFallback(true, false, true, false);
+        HeartbeatNativeMotionPolicy.Decision nodeOwned =
+                HeartbeatNativeMotionPolicy.decideSummaryFallback(true, true, true, true);
+
+        assertFalse(hidden.animate);
+        assertEquals(
+                HeartbeatNativeMotionPolicy.Boundary.SURFACE_NOT_PRESENTED,
+                hidden.boundary);
+        assertFalse(reducedMotion.animate);
+        assertEquals(
+                HeartbeatNativeMotionPolicy.Boundary.PLATFORM_ANIMATORS_DISABLED,
+                reducedMotion.boundary);
+        assertFalse(nodeOwned.animate);
+        assertEquals(
+                HeartbeatNativeMotionPolicy.Boundary.NODE_OWNS_TRANSITION,
+                nodeOwned.boundary);
+    }
+
+    @Test
+    public void coldStartDoesNotTreatPersistedFrameAsNewMotionHistory() {
+        HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
+                "pulse-first",
+                Collections.singletonList(candidate(
+                        "warm-walls",
+                        HeartbeatSkillPolicy.State.ACTIVE,
+                        "wall already open before owner observed it",
+                        "evidence-first")),
+                true,
+                null);
+        HeartbeatOverlayRefreshPlan.Plan first =
+                HeartbeatOverlayRefreshPlan.fromFrame(firstFrame, "");
+
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce("", first));
+
+        HeartbeatSceneGraph.Frame changedFrame = HeartbeatSceneGraph.build(
+                "pulse-next",
+                Collections.singletonList(candidate(
+                        "warm-walls",
+                        HeartbeatSkillPolicy.State.RECOVERED,
+                        "owner observed a new material transition",
+                        "evidence-next")),
+                true,
+                firstFrame);
+        HeartbeatOverlayRefreshPlan.Plan changed =
+                HeartbeatOverlayRefreshPlan.fromFrame(changedFrame, "");
+
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                first.announcementIdentity,
+                changed));
+    }
+
+    @Test
     public void interruptedPreservedFrameCannotLeakPriorNodeMotion() {
         HeartbeatSceneGraph.Frame accepted = HeartbeatSceneGraph.build(
                 "pulse-accepted",
