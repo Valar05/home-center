@@ -201,15 +201,45 @@ public final class HeartbeatOverlayRefreshPlan {
     }
 
     /**
+     * Choose one semantic heartbeat control to anchor inside the horizontal
+     * viewport during a stable-structure in-place refresh.
+     *
+     * <p>Explicit semantic selection wins because it is the user's durable detail
+     * target. Otherwise the caller may offer the id of a directly keyboard-focused
+     * heartbeat Button. Both candidates must still exist in the accepted next model;
+     * stale ids fail closed to no anchor. This helper deliberately does not inspect,
+     * infer, request, or claim TalkBack accessibility focus.</p>
+     *
+     * <p>This is source policy only. Existing-owner Android wiring is a separate
+     * capability state until {@code OperatorOverlayService} consumes the result and
+     * runtime evidence observes the behavior.</p>
+     */
+    public static String viewportAnchorId(
+            String selectedControlId,
+            String keyboardFocusedControlId,
+            HeartbeatOverlayViewModel.Model acceptedNextModel) {
+        if (acceptedNextModel == null) return "";
+        String selected = clean(selectedControlId);
+        if (!selected.isEmpty() && acceptedNextModel.controlById(selected) != null) {
+            return acceptedNextModel.controlById(selected).id;
+        }
+        String focused = clean(keyboardFocusedControlId);
+        if (!focused.isEmpty() && acceptedNextModel.controlById(focused) != null) {
+            return acceptedNextModel.controlById(focused).id;
+        }
+        return "";
+    }
+
+    /**
      * Preserve a semantic control's horizontal viewport offset across an in-place
      * content refresh whose labels may change width.
      *
      * <p>Stable native object identity is not stable visible contact by itself: a
      * wider sibling can move the selected/focused Button even though the same Button
-     * instance survives. A future existing-owner wiring step can capture
-     * {@code viewportOffsetPx} before mutation, re-measure the same semantic id after
-     * layout, and use this pure bounded calculation to restore its prior viewport
-     * offset. No movement is manufactured when the child position is unchanged.</p>
+     * instance survives. Existing-owner wiring can capture {@code viewportOffsetPx}
+     * before mutation, re-measure the same semantic id after layout, and use this
+     * pure bounded calculation to restore its prior viewport offset. No movement is
+     * manufactured when the child position is unchanged.</p>
      *
      * <p>This is geometry policy only. It does not claim existing-service
      * consumption, Android focus retention, accessibility-focus ownership,
