@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport contact owner-wiring scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing the existing Operator Overlay owner measuring live selected and keyboard-focused heartbeat controls, rejecting an offscreen selection as visible contact, choosing the visible keyboard-focused fallback, preserving that semantic anchor through mutation, and distinguishing rebuild-caused keyboard focus loss from a different competing keyboard focus after layout. Runtime Android and TalkBack behavior remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport contact focus-scope scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing the existing Operator Overlay measuring live selected and keyboard-focused heartbeat controls, rejecting an offscreen selection as visible contact, choosing a visible keyboard-focused fallback, then distinguishing rebuild-caused heartbeat focus loss from direct focus moved to a different non-heartbeat overlay control. The focus-scope distinction exists as pure source policy and regression source; existing service owner consumption, Android runtime behavior, and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -11,13 +11,13 @@
       .ghost { fill: none; stroke: currentColor; stroke-width: 2; stroke-dasharray: 4 5; opacity: .72; }
       .tiny { font-size: 14px; }
       .label { font-size: 18px; font-weight: 700; }
-      .big { font-size: 25px; font-weight: 800; }
+      .big { font-size: 24px; font-weight: 800; }
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="466" rx="30"/>
-  <text class="big" x="56" y="66">WARM WALL / VISIBLE CONTACT ≠ SEMANTIC SELECTION</text>
-  <text class="tiny" x="56" y="92">OWNER VISIBILITY GATE SOURCE-WIRED • RUNTIME UNPROVEN • TALKBACK FOCUS UNCLAIMED • NOT PHONE DELIVERY</text>
+  <rect class="wall" x="28" y="26" width="904" height="486" rx="30"/>
+  <text class="big" x="56" y="66">WARM WALL / EMPTY HEARTBEAT FOCUS ≠ REBUILD PROOF</text>
+  <text class="tiny" x="56" y="92">FOCUS-SCOPE POLICY SOURCE YES • EXISTING-OWNER CONSUMPTION NO • TALKBACK FOCUS UNCLAIMED • NOT PHONE DELIVERY</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
   <text class="label" x="86" y="150">LIVE CAPTURE</text>
@@ -42,15 +42,16 @@
   <text class="tiny" x="730" y="199">□ FOCUSED VISIBLE</text>
   <text class="tiny" x="590" y="242">visibleViewportAnchorId → captureVisible</text>
 
-  <rect class="wall" x="66" y="298" width="826" height="104" rx="18"/>
-  <text class="label" x="86" y="326">AFTER LAYOUT / OWNER RECHECK</text>
-  <text class="tiny" x="86" y="350">Mutation may move the anchor or destroy its old native Button. Empty keyboard focus can be rebuild-caused.</text>
-  <text class="tiny" x="86" y="374">Same captured selection + no focus → restore may proceed. Different non-empty focus → ticket dies.</text>
-  <path class="wire" d="M650 362 H842"/>
-  <text class="tiny" x="675" y="388">GENERATION + OWNER → SCROLL</text>
+  <rect class="wall" x="66" y="298" width="826" height="128" rx="18"/>
+  <text class="label" x="86" y="326">AFTER MUTATION / FOCUS-SCOPE GATE</text>
+  <text class="tiny" x="86" y="350">Stable in-place refresh + heartbeat focus vanished → no rebuild amnesty.</text>
+  <text class="tiny" x="86" y="374">Rebuild + no direct focus anywhere → missing heartbeat focus may be mutation-caused.</text>
+  <text class="tiny" x="86" y="398">Rebuild + focus now on STOP / Adam input / another overlay control → stale keyboard ticket dies.</text>
+  <path class="wire" d="M640 386 H842"/>
+  <text class="tiny" x="664" y="416">MUTATION CLASS + FOCUS SCOPE</text>
 
-  <rect class="wall" x="66" y="420" width="826" height="44" rx="16"/>
-  <text class="tiny" x="86" y="447">Partial intersection counts. Exact-edge / offscreen / zero-width do not. No geometry-only Christmas twitch. Source wiring ≠ runtime proof.</text>
+  <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
+  <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Direct keyboard focus truth ≠ TalkBack accessibility focus. Source policy ≠ owner wiring.</text>
 
-  <text class="tiny" x="56" y="482">No phone surface consumed. No second renderer hatched. Focus-loss distinction does not claim keyboard or TalkBack focus survived.</text>
+  <text class="tiny" x="56" y="506">No phone surface consumed. No second renderer hatched. Next seam: existing owner supplies mutation class + overlay-wide direct-focus presence.</text>
 </svg>
