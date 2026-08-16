@@ -43,6 +43,14 @@ public final class HeartbeatOverlayViewModel {
         /** Exact source-side boundary retained separately from bounded speech projection. */
         public final String refreshBoundary;
         public final boolean transitionMotionAllowed;
+        /** True when at least one currently visible node owns this frame's one-shot cue. */
+        public final boolean anyNodeTransitionMotion;
+        /**
+         * True only for a material frame transition with no surviving/added node cue.
+         * This is the pure-removal case: the summary is the only remaining native
+         * surface capable of honestly representing that structural transition.
+         */
+        public final boolean summaryTransitionMotion;
         public final String collapsedContentDescription;
         public final List<LightControl> controls;
 
@@ -59,6 +67,12 @@ public final class HeartbeatOverlayViewModel {
             this.transitionMotionAllowed = transitionMotionAllowed;
             this.collapsedContentDescription = raw(collapsedContentDescription);
             this.controls = Collections.unmodifiableList(new ArrayList<>(controls));
+            boolean anyNodeMotion = false;
+            for (LightControl control : this.controls) {
+                anyNodeMotion |= control.transitionMotion;
+            }
+            this.anyNodeTransitionMotion = anyNodeMotion;
+            this.summaryTransitionMotion = transitionMotionAllowed && !anyNodeMotion;
         }
 
         /** Stable semantic lookup for selection retention across scene reordering. */
@@ -69,6 +83,38 @@ public final class HeartbeatOverlayViewModel {
                 if (control.id.toLowerCase(Locale.ROOT).equals(target)) return control;
             }
             return null;
+        }
+
+        /**
+         * UI-ready one-shot motion decision for one semantic control. The platform
+         * animator bit must come from the existing Android owner at the moment it
+         * applies the view update; this source model does not query Android settings.
+         */
+        public HeartbeatNativeMotionPolicy.Decision motionDecisionFor(
+                String id,
+                boolean heartbeatSurfaceVisible,
+                boolean platformAnimatorsEnabled) {
+            LightControl control = controlById(id);
+            return HeartbeatNativeMotionPolicy.decideNode(
+                    control != null && control.transitionMotion,
+                    transitionMotionAllowed,
+                    heartbeatSurfaceVisible,
+                    platformAnimatorsEnabled);
+        }
+
+        /**
+         * UI-ready fallback for a pure-removal transition where the removed control
+         * no longer exists to receive the cue. A later owner may apply this only to
+         * the existing heartbeat summary; it must not synthesize a replacement light.
+         */
+        public HeartbeatNativeMotionPolicy.Decision summaryMotionDecision(
+                boolean heartbeatSurfaceVisible,
+                boolean platformAnimatorsEnabled) {
+            return HeartbeatNativeMotionPolicy.decideSummaryFallback(
+                    transitionMotionAllowed,
+                    anyNodeTransitionMotion,
+                    heartbeatSurfaceVisible,
+                    platformAnimatorsEnabled);
         }
     }
 
