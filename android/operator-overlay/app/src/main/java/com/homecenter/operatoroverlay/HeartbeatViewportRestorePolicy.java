@@ -169,9 +169,11 @@ public final class HeartbeatViewportRestorePolicy {
 
     /**
      * Backward-compatible captured-owner revalidation for source callers that cannot
-     * yet distinguish mutation-caused native focus loss from focus moved elsewhere in
-     * the overlay. New owner wiring should use the overload with explicit focus-scope
-     * evidence rather than assuming every empty heartbeat-child focus is rebuild-caused.
+     * distinguish mutation-caused native focus loss from focus moved elsewhere in the
+     * overlay. Ambiguous empty heartbeat-child focus now fails closed: callers that
+     * can prove a focus-destroying rebuild and overlay-wide direct-focus absence must
+     * use the explicit overload below. This avoids treating missing evidence as rebuild
+     * evidence while the existing owner wiring catches up.
      */
     public static boolean shouldRestoreCapturedOwner(
             Ticket ticket,
@@ -185,7 +187,7 @@ public final class HeartbeatViewportRestorePolicy {
                 currentAcceptedModel,
                 currentSelectedControlId,
                 currentKeyboardFocusedControlId,
-                true,
+                false,
                 false);
     }
 
