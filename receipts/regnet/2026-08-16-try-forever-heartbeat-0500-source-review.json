@@ -1,0 +1,62 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-0500",
+  "claimReviewed": "Existing OperatorOverlayService source consumes the established heartbeat viewport-anchor policy during stable-structure in-place refresh without creating a neighboring UI owner or claiming TalkBack accessibility-focus ownership.",
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "source": {
+    "operatorOverlayServiceBlob": "d0be55ea97d5c80af03f0fcc1ed1c71cb2ddd568",
+    "serviceSourceCommit": "dccaaf16709c19898845e8f0991e821cc2154873",
+    "viewportSkillBlob": "545de14f3a0c5a7bb0ec1399fc37cd45cf46ea4e",
+    "nativeUiSkillBlob": "a54c299e7957d02180c77827dafa35f8a730c28c",
+    "warmWallSvgBlob": "5f4366773d89a54a0fb97d9e9c2a8c875b9717de"
+  },
+  "checks": {
+    "singleExistingOwner": "PASS",
+    "selectedSemanticIdFirst": "PASS",
+    "directKeyboardFocusFallbackOnly": "PASS",
+    "talkBackAccessibilityFocusNotQueriedOrSynthesized": "PASS",
+    "preMutationViewportOffsetCapture": "PASS",
+    "sameSemanticIdRefoundAfterLayout": "PASS",
+    "boundedAnchoredScrollMathReused": "PASS",
+    "rebuildFallbackDoesNotPretendAnchorRestoration": "PASS",
+    "scrollRestorationDoesNotEmitSemanticAnnouncement": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATIONS"
+  },
+  "reviewScars": [
+    {
+      "found": "Initial implementation used View.post(), which was weaker than the commissioned after-layout ordering claim.",
+      "repair": "Replaced generic post with a one-shot ViewTreeObserver.OnPreDrawListener that removes itself and restores from laid-out geometry before draw."
+    },
+    {
+      "found": "heartbeat-native-ui-projection skill still carried an obsolete keyboard-first viewport rule.",
+      "repair": "Synchronized durable doctrine to selected-first, direct-keyboard-focus fallback, matching HeartbeatOverlayRefreshPlan.viewportAnchorId(...)."
+    }
+  ],
+  "testEvidence": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "runId": 31940829138,
+    "jobId": 95149645061,
+    "headSha": "dccaaf16709c19898845e8f0991e821cc2154873",
+    "stepsExecuted": 0,
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionPolicySource": true,
+    "existingServiceConsumesViewportAnchorPolicySource": true,
+    "tested": false,
+    "runtimeViewportObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "notes": "Regression policy source already covers selected priority, keyboard fallback, stale/null anchors, clamp edges, and overflow. This review does not launder that source into executed test evidence."
+}
