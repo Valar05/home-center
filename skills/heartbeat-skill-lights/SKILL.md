@@ -34,7 +34,7 @@ A future renderer must receive explicit provenance and evidence rather than reve
 
 A source record is invalid for display when `id`, `label`, `provenanceKind`, `provenanceLocator`, `activationReason`, `consequence`, or `evidenceBoundary` is empty. `repository_skill` additionally requires `provenanceLocator` to resolve to an actual `skills/<id>/SKILL.md` or another exact repository skill path. Do not infer provenance from the label.
 
-`HeartbeatSkillPolicy.Candidate` may carry the complete typed envelope, and `hasTypedSourceContract(...)` distinguishes those records from legacy candidates whose provenance fields are intentionally empty. Legacy materiality is not silently changed during migration.
+`HeartbeatSkillPolicy.Candidate` may carry the complete typed envelope, and `hasTypedSourceContract(...)` distinguishes those records from legacy candidates whose provenance fields are intentionally empty. Legacy materiality is not silently changed during migration. The typed source gate also rejects unsafe semantic text before it can become display-ready speech/touch state; exact canonical payload is rejected rather than rewritten.
 
 ### Closed-world v1 envelope
 `heartbeat-skill-lights.v1` is a closed-world canonical envelope. Unknown root members and unknown light members are rejected rather than ignored. This prevents misspelled fields or aspirational capability fields such as `deployed`/`uiRendered` from silently hitchhiking beside valid telemetry and later being mistaken for evidence.
@@ -58,9 +58,15 @@ The helper deliberately does **not** read `SharedPreferences`, decode Android ba
 ### Semantic text safety
 Canonical heartbeat text eventually becomes spoken/touched detail, evidence display, and checkpoint identity. The pure parser therefore applies field-specific character limits to `pulseId`, `id`, `label`, provenance, activation reason, consequence, and evidence boundary rather than relying only on the raw JSON-string ceiling.
 
-Decoded semantic text must reject ISO control characters and unpaired UTF-16 surrogates. Valid surrogate pairs remain ordinary inert Unicode data. This is a semantic-ingestion rule, not an execution filter: command-looking text remains data and must never be evaluated or sent to a shell merely because it appears inside a heartbeat field.
+Decoded canonical semantic text must reject ISO control characters, unpaired UTF-16 surrogates, and directional bidi spoofing controls: U+061C, U+200E/U+200F, U+202A..U+202E, and U+2066..U+2069. Valid surrogate pairs remain ordinary inert Unicode data. U+200D ZERO WIDTH JOINER also remains valid because it is legitimate in emoji/grapheme sequences even though Java categorizes it as `Character.FORMAT`. Do **not** copy the broader human-facing log-boundary sanitizer into canonical payload semantics and accidentally outlaw useful Unicode.
 
-Wire protocol tokens are not exempt from decoded-string safety merely because they are short. `schema` and `state` must validate decoded control characters and surrogate structure **before** trimming/normalization, then apply their own narrow token bounds. A control character or unpaired surrogate that trim could otherwise erase is a fail-closed protocol wound, not a canonical token. This source rule does not imply that persisted runtime payloads are already routed through the parser.
+This is a semantic-ingestion rule, not an execution filter: command-looking text remains data and must never be evaluated or sent to a shell merely because it appears inside a heartbeat field. A directional-control wound is rejected rather than stripped so checkpoint/evidence identity is never silently rewritten.
+
+Wire protocol tokens are not exempt from decoded-string safety merely because they are short. `schema` and `state` must validate decoded control characters, surrogate structure, and directional bidi controls **before** trimming/normalization, then apply their own narrow token bounds. A control character, unpaired surrogate, or bidi direction control that trim or display order could otherwise hide is a fail-closed protocol wound, not a canonical token. `pulseId` follows the same rule before it can become visible/attempted scene identity.
+
+`HeartbeatSkillPolicy` repeats the decoded semantic safety check at the display-ready source-contract boundary so direct source callers cannot bypass parser assumptions. `HeartbeatSceneGraph` also rejects an unsafe directly supplied pulse id without echoing that identity into the attempted frame. The exact reusable rule is durable at `skills/semantic-text-safety/SKILL.md`.
+
+This source rule does not imply that persisted runtime payloads are already routed through the parser.
 
 ## Runtime semantics
 The Operator Overlay should consume a typed heartbeat-light payload rather than infer doctrine from prose. Preserve previous durable light state until the new pulse is complete; never flash aspirational work as active.
@@ -82,6 +88,7 @@ The specimen exists to make later rendering boring and auditable:
 - a typed node preserves provenance, activation reason, concrete consequence, and evidence boundary for touch/TalkBack detail;
 - the scene itself consumes only `selectDisplayReadyLights(...)`; a material candidate missing the complete typed source/evidence contract rejects the attempted frame rather than silently becoming a weaker node;
 - a complete pulse with a blank pulse identity is invalid and cannot replace the last complete contact surface;
+- an unsafe direct pulse identity containing control/malformed-surrogate/directional-bidi text is rejected before it can become `attemptedPulseId`; the last-good contact survives and the unsafe id is not echoed into speech or visual state;
 - rejected/incomplete refreshes expose an exact `refreshBoundary`, preserve the last complete frame, and never earn transition motion;
 - motion is allowed only when state or consequence actually changes, or when a material light is added or removed; evidence/provenance metadata refresh alone does not earn Christmas-light motion;
 - an incomplete refresh preserves the last complete visible frame and exposes the interrupted attempted pulse separately;
@@ -122,7 +129,7 @@ The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-so
 
 The source-only contact-preservation specimen at `docs/try-forever/heartbeat-contact-sheet-source-specimen.html` visualizes complete, interrupted-preserved, evidence-only refresh, and materially recovered frames. It has no autoplay loop: one brief semantic motion is allowed only on a selected frame whose transition fingerprint changes, and `prefers-reduced-motion` disables that motion. The specimen is repository source art only, not Android runtime proof.
 
-The source-only motion-clamp specimen at `docs/try-forever/heartbeat-motion-clamp-source-specimen.html` additionally demonstrates two distinct fail-closed wounds: malformed `schema`/`state` protocol text after valid persisted identity, and persisted byte-count/SHA mismatch **before** semantic parsing. Both preserve the last-good visible contact and earn no transition motion. It is a teaching/reference organism only, not evidence that the Android overlay has consumed the persisted identity, parsed the JSON, or rendered either rejection.
+The source-only motion-clamp specimen at `docs/try-forever/heartbeat-motion-clamp-source-specimen.html` demonstrates distinct fail-closed wounds including malformed `schema`/`state` protocol text, persisted byte-count/SHA mismatch **before** semantic parsing, malformed raw UTF-8, semantic identity collision, and directional bidi poisoning. Its semantic-bidi state explicitly distinguishes rejected RLO/LRI-style controls from legitimate ZWJ Unicode. All rejection states preserve last-good visible contact and earn no transition motion. It is a teaching/reference organism only, not evidence that the Android overlay has consumed the persisted identity, parsed the JSON, or rendered either rejection.
 
 ## Visual rule
 Use native/vector/DOM/drawable primitives. No raster status art. Warm walls and Christmas-light motion are allowed only when they encode real transitions; blinking without a state transition is forbidden.
@@ -141,7 +148,7 @@ A pulse that is syntactically marked complete but is semantically anonymous or c
 
 A syntactically valid JSON envelope with unknown canonical members is also invalid for presentation. Preserve last-good contact; do not accept schema drift by silence.
 
-A syntactically valid envelope whose decoded `schema` or `state` token contains a control character or unpaired surrogate is likewise invalid for presentation even if trimming would reveal a familiar token. Preserve the last-good frame and expose the parser boundary; malformed protocol text never earns motion or a new contact checkpoint.
+A syntactically valid envelope whose decoded `schema`, `state`, `pulseId`, or typed semantic field contains a control character, unpaired surrogate, or directional bidi control is likewise invalid for presentation even if trimming or bidi display order would reveal or disguise familiar text. Preserve the last-good frame and expose the parser/scene boundary; malformed or spoofable semantic text never earns motion or a new contact checkpoint. Do not strip the control and pretend the rewritten value is canonical source identity.
 
 ## Done
 This skill is satisfied only when the current heartbeat can name which skills lit, why, what each changed, and what evidence supports the result. UI wiring is a separate capability state and must not be claimed until the existing Operator Overlay actually decodes the persisted payload, verifies its identity, parses it, renders it, and exposes it on device through an authorized lane.
