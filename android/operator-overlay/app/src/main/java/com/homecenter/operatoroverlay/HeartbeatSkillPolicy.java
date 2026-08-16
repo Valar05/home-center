@@ -15,6 +15,8 @@ import java.util.Set;
  * blocked/fault boundary that the operator needs to know about.
  */
 public final class HeartbeatSkillPolicy {
+    /** Maximum label speech from one focused light. Exact candidate text remains unchanged. */
+    public static final int MAX_SPOKEN_LABEL_CODE_POINTS = 96;
     /** Maximum consequence speech in the compact focus description. */
     public static final int MAX_COMPACT_CONSEQUENCE_CODE_POINTS = 160;
     /** Expanded detail is on-demand, but still must not become a multi-kilobyte speech burst. */
@@ -167,16 +169,17 @@ public final class HeartbeatSkillPolicy {
     }
 
     /**
-     * Compact focus description. The consequence is deliberately bounded so focus
-     * movement across a broad constellation cannot trigger a multi-kilobyte speech
-     * burst. Expanded typed speech detail is available through
-     * {@link #detailContentDescription(Candidate)} while the exact typed fields stay
-     * on {@link Candidate} for non-speech inspection and evidence handling.
+     * Compact focus description. Spoken label and consequence are deliberately
+     * bounded so a direct source caller cannot turn one focus action into an
+     * unbounded TalkBack burst. Exact candidate fields remain unchanged for explicit
+     * inspection/evidence handling.
      */
     public static String contentDescription(Candidate candidate) {
         if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
-        return "Skill " + candidate.label + ", "
-                + candidate.state.name().toLowerCase(Locale.ROOT)
+        return "Skill " + compactSpeechField(
+                        candidate.label,
+                        MAX_SPOKEN_LABEL_CODE_POINTS)
+                + ", " + candidate.state.name().toLowerCase(Locale.ROOT)
                 + ". " + compactSpeechField(
                         candidate.consequence,
                         MAX_COMPACT_CONSEQUENCE_CODE_POINTS)
@@ -189,8 +192,8 @@ public final class HeartbeatSkillPolicy {
      * <p>The Candidate retains the complete typed fields for explicit non-speech
      * inspection and evidence handling. This spoken projection independently caps
      * each large semantic field by Unicode code point and marks truncation, so a
-     * legal parser-bounded record cannot turn one focus action into a multi-kilobyte
-     * TalkBack monologue or split a surrogate pair.</p>
+     * legal parser-bounded record or direct source record cannot turn one focus
+     * action into a multi-kilobyte TalkBack monologue or split a surrogate pair.</p>
      *
      * <p>Legacy candidates intentionally fall back to the compact description rather
      * than inventing provenance, activation reason, or evidence they do not carry.</p>
@@ -198,8 +201,10 @@ public final class HeartbeatSkillPolicy {
     public static String detailContentDescription(Candidate candidate) {
         if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
         if (!hasTypedSourceContract(candidate)) return contentDescription(candidate);
-        return "Skill " + candidate.label + ", "
-                + candidate.state.name().toLowerCase(Locale.ROOT)
+        return "Skill " + boundedDetailSpeechField(
+                        candidate.label,
+                        MAX_SPOKEN_LABEL_CODE_POINTS)
+                + ", " + candidate.state.name().toLowerCase(Locale.ROOT)
                 + ". Why: " + boundedDetailSpeechField(
                         candidate.activationReason,
                         MAX_DETAIL_REASON_CODE_POINTS)
