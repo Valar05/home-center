@@ -1,0 +1,70 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "time": "2026-08-16T10:00:00-05:00",
+  "fronts_advanced": [
+    "existing-owner live visible-contact capture wiring",
+    "generation/captured-owner restore policy",
+    "accessibility regression source",
+    "viewport/native-UI repository skill synchronization",
+    "existing non-raster warm-wall viewport scar",
+    "Regnet/Venice evidence review"
+  ],
+  "heartbeat_lights": {
+    "failure_is_the_shovel": "LIT — unchanged CI was not manually retried; code review instead exposed the structural-rebuild focus-loss contradiction.",
+    "canon_auto_select": "LIT — heartbeat-viewport-contact and heartbeat-native-ui-projection were materially relevant and synchronized.",
+    "autocorrect_judgment_jar": "DARK — no STT/autocorrect ambiguity materially affected this slice.",
+    "originality_tax": "LIT — first-pass owner revalidation was not cosmetically repeated; it was replanned when rebuild-caused focus loss falsified the assumption.",
+    "hunger": "LIT — one viewport wound propagated through owner source, policy, fixtures, skill doctrine, art, and receipts.",
+    "ever_polished_interpreter_eat_everything": "LIT — semantic selection, visible contact, direct keyboard focus, mutation-caused focus loss, and competing focus were separated instead of collapsed into one state.",
+    "operator_campaign_harroway": "LIT — existing OperatorOverlayService remained sole owner; no neighboring renderer/controller/state store.",
+    "she_raw": "FAULT — authoritative ambient consult returned account-connection HTTP 400; no synthetic substitute.",
+    "venice_judgment": "LIT — bounded source slice STOP_ALLOWED; campaign CONTINUE_REQUIRED; runtime/delivery not promoted.",
+    "regnet_qa": "LIT — implemented source/readback PASS; TESTED remains blocked by Actions budget.",
+    "accessibility_talkback_touch": "LIT — visible selection, direct keyboard focus, viewport contact, and TalkBack focus remain four distinct states; existing native Buttons/touch semantics preserved.",
+    "phone_runtime_phone_hands": "DARK_FIREWALLED — zero phone commands, tickets, queue/device probes, recovery mutations, or physical acceptance actions.",
+    "deterministic_routing": "LIT — visible selected-first / visible keyboard-fallback choice and stale-owner rejection are deterministic and semantic-id based.",
+    "evidence_capability_state": "LIT — source/readback/test/runtime/deploy/callable/execute/deliver/accept states remain separate.",
+    "recovery_checkpoint_idempotence": "LIT — generation-bound tickets and captured interaction-owner context reject stale work without wall-clock evidence.",
+    "strange_non_raster_art": "LIT — existing SVG mutated in place; no raster and no deployment claim.",
+    "warm_walls": "LIT — visible-contact and rebuild-focus-loss scars made source ownership consequences visible.",
+    "christmas_light_scene_graph": "LIT — geometry/focus ownership changes do not independently earn decorative motion.",
+    "contact_preservation": "LIT — visible viewport contact survives source mutations without equating selection or focus with contact."
+  },
+  "cross_pollination": "0900 geometry policy -> existing-owner live measurement -> captured interaction owner -> code review finds rebuild destroys keyboard focus -> Originality Tax replan -> empty focus distinguished from competing focus -> regression fixtures -> synchronized native-UI/viewport skills -> warm-wall scar -> Regnet/Venice preserve the capability membrane.",
+  "source_identities": {
+    "OperatorOverlayService.java": "80f9e4d7050c5adf1bce481209be23f98dc5184e",
+    "HeartbeatViewportRestorePolicy.java": "b8bf39204159a0c9d9c3eadf3edd826d0e1e3d1c",
+    "HeartbeatViewportRestorePolicyTest.java": "6d80b0e7c1ca8dc7c0efbd14496343eb0a1e157a",
+    "heartbeat-viewport-contact/SKILL.md": "29e987c3983d2fc68d958dca78d014198ee3947e",
+    "heartbeat-native-ui-projection/SKILL.md": "b63f9701b46ea08e188f53a63efacd14abe8a691",
+    "heartbeat-viewport-anchor-scar-20260816.svg": "72f14fed52a0eebe310baee719aa99d85064a2b4"
+  },
+  "ci": {
+    "code_test_head": "5cce0fcd3da347ee5ee4a0f951da616eb9c2544c",
+    "operator_overlay_run": 31954791345,
+    "job": 95183659842,
+    "executed_steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "capability_state": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "existing_owner_visible_contact_gate_source_wired": true,
+    "mutation_caused_focus_loss_distinction_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0,
+  "campaign": "CONTINUE_REQUIRED"
+}
