@@ -252,7 +252,7 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
-    public void keyboardDerivedTicketSurvivesMutationCausedFocusLossButNotCompetingFocus() {
+    public void legacyCapturedOwnerFailsClosedOnAmbiguousEmptyHeartbeatFocus() {
         HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
         HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
                 18L,
@@ -263,7 +263,7 @@ public class HeartbeatViewportRestorePolicyTest {
                 22,
                 accepted);
 
-        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 18L,
                 accepted,
