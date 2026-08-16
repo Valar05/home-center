@@ -1,0 +1,31 @@
+{
+  "schema": "venice.completion_review.v1",
+  "heartbeat": "2026-08-16-1800",
+  "mission_fidelity": "PASS",
+  "plan_order": "PASS_PLAN_RECEIPT_PRECEDED_MUTATION",
+  "code_first_review": {
+    "result": "PASS_BOUNDED_SOURCE_SLICE",
+    "reason": "The change narrows presentation identity without weakening exact checkpoint identity, composes existing heartbeat organs, adds regression source, and does not create a second owner.",
+    "important_distinction": "Semantic ids are case-insensitive UI ownership but exact source spelling remains evidence. Only presentation identity folds the id field; labels, provenance, activation reason, state, consequence, evidence, focus order, and touch target remain exact."
+  },
+  "accessibility_review": {
+    "result": "PASS_SOURCE_SEMANTICS_ONLY",
+    "reason": "Case-only id drift no longer earns a Button content refresh or unsolicited announcement when the presented surface is otherwise unchanged, reducing avoidable focus/TalkBack churn. Runtime TalkBack remains unobserved."
+  },
+  "art_review": {
+    "result": "PASS_SOURCE_ONLY",
+    "artifact": "docs/try-forever/heartbeat-motion-clamp-source-specimen.html",
+    "consequence": "Existing warm-wall specimen gained a twelfth case-drift scar instead of spawning a neighboring artifact or claiming Android deployment."
+  },
+  "she_raw": {
+    "status": "FAULT",
+    "boundary": "Authoritative connector returned HTTP 400 account-connection failure; no synthetic reviewer substituted."
+  },
+  "regnet": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "test_boundary": "Operator Overlay Android job 95240854272 on source/art head e2c2b44e840a6fb905a709175b47557ccf69d406 executed zero steps because Actions budget prevented the job from starting.",
+  "p0_phone_firewall": "PASS_ZERO_PHONE_OR_P0_SURFACE_CONSUMPTION",
+  "capability_membrane": "IMPLEMENTED_SOURCE_YES / EXACT_GITHUB_READBACK_YES / REGRESSION_SOURCE_YES / TESTED_NO / RUNTIME_UI_NO / RUNTIME_TALKBACK_NO / DEPLOYED_NO / CALLABLE_NO / EXECUTED_NO / DELIVERED_NO / ACCEPTED_NO",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "merge_permission": false
+}
