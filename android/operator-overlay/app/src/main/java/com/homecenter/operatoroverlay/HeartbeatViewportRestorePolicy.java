@@ -168,20 +168,10 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
-     * Revalidate the interaction owner recorded by a geometry-aware capture without
-     * reinterpreting mutation-caused geometry or native focus destruction as user
-     * intent.
-     *
-     * <p>If visible selection owned the ticket, the same accepted selection must still
-     * own it. If visible direct keyboard focus owned the ticket because selection was
-     * offscreen, the accepted selection state must remain identical and a different
-     * non-empty direct keyboard focus supersedes the ticket. An empty current keyboard
-     * focus is allowed because a structural rebuild can destroy the old native Button
-     * before pre-draw; treating that expected mutation effect as user intent would make
-     * keyboard-derived rebuild restoration impossible.</p>
-     *
-     * <p>This does not claim keyboard focus was preserved. It only distinguishes
-     * mutation-caused focus loss from an observed competing focus owner.</p>
+     * Backward-compatible captured-owner revalidation for source callers that cannot
+     * yet distinguish mutation-caused native focus loss from focus moved elsewhere in
+     * the overlay. New owner wiring should use the overload with explicit focus-scope
+     * evidence rather than assuming every empty heartbeat-child focus is rebuild-caused.
      */
     public static boolean shouldRestoreCapturedOwner(
             Ticket ticket,
@@ -189,6 +179,40 @@ public final class HeartbeatViewportRestorePolicy {
             HeartbeatOverlayViewModel.Model currentAcceptedModel,
             String currentSelectedControlId,
             String currentKeyboardFocusedControlId) {
+        return shouldRestoreCapturedOwner(
+                ticket,
+                currentGeneration,
+                currentAcceptedModel,
+                currentSelectedControlId,
+                currentKeyboardFocusedControlId,
+                true,
+                false);
+    }
+
+    /**
+     * Revalidate the interaction owner recorded by a geometry-aware capture without
+     * reinterpreting mutation-caused geometry or native focus destruction as user
+     * intent.
+     *
+     * <p>If visible selection owned the ticket, the same accepted selection must still
+     * own it. If visible direct keyboard focus owned the ticket because selection was
+     * offscreen, the accepted selection state must remain identical and a different
+     * non-empty direct keyboard focus supersedes the ticket.</p>
+     *
+     * <p>An empty heartbeat-child focus is ambiguous. It may be mutation-caused only
+     * when {@code mutationMayDestroyKeyboardFocus} is true and there is no known direct
+     * focus elsewhere in the overlay. Stable in-place refreshes must not use rebuild
+     * amnesty, and a non-heartbeat focused overlay control is a real competing owner.
+     * This still does not inspect or claim TalkBack accessibility focus.</p>
+     */
+    public static boolean shouldRestoreCapturedOwner(
+            Ticket ticket,
+            long currentGeneration,
+            HeartbeatOverlayViewModel.Model currentAcceptedModel,
+            String currentSelectedControlId,
+            String currentKeyboardFocusedControlId,
+            boolean mutationMayDestroyKeyboardFocus,
+            boolean anyDirectKeyboardFocusPresent) {
         if (!shouldRestore(ticket, currentGeneration, currentAcceptedModel)) return false;
         String currentSelected = acceptedControlId(currentSelectedControlId, currentAcceptedModel);
         String currentKeyboard = acceptedControlId(currentKeyboardFocusedControlId, currentAcceptedModel);
@@ -197,8 +221,11 @@ public final class HeartbeatViewportRestorePolicy {
         }
         if (sameId(ticket.semanticId, ticket.keyboardFocusedControlIdAtCapture)) {
             if (!sameId(ticket.selectedControlIdAtCapture, currentSelected)) return false;
-            return currentKeyboard.isEmpty()
-                    || sameId(ticket.keyboardFocusedControlIdAtCapture, currentKeyboard);
+            if (!currentKeyboard.isEmpty()) {
+                return sameId(ticket.keyboardFocusedControlIdAtCapture, currentKeyboard);
+            }
+            if (anyDirectKeyboardFocusPresent) return false;
+            return mutationMayDestroyKeyboardFocus;
         }
         return false;
     }
