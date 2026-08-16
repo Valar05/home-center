@@ -13,8 +13,9 @@ import java.util.List;
  *
  * This class does not persist checkpoints, own a renderer, touch transport, or
  * mutate the phone/P0 execution path. It only gives existing scene consumers a
- * deterministic identity for the visible contact surface and for transition
- * semantics so retries can be compared without guessing from timestamps.
+ * deterministic identity for exact visible contact, for the presented/touchable
+ * surface, and for transition semantics so retries can be compared without guessing
+ * from timestamps.
  */
 public final class HeartbeatFrameCheckpoint {
     private HeartbeatFrameCheckpoint() {
@@ -25,8 +26,10 @@ public final class HeartbeatFrameCheckpoint {
      *
      * Attempted pulse identity and refresh failure text are deliberately excluded:
      * an interrupted refresh must not change the fingerprint of the contact that
-     * remains visible. Provenance/evidence detail is included because it is part of
-     * the touch/TalkBack surface even when it does not earn transition motion.
+     * remains visible. The accepted visible pulse identity stays included here
+     * because this checkpoint is also evidence/idempotence identity. Provenance and
+     * evidence detail are included because they are part of the touch/TalkBack
+     * surface even when they do not earn transition motion.
      */
     public static String contactSha256(HeartbeatSceneGraph.Frame frame) {
         Canonical out = new Canonical("heartbeat-contact.v1");
@@ -36,19 +39,31 @@ public final class HeartbeatFrameCheckpoint {
         }
 
         out.value(frame.visiblePulseId);
-        out.integer(frame.nodes.size());
-        for (HeartbeatSceneGraph.Node node : frame.nodes) {
-            out.value(node.id);
-            out.value(node.label);
-            out.value(node.provenanceKind);
-            out.value(node.provenanceLocator);
-            out.value(node.activationReason);
-            out.value(node.state == null ? "" : node.state.name());
-            out.value(node.consequence);
-            out.value(node.evidenceBoundary);
-            out.integer(node.focusIndex);
-            out.integer(node.touchTargetDp);
+        appendPresentedNodes(out, frame);
+        return sha256(out.text());
+    }
+
+    /**
+     * Identity of only the currently presented/touchable last-good surface.
+     *
+     * <p>The accepted pulse id is deliberately excluded. A producer may emit a new
+     * pulse id whose visible controls, order, detail, touch targets, and evidence are
+     * byte-for-byte equivalent at the Java String level. That is a new exact
+     * checkpoint, but it is not new UI work and must not churn native controls or
+     * TalkBack just because an otherwise invisible pulse id advanced.</p>
+     *
+     * <p>If a later refresh is interrupted, interruption state/boundary live outside
+     * this fingerprint and the scene can still expose the exact current visible
+     * pulse id in its bounded interruption description.</p>
+     */
+    public static String presentationSha256(HeartbeatSceneGraph.Frame frame) {
+        Canonical out = new Canonical("heartbeat-presentation.v1");
+        if (frame == null) {
+            out.value("<no-frame>");
+            return sha256(out.text());
         }
+
+        appendPresentedNodes(out, frame);
         return sha256(out.text());
     }
 
@@ -94,10 +109,32 @@ public final class HeartbeatFrameCheckpoint {
         return contactSha256(left).equals(contactSha256(right));
     }
 
+    public static boolean samePresentation(
+            HeartbeatSceneGraph.Frame left,
+            HeartbeatSceneGraph.Frame right) {
+        return presentationSha256(left).equals(presentationSha256(right));
+    }
+
     public static boolean sameTransitionState(
             HeartbeatSceneGraph.Frame left,
             HeartbeatSceneGraph.Frame right) {
         return transitionSha256(left).equals(transitionSha256(right));
+    }
+
+    private static void appendPresentedNodes(Canonical out, HeartbeatSceneGraph.Frame frame) {
+        out.integer(frame.nodes.size());
+        for (HeartbeatSceneGraph.Node node : frame.nodes) {
+            out.value(node.id);
+            out.value(node.label);
+            out.value(node.provenanceKind);
+            out.value(node.provenanceLocator);
+            out.value(node.activationReason);
+            out.value(node.state == null ? "" : node.state.name());
+            out.value(node.consequence);
+            out.value(node.evidenceBoundary);
+            out.integer(node.focusIndex);
+            out.integer(node.touchTargetDp);
+        }
     }
 
     private static String sha256(String canonical) {
