@@ -213,18 +213,35 @@ public final class HeartbeatSkillPolicy {
      * This legacy candidate-level projection is retained for compatibility. New
      * scene consumers should use HeartbeatFrameAccessibility so interrupted contact,
      * broad-summary bounds, and attention-first naming are derived from the exact
-     * visible frame.
+     * visible frame. Unsafe legacy candidates are never named; the summary reports
+     * an exact omission count instead of claiming a count and then silently speaking
+     * nothing for a spoofable material light.
      */
     public static String collapsedContentDescription(List<Candidate> candidates) {
         List<Candidate> selected = selectMaterialLights(candidates);
         if (selected.isEmpty()) return "No material skill lights.";
 
-        StringBuilder out = new StringBuilder();
-        out.append(selected.size())
-                .append(selected.size() == 1 ? " material skill light. " : " material skill lights. ");
+        List<String> descriptions = new ArrayList<>();
+        int rejected = 0;
         for (Candidate candidate : selected) {
             String description = contentDescription(candidate);
-            if (!description.isEmpty()) out.append(description).append(' ');
+            if (description.isEmpty()) rejected++;
+            else descriptions.add(description);
+        }
+
+        StringBuilder out = new StringBuilder();
+        if (!descriptions.isEmpty()) {
+            out.append(descriptions.size())
+                    .append(descriptions.size() == 1
+                            ? " material skill light. "
+                            : " material skill lights. ");
+            for (String description : descriptions) out.append(description).append(' ');
+        }
+        if (rejected > 0) {
+            out.append(rejected)
+                    .append(rejected == 1
+                            ? " material light was omitted from speech because its semantic text was rejected."
+                            : " material lights were omitted from speech because their semantic text was rejected.");
         }
         return out.toString().trim();
     }
