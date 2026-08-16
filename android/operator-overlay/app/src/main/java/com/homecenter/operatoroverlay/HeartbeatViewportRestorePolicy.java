@@ -222,9 +222,9 @@ public final class HeartbeatViewportRestorePolicy {
         if (!shouldRestore(ticket, currentGeneration, currentAcceptedModel)) return false;
         String currentSelected = acceptedControlId(currentSelectedControlId, currentAcceptedModel);
         String currentKeyboard = acceptedControlId(currentKeyboardFocusedControlId, currentAcceptedModel);
-        String capturedKeyboard = acceptedControlId(
-                ticket.keyboardFocusedControlIdAtCapture,
-                currentAcceptedModel);
+        // Capture-time interaction evidence remains evidence even if that secondary
+        // focused control disappears from the accepted current model during rebuild.
+        String capturedKeyboard = ticket.keyboardFocusedControlIdAtCapture;
         if (sameId(ticket.semanticId, ticket.selectedControlIdAtCapture)) {
             if (!sameId(ticket.selectedControlIdAtCapture, currentSelected)) return false;
             if (!currentKeyboard.isEmpty()) {
