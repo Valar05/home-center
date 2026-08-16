@@ -169,13 +169,19 @@ public final class HeartbeatViewportRestorePolicy {
 
     /**
      * Revalidate the interaction owner recorded by a geometry-aware capture without
-     * reinterpreting mutation-caused post-layout geometry as user intent.
+     * reinterpreting mutation-caused geometry or native focus destruction as user
+     * intent.
      *
      * <p>If visible selection owned the ticket, the same accepted selection must still
      * own it. If visible direct keyboard focus owned the ticket because selection was
-     * offscreen, both the accepted selection state and keyboard-focus state must remain
-     * exactly the same. This lets layout move the anchor while rejecting a real
-     * same-generation user interaction change.</p>
+     * offscreen, the accepted selection state must remain identical and a different
+     * non-empty direct keyboard focus supersedes the ticket. An empty current keyboard
+     * focus is allowed because a structural rebuild can destroy the old native Button
+     * before pre-draw; treating that expected mutation effect as user intent would make
+     * keyboard-derived rebuild restoration impossible.</p>
+     *
+     * <p>This does not claim keyboard focus was preserved. It only distinguishes
+     * mutation-caused focus loss from an observed competing focus owner.</p>
      */
     public static boolean shouldRestoreCapturedOwner(
             Ticket ticket,
@@ -190,8 +196,9 @@ public final class HeartbeatViewportRestorePolicy {
             return sameId(ticket.selectedControlIdAtCapture, currentSelected);
         }
         if (sameId(ticket.semanticId, ticket.keyboardFocusedControlIdAtCapture)) {
-            return sameId(ticket.selectedControlIdAtCapture, currentSelected)
-                    && sameId(ticket.keyboardFocusedControlIdAtCapture, currentKeyboard);
+            if (!sameId(ticket.selectedControlIdAtCapture, currentSelected)) return false;
+            return currentKeyboard.isEmpty()
+                    || sameId(ticket.keyboardFocusedControlIdAtCapture, currentKeyboard);
         }
         return false;
     }
