@@ -137,12 +137,18 @@ public final class HeartbeatSkillPolicy {
      * This deliberately does not change legacy materiality. Legacy candidates stay
      * selectable until the existing ingress owner is migrated, but callers can now
      * distinguish them from records that satisfy the durable source contract.
+     *
+     * Canonical typed fields also have to be safe for visible/touch/speech use.
+     * Directional-format controls are rejected rather than normalized so exact
+     * canonical source identity cannot silently change before checkpointing or
+     * evidence review. Ordinary Unicode remains data, including ZWJ sequences.
      */
     public static boolean hasTypedSourceContract(Candidate candidate) {
         if (candidate == null
                 || candidate.id.isEmpty()
                 || candidate.label.isEmpty()
                 || candidate.consequence.isEmpty()) return false;
+        if (!hasSafeSemanticSurface(candidate)) return false;
         if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
         if (!isAllowedProvenanceLocator(candidate.provenanceKind, candidate.provenanceLocator)) {
             return false;
@@ -159,7 +165,7 @@ public final class HeartbeatSkillPolicy {
      * on {@link Candidate} for non-speech inspection and evidence handling.
      */
     public static String contentDescription(Candidate candidate) {
-        if (!isMaterial(candidate)) return "";
+        if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
         return "Skill " + candidate.label + ", "
                 + candidate.state.name().toLowerCase(Locale.ROOT)
                 + ". " + compactSpeechField(
@@ -181,7 +187,7 @@ public final class HeartbeatSkillPolicy {
      * than inventing provenance, activation reason, or evidence they do not carry.</p>
      */
     public static String detailContentDescription(Candidate candidate) {
-        if (!isMaterial(candidate)) return "";
+        if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
         if (!hasTypedSourceContract(candidate)) return contentDescription(candidate);
         return "Skill " + candidate.label + ", "
                 + candidate.state.name().toLowerCase(Locale.ROOT)
@@ -217,7 +223,8 @@ public final class HeartbeatSkillPolicy {
         out.append(selected.size())
                 .append(selected.size() == 1 ? " material skill light. " : " material skill lights. ");
         for (Candidate candidate : selected) {
-            out.append(contentDescription(candidate)).append(' ');
+            String description = contentDescription(candidate);
+            if (!description.isEmpty()) out.append(description).append(' ');
         }
         return out.toString().trim();
     }
@@ -252,6 +259,56 @@ public final class HeartbeatSkillPolicy {
                 && !locator.contains("../")
                 && !locator.contains("/./")
                 && !locator.contains("//");
+    }
+
+    /**
+     * Decoded semantic text that can later become visible, spoken, or fingerprinted.
+     *
+     * Empty text is structurally safe here; callers separately decide which fields
+     * are required. ISO controls, malformed UTF-16, and directional bidi controls
+     * fail closed. We intentionally do not reject every Unicode FORMAT code point:
+     * U+200D ZERO WIDTH JOINER is legitimate inside emoji/grapheme sequences and is
+     * not itself a directional spoofing control.
+     */
+    static boolean isSafeSemanticText(String value) {
+        if (value == null || value.isEmpty()) return true;
+        for (int index = 0; index < value.length();) {
+            char c = value.charAt(index);
+            if (Character.isHighSurrogate(c)) {
+                if (index + 1 >= value.length()
+                        || !Character.isLowSurrogate(value.charAt(index + 1))) {
+                    return false;
+                }
+                int codePoint = Character.toCodePoint(c, value.charAt(index + 1));
+                if (isBidiDirectionalControl(codePoint)) return false;
+                index += 2;
+                continue;
+            }
+            if (Character.isLowSurrogate(c)) return false;
+            if (Character.isISOControl(c)) return false;
+            if (isBidiDirectionalControl(c)) return false;
+            index++;
+        }
+        return true;
+    }
+
+    private static boolean hasSafeSemanticSurface(Candidate candidate) {
+        return candidate != null
+                && isSafeSemanticText(candidate.id)
+                && isSafeSemanticText(candidate.label)
+                && isSafeSemanticText(candidate.provenanceKind)
+                && isSafeSemanticText(candidate.provenanceLocator)
+                && isSafeSemanticText(candidate.activationReason)
+                && isSafeSemanticText(candidate.consequence)
+                && isSafeSemanticText(candidate.evidenceBoundary);
+    }
+
+    private static boolean isBidiDirectionalControl(int codePoint) {
+        return codePoint == 0x061C
+                || codePoint == 0x200E
+                || codePoint == 0x200F
+                || (codePoint >= 0x202A && codePoint <= 0x202E)
+                || (codePoint >= 0x2066 && codePoint <= 0x2069);
     }
 
     private static String humanizeProvenanceKind(String provenanceKind) {
