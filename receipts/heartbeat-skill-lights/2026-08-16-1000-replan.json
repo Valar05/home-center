@@ -1,0 +1,20 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "time": "2026-08-16T10:00:00-05:00",
+  "trigger": "Code-first review found that a keyboard-derived viewport ticket would be rejected after a structural rebuild solely because rebuilding native Buttons can clear direct keyboard focus before pre-draw.",
+  "why_the_first_shape_is_insufficient": "Requiring the captured keyboard id to remain actively focused after mutation confuses mutation-caused native focus loss with a user supersession. That makes the structural-rebuild restore path incapable of preserving viewport contact for the exact keyboard fallback it claims to support.",
+  "corrective_plan": [
+    "Keep accepted selection equality mandatory for a keyboard-derived ticket.",
+    "After mutation, accept either the same direct keyboard-focused semantic id or no direct keyboard focus; treat a different non-empty focused id as a real supersession and reject the ticket.",
+    "Add source-only regression fixtures for mutation-caused focus loss versus competing keyboard focus.",
+    "Propagate the corrected ownership law into viewport/native-UI skill doctrine and the existing warm-wall scar.",
+    "Do not infer TalkBack focus and do not claim runtime keyboard-focus preservation."
+  ],
+  "constraints": {
+    "p0_phone_mutations": 0,
+    "duplicate_architecture": false,
+    "runtime_claims_allowed": false,
+    "ci_manual_retry": false
+  },
+  "status": "REPLAN_ALLOWED_FOR_CORRECTIVE_SOURCE_SLICE"
+}
