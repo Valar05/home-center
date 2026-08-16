@@ -32,6 +32,7 @@ public final class HeartbeatEnvelopeParser {
     public static final int MAX_EVIDENCE_BOUNDARY_CHARS = 4096;
     private static final int MAX_JSON_DEPTH = 32;
     private static final int MAX_STRING_CHARS = 8192;
+    private static final int MAX_BOUNDARY_MEMBER_NAME_CODE_POINTS = 96;
     private static final Set<String> ROOT_FIELDS = allowedKeys(
             "schema", "pulseId", "complete", "lights");
     private static final Set<String> LIGHT_FIELDS = allowedKeys(
@@ -287,15 +288,31 @@ public final class HeartbeatEnvelopeParser {
         return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(keys)));
     }
 
+    /**
+     * Unknown member names are untrusted semantic text too. Normal safe names remain
+     * useful in the boundary, but a hostile control/bidi name is replaced with a
+     * bounded placeholder rather than being echoed into TalkBack/log/review output.
+     */
     private static void requireOnlyKeys(
             Map<String, Object> object,
             Set<String> allowed,
             String context) {
         for (String key : object.keySet()) {
             if (!allowed.contains(key)) {
-                throw new ParseFailure(context + " has unknown field: " + key + ".");
+                throw new ParseFailure(
+                        context + " has unknown field: " + safeBoundaryMemberName(key) + ".");
             }
         }
+    }
+
+    private static String safeBoundaryMemberName(String key) {
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(key)) return "<unsafe member name>";
+        String value = clean(key);
+        if (value.isEmpty()) return "<empty member name>";
+        int codePoints = value.codePointCount(0, value.length());
+        if (codePoints <= MAX_BOUNDARY_MEMBER_NAME_CODE_POINTS) return value;
+        int end = value.offsetByCodePoints(0, MAX_BOUNDARY_MEMBER_NAME_CODE_POINTS);
+        return value.substring(0, end) + "…";
     }
 
     @SuppressWarnings("unchecked")
@@ -385,7 +402,9 @@ public final class HeartbeatEnvelopeParser {
                 skipWhitespace();
                 if (!peek('"')) throw fail("Object member name must be a string.");
                 String key = parseString();
-                if (out.containsKey(key)) throw fail("Duplicate JSON member: " + key);
+                if (out.containsKey(key)) {
+                    throw fail("Duplicate JSON member: " + safeBoundaryMemberName(key) + ".");
+                }
                 skipWhitespace();
                 expect(':');
                 out.put(key, parseValue(depth));
