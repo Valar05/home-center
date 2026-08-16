@@ -1,0 +1,38 @@
+{
+  "schema": "venice-completion-review.v1",
+  "commission": "TRY FOREVER heartbeat 1900 bounded non-phone source slice",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "0baca7c9a172efab94c5de7fdc26a8f4ca07dd61",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1900-plan-review.json",
+  "replanReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1900-replan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1900-source-review.json",
+  "selectedJudgmentJars": [
+    "failure-is-the-shovel",
+    "originality-tax",
+    "evidence-capability-state",
+    "contact-preservation",
+    "accessibility-talkback",
+    "p0-firewall-duplicate-architecture"
+  ],
+  "codeFirstReview": [
+    "The initial boundary sanitizer materially improved CR/LF-only cleanup but overclaimed Unicode safety because invisible Unicode FORMAT controls could still spoof human-facing log/review text.",
+    "A durable replan was recorded before correction; FORMAT controls are now normalized as separators while visible RTL script letters remain intact.",
+    "Truncation is by Unicode code point and malformed lone surrogate units are repaired to U+FFFD, so a valid surrogate pair is not split.",
+    "Regression source exercises NUL/newline/tab/U+202E/lone-surrogate/long-swan input and keeps caller-invalid payload rejection distinct from independent heartbeat invocation.",
+    "The existing warm-wall artifact and existing skill doctrine were mutated in place. No neighboring overlay owner or execution architecture was created.",
+    "Automatic CI on the exact reviewed source head ran zero steps because the Actions budget prevented the job from starting; no manual unchanged-condition retry was fired.",
+    "No source evidence was promoted into runtime UI, TalkBack-on-device, deployment, phone callability, physical delivery, or acceptance."
+  ],
+  "sheRaw": {
+    "surface": "she_raw_ambient",
+    "state": "FAULT",
+    "boundary": "HTTP 400 account-connection failure; no synthetic She-Raw substituted."
+  },
+  "p0Firewall": "PASS_ZERO_MUTATIONS",
+  "quality": "MIXED_SOURCE_ONLY",
+  "directive": "STOP_ALLOWED",
+  "directiveScope": "This bounded 1900 source slice may yield. The recurring TRY FOREVER campaign remains CONTINUE_REQUIRED. This is not merge approval and does not authorize phone/P0 work.",
+  "capabilityMembrane": "requested=YES; implemented_source=YES; exact_github_readback=YES; regression_source=YES; tested=NO/BLOCKED_UNKNOWN; runtime_payload_consumed=NO; ui_rendered=NO; runtime_talkback=NO; deployed=NO; callable=NO; executed=NO; delivered=NO; accepted=NO"
+}
