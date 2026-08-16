@@ -12,12 +12,13 @@ import java.util.Locale;
  * change. Rebuilding a native button subtree or announcing TalkBack content on
  * every poll would turn a quiet heartbeat into focus churn. This source helper
  * composes the existing persisted projection and view-model organs, then exposes
- * deterministic identities the existing {@code OperatorOverlayService} can use
- * when it is wired later.</p>
+ * deterministic identities consumed by the existing {@code OperatorOverlayService}
+ * source path.</p>
  *
  * <p>This class owns no renderer, service, state store, transport, phone action,
  * queue, or P0 recovery authority. Callers retain the previous frame/identities.
- * Source presence is not runtime wiring or rendered UI proof.</p>
+ * Existing-owner source composition is not Android execution, runtime rendering,
+ * deployment, or delivery proof.</p>
  */
 public final class HeartbeatOverlayRefreshPlan {
     public static final class Plan {
