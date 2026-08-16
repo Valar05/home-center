@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport interaction ownership fail-closed scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, then two stale-work guards: ambiguous empty heartbeat focus fails closed while the existing owner lacks complete focus-scope evidence, and a newer direct keyboard-focus move supersedes a persistent selection-anchored viewport ticket. Explicit policy can later grant rebuild amnesty only with mutation-class and overlay-wide focus-scope facts. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+  <title id="title">Heartbeat viewport interaction ownership wired scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, and the existing overlay owner now supplying actual mutation class plus overlay-wide direct keyboard-focus presence before after-layout restoration. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -17,7 +17,7 @@
 
   <rect class="wall" x="28" y="26" width="904" height="486" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
-  <text class="tiny" x="56" y="92">INTERACTION POLICY YES • LEGACY EMPTY FOCUS FAIL-CLOSED • OWNER SCOPE WIRING NO • TALKBACK UNCLAIMED</text>
+  <text class="tiny" x="56" y="92">OWNER FOCUS-SCOPE SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE UNTOUCHED</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
   <text class="label" x="86" y="150">CAPTURE</text>
@@ -26,7 +26,7 @@
   <rect class="node" x="246" y="170" width="132" height="48" rx="12"/>
   <text class="tiny" x="260" y="199">□ FOCUSED A</text>
   <path class="wire" d="M386 194 H424"/>
-  <text class="tiny" x="86" y="242">Capture both semantic anchor and keyboard-focus baseline.</text>
+  <text class="tiny" x="86" y="242">Capture anchor + keyboard baseline + viewport offset.</text>
 
   <path class="wire" d="M466 196 C500 154 518 238 552 196"/>
   <text class="label" x="474" y="156">SHOVEL</text>
@@ -38,18 +38,18 @@
   <text class="tiny" x="606" y="199">● SELECTED A</text>
   <rect class="scar" x="738" y="170" width="132" height="48" rx="12"/>
   <text class="tiny" x="752" y="199">□ FOCUSED B</text>
-  <text class="tiny" x="590" y="242">selection persists; newer keyboard navigation cancels A ticket</text>
+  <text class="tiny" x="590" y="242">selection persists; newer keyboard navigation kills A ticket</text>
 
   <rect class="wall" x="66" y="298" width="826" height="128" rx="18"/>
-  <text class="label" x="86" y="326">FAIL-CLOSED / EXPLICIT SCOPE</text>
-  <text class="tiny" x="86" y="350">Legacy caller + empty heartbeat focus → ◇ HOLD WALL / NO RESTORE. Missing scope is not rebuild evidence.</text>
-  <text class="tiny" x="86" y="374">Explicit overload + rebuild destroyed captured focus + no direct overlay focus → restore may be allowed.</text>
-  <text class="tiny" x="86" y="398">Explicit overload + newer heartbeat or non-heartbeat direct focus → stale ticket dies, even if selection persists.</text>
+  <text class="label" x="86" y="326">EXISTING OWNER / EXPLICIT SCOPE</text>
+  <text class="tiny" x="86" y="350">Stable in-place refresh → mutation may destroy focus = NO. Empty child focus gets no rebuild costume.</text>
+  <text class="tiny" x="86" y="374">Structural or drift fallback rebuild → may destroy focus = YES; root direct-focus scope is checked before restore.</text>
+  <text class="tiny" x="86" y="398">Different heartbeat focus or any non-heartbeat direct focus → stale ticket dies. TalkBack remains separate evidence.</text>
   <path class="wire" d="M640 386 H842"/>
-  <text class="tiny" x="664" y="416">CAPTURE BASELINE + MUTATION CLASS + FOCUS SCOPE</text>
+  <text class="tiny" x="664" y="416">CAPTURE BASELINE + ACTUAL MUTATION + ROOT FOCUS SCOPE</text>
 
   <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
-  <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Direct keyboard focus truth ≠ TalkBack accessibility focus. Safe refusal ≠ runtime proof.</text>
+  <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Source wiring ≠ Android execution. Direct keyboard focus ≠ TalkBack focus.</text>
 
-  <text class="tiny" x="56" y="506">No phone surface consumed. No second renderer. Next seam: existing owner supplies actual mutation class + overlay-wide direct-focus presence.</text>
+  <text class="tiny" x="56" y="506">Exact owner source is wired. Test lane is still blocked by Actions budget. No phone/P0 surface consumed.</text>
 </svg>
