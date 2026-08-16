@@ -1,0 +1,126 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "existing-owner focus-stable native child updates",
+  "source_slice_head": "a44b5cf8d6345e3a67a1dd6159b9fac11c038fe0",
+  "reviewed_android_source_head": "0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b",
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "consequence": "Did not retry the unchanged Actions-budget blocker; redirected the pulse into the authorized existing-owner focus seam."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "consequence": "Composed HeartbeatSceneGraph, HeartbeatOverlayViewModel, HeartbeatOverlayRefreshPlan and the existing OperatorOverlayService rather than inventing a neighboring owner."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "consequence": "No material STT/autocorrect ambiguity occurred in this source slice."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "consequence": "Paid the prior focus-churn failure by changing the service's work path, not by adding another planning artifact or retrying dead CI."
+    },
+    {
+      "name": "Hunger / Eat Everything",
+      "state": "ACTIVE",
+      "consequence": "Mutated the existing warm-wall organism and existing skills in place; no artifact/specimen fungus or duplicate architecture."
+    },
+    {
+      "name": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "consequence": "Stayed inside the explicitly authorized non-phone source seam and kept source/runtime/phone capability states separate."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "consequence": "Authoritative pre-execution ambient consult returned account-connection HTTP 400; no substitute reviewer was invented."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "consequence": "A durable PLAN_ALLOWED receipt preceded mutation; completion review permits only this bounded source slice to yield."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "consequence": "Passed implemented-source/exact-readback claims while holding TESTED at BLOCKED_UNKNOWN and runtime/deployment/delivery states false."
+    },
+    {
+      "name": "Accessibility / TalkBack / touch",
+      "state": "ACTIVE",
+      "consequence": "Stable-structure refresh now mutates the same native Button objects in place, retains both-axis touch minimums, current content descriptions and click-detail closures, and avoids needless native focus destruction as a source property."
+    },
+    {
+      "name": "Deterministic routing",
+      "state": "ACTIVE",
+      "consequence": "structureIdentity governs child replacement; live child count/order/type/tag identity is verified before in-place mutation and drift fails safe to canonical rebuild."
+    },
+    {
+      "name": "Evidence / capability-state discipline",
+      "state": "ACTIVE",
+      "consequence": "Recorded EXISTING-OWNER SOURCE WIRED while keeping tested, runtime UI, TalkBack runtime, deployed, callable, executed, delivered and accepted false."
+    },
+    {
+      "name": "Recovery / checkpointing / idempotence / contact preservation",
+      "state": "ACTIVE",
+      "consequence": "Stable semantic structure preserves native child identity across content refreshes; rejected refreshes retain last-good scene semantics and repeated unchanged work stays quiet."
+    },
+    {
+      "name": "Warm walls / Christmas-light scene graph / non-raster art",
+      "state": "ACTIVE",
+      "consequence": "Existing touchable DOM/SVG pacemaker now demonstrates owner-wired stable Button refresh and a live-child drift fallback without claiming runtime proof."
+    },
+    {
+      "name": "Heartbeat Native UI Projection",
+      "state": "ACTIVE",
+      "consequence": "Repository skill doctrine now matches the actual source path: structure/render/speech identities are consumed separately and stable semantic-id Buttons are updated in place."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands / P0 recovery",
+      "state": "DARK_FIREWALLED",
+      "consequence": "Zero phone commands, tickets, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance actions or duplicate P0 architecture."
+    }
+  ],
+  "fronts_advanced": [
+    "existing OperatorOverlayService focus-stable source wiring",
+    "heartbeat-refresh-deduplication durable skill doctrine",
+    "heartbeat-native-ui-projection durable skill doctrine",
+    "existing touchable non-raster warm-wall refresh-gate specimen",
+    "Venice plan/completion review and Regnet evidence review"
+  ],
+  "cross_pollination": "0100 focus-churn wound -> three deterministic work identities -> 0200 existing-owner structure consumption -> stable Button reconciliation -> drift-safe rebuild fallback -> accessibility focus opportunity -> repository skill synchronization -> warm-wall embodiment -> Regnet/Venice capability membrane",
+  "test_boundary": {
+    "tested": false,
+    "state": "BLOCKED_UNKNOWN",
+    "automatic_run": 31933028602,
+    "automatic_job": 95130601518,
+    "head": "0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b",
+    "steps_executed": 0,
+    "exact_annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "capability_state": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source_present": true,
+    "tested": false,
+    "existing_owner_consumes_structure_identity": true,
+    "existing_owner_updates_stable_buttons_in_place_source": true,
+    "runtime_ui_observed": false,
+    "talkback_runtime_exercised": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "campaign_state": "CONTINUE_REQUIRED",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE",
+  "p0_firewall": "HELD_ZERO_MUTATIONS"
+}
