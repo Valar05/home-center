@@ -179,6 +179,12 @@ public final class HeartbeatSceneGraph {
             List<HeartbeatSkillPolicy.Candidate> candidates,
             boolean pulseComplete,
             Frame lastGood) {
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(pulseId)) {
+            return preserveLastGood(
+                    "",
+                    lastGood,
+                    "Pulse identity contains a control, malformed surrogate, or bidi-direction control.");
+        }
         String attempted = clean(pulseId);
         if (!pulseComplete) {
             return preserveLastGood(attempted, lastGood, "Pulse is incomplete.");
