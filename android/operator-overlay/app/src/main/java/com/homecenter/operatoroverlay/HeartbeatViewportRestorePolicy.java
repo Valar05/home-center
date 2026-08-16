@@ -170,10 +170,10 @@ public final class HeartbeatViewportRestorePolicy {
     /**
      * Backward-compatible captured-owner revalidation for source callers that cannot
      * distinguish mutation-caused native focus loss from focus moved elsewhere in the
-     * overlay. Ambiguous empty heartbeat-child focus now fails closed: callers that
-     * can prove a focus-destroying rebuild and overlay-wide direct-focus absence must
-     * use the explicit overload below. This avoids treating missing evidence as rebuild
-     * evidence while the existing owner wiring catches up.
+     * overlay. Because that missing evidence can hide a newer non-heartbeat focus,
+     * empty heartbeat-child focus fails closed here for both keyboard- and
+     * selection-derived tickets. Callers that can prove mutation class plus overlay
+     * focus scope must use the explicit overload below.
      */
     public static boolean shouldRestoreCapturedOwner(
             Ticket ticket,
@@ -181,14 +181,18 @@ public final class HeartbeatViewportRestorePolicy {
             HeartbeatOverlayViewModel.Model currentAcceptedModel,
             String currentSelectedControlId,
             String currentKeyboardFocusedControlId) {
+        String currentKeyboard = acceptedControlId(
+                currentKeyboardFocusedControlId,
+                currentAcceptedModel);
+        if (currentKeyboard.isEmpty()) return false;
         return shouldRestoreCapturedOwner(
                 ticket,
                 currentGeneration,
                 currentAcceptedModel,
                 currentSelectedControlId,
-                currentKeyboardFocusedControlId,
+                currentKeyboard,
                 false,
-                false);
+                true);
     }
 
     /**
@@ -196,10 +200,10 @@ public final class HeartbeatViewportRestorePolicy {
      * reinterpreting mutation-caused geometry or native focus destruction as user
      * intent.
      *
-     * <p>If visible selection owned the ticket, the same accepted selection must still
-     * own it. If visible direct keyboard focus owned the ticket because selection was
-     * offscreen, the accepted selection state must remain identical and a different
-     * non-empty direct keyboard focus supersedes the ticket.</p>
+     * <p>A persistent selection is not absolute interaction ownership. If direct
+     * keyboard focus changes after capture, that newer navigation supersedes a
+     * selection-derived viewport ticket too. The captured keyboard-focus baseline is
+     * therefore compared for both ownership modes.</p>
      *
      * <p>An empty heartbeat-child focus is ambiguous. It may be mutation-caused only
      * when {@code mutationMayDestroyKeyboardFocus} is true and there is no known direct
@@ -218,8 +222,17 @@ public final class HeartbeatViewportRestorePolicy {
         if (!shouldRestore(ticket, currentGeneration, currentAcceptedModel)) return false;
         String currentSelected = acceptedControlId(currentSelectedControlId, currentAcceptedModel);
         String currentKeyboard = acceptedControlId(currentKeyboardFocusedControlId, currentAcceptedModel);
+        String capturedKeyboard = acceptedControlId(
+                ticket.keyboardFocusedControlIdAtCapture,
+                currentAcceptedModel);
         if (sameId(ticket.semanticId, ticket.selectedControlIdAtCapture)) {
-            return sameId(ticket.selectedControlIdAtCapture, currentSelected);
+            if (!sameId(ticket.selectedControlIdAtCapture, currentSelected)) return false;
+            if (!currentKeyboard.isEmpty()) {
+                return !capturedKeyboard.isEmpty() && sameId(capturedKeyboard, currentKeyboard);
+            }
+            if (anyDirectKeyboardFocusPresent) return false;
+            if (!capturedKeyboard.isEmpty()) return mutationMayDestroyKeyboardFocus;
+            return true;
         }
         if (sameId(ticket.semanticId, ticket.keyboardFocusedControlIdAtCapture)) {
             if (!sameId(ticket.selectedControlIdAtCapture, currentSelected)) return false;
