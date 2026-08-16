@@ -1,0 +1,24 @@
+{
+  "schema": "venice-judgment-replan-review.v1",
+  "heartbeat": "2026-08-16-0600",
+  "verdict": "PLAN_ALLOWED_WITH_PROCESS_SCAR",
+  "scar": "The 0600 pre-execution plan targeted structural-rebuild viewport restoration. Source archaeology then exposed a higher-value independent wound: exact accepted pulse identity was included in the render work identity even when the presented/touchable surface was unchanged. The first checkpoint/render source mutations landed before this replan receipt was written. Do not retroactively call that ordering clean.",
+  "replannedMission": "Separate exact pulse/checkpoint identity from actual presentation identity so a new invisible pulse id cannot churn existing native heartbeat content or TalkBack; then synchronize regression source, dedupe doctrine, and the existing warm-wall artifact without touching phone/P0 surfaces.",
+  "why": [
+    "OperatorOverlayService already consumes HeartbeatOverlayRefreshPlan.renderIdentity, so a pure refresh-plan correction changes the existing-owner source path without a neighboring renderer.",
+    "HeartbeatFrameCheckpoint.contactSha256 includes visiblePulseId for exact checkpoint/evidence identity, but a normal accepted pulse id is not itself a presented control/detail surface.",
+    "A presentation-only fingerprint can suppress no-op UI work while preserving exact contactSha256 and later interrupted-refresh pulse-id speech."
+  ],
+  "constraints": [
+    "Keep contactSha256 exact and pulse-id-sensitive for checkpoint/evidence identity.",
+    "Add a separate presentation identity rather than weakening checkpoint identity.",
+    "Evidence/provenance/order/touch changes must still refresh content.",
+    "Transition/announcement identity remains state/consequence/wound driven.",
+    "No CI retry, phone command, Phone Hands ticket, queue/device probe, P0 recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or duplicate UI owner."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  }
+}
