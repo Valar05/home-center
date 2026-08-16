@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport contact fail-closed focus-scope scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing the existing Operator Overlay measuring live selected and keyboard-focused heartbeat controls, rejecting an offscreen selection as visible contact, choosing a visible keyboard-focused fallback, then refusing to restore from ambiguous empty heartbeat focus while the existing owner still lacks mutation-class and overlay-wide direct-focus evidence. Explicit policy can later grant rebuild amnesty only with both facts. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+  <title id="title">Heartbeat viewport interaction ownership fail-closed scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, then two stale-work guards: ambiguous empty heartbeat focus fails closed while the existing owner lacks complete focus-scope evidence, and a newer direct keyboard-focus move supersedes a persistent selection-anchored viewport ticket. Explicit policy can later grant rebuild amnesty only with mutation-class and overlay-wide focus-scope facts. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -16,42 +16,40 @@
   </defs>
 
   <rect class="wall" x="28" y="26" width="904" height="486" rx="30"/>
-  <text class="big" x="56" y="66">WARM WALL / AMBIGUOUS EMPTY FOCUS FAILS CLOSED</text>
-  <text class="tiny" x="56" y="92">LEGACY POLICY FAIL-CLOSED YES • EXPLICIT OWNER EVIDENCE NO • TALKBACK FOCUS UNCLAIMED • NOT PHONE DELIVERY</text>
+  <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
+  <text class="tiny" x="56" y="92">INTERACTION POLICY YES • LEGACY EMPTY FOCUS FAIL-CLOSED • OWNER SCOPE WIRING NO • TALKBACK UNCLAIMED</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
-  <text class="label" x="86" y="150">LIVE CAPTURE</text>
-  <rect class="ghost" x="94" y="170" width="74" height="48" rx="12"/>
-  <text class="tiny" x="105" y="199">OFFSCREEN</text>
-  <path class="wire" d="M174 194 H230"/>
-  <rect class="scar" x="236" y="170" width="124" height="48" rx="12"/>
-  <text class="tiny" x="248" y="199">● SELECTED ×</text>
-  <rect class="node" x="372" y="170" width="58" height="48" rx="12"/>
-  <text class="tiny" x="387" y="199">VIEW</text>
-  <text class="tiny" x="86" y="242">Semantic id survives; live geometry says it does not own contact.</text>
+  <text class="label" x="86" y="150">CAPTURE</text>
+  <rect class="scar" x="94" y="170" width="132" height="48" rx="12"/>
+  <text class="tiny" x="108" y="199">● SELECTED A</text>
+  <rect class="node" x="246" y="170" width="132" height="48" rx="12"/>
+  <text class="tiny" x="260" y="199">□ FOCUSED A</text>
+  <path class="wire" d="M386 194 H424"/>
+  <text class="tiny" x="86" y="242">Capture both semantic anchor and keyboard-focus baseline.</text>
 
   <path class="wire" d="M466 196 C500 154 518 238 552 196"/>
   <text class="label" x="474" y="156">SHOVEL</text>
-  <text class="tiny" x="468" y="222">measure before mutation</text>
+  <text class="tiny" x="468" y="222">newer interaction wins</text>
 
   <rect class="wall" x="570" y="122" width="322" height="150" rx="18"/>
-  <text class="label" x="590" y="150">EXISTING OWNER</text>
-  <rect class="ghost" x="594" y="170" width="102" height="48" rx="12"/>
-  <text class="tiny" x="607" y="199">SELECTED ×</text>
-  <rect class="scar" x="716" y="170" width="154" height="48" rx="12"/>
-  <text class="tiny" x="730" y="199">□ FOCUSED VISIBLE</text>
-  <text class="tiny" x="590" y="242">captureVisible → legacy revalidation</text>
+  <text class="label" x="590" y="150">BEFORE RESTORE</text>
+  <rect class="ghost" x="594" y="170" width="126" height="48" rx="12"/>
+  <text class="tiny" x="606" y="199">● SELECTED A</text>
+  <rect class="scar" x="738" y="170" width="132" height="48" rx="12"/>
+  <text class="tiny" x="752" y="199">□ FOCUSED B</text>
+  <text class="tiny" x="590" y="242">selection persists; newer keyboard navigation cancels A ticket</text>
 
   <rect class="wall" x="66" y="298" width="826" height="128" rx="18"/>
-  <text class="label" x="86" y="326">AFTER MUTATION / EVIDENCE GATE</text>
-  <text class="tiny" x="86" y="350">Current owner + empty heartbeat focus → ◇ HOLD WALL / NO RESTORE. Missing evidence is not rebuild evidence.</text>
-  <text class="tiny" x="86" y="374">Explicit overload + focus-destroying rebuild + no direct overlay focus → restore may be allowed.</text>
-  <text class="tiny" x="86" y="398">Explicit overload + focus on STOP / Adam input / another overlay control → stale keyboard ticket dies.</text>
+  <text class="label" x="86" y="326">FAIL-CLOSED / EXPLICIT SCOPE</text>
+  <text class="tiny" x="86" y="350">Legacy caller + empty heartbeat focus → ◇ HOLD WALL / NO RESTORE. Missing scope is not rebuild evidence.</text>
+  <text class="tiny" x="86" y="374">Explicit overload + rebuild destroyed captured focus + no direct overlay focus → restore may be allowed.</text>
+  <text class="tiny" x="86" y="398">Explicit overload + newer heartbeat or non-heartbeat direct focus → stale ticket dies, even if selection persists.</text>
   <path class="wire" d="M640 386 H842"/>
-  <text class="tiny" x="664" y="416">MUTATION CLASS + FOCUS SCOPE</text>
+  <text class="tiny" x="664" y="416">CAPTURE BASELINE + MUTATION CLASS + FOCUS SCOPE</text>
 
   <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
   <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Direct keyboard focus truth ≠ TalkBack accessibility focus. Safe refusal ≠ runtime proof.</text>
 
-  <text class="tiny" x="56" y="506">No phone surface consumed. No second renderer hatched. Next seam: existing owner supplies mutation class + overlay-wide direct-focus presence.</text>
+  <text class="tiny" x="56" y="506">No phone surface consumed. No second renderer. Next seam: existing owner supplies actual mutation class + overlay-wide direct-focus presence.</text>
 </svg>
