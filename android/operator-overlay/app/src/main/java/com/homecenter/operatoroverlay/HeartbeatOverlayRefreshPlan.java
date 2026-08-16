@@ -200,6 +200,31 @@ public final class HeartbeatOverlayRefreshPlan {
         return shouldAnnounce(previousAnnouncementIdentity, next);
     }
 
+    /**
+     * Preserve a semantic control's horizontal viewport offset across an in-place
+     * content refresh whose labels may change width.
+     *
+     * <p>Stable native object identity is not stable visible contact by itself: a
+     * wider sibling can move the selected/focused Button even though the same Button
+     * instance survives. The existing owner captures {@code viewportOffsetPx} before
+     * mutation, re-measures the same semantic id after layout, and uses this pure
+     * bounded calculation to restore its prior viewport offset. No movement is
+     * manufactured when the child position is unchanged.</p>
+     *
+     * <p>This is geometry policy only. It does not claim Android focus retention,
+     * accessibility-focus ownership, rendering, deployment, or phone delivery.</p>
+     */
+    public static int anchoredScrollX(
+            int nextAnchorLeftPx,
+            int viewportOffsetPx,
+            int maxScrollXPx) {
+        long desired = (long) nextAnchorLeftPx - (long) viewportOffsetPx;
+        long boundedMax = Math.max(0L, (long) maxScrollXPx);
+        if (desired <= 0L) return 0;
+        if (desired >= boundedMax) return (int) boundedMax;
+        return (int) desired;
+    }
+
     private static String structureIdentity(HeartbeatOverlayViewModel.Model model) {
         StringBuilder canonical = new StringBuilder();
         append(canonical, "heartbeat-overlay-structure.v1");
