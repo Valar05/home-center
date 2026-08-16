@@ -15,6 +15,10 @@ import java.util.Map;
  */
 public final class HeartbeatSceneGraph {
     public static final int MIN_TOUCH_TARGET_DP = 48;
+    /** Spoken interrupted-refresh pulse identity stays bounded; exact frame identity remains unchanged. */
+    public static final int MAX_SPOKEN_PULSE_ID_CODE_POINTS = 96;
+    /** Spoken rejection boundary stays bounded; exact refreshBoundary remains available as evidence. */
+    public static final int MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS = 320;
 
     public static final class Node {
         public final String id;
@@ -103,14 +107,30 @@ public final class HeartbeatSceneGraph {
             this.transitionMotionAllowed = transitionMotionAllowed;
         }
 
+        /**
+         * Human-facing interrupted-refresh projection.
+         *
+         * Exact visiblePulseId/refreshBoundary fields remain untouched for evidence
+         * and checkpoint handling. Speech/display projection is independently bounded
+         * by Unicode code point, and an unsafe arbitrary pre-parser boundary is not
+         * echoed into TalkBack or operator-visible prose.
+         */
         public String interruptedRefreshDescription() {
             if (!refreshInterrupted) return "";
-            String boundary = refreshBoundary.isEmpty() ? "" : " Boundary: " + refreshBoundary;
+            String spokenBoundary = safeBoundedSpeech(
+                    refreshBoundary,
+                    MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS,
+                    "Heartbeat refresh boundary contains unsafe semantic text.");
+            String boundary = spokenBoundary.isEmpty() ? "" : " Boundary: " + spokenBoundary;
             if (visiblePulseId.isEmpty()) {
                 return "Heartbeat refresh interrupted. No complete heartbeat is available." + boundary;
             }
+            String spokenPulseId = safeBoundedSpeech(
+                    visiblePulseId,
+                    MAX_SPOKEN_PULSE_ID_CODE_POINTS,
+                    "<unsafe pulse identity>");
             return "Heartbeat refresh interrupted. Showing last complete heartbeat "
-                    + visiblePulseId + "." + boundary;
+                    + spokenPulseId + "." + boundary;
         }
     }
 
@@ -297,6 +317,19 @@ public final class HeartbeatSceneGraph {
             default:
                 return "·";
         }
+    }
+
+    private static String safeBoundedSpeech(
+            String value,
+            int maxCodePoints,
+            String unsafePlaceholder) {
+        String clean = clean(value);
+        if (clean.isEmpty()) return clean;
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(clean)) return unsafePlaceholder;
+        int codePoints = clean.codePointCount(0, clean.length());
+        if (codePoints <= maxCodePoints) return clean;
+        int end = clean.offsetByCodePoints(0, maxCodePoints);
+        return clean.substring(0, end) + "… (truncated)";
     }
 
     private static String clean(String value) {
