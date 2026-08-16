@@ -1,0 +1,36 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-0600",
+  "mission": "Extend existing-owner heartbeat viewport contact across structural child rebuilds and make pending after-layout restoration idempotent, without claiming keyboard/TalkBack focus retention or touching P0/phone surfaces.",
+  "planAllowed": true,
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "existingPolicy": "HeartbeatOverlayRefreshPlan.viewportAnchorId + anchoredScrollX",
+  "fronts": [
+    "Capture one accepted semantic viewport anchor before either stable in-place refresh or required heartbeat child rebuild; selected semantic id remains canonical, direct keyboard focus is fallback.",
+    "After a structural rebuild, restore only the surviving semantic anchor's viewport offset; do not synthesize keyboard or TalkBack accessibility focus.",
+    "Make after-layout restoration generation-gated so an older queued pre-draw callback cannot overwrite a newer heartbeat contact decision.",
+    "Extend source-only viewport fixtures for reorder/membership-change survival and stale-anchor rejection without promoting them to test evidence.",
+    "Synchronize reusable viewport/native-UI skill doctrine and mutate the existing non-raster warm-wall scar in place rather than creating a neighboring renderer or specimen farm.",
+    "Write Regnet, Venice, and swarm receipts with exact source/runtime/phone capability separation."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0Firewall": "NO phone commands, Phone Hands tickets, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance actions, or duplicate P0 architecture.",
+  "capabilityBefore": {
+    "implementedSource": true,
+    "stableStructureViewportAnchorSourceWired": true,
+    "structuralRebuildViewportAnchorSourceWired": false,
+    "pendingViewportRestoreIdempotenceSource": false,
+    "tested": false,
+    "runtimeViewportPreservationObserved": false,
+    "runtimeKeyboardFocusRetentionObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
