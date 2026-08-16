@@ -181,6 +181,29 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
+    public void visibleViewportContactAcceptsWholeAndPartialIntersectionOnly() {
+        assertTrue(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(120, 48, 100, 200));
+        assertTrue(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(80, 48, 100, 200));
+        assertTrue(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(280, 48, 100, 200));
+
+        assertFalse(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(52, 48, 100, 200));
+        assertFalse(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(300, 48, 100, 200));
+        assertFalse(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(120, 0, 100, 200));
+        assertFalse(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(120, 48, 100, 0));
+    }
+
+    @Test
+    public void visibleViewportContactUsesLongGeometryAndClampsImpossibleNegativeScroll() {
+        assertTrue(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(
+                Integer.MAX_VALUE - 5,
+                20,
+                Integer.MAX_VALUE - 10,
+                20));
+        assertTrue(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(0, 48, -200, 48));
+        assertFalse(HeartbeatViewportRestorePolicy.hasVisibleViewportContact(-80, 40, -200, 48));
+    }
+
+    @Test
     public void boundedGeometryRemainsTheExistingAnchorPolicy() {
         HeartbeatViewportRestorePolicy.Ticket ticket =
                 HeartbeatViewportRestorePolicy.capture(
