@@ -78,11 +78,14 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          View anchor = heartbeatChildById(ticket.semanticId);
          if (anchor == null) return;
 
-# Evidence / ownership notes
-# - This patch composes the existing OperatorOverlayService; it creates no second owner.
-# - mutationMayDestroyKeyboardFocus reflects the mutation that actually occurred:
-#   structural rebuild or drift fallback = true; successful in-place refresh = false.
+# Applied provenance
+# - APPLIED to the existing OperatorOverlayService on commit 730543e9c5747bbca73fc0fd731be211b6921abf.
+# - Exact service blob after application: befab3b2be1e3fa3750a18a11d0b45674ee5d285.
+# - Remote readback confirms structural rebuild and drift fallback set mutationMayDestroyKeyboardFocus=true;
+#   successful in-place refresh leaves it false.
+# - Remote readback confirms the after-layout path supplies root.findFocus()!=null as overlay-wide
+#   direct keyboard-focus presence to the explicit seven-argument policy overload.
 # - root.findFocus() is direct keyboard-focus scope only. It is not TalkBack accessibility focus.
-# - The patch is a durable proposed source delta, NOT implemented service wiring until the
-#   OperatorOverlayService blob itself contains these changes and remote readback proves it.
-# - No phone/P0 execution surface is involved.
+# - This artifact is now historical applied-delta provenance, not a pending owner-wiring proposal.
+# - Source application is not Android compile/runtime, phone delivery, TalkBack runtime, or acceptance proof.
+# - No phone/P0 execution surface was involved.
