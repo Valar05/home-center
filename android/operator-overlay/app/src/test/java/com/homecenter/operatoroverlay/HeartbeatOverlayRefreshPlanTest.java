@@ -31,7 +31,7 @@ public class HeartbeatOverlayRefreshPlanTest {
     }
 
     @Test
-    public void coldStartRendersButDoesNotPretendItObservedATransition() {
+    public void coldStartNeedsStructureAndContentButDoesNotPretendItObservedATransition() {
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
                 "pulse-one",
                 Collections.singletonList(typed(
@@ -46,12 +46,14 @@ public class HeartbeatOverlayRefreshPlanTest {
         HeartbeatOverlayRefreshPlan.Plan plan =
                 HeartbeatOverlayRefreshPlan.fromFrame(frame, "contact");
 
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuildStructure("", plan));
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRefreshContent("", plan));
         assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuild("", plan));
         assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce("", plan));
     }
 
     @Test
-    public void exactSceneRetryDoesNotRebuildOrReannounce() {
+    public void exactSceneRetryDoesNotRebuildRefreshOrReannounce() {
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
                 "pulse-one",
                 Collections.singletonList(typed(
@@ -69,16 +71,22 @@ public class HeartbeatOverlayRefreshPlanTest {
                 HeartbeatOverlayRefreshPlan.fromFrame(frame, first.selectedControlId);
 
         assertEquals("contact", retry.selectedControlId);
+        assertEquals(first.structureIdentity, retry.structureIdentity);
         assertEquals(first.renderIdentity, retry.renderIdentity);
         assertEquals(first.announcementIdentity, retry.announcementIdentity);
-        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuild(first.renderIdentity, retry));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
+                retry));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRefreshContent(
+                first.renderIdentity,
+                retry));
         assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
                 first.announcementIdentity,
                 retry));
     }
 
     @Test
-    public void evidenceOnlyRefreshRebuildsDetailWithoutUnsolicitedSpeech() {
+    public void evidenceOnlyRefreshKeepsNativeStructureButRefreshesDetailWithoutSpeech() {
         HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
                 "pulse-one",
                 Collections.singletonList(typed(
@@ -107,7 +115,13 @@ public class HeartbeatOverlayRefreshPlanTest {
         HeartbeatOverlayRefreshPlan.Plan next =
                 HeartbeatOverlayRefreshPlan.fromFrame(evidenceRefresh, "regnet");
 
-        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuild(first.renderIdentity, next));
+        assertEquals(first.structureIdentity, next.structureIdentity);
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
+                next));
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRefreshContent(
+                first.renderIdentity,
+                next));
         assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
                 first.announcementIdentity,
                 next));
@@ -115,7 +129,7 @@ public class HeartbeatOverlayRefreshPlanTest {
     }
 
     @Test
-    public void stateChangeRebuildsAndChangesAnnouncementIdentity() {
+    public void stateChangeKeepsSameNativeControlsButRefreshesAndAnnounces() {
         HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
                 "pulse-one",
                 Collections.singletonList(typed(
@@ -144,11 +158,135 @@ public class HeartbeatOverlayRefreshPlanTest {
         HeartbeatOverlayRefreshPlan.Plan next =
                 HeartbeatOverlayRefreshPlan.fromFrame(recovered, "shovel");
 
+        assertEquals(first.structureIdentity, next.structureIdentity);
         assertNotEquals(first.renderIdentity, next.renderIdentity);
         assertNotEquals(first.announcementIdentity, next.announcementIdentity);
-        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuild(first.renderIdentity, next));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
+                next));
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRefreshContent(
+                first.renderIdentity,
+                next));
         assertTrue(HeartbeatOverlayRefreshPlan.shouldAnnounce(
                 first.announcementIdentity,
+                next));
+    }
+
+    @Test
+    public void reorderOrMembershipChangeRequiresNativeStructureRebuild() {
+        HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
+                "pulse-one",
+                Arrays.asList(
+                        typed(
+                                "a",
+                                "A",
+                                HeartbeatSkillPolicy.State.ACTIVE,
+                                true,
+                                "A active",
+                                "Boundary"),
+                        typed(
+                                "b",
+                                "B",
+                                HeartbeatSkillPolicy.State.BLOCKED,
+                                false,
+                                "B blocked",
+                                "Boundary")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame reordered = HeartbeatSceneGraph.build(
+                "pulse-two",
+                Arrays.asList(
+                        typed(
+                                "b",
+                                "B",
+                                HeartbeatSkillPolicy.State.BLOCKED,
+                                false,
+                                "B blocked",
+                                "Boundary"),
+                        typed(
+                                "a",
+                                "A",
+                                HeartbeatSkillPolicy.State.ACTIVE,
+                                true,
+                                "A active",
+                                "Boundary")),
+                true,
+                firstFrame);
+        HeartbeatSceneGraph.Frame added = HeartbeatSceneGraph.build(
+                "pulse-three",
+                Arrays.asList(
+                        typed(
+                                "a",
+                                "A",
+                                HeartbeatSkillPolicy.State.ACTIVE,
+                                true,
+                                "A active",
+                                "Boundary"),
+                        typed(
+                                "b",
+                                "B",
+                                HeartbeatSkillPolicy.State.BLOCKED,
+                                false,
+                                "B blocked",
+                                "Boundary"),
+                        typed(
+                                "c",
+                                "C",
+                                HeartbeatSkillPolicy.State.RECOVERED,
+                                true,
+                                "C recovered",
+                                "Boundary")),
+                true,
+                firstFrame);
+
+        HeartbeatOverlayRefreshPlan.Plan first =
+                HeartbeatOverlayRefreshPlan.fromFrame(firstFrame, "a");
+        HeartbeatOverlayRefreshPlan.Plan reorderPlan =
+                HeartbeatOverlayRefreshPlan.fromFrame(reordered, "a");
+        HeartbeatOverlayRefreshPlan.Plan addedPlan =
+                HeartbeatOverlayRefreshPlan.fromFrame(added, "a");
+
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
+                reorderPlan));
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
+                addedPlan));
+    }
+
+    @Test
+    public void semanticIdCaseDoesNotForceStructureReplacement() {
+        HeartbeatSceneGraph.Frame firstFrame = HeartbeatSceneGraph.build(
+                "pulse-one",
+                Collections.singletonList(typed(
+                        "Regnet",
+                        "Regnet",
+                        HeartbeatSkillPolicy.State.BLOCKED,
+                        false,
+                        "Blocked",
+                        "Boundary")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame caseOnly = HeartbeatSceneGraph.build(
+                "pulse-two",
+                Collections.singletonList(typed(
+                        "regnet",
+                        "Regnet",
+                        HeartbeatSkillPolicy.State.BLOCKED,
+                        false,
+                        "Blocked",
+                        "Boundary")),
+                true,
+                firstFrame);
+
+        HeartbeatOverlayRefreshPlan.Plan first =
+                HeartbeatOverlayRefreshPlan.fromFrame(firstFrame, "REGNET");
+        HeartbeatOverlayRefreshPlan.Plan next =
+                HeartbeatOverlayRefreshPlan.fromFrame(caseOnly, "REGNET");
+
+        assertEquals(first.structureIdentity, next.structureIdentity);
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                first.structureIdentity,
                 next));
     }
 
@@ -203,7 +341,7 @@ public class HeartbeatOverlayRefreshPlanTest {
     }
 
     @Test
-    public void interruptedRefreshPreservesSelectionAndAnnouncesWoundOnce() {
+    public void interruptedRefreshPreservesSelectionAndNativeStructureButChangesWoundContentOnce() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
                 Arrays.asList(
@@ -236,11 +374,17 @@ public class HeartbeatOverlayRefreshPlanTest {
                 HeartbeatOverlayRefreshPlan.fromFrame(interrupted, wound.selectedControlId);
 
         assertEquals("regnet", wound.selectedControlId);
-        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuild(good.renderIdentity, wound));
+        assertEquals(good.structureIdentity, wound.structureIdentity);
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                good.structureIdentity,
+                wound));
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRefreshContent(
+                good.renderIdentity,
+                wound));
         assertTrue(HeartbeatOverlayRefreshPlan.shouldAnnounce(
                 good.announcementIdentity,
                 wound));
-        assertFalse(HeartbeatOverlayRefreshPlan.shouldRebuild(
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldRefreshContent(
                 wound.renderIdentity,
                 sameWound));
         assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
