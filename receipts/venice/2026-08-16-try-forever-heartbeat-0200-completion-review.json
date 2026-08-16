@@ -1,0 +1,30 @@
+{
+  "schema": "venice-completion-review.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "existing-owner focus-stable native child updates",
+  "source_slice_head": "a44b5cf8d6345e3a67a1dd6159b9fac11c038fe0",
+  "reviewed_android_source_head": "0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign_state": "CONTINUE_REQUIRED",
+  "quality": "MIXED_TEST_BLOCKED",
+  "judgment": {
+    "mission_fidelity": "PASS: the previous authorized seam was executed inside the existing OperatorOverlayService; no neighboring owner exists.",
+    "plan_discipline": "PASS: unlike the prior 0100 process scar, this slice committed PLAN_ALLOWED before source mutation.",
+    "focus_preservation": "PASS AS SOURCE: stable semantic-id structures update the same native Button objects in place; structural change or verified live-child drift earns the existing rebuild path.",
+    "accessibility": "PASS AS SOURCE: native child focusability, both-axis touch minimums, compact descriptions, selected state, and current touch-detail closures are refreshed without automatic object destruction.",
+    "contact_and_recovery": "PASS: rejected refreshes still compose the existing last-good scene preservation and no-motion wound semantics; the owner does not surface discarded attempted candidates.",
+    "architecture": "PASS: parser, scene, view model, refresh plan and existing service are composed; no duplicate renderer/controller/P0 path was added.",
+    "truthfulness": "PASS: skill doctrine and warm-wall source explicitly say EXISTING-OWNER SOURCE WIRED while retaining runtime/deployment/phone states as unproven.",
+    "test_evidence": "BLOCKED: automatic Operator Overlay Android run 31933028602 job 95130601518 on source head 0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b executed zero steps because an Actions budget is preventing further use.",
+    "runtime_evidence": "ABSENT: no Android runtime focus/TalkBack evidence and no phone/P0 surface was consumed."
+  },
+  "she_raw": {
+    "attempted_pre_execution": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substitute_reviewer_used": false
+  },
+  "cross_pollination": "focus-churn wound -> structure/content/speech identity split -> existing-owner structure consumption -> semantic-id child reconciliation -> fail-safe drift fallback -> accessibility focus opportunity -> skill and warm-wall truth -> Regnet evidence membrane",
+  "next_authorized_source_seam": "Continue only on a newly established non-phone defect or materially useful source seam. Do not manufacture a second reconciliation layer merely to make another heartbeat; Android focus/TalkBack runtime proof remains blocked until an authorized test/runtime lane exists.",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE",
+  "p0_firewall": "HELD_ZERO_MUTATIONS"
+}
