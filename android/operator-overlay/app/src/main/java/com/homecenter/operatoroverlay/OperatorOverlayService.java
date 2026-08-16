@@ -782,10 +782,15 @@ public class OperatorOverlayService extends Service {
         if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
             spotifyStatus.setText(spotifySummary);
         }
-        refreshHeartbeatLights(muted, !hidden && root.getVisibility() == View.VISIBLE);
+        boolean overlayVisible = !hidden && root.getVisibility() == View.VISIBLE;
+        boolean heartbeatSurfaceVisible = details != null && details.getVisibility() == View.VISIBLE;
+        refreshHeartbeatLights(muted, overlayVisible, heartbeatSurfaceVisible);
     }
 
-    private void refreshHeartbeatLights(boolean muted, boolean overlayVisible) {
+    private void refreshHeartbeatLights(
+            boolean muted,
+            boolean overlayVisible,
+            boolean heartbeatSurfaceVisible) {
         if (heartbeatSummary == null || heartbeatLights == null || heartbeatDetail == null) return;
 
         String encoded = OperatorState.heartbeatLightsPayloadB64(this);
@@ -832,7 +837,8 @@ public class OperatorOverlayService extends Service {
                 heartbeatAnnouncementIdentity,
                 next,
                 muted,
-                overlayVisible);
+                overlayVisible,
+                heartbeatSurfaceVisible);
 
         HeartbeatViewportRestorePolicy.Ticket viewportRestoreTicket = null;
         if ((rebuildStructure || refreshContent) && heartbeatScroller != null) {
@@ -894,8 +900,8 @@ public class OperatorOverlayService extends Service {
             heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
         }
 
-        // Advance identities even while muted/hidden. Restoring presentation later
-        // must not replay an old transition as though it happened at restore time.
+        // Advance identities even while muted/hidden/collapsed. Restoring presentation
+        // later must not replay an old transition as though it happened at restore time.
         heartbeatStructureIdentity = next.structureIdentity;
         heartbeatRenderIdentity = next.renderIdentity;
         heartbeatAnnouncementIdentity = next.announcementIdentity;
