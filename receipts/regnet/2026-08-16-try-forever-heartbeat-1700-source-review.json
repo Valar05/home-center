@@ -1,0 +1,88 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "heartbeat": "2026-08-16-1700",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "SYNTHETIC_REGNET",
+  "bounded_claim": "The existing OperatorOverlayService now consumes the previously pure heartbeat native-motion policy in source. Node cues, pure-removal summary fallback, presentation gating, platform animator gating, cold-start history clamping, and stale animation reset are implemented source only; Android runtime behavior remains unproven.",
+  "acceptance": [
+    "existing OperatorOverlayService remains the sole native owner",
+    "node cue requires established transition history + node transition truth + frame motion permission + visible heartbeat surface + platform animators enabled",
+    "pure removal targets only the existing heartbeat summary and cannot double-pulse a node-owned transition",
+    "hidden/collapsed presentation and platform-disabled animation cancel/reset stale alpha and scale",
+    "cold start may render persisted state but cannot autoplay it as a newly observed transition",
+    "regression source distinguishes summary/node ownership and presentation/platform gates",
+    "warm-wall specimen is source-only and explicitly separates owner source wiring from runtime proof",
+    "no phone/P0 surface was consumed"
+  ],
+  "evidence": {
+    "plan_blob": "130ace2d7018a75dd497d04a9f7771cf957c2481",
+    "native_motion_policy_blob": "9c16a17735ea788471c2ae35dde7d129e63e16de",
+    "view_model_blob": "a01d283677980404b27124550baa21ae613eaa54",
+    "operator_overlay_service_blob": "a4a6c50489f8cad4befb4b09994452f7dc606016",
+    "regression_blob": "3ceb9b0f45e02c7be2aa2ade3f911dbb5501112d",
+    "skill_blob": "8e6c421fdb027a7dda1bdf3ba56b9065d719f47d",
+    "warm_wall_blob": "650c57ab97e4ff44ba507ad35c2c75ea6abf69a4",
+    "reviewed_source_head": "3f38bb558d90eb9c98512d76371383ea98861cca",
+    "operator_overlay_run": 31975438863,
+    "operator_overlay_job": 95234095004,
+    "operator_overlay_steps": 0,
+    "ci_annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "review_scars": [
+    {
+      "found": "The first existing-owner full-file mutation accidentally removed the pre-existing bounded disable-confirmation timeout.",
+      "repair": "A diff against the pre-run owner restored the CONFIRM_WINDOW_MS delayed reset before completion; the motion source remained intact."
+    },
+    {
+      "found": "Persisted state at cold start has scene transition bits but is not necessarily a transition the current owner observed.",
+      "repair": "Owner motion is additionally gated by the existing announcement-history identity, whose empty baseline is fail-closed. Regression source now pins cold-start silence and later observed transition behavior."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "PASS_BOUNDED_SOURCE",
+      "finding": "Existing-owner source now consumes native motion decisions without a second renderer, controller, animator owner, or state store."
+    },
+    {
+      "severity": "PASS_ACCESSIBILITY_SOURCE",
+      "finding": "Motion remains supplementary: node text, non-color state, touch detail, and TalkBack descriptions remain the semantic truth; motion is blocked when presentation or system animator permission is absent."
+    },
+    {
+      "severity": "PASS_IDEMPOTENCE_SOURCE",
+      "finding": "Existing transition-history identity prevents cold-start and later-reveal replay; hidden/collapsed/disabled states advance semantic history while resetting stale view-property animation."
+    },
+    {
+      "severity": "PASS_DUPLICATE_ARCHITECTURE",
+      "finding": "OperatorOverlayService remains the sole Android owner and uses existing heartbeat Buttons and summary."
+    },
+    {
+      "severity": "BLOCKED_UNKNOWN",
+      "finding": "Automatic Android CI on the reviewed source head executed zero steps because the GitHub Actions budget prevented the job from starting."
+    }
+  ],
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "tested": false,
+  "tested_state": "BLOCKED_ACTIONS_BUDGET",
+  "capability_membrane": {
+    "requested": true,
+    "semantic_motion_source": true,
+    "native_motion_policy_source": true,
+    "ui_ready_motion_projection_source": true,
+    "regression_source": true,
+    "doctrine_source": true,
+    "non_raster_specimen_source": true,
+    "existing_owner_consumes_native_motion_policy": true,
+    "cold_start_replay_clamp_source": true,
+    "stale_motion_reset_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "runtime_reduced_motion_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
