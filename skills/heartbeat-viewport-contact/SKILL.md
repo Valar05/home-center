@@ -4,14 +4,14 @@
 
 Preserve *visible contact* for the existing Operator Overlay heartbeat controls when semantic heartbeat content changes width or the ordered child structure changes while a surviving semantic control remains relevant.
 
-Stable object identity is not sufficient: a surviving Button can slide horizontally out of the user's viewport when preceding content changes width. Rebuilds add a second hazard: the old native object may disappear even though the same semantic light still exists in the accepted next model. Delayed after-layout work adds a third: an older restore callback must not move the viewport after a later mutation or explicit selection has superseded it.
+Stable object identity is not sufficient: a surviving Button can slide horizontally out of the user's viewport when preceding content changes width. Rebuilds add a second hazard: the old native object may disappear even though the same semantic light still exists in the accepted next model. Delayed after-layout work adds a third: an older restore callback must not move the viewport after a later mutation, explicit selection, or direct keyboard-focus move has superseded it.
 
 ## Ownership
 
 - `OperatorOverlayService` remains the only Android UI owner.
 - `HeartbeatOverlayRefreshPlan` owns accepted semantic-anchor selection and bounded scroll math.
-- `HeartbeatViewportRestorePolicy` owns pure source-only restore tickets and generation gating; it owns no Android views, callbacks, renderer, controller, service, state store, transport, phone path, or P0 owner.
-- The existing owner currently consumes viewport anchoring only for stable-structure in-place refreshes. The broader restore-lifecycle policy is implemented source but is **not yet consumed by `OperatorOverlayService`**.
+- `HeartbeatViewportRestorePolicy` owns pure restore-ticket identity and stale-work rejection; it owns no Android views, callbacks, renderer, controller, service, state store, transport, phone path, or P0 owner.
+- The existing owner now consumes the restore-ticket policy for stable in-place refreshes, structural rebuilds, and drift-triggered fallback rebuilds. This is **source wiring only**, not Android execution or runtime viewport proof.
 
 ## Source contract
 
@@ -22,19 +22,20 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
    - stale/missing ids: no anchor.
 3. Do **not** inspect or claim TalkBack accessibility focus. Native accessibility-focus preservation requires runtime evidence and remains a separate capability state.
 4. Before mutation, capture the chosen anchor's semantic id and horizontal viewport offset from the existing `HorizontalScrollView`, but only if that semantic id also exists in the current live child set.
-5. Advance a restore-generation token whenever a later content/structure mutation or explicit semantic selection supersedes older pending after-layout work.
-6. After layout, restore only when the pending ticket's generation still equals the current generation **and** the semantic anchor still exists in the accepted current model/live children.
-7. Use `HeartbeatOverlayRefreshPlan.anchoredScrollX(...)` for the bounded target. Do not manufacture negative/out-of-range scroll motion.
-8. If the anchor disappeared, geometry is unavailable, the pending ticket is stale, or current accepted semantics no longer contain the id, do not restore.
-9. Viewport anchoring must not alter semantic selection, evidence identity, announcement identity, or Christmas-motion eligibility.
-10. Direct keyboard focus is read only from the existing heartbeat `Button` objects; accessibility focus is deliberately neither queried nor synthesized.
+5. Advance a restore-generation token whenever a later content/structure mutation, presentation-state mutation, hide, or explicit semantic selection supersedes older pending after-layout work.
+6. After layout, restore only when the pending ticket's generation still equals the current generation, the semantic anchor still exists in the accepted current model/live children, **and the same semantic id still owns viewport contact under current selected-first / keyboard-focus-fallback semantics**.
+7. A same-generation direct keyboard-focus move can therefore invalidate an older keyboard-derived ticket without pretending focus motion is a new heartbeat generation.
+8. Use `HeartbeatViewportRestorePolicy.targetScrollX(...)` / `HeartbeatOverlayRefreshPlan.anchoredScrollX(...)` for the bounded target. Do not manufacture negative/out-of-range scroll motion.
+9. If the anchor disappeared, geometry is unavailable, the pending ticket is stale, or current accepted interaction semantics no longer own that id, do not restore.
+10. Viewport anchoring must not alter semantic selection, evidence identity, announcement identity, or Christmas-motion eligibility.
+11. Direct keyboard focus is read only from the existing heartbeat `Button` objects; accessibility focus is deliberately neither queried nor synthesized.
 
 ## Accessibility rules
 
 - Native heartbeat Buttons remain the semantic/touch destinations; the horizontal container is not an accessibility destination.
 - Touch targets remain at least the model's 48dp contract on both axes.
 - Selection, keyboard focus, visible viewport contact, and TalkBack accessibility focus are four separate states. Never report one as another.
-- A structural rebuild may preserve the *semantic viewport target* when the id survives, but source policy does not prove keyboard focus or accessibility focus survived object replacement.
+- A structural rebuild may preserve the *semantic viewport target* when the id survives, but source wiring does not prove keyboard focus or accessibility focus survived object replacement.
 - Do not announce scroll restoration or restore-generation churn as semantic heartbeat transitions.
 - Stable Button identity plus viewport restoration is an accessibility opportunity, not proof that TalkBack retained accessibility focus.
 
@@ -44,9 +45,23 @@ Stable object identity is not sufficient: a surviving Button can slide horizonta
 
 - Generation is an ordering token, not wall-clock evidence.
 - A later mutation/selection advances generation and invalidates earlier pending tickets.
+- Same generation is still insufficient when current selected/focused ownership moved to a different surviving semantic id.
 - A current generation is still insufficient if the semantic id disappeared from the accepted model.
-- Exact generation equality plus surviving semantic identity permits geometry calculation; it does not prove Android executed the callback.
+- Exact generation equality plus surviving semantic ownership permits geometry calculation; it does not prove Android executed the callback.
 - Generation wrap is deterministic source behavior, not an invitation to treat counters as durable evidence identities.
+
+## Existing-owner source wiring
+
+`OperatorOverlayService` now:
+
+1. advances restore generation before each material heartbeat view mutation;
+2. captures selected-first / keyboard-focus-fallback semantic contact before mutation when the surviving anchor exists in current live children;
+3. applies the same ticket path to stable in-place refresh, structural rebuild, and structure-drift fallback rebuild;
+4. schedules one-shot pre-draw restoration on the existing `heartbeatLights` owner;
+5. revalidates generation, current accepted model membership, and current selected/focused semantic ownership before scroll;
+6. invalidates pending restore work on presentation-state changes, hide, and explicit heartbeat selection.
+
+This does **not** prove Android performed the restore, preserved keyboard focus through rebuild, retained TalkBack accessibility focus, or produced a delivered phone interface.
 
 ## Evidence membrane
 
@@ -59,11 +74,12 @@ Current source truth:
 - policy source: **YES**
 - regression source: **YES**
 - existing-owner stable-refresh viewport wiring: **YES**
-- existing-owner structural-rebuild viewport wiring: **NO**
-- existing-owner restore-generation/idempotence wiring: **NO**
+- existing-owner structural-rebuild viewport wiring: **YES**
+- existing-owner restore-generation/idempotence wiring: **YES**
+- current interaction-owner revalidation source: **YES**
 - tested/runtime viewport/runtime keyboard focus/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO** until their own authorized evidence exists.
 
-A source helper or test fixture never proves Android layout timing or accessibility-focus retention.
+A source helper, service mutation, or test fixture never proves Android layout timing or accessibility-focus retention.
 
 ## Regression source
 
@@ -74,6 +90,9 @@ At minimum cover:
 - stale/missing ids producing no anchor;
 - a later mutation invalidating an older pending restore ticket;
 - a removed semantic id refusing restore even when generation is current;
+- a same-generation keyboard-focus move invalidating an older keyboard-derived ticket;
+- explicit selection superseding an older keyboard-derived ticket;
+- durable semantic selection remaining owner while keyboard focus moves elsewhere;
 - bounded anchor math at leading/trailing edges and width-growth cases;
 - generation treated as ordering only, not timestamp/evidence truth.
 
