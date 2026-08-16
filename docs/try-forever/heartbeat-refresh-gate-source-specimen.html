@@ -28,12 +28,12 @@
 <body>
 <main>
   <h1>WARM WALL / EXACT CHECKPOINT ≠ PRESENTATION ≠ RESTORE OWNERSHIP</h1>
-  <p class="scar">STABLE-STRUCTURE OWNER SOURCE WIRED • REBUILD/GENERATION POLICY SOURCE YES • OWNER CONSUMPTION NO • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
+  <p class="scar">EXISTING-OWNER RESTORE SOURCE WIRED • STABLE + REBUILD + FALLBACK • GENERATION/OWNER REVALIDATION YES • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
 
   <section class="wall" aria-label="Heartbeat refresh gate with checkpoint, presentation, structure, speech, viewport, and restore generation identities">
     <svg viewBox="0 0 940 310" role="img" aria-labelledby="title desc">
       <title id="title">Heartbeat refresh identities and viewport restore ownership are separate</title>
-      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact contact, presentation, native structure, announcement, viewport anchor, and pending restore generation have different jobs. Stable-structure viewport restore is wired in source. Structural-rebuild and stale-callback generation handling exist as pure source policy only and are not yet consumed by the service.</desc>
+      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact contact, presentation, native structure, announcement, viewport anchor, and pending restore generation have different jobs. Existing-owner source now consumes generation-bound viewport restore tickets for stable refresh, structural rebuild, and drift fallback, while Android runtime viewport and TalkBack behavior remain unproven.</desc>
       <path d="M22 148 H142" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
       <path d="M798 148 H918" stroke="currentColor" stroke-width="4" fill="none"/>
       <rect x="142" y="20" width="656" height="254" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
@@ -43,10 +43,10 @@
       <text x="470" y="129" text-anchor="middle" fill="currentColor" font-size="13">PRESENTATION → visible/touchable content work; invisible pulse id alone stays quiet</text>
       <text x="470" y="154" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE → ordered semantic ids decide native child replacement</text>
       <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">SPEECH → established transition/new wound only</text>
-      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT → surviving selected id, then direct keyboard focus fallback</text>
+      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT → selected semantic id, then direct keyboard-focus fallback</text>
       <path d="M250 224 H690" stroke="currentColor" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
-      <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">RESTORE GENERATION → stale after-layout ticket must become inert</text>
-      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">POLICY SOURCE YES • SERVICE REBUILD/GENERATION CONSUMPTION NO</text>
+      <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">RESTORE TICKET → generation + semantic owner + old viewport offset</text>
+      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">OWNER SOURCE WIRED • CALLBACK REVALIDATES GENERATION + CURRENT OWNER • RUNTIME NO</text>
       <circle cx="54" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <circle cx="886" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <text x="54" y="188" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
@@ -59,13 +59,14 @@
     <button type="button" data-action="pulse">◇ New pulse id — checkpoint advances, presentation still</button>
     <button type="button" data-action="evidence">◇ Evidence refresh — same Buttons, new detail</button>
     <button type="button" data-action="state">● State change — same Buttons, new content + speech</button>
-    <button type="button" data-action="reorder">↕ Reorder — replace child structure</button>
-    <button type="button" data-action="viewport">↔ Width shift — stable-structure viewport source wiring</button>
-    <button type="button" data-action="rebuildAnchor">◇ Rebuild keeps semantic id — restore ticket policy only</button>
-    <button type="button" data-action="supersede">× Later selection — stale pending restore dies</button>
+    <button type="button" data-action="reorder">↕ Reorder — rebuild with surviving semantic anchor</button>
+    <button type="button" data-action="viewport">↔ Width shift — stable-structure restore ticket</button>
+    <button type="button" data-action="rebuildAnchor">◇ Rebuild keeps semantic id — owner consumes ticket</button>
+    <button type="button" data-action="supersede">× Later selection — generation invalidates pending restore</button>
+    <button type="button" data-action="focusMove">↹ Keyboard focus moves — same-generation owner invalidates</button>
     <button type="button" data-action="wound">× Wound — last-good contact, wound changes once</button>
     <button type="button" data-action="muted">□ Muted transition — content changes, speech history advances</button>
-    <button type="button" data-action="drift">× Live child/tag drift — fail safe to canonical rebuild</button>
+    <button type="button" data-action="drift">× Live child/tag drift — fallback rebuild keeps ticket path</button>
   </div>
 
   <div class="readout" aria-label="Gate counters and capability state">
@@ -75,7 +76,7 @@
     <div class="meter">content refreshes<b id="contents">0</b></div>
     <div class="meter">announcements<b id="announcements">0</b></div>
     <div class="meter">restore tickets<b id="anchors">0</b></div>
-    <div class="meter">stale tickets dropped<b id="staleDrops">0</b></div>
+    <div class="meter">stale/owner-lost tickets<b id="staleDrops">0</b></div>
   </div>
   <p id="detail" role="status" aria-live="polite">Touch a source control. Exact evidence, presentation work, and pending viewport-restore ownership are intentionally separate; this artifact is source semantics, not Android runtime proof.</p>
 </main>
@@ -100,6 +101,10 @@
       state.pendingGeneration = 0;
     }
   };
+  const issueRestoreTicket = () => {
+    state.anchors += 1;
+    state.pendingGeneration = state.generation;
+  };
   document.querySelectorAll('button[data-action]').forEach(button => {
     button.addEventListener('click', () => {
       state.polls += 1;
@@ -116,30 +121,32 @@
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
-          render('Evidence changed. Existing semantic Buttons can refresh in place. A surviving selected/focused anchor may receive a current-generation restore ticket; evidence-only change still earns no unsolicited speech.');
+          issueRestoreTicket();
+          render('Evidence changed. Existing semantic Buttons refresh in place. The existing owner captures a surviving selected/focused semantic anchor and schedules one generation-bound pre-draw restore; evidence-only change still earns no unsolicited speech.');
           break;
         case 'state':
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
           state.announcements += 1;
+          issueRestoreTicket();
           state.woundOpen = false;
-          render('State or consequence changed without changing ids/order. The same native Buttons receive new content; one established transition may speak. Restore ownership is independent.');
+          render('State or consequence changed without changing ids/order. The same native Buttons receive new content; one established transition may speak; viewport restore ownership stays separately generation-bound.');
           break;
         case 'reorder':
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.structures += 1;
           state.contents += 1;
+          issueRestoreTicket();
           state.woundOpen = false;
-          render('Ordered semantic ids changed. Native child structure replacement is earned. Structural-rebuild viewport preservation remains policy source only until OperatorOverlayService consumes it.');
+          render('Ordered semantic ids changed. The existing owner captures a surviving selected/focused semantic anchor before replacing children, then revalidates and restores its bounded viewport offset after layout. Source wired; runtime proof still absent.');
           break;
         case 'viewport':
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
-          state.anchors += 1;
-          state.pendingGeneration = state.generation;
+          issueRestoreTicket();
           state.woundOpen = false;
           render('A preceding label widened. Existing service source captures selected id first or direct keyboard focus fallback and restores bounded viewport offset on pre-draw for stable-structure refresh. Android runtime viewport/TalkBack evidence remains NO.');
           break;
@@ -148,13 +155,19 @@
           state.checkpoints += 1;
           state.structures += 1;
           state.contents += 1;
-          state.anchors += 1;
-          state.pendingGeneration = state.generation;
-          render('The semantic id survives a changed structure. HeartbeatViewportRestorePolicy can issue a generation-bound ticket, but the existing service does NOT yet consume this rebuild path. Policy source YES; owner wiring NO; runtime NO.');
+          issueRestoreTicket();
+          render('The semantic id survives a changed structure. OperatorOverlayService now consumes the generation-bound restore ticket path for structural rebuilds. Existing-owner source wiring YES; Android execution/runtime observation NO.');
           break;
         case 'supersede':
           supersedeRestoreOwnership();
-          render('A later explicit semantic selection or mutation advances restore ownership. Any older pending ticket is stale and must be inert. The source policy exists; existing-service generation wiring remains NO.');
+          render('A later explicit semantic selection or presentation mutation advances restore generation. Any older pending ticket is stale and must be inert before it can move the viewport.');
+          break;
+        case 'focusMove':
+          if (state.pendingGeneration) {
+            state.staleDrops += 1;
+            state.pendingGeneration = 0;
+          }
+          render('Direct keyboard focus moved while generation stayed the same. Callback revalidation recomputes selected-first / keyboard-focus-fallback ownership; a ticket for the old focus must die without inventing a heartbeat generation. TalkBack accessibility focus is still outside this source claim.');
           break;
         case 'wound':
           state.contents += state.woundOpen ? 0 : 1;
@@ -166,15 +179,17 @@
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
+          issueRestoreTicket();
           state.woundOpen = false;
-          render('Material transition while muted. Existing Buttons may refresh, speech is suppressed, and announcement history still advances so restore cannot replay it.');
+          render('Material transition while muted. Existing Buttons may refresh, speech is suppressed, announcement history advances, and viewport restore ownership remains independently bounded.');
           break;
         case 'drift':
           supersedeRestoreOwnership();
           state.structures += 1;
           state.contents += 1;
+          issueRestoreTicket();
           state.woundOpen = false;
-          render('Live child count/order/tag no longer matches deterministic structure. In-place mutation is refused; the existing owner falls back to canonical rebuild. Rebuild viewport restore remains unclaimed until wired.');
+          render('Live child count/order/tag no longer matches deterministic structure. In-place mutation is refused; the existing owner falls back to canonical rebuild while preserving the same generation-bound semantic viewport ticket path.');
           break;
       }
     });
