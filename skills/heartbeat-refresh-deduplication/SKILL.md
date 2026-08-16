@@ -29,9 +29,9 @@ Do not use wall-clock timestamps as semantic identities. Do not rebuild, refresh
 
 The existing service also consumes deterministic semantic viewport-restore policy for **stable in-place refresh, structural rebuild, and live-structure-drift fallback rebuild**. It captures a visible semantic owner before mutation, carries a generation-bound restore ticket through a one-shot pre-draw callback, and revalidates current interaction ownership plus the actual mutation class before moving the viewport. Direct keyboard focus, semantic selection, visible viewport contact, and TalkBack accessibility focus remain separate claims. This is existing-owner **source wiring**, not Android viewport/keyboard-focus/TalkBack runtime proof.
 
-The automatic-speech policy now also distinguishes **whole-overlay visibility** from **heartbeat-surface visibility**. A visible root does not authorize speech from a heartbeat/details subtree that is collapsed or `GONE`. The five-argument `shouldAnnounce(...)` policy expresses that source rule. Until the existing service passes the heartbeat-surface presentation bit into that overload, owner consumption of this newest speech gate remains a separate capability state.
+The automatic-speech path now also distinguishes **whole-overlay visibility** from **heartbeat-surface visibility** in the existing owner. `OperatorOverlayService` derives `overlayVisible` from the persisted hidden state plus root visibility, derives `heartbeatSurfaceVisible` from the existing `details` subtree visibility, and passes both into the five-argument `shouldAnnounce(...)` gate. Because `applyPresentationState()` makes `details` `GONE` when collapsed, a visible root no longer authorizes heartbeat speech from behind the collapsed wall at the source level.
 
-This is **EXISTING-OWNER SOURCE WIRING plus a newer speech-gate policy seam**, not Android execution, runtime focus-preservation proof, TalkBack runtime proof, deployment, phone delivery, or acceptance.
+This is **EXISTING-OWNER SOURCE WIRING including the heartbeat-surface speech gate**, not Android execution, runtime focus-preservation proof, TalkBack runtime proof, deployment, phone delivery, or acceptance.
 
 ## Cold-start, mute, and visibility rules
 An empty previous announcement identity means **unknown history**, not a proven transition. The first model may render, but automatic speech must stay quiet until there is an established prior semantic baseline and a later announcement identity differs. Do not narrate stale persisted state as though the service just witnessed it happen.
@@ -84,17 +84,18 @@ At minimum cover:
 - interrupted refresh with preserved last-good ids: stable structure, wound content changes once;
 - mute/hidden suppression without stale replay;
 - **root visible + heartbeat surface collapsed/GONE: automatic speech suppressed while announcement history advances; expanding later must not replay that transition**;
+- **the four-argument compatibility speech gate cannot represent collapsed-subtree truth and must not be substituted for existing-owner five-argument wiring**;
 - live child/tag mismatch: existing owner must fail safe to canonical rebuild instead of applying content to the wrong semantic child;
 - viewport-anchor math: width growth/shrink keeps a captured anchor offset stable, clamps at both scroll edges, and cannot overflow into negative scroll.
 
-A regression file is source only until an authorized runner executes it. Existing pure refresh-plan/checkpoint tests cover semantic work identities; `HeartbeatInvisiblePulseIdDedupTest` covers the exact-checkpoint/presentation split; `HeartbeatCollapsedPresentationSpeechTest` covers the new whole-overlay-vs-heartbeat-surface speech policy. Android child-object reconciliation, viewport-anchor paths, and current service consumption of the new collapsed-surface speech gate remain runtime/unwired as stated until authorized evidence advances them.
+A regression file is source only until an authorized runner executes it. Existing pure refresh-plan/checkpoint tests cover semantic work identities; `HeartbeatInvisiblePulseIdDedupTest` covers the exact-checkpoint/presentation split; `HeartbeatCollapsedPresentationSpeechTest` covers whole-overlay-vs-heartbeat-surface speech policy plus the compatibility-gate gap. Existing `OperatorOverlayService` source now consumes the five-argument collapsed-surface gate; Android child reconciliation, viewport behavior, and TalkBack speech behavior remain runtime-unproven until authorized evidence advances them.
 
 ## Evidence membrane
 Keep these states separate:
 
 `requested -> implemented source -> regression source -> tested -> existing-owner source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-GitHub source/readback proves durable source presence and existing-owner source wiring only. A regression file is not a passing test until an authorized test body executes it. Exact checkpoint identity is not automatically presentation work. Existing-owner source wiring is not runtime rendering proof. A pure five-argument speech policy is not owner consumption until `OperatorOverlayService` supplies the heartbeat-surface presentation state.
+GitHub source/readback proves durable source presence and existing-owner source wiring only. A regression file is not a passing test until an authorized test body executes it. Exact checkpoint identity is not automatically presentation work. Existing-owner source wiring is not runtime rendering proof. The five-argument speech gate is now consumed by `OperatorOverlayService` source, but that still does not prove Android execution or TalkBack behavior.
 
 ## Done for one source pulse
 This skill may light only when dedupe/selection/contact/accessibility semantics, existing-owner source composition, viewport-contact policy, heartbeat-surface presentation policy, or their regression source materially change. If the only event is another poll, another invisible pulse id, or another unchanged CI failure, keep it dark.
