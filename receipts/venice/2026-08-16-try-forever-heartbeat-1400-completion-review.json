@@ -1,0 +1,44 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "heartbeat": "2026-08-16-1400",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "reviewType": "completion_code_review",
+  "commission": "Prevent automatic heartbeat speech from a collapsed/GONE heartbeat surface while preserving semantic announcement history, without touching P0/phone ownership or creating neighboring architecture.",
+  "verdict": "FAIL",
+  "directive": "CONTINUE_REQUIRED",
+  "jar": "observable evidence + capability-state separation + hard gates outrank polish",
+  "finding": "The five-argument presentation gate, hostile regression source, durable doctrine, and warm-wall source are implemented and read back, but OperatorOverlayService still supplies only whole-overlay visibility through the four-argument compatibility path. Therefore the actual existing owner does not yet consume heartbeat-surface visibility.",
+  "note": "Do not promote policy source into owner wiring, Android execution, TalkBack runtime behavior, deployment, delivery, or acceptance. The next authorized cut is the existing OperatorOverlayService call/signature only. No second renderer/controller and no phone/P0 route-around.",
+  "evidence": {
+    "plan_receipt": "receipts/heartbeat-skill-lights/2026-08-16-1400-plan.json",
+    "regnet_receipt": "receipts/regnet/2026-08-16-try-forever-heartbeat-1400-source-review.json",
+    "policy_blob": "483257e1d1aca72610dc632a8343a96f0262e0d6",
+    "regression_blob": "85c33bf6026c3996e88c69c952df6a215ce5a0f0",
+    "skill_blob": "81421273d3cb533b190cee7229e3cf00a9790cd9",
+    "warm_wall_blob": "b686959ac5d5b9cc097372946205b7294e060993",
+    "existing_owner_blob_unchanged": "befab3b2be1e3fa3750a18a11d0b45674ee5d285",
+    "ci_source_head": "4cc01cb2f7bfb52f8e222feb27606c96e562e2c4",
+    "ci_job": 95212201060,
+    "ci_steps": 0,
+    "ci_boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  },
+  "p0_firewall": "PASS_ZERO_CONSUMPTION",
+  "capability_state": {
+    "implemented_policy_source": true,
+    "regression_source": true,
+    "existing_owner_consumption": false,
+    "tested": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
