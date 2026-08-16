@@ -25,10 +25,11 @@
   button[aria-pressed="true"] { outline: 3px solid #ffd99b; outline-offset: 2px; }
   button:focus-visible { outline: 4px solid #fff1c6; outline-offset: 3px; }
   .detail { margin-top: 16px; border-left: 5px solid #d7aa6e; padding: 12px 14px; min-height: 92px; background: #211a13; }
-  .speech-budget { margin-top: 12px; padding: 12px 14px; border: 1px dashed #8b6f47; border-radius: 14px; }
+  .speech-budget, .boundary-hygiene { margin-top: 12px; padding: 12px 14px; border: 1px dashed #8b6f47; border-radius: 14px; }
   .status { position: absolute; width: 1px; height: 1px; clip: rect(0 0 0 0); overflow: hidden; white-space: nowrap; }
   [data-state="invalid"] .payload { fill: #2c1a16; stroke: #ffad8a; }
   [data-state="invalid"] .pulse { animation: onePulse .55s ease-out 1; }
+  [data-state="boundary"] .wound { animation: onePulse .55s ease-out 1; }
   [data-state="internal"] .payload, [data-state="internal"] .pulse,
   [data-state="storage"] .payload, [data-state="storage"] .pulse { fill: #2c1a16; stroke: #ffad8a; }
   @keyframes onePulse { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
@@ -44,7 +45,7 @@
     <h2 id="wall-title">Heartbeat ingress separation</h2>
     <svg class="wires" viewBox="0 0 760 150" role="img" aria-labelledby="wire-title wire-desc">
       <title id="wire-title">Heartbeat sink and optional skill-light payload follow separate source semantics</title>
-      <desc id="wire-desc">Only a dedicated caller-invalid telemetry exception permits the optional payload to be rejected while the independent heartbeat sink continues. Unrelated argument errors and storage failures propagate.</desc>
+      <desc id="wire-desc">Only a dedicated caller-invalid telemetry exception permits the optional payload to be rejected while the independent heartbeat sink continues. Human-facing rejection boundaries are separately normalized and Unicode-bounded. Unrelated argument errors and storage failures propagate.</desc>
       <path class="wire" d="M80 76 C210 76 230 40 360 40 S520 76 680 76"/>
       <path class="wire" d="M360 40 C360 92 460 112 600 112"/>
       <circle class="pulse" cx="80" cy="76" r="24"/>
@@ -63,11 +64,13 @@
   <div class="controls" aria-label="Choose source-semantic state">
     <button type="button" data-mode="valid" aria-pressed="false">◇ VALID PAYLOAD</button>
     <button type="button" data-mode="invalid" aria-pressed="true">□ CALLER INVALID</button>
+    <button type="button" data-mode="boundary" aria-pressed="false">◇ BOUNDARY HYGIENE</button>
     <button type="button" data-mode="internal" aria-pressed="false">× INTERNAL ARGUMENT</button>
     <button type="button" data-mode="storage" aria-pressed="false">× STORAGE FAILURE</button>
   </div>
 
   <div class="detail" id="detail" tabindex="0">Dedicated caller-invalid optional payload: reject only the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. A generic IllegalArgumentException does not get this privilege.</div>
+  <div class="boundary-hygiene"><strong>BOUNDARY ≠ RAW EXCEPTION.</strong> Human-facing/loggable rejection text collapses control/whitespace runs, repairs lone UTF-16 surrogates to U+FFFD, and truncates by Unicode code point. It remains evidence-facing text, not canonical exception identity.</div>
   <div class="speech-budget" aria-label="TalkBack detail budget contract"><strong>VOICE ≠ DATABASE.</strong> Complete typed reason, consequence, evidence, and provenance stay in the semantic model. Expanded TalkBack speech gets Unicode-safe field budgets and says when a field is truncated.</div>
   <div class="status" id="status" role="status" aria-live="polite"></div>
 </main>
@@ -94,6 +97,11 @@
       liveToken: '●', liveState: 'Heartbeat sink INVOKED', liveCopy: 'Dedicated caller-invalid telemetry may be rejected without suppressing the independent heartbeat call.',
       payloadToken: '□', payloadState: 'Payload BLOCKED', payloadCopy: 'The previously stored skill-light payload is not overwritten by the rejected input.',
       detail: 'Dedicated caller-invalid optional payload: reject only the payload, preserve the previous stored payload, and still invoke the independent heartbeat sink. A generic IllegalArgumentException does not get this privilege.'
+    },
+    boundary: {
+      liveToken: '◇', liveState: 'Boundary NORMALIZED', liveCopy: 'Human-facing rejection text becomes one bounded Unicode-safe line; the raw exception object is not rewritten.',
+      payloadToken: '□', payloadState: 'Payload STILL BLOCKED', payloadCopy: 'Boundary hygiene does not promote rejected telemetry or overwrite last-good payload identity.',
+      detail: 'Boundary hygiene: ISO controls and whitespace runs collapse to one ordinary space, lone UTF-16 surrogates become replacement characters, and truncation occurs by Unicode code point so a valid pair is never split.'
     },
     internal: {
       liveToken: '×', liveState: 'Heartbeat NOT INVOKED', liveCopy: 'An unrelated IllegalArgumentException is an internal wound unless explicitly typed otherwise.',
