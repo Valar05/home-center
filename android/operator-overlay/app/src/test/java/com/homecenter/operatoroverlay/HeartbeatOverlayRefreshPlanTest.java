@@ -31,6 +31,26 @@ public class HeartbeatOverlayRefreshPlanTest {
     }
 
     @Test
+    public void coldStartRendersButDoesNotPretendItObservedATransition() {
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
+                "pulse-one",
+                Collections.singletonList(typed(
+                        "contact",
+                        "Contact",
+                        HeartbeatSkillPolicy.State.ACTIVE,
+                        true,
+                        "Contact established",
+                        "Exact fixture boundary")),
+                true,
+                null);
+        HeartbeatOverlayRefreshPlan.Plan plan =
+                HeartbeatOverlayRefreshPlan.fromFrame(frame, "contact");
+
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuild("", plan));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce("", plan));
+    }
+
+    @Test
     public void exactSceneRetryDoesNotRebuildOrReannounce() {
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
                 "pulse-one",
