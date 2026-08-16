@@ -1,0 +1,45 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "time": "2026-08-16T09:00:00-05:00",
+  "provenance": "same-worker repository Judgment Jar review",
+  "subject": "TRY FOREVER visible viewport contact source slice",
+  "findings": [
+    {
+      "state": "PASS",
+      "area": "mission fidelity",
+      "detail": "The slice stays inside non-phone heartbeat source work and composes the existing viewport-contact organs."
+    },
+    {
+      "state": "PASS",
+      "area": "accessibility truth",
+      "detail": "Semantic selection, direct keyboard focus, visible viewport contact, and TalkBack accessibility focus remain separate claims."
+    },
+    {
+      "state": "PASS",
+      "area": "originality tax",
+      "detail": "The unchanged Actions-budget failure was not retried; the swarm advanced a different source seam."
+    },
+    {
+      "state": "CONTINUE_REQUIRED",
+      "area": "existing-owner integration",
+      "detail": "OperatorOverlayService still chooses semantic selected-first/focus-fallback before capture without consulting the new live visibility gate. Offscreen durable selection can therefore still masquerade as viewport contact in existing-owner source wiring."
+    },
+    {
+      "state": "BOUNDARY",
+      "area": "future wiring",
+      "detail": "When the owner consumes the policy, visibility booleans must be computed from the corresponding live native Button geometry and current HorizontalScrollView. Do not infer TalkBack focus or manufacture an anchor from accepted-model membership alone."
+    }
+  ],
+  "capability_gate": {
+    "implemented_source": true,
+    "regression_source": true,
+    "existing_owner_visibility_gate_consumption": false,
+    "tested": false,
+    "runtime_observed": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "completion": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED"
+}
