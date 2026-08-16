@@ -40,18 +40,24 @@ The existing service source now:
 6. refreshes visible label, both-axis touch minimums, semantic tag, selected state, compact content description, and the current click-detail closure on those stable objects;
 7. retains selection by semantic light id;
 8. exposes compact content descriptions on each control and explicit detail on touch;
-9. suppresses automatic and explicit heartbeat speech while globally muted while still advancing semantic announcement history.
+9. suppresses automatic and explicit heartbeat speech while globally muted while still advancing semantic announcement history;
+10. on a stable-structure content refresh, captures at most one semantic viewport anchor from the accepted selected id first, otherwise a directly keyboard-focused heartbeat Button;
+11. captures that anchor's pre-mutation viewport offset from the existing `HorizontalScrollView`, then performs the existing in-place mutation;
+12. only when the in-place refresh succeeds, schedules one-shot pre-draw restoration so the new child geometry has been laid out before applying bounded `anchoredScrollX(...)`;
+13. re-finds the same semantic id before scrolling; stale/missing ids do not get replaced by index guesses or neighboring controls.
 
-If live child count/order/tag identity disagrees with the planned structure, the service must fail safe to the existing canonical rebuild path. It must never guess which changed child corresponds to which semantic light.
+If live child count/order/tag identity disagrees with the planned structure, the service must fail safe to the existing canonical rebuild path. It must never guess which changed child corresponds to which semantic light, and the viewport anchor is not restored across that rebuild fallback.
 
 A scroll/container wrapper must not become a competing TalkBack destination that masks child controls.
 
 ## Focus and viewport truth
 Stable semantic selection is not the same claim as stable native focus. The source avoids destroying stable child objects on content-only changes, which preserves the **opportunity** for keyboard/TalkBack focus to remain on the same native object. This is an implemented source property only. Actual Android focus retention and TalkBack behavior remain unproven until an authorized runtime/test body observes them.
 
-Stable native object identity is also not the same as stable **visible viewport contact**. In a horizontal scrolling row, an in-place label/content change can alter child widths and move the exact same Button away from its prior viewport offset. `HeartbeatOverlayRefreshPlan.anchoredScrollX(...)` now provides deterministic bounded source policy for restoring a captured semantic anchor after layout, with regression source for edge clamping and overflow. The existing `OperatorOverlayService` has **not yet been wired to capture/restore that anchor**, so this must remain `IMPLEMENTED_POLICY/REGRESSION_SOURCE`, not viewport-preservation capability.
+Stable native object identity is also not the same as stable **visible viewport contact**. In a horizontal scrolling row, an in-place label/content change can alter child widths and move the exact same Button away from its prior viewport offset. `HeartbeatOverlayRefreshPlan.viewportAnchorId(...)` and `anchoredScrollX(...)` now provide deterministic source policy, and the existing `OperatorOverlayService` consumes that policy in source.
 
-When that existing-owner seam is wired, prefer a direct keyboard-focused child as the anchor when available, otherwise the user-selected semantic id. Preserve only the semantic id plus viewport offset; do not infer or claim ownership of Android accessibility focus. If the semantic anchor disappears, do not scroll to a neighboring light by index.
+Anchor priority is canonical and must not drift: **accepted selected semantic id first; direct keyboard-focused heartbeat Button second; otherwise no anchor**. TalkBack accessibility focus is deliberately neither queried nor synthesized. Selection, keyboard focus, accessibility focus, visible viewport contact, and runtime-observed retention remain separate capability claims.
+
+The owner restores on a one-shot pre-draw after the in-place content refresh requested layout. This is stronger source ordering than a generic posted Runnable, but it remains **source wiring**, not proof that Android actually executed the path or that accessibility focus was retained.
 
 ## Collapsed semantics
 Collapsed description comes from `HeartbeatFrameAccessibility.collapsedContentDescription(frame)`. Do not rebuild attention ordering, counts, or interrupted-refresh speech in a second implementation.
@@ -62,7 +68,9 @@ Do not add a neighboring overlay service, controller, renderer, state store, hea
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> viewport-anchor source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> viewport-anchor source wired -> runtime UI observed -> runtime viewport observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+
+Current source truth: existing-owner source wiring **YES**; viewport-anchor source wiring **YES**; deterministic test execution/runtime observation/deployment/callability/execution/delivery/acceptance **NO** until their own authorized evidence exists.
 
 GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, viewport anchoring, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
 
