@@ -8,11 +8,11 @@
   :root { color-scheme: dark; font-family: system-ui, sans-serif; }
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: #17191e; color: #f5f1e8; display: grid; place-items: center; padding: 20px; }
-  main { width: min(760px, 100%); border: 1px solid #6f7788; border-radius: 22px; padding: 18px; background: #20232a; box-shadow: inset 0 0 0 6px #292d35; }
+  main { width: min(820px, 100%); border: 1px solid #6f7788; border-radius: 22px; padding: 18px; background: #20232a; box-shadow: inset 0 0 0 6px #292d35; }
   h1 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: .08em; }
-  .scar { margin: 0 0 16px; font-size: .78rem; opacity: .8; }
-  .wall { position: relative; min-height: 220px; border: 1px solid #596271; border-radius: 18px; overflow: hidden; background: #1b1e24; }
-  svg { width: 100%; height: 220px; display: block; }
+  .scar { margin: 0 0 16px; font-size: .78rem; opacity: .82; }
+  .wall { position: relative; min-height: 240px; border: 1px solid #596271; border-radius: 18px; overflow: hidden; background: #1b1e24; }
+  svg { width: 100%; height: 240px; display: block; }
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 14px; }
   button { min-height: 48px; min-width: 48px; border-radius: 14px; border: 1px solid #788394; background: #2a2f38; color: inherit; font: inherit; padding: 8px 12px; }
   button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
@@ -20,58 +20,60 @@
   .meter { border: 1px solid #505866; border-radius: 12px; padding: 10px; min-height: 72px; }
   .meter b { display: block; font-size: 1.35rem; }
   #detail { margin: 12px 0 0; min-height: 48px; border-left: 4px solid #778294; padding: 8px 12px; }
-  @media (max-width: 620px) { .readout { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 660px) { .readout { grid-template-columns: repeat(2,1fr); } }
   @media (max-width: 520px) { .controls, .readout { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>WARM WALL / SEMANTIC PACEMAKER</h1>
-  <p class="scar">SOURCE WIRED • RUNTIME UNPROVEN • NOT PHONE DELIVERY • 200ms polling does not earn 200ms UI churn</p>
+  <h1>WARM WALL / THREE-CHAMBER PACEMAKER</h1>
+  <p class="scar">SOURCE PLANNING • SERVICE STILL ON LEGACY FULL-REBUILD PATH • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
 
   <section class="wall" aria-label="Heartbeat refresh gate diagram">
-    <svg viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
-      <title id="title">Heartbeat refresh gate</title>
-      <desc id="desc">Persisted heartbeat identity enters the semantic gate. The existing overlay owner may rebuild native controls only when contact changes; state transitions or new wounds may speak only while visible and unmuted.</desc>
-      <path d="M30 110 H245" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
-      <path d="M475 110 H690" stroke="currentColor" stroke-width="4" fill="none"/>
-      <rect x="245" y="55" width="230" height="110" rx="28" fill="none" stroke="currentColor" stroke-width="3"/>
-      <text x="360" y="88" text-anchor="middle" fill="currentColor" font-size="17">EXISTING OWNER</text>
-      <text x="360" y="113" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes → scene → model</text>
-      <text x="360" y="137" text-anchor="middle" fill="currentColor" font-size="13">render SHA • speech SHA • mute gate</text>
-      <text x="360" y="157" text-anchor="middle" fill="currentColor" font-size="12">stable id • contact held</text>
-      <circle cx="54" cy="110" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
-      <circle cx="666" cy="110" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
-      <text x="54" y="155" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
-      <text x="666" y="155" text-anchor="middle" fill="currentColor" font-size="13">NATIVE</text>
+    <svg viewBox="0 0 780 240" role="img" aria-labelledby="title desc">
+      <title id="title">Three heartbeat work identities</title>
+      <desc id="desc">Persisted heartbeat contact enters the existing semantic pipeline. Structure identity decides whether native child objects must be replaced. Render identity decides whether their content changes. Announcement identity decides whether an established transition may speak.</desc>
+      <path d="M24 120 H188" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+      <path d="M592 120 H756" stroke="currentColor" stroke-width="4" fill="none"/>
+      <rect x="188" y="36" width="404" height="168" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
+      <text x="390" y="69" text-anchor="middle" fill="currentColor" font-size="17">EXISTING SEMANTIC OWNER</text>
+      <text x="390" y="96" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes → scene → model → refresh plan</text>
+      <text x="390" y="126" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE SHA → replace child objects only when ids/order change</text>
+      <text x="390" y="151" text-anchor="middle" fill="currentColor" font-size="13">RENDER SHA → update text/detail/state on stable objects</text>
+      <text x="390" y="176" text-anchor="middle" fill="currentColor" font-size="13">SPEECH SHA → announce established transition once</text>
+      <circle cx="52" cy="120" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="728" cy="120" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="52" y="163" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
+      <text x="728" y="163" text-anchor="middle" fill="currentColor" font-size="13">NATIVE</text>
     </svg>
   </section>
 
   <div class="controls" aria-label="Refresh gate source controls">
     <button type="button" data-action="poll">· Raw poll — no semantic change</button>
-    <button type="button" data-action="evidence">◇ Evidence refresh — rebuild detail, stay quiet</button>
-    <button type="button" data-action="state">● Visible state change — rebuild + announce</button>
-    <button type="button" data-action="muted">□ Muted state change — rebuild, no speech</button>
-    <button type="button" data-action="wound">× Wound — preserve contact + announce once</button>
-    <button type="button" data-action="restore">◇ Restore/unmute — never replay stale speech</button>
+    <button type="button" data-action="evidence">◇ Evidence refresh — same buttons, new detail</button>
+    <button type="button" data-action="state">● State change — same buttons, new content + speech</button>
+    <button type="button" data-action="reorder">↕ Reorder — replace child structure</button>
+    <button type="button" data-action="wound">× Wound — same last-good buttons, wound changes once</button>
+    <button type="button" data-action="muted">□ Muted transition — content changes, speech history advances</button>
   </div>
 
   <div class="readout" aria-label="Gate counters and capability state">
     <div class="meter">polls<b id="polls">0</b></div>
-    <div class="meter">wall rebuilds<b id="rebuilds">0</b></div>
+    <div class="meter">structure rebuilds<b id="structures">0</b></div>
+    <div class="meter">content refreshes<b id="contents">0</b></div>
     <div class="meter">announcements<b id="announcements">0</b></div>
-    <div class="meter">capability<b id="capability">SOURCE</b></div>
   </div>
-  <p id="detail" role="status" aria-live="polite">Touch a source control. Native source wiring exists; runtime rendering is not proven by this specimen.</p>
+  <p id="detail" role="status" aria-live="polite">Touch a source control. This specimen demonstrates the source contract; the existing Android service has not yet consumed the new structure identity.</p>
 </main>
 <script>
 (() => {
-  const state = { polls: 0, rebuilds: 0, announcements: 0, woundOpen: false, mutedHistory: false };
+  const state = { polls: 0, structures: 0, contents: 0, announcements: 0, woundOpen: false };
   const $ = id => document.getElementById(id);
   const render = message => {
     $('polls').textContent = state.polls;
-    $('rebuilds').textContent = state.rebuilds;
+    $('structures').textContent = state.structures;
+    $('contents').textContent = state.contents;
     $('announcements').textContent = state.announcements;
     $('detail').textContent = message;
   };
@@ -80,36 +82,34 @@
       state.polls += 1;
       switch (button.dataset.action) {
         case 'poll':
-          render('Raw poll observed. Render identity unchanged; native children and voice stay still.');
+          render('Exact retry. Structure, render, and announcement identities stay still. Nothing earns work.');
           break;
         case 'evidence':
-          state.rebuilds += 1;
-          render('Evidence changed. Touchable detail may rebuild; transition identity is unchanged, so no unsolicited speech.');
+          state.contents += 1;
+          render('Evidence changed. Ordered semantic ids are stable, so native children can stay alive while detail updates in place. No unsolicited speech.');
           break;
         case 'state':
-          state.rebuilds += 1;
+          state.contents += 1;
           state.announcements += 1;
           state.woundOpen = false;
-          state.mutedHistory = false;
-          render('Material state changed while visible and unmuted. Existing-owner source permits one rebuild and one announcement.');
+          render('State or consequence changed without changing ids/order. Content updates on the same native objects; one established transition may speak.');
           break;
-        case 'muted':
-          state.rebuilds += 1;
-          state.mutedHistory = true;
+        case 'reorder':
+          state.structures += 1;
+          state.contents += 1;
           state.woundOpen = false;
-          render('Material state changed while muted. Contact may rebuild, speech stays silent, and the announcement identity still advances.');
+          render('Ordered semantic ids changed. This is the expensive case: native child structure replacement is actually earned.');
           break;
         case 'wound':
-          state.rebuilds += 1;
-          if (!state.woundOpen) state.announcements += 1;
+          state.contents += state.woundOpen ? 0 : 1;
+          state.announcements += state.woundOpen ? 0 : 1;
           state.woundOpen = true;
-          render('Refresh wound surfaced. Last-good contact remains; repeating the same wound does not chatter.');
+          render('Rejected refresh. Last-good child identities remain; interruption content changes once and repeated identical wounds stay quiet.');
           break;
-        case 'restore':
-          render(state.mutedHistory
-            ? 'Restored presentation. The muted transition is already historical, so it is not replayed as new speech.'
-            : 'Restored presentation. No semantic transition occurred merely because visibility changed.');
-          state.mutedHistory = false;
+        case 'muted':
+          state.contents += 1;
+          state.woundOpen = false;
+          render('Material transition while muted. Content may refresh, speech is suppressed, and announcement history still advances so restore cannot replay it.');
           break;
       }
     });
