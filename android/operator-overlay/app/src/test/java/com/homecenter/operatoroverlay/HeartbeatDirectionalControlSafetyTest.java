@@ -22,6 +22,15 @@ public class HeartbeatDirectionalControlSafetyTest {
     }
 
     @Test
+    public void directCandidateCannotHideEdgeControlThroughConstructorTrim() {
+        HeartbeatSkillPolicy.Candidate candidate = candidate("\tWarm Wall");
+
+        assertEquals("Warm Wall", candidate.label);
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate));
+        assertEquals("", HeartbeatSkillPolicy.contentDescription(candidate));
+    }
+
+    @Test
     public void legacyCollapsedSpeechReportsUnsafeOmissionInsteadOfLyingAboutNamedCount() {
         String description = HeartbeatSkillPolicy.collapsedContentDescription(
                 Collections.singletonList(candidate("Warm\u202EWall")));
