@@ -206,13 +206,14 @@ public final class HeartbeatOverlayRefreshPlan {
      *
      * <p>Stable native object identity is not stable visible contact by itself: a
      * wider sibling can move the selected/focused Button even though the same Button
-     * instance survives. The existing owner captures {@code viewportOffsetPx} before
-     * mutation, re-measures the same semantic id after layout, and uses this pure
-     * bounded calculation to restore its prior viewport offset. No movement is
-     * manufactured when the child position is unchanged.</p>
+     * instance survives. A future existing-owner wiring step can capture
+     * {@code viewportOffsetPx} before mutation, re-measure the same semantic id after
+     * layout, and use this pure bounded calculation to restore its prior viewport
+     * offset. No movement is manufactured when the child position is unchanged.</p>
      *
-     * <p>This is geometry policy only. It does not claim Android focus retention,
-     * accessibility-focus ownership, rendering, deployment, or phone delivery.</p>
+     * <p>This is geometry policy only. It does not claim existing-service
+     * consumption, Android focus retention, accessibility-focus ownership,
+     * rendering, deployment, or phone delivery.</p>
      */
     public static int anchoredScrollX(
             int nextAnchorLeftPx,
