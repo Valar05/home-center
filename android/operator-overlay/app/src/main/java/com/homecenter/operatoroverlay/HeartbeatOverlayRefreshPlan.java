@@ -34,7 +34,7 @@ public final class HeartbeatOverlayRefreshPlan {
          * accessibility focus.</p>
          */
         public final String structureIdentity;
-        /** Changes when the visible/touchable contact or interruption wound changes. */
+        /** Changes when the actually presented/touchable surface or interruption wound changes. */
         public final String renderIdentity;
         /** Changes only for transition semantics or a new interruption wound. */
         public final String announcementIdentity;
@@ -106,7 +106,7 @@ public final class HeartbeatOverlayRefreshPlan {
         String selected = clean(selectedControlId);
         if (!selected.isEmpty() && model.controlById(selected) == null) selected = "";
 
-        String contact = HeartbeatFrameCheckpoint.contactSha256(frame);
+        String presentation = HeartbeatFrameCheckpoint.presentationSha256(frame);
         String transition = HeartbeatFrameCheckpoint.transitionSha256(frame);
         String interrupted = frame != null && frame.refreshInterrupted ? "1" : "0";
         String exactBoundary = frame == null ? "Heartbeat scene unavailable." : raw(frame.refreshBoundary);
@@ -116,11 +116,15 @@ public final class HeartbeatOverlayRefreshPlan {
         // existing child object when this identity is stable, preserving focus.
         String structureIdentity = structureIdentity(model);
 
-        // Exact evidence/detail changes should refresh touchable content, but a pure
-        // evidence/provenance refresh must not become unsolicited speech.
+        // Exact visible/touchable detail changes should refresh content, but the
+        // otherwise invisible accepted pulse id is checkpoint/evidence identity, not
+        // UI work. A new pulse carrying the exact same presented surface therefore
+        // does not churn native controls. If a later refresh is interrupted, the
+        // interruption state/boundary changes this identity and the current visible
+        // pulse id can still be projected by the scene's bounded wound description.
         String renderIdentity = digest(
-                "heartbeat-overlay-render.v1",
-                contact,
+                "heartbeat-overlay-render.v2",
+                presentation,
                 interrupted,
                 exactBoundary);
         String announcementIdentity = digest(
