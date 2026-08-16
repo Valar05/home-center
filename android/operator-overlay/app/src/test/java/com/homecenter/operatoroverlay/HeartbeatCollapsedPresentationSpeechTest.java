@@ -79,6 +79,26 @@ public class HeartbeatCollapsedPresentationSpeechTest {
     }
 
     @Test
+    public void compatibilityGateCannotRepresentCollapsedSubsurfaceTruth() {
+        HeartbeatOverlayRefreshPlan.Plan[] plans = transitionPlans();
+
+        // The four-argument compatibility path has only root visibility and therefore
+        // treats a visible root as a visible heartbeat surface. Existing-owner wiring
+        // with real details/subtree visibility must use the five-argument gate.
+        assertTrue(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                plans[0].announcementIdentity,
+                plans[1],
+                false,
+                true));
+        assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                plans[0].announcementIdentity,
+                plans[1],
+                false,
+                true,
+                false));
+    }
+
+    @Test
     public void muteOrHiddenOverlayStillSuppressesAutomaticHeartbeatSpeech() {
         HeartbeatOverlayRefreshPlan.Plan[] plans = transitionPlans();
 
