@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Pure source-side checkpoint fingerprints for heartbeat scenes.
@@ -30,6 +31,10 @@ public final class HeartbeatFrameCheckpoint {
      * because this checkpoint is also evidence/idempotence identity. Provenance and
      * evidence detail are included because they are part of the touch/TalkBack
      * surface even when they do not earn transition motion.
+     *
+     * <p>Semantic light ids retain their exact source spelling here. A producer that
+     * changes only id case therefore advances exact contact/checkpoint evidence even
+     * though the case-insensitive UI identity may remain presentation-equivalent.</p>
      */
     public static String contactSha256(HeartbeatSceneGraph.Frame frame) {
         Canonical out = new Canonical("heartbeat-contact.v1");
@@ -39,7 +44,7 @@ public final class HeartbeatFrameCheckpoint {
         }
 
         out.value(frame.visiblePulseId);
-        appendPresentedNodes(out, frame);
+        appendNodes(out, frame, false);
         return sha256(out.text());
     }
 
@@ -52,6 +57,14 @@ public final class HeartbeatFrameCheckpoint {
      * checkpoint, but it is not new UI work and must not churn native controls or
      * TalkBack just because an otherwise invisible pulse id advanced.</p>
      *
+     * <p>Semantic light ids are case-insensitive throughout material-light dedupe,
+     * model lookup, native-child tags, selection retention, and structure identity.
+     * Presentation identity therefore folds only the semantic id field to lower case
+     * while preserving every actually presented label/detail/state/touch field
+     * exactly. `Regnet` -> `regnet` may advance exact checkpoint evidence, but it does
+     * not earn a native content refresh when every presented semantic field is
+     * otherwise unchanged.</p>
+     *
      * <p>If a later refresh is interrupted, interruption state/boundary live outside
      * this fingerprint and the scene can still expose the exact current visible
      * pulse id in its bounded interruption description.</p>
@@ -63,7 +76,7 @@ public final class HeartbeatFrameCheckpoint {
             return sha256(out.text());
         }
 
-        appendPresentedNodes(out, frame);
+        appendNodes(out, frame, true);
         return sha256(out.text());
     }
 
@@ -96,7 +109,7 @@ public final class HeartbeatFrameCheckpoint {
 
         out.integer(ordered.size());
         for (HeartbeatSceneGraph.Node node : ordered) {
-            out.value(node.id.toLowerCase(java.util.Locale.ROOT));
+            out.value(node.id.toLowerCase(Locale.ROOT));
             out.value(node.state == null ? "" : node.state.name());
             out.value(node.consequence);
         }
@@ -121,10 +134,21 @@ public final class HeartbeatFrameCheckpoint {
         return transitionSha256(left).equals(transitionSha256(right));
     }
 
-    private static void appendPresentedNodes(Canonical out, HeartbeatSceneGraph.Frame frame) {
+    /**
+     * Append the complete presented node surface.
+     *
+     * <p>Exact checkpoint identity keeps the source id spelling. Presentation
+     * identity folds only that semantic identity field because all downstream
+     * heartbeat id ownership is case-insensitive. Every visible/spoken/touchable
+     * field remains exact in both paths.</p>
+     */
+    private static void appendNodes(
+            Canonical out,
+            HeartbeatSceneGraph.Frame frame,
+            boolean foldSemanticIds) {
         out.integer(frame.nodes.size());
         for (HeartbeatSceneGraph.Node node : frame.nodes) {
-            out.value(node.id);
+            out.value(foldSemanticIds ? node.id.toLowerCase(Locale.ROOT) : node.id);
             out.value(node.label);
             out.value(node.provenanceKind);
             out.value(node.provenanceLocator);
@@ -143,7 +167,7 @@ public final class HeartbeatFrameCheckpoint {
             byte[] bytes = digest.digest(canonical.getBytes(StandardCharsets.UTF_8));
             StringBuilder hex = new StringBuilder(bytes.length * 2);
             for (byte value : bytes) {
-                hex.append(String.format(java.util.Locale.ROOT, "%02x", value & 0xff));
+                hex.append(String.format(Locale.ROOT, "%02x", value & 0xff));
             }
             return hex.toString();
         } catch (NoSuchAlgorithmException impossible) {
