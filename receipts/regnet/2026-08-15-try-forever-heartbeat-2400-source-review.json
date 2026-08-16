@@ -1,0 +1,66 @@
+{
+  "schema": "try-forever.regnet-source-review.v1",
+  "heartbeat": "2400",
+  "reviewed_source_head": "bb9f11f7f813754b9b7fa9bf56e93d728955f7e4",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claim": "The existing OperatorOverlayService source is now composed with the existing persisted heartbeat projection, scene/view-model, refresh dedupe plan, and native child controls. This is source wiring only.",
+  "exact_readback": {
+    "OperatorOverlayService.java": "335175eb8bb97dc90b2cc5f71a4bebbd20da6168",
+    "HeartbeatOverlayRefreshPlan.java": "084778f148b8252dacc6d8007a6477bf3d3eefa6",
+    "HeartbeatOverlayRefreshPlanTest.java": "0fb61b4a2bea7b5ae1787c079f6ed17e9534012d",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "2028c144587e3c031b423dbbce5cad24c45a371b",
+    "skills/heartbeat-refresh-deduplication/SKILL.md": "f9c61db7bc49200e3ac0186aa204daf6a197e6f6",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "7c556a192a57e4cf8e0e08710677cbc920768a3a"
+  },
+  "code_first_scars": [
+    {
+      "finding": "The first native-source pass gave the horizontal scroller its own accessibility description, risking a competing TalkBack destination around independently focusable light buttons.",
+      "repair": "The scroller is now IMPORTANT_FOR_ACCESSIBILITY_NO; each native light owns its own semantics."
+    },
+    {
+      "finding": "Explicit heartbeat detail announcements initially bypassed the global speech mute while automatic announcements honored it.",
+      "repair": "Explicit detail announcement now checks OperatorState.muted before speaking."
+    },
+    {
+      "finding": "Future model touch targets could increase beyond the existing button default while the first pass only reasserted minimum height.",
+      "repair": "Heartbeat controls now honor the model/overlay minimum on both width and height."
+    }
+  ],
+  "accessibility": {
+    "native_controls": true,
+    "stable_semantic_selection": true,
+    "non_color_state_token_and_word": true,
+    "minimum_touch_target_source_contract": "48dp or higher on both axes",
+    "cold_start_auto_speech": false,
+    "evidence_only_auto_speech": false,
+    "muted_or_hidden_auto_speech": false,
+    "muted_explicit_detail_speech": false,
+    "runtime_talkback_exercised": false
+  },
+  "test_evidence": {
+    "regression_source_present": true,
+    "authorized_test_body_executed_on_reviewed_head": false,
+    "workflow_runs_observed_on_reviewed_head": 0,
+    "combined_statuses_observed_on_reviewed_head": 0,
+    "tested": false,
+    "state": "NO_CURRENT_HEAD_EXECUTION_EVIDENCE",
+    "last_known_test_lane_boundary": "Earlier exact heads repeatedly failed to start because an Actions budget prevented further use; no unchanged-condition manual retry was fired in this pulse."
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "existing_owner_source_wired": true,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0,
+  "merge_as_delivered_interface": false
+}
