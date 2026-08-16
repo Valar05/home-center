@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever.venice-plan.v1",
+  "heartbeat": "2100",
+  "review_mode": "same_worker_judgment_jar",
+  "decision": "PLAN_ALLOWED",
+  "mission": "Advance source-only heartbeat semantics without touching the P0/primary-phone chain.",
+  "observed_wounds": [
+    "HeartbeatFrameAccessibility bounds collapsed labels, but per-light compact/detail speech still speaks candidate.label without a code-point bound for direct source callers.",
+    "Frame.interruptedRefreshDescription speaks refreshBoundary and visiblePulseId directly; parser-owned paths are bounded, but the public pre-parser preservation seam can supply a large trusted boundary and direct scene callers can supply a large safe pulse id.",
+    "Canonical evidence should remain exact while spoken projection is bounded; do not solve this by rewriting stored boundary or pulse identity."
+  ],
+  "authorized_fronts": [
+    "Bound spoken label/pulse-id/rejection-boundary projection by Unicode code point while preserving exact Candidate/Frame evidence fields.",
+    "Add regression source for swan-heavy labels, oversized safe boundaries, and interrupted last-good speech.",
+    "Update semantic-text-safety doctrine and an existing warm-wall specimen in place; no new renderer/controller/daemon."
+  ],
+  "firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_p0_mutations": 0,
+    "duplicate_architecture": false
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "synthetic_substitution": false
+  }
+}
