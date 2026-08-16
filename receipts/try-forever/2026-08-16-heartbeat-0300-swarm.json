@@ -1,0 +1,86 @@
+{
+  "schema": "try-forever.heartbeat-swarm.v1",
+  "heartbeat": "2026-08-16T03:00:00-05:00",
+  "source_head_reviewed": "44c9e303972540f88d85b3a01f5cfa7119241891",
+  "fronts_advanced": [
+    {
+      "front": "viewport-contact policy",
+      "change": "Added deterministic bounded HeartbeatOverlayRefreshPlan.anchoredScrollX geometry policy after source review established that stable Button identity can still drift horizontally when sibling/label widths change.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "accessibility/test fixtures",
+      "change": "Added source-only JVM regression covering same-offset compensation, unchanged geometry, both scroll edges, invalid range, and arithmetic overflow.",
+      "state": "REGRESSION_SOURCE_PRESENT_TESTED_NO"
+    },
+    {
+      "front": "durable skill harvesting",
+      "change": "Updated existing heartbeat-refresh-deduplication and heartbeat-native-ui-projection skills to distinguish semantic selection, native object identity, viewport contact, and runtime TalkBack focus truth.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "warm-wall non-raster art",
+      "change": "Mutated the existing heartbeat refresh-gate DOM/inline-SVG organism in place with a touchable viewport-anchor scar and explicit policy-source/service-unwired/runtime-unproven boundary.",
+      "state": "IMPLEMENTED_SOURCE_ART"
+    },
+    {
+      "front": "judgment/evidence",
+      "change": "Committed Venice plan before mutation, repaired a Javadoc evidence overclaim during code-first review, then persisted Regnet and Venice completion receipts with exact capability separation.",
+      "state": "REVIEWED_SOURCE"
+    }
+  ],
+  "skill_lights": {
+    "failure_is_the_shovel": {"state": "ACTIVE", "consequence": "Converted the prior focus-churn repair into inspection of visible semantic contact instead of retrying blocked CI."},
+    "canon_auto_select": {"state": "ACTIVE", "consequence": "Selected existing refresh-plan/service/skill/specimen organs; no neighboring architecture."},
+    "autocorrect_judgment_jar": {"state": "DARK", "consequence": "No material STT/autocorrect ambiguity required resolution."},
+    "originality_tax": {"state": "ACTIVE", "consequence": "Used a new viewport-contact source path and code review rather than another unchanged-condition CI retry."},
+    "hunger": {"state": "ACTIVE", "consequence": "Demanded a concrete contact consequence: same Button object must not be mistaken for same visible position."},
+    "ever_polished_interpreter_eat_everything": {"state": "ACTIVE", "consequence": "Code-first review found and repaired the initial Javadoc claim that falsely implied service consumption already existed."},
+    "operator_campaign": {"state": "ACTIVE", "consequence": "Kept the existing OperatorOverlayService as sole owner and preserved the source/runtime/phone membrane."},
+    "harroway_operator_discipline": {"state": "ACTIVE", "consequence": "No adjacent execution lane or P0 owner was substituted."},
+    "she_raw_adversarial_motivation": {"state": "FAULT", "consequence": "Authoritative ambient consult returned account-connection HTTP 400; no synthetic reviewer used."},
+    "venice_judgment_jars": {"state": "ACTIVE", "consequence": "PLAN_ALLOWED preceded mutation; completion review permits only this bounded source slice to yield."},
+    "regnet_qa": {"state": "ACTIVE", "consequence": "Passes implemented policy/readback only; keeps TESTED and service viewport wiring false."},
+    "accessibility_talkback_touch": {"state": "ACTIVE", "consequence": "Separated object identity from horizontal viewport contact and explicitly refused to infer TalkBack accessibility-focus ownership."},
+    "phone_runtime_phone_hands_recovery": {"state": "DARK_FIREWALLED", "consequence": "Zero phone/queue/P0 surface consumption."},
+    "deterministic_routing": {"state": "ACTIVE", "consequence": "Viewport compensation is pure bounded geometry with no wall-clock or poll identity."},
+    "evidence_capability_state": {"state": "ACTIVE", "consequence": "Policy source/regression source/service wiring/runtime/deployment/delivery remain distinct."},
+    "recovery_checkpoint_idempotence": {"state": "ACTIVE", "consequence": "Unchanged geometry maps to the same scroll position; invalid range clamps closed at zero."},
+    "strange_non_raster_vector_dom_native_art": {"state": "ACTIVE", "consequence": "Existing warm-wall DOM/inline-SVG specimen mutated in place; no raster and no deployment claim."},
+    "warm_walls": {"state": "ACTIVE", "consequence": "Viewport-contact scar became touchable source art instead of prose-only status."},
+    "christmas_light_scene_graph": {"state": "ACTIVE", "consequence": "Geometry compensation is not a semantic transition and earns no decorative animation/speech identity."},
+    "contact_preservation": {"state": "ACTIVE", "consequence": "Established the next contact law: preserving semantic child identity is insufficient if the selected/focused control can slide outside the visible horizontal viewport."}
+  },
+  "cross_pollination": "0200 stable-Button focus opportunity -> 0300 source inspection finds horizontal viewport drift -> deterministic anchor math -> hostile regression source -> accessibility doctrine distinguishes selection/object/focus/viewport -> warm wall exposes policy-vs-service scar -> code review catches evidence overclaim -> Regnet/Venice keep service/runtime claims false.",
+  "ci_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31935663496,
+    "job_id": 95137045443,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_firewall": {
+    "mutations_or_surface_consumption": 0,
+    "finding_for_p0": null
+  },
+  "capability_state": {
+    "requested": "YES",
+    "implemented_source": "YES",
+    "exact_github_readback": "YES",
+    "regression_source": "YES",
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "existing_owner_stable_button_reconciliation_source_wired": "YES",
+    "viewport_anchor_policy_source": "YES",
+    "existing_service_viewport_anchor_consumption": "NO",
+    "runtime_viewport_preservation": "NO",
+    "runtime_talkback": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "next_authorized_non_phone_seam": "Wire the existing service to consume the viewport-anchor policy after layout, or find a different independent non-phone defect if that seam cannot be mutated without creating duplicate architecture.",
+  "campaign": "CONTINUE_REQUIRED"
+}
