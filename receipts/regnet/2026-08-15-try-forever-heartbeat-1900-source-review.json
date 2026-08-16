@@ -1,0 +1,65 @@
+{
+  "schema": "regnet-source-review.v1",
+  "commission": "TRY FOREVER heartbeat 1900 non-phone source slice — Unicode-safe human-facing ingress boundary hygiene",
+  "reviewer": "regnet-qa",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "0baca7c9a172efab94c5de7fdc26a8f4ca07dd61",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedState": "NO_BLOCKED_UNKNOWN",
+  "sourceReadback": {
+    "HeartbeatIngressPolicy.java": "1c60f6d57a926d59eb7652553c48ebcb020a4b5b",
+    "HeartbeatIngressPolicyTest.java": "7ff4dcaa2cd6d6640789b7d9356bf1082e99c909",
+    "heartbeat-ingress-separation-source-specimen.html": "734a610bdb2606ec8c5e6826ed5a1db5527639be",
+    "skills/heartbeat-ingress-separation/SKILL.md": "5283f738643f9774d6519280dd1a9efb2f86d444"
+  },
+  "review": {
+    "initialFinding": "The first 1900 pass removed ISO controls and bounded by code point but still allowed Unicode FORMAT controls such as bidi overrides/isolates to survive in a human-facing/loggable boundary.",
+    "replanReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1900-replan-review.json",
+    "correction": "HeartbeatIngressPolicy.cleanBoundary now treats Unicode FORMAT code points as separators alongside controls/whitespace, repairs lone surrogates to U+FFFD, and truncates by Unicode code point. Ordinary visible RTL letters are not stripped.",
+    "regressionSource": "The hostile boundary fixture includes tab, newline, NUL, U+202E bidi override, a lone high surrogate, and 400 swans; it asserts caller-invalid telemetry stays rejected, heartbeat invocation semantics remain unchanged, no ISO control or FORMAT code point survives, and the final boundary does not split a surrogate pair.",
+    "art": "The existing ingress-separation DOM/SVG organism was mutated in place with a BOUNDARY HYGIENE state; no new specimen/controller was created.",
+    "evidenceLanguage": "Sanitized boundary text is explicitly human-facing/loggable projection only, not raw exception identity, payload validation, runtime rendering, deployment, or phone evidence."
+  },
+  "automaticCi": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31916619295,
+    "jobId": 95089359083,
+    "sourceHead": "0baca7c9a172efab94c5de7fdc26a8f4ca07dd61",
+    "executedSteps": 0,
+    "conclusion": "failure",
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "runtimePayloadConsumed": false,
+    "uiRendered": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "sheRaw": {
+    "surface": "she_raw_ambient",
+    "state": "FAULT",
+    "boundary": "HTTP 400 account-connection failure; no synthetic She-Raw substituted."
+  }
+}
