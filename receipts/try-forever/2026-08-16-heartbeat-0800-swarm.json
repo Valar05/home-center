@@ -1,0 +1,148 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "pulse": "2026-08-16-0800",
+  "result": "MULTI_FRONT_SOURCE_ADVANCE",
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "changed": "Did not retry unchanged blocked CI; redirected effort into structural-rebuild viewport ownership and stale-callback semantics."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "changed": "Selected existing heartbeat viewport/contact organs and OperatorOverlayService as authoritative owners; no duplicate architecture."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No material STT/autocorrect ambiguity affected this source slice."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "changed": "Paid the tax by advancing a different source seam rather than pounding the same Actions-budget failure."
+    },
+    {
+      "name": "Hunger",
+      "state": "ACTIVE",
+      "changed": "Propagated the restore-ownership wound through owner code, policy, hostile fixtures, skill doctrine, warm-wall art, and durable receipts."
+    },
+    {
+      "name": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "changed": "Code review exposed a same-generation keyboard-focus ownership gap and strengthened callback revalidation instead of relying on generation alone."
+    },
+    {
+      "name": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "changed": "Kept OperatorOverlayService as sole Android UI owner and maintained source/runtime/phone capability separation."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "changed": "Authoritative consult attempted; account connection returned HTTP 400. No synthetic replacement was used."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "changed": "Code-first completion review permits only the bounded source slice to yield and keeps the larger campaign CONTINUE_REQUIRED."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "changed": "Passes implemented source + exact GitHub readback only; deterministic execution remains blocked and runtime claims remain false."
+    },
+    {
+      "name": "Accessibility / TalkBack / touch semantics",
+      "state": "ACTIVE",
+      "changed": "Kept semantic selection, keyboard focus, visible viewport contact, and TalkBack accessibility focus separate; callback revalidates only selected/keyboard semantic owner and claims no TalkBack focus."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "changed": "Zero phone commands, Phone Hands tickets, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance actions."
+    },
+    {
+      "name": "Deterministic routing",
+      "state": "ACTIVE",
+      "changed": "One generation-bound semantic restore ticket now routes stable refresh, structural rebuild, and drift fallback through the same existing owner path."
+    },
+    {
+      "name": "Evidence / capability-state discipline",
+      "state": "ACTIVE",
+      "changed": "Kept requested, source-wired, regression-source, tested, runtime-observed, deployed, callable, executed, delivered, and accepted states independent."
+    },
+    {
+      "name": "Recovery / checkpointing / idempotence",
+      "state": "ACTIVE",
+      "changed": "Generation invalidates superseded pre-draw work; same-generation interaction-owner revalidation rejects stale keyboard-derived tickets."
+    },
+    {
+      "name": "Strange non-raster vector/DOM/native UI art",
+      "state": "ACTIVE",
+      "changed": "Mutated the existing DOM/inline-SVG refresh-gate specimen in place with a touchable keyboard-focus-move wound; no raster or autoplay."
+    },
+    {
+      "name": "Warm walls",
+      "state": "ACTIVE",
+      "changed": "The existing warm wall now exposes stable/rebuild/fallback restore ownership and source/runtime scars."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "ACTIVE",
+      "changed": "Viewport restoration remains non-semantic work and earns no heartbeat transition announcement or decorative motion."
+    },
+    {
+      "name": "Contact preservation",
+      "state": "ACTIVE",
+      "changed": "A surviving semantic selected/focused target can preserve bounded viewport offset across existing-owner source mutations while stale owners fail closed."
+    },
+    {
+      "name": "heartbeat-viewport-contact repository skill",
+      "state": "ACTIVE",
+      "changed": "Durable doctrine synchronized with existing-owner rebuild/generation wiring and current interaction-owner revalidation."
+    }
+  ],
+  "frontsAdvanced": [
+    "Existing-owner Android source wiring for generation-bound viewport restore across stable refresh, structural rebuild, and drift fallback.",
+    "Pure policy hardening for same-generation interaction-owner revalidation.",
+    "Source-only hostile regression fixtures for keyboard focus/selection supersession.",
+    "Durable repository skill synchronization.",
+    "Touchable non-raster warm-wall specimen mutation.",
+    "Regnet/Venice/evidence receipts and CI boundary verification."
+  ],
+  "crossPollination": "structural-rebuild viewport wound -> generation-bound restore ticket -> code review finds same-generation keyboard-focus drift -> interaction-owner revalidation -> regression fixtures -> skill doctrine -> warm-wall touch control -> Regnet/Venice preserve runtime membrane",
+  "ci": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31948809996,
+    "jobId": 95168961155,
+    "sourceHead": "0ab65ff7eeada3e681e28cef2193a81e6f9a1dca",
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "stableRefreshViewportOwnerWiring": true,
+    "structuralRebuildViewportOwnerWiring": true,
+    "restoreGenerationIdempotenceOwnerWiring": true,
+    "currentInteractionOwnerRevalidationSource": true,
+    "tested": false,
+    "runtimeViewportObserved": false,
+    "runtimeKeyboardFocusObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Finding": null,
+  "phoneP0Mutations": 0,
+  "mergeAsDeliveredInterface": false,
+  "largerCampaign": "CONTINUE_REQUIRED"
+}
