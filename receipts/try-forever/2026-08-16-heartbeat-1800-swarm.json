@@ -1,0 +1,86 @@
+{
+  "schema": "try_forever.swarm_receipt.v1",
+  "heartbeat": "2026-08-16-1800",
+  "source_art_head": "e2c2b44e840a6fb905a709175b47557ccf69d406",
+  "lights": [
+    {
+      "name": "Failure Is The Shovel / Originality Tax",
+      "state": "ACTIVE",
+      "why": "The previous native-motion seam was not polished again and the unchanged CI failure was not manually retried.",
+      "changed": "Redirected work to a different checkpoint/presentation identity wound."
+    },
+    {
+      "name": "Canon Auto-Select / deterministic routing / checkpoint-idempotence",
+      "state": "ACTIVE",
+      "why": "Repository source showed case-insensitive semantic-id ownership but case-sensitive presentation hashing.",
+      "changed": "Presentation identity now folds only semantic id case while exact contact/checkpoint identity preserves source spelling."
+    },
+    {
+      "name": "Regnet QA / accessibility-TalkBack",
+      "state": "ACTIVE",
+      "why": "Case-only producer drift was earning avoidable native content work despite no presented semantic change.",
+      "changed": "Added checkpoint and refresh-plan regression source proving no structure/content/speech/motion work is earned; execution remains blocked."
+    },
+    {
+      "name": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "why": "The evidence/UI identity distinction needed to remain coherent across code, tests, doctrine, and art.",
+      "changed": "Synchronized heartbeat-refresh-deduplication doctrine with exact-source versus presentation identity semantics."
+    },
+    {
+      "name": "Hunger / Warm Walls / Christmas-light scene graph / strange DOM-vector art",
+      "state": "ACTIVE",
+      "why": "The new identity rule needed a touchable source consequence without creating a neighboring UI owner.",
+      "changed": "Mutated the existing motion-clamp specimen in place with a twelfth semantic-id case scar: exact checkpoint active, presentation/UI work blocked, motion forbidden."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "why": "Bounded source completion required a code-first capability review.",
+      "changed": "Granted SOURCE_SLICE_STOP_ALLOWED only; campaign remains CONTINUE_REQUIRED and merge permission remains false."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "why": "Authoritative pre-execution consultation was attempted.",
+      "changed": "Connector returned HTTP 400 account-connection failure; no synthetic She-Raw was invented."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No speech-to-text or ambiguous-token resolution materially affected this source slice.",
+      "changed": "NONE"
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "why": "P0 Fortress Scheduler and physical phone owners retain sole authority over the gated path.",
+      "changed": "ZERO_PHONE_COMMANDS_ZERO_TICKETS_ZERO_QUEUE_DEVICE_PROBES_ZERO_P0_MUTATIONS"
+    }
+  ],
+  "cross_pollination": "Case-insensitive native ownership + case-sensitive presentation hash exposed fake UI work; exact evidence discipline prevented weakening contactSha256; accessibility made avoidable refresh churn materially relevant; regression source pinned the split; skill doctrine and the existing warm-wall organism inherited the rule; Regnet/Venice kept the result source-only behind the Actions-budget test boundary.",
+  "ci": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31978235416,
+    "job_id": 95240854272,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_finding": null,
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED"
+}
