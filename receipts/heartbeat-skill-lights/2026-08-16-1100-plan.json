@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-1100",
+  "mission": "Advance independent TRY FOREVER heartbeat skill-lights work without touching the P0/primary-phone recovery chain.",
+  "source_of_truth": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "observed_head": "8251ef3c9f9beb5e19fde7c2bacafee5acd5719f"
+  },
+  "material_wound": "A keyboard-derived viewport restore ticket treats an empty heartbeat-child focus after mutation as rebuild-caused loss. OperatorOverlayService only scans heartbeat children, so focus moved to a different non-heartbeat overlay control is indistinguishable from mutation-caused focus loss and can permit a stale viewport restore.",
+  "authorized_fronts": [
+    "existing OperatorOverlayService + HeartbeatViewportRestorePolicy source repair",
+    "hostile source regression fixtures for stable-refresh vs rebuild focus loss and non-heartbeat competing focus",
+    "synchronize existing viewport/native-ui repository skill doctrine",
+    "mutate an existing non-raster warm-wall viewport specimen in place",
+    "Regnet + Venice bounded source review receipts and PR capability ledger"
+  ],
+  "constraints": [
+    "No phone command, Phone Hands ticket, queue/device probe, P0 recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance action.",
+    "No neighboring overlay controller/renderer/state store.",
+    "Do not infer TalkBack accessibility focus from direct keyboard focus.",
+    "Keep requested/implemented/tested/runtime/deployed/callable/delivered/accepted distinct.",
+    "Do not manually retry unchanged Actions-budget CI failure."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  },
+  "plan_gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}
