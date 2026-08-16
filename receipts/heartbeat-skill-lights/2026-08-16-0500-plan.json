@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-0500",
+  "mission": "Wire the existing OperatorOverlayService/HorizontalScrollView owner to preserve selected or direct-keyboard-focused heartbeat viewport contact across stable-structure in-place refreshes.",
+  "planAllowed": true,
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "existingPolicy": "HeartbeatOverlayRefreshPlan.viewportAnchorId + anchoredScrollX",
+  "steps": [
+    "Promote the existing heartbeat HorizontalScrollView from a createOverlay local to the existing service owner field; do not create another renderer/controller.",
+    "Before stable-structure content mutation, derive one accepted semantic anchor from selected id first, direct keyboard focus second; do not inspect or infer TalkBack accessibility focus.",
+    "Capture the anchor's left position relative to the scroll content and current viewport offset.",
+    "After in-place mutation/layout, re-find the same semantic-id Button, compute bounded max scroll, and restore scrollX through anchoredScrollX.",
+    "Fail closed: stale/missing anchor or structure drift means no synthetic focus/scroll ownership claim.",
+    "Add regression source for pure capture/restore arithmetic/selection boundaries without claiming Android runtime execution.",
+    "Synchronize viewport-contact skill doctrine and durable Regnet/Venice/swarm receipts."
+  ],
+  "p0Firewall": "NO phone commands, Phone Hands tickets, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance actions, or duplicate P0 architecture.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "capabilityBefore": {
+    "implementedSource": true,
+    "viewportAnchorPolicySource": true,
+    "existingServiceConsumesViewportAnchorPolicy": false,
+    "tested": false,
+    "runtimeViewportPreservationObserved": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
