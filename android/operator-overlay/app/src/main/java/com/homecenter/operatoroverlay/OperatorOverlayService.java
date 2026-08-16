@@ -866,9 +866,11 @@ public class OperatorOverlayService extends Service {
         heartbeatFrame = next.frame;
         heartbeatSelectedId = next.selectedControlId;
         boolean mutatedHeartbeatViews = false;
+        boolean mutationMayDestroyKeyboardFocus = false;
         if (rebuildStructure) {
             rebuildHeartbeatLights(next.model);
             mutatedHeartbeatViews = true;
+            mutationMayDestroyKeyboardFocus = true;
         } else if (refreshContent) {
             boolean refreshedInPlace = refreshHeartbeatLightsInPlace(next.model);
             if (!refreshedInPlace) {
@@ -877,13 +879,16 @@ public class OperatorOverlayService extends Service {
                 // rebuilding the existing owner's children rather than updating the
                 // wrong semantic control in place.
                 rebuildHeartbeatLights(next.model);
+                mutationMayDestroyKeyboardFocus = true;
             }
             mutatedHeartbeatViews = true;
         }
         if (mutatedHeartbeatViews
                 && viewportRestoreTicket != null
                 && viewportRestoreTicket.hasAnchor()) {
-            restoreHeartbeatViewportAfterLayout(viewportRestoreTicket);
+            restoreHeartbeatViewportAfterLayout(
+                    viewportRestoreTicket,
+                    mutationMayDestroyKeyboardFocus);
         }
         if (announce) {
             heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
@@ -976,7 +981,8 @@ public class OperatorOverlayService extends Service {
     }
 
     private void restoreHeartbeatViewportAfterLayout(
-            HeartbeatViewportRestorePolicy.Ticket ticket) {
+            HeartbeatViewportRestorePolicy.Ticket ticket,
+            boolean mutationMayDestroyKeyboardFocus) {
         if (heartbeatScroller == null
                 || heartbeatLights == null
                 || ticket == null
@@ -988,26 +994,31 @@ public class OperatorOverlayService extends Service {
             public boolean onPreDraw() {
                 ViewTreeObserver current = heartbeatLights.getViewTreeObserver();
                 if (current.isAlive()) current.removeOnPreDrawListener(this);
-                restoreHeartbeatViewportNow(ticket);
+                restoreHeartbeatViewportNow(ticket, mutationMayDestroyKeyboardFocus);
                 return true;
             }
         });
         heartbeatLights.requestLayout();
     }
 
-    private void restoreHeartbeatViewportNow(HeartbeatViewportRestorePolicy.Ticket ticket) {
+    private void restoreHeartbeatViewportNow(
+            HeartbeatViewportRestorePolicy.Ticket ticket,
+            boolean mutationMayDestroyKeyboardFocus) {
         if (heartbeatScroller == null
                 || heartbeatLights == null
                 || ticket == null
                 || !ticket.hasAnchor()) return;
         HeartbeatOverlayViewModel.Model currentModel = HeartbeatOverlayViewModel.fromFrame(
                 heartbeatFrame);
+        boolean anyDirectKeyboardFocusPresent = root != null && root.findFocus() != null;
         if (!HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
                 ticket,
                 heartbeatViewportRestoreGeneration,
                 currentModel,
                 heartbeatSelectedId,
-                heartbeatKeyboardFocusedControlId())) return;
+                heartbeatKeyboardFocusedControlId(),
+                mutationMayDestroyKeyboardFocus,
+                anyDirectKeyboardFocusPresent)) return;
         View anchor = heartbeatChildById(ticket.semanticId);
         if (anchor == null) return;
         int viewportWidth = Math.max(0,
