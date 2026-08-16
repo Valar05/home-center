@@ -1,0 +1,42 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-1100",
+  "scope": "bounded non-P0 heartbeat viewport focus-scope source slice",
+  "code_review": "PASS_WITH_OPEN_OWNER_SEAM",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "larger_campaign": "CONTINUE_REQUIRED",
+  "taste": {
+    "keep": [
+      "One existing viewport policy organ, not a new controller.",
+      "Empty heartbeat-child focus is treated as ambiguous evidence rather than automatic rebuild permission.",
+      "Stable in-place refresh and focus-destroying rebuild are separate mutation classes.",
+      "Non-heartbeat direct overlay focus is recognized as a competing keyboard interaction owner without being relabeled as TalkBack focus.",
+      "Existing warm-wall SVG mutated in place and explicitly scars source-policy versus owner-wiring truth."
+    ],
+    "reject": [
+      "Decorative skill-light enumeration with no consequence.",
+      "Treating the new policy overload as existing-owner wiring.",
+      "Claiming test/runtime/TalkBack/deployment evidence from source presence.",
+      "Creating a second overlay owner to solve focus scope."
+    ]
+  },
+  "exact_source": {
+    "HeartbeatViewportRestorePolicy.java": "d68aba9bc34cb0643dc88c3f1c16fd84bc40235f",
+    "HeartbeatViewportRestorePolicyTest.java": "4cc8f892fe54c1b560829e3dce69b96d3d774571",
+    "skills/heartbeat-viewport-contact/SKILL.md": "30391d0cddd030b104f99768128ec5b54b833c34",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "f1974aea5ff055447698987fc196b9c2f6bcdc2f",
+    "heartbeat-viewport-anchor-scar-20260816.svg": "30db62b41a56cfcd246321868f79e1566b6d2709"
+  },
+  "test_boundary": {
+    "operator_overlay_run": 31957403816,
+    "job": 95190010785,
+    "source_test_head": "2dc5d4d01ab0bd45d8edf742ec43cde5629e721a",
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "tested": false
+  },
+  "owner_boundary": "OperatorOverlayService still uses the backward-compatible five-argument captured-owner revalidation and only scans heartbeat-child focus. Wiring mutationMayDestroyKeyboardFocus plus overlay-wide direct-focus presence is the exact next existing-owner seam.",
+  "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+  "p0_phone_mutations": 0,
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
