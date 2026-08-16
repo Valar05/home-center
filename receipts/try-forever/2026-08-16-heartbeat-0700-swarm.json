@@ -1,0 +1,173 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-0700",
+  "pullRequest": 329,
+  "theme": "viewport restore lifecycle: surviving semantic contact without stale after-layout ownership",
+  "frontsAdvanced": [
+    {
+      "front": "restore lifecycle policy",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Added HeartbeatViewportRestorePolicy with generation-bound semantic restore tickets and accepted-model survival checks."
+    },
+    {
+      "front": "regression source",
+      "state": "IMPLEMENTED_SOURCE_NOT_TESTED",
+      "change": "Added HeartbeatViewportRestorePolicyTest covering structural survival, selection/focus fallback, stale generation rejection, removed anchors, bounded geometry, and generation-as-ordering semantics."
+    },
+    {
+      "front": "durable skill doctrine",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Updated heartbeat-viewport-contact to separate stable-refresh owner wiring from structural-rebuild/generation policy source and to split selection, keyboard focus, viewport contact, and TalkBack focus capability states."
+    },
+    {
+      "front": "touchable warm-wall art",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Mutated the existing heartbeat refresh gate HTML in place with rebuild-ticket and stale-ticket controls, seven semantic counters, native >=48px buttons, one polite live region, reduced-motion handling, and explicit source/runtime/phone scars."
+    },
+    {
+      "front": "review/evidence",
+      "state": "DURABLE_RECEIPTS",
+      "change": "Added pre-mutation plan plus Regnet and Venice completion receipts; authoritative She-Raw was attempted once and faulted at account connection."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": {
+      "state": "ACTIVE",
+      "consequence": "Did not manually retry the unchanged Actions-budget failure; advanced a different source/idempotence seam."
+    },
+    "Canon Auto-Select": {
+      "state": "ACTIVE",
+      "consequence": "Composed existing HeartbeatOverlayRefreshPlan/Model semantics and preserved OperatorOverlayService as the sole Android owner."
+    },
+    "Autocorrect Judgment Jar": {
+      "state": "DARK",
+      "consequence": "No STT/autocorrect ambiguity materially affected this source slice."
+    },
+    "Originality Tax": {
+      "state": "ACTIVE",
+      "consequence": "The prior stable-structure-only solution was not repeated; the new work targets rebuild survival and stale callback ownership."
+    },
+    "Hunger": {
+      "state": "ACTIVE",
+      "consequence": "The wound propagated across policy source, regression fixtures, skill doctrine, touchable art, and review receipts."
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "state": "ACTIVE",
+      "consequence": "Separated ordering generation from evidence time and service source wiring from runtime proof."
+    },
+    "Operator Campaign": {
+      "state": "ACTIVE",
+      "consequence": "Preserved existing owner, branch/PR delivery surface, and exact capability membrane."
+    },
+    "Harroway operator discipline": {
+      "state": "ACTIVE",
+      "consequence": "No adjacent architecture or phone lane substitution."
+    },
+    "She-Raw adversarial motivation": {
+      "state": "FAULT",
+      "consequence": "Authoritative she_raw_ambient attempt returned account-connection HTTP 400; no synthetic verdict substituted."
+    },
+    "Venice Judgment Jars": {
+      "state": "ACTIVE",
+      "consequence": "Completion review grants stop only for this bounded source slice and preserves the next service-wiring wound."
+    },
+    "Regnet QA": {
+      "state": "ACTIVE",
+      "consequence": "PASS only for bounded implemented-source/readback claim; TESTED remains blocked/unknown."
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "state": "ACTIVE",
+      "consequence": "Selection, keyboard focus, visible contact, and TalkBack focus remain distinct; art retains native >=48px controls and one live region."
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "state": "DARK_FIREWALLED",
+      "consequence": "Zero phone commands, tickets, queue/device probes, or recovery mutations."
+    },
+    "deterministic routing": {
+      "state": "ACTIVE",
+      "consequence": "Semantic anchor selection plus generation equality and accepted-model membership define whether a pending restore may act."
+    },
+    "evidence/capability-state discipline": {
+      "state": "ACTIVE",
+      "consequence": "Policy/regression/art/readback are not promoted into service wiring, runtime, deployment, delivery, or acceptance."
+    },
+    "recovery/checkpointing/idempotence": {
+      "state": "ACTIVE",
+      "consequence": "A later generation invalidates an older pending restore ticket; exact checkpoint identity remains separate from presentation work."
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "state": "ACTIVE",
+      "consequence": "Existing DOM/inline-SVG warm wall gained restore lifecycle controls; no raster and no new neighboring UI owner."
+    },
+    "warm walls": {
+      "state": "ACTIVE",
+      "consequence": "Existing specimen mutated in place rather than multiplying decorative artifacts."
+    },
+    "Christmas-light scene graph": {
+      "state": "ACTIVE_AT_POLICY_ART_BOUNDARY",
+      "consequence": "Stale restore ownership cannot be treated as a fresh semantic transition; no new scene-graph runtime claim was made."
+    },
+    "contact preservation": {
+      "state": "ACTIVE",
+      "consequence": "A surviving semantic id can carry viewport-offset intent across changed structure in pure source policy while stale/removed anchors fail closed."
+    },
+    "heartbeat-viewport-contact": {
+      "state": "ACTIVE_REPOSITORY_SKILL",
+      "consequence": "Durable skill updated with rebuild/generation lifecycle doctrine and exact current capability scar."
+    }
+  },
+  "sourceIdentities": {
+    "HeartbeatViewportRestorePolicy.java": "c9a12edc463c03579085a5754569623592e18797",
+    "HeartbeatViewportRestorePolicyTest.java": "e469408e026d554c54963d202877fc40762b66b4",
+    "skills/heartbeat-viewport-contact/SKILL.md": "811b537668ebc2fb7d2f920497533c04faded388",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "42381077aad10a63301c8df9251b8be7a8281e50"
+  },
+  "crossPollination": [
+    "stable native Button identity exposed viewport drift",
+    "viewport drift plus structural rebuild exposed semantic survival as separate from object survival",
+    "one-shot pre-draw restoration exposed stale callback ownership",
+    "idempotence discipline became a generation-bound restore ticket",
+    "accessibility review forced selection/keyboard/viewport/TalkBack states apart",
+    "warm-wall art made current-vs-stale restore ownership touchable without claiming Android runtime",
+    "Regnet/Venice kept policy source behind the service/runtime evidence membrane"
+  ],
+  "ciBoundary": {
+    "sourceArtHead": "cf57c5dd02df45ebab52e89bca9f0dab40d93e34",
+    "operatorOverlayRun": 31946017614,
+    "operatorOverlayJob": 95161974098,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "stableStructureViewportAnchorOwnerWiring": true,
+    "restoreLifecyclePolicySource": true,
+    "structuralRebuildViewportAnchorOwnerWiring": false,
+    "restoreGenerationOwnerWiring": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeViewportObserved": false,
+    "runtimeKeyboardFocusObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcorePocketTtsChromiumContextOrgans": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateP0Owners": 0,
+    "findingForP0": null
+  },
+  "nextWound": "Existing OperatorOverlayService still does not consume HeartbeatViewportRestorePolicy for structural rebuilds or stale pre-draw generation invalidation."
+}
