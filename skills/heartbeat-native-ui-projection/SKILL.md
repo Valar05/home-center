@@ -47,7 +47,8 @@ The existing service source now:
 13. captures that chosen anchor's pre-mutation viewport offset and accepted interaction-owner state;
 14. applies the same restore-ticket path to stable in-place refresh, structural rebuild, and live-structure-drift fallback rebuild;
 15. schedules one-shot pre-draw restoration so new child geometry has been laid out before bounded scroll math runs;
-16. re-finds the same semantic id and revalidates captured interaction ownership before scrolling; stale/missing ids do not get replaced by index guesses or neighboring controls.
+16. re-finds the same semantic id and revalidates captured interaction ownership before scrolling; stale/missing ids do not get replaced by index guesses or neighboring controls;
+17. for a keyboard-derived ticket, accepts empty post-mutation direct keyboard focus as possible rebuild-caused native focus loss, but rejects a different non-empty keyboard-focused heartbeat id as a real competing owner.
 
 If live child count/order/tag identity disagrees with planned structure, the service fails safe to the existing canonical rebuild path. It never guesses which changed child corresponds to which semantic light.
 
@@ -62,6 +63,8 @@ Anchor priority is canonical and geometry-aware: **visible accepted selected sem
 
 Capture-time visibility chooses which existing live control owns contact. After layout, the owner revalidates the captured selected/focused interaction state rather than treating mutation-caused geometry changes as new user intent. The whole point of restoration is that layout may move the anchor.
 
+A structural rebuild can also destroy the old native keyboard-focused Button. Therefore an empty direct keyboard focus after rebuild is not itself a supersession signal. A different non-empty focused heartbeat id is. This rule preserves the semantic viewport ticket without pretending keyboard focus survived the rebuild.
+
 The owner restores on a one-shot pre-draw after mutation requested layout. This is stronger source ordering than a generic posted Runnable, but it remains **source wiring**, not proof that Android actually executed the path or that accessibility focus was retained.
 
 ## Collapsed semantics
@@ -73,9 +76,9 @@ Do not add a neighboring overlay service, controller, renderer, state store, hea
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> visible-viewport-gate source wired -> runtime UI observed -> runtime viewport observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> visible-viewport-gate source wired -> runtime UI observed -> runtime viewport observed -> runtime keyboard focus observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-Current source truth: existing-owner source wiring **YES**; geometry-aware visible-viewport-gate source wiring **YES**; deterministic test execution/runtime observation/deployment/callability/execution/delivery/acceptance **NO** until their own authorized evidence exists.
+Current source truth: existing-owner source wiring **YES**; geometry-aware visible-viewport-gate source wiring **YES**; mutation-caused keyboard-focus-loss distinction source **YES**; deterministic test execution/runtime observation/deployment/callability/execution/delivery/acceptance **NO** until their own authorized evidence exists.
 
 GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, viewport anchoring, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
 
