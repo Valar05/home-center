@@ -46,8 +46,12 @@ If live child count/order/tag identity disagrees with the planned structure, the
 
 A scroll/container wrapper must not become a competing TalkBack destination that masks child controls.
 
-## Focus truth
-Stable semantic selection is not the same claim as stable native focus. The source now avoids destroying stable child objects on content-only changes, which preserves the **opportunity** for keyboard/TalkBack focus to remain on the same native object. This is an implemented source property only. Actual Android focus retention and TalkBack behavior remain unproven until an authorized runtime/test body observes them.
+## Focus and viewport truth
+Stable semantic selection is not the same claim as stable native focus. The source avoids destroying stable child objects on content-only changes, which preserves the **opportunity** for keyboard/TalkBack focus to remain on the same native object. This is an implemented source property only. Actual Android focus retention and TalkBack behavior remain unproven until an authorized runtime/test body observes them.
+
+Stable native object identity is also not the same as stable **visible viewport contact**. In a horizontal scrolling row, an in-place label/content change can alter child widths and move the exact same Button away from its prior viewport offset. `HeartbeatOverlayRefreshPlan.anchoredScrollX(...)` now provides deterministic bounded source policy for restoring a captured semantic anchor after layout, with regression source for edge clamping and overflow. The existing `OperatorOverlayService` has **not yet been wired to capture/restore that anchor**, so this must remain `IMPLEMENTED_POLICY/REGRESSION_SOURCE`, not viewport-preservation capability.
+
+When that existing-owner seam is wired, prefer a direct keyboard-focused child as the anchor when available, otherwise the user-selected semantic id. Preserve only the semantic id plus viewport offset; do not infer or claim ownership of Android accessibility focus. If the semantic anchor disappears, do not scroll to a neighboring light by index.
 
 ## Collapsed semantics
 Collapsed description comes from `HeartbeatFrameAccessibility.collapsedContentDescription(frame)`. Do not rebuild attention ordering, counts, or interrupted-refresh speech in a second implementation.
@@ -58,9 +62,9 @@ Do not add a neighboring overlay service, controller, renderer, state store, hea
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> implemented source -> regression source -> tested -> existing-owner source wired -> viewport-anchor source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
+GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, viewport anchoring, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
 
 ## Done for one source pulse
-A pulse may count this skill as lit only when the projection, existing-owner source wiring, regression source, or review materially changes. If no projection consequence changes, leave the light dark rather than listing the skill decoratively.
+A pulse may count this skill as lit only when the projection, existing-owner source wiring, viewport-contact policy, regression source, or review materially changes. If no projection consequence changes, leave the light dark rather than listing the skill decoratively.
