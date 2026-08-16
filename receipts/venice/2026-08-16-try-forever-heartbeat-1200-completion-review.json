@@ -1,0 +1,41 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-1200",
+  "pr": 329,
+  "reviewed_source_head": "b2dfbd26f3e5ad6e888184f46bd074bf25e2fb6a",
+  "reviewer_mode": "judgment_jar_same_worker_code_first",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "STOP_ALLOWED_FOR_THIS_BOUNDED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED",
+  "why": [
+    "The latest accessibility interaction scar materially changed source behavior rather than restating the prior focus-scope wound.",
+    "Persistent selection can no longer automatically overwrite newer direct keyboard navigation in the captured-owner policy.",
+    "Ambiguous empty heartbeat focus now fails closed on the service-consumed legacy path until the existing owner supplies complete mutation/focus-scope evidence.",
+    "Code-first review found a secondary capture-evidence loss case and repaired it before completion review.",
+    "The correction was propagated into hostile regression source, a durable repository skill, and the existing non-raster warm-wall specimen.",
+    "The remaining existing-owner service delta is preserved as an exact proposed patch but is not misreported as implemented.",
+    "No phone/P0 execution surface or duplicate owner was consumed."
+  ],
+  "hard_gates": {
+    "merge_as_delivered_interface": false,
+    "existing_owner_explicit_focus_scope_wiring": false,
+    "tests_executed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "phone_delivery": false,
+    "physical_acceptance": false
+  },
+  "test_boundary": {
+    "run_id": 31960989080,
+    "job_id": 95198833199,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "reviewer_faults": {
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT"
+  },
+  "next_authorized_source_seam": "Apply the existing-owner patch only through a patch-capable authorized non-phone source lane: pass actual mutationMayDestroyKeyboardFocus and overlay-wide direct-focus presence into the explicit policy overload. Preserve TalkBack accessibility focus as a separate unproven/runtime-owned state.",
+  "p0_firewall": "PASS"
+}
