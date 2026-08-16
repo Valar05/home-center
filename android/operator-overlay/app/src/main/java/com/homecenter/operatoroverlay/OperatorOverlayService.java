@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
@@ -937,22 +938,36 @@ public class OperatorOverlayService extends Service {
 
     private void restoreHeartbeatViewportAfterLayout(String semanticId, int viewportOffsetPx) {
         if (heartbeatScroller == null || heartbeatLights == null || TextUtils.isEmpty(semanticId)) return;
-        heartbeatLights.post(() -> {
-            View anchor = heartbeatChildById(semanticId);
-            if (anchor == null || heartbeatScroller == null) return;
-            int viewportWidth = Math.max(0,
-                    heartbeatScroller.getWidth()
-                            - heartbeatScroller.getPaddingLeft()
-                            - heartbeatScroller.getPaddingRight());
-            int maxScrollX = Math.max(0, heartbeatLights.getWidth() - viewportWidth);
-            int targetScrollX = HeartbeatOverlayRefreshPlan.anchoredScrollX(
-                    anchor.getLeft(),
-                    viewportOffsetPx,
-                    maxScrollX);
-            if (heartbeatScroller.getScrollX() != targetScrollX) {
-                heartbeatScroller.scrollTo(targetScrollX, 0);
+        ViewTreeObserver observer = heartbeatLights.getViewTreeObserver();
+        if (!observer.isAlive()) return;
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                ViewTreeObserver current = heartbeatLights.getViewTreeObserver();
+                if (current.isAlive()) current.removeOnPreDrawListener(this);
+                restoreHeartbeatViewportNow(semanticId, viewportOffsetPx);
+                return true;
             }
         });
+        heartbeatLights.requestLayout();
+    }
+
+    private void restoreHeartbeatViewportNow(String semanticId, int viewportOffsetPx) {
+        if (heartbeatScroller == null || heartbeatLights == null || TextUtils.isEmpty(semanticId)) return;
+        View anchor = heartbeatChildById(semanticId);
+        if (anchor == null) return;
+        int viewportWidth = Math.max(0,
+                heartbeatScroller.getWidth()
+                        - heartbeatScroller.getPaddingLeft()
+                        - heartbeatScroller.getPaddingRight());
+        int maxScrollX = Math.max(0, heartbeatLights.getWidth() - viewportWidth);
+        int targetScrollX = HeartbeatOverlayRefreshPlan.anchoredScrollX(
+                anchor.getLeft(),
+                viewportOffsetPx,
+                maxScrollX);
+        if (heartbeatScroller.getScrollX() != targetScrollX) {
+            heartbeatScroller.scrollTo(targetScrollX, 0);
+        }
     }
 
     private Button createHeartbeatLight(HeartbeatOverlayViewModel.LightControl control) {
