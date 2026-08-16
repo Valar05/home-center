@@ -1,0 +1,91 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1100",
+  "mission": "Broad independent TRY FOREVER swarm under the P0 Fortress firewall.",
+  "fronts": [
+    {
+      "name": "focus-scope policy",
+      "state": "ADVANCED",
+      "consequence": "HeartbeatViewportRestorePolicy now distinguishes stable refresh from focus-destroying mutation and rejects empty heartbeat-child focus when direct overlay focus is known elsewhere."
+    },
+    {
+      "name": "hostile regression source",
+      "state": "ADVANCED_SOURCE_ONLY",
+      "consequence": "Fixtures now cover rebuild-only empty-focus amnesty, stable-refresh refusal, non-heartbeat competing direct focus, and same-heartbeat-owner survival."
+    },
+    {
+      "name": "repository skill harvesting",
+      "state": "ADVANCED",
+      "consequence": "heartbeat-viewport-contact and heartbeat-native-ui-projection now encode the focus-scope distinction and explicitly mark existing-owner focus-scope consumption NO."
+    },
+    {
+      "name": "warm-wall non-raster art",
+      "state": "ADVANCED_SOURCE_ONLY",
+      "consequence": "Existing viewport SVG was mutated in place to make stable refresh, rebuild amnesty, and non-heartbeat competing focus touchable/visible without claiming runtime proof."
+    },
+    {
+      "name": "evidence and review",
+      "state": "ADVANCED",
+      "consequence": "Fresh plan, Regnet, Venice, exact GitHub readback, zero-step Actions-budget blocker, and capability membrane are durable."
+    }
+  ],
+  "skill_lights": [
+    {"skill":"Failure Is The Shovel","state":"LIT","changed":"Dead CI was not retried; a distinct focus-scope evidence wound became the work."},
+    {"skill":"Canon Auto-Select","state":"LIT","changed":"Existing viewport/native-UI organs remained authoritative; no neighboring renderer/controller was created."},
+    {"skill":"Autocorrect Judgment Jar","state":"DARK","why":"No STT/autocorrect ambiguity materially affected this source slice."},
+    {"skill":"Originality Tax","state":"LIT","changed":"The swarm did not repeat the prior empty-focus assumption; it introduced mutation-class plus overlay-focus evidence."},
+    {"skill":"Hunger","state":"LIT","changed":"The same wound propagated through policy, fixtures, skills, art, and reviews."},
+    {"skill":"Ever-Polished Interpreter / Eat Everything","state":"LIT","changed":"Source/runtime/TalkBack meanings were kept separate and stale skill doctrine was synchronized."},
+    {"skill":"Operator Campaign","state":"LIT","changed":"Work stayed on the existing OperatorOverlayService/viewport seam and preserved the next owner cut."},
+    {"skill":"Harroway operator discipline","state":"LIT","changed":"Exact source/evidence boundaries were preserved; no delivery claim was fabricated."},
+    {"skill":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative connector returned account-connection HTTP 400; no synthetic She-Raw was substituted."},
+    {"skill":"Venice Judgment Jars","state":"LIT","changed":"Bounded completion review accepts source slice only and keeps the owner seam/campaign open."},
+    {"skill":"Regnet QA","state":"LIT","changed":"Implemented-source/readback passed while tested/runtime/deployed states remained false."},
+    {"skill":"accessibility/TalkBack and touch semantics","state":"LIT","changed":"Direct keyboard focus, non-heartbeat overlay focus, visible contact, and TalkBack accessibility focus are explicitly separate states."},
+    {"skill":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"P0/primary-phone ownership firewall; zero phone/queue/device mutations or surface consumption."},
+    {"skill":"deterministic routing","state":"LIT","changed":"Keyboard-derived restore ownership now has explicit fail-closed focus-scope inputs."},
+    {"skill":"evidence/capability-state discipline","state":"LIT","changed":"Policy source YES, owner focus-scope wiring NO, tested/runtime/deployed/delivered NO are separately recorded."},
+    {"skill":"recovery/checkpointing/idempotence","state":"LIT","changed":"Pending restore remains generation-bound while empty-focus amnesty is narrowed by mutation class and competing focus evidence."},
+    {"skill":"strange non-raster vector/DOM/native UI art","state":"LIT","changed":"Existing SVG mutated in place; no raster artifact or duplicate runtime owner."},
+    {"skill":"warm walls","state":"LIT","changed":"Focus-scope wound became a visible source-policy scar with explicit owner-wiring boundary."},
+    {"skill":"Christmas-light scene graph","state":"LIT","changed":"Geometry/focus bookkeeping remains ineligible for decorative transition motion."},
+    {"skill":"contact preservation","state":"LIT","changed":"Viewport restoration may preserve semantic contact only while the captured interaction owner remains valid."},
+    {"skill":"heartbeat-viewport-contact","state":"LIT_DISCOVERED_REPOSITORY_SKILL","changed":"Doctrine now contains focus-scope policy and exact unwired owner seam."},
+    {"skill":"heartbeat-native-ui-projection","state":"LIT_DISCOVERED_REPOSITORY_SKILL","changed":"Native UI doctrine now refuses to call empty heartbeat focus rebuild proof or owner focus-scope wiring."}
+  ],
+  "cross_pollination": "Existing owner scans only heartbeat-child focus -> accessibility exposes non-heartbeat focus as a competing owner -> Originality Tax separates stable refresh from rebuild -> deterministic restore policy gains two explicit evidence inputs -> hostile fixtures pin the distinction -> two repository skills synchronize -> warm-wall SVG makes the membrane visible -> Regnet/Venice keep source progress behind test/runtime/phone boundaries.",
+  "exact_source": {
+    "HeartbeatViewportRestorePolicy.java": "d68aba9bc34cb0643dc88c3f1c16fd84bc40235f",
+    "HeartbeatViewportRestorePolicyTest.java": "4cc8f892fe54c1b560829e3dce69b96d3d774571",
+    "skills/heartbeat-viewport-contact/SKILL.md": "30391d0cddd030b104f99768128ec5b54b833c34",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "f1974aea5ff055447698987fc196b9c2f6bcdc2f",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "30db62b41a56cfcd246321868f79e1566b6d2709"
+  },
+  "test_boundary": {
+    "operator_overlay_run": 31957403816,
+    "job": 95190010785,
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "focus_scope_policy_source": true,
+    "existing_owner_focus_scope_wiring": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0,
+  "next_exact_seam": "Existing OperatorOverlayService must supply whether the mutation can destroy keyboard focus and whether any direct overlay focus exists outside heartbeatLights to the new focus-scope revalidation overload. Do not create a second owner."
+}
