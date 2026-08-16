@@ -1,0 +1,41 @@
+{
+  "schema": "venice-plan-review.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "existing-owner focus-stable native child updates",
+  "pre_execution_source_head": "595cc7b67a6d1e00669827a3efe3b4b7f4babbc4",
+  "verdict": "PLAN_ALLOWED",
+  "campaign_state": "CONTINUE_REQUIRED",
+  "mission_boundary": {
+    "allowed": [
+      "make existing OperatorOverlayService consume HeartbeatOverlayRefreshPlan.structureIdentity",
+      "update existing semantic-id heartbeat Button objects in place when structure is stable",
+      "fall back to existing rebuild path on structural/tag mismatch",
+      "preserve independent announcement gating, mute/visibility history, selection, touch and TalkBack semantics",
+      "mutate existing refresh-gate source specimen and heartbeat-refresh-deduplication skill in place",
+      "add source/regression/review receipts"
+    ],
+    "forbidden": [
+      "new overlay controller or renderer",
+      "new Home Center recovery daemon or coordinator",
+      "phone commands or Phone Hands tickets",
+      "queue/device probes or P0 recovery mutations",
+      "Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance actions",
+      "claims of tested/runtime/deployed/callable/delivered/accepted without corresponding evidence"
+    ]
+  },
+  "review": {
+    "mission_fidelity": "PASS: the next seam was explicitly authorized by the previous completion review and stays inside the existing OperatorOverlayService owner.",
+    "accessibility": "PASS AS PLAN: stable native child objects preserve keyboard/TalkBack focus opportunities across evidence/state/detail refreshes; structural replacement remains reserved for actual id/order change.",
+    "determinism": "PASS AS PLAN: ordered case-folded semantic ids remain the structure identity; in-place update must verify count/order/tag agreement and fail safe to rebuild if the assumption is violated.",
+    "contact_preservation": "PASS AS PLAN: accepted/preserved HeartbeatSceneGraph.Frame remains the sole source of visible child state; discarded attempted candidates remain inaccessible.",
+    "architecture": "PASS: no neighboring owner is introduced; existing service, scene, view-model and refresh-plan organs are composed.",
+    "evidence_truth": "PASS: source wiring may become IMPLEMENTED_SOURCE; Android execution, runtime focus preservation, TalkBack behavior, deployment and phone delivery remain unproven until authorized evidence exists."
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substitute_reviewer_used": false
+  },
+  "planned_cross_pollination": "focus-churn wound -> structure/content identity split -> existing-owner child reconciliation -> accessibility focus preservation -> warm-wall specimen truth -> Regnet/Venice evidence membrane",
+  "p0_firewall": "BINDING_ZERO_MUTATIONS_PLANNED"
+}
