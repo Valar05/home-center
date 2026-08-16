@@ -16,7 +16,7 @@
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 14px; }
   button { min-height: 48px; min-width: 48px; border-radius: 14px; border: 1px solid #788394; background: #2a2f38; color: inherit; font: inherit; padding: 8px 12px; }
   button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
-  .readout { margin-top: 14px; display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+  .readout { margin-top: 14px; display: grid; grid-template-columns: repeat(8,1fr); gap: 8px; }
   .meter { border: 1px solid #505866; border-radius: 12px; padding: 10px; min-height: 78px; }
   .meter b { display: block; font-size: 1.35rem; }
   #detail { margin: 12px 0 0; min-height: 48px; border-left: 4px solid #778294; padding: 8px 12px; }
@@ -27,13 +27,13 @@
 </head>
 <body>
 <main>
-  <h1>WARM WALL / EXACT CHECKPOINT ≠ PRESENTATION ≠ RESTORE OWNERSHIP</h1>
-  <p class="scar">EXISTING-OWNER RESTORE SOURCE WIRED • STABLE + REBUILD + FALLBACK • GENERATION/OWNER REVALIDATION YES • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
+  <h1>WARM WALL / ROOT VISIBLE ≠ HEARTBEAT SURFACE VISIBLE</h1>
+  <p class="scar">REFRESH/VIEWPORT OWNER SOURCE WIRED • HEARTBEAT-SURFACE SPEECH POLICY SOURCE YES • OWNER SPEECH-GATE CONSUMPTION NO • RUNTIME UNPROVEN • NOT PHONE DELIVERY</p>
 
-  <section class="wall" aria-label="Heartbeat refresh gate with checkpoint, presentation, structure, speech, viewport, and restore generation identities">
+  <section class="wall" aria-label="Heartbeat refresh gate with checkpoint, presentation, structure, speech-history, spoken-output, viewport, and restore identities">
     <svg viewBox="0 0 940 310" role="img" aria-labelledby="title desc">
-      <title id="title">Heartbeat refresh identities and viewport restore ownership are separate</title>
-      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact contact, presentation, native structure, announcement, viewport anchor, and pending restore generation have different jobs. Existing-owner source now consumes generation-bound viewport restore tickets for stable refresh, structural rebuild, and drift fallback, while Android runtime viewport and TalkBack behavior remain unproven.</desc>
+      <title id="title">Heartbeat refresh identities and presentation visibility are separate</title>
+      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact contact, presentation, native structure, announcement history, audible speech, viewport anchor, and pending restore generation have different jobs. A visible overlay root does not make a collapsed heartbeat surface visible. Source policy suppresses speech while collapsed but still advances semantic announcement history so expansion does not replay stale transitions.</desc>
       <path d="M22 148 H142" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
       <path d="M798 148 H918" stroke="currentColor" stroke-width="4" fill="none"/>
       <rect x="142" y="20" width="656" height="254" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
@@ -42,11 +42,11 @@
       <text x="470" y="104" text-anchor="middle" fill="currentColor" font-size="13">EXACT CONTACT → evidence/checkpoint truth, including accepted pulse id</text>
       <text x="470" y="129" text-anchor="middle" fill="currentColor" font-size="13">PRESENTATION → visible/touchable content work; invisible pulse id alone stays quiet</text>
       <text x="470" y="154" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE → ordered semantic ids decide native child replacement</text>
-      <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">SPEECH → established transition/new wound only</text>
-      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT → selected semantic id, then direct keyboard-focus fallback</text>
+      <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">SPEECH HISTORY → semantic transition identity advances even while silent</text>
+      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">SPOKEN OUTPUT → mute + root visibility + heartbeat-surface visibility</text>
       <path d="M250 224 H690" stroke="currentColor" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
-      <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">RESTORE TICKET → generation + semantic owner + old viewport offset</text>
-      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">OWNER SOURCE WIRED • CALLBACK REVALIDATES GENERATION + CURRENT OWNER • RUNTIME NO</text>
+      <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT/RESTORE → generation + semantic owner + old viewport offset</text>
+      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">COLLAPSED HEARTBEAT SURFACE: HISTORY YES • SPEECH NO • STALE REPLAY NO</text>
       <circle cx="54" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <circle cx="886" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <text x="54" y="188" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
@@ -58,14 +58,16 @@
     <button type="button" data-action="poll">· Exact retry — nothing changes</button>
     <button type="button" data-action="pulse">◇ New pulse id — checkpoint advances, presentation still</button>
     <button type="button" data-action="evidence">◇ Evidence refresh — same Buttons, new detail</button>
-    <button type="button" data-action="state">● State change — same Buttons, new content + speech</button>
+    <button type="button" data-action="state">● Visible state change — history + one spoken transition</button>
+    <button type="button" data-action="collapsed">□ Collapsed heartbeat — root visible, surface silent</button>
+    <button type="button" data-action="expand">◇ Expand after collapsed transition — no stale replay</button>
     <button type="button" data-action="reorder">↕ Reorder — rebuild with surviving semantic anchor</button>
     <button type="button" data-action="viewport">↔ Width shift — stable-structure restore ticket</button>
     <button type="button" data-action="rebuildAnchor">◇ Rebuild keeps semantic id — owner consumes ticket</button>
     <button type="button" data-action="supersede">× Later selection — generation invalidates pending restore</button>
     <button type="button" data-action="focusMove">↹ Keyboard focus moves — same-generation owner invalidates</button>
     <button type="button" data-action="wound">× Wound — last-good contact, wound changes once</button>
-    <button type="button" data-action="muted">□ Muted transition — content changes, speech history advances</button>
+    <button type="button" data-action="muted">□ Muted transition — history advances, spoken stays still</button>
     <button type="button" data-action="drift">× Live child/tag drift — fallback rebuild keeps ticket path</button>
   </div>
 
@@ -74,22 +76,37 @@
     <div class="meter">checkpoint advances<b id="checkpoints">0</b></div>
     <div class="meter">structure rebuilds<b id="structures">0</b></div>
     <div class="meter">content refreshes<b id="contents">0</b></div>
-    <div class="meter">announcements<b id="announcements">0</b></div>
+    <div class="meter">speech history advances<b id="speechHistory">0</b></div>
+    <div class="meter">spoken outputs<b id="spoken">0</b></div>
     <div class="meter">restore tickets<b id="anchors">0</b></div>
     <div class="meter">stale/owner-lost tickets<b id="staleDrops">0</b></div>
   </div>
-  <p id="detail" role="status" aria-live="polite">Touch a source control. Exact evidence, presentation work, and pending viewport-restore ownership are intentionally separate; this artifact is source semantics, not Android runtime proof.</p>
+  <p id="detail" role="status" aria-live="polite">Touch a source control. Root visibility, heartbeat-surface visibility, semantic speech history, and audible output are intentionally separate; this artifact is source semantics, not Android runtime proof.</p>
 </main>
 <script>
 (() => {
-  const state = { polls: 0, checkpoints: 0, structures: 0, contents: 0, announcements: 0, anchors: 0, staleDrops: 0, generation: 0, pendingGeneration: 0, woundOpen: false };
+  const state = {
+    polls: 0,
+    checkpoints: 0,
+    structures: 0,
+    contents: 0,
+    speechHistory: 0,
+    spoken: 0,
+    anchors: 0,
+    staleDrops: 0,
+    generation: 0,
+    pendingGeneration: 0,
+    woundOpen: false,
+    collapsedTransitionPending: false
+  };
   const $ = id => document.getElementById(id);
   const render = message => {
     $('polls').textContent = state.polls;
     $('checkpoints').textContent = state.checkpoints;
     $('structures').textContent = state.structures;
     $('contents').textContent = state.contents;
-    $('announcements').textContent = state.announcements;
+    $('speechHistory').textContent = state.speechHistory;
+    $('spoken').textContent = state.spoken;
     $('anchors').textContent = state.anchors;
     $('staleDrops').textContent = state.staleDrops;
     $('detail').textContent = message;
@@ -110,28 +127,43 @@
       state.polls += 1;
       switch (button.dataset.action) {
         case 'poll':
-          render('Exact retry. Exact checkpoint, presentation, structure, speech, viewport geometry, and restore ownership remain still. Nothing earns work.');
+          render('Exact retry. Exact checkpoint, presentation, structure, speech history, spoken output, viewport geometry, and restore ownership remain still. Nothing earns work.');
           break;
         case 'pulse':
           state.checkpoints += 1;
           state.woundOpen = false;
-          render('A new accepted pulse id arrived with the identical presented/touchable surface. Exact contact/checkpoint identity advances; presentation, structure, speech, and viewport work stay still.');
+          render('A new accepted pulse id arrived with the identical presented/touchable surface. Exact contact/checkpoint identity advances; presentation, structure, speech history, spoken output, and viewport work stay still.');
           break;
         case 'evidence':
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
           issueRestoreTicket();
-          render('Evidence changed. Existing semantic Buttons refresh in place. The existing owner captures a surviving selected/focused semantic anchor and schedules one generation-bound pre-draw restore; evidence-only change still earns no unsolicited speech.');
+          render('Evidence changed. Existing semantic Buttons refresh in place. A generation-bound viewport restore may run; evidence-only change earns neither new semantic speech history nor audible speech.');
           break;
         case 'state':
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
-          state.announcements += 1;
+          state.speechHistory += 1;
+          state.spoken += 1;
           issueRestoreTicket();
           state.woundOpen = false;
-          render('State or consequence changed without changing ids/order. The same native Buttons receive new content; one established transition may speak; viewport restore ownership stays separately generation-bound.');
+          state.collapsedTransitionPending = false;
+          render('A semantic transition arrived while the heartbeat surface is presented. Announcement identity advances and one audible output is allowed.');
+          break;
+        case 'collapsed':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          state.speechHistory += 1;
+          state.collapsedTransitionPending = true;
+          state.woundOpen = false;
+          render('The overlay root is visible but the heartbeat/details surface is collapsed or GONE. Semantic announcement history advances so truth is remembered; audible output stays still because hidden heartbeat content does not speak from behind the wall.');
+          break;
+        case 'expand':
+          if (state.collapsedTransitionPending) state.collapsedTransitionPending = false;
+          render('The heartbeat surface expands after a transition that already advanced announcement history while collapsed. No new semantic identity appeared, so no stale transition is replayed and spoken output remains still.');
           break;
         case 'reorder':
           supersedeRestoreOwnership();
@@ -140,7 +172,7 @@
           state.contents += 1;
           issueRestoreTicket();
           state.woundOpen = false;
-          render('Ordered semantic ids changed. The existing owner captures a surviving selected/focused semantic anchor before replacing children, then revalidates and restores its bounded viewport offset after layout. Source wired; runtime proof still absent.');
+          render('Ordered semantic ids changed. The existing owner captures a surviving semantic anchor before replacing children, then revalidates and restores its bounded viewport offset after layout. Source wired; runtime proof still absent.');
           break;
         case 'viewport':
           supersedeRestoreOwnership();
@@ -148,7 +180,7 @@
           state.contents += 1;
           issueRestoreTicket();
           state.woundOpen = false;
-          render('A preceding label widened. Existing service source captures selected id first or direct keyboard focus fallback and restores bounded viewport offset on pre-draw for stable-structure refresh. Android runtime viewport/TalkBack evidence remains NO.');
+          render('A preceding label widened. Existing service source captures a visible semantic owner and restores bounded viewport offset on pre-draw. Android runtime viewport/TalkBack evidence remains NO.');
           break;
         case 'rebuildAnchor':
           supersedeRestoreOwnership();
@@ -156,7 +188,7 @@
           state.structures += 1;
           state.contents += 1;
           issueRestoreTicket();
-          render('The semantic id survives a changed structure. OperatorOverlayService now consumes the generation-bound restore ticket path for structural rebuilds. Existing-owner source wiring YES; Android execution/runtime observation NO.');
+          render('The semantic id survives a changed structure. OperatorOverlayService consumes the generation-bound restore ticket path for structural rebuilds. Existing-owner source wiring YES; Android execution/runtime observation NO.');
           break;
         case 'supersede':
           supersedeRestoreOwnership();
@@ -167,11 +199,14 @@
             state.staleDrops += 1;
             state.pendingGeneration = 0;
           }
-          render('Direct keyboard focus moved while generation stayed the same. Callback revalidation recomputes selected-first / keyboard-focus-fallback ownership; a ticket for the old focus must die without inventing a heartbeat generation. TalkBack accessibility focus is still outside this source claim.');
+          render('Direct keyboard focus moved while generation stayed the same. Callback revalidation kills stale viewport ownership without inventing TalkBack focus or another heartbeat generation.');
           break;
         case 'wound':
-          state.contents += state.woundOpen ? 0 : 1;
-          state.announcements += state.woundOpen ? 0 : 1;
+          if (!state.woundOpen) {
+            state.contents += 1;
+            state.speechHistory += 1;
+            state.spoken += 1;
+          }
           state.woundOpen = true;
           render('Rejected refresh. Last-good exact contact remains; interruption presentation changes once and repeated identical wounds stay quiet.');
           break;
@@ -179,9 +214,10 @@
           supersedeRestoreOwnership();
           state.checkpoints += 1;
           state.contents += 1;
+          state.speechHistory += 1;
           issueRestoreTicket();
           state.woundOpen = false;
-          render('Material transition while muted. Existing Buttons may refresh, speech is suppressed, announcement history advances, and viewport restore ownership remains independently bounded.');
+          render('Material transition while muted. Existing Buttons may refresh and semantic announcement history advances, but spoken output stays still so unmuting cannot replay stale speech.');
           break;
         case 'drift':
           supersedeRestoreOwnership();
@@ -189,7 +225,7 @@
           state.contents += 1;
           issueRestoreTicket();
           state.woundOpen = false;
-          render('Live child count/order/tag no longer matches deterministic structure. In-place mutation is refused; the existing owner falls back to canonical rebuild while preserving the same generation-bound semantic viewport ticket path.');
+          render('Live child count/order/tag no longer matches deterministic structure. In-place mutation is refused; the existing owner falls back to canonical rebuild while preserving the generation-bound semantic viewport ticket path.');
           break;
       }
     });
