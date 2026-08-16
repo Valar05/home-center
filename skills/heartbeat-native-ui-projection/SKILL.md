@@ -44,11 +44,13 @@ The existing service source now:
 10. before any material heartbeat view mutation, reads the accepted selected id and direct keyboard-focused heartbeat Button separately;
 11. measures each live native candidate against the current horizontal viewport using `HeartbeatViewportRestorePolicy.hasVisibleViewportContact(...)`;
 12. chooses visible accepted selection first, visible accepted direct keyboard focus second, otherwise no viewport anchor; an offscreen durable selection cannot suppress a visible keyboard fallback;
-13. captures that chosen anchor's pre-mutation viewport offset and accepted interaction-owner state;
+13. captures that chosen anchor's pre-mutation viewport offset and capture-time selected/focused interaction evidence;
 14. applies the same restore-ticket path to stable in-place refresh, structural rebuild, and live-structure-drift fallback rebuild;
-15. schedules one-shot pre-draw restoration so new child geometry has been laid out before bounded scroll math runs;
-16. re-finds the same semantic id and revalidates captured interaction ownership before scrolling; stale/missing ids do not get replaced by index guesses or neighboring controls;
-17. currently calls the backward-compatible captured-owner overload, which can distinguish another non-empty heartbeat focus but cannot yet distinguish stable-refresh focus loss from rebuild focus loss or direct focus moved to a non-heartbeat overlay control.
+15. records the mutation that actually happened: structural/fallback rebuild may destroy native keyboard focus; successful in-place refresh may not claim rebuild amnesty;
+16. schedules one-shot pre-draw restoration so new child geometry has been laid out before bounded scroll math runs;
+17. after layout, re-finds current heartbeat keyboard focus and separately asks the existing overlay root whether **any** direct keyboard focus exists;
+18. calls the explicit captured-owner policy overload with generation, accepted model, selected id, heartbeat keyboard-focused id, actual mutation class, and overlay-wide direct-focus presence;
+19. re-finds the same semantic anchor and applies bounded scroll geometry only when captured interaction ownership still passes; stale/missing ids do not become index guesses or neighboring controls.
 
 If live child count/order/tag identity disagrees with planned structure, the service fails safe to the existing canonical rebuild path. It never guesses which changed child corresponds to which semantic light.
 
@@ -59,11 +61,11 @@ Stable semantic selection is not the same claim as stable native focus. The sour
 
 Stable native object identity is also not the same as stable **visible viewport contact**. In a horizontal scrolling row, an in-place label/content change can alter child widths and move the exact same Button away from its prior viewport offset. The existing service consumes the viewport-contact policy in source.
 
-Anchor priority is canonical and geometry-aware: **visible accepted selected semantic id first; visible direct keyboard-focused heartbeat Button second; otherwise no anchor**. TalkBack accessibility focus is deliberately neither queried nor synthesized. Selection, heartbeat-child keyboard focus, non-heartbeat direct overlay focus, accessibility focus, visible viewport contact, and runtime-observed retention remain separate capability claims.
+Anchor priority at capture is canonical and geometry-aware: **visible accepted selected semantic id first; visible direct keyboard-focused heartbeat Button second; otherwise no anchor**. That capture priority is not permanent navigation ownership. A newer direct heartbeat keyboard-focus move observed before restoration supersedes the captured ticket, including a selection-anchored ticket. TalkBack accessibility focus is deliberately neither queried nor synthesized.
 
-Capture-time visibility chooses which existing live control owns contact. After layout, the owner revalidates the captured selected/focused interaction state rather than treating mutation-caused geometry changes as new user intent. The whole point of restoration is that layout may move the anchor.
+Capture-time visibility chooses which existing live control owned contact. After layout, the owner revalidates captured interaction evidence rather than treating mutation-caused geometry changes as new user intent. The whole point of restoration is that layout may move the anchor.
 
-A structural rebuild can destroy the old native keyboard-focused Button. But **empty heartbeat-child focus is ambiguous**: it can also mean direct focus moved to another overlay control such as STOP or Adam input. The pure viewport policy now has an explicit overload that grants empty-focus amnesty only when the mutation may destroy focus and no direct overlay focus is known elsewhere. Stable in-place refresh must not receive rebuild amnesty. The existing service has **not yet wired those two inputs**, so this remains an open owner seam rather than completed runtime behavior.
+A structural rebuild can destroy the old native keyboard-focused Button. But **empty heartbeat-child focus is ambiguous**: it can also mean direct focus moved to another overlay control such as STOP or Adam input. The existing service now supplies both facts needed by the explicit policy: whether the actual mutation may destroy native focus, and whether any direct keyboard focus exists under the overlay root. Empty-focus amnesty is therefore source-wired only when those facts permit it. `View.findFocus()` is direct keyboard-focus evidence, not TalkBack accessibility-focus evidence.
 
 The owner restores on a one-shot pre-draw after mutation requested layout. This is stronger source ordering than a generic posted Runnable, but it remains **source wiring**, not proof that Android actually executed the path or that accessibility focus was retained.
 
@@ -83,8 +85,10 @@ Current source truth:
 - existing-owner source wiring: **YES**
 - geometry-aware visible-viewport-gate source wiring: **YES**
 - focus-scope revalidation policy source: **YES**
-- existing-owner focus-scope/mutation-class wiring: **NO**
-- deterministic test execution/runtime observation/deployment/callability/execution/delivery/acceptance: **NO** until their own authorized evidence exists.
+- existing-owner focus-scope/mutation-class wiring: **YES**
+- exact GitHub readback of that owner wiring: **YES**
+- deterministic test execution: **NO / BLOCKED_ACTIONS_BUDGET**
+- runtime UI/runtime viewport/runtime keyboard focus/runtime TalkBack/deployment/callability/execution/delivery/acceptance: **NO** until their own authorized evidence exists.
 
 GitHub blob readback proves durable source presence and exact source wiring only. It does not prove Android compilation, runtime view creation, focus retention, viewport anchoring, phone delivery, or physical acceptance. Regression source is not a passing test until an authorized deterministic test body actually executes it.
 
