@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever-heartbeat-plan/v1",
+  "heartbeat": "2026-08-16-1700",
+  "commission": "Advance TRY FOREVER through broad independent non-P0 source fronts while preserving evidence truth.",
+  "p0_firewall": "BINDING_READ_ONLY",
+  "phone_surface": "UNTOUCHED",
+  "observed_wound": {
+    "owner": "OperatorOverlayService",
+    "source": "HeartbeatNativeMotionPolicy + HeartbeatOverlayViewModel",
+    "problem": "The pure native-motion policy and UI-ready decisions exist, but the existing Android owner does not consume them, so semantic Christmas-light motion has no native consequence.",
+    "evidence": "PR #329 capability ledger records existing OperatorOverlayService native-motion consumption as NO."
+  },
+  "authorized_fronts": [
+    "wire only the existing OperatorOverlayService to consume native-motion decisions",
+    "use actual heartbeat surface presentation and platform animator enablement",
+    "apply one bounded cue to transitioning Buttons and the existing summary for pure removal",
+    "cancel/reset stale view-property animation when motion is suppressed or presentation disappears",
+    "strengthen pure regression source around summary/node ownership and reduced-motion boundaries",
+    "synchronize heartbeat-native-motion skill doctrine",
+    "mutate the existing motion-clamp warm-wall specimen in place",
+    "Regnet/Venice bounded source review and exact capability ledger"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone commands",
+    "P0 recovery/queue/relay mutation",
+    "new overlay controller, animator controller, renderer, or state store",
+    "Nightcore/Pocket TTS/Chromium/Context Organs actions",
+    "runtime/deployed/delivered claims without exact evidence",
+    "autoplay, repeating blink, or motion replay on reveal"
+  ],
+  "acceptance": [
+    "existing OperatorOverlayService remains sole native owner",
+    "motion requires a material semantic transition, visible heartbeat surface, and enabled platform animators",
+    "node-owned transitions animate only those existing Buttons",
+    "pure removal may cue only the existing heartbeat summary",
+    "suppressed motion resets stale scale/alpha and cannot replay on reveal",
+    "source/test/runtime/deployment states remain separate"
+  ],
+  "reviewer_state": {
+    "she_raw": "AUTHORITATIVE_ATTEMPT_FAILED_ACCOUNT_CONNECTION_400"
+  }
+}
