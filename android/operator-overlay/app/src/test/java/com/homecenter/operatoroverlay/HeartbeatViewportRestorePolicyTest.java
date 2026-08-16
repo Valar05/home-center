@@ -118,6 +118,69 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
+    public void keyboardFocusMoveSupersedesPendingRestoreWithoutGenerationChange() {
+        HeartbeatOverlayViewModel.Model accepted = model("first", "second");
+        HeartbeatViewportRestorePolicy.Ticket ticket =
+                HeartbeatViewportRestorePolicy.capture(
+                        14L,
+                        "",
+                        "first",
+                        20,
+                        accepted);
+
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestore(
+                ticket,
+                14L,
+                accepted,
+                "",
+                "first"));
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestore(
+                ticket,
+                14L,
+                accepted,
+                "",
+                "second"));
+    }
+
+    @Test
+    public void explicitSelectionSupersedesPendingKeyboardRestoreWithoutGenerationChange() {
+        HeartbeatOverlayViewModel.Model accepted = model("first", "second");
+        HeartbeatViewportRestorePolicy.Ticket ticket =
+                HeartbeatViewportRestorePolicy.capture(
+                        15L,
+                        "",
+                        "first",
+                        20,
+                        accepted);
+
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestore(
+                ticket,
+                15L,
+                accepted,
+                "second",
+                "first"));
+    }
+
+    @Test
+    public void durableSelectionRemainsOwnerWhenKeyboardFocusMoves() {
+        HeartbeatOverlayViewModel.Model accepted = model("keep", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket =
+                HeartbeatViewportRestorePolicy.capture(
+                        16L,
+                        "keep",
+                        "other",
+                        28,
+                        accepted);
+
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestore(
+                ticket,
+                16L,
+                accepted,
+                "keep",
+                "other"));
+    }
+
+    @Test
     public void boundedGeometryRemainsTheExistingAnchorPolicy() {
         HeartbeatViewportRestorePolicy.Ticket ticket =
                 HeartbeatViewportRestorePolicy.capture(
