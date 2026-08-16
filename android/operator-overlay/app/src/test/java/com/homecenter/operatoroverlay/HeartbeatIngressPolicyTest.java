@@ -58,9 +58,9 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
-    public void callerInvalidBoundaryIsBoundedSingleLineAndUnicodeSafe() {
+    public void callerInvalidBoundaryIsBoundedSingleLineAndFormatSafe() {
         RecordingSink sink = new RecordingSink();
-        StringBuilder hostile = new StringBuilder("  first\tline\nsecond\u0000 ");
+        StringBuilder hostile = new StringBuilder("  first\tline\nsecond\u0000 \u202e");
         hostile.append('\ud800');
         hostile.append(" tail ");
         for (int index = 0; index < 400; index++) hostile.append("🦢");
@@ -80,6 +80,7 @@ public class HeartbeatIngressPolicyTest {
             int codePoint = result.boundary.codePointAt(offset);
             offset += Character.charCount(codePoint);
             assertFalse(Character.isISOControl(codePoint));
+            assertFalse(Character.getType(codePoint) == Character.FORMAT);
         }
         assertFalse(Character.isHighSurrogate(result.boundary.charAt(result.boundary.length() - 1)));
         assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
