@@ -1,0 +1,51 @@
+{
+  "schema": "try-forever.venice-plan-review.v1",
+  "heartbeat": "2026-08-16T03:00:00-05:00",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "bounded non-phone source slice only",
+  "commission": "Advance a broad TRY FOREVER heartbeat without decorative progress while preserving the P0/primary-phone firewall and duplicate-architecture law.",
+  "fresh_defect": {
+    "id": "stable-button-viewport-anchor",
+    "finding": "Stable native Button identity prevents destructive child replacement, but width-changing in-place label/content refresh can move a selected or keyboard-focused semantic light inside the horizontal scroll content. The existing source has no semantic viewport-anchor work identity or deterministic scroll compensation, so touch/keyboard contact can drift off the visible viewport even while the Button object survives.",
+    "evidence": [
+      "OperatorOverlayService keeps heartbeatScroller only as a createOverlay local variable.",
+      "refreshHeartbeatLightsInPlace mutates Button text/minimum geometry, requests layout, and preserves child identity but does not preserve an anchor offset inside the HorizontalScrollView.",
+      "HeartbeatOverlayRefreshPlan separates structure/render/announcement identity but currently has no viewport-anchor geometry policy."
+    ]
+  },
+  "authorized_fronts": [
+    "Add a pure deterministic viewport-anchor scroll policy to the existing HeartbeatOverlayRefreshPlan and hostile JVM regression source.",
+    "Wire the existing OperatorOverlayService owner to preserve a selected/keyboard-focused semantic light viewport offset across stable-structure in-place content refresh; no second renderer/controller.",
+    "Mutate the existing heartbeat refresh-gate DOM/vector specimen in place to expose viewport-anchor truth; keep SOURCE ONLY/runtime-unproven scarring.",
+    "Update existing refresh-deduplication/native-ui skill doctrine with the distinction between stable native object identity and stable viewport contact.",
+    "Create Regnet, Venice completion, and swarm receipts with capability-state separation."
+  ],
+  "required_constraints": {
+    "phone_p0_mutations": 0,
+    "new_overlay_controller": false,
+    "new_phone_ingress_path": false,
+    "manual_ci_retry": false,
+    "runtime_focus_claim_allowed": false,
+    "deployed_or_delivered_claim_allowed": false
+  },
+  "skill_lights": {
+    "failure_is_the_shovel": "active: use the prior focus-churn wound to inspect semantic contact rather than retry blocked CI",
+    "canon_auto_select": "active: compose existing refresh-plan/service/specimen/skills",
+    "autocorrect_judgment_jar": "dark: no material STT ambiguity",
+    "originality_tax": "active: different recovery/evidence path from CI retry",
+    "hunger_eat_everything": "active: mutate the existing organism rather than clone it",
+    "operator_harroway": "active: preserve owner/lane/evidence membrane",
+    "she_raw": "fault: authoritative ambient consult returned account-connection HTTP 400; no synthetic substitute",
+    "venice": "active: this plan receipt precedes mutation",
+    "regnet": "active after source mutation: code-first bounded review",
+    "accessibility_touch": "active: preserve semantic viewport contact without claiming runtime TalkBack proof",
+    "phone_runtime_phone_hands": "dark/firewalled",
+    "deterministic_routing": "active: semantic-id anchor, deterministic bounded scroll compensation",
+    "evidence_capability_state": "active: source/regression/runtime/deployment remain separate",
+    "recovery_checkpoint_idempotence": "active: exact retry must not manufacture viewport motion",
+    "warm_walls_non_raster_art": "active: existing specimen only",
+    "christmas_light_scene_graph": "active: content refresh may move geometry but must not earn decorative transition motion",
+    "contact_preservation": "active: stable semantic control should remain visibly reachable across content-only refresh"
+  },
+  "p0_handoff": null
+}
