@@ -119,9 +119,17 @@ public final class HeartbeatOverlayRefreshPlan {
         return !clean(previousRenderIdentity).equals(next.renderIdentity);
     }
 
+    /**
+     * Automatic speech requires an established prior semantic baseline. An empty
+     * previous identity means cold start/unknown history, not a proven transition;
+     * the renderer may still show the current model, but it must not announce it as
+     * though a state change was observed.
+     */
     public static boolean shouldAnnounce(String previousAnnouncementIdentity, Plan next) {
         if (next == null) return false;
-        return !clean(previousAnnouncementIdentity).equals(next.announcementIdentity);
+        String previous = clean(previousAnnouncementIdentity);
+        if (previous.isEmpty()) return false;
+        return !previous.equals(next.announcementIdentity);
     }
 
     private static String digest(String schema, String... values) {
