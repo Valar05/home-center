@@ -1,0 +1,118 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1400",
+  "pr": 329,
+  "plan": "receipts/heartbeat-skill-lights/2026-08-16-1400-plan.json",
+  "fronts": [
+    {
+      "front": "collapsed_surface_speech_policy",
+      "status": "ADVANCED_IMPLEMENTED_SOURCE",
+      "change": "HeartbeatOverlayRefreshPlan now separates whole-overlay visibility from heartbeat-surface visibility through a five-argument automatic-speech gate. Collapsed/GONE heartbeat content cannot earn speech at the policy layer."
+    },
+    {
+      "front": "collapsed_surface_regression_source",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "Added HeartbeatCollapsedPresentationSpeechTest covering visible surface, visible root plus collapsed surface, mute/hidden suppression, and expansion without stale replay."
+    },
+    {
+      "front": "durable_skill_convergence",
+      "status": "ADVANCED",
+      "change": "heartbeat-refresh-deduplication now records root-visible != heartbeat-surface-visible and repairs stale viewport doctrine: stable refresh, structural rebuild, and drift fallback all share existing-owner source restore wiring while runtime proof remains NO."
+    },
+    {
+      "front": "warm_wall_non_raster_art",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "Mutated the existing refresh-gate DOM/inline-SVG organism in place. It now separates semantic speech-history advances from spoken outputs and makes collapsed-surface silence plus no-stale-replay touchable."
+    },
+    {
+      "front": "existing_owner_gap",
+      "status": "EXACT_BOUNDARY_CONTINUE_REQUIRED",
+      "change": "OperatorOverlayService still calls the four-argument compatibility gate with whole-overlay visibility. Existing-owner consumption of heartbeat-surface visibility is NO; the actual owner seam remains the next authorized cut."
+    },
+    {
+      "front": "deterministic_test_boundary",
+      "status": "EXACT_BOUNDARY",
+      "change": "Automatic Operator Overlay Android on source/art head 4cc01cb2f7bfb52f8e222feb27606c96e562e2c4 created one build job with zero steps. Actions budget prevented start; no manual retry fired."
+    },
+    {
+      "front": "judgment_review",
+      "status": "ADVANCED_DURABLE",
+      "change": "Regnet marks the bounded source work real but owner consumption revised-required; Venice returns FAIL + CONTINUE_REQUIRED rather than laundering policy into delivery."
+    },
+    {
+      "front": "she_raw_adversarial_review",
+      "status": "FAULT_EXACT_BOUNDARY",
+      "change": "Authoritative She-Raw consultation was attempted pre-execution and returned account-connection HTTP 400; no synthetic replacement was used."
+    }
+  ],
+  "lights": {
+    "failure_is_the_shovel": "ACTIVE_UNCHANGED_CI_WAS_NOT_RETRIED; FAILURE_REDIRECTED_TO_HIDDEN_SURFACE_SPEECH_WOUND",
+    "canon_auto_select": "ACTIVE_EXISTING_REFRESH_DEDUP_SKILL_AND_EXISTING_OPERATOR_OWNER_SELECTED",
+    "autocorrect_judgment_jar": "DARK_NO_STT_OR_TOKEN_AMBIGUITY",
+    "originality_tax": "ACTIVE_DIFFERENT_WOUND_FROM_VIEWPORT_POLISHING_AND_NO_PROPOSED_PATCH_ONLY_REPEAT",
+    "hunger": "ACTIVE_ONE_ACCESSIBILITY_WOUND_PROPAGATED_ACROSS_POLICY_TEST_DOCTRINE_ART_AND_RECEIPTS",
+    "ever_polished_interpreter_eat_everything": "ACTIVE_REPAIRED_STALE_SKILL_DOCTRINE_AND_PRESENTATION_VS_HISTORY_SEMANTICS",
+    "operator_campaign": "ACTIVE_EXISTING_OPERATOR_OVERLAY_OWNER_ONLY",
+    "harroway_operator_discipline": "ACTIVE_SOURCE_OWNER_RUNTIME_PHONE_CAPABILITY_MEMBRANE_PRESERVED",
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+    "venice_judgment_jars": "ACTIVE_FAIL_CONTINUE_REQUIRED_OWNER_SEAM_NOT_GREENWASHED",
+    "regnet_qa": "ACTIVE_REVISE_REQUIRED_POLICY_SOURCE_REAL_OWNER_CONSUMPTION_AND_TESTS_NOT_DONE",
+    "accessibility_talkback_touch": "ACTIVE_COLLAPSED_HEARTBEAT_SURFACE_CANNOT_EARN_AUTOMATIC_SPEECH_AT_POLICY_LAYER",
+    "phone_runtime_phone_hands": "DARK_FIREWALLED_ZERO_CONSUMPTION",
+    "deterministic_routing": "ACTIVE_PRESENTATION_GATE_SEPARATED_FROM_SEMANTIC_ANNOUNCEMENT_IDENTITY",
+    "evidence_capability_state": "ACTIVE_POLICY_YES_OWNER_CONSUMPTION_NO_TESTED_NO_RUNTIME_NO_DELIVERY_NO",
+    "recovery_checkpoint_idempotence": "ACTIVE_SUPPRESSED_COLLAPSED_TRANSITION_STILL_ADVANCES_HISTORY_TO_PREVENT_STALE_REPLAY",
+    "strange_non_raster_art": "ACTIVE_EXISTING_DOM_INLINE_SVG_SPECIMEN_MUTATED_IN_PLACE",
+    "warm_walls": "ACTIVE_ROOT_VISIBLE_NOT_EQUAL_HEARTBEAT_SURFACE_VISIBLE_SCAR",
+    "christmas_light_scene_graph": "ACTIVE_COLLAPSE_OR_HISTORY_BOOKKEEPING_EARNS_NO_DECORATIVE_BLINK",
+    "contact_preservation": "ACTIVE_SEMANTIC_HISTORY_PRESERVED_WHILE_PRESENTATION_STAYS_SILENT",
+    "heartbeat_refresh_deduplication": "ACTIVE_REPOSITORY_SKILL_SYNCHRONIZED"
+  },
+  "cross_pollination": "Source archaeology exposed root-visible/collapsed-heartbeat speech leakage -> accessibility split semantic announcement history from audible presentation -> idempotence required history to advance while silent -> hostile regression source pinned no stale replay -> existing refresh skill revealed stale rebuild-viewport doctrine and was repaired -> warm wall turned history-vs-spoken truth into a touchable non-raster organism -> Regnet/Venice prevented policy source from becoming imaginary owner/runtime capability.",
+  "source_identities": {
+    "policy": "483257e1d1aca72610dc632a8343a96f0262e0d6",
+    "regression": "85c33bf6026c3996e88c69c952df6a215ce5a0f0",
+    "skill": "81421273d3cb533b190cee7229e3cf00a9790cd9",
+    "warm_wall": "b686959ac5d5b9cc097372946205b7294e060993",
+    "existing_owner_unchanged": "befab3b2be1e3fa3750a18a11d0b45674ee5d285"
+  },
+  "test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31966436501,
+    "job_id": 95212201060,
+    "head": "4cc01cb2f7bfb52f8e222feb27606c96e562e2c4",
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_firewall": {
+    "phone_hands": 0,
+    "primary_phone_commands": 0,
+    "phone_queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_p0_owners": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_policy_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "skill_doctrine_source": true,
+    "non_raster_specimen_source": true,
+    "existing_owner_consumes_heartbeat_surface_gate": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "current_gate": "CONTINUE_REQUIRED. The policy/test/doctrine/art fronts advanced materially, but the existing OperatorOverlayService still needs to pass actual heartbeat-surface visibility into the new gate. Do not route around this through a second owner, phone/P0 surface, or deployment claim."
+}
