@@ -1,0 +1,27 @@
+{
+  "schema": "venice-plan-review.v1",
+  "commission": "TRY FOREVER heartbeat 2000 semantic bidi hardening replan",
+  "reviewerRole": "venice-judgment-jar",
+  "timestampLocal": "2026-08-15T20:00:31-05:00",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "priorPlan": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-plan-review.json",
+  "finding": "The initial plan's all-Unicode-FORMAT rejection is too broad for canonical semantic text. U+200D ZERO WIDTH JOINER is Character.FORMAT but is legitimate inside emoji/grapheme sequences. Reusing the ingress log-boundary sanitizer's all-FORMAT policy inside canonical labels would silently trade spoof resistance for accessibility/content breakage.",
+  "revisedBoundary": [
+    "Reject directional spoofing controls specifically: U+061C, U+200E/U+200F, U+202A..U+202E, and U+2066..U+2069.",
+    "Continue rejecting ISO controls and malformed surrogate structure exactly as before.",
+    "Preserve ordinary Unicode, including valid surrogate pairs and U+200D ZWJ; command-looking text remains inert data.",
+    "Apply the directional-control rule to every semantic/protocol string accepted by the canonical parser, including schema/state tokens, labels, provenance, reasons, consequences, evidence, ids, and pulse ids.",
+    "Keep ingress human-facing boundary sanitization separate: it may collapse broader FORMAT characters because that text is a bounded projection, not canonical payload identity."
+  ],
+  "regressionDemand": [
+    "U+202E RIGHT-TO-LEFT OVERRIDE in label must fail closed.",
+    "U+2066 LEFT-TO-RIGHT ISOLATE in evidence/protocol text must fail closed.",
+    "U+200D ZERO WIDTH JOINER in a valid semantic label must remain accepted.",
+    "A valid paired supplementary Unicode symbol such as 🦢 must remain accepted.",
+    "Parser rejection must continue to preserve last-good contact through the existing scene graph and must not earn motion."
+  ],
+  "originalityTax": "Do not copy the previous ingress sanitizer mechanically. Cross-pollination is allowed only after respecting the different semantic ownership of canonical payload vs human-facing rejection projection.",
+  "p0Firewall": "UNCHANGED — zero phone/P0/queue/recovery mutation permitted.",
+  "directive": "PLAN_ALLOWED"
+}
