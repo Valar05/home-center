@@ -204,6 +204,42 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
+    public void offscreenSelectionCannotSuppressVisibleKeyboardFallback() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+
+        assertEquals("selected", HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
+                "selected",
+                true,
+                "focused",
+                true,
+                accepted));
+        assertEquals("focused", HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
+                "selected",
+                false,
+                "focused",
+                true,
+                accepted));
+        assertEquals("", HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
+                "selected",
+                false,
+                "focused",
+                false,
+                accepted));
+    }
+
+    @Test
+    public void visibilityDoesNotResurrectSemanticIdsMissingFromAcceptedModel() {
+        HeartbeatOverlayViewModel.Model accepted = model("other");
+
+        assertEquals("", HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
+                "selected",
+                true,
+                "focused",
+                true,
+                accepted));
+    }
+
+    @Test
     public void boundedGeometryRemainsTheExistingAnchorPolicy() {
         HeartbeatViewportRestorePolicy.Ticket ticket =
                 HeartbeatViewportRestorePolicy.capture(
