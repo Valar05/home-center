@@ -84,6 +84,29 @@ public class HeartbeatDirectionalControlSafetyTest {
     }
 
     @Test
+    public void preParserPreservationSuppressesUnsafeAttemptedIdentityButKeepsExactBoundary() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-good",
+                Collections.singletonList(candidate("Warm Wall")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame rejected = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "persisted-\u202Eevil",
+                lastGood,
+                "Stored heartbeat SHA-256 mismatch.");
+
+        assertTrue(rejected.refreshInterrupted);
+        assertEquals("pulse-good", rejected.visiblePulseId);
+        assertEquals("", rejected.attemptedPulseId);
+        assertEquals("Stored heartbeat SHA-256 mismatch.", rejected.refreshBoundary);
+        assertFalse(rejected.transitionMotionAllowed);
+        assertFalse(rejected.nodes.get(0).transitionMotion);
+        assertEquals(
+                HeartbeatFrameCheckpoint.contactSha256(lastGood),
+                HeartbeatFrameCheckpoint.contactSha256(rejected));
+    }
+
+    @Test
     public void validZwjAndSupplementaryUnicodeRemainSemanticData() {
         String label = "Coder \uD83D\uDC69\u200D\uD83D\uDCBB and swan \uD83E\uDDA2";
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(
