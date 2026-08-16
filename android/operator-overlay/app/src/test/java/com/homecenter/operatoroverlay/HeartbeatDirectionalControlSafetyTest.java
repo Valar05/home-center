@@ -27,7 +27,7 @@ public class HeartbeatDirectionalControlSafetyTest {
                 envelope("pulse-rlo", "Warm\u202EWall", "Evidence is ordinary text."));
 
         assertFalse(result.accepted());
-        assertTrue(result.boundary.contains("lacks the complete typed source contract"));
+        assertTrue(result.boundary.contains("label contains a bidi-direction control"));
     }
 
     @Test
@@ -36,11 +36,31 @@ public class HeartbeatDirectionalControlSafetyTest {
                 envelope("pulse-isolate", "Warm Wall", "Evidence \u2066spoof\u2069"));
 
         assertFalse(result.accepted());
-        assertTrue(result.boundary.contains("lacks the complete typed source contract"));
+        assertTrue(result.boundary.contains("evidenceBoundary contains a bidi-direction control"));
     }
 
     @Test
-    public void sceneRejectsSpoofedPulseIdentityWithoutLeakingAttemptedText() {
+    public void canonicalParserRejectsDirectionalPulseIdentityBeforeSceneConstruction() {
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(
+                envelope("pulse-\u202Eevil", "Warm Wall", "Evidence is ordinary text."));
+
+        assertFalse(result.accepted());
+        assertTrue(result.boundary.contains("pulseId contains a bidi-direction control"));
+    }
+
+    @Test
+    public void protocolStateTokenRejectsDirectionalIsolate() {
+        String json = envelope("pulse-state", "Warm Wall", "Evidence is ordinary text.")
+                .replace("\"state\":\"active\"", "\"state\":\"active\u2066\"");
+
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(json);
+
+        assertFalse(result.accepted());
+        assertTrue(result.boundary.contains("state contains a bidi-direction control"));
+    }
+
+    @Test
+    public void sceneDefenseInDepthRejectsSpoofedDirectPulseIdentityWithoutLeakingAttemptedText() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
                 Collections.singletonList(candidate("Warm Wall")),
