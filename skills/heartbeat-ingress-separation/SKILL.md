@@ -25,6 +25,19 @@ An internal/storage failure such as `IllegalStateException` from a failed heartb
 
 If the heartbeat sink itself fails, that failure also propagates. No returned source result may claim heartbeat success.
 
+## Human-facing boundary hygiene
+The bounded rejection string is a human-facing/loggable projection of the typed failure. It is **not** the raw exception identity and must not become a substitute payload.
+
+`HeartbeatIngressPolicy.cleanBoundary(...)` therefore:
+
+- collapses ISO control characters and all recognized whitespace/space runs to one ordinary space;
+- replaces malformed lone UTF-16 surrogate code units with U+FFFD rather than preserving an ill-formed Java string;
+- truncates by Unicode code point, never by raw UTF-16 code unit, so a valid surrogate pair is not split;
+- keeps the final result within `MAX_BOUNDARY_CODE_POINTS`;
+- leaves the typed exception object/cause untouched and never promotes the sanitized text into semantic payload state.
+
+This is accessibility/evidence hygiene, not an execution filter. Command-looking text remains inert text. Sanitizing a boundary does not validate the rejected payload, prove persistence, or overwrite last-good contact.
+
 ## Evidence language
 A pure source policy may say the heartbeat sink was **invoked** only when that call returned normally. Do not rename this to `accepted`, `persisted`, `durable`, `live`, or `healthy` unless evidence proves that later state.
 
@@ -55,6 +68,8 @@ A source specimen never proves Android rendering, TalkBack runtime behavior, dep
 
 For TalkBack speech projections, keep complete typed source/evidence fields in the semantic model but independently bound long spoken fields by Unicode code point and mark truncation. Accessibility is not permission to discard evidence, and evidence richness is not permission to make one focus action speak several kilobytes.
 
+Human-facing ingress rejection boundaries follow the same Unicode discipline: single-line, code-point bounded, control-normalized, and safe against surrogate splitting. This does not make them canonical semantic evidence; it only keeps the review/log surface sane.
+
 ## P0 Fortress firewall
 This skill owns no Phone Hands, queue, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work. Those surfaces remain under their canonical owners. A source-side ingress defect may be repaired without consuming the shared phone surface; physical proof waits for the authorized owner lane.
 
@@ -67,6 +82,7 @@ Lock at least these cases in pure regression source:
 4. unrelated/generic `IllegalArgumentException` -> failure propagates, heartbeat sink not invoked;
 5. internal/storage payload failure -> failure propagates, heartbeat sink not invoked;
 6. heartbeat-sink failure -> failure propagates and no success result is returned;
-7. expanded TalkBack detail -> long Unicode fields are speech-bounded without changing the exact Candidate data or splitting surrogate pairs.
+7. expanded TalkBack detail -> long Unicode fields are speech-bounded without changing the exact Candidate data or splitting surrogate pairs;
+8. hostile caller-invalid boundary text -> controls/whitespace normalize to one line, lone surrogate code units are repaired, truncation is code-point safe, the optional payload remains rejected, and heartbeat invocation semantics remain unchanged.
 
 Blind CI retries do not count as progress. When deterministic CI cannot start for an unchanged external reason, preserve `TESTED = NO/BLOCKED_UNKNOWN` and advance a materially different authorized front instead.
