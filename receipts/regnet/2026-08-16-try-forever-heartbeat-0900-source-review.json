@@ -1,0 +1,52 @@
+{
+  "schema": "regnet-source-review.v1",
+  "time": "2026-08-16T09:00:00-05:00",
+  "subject": "TRY FOREVER heartbeat visible viewport contact source slice",
+  "review": {
+    "implemented_source": "PASS",
+    "exact_github_readback": "PASS",
+    "regression_source_present": "PASS",
+    "duplicate_architecture": "PASS",
+    "p0_phone_firewall": "PASS",
+    "semantic_selection_vs_visible_contact_separation": "PASS",
+    "talkback_focus_claim_separation": "PASS",
+    "existing_owner_visibility_gate_consumption": "NO",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtime_viewport_observed": "NO",
+    "runtime_keyboard_focus_observed": "NO",
+    "runtime_talkback_observed": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "source_identities": {
+    "HeartbeatViewportRestorePolicy.java": "dade4f981988467cd39625e055290971661355c1",
+    "HeartbeatViewportRestorePolicyTest.java": "360dd410689e6396b3916cbb7bf8dc4f17d54e61",
+    "skills/heartbeat-viewport-contact/SKILL.md": "f3ba6a193ba196f40990799c0ad177743993db32",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "d15c2c595c5cb2697e3b7aff3697b1639d8f801c"
+  },
+  "deterministic_test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31951775252,
+    "job_id": 95176228528,
+    "head_sha": "b7fb5f60955a91fa6077d268528fad91a7170db7",
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "review_notes": [
+    "The source policy now distinguishes accepted semantic candidacy from actual horizontal viewport intersection.",
+    "Partial intersection counts; fully offscreen, exact-edge-only, zero-width, and invalid semantic membership fail closed.",
+    "An offscreen durable selection may yield to a visible direct-keyboard-focus fallback in source policy without claiming TalkBack focus.",
+    "This does not repair current OperatorOverlayService behavior because the existing owner does not yet consume the visibility gate before capture.",
+    "Future owner wiring must compute geometry from the corresponding live native controls and current HorizontalScrollView before creating a restore ticket."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute_used": false
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY"
+}
