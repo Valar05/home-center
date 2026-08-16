@@ -284,6 +284,80 @@ public class HeartbeatViewportRestorePolicyTest {
     }
 
     @Test
+    public void emptyHeartbeatFocusGetsRebuildAmnestyOnlyForFocusDestroyingMutation() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                21L,
+                "selected",
+                false,
+                "focused",
+                true,
+                22,
+                accepted);
+
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                21L,
+                accepted,
+                "selected",
+                "",
+                false,
+                false));
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                21L,
+                accepted,
+                "selected",
+                "",
+                true,
+                false));
+    }
+
+    @Test
+    public void nonHeartbeatDirectFocusCancelsKeyboardDerivedRebuildTicket() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                22L,
+                "selected",
+                false,
+                "focused",
+                true,
+                22,
+                accepted);
+
+        assertFalse(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                22L,
+                accepted,
+                "selected",
+                "",
+                true,
+                true));
+    }
+
+    @Test
+    public void sameHeartbeatKeyboardOwnerStillWinsWhenDirectFocusExists() {
+        HeartbeatOverlayViewModel.Model accepted = model("selected", "focused", "other");
+        HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
+                23L,
+                "selected",
+                false,
+                "focused",
+                true,
+                22,
+                accepted);
+
+        assertTrue(HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                23L,
+                accepted,
+                "selected",
+                "focused",
+                false,
+                true));
+    }
+
+    @Test
     public void visibleSelectionTicketDoesNotCareIfKeyboardFocusMovesLater() {
         HeartbeatOverlayViewModel.Model accepted = model("selected", "first", "second");
         HeartbeatViewportRestorePolicy.Ticket ticket = HeartbeatViewportRestorePolicy.captureVisible(
