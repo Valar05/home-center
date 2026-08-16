@@ -83,6 +83,7 @@ public class OperatorOverlayService extends Service {
     private String heartbeatRenderIdentity = "";
     private String heartbeatAnnouncementIdentity = "";
     private HeartbeatSceneGraph.Frame heartbeatFrame;
+    private long heartbeatViewportRestoreGeneration;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -601,6 +602,7 @@ public class OperatorOverlayService extends Service {
 
     private void applyPresentationState() {
         if (root == null || windowParams == null) return;
+        invalidateHeartbeatViewportRestore();
         boolean collapsed = OperatorState.panelCollapsed(this);
         details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
@@ -621,6 +623,7 @@ public class OperatorOverlayService extends Service {
     private void hideOverlay() {
         if (root == null) return;
         confirmDisable = false;
+        invalidateHeartbeatViewportRestore();
         // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
@@ -831,28 +834,34 @@ public class OperatorOverlayService extends Service {
                 muted,
                 overlayVisible);
 
-        String viewportAnchorId = "";
-        int viewportOffsetPx = 0;
-        boolean viewportAnchorCaptured = false;
-        if (!rebuildStructure && refreshContent && heartbeatScroller != null) {
-            viewportAnchorId = HeartbeatOverlayRefreshPlan.viewportAnchorId(
+        HeartbeatViewportRestorePolicy.Ticket viewportRestoreTicket = null;
+        if ((rebuildStructure || refreshContent) && heartbeatScroller != null) {
+            heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
+                    heartbeatViewportRestoreGeneration);
+            String keyboardFocusedControlId = heartbeatKeyboardFocusedControlId();
+            String viewportAnchorId = HeartbeatOverlayRefreshPlan.viewportAnchorId(
                     next.selectedControlId,
-                    heartbeatKeyboardFocusedControlId(),
+                    keyboardFocusedControlId,
                     next.model);
             View anchor = heartbeatChildById(viewportAnchorId);
             if (anchor != null) {
-                viewportOffsetPx = anchor.getLeft() - heartbeatScroller.getScrollX();
-                viewportAnchorCaptured = true;
+                viewportRestoreTicket = HeartbeatViewportRestorePolicy.capture(
+                        heartbeatViewportRestoreGeneration,
+                        next.selectedControlId,
+                        keyboardFocusedControlId,
+                        anchor.getLeft() - heartbeatScroller.getScrollX(),
+                        next.model);
             }
         }
 
         heartbeatFrame = next.frame;
         heartbeatSelectedId = next.selectedControlId;
-        boolean refreshedInPlace = false;
+        boolean mutatedHeartbeatViews = false;
         if (rebuildStructure) {
             rebuildHeartbeatLights(next.model);
+            mutatedHeartbeatViews = true;
         } else if (refreshContent) {
-            refreshedInPlace = refreshHeartbeatLightsInPlace(next.model);
+            boolean refreshedInPlace = refreshHeartbeatLightsInPlace(next.model);
             if (!refreshedInPlace) {
                 // structureIdentity is the normal authority. A child/tag mismatch means
                 // Android view state drifted from that source contract, so fail safe by
@@ -860,9 +869,12 @@ public class OperatorOverlayService extends Service {
                 // wrong semantic control in place.
                 rebuildHeartbeatLights(next.model);
             }
+            mutatedHeartbeatViews = true;
         }
-        if (viewportAnchorCaptured && refreshedInPlace) {
-            restoreHeartbeatViewportAfterLayout(viewportAnchorId, viewportOffsetPx);
+        if (mutatedHeartbeatViews
+                && viewportRestoreTicket != null
+                && viewportRestoreTicket.hasAnchor()) {
+            restoreHeartbeatViewportAfterLayout(viewportRestoreTicket);
         }
         if (announce) {
             heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
@@ -936,8 +948,17 @@ public class OperatorOverlayService extends Service {
         return null;
     }
 
-    private void restoreHeartbeatViewportAfterLayout(String semanticId, int viewportOffsetPx) {
-        if (heartbeatScroller == null || heartbeatLights == null || TextUtils.isEmpty(semanticId)) return;
+    private void invalidateHeartbeatViewportRestore() {
+        heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
+                heartbeatViewportRestoreGeneration);
+    }
+
+    private void restoreHeartbeatViewportAfterLayout(
+            HeartbeatViewportRestorePolicy.Ticket ticket) {
+        if (heartbeatScroller == null
+                || heartbeatLights == null
+                || ticket == null
+                || !ticket.hasAnchor()) return;
         ViewTreeObserver observer = heartbeatLights.getViewTreeObserver();
         if (!observer.isAlive()) return;
         observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -945,25 +966,36 @@ public class OperatorOverlayService extends Service {
             public boolean onPreDraw() {
                 ViewTreeObserver current = heartbeatLights.getViewTreeObserver();
                 if (current.isAlive()) current.removeOnPreDrawListener(this);
-                restoreHeartbeatViewportNow(semanticId, viewportOffsetPx);
+                restoreHeartbeatViewportNow(ticket);
                 return true;
             }
         });
         heartbeatLights.requestLayout();
     }
 
-    private void restoreHeartbeatViewportNow(String semanticId, int viewportOffsetPx) {
-        if (heartbeatScroller == null || heartbeatLights == null || TextUtils.isEmpty(semanticId)) return;
-        View anchor = heartbeatChildById(semanticId);
+    private void restoreHeartbeatViewportNow(HeartbeatViewportRestorePolicy.Ticket ticket) {
+        if (heartbeatScroller == null
+                || heartbeatLights == null
+                || ticket == null
+                || !ticket.hasAnchor()) return;
+        HeartbeatOverlayViewModel.Model currentModel = HeartbeatOverlayViewModel.fromFrame(
+                heartbeatFrame);
+        if (!HeartbeatViewportRestorePolicy.shouldRestore(
+                ticket,
+                heartbeatViewportRestoreGeneration,
+                currentModel,
+                heartbeatSelectedId,
+                heartbeatKeyboardFocusedControlId())) return;
+        View anchor = heartbeatChildById(ticket.semanticId);
         if (anchor == null) return;
         int viewportWidth = Math.max(0,
                 heartbeatScroller.getWidth()
                         - heartbeatScroller.getPaddingLeft()
                         - heartbeatScroller.getPaddingRight());
         int maxScrollX = Math.max(0, heartbeatLights.getWidth() - viewportWidth);
-        int targetScrollX = HeartbeatOverlayRefreshPlan.anchoredScrollX(
+        int targetScrollX = HeartbeatViewportRestorePolicy.targetScrollX(
+                ticket,
                 anchor.getLeft(),
-                viewportOffsetPx,
                 maxScrollX);
         if (heartbeatScroller.getScrollX() != targetScrollX) {
             heartbeatScroller.scrollTo(targetScrollX, 0);
@@ -994,6 +1026,7 @@ public class OperatorOverlayService extends Service {
         light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
         light.setContentDescription(control.contentDescription);
         light.setOnClickListener(v -> {
+            invalidateHeartbeatViewportRestore();
             heartbeatSelectedId = control.id;
             refreshHeartbeatSelection();
             showHeartbeatDetail(control.detailContentDescription, true);
