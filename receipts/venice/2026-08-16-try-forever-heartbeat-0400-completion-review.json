@@ -1,0 +1,30 @@
+{
+  "schema": "venice.completion-review.v1",
+  "slice": "2026-08-16-0400-viewport-anchor-selection",
+  "reviewed_source_head": "7f219b285ff91dcdea746cbbc490eee6162ef5b5",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign_state": "CONTINUE_REQUIRED",
+  "judgments": {
+    "mission_fidelity": "PASS",
+    "existing_owner_only": "PASS",
+    "accessibility_semantics": "PASS_WITH_RUNTIME_UNPROVEN",
+    "evidence_truth": "PASS",
+    "p0_phone_firewall": "PASS",
+    "test_gate": "BLOCKED_UNKNOWN"
+  },
+  "adversarial_findings": [
+    "Selected semantic identity and keyboard focus are explicitly separated from TalkBack accessibility focus; no accessibility-focus ownership is claimed.",
+    "The new selection helper does not mutate semantic selection, transition identity, evidence identity, or motion eligibility.",
+    "The vector artifact is visibly scarred as source policy rather than runtime proof.",
+    "The key remaining capability gap is still existing-owner Android consumption: the service has not yet promoted its HorizontalScrollView into anchor capture/restore wiring."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "authoritative connector returned account-connection HTTP 400",
+    "synthetic_substitute_used": false
+  },
+  "phone_p0_mutations": 0,
+  "merge_as_delivered_interface": "NOT_ALLOWED",
+  "next_authorized_source_seam": "Wire the existing OperatorOverlayService/HorizontalScrollView owner to capture the chosen selected/direct-keyboard-focus semantic id plus viewport offset before stable-structure mutation, then restore the same semantic id after layout through HeartbeatOverlayRefreshPlan.anchoredScrollX(...). Do not infer TalkBack focus or touch P0/phone surfaces."
+}
