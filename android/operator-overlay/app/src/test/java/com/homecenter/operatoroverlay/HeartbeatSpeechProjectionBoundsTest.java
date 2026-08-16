@@ -85,6 +85,26 @@ public class HeartbeatSpeechProjectionBoundsTest {
         assertFalse(speech.contains("hidden"));
     }
 
+    @Test
+    public void edgeControlBoundaryIsPreservedBeforeSpeechSafetyRuns() {
+        String poisonedBoundary = "\tstorage wound";
+        HeartbeatSceneGraph.Frame complete = HeartbeatSceneGraph.build(
+                "pulse-safe",
+                Collections.singletonList(typed("contact", "Contact Preservation")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame interrupted = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "attempt-next",
+                complete,
+                poisonedBoundary);
+
+        String speech = HeartbeatFrameAccessibility.collapsedContentDescription(interrupted);
+
+        assertEquals(poisonedBoundary, interrupted.refreshBoundary);
+        assertTrue(speech.contains("Heartbeat refresh boundary contains unsafe semantic text."));
+        assertFalse(speech.contains("storage wound"));
+    }
+
     private static String repeat(String value, int count) {
         StringBuilder out = new StringBuilder();
         for (int index = 0; index < count; index++) out.append(value);
