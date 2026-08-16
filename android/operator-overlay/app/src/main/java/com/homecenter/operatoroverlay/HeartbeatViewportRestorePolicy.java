@@ -98,6 +98,33 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
+     * Whether a candidate native control actually has visible horizontal contact with
+     * the current heartbeat viewport.
+     *
+     * <p>Semantic selection alone is not visible contact: a selected light may be
+     * completely offscreen after the user scrolls elsewhere. A future existing-owner
+     * capture path may use this gate before creating a restore ticket so offscreen
+     * semantic state cannot masquerade as viewport evidence. Partial intersection is
+     * sufficient; zero-width controls/viewports and fully offscreen geometry fail
+     * closed. Long arithmetic prevents integer overflow from manufacturing contact.</p>
+     *
+     * <p>This is pure geometry policy only. The current service does not yet consume
+     * this visibility gate, so source presence is not runtime viewport preservation.</p>
+     */
+    public static boolean hasVisibleViewportContact(
+            int anchorLeftPx,
+            int anchorWidthPx,
+            int scrollXPx,
+            int viewportWidthPx) {
+        if (anchorWidthPx <= 0 || viewportWidthPx <= 0) return false;
+        long anchorLeft = anchorLeftPx;
+        long anchorRight = anchorLeft + (long) anchorWidthPx;
+        long viewportLeft = Math.max(0L, (long) scrollXPx);
+        long viewportRight = viewportLeft + (long) viewportWidthPx;
+        return anchorRight > viewportLeft && anchorLeft < viewportRight;
+    }
+
+    /**
      * Delegate final geometry to the existing bounded anchor calculation. Callers
      * must first establish {@link #shouldRestore(Ticket, long, HeartbeatOverlayViewModel.Model)}.
      */
