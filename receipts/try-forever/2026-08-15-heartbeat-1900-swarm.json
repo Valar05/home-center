@@ -1,0 +1,225 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "commission": "TRY FOREVER broad heartbeat 1900 — non-phone source fronts only while P0 owns the shared phone surface",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "0baca7c9a172efab94c5de7fdc26a8f4ca07dd61",
+  "campaignState": "CONTINUE_REQUIRED",
+  "fronts": [
+    {
+      "id": "ingress-boundary-hygiene",
+      "state": "advanced",
+      "change": "Human-facing caller-invalid boundaries now normalize ISO controls, whitespace, and Unicode FORMAT controls, repair lone surrogates, and truncate by Unicode code point without changing the typed exception or payload state.",
+      "evidence": "HeartbeatIngressPolicy.java blob 1c60f6d57a926d59eb7652553c48ebcb020a4b5b"
+    },
+    {
+      "id": "regression-source",
+      "state": "advanced_source_only",
+      "change": "Hostile boundary fixture now includes tab/newline/NUL/U+202E/lone-surrogate/400-swan input and asserts rejection/invocation separation plus control/FORMAT removal and surrogate-safe bounds.",
+      "evidence": "HeartbeatIngressPolicyTest.java blob 7ff4dcaa2cd6d6640789b7d9356bf1082e99c909"
+    },
+    {
+      "id": "warm-wall-art",
+      "state": "advanced_source_only",
+      "change": "Existing ingress-separation DOM/SVG specimen gained a BOUNDARY HYGIENE state and bidi/format scar in place; no new artifact/controller was created.",
+      "evidence": "heartbeat-ingress-separation-source-specimen.html blob 734a610bdb2606ec8c5e6826ed5a1db5527639be"
+    },
+    {
+      "id": "durable-skill-doctrine",
+      "state": "advanced",
+      "change": "Heartbeat Ingress Separation skill now distinguishes human-facing boundary projection from raw exception identity and records Unicode FORMAT/bidi normalization plus regression law.",
+      "evidence": "skills/heartbeat-ingress-separation/SKILL.md blob 5283f738643f9774d6519280dd1a9efb2f86d444"
+    },
+    {
+      "id": "review-evidence",
+      "state": "advanced",
+      "change": "Fresh Venice plan gate preceded mutation; code-first review found a FORMAT-control gap; fresh replan preceded correction; Regnet and Venice completion receipts preserve source/test/runtime truth.",
+      "evidence": "1900 Venice plan, replan, Regnet source review, and Venice completion receipts"
+    }
+  ],
+  "skillLights": [
+    {
+      "id": "failure-is-the-shovel",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The Actions-budget test failure was unchanged.",
+      "consequence": "No manual CI retry was fired; the pulse advanced boundary hygiene, regression, art, doctrine, and review instead.",
+      "evidence": "Operator Overlay Android run 31916619295/job 95089359083 executed zero steps; exact blocker is Actions budget."
+    },
+    {
+      "id": "canon-auto-select",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Repository skill discovery identified heartbeat-ingress-separation, heartbeat-skill-lights, execution-truth, fortress-plan-gate, embodied-communication, operator-campaign, and Venice review memory as material to the present defect.",
+      "consequence": "The pulse used current repository doctrine instead of a fixed decorative favorites list.",
+      "evidence": "Repository skills directory and exact SKILL.md readback."
+    },
+    {
+      "id": "autocorrect-judgment-jar",
+      "provenanceKind": "jar",
+      "state": "dark",
+      "changedThisPulse": false,
+      "why": "No ambiguous/autocorrect token materially affected this slice.",
+      "consequence": "No invented correction chain or decorative activation.",
+      "evidence": "No ambiguous input required resolution."
+    },
+    {
+      "id": "originality-tax",
+      "provenanceKind": "jar",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The first boundary pass repeated an overclaim shape by calling text Unicode-safe while FORMAT controls survived.",
+      "consequence": "A fresh replan repaired a distinct bidi/FORMAT spoofing wound instead of cosmetically restating the earlier control-character fix.",
+      "evidence": "1900 replan receipt plus final source blob 1c60f6d57a926d59eb7652553c48ebcb020a4b5b."
+    },
+    {
+      "id": "hunger-eat-everything",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The new semantic wound needed to propagate into code, tests, art, and reusable doctrine rather than remain a one-file patch.",
+      "consequence": "One defect changed four existing durable surfaces and the review receipts without spawning a neighboring architecture.",
+      "evidence": "Exact blobs for policy, regression, specimen, and skill."
+    },
+    {
+      "id": "operator-campaign",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/operator-campaign/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The automation is an active operator campaign and required real execution rather than narration.",
+      "consequence": "Durable GitHub mutations and receipts were produced through the existing repository lane.",
+      "evidence": "PR #329 branch mutations and receipt commits."
+    },
+    {
+      "id": "harroway-operator-discipline",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The requested owner/lane/firewall had to survive aggressive improvement.",
+      "consequence": "The slice stayed inside existing non-phone ingress/art/doctrine organs and preserved capability-state truth.",
+      "evidence": "Zero P0/phone mutations and no neighboring controller/daemon."
+    },
+    {
+      "id": "she-raw-adversarial-motivation",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "she_raw_ambient",
+      "state": "fault",
+      "changedThisPulse": false,
+      "why": "Authoritative adversarial consultation was required before execution.",
+      "consequence": "The connector fault was preserved as an exact boundary; no synthetic She-Raw verdict or decorative roast was substituted.",
+      "evidence": "HTTP 400: account connection failed."
+    },
+    {
+      "id": "venice-judgment-jars",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "venice-judgment-jar",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Fortress plan gate and reviewer memory require fresh plan/replan/completion judgment.",
+      "consequence": "The first source pass was not self-certified; Venice found the bidi FORMAT gap, forced replan, then allowed only the corrected bounded source slice to yield.",
+      "evidence": "1900 Venice plan, replan, and completion receipts."
+    },
+    {
+      "id": "regnet-qa",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "receipts/regnet/2026-08-15-try-forever-heartbeat-1900-source-review.json",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Source/readback claims required an explicit test/runtime membrane.",
+      "consequence": "Implemented source/readback passes only as source while TESTED stays NO/BLOCKED_UNKNOWN.",
+      "evidence": "Regnet 1900 receipt; automatic CI zero-step Actions-budget blocker."
+    },
+    {
+      "id": "accessibility-talkback-touch",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Caller-invalid boundaries are human-facing/loggable and source specimens are touch/keyboard semantics.",
+      "consequence": "Boundary text is single-line/code-point-bounded/control+FORMAT-normalized; the existing specimen preserves semantic buttons, pressed selection, one live region, reduced motion, and >=48px target intent.",
+      "evidence": "Policy/test/specimen final blobs."
+    },
+    {
+      "id": "phone-runtime-phone-hands-recovery",
+      "provenanceKind": "runtime_boundary",
+      "provenanceLocator": "P0 Fortress firewall",
+      "state": "dark",
+      "changedThisPulse": false,
+      "why": "Canonical P0 owners retain first claim on the shared phone execution surface.",
+      "consequence": "No phone command, ticket, queue/device probe, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance action was consumed.",
+      "evidence": "P0 mutation counters all zero."
+    },
+    {
+      "id": "deterministic-routing-evidence-truth",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/execution-truth/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "Sanitized text, source implementation, regression source, and automatic failed CI each prove different things.",
+      "consequence": "The existing ACTION_HEARTBEAT ingress remains the only owner and the capability membrane stayed explicit.",
+      "evidence": "Exact source blobs and capability ledger."
+    },
+    {
+      "id": "recovery-checkpoint-idempotence",
+      "provenanceKind": "doctrine",
+      "state": "dark",
+      "changedThisPulse": false,
+      "why": "Existing checkpoint/contact source remained relevant but no new checkpoint defect was established.",
+      "consequence": "No churn was manufactured merely to light the name.",
+      "evidence": "No checkpoint/idempotence source mutation this pulse."
+    },
+    {
+      "id": "warm-walls-christmas-scene",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "The boundary-hygiene distinction benefited from a touchable non-raster teaching surface.",
+      "consequence": "The existing warm-wall DOM/SVG organism gained one semantic boundary state; reduced-motion remains binding and there is no autoplay/decorative blink loop.",
+      "evidence": "Specimen blob 734a610bdb2606ec8c5e6826ed5a1db5527639be."
+    },
+    {
+      "id": "contact-preservation",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "changedThisPulse": true,
+      "why": "A loggable rejection boundary must not become a substitute fault payload that overwrites last-good telemetry.",
+      "consequence": "The skill/art/source explicitly keep boundary sanitization separate from payload acceptance and last-good contact identity.",
+      "evidence": "Heartbeat ingress skill and source specimen final blobs."
+    }
+  ],
+  "crossPollination": [
+    "Accessibility's code-point discipline migrated from TalkBack summaries into ingress rejection boundaries.",
+    "Code-first Venice review then exposed a second Unicode class—FORMAT/bidi controls—that ordinary ISO-control cleanup missed.",
+    "Originality Tax forced a fresh replan instead of relabeling the first fix; the correction propagated into regression source, warm-wall art, and durable skill doctrine.",
+    "Execution Truth and Regnet kept every improvement on the implemented-source side of the capability membrane while automatic CI remained externally blocked.",
+    "The P0 firewall prevented an interesting source improvement from consuming the shared primary-phone surface or spawning a duplicate owner."
+  ],
+  "automaticCiBoundary": {
+    "runId": 31916619295,
+    "jobId": 95089359083,
+    "stepsExecuted": 0,
+    "exact": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimePayloadConsumed": false,
+    "uiRendered": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0,
+  "boundedSliceDirective": "STOP_ALLOWED",
+  "campaignDirective": "CONTINUE_REQUIRED"
+}
