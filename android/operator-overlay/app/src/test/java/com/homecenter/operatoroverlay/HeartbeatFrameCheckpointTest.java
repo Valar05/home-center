@@ -31,6 +31,22 @@ public class HeartbeatFrameCheckpointTest {
                 evidence);
     }
 
+    private static HeartbeatSkillPolicy.Candidate typedWithStablePresentation(
+            String id,
+            String evidence,
+            String consequence) {
+        return new HeartbeatSkillPolicy.Candidate(
+                id,
+                "Regnet QA",
+                "doctrine",
+                "Regnet QA",
+                "Keep case-only semantic identity drift from becoming fake UI work",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                consequence,
+                evidence);
+    }
+
     @Test
     public void interruptedRefreshDoesNotMutateVisibleContactFingerprint() {
         HeartbeatSceneGraph.Frame complete = HeartbeatSceneGraph.build(
@@ -64,6 +80,31 @@ public class HeartbeatFrameCheckpointTest {
                 true,
                 before);
 
+        assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
+        assertTrue(HeartbeatFrameCheckpoint.samePresentation(before, after));
+        assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
+    }
+
+    @Test
+    public void caseOnlySemanticIdChangeIsExactCheckpointChangeButNotPresentationWork() {
+        HeartbeatSceneGraph.Frame before = HeartbeatSceneGraph.build(
+                "pulse-a",
+                Collections.singletonList(typedWithStablePresentation(
+                        "Regnet",
+                        "Actions budget is blocked",
+                        "Testing remains blocked")),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame after = HeartbeatSceneGraph.build(
+                "pulse-b",
+                Collections.singletonList(typedWithStablePresentation(
+                        "regnet",
+                        "Actions budget is blocked",
+                        "Testing remains blocked")),
+                true,
+                before);
+
+        assertFalse(after.transitionMotionAllowed);
         assertFalse(HeartbeatFrameCheckpoint.sameVisibleContact(before, after));
         assertTrue(HeartbeatFrameCheckpoint.samePresentation(before, after));
         assertTrue(HeartbeatFrameCheckpoint.sameTransitionState(before, after));
