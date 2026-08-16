@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport contact visibility scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing that semantic selection is not visible contact. An offscreen selected heartbeat light must not suppress a visible keyboard-focused fallback. The visibility policy and regression source exist, while existing Operator Overlay owner consumption and Android runtime behavior remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="500" viewBox="0 0 960 500" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport contact owner-wiring scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing the existing Operator Overlay owner measuring live selected and keyboard-focused heartbeat controls, rejecting an offscreen selection as visible contact, choosing the visible keyboard-focused fallback, preserving that semantic anchor through mutation, and revalidating captured interaction ownership after layout. Runtime Android and TalkBack behavior remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,38 +15,41 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="376" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="446" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / VISIBLE CONTACT ≠ SEMANTIC SELECTION</text>
-  <text class="tiny" x="56" y="92">POLICY + REGRESSION SOURCE YES • OWNER VISIBILITY GATE NO • RUNTIME UNPROVEN • NOT PHONE DELIVERY</text>
+  <text class="tiny" x="56" y="92">OWNER VISIBILITY GATE SOURCE-WIRED • RUNTIME UNPROVEN • TALKBACK FOCUS UNCLAIMED • NOT PHONE DELIVERY</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
-  <text class="label" x="86" y="150">CURRENT WOUND</text>
+  <text class="label" x="86" y="150">LIVE CAPTURE</text>
   <rect class="ghost" x="94" y="170" width="74" height="48" rx="12"/>
   <text class="tiny" x="105" y="199">OFFSCREEN</text>
   <path class="wire" d="M174 194 H230"/>
   <rect class="scar" x="236" y="170" width="124" height="48" rx="12"/>
-  <text class="tiny" x="248" y="199">● SELECTED</text>
+  <text class="tiny" x="248" y="199">● SELECTED ×</text>
   <rect class="node" x="372" y="170" width="58" height="48" rx="12"/>
   <text class="tiny" x="387" y="199">VIEW</text>
-  <text class="tiny" x="86" y="242">Semantic id survives. That alone is not viewport evidence.</text>
+  <text class="tiny" x="86" y="242">Semantic id survives; live geometry says it does not own contact.</text>
 
   <path class="wire" d="M466 196 C500 154 518 238 552 196"/>
   <text class="label" x="474" y="156">SHOVEL</text>
-  <text class="tiny" x="468" y="222">geometry tells truth</text>
+  <text class="tiny" x="468" y="222">measure before mutation</text>
 
   <rect class="wall" x="570" y="122" width="322" height="150" rx="18"/>
-  <text class="label" x="590" y="150">SOURCE POLICY</text>
+  <text class="label" x="590" y="150">EXISTING OWNER</text>
   <rect class="ghost" x="594" y="170" width="102" height="48" rx="12"/>
   <text class="tiny" x="607" y="199">SELECTED ×</text>
   <rect class="scar" x="716" y="170" width="154" height="48" rx="12"/>
   <text class="tiny" x="730" y="199">□ FOCUSED VISIBLE</text>
-  <text class="tiny" x="590" y="242">offscreen selection → visible keyboard fallback</text>
+  <text class="tiny" x="590" y="242">visibleViewportAnchorId → captureVisible</text>
 
-  <rect class="wall" x="66" y="298" width="826" height="70" rx="18"/>
-  <text class="label" x="86" y="326">CONTACT LAW</text>
-  <text class="tiny" x="86" y="350">Partial intersection counts. Exact-edge / fully offscreen / zero-width geometry does not. TalkBack focus is still separate.</text>
-  <path class="wire" d="M600 327 H842"/>
-  <text class="tiny" x="616" y="350">OWNER CONSUMPTION → STILL NO</text>
+  <rect class="wall" x="66" y="298" width="826" height="84" rx="18"/>
+  <text class="label" x="86" y="326">AFTER LAYOUT</text>
+  <text class="tiny" x="86" y="350">Mutation may move the chosen anchor. Restore revalidates captured selection/focus ownership, not post-mutation visibility.</text>
+  <path class="wire" d="M636 337 H842"/>
+  <text class="tiny" x="648" y="364">GENERATION + OWNER → SCROLL</text>
 
-  <text class="tiny" x="56" y="392">No Christmas twitch is earned by a geometry-only policy decision. Evidence and phone capability remain outside this SVG.</text>
+  <rect class="wall" x="66" y="400" width="826" height="44" rx="16"/>
+  <text class="tiny" x="86" y="427">Partial intersection counts. Exact-edge / offscreen / zero-width do not. No geometry-only Christmas twitch. Source wiring ≠ runtime proof.</text>
+
+  <text class="tiny" x="56" y="462">No phone surface consumed. No second renderer hatched. Evidence stays on the source side of the membrane.</text>
 </svg>
