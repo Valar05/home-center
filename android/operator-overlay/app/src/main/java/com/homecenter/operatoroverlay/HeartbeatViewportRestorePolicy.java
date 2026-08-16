@@ -5,22 +5,33 @@ package com.homecenter.operatoroverlay;
  *
  * <p>The existing {@link OperatorOverlayService} owns Android views and layout timing.
  * This helper only defines deterministic restore identity and stale-work rejection so
- * a later service mutation can invalidate an older pre-draw restore without inventing
- * another renderer/controller/state owner.</p>
+ * the service can invalidate an older pre-draw restore without inventing another
+ * renderer/controller/state owner.</p>
  *
- * <p>Source presence is not existing-service wiring, Android execution, runtime
- * viewport proof, TalkBack accessibility-focus proof, deployment, or phone delivery.</p>
+ * <p>Source wiring is not Android execution, runtime viewport proof, TalkBack
+ * accessibility-focus proof, deployment, or phone delivery.</p>
  */
 public final class HeartbeatViewportRestorePolicy {
     public static final class Ticket {
         public final long generation;
         public final String semanticId;
         public final int viewportOffsetPx;
+        public final String selectedControlIdAtCapture;
+        public final String keyboardFocusedControlIdAtCapture;
 
-        private Ticket(long generation, String semanticId, int viewportOffsetPx) {
+        private Ticket(
+                long generation,
+                String semanticId,
+                int viewportOffsetPx,
+                String selectedControlIdAtCapture,
+                String keyboardFocusedControlIdAtCapture) {
             this.generation = generation;
             this.semanticId = semanticId == null ? "" : semanticId;
             this.viewportOffsetPx = viewportOffsetPx;
+            this.selectedControlIdAtCapture = selectedControlIdAtCapture == null
+                    ? "" : selectedControlIdAtCapture;
+            this.keyboardFocusedControlIdAtCapture = keyboardFocusedControlIdAtCapture == null
+                    ? "" : keyboardFocusedControlIdAtCapture;
         }
 
         public boolean hasAnchor() {
@@ -55,11 +66,73 @@ public final class HeartbeatViewportRestorePolicy {
                 selectedControlId,
                 keyboardFocusedControlId,
                 acceptedNextModel);
-        if (semanticId.isEmpty()) return new Ticket(generation, "", 0);
-        HeartbeatOverlayViewModel.LightControl control =
-                acceptedNextModel == null ? null : acceptedNextModel.controlById(semanticId);
-        if (control == null) return new Ticket(generation, "", 0);
-        return new Ticket(generation, control.id, viewportOffsetPx);
+        return ticket(
+                generation,
+                semanticId,
+                viewportOffsetPx,
+                selectedControlId,
+                keyboardFocusedControlId,
+                acceptedNextModel);
+    }
+
+    /**
+     * Capture visible semantic contact from live native geometry before mutation.
+     * A durable but fully offscreen selection cannot suppress a currently visible
+     * direct-keyboard-focus fallback. TalkBack accessibility focus remains outside
+     * this contract and is neither queried nor inferred.
+     */
+    public static Ticket captureVisible(
+            long generation,
+            String selectedControlId,
+            boolean selectedHasVisibleContact,
+            String keyboardFocusedControlId,
+            boolean keyboardFocusHasVisibleContact,
+            int viewportOffsetPx,
+            HeartbeatOverlayViewModel.Model acceptedNextModel) {
+        String semanticId = visibleViewportAnchorId(
+                selectedControlId,
+                selectedHasVisibleContact,
+                keyboardFocusedControlId,
+                keyboardFocusHasVisibleContact,
+                acceptedNextModel);
+        return ticket(
+                generation,
+                semanticId,
+                viewportOffsetPx,
+                selectedControlId,
+                keyboardFocusedControlId,
+                acceptedNextModel);
+    }
+
+    private static Ticket ticket(
+            long generation,
+            String semanticId,
+            int viewportOffsetPx,
+            String selectedControlId,
+            String keyboardFocusedControlId,
+            HeartbeatOverlayViewModel.Model acceptedNextModel) {
+        String acceptedSemanticId = acceptedControlId(semanticId, acceptedNextModel);
+        if (acceptedSemanticId.isEmpty()) return new Ticket(generation, "", 0, "", "");
+        return new Ticket(
+                generation,
+                acceptedSemanticId,
+                viewportOffsetPx,
+                acceptedControlId(selectedControlId, acceptedNextModel),
+                acceptedControlId(keyboardFocusedControlId, acceptedNextModel));
+    }
+
+    private static String acceptedControlId(
+            String semanticId,
+            HeartbeatOverlayViewModel.Model acceptedModel) {
+        if (semanticId == null || semanticId.isEmpty() || acceptedModel == null) return "";
+        HeartbeatOverlayViewModel.LightControl control = acceptedModel.controlById(semanticId);
+        return control == null ? "" : control.id;
+    }
+
+    private static boolean sameId(String first, String second) {
+        String left = first == null ? "" : first;
+        String right = second == null ? "" : second;
+        return left.equalsIgnoreCase(right);
     }
 
     /**
@@ -77,11 +150,8 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
-     * Stronger owner check for after-layout callbacks. Even with the same generation,
-     * a user can move direct keyboard focus before pre-draw. Recompute the current
-     * semantic owner from accepted selection/focus and reject the old ticket unless
-     * it still owns viewport contact. TalkBack accessibility focus remains outside
-     * this source contract and is neither queried nor inferred.
+     * Legacy semantic-owner revalidation. Selection wins over direct keyboard focus.
+     * This remains useful where geometry-aware capture was not performed.
      */
     public static boolean shouldRestore(
             Ticket ticket,
@@ -98,18 +168,42 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
+     * Revalidate the interaction owner recorded by a geometry-aware capture without
+     * reinterpreting mutation-caused post-layout geometry as user intent.
+     *
+     * <p>If visible selection owned the ticket, the same accepted selection must still
+     * own it. If visible direct keyboard focus owned the ticket because selection was
+     * offscreen, both the accepted selection state and keyboard-focus state must remain
+     * exactly the same. This lets layout move the anchor while rejecting a real
+     * same-generation user interaction change.</p>
+     */
+    public static boolean shouldRestoreCapturedOwner(
+            Ticket ticket,
+            long currentGeneration,
+            HeartbeatOverlayViewModel.Model currentAcceptedModel,
+            String currentSelectedControlId,
+            String currentKeyboardFocusedControlId) {
+        if (!shouldRestore(ticket, currentGeneration, currentAcceptedModel)) return false;
+        String currentSelected = acceptedControlId(currentSelectedControlId, currentAcceptedModel);
+        String currentKeyboard = acceptedControlId(currentKeyboardFocusedControlId, currentAcceptedModel);
+        if (sameId(ticket.semanticId, ticket.selectedControlIdAtCapture)) {
+            return sameId(ticket.selectedControlIdAtCapture, currentSelected);
+        }
+        if (sameId(ticket.semanticId, ticket.keyboardFocusedControlIdAtCapture)) {
+            return sameId(ticket.selectedControlIdAtCapture, currentSelected)
+                    && sameId(ticket.keyboardFocusedControlIdAtCapture, currentKeyboard);
+        }
+        return false;
+    }
+
+    /**
      * Whether a candidate native control actually has visible horizontal contact with
      * the current heartbeat viewport.
      *
      * <p>Semantic selection alone is not visible contact: a selected light may be
-     * completely offscreen after the user scrolls elsewhere. A future existing-owner
-     * capture path may use this gate before creating a restore ticket so offscreen
-     * semantic state cannot masquerade as viewport evidence. Partial intersection is
+     * completely offscreen after the user scrolls elsewhere. Partial intersection is
      * sufficient; zero-width controls/viewports and fully offscreen geometry fail
      * closed. Long arithmetic prevents integer overflow from manufacturing contact.</p>
-     *
-     * <p>This is pure geometry policy only. The current service does not yet consume
-     * this visibility gate, so source presence is not runtime viewport preservation.</p>
      */
     public static boolean hasVisibleViewportContact(
             int anchorLeftPx,
@@ -133,8 +227,6 @@ public final class HeartbeatViewportRestorePolicy {
      * selected-first/focus-fallback semantics remain delegated to the existing
      * {@link HeartbeatOverlayRefreshPlan#viewportAnchorId(String, String, HeartbeatOverlayViewModel.Model)}
      * authority. TalkBack accessibility focus remains outside this contract.</p>
-     *
-     * <p>The existing service does not yet consume this geometry-aware chooser.</p>
      */
     public static String visibleViewportAnchorId(
             String selectedControlId,
@@ -150,7 +242,7 @@ public final class HeartbeatViewportRestorePolicy {
 
     /**
      * Delegate final geometry to the existing bounded anchor calculation. Callers
-     * must first establish {@link #shouldRestore(Ticket, long, HeartbeatOverlayViewModel.Model)}.
+     * must first establish restore ownership.
      */
     public static int targetScrollX(
             Ticket ticket,
