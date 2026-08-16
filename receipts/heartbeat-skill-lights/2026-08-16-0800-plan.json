@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "pulse": "2026-08-16-0800",
+  "commission": "Advance TRY FOREVER as a broad independent swarm without touching the P0/primary-phone execution chain.",
+  "planAllowed": true,
+  "authoritativeOwner": "OperatorOverlayService",
+  "knownWound": "HeartbeatViewportRestorePolicy exists, but existing-owner source only restores viewport contact for stable in-place refreshes; structural rebuilds and fallback rebuilds do not consume generation-bound restore tickets, and pending pre-draw restores are not invalidated by later mutations or explicit heartbeat selection.",
+  "fronts": [
+    "Wire the existing OperatorOverlayService to generation-bound semantic viewport restore tickets across structural rebuild, stable in-place refresh, and drift-triggered fallback rebuild without creating another renderer/controller.",
+    "Add source-only regression fixtures for service-independent restore lifecycle semantics, including structural survival, fallback, explicit-selection invalidation, and stale generation rejection.",
+    "Synchronize heartbeat-viewport-contact durable skill doctrine with exact source truth and capability-state boundaries.",
+    "Mutate the existing non-raster warm-wall refresh-gate specimen in place to make generation ownership and stale-restore cancellation touchable without claiming Android runtime proof.",
+    "Produce Regnet/Venice/swarm receipts with requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted kept separate."
+  ],
+  "constraints": {
+    "p0FortressFirewall": "binding",
+    "phoneResourceFirewall": "binding",
+    "duplicateArchitectureLaw": "binding",
+    "phoneMutationsAllowed": false,
+    "runtimeClaimsAllowedWithoutEvidence": false,
+    "mergeAsDeliveredInterface": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacementAllowed": false
+  },
+  "autocorrectJudgmentJar": "dark_no_material_ambiguity",
+  "expectedCapabilityAfterSourceSlice": {
+    "implementedSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
