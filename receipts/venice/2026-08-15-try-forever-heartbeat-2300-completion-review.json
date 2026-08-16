@@ -1,0 +1,52 @@
+{
+  "schema": "try-forever.venice-completion-review.v1",
+  "heartbeat": "2026-08-15T23:00:00-05:00",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewedSourceHead": "08063157d43811c43f4d731ae3d1067059d5aaf7",
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "missionFidelity": {
+    "broadSwarm": true,
+    "sourceOnly": true,
+    "p0FirewallHeld": true,
+    "duplicateArchitectureCreated": false,
+    "phoneSurfaceConsumed": false
+  },
+  "codeFirstScars": [
+    "The first refresh plan would have allowed an automatic announcement on cold start because the prior announcement identity was empty.",
+    "That was repaired before completion: cold start may rebuild visible source state but cannot be treated as an observed semantic transition for automatic speech."
+  ],
+  "approvedConsequences": [
+    "render identity separates visible/detail refresh work from raw polling cadence",
+    "announcement identity separates material state/wound change from evidence-only refreshes",
+    "stable semantic selection survives reorder and clears when its id disappears",
+    "storage/parser wounds preserve last-good contact and do not re-light discarded attempted state",
+    "touchable non-raster source specimen makes the semantic gate inspectable without claiming deployment",
+    "new repository skill preserves the dedupe/accessibility/evidence contract for future existing-overlay wiring"
+  ],
+  "notApprovedAsCapability": [
+    "deterministic tests passed",
+    "OperatorOverlayService wired to heartbeat model",
+    "runtime heartbeat UI rendered",
+    "runtime TalkBack exercised",
+    "deployment",
+    "phone callability or execution",
+    "delivery or physical presentation",
+    "acceptance"
+  ],
+  "testBoundary": {
+    "state": "BLOCKED_UNKNOWN",
+    "run": 31925942572,
+    "job": 95113403763,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400",
+    "syntheticReplacementUsed": false
+  },
+  "campaignState": "CONTINUE_REQUIRED",
+  "nextAuthorizedSourceSeam": "Use the new refresh identities when wiring the existing OperatorOverlayService source to the existing persisted projection/view-model; preserve the same P0 and capability membranes."
+}
