@@ -261,8 +261,6 @@ public class OperatorOverlayService extends Service {
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
 
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
         touchGuard = new View(this);
         touchGuard.setContentDescription("Remote input active");
         touchGuard.setOnTouchListener((view, event) -> true);
@@ -394,8 +392,6 @@ public class OperatorOverlayService extends Service {
         heartbeatScroller = new HorizontalScrollView(this);
         heartbeatScroller.setHorizontalScrollBarEnabled(false);
         heartbeatScroller.setFillViewport(false);
-        // The container itself is not an accessibility destination; each native
-        // light remains independently focusable and speaks its own semantics.
         heartbeatScroller.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         heartbeatScroller.addView(heartbeatLights, new HorizontalScrollView.LayoutParams(
                 HorizontalScrollView.LayoutParams.WRAP_CONTENT,
@@ -628,7 +624,6 @@ public class OperatorOverlayService extends Service {
         confirmDisable = false;
         invalidateHeartbeatViewportRestore();
         resetHeartbeatNativeMotion();
-        // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
@@ -661,6 +656,10 @@ public class OperatorOverlayService extends Service {
         if (!confirmDisable) {
             confirmDisable = true;
             refreshUi();
+            handler.postDelayed(() -> {
+                confirmDisable = false;
+                refreshUi();
+            }, CONFIRM_WINDOW_MS);
             return;
         }
         confirmDisable = false;
@@ -889,10 +888,6 @@ public class OperatorOverlayService extends Service {
         } else if (refreshContent) {
             boolean refreshedInPlace = refreshHeartbeatLightsInPlace(next.model);
             if (!refreshedInPlace) {
-                // structureIdentity is the normal authority. A child/tag mismatch means
-                // Android view state drifted from that source contract, so fail safe by
-                // rebuilding the existing owner's children rather than updating the
-                // wrong semantic control in place.
                 rebuildHeartbeatLights(next.model);
                 mutationMayDestroyKeyboardFocus = true;
             }
@@ -916,8 +911,6 @@ public class OperatorOverlayService extends Service {
             heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
         }
 
-        // Advance identities even while muted/hidden/collapsed. Restoring presentation
-        // later must not replay an old transition as though it happened at restore time.
         heartbeatStructureIdentity = next.structureIdentity;
         heartbeatRenderIdentity = next.renderIdentity;
         heartbeatAnnouncementIdentity = next.announcementIdentity;
@@ -935,12 +928,6 @@ public class OperatorOverlayService extends Service {
         heartbeatLights.post(this::clampAndPersistPosition);
     }
 
-    /**
-     * Refresh mutable content on the existing semantic-id Buttons without
-     * destroying the native objects that may currently own keyboard/TalkBack focus.
-     * Returns false if the live child structure no longer matches the deterministic
-     * structure identity, allowing the caller to fall back to the rebuild path.
-     */
     private boolean refreshHeartbeatLightsInPlace(HeartbeatOverlayViewModel.Model model) {
         if (model == null || heartbeatLights == null || heartbeatSummary == null) return false;
         if (heartbeatLights.getChildCount() != model.controls.size()) return false;
@@ -1115,12 +1102,6 @@ public class OperatorOverlayService extends Service {
         }
     }
 
-    /**
-     * Consume the pure native-motion policy inside the existing Android owner only.
-     * A semantic transition may have arrived while hidden/collapsed or while system
-     * animators were disabled; in those cases history still advances but the view
-     * properties are reset and revealing/enabling later cannot replay the old cue.
-     */
     private void applyHeartbeatNativeMotion(
             HeartbeatOverlayViewModel.Model model,
             boolean semanticTransitionObserved,
