@@ -1,0 +1,46 @@
+{
+  "schema": "try-forever.venice-plan-review.v1",
+  "heartbeat": "2400",
+  "scope": "existing OperatorOverlayService heartbeat source wiring only",
+  "verdict": "PLAN_ALLOWED",
+  "mission": {
+    "requested": "Advance broad heartbeat skill lights without decorative fake progress.",
+    "authorized_lane": "GitHub durable source on existing PR #329 branch",
+    "phone_p0_firewall": "BINDING",
+    "duplicate_architecture_law": "BINDING"
+  },
+  "fronts": [
+    {
+      "name": "existing-overlay-native-wiring",
+      "action": "Wire the existing OperatorOverlayService source to the already-existing persisted heartbeat projection, refresh plan, and native view model. No neighboring service/controller/renderer."
+    },
+    {
+      "name": "talkback-runtime-gate-source",
+      "action": "Make mute/visibility gating explicit in the pure refresh plan so cold start, muted state, and hidden overlay cannot create unsolicited speech. Add regression source."
+    },
+    {
+      "name": "warm-wall-native-contact",
+      "action": "Render state token plus state word as touchable native controls with 48dp minimum targets; expose compact and on-demand detail semantics; preserve last-good contact on rejected refresh."
+    },
+    {
+      "name": "evidence-discipline",
+      "action": "Keep source implementation, regression source, test execution, runtime rendering, deployment, phone callability, delivery, and acceptance distinct."
+    }
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400; no synthetic replacement"
+  },
+  "p0_mutation_budget": 0,
+  "prohibited": [
+    "phone commands",
+    "Phone Hands tickets",
+    "queue/device probes",
+    "Home Center recovery mutation",
+    "Nightcore/Pocket TTS/Chromium/Context Organs mutation",
+    "new overlay controller/service/renderer owner",
+    "deployment or physical acceptance claim"
+  ],
+  "stop_condition": "Source slice may yield only after exact GitHub readback and code-first review; TESTED remains unknown unless an authorized test body actually executes."
+}
