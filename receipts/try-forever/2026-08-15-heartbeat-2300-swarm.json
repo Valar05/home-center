@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever.heartbeat-swarm.v1",
+  "heartbeat": "2026-08-15T23:00:00-05:00",
+  "reviewedSourceHead": "08063157d43811c43f4d731ae3d1067059d5aaf7",
+  "fronts": [
+    {
+      "name": "refresh-semantic-deduplication",
+      "state": "ADVANCED",
+      "changed": "Added pure render and announcement identities over the existing persisted projection/scene/view-model chain."
+    },
+    {
+      "name": "accessibility-regression",
+      "state": "ADVANCED_SOURCE_BLOCKED_TEST",
+      "changed": "Added regression source for cold start, exact retry, evidence-only refresh, state transition, repeated wound, stable selection, and storage rejection."
+    },
+    {
+      "name": "warm-wall-art",
+      "state": "ADVANCED_SOURCE",
+      "changed": "Added a touchable DOM/inline-SVG semantic pacemaker specimen with 48px controls and explicit source-only scar."
+    },
+    {
+      "name": "durable-skill-harvest",
+      "state": "ADVANCED",
+      "changed": "Added heartbeat-refresh-deduplication doctrine, including cold-start speech and capability membranes."
+    },
+    {
+      "name": "existing-overlay-runtime-wiring",
+      "state": "NOT_YET_ADVANCED",
+      "boundary": "OperatorOverlayService still does not consume the heartbeat model; this pulse built the dedupe/accessibility gate that source wiring must use rather than pretending runtime wiring exists."
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","consequence":"Unchanged CI failure was not manually retried; work moved to a new source seam."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","consequence":"Existing persisted projection, scene graph, view model, checkpoint hashes, and overlay owner were treated as authoritative organs."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","consequence":"No STT/autocorrect ambiguity materially affected this source slice."},
+    {"name":"Originality Tax","state":"ACTIVE","consequence":"The pulse did not repeat the prior projection-only work or retry the blocked test path."},
+    {"name":"Hunger","state":"ACTIVE","consequence":"Turned the 200ms refresh-loop risk into a semantic pacemaker instead of another status card."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Code-first review found the cold-start announcement lie and repaired source, regression, and doctrine together."},
+    {"name":"Operator Campaign","state":"ACTIVE","consequence":"Kept OperatorOverlayService as the sole future UI owner and refused parallel architecture."},
+    {"name":"Harroway operator discipline","state":"ACTIVE","consequence":"Preserved exact requested/implemented/tested/runtime/deployed/delivered/accepted states."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative consult returned account connection HTTP 400; no synthetic reviewer substituted."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","consequence":"Fresh plan preceded mutation and completion review preserved the bounded source-only yield."},
+    {"name":"Regnet QA","state":"ACTIVE","consequence":"Passed durable source/readback only; TESTED remains BLOCKED_UNKNOWN."},
+    {"name":"accessibility/TalkBack and touch semantics","state":"ACTIVE","consequence":"Separated render work from automatic speech, added cold-start silence, stable semantic selection, and 48px specimen controls."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Zero phone commands, tickets, queue/device probes, recovery actions, or physical acceptance work."},
+    {"name":"deterministic routing","state":"ACTIVE","consequence":"Stable semantic ids and deterministic SHA-256 work identities replace focus-index and wall-clock guesses."},
+    {"name":"evidence/capability-state discipline","state":"ACTIVE","consequence":"Source/readback is not reported as test, runtime rendering, deployment, delivery, or acceptance."},
+    {"name":"recovery/checkpointing/idempotence","state":"ACTIVE","consequence":"Exact retries and repeated wounds do not earn repeated rebuild/announcement work."},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"ACTIVE","consequence":"Touchable semantic pacemaker specimen added with inline SVG and no raster assets."},
+    {"name":"warm walls","state":"ACTIVE","consequence":"Last-good contact remains the visual wall through rejected refreshes."},
+    {"name":"Christmas-light scene graph","state":"ACTIVE","consequence":"Raw polling does not earn motion/speech; only semantic transition identity may do so."},
+    {"name":"contact preservation","state":"ACTIVE","consequence":"Storage/parser rejection retains last-good controls and stable selected id."},
+    {"name":"Heartbeat Refresh Deduplication","state":"ACTIVE_NEW_SKILL","consequence":"New repository skill codifies semantic rebuild/speech gates and cold-start behavior."}
+  ],
+  "crossPollination": [
+    "The 200ms OperatorOverlayService refresh loop exposed an accessibility focus/chatter risk.",
+    "Checkpoint contact/transition hashes became separate render and announcement work identities.",
+    "Contact preservation constrained rejected-refresh behavior and stable selection.",
+    "Code-first review exposed cold start as unknown history rather than a witnessed transition.",
+    "The repaired rule propagated into regression source, the repository skill, and the touchable source specimen."
+  ],
+  "testBoundary": {
+    "state": "BLOCKED_UNKNOWN",
+    "automaticRun": 31925942572,
+    "job": 95113403763,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "p0Firewall": {
+    "mutations": 0,
+    "findingForP0": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "existingOverlayWired": false,
+    "runtimeRendered": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "campaignState": "CONTINUE_REQUIRED"
+}
