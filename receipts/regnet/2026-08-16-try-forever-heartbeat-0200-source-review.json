@@ -1,0 +1,49 @@
+{
+  "schema": "regnet-source-review.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "existing-owner focus-stable native child updates",
+  "source_slice_head": "a44b5cf8d6345e3a67a1dd6159b9fac11c038fe0",
+  "reviewed_android_source_head": "0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "PASS_WITH_TEST_BLOCK",
+  "evidence": {
+    "operator_overlay_service_blob": "3b5f197549fbd6ed3d42f2d10f4d1d5b66a4c565",
+    "heartbeat_refresh_skill_blob": "1954b500f10b56db3dc597537ee6f388ce7fe9aa",
+    "heartbeat_native_ui_projection_skill_blob": "71f1f1510c9a4b742a88fcaf351df9351b6df427",
+    "refresh_gate_specimen_blob": "a81b61fa8e9736d645c7b17d72abbd77621f91c6",
+    "refresh_plan_blob_unchanged": "25425ecd6623e8819bd86d93c48418e2632125e2",
+    "refresh_plan_regression_source_blob_unchanged": "2629a1ba9ab04a6b20ba7c90cdcd7cbcd20e86d7"
+  },
+  "review": {
+    "plan_order": "PASS: durable Venice PLAN_ALLOWED receipt was committed before source mutation.",
+    "mission_fidelity": "PASS: existing OperatorOverlayService is still the sole native UI owner.",
+    "structure_routing": "PASS AS SOURCE: structureIdentity now controls expensive child replacement; renderIdentity controls mutable content work; announcementIdentity remains independent.",
+    "focus_preservation": "PASS AS SOURCE PROPERTY: stable-structure content refreshes mutate the same Button objects rather than removeAllViews/recreation, preserving native focus opportunities without claiming runtime focus retention.",
+    "drift_safety": "PASS AS SOURCE: child count/order/type/tag identity is verified before in-place mutation; mismatch fails safe to the existing rebuild path.",
+    "accessibility": "PASS AS SOURCE: stable controls keep native focusability, both-axis minimum touch targets, state-bearing visible labels, compact descriptions, and current on-touch detail closures.",
+    "contact_preservation": "PASS: accepted/preserved HeartbeatSceneGraph.Frame remains the sole visible model; rejected attempted candidates are not surfaced.",
+    "duplicate_architecture": "PASS: no second service, renderer, controller, state store, phone ingress, recovery daemon, or coordinator was introduced.",
+    "regression_source": "PRESENT: pure refresh-plan regression source already covers structure/content/speech semantics, preserved wounds, mute/visibility, reorder and semantic IDs. Android child-object reconciliation remains runtime-unproven rather than being faked by source inspection.",
+    "test_evidence": "BLOCKED_UNKNOWN: automatic Operator Overlay Android run 31933028602, job 95130601518, on reviewed Android source head 0fb262ef00f5dcd46d64d7243e7b00ba7d91b95b executed zero steps. GitHub annotation: The job was not started because an Actions budget is preventing further use.",
+    "runtime_evidence": "ABSENT: no Android runtime focus/TalkBack observation and no phone/P0 execution surface was consumed."
+  },
+  "capability_state": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source_present": true,
+    "tested": false,
+    "tested_state": "BLOCKED_UNKNOWN",
+    "existing_owner_consumes_structure_identity": true,
+    "existing_owner_in_place_button_refresh_source": true,
+    "runtime_ui_observed": false,
+    "talkback_runtime_exercised": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_firewall": "HELD_ZERO_MUTATIONS",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
