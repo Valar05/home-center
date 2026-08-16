@@ -28,6 +28,8 @@ A bounded rejection message, log line, toast, or diagnostic summary is a project
 
 Untrusted member names and identifiers used *inside* rejection prose are projection content too. A normal safe member name may be shown for diagnosis; a control/bidi-poisoned name must be replaced with a bounded placeholder rather than echoed into logs, TalkBack, review receipts, or scene boundaries. Apply Unicode-code-point bounds to safe names before including them in a boundary.
 
+A public pre-parser preservation seam may need to retain an exact rejection boundary for evidence while refusing to speak that exact string. Keep both truths: preserve the exact field, but project a bounded safe description for TalkBack/operator prose. If the exact boundary contains unsafe semantic text, use an explicit generic placeholder in speech rather than stripping characters and pretending the result is the source.
+
 Never feed sanitized projection text back into persistence as replacement canonical payload.
 
 ## Accessibility contract
@@ -35,6 +37,8 @@ Text that reaches TalkBack or touch detail must agree with the visible semantic 
 
 - Reject directional spoofing before a candidate becomes display-ready.
 - Bound speech by Unicode code point, not UTF-16 code unit.
+- Bound focused labels independently from exact Candidate.label so a direct source caller cannot create an unbounded TalkBack burst while the canonical field remains intact.
+- Bound interrupted-refresh pulse identity and rejection-boundary speech independently from the exact Frame.visiblePulseId and Frame.refreshBoundary evidence fields.
 - Never split a valid surrogate pair during truncation.
 - Do not ban ZWJ merely because Java classifies it as `Character.FORMAT`; doing so breaks legitimate emoji/grapheme composition and is broader than the spoofing threat.
 - A rejected attempted pulse must not leak its unsafe identity into an accessibility description. Preserve the last-good visible contact and speak the bounded rejection boundary instead.
@@ -43,7 +47,7 @@ Text that reaches TalkBack or touch detail must agree with the visible semantic 
 ## Heartbeat integration
 `HeartbeatEnvelopeParser` is the canonical semantic-ingestion gate. Its decoded string safety is checked before trimming. Parser error paths that mention unknown or duplicate JSON member names must also use bounded safe-name projection so hostile field names cannot poison the rejection receipt itself.
 
-`HeartbeatSkillPolicy` repeats the directional/control/surrogate safety gate at the typed display-ready boundary so direct source callers cannot bypass parser assumptions. `Candidate` captures decoded safety before its compatibility trim and carries that verdict into display readiness and speech. `HeartbeatSceneGraph` rejects an unsafe direct pulse id before storing it as attempted/visible contact, and `preserveRejectedRefresh(...)` suppresses an unsafe pre-parser attempted id while leaving the original trusted rejection boundary unchanged.
+`HeartbeatSkillPolicy` repeats the directional/control/surrogate safety gate at the typed display-ready boundary so direct source callers cannot bypass parser assumptions. `Candidate` captures decoded safety before its compatibility trim and carries that verdict into display readiness and speech. Focused candidate speech bounds the label/consequence independently from the exact typed fields. `HeartbeatSceneGraph` rejects an unsafe direct pulse id before storing it as attempted/visible contact, and `preserveRejectedRefresh(...)` suppresses an unsafe pre-parser attempted id while leaving the original rejection boundary unchanged. `Frame.interruptedRefreshDescription()` projects the retained last-good pulse id and exact rejection boundary through bounded safe speech without rewriting those evidence fields.
 
 The duplicated *gate* is defense in depth; the directional-control definition lives in one source policy helper so parser and scene consumers do not drift into different bidi lists.
 
@@ -60,7 +64,10 @@ For any semantic-ingestion path covered by this skill, preserve hostile fixtures
 - a valid supplementary Unicode symbol;
 - a legitimate ZWJ sequence that must remain accepted;
 - an unknown JSON member name containing a directional control;
-- a duplicate JSON member name containing a directional control.
+- a duplicate JSON member name containing a directional control;
+- a swan-heavy direct-source label that exceeds the focused speech budget while Candidate.label remains exact;
+- an oversized but safe interrupted-refresh boundary/pulse id whose speech projection truncates by code point while Frame evidence remains exact;
+- an unsafe pre-parser rejection boundary that remains exact in Frame.refreshBoundary but is replaced with a safe speech placeholder.
 
 Where scene/contact preservation exists, assert that rejected semantic text:
 
@@ -81,6 +88,8 @@ Keep `requested -> implemented -> tested -> deployed -> callable -> executed -> 
 If a prior sanitizer fix simply rejected every Unicode `FORMAT` character, inspect whether that copied a presentation-projection rule into canonical payload semantics. The recovery must preserve the threat boundary without deleting legitimate Unicode behavior. Cross-pollination is useful only when ownership semantics survive the trip.
 
 If a parser correctly rejects poisoned values but then echoes an untrusted poisoned member name into its error text, the boundary is still wounded. Repair the projection rather than declaring victory at the value validator.
+
+If exact evidence is safe to retain but too large or unsafe to speak, do not solve the speech problem by rewriting the evidence. Add an explicit projection boundary and regression source that proves both sides stay true.
 
 ## Done
 This skill has materially contributed only when it changes a parser/policy/scene constraint, regression fixture, accessibility rule, or exact evidence boundary in the current mission. Naming the skill without such a consequence is decorative and stays dark.
