@@ -1,0 +1,57 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-0700",
+  "scope": "TRY FOREVER heartbeat viewport restore lifecycle source slice",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "mixed",
+  "review": {
+    "missionFidelity": "PASS: non-phone heartbeat UI source policy only; P0/primary-phone chain untouched",
+    "duplicateArchitecture": "PASS: new HeartbeatViewportRestorePolicy is pure policy only; OperatorOverlayService remains sole Android UI owner",
+    "accessibility": "PASS_FOR_SOURCE: selection and keyboard-focus fallback are semantic anchor inputs; TalkBack accessibility focus is explicitly neither queried nor claimed",
+    "determinism": "PASS_FOR_SOURCE: restore ticket uses semantic id + viewport offset + ordering generation; bounded scroll delegates to existing anchoredScrollX policy",
+    "idempotence": "PASS_FOR_SOURCE: later generation invalidates older pending ticket; accepted-model membership is rechecked before restore",
+    "evidenceTruth": "PASS: policy/regression/art/readback are not reported as existing-service rebuild wiring, Android runtime, TalkBack runtime, deployment, delivery, or acceptance",
+    "testEvidence": "BLOCKED_UNKNOWN: automatic Actions jobs on source/art head cf57c5dd02df45ebab52e89bca9f0dab40d93e34 executed zero steps because the Actions budget prevents further use"
+  },
+  "sourceReadback": {
+    "HeartbeatViewportRestorePolicy.java": "c9a12edc463c03579085a5754569623592e18797",
+    "HeartbeatViewportRestorePolicyTest.java": "e469408e026d554c54963d202877fc40762b66b4",
+    "skills/heartbeat-viewport-contact/SKILL.md": "811b537668ebc2fb7d2f920497533c04faded388",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "42381077aad10a63301c8df9251b8be7a8281e50"
+  },
+  "reviewScar": {
+    "implementedNow": [
+      "pure restore-generation ticket policy",
+      "source regression fixtures for structural-survival and stale-ticket rejection",
+      "updated viewport-contact doctrine",
+      "touchable non-raster warm-wall lifecycle specimen"
+    ],
+    "stillUnimplemented": [
+      "OperatorOverlayService consumption of HeartbeatViewportRestorePolicy",
+      "structural-rebuild viewport restore wiring",
+      "service-side generation invalidation on later mutation/selection"
+    ],
+    "stillUnproven": [
+      "Android execution",
+      "runtime viewport preservation",
+      "runtime keyboard focus preservation",
+      "TalkBack accessibility-focus behavior",
+      "deployment/callability/execution/delivery/acceptance"
+    ]
+  },
+  "ciBoundary": {
+    "workflowRun": 31946017614,
+    "job": 95161974098,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcorePocketTtsChromiumContextOrgans": 0,
+    "findingForP0": null
+  }
+}
