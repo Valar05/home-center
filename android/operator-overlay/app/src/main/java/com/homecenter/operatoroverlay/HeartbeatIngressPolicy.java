@@ -113,9 +113,10 @@ public final class HeartbeatIngressPolicy {
 
     /**
      * Produce one bounded human-facing boundary without laundering it into raw
-     * exception identity. All ISO controls and whitespace classes collapse to one
-     * ordinary space, malformed lone UTF-16 surrogates become U+FFFD, and truncation
-     * happens by Unicode code point so a valid surrogate pair is never bisected.
+     * exception identity. ISO controls, whitespace, and invisible Unicode FORMAT
+     * controls collapse to one ordinary space; malformed lone UTF-16 surrogates
+     * become U+FFFD; truncation happens by Unicode code point so a valid surrogate
+     * pair is never bisected.
      */
     static String cleanBoundary(String value) {
         if (value == null || value.isEmpty()) return "";
@@ -132,6 +133,7 @@ public final class HeartbeatIngressPolicy {
             }
 
             if (Character.isISOControl(codePoint)
+                    || Character.getType(codePoint) == Character.FORMAT
                     || Character.isWhitespace(codePoint)
                     || Character.isSpaceChar(codePoint)) {
                 if (normalized.length() > 0) pendingSpace = true;
