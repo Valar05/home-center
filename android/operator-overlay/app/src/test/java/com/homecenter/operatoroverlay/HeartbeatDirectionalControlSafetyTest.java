@@ -22,6 +22,17 @@ public class HeartbeatDirectionalControlSafetyTest {
     }
 
     @Test
+    public void legacyCollapsedSpeechReportsUnsafeOmissionInsteadOfLyingAboutNamedCount() {
+        String description = HeartbeatSkillPolicy.collapsedContentDescription(
+                Collections.singletonList(candidate("Warm\u202EWall")));
+
+        assertEquals(
+                "1 material light was omitted from speech because its semantic text was rejected.",
+                description);
+        assertFalse(description.contains("Warm"));
+    }
+
+    @Test
     public void canonicalParserFailsClosedWhenLabelContainsRlo() {
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(
                 envelope("pulse-rlo", "Warm\u202EWall", "Evidence is ordinary text."));
