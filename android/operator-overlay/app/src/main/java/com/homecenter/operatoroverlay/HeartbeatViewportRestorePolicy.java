@@ -125,6 +125,30 @@ public final class HeartbeatViewportRestorePolicy {
     }
 
     /**
+     * Choose visible semantic contact without letting an offscreen durable selection
+     * suppress a currently visible keyboard-focused fallback.
+     *
+     * <p>The booleans must come from {@link #hasVisibleViewportContact(int, int, int, int)}
+     * for the corresponding live native controls. Accepted-model membership and
+     * selected-first/focus-fallback semantics remain delegated to the existing
+     * {@link HeartbeatOverlayRefreshPlan#viewportAnchorId(String, String, HeartbeatOverlayViewModel.Model)}
+     * authority. TalkBack accessibility focus remains outside this contract.</p>
+     *
+     * <p>The existing service does not yet consume this geometry-aware chooser.</p>
+     */
+    public static String visibleViewportAnchorId(
+            String selectedControlId,
+            boolean selectedHasVisibleContact,
+            String keyboardFocusedControlId,
+            boolean keyboardFocusHasVisibleContact,
+            HeartbeatOverlayViewModel.Model acceptedNextModel) {
+        return HeartbeatOverlayRefreshPlan.viewportAnchorId(
+                selectedHasVisibleContact ? selectedControlId : "",
+                keyboardFocusHasVisibleContact ? keyboardFocusedControlId : "",
+                acceptedNextModel);
+    }
+
+    /**
      * Delegate final geometry to the existing bounded anchor calculation. Callers
      * must first establish {@link #shouldRestore(Ticket, long, HeartbeatOverlayViewModel.Model)}.
      */
