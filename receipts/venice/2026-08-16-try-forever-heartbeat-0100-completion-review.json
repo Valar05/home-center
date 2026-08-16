@@ -1,0 +1,22 @@
+{
+  "schema": "venice-completion-review.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "focus-stable native refresh planning",
+  "reviewed_source_head": "7c3c88d78541d3f28b0cd70986d21ef1e302f687",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign_state": "CONTINUE_REQUIRED",
+  "quality": "MIXED",
+  "judgment": {
+    "mission_fidelity": "PASS: the work stays inside the commissioned heartbeat overlay source and accessibility surface.",
+    "focus_preservation": "PASS AS SOURCE DESIGN: the refresh plan can now distinguish expensive child replacement from in-place content refresh.",
+    "accessibility": "PASS AS SOURCE DESIGN: evidence/state/wound changes can avoid needless native object destruction while announcement gating remains independent.",
+    "truthfulness": "PASS: the skill and specimen explicitly mark the new structure identity as source planning only and do not claim existing-owner wiring or runtime proof.",
+    "architecture": "PASS: existing organs are composed; no neighboring overlay/P0/phone architecture was introduced.",
+    "test_evidence": "BLOCKED: GitHub Actions started zero steps because the Actions budget prevents further use.",
+    "runtime_evidence": "ABSENT: no phone/P0 surface was consumed and no Android runtime observation was manufactured."
+  },
+  "process_scar": "This automation run mutated source before writing a fresh durable Venice plan receipt. That ordering defect is preserved rather than retroactively rewritten as a pre-execution gate. Future slices should restore plan-before-mutation ordering.",
+  "next_authorized_source_seam": "Make the existing OperatorOverlayService consume structureIdentity and refresh stable semantic-id child Buttons in place while retaining the current render/announcement identities. Do not create a second renderer or consume the gated phone surface.",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE",
+  "p0_firewall": "HELD_ZERO_MUTATIONS"
+}
