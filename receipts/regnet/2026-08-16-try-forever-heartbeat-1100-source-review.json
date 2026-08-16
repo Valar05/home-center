@@ -1,0 +1,49 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-1100",
+  "scope": "TRY FOREVER heartbeat viewport focus-scope source slice",
+  "verdict": "PASS_IMPLEMENTED_SOURCE_ONLY",
+  "quality": "MIXED_BOUNDARY_OPEN",
+  "reviewed": {
+    "HeartbeatViewportRestorePolicy.java": "d68aba9bc34cb0643dc88c3f1c16fd84bc40235f",
+    "HeartbeatViewportRestorePolicyTest.java": "4cc8f892fe54c1b560829e3dce69b96d3d774571",
+    "skills/heartbeat-viewport-contact/SKILL.md": "30391d0cddd030b104f99768128ec5b54b833c34",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "30db62b41a56cfcd246321868f79e1566b6d2709"
+  },
+  "findings": [
+    {
+      "severity": "material",
+      "state": "repaired_in_policy_source",
+      "finding": "Empty heartbeat-child focus is ambiguous: it can mean rebuild-caused native focus loss or direct focus moved to a non-heartbeat overlay control. Pure policy now requires explicit mutation-class and overlay-wide direct-focus evidence before granting empty-focus amnesty."
+    },
+    {
+      "severity": "material",
+      "state": "open_owner_seam",
+      "finding": "OperatorOverlayService still calls the backward-compatible five-argument overload and scans only heartbeat children. Existing-owner mutation-class/focus-scope consumption is therefore NO."
+    },
+    {
+      "severity": "evidence",
+      "state": "blocked",
+      "finding": "Regression source exists but automatic Operator Overlay Android job 95190010785 on source/test head 2dc5d4d01ab0bd45d8edf742ec43cde5629e721a executed zero steps because the Actions budget prevented the job from starting."
+    }
+  ],
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "focus_scope_policy_source": true,
+    "existing_owner_focus_scope_wiring": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0,
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
