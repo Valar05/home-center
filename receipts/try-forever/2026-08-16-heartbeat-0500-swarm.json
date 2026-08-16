@@ -1,0 +1,79 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-0500",
+  "mission": "Advance heartbeat skill lights through independent non-phone fronts while preserving P0/phone and capability-state firewalls.",
+  "fronts": [
+    {
+      "name": "existing-owner viewport contact",
+      "status": "ADVANCED",
+      "consequence": "OperatorOverlayService now consumes viewportAnchorId(...) and anchoredScrollX(...) in source for stable-structure in-place refreshes."
+    },
+    {
+      "name": "after-layout ordering",
+      "status": "ADVANCED_AFTER_REVIEW",
+      "consequence": "Code-first review replaced weak View.post() restoration with one-shot pre-draw restoration after layout."
+    },
+    {
+      "name": "durable skill doctrine",
+      "status": "ADVANCED",
+      "consequence": "heartbeat-viewport-contact and heartbeat-native-ui-projection now agree on selected-first, direct-keyboard-focus fallback and runtime-evidence boundaries."
+    },
+    {
+      "name": "warm-wall art",
+      "status": "ADVANCED",
+      "consequence": "Existing SVG scar now depicts capture-before-mutation and restore-after-layout with explicit source-wired/runtime-unproven labeling."
+    },
+    {
+      "name": "deterministic test gate",
+      "status": "PROVEN_BOUNDARY",
+      "consequence": "Automatic Operator Overlay Android job on exact service source head executed zero steps because an Actions budget prevented startup; no manual retry fired."
+    }
+  ],
+  "lights": {
+    "failureIsTheShovel": "ACTIVE: CI was not retried; failure redirected into owner wiring, review, doctrine and art.",
+    "canonAutoSelect": "ACTIVE: reused the existing parser/scene/view-model/refresh-plan/service chain and repository viewport/native-UI skills.",
+    "autocorrectJudgmentJar": "DARK: no STT/autocorrect ambiguity materially affected this slice.",
+    "originalityTax": "ACTIVE: review changed restoration strategy from generic post() to one-shot pre-draw instead of cosmetically retrying the same assumption.",
+    "hungerEatEverything": "ACTIVE: viewport policy was consumed by the existing owner and propagated into skill/art/review surfaces.",
+    "operatorCampaignHarroway": "ACTIVE: exact owner, lane, exclusions and evidence membrane preserved.",
+    "sheRaw": "FAULT: authoritative pre-execution ambient consult returned account-connection HTTP 400; no synthetic substitute.",
+    "venice": "ACTIVE: STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY; larger campaign CONTINUE_REQUIRED.",
+    "regnet": "ACTIVE: bounded implemented-source/readback PASS; TESTED remains false.",
+    "accessibilityTouch": "ACTIVE: selected semantic contact, keyboard-focus fallback, >=48dp existing controls and no TalkBack-focus inference constrain owner wiring.",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED: zero surface consumption.",
+    "deterministicRouting": "ACTIVE: semantic-id lookup, accepted-model anchor selection and bounded scroll restoration.",
+    "evidenceCapabilityState": "ACTIVE: source wiring moved YES while tested/runtime/deployed/callable/executed/delivered/accepted remain NO.",
+    "recoveryCheckpointIdempotence": "ACTIVE: stale/missing anchor and structure-drift paths fail closed to existing rebuild/contact rules without index guessing.",
+    "strangeNonRasterArtWarmWalls": "ACTIVE: existing SVG mutated in place; not claimed as runtime UI.",
+    "christmasLightSceneGraph": "ACTIVE: viewport restoration is not a semantic transition and earns no announcement/blink by itself.",
+    "contactPreservation": "ACTIVE: same semantic-id Button remains the anchor across content-width mutation; rebuild fallback does not fake preserved viewport contact."
+  },
+  "crossPollination": "stable Button identity exposed viewport drift -> viewport policy became owner wiring -> code review exposed weak post() ordering -> pre-draw repair -> skill review exposed stale keyboard-first doctrine -> selected-first rule synchronized -> warm-wall scar updated -> Regnet/Venice kept source work behind the runtime membrane.",
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31940829138,
+    "jobId": 95149645061,
+    "headSha": "dccaaf16709c19898845e8f0991e821cc2154873",
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "p0PhoneMutationCount": 0,
+  "p0Finding": null,
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "existingStableButtonWiring": true,
+    "existingServiceConsumesViewportAnchorPolicySource": true,
+    "tested": false,
+    "runtimeViewportObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
