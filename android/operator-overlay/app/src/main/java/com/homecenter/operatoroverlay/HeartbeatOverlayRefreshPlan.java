@@ -187,20 +187,46 @@ public final class HeartbeatOverlayRefreshPlan {
     }
 
     /**
-     * Existing-overlay runtime gate for automatic heartbeat speech.
-     *
-     * <p>Mute and visibility are presentation policy, not semantic identity. The
-     * caller should still advance the remembered announcement identity while muted
-     * or hidden so unmuting/restoring later does not replay a stale transition as a
-     * new event. This helper only decides whether the current semantic transition is
-     * allowed to speak now.</p>
+     * Compatibility presentation gate for callers that only know whole-overlay
+     * visibility. A visible root is treated as a visible heartbeat surface here.
+     * Callers that can distinguish a collapsed/GONE heartbeat sub-surface must use
+     * the five-argument overload below instead of laundering root visibility into
+     * heartbeat visibility.
      */
     public static boolean shouldAnnounce(
             String previousAnnouncementIdentity,
             Plan next,
             boolean muted,
             boolean overlayVisible) {
-        if (muted || !overlayVisible) return false;
+        return shouldAnnounce(
+                previousAnnouncementIdentity,
+                next,
+                muted,
+                overlayVisible,
+                overlayVisible);
+    }
+
+    /**
+     * Existing-overlay runtime gate for automatic heartbeat speech.
+     *
+     * <p>Mute, whole-overlay visibility, and heartbeat-surface visibility are
+     * presentation policy, not semantic identity. A root overlay may remain visible
+     * while the heartbeat detail surface is deliberately collapsed/GONE. In that
+     * state the heartbeat must not speak from behind the wall merely because a
+     * semantic transition arrived.</p>
+     *
+     * <p>The caller should still advance the remembered announcement identity while
+     * muted, hidden, or collapsed so unmuting/restoring/expanding later does not
+     * replay a stale transition as a new event. This helper only decides whether the
+     * current semantic transition is allowed to speak now.</p>
+     */
+    public static boolean shouldAnnounce(
+            String previousAnnouncementIdentity,
+            Plan next,
+            boolean muted,
+            boolean overlayVisible,
+            boolean heartbeatSurfaceVisible) {
+        if (muted || !overlayVisible || !heartbeatSurfaceVisible) return false;
         return shouldAnnounce(previousAnnouncementIdentity, next);
     }
 
