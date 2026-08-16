@@ -58,6 +58,34 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
+    public void callerInvalidBoundaryIsBoundedSingleLineAndUnicodeSafe() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder("  first\tline\nsecond\u0000 ");
+        hostile.append('\ud800');
+        hostile.append(" tail ");
+        for (int index = 0; index < 400; index++) hostile.append("🦢");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertTrue(result.boundary.startsWith(
+                "Heartbeat skill-light payload rejected: first line second � tail "));
+        assertTrue(result.boundary.codePointCount(0, result.boundary.length())
+                <= HeartbeatIngressPolicy.MAX_BOUNDARY_CODE_POINTS);
+        for (int offset = 0; offset < result.boundary.length();) {
+            int codePoint = result.boundary.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            assertFalse(Character.isISOControl(codePoint));
+        }
+        assertFalse(Character.isHighSurrogate(result.boundary.charAt(result.boundary.length() - 1)));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
     public void unrelatedIllegalArgumentExceptionPropagatesWithoutHeartbeat() {
         RecordingSink sink = new RecordingSink();
         sink.argumentFailure = new IllegalArgumentException("internal persistence contract failed");
