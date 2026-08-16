@@ -80,6 +80,33 @@ public class HeartbeatDirectionalControlSafetyTest {
     }
 
     @Test
+    public void unknownDirectionalMemberNameIsNotEchoedIntoParserBoundary() {
+        String rlo = String.valueOf((char) 0x202E);
+        String base = envelope("pulse-member", "Warm Wall", "Evidence is ordinary text.");
+        String json = base.substring(0, base.length() - 1)
+                + ",\"bad" + rlo + "key\":true}";
+
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(json);
+
+        assertFalse(result.accepted());
+        assertTrue(result.boundary.contains("<unsafe member name>"));
+        assertFalse(result.boundary.contains(rlo));
+    }
+
+    @Test
+    public void duplicateDirectionalMemberNameIsNotEchoedIntoParserBoundary() {
+        String rlo = String.valueOf((char) 0x202E);
+        String key = "bad" + rlo + "key";
+        String json = "{\"" + key + "\":1,\"" + key + "\":2}";
+
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(json);
+
+        assertFalse(result.accepted());
+        assertTrue(result.boundary.contains("Duplicate JSON member: <unsafe member name>."));
+        assertFalse(result.boundary.contains(rlo));
+    }
+
+    @Test
     public void sceneDefenseInDepthRejectsSpoofedDirectPulseIdentityWithoutLeakingAttemptedText() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
