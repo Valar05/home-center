@@ -1,0 +1,59 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-16-0800",
+  "scope": "TRY FOREVER heartbeat viewport restore ownership; non-phone source slice only",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "mixed_unexecuted",
+  "claims": {
+    "implementedSource": "PASS",
+    "exactGitHubReadback": "PASS",
+    "regressionSourcePresent": "PASS",
+    "existingOwnerStableRefreshViewportWiring": "PASS_SOURCE",
+    "existingOwnerStructuralRebuildViewportWiring": "PASS_SOURCE",
+    "existingOwnerRestoreGenerationIdempotenceWiring": "PASS_SOURCE",
+    "currentInteractionOwnerRevalidation": "PASS_SOURCE",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtimeViewportObserved": "NO",
+    "runtimeKeyboardFocusObserved": "NO",
+    "runtimeTalkBackObserved": "NO",
+    "deployed": "NO",
+    "callableOnPhone": "NO",
+    "executedOnPhone": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "reviewedSource": {
+    "HeartbeatViewportRestorePolicy.java": "2e39fb6baca7bff7298a3718f91d4564894aec4b",
+    "HeartbeatViewportRestorePolicyTest.java": "695c7e7aa40f627407fd9972855121bf01330a6f",
+    "OperatorOverlayService.java": "e447f555a096739c61e8c38a24fa32c2361e94a3",
+    "skills/heartbeat-viewport-contact/SKILL.md": "b1171af1468b07972a47228ffa6249692d33c206",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "9973acd8a7df6203be67ba671718f6e82825569b"
+  },
+  "findings": [
+    "The existing OperatorOverlayService remains the sole Android UI owner; no neighboring renderer/controller/state store was introduced.",
+    "The owner now captures one selected-first / keyboard-focus-fallback semantic restore ticket before stable refresh, structural rebuild, or drift-triggered fallback rebuild and schedules bounded restoration after layout.",
+    "The callback revalidates generation, accepted model membership, and current semantic interaction ownership before moving the viewport. This closes the stale same-generation keyboard-focus wound without treating focus movement as heartbeat evidence.",
+    "Explicit heartbeat selection, presentation-state changes, and hide invalidate pending restore ownership in source.",
+    "Structural rebuild may preserve semantic viewport contact but does not prove native keyboard focus or TalkBack accessibility focus survived object replacement; those remain runtime-only claims.",
+    "Regression fixtures are source only. They cover same-generation keyboard focus movement, explicit-selection supersession, durable selection priority, stale generation, removed anchors, and bounded geometry.",
+    "The existing warm-wall DOM/SVG specimen was mutated in place and clearly marks source wiring as runtime-unproven/not phone delivery."
+  ],
+  "deterministicTestBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31948809996,
+    "jobId": 95168961155,
+    "headSha": "0ab65ff7eeada3e681e28cef2193a81e6f9a1dca",
+    "stepsExecuted": 0,
+    "conclusion": "failure",
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "reviewerStates": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+    "autocorrectJudgmentJar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "phoneRuntimePhoneHandsP0": "DARK_FIREWALLED_ZERO_MUTATIONS"
+  },
+  "p0Finding": null,
+  "mergeAsDeliveredInterface": false,
+  "continueCampaign": true
+}
