@@ -388,7 +388,9 @@ public class OperatorOverlayService extends Service {
         HorizontalScrollView heartbeatScroller = new HorizontalScrollView(this);
         heartbeatScroller.setHorizontalScrollBarEnabled(false);
         heartbeatScroller.setFillViewport(false);
-        heartbeatScroller.setContentDescription("Heartbeat skill lights. Swipe horizontally to explore material lights.");
+        // The container itself is not an accessibility destination; each native
+        // light remains independently focusable and speaks its own semantics.
+        heartbeatScroller.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         heartbeatScroller.addView(heartbeatLights, new HorizontalScrollView.LayoutParams(
                 HorizontalScrollView.LayoutParams.WRAP_CONTENT,
                 HorizontalScrollView.LayoutParams.WRAP_CONTENT));
@@ -855,12 +857,13 @@ public class OperatorOverlayService extends Service {
             Button light = button(control.visibleLabel);
             light.setTextSize(10f);
             light.setMaxLines(2);
-            light.setMinHeight(dp(Math.max(
+            int targetDp = Math.max(
                     OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
-                    control.minTouchTargetDp)));
-            light.setMinimumHeight(dp(Math.max(
-                    OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
-                    control.minTouchTargetDp)));
+                    control.minTouchTargetDp);
+            light.setMinHeight(dp(targetDp));
+            light.setMinimumHeight(dp(targetDp));
+            light.setMinWidth(dp(targetDp));
+            light.setMinimumWidth(dp(targetDp));
             light.setTag(control.id);
             light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
             light.setContentDescription(control.contentDescription);
@@ -905,7 +908,9 @@ public class OperatorOverlayService extends Service {
                 : detail.trim();
         heartbeatDetail.setText(safe);
         heartbeatDetail.setContentDescription(safe);
-        if (announce) heartbeatDetail.announceForAccessibility(safe);
+        if (announce && !OperatorState.muted(this)) {
+            heartbeatDetail.announceForAccessibility(safe);
+        }
     }
 
     private Button adamModeButton(String label, String mode, String description) {
