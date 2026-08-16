@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever.heartbeat-swarm.v1",
+  "heartbeat": "2026-08-15T22:00:00-05:00",
+  "reviewedSourceHead": "76f521b1dafd1ff6732de2a55e194f5f6ab3e222",
+  "fronts": [
+    {
+      "name": "native-ui-projection",
+      "state": "advanced",
+      "change": "Added HeartbeatOverlayViewModel as a pure scene-to-UI-ready projection for the existing Operator Overlay owner."
+    },
+    {
+      "name": "accessibility-regression-source",
+      "state": "advanced",
+      "change": "Added source fixtures for 48dp propagation, non-color token/state labels, last-good contact projection, stable id lookup, Unicode truncation, and null-scene fail-closed behavior."
+    },
+    {
+      "name": "durable-skill-harvest",
+      "state": "advanced",
+      "change": "Added skills/heartbeat-native-ui-projection/SKILL.md to preserve the source/runtime/renderer boundary and duplicate-architecture law."
+    },
+    {
+      "name": "deterministic-test-gate",
+      "state": "blocked",
+      "change": "Automatic Operator Overlay Android job executed zero steps; no manual unchanged-condition retry fired."
+    },
+    {
+      "name": "she-raw",
+      "state": "fault",
+      "change": "Authoritative ambient consult returned account-connection HTTP 400; no synthetic contribution substituted."
+    }
+  ],
+  "lights": {
+    "failureIsTheShovel": "active: changed front from dead CI to pure source projection",
+    "canonAutoSelect": "active: existing scene/accessibility organs selected as sole semantic owners",
+    "autocorrectJudgmentJar": "dark: no STT ambiguity affected this slice",
+    "originalityTax": "active: no unchanged CI retry and no second renderer/controller",
+    "hunger": "active: removed the need for a future renderer to reinvent semantic projection",
+    "everPolishedInterpreterEatEverything": "active: code-first review consumed scene, accessibility, capability, and duplicate-architecture boundaries",
+    "operatorCampaignHarroway": "active: source-only mission and ownership membrane preserved",
+    "sheRaw": "fault: account connection HTTP 400",
+    "venice": "active: plan and completion Judgment Jar receipts bound the slice",
+    "regnet": "active: bounded source/readback PASS, TESTED BLOCKED_UNKNOWN",
+    "accessibilityTalkBackTouch": "active: view model propagates 48dp, semantic descriptions, stable id, non-color state text",
+    "phoneRuntimePhoneHands": "dark/firewalled: no phone or queue surface consumed",
+    "deterministicRouting": "active: scene Frame is the sole input and stable id lookup survives order changes",
+    "evidenceCapabilityState": "active: source/test/runtime/render/deploy/delivery states remain separate",
+    "recoveryCheckpointIdempotence": "active: interrupted Frame projects preserved last-good controls with motion already clamped",
+    "strangeNonRasterNativeUi": "active at source-model level only: native UI-ready control model added; no rendered art claim",
+    "warmWallsChristmasSceneGraph": "active through existing scene semantics: token/state/motion contract propagated without decorative new specimen",
+    "contactPreservation": "active: discarded attempted candidates cannot become current controls"
+  },
+  "crossPollination": "The blocked CI gate activated Shovel/Originality Tax; source archaeology showed the existing scene and accessibility organs already own the hard semantics; that forced a thin native UI projection instead of another renderer. Contact preservation and accessibility then shaped stable-id lookup, 48dp propagation, non-color labels, bounded Unicode, and last-good-only interrupted state. Regnet/Venice kept that improvement behind the runtime and phone membranes.",
+  "ciBoundary": {
+    "run": 31923458203,
+    "job": 95107106538,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "sceneToUiReadyViewModelSource": true,
+    "persistedPayloadConsumedByParserAtRuntime": false,
+    "existingOverlayServiceWiredToViewModel": false,
+    "uiRendered": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
