@@ -1,0 +1,33 @@
+{
+  "schema": "venice-plan-review.v1",
+  "commission": "TRY FOREVER heartbeat 1900 non-phone source slice — boundary hygiene correction",
+  "reviewerRole": "venice-judgment-jar",
+  "timestampLocal": "2026-08-15T19:12:00-05:00",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "evidenceIdentity": {
+    "ingressPolicy": "a223a36750e59e4013db035c05ff7407574bd75a",
+    "ingressRegression": "f74e369fd8aad780668ce887112f33fe3013dc40",
+    "sourceSpecimen": "da33d98310e1aaa1dfb9b8a86ff364c93ebf8504",
+    "ingressSkill": "f0c615b4d7f84ef3706730961abf55d1c52b1e05"
+  },
+  "selectedJudgmentJars": [
+    "originality-tax",
+    "evidence-capability-state",
+    "accessibility-talkback",
+    "contact-preservation"
+  ],
+  "changedAssumption": "The first boundary-hygiene pass called the output Unicode-safe after removing ISO controls/whitespace and repairing lone surrogates, but Unicode FORMAT controls such as bidi overrides/isolates can still survive and visually spoof a human-facing log/review boundary.",
+  "antagonism": [
+    "Do not strip ordinary letters from right-to-left scripts; remove only invisible FORMAT controls from this human-facing projection.",
+    "Do not claim the sanitized boundary is canonical exception identity or semantic payload evidence.",
+    "Do not touch phone/P0 surfaces or create a neighboring renderer/controller."
+  ],
+  "revisedPlan": [
+    "Treat Unicode FORMAT code points as boundary separators alongside control/whitespace classes.",
+    "Extend regression source with a bidi-override/format-control fixture and assert no FORMAT code point survives.",
+    "Correct the existing warm-wall and skill wording to say format controls are normalized too.",
+    "Keep all capability states and P0 ownership unchanged."
+  ],
+  "directive": "PLAN_ALLOWED"
+}
