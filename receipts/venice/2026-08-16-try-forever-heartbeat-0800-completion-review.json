@@ -1,0 +1,49 @@
+{
+  "schema": "venice-completion-review.v1",
+  "pulse": "2026-08-16-0800",
+  "scope": "TRY FOREVER heartbeat viewport restore ownership source slice",
+  "reviewMode": "code_first_evidence_second",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "largerCampaign": "CONTINUE_REQUIRED",
+  "missionFidelity": "PASS",
+  "duplicateArchitecture": "PASS",
+  "accessibilitySourceSemantics": "PASS_WITH_RUNTIME_BOUNDARY",
+  "contactPreservation": "PASS_SOURCE",
+  "evidenceTruth": "PASS",
+  "p0Firewall": "PASS_ZERO_MUTATIONS",
+  "codeReview": {
+    "result": "PASS_BOUNDED_SOURCE",
+    "notes": [
+      "OperatorOverlayService remains the sole Android owner and now composes the existing HeartbeatViewportRestorePolicy rather than growing another viewport controller.",
+      "The ticket lifecycle covers stable refresh, structural rebuild, and drift-triggered fallback rebuild, with generation invalidation on later material owner mutations.",
+      "After-layout callbacks revalidate current selected-first / keyboard-focus-fallback semantic ownership, so a same-generation focus move cannot drag the viewport back to an obsolete keyboard-derived anchor.",
+      "A rebuild can preserve semantic viewport contact only when the semantic owner survives the callback checks. Keyboard focus and TalkBack accessibility focus are not claimed as preserved through native object replacement.",
+      "No source evidence was promoted to Android execution, deployment, phone callability, delivery, or acceptance."
+    ]
+  },
+  "reviewedBlobs": {
+    "policy": "2e39fb6baca7bff7298a3718f91d4564894aec4b",
+    "tests": "695c7e7aa40f627407fd9972855121bf01330a6f",
+    "service": "e447f555a096739c61e8c38a24fa32c2361e94a3",
+    "skill": "b1171af1468b07972a47228ffa6249692d33c206",
+    "warmWall": "9973acd8a7df6203be67ba671718f6e82825569b"
+  },
+  "testGate": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflowRunId": 31948809996,
+    "jobId": 95168961155,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "retry": "NOT_FIRED"
+  },
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRaw": false
+  },
+  "darkLights": {
+    "autocorrectJudgmentJar": "NO_MATERIAL_AMBIGUITY",
+    "phoneRuntimePhoneHandsP0": "FIREWALLED_ZERO_MUTATIONS"
+  },
+  "gate": "Do not merge or report this as a delivered interface. Source wiring materially advanced; deterministic tests and Android runtime/TalkBack/phone evidence remain absent."
+}
