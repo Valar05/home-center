@@ -1,0 +1,43 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-1300",
+  "pr": 329,
+  "inherited_plan": "receipts/heartbeat-skill-lights/2026-08-16-1200-plan.json",
+  "reviewed_owner_source_commit": "730543e9c5747bbca73fc0fd731be211b6921abf",
+  "reviewer_mode": "judgment_jar_same_worker_code_first",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "STOP_ALLOWED_FOR_THIS_BOUNDED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED",
+  "why": [
+    "The exact remaining owner seam from the prior plan is now implemented in the existing OperatorOverlayService rather than routed through a substitute lane.",
+    "The source distinguishes successful in-place refresh from actual rebuild/fallback rebuild before granting focus-loss amnesty.",
+    "Overlay-wide direct keyboard-focus presence is supplied by the existing root and remains explicitly distinct from TalkBack accessibility focus.",
+    "The previously proposed patch was converted into applied provenance instead of being left as misleading pending work.",
+    "Three durable skills were synchronized to the source truth, including repair of stale doctrine that treated persistent selection as permanent navigation ownership.",
+    "The existing non-raster warm-wall scar was mutated in place rather than spawning another decorative specimen.",
+    "Exact Actions evidence still blocks TESTED; no source/runtime laundering occurred.",
+    "No phone/P0 execution surface or duplicate owner was consumed."
+  ],
+  "hard_gates": {
+    "merge_as_delivered_interface": false,
+    "existing_owner_explicit_focus_scope_wiring": true,
+    "tests_executed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "phone_delivery": false,
+    "physical_acceptance": false
+  },
+  "test_boundary": {
+    "run_id": 31963495045,
+    "job_id": 95204944307,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "reviewer_faults": {
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT"
+  },
+  "next_authorized_source_seam": "Review the now-wired existing-owner viewport path for a new materially different source defect or accessibility invariant; do not manufacture another focus-scope task while the unchanged Actions budget blocks deterministic execution.",
+  "p0_firewall": "PASS"
+}
