@@ -6,14 +6,14 @@ Prevent stale heartbeat viewport restores from treating persistent selection or 
 
 ## Current source truth
 
-The existing `OperatorOverlayService` still calls the backward-compatible five-argument `HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(...)` and still observes keyboard focus only inside `heartbeatLights`.
+The existing `OperatorOverlayService` now consumes the explicit seven-argument `HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(...)` overload. The owner supplies both facts the pure policy requires:
 
-The backward-compatible overload therefore **must fail closed** when heartbeat-child focus is empty. Missing focus-scope evidence is not rebuild evidence. The explicit overload is the only source path allowed to grant empty-focus amnesty, and only when both facts are supplied:
+1. whether the heartbeat mutation that actually occurred may destroy the native focused Button; and
+2. whether any direct keyboard focus currently exists anywhere under the existing overlay root.
 
-1. the actual heartbeat mutation may destroy the native focused Button; and
-2. no direct keyboard focus is known elsewhere under the existing overlay owner.
+Structural rebuild and live-structure-drift fallback rebuild set `mutationMayDestroyKeyboardFocus=true`; successful stable in-place refresh leaves it false. `root.findFocus() != null` is used only as overlay-wide direct keyboard-focus presence. It is **not** TalkBack accessibility focus.
 
-This conservative fallback protects both keyboard-derived and selection-derived tickets until the existing owner supplies complete focus-scope evidence.
+The backward-compatible five-argument overload still fails closed on ambiguous empty heartbeat focus and remains valid for callers that lack complete focus-scope evidence.
 
 ## Interaction-ownership law
 
@@ -40,7 +40,7 @@ A change in persistent selection still supersedes the older ticket directly. A p
 
 ## Mutation-class law
 
-When the owner eventually wires the explicit overload, `mutationMayDestroyKeyboardFocus` must describe what actually happened in that refresh:
+`mutationMayDestroyKeyboardFocus` must describe what actually happened in that refresh:
 
 - structural rebuild: **true**;
 - live-structure-drift fallback that actually rebuilds: **true**;
@@ -50,7 +50,7 @@ Do not derive this flag from the original plan alone. A content refresh can fall
 
 ## Overlay focus-scope law
 
-The owner must distinguish:
+The owner distinguishes:
 
 - current heartbeat-child keyboard-focused semantic id; and
 - whether **any** direct keyboard focus currently exists elsewhere under the overlay root.
@@ -83,9 +83,12 @@ Current bounded truth for this scar:
 - interaction-ownership policy source: **YES**
 - fail-closed legacy policy source: **YES**
 - regression source: **YES**
-- existing-owner explicit mutation-class/focus-scope wiring: **NO**
+- existing-owner explicit mutation-class/focus-scope wiring: **YES**
+- exact GitHub readback of owner wiring: **YES**
 - deterministic tests: **NO / blocked by the current Actions budget boundary**
-- runtime/deployed/callable/executed/delivered/accepted: **NO**
+- runtime viewport/runtime keyboard focus/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**
+
+Source wiring is not runtime proof. `root.findFocus()` establishes direct keyboard-focus presence only; it does not prove accessibility focus behavior.
 
 ## P0 / phone firewall
 
