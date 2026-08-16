@@ -225,8 +225,9 @@ public final class HeartbeatEnvelopeParser {
 
     /**
      * Semantic text is later spoken, touched, fingerprinted, or shown in detail.
-     * Inspect the decoded string before trimming so edge control characters cannot
-     * be silently normalized away, then apply the field-specific display bound.
+     * Inspect the decoded string before trimming so edge controls, malformed UTF-16,
+     * and directional bidi controls cannot be silently normalized or visually spoof
+     * operator evidence, then apply the field-specific display bound.
      */
     private static String requiredSemanticString(
             Map<String, Object> object,
@@ -267,6 +268,10 @@ public final class HeartbeatEnvelopeParser {
                 throw new ParseFailure(
                         "Heartbeat field " + key + " contains an unpaired surrogate.");
             }
+        }
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(value)) {
+            throw new ParseFailure(
+                    "Heartbeat field " + key + " contains a bidi-direction control.");
         }
     }
 
