@@ -1,0 +1,50 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-0700",
+  "scope": "TRY FOREVER viewport restore lifecycle source slice",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED",
+  "quality": "mixed",
+  "judgment": {
+    "good": [
+      "The swarm changed failure strategy instead of retrying blocked CI.",
+      "The new helper is pure policy and does not duplicate OperatorOverlayService ownership.",
+      "Structural-survival and stale-callback hazards are now named as deterministic source contracts with regression fixtures.",
+      "Accessibility distinctions remain explicit: semantic selection, direct keyboard focus, viewport contact, and TalkBack accessibility focus are not collapsed into one claim.",
+      "The existing touchable warm-wall specimen was mutated in place rather than multiplying decorative artifacts."
+    ],
+    "wounds": [
+      "The existing OperatorOverlayService still does not consume HeartbeatViewportRestorePolicy.",
+      "Structural-rebuild viewport restoration is therefore policy source only.",
+      "Pending pre-draw callbacks still lack a service-side generation invalidation guard.",
+      "Source regressions did not execute because GitHub Actions ran zero steps under the Actions-budget blocker.",
+      "No Android runtime viewport, keyboard-focus, or TalkBack behavior was observed."
+    ],
+    "nextAuthorizedCut": "Wire the existing OperatorOverlayService to the pure restore ticket/generation policy without creating a neighboring renderer: capture surviving semantic anchor before any earned content/structure mutation, advance generation on later mutation or explicit selection, and let stale after-layout callbacks become inert. Runtime evidence remains a later authorized body."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "stableStructureViewportOwnerWiring": true,
+    "restoreLifecyclePolicySource": true,
+    "structuralRebuildViewportOwnerWiring": false,
+    "restoreGenerationOwnerWiring": false,
+    "tested": false,
+    "runtimeViewportObserved": false,
+    "runtimeKeyboardFocusObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0MutationCount": 0
+}
