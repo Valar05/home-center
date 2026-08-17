@@ -35,18 +35,45 @@ public final class HeartbeatPersistedSnapshotReaderTest {
     }
 
     @Test
-    public void numericMapValuesConvertToLongs() {
+    public void integerAndLongMapValuesConvertWithoutFloatingCoercion() {
         Map<String, Object> values = new HashMap<>();
         values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, "payload-b");
         values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES, Integer.valueOf(11));
         values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_SHA256, "sha-b");
-        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS, Integer.valueOf(202));
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS, Long.valueOf(202L));
 
         HeartbeatPersistedPollPolicy.Snapshot snapshot =
                 HeartbeatPersistedSnapshotReader.fromValues(values);
 
         assertEquals(11L, snapshot.declaredBytes);
         assertEquals(202L, snapshot.updatedMs);
+    }
+
+    @Test
+    public void floatingMetadataIsRejectedInsteadOfTruncatedIntoEvidence() {
+        Map<String, Object> values = new HashMap<>();
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, "payload-c");
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES, Float.valueOf(11.75f));
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_SHA256, "sha-c");
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS, 203L);
+
+        try {
+            HeartbeatPersistedSnapshotReader.fromValues(values);
+            fail("Expected floating byte-count metadata to be rejected.");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains(
+                    OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES));
+        }
+
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES, 11L);
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS, Float.valueOf(203.25f));
+        try {
+            HeartbeatPersistedSnapshotReader.fromValues(values);
+            fail("Expected floating timestamp metadata to be rejected.");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains(
+                    OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS));
+        }
     }
 
     @Test
