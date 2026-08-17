@@ -58,14 +58,40 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
         StringBuilder out = new StringBuilder(value.length());
         for (int index = 0; index < value.length();) {
             int codePoint = value.codePointAt(index);
-            String marker = markerFor(codePoint);
-            if (marker != null) {
-                out.append(marker);
-            } else if (codePoint == '\\') {
-                out.append("\\\\");
-            } else {
-                out.appendCodePoint(codePoint);
+            out.append(projectedUnit(codePoint));
+            index += Character.charCount(codePoint);
+        }
+        return out.toString();
+    }
+
+    /**
+     * Bounded on-demand evidence projection for spoken/detail surfaces.
+     *
+     * <p>The bound is applied <em>after</em> invisible controls are expanded into
+     * explicit markers. A source field that is legal at the parser boundary can grow
+     * several times larger when every invisible control becomes a marker; bounding the
+     * source before projection would therefore fail to bound the actual TalkBack/detail
+     * output.</p>
+     *
+     * <p>Projection units are atomic. A marker such as {@code \u{200B ZWSP}} and an
+     * escaped literal backslash are either emitted whole or not emitted at all, so
+     * truncation cannot create a partial marker that aliases some other source text.
+     * The exact source string remains separately authoritative.</p>
+     */
+    public static String boundedEvidenceProjection(String value, int maxCodePoints) {
+        if (value == null || value.isEmpty() || maxCodePoints <= 0) return "";
+        StringBuilder out = new StringBuilder(Math.min(value.length(), maxCodePoints));
+        int projectedCodePoints = 0;
+        for (int index = 0; index < value.length();) {
+            int codePoint = value.codePointAt(index);
+            String unit = projectedUnit(codePoint);
+            int unitCodePoints = unit.codePointCount(0, unit.length());
+            if (projectedCodePoints + unitCodePoints > maxCodePoints) {
+                out.append("… (truncated)");
+                break;
             }
+            out.append(unit);
+            projectedCodePoints += unitCodePoints;
             index += Character.charCount(codePoint);
         }
         return out.toString();
@@ -73,6 +99,13 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
 
     public static boolean isRevealableInvisibleControl(int codePoint) {
         return markerFor(codePoint) != null;
+    }
+
+    private static String projectedUnit(int codePoint) {
+        String marker = markerFor(codePoint);
+        if (marker != null) return marker;
+        if (codePoint == '\\') return "\\\\";
+        return new String(Character.toChars(codePoint));
     }
 
     private static String markerFor(int codePoint) {
