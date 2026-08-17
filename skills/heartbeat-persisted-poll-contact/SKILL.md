@@ -30,9 +30,11 @@ Do not use timestamp ordering as a replay sequence. Do not weaken byte/SHA verif
 ## One poll = one storage observation
 The heartbeat writer commits payload, byte count, SHA, and update metadata in one SharedPreferences editor transaction. Reading those keys through four independent getter calls can still straddle two committed maps if a writer lands between getters, manufacturing a transient byte/SHA mismatch that looks like a real storage-integrity wound.
 
-`HeartbeatPersistedSnapshotReader.read(...)` now supplies the existing owner with all four fields from one `SharedPreferences.getAll()` observation. `fromValues(...)` remains the pure regression-testable extraction seam. Missing keys keep canonical defaults; a present key with the wrong stored type is rejected rather than rewritten into fake absence.
+`HeartbeatPersistedSnapshotReader.read(...)` supplies the existing owner with all four fields from one `SharedPreferences.getAll()` observation. `fromValues(...)` remains the pure regression-testable extraction seam. Missing keys keep canonical defaults; a present key with the wrong stored type is rejected rather than rewritten into fake absence.
 
-**Current capability truth:** coherent one-map reader source **YES**; existing `OperatorOverlayService` coherent-reader source consumption **YES**; Android execution/runtime observation **NO**.
+Integer and long map values are the only accepted integral metadata shapes. Do **not** accept arbitrary `Number` and call `longValue()`: SharedPreferences can contain `Float`, and silently truncating `11.75f` to `11L` would launder type drift into counterfeit byte-count or timestamp evidence. Floating metadata is a coherent-read failure and must remain retryable.
+
+**Current capability truth:** coherent one-map reader source **YES**; integral-only metadata hardening source **YES**; existing `OperatorOverlayService` coherent-reader source consumption **YES**; Android execution/runtime observation **NO**.
 
 ## Coherent-read failure
 A coherent storage read may fail because SharedPreferences access aborts or because a present heartbeat key has an unexpected stored type. That is not `WAITING`, not `PRESERVE_MISSING_CONTACT`, and not permission to erase or advance processed identity.
@@ -53,6 +55,19 @@ The wound must reuse `HeartbeatSceneGraph.preserveRejectedRefresh(...)` so last-
 
 A coherent-read failure before first contact must not invent a visible pulse identity. Its interruption description may report that no complete heartbeat is available; that is different from claiming visible contact existed.
 
+## Healthy WAITING recovery after a pre-contact wound
+A pre-contact coherent-read failure deliberately creates a non-null interrupted frame so `REFRESH BLOCKED` can be shown. When the next coherent observation is the canonical fully-absent store, the poll policy correctly returns `WAITING`. Leaving that interrupted frame in place would keep stale wound chrome visible after storage recovered.
+
+`HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(...)` is the pure source gate for the one-shot recovery. It returns true only when:
+
+- the current decision is `WAITING`;
+- a non-null interrupted frame exists; and
+- no accepted/preserved `visiblePulseId` contact exists.
+
+It must return false for ordinary null-frame waiting and for accepted/preserved contact, including zero-material accepted pulses. The owner consequence is **one semantic clear, then quiet**: clear the stale pre-contact frame/chrome once; repeated healthy 200 ms empty polls must do no UI/speech/motion work.
+
+**Current capability truth:** one-shot WAITING recovery policy source **YES**; regression source **YES**; exact existing-owner delta is durably specified in `docs/try-forever/operator-overlay-precontact-waiting-recovery.patch`; existing `OperatorOverlayService` consumption of this recovery gate **NO** until that source delta is actually applied and read back.
+
 ## Interruption chrome truth
 Visible interruption chrome must be derived from the same accepted/preserved contact predicate as scene recovery. Do not let the Android owner re-derive `CONTACT HELD` from `refreshInterrupted` or control count alone.
 
@@ -68,12 +83,12 @@ Visible interruption chrome must be derived from the same accepted/preserved con
 **Current capability truth:** model summary/detail truth source **YES**; existing `OperatorOverlayService.applyHeartbeatModelChrome(...)` consumes both helpers **YES**; Android/TalkBack runtime observation **NO**.
 
 ## Accessibility and touch
-Silent stale contact is an accessibility defect: a TalkBack user must not hear or touch an old heartbeat as though storage contact were still current. The missing-after-contact and coherent-read-failure states therefore use bounded interruption semantics.
+Silent stale contact is an accessibility defect: a TalkBack user must not hear or touch an old heartbeat as though storage contact were still current. The missing-after-contact and coherent-read-failure states therefore use bounded interruption semantics. A recovered pre-contact store must likewise return to ordinary waiting instead of leaving stale `REFRESH BLOCKED` chrome behind.
 
 Poll dedupe is also accessibility protection. Re-running projection on every fast poll must not recreate native controls, churn focus, re-announce summaries, or blink Christmas lights. Likewise, a torn multi-getter storage read must not generate a false wound when one coherent preference-map observation can avoid it.
 
 ## Regression source
-At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
+At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
 
 A regression file is source only until an authorized runner executes it.
 
@@ -82,14 +97,16 @@ A regression file is source only until an authorized runner executes it.
 
 Expected invalid persisted payload data may be retained after its preserved wound is applied so identical corruption does not burn the 200 ms loop forever. A **reader/storage failure is different**: no coherent current observation exists, so the owner preserves a bounded read wound and keeps the older processed snapshot; the next poll retries.
 
+The remaining owner seam is precise: on a healthy `WAITING` decision after a pre-contact read wound, consume `shouldClearPreContactWoundOnWaiting(...)`, clear that stale frame/chrome once, and make later identical empty polls no-op. Do not weaken the contact predicate, do not clear accepted/preserved contact, and do not create a second poller.
+
 Owner wiring must not consume Phone Hands, the primary-phone execution surface, queue/relay prerequisites, or P0 recovery owners.
 
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> policy source -> coherent reader source -> existing-owner coherent-reader source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> policy source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 GitHub readback proves durable source only. None of these source artifacts prove Android tests ran or that any phone changed.
 
 ## Done for one source pulse
-This skill may light only when persisted-poll classification, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
+This skill may light only when persisted-poll classification, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, recovery semantics, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
