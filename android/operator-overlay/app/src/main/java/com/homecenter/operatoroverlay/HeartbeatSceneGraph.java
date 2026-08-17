@@ -171,9 +171,10 @@ public final class HeartbeatSceneGraph {
      * off and the exact rejection boundary remains visible.
      *
      * <p>An attempted id is diagnostic semantics too. If a pre-parser caller passes
-     * an unsafe id containing controls, malformed UTF-16, or directional bidi
-     * controls, suppress that id rather than echoing it into a visible/TalkBack frame.
-     * The original rejection boundary remains unchanged.</p>
+     * an unsafe id containing controls, malformed UTF-16, directional bidi controls,
+     * or a value larger than the canonical wire bound, suppress that id rather than
+     * echoing it into a visible/TalkBack frame. The original rejection boundary
+     * remains unchanged.</p>
      *
      * <p>This is pure source composition only. It does not own storage, transport,
      * rendering, phone execution, or P0 recovery.</p>
@@ -184,9 +185,7 @@ public final class HeartbeatSceneGraph {
             String boundary) {
         String exactBoundary = raw(boundary);
         if (exactBoundary.isEmpty()) exactBoundary = "Heartbeat refresh was rejected.";
-        String safeAttempted = HeartbeatSkillPolicy.isSafeSemanticText(attemptedPulseId)
-                ? attemptedPulseId
-                : "";
+        String safeAttempted = boundedSafePulseIdentity(attemptedPulseId);
         return preserveLastGood(safeAttempted, lastGood, exactBoundary);
     }
 
@@ -201,6 +200,11 @@ public final class HeartbeatSceneGraph {
      * visible pulse id is permitted only for an exact visible-contact retry. If the
      * same id arrives with different contact semantics, fail closed instead of
      * allowing one identity to mutate underneath checkpoints or retry logic.
+     *
+     * Direct scene ingress must keep the canonical root pulse-id bound too. The wire
+     * parser rejects pulse ids above MAX_PULSE_ID_CHARS; accepting an oversized
+     * direct pulse id here would create a second source contract and allow oversized
+     * checkpoint/diagnostic identity even though canonical ingress rejects it.
      *
      * Direct Candidate lists must also preserve the canonical parser's one-owner
      * rule. selectMaterialLights() intentionally deduplicates for legacy summary
@@ -220,6 +224,14 @@ public final class HeartbeatSceneGraph {
                     "Pulse identity contains a control, malformed surrogate, or bidi-direction control.");
         }
         String attempted = clean(pulseId);
+        if (attempted.length() > HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS) {
+            return preserveLastGood(
+                    "",
+                    lastGood,
+                    "Pulse identity exceeds "
+                            + HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS
+                            + " characters.");
+        }
         if (!pulseComplete) {
             return preserveLastGood(attempted, lastGood, "Pulse is incomplete.");
         }
@@ -280,6 +292,13 @@ public final class HeartbeatSceneGraph {
             if (!seen.add(key)) return true;
         }
         return false;
+    }
+
+    private static String boundedSafePulseIdentity(String value) {
+        if (!HeartbeatSkillPolicy.isSafeSemanticText(value)) return "";
+        String clean = clean(value);
+        if (clean.length() > HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS) return "";
+        return clean;
     }
 
     private static Frame preserveLastGood(String attempted, Frame lastGood, String boundary) {
