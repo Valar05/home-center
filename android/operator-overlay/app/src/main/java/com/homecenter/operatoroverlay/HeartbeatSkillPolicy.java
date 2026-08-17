@@ -152,7 +152,10 @@ public final class HeartbeatSkillPolicy {
      * Canonical typed fields also have to be safe for visible/touch/speech use.
      * Directional-format controls are rejected rather than normalized so exact
      * canonical source identity cannot silently change before checkpointing or
-     * evidence review. Ordinary Unicode remains data, including ZWJ sequences.
+     * evidence review. Ordinary human-facing Unicode remains data, including ZWJ
+     * sequences. The machine semantic id is intentionally narrower: display-ready
+     * ids use an ASCII token alphabet so Locale.ROOT folding and equalsIgnoreCase
+     * ownership cannot disagree about which native control one id names.
      */
     public static boolean hasTypedSourceContract(Candidate candidate) {
         if (candidate == null
@@ -160,6 +163,7 @@ public final class HeartbeatSkillPolicy {
                 || candidate.label.isEmpty()
                 || candidate.consequence.isEmpty()) return false;
         if (!hasSafeSemanticSurface(candidate)) return false;
+        if (!isDeterministicSemanticId(candidate.id)) return false;
         if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
         if (!isAllowedProvenanceLocator(candidate.provenanceKind, candidate.provenanceLocator)) {
             return false;
@@ -258,6 +262,34 @@ public final class HeartbeatSkillPolicy {
                             : " material lights were omitted from speech because their semantic text was rejected.");
         }
         return out.toString().trim();
+    }
+
+    /**
+     * Deterministic machine identity for heartbeat ownership.
+     *
+     * <p>Human labels/reasons/evidence remain Unicode. The semantic id is different:
+     * it is used by parser dedupe, scene/model lookup, native Button tags, selection,
+     * viewport restore, structure hashing, and transition hashing. Those paths have
+     * historically mixed Locale.ROOT lowercase keys with String.equalsIgnoreCase.
+     * Their Unicode equivalence sets are not identical. Restricting the typed id to
+     * ASCII letters/digits plus a small path/token punctuation set makes both
+     * operations agree while preserving existing ASCII case-tolerant behavior.</p>
+     *
+     * <p>Canonical producers should still emit stable lowercase ids. Uppercase ASCII
+     * remains accepted so case-only producer drift stays an evidence change rather
+     * than suddenly becoming a parser migration break.</p>
+     */
+    static boolean isDeterministicSemanticId(String value) {
+        String id = clean(value);
+        if (id.isEmpty()) return false;
+        for (int index = 0; index < id.length(); index++) {
+            char c = id.charAt(index);
+            boolean asciiLetter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+            boolean digit = c >= '0' && c <= '9';
+            boolean punctuation = c == '-' || c == '_' || c == '.' || c == '/' || c == ':';
+            if (!(asciiLetter || digit || punctuation)) return false;
+        }
+        return true;
     }
 
     private static boolean isAllowedProvenanceKind(String provenanceKind) {
