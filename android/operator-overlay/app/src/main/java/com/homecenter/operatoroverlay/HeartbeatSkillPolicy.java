@@ -15,9 +15,9 @@ import java.util.Set;
  * blocked/fault boundary that the operator needs to know about.
  */
 public final class HeartbeatSkillPolicy {
-    /** Maximum label speech from one focused light. Exact candidate text remains unchanged. */
+    /** Hard returned label-speech budget from one focused light. Exact candidate text remains unchanged. */
     public static final int MAX_SPOKEN_LABEL_CODE_POINTS = 96;
-    /** Maximum consequence speech in the compact focus description. */
+    /** Hard returned consequence-speech budget in the compact focus description. */
     public static final int MAX_COMPACT_CONSEQUENCE_CODE_POINTS = 160;
     /** Expanded detail is on-demand, but still must not become a multi-kilobyte speech burst. */
     public static final int MAX_DETAIL_REASON_CODE_POINTS = 256;
@@ -201,9 +201,9 @@ public final class HeartbeatSkillPolicy {
 
     /**
      * Compact focus description. Spoken label and consequence are deliberately
-     * bounded so a direct source caller cannot turn one focus action into an
-     * unbounded TalkBack burst. Exact candidate fields remain unchanged for explicit
-     * inspection/evidence handling.
+     * hard-bounded over the returned projection, including any ellipsis, so a direct
+     * source caller cannot turn one focus action into an unbounded TalkBack burst.
+     * Exact candidate fields remain unchanged for explicit inspection/evidence handling.
      */
     public static String contentDescription(Candidate candidate) {
         if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
@@ -383,12 +383,9 @@ public final class HeartbeatSkillPolicy {
     }
 
     private static String compactSpeechField(String value, int maxCodePoints) {
-        String clean = clean(value);
-        if (clean.isEmpty() || maxCodePoints <= 0) return clean;
-        int codePoints = clean.codePointCount(0, clean.length());
-        if (codePoints <= maxCodePoints) return clean;
-        int end = clean.offsetByCodePoints(0, maxCodePoints);
-        return clean.substring(0, end) + "…";
+        return HeartbeatPlainTextBudget.boundedWithEllipsis(
+                clean(value),
+                maxCodePoints);
     }
 
     private static String clean(String value) {
