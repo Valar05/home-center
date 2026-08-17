@@ -1,0 +1,79 @@
+{
+  "schema": "regnet.source_review.v1",
+  "heartbeat": "2026-08-17-0000",
+  "scope": "TRY FOREVER persisted heartbeat poll owner wiring, accessibility/idempotence regression source, coherent-storage observation review, skill/art synchronization; no phone/P0 execution",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "source_review": {
+    "existing_owner_policy_consumption": "PASS",
+    "waiting_vs_missing_contact": "PASS",
+    "unchanged_projection_skip": "PASS",
+    "processed_snapshot_retained_after_applied_decision": "PASS",
+    "unexpected_projection_abort_retryable": "PASS_BY_SOURCE_CONTROL_FLOW",
+    "missing_contact_reuses_existing_scene_preservation": "PASS",
+    "duplicate_architecture": "PASS_NONE_CREATED",
+    "accessibility_contact_truth": "PASS_SOURCE",
+    "regression_source": "PASS_SOURCE_ONLY",
+    "coherent_single_map_storage_observation": "REVISE_REQUIRED_OWNER_NOT_YET_CONSUMING_READER",
+    "tested": "BLOCKED_ACTIONS_BUDGET"
+  },
+  "review_scars": [
+    {
+      "finding": "The first owner wiring constructed one policy Snapshot from four independent SharedPreferences getter calls. A writer commit between getters can produce a transient mixed observation and a false byte/SHA integrity wound.",
+      "action": "Added HeartbeatPersistedSnapshotReader using one SharedPreferences.getAll() observation plus pure extraction regression source.",
+      "remaining_boundary": "OperatorOverlayService still does not consume HeartbeatPersistedSnapshotReader.read(...)."
+    },
+    {
+      "finding": "The first snapshot-reader draft silently converted present fields with unexpected stored types into canonical missing defaults, which could launder persistence type drift into WAITING or CONTACT LOST.",
+      "action": "Reader now preserves missing-key defaults but throws on present unexpected types; regression source pins that distinction.",
+      "remaining_boundary": "Future owner wiring must preserve an explicit storage-read wound without killing the poll loop, then retry until the observation changes or succeeds."
+    }
+  ],
+  "exact_source_identities": {
+    "HeartbeatPersistedPollPolicy.java": "f0df30b7200f658aea899e02aa8fa592684bb8b8",
+    "OperatorOverlayService.java": "5ac4db4f835e8a1be35eaf1ffb9258159eb1f574",
+    "HeartbeatPersistedPollPolicyTest.java": "34ed9d39a9b7f2769cfba73d22ccd04ab1bc0c2d",
+    "HeartbeatPersistedSnapshotReader.java": "a457471a0532bc19e6ed251c2d87999fa3fef4ce",
+    "HeartbeatPersistedSnapshotReaderTest.java": "ae25b76335b8b721d342c9f82ce2573ccb9a182a",
+    "skills/heartbeat-persisted-poll-contact/SKILL.md": "a20c17df6c05f45994245d8b3c8f0564d1cc4600",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "6eb4ab7a484846b191470bf0d3949d9d0c9f45ca"
+  },
+  "ci_boundary": {
+    "head": "e8e31a0f83528fe91fa25646e6a51ba6bfaf46de",
+    "workflow": "Operator Overlay Android",
+    "run_id": 31997318421,
+    "job_id": 95291175928,
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "she_raw": "ATTEMPTED_PRE_EXECUTION_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+  "p0_phone_firewall": {
+    "phone_hands": 0,
+    "primary_phone_commands": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance": 0,
+    "duplicate_p0_owners": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "policy_source": true,
+    "existing_owner_classification_source_wired": true,
+    "coherent_one_map_reader_source": true,
+    "existing_owner_coherent_reader_source_wired": false,
+    "regression_source": true,
+    "exact_github_readback": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
