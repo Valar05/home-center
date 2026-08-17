@@ -20,12 +20,17 @@ public final class HeartbeatPersistedPollPolicyTest {
 
     @Test
     public void negativeTimestampIsNotCanonicalAbsenceAndMustProject() {
+        HeartbeatPersistedPollPolicy.Snapshot canonicalEmpty = snapshot("", 0L, "", 0L);
         HeartbeatPersistedPollPolicy.Snapshot corrupted = snapshot("", 0L, "", -1L);
 
         assertFalse(corrupted.fullyAbsent());
+        assertFalse(canonicalEmpty.sameProjectionInputs(corrupted));
         assertEquals(
                 HeartbeatPersistedPollPolicy.Decision.PROJECT,
                 HeartbeatPersistedPollPolicy.decide(null, corrupted, false));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(canonicalEmpty, corrupted, false));
     }
 
     @Test
