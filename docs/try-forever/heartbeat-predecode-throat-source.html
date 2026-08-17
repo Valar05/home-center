@@ -28,17 +28,18 @@
 <body>
 <main>
   <h1>WARM WALL / PRE-DECODE THROAT</h1>
-  <p class="scar">SOURCE ONLY · 43,692-CHAR THROAT · DECODER DOES NOT GET TO EAT INFINITY</p>
+  <p class="scar">SOURCE OWNER WIRED · RESOURCE THROAT + EXACT BASE64 DECLARATION GATE · RUNTIME UNPROVEN</p>
 
   <div class="controls" role="group" aria-label="Choose a persisted heartbeat declaration case">
     <button type="button" data-case="max" aria-pressed="true">Exact max</button>
     <button type="button" data-case="overflow" aria-pressed="false">Max + 1</button>
+    <button type="button" data-case="alias" aria-pressed="false">Base64 alias</button>
     <button type="button" data-case="sha" aria-pressed="false">SHA whitespace</button>
   </div>
 
   <svg viewBox="0 0 900 330" role="img" aria-labelledby="diagramTitle diagramDesc">
-    <title id="diagramTitle">Heartbeat persisted declaration pre-decode resource gate</title>
-    <desc id="diagramDesc">A warm-wall pipeline from one coherent SharedPreferences observation through a bounded Base64 declaration throat, then toward the existing decoder and later integrity gates. Oversized declarations stop before decoding.</desc>
+    <title id="diagramTitle">Heartbeat persisted declaration resource and canonicality gates</title>
+    <desc id="diagramDesc">A warm-wall pipeline from one coherent SharedPreferences observation through a bounded Base64 declaration throat, the existing decoder, and an exact canonical writer-form comparison before later integrity and semantic projection. Oversized and decoder-tolerated non-canonical declarations fail closed.</desc>
     <path class="wire" d="M190 165 H330" />
     <path id="gateWire" class="wire" d="M570 165 H710" />
     <rect class="node" x="30" y="105" width="160" height="120" rx="24" />
@@ -48,18 +49,18 @@
 
     <rect class="node" x="330" y="75" width="240" height="180" rx="34" />
     <text class="label" x="450" y="125">THE THROAT</text>
-    <text class="small" x="450" y="156">max = 4 × ceil(32768 / 3)</text>
+    <text class="small" x="450" y="156">length → decode → re-encode</text>
     <text id="budgetText" class="label" x="450" y="194">43,692 → PASS</text>
-    <text id="motionText" class="small" x="450" y="225">resource gate only</text>
+    <text id="motionText" class="small" x="450" y="225">canonical declaration continues</text>
 
     <rect class="node" x="710" y="105" width="160" height="120" rx="24" />
     <text class="label" x="790" y="150">EXISTING</text>
-    <text class="small" x="790" y="180">Base64 decoder</text>
-    <text class="small" x="790" y="200">then integrity</text>
+    <text class="small" x="790" y="180">integrity + parser</text>
+    <text class="small" x="790" y="200">then scene</text>
   </svg>
 
-  <div id="status" role="status" aria-live="polite">Exact maximum: the coherent reader permits the declaration to continue. This does not prove valid Base64, integrity, parsing, rendering, or delivery.</div>
-  <p class="legend">● Resource bound is pre-decode. □ Base64 canonicality is separate. × Oversize preserves the existing bounded storage wound. ◇ Phone/P0 remains untouched.</p>
+  <div id="status" role="status" aria-live="polite">Exact maximum: the coherent reader permits the declaration to continue. Exact writer-form Base64, integrity, parsing, rendering, and delivery remain separate gates.</div>
+  <p class="legend">● Resource bound is pre-decode. □ Decoder acceptance is not declaration acceptance. × Rejection preserves last-good contact and earns no Christmas motion. ◇ Phone/P0 remains untouched.</p>
 </main>
 <script>
 (() => {
@@ -72,9 +73,9 @@
   const cases = {
     max: {
       budget: '43,692 → PASS',
-      note: 'resource gate only',
+      note: 'canonical declaration continues',
       blocked: false,
-      status: 'Exact maximum: the coherent reader permits the declaration to continue. This does not prove valid Base64, integrity, parsing, rendering, or delivery.'
+      status: 'Exact maximum: the coherent reader permits the declaration to continue. Exact writer-form Base64, integrity, parsing, rendering, and delivery remain separate gates.'
     },
     overflow: {
       budget: '43,693 → BLOCK',
@@ -82,11 +83,17 @@
       blocked: true,
       status: 'Maximum plus one: the coherent reader rejects before the existing owner decodes. The bounded storage-read wound may preserve last-good contact; no Christmas motion is earned.'
     },
+    alias: {
+      budget: 'Zg==\\n → BLOCK',
+      note: 'decoder alias ≠ writer identity',
+      blocked: true,
+      status: 'Base64 alias: even if the existing decoder yields the same bytes, canonical re-encoding is compared against the exact stored declaration. A textual alias is rejected through the existing contact-preservation path before semantic projection.'
+    },
     sha: {
       budget: 'LENGTH → PASS',
       note: 'exact SHA text survives',
       blocked: false,
-      status: 'SHA whitespace: the reader does not normalize integrity text. Length eligibility is unrelated to SHA acceptance; downstream exact-integrity policy still owns that rejection.'
+      status: 'SHA whitespace: the reader does not normalize integrity text. Base64 canonicality is already a separate owner gate; downstream exact SHA policy still owns this rejection.'
     }
   };
 
