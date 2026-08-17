@@ -1,0 +1,22 @@
+{
+  "schema": "venice.completion-review.v1",
+  "heartbeat": "2026-08-17T11:00:00-05:00",
+  "reviewType": "same-worker Judgment Jar completion review",
+  "target": "One explicit heartbeat detail authority",
+  "verdict": "STOP_ALLOWED_FOR_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "sourceReview": [
+    "Scene duplicate detail cache removed.",
+    "Known explicit detail consumers use HeartbeatEvidenceDetailProjection.",
+    "Stale HeartbeatSceneGraphTest references were repaired.",
+    "Stale rejected-refresh object-identity fixture was repaired to match no-motion contact preservation.",
+    "Existing skill and Swan Veil source were updated in place.",
+    "No phone or P0 surface was used."
+  ],
+  "tested": false,
+  "testBoundary": "Current-head GitHub Actions workflow-run readback returned HTTP 403 Resource not accessible by integration.",
+  "runtimeClaims": false,
+  "mergeAsDelivered": false,
+  "sheRaw": "ACCOUNT_CONNECTION_FAULT_NO_SUBSTITUTE",
+  "next": "Keep this seam dark unless new evidence reopens it; select a materially different non-P0 source wound next."
+}
