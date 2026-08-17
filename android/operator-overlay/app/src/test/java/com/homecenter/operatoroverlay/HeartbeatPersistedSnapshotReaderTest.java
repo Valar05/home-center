@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public final class HeartbeatPersistedSnapshotReaderTest {
     @Test
-    public void extractsHeartbeatFieldsFromOneMap() {
+    public void extractsHeartbeatFieldsFromOneMapWithoutNormalizingIntegrityText() {
         Map<String, Object> values = new HashMap<>();
         values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, "payload-a");
         values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES, 9L);
@@ -22,7 +22,7 @@ public final class HeartbeatPersistedSnapshotReaderTest {
 
         assertEquals("payload-a", snapshot.payloadB64);
         assertEquals(9L, snapshot.declaredBytes);
-        assertEquals("sha-a", snapshot.declaredSha256);
+        assertEquals("  sha-a  ", snapshot.declaredSha256);
         assertEquals(101L, snapshot.updatedMs);
     }
 
@@ -88,5 +88,38 @@ public final class HeartbeatPersistedSnapshotReaderTest {
             assertTrue(expected.getMessage().contains(
                     OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64));
         }
+    }
+
+    @Test
+    public void canonicalMaximumBase64DeclarationIsAcceptedBeforeDecode() {
+        Map<String, Object> values = new HashMap<>();
+        String payload = repeat('A', HeartbeatPersistedSnapshotReader.MAX_PAYLOAD_BASE64_CHARS);
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, payload);
+
+        HeartbeatPersistedPollPolicy.Snapshot snapshot =
+                HeartbeatPersistedSnapshotReader.fromValues(values);
+
+        assertEquals(payload, snapshot.payloadB64);
+    }
+
+    @Test
+    public void oversizedBase64DeclarationIsRejectedBeforeOwnerDecode() {
+        Map<String, Object> values = new HashMap<>();
+        values.put(
+                OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64,
+                repeat('A', HeartbeatPersistedSnapshotReader.MAX_PAYLOAD_BASE64_CHARS + 1));
+
+        try {
+            HeartbeatPersistedSnapshotReader.fromValues(values);
+            fail("Expected oversized Base64 declaration to be rejected before decode.");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains("Base64 declaration exceeds canonical maximum"));
+        }
+    }
+
+    private static String repeat(char value, int count) {
+        StringBuilder out = new StringBuilder(count);
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
     }
 }
