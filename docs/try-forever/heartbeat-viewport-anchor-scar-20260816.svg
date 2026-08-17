@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="780" viewBox="0 0 960 780" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport ownership, source-bound parity, duplicate-owner, and pulse-identity fail-closed scars</title>
-  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, parser/direct candidate bound parity, fail-closed duplicate semantic ownership, and root pulse identity bound parity: canonical parsing, direct scene ingress, and pre-parser diagnostic state share one maximum rather than allowing oversized pulse identity. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="880" viewBox="0 0 960 880" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport ownership, source-bound parity, duplicate-owner, pulse-identity, and persisted-poll fail-closed scars</title>
+  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, parser/direct candidate bound parity, fail-closed duplicate semantic ownership, root pulse identity bound parity, and persisted-poll contact truth: empty storage before first contact is waiting, empty storage after visible contact is a preserved wound, and positive wall-clock timestamp churn alone does not earn repeated semantic projection. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,7 +15,7 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="726" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="826" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
   <text class="tiny" x="56" y="92">OWNER FOCUS-SCOPE SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE UNTOUCHED</text>
 
@@ -63,5 +63,9 @@
   <text class="label" x="86" y="684">ROOT PULSE ID / ONE BOUND</text>
   <text class="tiny" x="86" y="707">parser = direct scene = pre-parser diagnostic · max+1 → REJECTED · attempted ID suppressed · contact held · no motion.</text>
 
-  <text class="tiny" x="56" y="742">Exact source policy is wired. Regression source exists. Runtime/test proof remains separate. No phone/P0 surface consumed.</text>
+  <rect class="scar" x="66" y="734" width="826" height="72" rx="16"/>
+  <text class="label" x="86" y="760">PERSISTED POLL / WAITING ≠ CONTACT LOST</text>
+  <text class="tiny" x="86" y="783">empty before first contact → WAITING · empty after contact → WOUND ONCE · positive timestamp churn alone → NO SEMANTIC WORK</text>
+
+  <text class="tiny" x="56" y="840">Poll policy source exists. Existing-owner consumption remains unproven. Runtime/test proof stays separate. No phone/P0 surface consumed.</text>
 </svg>
