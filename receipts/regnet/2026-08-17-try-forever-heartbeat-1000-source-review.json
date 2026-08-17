@@ -1,0 +1,60 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-1000",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed_claim": "Existing heartbeat on-demand detail source now reveals legitimate invisible semantic controls through a collision-safe bounded projection while compact/routine speech remains unchanged.",
+  "passes": [
+    "HeartbeatInvisibleSemanticControlPolicy now bounds the actual projected output after marker expansion instead of pretending source-side bounds are speech bounds.",
+    "Projection units are atomic: invisible markers and escaped literal backslashes are emitted whole or omitted before an explicit truncation suffix.",
+    "HeartbeatEvidenceDetailProjection consumes only already-accepted scene-node fields and leaves exact canonical scene fields unchanged.",
+    "HeartbeatOverlayViewModel keeps compact contentDescription on the prior path while wiring detailContentDescription to the explicit evidence projection.",
+    "HeartbeatFrameAccessibility keeps collapsed speech unchanged and aligns both explicit detail accessors with the same evidence projection.",
+    "The existing OperatorOverlayService already consumes LightControl.detailContentDescription only on the explicit selected-light detail path; no second renderer/controller/parser was introduced.",
+    "Hostile regression source covers post-expansion bounding, literal marker collision, routine-speech non-regression, and exact scene-source preservation.",
+    "Swan Veil source was mutated in place with touch/keyboard/reduced-motion semantics and an explicit source/runtime/phone scar."
+  ],
+  "scars": [
+    {
+      "scar": "POST_EXPANSION_BOUND",
+      "detail": "A legal parser-bounded field can expand several times when invisible controls become diagnostic markers. The repair bounds after projection."
+    },
+    {
+      "scar": "ROUTINE_SPEECH_MUST_STAY_QUIET",
+      "detail": "Compact light and collapsed heartbeat speech intentionally remain on their existing non-projected paths; Unicode bookkeeping appears only after explicit detail selection."
+    },
+    {
+      "scar": "LEGACY_NODE_DETAIL_FIELD",
+      "detail": "HeartbeatSceneGraph.Node.detailContentDescription still carries the older raw bounded detail string. Known explicit consumers now bypass it, but the public duplicate semantic field is a future source-truth drift risk and should be audited before another consumer adopts it."
+    },
+    {
+      "scar": "VENICE_PLAN_ARTIFACT_MISSING",
+      "detail": "A durable pre-mutation plan existed, but no separate Venice plan-review artifact was created before mutation this pulse. Do not retroactively label a post-hoc review as the pre-execution gate."
+    }
+  ],
+  "tested": false,
+  "test_boundary": "Current source/art head workflow-run readback returned GitHub integration HTTP 403 Resource not accessible by integration; no current-head test execution evidence exists.",
+  "source_identities": {
+    "invisible_policy_blob": "cf3cd658b23ed129b14fa76be82b05734afa314a",
+    "detail_projection_blob": "2acd976d458748b1c125e12d68feefd08f4af75a",
+    "view_model_blob": "e7146854929a9186dc047a9cd265a6bd41ae1ed8",
+    "frame_accessibility_blob": "7c3b9bd60c07e29e4f81d8d3e72f2ea1d7ac83d1",
+    "regression_blob": "d81a9a8740922cd1335e74ba0e999e452eed0ab7",
+    "skill_blob": "c4995fe121eccc0043fad3e72c911903d69d55a6",
+    "art_blob": "5ebbecf46b7643f12e6a3a0265c6e7b8715ef6a3"
+  },
+  "capability": {
+    "implemented_source": true,
+    "existing_owner_source_path": true,
+    "compact_routine_speech_changed": false,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0
+}
