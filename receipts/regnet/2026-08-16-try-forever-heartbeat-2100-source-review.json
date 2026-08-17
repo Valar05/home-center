@@ -1,0 +1,43 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-2100",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedHead": "2d054ac63d85843c46858b276bfc1dede5335a8f",
+  "review": {
+    "parserDirectParity": "PASS: canonical parser and direct scene ingress now both reject competing case-insensitive material semantic owners rather than allowing first-wins scene ownership.",
+    "compatibility": "PASS_SOURCE: legacy selectMaterialLights first-wins dedupe remains unchanged for compatibility; the stricter rejection is confined to HeartbeatSceneGraph.build where ambiguous ownership would become UI/checkpoint state.",
+    "contactPreservation": "PASS_SOURCE: duplicate direct material owners preserve the last-good frame through the existing fail-closed organ and clamp frame/node transition motion.",
+    "accessibility": "PASS_SOURCE: ambiguous duplicate ownership cannot become a Button, selection target, viewport anchor, transition identity, or TalkBack detail source.",
+    "architecture": "PASS: existing parser/policy/scene organs were composed; no overlay controller, renderer, transport, phone lane, recovery daemon, or P0 owner was added.",
+    "knownBoundary": "Regression source exists but did not execute. Automatic Operator Overlay Android job had zero steps because the Actions budget prevented the job from starting."
+  },
+  "readback": {
+    "sceneGraphBlob": "9c4cd9a0621ca6425293f30d05e4be2293fd42d2",
+    "regressionBlob": "69b5f7af9f4884e20af213d06448e4d2da162eef",
+    "skillBlob": "c9749b6260317c3d9039dad4880bf7f5c0907014",
+    "artBlob": "5882642cfe13091959460e92298d081560a3b0c1"
+  },
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflowRun": 31986853612,
+    "job": 95263242695,
+    "head": "2d054ac63d85843c46858b276bfc1dede5335a8f",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0
+}
