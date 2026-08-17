@@ -1,0 +1,37 @@
+{
+  "schema": "venice.completion-review.v1",
+  "pulse": "2026-08-17-0500",
+  "commission": "Advance a materially different non-P0 heartbeat wound with broad source/accessibility/art/evidence fronts.",
+  "code_review": "PASS",
+  "evidence_review": "MIXED_SOURCE_ONLY",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "review": {
+    "mission_fidelity": "PASS: exact persisted-integrity wound repaired without touching P0/phone or inventing another owner.",
+    "failure_is_the_shovel": "PASS: blocked CI was not retried; the failure redirected work into evidence-integrity, regression, skill, art, and review fronts.",
+    "originality_tax": "PASS: this is distinct from the closed WAITING-recovery seam.",
+    "contact_preservation": "PASS_SOURCE: non-canonical SHA metadata rejects before semantic parser trust and uses the existing last-good scene preservation path.",
+    "accessibility": "PASS_SOURCE: no silent metadata normalization; corruption becomes bounded visible wound semantics with motion clamped. Runtime TalkBack remains unproven.",
+    "duplicate_architecture": "PASS: no new poller, overlay controller, state store, daemon, recovery path, or P0 owner.",
+    "art": "PASS_SOURCE: existing touchable DOM/SVG warm wall mutated in place; no raster artifact family and no deployment claim.",
+    "test_truth": "PASS: regression source is present but TESTED remains NO because CI executed zero steps.",
+    "she_raw": "FAULT: authoritative connector returned account-connection HTTP 400; no substitute critique was invented."
+  },
+  "source_truth": {
+    "poll_exact_sha_metadata": true,
+    "projection_raw_canonical_sha_validation": true,
+    "regression_source": true,
+    "existing_skill_synchronized": true,
+    "existing_artifact_mutated": true
+  },
+  "runtime_truth": {
+    "android_tests_executed": false,
+    "runtime_ui_observed": false,
+    "talkback_exercised": false,
+    "phone_surface_consumed": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "next_gate": "Do not relight this exact SHA-normalization seam without new evidence. Next heartbeat must find a materially different independent non-P0 wound or remain quiet."
+}
