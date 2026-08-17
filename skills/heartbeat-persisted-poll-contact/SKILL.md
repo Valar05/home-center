@@ -80,34 +80,40 @@ The existing owner now consumes that gate directly. On the one qualifying recove
 
 **Current capability truth:** one-shot WAITING recovery policy source **YES**; regression source **YES**; existing `OperatorOverlayService` recovery-gate source consumption **YES** in commit `90807b87c9bdbdcc9c570e5b10c4eab313ff40c0`; exact applied source provenance is retained at `docs/try-forever/operator-overlay-precontact-waiting-recovery.patch`; Android execution/runtime observation **NO**.
 
-## Interruption chrome truth
-Visible interruption chrome must be derived from the same accepted/preserved contact predicate as scene recovery. Do not let the Android owner re-derive `CONTACT HELD` from `refreshInterrupted` or control count alone.
+## Interruption and zero-material chrome truth
+Visible chrome must be derived from the same accepted/preserved contact predicate as scene recovery. Do not let the Android owner re-derive contact from `refreshInterrupted` or control count alone. **Waiting is reserved for no accepted/preserved visible pulse.**
 
 `HeartbeatOverlayViewModel.Model.summaryVisibleLabel()` is the canonical compact label:
 
+- no accepted visible pulse and no interruption -> `HEARTBEAT • waiting`;
+- accepted non-interrupted visible pulse with zero controls -> `HEARTBEAT • 0 LIGHTS`;
+- accepted non-interrupted visible pulse with controls -> count label (`HEARTBEAT • N LIGHTS`);
 - pre-contact interrupted refresh -> `HEARTBEAT • REFRESH BLOCKED`;
 - interrupted refresh with non-empty accepted/preserved `visiblePulseId` and zero controls -> `HEARTBEAT • CONTACT HELD`;
-- interrupted refresh with visible controls -> count plus `CONTACT HELD`;
-- non-interrupted zero-control model -> `HEARTBEAT • waiting`.
+- interrupted refresh with visible controls -> count plus `CONTACT HELD`.
+
+The collapsed accessibility projection follows the same contact truth. A complete accepted zero-material pulse says that the heartbeat was accepted with no material skill lights. An interrupted zero-material last-good frame says there are no material lights in the last complete heartbeat and then appends the bounded interruption description. It must not collapse either state into pre-contact waiting.
 
 `interruptionDetailContentDescription()` applies the same truth to detail prose. Before contact it says the refresh was blocked before any heartbeat contact was accepted. With accepted/preserved contact it may say the last-good heartbeat contact is preserved. Never claim a held contact that the scene does not actually retain.
 
-**Current capability truth:** model summary/detail truth source **YES**; existing `OperatorOverlayService.applyHeartbeatModelChrome(...)` consumes both helpers **YES**; Android/TalkBack runtime observation **NO**.
+**Current capability truth:** model summary/detail contact truth source **YES**; collapsed zero-material accessibility truth source **YES**; existing `OperatorOverlayService.applyHeartbeatModelChrome(...)` consumes both model summary and collapsed accessibility projection through the existing model **YES / SOURCE WIRING**; Android/TalkBack runtime observation **NO**.
 
 ## Accessibility and touch
 Silent stale contact is an accessibility defect: a TalkBack user must not hear or touch an old heartbeat as though storage contact were still current. The missing-after-contact and coherent-read-failure states therefore use bounded interruption semantics. A recovered pre-contact store must likewise return to ordinary waiting instead of leaving stale `REFRESH BLOCKED` chrome behind.
+
+An accepted zero-material heartbeat is also accessibility-significant. Calling it `waiting` would tell a blind user there is no accepted heartbeat when the scene actually has a current visible pulse identity. Conversely, saying `0 LIGHTS` or explicitly saying the heartbeat was accepted does not invent material lights; it separates contact truth from material selection truth.
 
 Poll dedupe is also accessibility protection. Re-running projection on every fast poll must not recreate native controls, churn focus, re-announce summaries, or blink Christmas lights. Likewise, a torn multi-getter storage read must not generate a false wound when one coherent preference-map observation can avoid it.
 
 Exact integrity metadata is part of that protection. A whitespace-poisoned SHA declaration must become one bounded storage wound, preserving last-good contact with motion clamped; it must not be normalized away into a silent stale scene or accepted evidence. Likewise, a negative update timestamp must not disappear into canonical WAITING simply because its payload/byte/SHA companions are empty.
 
 ## Regression source
-At minimum cover canonical empty waiting, **negative timestamp is not canonical absence**, canonical-zero to negative timestamp class change reprojects, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, **canonical SHA versus whitespace-poisoned SHA producing PROJECT and fail-closed non-canonical metadata rejection**, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
+At minimum cover canonical empty waiting, **negative timestamp is not canonical absence**, canonical-zero to negative timestamp class change reprojects, accepted zero-material contact, **accepted zero-material visible summary is `HEARTBEAT • 0 LIGHTS` rather than waiting**, **accepted zero-material collapsed TalkBack states accepted contact**, interrupted zero-material contact is held/last-complete rather than current, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, **canonical SHA versus whitespace-poisoned SHA producing PROJECT and fail-closed non-canonical metadata rejection**, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine accepted/preserved contact.
 
 A regression file is source only until an authorized runner executes it. A stale regression that expects SHA whitespace to compare equal is itself a doctrine failure and must be repaired; exact SHA metadata was already canonical source truth.
 
 ## Existing-owner wiring contract
-`OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, the model-owned summary/detail chrome source, and the one-shot pre-contact WAITING recovery gate. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, renders interruption chrome from the accepted/preserved model instead of duplicating contact inference in Android view code, and clears a stale pre-contact wound exactly once when healthy fully-absent storage returns to `WAITING`.
+`OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, the model-owned summary/detail chrome source, the collapsed accessibility projection through the model, and the one-shot pre-contact WAITING recovery gate. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, renders interruption/current-contact chrome from the accepted/preserved model instead of duplicating contact inference in Android view code, and clears a stale pre-contact wound exactly once when healthy fully-absent storage returns to `WAITING`.
 
 Expected invalid persisted payload data may be retained after its preserved wound is applied so identical corruption does not burn the 200 ms loop forever. A **reader/storage failure is different**: no coherent current observation exists, so the owner preserves a bounded read wound and keeps the older processed snapshot; the next poll retries.
 
@@ -118,9 +124,9 @@ Owner wiring must not consume Phone Hands, the primary-phone execution surface, 
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> policy source -> exact persisted metadata identity source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> canonical timestamp-class source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> policy source -> exact persisted metadata identity source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> canonical timestamp-class source -> waiting-recovery policy source -> waiting-recovery owner source wired -> zero-material contact chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 GitHub readback proves durable source only. None of these source artifacts prove Android tests ran or that any phone changed.
 
 ## Done for one source pulse
-This skill may light only when persisted-poll classification, persisted integrity metadata truth, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, recovery semantics, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
+This skill may light only when persisted-poll classification, persisted integrity metadata truth, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption/current-contact chrome truth, recovery semantics, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
