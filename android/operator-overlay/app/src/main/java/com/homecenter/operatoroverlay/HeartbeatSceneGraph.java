@@ -201,6 +201,12 @@ public final class HeartbeatSceneGraph {
      * visible pulse id is permitted only for an exact visible-contact retry. If the
      * same id arrives with different contact semantics, fail closed instead of
      * allowing one identity to mutate underneath checkpoints or retry logic.
+     *
+     * Direct Candidate lists must also preserve the canonical parser's one-owner
+     * rule. selectMaterialLights() intentionally deduplicates for legacy summary
+     * callers, but a scene must never silently turn two material records with the
+     * same semantic id into first-wins native ownership. That ambiguity is rejected
+     * before display-ready filtering so parser and direct scene ingress agree.
      */
     public static Frame build(
             String pulseId,
@@ -219,6 +225,12 @@ public final class HeartbeatSceneGraph {
         }
         if (attempted.isEmpty()) {
             return preserveLastGood("", lastGood, "Pulse identity is missing.");
+        }
+        if (hasDuplicateMaterialIdentity(candidates)) {
+            return preserveLastGood(
+                    attempted,
+                    lastGood,
+                    "Duplicate material heartbeat light identity is ambiguous.");
         }
 
         List<HeartbeatSkillPolicy.Candidate> material =
@@ -256,6 +268,18 @@ public final class HeartbeatSceneGraph {
                     "Pulse identity collision: the visible pulse id was reused with different contact semantics.");
         }
         return next;
+    }
+
+    private static boolean hasDuplicateMaterialIdentity(
+            List<HeartbeatSkillPolicy.Candidate> candidates) {
+        if (candidates == null || candidates.isEmpty()) return false;
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (HeartbeatSkillPolicy.Candidate candidate : candidates) {
+            if (!HeartbeatSkillPolicy.isMaterial(candidate)) continue;
+            String key = candidate.id.toLowerCase(java.util.Locale.ROOT);
+            if (!seen.add(key)) return true;
+        }
+        return false;
     }
 
     private static Frame preserveLastGood(String attempted, Frame lastGood, String boundary) {
