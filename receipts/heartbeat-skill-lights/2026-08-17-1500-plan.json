@@ -1,0 +1,24 @@
+{
+  "schema": "heartbeat-skill-lights-plan.v1",
+  "heartbeat": "2026-08-17-1500",
+  "pr": 329,
+  "mission": "Advance a materially different non-P0 heartbeat wound through existing source owners; preserve exact source evidence, accessibility truth, and the P0/shared-phone firewall.",
+  "verifiedWound": "HeartbeatSceneGraph.safeBoundedSpeech still implements an ad hoc max-plus-suffix truncator: it consumes MAX_SPOKEN_PULSE_ID_CODE_POINTS or MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS source code points and then appends '… (truncated)'. The 1400 shared plain-text helper established that a named returned code-point budget must include its truncation indicator, so interrupted-refresh speech can still exceed the advertised 96/320 caps.",
+  "plannedFronts": [
+    "Converge HeartbeatSceneGraph interrupted-refresh safe speech onto the existing HeartbeatPlainTextBudget rather than creating another truncator or formatter.",
+    "Preserve raw visiblePulseId and refreshBoundary evidence fields exactly; only their safe human-facing speech projections are bounded.",
+    "Add hostile Unicode regression source proving returned pulse-id and refresh-boundary speech components obey the advertised hard budgets without splitting code points.",
+    "Harvest/update durable repository skill doctrine so hard returned-text budgets cover interrupted-refresh speech as well as compact/collapsed/native projections.",
+    "Only mutate existing Warm Walls/Swan Veil source art if this creates a materially new operator-visible state; otherwise leave art dark to avoid theater.",
+    "Perform Regnet source/evidence review and Venice completion review; preserve requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted distinctions."
+  ],
+  "constraints": {
+    "p0PhoneSurface": "READ_ONLY_FIREWALLED_ZERO_CONSUMPTION",
+    "duplicateArchitecture": "FORBIDDEN",
+    "canonicalSourceRewrite": "FORBIDDEN",
+    "newFormatter": "FORBIDDEN_USE_EXISTING_PLAIN_TEXT_BUDGET",
+    "testClaimWithoutExecution": "FORBIDDEN"
+  },
+  "sheRawPreExecution": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE_REVIEWER",
+  "gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}
