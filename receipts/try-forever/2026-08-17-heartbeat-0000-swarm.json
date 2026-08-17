@@ -1,0 +1,89 @@
+{
+  "schema": "try_forever.swarm_receipt.v1",
+  "heartbeat": "2026-08-17-0000",
+  "multiple_fronts_advanced": [
+    "existing OperatorOverlayService persisted-poll classification/dedupe source wiring",
+    "persisted-poll lifecycle and failed-project retry regression source",
+    "single-map persisted heartbeat observation helper plus extraction/type-drift regression source",
+    "heartbeat-persisted-poll-contact repository skill synchronization",
+    "existing non-raster warm-wall SVG mutation",
+    "Regnet/Venice/evidence review"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "LIT: unchanged CI was not retried; source archaeology moved to the owner poll seam and then exposed the narrower coherent-read wound.",
+    "Canon Auto-Select": "LIT: reused HeartbeatPersistedPollPolicy, HeartbeatSceneGraph preservation, HeartbeatOverlayRefreshPlan, existing OperatorOverlayService, and existing persisted-poll skill/art organs.",
+    "Autocorrect Judgment Jar": "DARK: no STT/autocorrect ambiguity materially affected this source slice.",
+    "Originality Tax": "LIT: after owner policy wiring landed, review did not polish the same seam; it found the four-getter coherence risk and then the reader type-drift flaw.",
+    "Hunger": "LIT: demanded consequences: unchanged polls do zero semantic projection work; missing-after-contact becomes an explicit preserved wound; art records the capability scar.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: review propagated discoveries through service source, regression source, reader source, skill doctrine, art, and receipts.",
+    "Operator Campaign": "LIT: preserved the existing overlay owner and source/runtime/phone capability membrane.",
+    "Harroway operator discipline": "LIT: performed repository writes/readback through the authorized GitHub lane; no substitute phone or local proof.",
+    "She-Raw adversarial motivation": "FAULT: authoritative ambient call attempted pre-execution; account connection returned HTTP 400; no substitute verdict invented.",
+    "Venice Judgment Jars": "LIT: code-first completion review allows only this bounded source slice to yield; campaign remains CONTINUE_REQUIRED.",
+    "Regnet QA": "LIT: source/readback claim passes; coherent-reader owner wiring remains REVISE_REQUIRED; TESTED remains blocked.",
+    "accessibility/TalkBack and touch semantics": "LIT: stale missing contact is explicit, repeated unchanged input stays silent, zero-material pulse still counts as contact, TalkBack runtime remains unclaimed.",
+    "Phone Runtime / Phone Hands recovery": "DARK_BY_FIREWALL: zero surface consumption, commands, tickets, queue/device probes, or recovery mutations.",
+    "deterministic routing": "LIT: four explicit poll decisions route into existing preservation/projection organs; no timestamp ordering is used as semantic identity.",
+    "evidence/capability-state discipline": "LIT: owner policy wiring YES is separate from coherent-reader owner wiring NO, testing NO, runtime NO, deployment/delivery/acceptance NO.",
+    "recovery/checkpointing/idempotence": "LIT: missing contact wounds once then skips; unexpected projection abort leaves prior processed snapshot and retries; recovery payload reprojects.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing SVG mutated in place; no raster or neighboring runtime UI created.",
+    "warm walls": "LIT: wall now exposes OWNER SOURCE WIRED plus the narrower coherent-read wound.",
+    "Christmas-light scene graph": "LIT: unchanged persistence explicitly earns no decode/parse/UI/speech/motion twitch.",
+    "contact preservation": "LIT: fully absent persistence after visible pulse composes existing preserveRejectedRefresh instead of silently presenting stale contact."
+  },
+  "cross_pollination": [
+    "Fast-poll archaeology exposed redundant projection and silent missing-contact behavior.",
+    "Contact preservation supplied a fail-closed missing-store consequence instead of stale-current UI.",
+    "Idempotence turned repeated absence and positive-timestamp-only churn into quiet decisions.",
+    "Code review then exposed that one policy Snapshot assembled from four getter calls was not necessarily one storage observation.",
+    "The one-map reader repaired observation coherence at source level; review of that helper exposed type-drift laundering, which was repaired before completion review.",
+    "Accessibility and Christmas-motion discipline propagated the rule that storage bookkeeping alone earns no repeated speech/focus/motion work.",
+    "Regnet/Venice kept all source progress behind the runtime/deployment/phone membrane."
+  ],
+  "exact_source_identities": {
+    "OperatorOverlayService.java": "5ac4db4f835e8a1be35eaf1ffb9258159eb1f574",
+    "HeartbeatPersistedPollPolicy.java": "f0df30b7200f658aea899e02aa8fa592684bb8b8",
+    "HeartbeatPersistedPollPolicyTest.java": "34ed9d39a9b7f2769cfba73d22ccd04ab1bc0c2d",
+    "HeartbeatPersistedSnapshotReader.java": "a457471a0532bc19e6ed251c2d87999fa3fef4ce",
+    "HeartbeatPersistedSnapshotReaderTest.java": "ae25b76335b8b721d342c9f82ce2573ccb9a182a",
+    "heartbeat-persisted-poll-contact skill": "a20c17df6c05f45994245d8b3c8f0564d1cc4600",
+    "warm-wall SVG": "6eb4ab7a484846b191470bf0d3949d9d0c9f45ca"
+  },
+  "test_boundary": {
+    "reviewed_source_head": "e8e31a0f83528fe91fa25646e6a51ba6bfaf46de",
+    "operator_overlay_job": 95291175928,
+    "steps_executed": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_fortress_firewall": {
+    "canonical_p0_receipts": "NOT_READ_OR_MUTATED_THIS_PULSE",
+    "phone_hands": 0,
+    "primary_phone": 0,
+    "queue_relay": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance": 0,
+    "new_p0_findings": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "existing_owner_policy_source_wired": true,
+    "coherent_one_map_reader_source": true,
+    "existing_owner_coherent_reader_source_wired": false,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}
