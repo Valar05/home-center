@@ -96,7 +96,7 @@ public final class HeartbeatOverlayViewModel {
          */
         public String summaryVisibleLabel() {
             int count = controls.size();
-            boolean hasVisibleContact = !clean(visiblePulseId).isEmpty();
+            boolean hasVisibleContact = hasVisibleContact();
             if (count == 0) {
                 if (!refreshInterrupted) return "HEARTBEAT • waiting";
                 return hasVisibleContact
@@ -105,6 +105,22 @@ public final class HeartbeatOverlayViewModel {
             }
             return "HEARTBEAT • " + count + " LIGHT" + (count == 1 ? "" : "S")
                     + (refreshInterrupted && hasVisibleContact ? " • CONTACT HELD" : "");
+        }
+
+        /**
+         * Detail prose for an interrupted refresh, derived from the same visible-contact
+         * truth as the summary. This prevents a pre-contact storage/read/projection wound
+         * from claiming that a last-good heartbeat is being held when no pulse has ever
+         * been accepted into the visible scene.
+         */
+        public String interruptionDetailContentDescription() {
+            if (!refreshInterrupted) return "";
+            if (hasVisibleContact()) {
+                return "Refresh rejected. Last good heartbeat contact is preserved; "
+                        + "no discarded attempted light is current.";
+            }
+            return "Refresh blocked before any heartbeat contact was accepted; "
+                    + "no discarded attempted light is current.";
         }
 
         /**
@@ -137,6 +153,10 @@ public final class HeartbeatOverlayViewModel {
                     anyNodeTransitionMotion,
                     heartbeatSurfaceVisible,
                     platformAnimatorsEnabled);
+        }
+
+        private boolean hasVisibleContact() {
+            return !clean(visiblePulseId).isEmpty();
         }
     }
 
