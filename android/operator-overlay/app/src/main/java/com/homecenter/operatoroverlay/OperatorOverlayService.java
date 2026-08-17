@@ -288,7 +288,8 @@ public class OperatorOverlayService extends Service {
 
         dragHandle = textView(14f, true);
         dragHandle.setText("☰  HOME CENTER");
-        dragHandle.setContentDescription("Drag Home Center overlay. Tap to shrink or expand.");
+        dragHandle.setContentDescription(
+                HeartbeatCollapsedOwnerAccessibility.OVERLAY_ACTION_DESCRIPTION);
         dragHandle.setGravity(Gravity.CENTER_VERTICAL);
         dragHandle.setMinWidth(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         dragHandle.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
@@ -604,6 +605,7 @@ public class OperatorOverlayService extends Service {
         invalidateHeartbeatViewportRestore();
         boolean collapsed = OperatorState.panelCollapsed(this);
         details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        applyHeartbeatCollapsedOwnerAccessibility(currentHeartbeatModel());
         if (collapsed) resetHeartbeatNativeMotion();
         hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         compactControlButton.setVisibility(collapsed ? View.VISIBLE : View.GONE);
@@ -1127,10 +1129,23 @@ public class OperatorOverlayService extends Service {
         });
     }
 
+    private HeartbeatOverlayViewModel.Model currentHeartbeatModel() {
+        return heartbeatFrame == null ? null : HeartbeatOverlayViewModel.fromFrame(heartbeatFrame);
+    }
+
+    private void applyHeartbeatCollapsedOwnerAccessibility(HeartbeatOverlayViewModel.Model model) {
+        if (dragHandle == null) return;
+        dragHandle.setContentDescription(
+                HeartbeatCollapsedOwnerAccessibility.contentDescription(
+                        OperatorState.panelCollapsed(this),
+                        model));
+    }
+
     private void applyHeartbeatModelChrome(HeartbeatOverlayViewModel.Model model) {
         if (model == null || heartbeatSummary == null) return;
         heartbeatSummary.setText(model.summaryVisibleLabel());
         heartbeatSummary.setContentDescription(model.collapsedContentDescription);
+        applyHeartbeatCollapsedOwnerAccessibility(model);
 
         HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
         if (selected != null) {
@@ -1163,6 +1178,7 @@ public class OperatorOverlayService extends Service {
         heartbeatSummary.setText("HEARTBEAT • waiting");
         heartbeatSummary.setContentDescription(
                 "Heartbeat skill lights waiting for a material pulse.");
+        applyHeartbeatCollapsedOwnerAccessibility(null);
         showHeartbeatDetail(
                 "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
                 false);
