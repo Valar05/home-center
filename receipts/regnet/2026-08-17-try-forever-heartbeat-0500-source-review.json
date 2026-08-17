@@ -1,0 +1,74 @@
+{
+  "schema": "regnet.source-review.v1",
+  "pulse": "2026-08-17-0500",
+  "target": "TRY FOREVER persisted heartbeat SHA metadata canonicality",
+  "review_mode": "code_first_bounded_source_review",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "findings": [
+    {
+      "severity": "material_fixed",
+      "finding": "HeartbeatPersistedPollPolicy previously normalized declared SHA metadata with trim before dedupe, allowing canonical and whitespace-poisoned declarations to collapse to one projection identity.",
+      "repair": "Snapshot now retains declaredSha256 exactly and sameProjectionInputs compares exact metadata text."
+    },
+    {
+      "severity": "material_fixed",
+      "finding": "HeartbeatPersistedEnvelopeProjection previously trimmed declared SHA metadata before canonical lowercase-hex validation, so surrounding whitespace could be normalized into accepted evidence.",
+      "repair": "Projection now validates the raw declared string as exactly 64 lowercase hex characters before comparing it to the observed payload digest."
+    },
+    {
+      "severity": "regression_source_only",
+      "finding": "New regression source pins canonical-vs-whitespace metadata as PROJECT, rejects leading/trailing whitespace before semantic parsing, and preserves last-good contact with motion clamped.",
+      "evidence_state": "SOURCE_PRESENT_NOT_EXECUTED"
+    },
+    {
+      "severity": "architecture_pass",
+      "finding": "No SharedPreferences writer, poll owner, renderer, controller, phone path, P0 coordinator, or recovery daemon was added. Existing OperatorOverlayService composition remains authoritative."
+    },
+    {
+      "severity": "accessibility_pass_source_only",
+      "finding": "Fail-closed metadata corruption keeps last-good contact instead of silently accepting or erasing it and clamps Christmas/native transition motion. Runtime TalkBack behavior remains unobserved."
+    }
+  ],
+  "exact_readback": {
+    "HeartbeatPersistedPollPolicy.java": "6ba23272f8d802d2e9151fca71d4b72db542d2e3",
+    "HeartbeatPersistedEnvelopeProjection.java": "f4e4b602cfe91717cef02fab0394ea99558353d2",
+    "HeartbeatPersistedShaMetadataCanonicalityTest.java": "f8dfbb050746b7092d2acd254e00df31cb750fcd",
+    "skills/heartbeat-persisted-poll-contact/SKILL.md": "0ddb12a02d2cbb2bbe8a6a41317e67dc18584a6f",
+    "docs/try-forever/heartbeat-refresh-gate-source-specimen.html": "9c6d1201b8345803850e8c2b90c481c6c52dd251"
+  },
+  "ci": {
+    "head": "8233cd62e4f34591f64338aaca8121e25bbf9188",
+    "workflow": "Operator Overlay Android",
+    "run_id": 32018284284,
+    "job_id": 95352337031,
+    "executed_steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "tested": false
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substitute_verdict_invented": false
+  },
+  "p0_phone_firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "recovery_mutations": 0,
+    "p0_owner_mutations": 0
+  },
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "regression_source": true,
+    "exact_github_readback": true,
+    "tested": false,
+    "runtime_observed": false,
+    "talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
