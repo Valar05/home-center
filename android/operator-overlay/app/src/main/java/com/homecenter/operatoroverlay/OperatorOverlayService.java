@@ -799,38 +799,44 @@ public class OperatorOverlayService extends Service {
             resetHeartbeatNativeMotion();
         }
 
-        String encoded = OperatorState.heartbeatLightsPayloadB64(this);
-        long declaredBytes = OperatorState.heartbeatLightsBytes(this);
-        String declaredSha256 = OperatorState.heartbeatLightsSha256(this);
-        long updatedMs = OperatorState.heartbeatLightsUpdatedMs(this);
-        HeartbeatPersistedPollPolicy.Snapshot currentPersistedSnapshot =
-                new HeartbeatPersistedPollPolicy.Snapshot(
-                        encoded,
-                        declaredBytes,
-                        declaredSha256,
-                        updatedMs);
-        HeartbeatPersistedPollPolicy.Decision persistedDecision =
-                HeartbeatPersistedPollPolicy.decide(
-                        heartbeatProcessedPersistedSnapshot,
-                        currentPersistedSnapshot,
-                        heartbeatFrame);
-
-        if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
-            if (heartbeatFrame == null) {
-                heartbeatSummary.setText("HEARTBEAT • waiting");
-                heartbeatSummary.setContentDescription(
-                        "Heartbeat skill lights waiting for a material pulse.");
-            }
-            heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
-            return;
+        HeartbeatPersistedPollPolicy.Snapshot currentPersistedSnapshot = null;
+        String persistedReadBoundary = "";
+        try {
+            currentPersistedSnapshot = HeartbeatPersistedSnapshotReader.read(this);
+        } catch (RuntimeException storageReadFailure) {
+            persistedReadBoundary = HeartbeatPersistedSnapshotReader.STORAGE_READ_FAILURE_BOUNDARY;
         }
-        if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
-            heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
-            return;
+
+        HeartbeatPersistedPollPolicy.Decision persistedDecision = null;
+        if (persistedReadBoundary.isEmpty()) {
+            persistedDecision = HeartbeatPersistedPollPolicy.decide(
+                    heartbeatProcessedPersistedSnapshot,
+                    currentPersistedSnapshot,
+                    heartbeatFrame);
+
+            if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
+                if (heartbeatFrame == null) {
+                    heartbeatSummary.setText("HEARTBEAT • waiting");
+                    heartbeatSummary.setContentDescription(
+                            "Heartbeat skill lights waiting for a material pulse.");
+                }
+                heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                return;
+            }
+            if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
+                heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                return;
+            }
         }
 
         HeartbeatOverlayRefreshPlan.Plan next;
-        if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.PRESERVE_MISSING_CONTACT) {
+        if (!persistedReadBoundary.isEmpty()) {
+            HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                    "",
+                    heartbeatFrame,
+                    persistedReadBoundary);
+            next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+        } else if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.PRESERVE_MISSING_CONTACT) {
             HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
                     "",
                     heartbeatFrame,
@@ -838,13 +844,15 @@ public class OperatorOverlayService extends Service {
             next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
         } else {
             try {
-                byte[] exactPayload = Base64.decode(encoded == null ? "" : encoded, Base64.NO_WRAP);
+                byte[] exactPayload = Base64.decode(
+                        currentPersistedSnapshot.payloadB64,
+                        Base64.NO_WRAP);
                 HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
                         HeartbeatOverlayRefreshPlan.projectPersisted(
                                 exactPayload,
-                                declaredBytes,
-                                declaredSha256,
-                                updatedMs,
+                                currentPersistedSnapshot.declaredBytes,
+                                currentPersistedSnapshot.declaredSha256,
+                                currentPersistedSnapshot.updatedMs,
                                 heartbeatFrame,
                                 heartbeatSelectedId);
                 next = persisted.plan;
@@ -939,7 +947,9 @@ public class OperatorOverlayService extends Service {
         heartbeatStructureIdentity = next.structureIdentity;
         heartbeatRenderIdentity = next.renderIdentity;
         heartbeatAnnouncementIdentity = next.announcementIdentity;
-        heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+        if (persistedReadBoundary.isEmpty()) {
+            heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+        }
     }
 
     private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
