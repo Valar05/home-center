@@ -1,0 +1,70 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-1600",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "source_head_reviewed": "25f7c97d45a90abc201787a18051735df25374a1",
+  "fronts": {
+    "collapsed_speech_fanout": {
+      "status": "PASS_SOURCE",
+      "finding": "Legacy Candidate-level collapsed speech had bounded fields but unbounded named-light fanout.",
+      "repair": "HeartbeatSkillPolicy now names at most 12 safe legacy descriptions, preserves material order and within-budget compatibility output, and reports exact additional-safe and unsafe-semantic omission counts. HeartbeatFrameAccessibility aliases the same shared naming constant.",
+      "evidence": [
+        "HeartbeatSkillPolicy.java blob 5b5f89174da52b7fff742fdad4e2c103281424fc",
+        "HeartbeatFrameAccessibility.java blob d57ad2df7a6ae59dbf023f26ef08071c2b295e63",
+        "HeartbeatLegacyCollapsedSpeechFanoutTest.java blob 6ea325748eb249095ed2d76933c21ec4eb59cf7d",
+        "skills/heartbeat-collapsed-speech-fanout/SKILL.md blob 3220672470f5a86f43563b79e9134ae40cd7cda3"
+      ],
+      "boundary": "Legacy compatibility speech remains richer per named light than scene-level attention-first summary; the repair bounds fanout without silently changing legacy ordering/semantics. Runtime TalkBack behavior is untested."
+    },
+    "persisted_timestamp_identity": {
+      "status": "PASS_SOURCE_AFTER_CORRECTION",
+      "finding": "Canonical empty storage accepted negative updatedMs as absence, and the first fix still aliased zero and negative timestamps inside projection dedupe.",
+      "repair": "Canonical absence now requires updatedMs == 0. Projection identity uses positive-valid / zero-missing / negative-corrupt timestamp classes so zero-to-negative corruption re-enters verification instead of SKIP_UNCHANGED.",
+      "evidence": [
+        "HeartbeatPersistedPollPolicy.java blob 2e36ec164449d0b4c45f5c4214f9023b80b00066",
+        "HeartbeatPersistedPollPolicyTest.java blob d3712ce9bd9b3ed0cc1705aac17615fc07816d7d",
+        "skills/heartbeat-persisted-poll-contact/SKILL.md blob c7b90e72dece313012eeabcc853b15cdb93499ae"
+      ],
+      "boundary": "Negative timestamp corruption with otherwise empty payload will enter the existing projection path and fail closed; no runtime execution evidence exists."
+    },
+    "stale_regression_truth": {
+      "status": "PASS_SOURCE",
+      "finding": "HeartbeatPersistedPollPolicyTest still expected SHA whitespace to compare equal despite exact-SHA source doctrine.",
+      "repair": "Positive-timestamp-only dedupe now uses identical canonical SHA text; a separate whitespace-poison fixture requires PROJECT.",
+      "boundary": "Regression source is not TESTED evidence."
+    }
+  },
+  "code_first_review": {
+    "scar": "The timestamp-class defect was discovered during source review after the initial aggregate-speech plan; the first timestamp edit was itself insufficient because zero and negative still shared the same boolean validity class. A second correction repaired that alias. The corrective sequence is preserved in the 1600 replan receipt rather than rewritten as preplanned foresight.",
+    "result": "No additional source contradiction found in exact GitHub readback after the second correction."
+  },
+  "ci": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "run_id": 32069712644,
+    "job_id": 95509910106,
+    "head_sha": "25f7c97d45a90abc201787a18051735df25374a1",
+    "steps_executed": 0,
+    "exact_annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "architecture": "PASS — existing policy/accessibility organs only; no neighboring renderer/controller/poller/state store/daemon/P0 owner.",
+  "p0_firewall": "PASS — zero Phone Hands, primary-phone, queue/relay, recovery, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 mutations/consumption.",
+  "art": "ORDERED_DARK — no source art mutation; both repairs are projection/evidence semantics and changing the wall would add presentation churn without new runtime topology.",
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "durable_skill": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
