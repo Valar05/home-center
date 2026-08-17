@@ -1,0 +1,65 @@
+# PROPOSED / NOT APPLIED — existing-owner Base64 declaration gate
+#
+# Target owner: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Scope: the existing PROJECT branch inside refreshHeartbeatLights(...)
+# No neighboring controller/decoder/poller is authorized.
+#
+# Capability state of this file: durable proposed delta only. It is NOT implemented
+# owner wiring, NOT tested Android behavior, NOT deployment, NOT phone delivery.
+
+@@
+         } else {
+             try {
+                 byte[] exactPayload = Base64.decode(
+                         currentPersistedSnapshot.payloadB64,
+                         Base64.NO_WRAP);
+-                HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
+-                        HeartbeatOverlayRefreshPlan.projectPersisted(
+-                                exactPayload,
+-                                currentPersistedSnapshot.declaredBytes,
+-                                currentPersistedSnapshot.declaredSha256,
+-                                currentPersistedSnapshot.updatedMs,
+-                                heartbeatFrame,
+-                                heartbeatSelectedId);
+-                next = persisted.plan;
++                String canonicalPayloadB64 = Base64.encodeToString(
++                        exactPayload,
++                        Base64.NO_WRAP);
++                if (!HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
++                        currentPersistedSnapshot.payloadB64,
++                        canonicalPayloadB64)) {
++                    HeartbeatSceneGraph.Frame preserved =
++                            HeartbeatSceneGraph.preserveRejectedRefresh(
++                                    "",
++                                    heartbeatFrame,
++                                    HeartbeatPersistedBase64Canonicality.NON_CANONICAL_BOUNDARY);
++                    next = HeartbeatOverlayRefreshPlan.fromFrame(
++                            preserved,
++                            heartbeatSelectedId);
++                } else {
++                    HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
++                            HeartbeatOverlayRefreshPlan.projectPersisted(
++                                    exactPayload,
++                                    currentPersistedSnapshot.declaredBytes,
++                                    currentPersistedSnapshot.declaredSha256,
++                                    currentPersistedSnapshot.updatedMs,
++                                    heartbeatFrame,
++                                    heartbeatSelectedId);
++                    next = persisted.plan;
++                }
+             } catch (IllegalArgumentException invalidBase64) {
+                 HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                         "",
+                         heartbeatFrame,
+                         "Stored heartbeat Base64 identity is invalid.");
+                 next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+             }
+         }
+
+# Intended source consequence if/when applied through the authorized owner lane:
+# - exact writer Base64 -> existing projection path unchanged;
+# - decoder-tolerated textual alias -> one bounded fail-closed scene wound;
+# - last-good contact preserved; scene/node motion clamped by existing organ;
+# - current persisted snapshot may still advance after the wound is applied, letting
+#   unchanged corrupt storage become quiet through existing poll dedupe;
+# - no new renderer, decoder owner, poller, phone command, or P0 mutation.
