@@ -1,0 +1,109 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "pulse": "2026-08-17-0400",
+  "scope": "PR #329 non-P0 TRY FOREVER heartbeat skill-lights swarm",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+  "lights": {
+    "failureIsTheShovel": {
+      "state": "ACTIVE",
+      "changed": "Refused manual retry of the unchanged Actions-budget CI wound and advanced the already-authorized existing-owner source seam instead."
+    },
+    "canonAutoSelect": {
+      "state": "ACTIVE",
+      "changed": "Selected the existing persisted-poll skill, exact owner delta, existing warm-wall artifact, and source/evidence review surfaces; no adjacent architecture substitution."
+    },
+    "autocorrectJudgmentJar": {
+      "state": "DARK",
+      "reason": "No material STT/autocorrect ambiguity affected this pulse."
+    },
+    "originalityTax": {
+      "state": "ACTIVE",
+      "changed": "No neighboring poller/controller/renderer, no new artifact family, and no repeated CI retry; applied and converged existing organs."
+    },
+    "hungerEatEverything": {
+      "state": "ACTIVE",
+      "changed": "Closed the source seam across owner code, provenance artifact, skill doctrine, warm-wall art, review receipts, and PR evidence rather than stopping at a code hunk."
+    },
+    "operatorCampaignHarroway": {
+      "state": "ACTIVE",
+      "changed": "Kept OperatorOverlayService as sole owner, used audited Home Center GitHub admin writes, exact-readbacked the commit diff, and preserved the capability membrane."
+    },
+    "sheRaw": {
+      "state": "FAULT",
+      "changed": "Authoritative ambient consultation attempted; account connection returned HTTP 400. No substitute verdict invented."
+    },
+    "veniceJudgment": {
+      "state": "ACTIVE",
+      "changed": "Source-only completion review closed this seam while keeping the recurring campaign CONTINUE_REQUIRED and merge-as-delivered false."
+    },
+    "regnetQA": {
+      "state": "ACTIVE",
+      "changed": "Verified exact owner diff, contact-safe one-shot recovery, no unrelated owner hunk, and fresh zero-step CI boundary; runtime/test claims remain dark."
+    },
+    "accessibilityTalkBackTouch": {
+      "state": "ACTIVE",
+      "changed": "Recovered pre-contact REFRESH BLOCKED chrome returns to canonical waiting, stale controls/detail are removed, and no announcement is synthesized by the clear helper. Runtime TalkBack remains unobserved."
+    },
+    "phoneRuntimePhoneHands": {
+      "state": "DARK_FIREWALLED",
+      "reason": "Zero Phone Hands tickets, primary-phone commands, queue/device probes, wake/park/retask, or P0 chain mutation."
+    },
+    "deterministicRoutingCheckpointIdempotenceContact": {
+      "state": "ACTIVE",
+      "changed": "One-shot WAITING predicate controls the clear; pending viewport restore and native motion are invalidated, stale semantic identities reset, processed empty snapshot then advances so repeated empty polls stay quiet by source control flow."
+    },
+    "warmWallsNonRasterChristmasGraph": {
+      "state": "ACTIVE",
+      "changed": "Mutated the existing SVG in place to EXISTING OWNER WIRED truth; no raster, autoplay, decorative twitch, or runtime/phone costume."
+    },
+    "executionTruth": {
+      "state": "ACTIVE",
+      "changed": "Repository source/readback advanced; TESTED/RUNTIME/DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED did not."
+    }
+  },
+  "materialFrontsAdvanced": [
+    "existing OperatorOverlayService WAITING-recovery source wiring",
+    "exact commit-diff readback and automatic CI boundary verification",
+    "proposed patch artifact converted to applied-source provenance",
+    "persisted-poll skill doctrine synchronized and closed-seam relight rule added",
+    "existing non-raster warm-wall SVG mutated in place",
+    "Regnet and Venice source/evidence review receipts",
+    "durable plan/process-scar and broad swarm receipt"
+  ],
+  "crossPollination": "0300 policy exposed the owner seam -> owner delta was applied -> exact commit diff proved only two intended hunks -> evidence review exposed stale PROPOSED/NO claims in patch, skill, and warm wall -> those organs converged -> accessibility/contact semantics verified one-shot clear behavior -> fresh automatic CI remained zero-step blocked -> Shovel refused retry -> Venice closed only the source seam and left the campaign alive.",
+  "sourceEvidence": {
+    "operatorOverlayCommit": "90807b87c9bdbdcc9c570e5b10c4eab313ff40c0",
+    "operatorOverlayBlob": "81adaa031a7fd0935ad117a0913996b59e2d5877",
+    "appliedPatchBlob": "51dbe853fa15cb66d942313d8932d778f0a2c5b2",
+    "persistedPollSkillBlob": "b7de9a2ab4ca01f53874c51079835708acc86d2b",
+    "warmWallSvgBlob": "5f2a0b8e7a9040d7d42da2a506b9ba601f7ce3b6",
+    "planReceiptBlob": "9d26964a8ba51b99c8410d25b8764d340533dbdd",
+    "regnetReceiptBlob": "e793af5875645dfa0492ac86bf5bfea79743d4a9",
+    "veniceReceiptBlob": "0022ac1dbcfe074ca5dcb1759d69375ed3ecf422",
+    "ciRun": 32013303645,
+    "ciJob": 95337316255,
+    "ciSteps": 0,
+    "ciBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "processScar": "The scheduled commission and prior PR gate authorized the owner cut before execution. The repository 0400 plan file itself was written after the first owner mutation and is explicitly preserved as reconstruction, not retroactive pre-mutation evidence.",
+  "p0PhoneFirewall": "ZERO_MUTATION_ZERO_CONSUMPTION",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "existingOwnerWaitingRecoveryWired": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "nonRasterArtSource": true,
+    "tested": false,
+    "testBoundary": "BLOCKED_ACTIONS_BUDGET",
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextRule": "Keep this now-closed WAITING-recovery owner seam dark unless new evidence changes it. Next pulse must find a materially different independent non-P0 source/accessibility/evidence wound or remain quiet."
+}
