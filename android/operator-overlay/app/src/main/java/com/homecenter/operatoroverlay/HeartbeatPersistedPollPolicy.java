@@ -90,6 +90,29 @@ public final class HeartbeatPersistedPollPolicy {
         return frame != null && !clean(frame.visiblePulseId).isEmpty();
     }
 
+    /**
+     * Decide whether a healthy WAITING observation should clear a stale pre-contact
+     * interruption exactly once.
+     *
+     * <p>A coherent-read failure before first contact creates a non-null interrupted
+     * frame so the wound can be shown. Once storage is healthy and fully absent again,
+     * the poll decision becomes WAITING. That recovery must clear the stale wound, but
+     * ordinary repeated WAITING polls must remain quiet. Accepted or preserved contact
+     * is never cleared here, including a valid zero-material heartbeat whose
+     * {@code visiblePulseId} is non-empty.</p>
+     *
+     * <p>This is pure owner policy only. It does not mutate Android views or claim
+     * existing-owner consumption.</p>
+     */
+    public static boolean shouldClearPreContactWoundOnWaiting(
+            Decision decision,
+            HeartbeatSceneGraph.Frame frame) {
+        return decision == Decision.WAITING
+                && frame != null
+                && frame.refreshInterrupted
+                && !hasVisibleLastGoodContact(frame);
+    }
+
     /** Scene-bound convenience overload so the existing owner does not invent its own contact predicate. */
     public static Decision decide(
             Snapshot previousProcessed,
