@@ -1,0 +1,41 @@
+{
+  "receipt": "venice-completion-review",
+  "pulse": "2026-08-17-0700",
+  "mode": "same-worker-separate-judgment-pass",
+  "verdict": "STOP_ALLOWED_BOUNDED_SOURCE_SLICE_WITH_PROCESS_SCAR",
+  "campaign": "CONTINUE_REQUIRED",
+  "review": {
+    "missionFidelity": "PASS",
+    "materialDifferenceFromPriorSeam": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS",
+    "accessibilityTruth": "PASS_SOURCE_ONLY",
+    "evidenceMembrane": "PASS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "preMutationPlanReceipt": "YES",
+    "separatePreMutationVenicePlanReview": "NO_PROCESS_SCAR_PRESERVED"
+  },
+  "judgment": "This pulse did not relight the closed SHA-normalization or WAITING-recovery seams. It found two distinct source defects: a stale regression fixture that still normalized declared SHA evidence, and an unbounded persisted Base64 declaration entering the existing 200 ms owner decode path before the decoded-byte ceiling. The regression fixture now preserves exact SHA text; the coherent reader now rejects declarations above the canonical writer maximum before decode; a hostile reader fixture, reusable skill, and touchable non-raster throat specimen make those consequences durable. The resource bound is not Base64 validity and does not prevent SharedPreferences from materializing the stored String, so claims remain narrow. The exact Base64 canonicality owner patch is still PROPOSED / NOT APPLIED. A plan receipt existed before mutation, but no separate pre-mutation Venice plan-review artifact was written; preserve that process scar rather than retroactively inventing one. Yield this bounded source slice and keep the campaign alive.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "capability": {
+    "staleShaFixtureCorrected": "YES_SOURCE",
+    "preDecodeDeclarationBound": "YES_SOURCE",
+    "regressionSource": "YES",
+    "repositorySkill": "YES",
+    "touchableNonRasterSource": "YES",
+    "existingOwnerConsumesBase64Canonicality": "NO",
+    "tested": "NO",
+    "runtimeObserved": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED"
+}
