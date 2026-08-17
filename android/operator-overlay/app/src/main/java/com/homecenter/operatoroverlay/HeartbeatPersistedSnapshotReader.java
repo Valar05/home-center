@@ -16,7 +16,7 @@ import java.util.Map;
  * from that same observation.</p>
  *
  * <p>Missing keys retain the existing canonical defaults. A present key with an
- * unexpected stored type is not rewritten into "missing": it throws so future owner
+ * unexpected stored type is not rewritten into "missing": it throws so owner
  * wiring can preserve an explicit storage-read wound and retry rather than silently
  * laundering corrupted persistence into WAITING or CONTACT LOST.</p>
  *
@@ -25,6 +25,9 @@ import java.util.Map;
  * {@code OperatorOverlayService} remains the sole poll owner.</p>
  */
 final class HeartbeatPersistedSnapshotReader {
+    static final String STORAGE_READ_FAILURE_BOUNDARY =
+            "Stored heartbeat snapshot could not be read coherently; last-good contact is preserved and the poll will retry.";
+
     private HeartbeatPersistedSnapshotReader() {
     }
 
