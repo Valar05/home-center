@@ -220,36 +220,16 @@ public final class HeartbeatSkillPolicy {
     /**
      * Expanded TalkBack/touch detail for a fully typed heartbeat source record.
      *
-     * <p>The Candidate retains the complete typed fields for explicit non-speech
-     * inspection and evidence handling. This spoken projection independently caps
-     * each large semantic field by Unicode code point and marks truncation, so a
-     * legal parser-bounded record or direct source record cannot turn one focus
-     * action into a multi-kilobyte TalkBack monologue or split a surrogate pair.</p>
-     *
-     * <p>Legacy candidates intentionally fall back to the compact description rather
-     * than inventing provenance, activation reason, or evidence they do not carry.</p>
+     * <p>Legacy candidates intentionally fall back to compact speech rather than
+     * inventing provenance, activation reason, or evidence they do not carry. Fully
+     * typed candidates delegate to the single collision-safe, post-projection-bounded
+     * {@link HeartbeatEvidenceDetailProjection} authority used by accepted scene nodes.
+     * Exact Candidate fields remain unchanged for non-speech inspection/evidence.</p>
      */
     public static String detailContentDescription(Candidate candidate) {
         if (!isMaterial(candidate) || !hasSafeSemanticSurface(candidate)) return "";
         if (!hasTypedSourceContract(candidate)) return contentDescription(candidate);
-        return "Skill " + boundedDetailSpeechField(
-                        candidate.label,
-                        MAX_SPOKEN_LABEL_CODE_POINTS)
-                + ", " + candidate.state.name().toLowerCase(Locale.ROOT)
-                + ". Why: " + boundedDetailSpeechField(
-                        candidate.activationReason,
-                        MAX_DETAIL_REASON_CODE_POINTS)
-                + ". Consequence: " + boundedDetailSpeechField(
-                        candidate.consequence,
-                        MAX_DETAIL_CONSEQUENCE_CODE_POINTS)
-                + ". Evidence: " + boundedDetailSpeechField(
-                        candidate.evidenceBoundary,
-                        MAX_DETAIL_EVIDENCE_CODE_POINTS)
-                + ". Source: " + humanizeProvenanceKind(candidate.provenanceKind)
-                + " " + boundedDetailSpeechField(
-                        candidate.provenanceLocator,
-                        MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS)
-                + ".";
+        return HeartbeatEvidenceDetailProjection.detailContentDescription(candidate);
     }
 
     /**
@@ -402,10 +382,6 @@ public final class HeartbeatSkillPolicy {
                 || (codePoint >= 0x2066 && codePoint <= 0x2069);
     }
 
-    private static String humanizeProvenanceKind(String provenanceKind) {
-        return provenanceKind.replace('_', ' ');
-    }
-
     private static String compactSpeechField(String value, int maxCodePoints) {
         String clean = clean(value);
         if (clean.isEmpty() || maxCodePoints <= 0) return clean;
@@ -413,15 +389,6 @@ public final class HeartbeatSkillPolicy {
         if (codePoints <= maxCodePoints) return clean;
         int end = clean.offsetByCodePoints(0, maxCodePoints);
         return clean.substring(0, end) + "…";
-    }
-
-    private static String boundedDetailSpeechField(String value, int maxCodePoints) {
-        String clean = clean(value);
-        if (clean.isEmpty() || maxCodePoints <= 0) return clean;
-        int codePoints = clean.codePointCount(0, clean.length());
-        if (codePoints <= maxCodePoints) return clean;
-        int end = clean.offsetByCodePoints(0, maxCodePoints);
-        return clean.substring(0, end) + "… (truncated)";
     }
 
     private static String clean(String value) {
