@@ -1,0 +1,56 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-1900",
+  "mission": "Advance a materially different non-P0 heartbeat wound without retrying blocked CI or touching the gated phone surface.",
+  "selectedWound": {
+    "name": "mixed-semantic-id-equivalence",
+    "observation": "Heartbeat source uses Locale.ROOT lowercase keys for parser dedupe/structure identity while viewport/native ownership still uses String.equalsIgnoreCase in several paths. Those are not the same equivalence relation for all Unicode, so one accepted source model can contain ids that native lookup later aliases.",
+    "risk": "Two source-distinct lights can collapse onto one native semantic owner for selection, lookup, viewport restore, or in-place reconciliation, violating deterministic routing and accessibility identity.",
+    "authorizedScope": [
+      "pure semantic-id identity helper/source policy",
+      "existing heartbeat parser/policy/view-model/accessibility/viewport/native-owner composition",
+      "regression source",
+      "durable skill doctrine",
+      "existing non-raster warm-wall specimen mutation",
+      "Regnet/Venice review receipts"
+    ],
+    "forbiddenScope": [
+      "primary-phone execution",
+      "Phone Hands tickets or queue/device probes",
+      "P0 recovery mutation",
+      "Nightcore/Pocket TTS/Chromium/Context Organs",
+      "new overlay controller/renderer/state owner",
+      "manual retry of unchanged blocked Actions job"
+    ]
+  },
+  "skillLights": {
+    "failure_is_the_shovel": "active: choose semantic identity split instead of blocked CI retry",
+    "canon_auto_select": "active: identity ownership paths discovered from current PR source",
+    "autocorrect_judgment_jar": "dark: no STT ambiguity materially affects this slice",
+    "originality_tax": "active: do not revisit case-only presentation dedup as the main target",
+    "hunger_eat_everything": "active: propagate one identity rule through all existing semantic owners",
+    "operator_campaign_harroway": "active: keep existing OperatorOverlayService as sole Android owner",
+    "she_raw": "fault: authoritative connector returned account-connection HTTP 400 before execution",
+    "venice_regnet": "active: source/capability membrane review required",
+    "accessibility_touch": "active: one light id must map to one stable focus/touch owner",
+    "phone_runtime_phone_hands": "dark/firewalled: no consumption authorized",
+    "deterministic_routing": "active: eliminate mixed equivalence relations",
+    "evidence_capability_state": "active: source/readback must not become test/runtime proof",
+    "recovery_checkpoint_idempotence": "active: checkpoint/structure/restore identity must share the same semantic key",
+    "warm_walls_christmas_graph": "active: mutate existing source specimen only if it teaches the identity scar without decorative motion",
+    "contact_preservation": "active: semantic ownership repair must not weaken last-good preservation"
+  },
+  "plannedFronts": [
+    "Introduce one pure semantic-id canonical/equality authority and route heartbeat identity ownership through it.",
+    "Add hostile Unicode regression source proving parser dedupe and native/viewport identity use the same equivalence relation.",
+    "Update durable skill doctrine to forbid mixed equalsIgnoreCase/lowercase ownership semantics.",
+    "Mutate the existing warm-wall source specimen with a semantic identity split scar, not a new artifact/controller.",
+    "Write Regnet/Venice/swarm receipts with exact implemented/tested/runtime boundaries."
+  ],
+  "preExecutionState": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "tested": "NO / existing Actions budget blocker",
+    "phoneP0Mutations": 0
+  }
+}
