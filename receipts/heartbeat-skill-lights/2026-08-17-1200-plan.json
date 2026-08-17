@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "heartbeat": "2026-08-17T12:00:00-05:00",
+  "scope": "non-P0 explicit-detail source truth convergence",
+  "mission": "Close the remaining typed Candidate explicit-detail authority split so scene/node and candidate callers cannot produce two different evidence projections.",
+  "fronts": [
+    "source archaeology and duplicate-authority audit",
+    "candidate/node explicit-detail projection convergence",
+    "hostile accessibility regression source",
+    "durable skill/doctrine synchronization",
+    "Swan Veil non-raster source mutation if the truth surface changes materially",
+    "Regnet/Venice evidence review"
+  ],
+  "constraints": {
+    "compactRoutineSpeechUnchanged": true,
+    "legacyUntypedCandidateFallsBackToCompactSpeech": true,
+    "typedExplicitDetailUsesOneProjectionAuthority": true,
+    "exactCanonicalSemanticFieldsRemainUnmodified": true,
+    "duplicateArchitectureForbidden": true,
+    "p0PhoneSurfacesReadOnly": true,
+    "runtimeClaimsForbiddenWithoutRuntimeEvidence": true
+  },
+  "sourceArchaeology": {
+    "sceneAuthority": "HeartbeatEvidenceDetailProjection.detailContentDescription(HeartbeatSceneGraph.Node)",
+    "remainingSplit": "HeartbeatSkillPolicy.detailContentDescription(Candidate) independently formats typed explicit detail with boundedDetailSpeechField and therefore does not share invisible-semantic marker/collision behavior.",
+    "existingExplicitConsumers": "HeartbeatOverlayViewModel and HeartbeatFrameAccessibility consume the scene authority; the Candidate API remains a public future-bypass seam."
+  },
+  "proposedChange": [
+    "Add a typed Candidate overload to HeartbeatEvidenceDetailProjection and share one formatter between Candidate and Node paths.",
+    "Make HeartbeatSkillPolicy.detailContentDescription delegate typed Candidate detail to HeartbeatEvidenceDetailProjection while preserving the legacy compact fallback.",
+    "Extend HeartbeatDetailAuthorityTest so Candidate and Node typed detail are byte-for-byte equal across invisible-control and literal-marker collision fixtures.",
+    "Synchronize the existing invisible-semantic-control skill and Swan Veil artifact only if the source truth materially changes."
+  ],
+  "evidenceBoundary": "Source mutation and exact GitHub readback may become IMPLEMENTED_SOURCE. TESTED, runtime UI, runtime TalkBack, deployed, callable, executed, delivered, and accepted remain NO unless separately evidenced.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "p0Firewall": "No Phone Hands ticket, primary-phone command, queue/device probe, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance action, or duplicate P0 owner is authorized in this slice."
+}
