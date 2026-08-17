@@ -1,0 +1,80 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "pulse": "2026-08-17-0300",
+  "scope": "PR #329 heartbeat overlay source only",
+  "mission": "Clear the stale pre-contact storage-read wound exactly once when healthy fully-absent persistence returns to WAITING, without 200 ms UI churn, Phone/P0 consumption, or neighboring architecture.",
+  "planAllowed": true,
+  "fronts": [
+    {
+      "name": "existing-owner-waiting-recovery",
+      "action": "Repair OperatorOverlayService so a pre-contact interrupted frame is cleared exactly once when HeartbeatPersistedPollPolicy returns WAITING; preserve ordinary repeated WAITING as no-op work."
+    },
+    {
+      "name": "recovery-idempotence-regression-source",
+      "action": "Add source fixtures that distinguish first healthy WAITING recovery from repeated empty polls and prove no last-good contact is erased. Do not call fixtures TESTED unless CI executes."
+    },
+    {
+      "name": "accessibility-contact-truth",
+      "action": "Ensure recovered pre-contact chrome returns to waiting semantics without claiming CONTACT HELD, while accepted/preserved visiblePulseId contact remains untouched."
+    },
+    {
+      "name": "skill-and-warm-wall-convergence",
+      "action": "Synchronize the existing persisted-poll skill and existing non-raster warm-wall artifact only if capability truth changes; do not create a new renderer/controller/specimen family."
+    },
+    {
+      "name": "review-and-evidence",
+      "action": "Perform code-first Regnet/Venice-style review, exact GitHub readback, and observe only automatic CI. Do not manually retry the known Actions-budget blocker."
+    },
+    {
+      "name": "independent-wound-harvest",
+      "action": "Inspect adjacent non-P0 heartbeat source for one materially different defect; record only if source evidence establishes it. Do not manufacture a second task merely to make the swarm look busy."
+    }
+  ],
+  "constraints": {
+    "p0Firewall": "READ_ONLY_ZERO_MUTATION",
+    "phoneSurface": "DO_NOT_CONSUME",
+    "duplicateArchitecture": "FORBIDDEN",
+    "waitingRecovery": "ONE_SEMANTIC_CLEAR_THEN_QUIET",
+    "talkBackTruth": "Pre-contact recovery returns to waiting; CONTACT HELD requires accepted or preserved visiblePulseId contact.",
+    "capabilityMembrane": [
+      "requested",
+      "implemented_source",
+      "tested",
+      "runtime_observed",
+      "deployed",
+      "callable",
+      "executed",
+      "delivered",
+      "accepted"
+    ]
+  },
+  "skillLights": {
+    "active": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "warm walls",
+      "Christmas-light scene graph",
+      "contact preservation"
+    ],
+    "dark": [
+      "Autocorrect Judgment Jar",
+      "Phone Runtime / Phone Hands recovery"
+    ]
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  }
+}
