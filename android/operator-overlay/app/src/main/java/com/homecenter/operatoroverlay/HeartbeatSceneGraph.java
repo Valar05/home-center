@@ -33,7 +33,6 @@ public final class HeartbeatSceneGraph {
         public final int touchTargetDp;
         public final String stateToken;
         public final String contentDescription;
-        public final String detailContentDescription;
         public final boolean transitionMotion;
 
         private Node(
@@ -52,7 +51,6 @@ public final class HeartbeatSceneGraph {
             this.touchTargetDp = MIN_TOUCH_TARGET_DP;
             this.stateToken = tokenFor(candidate.state);
             this.contentDescription = HeartbeatSkillPolicy.contentDescription(candidate);
-            this.detailContentDescription = HeartbeatSkillPolicy.detailContentDescription(candidate);
             this.transitionMotion = transitionMotion;
         }
 
@@ -75,7 +73,6 @@ public final class HeartbeatSceneGraph {
             this.touchTargetDp = source.touchTargetDp;
             this.stateToken = source.stateToken;
             this.contentDescription = source.contentDescription;
-            this.detailContentDescription = source.detailContentDescription;
             this.transitionMotion = transitionMotion;
         }
     }
