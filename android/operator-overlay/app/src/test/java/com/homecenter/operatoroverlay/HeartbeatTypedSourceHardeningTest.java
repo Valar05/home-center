@@ -2,7 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -87,7 +87,10 @@ public class HeartbeatTypedSourceHardeningTest {
         assertEquals("pulse-good", frame.visiblePulseId);
         assertEquals("", frame.attemptedPulseId);
         assertEquals("Heartbeat envelope has unknown field: accepted.", frame.refreshBoundary);
-        assertSame(lastGood.nodes.get(0), frame.nodes.get(0));
+        assertNotSame(lastGood.nodes.get(0), frame.nodes.get(0));
+        assertEquals(lastGood.nodes.get(0).id, frame.nodes.get(0).id);
+        assertEquals(lastGood.nodes.get(0).evidenceBoundary, frame.nodes.get(0).evidenceBoundary);
+        assertFalse(frame.nodes.get(0).transitionMotion);
         assertFalse(frame.transitionMotionAllowed);
     }
 
