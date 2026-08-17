@@ -93,7 +93,9 @@ public class HeartbeatFrameAccessibilityTest {
         List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
         String hugeConsequence = repeat("long consequence ", 100);
         String longLabel = repeat("Label", 32);
-        String compactPrefix = longLabel.substring(0, 64) + "…";
+        String compactPrefix = longLabel.substring(
+                0,
+                HeartbeatFrameAccessibility.MAX_COLLAPSED_LABEL_CODE_POINTS - 1) + "…";
         for (int index = 0; index < 20; index++) {
             HeartbeatSkillPolicy.State state;
             switch (index % 4) {
@@ -243,7 +245,7 @@ public class HeartbeatFrameAccessibilityTest {
     }
 
     @Test
-    public void collapsedLabelTruncationDoesNotSplitUnicodeCodePoint() {
+    public void collapsedLabelHardBudgetDoesNotSplitUnicodeCodePoint() {
         String emoji = "🦢";
         String longLabel = repeat(emoji, 70);
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
@@ -258,8 +260,11 @@ public class HeartbeatFrameAccessibilityTest {
                 null);
 
         String description = HeartbeatFrameAccessibility.collapsedContentDescription(frame);
-        assertTrue(description.contains(repeat(emoji, 64) + "…, active"));
-        assertFalse(description.contains(repeat(emoji, 65)));
+        assertTrue(description.contains(
+                repeat(emoji, HeartbeatFrameAccessibility.MAX_COLLAPSED_LABEL_CODE_POINTS - 1)
+                        + "…, active"));
+        assertFalse(description.contains(
+                repeat(emoji, HeartbeatFrameAccessibility.MAX_COLLAPSED_LABEL_CODE_POINTS)));
     }
 
     @Test
