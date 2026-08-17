@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="880" viewBox="0 0 960 880" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport ownership, source-bound parity, duplicate-owner, pulse-identity, and persisted-poll fail-closed scars</title>
-  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, parser/direct candidate bound parity, fail-closed duplicate semantic ownership, root pulse identity bound parity, and persisted-poll contact truth: empty storage before first contact is waiting, empty storage after visible contact is a preserved wound, and positive wall-clock timestamp churn alone does not earn repeated semantic projection. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="920" viewBox="0 0 960 920" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport ownership, identity bounds, and persisted-poll owner wiring scars</title>
+  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification is now wired into the existing Operator Overlay owner: unchanged persistence skips projection, missing storage after visible contact preserves the last-good wall, and failed internal work remains retryable. Review also exposed a narrower coherence wound: a one-map persisted snapshot reader exists, but the owner still uses four independent preference getter calls. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,9 +15,9 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="826" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="866" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
-  <text class="tiny" x="56" y="92">OWNER FOCUS-SCOPE SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE UNTOUCHED</text>
+  <text class="tiny" x="56" y="92">OWNER SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE/P0 UNTOUCHED</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
   <text class="label" x="86" y="150">CAPTURE</text>
@@ -45,8 +45,6 @@
   <text class="tiny" x="86" y="350">Stable in-place refresh → mutation may destroy focus = NO. Empty child focus gets no rebuild costume.</text>
   <text class="tiny" x="86" y="374">Structural or drift fallback rebuild → may destroy focus = YES; root direct-focus scope is checked before restore.</text>
   <text class="tiny" x="86" y="398">Different heartbeat focus or any non-heartbeat direct focus → stale ticket dies. TalkBack remains separate evidence.</text>
-  <path class="wire" d="M640 386 H842"/>
-  <text class="tiny" x="664" y="416">CAPTURE BASELINE + ACTUAL MUTATION + ROOT FOCUS SCOPE</text>
 
   <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
   <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Source wiring ≠ Android execution. Direct keyboard focus ≠ TalkBack focus.</text>
@@ -63,9 +61,13 @@
   <text class="label" x="86" y="684">ROOT PULSE ID / ONE BOUND</text>
   <text class="tiny" x="86" y="707">parser = direct scene = pre-parser diagnostic · max+1 → REJECTED · attempted ID suppressed · contact held · no motion.</text>
 
-  <rect class="scar" x="66" y="734" width="826" height="72" rx="16"/>
-  <text class="label" x="86" y="760">PERSISTED POLL / WAITING ≠ CONTACT LOST</text>
-  <text class="tiny" x="86" y="783">empty before first contact → WAITING · empty after contact → WOUND ONCE · positive timestamp churn alone → NO SEMANTIC WORK</text>
+  <rect class="scar" x="66" y="734" width="826" height="92" rx="16"/>
+  <text class="label" x="86" y="760">PERSISTED POLL / OWNER SOURCE WIRED</text>
+  <text class="tiny" x="86" y="783">empty before first contact → WAITING · empty after contact → WOUND ONCE · unchanged → NO DECODE / PARSE / UI / SPEECH / MOTION</text>
+  <text class="tiny" x="86" y="806">unexpected internal abort → RETRY · positive timestamp magnitude alone → NO SEMANTIC WORK</text>
 
-  <text class="tiny" x="56" y="840">Poll policy source exists. Existing-owner consumption remains unproven. Runtime/test proof stays separate. No phone/P0 surface consumed.</text>
+  <rect class="scar" x="66" y="838" width="826" height="34" rx="14"/>
+  <text class="tiny" x="86" y="861">COHERENCE WOUND: ONE-MAP SNAPSHOT READER SOURCE YES • EXISTING OWNER CONSUMPTION NO • RUNTIME UNPROVEN</text>
+
+  <text class="tiny" x="56" y="900">Repository source only. No phone execution, queue, P0 recovery, deployment, delivery, or acceptance evidence.</text>
 </svg>
