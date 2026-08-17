@@ -1,0 +1,39 @@
+{
+  "receipt": "venice-completion-review",
+  "pulse": "2026-08-17-0600",
+  "mode": "same-worker-separate-judgment-pass",
+  "verdict": "STOP_ALLOWED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED",
+  "review": {
+    "missionFidelity": "PASS",
+    "materialDifferenceFromPriorSeam": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS",
+    "accessibilityTruth": "PASS_SOURCE_ONLY",
+    "evidenceMembrane": "PASS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET"
+  },
+  "judgment": "This pulse found and durably bounded a different persisted-evidence wound: Base64 decoder acceptance can be broader than the writer's exact textual encoding, while downstream byte-count/SHA still prove only decoded bytes. The new exact round-trip policy, hostile source fixtures, repository skill, warm-wall mutation, and proposed existing-owner delta are useful and mutually consistent. The proposed patch is deliberately not implementation evidence. OperatorOverlayService does not yet canonical re-encode and consume the gate, so owner wiring remains NO. Android CI on bounded source/art head 0d6fa033aebe9afeb5b3e27575ae07918e5f22b5 executed zero steps because the Actions budget prevented the job from starting. No manual retry and no phone/P0 substitution are allowed. Yield this source slice; keep the recurring campaign alive and move to owner wiring or a materially different independent wound next pulse.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "capability": {
+    "policySource": "YES",
+    "regressionSource": "YES",
+    "repositorySkill": "YES",
+    "warmWallMutation": "YES",
+    "proposedOwnerDelta": "YES_NOT_APPLIED",
+    "existingOwnerConsumesGate": "NO",
+    "tested": "NO",
+    "runtimeObserved": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED"
+}
