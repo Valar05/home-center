@@ -86,6 +86,28 @@ public final class HeartbeatOverlayViewModel {
         }
 
         /**
+         * Compact visible summary label derived from actual visible contact truth.
+         *
+         * <p>An interrupted frame with no visible pulse is a blocked refresh, not
+         * "contact held". This distinction matters especially before first contact:
+         * a coherent storage-read wound must not claim that an old heartbeat remains
+         * visible when none has ever been accepted. A zero-material accepted pulse
+         * still has contact because {@code visiblePulseId} is non-empty.</p>
+         */
+        public String summaryVisibleLabel() {
+            int count = controls.size();
+            boolean hasVisibleContact = !clean(visiblePulseId).isEmpty();
+            if (count == 0) {
+                if (!refreshInterrupted) return "HEARTBEAT • waiting";
+                return hasVisibleContact
+                        ? "HEARTBEAT • CONTACT HELD"
+                        : "HEARTBEAT • REFRESH BLOCKED";
+            }
+            return "HEARTBEAT • " + count + " LIGHT" + (count == 1 ? "" : "S")
+                    + (refreshInterrupted && hasVisibleContact ? " • CONTACT HELD" : "");
+        }
+
+        /**
          * UI-ready one-shot motion decision for one semantic control. The platform
          * animator bit must come from the existing Android owner at the moment it
          * applies the view update; this source model does not query Android settings.
