@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import org.junit.Test;
 
 public final class HeartbeatPersistedPollPolicyTest {
@@ -15,6 +16,23 @@ public final class HeartbeatPersistedPollPolicyTest {
         assertEquals(
                 HeartbeatPersistedPollPolicy.Decision.WAITING,
                 HeartbeatPersistedPollPolicy.decide(null, empty, false));
+    }
+
+    @Test
+    public void acceptedZeroLightPulseStillCountsAsVisibleLastGoodContact() {
+        HeartbeatSceneGraph.Frame emptyButAccepted = HeartbeatSceneGraph.build(
+                "pulse-zero-material",
+                Collections.emptyList(),
+                true,
+                null);
+
+        assertTrue(HeartbeatPersistedPollPolicy.hasVisibleLastGoodContact(emptyButAccepted));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PRESERVE_MISSING_CONTACT,
+                HeartbeatPersistedPollPolicy.decide(
+                        null,
+                        snapshot("", 0L, "", 0L),
+                        emptyButAccepted));
     }
 
     @Test
