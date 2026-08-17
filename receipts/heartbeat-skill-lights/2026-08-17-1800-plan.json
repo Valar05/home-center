@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "pulse": "2026-08-17-1800",
+  "commission": "Advance TRY FOREVER heartbeat skill lights through independent non-P0 source fronts.",
+  "wound": "Accepted zero-material heartbeat truth is projected into heartbeatSummary inside details, but details is GONE when collapsed; the surviving dragHandle still exposes only a static overlay action description.",
+  "authorizedOwner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "plan": [
+    "Add one pure collapsed-owner accessibility projection that composes the existing heartbeat model rather than re-deriving heartbeat state.",
+    "Wire the existing dragHandle to that projection only while collapsed; expanded mode retains the ordinary overlay action description.",
+    "Refresh the surviving collapsed description on presentation-state changes, heartbeat-model chrome changes, and return-to-waiting recovery.",
+    "Add hostile regression source distinguishing accepted zero-material contact, pre-contact waiting, CONTACT HELD, and REFRESH BLOCKED on the same collapsed-owner projection.",
+    "Converge the zero-material contact skill and mutate existing non-raster heartbeat art only if the new surviving-surface topology is materially represented.",
+    "Keep TESTED/runtime/deployed/callable/executed/delivered/accepted false absent exact evidence."
+  ],
+  "constraints": {
+    "newOverlayController": false,
+    "newRenderer": false,
+    "newPoller": false,
+    "phoneHands": false,
+    "primaryPhone": false,
+    "p0Mutation": false,
+    "p0EvidenceReadOnly": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400"
+  }
+}
