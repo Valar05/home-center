@@ -1,60 +1,81 @@
 package com.homecenter.operatoroverlay;
 
 /**
- * Narrow source policy for invisible, non-directional formatting controls that can
- * make two operator-facing heartbeat strings look equivalent while remaining
- * different evidence/checkpoint identities.
+ * Explicit evidence projection for legitimate invisible semantic layout/shaping
+ * controls.
  *
- * <p>This deliberately does not reject every Unicode FORMAT character. U+200D ZERO
- * WIDTH JOINER and U+200C ZERO WIDTH NON-JOINER have legitimate grapheme/language
- * shaping uses and remain allowed. Directional bidi controls and ISO controls remain
- * owned by {@link HeartbeatSkillPolicy}. This policy only names the additional
- * invisible presentation aliases that should fail closed when the existing semantic
- * consumers are wired to it.</p>
+ * <p>Invisibility is not itself a rejection reason. Unicode assigns real semantics
+ * to several zero-width characters: U+200B can create a word/line-break opportunity,
+ * U+2060 prevents a line break, and U+200C/U+200D participate in language/grapheme
+ * shaping. U+FEFF also has BOM/legacy ZWNBSP history. A blanket FORMAT-character ban
+ * would therefore destroy legitimate text semantics.</p>
  *
- * <p>This class owns no parser, scene, renderer, storage, transport, phone surface,
- * deployment, or P0 recovery action. Source policy is not consumer wiring or runtime
- * proof.</p>
+ * <p>This policy does not normalize or rewrite canonical heartbeat text. It offers a
+ * separate deterministic diagnostic projection that makes selected invisible code
+ * points explicit when an operator/reviewer needs exact evidence visibility. The
+ * original source string remains authoritative. Existing ISO-control, malformed
+ * surrogate, and bidi-direction rejection remains owned by {@link HeartbeatSkillPolicy}.</p>
+ *
+ * <p>This class owns no parser, acceptance gate, scene, renderer, storage, transport,
+ * phone surface, deployment, or P0 recovery action. Source projection is not consumer
+ * wiring or runtime proof.</p>
  */
 public final class HeartbeatInvisibleSemanticControlPolicy {
     public static final int ZERO_WIDTH_SPACE = 0x200B;
+    public static final int ZERO_WIDTH_NON_JOINER = 0x200C;
+    public static final int ZERO_WIDTH_JOINER = 0x200D;
     public static final int WORD_JOINER = 0x2060;
     public static final int BYTE_ORDER_MARK = 0xFEFF;
-
-    public static final String REJECTION_BOUNDARY =
-            "Heartbeat semantic text contains an invisible presentation control.";
 
     private HeartbeatInvisibleSemanticControlPolicy() {
     }
 
-    /**
-     * True when text contains one of the three invisible presentation aliases this
-     * policy owns. Null/empty text is not a violation here; required-field semantics
-     * remain with the existing parser/typed source gate.
-     */
-    public static boolean containsForbiddenInvisibleControl(String value) {
+    /** True when the text contains an invisible semantic layout/shaping control this policy can reveal. */
+    public static boolean containsRevealableInvisibleControl(String value) {
         if (value == null || value.isEmpty()) return false;
         for (int index = 0; index < value.length();) {
             int codePoint = value.codePointAt(index);
-            if (isForbiddenInvisibleControl(codePoint)) return true;
+            if (isRevealableInvisibleControl(codePoint)) return true;
             index += Character.charCount(codePoint);
         }
         return false;
     }
 
     /**
-     * Composition-ready semantic safety check. Existing ISO/bidi/surrogate safety
-     * remains authoritative; this policy contributes only its additional narrow
-     * invisible-control boundary.
+     * Separate human-readable evidence projection. Exact source text is not modified;
+     * callers must keep the original string as canonical identity/evidence.
      */
-    public static boolean isSafeOperatorSemanticText(String value) {
-        return HeartbeatSkillPolicy.isSafeSemanticText(value)
-                && !containsForbiddenInvisibleControl(value);
+    public static String explicitEvidenceProjection(String value) {
+        if (value == null || value.isEmpty()) return "";
+        StringBuilder out = new StringBuilder(value.length());
+        for (int index = 0; index < value.length();) {
+            int codePoint = value.codePointAt(index);
+            String marker = markerFor(codePoint);
+            if (marker == null) out.appendCodePoint(codePoint);
+            else out.append(marker);
+            index += Character.charCount(codePoint);
+        }
+        return out.toString();
     }
 
-    public static boolean isForbiddenInvisibleControl(int codePoint) {
-        return codePoint == ZERO_WIDTH_SPACE
-                || codePoint == WORD_JOINER
-                || codePoint == BYTE_ORDER_MARK;
+    public static boolean isRevealableInvisibleControl(int codePoint) {
+        return markerFor(codePoint) != null;
+    }
+
+    private static String markerFor(int codePoint) {
+        switch (codePoint) {
+            case ZERO_WIDTH_SPACE:
+                return "<ZWSP U+200B>";
+            case ZERO_WIDTH_NON_JOINER:
+                return "<ZWNJ U+200C>";
+            case ZERO_WIDTH_JOINER:
+                return "<ZWJ U+200D>";
+            case WORD_JOINER:
+                return "<WJ U+2060>";
+            case BYTE_ORDER_MARK:
+                return "<BOM U+FEFF>";
+            default:
+                return null;
+        }
     }
 }
