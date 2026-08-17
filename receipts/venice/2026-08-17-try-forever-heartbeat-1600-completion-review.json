@@ -1,0 +1,25 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-17-1600",
+  "reviewer": "Venice Judgment Jar",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "assessment": {
+    "mission_fidelity": "PASS — multiple independent non-P0 fronts materially advanced.",
+    "accessibility": "PASS_SOURCE — legacy collapsed Candidate speech fanout is bounded by the shared 12-name ceiling with exact omitted counts; unsafe semantic text remains separately omitted.",
+    "evidence_truth": "PASS_SOURCE_AFTER_CORRECTION — canonical zero timestamp and corrupt negative timestamp no longer alias; SHA whitespace regression doctrine was repaired.",
+    "originality_tax": "PASS — work moved to aggregate fanout and canonical absence metadata instead of re-polishing the completed 1500 per-field speech-budget seam.",
+    "architecture": "PASS — existing HeartbeatSkillPolicy, HeartbeatFrameAccessibility, HeartbeatPersistedPollPolicy, and existing owner composition only; no duplicate controller/poller/renderer/daemon.",
+    "art_taste": "PASS_DARK — Warm Walls/Swan Veil stayed unchanged because neither repair introduced a new runtime/operator-state topology worth visual churn.",
+    "test_truth": "PASS_BOUNDARY — regression source exists, but current-head Operator Overlay Android executed zero steps due Actions budget; TESTED remains NO.",
+    "p0_firewall": "PASS — zero gated phone/P0 actions or mutations."
+  },
+  "process_scar": "The persisted timestamp issue emerged during code-first source review outside the initial aggregate-speech plan. The first timestamp repair was insufficient because zero and negative still shared a boolean class. The second repair fixed that and the sequence is durably recorded; do not rewrite it as preplanned foresight.",
+  "known_boundaries": [
+    "Legacy collapsed compatibility speech is bounded by named-light fanout but remains richer per named light than scene-level attention-first speech.",
+    "Regression sources have not executed.",
+    "No runtime UI or TalkBack observation exists.",
+    "No deployment, callability, execution, delivery, or acceptance evidence exists."
+  ],
+  "next_rule": "Order both repaired seams dark unless fresh evidence changes them. The next heartbeat must choose a materially different non-P0 wound rather than polishing these repairs."
+}
