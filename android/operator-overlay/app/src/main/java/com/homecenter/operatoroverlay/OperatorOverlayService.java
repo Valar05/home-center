@@ -1113,24 +1113,14 @@ public class OperatorOverlayService extends Service {
 
     private void applyHeartbeatModelChrome(HeartbeatOverlayViewModel.Model model) {
         if (model == null || heartbeatSummary == null) return;
-        int count = model.controls.size();
-        if (count == 0) {
-            heartbeatSummary.setText(model.refreshInterrupted
-                    ? "HEARTBEAT • CONTACT HELD"
-                    : "HEARTBEAT • waiting");
-        } else {
-            heartbeatSummary.setText("HEARTBEAT • " + count + " LIGHT" + (count == 1 ? "" : "S")
-                    + (model.refreshInterrupted ? " • CONTACT HELD" : ""));
-        }
+        heartbeatSummary.setText(model.summaryVisibleLabel());
         heartbeatSummary.setContentDescription(model.collapsedContentDescription);
 
         HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
         if (selected != null) {
             showHeartbeatDetail(selected.detailContentDescription, false);
         } else if (model.refreshInterrupted) {
-            showHeartbeatDetail(
-                    "Refresh rejected. Last good heartbeat contact is preserved; no discarded attempted light is current.",
-                    false);
+            showHeartbeatDetail(model.interruptionDetailContentDescription(), false);
         } else {
             showHeartbeatDetail(
                     "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
