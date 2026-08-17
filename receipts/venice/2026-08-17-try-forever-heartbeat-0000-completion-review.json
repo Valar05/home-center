@@ -1,0 +1,63 @@
+{
+  "schema": "venice.completion_review.v1",
+  "heartbeat": "2026-08-17-0000",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "quality": "MIXED_SOURCE_PROGRESS_RUNTIME_UNPROVEN",
+  "code_first_review": {
+    "existing_owner_policy_wiring": "PASS",
+    "contact_preservation": "PASS_SOURCE",
+    "unchanged_poll_quietness": "PASS_SOURCE",
+    "accessibility_semantics": "PASS_SOURCE",
+    "unexpected_abort_retry_semantics": "PASS_SOURCE_CONTROL_FLOW",
+    "single_owner_architecture": "PASS",
+    "single_map_read_coherence": "NEXT_SEAM_READER_SOURCE_EXISTS_OWNER_NOT_WIRED",
+    "storage_type_drift_reader_behavior": "PASS_AFTER_REPAIR",
+    "runtime_evidence": "ABSENT",
+    "delivery_evidence": "ABSENT"
+  },
+  "taste_review": {
+    "warm_wall": "Existing SVG mutated in place rather than spawning another specimen.",
+    "christmas_motion": "Unchanged persistence explicitly earns no decode/parse/UI/speech/motion work; source diagram does not imply animation or deployment.",
+    "accessibility": "Missing contact remains a bounded visible wound and repeated identical persistence remains silent; TalkBack runtime is unclaimed.",
+    "evidence_truth": "Source owner wiring, one-map reader source, reader owner consumption, testing, runtime, deployment, phone delivery, and acceptance remain separate states."
+  },
+  "review_scars": [
+    "Initial owner integration met the prior one-Snapshot-per-poll contract but source review exposed that its Snapshot was assembled from four preference getter calls, allowing a transient mixed committed-map observation.",
+    "The new one-map reader's first draft treated present unexpected types as missing; that was repaired to reject type drift rather than launder it into waiting/contact-loss semantics."
+  ],
+  "current_gate": {
+    "merge_as_delivered_interface": false,
+    "claim_tested": false,
+    "claim_runtime_observed": false,
+    "claim_phone_delivery": false,
+    "next_authorized_non_p0_seam": "Make the existing OperatorOverlayService consume HeartbeatPersistedSnapshotReader.read(...) and preserve a bounded storage-read wound if the coherent read itself fails, without allowing an unexpected read failure to kill or falsely deduplicate the 200 ms poll loop."
+  },
+  "ci": {
+    "head": "e8e31a0f83528fe91fa25646e6a51ba6bfaf46de",
+    "operator_overlay_run": 31997318421,
+    "job": 95291175928,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+  "p0_phone_surface": "UNTOUCHED_ZERO_CONSUMPTION",
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "existing_owner_policy_source_wired": true,
+    "coherent_reader_source": true,
+    "existing_owner_coherent_reader_source_wired": false,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
