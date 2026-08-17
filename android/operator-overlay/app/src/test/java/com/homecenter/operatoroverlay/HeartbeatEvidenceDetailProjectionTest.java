@@ -16,7 +16,7 @@ public class HeartbeatEvidenceDetailProjectionTest {
         int budget = marker.codePointCount(0, marker.length())
                 + suffix.codePointCount(0, suffix.length());
         String projected = HeartbeatInvisibleSemanticControlPolicy.boundedEvidenceProjection(
-                "\u200B\u200B",
+                "\u200B\u200B\u200B",
                 budget);
 
         assertEquals(marker + suffix, projected);
