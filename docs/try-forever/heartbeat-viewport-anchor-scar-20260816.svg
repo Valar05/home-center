@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport interaction ownership wired scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, and the existing overlay owner now supplying actual mutation class plus overlay-wide direct keyboard-focus presence before after-layout restoration. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="620" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport interaction ownership and source-bound parity wired scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, and a new fail-closed scar requiring direct typed heartbeat source records to obey the same field bounds as the canonical parser. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,7 +15,7 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="486" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="566" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
   <text class="tiny" x="56" y="92">OWNER FOCUS-SCOPE SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE UNTOUCHED</text>
 
@@ -51,5 +51,9 @@
   <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
   <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Source wiring ≠ Android execution. Direct keyboard focus ≠ TalkBack focus.</text>
 
-  <text class="tiny" x="56" y="506">Exact owner source is wired. Test lane is still blocked by Actions budget. No phone/P0 surface consumed.</text>
+  <rect class="scar" x="66" y="506" width="826" height="62" rx="16"/>
+  <text class="label" x="86" y="532">SOURCE BOUNDS / PARSER = DIRECT TYPED GATE</text>
+  <text class="tiny" x="86" y="555">Oversized direct Candidate → BLOCKED · last-good contact held · motion forbidden · no truncation costume.</text>
+
+  <text class="tiny" x="56" y="586">Exact source policy is wired. Regression source exists. Runtime/test proof remains separate. No phone/P0 surface consumed.</text>
 </svg>
