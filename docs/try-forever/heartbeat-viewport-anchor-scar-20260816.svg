@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1000" viewBox="0 0 960 1000" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport ownership, persisted-poll coherence, and interruption chrome truth scars</title>
-  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification and coherent one-map SharedPreferences reading are wired into the existing Operator Overlay owner. The existing owner now also consumes model-owned interruption summary and detail truth so a pre-contact read wound says refresh blocked instead of contact held. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1100" viewBox="0 0 960 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport ownership, persisted-poll coherence, waiting recovery, and interruption chrome truth scars</title>
+  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification and coherent one-map SharedPreferences reading are wired into the existing Operator Overlay owner. Model-owned interruption summary and detail truth distinguish refresh blocked from contact held. A new source policy clears a stale pre-contact read wound once when healthy empty persistence returns to waiting, but existing-owner consumption of that recovery gate remains unimplemented. Floating persisted metadata is rejected rather than truncated into evidence. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,7 +15,7 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="946" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="1046" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
   <text class="tiny" x="56" y="92">OWNER SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE/P0 UNTOUCHED</text>
 
@@ -66,12 +66,17 @@
   <text class="tiny" x="86" y="783">empty before first contact → WAITING · empty after contact → WOUND ONCE · unchanged → NO DECODE / PARSE / UI / SPEECH / MOTION</text>
   <text class="tiny" x="86" y="806">unexpected projection abort → RETRY · positive timestamp magnitude alone → NO SEMANTIC WORK</text>
 
-  <rect class="scar" x="66" y="838" width="826" height="34" rx="14"/>
-  <text class="tiny" x="86" y="861">COHERENT READ OWNER WIRED • READ FAILURE → BOUNDED WOUND + OLD SNAPSHOT RETAINED + NEXT POLL RETRIES</text>
+  <rect class="scar" x="66" y="838" width="826" height="52" rx="14"/>
+  <text class="label" x="86" y="862">COHERENT READ / TYPE TRUTH</text>
+  <text class="tiny" x="86" y="883">one-map owner wired · Float metadata → REJECTED, never silently truncated into byte/timestamp evidence</text>
 
-  <rect class="scar" x="66" y="886" width="826" height="62" rx="16"/>
-  <text class="label" x="86" y="912">CHROME TRUTH / EXISTING OWNER WIRED</text>
-  <text class="tiny" x="86" y="935">pre-contact wound → REFRESH BLOCKED · accepted/preserved pulse → CONTACT HELD · summary + detail share one contact truth</text>
+  <rect class="scar" x="66" y="904" width="826" height="62" rx="16"/>
+  <text class="label" x="86" y="930">CHROME TRUTH / EXISTING OWNER WIRED</text>
+  <text class="tiny" x="86" y="953">pre-contact wound → REFRESH BLOCKED · accepted/preserved pulse → CONTACT HELD · summary + detail share one contact truth</text>
 
-  <text class="tiny" x="56" y="976">Repository source only. No Android execution, phone execution, queue, P0 recovery, deployment, delivery, or acceptance evidence.</text>
+  <rect class="scar" x="66" y="980" width="826" height="62" rx="16"/>
+  <text class="label" x="86" y="1006">WAITING RECOVERY / ONE CLEAR THEN QUIET</text>
+  <text class="tiny" x="86" y="1029">policy + regression source YES · owner consumption NO · healthy empty store clears stale pre-contact wound once, then 200 ms polls stay still</text>
+
+  <text class="tiny" x="56" y="1068">Repository source only. No Android execution, phone execution, queue, P0 recovery, deployment, delivery, or acceptance evidence.</text>
 </svg>
