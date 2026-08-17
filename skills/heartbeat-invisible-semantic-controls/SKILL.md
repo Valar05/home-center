@@ -51,6 +51,8 @@ A legal source field can become much larger after every invisible control is exp
 
 `boundedEvidenceProjection(...)` applies the budget after projection and treats each marker/escaped-backslash unit atomically. Truncation may happen only between projection units; never cut a `\u{...}` marker in half and never silently repair the canonical source to satisfy a speech budget.
 
+The truncation indicator is part of that same hard budget. Do **not** fill the entire projection budget and then append `… (truncated)` outside it. When truncation is required, reserve room for the whole indicator before emitting source projection units. If the caller supplies a budget smaller than the full indicator, emit only a bounded ellipsis rather than violating the requested cap. This is a speech/resource bound, not a cosmetic preference.
+
 ## One-detail-authority scar
 
 Explicit detail has exactly one scene-level projection authority: `HeartbeatEvidenceDetailProjection.detailContentDescription(node)`.
@@ -70,10 +72,11 @@ Compact/routine speech remains separate by design. Checkpoint/contact hashes rem
 
 Policy existence is not consumer wiring.
 
-Current source capability after the 1100 convergence slice:
+Current source capability after the 1200 projection-budget repair:
 
 - projection policy source: YES
 - bounded post-projection detail source: YES
+- truncation indicator included inside hard code-point budget: YES / SOURCE
 - regression source: YES
 - `HeartbeatOverlayViewModel.LightControl.detailContentDescription` consumption: YES / SOURCE WIRING
 - `HeartbeatFrameAccessibility` explicit detail accessors: YES / SOURCE WIRING
@@ -93,6 +96,8 @@ Routine speech should not gratuitously read Unicode bookkeeping. The compact lig
 
 Explicit on-demand evidence/detail is different: once the operator selects a light, legitimate invisible semantics may be named through the collision-safe marker projection. That spoken/detail projection must be bounded **after marker expansion**, because a source-side bound does not bound the expanded output.
 
+The bound is absolute over the returned projection, including any truncation indicator. A helper that returns `budget + suffix` has failed the accessibility/resource contract even if it avoided splitting the marker itself.
+
 The exact scene fields remain canonical evidence and are not truncated or rewritten by this speech/detail projection.
 
 Existing bidi/ISO/malformed-surrogate rejection remains separate and authoritative. A revealable layout/shaping control is not a bidi attack merely because it is invisible.
@@ -105,13 +110,14 @@ Pin all of these independently:
 2. Their exact source strings remain unchanged.
 3. Ordinary Unicode passes through the explicit evidence projection unchanged except for the reserved literal-backslash escape rule.
 4. Literal backslashes are escaped so marker-like source text cannot alias an actual invisible control.
-5. Bounded projection applies its budget after expansion and never cuts one marker/escape unit in half.
-6. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
-7. Compact/routine light speech remains unchanged when on-demand evidence projection is wired.
-8. The exact scene source fields survive even when on-demand detail speech is truncated.
-9. No normalization turns an invisible source distinction into a counterfeit canonical identity.
-10. `HeartbeatSceneGraph.Node` must not reintroduce a `detailContentDescription` cache.
-11. View-model and frame-accessibility explicit-detail accessors must equal `HeartbeatEvidenceDetailProjection` for the same accepted node.
+5. Bounded projection applies its budget after expansion, never cuts one marker/escape unit in half, and never returns more code points than the caller's budget including its truncation indicator.
+6. A budget too small for the full truncation indicator still returns a bounded signal rather than escaping the cap.
+7. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
+8. Compact/routine light speech remains unchanged when on-demand evidence projection is wired.
+9. The exact scene source fields survive even when on-demand detail speech is truncated.
+10. No normalization turns an invisible source distinction into a counterfeit canonical identity.
+11. `HeartbeatSceneGraph.Node` must not reintroduce a `detailContentDescription` cache.
+12. View-model and frame-accessibility explicit-detail accessors must equal `HeartbeatEvidenceDetailProjection` for the same accepted node.
 
 Regression source is not TESTED evidence until an authorized test lane actually executes it.
 
