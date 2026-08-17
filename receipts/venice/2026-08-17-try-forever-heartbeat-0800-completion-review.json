@@ -1,0 +1,18 @@
+{
+  "receipt": "venice-completion-review",
+  "pulse": "2026-08-17-0800",
+  "mode": "same-worker-separate-judgment-pass",
+  "verdict": "STOP_ALLOWED_SOURCE_SLICE_ONLY",
+  "checks": {
+    "missionFidelity": "PASS",
+    "existingOwnerOnly": "PASS",
+    "p0Firewall": "PASS_ZERO_MUTATIONS",
+    "duplicateArchitecture": "PASS",
+    "evidenceMembrane": "PASS",
+    "accessibilityContactTruth": "PASS_SOURCE_ONLY",
+    "originalityTax": "PASS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET"
+  },
+  "review": "The previously proposed Base64 canonicality delta is now genuinely applied through the existing OperatorOverlayService and exact GitHub readback shows the owner diff is limited to that seam. Regression source, skill doctrine, provenance patch, and the existing warm-wall specimen agree that decoder acceptance is not persisted-declaration acceptance. Non-canonical declarations route into the existing preserved-contact/no-motion wound. Do not promote source wiring into Android runtime, TalkBack runtime, deployment, delivery, or acceptance. The current Actions-budget failure remains unchanged and must not be manually retried. This Base64 canonicality seam should go dark after this receipt unless new evidence changes it; the recurring campaign remains CONTINUE_REQUIRED and must find a materially different independent non-P0 wound next.",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED"
+}
