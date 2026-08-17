@@ -1,0 +1,53 @@
+{
+  "receipt": "regnet-source-review",
+  "pulse": "2026-08-17-0800",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claim": "existing OperatorOverlayService source now enforces exact persisted Base64 writer-form identity before semantic projection and routes non-canonical declarations through the existing fail-closed contact-preservation path",
+  "review": {
+    "ownerSource": "PASS_EXACT_GITHUB_READBACK",
+    "ownerDiffScope": "PASS_ONE_FILE_ONE_SEAM",
+    "canonicalityPolicy": "PASS_NO_TRIM_NO_REPAIR",
+    "regressionSource": "PASS_SOURCE_ONLY",
+    "contactPreservation": "PASS_SOURCE_COMPOSITION",
+    "motionClamp": "PASS_SOURCE_COMPOSITION",
+    "accessibilityBoundary": "PASS_BOUNDED_DETERMINISTIC_BOUNDARY_NO_RAW_DECLARATION_SPEECH",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATIONS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET"
+  },
+  "exactReadback": {
+    "OperatorOverlayService.java": "a208dbce5b0f3ff774aa1cc2113493c65a173f89",
+    "HeartbeatPersistedBase64Canonicality.java": "fcee17324e310a3f881a1d6d8f41109fcd14dace",
+    "HeartbeatPersistedBase64OwnerBoundaryTest.java": "897e6e1d28eb02a80e9ff33024d65ee3eebada3b",
+    "skills/heartbeat-persisted-base64-canonicality/SKILL.md": "278c917105f5574901458e1a40dd9664ff871961",
+    "docs/try-forever/heartbeat-predecode-throat-source.html": "df1a5f8e8a1c0c8427412ffc5c8da4b114041633"
+  },
+  "findings": [
+    "Commit 663c5369838674c4c2a394f4a23bb0c3e32b54a7 changes only OperatorOverlayService.java and only the persisted PROJECT branch: decode, canonical re-encode, raw exact comparison, then existing projection or existing scene preservation.",
+    "Non-canonical textual aliases are not rewritten into acceptance. The raw persisted declaration is compared to the writer-equivalent Base64.NO_WRAP re-encoding before byte/SHA/parser projection.",
+    "The owner-boundary regression source proves the existing fail-closed scene consequence and motion clamp at pure source level. It does not prove Android's decoder accepts every illustrative alias; platform execution remains untested.",
+    "The 0700 pre-decode resource bound remains separate: length eligibility is not canonicality, canonicality is not SHA integrity, and none of those source gates proves runtime rendering or TalkBack behavior.",
+    "The existing poll snapshot advances only after the selected plan is applied, so an unchanged corrupt declaration can become quiet without erasing the preserved wound."
+  ],
+  "ci": {
+    "head": "19c8aca0bdd77cd55a8ec6eec029f0ce36427c59",
+    "run": 32033700245,
+    "job": 95399154214,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capability": {
+    "implementedSource": "YES",
+    "existingOwnerCanonicalityWiring": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO",
+    "runtimeUiObserved": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}
