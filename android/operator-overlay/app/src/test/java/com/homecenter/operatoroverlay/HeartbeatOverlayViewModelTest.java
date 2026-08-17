@@ -52,6 +52,7 @@ public class HeartbeatOverlayViewModelTest {
         assertTrue(model.controls.get(1).contentDescription.contains("blocked"));
         assertTrue(model.collapsedContentDescription.contains("2 material skill lights"));
         assertEquals("HEARTBEAT • 2 LIGHTS", model.summaryVisibleLabel());
+        assertEquals("", model.interruptionDetailContentDescription());
     }
 
     @Test
@@ -87,6 +88,9 @@ public class HeartbeatOverlayViewModelTest {
         assertFalse(model.transitionMotionAllowed);
         assertTrue(model.collapsedContentDescription.contains("Showing last complete heartbeat pulse-good"));
         assertEquals("HEARTBEAT • 1 LIGHT • CONTACT HELD", model.summaryVisibleLabel());
+        assertEquals(
+                "Refresh rejected. Last good heartbeat contact is preserved; no discarded attempted light is current.",
+                model.interruptionDetailContentDescription());
     }
 
     @Test
@@ -106,6 +110,9 @@ public class HeartbeatOverlayViewModelTest {
         assertTrue(model.controls.isEmpty());
         assertEquals("pulse-zero", model.visiblePulseId);
         assertEquals("HEARTBEAT • CONTACT HELD", model.summaryVisibleLabel());
+        assertEquals(
+                "Refresh rejected. Last good heartbeat contact is preserved; no discarded attempted light is current.",
+                model.interruptionDetailContentDescription());
     }
 
     @Test
@@ -121,6 +128,9 @@ public class HeartbeatOverlayViewModelTest {
         assertTrue(model.visiblePulseId.isEmpty());
         assertTrue(model.controls.isEmpty());
         assertEquals("HEARTBEAT • REFRESH BLOCKED", model.summaryVisibleLabel());
+        assertEquals(
+                "Refresh blocked before any heartbeat contact was accepted; no discarded attempted light is current.",
+                model.interruptionDetailContentDescription());
         assertTrue(model.collapsedContentDescription.contains("No complete heartbeat is available"));
     }
 
@@ -179,5 +189,8 @@ public class HeartbeatOverlayViewModelTest {
         assertFalse(model.transitionMotionAllowed);
         assertEquals("Heartbeat scene unavailable.", model.collapsedContentDescription);
         assertEquals("HEARTBEAT • REFRESH BLOCKED", model.summaryVisibleLabel());
+        assertEquals(
+                "Refresh blocked before any heartbeat contact was accepted; no discarded attempted light is current.",
+                model.interruptionDetailContentDescription());
     }
 }
