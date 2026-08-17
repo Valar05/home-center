@@ -156,6 +156,12 @@ public final class HeartbeatSkillPolicy {
      * sequences. The machine semantic id is intentionally narrower: display-ready
      * ids use an ASCII token alphabet so Locale.ROOT folding and equalsIgnoreCase
      * ownership cannot disagree about which native control one id names.
+     *
+     * Direct source construction is held to the same field-size contract as the
+     * canonical wire parser. Speech has its own tighter projection bounds, but those
+     * do not make oversized source records safe for scene hashing, native ownership,
+     * touch detail, or checkpoint/evidence work. Reusing the parser constants keeps
+     * parser and direct-scene ingress from drifting into two different contracts.
      */
     public static boolean hasTypedSourceContract(Candidate candidate) {
         if (candidate == null
@@ -163,6 +169,7 @@ public final class HeartbeatSkillPolicy {
                 || candidate.label.isEmpty()
                 || candidate.consequence.isEmpty()) return false;
         if (!hasSafeSemanticSurface(candidate)) return false;
+        if (!isWithinTypedSourceBounds(candidate)) return false;
         if (!isDeterministicSemanticId(candidate.id)) return false;
         if (!isAllowedProvenanceKind(candidate.provenanceKind)) return false;
         if (!isAllowedProvenanceLocator(candidate.provenanceKind, candidate.provenanceLocator)) {
@@ -170,6 +177,26 @@ public final class HeartbeatSkillPolicy {
         }
         return !candidate.activationReason.isEmpty()
                 && !candidate.evidenceBoundary.isEmpty();
+    }
+
+    /**
+     * Keep direct Candidate ingress byte-for-byte aligned with the canonical parser's
+     * post-trim Java String bounds. These are source/evidence bounds, not speech
+     * limits, so do not replace them with the smaller TalkBack projection constants.
+     */
+    private static boolean isWithinTypedSourceBounds(Candidate candidate) {
+        return candidate.id.length() <= HeartbeatEnvelopeParser.MAX_ID_CHARS
+                && candidate.label.length() <= HeartbeatEnvelopeParser.MAX_LABEL_CHARS
+                && candidate.provenanceKind.length()
+                        <= HeartbeatEnvelopeParser.MAX_PROVENANCE_KIND_CHARS
+                && candidate.provenanceLocator.length()
+                        <= HeartbeatEnvelopeParser.MAX_PROVENANCE_LOCATOR_CHARS
+                && candidate.activationReason.length()
+                        <= HeartbeatEnvelopeParser.MAX_ACTIVATION_REASON_CHARS
+                && candidate.consequence.length()
+                        <= HeartbeatEnvelopeParser.MAX_CONSEQUENCE_CHARS
+                && candidate.evidenceBoundary.length()
+                        <= HeartbeatEnvelopeParser.MAX_EVIDENCE_BOUNDARY_CHARS;
     }
 
     /**
