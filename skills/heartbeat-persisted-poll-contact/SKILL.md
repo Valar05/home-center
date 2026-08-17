@@ -66,7 +66,9 @@ A pre-contact coherent-read failure deliberately creates a non-null interrupted 
 
 It must return false for ordinary null-frame waiting and for accepted/preserved contact, including zero-material accepted pulses. The owner consequence is **one semantic clear, then quiet**: clear the stale pre-contact frame/chrome once; repeated healthy 200 ms empty polls must do no UI/speech/motion work.
 
-**Current capability truth:** one-shot WAITING recovery policy source **YES**; regression source **YES**; exact existing-owner delta is durably specified in `docs/try-forever/operator-overlay-precontact-waiting-recovery.patch`; existing `OperatorOverlayService` consumption of this recovery gate **NO** until that source delta is actually applied and read back.
+The existing owner now consumes that gate directly. On the one qualifying recovery it invalidates any pending viewport restore, cancels native heartbeat motion, clears the stale frame/selection/render/announcement identities, removes stale heartbeat controls, restores the canonical waiting summary/detail, then advances the processed empty snapshot. The next healthy empty poll has no stale frame to clear and must not repeat the UI mutation.
+
+**Current capability truth:** one-shot WAITING recovery policy source **YES**; regression source **YES**; existing `OperatorOverlayService` recovery-gate source consumption **YES** in commit `90807b87c9bdbdcc9c570e5b10c4eab313ff40c0`; exact applied source provenance is retained at `docs/try-forever/operator-overlay-precontact-waiting-recovery.patch`; Android execution/runtime observation **NO**.
 
 ## Interruption chrome truth
 Visible interruption chrome must be derived from the same accepted/preserved contact predicate as scene recovery. Do not let the Android owner re-derive `CONTACT HELD` from `refreshInterrupted` or control count alone.
@@ -93,11 +95,11 @@ At minimum cover canonical empty waiting, accepted zero-material contact, missin
 A regression file is source only until an authorized runner executes it.
 
 ## Existing-owner wiring contract
-`OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, and the model-owned summary/detail chrome source. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, and renders interruption chrome from the accepted/preserved model instead of duplicating contact inference in Android view code.
+`OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, the model-owned summary/detail chrome source, and the one-shot pre-contact WAITING recovery gate. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, renders interruption chrome from the accepted/preserved model instead of duplicating contact inference in Android view code, and clears a stale pre-contact wound exactly once when healthy fully-absent storage returns to `WAITING`.
 
 Expected invalid persisted payload data may be retained after its preserved wound is applied so identical corruption does not burn the 200 ms loop forever. A **reader/storage failure is different**: no coherent current observation exists, so the owner preserves a bounded read wound and keeps the older processed snapshot; the next poll retries.
 
-The remaining owner seam is precise: on a healthy `WAITING` decision after a pre-contact read wound, consume `shouldClearPreContactWoundOnWaiting(...)`, clear that stale frame/chrome once, and make later identical empty polls no-op. Do not weaken the contact predicate, do not clear accepted/preserved contact, and do not create a second poller.
+This source seam is closed for repository wiring. Do not keep relighting it merely because Android CI is blocked. The next heartbeat must either find a materially different non-P0 source/accessibility/evidence wound or keep this skill dark.
 
 Owner wiring must not consume Phone Hands, the primary-phone execution surface, queue/relay prerequisites, or P0 recovery owners.
 
