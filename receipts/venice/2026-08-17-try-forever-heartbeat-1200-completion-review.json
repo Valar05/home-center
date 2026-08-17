@@ -1,0 +1,23 @@
+{
+  "schema": "venice.completion-review.v1",
+  "heartbeat": "2026-08-17T12:00:00-05:00",
+  "reviewType": "same-worker Judgment Jar completion review",
+  "target": "Hard-bound on-demand invisible-semantic evidence projection including truncation indicator",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaignVerdict": "CONTINUE_REQUIRED",
+  "quality": "mixed-source-evidence",
+  "reasons": [
+    "The actual source repair closes a concrete accessibility/resource contract defect: boundedEvidenceProjection no longer returns maxCodePoints plus an unbudgeted truncation suffix.",
+    "Regression source now pins suffix reservation, total returned code-point bounds, tiny budgets, invisible-marker visibility, and exact scene-source preservation.",
+    "Code review caught and repaired an invalid first fixture before completion: two full markers exactly fit its original budget and would not truncate.",
+    "The reusable invisible-semantic-controls skill now carries the absolute returned-budget rule so the same failure does not reappear under a different helper.",
+    "No runtime, deployment, phone, or P0 capability is inferred from source/readback evidence."
+  ],
+  "processScar": "The pre-mutation 1200 plan and Venice plan review targeted Candidate/detail authority convergence. During source review, before the code mutation, the projection-budget overrun was selected as the stronger immediate defect. The corrected target was not durably replan-recorded until after mutation; this review preserves that ordering rather than retroactively claiming a perfect plan gate.",
+  "artVerdict": "DARK_BY_DESIGN: no Swan Veil/warm-wall mutation this pulse. A strict text-projection budget does not create a new operator-state topology, so changing art would be decorative churn rather than material progress.",
+  "sheRawBoundary": "Authoritative She-Raw consultation was attempted and returned an account-connection HTTP 400. No synthetic She-Raw verdict is represented here.",
+  "testBoundary": "Automatic Operator Overlay Android run 32048901895 on reviewed source head a6ad7db28cf97188620a4e5a84d416d297969605 produced job 95443219505 with zero steps. GitHub annotation: `The job was not started because an Actions budget is preventing further use.` TESTED remains NO; no manual retry was dispatched.",
+  "nextIndependentWound": "Candidate-level typed explicit detail remains separately formatted in HeartbeatSkillPolicy.detailContentDescription(Candidate), while accepted scene explicit detail uses HeartbeatEvidenceDetailProjection. That is a verified non-P0 source-truth seam, not part of this completed repair.",
+  "p0Firewall": "PASS_READ_ONLY_ZERO_CONSUMPTION",
+  "capabilityMembrane": "IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK + REGRESSION_SOURCE + DURABLE_SKILL = YES; TESTED/RUNTIME_UI/RUNTIME_TALKBACK/DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED = NO."
+}
