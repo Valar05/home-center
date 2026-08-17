@@ -28,7 +28,7 @@
 <body>
 <main>
   <h1>SWAN VEIL / EVIDENCE VISIBILITY</h1>
-  <p class="scar">PROJECTION SOURCE YES · SOURCE PRESERVED · COLLISION-SAFE MARKERS · CONSUMER WIRING NO · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
+  <p class="scar">ON-DEMAND DETAIL SOURCE WIRED · COMPACT SPEECH UNCHANGED · POST-PROJECTION BOUND · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
 
   <div class="controls" role="group" aria-label="Choose semantic text evidence case">
     <button type="button" data-case="plain" aria-pressed="true">Plain text</button>
@@ -38,11 +38,13 @@
     <button type="button" data-case="zwj" aria-pressed="false">ZWJ</button>
     <button type="button" data-case="zwnj" aria-pressed="false">ZWNJ</button>
     <button type="button" data-case="literal" aria-pressed="false">Literal marker text</button>
+    <button type="button" data-case="detail" aria-pressed="false">Explicit detail tap</button>
+    <button type="button" data-case="overflow" aria-pressed="false">Projection overflow</button>
   </div>
 
   <svg viewBox="0 0 900 350" role="img" aria-labelledby="diagramTitle diagramDesc">
     <title id="diagramTitle">Swan Veil explicit evidence projection for invisible Unicode semantics</title>
-    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact human-facing source text stays unchanged. When a reviewer needs exact visibility, the Swan Veil projects meaningful invisible controls as deterministic backslash-u markers and doubles literal source backslashes so marker-like source text cannot alias a real invisible control. Existing semantic consumers are not yet wired to this projection.</desc>
+    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact human-facing source text stays unchanged. Compact and collapsed speech remain ordinary. When an operator explicitly selects one heartbeat light, the existing detail path can reveal meaningful invisible controls as collision-safe markers with a post-projection speech bound. Runtime and phone delivery remain unproven.</desc>
 
     <path class="wire" d="M180 175 H330" />
     <path class="wire" d="M570 175 H720" />
@@ -58,14 +60,14 @@
     <text id="ruleText" class="small" x="450" y="214">nothing hidden</text>
 
     <rect class="node" x="720" y="105" width="145" height="140" rx="26" />
-    <text class="label" x="792" y="150">EVIDENCE</text>
+    <text class="label" x="792" y="150">DETAIL</text>
     <text id="contactText" class="small" x="792" y="180">Warm Wall</text>
-    <text class="small" x="792" y="202">explicit projection</text>
+    <text class="small" x="792" y="202">explicit + bounded</text>
     <text class="small" x="792" y="222">not canonical rewrite</text>
   </svg>
 
-  <div id="status" role="status" aria-live="polite">Plain text: the explicit evidence projection is identical to the source. No normalization, acceptance decision, runtime claim, or Christmas motion is manufactured.</div>
-  <p class="legend">● Exact source stays authoritative. ◇ Invisible layout/shaping semantics become visible only in explicit evidence projection. × Literal backslash is escaped so marker text cannot counterfeit an invisible code point. □ Existing bidi/ISO rejection remains a separate gate. Phone/P0 stays untouched.</p>
+  <div id="status" role="status" aria-live="polite">Plain text: the explicit evidence projection is identical to the source. Compact speech, acceptance state, runtime claims, and Christmas motion remain unchanged.</div>
+  <p class="legend">● Compact/routine speech stays ordinary. ◇ Explicit selected-light detail may reveal invisible semantics. × Literal backslash is escaped so marker text cannot counterfeit an invisible code point. □ Marker expansion is bounded after projection and never cut mid-marker. Phone/P0 stays untouched.</p>
 </main>
 <script>
 (() => {
@@ -79,31 +81,39 @@
   const cases = {
     plain: {
       source: 'Warm Wall', decision: 'PASS', rule: 'nothing hidden', evidence: 'Warm Wall',
-      status: 'Plain text: the explicit evidence projection is identical to the source. No normalization, acceptance decision, runtime claim, or Christmas motion is manufactured.'
+      status: 'Plain text: the explicit evidence projection is identical to the source. Compact speech, acceptance state, runtime claims, and Christmas motion remain unchanged.'
     },
     zwsp: {
       source: 'Warm​Wall', decision: 'REVEAL', rule: 'U+200B line-break semantics', evidence: 'Warm\\u{200B ZWSP}Wall',
-      status: 'Zero-width space: Unicode gives this character real word/line-break semantics. Source stays unchanged; explicit evidence reveals the otherwise hard-to-see code point.'
+      status: 'Zero-width space: Unicode gives this character real word/line-break semantics. Source stays unchanged; explicit detail reveals the otherwise hard-to-see code point.'
     },
     wj: {
       source: 'Reg⁠net', decision: 'REVEAL', rule: 'U+2060 no-break semantics', evidence: 'Reg\\u{2060 WJ}net',
-      status: 'Word joiner: Unicode gives it intentional no-break semantics. Swan Veil reveals it for review instead of calling legitimate formatting poison.'
+      status: 'Word joiner: intentional no-break semantics remain legal. Swan Veil reveals them only in explicit detail instead of calling legitimate formatting poison.'
     },
     bom: {
       source: '﻿Heartbeat', decision: 'REVEAL', rule: 'U+FEFF BOM / legacy ZWNBSP', evidence: '\\u{FEFF BOM}Heartbeat',
-      status: 'FEFF: explicit evidence reveals the BOM/legacy zero-width no-break code point while preserving the exact source string and leaving acceptance to existing owners.'
+      status: 'FEFF: explicit detail reveals the BOM/legacy zero-width no-break code point while preserving the exact source string and leaving acceptance to existing owners.'
     },
     zwj: {
       source: '👩‍💻', decision: 'REVEAL', rule: 'U+200D grapheme shaping', evidence: '👩\\u{200D ZWJ}💻',
-      status: 'ZWJ: legitimate grapheme/emoji shaping remains allowed. The projection simply makes its presence inspectable when exact evidence matters.'
+      status: 'ZWJ: legitimate grapheme/emoji shaping remains allowed. Explicit detail makes its presence inspectable without contaminating routine speech.'
     },
     zwnj: {
       source: 'join‌test', decision: 'REVEAL', rule: 'U+200C language shaping', evidence: 'join\\u{200C ZWNJ}test',
-      status: 'ZWNJ: legitimate language shaping remains allowed. The visible marker belongs to the diagnostic projection, never to canonical source identity.'
+      status: 'ZWNJ: legitimate language shaping remains allowed. The visible marker belongs to the on-demand evidence projection, never to canonical source identity.'
     },
     literal: {
       source: 'Reg\\u{200B ZWSP}net', decision: 'ESCAPE', rule: 'literal backslash doubles', evidence: 'Reg\\\\u{200B ZWSP}net',
-      status: 'Literal marker text: the projection doubles the source backslash. It therefore cannot collide with the projection of an actual U+200B character. Tiny punctuation, enormous evidence consequence.'
+      status: 'Literal marker text: the projection doubles the source backslash. It therefore cannot collide with the projection of an actual U+200B character.'
+    },
+    detail: {
+      source: 'Warm​Wall', decision: 'TAP', rule: 'routine ≠ evidence speech', evidence: 'detail: Warm\\u{200B ZWSP}Wall',
+      status: 'Explicit detail tap: the compact heartbeat description remains ordinary; only the selected-light detail path names the invisible semantic control. Source wiring exists; Android/TalkBack runtime proof does not.'
+    },
+    overflow: {
+      source: '​ ​ ​ ​ ​ ​', decision: 'BOUND', rule: 'after marker expansion', evidence: '\\u{200B ZWSP} …',
+      status: 'Projection overflow: the bound applies after markers expand. A marker is emitted whole or not at all, then truncation is stated explicitly; partial marker soup is forbidden.'
     }
   };
 
