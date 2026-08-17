@@ -53,6 +53,64 @@ public final class HeartbeatPersistedPollPolicyTest {
     }
 
     @Test
+    public void lifecycleProjectThenSkipThenWoundThenSkipThenRecover() {
+        HeartbeatPersistedPollPolicy.Snapshot first = snapshot(
+                "payload-a",
+                9L,
+                repeat('1', 64),
+                100L);
+        HeartbeatPersistedPollPolicy.Snapshot samePresentationObservation = snapshot(
+                "payload-a",
+                9L,
+                repeat('1', 64),
+                900L);
+        HeartbeatPersistedPollPolicy.Snapshot missing = snapshot("", 0L, "", 0L);
+        HeartbeatPersistedPollPolicy.Snapshot recovered = snapshot(
+                "payload-b",
+                9L,
+                repeat('2', 64),
+                901L);
+
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(null, first, false));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED,
+                HeartbeatPersistedPollPolicy.decide(first, samePresentationObservation, true));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PRESERVE_MISSING_CONTACT,
+                HeartbeatPersistedPollPolicy.decide(samePresentationObservation, missing, true));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED,
+                HeartbeatPersistedPollPolicy.decide(missing, missing, true));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(missing, recovered, true));
+    }
+
+    @Test
+    public void failedProjectRemainsRetryableWhenOwnerKeepsPriorProcessedSnapshot() {
+        HeartbeatPersistedPollPolicy.Snapshot priorProcessed = snapshot(
+                "payload-a",
+                9L,
+                repeat('3', 64),
+                100L);
+        HeartbeatPersistedPollPolicy.Snapshot changed = snapshot(
+                "payload-b",
+                9L,
+                repeat('4', 64),
+                101L);
+
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(priorProcessed, changed, true));
+        // Simulate projection abort: the owner deliberately does not retain changed.
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(priorProcessed, changed, true));
+    }
+
+    @Test
     public void identicalSemanticInputsSkipWhenOnlyPositiveWallClockObservationChanges() {
         HeartbeatPersistedPollPolicy.Snapshot earlier = snapshot(
                 "abc",
