@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="920" viewBox="0 0 960 920" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport ownership, identity bounds, and persisted-poll owner wiring scars</title>
-  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification is now wired into the existing Operator Overlay owner: unchanged persistence skips projection, missing storage after visible contact preserves the last-good wall, and failed internal work remains retryable. Review also exposed a narrower coherence wound: a one-map persisted snapshot reader exists, but the owner still uses four independent preference getter calls. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
+  <title id="title">Heartbeat viewport ownership, identity bounds, and persisted-poll coherent-read scars</title>
+  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification and coherent one-map SharedPreferences reading are now wired into the existing Operator Overlay owner. Unchanged persistence skips projection; missing storage after visible contact preserves the last-good wall; a coherent read failure preserves a bounded wound without advancing processed identity so the next poll retries. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -64,10 +64,10 @@
   <rect class="scar" x="66" y="734" width="826" height="92" rx="16"/>
   <text class="label" x="86" y="760">PERSISTED POLL / OWNER SOURCE WIRED</text>
   <text class="tiny" x="86" y="783">empty before first contact → WAITING · empty after contact → WOUND ONCE · unchanged → NO DECODE / PARSE / UI / SPEECH / MOTION</text>
-  <text class="tiny" x="86" y="806">unexpected internal abort → RETRY · positive timestamp magnitude alone → NO SEMANTIC WORK</text>
+  <text class="tiny" x="86" y="806">unexpected projection abort → RETRY · positive timestamp magnitude alone → NO SEMANTIC WORK</text>
 
   <rect class="scar" x="66" y="838" width="826" height="34" rx="14"/>
-  <text class="tiny" x="86" y="861">COHERENCE WOUND: ONE-MAP SNAPSHOT READER SOURCE YES • EXISTING OWNER CONSUMPTION NO • RUNTIME UNPROVEN</text>
+  <text class="tiny" x="86" y="861">COHERENT READ OWNER WIRED • READ FAILURE → BOUNDED WOUND + OLD SNAPSHOT RETAINED + NEXT POLL RETRIES</text>
 
-  <text class="tiny" x="56" y="900">Repository source only. No phone execution, queue, P0 recovery, deployment, delivery, or acceptance evidence.</text>
+  <text class="tiny" x="56" y="900">Repository source only. No Android execution, phone execution, queue, P0 recovery, deployment, delivery, or acceptance evidence.</text>
 </svg>
