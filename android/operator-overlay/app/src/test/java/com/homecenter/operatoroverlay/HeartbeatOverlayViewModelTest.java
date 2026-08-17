@@ -153,7 +153,7 @@ public class HeartbeatOverlayViewModelTest {
     }
 
     @Test
-    public void visibleLabelIsBoundedByUnicodeCodePoint() {
+    public void visibleLabelHardBudgetIncludesEllipsisWithoutSplittingUnicode() {
         StringBuilder longLabel = new StringBuilder();
         for (int index = 0; index < 90; index++) longLabel.append("🦢");
         HeartbeatSkillPolicy.Candidate candidate = new HeartbeatSkillPolicy.Candidate(
@@ -175,7 +175,13 @@ public class HeartbeatOverlayViewModelTest {
         HeartbeatOverlayViewModel.LightControl control =
                 HeartbeatOverlayViewModel.fromFrame(frame).controls.get(0);
 
-        assertTrue(control.visibleLabel.contains("… — fault"));
+        String expectedLabel = repeat(
+                "🦢",
+                HeartbeatOverlayViewModel.MAX_VISIBLE_LABEL_CODE_POINTS - 1) + "…";
+        assertEquals("× " + expectedLabel + " — fault", control.visibleLabel);
+        assertEquals(
+                HeartbeatOverlayViewModel.MAX_VISIBLE_LABEL_CODE_POINTS,
+                expectedLabel.codePointCount(0, expectedLabel.length()));
         assertTrue(control.detailContentDescription.contains("🦢"));
     }
 
@@ -192,5 +198,11 @@ public class HeartbeatOverlayViewModelTest {
         assertEquals(
                 "Refresh blocked before any heartbeat contact was accepted; no discarded attempted light is current.",
                 model.interruptionDetailContentDescription());
+    }
+
+    private static String repeat(String value, int count) {
+        StringBuilder out = new StringBuilder();
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
     }
 }
