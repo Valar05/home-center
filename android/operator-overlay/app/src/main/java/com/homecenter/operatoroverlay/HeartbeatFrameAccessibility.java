@@ -38,13 +38,26 @@ public final class HeartbeatFrameAccessibility {
      * remains available through node detail. Interrupted refresh detail is appended
      * after the last-good summary; discarded attempted candidate content is never
      * announced as current state.
+     *
+     * <p>A complete accepted heartbeat may legitimately contain zero material lights.
+     * That is accepted contact, not the pre-contact waiting state. Zero-node speech
+     * therefore uses {@code visiblePulseId} to distinguish a current accepted
+     * zero-light pulse, a preserved zero-light last-good pulse during an interrupted
+     * refresh, and a frame with no accepted visible contact.</p>
      */
     public static String collapsedContentDescription(HeartbeatSceneGraph.Frame frame) {
         if (frame == null) return "Heartbeat scene unavailable.";
 
         StringBuilder out = new StringBuilder();
         if (frame.nodes.isEmpty()) {
-            out.append("No material skill lights.");
+            boolean hasVisibleContact = !clean(frame.visiblePulseId).isEmpty();
+            if (hasVisibleContact && !frame.refreshInterrupted) {
+                out.append("Heartbeat accepted with no material skill lights.");
+            } else if (hasVisibleContact) {
+                out.append("No material skill lights in the last complete heartbeat.");
+            } else {
+                out.append("No material skill lights.");
+            }
         } else {
             int active = 0;
             int blocked = 0;
