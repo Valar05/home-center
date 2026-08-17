@@ -19,6 +19,16 @@ public final class HeartbeatPersistedPollPolicyTest {
     }
 
     @Test
+    public void negativeTimestampIsNotCanonicalAbsenceAndMustProject() {
+        HeartbeatPersistedPollPolicy.Snapshot corrupted = snapshot("", 0L, "", -1L);
+
+        assertFalse(corrupted.fullyAbsent());
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(null, corrupted, false));
+    }
+
+    @Test
     public void acceptedZeroLightPulseStillCountsAsVisibleLastGoodContact() {
         HeartbeatSceneGraph.Frame emptyButAccepted = HeartbeatSceneGraph.build(
                 "pulse-zero-material",
@@ -164,13 +174,32 @@ public final class HeartbeatPersistedPollPolicyTest {
         HeartbeatPersistedPollPolicy.Snapshot later = snapshot(
                 "abc",
                 3L,
-                "  " + repeat('b', 64) + "  ",
+                repeat('b', 64),
                 999999L);
 
         assertTrue(earlier.sameProjectionInputs(later));
         assertEquals(
                 HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED,
                 HeartbeatPersistedPollPolicy.decide(earlier, later, true));
+    }
+
+    @Test
+    public void shaWhitespacePoisonMustReprojectEvenWhenOtherInputsMatch() {
+        HeartbeatPersistedPollPolicy.Snapshot canonical = snapshot(
+                "abc",
+                3L,
+                repeat('b', 64),
+                100L);
+        HeartbeatPersistedPollPolicy.Snapshot poisoned = snapshot(
+                "abc",
+                3L,
+                "  " + repeat('b', 64) + "  ",
+                999999L);
+
+        assertFalse(canonical.sameProjectionInputs(poisoned));
+        assertEquals(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                HeartbeatPersistedPollPolicy.decide(canonical, poisoned, true));
     }
 
     @Test
