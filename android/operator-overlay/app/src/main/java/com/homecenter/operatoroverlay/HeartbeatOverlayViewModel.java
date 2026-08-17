@@ -30,7 +30,7 @@ public final class HeartbeatOverlayViewModel {
             this.id = node.id;
             this.visibleLabel = visibleLabel(node);
             this.contentDescription = node.contentDescription;
-            this.detailContentDescription = node.detailContentDescription;
+            this.detailContentDescription = HeartbeatEvidenceDetailProjection.detailContentDescription(node);
             this.focusIndex = node.focusIndex;
             this.minTouchTargetDp = node.touchTargetDp;
             this.transitionMotion = node.transitionMotion;
