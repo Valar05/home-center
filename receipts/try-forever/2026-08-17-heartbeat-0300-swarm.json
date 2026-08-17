@@ -1,0 +1,181 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "pulse": "2026-08-17-0300",
+  "scope": "PR #329 non-P0 heartbeat source only",
+  "result": "MULTI_FRONT_SOURCE_ADVANCE_CONTINUE_REQUIRED",
+  "skillLights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "changed": "Did not retry the unchanged Actions-budget failure; moved into waiting recovery and storage type-integrity fronts."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "changed": "Selected the existing heartbeat-persisted-poll-contact organ from the current wound instead of a fixed decorative skill list."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No speech-to-text or lexical ambiguity materially affected this pulse."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "changed": "Required a materially different failure path from the blocked CI lane and exposed floating persisted metadata as an independent integrity defect."
+    },
+    {
+      "name": "Hunger",
+      "state": "ACTIVE",
+      "changed": "Converted the stale WAITING wound into executable policy/regression source and a precise owner delta rather than more narration."
+    },
+    {
+      "name": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "changed": "Propagated recovery and type-truth scars through source, tests, durable skill, art, and review receipts."
+    },
+    {
+      "name": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "changed": "Kept the sole-owner boundary explicit: OperatorOverlayService remains the only permitted Android poll owner; proposed owner delta is not reported as applied."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "changed": "Authoritative ambient consultation returned account-connection HTTP 400; no substitute verdict was invented."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "changed": "Allowed completed independent source fronts to yield while holding campaign CONTINUE_REQUIRED because existing-owner WAITING recovery remains unwired."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "changed": "Separated pure policy/regression/type-hardening truth from existing-owner wiring and from TESTED/runtime claims."
+    },
+    {
+      "name": "accessibility/TalkBack and touch semantics",
+      "state": "ACTIVE",
+      "changed": "Pinned that recovered pre-contact storage must return to waiting rather than leave stale REFRESH BLOCKED semantics; accepted/preserved contact is never cleared."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "changed": "Zero gated phone/P0 surface consumption or mutation."
+    },
+    {
+      "name": "deterministic routing",
+      "state": "ACTIVE",
+      "changed": "Added one deterministic shouldClearPreContactWoundOnWaiting gate and kept floating metadata on the coherent-read failure path."
+    },
+    {
+      "name": "evidence/capability-state discipline",
+      "state": "ACTIVE",
+      "changed": "Owner delta is durably PROPOSED_NOT_APPLIED; source/readback/test/runtime/deploy/delivery states remain distinct."
+    },
+    {
+      "name": "recovery/checkpointing/idempotence",
+      "state": "ACTIVE",
+      "changed": "Defined one semantic clear after healthy WAITING, then repeated empty 200 ms polls remain quiet."
+    },
+    {
+      "name": "strange non-raster vector/DOM/native UI art / warm walls",
+      "state": "ACTIVE",
+      "changed": "Mutated the existing SVG in place with WAITING RECOVERY and TYPE TRUTH scars; no raster or new artifact family."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "ACTIVE",
+      "changed": "Recovery/type wounds explicitly earn no decorative motion; repeated waiting remains still."
+    },
+    {
+      "name": "contact preservation",
+      "state": "ACTIVE",
+      "changed": "Recovery gate keys on absence of visiblePulseId, preserving accepted/preserved zero-material contact."
+    }
+  ],
+  "frontsAdvanced": [
+    {
+      "front": "pre-contact-waiting-recovery-policy",
+      "state": "IMPLEMENTED_SOURCE",
+      "evidence": "HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting"
+    },
+    {
+      "front": "recovery-regression-source",
+      "state": "IMPLEMENTED_SOURCE_NOT_TESTED",
+      "evidence": "HeartbeatPersistedPollPolicyTest pre-contact/accepted-contact fixtures"
+    },
+    {
+      "front": "persisted-metadata-type-integrity",
+      "state": "IMPLEMENTED_SOURCE",
+      "evidence": "HeartbeatPersistedSnapshotReader accepts Integer/Long only and rejects Float metadata"
+    },
+    {
+      "front": "metadata-type-regression-source",
+      "state": "IMPLEMENTED_SOURCE_NOT_TESTED",
+      "evidence": "HeartbeatPersistedSnapshotReaderTest floating byte/timestamp fixtures"
+    },
+    {
+      "front": "existing-owner-delta",
+      "state": "PROPOSED_DURABLE_NOT_APPLIED",
+      "evidence": "docs/try-forever/operator-overlay-precontact-waiting-recovery.patch"
+    },
+    {
+      "front": "skill-and-art-convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "evidence": "heartbeat-persisted-poll-contact skill + existing warm-wall SVG mutated in place"
+    },
+    {
+      "front": "review-and-evidence",
+      "state": "DURABLE",
+      "evidence": "0300 plan + Regnet + Venice + this swarm receipt"
+    }
+  ],
+  "crossPollination": [
+    "The stale pre-contact WAITING wound forced a one-shot recovery predicate rather than a generic frame-null check.",
+    "Contact preservation then required the predicate to key on visiblePulseId so zero-material accepted contact survives.",
+    "Coherent-read review exposed a separate evidence wound: arbitrary Number.longValue() could truncate SharedPreferences Float metadata into counterfeit integral evidence.",
+    "Originality Tax routed that discovery into a real source fix and hostile regression fixtures instead of another CI retry.",
+    "Warm-wall and durable skill doctrine inherited both scars while the capability membrane kept owner wiring and runtime claims false."
+  ],
+  "ci": {
+    "reviewedSourceHead": "b4f649e4437811fd836b4d2a3fa774fc84985dae",
+    "run": 32009254684,
+    "job": 95325072483,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "waitingRecoveryPolicySource": true,
+    "metadataTypeHardeningSource": true,
+    "regressionSource": true,
+    "existingOwnerWaitingRecoveryWired": false,
+    "tested": false,
+    "runtimeObserved": false,
+    "talkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueOrDeviceProbes": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateOwnersCreated": 0
+  },
+  "gate": "CONTINUE_REQUIRED",
+  "nextAuthorizedCut": "Apply the durable one-shot WAITING recovery delta to the existing OperatorOverlayService only, then exact-readback it. No P0/phone surface and no neighboring poller/controller."
+}
