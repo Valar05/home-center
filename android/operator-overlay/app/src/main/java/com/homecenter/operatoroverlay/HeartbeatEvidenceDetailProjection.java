@@ -11,11 +11,36 @@ import java.util.Locale;
  * light: legitimate invisible semantic controls become collision-safe evidence markers,
  * and the projected output is bounded <em>after</em> marker expansion.</p>
  *
- * <p>Exact canonical scene fields remain untouched. This class owns no parser, renderer,
- * controller, storage, transport, phone surface, deployment, or P0 action.</p>
+ * <p>Exact canonical source/scene fields remain untouched. This class is the single typed
+ * explicit-detail formatter for both Candidate-level compatibility callers and accepted
+ * scene nodes. It owns no parser, renderer, controller, storage, transport, phone surface,
+ * deployment, or P0 action.</p>
  */
 public final class HeartbeatEvidenceDetailProjection {
     private HeartbeatEvidenceDetailProjection() {
+    }
+
+    /**
+     * Bounded explicit evidence/TalkBack detail for one fully typed material Candidate.
+     *
+     * <p>Legacy candidates deliberately fall back to compact speech rather than inventing
+     * typed provenance/evidence. Typed candidates use the same formatter as accepted scene
+     * nodes, closing the older public Candidate bypass around invisible-control markers and
+     * post-projection bounds.</p>
+     */
+    public static String detailContentDescription(HeartbeatSkillPolicy.Candidate candidate) {
+        if (!HeartbeatSkillPolicy.isMaterial(candidate)) return "";
+        if (!HeartbeatSkillPolicy.hasTypedSourceContract(candidate)) {
+            return HeartbeatSkillPolicy.contentDescription(candidate);
+        }
+        return detailContentDescription(
+                candidate.label,
+                candidate.state,
+                candidate.activationReason,
+                candidate.consequence,
+                candidate.evidenceBoundary,
+                candidate.provenanceKind,
+                candidate.provenanceLocator);
     }
 
     /**
@@ -27,20 +52,38 @@ public final class HeartbeatEvidenceDetailProjection {
      */
     public static String detailContentDescription(HeartbeatSceneGraph.Node node) {
         if (node == null) return "";
-        return "Skill " + field(node.label, HeartbeatSkillPolicy.MAX_SPOKEN_LABEL_CODE_POINTS)
-                + ", " + stateName(node.state)
+        return detailContentDescription(
+                node.label,
+                node.state,
+                node.activationReason,
+                node.consequence,
+                node.evidenceBoundary,
+                node.provenanceKind,
+                node.provenanceLocator);
+    }
+
+    private static String detailContentDescription(
+            String label,
+            HeartbeatSkillPolicy.State state,
+            String activationReason,
+            String consequence,
+            String evidenceBoundary,
+            String provenanceKind,
+            String provenanceLocator) {
+        return "Skill " + field(label, HeartbeatSkillPolicy.MAX_SPOKEN_LABEL_CODE_POINTS)
+                + ", " + stateName(state)
                 + ". Why: " + field(
-                        node.activationReason,
+                        activationReason,
                         HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS)
                 + ". Consequence: " + field(
-                        node.consequence,
+                        consequence,
                         HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS)
                 + ". Evidence: " + field(
-                        node.evidenceBoundary,
+                        evidenceBoundary,
                         HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS)
-                + ". Source: " + humanizeProvenanceKind(node.provenanceKind)
+                + ". Source: " + humanizeProvenanceKind(provenanceKind)
                 + " " + field(
-                        node.provenanceLocator,
+                        provenanceLocator,
                         HeartbeatSkillPolicy.MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS)
                 + ".";
     }
