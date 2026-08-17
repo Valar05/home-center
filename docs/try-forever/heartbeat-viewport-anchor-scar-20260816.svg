@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="620" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport interaction ownership and source-bound parity wired scar</title>
-  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, and a new fail-closed scar requiring direct typed heartbeat source records to obey the same field bounds as the canonical parser. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="700" viewBox="0 0 960 700" role="img" aria-labelledby="title desc">
+  <title id="title">Heartbeat viewport ownership, source-bound parity, and duplicate-owner fail-closed scar</title>
+  <desc id="desc">A non-raster warm-wall diagram showing visible heartbeat contact at capture, newer direct keyboard navigation superseding stale selection ownership, existing-owner focus-scope wiring, parser/direct source bound parity, and a new fail-closed duplicate-owner scar: two material records with one semantic ID do not become first-wins native ownership. Android runtime behavior and TalkBack accessibility focus remain unproven.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -15,7 +15,7 @@
     </style>
   </defs>
 
-  <rect class="wall" x="28" y="26" width="904" height="566" rx="30"/>
+  <rect class="wall" x="28" y="26" width="904" height="646" rx="30"/>
   <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
   <text class="tiny" x="56" y="92">OWNER FOCUS-SCOPE SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE UNTOUCHED</text>
 
@@ -55,5 +55,9 @@
   <text class="label" x="86" y="532">SOURCE BOUNDS / PARSER = DIRECT TYPED GATE</text>
   <text class="tiny" x="86" y="555">Oversized direct Candidate → BLOCKED · last-good contact held · motion forbidden · no truncation costume.</text>
 
-  <text class="tiny" x="56" y="586">Exact source policy is wired. Regression source exists. Runtime/test proof remains separate. No phone/P0 surface consumed.</text>
+  <rect class="scar" x="66" y="582" width="826" height="62" rx="16"/>
+  <text class="label" x="86" y="608">ONE MATERIAL ID = ONE OWNER</text>
+  <text class="tiny" x="86" y="631">regnet + REGNET material aliases → REJECTED · no first-wins Button · last-good contact held · no motion.</text>
+
+  <text class="tiny" x="56" y="665">Exact source policy is wired. Regression source exists. Runtime/test proof remains separate. No phone/P0 surface consumed.</text>
 </svg>
