@@ -19,6 +19,8 @@ public final class HeartbeatSkillPolicy {
     public static final int MAX_SPOKEN_LABEL_CODE_POINTS = 96;
     /** Hard returned consequence-speech budget in the compact focus description. */
     public static final int MAX_COMPACT_CONSEQUENCE_CODE_POINTS = 160;
+    /** Shared maximum number of named lights in any collapsed heartbeat speech projection. */
+    public static final int MAX_COLLAPSED_NAMED_LIGHTS = 12;
     /** Expanded detail is on-demand, but still must not become a multi-kilobyte speech burst. */
     public static final int MAX_DETAIL_REASON_CODE_POINTS = 256;
     public static final int MAX_DETAIL_CONSEQUENCE_CODE_POINTS = 320;
@@ -241,6 +243,12 @@ public final class HeartbeatSkillPolicy {
      * visible frame. Unsafe legacy candidates are never named; the summary reports
      * an exact omission count instead of claiming a count and then silently speaking
      * nothing for a spoofable material light.
+     *
+     * <p>Per-candidate label/consequence bounds are not an aggregate speech bound.
+     * This compatibility surface therefore names at most the same number of lights as
+     * the scene-level collapsed summary. Material order is preserved and the exact
+     * number of additional safe descriptions omitted by the fanout budget is spoken.
+     * Existing output is unchanged for constellations already inside the budget.</p>
      */
     public static String collapsedContentDescription(List<Candidate> candidates) {
         List<Candidate> selected = selectMaterialLights(candidates);
@@ -260,7 +268,17 @@ public final class HeartbeatSkillPolicy {
                     .append(descriptions.size() == 1
                             ? " material skill light. "
                             : " material skill lights. ");
-            for (String description : descriptions) out.append(description).append(' ');
+            int named = Math.min(descriptions.size(), MAX_COLLAPSED_NAMED_LIGHTS);
+            for (int index = 0; index < named; index++) {
+                out.append(descriptions.get(index)).append(' ');
+            }
+            int omittedByFanout = descriptions.size() - named;
+            if (omittedByFanout > 0) {
+                out.append(omittedByFanout)
+                        .append(omittedByFanout == 1
+                                ? " additional material light description is omitted from collapsed speech by the naming budget. "
+                                : " additional material light descriptions are omitted from collapsed speech by the naming budget. ");
+            }
         }
         if (rejected > 0) {
             out.append(rejected)
