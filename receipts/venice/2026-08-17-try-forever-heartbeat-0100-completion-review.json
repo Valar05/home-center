@@ -1,0 +1,26 @@
+{
+  "type": "venice_judgment_jar_completion_review",
+  "heartbeat": "2026-08-17-0100",
+  "scope": "TRY FOREVER non-P0 source slice",
+  "verdict": "CONTINUE_REQUIRED",
+  "source_quality": "MIXED_WITH_REAL_ADVANCE",
+  "what_earned_credit": [
+    "Existing OperatorOverlayService now consumes the coherent one-map persisted snapshot reader.",
+    "Storage-read failure is bounded, preserves last-good contact, does not advance processed identity, and remains retryable.",
+    "Regression source covers contact preservation, pre-contact absence, repeated wound stability, and recovery classification.",
+    "Skill doctrine and existing warm-wall SVG were synchronized without duplicate architecture or P0/phone consumption."
+  ],
+  "what_blocks_stop": [
+    "The owner-visible zero-control interrupted summary still says CONTACT HELD even when no visible pulse has ever existed.",
+    "A pure source repair exists as HeartbeatOverlayViewModel.Model.summaryVisibleLabel(), but OperatorOverlayService does not consume it yet.",
+    "Automatic Android CI executed zero steps because the Actions budget prevented the job from starting; TESTED is therefore false."
+  ],
+  "judgment": "Do not merge as delivered UI. Continue through the existing OperatorOverlayService only: consume summaryVisibleLabel(), retain the no-new-owner law, then re-review. Do not touch Phone Hands or P0.",
+  "she_raw": {
+    "authoritative_attempt": true,
+    "result": "account_connection_http_400",
+    "synthetic_substitute": false
+  },
+  "p0_phone_firewall": "PASS_ZERO_CONSUMPTION",
+  "campaign_gate": "CONTINUE_REQUIRED"
+}
