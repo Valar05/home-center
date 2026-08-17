@@ -1,0 +1,38 @@
+{
+  "receipt": "try-forever-heartbeat-plan",
+  "pulse": "2026-08-17-0800",
+  "scope": "independent non-P0 heartbeat source/accessibility/evidence work",
+  "missionBoundary": {
+    "p0FortressFirewall": "BINDING",
+    "phoneExecutionSurface": "DO_NOT_CONSUME",
+    "duplicateArchitecture": "FORBIDDEN",
+    "mergeOrDeliveryClaim": "FORBIDDEN"
+  },
+  "sourceArchaeology": {
+    "closedPredecodeResourceSeam": "HeartbeatPersistedSnapshotReader already bounds persisted Base64 declaration length before the existing owner decodes it",
+    "openCanonicalityOwnerSeam": "HeartbeatPersistedBase64Canonicality policy and regression source exist, but OperatorOverlayService still decodes decoder-tolerated aliases without exact writer-form comparison",
+    "authorizedOwner": "OperatorOverlayService existing PROJECT branch only"
+  },
+  "plan": [
+    "Apply exact persisted Base64 canonicality through the existing OperatorOverlayService owner after existing decode and canonical re-encode, before byte/SHA/parser projection",
+    "Preserve non-canonical aliases through the existing fail-closed scene/contact path with motion clamped and no replacement owner",
+    "Strengthen regression source around exact canonical declaration identity without claiming Android execution",
+    "Synchronize the existing heartbeat-persisted-base64-canonicality skill and an existing warm-wall specimen to source-wired/runtime-unproven truth",
+    "Record Regnet, Venice, and broad swarm receipts with all required lights accounted for",
+    "Do not manually retry the unchanged Actions-budget failure and do not consume any phone/P0 surface"
+  ],
+  "capabilityStart": {
+    "base64CanonicalityPolicy": "YES_SOURCE",
+    "existingOwnerConsumesBase64Canonicality": "NO",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtimeObserved": "NO",
+    "deployed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  }
+}
