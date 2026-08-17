@@ -1,0 +1,73 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1900",
+  "frontsAdvanced": [
+    "Typed semantic-id boundary: display-ready machine ids now use deterministic ASCII tokens.",
+    "Accessibility/deterministic-routing regression source: hostile Unicode identity cases are rejected while Unicode human labels remain legal.",
+    "Repository skill harvest: added skills/heartbeat-semantic-id-boundary/SKILL.md.",
+    "Warm-wall art: mutated the existing motion-clamp DOM specimen in place with a semantic-id alphabet scar.",
+    "Evidence/review: exact GitHub readback plus fresh automatic CI boundary, Regnet review, Venice completion review."
+  ],
+  "lights": {
+    "failure_is_the_shovel": {"state":"active","consequence":"Used the blocked test lane as a reason to inspect a different source identity wound instead of retrying CI."},
+    "canon_auto_select": {"state":"active","consequence":"Selected semantic-id ownership because current parser/model/native paths used different case-equivalence mechanisms."},
+    "autocorrect_judgment_jar": {"state":"dark","consequence":"No speech-to-text ambiguity materially affected this source slice."},
+    "originality_tax": {"state":"active","consequence":"Did not repeat the prior case-only presentation-dedup task; repaired a distinct Unicode ownership-equivalence boundary."},
+    "hunger": {"state":"active","consequence":"The identity rule propagated through the existing typed contract, parser/scene gate, regression source, skill doctrine, and warm wall."},
+    "ever_polished_interpreter_eat_everything": {"state":"active","consequence":"Code review preserved Unicode human text while narrowing only the machine owner key."},
+    "operator_campaign_harroway": {"state":"active","consequence":"Kept OperatorOverlayService and existing heartbeat organs authoritative; no duplicate controller or state owner was created."},
+    "she_raw": {"state":"fault","consequence":"Authoritative ambient consultation returned the account-connection HTTP 400; no replacement verdict was invented."},
+    "venice_judgment": {"state":"active","consequence":"Allowed only the bounded source slice to yield and kept runtime/delivery claims closed."},
+    "regnet_qa": {"state":"blocked","consequence":"Source review passes; deterministic execution is still blocked by the Actions budget."},
+    "accessibility_touch": {"state":"active","consequence":"One accepted semantic id can no longer rely on Unicode case behavior that aliases a different native touch/focus owner."},
+    "phone_runtime_phone_hands": {"state":"dark_firewalled","consequence":"No shared phone execution surface was consumed."},
+    "deterministic_routing": {"state":"active","consequence":"Display-ready ids now have one deterministic ASCII case-insensitive ownership domain."},
+    "evidence_capability_state": {"state":"active","consequence":"Exact source/readback, regression source, tested, runtime, deployed, callable, delivered, and accepted remain separate."},
+    "recovery_checkpoint_idempotence": {"state":"active","consequence":"The accepted machine-id domain now agrees with the existing checkpoint/structure/selection/viewport identity assumptions."},
+    "strange_non_raster_art": {"state":"active","consequence":"Existing DOM/vector warm wall gained a thirteenth semantic-id alphabet state; it remains source-only."},
+    "warm_walls": {"state":"active","consequence":"Mutated the existing warm-wall specimen rather than spawning a neighboring visual controller."},
+    "christmas_light_scene_graph": {"state":"active","consequence":"Identity-boundary enforcement earns no motion; the new specimen keeps Christmas motion blocked for the scar."},
+    "contact_preservation": {"state":"active","consequence":"Direct-source invalid ids fail the display-ready gate so the scene preserves last-good contact and clamps motion."},
+    "heartbeat_semantic_id_boundary": {"state":"active","consequence":"New repository skill makes the ASCII machine-id/Unicode human-text split durable."}
+  },
+  "crossPollination": [
+    "Case-fold archaeology exposed a mismatch between Locale.ROOT lowercase keys and equalsIgnoreCase native ownership.",
+    "Accessibility turned that mismatch into a concrete touch/focus identity defect rather than a parser style preference.",
+    "Evidence truth rejected post-parse rewriting, so the repair moved to the typed display boundary.",
+    "Contact preservation supplied the fail-closed direct-source behavior and no-motion consequence.",
+    "Warm Walls made the rule visible without claiming runtime deployment."
+  ],
+  "readback": {
+    "policyBlob": "8623beb8a02450061a8dadb244c371268e5f87b6",
+    "testBlob": "4dde3f27b4a573795a389dfd767af0ba369f68f7",
+    "skillBlob": "46e851587d062a6e45cf6e6e63578302f43883f3",
+    "artBlob": "26b88ee3dc46df8dd95a3a2a7d0bc6e81cc14323"
+  },
+  "testBoundary": {
+    "tested": false,
+    "workflowRun": 31980979621,
+    "job": 95247572274,
+    "head": "ce83597a2adcfb44af3092862b1a748200ac8911",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkillDoctrine": true,
+    "sourceArt": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Finding": null,
+  "p0MutationCount": 0,
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}
