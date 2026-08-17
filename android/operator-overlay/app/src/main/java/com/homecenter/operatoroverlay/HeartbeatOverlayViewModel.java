@@ -14,7 +14,7 @@ import java.util.Locale;
  * speech, and motion semantics inside Android view code.</p>
  */
 public final class HeartbeatOverlayViewModel {
-    /** Keep visible button text compact; full detail remains in content descriptions. */
+    /** Hard returned budget for one visible button label before state framing. */
     public static final int MAX_VISIBLE_LABEL_CODE_POINTS = 72;
 
     public static final class LightControl {
@@ -203,12 +203,9 @@ public final class HeartbeatOverlayViewModel {
     }
 
     private static String boundedLabel(String value) {
-        String clean = clean(value);
-        if (clean.isEmpty()) return clean;
-        int codePoints = clean.codePointCount(0, clean.length());
-        if (codePoints <= MAX_VISIBLE_LABEL_CODE_POINTS) return clean;
-        int end = clean.offsetByCodePoints(0, MAX_VISIBLE_LABEL_CODE_POINTS);
-        return clean.substring(0, end) + "…";
+        return HeartbeatPlainTextBudget.boundedWithEllipsis(
+                clean(value),
+                MAX_VISIBLE_LABEL_CODE_POINTS);
     }
 
     private static String raw(String value) {
