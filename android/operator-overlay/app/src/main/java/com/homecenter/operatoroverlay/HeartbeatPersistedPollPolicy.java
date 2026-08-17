@@ -38,8 +38,9 @@ public final class HeartbeatPersistedPollPolicy {
      * re-decoded/re-verified. In particular, surrounding whitespace on SHA metadata
      * is evidence of a non-canonical persisted value, not harmless formatting to be
      * normalized away before the integrity gate sees it. The wall-clock timestamp
-     * contributes only its validity class ({@code > 0} versus missing): its magnitude
-     * is observation metadata, not semantic identity.</p>
+     * contributes only its validity class ({@code > 0} valid, {@code 0} canonically
+     * missing, or {@code < 0} corrupt): positive magnitude is observation metadata,
+     * not semantic identity.</p>
      */
     public static final class Snapshot {
         public final String payloadB64;
@@ -75,7 +76,9 @@ public final class HeartbeatPersistedPollPolicy {
 
         /**
          * Equality of inputs that can change storage verification or semantic
-         * projection. Positive timestamp magnitude is intentionally excluded.
+         * projection. Positive timestamp magnitude is intentionally excluded, but
+         * canonical missing ({@code 0}) and corrupt negative metadata are distinct
+         * classes so a transition from clean absence to corruption cannot be skipped.
          * Integrity metadata is exact: canonical and whitespace-poisoned SHA strings
          * are different projection inputs even if trimming would make them equal.
          */
@@ -84,7 +87,13 @@ public final class HeartbeatPersistedPollPolicy {
             return payloadB64.equals(other.payloadB64)
                     && declaredBytes == other.declaredBytes
                     && declaredSha256.equals(other.declaredSha256)
-                    && (updatedMs > 0L) == (other.updatedMs > 0L);
+                    && timestampClass(updatedMs) == timestampClass(other.updatedMs);
+        }
+
+        private static int timestampClass(long value) {
+            if (value > 0L) return 1;
+            if (value == 0L) return 0;
+            return -1;
         }
     }
 
