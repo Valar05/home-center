@@ -1,0 +1,39 @@
+{
+  "receipt": "try-forever-heartbeat-plan",
+  "pulse": "2026-08-17-0600",
+  "scope": "independent non-P0 heartbeat source/accessibility/evidence work",
+  "missionBoundary": {
+    "p0FortressFirewall": "BINDING",
+    "phoneExecutionSurface": "DO_NOT_CONSUME",
+    "duplicateArchitecture": "FORBIDDEN",
+    "mergeOrDeliveryClaim": "FORBIDDEN"
+  },
+  "sourceArchaeology": {
+    "writer": "OperatorState.updateHeartbeatLights emits android.util.Base64.NO_WRAP output",
+    "owner": "OperatorOverlayService decodes the raw persisted Base64 string with android.util.Base64.NO_WRAP before byte-count/SHA verification",
+    "wound": "android.util.Base64 decoding is tolerant of ignored/non-data characters while NO_WRAP is an encoder formatting flag; decoder-normalized Base64 can therefore produce the canonical payload bytes and pass byte-count/SHA even though the persisted Base64 declaration is not the exact writer encoding"
+  },
+  "plan": [
+    "Add a pure source policy that compares the exact persisted Base64 declaration against the canonical re-encoding of the decoded bytes; no normalization is allowed",
+    "Add hostile JVM regression source for canonical, whitespace-poisoned, unpadded, and non-canonical pad-bit aliases",
+    "Synchronize the existing heartbeat-persisted-poll-contact skill with exact Base64 declaration doctrine",
+    "Mutate the existing heartbeat refresh-gate warm-wall specimen in place; do not create a neighboring UI owner",
+    "Record Regnet and Venice bounded source reviews and a broad swarm receipt",
+    "Do not wire OperatorOverlayService in this pulse unless a complete owner edit can be proven through the authorized GitHub lane"
+  ],
+  "capabilityStart": {
+    "base64CanonicalityPolicy": "NO",
+    "base64CanonicalityRegressionSource": "NO",
+    "existingOwnerConsumesBase64Canonicality": "NO",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtimeObserved": "NO",
+    "deployed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  }
+}
