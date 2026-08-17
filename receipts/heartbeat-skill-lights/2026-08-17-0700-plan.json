@@ -1,0 +1,40 @@
+{
+  "receipt": "try-forever-heartbeat-plan",
+  "pulse": "2026-08-17-0700",
+  "scope": "independent non-P0 heartbeat source/accessibility/evidence work",
+  "missionBoundary": {
+    "p0FortressFirewall": "BINDING",
+    "phoneExecutionSurface": "DO_NOT_CONSUME",
+    "duplicateArchitecture": "FORBIDDEN",
+    "mergeOrDeliveryClaim": "FORBIDDEN"
+  },
+  "sourceArchaeology": {
+    "staleRegression": "HeartbeatPersistedSnapshotReaderTest still expects whitespace-trimmed SHA even though HeartbeatPersistedPollPolicy.Snapshot now retains declared SHA metadata exactly",
+    "preDecodeResourceWound": "HeartbeatPersistedSnapshotReader accepts an arbitrarily long persisted Base64 String, while the existing owner decodes it before the decoded-byte ceiling is enforced; a corrupt oversized declaration can therefore allocate/decode before integrity rejection on the fast poll path",
+    "existingBase64OwnerSeam": "exact Base64 canonicality policy exists; OperatorOverlayService owner integration remains PROPOSED / NOT APPLIED"
+  },
+  "plan": [
+    "Repair the stale SHA regression fixture so exact integrity metadata remains exact rather than normalized in test expectations",
+    "Bound persisted Base64 declaration length in the existing coherent snapshot reader using a ceiling derived from OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES before any owner decode occurs",
+    "Add hostile reader regression source for exact-bound acceptance and max+1 rejection without trimming or decoder involvement",
+    "Synchronize the existing heartbeat-persisted-poll-contact skill with pre-decode declaration-budget doctrine",
+    "Mutate the existing refresh-gate warm-wall specimen in place to make pre-decode budget truth touchable; do not create a neighboring UI owner",
+    "Record Regnet and Venice bounded reviews plus a broad swarm receipt",
+    "Keep the existing Base64 canonicality owner patch explicitly NOT APPLIED unless a complete existing-owner edit can be proven through the authorized GitHub lane"
+  ],
+  "capabilityStart": {
+    "exactShaRegressionTruth": "STALE_FIXTURE_DISCOVERED",
+    "preDecodeBase64DeclarationCeiling": "NO",
+    "existingOwnerConsumesBase64Canonicality": "NO",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtimeObserved": "NO",
+    "deployed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  }
+}
