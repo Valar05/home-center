@@ -155,7 +155,9 @@ public class HeartbeatOverlayViewModelTest {
     @Test
     public void visibleLabelHardBudgetIncludesEllipsisWithoutSplittingUnicode() {
         StringBuilder longLabel = new StringBuilder();
-        for (int index = 0; index < 90; index++) longLabel.append("🦢");
+        // 78 supplementary code points = 156 UTF-16 chars: over the 72-code-point
+        // visible budget while still inside the typed source label bound of 160 chars.
+        for (int index = 0; index < 78; index++) longLabel.append("🦢");
         HeartbeatSkillPolicy.Candidate candidate = new HeartbeatSkillPolicy.Candidate(
                 "swan",
                 longLabel.toString(),
