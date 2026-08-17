@@ -21,7 +21,9 @@ Do not create a neighboring polling service, cache controller, overlay owner, or
 - `SKIP_UNCHANGED`: the last processed projection inputs are semantically identical. Do not decode, hash, parse, rebuild, refresh, announce, or animate merely because the 200 ms poll ran again.
 
 ## Projection identity
-Persisted projection equivalence includes exact stored Base64 payload text, declared byte count, declared SHA-256 after the same trim normalization already used by persisted projection, and the **validity class** of the update timestamp (`updatedMs > 0` versus missing).
+Persisted projection equivalence includes exact stored Base64 payload text, declared byte count, **exact declared SHA-256 metadata text**, and the **validity class** of the update timestamp (`updatedMs > 0` versus missing).
+
+Integrity metadata is not display prose. Do not trim, case-fold, or otherwise normalize the declared SHA before deciding whether a stored observation changed or before validating it. `OperatorState.updateHeartbeatLights(...)` writes canonical 64-character lowercase hex. A value such as `" <sha> "` is therefore a changed, non-canonical persisted observation that must re-enter the integrity gate and fail closed; it must never collapse to `SKIP_UNCHANGED` or be normalized into an accepted identity.
 
 The magnitude of a positive wall-clock timestamp is observation metadata, not semantic identity. A new positive timestamp with identical payload/byte/SHA inputs does not earn another semantic projection. If the timestamp changes from missing/non-positive to positive, projection must run because storage acceptance can change.
 
@@ -34,7 +36,7 @@ The heartbeat writer commits payload, byte count, SHA, and update metadata in on
 
 Integer and long map values are the only accepted integral metadata shapes. Do **not** accept arbitrary `Number` and call `longValue()`: SharedPreferences can contain `Float`, and silently truncating `11.75f` to `11L` would launder type drift into counterfeit byte-count or timestamp evidence. Floating metadata is a coherent-read failure and must remain retryable.
 
-**Current capability truth:** coherent one-map reader source **YES**; integral-only metadata hardening source **YES**; existing `OperatorOverlayService` coherent-reader source consumption **YES**; Android execution/runtime observation **NO**.
+**Current capability truth:** coherent one-map reader source **YES**; integral-only metadata hardening source **YES**; exact SHA metadata identity/canonicality source **YES**; existing `OperatorOverlayService` coherent-reader source consumption **YES**; Android execution/runtime observation **NO**.
 
 ## Coherent-read failure
 A coherent storage read may fail because SharedPreferences access aborts or because a present heartbeat key has an unexpected stored type. That is not `WAITING`, not `PRESERVE_MISSING_CONTACT`, and not permission to erase or advance processed identity.
@@ -89,8 +91,10 @@ Silent stale contact is an accessibility defect: a TalkBack user must not hear o
 
 Poll dedupe is also accessibility protection. Re-running projection on every fast poll must not recreate native controls, churn focus, re-announce summaries, or blink Christmas lights. Likewise, a torn multi-getter storage read must not generate a false wound when one coherent preference-map observation can avoid it.
 
+Exact integrity metadata is part of that protection. A whitespace-poisoned SHA declaration must become one bounded storage wound, preserving last-good contact with motion clamped; it must not be normalized away into a silent stale scene or accepted evidence.
+
 ## Regression source
-At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
+At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, **canonical SHA versus whitespace-poisoned SHA producing PROJECT and fail-closed non-canonical metadata rejection**, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
 
 A regression file is source only until an authorized runner executes it.
 
@@ -106,9 +110,9 @@ Owner wiring must not consume Phone Hands, the primary-phone execution surface, 
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> policy source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> policy source -> exact persisted metadata identity source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 GitHub readback proves durable source only. None of these source artifacts prove Android tests ran or that any phone changed.
 
 ## Done for one source pulse
-This skill may light only when persisted-poll classification, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, recovery semantics, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
+This skill may light only when persisted-poll classification, persisted integrity metadata truth, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, recovery semantics, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
