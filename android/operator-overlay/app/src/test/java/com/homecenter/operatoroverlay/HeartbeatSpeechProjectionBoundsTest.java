@@ -9,6 +9,8 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class HeartbeatSpeechProjectionBoundsTest {
+    private static final String TRUNCATION_SUFFIX = "… (truncated)";
+
     private static HeartbeatSkillPolicy.Candidate typed(String id, String label) {
         return new HeartbeatSkillPolicy.Candidate(
                 id,
@@ -30,12 +32,14 @@ public class HeartbeatSpeechProjectionBoundsTest {
 
         String compact = HeartbeatSkillPolicy.contentDescription(candidate);
         String detail = HeartbeatSkillPolicy.detailContentDescription(candidate);
+        int projectedSwanBudget = HeartbeatSkillPolicy.MAX_SPOKEN_LABEL_CODE_POINTS
+                - TRUNCATION_SUFFIX.codePointCount(0, TRUNCATION_SUFFIX.length());
 
         assertEquals(longLabel, candidate.label);
         assertTrue(compact.contains(repeat(swan, 96) + "…"));
         assertFalse(compact.contains(repeat(swan, 97)));
-        assertTrue(detail.contains(repeat(swan, 96) + "… (truncated)"));
-        assertFalse(detail.contains(repeat(swan, 97)));
+        assertTrue(detail.contains(repeat(swan, projectedSwanBudget) + TRUNCATION_SUFFIX));
+        assertFalse(detail.contains(repeat(swan, projectedSwanBudget + 1)));
     }
 
     @Test
