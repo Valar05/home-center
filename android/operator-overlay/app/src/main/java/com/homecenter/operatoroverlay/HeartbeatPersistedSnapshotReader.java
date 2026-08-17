@@ -20,6 +20,14 @@ import java.util.Map;
  * wiring can preserve an explicit storage-read wound and retry rather than silently
  * laundering corrupted persistence into WAITING or CONTACT LOST.</p>
  *
+ * <p>The encoded payload declaration is bounded before the existing owner attempts
+ * Base64 decode. The canonical writer cannot emit more than four characters per
+ * three payload bytes, rounded up to a padded quartet. Accepting an arbitrarily
+ * larger stored declaration would let corrupt persistence consume decode/allocation
+ * work before the decoded-byte ceiling can reject it on the fast poll path. This
+ * pre-decode ceiling is a resource bound only; exact Base64 canonicality remains a
+ * separate later evidence gate.</p>
+ *
  * <p>This class owns no poll loop, writer, cache, renderer, transport, phone surface,
  * queue, recovery coordinator, deployment, or P0 action. The existing
  * {@code OperatorOverlayService} remains the sole poll owner.</p>
@@ -27,6 +35,8 @@ import java.util.Map;
 final class HeartbeatPersistedSnapshotReader {
     static final String STORAGE_READ_FAILURE_BOUNDARY =
             "Stored heartbeat snapshot could not be read coherently; last-good contact is preserved and the poll will retry.";
+    static final int MAX_PAYLOAD_BASE64_CHARS =
+            4 * ((OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES + 2) / 3);
 
     private HeartbeatPersistedSnapshotReader() {
     }
@@ -41,10 +51,20 @@ final class HeartbeatPersistedSnapshotReader {
     static HeartbeatPersistedPollPolicy.Snapshot fromValues(Map<String, ?> values) {
         Map<String, ?> exact = values == null ? Collections.emptyMap() : values;
         return new HeartbeatPersistedPollPolicy.Snapshot(
-                stringValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64),
+                boundedPayloadBase64(exact),
                 integralLongValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES),
                 stringValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_SHA256),
                 integralLongValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS));
+    }
+
+    private static String boundedPayloadBase64(Map<String, ?> values) {
+        String value = stringValue(values, OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64);
+        if (value.length() > MAX_PAYLOAD_BASE64_CHARS) {
+            throw new IllegalStateException(
+                    "heartbeat persisted Base64 declaration exceeds canonical maximum: "
+                            + value.length() + " > " + MAX_PAYLOAD_BASE64_CHARS);
+        }
+        return value;
     }
 
     private static String stringValue(Map<String, ?> values, String key) {
