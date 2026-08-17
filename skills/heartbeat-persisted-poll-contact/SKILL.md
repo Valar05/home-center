@@ -21,11 +21,17 @@ Do not create a neighboring polling service, cache controller, overlay owner, or
 - `SKIP_UNCHANGED`: the last processed projection inputs are semantically identical. Do not decode, hash, parse, rebuild, refresh, announce, or animate merely because the 200 ms poll ran again.
 
 ## Projection identity
-Persisted projection equivalence includes exact stored Base64 payload text, declared byte count, **exact declared SHA-256 metadata text**, and the **validity class** of the update timestamp (`updatedMs > 0` versus missing).
+Persisted projection equivalence includes exact stored Base64 payload text, declared byte count, **exact declared SHA-256 metadata text**, and the update timestamp's three-way validity class:
+
+- `updatedMs > 0`: valid observation metadata; positive magnitude is not semantic identity;
+- `updatedMs == 0`: canonical missing/default timestamp;
+- `updatedMs < 0`: corrupt metadata that must not alias canonical absence.
+
+A negative timestamp is not another spelling of WAITING. `Snapshot.fullyAbsent()` therefore requires **exactly zero** update metadata. Likewise, a transition from canonical `0` to a negative value must become `PROJECT` once so the downstream storage gate can expose the invalid persisted observation rather than deduping it away. Repeated negative values may share the same invalid class after that wound has been processed; the exact negative wall-clock magnitude is not useful semantic work.
 
 Integrity metadata is not display prose. Do not trim, case-fold, or otherwise normalize the declared SHA before deciding whether a stored observation changed or before validating it. `OperatorState.updateHeartbeatLights(...)` writes canonical 64-character lowercase hex. A value such as `" <sha> "` is therefore a changed, non-canonical persisted observation that must re-enter the integrity gate and fail closed; it must never collapse to `SKIP_UNCHANGED` or be normalized into an accepted identity.
 
-The magnitude of a positive wall-clock timestamp is observation metadata, not semantic identity. A new positive timestamp with identical payload/byte/SHA inputs does not earn another semantic projection. If the timestamp changes from missing/non-positive to positive, projection must run because storage acceptance can change.
+The magnitude of a positive wall-clock timestamp is observation metadata, not semantic identity. A new positive timestamp with identical payload/byte/SHA inputs does not earn another semantic projection. If the timestamp class changes between canonical missing, corrupt negative, and positive-valid, projection must run because storage acceptance can change.
 
 Do not use timestamp ordering as a replay sequence. Do not weaken byte/SHA verification to make dedupe easier.
 
@@ -36,7 +42,7 @@ The heartbeat writer commits payload, byte count, SHA, and update metadata in on
 
 Integer and long map values are the only accepted integral metadata shapes. Do **not** accept arbitrary `Number` and call `longValue()`: SharedPreferences can contain `Float`, and silently truncating `11.75f` to `11L` would launder type drift into counterfeit byte-count or timestamp evidence. Floating metadata is a coherent-read failure and must remain retryable.
 
-**Current capability truth:** coherent one-map reader source **YES**; integral-only metadata hardening source **YES**; exact SHA metadata identity/canonicality source **YES**; existing `OperatorOverlayService` coherent-reader source consumption **YES**; Android execution/runtime observation **NO**.
+**Current capability truth:** coherent one-map reader source **YES**; integral-only metadata hardening source **YES**; exact SHA metadata identity/canonicality source **YES**; canonical-zero versus corrupt-negative timestamp classification source **YES**; existing `OperatorOverlayService` coherent-reader/poll-policy source consumption **YES**; Android execution/runtime observation **NO**.
 
 ## Coherent-read failure
 A coherent storage read may fail because SharedPreferences access aborts or because a present heartbeat key has an unexpected stored type. That is not `WAITING`, not `PRESERVE_MISSING_CONTACT`, and not permission to erase or advance processed identity.
@@ -50,6 +56,8 @@ A fully absent persisted store has history-sensitive meaning:
 
 - before first accepted/preserved visible contact: `WAITING`;
 - after visible last-good contact: one explicit storage-contact wound, then `SKIP_UNCHANGED` while the same absence persists.
+
+Canonical absence is exact: empty payload declaration, zero declared bytes, empty SHA declaration, and **`updatedMs == 0`**. A negative update timestamp is corrupt metadata and must not enter the WAITING/missing-contact branch merely because every other field is empty.
 
 Use `HeartbeatPersistedPollPolicy.hasVisibleLastGoodContact(frame)` rather than inventing a node-count predicate. The source predicate is **non-empty accepted/preserved `visiblePulseId`**. A valid complete pulse can contain zero material lights and still be the last visible heartbeat contact; `frame.nodes.isEmpty()` therefore does not mean "no contact."
 
@@ -91,12 +99,12 @@ Silent stale contact is an accessibility defect: a TalkBack user must not hear o
 
 Poll dedupe is also accessibility protection. Re-running projection on every fast poll must not recreate native controls, churn focus, re-announce summaries, or blink Christmas lights. Likewise, a torn multi-getter storage read must not generate a false wound when one coherent preference-map observation can avoid it.
 
-Exact integrity metadata is part of that protection. A whitespace-poisoned SHA declaration must become one bounded storage wound, preserving last-good contact with motion clamped; it must not be normalized away into a silent stale scene or accepted evidence.
+Exact integrity metadata is part of that protection. A whitespace-poisoned SHA declaration must become one bounded storage wound, preserving last-good contact with motion clamped; it must not be normalized away into a silent stale scene or accepted evidence. Likewise, a negative update timestamp must not disappear into canonical WAITING simply because its payload/byte/SHA companions are empty.
 
 ## Regression source
-At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, **canonical SHA versus whitespace-poisoned SHA producing PROJECT and fail-closed non-canonical metadata rejection**, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
+At minimum cover canonical empty waiting, **negative timestamp is not canonical absence**, canonical-zero to negative timestamp class change reprojects, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, **canonical SHA versus whitespace-poisoned SHA producing PROJECT and fail-closed non-canonical metadata rejection**, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, floating metadata rejection, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, one-shot pre-contact `WAITING` recovery without clearing accepted/preserved contact, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
 
-A regression file is source only until an authorized runner executes it.
+A regression file is source only until an authorized runner executes it. A stale regression that expects SHA whitespace to compare equal is itself a doctrine failure and must be repaired; exact SHA metadata was already canonical source truth.
 
 ## Existing-owner wiring contract
 `OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, the model-owned summary/detail chrome source, and the one-shot pre-contact WAITING recovery gate. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, renders interruption chrome from the accepted/preserved model instead of duplicating contact inference in Android view code, and clears a stale pre-contact wound exactly once when healthy fully-absent storage returns to `WAITING`.
@@ -110,7 +118,7 @@ Owner wiring must not consume Phone Hands, the primary-phone execution surface, 
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> policy source -> exact persisted metadata identity source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> policy source -> exact persisted metadata identity source -> coherent reader source -> existing-owner coherent-reader source wired -> metadata type hardening source -> canonical timestamp-class source -> waiting-recovery policy source -> waiting-recovery owner source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 GitHub readback proves durable source only. None of these source artifacts prove Android tests ran or that any phone changed.
 
