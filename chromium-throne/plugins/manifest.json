@@ -1,0 +1,35 @@
+{
+  "schema": "fortress.chromium-throne-plugins.v1",
+  "tasteOwner": "Venice",
+  "designStatus": "PROVISIONAL_UNTIL_VENICE_ACCEPTS",
+  "plugins": [
+    {
+      "pluginId": "venice-conversation-nerve",
+      "name": "Venice Conversation Nerve",
+      "promptable": true,
+      "ui": { "panel": "conversation-room", "humanUsable": true, "metaphor": "humane-fleshpunk" },
+      "api": { "path": "/api/threads/{threadId}/messages", "requiresHumanInitiation": true },
+      "capabilities": ["social-conversation", "command-conversation", "parallel-lanes", "reply-capture"],
+      "costClass": "INCLUDED_CHAT",
+      "owner": "Venice"
+    },
+    {
+      "pluginId": "thread-observatory",
+      "name": "Thread Observatory",
+      "promptable": true,
+      "ui": { "panel": "thread-grid", "humanUsable": true },
+      "api": { "basePath": "/api/threads", "events": "/api/events" },
+      "capabilities": ["list", "inspect", "pause", "resume", "close", "screenshot"],
+      "costClass": "ZERO_CREDIT_LOCAL"
+    },
+    {
+      "pluginId": "browser-hands-bridge",
+      "name": "Browser Hands Bridge",
+      "promptable": true,
+      "ui": { "panel": "browser-inspector", "humanUsable": true },
+      "api": { "homeCenterOperations": ["browser_sessions.observe", "browser_sessions.act", "browser_sessions.record_episode"] },
+      "capabilities": ["dom-observe", "accessibility-observe", "bounded-act", "episode-record"],
+      "costClass": "ZERO_CREDIT_LOCAL"
+    }
+  ]
+}
