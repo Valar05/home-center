@@ -1,0 +1,23 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-17-1000",
+  "mission": "Advance the existing on-demand heartbeat detail/evidence surface so legitimate invisible semantic controls are explicitly inspectable without changing compact/routine speech, creating a second renderer/controller, or touching phone/P0 surfaces.",
+  "planned_fronts": [
+    "Add a bounded explicit-evidence detail projection that composes HeartbeatInvisibleSemanticControlPolicy with existing typed source fields.",
+    "Keep compact contentDescription and collapsed speech byte-for-byte behavior unchanged; only explicit detail/evidence speech may reveal markers.",
+    "Separate visible evidence detail from bounded spoken detail in the existing HeartbeatOverlayViewModel/OperatorOverlayService path if source archaeology supports it.",
+    "Add hostile regression source for marker expansion, literal-backslash collision, Unicode truncation, and routine-speech non-regression.",
+    "Synchronize durable skill doctrine and mutate an existing Swan Veil/warm-wall source artifact rather than spawning a neighboring overlay organism.",
+    "Run Regnet/Venice bounded review and preserve TESTED/runtime/deployed/callable/delivered/accepted distinctions."
+  ],
+  "constraints": {
+    "p0_phone_consumption": 0,
+    "new_overlay_controller": false,
+    "new_renderer": false,
+    "new_parser": false,
+    "compact_routine_speech_change_allowed": false,
+    "source_progress_may_be_called_runtime": false
+  },
+  "she_raw": "FAULT_PRE_EXECUTION_ACCOUNT_CONNECTION_HTTP_400",
+  "gate": "PLAN_ALLOWED_WITH_SOURCE_ONLY_CAPABILITY_MEMBRANE"
+}
