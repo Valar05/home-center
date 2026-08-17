@@ -139,7 +139,9 @@ public final class HeartbeatFrameAccessibility {
             int focusIndex) {
         if (frame == null || focusIndex < 0) return "";
         for (HeartbeatSceneGraph.Node node : frame.nodes) {
-            if (node.focusIndex == focusIndex) return node.detailContentDescription;
+            if (node.focusIndex == focusIndex) {
+                return HeartbeatEvidenceDetailProjection.detailContentDescription(node);
+            }
         }
         return "";
     }
@@ -159,7 +161,7 @@ public final class HeartbeatFrameAccessibility {
         if (target.isEmpty()) return "";
         for (HeartbeatSceneGraph.Node node : frame.nodes) {
             if (node.id.toLowerCase(Locale.ROOT).equals(target)) {
-                return node.detailContentDescription;
+                return HeartbeatEvidenceDetailProjection.detailContentDescription(node);
             }
         }
         return "";
