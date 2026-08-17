@@ -92,13 +92,18 @@ public final class HeartbeatOverlayViewModel {
          * "contact held". This distinction matters especially before first contact:
          * a coherent storage-read wound must not claim that an old heartbeat remains
          * visible when none has ever been accepted. A zero-material accepted pulse
-         * still has contact because {@code visiblePulseId} is non-empty.</p>
+         * still has contact because {@code visiblePulseId} is non-empty, so ordinary
+         * {@code HEARTBEAT • waiting} is reserved for a model with no visible contact.</p>
          */
         public String summaryVisibleLabel() {
             int count = controls.size();
             boolean hasVisibleContact = hasVisibleContact();
             if (count == 0) {
-                if (!refreshInterrupted) return "HEARTBEAT • waiting";
+                if (!refreshInterrupted) {
+                    return hasVisibleContact
+                            ? "HEARTBEAT • 0 LIGHTS"
+                            : "HEARTBEAT • waiting";
+                }
                 return hasVisibleContact
                         ? "HEARTBEAT • CONTACT HELD"
                         : "HEARTBEAT • REFRESH BLOCKED";
