@@ -847,15 +847,31 @@ public class OperatorOverlayService extends Service {
                 byte[] exactPayload = Base64.decode(
                         currentPersistedSnapshot.payloadB64,
                         Base64.NO_WRAP);
-                HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
-                        HeartbeatOverlayRefreshPlan.projectPersisted(
-                                exactPayload,
-                                currentPersistedSnapshot.declaredBytes,
-                                currentPersistedSnapshot.declaredSha256,
-                                currentPersistedSnapshot.updatedMs,
-                                heartbeatFrame,
-                                heartbeatSelectedId);
-                next = persisted.plan;
+                String canonicalPayloadB64 = Base64.encodeToString(
+                        exactPayload,
+                        Base64.NO_WRAP);
+                if (!HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                        currentPersistedSnapshot.payloadB64,
+                        canonicalPayloadB64)) {
+                    HeartbeatSceneGraph.Frame preserved =
+                            HeartbeatSceneGraph.preserveRejectedRefresh(
+                                    "",
+                                    heartbeatFrame,
+                                    HeartbeatPersistedBase64Canonicality.NON_CANONICAL_BOUNDARY);
+                    next = HeartbeatOverlayRefreshPlan.fromFrame(
+                            preserved,
+                            heartbeatSelectedId);
+                } else {
+                    HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
+                            HeartbeatOverlayRefreshPlan.projectPersisted(
+                                    exactPayload,
+                                    currentPersistedSnapshot.declaredBytes,
+                                    currentPersistedSnapshot.declaredSha256,
+                                    currentPersistedSnapshot.updatedMs,
+                                    heartbeatFrame,
+                                    heartbeatSelectedId);
+                    next = persisted.plan;
+                }
             } catch (IllegalArgumentException invalidBase64) {
                 HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
                         "",
