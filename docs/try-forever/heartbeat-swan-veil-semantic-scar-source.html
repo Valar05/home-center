@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swan Veil — invisible semantic scar source specimen</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #18191d; color: #f4f0e8; }
+  main { width: min(940px, calc(100vw - 24px)); box-sizing: border-box; padding: 18px; border: 2px solid #8c8f98; border-radius: 26px; background: #25272d; }
+  h1 { margin: 0 0 6px; font-size: clamp(1.5rem, 4vw, 2.5rem); }
+  .scar { margin: 0 0 14px; font-weight: 850; letter-spacing: .055em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  button { min-width: 48px; min-height: 48px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; background: transparent; color: inherit; font: inherit; font-weight: 760; cursor: pointer; }
+  button:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  button[aria-pressed="true"] { background: #f4f0e8; color: #18191d; }
+  svg { width: 100%; height: auto; display: block; border-radius: 18px; background: #1d1f24; }
+  .wire { stroke: #dbd5ca; stroke-width: 4; fill: none; }
+  .veil { fill: none; stroke: #dbd5ca; stroke-width: 3; stroke-dasharray: 7 8; }
+  .node { fill: #2b2e35; stroke: #dbd5ca; stroke-width: 3; }
+  .label { fill: #f4f0e8; font: 750 18px system-ui, sans-serif; text-anchor: middle; }
+  .small { fill: #d9d4ca; font: 600 13px system-ui, sans-serif; text-anchor: middle; }
+  #status { min-height: 3.5em; margin-top: 14px; padding: 10px 12px; border-left: 5px solid currentColor; background: #1d1f24; }
+  .legend { margin: 12px 0 0; font-size: .92rem; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>SWAN VEIL / SEMANTIC SCAR</h1>
+  <p class="scar">POLICY SOURCE YES · CONSUMER WIRING NO · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
+
+  <div class="controls" role="group" aria-label="Choose semantic text case">
+    <button type="button" data-case="plain" aria-pressed="true">Plain text</button>
+    <button type="button" data-case="zwsp" aria-pressed="false">Zero-width space</button>
+    <button type="button" data-case="wj" aria-pressed="false">Word joiner</button>
+    <button type="button" data-case="bom" aria-pressed="false">BOM</button>
+    <button type="button" data-case="zwj" aria-pressed="false">ZWJ legitimate</button>
+    <button type="button" data-case="zwnj" aria-pressed="false">ZWNJ legitimate</button>
+  </div>
+
+  <svg viewBox="0 0 900 350" role="img" aria-labelledby="diagramTitle diagramDesc">
+    <title id="diagramTitle">Swan Veil invisible semantic control policy</title>
+    <desc id="diagramDesc">A warm-wall semantic pipeline. Human-facing text crosses a veil before it can become operator evidence, touch detail, checkpoint identity, or speech. Zero-width space, word joiner, and BOM are blocked by the new source policy; ZWJ and ZWNJ remain legitimate. Existing consumers are not yet wired to the policy.</desc>
+
+    <path class="wire" d="M180 175 H330" />
+    <path id="outWire" class="wire" d="M570 175 H720" />
+    <rect class="node" x="35" y="115" width="145" height="120" rx="26" />
+    <text class="label" x="107" y="158">TEXT</text>
+    <text id="sourceGlyph" class="small" x="107" y="188">Warm Wall</text>
+    <text class="small" x="107" y="210">exact source</text>
+
+    <path class="veil" d="M330 60 C415 100 415 250 330 290 M570 60 C485 100 485 250 570 290" />
+    <rect class="node" x="355" y="100" width="190" height="150" rx="40" />
+    <text class="label" x="450" y="145">SWAN VEIL</text>
+    <text id="decisionText" class="label" x="450" y="182">PASS</text>
+    <text id="ruleText" class="small" x="450" y="214">ordinary visible text</text>
+
+    <rect class="node" x="720" y="105" width="145" height="140" rx="26" />
+    <text class="label" x="792" y="150">CONTACT</text>
+    <text id="contactText" class="small" x="792" y="180">eligible later</text>
+    <text class="small" x="792" y="202">parser · scene</text>
+    <text class="small" x="792" y="222">touch · speech</text>
+  </svg>
+
+  <div id="status" role="status" aria-live="polite">Plain text: no invisible presentation alias is present. The narrow policy permits it to continue, while existing parser/direct-source/scene consumers remain explicitly unwired.</div>
+  <p class="legend">● Visible source may continue. □ Invisible presentation alias is blocked by source policy. × Rejection must never be normalized into accepted evidence or Christmas motion. ◇ ZWJ/ZWNJ stay legitimate. Phone/P0 stays untouched.</p>
+</main>
+<script>
+(() => {
+  const buttons = [...document.querySelectorAll('button[data-case]')];
+  const status = document.getElementById('status');
+  const sourceGlyph = document.getElementById('sourceGlyph');
+  const decisionText = document.getElementById('decisionText');
+  const ruleText = document.getElementById('ruleText');
+  const contactText = document.getElementById('contactText');
+  const outWire = document.getElementById('outWire');
+
+  const cases = {
+    plain: {
+      glyph: 'Warm Wall', decision: 'PASS', rule: 'ordinary visible text', contact: 'eligible later', blocked: false,
+      status: 'Plain text: no invisible presentation alias is present. The narrow policy permits it to continue, while existing parser/direct-source/scene consumers remain explicitly unwired.'
+    },
+    zwsp: {
+      glyph: 'Warm⟪ZWSP⟫Wall', decision: 'BLOCK', rule: 'U+200B zero-width space', contact: 'no owner yet', blocked: true,
+      status: 'Zero-width space: source identity can differ while the operator sees the same label. The new policy rejects the alias without deleting or normalizing it. Existing consumers are not yet wired.'
+    },
+    wj: {
+      glyph: 'Reg⟪WJ⟫net', decision: 'BLOCK', rule: 'U+2060 word joiner', contact: 'no owner yet', blocked: true,
+      status: 'Word joiner: invisible presentation drift is blocked by source policy. Rejection must remain evidence; Reg plus an invisible joiner must never be silently rewritten into Regnet.'
+    },
+    bom: {
+      glyph: '⟪BOM⟫Heartbeat', decision: 'BLOCK', rule: 'U+FEFF BOM / ZWNBSP', contact: 'no owner yet', blocked: true,
+      status: 'BOM: an invisible leading formatting mark is a different source string but a poor operator distinction. The policy blocks it without claiming parser or runtime enforcement.'
+    },
+    zwj: {
+      glyph: '👩⟪ZWJ⟫💻', decision: 'PASS', rule: 'U+200D legitimate joiner', contact: 'eligible later', blocked: false,
+      status: 'ZWJ: preserved. The policy does not ban Unicode FORMAT wholesale; grapheme and emoji joining remain legitimate semantic data.'
+    },
+    zwnj: {
+      glyph: 'join⟪ZWNJ⟫test', decision: 'PASS', rule: 'U+200C language shaping', contact: 'eligible later', blocked: false,
+      status: 'ZWNJ: preserved. Language-shaping semantics remain allowed. The rule is narrow by design rather than a Unicode flamethrower.'
+    }
+  };
+
+  function select(key) {
+    const chosen = cases[key];
+    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.case === key)));
+    sourceGlyph.textContent = chosen.glyph;
+    decisionText.textContent = chosen.decision;
+    ruleText.textContent = chosen.rule;
+    contactText.textContent = chosen.contact;
+    outWire.setAttribute('stroke-dasharray', chosen.blocked ? '10 8' : '');
+    status.textContent = chosen.status;
+  }
+
+  buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.case)));
+})();
+</script>
+</body>
+</html>
