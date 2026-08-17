@@ -15,6 +15,11 @@ import java.util.Map;
  * This helper takes one {@code getAll()} map snapshot, then extracts all four fields
  * from that same observation.</p>
  *
+ * <p>Missing keys retain the existing canonical defaults. A present key with an
+ * unexpected stored type is not rewritten into "missing": it throws so future owner
+ * wiring can preserve an explicit storage-read wound and retry rather than silently
+ * laundering corrupted persistence into WAITING or CONTACT LOST.</p>
+ *
  * <p>This class owns no poll loop, writer, cache, renderer, transport, phone surface,
  * queue, recovery coordinator, deployment, or P0 action. The existing
  * {@code OperatorOverlayService} remains the sole poll owner.</p>
@@ -24,10 +29,10 @@ final class HeartbeatPersistedSnapshotReader {
     }
 
     static HeartbeatPersistedPollPolicy.Snapshot read(Context context) {
-        Map<String, ?> values = context == null
-                ? Collections.emptyMap()
-                : OperatorState.prefs(context).getAll();
-        return fromValues(values);
+        if (context == null) {
+            throw new IllegalArgumentException("heartbeat persisted snapshot context is required");
+        }
+        return fromValues(OperatorState.prefs(context).getAll());
     }
 
     static HeartbeatPersistedPollPolicy.Snapshot fromValues(Map<String, ?> values) {
@@ -40,12 +45,22 @@ final class HeartbeatPersistedSnapshotReader {
     }
 
     private static String stringValue(Map<String, ?> values, String key) {
+        if (!values.containsKey(key)) return "";
         Object value = values.get(key);
-        return value instanceof String ? (String) value : "";
+        if (value instanceof String) return (String) value;
+        throw unexpectedType(key, value);
     }
 
     private static long longValue(Map<String, ?> values, String key) {
+        if (!values.containsKey(key)) return 0L;
         Object value = values.get(key);
-        return value instanceof Number ? ((Number) value).longValue() : 0L;
+        if (value instanceof Number) return ((Number) value).longValue();
+        throw unexpectedType(key, value);
+    }
+
+    private static IllegalStateException unexpectedType(String key, Object value) {
+        String type = value == null ? "null" : value.getClass().getSimpleName();
+        return new IllegalStateException(
+                "heartbeat persisted field has unexpected type: " + key + " (" + type + ")");
     }
 }
