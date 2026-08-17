@@ -38,6 +38,8 @@ A fully absent persisted store has history-sensitive meaning:
 - before first accepted/preserved visible contact: `WAITING`;
 - after visible last-good contact: one explicit storage-contact wound, then `SKIP_UNCHANGED` while the same absence persists.
 
+Use `HeartbeatPersistedPollPolicy.hasVisibleLastGoodContact(frame)` rather than inventing a node-count predicate. The source predicate is **non-empty accepted/preserved `visiblePulseId`**. A valid complete pulse can contain zero material lights and still be the last visible heartbeat contact; `frame.nodes.isEmpty()` therefore does not mean "no contact."
+
 The wound must reuse `HeartbeatSceneGraph.preserveRejectedRefresh(...)` when owner wiring lands, so last-good controls remain visible, discarded attempted state stays absent, and frame/node one-shot motion remains clamped.
 
 A repeated identical absence must not repeatedly rebuild, speak, or twitch.
@@ -51,6 +53,7 @@ Poll dedupe is also accessibility protection. Re-running projection on every fas
 At minimum cover:
 
 - canonical fully absent store + no visible contact -> `WAITING`;
+- **accepted zero-material pulse still counts as visible last-good contact**;
 - fully absent store after visible contact -> `PRESERVE_MISSING_CONTACT` once;
 - repeated identical absence after that processed wound -> `SKIP_UNCHANGED`;
 - identical payload/byte/SHA with a different positive timestamp -> `SKIP_UNCHANGED`;
@@ -63,6 +66,8 @@ A regression file is source only until an authorized runner executes it.
 
 ## Existing-owner wiring contract
 When wiring the existing service, retain the last **processed** snapshot only after the chosen decision has been applied. If an unexpected internal projection exception aborts work, keep the older processed snapshot so the next poll retries instead of falsely deduplicating failed work.
+
+Owner wiring must pass the current `HeartbeatSceneGraph.Frame` into the scene-bound decision overload, not manufacture a weaker boolean from child count. For `PRESERVE_MISSING_CONTACT`, compose the existing preservation organ and then retain the empty processed snapshot; the next identical empty poll may become `SKIP_UNCHANGED`.
 
 Owner wiring must not consume Phone Hands, the primary-phone execution surface, queue/relay prerequisites, or P0 recovery owners. It is ordinary source composition inside the existing overlay service.
 
