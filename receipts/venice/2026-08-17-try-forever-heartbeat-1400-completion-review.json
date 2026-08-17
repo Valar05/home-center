@@ -1,0 +1,21 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-17-1400",
+  "pr": 329,
+  "sourceHeadReviewed": "bed8d828e14829b51d360738c8f4af1fbf35b6c6",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "review": [
+    "Mission fidelity PASS: this repaired the commissioned heartbeat surfaces rather than substituting a new UI architecture or phone lane.",
+    "Accessibility PASS at source level: compact focus speech, collapsed labels, and visible native labels now treat the ellipsis as part of the named hard returned budget and remain Unicode-code-point safe.",
+    "Presentation discrimination PASS: routine/plain projections stay plain; selected explicit evidence detail keeps its separate invisible-control marker semantics.",
+    "Originality Tax PASS: three drifting truncators converged on one pure helper instead of receiving three cosmetically similar fixes.",
+    "Code-first review scar preserved: the initial 90-swan ViewModel fixture exceeded the typed source label bound and was repaired to 78 swans before completion.",
+    "Evidence membrane PASS: source/readback/regression are not promoted to Android execution, TalkBack runtime proof, deployment, delivery, or acceptance."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE_VERDICT",
+  "p0Firewall": "PASS_ZERO_PHONE_P0_CONSUMPTION_OR_MUTATION",
+  "testBoundary": "NO_EXECUTED_STEPS_ACTIONS_BUDGET",
+  "nextRule": "Order this hard-returned-budget seam dark unless fresh evidence changes it; the next heartbeat must choose a materially different non-P0 wound.",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED / DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
