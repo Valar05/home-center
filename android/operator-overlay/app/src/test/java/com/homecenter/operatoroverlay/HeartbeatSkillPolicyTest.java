@@ -84,7 +84,7 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
-    public void compactAccessibilityDescriptionBoundsConsequenceWithoutSplittingUnicode() {
+    public void compactAccessibilityDescriptionHardBoundsConsequenceWithoutSplittingUnicode() {
         String swan = "🦢";
         String longConsequence = repeat(swan, 170);
         HeartbeatSkillPolicy.Candidate typed = new HeartbeatSkillPolicy.Candidate(
@@ -101,8 +101,11 @@ public class HeartbeatSkillPolicyTest {
         String compact = HeartbeatSkillPolicy.contentDescription(typed);
         String detail = HeartbeatSkillPolicy.detailContentDescription(typed);
 
-        assertTrue(compact.contains(repeat(swan, 160) + "…."));
-        assertFalse(compact.contains(repeat(swan, 161)));
+        assertTrue(compact.contains(
+                repeat(swan, HeartbeatSkillPolicy.MAX_COMPACT_CONSEQUENCE_CODE_POINTS - 1)
+                        + "…."));
+        assertFalse(compact.contains(
+                repeat(swan, HeartbeatSkillPolicy.MAX_COMPACT_CONSEQUENCE_CODE_POINTS)));
         assertTrue(detail.contains("Consequence: " + longConsequence));
         assertTrue(detail.contains("Evidence: Full consequence remains available in explicit detail"));
     }
