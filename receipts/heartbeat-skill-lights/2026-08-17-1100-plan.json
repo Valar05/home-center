@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "heartbeat": "2026-08-17T11:00:00-05:00",
+  "scope": "non-P0 source truth convergence",
+  "mission": "Retire the legacy HeartbeatSceneGraph.Node.detailContentDescription raw-detail cache so future consumers cannot bypass HeartbeatEvidenceDetailProjection.",
+  "fronts": [
+    "source archaeology and consumer audit",
+    "scene-node field removal",
+    "accessibility regression source",
+    "durable skill/doctrine synchronization",
+    "non-raster Swan Veil source mutation",
+    "Regnet/Venice evidence review"
+  ],
+  "constraints": {
+    "compactRoutineSpeechUnchanged": true,
+    "existingExplicitDetailProjectionRemainsAuthority": true,
+    "duplicateArchitectureForbidden": true,
+    "p0PhoneSurfacesReadOnly": true,
+    "runtimeClaimsForbiddenWithoutRuntimeEvidence": true
+  },
+  "knownConsumers": {
+    "HeartbeatOverlayViewModel.LightControl": "HeartbeatEvidenceDetailProjection.detailContentDescription(node)",
+    "HeartbeatFrameAccessibility.byIndex": "HeartbeatEvidenceDetailProjection.detailContentDescription(node)",
+    "HeartbeatFrameAccessibility.byId": "HeartbeatEvidenceDetailProjection.detailContentDescription(node)",
+    "OperatorOverlayService": "consumes LightControl.detailContentDescription, not Node.detailContentDescription"
+  },
+  "proposedChange": [
+    "Remove Node.detailContentDescription field and constructor/copy assignments.",
+    "Add regression source that rejects reintroduction of the legacy field and verifies explicit detail consumers remain collision-safe and bounded.",
+    "Update the existing invisible-semantic-control skill and Swan Veil artifact in place if source truth changes materially."
+  ],
+  "evidenceBoundary": "Source mutation and exact GitHub readback may become IMPLEMENTED_SOURCE. TESTED, runtime UI, runtime TalkBack, deployed, callable, executed, delivered, and accepted remain NO unless separately evidenced.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "p0Firewall": "No Phone Hands ticket, primary-phone command, queue/device probe, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance action, or duplicate P0 owner is authorized in this slice."
+}
