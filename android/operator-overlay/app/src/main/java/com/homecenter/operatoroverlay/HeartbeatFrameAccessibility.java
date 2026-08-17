@@ -14,7 +14,8 @@ import java.util.Locale;
  */
 public final class HeartbeatFrameAccessibility {
     /** Maximum number of named lights in the collapsed summary. */
-    public static final int MAX_COLLAPSED_NAMED_LIGHTS = 12;
+    public static final int MAX_COLLAPSED_NAMED_LIGHTS =
+            HeartbeatSkillPolicy.MAX_COLLAPSED_NAMED_LIGHTS;
     /** Hard returned code-point budget for one label spoken in the collapsed summary. */
     public static final int MAX_COLLAPSED_LABEL_CODE_POINTS = 64;
 
