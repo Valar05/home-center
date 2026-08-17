@@ -1,0 +1,88 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "pulse": "2026-08-17-1800",
+  "reviewedSourceHead": "7c8aaa5767bd617a73c3702090a2113dda4ccd39",
+  "frontsAdvanced": [
+    {
+      "front": "existing-owner collapsed accessibility",
+      "changed": "OperatorOverlayService now projects heartbeat truth onto the existing dragHandle while details is GONE and restores ordinary action prose when expanded."
+    },
+    {
+      "front": "pure accessibility policy",
+      "changed": "HeartbeatCollapsedOwnerAccessibility composes accepted model truth without owning Android views, focus, transport, phone execution, or P0 recovery."
+    },
+    {
+      "front": "hostile regression source",
+      "changed": "Accepted zero-material, waiting, CONTACT HELD, REFRESH BLOCKED, and expanded fallback are pinned on the collapsed-owner projection."
+    },
+    {
+      "front": "durable skill harvesting",
+      "changed": "heartbeat-zero-material-contact-truth now requires truth on a surviving accessibility-reachable owner surface; a correct string on a GONE descendant no longer counts."
+    },
+    {
+      "front": "warm-wall non-raster art",
+      "changed": "Existing SVG mutated in place to show collapsed owner survival, owner source wiring, runtime-unproven membrane, and no duplicate architecture."
+    },
+    {
+      "front": "review/evidence",
+      "changed": "Pre-mutation plan/Venice gate, exact owner diff, Regnet review, Venice completion, fresh exact-head CI failure readback, and capability ledger are durable."
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"RECOVERED","why":"A pure-model success was rejected because its only Android accessibility surface vanished under details == GONE.","changed":"Moved the repair to the surviving existing owner surface."},
+    {"name":"Originality Tax","state":"ACTIVE","why":"Command Center Codex worker creation failed because workers are retired.","changed":"Recovery switched to audited GitHub admin upsert rather than retrying the retired worker path."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","why":"Owner archaeology selected the actual surviving dragHandle rather than a new accessibility controller.","changed":"Existing owner remains sole Android surface."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","why":"No speech-to-text or ambiguous token affected this source slice.","changed":"none"},
+    {"name":"Hunger","state":"ACTIVE","why":"The source consequence had to be visible/touchable in the art model rather than merely described.","changed":"Existing warm-wall SVG gained the collapsed-owner scar."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"Pure model truth, owner visibility, skill doctrine, regression source, and art had to agree.","changed":"Converged all source surfaces on surviving-owner truth."},
+    {"name":"Operator Campaign / Harroway","state":"ACTIVE","why":"Mission required the existing owner and no duplicate architecture.","changed":"OperatorOverlayService consumes the new projection at presentation, model-change, and waiting-recovery seams."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative ambient call attempted pre-execution.","changed":"Account connection HTTP 400 preserved; no synthetic critique substituted."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","why":"Plan and completion gates prevented source success from becoming runtime theater.","changed":"SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED."},
+    {"name":"Regnet QA","state":"BLOCKED_TEST","why":"Source/readback checks pass but exact-head CI run/job failed and no step-level reason was exposed by current readback.","changed":"TESTED remains NO; older annotations were not laundered forward."},
+    {"name":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","why":"Correct text on a GONE descendant is not collapsed accessibility.","changed":"Same surviving drag handle now distinguishes 0 LIGHTS, waiting, CONTACT HELD, and REFRESH BLOCKED at source."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALL","why":"P0 conductor and shared-phone ownership are binding.","changed":"zero consumption; zero mutation"},
+    {"name":"Deterministic routing","state":"ACTIVE","why":"Collapsed truth must be derived from the accepted/preserved heartbeat model rather than re-inferred from node count.","changed":"One pure projection feeds the existing owner."},
+    {"name":"Evidence / capability-state discipline","state":"ACTIVE","why":"Repository source cannot prove Android or TalkBack runtime.","changed":"implemented/readback separated from tested/runtime/deployed/callable/executed/delivered/accepted."},
+    {"name":"Recovery / checkpointing / idempotence","state":"ACTIVE","why":"A stale blocked description must clear when healthy storage returns to ordinary waiting.","changed":"WAITING recovery now refreshes the same surviving owner surface to waiting truth."},
+    {"name":"Warm walls / strange non-raster art","state":"ACTIVE","why":"Collapsed owner survival is a real interface-topology distinction.","changed":"Existing SVG mutated; no raster and no new artifact family."},
+    {"name":"Christmas-light motion","state":"DARK","why":"Changing contentDescription topology does not authorize repeated motion or blinking.","changed":"none"},
+    {"name":"Contact preservation","state":"ACTIVE","why":"Held and blocked wounds must expose preserved-vs-precontact truth on the same surviving surface.","changed":"Projection composes the accepted/preserved frame and regression pins the distinction."}
+  ],
+  "crossPollination": "Kaiju collapsed-surface rejection -> owner archaeology -> surviving dragHandle projection -> hostile zero/waiting/held/blocked fixture -> skill doctrine forbids GONE-descendant proof -> warm-wall topology mutation -> Regnet/Venice capability membrane. Retired Command Center worker path -> Originality Tax -> audited GitHub admin upsert.",
+  "ci": {
+    "workflow":"Operator Overlay Android",
+    "runId":32079528138,
+    "jobId":95539611941,
+    "head":"7c8aaa5767bd617a73c3702090a2113dda4ccd39",
+    "conclusion":"failure",
+    "stepLevelReasonAvailable":false,
+    "manualRetry":false
+  },
+  "capability": {
+    "requested":true,
+    "implementedSource":true,
+    "exactGitHubReadback":true,
+    "regressionSource":true,
+    "existingOwnerCollapsedAccessibilitySourceWiring":true,
+    "tested":false,
+    "runtimeUiObserved":false,
+    "runtimeTalkBackExercised":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  },
+  "p0": {
+    "phoneHandsTickets":0,
+    "primaryPhoneCommands":0,
+    "queueOrRelayProbes":0,
+    "recoveryMutations":0,
+    "nightcore":0,
+    "pocketTts":0,
+    "chromium":0,
+    "contextOrgans":0,
+    "physicalAcceptance":0,
+    "newP0Finding":null
+  }
+}
