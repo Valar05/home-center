@@ -1,0 +1,23 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-17-1500",
+  "pr": 329,
+  "verdict": "PLAN_ALLOWED",
+  "missionFidelity": "PASS",
+  "review": [
+    "The verified wound is materially different from the completed 1400 consumer trio: interrupted-refresh speech inside HeartbeatSceneGraph still carries an independent max-plus-suffix truncator.",
+    "Reuse HeartbeatPlainTextBudget; do not create another text-budget organ or route routine speech through explicit invisible-evidence projection.",
+    "Exact visiblePulseId and refreshBoundary source/evidence fields must remain unchanged. Only safe human-facing projection may be bounded.",
+    "A named 96/320 returned code-point cap cannot append a truncation suffix outside that cap.",
+    "Regression source must test supplementary Unicode and total returned projection budget, not merely UTF-16 length.",
+    "Warm Walls/Christmas art stays dark unless the repair creates a genuinely new operator-visible topology; source-budget convergence alone does not earn decorative mutation.",
+    "P0 and shared-phone surfaces remain completely untouched."
+  ],
+  "requiredEvidence": [
+    "Exact GitHub source readback for HeartbeatSceneGraph and hostile regression source.",
+    "Durable hard-returned-text skill synchronization if the generalized invariant changes.",
+    "Regnet and Venice completion receipts with explicit runtime/capability membrane.",
+    "Fresh workflow readback on the exact reviewed source head if available; otherwise TESTED remains NO with exact boundary."
+  ],
+  "gate": "PLAN_ALLOWED / SOURCE_ONLY / NO_PHONE_P0"
+}
