@@ -1,0 +1,36 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-17-1600",
+  "mission": "Advance a materially different non-P0 accessibility/source wound without decorative churn.",
+  "observed_wound": {
+    "surface": "HeartbeatSkillPolicy.collapsedContentDescription(List<Candidate>)",
+    "fact": "Frame-level collapsed speech names at most 12 lights, but the legacy candidate-level compatibility projection appends every safe material Candidate description.",
+    "risk": "Per-field bounds do not bound aggregate TalkBack output when material-light fanout is broad.",
+    "evidence": [
+      "HeartbeatFrameAccessibility.MAX_COLLAPSED_NAMED_LIGHTS = 12",
+      "HeartbeatSkillPolicy.collapsedContentDescription currently iterates every safe selected description"
+    ]
+  },
+  "planned_fronts": [
+    "Unify the collapsed named-light fanout constant without changing exact Candidate source fields.",
+    "Bound the legacy candidate-level collapsed projection by named-description count while preserving material order and exact omitted/rejected counts.",
+    "Add hostile regression source for a broad legacy constellation and preserve the existing two-light compatibility string.",
+    "Harvest a durable repository skill for aggregate collapsed-speech fanout budgets if the wound survives review.",
+    "Mutate the existing Swan Veil source artifact in place only if the aggregate-fanout consequence is materially touchable; do not create a neighboring renderer/art family.",
+    "Run Regnet/Venice source review and preserve exact capability states.",
+    "Read current-head CI only; do not trigger or retry blocked Actions."
+  ],
+  "constraints": {
+    "p0_firewall": "READ_ONLY; zero Phone Hands, primary-phone, queue, relay, Nightcore, Pocket TTS, Chromium, Context Organs, P0 recovery, or physical acceptance actions.",
+    "duplicate_architecture": "No new overlay controller, renderer, poller, state store, ingress path, daemon, or P0 coordinator.",
+    "runtime_claims": "Repository/source work may become IMPLEMENTED source only. TESTED/runtime/deployed/callable/executed/delivered/accepted require separate evidence.",
+    "accessibility": "Do not hide omitted count; do not split Unicode; do not turn routine collapsed speech into explicit invisible-evidence narration.",
+    "compatibility": "Preserve material order and the current output for constellations already within the naming budget."
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "Authoritative She-Raw consultation returned account-connection HTTP 400; no substitute verdict is authorized."
+  },
+  "gate": "PLAN_ALLOWED_WITH_SOURCE_REVIEW_REQUIRED"
+}
