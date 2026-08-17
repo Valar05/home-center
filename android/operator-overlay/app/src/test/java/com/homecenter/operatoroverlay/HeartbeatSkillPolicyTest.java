@@ -108,8 +108,10 @@ public class HeartbeatSkillPolicyTest {
     }
 
     @Test
-    public void expandedAccessibilityDetailBoundsSpeechButPreservesExactCandidateData() {
+    public void expandedAccessibilityDetailUsesPostProjectionHardBudgetsAndPreservesCandidateData() {
         String swan = "🦢";
+        String suffix = "… (truncated)";
+        int suffixCodePoints = suffix.codePointCount(0, suffix.length());
         String longReason = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS + 7);
         String longConsequence = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS + 9);
         String longEvidence = repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS + 11);
@@ -128,17 +130,25 @@ public class HeartbeatSkillPolicyTest {
         String detail = HeartbeatSkillPolicy.detailContentDescription(typed);
 
         assertTrue(detail.contains(
-                "Why: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS)
-                        + "… (truncated)."));
+                "Why: " + repeat(
+                        swan,
+                        HeartbeatSkillPolicy.MAX_DETAIL_REASON_CODE_POINTS - suffixCodePoints)
+                        + suffix + "."));
         assertTrue(detail.contains(
-                "Consequence: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS)
-                        + "… (truncated)."));
+                "Consequence: " + repeat(
+                        swan,
+                        HeartbeatSkillPolicy.MAX_DETAIL_CONSEQUENCE_CODE_POINTS - suffixCodePoints)
+                        + suffix + "."));
         assertTrue(detail.contains(
-                "Evidence: " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS)
-                        + "… (truncated)."));
+                "Evidence: " + repeat(
+                        swan,
+                        HeartbeatSkillPolicy.MAX_DETAIL_EVIDENCE_CODE_POINTS - suffixCodePoints)
+                        + suffix + "."));
         assertTrue(detail.contains(
-                "Source: doctrine " + repeat(swan, HeartbeatSkillPolicy.MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS)
-                        + "… (truncated)."));
+                "Source: doctrine " + repeat(
+                        swan,
+                        HeartbeatSkillPolicy.MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS - suffixCodePoints)
+                        + suffix + "."));
         assertFalse(detail.contains("\uFFFD"));
         assertEquals(longReason, typed.activationReason);
         assertEquals(longConsequence, typed.consequence);
