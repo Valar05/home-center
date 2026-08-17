@@ -3,7 +3,7 @@
 ## Purpose
 Keep **accepted heartbeat contact** distinct from **material-light count**. A complete accepted pulse may contain zero material lights. If the scene retains a non-empty `visiblePulseId`, the heartbeat has contact even when `frame.nodes` / native controls are empty.
 
-This skill exists because the earlier persisted-poll doctrine correctly established `visiblePulseId` as contact identity but one later chrome bullet still said a non-interrupted zero-control model was `HEARTBEAT • waiting`. That bullet is stale. This skill supersedes that single contradictory statement and future edits should converge the older doctrine to this rule rather than reintroducing node-count contact inference.
+This skill was harvested after source review found a contradiction: the persisted-poll doctrine correctly established `visiblePulseId` as contact identity while one later chrome bullet still called a non-interrupted zero-control model `HEARTBEAT • waiting`. The source, regression fixture, and older persisted-poll doctrine are now converged on the rule below. Future edits must not reintroduce node-count contact inference.
 
 ## Canonical states
 Use the accepted/preserved scene, never raw candidate count, as the authority:
