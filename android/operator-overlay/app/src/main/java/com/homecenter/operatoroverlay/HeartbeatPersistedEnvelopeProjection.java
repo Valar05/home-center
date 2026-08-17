@@ -141,6 +141,11 @@ public final class HeartbeatPersistedEnvelopeProjection {
      * reject a self-consistent payload merely because wall time moved backward or
      * two broadcasts shared the same millisecond.</p>
      *
+     * <p>Declared SHA metadata is an integrity declaration, not display text. It must
+     * already be exactly 64 lowercase hexadecimal characters. Surrounding whitespace
+     * is therefore corruption/non-canonical storage metadata and is rejected rather
+     * than trimmed into a different accepted identity.</p>
+     *
      * <p>Storage-integrity or strict-decoding rejection delegates to the existing
      * scene-preservation organ so visible contact/checkpoint identity survives while
      * every one-shot motion bit is clamped off and the exact boundary remains
@@ -183,7 +188,7 @@ public final class HeartbeatPersistedEnvelopeProjection {
                     updatedMs);
         }
 
-        String declaredHash = clean(declaredSha256);
+        String declaredHash = declaredSha256 == null ? "" : declaredSha256;
         if (!isCanonicalSha256(declaredHash)) {
             return storageReject(
                     "Stored heartbeat SHA-256 metadata is not canonical lowercase hex.",
