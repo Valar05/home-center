@@ -53,9 +53,11 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                false);
 +    }
 +
-+# PROPOSED / NOT APPLIED
-+# Exact target: existing OperatorOverlayService on PR #329 only.
-+# Purpose: clear the stale pre-contact STORAGE_READ_FAILURE wound once when a healthy
-+# fully-absent observation returns WAITING, then make repeated 200 ms empty polls quiet.
-+# The pure policy helper and regression source exist; this patch is not owner wiring proof.
-+# No phone/P0 execution surface, neighboring poller, renderer, controller, or daemon is involved.
++# APPLIED SOURCE PROVENANCE
++# Applied to the existing OperatorOverlayService on PR #329 in commit
++# 90807b87c9bdbdcc9c570e5b10c4eab313ff40c0.
++# Exact owner file blob after application: 81adaa031a7fd0935ad117a0913996b59e2d5877.
++# GitHub commit diff confirms this artifact's two hunks and no unrelated file mutation.
++# This proves repository source wiring only; Android execution/runtime/TalkBack/deployment/
++# delivery/acceptance remain separate evidence states.
++# No phone/P0 execution surface, neighboring poller, renderer, controller, or daemon was used.
