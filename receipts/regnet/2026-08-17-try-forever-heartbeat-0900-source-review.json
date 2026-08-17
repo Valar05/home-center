@@ -1,0 +1,66 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-0900",
+  "verdict": "PASS_FOR_BOUNDED_PROJECTION_SOURCE_ONLY",
+  "tested": false,
+  "runtime_proven": false,
+  "review": {
+    "mission_fidelity": "PASS",
+    "p0_phone_firewall": "PASS_ZERO_MUTATIONS",
+    "duplicate_architecture": "PASS",
+    "accessibility_source_semantics": "PASS_WITH_RUNTIME_UNPROVEN",
+    "evidence_truth": "PASS",
+    "test_evidence": "NO"
+  },
+  "material_scars": [
+    {
+      "finding": "The first source strategy globally rejected U+200B/U+2060/U+FEFF because they are invisible.",
+      "severity": "REVISE_REQUIRED",
+      "repair": "Primary Unicode evidence showed these characters have legitimate line-breaking/BOM semantics. The strategy was replaced, not cosmetically retried: source is preserved and an explicit evidence projection reveals invisible semantics without making acceptance decisions."
+    },
+    {
+      "finding": "The first reveal projection used human-readable inline markers without reserving a marker namespace, so literal source marker text could alias an actual invisible code point in the diagnostic display.",
+      "severity": "REVISE_REQUIRED",
+      "repair": "Backslash is now the marker introducer and literal source backslashes are doubled. Actual U+200B and literal source spelling \\u{200B ZWSP} now produce distinct projections."
+    }
+  ],
+  "primary_unicode_review": [
+    "Unicode Standard 17.0 Chapter 23 documents U+200B ZERO WIDTH SPACE as a word/line-break opportunity including use in languages without visible word spacing.",
+    "Unicode Standard Annex #14 documents U+2060 WORD JOINER as the preferred invisible character for preventing a line break and records FEFF/ZWNBSP behavior.",
+    "Existing heartbeat policy already preserves ZWJ; this slice also protects ZWNJ language shaping from blanket-format rejection."
+  ],
+  "exact_source_identities": {
+    "HeartbeatInvisibleSemanticControlPolicy.java": "221fa4cb6bdeb955b938d8b242c3332c2a2eebf3",
+    "HeartbeatInvisibleSemanticControlPolicyTest.java": "5200de6cef55535bdf10505eef5a6ad4715081ad",
+    "skills/heartbeat-invisible-semantic-controls/SKILL.md": "557cb0e431548134078ea147e54017feb0b99557",
+    "docs/try-forever/heartbeat-swan-veil-semantic-scar-source.html": "69b7e53ef774869bb0a6d4e047f04e0f3bfe86f6"
+  },
+  "capability": {
+    "projection_policy_source": true,
+    "regression_source": true,
+    "durable_skill": true,
+    "touchable_non_raster_source": true,
+    "canonical_parser_consumes_projection": false,
+    "typed_detail_consumes_projection": false,
+    "scene_or_talkback_consumes_projection": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "ci_boundary": {
+    "current_head_run_verified": false,
+    "reason": "GitHub Actions workflow-run readback for the new head returned Resource not accessible by integration (403). Do not copy the previous 0800 Actions-budget receipt forward as if it proves the current head.",
+    "previous_known_boundary": "0800 head was blocked before steps by Actions budget; this is historical evidence only for this review."
+  },
+  "reviewer_boundary": {
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_she_raw_substituted": false,
+    "venice_mode": "same-worker Judgment Jar, separately recorded"
+  },
+  "p0_phone_mutation_count": 0
+}
