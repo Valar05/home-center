@@ -89,14 +89,15 @@ public class HeartbeatSceneGraphTest {
                 true,
                 null);
         HeartbeatSceneGraph.Node node = frame.nodes.get(0);
+        String detail = HeartbeatEvidenceDetailProjection.detailContentDescription(node);
 
         assertEquals("repository_skill", node.provenanceKind);
         assertEquals("skills/execution-truth/SKILL.md", node.provenanceLocator);
         assertEquals("Materially constrained this pulse", node.activationReason);
         assertEquals("Exact branch blob", node.evidenceBoundary);
-        assertTrue(node.detailContentDescription.contains("Why: Materially constrained this pulse"));
-        assertTrue(node.detailContentDescription.contains("Evidence: Exact branch blob"));
-        assertTrue(node.detailContentDescription.contains("Source: repository skill skills/execution-truth/SKILL.md"));
+        assertTrue(detail.contains("Why: Materially constrained this pulse"));
+        assertTrue(detail.contains("Evidence: Exact branch blob"));
+        assertTrue(detail.contains("Source: repository skill skills/execution-truth/SKILL.md"));
     }
 
     @Test
@@ -244,7 +245,8 @@ public class HeartbeatSceneGraphTest {
         assertFalse(second.transitionMotionAllowed);
         assertFalse(second.nodes.get(0).transitionMotion);
         assertEquals("Blob B", second.nodes.get(0).evidenceBoundary);
-        assertTrue(second.nodes.get(0).detailContentDescription.contains("Evidence: Blob B"));
+        assertTrue(HeartbeatEvidenceDetailProjection.detailContentDescription(second.nodes.get(0))
+                .contains("Evidence: Blob B"));
     }
 
     @Test
