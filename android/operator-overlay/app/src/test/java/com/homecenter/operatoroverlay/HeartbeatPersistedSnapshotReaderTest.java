@@ -2,6 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,5 +47,19 @@ public final class HeartbeatPersistedSnapshotReaderTest {
 
         assertEquals(11L, snapshot.declaredBytes);
         assertEquals(202L, snapshot.updatedMs);
+    }
+
+    @Test
+    public void presentFieldWithUnexpectedTypeIsNotRewrittenAsMissing() {
+        Map<String, Object> values = new HashMap<>();
+        values.put(OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, Long.valueOf(7L));
+
+        try {
+            HeartbeatPersistedSnapshotReader.fromValues(values);
+            fail("Expected persisted type drift to be rejected.");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains(
+                    OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64));
+        }
     }
 }
