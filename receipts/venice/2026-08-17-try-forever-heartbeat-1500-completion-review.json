@@ -1,0 +1,20 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-17-1500",
+  "pr": 329,
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "review": [
+    "Mission boundary held: the repair stayed inside existing heartbeat scene/accessibility source ownership and did not touch P0 or the shared phone surface.",
+    "Originality Tax was paid: the swarm did not retry blocked CI or repaint the completed 1400 consumer trio; it found the remaining scene-level ad hoc truncator.",
+    "The shared HeartbeatPlainTextBudget now governs interrupted-refresh safe pulse/boundary projection, so named 96/320 budgets include the ellipsis rather than returning max plus suffix.",
+    "Exact Frame evidence remains exact; only human-facing safe speech projection changed.",
+    "Code review materially improved the test surface by repairing a stale pulse fixture that could not reach its intended projection path and an obsolete scene suffix expectation.",
+    "Art correctly stayed dark. This repair does not create a new operator-state topology, so mutating Swan Veil would have been theater rather than evidence.",
+    "TESTED remains NO because the exact reviewed source head's automatic Operator Overlay Android job executed zero steps under the Actions budget blocker. No manual retry was dispatched.",
+    "No runtime, deployment, callability, execution, delivery, acceptance, TalkBack-runtime, or phone-delivery claim is granted."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE_REVIEWER",
+  "p0PhoneFirewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}
