@@ -55,12 +55,21 @@ The truncation indicator is part of that same hard budget. Do **not** fill the e
 
 ## One-detail-authority scar
 
-Explicit detail has exactly one scene-level projection authority: `HeartbeatEvidenceDetailProjection.detailContentDescription(node)`.
+Explicit typed detail has exactly one formatting authority: `HeartbeatEvidenceDetailProjection`.
 
-`HeartbeatSceneGraph.Node` retains exact source semantic fields plus the compact `contentDescription`, but it must **not cache a second `detailContentDescription` field** derived from the older candidate-level helper. A duplicate cache creates two definitions of “detail” and lets a future consumer accidentally bypass invisible-control markers, post-projection bounds, or later evidence repairs.
+That authority now serves both source compatibility and accepted-scene consumers:
 
-Current explicit consumers must converge on the same authority:
+- `HeartbeatEvidenceDetailProjection.detailContentDescription(Candidate)` — typed Candidate compatibility path; legacy untyped candidates fall back to compact speech.
+- `HeartbeatEvidenceDetailProjection.detailContentDescription(Node)` — accepted scene path.
+- both overloads share one private formatter, the collision-safe invisible-control projection, and the same post-projection budgets.
 
+`HeartbeatSkillPolicy.detailContentDescription(Candidate)` must not maintain its own typed formatter. It performs material/safety/legacy checks and delegates fully typed detail to `HeartbeatEvidenceDetailProjection`. This closes the public Candidate bypass that previously used `boundedDetailSpeechField(...)` and therefore could disagree with scene detail about invisible-control markers and truncation resource bounds.
+
+`HeartbeatSceneGraph.Node` retains exact source semantic fields plus the compact `contentDescription`, but it must **not cache a second `detailContentDescription` field**. A duplicate cache or formatter creates two definitions of “detail” and lets a future consumer accidentally bypass invisible-control markers, post-projection bounds, or later evidence repairs.
+
+Current explicit consumers must converge on byte-for-byte equivalent typed detail for the same semantic fields:
+
+- `HeartbeatSkillPolicy.detailContentDescription(Candidate)` through the Candidate overload
 - `HeartbeatOverlayViewModel.LightControl.detailContentDescription`
 - `HeartbeatFrameAccessibility.detailContentDescription(frame, focusIndex)`
 - `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`
@@ -72,18 +81,22 @@ Compact/routine speech remains separate by design. Checkpoint/contact hashes rem
 
 Policy existence is not consumer wiring.
 
-Current source capability after the 1200 projection-budget repair:
+Current source capability after the 1300 detail-authority convergence:
 
 - projection policy source: YES
 - bounded post-projection detail source: YES
 - truncation indicator included inside hard code-point budget: YES / SOURCE
-- regression source: YES
+- Candidate typed-detail overload: YES / SOURCE
+- `HeartbeatSkillPolicy.detailContentDescription(Candidate)` typed delegation: YES / SOURCE WIRING
+- regression source for Candidate↔Node marker/collision parity: YES
 - `HeartbeatOverlayViewModel.LightControl.detailContentDescription` consumption: YES / SOURCE WIRING
 - `HeartbeatFrameAccessibility` explicit detail accessors: YES / SOURCE WIRING
 - existing `OperatorOverlayService` explicit light-tap detail path consumes the view-model detail: YES / EXISTING-OWNER SOURCE WIRING
 - legacy `HeartbeatSceneGraph.Node.detailContentDescription` cache: RETIRED / SOURCE
+- independent Candidate typed formatter: RETIRED / SOURCE
 - compact light `contentDescription` projection consumption: NO BY DESIGN
 - collapsed/routine heartbeat speech projection consumption: NO BY DESIGN
+- Android test execution: NO unless separately evidenced
 - Android runtime behavior observed: NO
 - TalkBack runtime proof: NO
 - deployed/callable/executed/delivered/accepted: NO
@@ -94,11 +107,11 @@ The owner seam remains the existing Operator Overlay. Do not create a second par
 
 Routine speech should not gratuitously read Unicode bookkeeping. The compact light description and collapsed heartbeat announcement remain unchanged.
 
-Explicit on-demand evidence/detail is different: once the operator selects a light, legitimate invisible semantics may be named through the collision-safe marker projection. That spoken/detail projection must be bounded **after marker expansion**, because a source-side bound does not bound the expanded output.
+Explicit on-demand evidence/detail is different: once the operator selects a light, legitimate invisible semantics may be named through the collision-safe marker projection. Candidate-level typed compatibility calls now use that same detail authority, so tests/tools cannot accidentally teach a second speech contract.
 
-The bound is absolute over the returned projection, including any truncation indicator. A helper that returns `budget + suffix` has failed the accessibility/resource contract even if it avoided splitting the marker itself.
+The spoken/detail projection must be bounded **after marker expansion**, because a source-side bound does not bound the expanded output. The bound is absolute over the returned projection, including any truncation indicator. A helper that returns `budget + suffix` has failed the accessibility/resource contract even if it avoided splitting the marker itself.
 
-The exact scene fields remain canonical evidence and are not truncated or rewritten by this speech/detail projection.
+The exact Candidate and scene fields remain canonical evidence and are not truncated or rewritten by this speech/detail projection.
 
 Existing bidi/ISO/malformed-surrogate rejection remains separate and authoritative. A revealable layout/shaping control is not a bidi attack merely because it is invisible.
 
@@ -114,10 +127,12 @@ Pin all of these independently:
 6. A budget too small for the full truncation indicator still returns a bounded signal rather than escaping the cap.
 7. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
 8. Compact/routine light speech remains unchanged when on-demand evidence projection is wired.
-9. The exact scene source fields survive even when on-demand detail speech is truncated.
+9. The exact Candidate/scene source fields survive even when on-demand detail speech is truncated.
 10. No normalization turns an invisible source distinction into a counterfeit canonical identity.
 11. `HeartbeatSceneGraph.Node` must not reintroduce a `detailContentDescription` cache.
 12. View-model and frame-accessibility explicit-detail accessors must equal `HeartbeatEvidenceDetailProjection` for the same accepted node.
+13. Typed Candidate detail through both `HeartbeatSkillPolicy` and `HeartbeatEvidenceDetailProjection` must equal accepted Node detail byte-for-byte across invisible controls, literal marker collisions, and post-projection truncation.
+14. Legacy untyped Candidate detail still falls back to compact speech and never invents provenance/evidence.
 
 Regression source is not TESTED evidence until an authorized test lane actually executes it.
 
