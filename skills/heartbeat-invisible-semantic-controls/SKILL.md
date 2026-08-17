@@ -51,11 +51,26 @@ A legal source field can become much larger after every invisible control is exp
 
 `boundedEvidenceProjection(...)` applies the budget after projection and treats each marker/escaped-backslash unit atomically. Truncation may happen only between projection units; never cut a `\u{...}` marker in half and never silently repair the canonical source to satisfy a speech budget.
 
+## One-detail-authority scar
+
+Explicit detail has exactly one scene-level projection authority: `HeartbeatEvidenceDetailProjection.detailContentDescription(node)`.
+
+`HeartbeatSceneGraph.Node` retains exact source semantic fields plus the compact `contentDescription`, but it must **not cache a second `detailContentDescription` field** derived from the older candidate-level helper. A duplicate cache creates two definitions of “detail” and lets a future consumer accidentally bypass invisible-control markers, post-projection bounds, or later evidence repairs.
+
+Current explicit consumers must converge on the same authority:
+
+- `HeartbeatOverlayViewModel.LightControl.detailContentDescription`
+- `HeartbeatFrameAccessibility.detailContentDescription(frame, focusIndex)`
+- `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`
+- the existing `OperatorOverlayService` selected-light detail surface through the view model
+
+Compact/routine speech remains separate by design. Checkpoint/contact hashes remain derived from exact source semantic fields, never from the projected detail string.
+
 ## Consumer integration law
 
 Policy existence is not consumer wiring.
 
-Current source capability after the 1000 slice:
+Current source capability after the 1100 convergence slice:
 
 - projection policy source: YES
 - bounded post-projection detail source: YES
@@ -63,6 +78,7 @@ Current source capability after the 1000 slice:
 - `HeartbeatOverlayViewModel.LightControl.detailContentDescription` consumption: YES / SOURCE WIRING
 - `HeartbeatFrameAccessibility` explicit detail accessors: YES / SOURCE WIRING
 - existing `OperatorOverlayService` explicit light-tap detail path consumes the view-model detail: YES / EXISTING-OWNER SOURCE WIRING
+- legacy `HeartbeatSceneGraph.Node.detailContentDescription` cache: RETIRED / SOURCE
 - compact light `contentDescription` projection consumption: NO BY DESIGN
 - collapsed/routine heartbeat speech projection consumption: NO BY DESIGN
 - Android runtime behavior observed: NO
@@ -94,6 +110,8 @@ Pin all of these independently:
 7. Compact/routine light speech remains unchanged when on-demand evidence projection is wired.
 8. The exact scene source fields survive even when on-demand detail speech is truncated.
 9. No normalization turns an invisible source distinction into a counterfeit canonical identity.
+10. `HeartbeatSceneGraph.Node` must not reintroduce a `detailContentDescription` cache.
+11. View-model and frame-accessibility explicit-detail accessors must equal `HeartbeatEvidenceDetailProjection` for the same accepted node.
 
 Regression source is not TESTED evidence until an authorized test lane actually executes it.
 
