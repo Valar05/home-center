@@ -1,0 +1,50 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "local_slot": "2026-08-16-2300",
+  "commission": "Advance multiple independent non-P0 TRY FOREVER fronts without decorative work or phone-surface consumption.",
+  "selected_wound": "The 200ms existing overlay poll has no source policy distinguishing first-start empty storage from storage contact disappearing after a visible heartbeat, and no policy for skipping projection when persisted semantic inputs are unchanged except for a positive wall-clock observation timestamp.",
+  "planned_fronts": [
+    {
+      "front": "persisted_poll_policy",
+      "action": "Add a pure source classifier for WAITING, PROJECT, PRESERVE_MISSING_CONTACT, and SKIP_UNCHANGED decisions.",
+      "boundary": "No renderer, service, SharedPreferences mutation, phone, transport, queue, or P0 authority."
+    },
+    {
+      "front": "regression_source",
+      "action": "Add hostile JVM fixtures for cold empty, lost-after-contact, exact repeat, positive-timestamp-only churn, validity-class change, and inconsistent metadata.",
+      "boundary": "Regression source is not TESTED until an authorized runner executes it."
+    },
+    {
+      "front": "skill_harvest",
+      "action": "Create durable repository doctrine for persisted-poll contact truth and semantic projection deduplication.",
+      "boundary": "Skill must encode capability membrane and P0 firewall, not claim owner wiring."
+    },
+    {
+      "front": "warm_wall_art",
+      "action": "Mutate the existing non-raster viewport scar in place to make WAITING != CONTACT LOST and positive timestamp churn != semantic work visible.",
+      "boundary": "Source art only; no runtime/deployment claim."
+    },
+    {
+      "front": "review_evidence",
+      "action": "Perform source/readback review, preserve She-Raw connector fault if still present, inspect automatic CI only if GitHub creates it, and update PR capability state without laundering source into runtime proof.",
+      "boundary": "P0/Phone Hands/primary-phone surfaces remain read-only and unconsumed."
+    }
+  ],
+  "required_skill_consideration": {
+    "failure_is_the_shovel": "lit: changed failure/evidence path instead of retrying blocked CI",
+    "canon_auto_select": "lit: selected persisted-poll seam from current source archaeology",
+    "autocorrect_judgment_jar": "dark unless ambiguity appears",
+    "originality_tax": "lit: materially different wound from pulse-id/duplicate-owner/source-bound work",
+    "hunger": "lit through existing warm-wall mutation",
+    "ever_polished_interpreter_eat_everything": "lit through cross-layer consistency review",
+    "operator_campaign_harroway": "lit through owner/scope/capability discipline",
+    "she_raw": "attempt authoritative ambient review; do not impersonate on connector fault",
+    "venice_regnet": "perform bounded source/evidence review after mutation",
+    "accessibility_touch": "lit: stale-contact and redundant-poll semantics affect what is presented and spoken",
+    "phone_runtime_phone_hands": "dark/firewalled unless fresh P0 evidence changes predicate",
+    "deterministic_routing_evidence_recovery_idempotence": "lit through exact poll classification and last-good preservation",
+    "vector_dom_native_art_warm_walls_christmas_contact": "lit only if artifact semantics materially change"
+  },
+  "p0_firewall": "BOUND: no Phone Hands tickets, primary-phone commands, queue/device probes, recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work.",
+  "pre_execution_gate": "PLAN_ALLOWED_FOR_NON_P0_SOURCE_SLICE"
+}
