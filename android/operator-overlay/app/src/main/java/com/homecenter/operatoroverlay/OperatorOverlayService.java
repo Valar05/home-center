@@ -815,10 +815,10 @@ public class OperatorOverlayService extends Service {
                     heartbeatFrame);
 
             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
-                if (heartbeatFrame == null) {
-                    heartbeatSummary.setText("HEARTBEAT • waiting");
-                    heartbeatSummary.setContentDescription(
-                            "Heartbeat skill lights waiting for a material pulse.");
+                if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                        persistedDecision,
+                        heartbeatFrame)) {
+                    clearHeartbeatPreContactWoundToWaiting();
                 }
                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
                 return;
@@ -1126,6 +1126,30 @@ public class OperatorOverlayService extends Service {
                     "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
                     false);
         }
+    }
+
+    /**
+     * Clear one stale pre-contact interruption after storage has recovered to the
+     * canonical fully-absent WAITING shape. Repeated healthy empty polls see a null
+     * frame and therefore do no further UI work. Accepted/preserved contact cannot
+     * reach this helper because the poll policy's contact predicate keeps it out of
+     * WAITING recovery.
+     */
+    private void clearHeartbeatPreContactWoundToWaiting() {
+        invalidateHeartbeatViewportRestore();
+        resetHeartbeatNativeMotion();
+        heartbeatFrame = null;
+        heartbeatSelectedId = "";
+        heartbeatStructureIdentity = "";
+        heartbeatRenderIdentity = "";
+        heartbeatAnnouncementIdentity = "";
+        if (heartbeatLights != null) heartbeatLights.removeAllViews();
+        heartbeatSummary.setText("HEARTBEAT • waiting");
+        heartbeatSummary.setContentDescription(
+                "Heartbeat skill lights waiting for a material pulse.");
+        showHeartbeatDetail(
+                "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
+                false);
     }
 
     private void applyHeartbeatNativeMotion(
