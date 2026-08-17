@@ -1,0 +1,18 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-2000",
+  "mission": "Keep canonical parser and direct source candidate bounds consistent while preserving source/runtime capability truth.",
+  "selectedWound": "parser-direct-source-bound-drift",
+  "plannedFronts": [
+    "Share the parser candidate-field limits with the typed source gate.",
+    "Add regression source for oversized direct candidates and last-good preservation.",
+    "Update durable skill doctrine and the existing non-raster warm-wall specimen.",
+    "Record review and capability-state receipts."
+  ],
+  "constraints": {
+    "phoneOrP0Work": false,
+    "newRuntimeOwner": false,
+    "manualCiRetry": false,
+    "testedBeforeExecution": false
+  }
+}
