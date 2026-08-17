@@ -53,6 +53,50 @@ public final class HeartbeatPersistedPollPolicyTest {
     }
 
     @Test
+    public void preContactReadWoundClearsOnlyWhenHealthyWaitingReturns() {
+        HeartbeatSceneGraph.Frame preContactWound = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "",
+                null,
+                HeartbeatPersistedSnapshotReader.STORAGE_READ_FAILURE_BOUNDARY);
+        HeartbeatPersistedPollPolicy.Snapshot empty = snapshot("", 0L, "", 0L);
+        HeartbeatPersistedPollPolicy.Decision waiting = HeartbeatPersistedPollPolicy.decide(
+                null,
+                empty,
+                preContactWound);
+
+        assertEquals(HeartbeatPersistedPollPolicy.Decision.WAITING, waiting);
+        assertTrue(HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                waiting,
+                preContactWound));
+        assertFalse(HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                HeartbeatPersistedPollPolicy.Decision.PROJECT,
+                preContactWound));
+        assertFalse(HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                waiting,
+                null));
+    }
+
+    @Test
+    public void waitingRecoveryNeverClearsAcceptedOrPreservedContact() {
+        HeartbeatSceneGraph.Frame acceptedZeroMaterial = HeartbeatSceneGraph.build(
+                "pulse-zero-material",
+                Collections.emptyList(),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame preservedContact = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "",
+                acceptedZeroMaterial,
+                HeartbeatPersistedSnapshotReader.STORAGE_READ_FAILURE_BOUNDARY);
+
+        assertFalse(HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                HeartbeatPersistedPollPolicy.Decision.WAITING,
+                acceptedZeroMaterial));
+        assertFalse(HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                HeartbeatPersistedPollPolicy.Decision.WAITING,
+                preservedContact));
+    }
+
+    @Test
     public void lifecycleProjectThenSkipThenWoundThenSkipThenRecover() {
         HeartbeatPersistedPollPolicy.Snapshot first = snapshot(
                 "payload-a",
