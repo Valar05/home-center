@@ -21,7 +21,7 @@ public class HeartbeatDetailAuthorityTest {
     }
 
     @Test
-    public void explicitConsumersShareCollisionSafeBoundedProjection() {
+    public void candidateAndExplicitSceneConsumersShareCollisionSafeBoundedProjection() {
         String literalMarker = "\\" + "u{200B ZWSP}";
         HeartbeatSkillPolicy.Candidate candidate = new HeartbeatSkillPolicy.Candidate(
                 "swan-veil-authority",
@@ -44,6 +44,8 @@ public class HeartbeatDetailAuthorityTest {
         HeartbeatOverlayViewModel.LightControl control =
                 HeartbeatOverlayViewModel.fromFrame(frame).controls.get(0);
 
+        assertEquals(expected, HeartbeatEvidenceDetailProjection.detailContentDescription(candidate));
+        assertEquals(expected, HeartbeatSkillPolicy.detailContentDescription(candidate));
         assertEquals(expected, control.detailContentDescription);
         assertEquals(
                 expected,
@@ -57,5 +59,22 @@ public class HeartbeatDetailAuthorityTest {
         assertTrue(expected.contains(
                 "Literal \\\\" + "u{200B ZWSP} versus actual \\u{200B ZWSP}"));
         assertFalse(control.contentDescription.contains("\\u{200B ZWSP}"));
+    }
+
+    @Test
+    public void legacyCandidateDetailStillFallsBackToCompactSpeech() {
+        HeartbeatSkillPolicy.Candidate legacy = new HeartbeatSkillPolicy.Candidate(
+                "legacy-boundary",
+                "Legacy Boundary",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Typed provenance is not available");
+
+        assertEquals(
+                HeartbeatSkillPolicy.contentDescription(legacy),
+                HeartbeatSkillPolicy.detailContentDescription(legacy));
+        assertEquals(
+                HeartbeatSkillPolicy.contentDescription(legacy),
+                HeartbeatEvidenceDetailProjection.detailContentDescription(legacy));
     }
 }
