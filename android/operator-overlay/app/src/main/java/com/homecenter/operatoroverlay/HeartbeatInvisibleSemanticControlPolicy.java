@@ -16,6 +16,11 @@ package com.homecenter.operatoroverlay;
  * original source string remains authoritative. Existing ISO-control, malformed
  * surrogate, and bidi-direction rejection remains owned by {@link HeartbeatSkillPolicy}.</p>
  *
+ * <p>The projection reserves backslash as its marker introducer and doubles literal
+ * source backslashes. That makes an actual invisible control distinguishable from
+ * source text that merely spells a marker such as {@code \u{200B ZWSP}}. A diagnostic
+ * projection that aliases those two sources would be evidence theater.</p>
+ *
  * <p>This class owns no parser, acceptance gate, scene, renderer, storage, transport,
  * phone surface, deployment, or P0 recovery action. Source projection is not consumer
  * wiring or runtime proof.</p>
@@ -44,6 +49,9 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     /**
      * Separate human-readable evidence projection. Exact source text is not modified;
      * callers must keep the original string as canonical identity/evidence.
+     *
+     * <p>Literal source backslashes are doubled before marker insertion so the marker
+     * namespace is injective for the characters this policy transforms.</p>
      */
     public static String explicitEvidenceProjection(String value) {
         if (value == null || value.isEmpty()) return "";
@@ -51,8 +59,13 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
         for (int index = 0; index < value.length();) {
             int codePoint = value.codePointAt(index);
             String marker = markerFor(codePoint);
-            if (marker == null) out.appendCodePoint(codePoint);
-            else out.append(marker);
+            if (marker != null) {
+                out.append(marker);
+            } else if (codePoint == '\\') {
+                out.append("\\\\");
+            } else {
+                out.appendCodePoint(codePoint);
+            }
             index += Character.charCount(codePoint);
         }
         return out.toString();
@@ -65,15 +78,15 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     private static String markerFor(int codePoint) {
         switch (codePoint) {
             case ZERO_WIDTH_SPACE:
-                return "<ZWSP U+200B>";
+                return "\\u{200B ZWSP}";
             case ZERO_WIDTH_NON_JOINER:
-                return "<ZWNJ U+200C>";
+                return "\\u{200C ZWNJ}";
             case ZERO_WIDTH_JOINER:
-                return "<ZWJ U+200D>";
+                return "\\u{200D ZWJ}";
             case WORD_JOINER:
-                return "<WJ U+2060>";
+                return "\\u{2060 WJ}";
             case BYTE_ORDER_MARK:
-                return "<BOM U+FEFF>";
+                return "\\u{FEFF BOM}";
             default:
                 return null;
         }
