@@ -1,0 +1,30 @@
+name: Venice CLI
+
+on:
+  pull_request:
+    paths:
+      - "tools/venice_cli.ps1"
+      - "tools/install_venice_cli.ps1"
+      - "tools/venice_cli_contract_test.ps1"
+      - "docs/VENICE_CLI.md"
+      - ".github/workflows/venice-cli.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/venice_cli.ps1"
+      - "tools/install_venice_cli.ps1"
+      - "tools/venice_cli_contract_test.ps1"
+      - "docs/VENICE_CLI.md"
+      - ".github/workflows/venice-cli.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse and verify Venice CLI invariants
+        shell: pwsh
+        run: ./tools/venice_cli_contract_test.ps1
