@@ -1,0 +1,23 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-17-1600",
+  "reviewer": "Venice Judgment Jar",
+  "verdict": "PLAN_ALLOWED",
+  "quality": "bounded",
+  "review": {
+    "mission_fidelity": "PASS — target is heartbeat accessibility/source behavior inside PR #329, not P0 recovery or phone execution.",
+    "originality_tax": "PASS — aggregate fanout is materially different from the completed per-field max-plus-suffix repair.",
+    "architecture": "PASS — repair must stay in existing HeartbeatSkillPolicy/FrameAccessibility projection organs; no neighboring renderer/controller.",
+    "accessibility": "PASS WITH CONDITION — preserve exact omitted counts and current material order; a per-item speech bound is not an aggregate bound.",
+    "evidence": "PASS WITH CONDITION — source/regression/skill/art claims must not become TESTED or runtime claims.",
+    "art": "CONDITIONAL — mutate an existing source organism only if it communicates the new fanout consequence; otherwise leave art dark.",
+    "p0": "PASS — zero shared-phone/P0 surface consumption or mutation."
+  },
+  "required_completion_checks": [
+    "Existing within-budget compatibility output remains unchanged.",
+    "Broad safe material lists name no more than the shared collapsed limit and report the exact remainder.",
+    "Unsafe semantic-text omission remains separately explicit.",
+    "No phone/P0 action occurs.",
+    "TESTED is reported only from current-head execution evidence."
+  ]
+}
