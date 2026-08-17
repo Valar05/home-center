@@ -58,12 +58,19 @@ public final class HeartbeatPersistedPollPolicy {
             this.updatedMs = updatedMs;
         }
 
-        /** True only for the canonical never-populated/fully-cleared store shape. */
+        /**
+         * True only for the canonical never-populated/fully-cleared store shape.
+         *
+         * <p>The persisted writer/default shape uses exactly {@code 0} for a missing
+         * update timestamp. A negative value is corrupted metadata, not another spelling
+         * of absence; treating it as WAITING would bypass the downstream storage gate
+         * that rejects non-positive update identity.</p>
+         */
         public boolean fullyAbsent() {
             return payloadB64.isEmpty()
                     && declaredBytes == 0L
                     && declaredSha256.isEmpty()
-                    && updatedMs <= 0L;
+                    && updatedMs == 0L;
         }
 
         /**
