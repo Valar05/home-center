@@ -1,0 +1,48 @@
+{
+  "receipt": "regnet-source-review",
+  "pulse": "2026-08-17-0700",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claim": "persisted heartbeat Base64 declaration is bounded before owner decode, and stale SHA-normalizing regression source is corrected",
+  "review": {
+    "readerSource": "PASS_EXACT_GITHUB_READBACK",
+    "regressionSource": "PASS_SOURCE_ONLY",
+    "exactIntegrityMetadata": "PASS_NO_TRIM",
+    "preDecodeResourceBound": "PASS_SOURCE_ONLY",
+    "accessibilityBoundary": "PASS_BOUNDED_STORAGE_WOUND_NO_RAW_DECLARATION_SPEECH",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATIONS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET"
+  },
+  "exactReadback": {
+    "HeartbeatPersistedSnapshotReader.java": "5e667d3f60231cab39b444523da28ba876500511",
+    "HeartbeatPersistedSnapshotReaderTest.java": "4328213673b05b73e1b0eebe353950569d0f6606"
+  },
+  "findings": [
+    "The prior snapshot-reader regression expected whitespace-trimmed SHA metadata even though HeartbeatPersistedPollPolicy.Snapshot now retains declared SHA text exactly. The fixture now preserves the whitespace verbatim so future CI cannot accidentally re-authorize integrity normalization.",
+    "MAX_PAYLOAD_BASE64_CHARS is derived from OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES using padded Base64 quartet expansion and is enforced by the coherent snapshot reader before OperatorOverlayService decodes the declaration.",
+    "The exact-bound fixture proves only reader eligibility. It deliberately does not claim the all-A declaration is canonical Base64 for a maximum-byte payload, accepted integrity, parsed semantics, rendered UI, or delivery.",
+    "The reader ceiling bounds decoder input work but cannot prevent SharedPreferences/getAll from materializing an already-corrupt stored String. Do not overclaim it as a persistence-allocation cap.",
+    "The separate exact-Base64-canonicality owner patch remains PROPOSED / NOT APPLIED. This pulse did not promote it into owner wiring."
+  ],
+  "ci": {
+    "head": "eb4b7d0ea0577afbde36261bb375afbb09e323c3",
+    "run": 32028269356,
+    "job": 95382241662,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capability": {
+    "implementedSource": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO",
+    "runtimeDecodeAvoidanceObserved": "NO",
+    "runtimeUiObserved": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}
