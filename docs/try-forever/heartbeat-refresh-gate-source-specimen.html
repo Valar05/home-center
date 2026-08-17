@@ -27,26 +27,26 @@
 </head>
 <body>
 <main>
-  <h1>WARM WALL / ROOT VISIBLE ≠ HEARTBEAT SURFACE VISIBLE</h1>
-  <p class="scar">REFRESH/VIEWPORT OWNER SOURCE WIRED • HEARTBEAT-SURFACE SPEECH OWNER SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNPROVEN • NOT PHONE DELIVERY</p>
+  <h1>WARM WALL / CANONICAL SHA ≠ TRIMMED SHA</h1>
+  <p class="scar">REFRESH/VIEWPORT OWNER SOURCE WIRED • EXACT SHA METADATA SOURCE HARDENED • RUNTIME UNPROVEN • TALKBACK UNPROVEN • NOT PHONE DELIVERY</p>
 
-  <section class="wall" aria-label="Heartbeat refresh gate with checkpoint, presentation, structure, speech-history, spoken-output, viewport, and restore identities">
+  <section class="wall" aria-label="Heartbeat refresh gate with exact persisted integrity metadata, checkpoint, presentation, structure, speech-history, spoken-output, viewport, and restore identities">
     <svg viewBox="0 0 940 310" role="img" aria-labelledby="title desc">
-      <title id="title">Heartbeat refresh identities and presentation visibility are separate</title>
-      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact contact, presentation, native structure, announcement history, audible speech, viewport anchor, and pending restore generation have different jobs. The existing owner now reads the visibility of its existing details subtree separately from root visibility and supplies that heartbeat-surface bit to the five-argument speech gate. A collapsed heartbeat surface stays silent while semantic announcement history still advances, so expansion cannot replay stale transitions. This is source wiring, not Android or TalkBack runtime proof.</desc>
+      <title id="title">Heartbeat refresh identities and persisted integrity metadata are separate</title>
+      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. Exact payload, byte count, canonical SHA metadata, exact contact, presentation, native structure, announcement history, audible speech, viewport anchor, and pending restore generation have different jobs. A SHA string with surrounding whitespace is a changed non-canonical integrity declaration: it must project, fail closed, preserve last-good contact, and earn no motion. This is source wiring, not Android or TalkBack runtime proof.</desc>
       <path d="M22 148 H142" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
       <path d="M798 148 H918" stroke="currentColor" stroke-width="4" fill="none"/>
       <rect x="142" y="20" width="656" height="254" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
       <text x="470" y="48" text-anchor="middle" fill="currentColor" font-size="17">EXISTING OPERATOR OVERLAY OWNER</text>
-      <text x="470" y="74" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes → scene → checkpoint/presentation → model → refresh plan → service</text>
-      <text x="470" y="104" text-anchor="middle" fill="currentColor" font-size="13">EXACT CONTACT → evidence/checkpoint truth, including accepted pulse id</text>
-      <text x="470" y="129" text-anchor="middle" fill="currentColor" font-size="13">PRESENTATION → visible/touchable content work; invisible pulse id alone stays quiet</text>
-      <text x="470" y="154" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE → ordered semantic ids decide native child replacement</text>
-      <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">SPEECH HISTORY → semantic transition identity advances even while silent</text>
-      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">SPOKEN OUTPUT → mute + root visibility + existing details-subtree visibility</text>
+      <text x="470" y="74" text-anchor="middle" fill="currentColor" font-size="14">persisted bytes + exact metadata → scene → checkpoint/presentation → model → refresh plan → service</text>
+      <text x="470" y="104" text-anchor="middle" fill="currentColor" font-size="13">INTEGRITY → SHA metadata must already be exact lowercase hex; whitespace is a wound</text>
+      <text x="470" y="129" text-anchor="middle" fill="currentColor" font-size="13">EXACT CONTACT → evidence/checkpoint truth, including accepted pulse id</text>
+      <text x="470" y="154" text-anchor="middle" fill="currentColor" font-size="13">PRESENTATION → visible/touchable content work; invisible pulse id alone stays quiet</text>
+      <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE → ordered semantic ids decide native child replacement</text>
+      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">SPEECH HISTORY → semantic transition identity advances even while silent</text>
       <path d="M250 224 H690" stroke="currentColor" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
       <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT/RESTORE → generation + semantic owner + old viewport offset</text>
-      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">COLLAPSED DETAILS: OWNER PASSES SURFACE FALSE • HISTORY YES • SPEECH NO • REPLAY NO</text>
+      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">SHA WHITESPACE: PROJECT • REJECT • CONTACT HELD • MOTION NO</text>
       <circle cx="54" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <circle cx="886" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
       <text x="54" y="188" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
@@ -56,6 +56,7 @@
 
   <div class="controls" aria-label="Refresh gate source controls">
     <button type="button" data-action="poll">· Exact retry — nothing changes</button>
+    <button type="button" data-action="shaPoison">× SHA whitespace poison — PROJECT then fail closed</button>
     <button type="button" data-action="pulse">◇ New pulse id — checkpoint advances, presentation still</button>
     <button type="button" data-action="evidence">◇ Evidence refresh — same Buttons, new detail</button>
     <button type="button" data-action="state">● Visible state change — history + one spoken transition</button>
@@ -81,7 +82,7 @@
     <div class="meter">restore tickets<b id="anchors">0</b></div>
     <div class="meter">stale/owner-lost tickets<b id="staleDrops">0</b></div>
   </div>
-  <p id="detail" role="status" aria-live="polite">Touch a source control. Root visibility, heartbeat-surface visibility, semantic speech history, and audible output are intentionally separate; owner source wiring is real, Android/TalkBack runtime proof is not.</p>
+  <p id="detail" role="status" aria-live="polite">Touch a source control. Exact integrity metadata, presentation work, semantic speech history, and audible output are intentionally separate; source wiring is real, Android/TalkBack runtime proof is not.</p>
 </main>
 <script>
 (() => {
@@ -129,6 +130,11 @@
         case 'poll':
           render('Exact retry. Exact checkpoint, presentation, structure, speech history, spoken output, viewport geometry, and restore ownership remain still. Nothing earns work.');
           break;
+        case 'shaPoison':
+          if (!state.woundOpen) state.contents += 1;
+          state.woundOpen = true;
+          render('The persisted SHA text changed only by surrounding whitespace. Exact poll identity therefore says PROJECT, not SKIP_UNCHANGED. The raw canonicality gate rejects it before semantic parsing, preserves last-good contact, clamps motion, and never trims corruption into accepted evidence.');
+          break;
         case 'pulse':
           state.checkpoints += 1;
           state.woundOpen = false;
@@ -159,7 +165,7 @@
           state.speechHistory += 1;
           state.collapsedTransitionPending = true;
           state.woundOpen = false;
-          render('The overlay root is visible but applyPresentationState made the existing details subtree GONE. OperatorOverlayService source now passes heartbeatSurface=false into the five-argument gate. Announcement history advances; audible output stays still. Android/TalkBack runtime behavior remains unproven.');
+          render('The overlay root is visible but applyPresentationState made the existing details subtree GONE. OperatorOverlayService source passes heartbeatSurface=false into the five-argument gate. Announcement history advances; audible output stays still. Android/TalkBack runtime behavior remains unproven.');
           break;
         case 'expand':
           if (state.collapsedTransitionPending) state.collapsedTransitionPending = false;
