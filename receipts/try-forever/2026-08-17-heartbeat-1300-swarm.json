@@ -1,0 +1,85 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-17-1300",
+  "pr": 329,
+  "sourceHeadReviewed": "6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b",
+  "fronts": [
+    {
+      "front": "typed explicit-detail authority",
+      "change": "Added Candidate overload to the existing HeartbeatEvidenceDetailProjection and one shared formatter for typed Candidate and accepted Node detail."
+    },
+    {
+      "front": "legacy/public API compatibility",
+      "change": "HeartbeatSkillPolicy.detailContentDescription now delegates typed Candidate detail to the shared authority while legacy untyped Candidates still fall back to compact speech."
+    },
+    {
+      "front": "accessibility regression parity",
+      "change": "HeartbeatDetailAuthorityTest now pins byte-for-byte Candidate/Node/ViewModel/FrameAccessibility detail parity across ZWSP/WJ/ZWJ and literal marker collision cases."
+    },
+    {
+      "front": "hard-budget regression repair",
+      "change": "Code review discovered Candidate tests still encoded the retired formatter's budget-plus-suffix behavior; HeartbeatSpeechProjectionBoundsTest and HeartbeatSkillPolicyTest now expect the truncation indicator inside the same post-projection hard budget."
+    },
+    {
+      "front": "durable skill harvesting",
+      "change": "heartbeat-invisible-semantic-controls now records one typed detail authority, Candidate delegation, legacy fallback, hard projection budget, and source/runtime/P0 capability boundaries."
+    },
+    {
+      "front": "warm walls / Swan Veil",
+      "change": "Mutated the existing accessible DOM/inline-SVG Swan Veil in place with a touchable Candidate↔Node one-formatter state; compact speech/runtime/phone scars remain explicit."
+    },
+    {
+      "front": "Regnet / Venice evidence review",
+      "change": "Durable plan, Venice plan gate, Regnet source review, Venice completion review, exact source blobs, current-head CI blocker, and capability membrane are recorded."
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","why":"Advanced the verified Candidate-detail split rather than reopening the completed projection-budget seam.","changed":"Converted a public future-bypass seam into one typed explicit-detail authority."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","why":"Existing EvidenceDetailProjection, SkillPolicy, scene, ViewModel, and accessibility organs already owned the relevant work.","changed":"Composed existing organs; no adjacent architecture was substituted."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","why":"No ambiguous speech-to-text/autocorrect token materially affected this pulse.","changed":"None."},
+    {"name":"Originality Tax","state":"ACTIVE","why":"A third formatter would repeat the duplicate-authority failure shape.","changed":"Retired the independent typed Candidate formatter instead of creating another helper hierarchy."},
+    {"name":"Hunger / Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"One authority change had to propagate through callers, hostile fixtures, doctrine, art, and evidence.","changed":"Seven independent fronts converged on the same source truth."},
+    {"name":"Operator Campaign / Harroway discipline","state":"ACTIVE","why":"Existing Operator Overlay ownership and capability membrane are binding.","changed":"No renderer/controller/parser/P0 owner was duplicated; source/runtime claims stayed separate."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative pre-execution ambient call returned account-connection HTTP 400.","changed":"Fault preserved exactly; no substitute reviewer invented."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","why":"Plan and completion gates reviewed mission fidelity and capability truth.","changed":"STOP_ALLOWED only for this bounded source slice; campaign remains CONTINUE_REQUIRED."},
+    {"name":"Regnet QA","state":"ACTIVE","why":"Source/test coherence and evidence sufficiency required separate review.","changed":"Caught and recorded the stale budget-plus-suffix regression assumptions; TESTED remains NO."},
+    {"name":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","why":"Explicit typed detail may reveal invisible semantics without contaminating routine speech.","changed":"Candidate and accepted Node detail now share collision-safe markers and post-projection hard bounds; legacy compact speech remains ordinary."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"P0 conductor and shared-phone firewall retain exclusive ownership.","changed":"Zero consumption or mutation."},
+    {"name":"Deterministic routing","state":"ACTIVE","why":"One semantic record should map to one typed explicit-detail projection contract.","changed":"Candidate/Node detail formatting now shares one deterministic formatter."},
+    {"name":"Evidence / capability-state discipline","state":"ACTIVE","why":"Source readback, regression source, CI execution, runtime observation, deployment, and acceptance are distinct states.","changed":"Exact source blobs and current-head zero-step CI boundary recorded; no source-to-runtime promotion."},
+    {"name":"Recovery / checkpointing / idempotence","state":"DARK_UNCHANGED","why":"This pulse did not change scene/contact recovery or checkpoint identities.","changed":"None; exact semantic fields remain canonical."},
+    {"name":"Warm walls / strange non-raster vector-DOM art","state":"ACTIVE","why":"Authority topology materially changed from scene-only to Candidate+Node parity.","changed":"Existing Swan Veil was mutated in place with an accessible Candidate↔Node state; no new specimen family."},
+    {"name":"Christmas-light scene graph","state":"DARK_UNCHANGED","why":"Detail-authority convergence is not a semantic scene transition and earns no decorative motion.","changed":"None."},
+    {"name":"Contact preservation","state":"ACTIVE_CONSTRAINT","why":"Detail projection must not rewrite canonical fields or last-good scene identity.","changed":"Source/detail authority changed while contact/checkpoint semantics remained untouched."}
+  ],
+  "crossPollination": "Candidate-level authority split -> shared evidence projection -> parity fixture -> source review exposed old Candidate tests still assuming suffix-outside-budget -> regression repair -> skill doctrine and Swan Veil inherited the corrected one-authority/hard-budget truth -> Regnet/Venice kept source success behind the runtime membrane.",
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 32053630113,
+    "jobId": 95458665897,
+    "head": "6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "typedCandidateDetailConverged": true,
+    "acceptedNodeDetailConverged": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "touchableNonRasterSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "PASS_ZERO_PHONE_P0_MUTATIONS_OR_SURFACE_CONSUMPTION",
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED / DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
