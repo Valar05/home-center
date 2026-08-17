@@ -2,6 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class HeartbeatInvisibleSemanticControlPolicyTest {
 
         assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(exact));
         assertEquals(
-                "Warm<ZWSP U+200B>Wall Evidence<WJ U+2060>Boundary <BOM U+FEFF>Heartbeat",
+                "Warm\\u{200B ZWSP}Wall Evidence\\u{2060 WJ}Boundary \\u{FEFF BOM}Heartbeat",
                 HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(exact));
         assertTrue(exact.contains("\u200B"));
         assertTrue(exact.contains("\u2060"));
@@ -28,18 +29,38 @@ public class HeartbeatInvisibleSemanticControlPolicyTest {
         assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(zwjEmoji));
         assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(zwnjLanguageShaping));
         assertEquals(
-                "Coder \uD83D\uDC69<ZWJ U+200D>\uD83D\uDCBB",
+                "Coder \uD83D\uDC69\\u{200D ZWJ}\uD83D\uDCBB",
                 HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(zwjEmoji));
         assertEquals(
-                "join<ZWNJ U+200C>test",
+                "join\\u{200C ZWNJ}test",
                 HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(zwnjLanguageShaping));
     }
 
     @Test
-    public void ordinaryUnicodePassesThroughEvidenceProjectionByteForJavaString() {
+    public void ordinaryUnicodePassesThroughEvidenceProjectionExceptReservedBackslash() {
         String ordinary = "Warm Wall — swan \uD83E\uDDA2";
+        String literalBackslash = "source\\path";
+
         assertFalse(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(ordinary));
         assertEquals(ordinary, HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(ordinary));
+        assertEquals(
+                "source\\\\path",
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(literalBackslash));
+    }
+
+    @Test
+    public void markerTextCannotAliasActualInvisibleSource() {
+        String invisible = "Reg\u200Bnet";
+        String literalMarkerText = "Reg\\u{200B ZWSP}net";
+
+        String invisibleProjection =
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(invisible);
+        String literalProjection =
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(literalMarkerText);
+
+        assertEquals("Reg\\u{200B ZWSP}net", invisibleProjection);
+        assertEquals("Reg\\\\u{200B ZWSP}net", literalProjection);
+        assertNotEquals(invisibleProjection, literalProjection);
     }
 
     @Test
