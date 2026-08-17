@@ -33,12 +33,13 @@ public final class HeartbeatPersistedPollPolicy {
     /**
      * Exact persisted observation supplied by the existing owner.
      *
-     * <p>The Base64 payload is retained exactly because a changed stored byte string
-     * must be re-decoded/re-verified. SHA metadata is compared after trim because the
-     * persisted projection already treats surrounding SHA whitespace as metadata
-     * normalization. The wall-clock timestamp contributes only its validity class
-     * ({@code > 0} versus missing): its magnitude is observation metadata, not
-     * semantic identity.</p>
+     * <p>The Base64 payload and declared SHA metadata are retained exactly because a
+     * changed stored byte string or a changed integrity declaration must be
+     * re-decoded/re-verified. In particular, surrounding whitespace on SHA metadata
+     * is evidence of a non-canonical persisted value, not harmless formatting to be
+     * normalized away before the integrity gate sees it. The wall-clock timestamp
+     * contributes only its validity class ({@code > 0} versus missing): its magnitude
+     * is observation metadata, not semantic identity.</p>
      */
     public static final class Snapshot {
         public final String payloadB64;
@@ -53,7 +54,7 @@ public final class HeartbeatPersistedPollPolicy {
                 long updatedMs) {
             this.payloadB64 = raw(payloadB64);
             this.declaredBytes = declaredBytes;
-            this.declaredSha256 = clean(declaredSha256);
+            this.declaredSha256 = raw(declaredSha256);
             this.updatedMs = updatedMs;
         }
 
@@ -68,6 +69,8 @@ public final class HeartbeatPersistedPollPolicy {
         /**
          * Equality of inputs that can change storage verification or semantic
          * projection. Positive timestamp magnitude is intentionally excluded.
+         * Integrity metadata is exact: canonical and whitespace-poisoned SHA strings
+         * are different projection inputs even if trimming would make them equal.
          */
         public boolean sameProjectionInputs(Snapshot other) {
             if (other == null) return false;
