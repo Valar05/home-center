@@ -51,6 +51,7 @@ public class HeartbeatOverlayViewModelTest {
         assertTrue(model.controls.get(1).visibleLabel.endsWith(" — blocked"));
         assertTrue(model.controls.get(1).contentDescription.contains("blocked"));
         assertTrue(model.collapsedContentDescription.contains("2 material skill lights"));
+        assertEquals("HEARTBEAT • 2 LIGHTS", model.summaryVisibleLabel());
     }
 
     @Test
@@ -85,6 +86,42 @@ public class HeartbeatOverlayViewModelTest {
         assertFalse(model.controls.get(0).transitionMotion);
         assertFalse(model.transitionMotionAllowed);
         assertTrue(model.collapsedContentDescription.contains("Showing last complete heartbeat pulse-good"));
+        assertEquals("HEARTBEAT • 1 LIGHT • CONTACT HELD", model.summaryVisibleLabel());
+    }
+
+    @Test
+    public void zeroMaterialLastGoodContactStillReportsContactHeld() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-zero",
+                Collections.emptyList(),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame interrupted = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "",
+                lastGood,
+                "fixture wound");
+
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(interrupted);
+
+        assertTrue(model.controls.isEmpty());
+        assertEquals("pulse-zero", model.visiblePulseId);
+        assertEquals("HEARTBEAT • CONTACT HELD", model.summaryVisibleLabel());
+    }
+
+    @Test
+    public void preContactReadFailureDoesNotClaimContactHeld() {
+        HeartbeatSceneGraph.Frame interrupted = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "",
+                null,
+                HeartbeatPersistedSnapshotReader.STORAGE_READ_FAILURE_BOUNDARY);
+
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(interrupted);
+
+        assertTrue(model.refreshInterrupted);
+        assertTrue(model.visiblePulseId.isEmpty());
+        assertTrue(model.controls.isEmpty());
+        assertEquals("HEARTBEAT • REFRESH BLOCKED", model.summaryVisibleLabel());
+        assertTrue(model.collapsedContentDescription.contains("No complete heartbeat is available"));
     }
 
     @Test
@@ -141,5 +178,6 @@ public class HeartbeatOverlayViewModelTest {
         assertTrue(model.controls.isEmpty());
         assertFalse(model.transitionMotionAllowed);
         assertEquals("Heartbeat scene unavailable.", model.collapsedContentDescription);
+        assertEquals("HEARTBEAT • REFRESH BLOCKED", model.summaryVisibleLabel());
     }
 }
