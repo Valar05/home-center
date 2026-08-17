@@ -15,7 +15,7 @@ import java.util.Locale;
 public final class HeartbeatFrameAccessibility {
     /** Maximum number of named lights in the collapsed summary. */
     public static final int MAX_COLLAPSED_NAMED_LIGHTS = 12;
-    /** Maximum code points from one label spoken in the collapsed summary. */
+    /** Hard returned code-point budget for one label spoken in the collapsed summary. */
     public static final int MAX_COLLAPSED_LABEL_CODE_POINTS = 64;
 
     private HeartbeatFrameAccessibility() {
@@ -196,11 +196,9 @@ public final class HeartbeatFrameAccessibility {
     }
 
     private static String compactLabel(String label) {
-        String value = clean(label);
-        int codePoints = value.codePointCount(0, value.length());
-        if (codePoints <= MAX_COLLAPSED_LABEL_CODE_POINTS) return value;
-        int end = value.offsetByCodePoints(0, MAX_COLLAPSED_LABEL_CODE_POINTS);
-        return value.substring(0, end) + "…";
+        return HeartbeatPlainTextBudget.boundedWithEllipsis(
+                clean(label),
+                MAX_COLLAPSED_LABEL_CODE_POINTS);
     }
 
     private static String stateName(HeartbeatSkillPolicy.State state) {
