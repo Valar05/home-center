@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "pulse": "2026-08-17-0500",
+  "mission": "Advance a materially different non-P0 heartbeat wound without retrying blocked CI or consuming the phone surface.",
+  "observed_wound": {
+    "name": "persisted_sha_metadata_normalization",
+    "evidence": [
+      "HeartbeatPersistedPollPolicy.Snapshot trims declaredSha256 before dedupe comparison.",
+      "HeartbeatPersistedEnvelopeProjection trims declaredSha256 before canonical-lowercase-hex validation.",
+      "OperatorState.updateHeartbeatLights writes exact lowercase SHA-256 without surrounding whitespace."
+    ],
+    "consequence": "A stored SHA metadata value with surrounding whitespace can be normalized into the canonical value. The poll may SKIP_UNCHANGED instead of re-projecting, and direct projection can accept metadata that is not byte-for-byte canonical."
+  },
+  "authorized_fronts": [
+    "Preserve exact persisted SHA metadata in poll identity.",
+    "Validate raw declared SHA metadata as canonical lowercase hex before semantic trust.",
+    "Add regression source for whitespace-poisoned SHA metadata, fail-closed contact preservation, and poll dedupe behavior.",
+    "Synchronize the existing persisted-poll skill rather than creating a neighboring owner or duplicate doctrine.",
+    "Mutate the existing non-raster warm-wall refresh specimen in place with a canonical-metadata scar.",
+    "Run Regnet/Venice evidence review and update PR capability truth."
+  ],
+  "constraints": {
+    "p0_phone_surface": "READ_ONLY_AND_UNTOUCHED",
+    "duplicate_architecture": "FORBIDDEN",
+    "manual_actions_retry": "FORBIDDEN_WHILE_BLOCKER_UNCHANGED",
+    "runtime_claim": "FORBIDDEN_WITHOUT_RUNTIME_EVIDENCE",
+    "merge": "FORBIDDEN_AS_DELIVERED_INTERFACE"
+  },
+  "required_capability_membrane": [
+    "requested",
+    "implemented_source",
+    "regression_source",
+    "exact_github_readback",
+    "tested",
+    "runtime_observed",
+    "talkback_exercised",
+    "deployed",
+    "callable",
+    "executed",
+    "delivered",
+    "accepted"
+  ],
+  "gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}
