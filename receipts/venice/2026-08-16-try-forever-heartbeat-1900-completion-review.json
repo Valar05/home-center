@@ -1,0 +1,33 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-1900",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "quality": "mixed_due_to_unexecuted_tests",
+  "review": {
+    "missionFidelity": "PASS: a materially different non-P0 identity wound advanced.",
+    "taste": "PASS: the machine-id rule is narrower than human semantic text and avoids rewriting canonical accepted ids.",
+    "accessibility": "PASS_SOURCE: semantic touch/focus ownership is less ambiguous; runtime TalkBack remains unobserved.",
+    "art": "PASS_SOURCE: the existing warm-wall motion-clamp specimen was mutated in place with a thirteenth semantic-id alphabet scar; no neighboring visual controller was created.",
+    "evidence": "PASS: exact repository readback is separated from test/runtime/deployment claims.",
+    "remainingBoundary": "Tests did not execute because the automatic Actions job had zero steps under the repository Actions budget blocker."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "state": "FAULT",
+    "boundary": "Account connection returned HTTP 400; no substitute reviewer verdict was invented."
+  },
+  "capabilityGate": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0
+}
