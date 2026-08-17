@@ -1,0 +1,70 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-17-1500",
+  "pr": 329,
+  "frontsAdvanced": [
+    "Scene-level interrupted-refresh speech budget convergence onto the existing plain hard-returned-budget helper.",
+    "New hostile Unicode regression source for 96/320 returned speech budgets while exact Frame evidence remains unchanged.",
+    "Code-first repair of stale existing projection fixture that exceeded the canonical pulse-id source bound and expected the retired scene truncation suffix.",
+    "Durable heartbeat-hard-returned-text-budgets skill synchronization.",
+    "Regnet source/evidence review plus fresh exact-head Actions boundary.",
+    "Venice completion review and capability membrane."
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE: source archaeology found a remaining scene-level max-plus-suffix truncator instead of retrying blocked CI.",
+    "Canon Auto-Select": "ACTIVE: reused existing HeartbeatPlainTextBudget and existing skill instead of creating adjacent projection architecture.",
+    "Autocorrect Judgment Jar": "DARK: no ambiguous STT/autocorrect token materially affected this slice.",
+    "Originality Tax": "ACTIVE: previous 1400 consumer seam stayed dark; this pulse repaired a different HeartbeatSceneGraph seam.",
+    "Hunger": "ACTIVE: ate the duplicate ad hoc truncator and stale regression assumptions.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: code-first review discovered the invalid 140-swan pulse fixture and obsolete scene suffix expectation.",
+    "Operator Campaign": "ACTIVE: durable plan, source commits, exact readback, reviews, and receipts landed on PR 329 branch.",
+    "Harroway operator discipline": "ACTIVE: source/runtime/P0 ownership and capability states remained separated.",
+    "She-Raw adversarial motivation": "FAULT: authoritative ambient call returned account-connection HTTP 400; no substitute reviewer invented.",
+    "Venice Judgment Jars": "ACTIVE: pre-mutation PLAN_ALLOWED and bounded completion STOP_ALLOWED_FOR_SOURCE_SLICE.",
+    "Regnet QA": "ACTIVE: source/readback passed; TESTED remained blocked and unpromoted.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: interrupted-refresh speech now honors named returned code-point limits while exact evidence remains untouched.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero shared-phone/P0 consumption or mutation.",
+    "deterministic routing": "ACTIVE: one shared plain projection helper is the authority instead of drifting scene-level truncation.",
+    "evidence/capability-state discipline": "ACTIVE: exact source blobs, workflow/job/annotation, and requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted membrane recorded.",
+    "recovery/checkpointing/idempotence": "ACTIVE-CONSTRAINT: exact visiblePulseId/refreshBoundary source evidence stayed unchanged; only spoken projection changed.",
+    "strange non-raster vector/DOM/native UI art": "DARK: no new operator-state topology; art mutation would be decorative theater.",
+    "warm walls": "DARK: ordered dark for the same no-new-topology reason.",
+    "Christmas-light scene graph": "ACTIVE-CONSTRAINT: projection-only change earns no transition-motion or decorative blink consequence.",
+    "contact preservation": "ACTIVE-CONSTRAINT: interrupted refresh continues to preserve last-good contact while speech projection changes only presentation."
+  },
+  "crossPollination": "1400 hard returned-text doctrine exposed a leftover scene-level truncator -> accessibility turned the hidden max-plus-suffix into a real TalkBack/resource-contract defect -> shared helper convergence removed the drift -> hostile tests exposed a stale impossible pulse fixture -> source-vs-projection truth repaired that fixture -> Regnet/Venice kept the result behind the runtime membrane -> art stayed dark because no topology changed.",
+  "exactSource": {
+    "reviewedSourceHead": "8ebd26625dff8881da180e287ff38710e2985e5c",
+    "HeartbeatSceneGraph.java": "a096b74cc43d2c288ba91bc5c52c6551870bbeae",
+    "HeartbeatInterruptedRefreshSpeechBudgetTest.java": "a1ddf58ff583220bcf4fff29909ef0c2cafab56e",
+    "HeartbeatSpeechProjectionBoundsTest.java": "e6af5da92e0a571dd381568c7f1ada0952c2b24a",
+    "heartbeat-hard-returned-text-budgets/SKILL.md": "53cdf9dcdf59fb194ca2d49aba29cec6dd34ec9b"
+  },
+  "testBoundary": {
+    "tested": false,
+    "workflow": "Operator Overlay Android",
+    "runId": 32063886318,
+    "jobId": 95491195268,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryDispatched": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "artChanged": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}
