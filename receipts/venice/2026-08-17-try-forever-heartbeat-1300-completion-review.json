@@ -1,0 +1,28 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-17-1300",
+  "pr": 329,
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "same-worker-code-first-completion-gate",
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-17-1300-plan.json",
+  "regnetReceipt": "receipts/regnet/2026-08-17-try-forever-heartbeat-1300-source-review.json",
+  "reviewedSourceHead": "6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "veniceDirective": "STOP_ALLOWED",
+  "scope": "STOP_ALLOWED applies only to the 1300 Candidate/Node typed-detail source convergence. The recurring TRY FOREVER campaign remains CONTINUE_REQUIRED; this does not authorize merge, runtime claims, phone/P0 work, deployment, delivery, or acceptance.",
+  "codeReview": [
+    "Typed Candidate and Node explicit detail now share one formatter in HeartbeatEvidenceDetailProjection.",
+    "HeartbeatSkillPolicy preserves legacy compact fallback and delegates typed Candidate detail, retiring the second typed formatter.",
+    "Candidate/Node/ViewModel/FrameAccessibility parity is pinned across invisible semantic controls and literal-marker collision behavior.",
+    "Code-first review exposed stale regression assumptions from the retired Candidate formatter: they expected the truncation suffix outside the hard budget. Those fixtures were repaired to the canonical post-projection hard-budget contract before completion.",
+    "Compact/collapsed routine speech, canonical semantic fields, checkpoint/contact identities, transition motion, and existing UI ownership remain unchanged."
+  ],
+  "artReview": "PASS_MATERIAL_MUTATION: the existing Swan Veil source organism changed topology truth from scene-only authority to Candidate+Node one-authority parity, so an in-place accessible non-raster mutation was material rather than decorative. No new artifact family was created.",
+  "testBoundary": "Automatic Operator Overlay Android run 32053630113 on exact reviewed source head 6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b produced job 95458665897 with zero executed steps. GitHub annotation: `The job was not started because an Actions budget is preventing further use.` TESTED remains NO; no manual retry was dispatched.",
+  "sheRawBoundary": "Authoritative She-Raw consultation returned account-connection HTTP 400; no synthetic She-Raw verdict is represented.",
+  "p0Firewall": "PASS_ZERO_PHONE_P0_MUTATIONS_OR_SURFACE_CONSUMPTION",
+  "mergePermission": false,
+  "runtimePermission": false,
+  "campaignComplete": false,
+  "capabilityMembrane": "IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK + REGRESSION_SOURCE + DURABLE_SKILL + TOUCHABLE_NON_RASTER_SOURCE = YES; TESTED/RUNTIME_UI/RUNTIME_TALKBACK/DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED = NO."
+}
