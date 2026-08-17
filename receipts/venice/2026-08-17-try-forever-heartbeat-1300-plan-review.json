@@ -1,0 +1,29 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-17-1300",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "same-worker-code-first-plan-gate",
+  "pr": 329,
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-17-1300-plan.json",
+  "verdict": "PLAN_ALLOWED",
+  "reason": "The target is a verified independent source-truth seam: Candidate typed detail has a second formatter while accepted scene detail uses the collision-safe bounded HeartbeatEvidenceDetailProjection. Convergence reuses existing organs, changes no P0/phone ownership, preserves routine speech, and has a narrow regression surface.",
+  "mustPreserve": [
+    "Legacy untyped Candidate detail falls back to compact HeartbeatSkillPolicy.contentDescription without invented provenance.",
+    "Typed Candidate and accepted Node explicit detail become byte-for-byte equal for the same semantic fields.",
+    "Invisible semantic controls remain legal source text and are revealed only in explicit evidence/detail projection.",
+    "Literal backslash remains collision-safe against projected marker text.",
+    "Post-projection budgets remain hard bounds including truncation indicator.",
+    "Compact/collapsed routine speech, scene/checkpoint identity, transition motion, and contact preservation do not change.",
+    "Existing Operator Overlay remains sole UI owner; phone/P0 surfaces remain untouched."
+  ],
+  "rejectIf": [
+    "A new detail formatter or neighboring UI/controller/parser is introduced.",
+    "Canonical source text is normalized or rewritten to match the projection.",
+    "Source changes are reported as TESTED or runtime/deployed/delivered capability without evidence.",
+    "The P0/phone firewall is crossed."
+  ],
+  "sheRawBoundary": "Authoritative She-Raw pre-execution consultation returned account-connection HTTP 400; no synthetic She-Raw judgment is substituted.",
+  "mergePermission": false,
+  "runtimePermission": false,
+  "p0Firewall": "PASS_READ_ONLY_ZERO_CONSUMPTION"
+}
