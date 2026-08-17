@@ -42,9 +42,9 @@ final class HeartbeatPersistedSnapshotReader {
         Map<String, ?> exact = values == null ? Collections.emptyMap() : values;
         return new HeartbeatPersistedPollPolicy.Snapshot(
                 stringValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64),
-                longValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES),
+                integralLongValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_BYTES),
                 stringValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_SHA256),
-                longValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS));
+                integralLongValue(exact, OperatorState.KEY_HEARTBEAT_LIGHTS_UPDATED_MS));
     }
 
     private static String stringValue(Map<String, ?> values, String key) {
@@ -54,10 +54,17 @@ final class HeartbeatPersistedSnapshotReader {
         throw unexpectedType(key, value);
     }
 
-    private static long longValue(Map<String, ?> values, String key) {
+    /**
+     * SharedPreferences stores integers and longs as distinct integral types. Accept
+     * those two legacy/canonical shapes, but reject floating-point Number values.
+     * Calling Number.longValue() on a Float would silently truncate corrupt stored
+     * metadata and turn type drift into counterfeit byte-count/timestamp evidence.
+     */
+    private static long integralLongValue(Map<String, ?> values, String key) {
         if (!values.containsKey(key)) return 0L;
         Object value = values.get(key);
-        if (value instanceof Number) return ((Number) value).longValue();
+        if (value instanceof Long) return (Long) value;
+        if (value instanceof Integer) return ((Integer) value).longValue();
         throw unexpectedType(key, value);
     }
 
