@@ -1,0 +1,61 @@
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+             persistedDecision = HeartbeatPersistedPollPolicy.decide(
+                     heartbeatProcessedPersistedSnapshot,
+                     currentPersistedSnapshot,
+                     heartbeatFrame);
+ 
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
+-                if (heartbeatFrame == null) {
+-                    heartbeatSummary.setText("HEARTBEAT • waiting");
+-                    heartbeatSummary.setContentDescription(
+-                            "Heartbeat skill lights waiting for a material pulse.");
++                if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
++                        persistedDecision,
++                        heartbeatFrame)) {
++                    clearHeartbeatPreContactWoundToWaiting();
+                 }
+                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                 return;
+             }
+@@
+     private void applyHeartbeatModelChrome(HeartbeatOverlayViewModel.Model model) {
+         if (model == null || heartbeatSummary == null) return;
+         heartbeatSummary.setText(model.summaryVisibleLabel());
+         heartbeatSummary.setContentDescription(model.collapsedContentDescription);
+@@
+         }
+     }
++
++    /**
++     * Clear one stale pre-contact interruption after storage has recovered to the
++     * canonical fully-absent WAITING shape. Repeated healthy empty polls see a null
++     * frame and therefore do no further UI work. Accepted/preserved contact cannot
++     * reach this helper because the poll policy's contact predicate keeps it out of
++     * WAITING recovery.
++     */
++    private void clearHeartbeatPreContactWoundToWaiting() {
++        invalidateHeartbeatViewportRestore();
++        resetHeartbeatNativeMotion();
++        heartbeatFrame = null;
++        heartbeatSelectedId = "";
++        heartbeatStructureIdentity = "";
++        heartbeatRenderIdentity = "";
++        heartbeatAnnouncementIdentity = "";
++        if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setText("HEARTBEAT • waiting");
++        heartbeatSummary.setContentDescription(
++                "Heartbeat skill lights waiting for a material pulse.");
++        showHeartbeatDetail(
++                "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
++                false);
++    }
++
++# PROPOSED / NOT APPLIED
++# Exact target: existing OperatorOverlayService on PR #329 only.
++# Purpose: clear the stale pre-contact STORAGE_READ_FAILURE wound once when a healthy
++# fully-absent observation returns WAITING, then make repeated 200 ms empty polls quiet.
++# The pure policy helper and regression source exist; this patch is not owner wiring proof.
++# No phone/P0 execution surface, neighboring poller, renderer, controller, or daemon is involved.
