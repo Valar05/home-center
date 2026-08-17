@@ -32,6 +32,10 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     public static final int WORD_JOINER = 0x2060;
     public static final int BYTE_ORDER_MARK = 0xFEFF;
 
+    private static final String TRUNCATION_SUFFIX = "… (truncated)";
+    private static final int TRUNCATION_SUFFIX_CODE_POINTS =
+            TRUNCATION_SUFFIX.codePointCount(0, TRUNCATION_SUFFIX.length());
+
     private HeartbeatInvisibleSemanticControlPolicy() {
     }
 
@@ -76,24 +80,45 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
      * <p>Projection units are atomic. A marker such as {@code \u{200B ZWSP}} and an
      * escaped literal backslash are either emitted whole or not emitted at all, so
      * truncation cannot create a partial marker that aliases some other source text.
-     * The exact source string remains separately authoritative.</p>
+     * The truncation indicator is part of the same hard code-point budget; it must not
+     * be appended after the budget has already been consumed. The exact source string
+     * remains separately authoritative.</p>
      */
     public static String boundedEvidenceProjection(String value, int maxCodePoints) {
         if (value == null || value.isEmpty() || maxCodePoints <= 0) return "";
+
+        boolean truncationNeeded = false;
+        int fullProjectedCodePoints = 0;
+        for (int index = 0; index < value.length();) {
+            int codePoint = value.codePointAt(index);
+            String unit = projectedUnit(codePoint);
+            int unitCodePoints = unit.codePointCount(0, unit.length());
+            if (fullProjectedCodePoints + unitCodePoints > maxCodePoints) {
+                truncationNeeded = true;
+                break;
+            }
+            fullProjectedCodePoints += unitCodePoints;
+            index += Character.charCount(codePoint);
+        }
+        if (!truncationNeeded) return explicitEvidenceProjection(value);
+
+        if (maxCodePoints < TRUNCATION_SUFFIX_CODE_POINTS) {
+            return "…";
+        }
+
+        int contentBudget = maxCodePoints - TRUNCATION_SUFFIX_CODE_POINTS;
         StringBuilder out = new StringBuilder(Math.min(value.length(), maxCodePoints));
         int projectedCodePoints = 0;
         for (int index = 0; index < value.length();) {
             int codePoint = value.codePointAt(index);
             String unit = projectedUnit(codePoint);
             int unitCodePoints = unit.codePointCount(0, unit.length());
-            if (projectedCodePoints + unitCodePoints > maxCodePoints) {
-                out.append("… (truncated)");
-                break;
-            }
+            if (projectedCodePoints + unitCodePoints > contentBudget) break;
             out.append(unit);
             projectedCodePoints += unitCodePoints;
             index += Character.charCount(codePoint);
         }
+        out.append(TRUNCATION_SUFFIX);
         return out.toString();
     }
 
