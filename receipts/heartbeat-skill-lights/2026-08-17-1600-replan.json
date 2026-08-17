@@ -1,0 +1,20 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "heartbeat": "2026-08-17-1600",
+  "timing_truth": "POST_MUTATION_CORRECTION_SCAR",
+  "original_plan": "Bound legacy collapsed Candidate speech fanout and preserve capability truth.",
+  "source_review_discovery": [
+    "HeartbeatPersistedPollPolicy.Snapshot.fullyAbsent() treated updatedMs < 0 as canonical absence via updatedMs <= 0.",
+    "The first timestamp repair still allowed canonical updatedMs == 0 and corrupt updatedMs < 0 to compare equal because sameProjectionInputs collapsed both into a non-positive boolean class.",
+    "HeartbeatPersistedPollPolicyTest still contained a stale SHA-whitespace expectation that contradicted the exact-SHA source doctrine already implemented in prior heartbeats."
+  ],
+  "correction": [
+    "Canonical fully-absent storage now requires updatedMs == 0 exactly.",
+    "Timestamp projection identity now has three classes: positive-valid, zero-canonical-missing, negative-corrupt.",
+    "The stale SHA-whitespace regression was repaired to exact canonical SHA for positive-timestamp-only dedupe, and a separate whitespace-poison fixture now requires PROJECT.",
+    "The original aggregate collapsed-speech fanout repair was also completed rather than abandoned."
+  ],
+  "process_scar": "The timestamp-class mutation was discovered and partially edited before this explicit corrective replan artifact existed. Do not rewrite that sequence into fictional preapproval; preserve it as a code-first review correction.",
+  "scope_check": "All changes remain non-P0 heartbeat source/test/skill work in the existing owner/policy architecture. No phone, queue, relay, P0 recovery, deployment, or runtime execution surface was consumed.",
+  "gate": "CORRECTIVE_REPLAN_RECORDED_CONTINUE_TO_REGNET_VENICE"
+}
