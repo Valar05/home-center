@@ -368,10 +368,7 @@ public final class HeartbeatSceneGraph {
         if (!HeartbeatSkillPolicy.isSafeSemanticText(exact)) return unsafePlaceholder;
         String clean = clean(exact);
         if (clean.isEmpty()) return clean;
-        int codePoints = clean.codePointCount(0, clean.length());
-        if (codePoints <= maxCodePoints) return clean;
-        int end = clean.offsetByCodePoints(0, maxCodePoints);
-        return clean.substring(0, end) + "… (truncated)";
+        return HeartbeatPlainTextBudget.boundedWithEllipsis(clean, maxCodePoints);
     }
 
     private static String raw(String value) {
