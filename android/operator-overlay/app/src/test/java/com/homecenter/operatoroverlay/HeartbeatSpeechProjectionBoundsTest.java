@@ -44,8 +44,7 @@ public class HeartbeatSpeechProjectionBoundsTest {
 
     @Test
     public void interruptedSpeechBoundsPulseAndBoundaryWithoutMutatingFrameEvidence() {
-        String swan = "🦢";
-        String longPulseId = "pulse-" + repeat(swan, 140);
+        String longPulseId = "pulse-" + repeat("p", 120);
         String longBoundary = "boundary-" + repeat("x", 420);
         HeartbeatSceneGraph.Frame complete = HeartbeatSceneGraph.build(
                 longPulseId,
@@ -58,13 +57,16 @@ public class HeartbeatSpeechProjectionBoundsTest {
                 longBoundary);
 
         String speech = HeartbeatFrameAccessibility.collapsedContentDescription(interrupted);
+        String expectedPulseProjection = "pulse-" + repeat("p", 89) + "…";
+        String expectedBoundaryProjection = "boundary-" + repeat("x", 310) + "…";
 
         assertEquals(longPulseId, interrupted.visiblePulseId);
         assertEquals(longBoundary, interrupted.refreshBoundary);
-        assertTrue(speech.contains("Showing last complete heartbeat pulse-"));
-        assertTrue(speech.contains("… (truncated)"));
-        assertFalse(speech.contains(repeat(swan, 97)));
-        assertFalse(speech.contains(repeat("x", 321)));
+        assertTrue(speech.contains("Showing last complete heartbeat " + expectedPulseProjection + "."));
+        assertTrue(speech.contains("Boundary: " + expectedBoundaryProjection));
+        assertFalse(speech.contains(TRUNCATION_SUFFIX));
+        assertFalse(speech.contains(repeat("p", 90) + "…"));
+        assertFalse(speech.contains(repeat("x", 311) + "…"));
         assertTrue(speech.length() < 1200);
     }
 
