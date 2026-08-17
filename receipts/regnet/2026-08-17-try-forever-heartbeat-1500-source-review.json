@@ -1,0 +1,47 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-1500",
+  "pr": 329,
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "missionFidelity": "PASS",
+  "sourceReview": [
+    "HeartbeatSceneGraph.safeBoundedSpeech no longer owns an independent max-plus-suffix truncator; it delegates safe plain text to HeartbeatPlainTextBudget.boundedWithEllipsis(...).",
+    "Exact Frame.visiblePulseId and Frame.refreshBoundary remain unchanged evidence. Only interrupted-refresh human-facing projection is bounded.",
+    "Hostile regression source proves the 96-code-point pulse projection and 320-code-point boundary projection include ellipsis inside the named budget, including supplementary swan Unicode for the boundary.",
+    "Code-first review found stale HeartbeatSpeechProjectionBoundsTest source: its prior pulse fixture used 140 swans, which exceeded the canonical 160 UTF-16-char pulse-id source bound before reaching spoken truncation, and it still expected the retired '… (truncated)' scene suffix. The fixture was repaired to legal source text and the new hard returned-budget expectation.",
+    "The hard-returned-text skill is synchronized to include interrupted-refresh pulse/boundary speech without changing explicit invisible-evidence projection semantics.",
+    "Warm Walls / Swan Veil source art stayed dark because this is projection-contract convergence, not a new operator-state topology. That avoids decorative progress."
+  ],
+  "exactReadback": {
+    "HeartbeatSceneGraph.java": "a096b74cc43d2c288ba91bc5c52c6551870bbeae",
+    "HeartbeatInterruptedRefreshSpeechBudgetTest.java": "a1ddf58ff583220bcf4fff29909ef0c2cafab56e",
+    "HeartbeatSpeechProjectionBoundsTest.java": "e6af5da92e0a571dd381568c7f1ada0952c2b24a",
+    "heartbeat-hard-returned-text-budgets/SKILL.md": "53cdf9dcdf59fb194ca2d49aba29cec6dd34ec9b",
+    "reviewedSourceHead": "8ebd26625dff8881da180e287ff38710e2985e5c"
+  },
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "runId": 32063886318,
+    "jobId": 95491195268,
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryDispatched": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION"
+}
