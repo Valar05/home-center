@@ -1,66 +1,81 @@
 # Heartbeat Invisible Semantic Controls
 
-Use this skill when heartbeat labels, reasons, evidence, source locators, protocol-facing semantic text, or parser diagnostics can contain invisible Unicode formatting that changes exact identity without giving the operator an honest visible distinction.
+Use this skill when heartbeat labels, reasons, evidence, source locators, or review surfaces can contain meaningful zero-width Unicode controls whose semantics are real but whose presence is hard for an operator to see.
 
 ## Canonical wound
 
-The existing heartbeat semantic safety already rejects ISO controls, malformed UTF-16, and directional bidi controls. Do **not** replace that with a blanket `Character.FORMAT` ban: Unicode shaping has legitimate invisible characters.
+Invisible does **not** mean invalid.
 
-This skill adds only three presentation-alias controls to the unsafe set:
+The existing heartbeat semantic safety correctly rejects ISO controls, malformed UTF-16, and directional bidi controls. Keep that gate. Do **not** extend it into a blanket `Character.FORMAT` ban or an invisible-character ban.
 
-- `U+200B` ZERO WIDTH SPACE
-- `U+2060` WORD JOINER
-- `U+FEFF` BYTE ORDER MARK / ZERO WIDTH NO-BREAK SPACE
+Unicode assigns legitimate semantics to several zero-width characters:
 
-Preserve at minimum:
+- `U+200B` ZERO WIDTH SPACE — word/line-break opportunity, including use in languages without visible word spacing
+- `U+2060` WORD JOINER — preferred invisible control for preventing a line break
+- `U+200D` ZERO WIDTH JOINER — grapheme/emoji/script shaping
+- `U+200C` ZERO WIDTH NON-JOINER — language/script shaping
+- `U+FEFF` BYTE ORDER MARK with legacy ZWNBSP history
 
-- `U+200D` ZERO WIDTH JOINER — legitimate grapheme/emoji joining
-- `U+200C` ZERO WIDTH NON-JOINER — legitimate language shaping
-- ordinary supplementary Unicode
+The real wound is **evidence visibility**: exact source identity can contain meaningful invisible controls that ordinary visual prose does not expose.
 
 ## Source rule
 
-Use `HeartbeatInvisibleSemanticControlPolicy` as the narrow policy organ. It composes with `HeartbeatSkillPolicy.isSafeSemanticText`; it does not normalize, trim, delete, replace, or repair poisoned source text into an accepted identity.
+`HeartbeatInvisibleSemanticControlPolicy` is a projection organ, not an acceptance gate.
 
-A rejected invisible alias must remain rejection evidence. Do not turn `Reg<ZWSP>net` into `Regnet`, because that destroys the exact source distinction and can create counterfeit checkpoint/provenance truth.
+It must preserve the original source string and offer a separate explicit evidence projection using deterministic markers such as:
+
+- `<ZWSP U+200B>`
+- `<ZWNJ U+200C>`
+- `<ZWJ U+200D>`
+- `<WJ U+2060>`
+- `<BOM U+FEFF>`
+
+Never delete, trim, normalize, or replace the canonical source string just to make it easier to display. Projection is human-readable evidence beside the source, not a new canonical identity.
+
+## Unicode discrimination scar
+
+The first 0900 strategy treated U+200B/U+2060/U+FEFF as poison. Primary Unicode review disproved that assumption. Preserve the correction:
+
+- U+200B and U+2060 have intentional line-breaking semantics.
+- ZWJ/ZWNJ have intentional shaping semantics.
+- FEFF has BOM/legacy ZWNBSP semantics.
+- Therefore invisibility alone cannot justify rejection.
+
+Originality Tax consequence: do not reintroduce the rejected blanket-ban strategy under a different name.
 
 ## Consumer integration law
 
 Policy existence is not consumer wiring.
 
-Until the existing semantic consumers call the narrow policy, capability state is:
+Current capability state until an existing consumer adopts the diagnostic projection:
 
-- policy source: YES
+- projection policy source: YES
 - regression source: YES
-- canonical parser consumption: NO
-- direct typed-source gate consumption: NO
-- scene defense-in-depth consumption: NO
+- canonical parser projection consumption: NO
+- typed-source detail projection consumption: NO
+- scene/TalkBack evidence projection consumption: NO
 - Android runtime behavior: NO
 - TalkBack runtime proof: NO
 - deployed/callable/executed/delivered/accepted: NO
 
-When wiring later, modify the existing semantic owners. Do not create a second parser, scene graph, overlay controller, renderer, transport, or P0 coordinator.
+When wiring later, compose the existing semantic owners. Do not create a second parser, scene graph, overlay controller, renderer, transport, or P0 coordinator.
 
-## Parser diagnostics
+## Accessibility doctrine
 
-Do not call these three controls “bidi-direction controls.” If the parser consumes this policy later, emit a distinct bounded boundary such as `contains an invisible semantic control` while preserving the existing bidi diagnostic for directional controls.
+Routine speech should not gratuitously read Unicode bookkeeping. Explicit evidence/detail surfaces may reveal invisible controls when exact text identity matters. Keep that projection bounded before any future TalkBack use.
 
-Unknown or duplicate JSON member names containing an unsafe invisible control must not be echoed into operator speech/log/review surfaces; use the existing safe member-name placeholder path.
-
-## Accessibility and motion
-
-The problem is evidence/contact legibility, not typography aesthetics. Rejection should flow through the existing fail-closed scene/contact-preservation organ. A rejected alias earns no new Christmas-light motion and must not introduce a phantom selectable/touchable owner.
+Existing bidi/ISO/malformed-surrogate rejection remains separate and authoritative. A revealable layout/shaping control is not a bidi attack merely because it is invisible.
 
 ## Regression doctrine
 
 Pin all of these independently:
 
-1. U+200B, U+2060, and U+FEFF reject.
-2. U+200D ZWJ remains accepted.
-3. U+200C ZWNJ remains accepted.
-4. Existing RLO/bidi and ISO-control rejection remains accepted behavior.
-5. No normalization turns poisoned evidence into a valid identity.
-6. After consumer wiring, parser/direct-source/scene paths agree and last-good contact is preserved with motion clamped.
+1. U+200B, U+2060, U+FEFF, U+200D, and U+200C are revealable with deterministic markers.
+2. Their exact source strings remain unchanged.
+3. Ordinary Unicode passes through the explicit evidence projection unchanged.
+4. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
+5. No normalization turns an invisible source distinction into a counterfeit accepted identity.
+6. After future consumer wiring, explicit evidence projection and routine speech remain separate capability claims.
 
 Regression source is not TESTED evidence until an authorized test lane actually executes it.
 
