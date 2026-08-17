@@ -53,18 +53,32 @@ The wound must reuse `HeartbeatSceneGraph.preserveRejectedRefresh(...)` so last-
 
 A coherent-read failure before first contact must not invent a visible pulse identity. Its interruption description may report that no complete heartbeat is available; that is different from claiming visible contact existed.
 
+## Interruption chrome truth
+Visible interruption chrome must be derived from the same accepted/preserved contact predicate as scene recovery. Do not let the Android owner re-derive `CONTACT HELD` from `refreshInterrupted` or control count alone.
+
+`HeartbeatOverlayViewModel.Model.summaryVisibleLabel()` is the canonical compact label:
+
+- pre-contact interrupted refresh -> `HEARTBEAT • REFRESH BLOCKED`;
+- interrupted refresh with non-empty accepted/preserved `visiblePulseId` and zero controls -> `HEARTBEAT • CONTACT HELD`;
+- interrupted refresh with visible controls -> count plus `CONTACT HELD`;
+- non-interrupted zero-control model -> `HEARTBEAT • waiting`.
+
+`interruptionDetailContentDescription()` applies the same truth to detail prose. Before contact it says the refresh was blocked before any heartbeat contact was accepted. With accepted/preserved contact it may say the last-good heartbeat contact is preserved. Never claim a held contact that the scene does not actually retain.
+
+**Current capability truth:** model summary/detail truth source **YES**; existing `OperatorOverlayService.applyHeartbeatModelChrome(...)` consumes both helpers **YES**; Android/TalkBack runtime observation **NO**.
+
 ## Accessibility and touch
 Silent stale contact is an accessibility defect: a TalkBack user must not hear or touch an old heartbeat as though storage contact were still current. The missing-after-contact and coherent-read-failure states therefore use bounded interruption semantics.
 
 Poll dedupe is also accessibility protection. Re-running projection on every fast poll must not recreate native controls, churn focus, re-announce summaries, or blink Christmas lights. Likewise, a torn multi-getter storage read must not generate a false wound when one coherent preference-map observation can avoid it.
 
 ## Regression source
-At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, and recovery remaining `PROJECT` when the failed read did not advance processed identity.
+At minimum cover canonical empty waiting, accepted zero-material contact, missing-after-contact once, repeated missing skip, project→skip→wound→skip→recovery lifecycle, failed-project retry when the owner retains the prior processed snapshot, positive-timestamp-only skip, timestamp validity-class project, payload/byte/SHA project, inconsistent empty metadata project, null observation semantics, one-map extraction/defaults/type drift, coherent-read failure preserving last-good contact/no motion, read failure before first contact inventing no visible pulse, repeated read failure preserving equivalent contact, recovery remaining `PROJECT` when the failed read did not advance processed identity, and summary/detail chrome distinguishing pre-contact `REFRESH BLOCKED` from genuine last-good `CONTACT HELD` including zero-material accepted contact.
 
 A regression file is source only until an authorized runner executes it.
 
 ## Existing-owner wiring contract
-`OperatorOverlayService` consumes both `HeartbeatPersistedSnapshotReader` and `HeartbeatPersistedPollPolicy` source. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, and retains the current snapshot only after the chosen decision is applied.
+`OperatorOverlayService` consumes `HeartbeatPersistedSnapshotReader`, `HeartbeatPersistedPollPolicy`, and the model-owned summary/detail chrome source. It reads one current map snapshot, classifies that observation against the last processed snapshot and current scene, skips unchanged projection, preserves missing-after-contact through the existing scene organ, retains the current snapshot only after the chosen decision is applied, and renders interruption chrome from the accepted/preserved model instead of duplicating contact inference in Android view code.
 
 Expected invalid persisted payload data may be retained after its preserved wound is applied so identical corruption does not burn the 200 ms loop forever. A **reader/storage failure is different**: no coherent current observation exists, so the owner preserves a bounded read wound and keeps the older processed snapshot; the next poll retries.
 
@@ -73,9 +87,9 @@ Owner wiring must not consume Phone Hands, the primary-phone execution surface, 
 ## Evidence membrane
 Keep these states separate:
 
-`requested -> policy source -> coherent reader source -> existing-owner coherent-reader source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> policy source -> coherent reader source -> existing-owner coherent-reader source wired -> model chrome truth source -> existing-owner chrome source wired -> regression source -> tested -> runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 GitHub readback proves durable source only. None of these source artifacts prove Android tests ran or that any phone changed.
 
 ## Done for one source pulse
-This skill may light only when persisted-poll classification, missing-contact truth, projection dedupe, coherent storage observation, owner composition, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
+This skill may light only when persisted-poll classification, missing-contact truth, projection dedupe, coherent storage observation, owner composition, interruption chrome truth, regression source, or runtime evidence materially changes. Another unchanged poll or another unchanged CI failure stays dark.
