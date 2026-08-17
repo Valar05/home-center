@@ -28,7 +28,7 @@
 <body>
 <main>
   <h1>SWAN VEIL / EVIDENCE VISIBILITY</h1>
-  <p class="scar">PROJECTION SOURCE YES · SOURCE PRESERVED · CONSUMER WIRING NO · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
+  <p class="scar">PROJECTION SOURCE YES · SOURCE PRESERVED · COLLISION-SAFE MARKERS · CONSUMER WIRING NO · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
 
   <div class="controls" role="group" aria-label="Choose semantic text evidence case">
     <button type="button" data-case="plain" aria-pressed="true">Plain text</button>
@@ -37,11 +37,12 @@
     <button type="button" data-case="bom" aria-pressed="false">BOM</button>
     <button type="button" data-case="zwj" aria-pressed="false">ZWJ</button>
     <button type="button" data-case="zwnj" aria-pressed="false">ZWNJ</button>
+    <button type="button" data-case="literal" aria-pressed="false">Literal marker text</button>
   </div>
 
   <svg viewBox="0 0 900 350" role="img" aria-labelledby="diagramTitle diagramDesc">
     <title id="diagramTitle">Swan Veil explicit evidence projection for invisible Unicode semantics</title>
-    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact human-facing source text stays unchanged. When a reviewer needs exact visibility, the Swan Veil projects meaningful invisible controls as deterministic visible markers. Zero-width space, word joiner, BOM, ZWJ, and ZWNJ are revealed rather than globally rejected. Existing semantic consumers are not yet wired to this projection.</desc>
+    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact human-facing source text stays unchanged. When a reviewer needs exact visibility, the Swan Veil projects meaningful invisible controls as deterministic backslash-u markers and doubles literal source backslashes so marker-like source text cannot alias a real invisible control. Existing semantic consumers are not yet wired to this projection.</desc>
 
     <path class="wire" d="M180 175 H330" />
     <path class="wire" d="M570 175 H720" />
@@ -64,7 +65,7 @@
   </svg>
 
   <div id="status" role="status" aria-live="polite">Plain text: the explicit evidence projection is identical to the source. No normalization, acceptance decision, runtime claim, or Christmas motion is manufactured.</div>
-  <p class="legend">● Exact source stays authoritative. ◇ Invisible layout/shaping semantics become visible only in explicit evidence projection. × Never delete or normalize them into a counterfeit canonical identity. □ Existing bidi/ISO rejection remains a separate gate. Phone/P0 stays untouched.</p>
+  <p class="legend">● Exact source stays authoritative. ◇ Invisible layout/shaping semantics become visible only in explicit evidence projection. × Literal backslash is escaped so marker text cannot counterfeit an invisible code point. □ Existing bidi/ISO rejection remains a separate gate. Phone/P0 stays untouched.</p>
 </main>
 <script>
 (() => {
@@ -81,24 +82,28 @@
       status: 'Plain text: the explicit evidence projection is identical to the source. No normalization, acceptance decision, runtime claim, or Christmas motion is manufactured.'
     },
     zwsp: {
-      source: 'Warm​Wall', decision: 'REVEAL', rule: 'U+200B line-break semantics', evidence: 'Warm<ZWSP U+200B>Wall',
+      source: 'Warm​Wall', decision: 'REVEAL', rule: 'U+200B line-break semantics', evidence: 'Warm\\u{200B ZWSP}Wall',
       status: 'Zero-width space: Unicode gives this character real word/line-break semantics. Source stays unchanged; explicit evidence reveals the otherwise hard-to-see code point.'
     },
     wj: {
-      source: 'Reg⁠net', decision: 'REVEAL', rule: 'U+2060 no-break semantics', evidence: 'Reg<WJ U+2060>net',
+      source: 'Reg⁠net', decision: 'REVEAL', rule: 'U+2060 no-break semantics', evidence: 'Reg\\u{2060 WJ}net',
       status: 'Word joiner: Unicode gives it intentional no-break semantics. Swan Veil reveals it for review instead of calling legitimate formatting poison.'
     },
     bom: {
-      source: '﻿Heartbeat', decision: 'REVEAL', rule: 'U+FEFF BOM / legacy ZWNBSP', evidence: '<BOM U+FEFF>Heartbeat',
+      source: '﻿Heartbeat', decision: 'REVEAL', rule: 'U+FEFF BOM / legacy ZWNBSP', evidence: '\\u{FEFF BOM}Heartbeat',
       status: 'FEFF: explicit evidence reveals the BOM/legacy zero-width no-break code point while preserving the exact source string and leaving acceptance to existing owners.'
     },
     zwj: {
-      source: '👩‍💻', decision: 'REVEAL', rule: 'U+200D grapheme shaping', evidence: '👩<ZWJ U+200D>💻',
+      source: '👩‍💻', decision: 'REVEAL', rule: 'U+200D grapheme shaping', evidence: '👩\\u{200D ZWJ}💻',
       status: 'ZWJ: legitimate grapheme/emoji shaping remains allowed. The projection simply makes its presence inspectable when exact evidence matters.'
     },
     zwnj: {
-      source: 'join‌test', decision: 'REVEAL', rule: 'U+200C language shaping', evidence: 'join<ZWNJ U+200C>test',
+      source: 'join‌test', decision: 'REVEAL', rule: 'U+200C language shaping', evidence: 'join\\u{200C ZWNJ}test',
       status: 'ZWNJ: legitimate language shaping remains allowed. The visible marker belongs to the diagnostic projection, never to canonical source identity.'
+    },
+    literal: {
+      source: 'Reg\\u{200B ZWSP}net', decision: 'ESCAPE', rule: 'literal backslash doubles', evidence: 'Reg\\\\u{200B ZWSP}net',
+      status: 'Literal marker text: the projection doubles the source backslash. It therefore cannot collide with the projection of an actual U+200B character. Tiny punctuation, enormous evidence consequence.'
     }
   };
 
