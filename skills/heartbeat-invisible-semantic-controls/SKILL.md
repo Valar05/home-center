@@ -24,11 +24,13 @@ The real wound is **evidence visibility**: exact source identity can contain mea
 
 It must preserve the original source string and offer a separate explicit evidence projection using deterministic markers such as:
 
-- `<ZWSP U+200B>`
-- `<ZWNJ U+200C>`
-- `<ZWJ U+200D>`
-- `<WJ U+2060>`
-- `<BOM U+FEFF>`
+- `\u{200B ZWSP}`
+- `\u{200C ZWNJ}`
+- `\u{200D ZWJ}`
+- `\u{2060 WJ}`
+- `\u{FEFF BOM}`
+
+Backslash is reserved as the diagnostic marker introducer. Literal source backslashes are doubled in the projection. That distinction is load-bearing: actual `Reg<ZWSP>net` and literal source text spelling `Reg\u{200B ZWSP}net` must not collapse to the same evidence display.
 
 Never delete, trim, normalize, or replace the canonical source string just to make it easier to display. Projection is human-readable evidence beside the source, not a new canonical identity.
 
@@ -73,9 +75,10 @@ Pin all of these independently:
 1. U+200B, U+2060, U+FEFF, U+200D, and U+200C are revealable with deterministic markers.
 2. Their exact source strings remain unchanged.
 3. Ordinary Unicode passes through the explicit evidence projection unchanged.
-4. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
-5. No normalization turns an invisible source distinction into a counterfeit accepted identity.
-6. After future consumer wiring, explicit evidence projection and routine speech remain separate capability claims.
+4. Literal backslashes are escaped so marker-like source text cannot alias an actual invisible control.
+5. Existing RLO/bidi and ISO-control rejection remains unchanged and is not replaced by this projection helper.
+6. No normalization turns an invisible source distinction into a counterfeit canonical identity.
+7. After future consumer wiring, explicit evidence projection and routine speech remain separate capability claims.
 
 Regression source is not TESTED evidence until an authorized test lane actually executes it.
 
