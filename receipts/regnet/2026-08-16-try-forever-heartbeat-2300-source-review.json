@@ -1,0 +1,104 @@
+{
+  "schema": "regnet-source-review.v1",
+  "local_slot": "2026-08-16-2300",
+  "subject": "TRY FOREVER heartbeat persisted-poll contact and semantic projection deduplication source slice",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed_source_head": "dab6946a0ef28fcd8fb9d4dd8cacd4431fcf6e42",
+  "source_readback": {
+    "HeartbeatPersistedPollPolicy.java": "f0df30b7200f658aea899e02aa8fa592684bb8b8",
+    "HeartbeatPersistedPollPolicyTest.java": "f13000bea80d25e3d4166f859e7eb9e3a5cbc860",
+    "skills/heartbeat-persisted-poll-contact/SKILL.md": "58368532447a465c823395c0d8999348f4814ceb",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "beb6be7b95b465b299721c990921b3076c140141"
+  },
+  "checks": [
+    {
+      "name": "different_wound",
+      "result": "PASS",
+      "detail": "The slice moved from root pulse-id/duplicate-owner/source-bound work to persisted-poll contact truth and redundant semantic projection."
+    },
+    {
+      "name": "cold_waiting_vs_lost_contact",
+      "result": "PASS_SOURCE",
+      "detail": "Policy distinguishes canonical never-populated empty store from empty storage after a visible pulse identity."
+    },
+    {
+      "name": "zero_material_contact",
+      "result": "PASS_SOURCE",
+      "detail": "Review caught and repaired a weaker boolean contract: visible last-good contact is now derived from non-empty frame.visiblePulseId, not node count, so an accepted zero-material pulse remains contact."
+    },
+    {
+      "name": "poll_idempotence",
+      "result": "PASS_SOURCE",
+      "detail": "Exact Base64, declared bytes, trimmed SHA metadata, and update-timestamp validity class define projection inputs; positive wall-clock magnitude alone does not earn semantic work."
+    },
+    {
+      "name": "failure_retry_truth",
+      "result": "PASS_SOURCE_CONTRACT",
+      "detail": "Doctrine requires retaining a processed snapshot only after its decision is applied; unexpected internal failure must leave the older snapshot so the next poll retries."
+    },
+    {
+      "name": "accessibility_contact",
+      "result": "PASS_SOURCE",
+      "detail": "The missing-after-contact decision is explicitly a fail-closed wound rather than silent stale contact; repeated identical absence is specified as quiet."
+    },
+    {
+      "name": "duplicate_architecture",
+      "result": "PASS",
+      "detail": "No neighboring polling service, overlay controller, state store, recovery daemon, phone ingress, or P0 coordinator was created."
+    },
+    {
+      "name": "owner_wiring",
+      "result": "NOT_IMPLEMENTED",
+      "detail": "Current OperatorOverlayService still reads the persisted fields and projects them directly every refresh; it does not consume HeartbeatPersistedPollPolicy or remember a processed Snapshot."
+    },
+    {
+      "name": "regression_execution",
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "Regression source exists but no authorized Android/JVM test step executed."
+    }
+  ],
+  "automatic_ci": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31993400133,
+    "job_id": 95280758777,
+    "head_sha": "dab6946a0ef28fcd8fb9d4dd8cacd4431fcf6e42",
+    "executed_steps": 0,
+    "conclusion": "failure",
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "Connector account connection returned HTTP 400; no substitute She-Raw verdict was invented."
+  },
+  "p0_phone_firewall": {
+    "result": "PASS",
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "physical_acceptance_actions": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "policy_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "durable_skill": true,
+    "non_raster_source_art_mutation": true,
+    "existing_owner_consumes_policy": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
