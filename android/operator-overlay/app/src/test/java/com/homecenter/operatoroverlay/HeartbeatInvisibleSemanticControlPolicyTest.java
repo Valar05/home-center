@@ -1,5 +1,6 @@
 package com.homecenter.operatoroverlay;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -7,52 +8,52 @@ import org.junit.Test;
 
 public class HeartbeatInvisibleSemanticControlPolicyTest {
     @Test
-    public void rejectsInvisiblePresentationAliases() {
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(
-                "Warm\u200BWall"));
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(
-                "Evidence\u2060Boundary"));
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(
-                "\uFEFFHeartbeat"));
+    public void revealsInvisibleLayoutControlsWithoutRewritingSource() {
+        String exact = "Warm\u200BWall Evidence\u2060Boundary \uFEFFHeartbeat";
 
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "Warm\u200BWall"));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "Evidence\u2060Boundary"));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "\uFEFFHeartbeat"));
+        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(exact));
+        assertEquals(
+                "Warm<ZWSP U+200B>Wall Evidence<WJ U+2060>Boundary <BOM U+FEFF>Heartbeat",
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(exact));
+        assertTrue(exact.contains("\u200B"));
+        assertTrue(exact.contains("\u2060"));
+        assertTrue(exact.contains("\uFEFF"));
     }
 
     @Test
-    public void preservesLegitimateJoinersAndOrdinaryUnicode() {
+    public void revealsLegitimateJoinersRatherThanCallingThemPoison() {
         String zwjEmoji = "Coder \uD83D\uDC69\u200D\uD83D\uDCBB";
         String zwnjLanguageShaping = "join\u200Ctest";
-        String supplementary = "swan \uD83E\uDDA2";
 
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(zwjEmoji));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(zwnjLanguageShaping));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(supplementary));
-
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(zwjEmoji));
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(zwnjLanguageShaping));
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(supplementary));
+        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(zwjEmoji));
+        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(zwnjLanguageShaping));
+        assertEquals(
+                "Coder \uD83D\uDC69<ZWJ U+200D>\uD83D\uDCBB",
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(zwjEmoji));
+        assertEquals(
+                "join<ZWNJ U+200C>test",
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(zwnjLanguageShaping));
     }
 
     @Test
-    public void composesWithExistingBidiAndControlSafetyInsteadOfReplacingIt() {
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "Warm\u202EWall"));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "\tWarm Wall"));
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(
-                "Warm Wall"));
+    public void ordinaryUnicodePassesThroughEvidenceProjectionByteForJavaString() {
+        String ordinary = "Warm Wall — swan \uD83E\uDDA2";
+        assertFalse(HeartbeatInvisibleSemanticControlPolicy.containsRevealableInvisibleControl(ordinary));
+        assertEquals(ordinary, HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(ordinary));
     }
 
     @Test
-    public void policyNeverNormalizesPoisonIntoAcceptedText() {
-        String poisoned = "Reg\u200Bnet";
-        assertTrue(HeartbeatInvisibleSemanticControlPolicy.containsForbiddenInvisibleControl(poisoned));
-        assertFalse(HeartbeatInvisibleSemanticControlPolicy.isSafeOperatorSemanticText(poisoned));
-        assertTrue(poisoned.contains("\u200B"));
+    public void projectionDoesNotReplaceExistingUnsafeSemanticTextGate() {
+        String directionalSpoof = "Warm\u202EWall";
+        String edgeControl = "\tWarm Wall";
+
+        assertFalse(HeartbeatSkillPolicy.isSafeSemanticText(directionalSpoof));
+        assertFalse(HeartbeatSkillPolicy.isSafeSemanticText(edgeControl));
+        assertEquals(
+                directionalSpoof,
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(directionalSpoof));
+        assertEquals(
+                edgeControl,
+                HeartbeatInvisibleSemanticControlPolicy.explicitEvidenceProjection(edgeControl));
     }
 }
