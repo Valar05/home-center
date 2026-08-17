@@ -1,0 +1,92 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-1300",
+  "pr": 329,
+  "reviewerRole": "regnet-qa",
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-17-1300-plan.json",
+  "venicePlanReceipt": "receipts/venice/2026-08-17-try-forever-heartbeat-1300-plan-review.json",
+  "reviewedSourceHead": "6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b",
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "sourceReadback": {
+    "HeartbeatEvidenceDetailProjection.java": "d4035a8a659d3e5bb6744a4bd6642ec8b4622142",
+    "HeartbeatSkillPolicy.java": "d4dff500ffcfa87e8aa96caff6b5f5a6888cff8c",
+    "HeartbeatDetailAuthorityTest.java": "090b25eff5d6244ee336babbe291295a9c69dab3",
+    "HeartbeatSpeechProjectionBoundsTest.java": "7754ea4798f4b29ce574d3b4d1e132765f1b4b30",
+    "HeartbeatSkillPolicyTest.java": "c2c88f2c5cf696bcf6fdd12a7554388ab9d6c713",
+    "skills/heartbeat-invisible-semantic-controls/SKILL.md": "374a213b0d6856a11098221fd9bdbe438bd0d254",
+    "docs/try-forever/heartbeat-swan-veil-semantic-scar-source.html": "018af61a4c9dec5b678909e8c3e8966cb3ed4460"
+  },
+  "checks": [
+    {
+      "name": "single_typed_detail_authority",
+      "result": "PASS_SOURCE",
+      "detail": "Typed Candidate and accepted Node overloads share one private HeartbeatEvidenceDetailProjection formatter. HeartbeatSkillPolicy typed detail delegates instead of independently formatting."
+    },
+    {
+      "name": "legacy_candidate_fallback",
+      "result": "PASS_SOURCE",
+      "detail": "Legacy untyped Candidate detail still falls back to compact contentDescription and does not invent provenance/evidence."
+    },
+    {
+      "name": "invisible_semantic_collision_safety",
+      "result": "PASS_REGRESSION_SOURCE",
+      "detail": "Candidate, Node, ViewModel, and FrameAccessibility parity fixture covers ZWSP/WJ/ZWJ plus literal marker text/backslash escaping."
+    },
+    {
+      "name": "post_projection_hard_budget",
+      "result": "PASS_SOURCE_AND_REGRESSION_SOURCE",
+      "detail": "Code-first review discovered stale Candidate-level regressions still expecting max content plus truncation suffix. Those fixtures were repaired to reserve the suffix inside the existing hard projection budget."
+    },
+    {
+      "name": "routine_speech_and_contact",
+      "result": "PASS_BY_SOURCE_DIFF",
+      "detail": "Compact/collapsed speech, canonical Candidate/scene fields, contact/checkpoint hashing, scene transition semantics, and runtime ownership were not changed."
+    },
+    {
+      "name": "duplicate_architecture",
+      "result": "PASS",
+      "detail": "No second formatter owner, overlay controller, parser, renderer, poller, recovery daemon, phone ingress path, or P0 coordinator was created."
+    },
+    {
+      "name": "she_raw",
+      "result": "FAULT_EXTERNAL",
+      "detail": "Authoritative pre-execution She-Raw ambient consultation returned account-connection HTTP 400. No substitute verdict was invented."
+    },
+    {
+      "name": "p0_phone_firewall",
+      "result": "PASS_ZERO_CONSUMPTION_OR_MUTATION",
+      "detail": "No Phone Hands ticket, primary-phone command, queue/device probe, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organ, physical acceptance action, or duplicate P0 owner was consumed or mutated."
+    }
+  ],
+  "testEvidence": {
+    "workflow": "Operator Overlay Android",
+    "runId": 32053630113,
+    "jobId": 95458665897,
+    "head": "6b3bfb3bdd4a5ee757f0ec72e421abd633539d4b",
+    "executedSteps": 0,
+    "conclusion": "failure",
+    "exactAnnotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryDispatched": false,
+    "testedState": "NO_BLOCKED_ACTIONS_BUDGET"
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "candidateTypedDetailConverged": true,
+    "acceptedNodeDetailConverged": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "touchableNonRasterSourceArt": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "reviewScar": "The authority convergence exposed stale Candidate regression expectations from the retired formatter. Repairing those tests was required for source coherence; their presence is still regression source, not executed test evidence.",
+  "currentGate": "PASS_BOUNDED_SOURCE_ONLY_DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}
