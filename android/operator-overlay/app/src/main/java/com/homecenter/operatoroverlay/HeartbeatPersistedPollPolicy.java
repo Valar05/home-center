@@ -82,6 +82,26 @@ public final class HeartbeatPersistedPollPolicy {
     }
 
     /**
+     * Visible contact is keyed by an accepted/preserved visible pulse identity, not
+     * by material-node count. A valid pulse may legitimately contain zero material
+     * lights and still be the last complete heartbeat contact.
+     */
+    public static boolean hasVisibleLastGoodContact(HeartbeatSceneGraph.Frame frame) {
+        return frame != null && !clean(frame.visiblePulseId).isEmpty();
+    }
+
+    /** Scene-bound convenience overload so the existing owner does not invent its own contact predicate. */
+    public static Decision decide(
+            Snapshot previousProcessed,
+            Snapshot current,
+            HeartbeatSceneGraph.Frame lastGoodFrame) {
+        return decide(
+                previousProcessed,
+                current,
+                hasVisibleLastGoodContact(lastGoodFrame));
+    }
+
+    /**
      * Classify one poll without performing any Android or parsing work.
      *
      * <p>The caller should retain {@code current} only after it has applied the
