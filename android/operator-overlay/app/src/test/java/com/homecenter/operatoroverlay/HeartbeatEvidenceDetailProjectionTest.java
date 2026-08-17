@@ -10,13 +10,32 @@ import org.junit.Test;
 
 public class HeartbeatEvidenceDetailProjectionTest {
     @Test
-    public void boundedProjectionNeverSplitsOneInvisibleMarker() {
+    public void boundedProjectionReservesTruncationSuffixInsideBudget() {
         String marker = "\\u{200B ZWSP}";
+        String suffix = "… (truncated)";
+        int budget = marker.codePointCount(0, marker.length())
+                + suffix.codePointCount(0, suffix.length());
         String projected = HeartbeatInvisibleSemanticControlPolicy.boundedEvidenceProjection(
                 "\u200B\u200B",
-                marker.codePointCount(0, marker.length()));
+                budget);
 
-        assertEquals(marker + "… (truncated)", projected);
+        assertEquals(marker + suffix, projected);
+        assertTrue(projected.codePointCount(0, projected.length()) <= budget);
+    }
+
+    @Test
+    public void boundedProjectionNeverLetsTruncationIndicatorEscapeTheBudget() {
+        String suffix = "… (truncated)";
+        int budget = suffix.codePointCount(0, suffix.length());
+        String projected = HeartbeatInvisibleSemanticControlPolicy.boundedEvidenceProjection(
+                "A\u200B",
+                budget);
+
+        assertEquals(suffix, projected);
+        assertEquals(budget, projected.codePointCount(0, projected.length()));
+        assertEquals(
+                "…",
+                HeartbeatInvisibleSemanticControlPolicy.boundedEvidenceProjection("\u200B", 1));
     }
 
     @Test
