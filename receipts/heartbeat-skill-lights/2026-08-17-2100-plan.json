@@ -1,0 +1,43 @@
+{
+  "slice": "2026-08-17-2100",
+  "commission": "TRY FOREVER heartbeat skill lights",
+  "target": "existing heartbeat explicit-detail surface visibility/touch scar",
+  "authorized_scope": [
+    "existing OperatorOverlayService detail surface only",
+    "pure non-P0 detail-surface projection policy",
+    "hostile accessibility/touch regression source",
+    "durable skill doctrine",
+    "mutate an existing non-raster source specimen because the interaction topology materially changes",
+    "Regnet/Venice evidence receipts"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone execution",
+    "P0 recovery chain mutation",
+    "new overlay renderer/controller/state store",
+    "neighboring detail UI owner",
+    "runtime/deployment/delivery claims without evidence",
+    "manual retry of unchanged CI failure"
+  ],
+  "known_wound": "Explicit heartbeat detail promises Why, Consequence, Evidence, and Source, but OperatorOverlayService clamps heartbeatDetail to five lines with END ellipsis. The full contentDescription remains available to TalkBack, while the sighted/touch surface can hide later Evidence/Source text with no way to inspect the omitted visible content.",
+  "intended_repair": "Keep one existing heartbeatDetail TextView and its full canonical projected detail, replace destructive END ellipsis with a bounded-height vertically scrollable detail viewport, give the touch surface at least the existing 48dp minimum, and preserve the full contentDescription/explicit-selection announcement path. No new controller or alternate detail formatter.",
+  "review_gates": [
+    "Do not rewrite or truncate the canonical projected detail to make it fit the viewport.",
+    "Do not create a second detail renderer/controller/state store.",
+    "The viewport must remain spatially bounded so long evidence cannot consume the whole overlay.",
+    "The detail surface must remain touch-inspectable and TalkBack content must remain full and explicit-selection-only.",
+    "Do not alter mute semantics, collapsed-owner speech, automatic heartbeat speech, checkpoint identity, motion policy, or P0/phone surfaces.",
+    "Art mutation is allowed only to encode the newly scrollable deep-detail topology and must remain source-only."
+  ],
+  "she_raw": "authoritative ambient consultation attempted pre-execution; connector returned account-connection HTTP 400; no substitute verdict invented",
+  "capability_before": {
+    "implemented_source": true,
+    "full_detail_projection_source": true,
+    "sighted_full_detail_inspection_source": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
