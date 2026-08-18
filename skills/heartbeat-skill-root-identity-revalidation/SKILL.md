@@ -10,25 +10,25 @@ This skill composes into the existing `tools/try_forever_skill_provenance_probe.
 
 Python 3.13 exposes `os.scandir(file_descriptor)` on Unix, not as one universal cross-platform primitive. Windows also has directory junctions as name-surrogate reparse points distinct from ordinary symbolic links. Therefore do not claim one portable atomic no-follow directory-handle implementation unless the exact target platform proves it.
 
-The portable source policy in `tools/try_forever_skill_root_identity.py` instead provides:
+The portable source policy in `tools/try_forever_skill_root_identity.py` provides:
 
 1. one no-follow root stat observation;
 2. redirector classification from that observation (`symlink` / Windows mount-point junction where the platform exposes the reparse tag);
 3. device/inode identity capture;
-4. a second no-follow observation before per-file title/hash authority;
+4. a second no-follow observation after candidate enumeration and before per-file title/hash authority;
 5. fail-closed identity comparison.
 
 ## What this closes
 
-When consumed by the existing provenance probe, an observable persistent root replacement, root type change, or redirector state that remains visible at the second observation can be rejected before any `SkillRecord` earns title/hash authority **when the observed object identity/type differs**.
+The existing provenance probe now consumes this policy in source. An observable persistent root replacement, root type change, or redirector state that remains visible at the second observation is rejected before any `SkillRecord` earns title/hash authority **when the observed object identity/type differs**.
 
 A filesystem device number by itself is not one-directory identity. The portable helper requires a non-zero inode/file-index component before `(device, inode)` may certify the same directory object; if that object identity is unavailable, revalidation fails closed.
 
 ## What this does not close
 
-Two path observations are not an atomic handle binding. A hostile actor could theoretically swap the root after the first observation and restore the original object before the second. Filesystem identity tokens can also be reused after object deletion on some filesystems. The helper must not advertise elimination of either class of race merely because the two observations compare equal.
+Two path observations are not an atomic handle binding. A hostile actor could theoretically swap the root after the first observation and restore the original object before the second. A replacement may also occur after the second observation while per-file work proceeds. Filesystem identity tokens can be reused after object deletion on some filesystems. The helper must not advertise elimination of any of these races merely because two observations compare equal.
 
-Closing that stronger wound would require a platform-specific handle-relative/no-follow traversal-and-file-read design, or another capability that proves equivalent atomicity. Do not smuggle a Unix-only directory-fd claim into Windows support.
+Closing that stronger wound requires a platform-specific handle-relative/no-follow traversal-and-file-read design, or another capability that proves equivalent atomicity. Do not smuggle a Unix-only directory-fd claim into Windows support.
 
 ## Junction law
 
@@ -36,27 +36,29 @@ On Windows, `os.stat(..., follow_symlinks=False)` exposes `st_reparse_tag`; `sta
 
 ## Regression source
 
-`tools/test_try_forever_skill_root_identity.py` pins:
+`tools/test_try_forever_skill_root_identity.py` pins helper behavior. `tools/test_try_forever_skill_root_identity_integration.py` pins existing-owner composition:
 
-- same-directory revalidation when a stable identity token exists;
-- persistent replacement that produces a different observed identity;
-- no-follow symlink classification;
-- Windows mount-point reparse classification where the interpreter exposes the constant;
-- zero identity and device-only identity both failing closed;
-- redirector/type change taking priority over superficial token equality.
+- persistent root identity drift returns zero records before title/hash work;
+- unavailable root identity returns zero records before title/hash work;
+- a root junction is blocked before candidate traversal.
 
 Regression source is not test execution.
 
 ## Owner integration state
 
-`patches/try-forever-skill-root-identity-revalidation.patch` is an exact proposed delta against source blob `f7fe082751875e27213a9e324d85bc371f46f335`.
+Authenticated Home Center GitHub-admin mutation applied the former base-blob-locked delta to the existing owner:
+
+- former base owner blob: `f7fe082751875e27213a9e324d85bc371f46f335`
+- owner wiring commit: `3e3bdb5abc8d68dfe96c2337a931732e67a7a55a`
+- wired owner blob: `e3627e342150c48f38099bb68fb118b3c54f2bf4`
 
 Current capability truth:
 
 - policy helper source: **YES**
-- hostile regression source: **YES**
-- exact owner integration patch: **YES / PROPOSED_NOT_APPLIED**
-- existing provenance probe consumes helper: **NO**
+- existing provenance probe consumes helper: **YES / SOURCE_WIRED**
+- hostile helper regression source: **YES**
+- hostile owner-integration regression source: **YES**
+- exact authenticated repository readback: **YES**
 - atomic cross-platform root binding: **NO**
 - probe executed by authorized runner: **NO**
 - regression tested: **NO**
@@ -69,7 +71,7 @@ Keep these states separate:
 
 `requested -> policy source -> owner source wired -> exact repository readback -> probe executed -> regression tested -> runtime UI -> deployed -> callable -> executed -> delivered -> accepted`
 
-A helper, patch artifact, or unit-test fixture is not owner integration. A path-level identity revalidation is not an atomic directory-handle guarantee.
+Owner source wiring does not prove the probe executed. Two path-level identity observations do not prove atomic directory-handle binding.
 
 ## P0 / phone firewall
 
@@ -77,4 +79,4 @@ Phone/P0 consumption **0**, mutation **0**, duplicate architecture **0**. Never 
 
 ## Done
 
-This light stays active only while root identity/topology truth materially changes. Once the existing probe consumes the policy and the remaining atomicity boundary is explicitly preserved, stop polishing it and move to a different independent wound.
+The existing-owner integration seam is now source-wired and should go dark unless evidence changes it. The stronger atomic swap-and-restore / post-revalidation replacement / identity-reuse wound remains explicitly open for a different, platform-evidenced source slice.
