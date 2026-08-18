@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0400",
+  "pr": 329,
+  "mission": "Advance the next independent non-P0 provenance wound without touching the gated phone/P0 chain or creating duplicate architecture.",
+  "sourceBoundary": {
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "observedHeadBeforePlan": "2279af28c3ced02fe713771c918e1e2bf8b85021",
+    "currentWound": "One unreadable or malformed-UTF-8 skills/**/SKILL.md can abort direct skill discovery during hash/title extraction instead of becoming a bounded structured discoveryErrors entry.",
+    "authorizedLane": "GitHub repository/source mutation and readback only",
+    "phoneP0MutationAllowed": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "fronts": [
+    {
+      "name": "provenance-error-isolation",
+      "action": "Make per-file hash/title failures structured, bounded, fail-closed, and non-fatal to discovery of unrelated skills."
+    },
+    {
+      "name": "hostile-regression-source",
+      "action": "Add malformed UTF-8 and deterministic I/O-failure fixtures proving healthy skills survive and strict mode still sees discovery errors."
+    },
+    {
+      "name": "durable-skill-doctrine",
+      "action": "Synchronize heartbeat-skill-provenance-freshness with per-file error isolation and source/test/runtime capability separation."
+    },
+    {
+      "name": "accessible-warm-wall",
+      "action": "If the provenance topology materially changes, mutate the existing source specimen in place with a partial-discovery/file-fault-isolated state; preserve radio/keyboard/touch/non-color/reduced-motion semantics."
+    },
+    {
+      "name": "evidence-repair",
+      "action": "Treat prior Command Center/Computer Hands queue state as historical because current Home Center readback says Command Center Codex jobs/workers are permanently retired; do not substitute Phone Hands."
+    },
+    {
+      "name": "judgment-and-capability",
+      "action": "Run code-first Regnet/Venice-style bounded review, attempt authoritative She-Raw without impersonation, and preserve requested/implemented/tested/runtime/deployed/delivered/accepted distinctions."
+    }
+  ],
+  "reviewCriteria": [
+    "A malformed or unreadable individual SKILL.md cannot abort the report.",
+    "The failing file cannot earn repository_skill authority.",
+    "Unrelated valid skills remain discoverable in deterministic order.",
+    "Errors expose bounded structured fields, not raw exception prose or hostile file contents.",
+    "Strict mode still treats discoveryErrors as a failure boundary.",
+    "No phone/P0 surface or duplicate controller/daemon is consumed or created.",
+    "Repository source progress is not reported as tested, runtime, deployed, delivered, or accepted."
+  ],
+  "reviewerStateBeforeMutation": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "venice": "criteria recorded; no external Venice connector authority claimed",
+    "regnet": "pending code-first source review"
+  }
+}
