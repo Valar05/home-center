@@ -6,13 +6,17 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 TOOLS_DIR = Path(__file__).resolve().parent
 if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
 from try_forever_skill_provenance_probe import (
+    DiscoveryError,
+    MAX_DISCOVERY_ERROR_PATH_CHARS,
     assess_repository_snapshot,
+    bounded_error_path,
     discover_skills,
     emitted_capability_boundary,
     inspect_generated_index,
@@ -35,16 +39,66 @@ class SkillProvenanceProbeTest(unittest.TestCase):
         path.write_text(json.dumps(values), encoding="utf-8")
         return path
 
+    def write_skill(self, name: str, text: str) -> Path:
+        path = self.root / "skills" / name / "SKILL.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return path
+
     def test_direct_current_tree_skill_discovery_is_authority(self):
-        skill = self.root / "skills" / "heartbeat-alpha" / "SKILL.md"
-        skill.parent.mkdir(parents=True)
-        skill.write_text("# Heartbeat Alpha\n\nConcrete skill.\n", encoding="utf-8")
+        skill = self.write_skill("heartbeat-alpha", "# Heartbeat Alpha\n\nConcrete skill.\n")
         records, errors = discover_skills(self.root)
         self.assertEqual([], errors)
         self.assertEqual(1, len(records))
         self.assertEqual("skills/heartbeat-alpha/SKILL.md", records[0].path)
         self.assertEqual("Heartbeat Alpha", records[0].title)
         self.assertEqual(64, len(records[0].sha256))
+        self.assertTrue(skill.is_file())
+
+    def test_malformed_utf8_skill_becomes_structured_error_and_scan_continues(self):
+        bad = self.root / "skills" / "broken-utf8" / "SKILL.md"
+        bad.parent.mkdir(parents=True, exist_ok=True)
+        bad.write_bytes(b"# broken \xff\n")
+        self.write_skill("healthy", "# Healthy\n\nStill discoverable.\n")
+
+        records, errors = discover_skills(self.root)
+
+        self.assertEqual(["skills/healthy/SKILL.md"], [record.path for record in records])
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertIsInstance(error, DiscoveryError)
+        self.assertEqual("skills/broken-utf8/SKILL.md", error.path)
+        self.assertEqual("title", error.stage)
+        self.assertEqual("UnicodeDecodeError", error.error_type)
+        self.assertEqual("skill file is not valid UTF-8 text", error.reason)
+        self.assertEqual(64, len(error.sha256))
+
+    def test_unreadable_skill_hash_isolated_without_raw_exception_prose(self):
+        self.write_skill("broken-io", "# Broken I/O\n")
+        self.write_skill("healthy", "# Healthy\n")
+
+        def fake_sha(path: Path) -> str:
+            if path.parent.name == "broken-io":
+                raise OSError("HOST SECRET: do not surface this raw exception")
+            return "a" * 64
+
+        with patch("try_forever_skill_provenance_probe.sha256_file", side_effect=fake_sha):
+            records, errors = discover_skills(self.root)
+
+        self.assertEqual(["skills/healthy/SKILL.md"], [record.path for record in records])
+        self.assertEqual(1, len(errors))
+        error = errors[0]
+        self.assertIsInstance(error, DiscoveryError)
+        self.assertEqual("hash", error.stage)
+        self.assertEqual("OSError", error.error_type)
+        self.assertEqual("skill file bytes could not be read", error.reason)
+        self.assertNotIn("HOST SECRET", error.reason)
+        self.assertEqual("", error.sha256)
+
+    def test_discovery_error_path_projection_is_hard_bounded(self):
+        projected = bounded_error_path("skills/" + ("x" * 2000) + "/SKILL.md")
+        self.assertEqual(MAX_DISCOVERY_ERROR_PATH_CHARS, len(projected))
+        self.assertRegex(projected, r"\.\.\.#[0-9a-f]{16}$")
 
     def test_stable_clean_snapshot_brackets_direct_discovery(self):
         verdict = assess_repository_snapshot(
