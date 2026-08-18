@@ -1,0 +1,61 @@
+# TRY FOREVER — SKILL.md candidate file-topology owner delta
+# STATUS: PROPOSED_NOT_APPLIED
+# Existing owner: tools/try_forever_skill_provenance_probe.py
+# Base blob: e3627e342150c48f38099bb68fb118b3c54f2bf4
+# Mission: reject named SKILL.md redirectors/non-ordinary file topology before per-file authority.
+# Capability: patch provenance only; existing-owner consumption remains NO until authenticated owner readback proves application.
+
+diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ class SkillCandidateResourceLimitError(ValueError):
+     """Repository skill candidate enumeration exceeded its declared count budget."""
+ 
+ 
++class SkillCandidateTopologyError(ValueError):
++    """A named SKILL.md candidate is not one ordinary non-redirecting file."""
++
++    def __init__(self, path: Path):
++        super().__init__(
++            "SKILL.md candidate must be an ordinary non-redirecting file; "
++            "partial repository-skill authority is forbidden"
++        )
++        self.path = path
++
++
+ class SkillTraversalResourceLimitError(ValueError):
+@@
+-                is_directory = entry.is_dir(follow_symlinks=False)
+-                is_skill_file = (
+-                    entry.name == "SKILL.md" and entry.is_file(follow_symlinks=True)
+-                )
++                is_directory = entry.is_dir(follow_symlinks=False)
++                is_skill_file = False
++                if entry.name == "SKILL.md":
++                    if entry.is_symlink() or not entry.is_file(follow_symlinks=False):
++                        raise SkillCandidateTopologyError(path)
++                    is_skill_file = True
+                 discovered.append(
+                     (entry.name, path, is_directory, is_skill_file)
+                 )
+@@
+     try:
+         candidates = bounded_skill_candidates(skills_root)
++    except SkillCandidateTopologyError as error:
++        try:
++            relative = error.path.relative_to(repo_root).as_posix()
++        except ValueError:
++            relative = "skills"
++        return [], [
++            DiscoveryError(
++                path=bounded_error_path(relative),
++                stage="identity",
++                error_type=type(error).__name__,
++                reason=(
++                    "SKILL.md candidate must be an ordinary non-redirecting file; "
++                    "partial repository-skill authority is forbidden"
++                ),
++            )
++        ]
+     except SkillTraversalResourceLimitError as error:
