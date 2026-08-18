@@ -22,9 +22,10 @@
 <body>
 <main>
   <h1>WARM WALL / SKILL PROVENANCE RESOURCE THROATS</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> Candidate throat first, title throat second, whole-file hash throat third. Repository policy specimen; not executed probe evidence, Android runtime proof, phone delivery, or Christmas blink permission.</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> Traversal throat first, candidate throat second, title throat third, whole-file hash throat fourth. Repository policy specimen; not executed probe evidence, Android runtime proof, phone delivery, or Christmas blink permission.</p>
   <div role="radiogroup" aria-label="Skill provenance resource states" id="states">
-    <button role="radio" aria-checked="true" tabindex="0" data-state="accepted"><span class="token">● ACCEPTED</span> — bounded candidates + title + full-file SHA</button>
+    <button role="radio" aria-checked="true" tabindex="0" data-state="accepted"><span class="token">● ACCEPTED</span> — bounded traversal + candidates + title + full-file SHA</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="traversal"><span class="token">× TRAVERSAL BLOCKED</span> — max+1 filesystem entries</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="candidate"><span class="token">× CANDIDATE SET BLOCKED</span> — max+1 SKILL.md paths</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="line"><span class="token">× TITLE LINE BLOCKED</span> — one line exceeds 8 KiB</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="scan"><span class="token">× TITLE SCAN BLOCKED</span> — H1 unresolved within 64 KiB</button>
@@ -35,12 +36,13 @@
 </main>
 <script>
 const copy = {
-  accepted: 'Why: the complete candidate set fit the declared count throat, title admission succeeded, and complete SKILL.md bytes reached EOF inside the whole-file hash budget.\nConsequence: records may continue through path identity, snapshot, and generated-index provenance gates.\nEvidence: deterministic bounded candidate ordering plus exact full-file SHA; no partial set, prefix, or truncation became authority.',
-  candidate: 'Why: discovery observed max+1 actual SKILL.md file candidates.\nConsequence: reject the entire repository-skill candidate set before title/hash work; return no partial SkillRecord authority.\nEvidence: an omitted later path could hide a case-insensitive identity collision, so first-2048-wins is forbidden. This throat bounds candidate count/list memory, not arbitrary non-candidate filesystem traversal.',
+  accepted: 'Why: the complete filesystem walk fit the declared entry throat, the candidate set fit its count throat, title admission succeeded, and complete SKILL.md bytes reached EOF inside the whole-file hash budget.\nConsequence: records may continue through path identity, snapshot, and generated-index provenance gates.\nEvidence: deterministic bounded traversal and candidate ordering plus exact full-file SHA; no partial set, prefix, or truncation became authority.',
+  traversal: 'Why: discovery observed max+1 filesystem entries under skills/, including non-candidate files/directories.\nConsequence: reject the entire repository-skill discovery before title/hash work; return no partial SkillRecord authority.\nEvidence: MAX_SKILL_TRAVERSAL_ENTRIES = 32768, directory symlinks are not followed, and traversal I/O/resource wounds are stage=traversal. This is a filesystem-work throat, not candidate/title/hash/runtime proof.',
+  candidate: 'Why: a completed bounded traversal observed max+1 actual SKILL.md file candidates.\nConsequence: reject the entire repository-skill candidate set before title/hash work; return no partial SkillRecord authority.\nEvidence: an omitted later path could hide a case-insensitive identity collision, so first-2048-wins is forbidden. Candidate count and traversal count are separate throats.',
   line: 'Why: one title-stage source line crossed the 8 KiB byte throat.\nConsequence: omit the skill record immediately; do not spend whole-file hash work afterward.\nEvidence: structured stage=title failure; no diagnostic whole-file SHA is claimed.',
   scan: 'Why: title work crossed the 64 KiB total scan throat.\nConsequence: omit the skill instead of blessing a later H1; whole-file hashing never starts.\nEvidence: title resource failure is not malformed UTF-8 and not a speech-budget event.',
   title: 'Why: the decoded H1 crossed 256 code points.\nConsequence: reject; never truncate source into a plausible repository identity; whole-file hashing stays dark.\nEvidence: source remains source, authority does not materialize.',
-  hash: 'Why: a valid short title passed, but complete SKILL.md bytes exceeded the 1 MiB whole-file hash throat.\nConsequence: emit stage=hash SkillHashResourceLimitError, preserve healthy peer discovery, and return no prefix digest.\nEvidence: chunk-bounded memory is not enough; total provenance work is now bounded too.'
+  hash: 'Why: a valid short title passed, but complete SKILL.md bytes exceeded the 1 MiB whole-file hash throat.\nConsequence: emit stage=hash SkillHashResourceLimitError, preserve healthy peer discovery, and return no prefix digest.\nEvidence: chunk-bounded memory is not enough; total provenance work is bounded too.'
 };
 const group = document.getElementById('states');
 const radios = [...group.querySelectorAll('[role="radio"]')];
