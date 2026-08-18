@@ -15,12 +15,13 @@ import hashlib
 import json
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
+MAX_FUTURE_SKEW_SECONDS = 5 * 60
 
 
 @dataclass(frozen=True)
@@ -100,6 +101,15 @@ def is_within(path: Path, root: Path) -> bool:
         return False
 
 
+def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
+    if not value:
+        return None
+    candidate = Path(value)
+    if not candidate.is_absolute():
+        candidate = repo_root / candidate
+    return candidate.resolve()
+
+
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[str]]:
     skills_root = repo_root / "skills"
     if not skills_root.is_dir():
@@ -142,7 +152,6 @@ def first_value(data: dict[str, Any], keys: Iterable[str]) -> Any:
 
 def parse_timestamp(value: Any) -> datetime | None:
     if isinstance(value, (int, float)):
-        # Accept seconds or milliseconds but never infer freshness from an absurd value.
         raw = float(value)
         if raw > 10_000_000_000:
             raw /= 1000.0
@@ -239,6 +248,16 @@ def inspect_generated_index(
             dirty_source=dirty_source,
             age_hours=age_hours,
         )
+    if current_tree_dirty is None:
+        return IndexVerdict(
+            status="UNRESOLVED",
+            reason="current checkout cleanliness is unavailable; matching HEAD alone cannot prove current provenance",
+            path=path_text,
+            source_head=source_head,
+            generated_at=generated_text,
+            dirty_source=dirty_source,
+            age_hours=age_hours,
+        )
     if not source_head:
         return IndexVerdict(
             status="UNRESOLVED",
@@ -289,6 +308,16 @@ def inspect_generated_index(
             dirty_source=dirty_source,
             age_hours=None,
         )
+    if generated_dt > now + timedelta(seconds=MAX_FUTURE_SKEW_SECONDS):
+        return IndexVerdict(
+            status="UNRESOLVED",
+            reason="generated index timestamp is implausibly in the future",
+            path=path_text,
+            source_head=source_head,
+            generated_at=generated_text,
+            dirty_source=dirty_source,
+            age_hours=0.0,
+        )
     if age_hours is not None and age_hours > max_age_hours:
         return IndexVerdict(
             status="STALE",
@@ -334,7 +363,7 @@ def main() -> int:
     dirty = git_dirty(repo_root)
     skills, discovery_errors = discover_skills(repo_root)
     now = datetime.now(timezone.utc)
-    index_path = Path(args.generated_index).resolve() if args.generated_index else None
+    index_path = resolve_repo_path(repo_root, args.generated_index)
     index = inspect_generated_index(
         index_path,
         current_head=head,
@@ -371,7 +400,8 @@ def main() -> int:
     }
     print(json.dumps(result, indent=2, sort_keys=True))
 
-    if args.strict and (head_error or discovery_errors or index.status in {"STALE"}):
+    index_strict_failure = bool(args.generated_index) and index.status != "VERIFIED_CURRENT"
+    if args.strict and (head_error or discovery_errors or index_strict_failure):
         return 2
     return 0
 
