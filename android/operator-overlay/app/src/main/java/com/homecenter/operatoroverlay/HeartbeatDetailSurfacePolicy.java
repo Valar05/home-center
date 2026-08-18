@@ -31,6 +31,16 @@ public final class HeartbeatDetailSurfacePolicy {
         /** Overflow is inspectable inside the bounded existing detail surface. */
         public final boolean verticallyScrollable;
         public final int minTouchTargetDp;
+        /**
+         * The detail well is not a keyboard-focus owner. Android movement-method wiring
+         * may mutate focus/click state, so the existing owner must explicitly restore
+         * these values after installing or changing the movement method.
+         */
+        public final boolean keyboardFocusable;
+        /** Passive touch scrolling does not turn the detail well into a click action. */
+        public final boolean clickable;
+        /** Passive touch scrolling does not grow a long-click action either. */
+        public final boolean longClickable;
 
         private Presentation(String text) {
             this.text = text;
@@ -39,6 +49,9 @@ public final class HeartbeatDetailSurfacePolicy {
             this.ellipsizeEnd = false;
             this.verticallyScrollable = true;
             this.minTouchTargetDp = MIN_TOUCH_TARGET_DP;
+            this.keyboardFocusable = false;
+            this.clickable = false;
+            this.longClickable = false;
         }
     }
 
