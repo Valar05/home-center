@@ -13,19 +13,20 @@ Keep direct repository-skill authority bound to the same repository-owned `skill
 1. Capture the no-follow `skills` root identity before traversal.
 2. Perform bounded traversal/candidate admission.
 3. Revalidate the original root after enumeration before per-file authority work.
-4. For each candidate, keep the existing no-follow file-identity bracket around bounded title + exact bounded whole-file SHA.
-5. **Before returning any gathered `SkillRecord`, capture and revalidate the original `skills` root one final time.**
-6. If the final observation is unavailable or not `STABLE`, return zero `SkillRecord`s. Partial authority is forbidden.
+4. Reject any case-insensitive identity-set ambiguity before title/hash work.
+5. For each candidate, keep the existing no-follow file-identity bracket around bounded title + exact bounded whole-file SHA.
+6. **Before returning any gathered `SkillRecord`, capture and revalidate the original `skills` root one final time.**
+7. If the final observation is unavailable or not `STABLE`, return zero `SkillRecord`s. Partial authority is forbidden.
 
 ## Evidence semantics
 
 The final root gate detects observable persistent late replacement/type/redirector drift. It does **not** prove atomic cross-platform root binding, exclude swap-and-restore entirely between observations, or defeat identity-token reuse. Those remain separate open platform wounds.
 
-A patch artifact, regression source, or successful GitHub write is not TESTED/runtime/deployed/callable/executed/delivered/accepted evidence. Preserve each capability state separately.
+Owner composition commit `8603d51710d5147a5a7163dce05d9a998cf88557` produced owner blob `51e6efdbcec03d044ab89f37213659252514856a`. A GitHub source write/readback is not TESTED/runtime/deployed/callable/executed/delivered/accepted evidence.
 
 ## Regression contract
 
-Hostile source fixtures should require three root observations for successful discovery: initial, after enumeration, and final after per-file authority work. Persistent late replacement or final identity-capture failure must reject all gathered records.
+Hostile source fixtures require three root observations for successful discovery: initial, after enumeration, and final after per-file authority work. Persistent late replacement or final identity-capture failure must reject all gathered records.
 
 ## Accessibility / operator truth
 
@@ -38,9 +39,10 @@ This skill owns no Phone Hands, primary-phone execution, recovery queue, Nightco
 ## Current capability state
 
 - Doctrine/source: **YES**
-- Exact existing-owner patch provenance: **YES / PROPOSED_NOT_APPLIED**
+- Exact existing-owner patch provenance: **YES / APPLIED_SOURCE**
 - Red hostile regression source: **YES**
-- Existing owner consumes final root gate: **NO**
+- Existing owner consumes final root gate: **YES / SOURCE_WIRED**
+- Exact authenticated owner readback: **YES**
 - TESTED: **NO**
 - Runtime UI/TalkBack: **NO**
 - Deployed/callable/executed/delivered/accepted: **NO**
