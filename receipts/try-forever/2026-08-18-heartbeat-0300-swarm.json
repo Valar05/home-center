@@ -1,0 +1,88 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-18-0300",
+  "sourceHead": "5b50547c54fd423d585ebcd75d76ec8d97f0b39e",
+  "frontsAdvanced": [
+    "repository snapshot stability",
+    "probe self-execution evidence truth",
+    "hostile regression source",
+    "durable repository-skill doctrine",
+    "accessible non-raster provenance organism",
+    "Computer Hands owner-boundary readback",
+    "fresh exact-head CI readback",
+    "Regnet and Venice durable review"
+  ],
+  "heartbeatLights": [
+    {"name":"Failure Is The Shovel","state":"LIT","changed":"Moved from stale-index freshness into a distinct moving-checkout provenance defect; no CI retry."},
+    {"name":"Canon Auto-Select","state":"LIT","changed":"Selected existing provenance probe/skill/specimen owners instead of inventing a registry or renderer."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","changed":"No ambiguous speech-to-text token affected this source slice."},
+    {"name":"Originality Tax","state":"LIT","changed":"Did not repeat deep-detail owner polling as the sole task; opened independent provenance/evidence/accessibility fronts."},
+    {"name":"Hunger","state":"LIT","changed":"Required a materially new UNSTABLE SNAPSHOT consequence rather than another static status receipt."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"LIT","changed":"Cross-checked code, tests, doctrine, art, worker state, CI evidence, and reviewer scars for semantic drift."},
+    {"name":"Operator Campaign","state":"LIT","changed":"Kept existing owners authoritative and preserved the pending Computer Hands mutation as QUEUED, not implemented."},
+    {"name":"Harroway operator discipline","state":"LIT","changed":"Used audited Home Center GitHub writes and exact readback; no adjacent phone/P0 substitution."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","changed":"Authoritative ambient critique attempted; account connection returned HTTP 400; no synthetic substitute."},
+    {"name":"Venice Judgment Jars","state":"LIT","changed":"Allowed only the bounded source slice to yield and preserved the unreadable-SKILL next wound plus process scar."},
+    {"name":"Regnet QA","state":"LIT","changed":"Separated source/readback from TESTED/runtime and discovered the remaining per-file structured-error gap."},
+    {"name":"accessibility/TalkBack and touch semantics","state":"LIT","changed":"Existing DOM specimen gained a fourth provenance state while preserving radio semantics, roving keyboard navigation, >=48px targets, non-color tokens, one live detail region, and reduced-motion behavior."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","changed":"No phone ticket, command, queue/relay probe, recovery mutation, or physical acceptance action."},
+    {"name":"deterministic routing","state":"LIT","changed":"Repository-skill authority now routes through one explicit STABLE_CLEAN pre/post snapshot verdict."},
+    {"name":"evidence/capability-state discipline","state":"LIT","changed":"Emitted probe reports may prove the current process ran without promoting regression tests, runtime UI, deployment, delivery, or acceptance."},
+    {"name":"recovery/checkpointing/idempotence","state":"LIT","changed":"Skill discovery is bracketed by before/after HEAD and cleanliness observations; unstable snapshots fail closed in strict mode."},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"LIT","changed":"Mutated the existing provenance DOM/SVG organism in place; no raster or neighboring UI architecture."},
+    {"name":"warm walls","state":"LIT","changed":"Warm Wall now makes a moving repository snapshot touchable and distinguishable from STALE and UNRESOLVED."},
+    {"name":"Christmas-light scene graph","state":"LIT_RESTRAINT","changed":"The new provenance topology earns a state, not autoplay or decorative blinking; motion remains input/reduced-motion bounded."},
+    {"name":"contact preservation","state":"DARK","changed":"No heartbeat scene/contact frame was changed in this provenance-only slice."},
+    {"name":"heartbeat-skill-provenance-freshness","state":"LIT","changed":"Existing repository skill now requires a stable clean pre/post discovery snapshot and distinguishes source presence from probe execution."}
+  ],
+  "exactBlobs": {
+    "plan": "d8a045e0e9e7372ef23e17db8fcac98215d963fc",
+    "probe": "344246e8894e98c8aa62a07e29db87758ddde029",
+    "tests": "8426da9cd54d394a0e29938777bbe1ca75e96867",
+    "skill": "310afc307c55795949648204f3b5c70668392937",
+    "art": "1c0910cde9d2c1f800bc0563ff955ba3623a36f7",
+    "regnet": "c1d274851483b4d783c3c1fd1c4c838c44c52b44",
+    "venice": "633f63cd139f206bc099394189319913fd0f2baf"
+  },
+  "executionBoundary": {
+    "operatorOverlayRunId": 32114788399,
+    "jobId": 95641743548,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "computerHands": {
+    "ticketId": "hands-try-forever-20260818-0100-detail",
+    "status": "queued",
+    "completedSteps": 0,
+    "workerId": "windows-hands-01",
+    "workerOnline": false,
+    "queueDepth": 3,
+    "deepDetailOwnerPromoted": false
+  },
+  "nextWound": "discover_skills should convert unreadable or malformed-UTF-8 SKILL.md files into bounded discoveryErrors instead of allowing per-file sha/title extraction to abort the structured report.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitectureCreated": false
+  },
+  "crossPollination": "stale generated-index archaeology -> moving-checkout provenance wound -> pre/post snapshot gate -> execution-boundary lie exposed -> regression fixtures -> durable skill doctrine -> accessible UNSTABLE SNAPSHOT wall -> exact-head CI boundary -> Regnet exposes malformed-skill next wound -> Venice prevents source progress from becoming runtime theater"
+}
