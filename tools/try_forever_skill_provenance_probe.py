@@ -39,6 +39,7 @@ class DiscoveryError:
     error_type: str
     reason: str
     sha256: str = ""
+    related_path: str = ""
 
 
 @dataclass(frozen=True)
@@ -226,21 +227,35 @@ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
     return candidate.resolve()
 
 
-def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError | str]]:
+def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
     skills_root = repo_root / "skills"
     if not skills_root.is_dir():
-        return [], ["skills directory is missing"]
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type="MissingSkillsDirectory",
+                reason="skills directory is missing",
+            )
+        ]
 
     records: list[SkillRecord] = []
-    errors: list[DiscoveryError | str] = []
+    errors: list[DiscoveryError] = []
     canonical_seen: dict[str, str] = {}
     for path in sorted(skills_root.rglob("SKILL.md")):
         if not path.is_file():
             continue
-        if not is_within(path, skills_root):
-            errors.append(f"skill path escapes skills root: {path}")
-            continue
         relative = path.relative_to(repo_root).as_posix()
+        if not is_within(path, skills_root):
+            errors.append(
+                DiscoveryError(
+                    path=bounded_error_path(relative),
+                    stage="identity",
+                    error_type="SkillPathEscape",
+                    reason="resolved skill path escapes the skills root",
+                )
+            )
+            continue
         canonical = relative.casefold()
         prior = canonical_seen.get(canonical)
         if prior is not None and prior != relative:
@@ -249,7 +264,8 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     path=bounded_error_path(relative),
                     stage="identity",
                     error_type="CaseInsensitiveIdentityCollision",
-                    reason=f"repository-skill identity collides with {bounded_error_path(prior)}",
+                    reason="repository-skill identity collides case-insensitively with another path",
+                    related_path=bounded_error_path(prior),
                 )
             )
             continue
@@ -295,18 +311,6 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
         records.append(SkillRecord(path=relative, sha256=sha256, title=title))
     return records, errors
-
-
-def discovery_error_json(error: DiscoveryError | str) -> dict[str, str]:
-    if isinstance(error, DiscoveryError):
-        return asdict(error)
-    return {
-        "path": "",
-        "stage": "repository",
-        "error_type": "RepositoryDiscoveryError",
-        "reason": error,
-        "sha256": "",
-    }
 
 
 def first_value(data: dict[str, Any], keys: Iterable[str]) -> Any:
@@ -573,7 +577,7 @@ def main() -> int:
         head_error = f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
 
     result = {
-        "schema": "try-forever-skill-provenance.v1",
+        "schema": "try-forever-skill-provenance.v2",
         "repositoryRoot": str(repo_root),
         "currentHead": observed_head,
         "currentTreeDirty": dirty_after,
@@ -581,7 +585,7 @@ def main() -> int:
         "expectedHeadError": head_error,
         "skillCount": len(skills),
         "skills": [asdict(record) for record in skills],
-        "discoveryErrors": [discovery_error_json(error) for error in discovery_errors],
+        "discoveryErrors": [asdict(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
             "repositorySkill": "direct current-tree skills/**/SKILL.md readback under a STABLE_CLEAN pre/post discovery snapshot",
