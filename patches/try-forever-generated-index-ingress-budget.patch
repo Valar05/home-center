@@ -1,9 +1,11 @@
 # TRY FOREVER — generated-index ingress resource + UTF-8 isolation
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # Existing owner: tools/try_forever_skill_provenance_probe.py
-# Base owner blob observed before this source slice: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Base owner blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Applied owner commit: 8603d51710d5147a5a7163dce05d9a998cf88557
+# Applied owner blob: 51e6efdbcec03d044ab89f37213659252514856a
 # Scope: existing inspect_generated_index owner only; no second provenance probe.
-# Claim boundary: exact patch provenance is source, not implementation/test/runtime proof.
+# Claim boundary: applied source/readback is not test/runtime/deployment/delivery proof.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
