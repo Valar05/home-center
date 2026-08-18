@@ -8,9 +8,10 @@ or deployment path.
 The policy intentionally does not claim an atomic cross-platform no-follow open.
 Python exposes ``os.scandir(fd)`` only on Unix, so portable source can instead
 capture the no-follow root identity before work and revalidate it before any
-per-file authority is granted. That detects persistent replacement/type drift,
-while a swap-and-restore race entirely between observations remains an explicit
-unclosed boundary.
+per-file authority is granted. That detects observable persistent replacement
+or type drift when the two observations expose a different identity/redirector,
+while identity reuse and a swap-and-restore race entirely between observations
+remain explicit unclosed boundaries.
 """
 
 from __future__ import annotations
