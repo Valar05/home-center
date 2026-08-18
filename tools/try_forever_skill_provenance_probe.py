@@ -20,6 +20,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from try_forever_skill_root_identity import (
+    capture_skill_root_identity,
+    revalidate_skill_root_identity,
+)
+
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
 MAX_FUTURE_SKEW_SECONDS = 5 * 60
 MAX_DISCOVERY_ERROR_PATH_CHARS = 512
@@ -368,22 +373,48 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
     """
 
     skills_root = repo_root / "skills"
-    if skills_root.is_symlink():
-        return [], [
-            DiscoveryError(
-                path="skills",
-                stage="repository",
-                error_type="SymlinkedSkillsRoot",
-                reason="skills root is a symlink; repository-skill traversal outside repository-owned topology is forbidden",
-            )
-        ]
-    if not skills_root.is_dir():
+    try:
+        root_before = capture_skill_root_identity(skills_root)
+    except FileNotFoundError:
         return [], [
             DiscoveryError(
                 path="skills",
                 stage="repository",
                 error_type="MissingSkillsDirectory",
                 reason="skills directory is missing",
+            )
+        ]
+    except OSError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=type(error).__name__,
+                reason="skills root identity could not be observed without following redirectors",
+            )
+        ]
+
+    if root_before.redirector_kind:
+        error_type = (
+            "JunctionSkillsRoot"
+            if root_before.redirector_kind == "junction"
+            else "SymlinkedSkillsRoot"
+        )
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=error_type,
+                reason=f"skills root is a {root_before.redirector_kind}; repository-skill traversal outside repository-owned topology is forbidden",
+            )
+        ]
+    if not root_before.is_directory:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type="MissingSkillsDirectory",
+                reason="skills root is not an ordinary directory",
             )
         ]
 
@@ -414,6 +445,34 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                 stage="traversal",
                 error_type=type(error).__name__,
                 reason="skill filesystem traversal could not be completed; partial repository-skill authority is forbidden",
+            )
+        ]
+
+    try:
+        root_after = capture_skill_root_identity(skills_root)
+    except OSError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=type(error).__name__,
+                reason="skills root identity could not be revalidated after candidate enumeration; partial repository-skill authority is forbidden",
+            )
+        ]
+
+    root_verdict = revalidate_skill_root_identity(root_before, root_after)
+    if root_verdict.status != "STABLE":
+        error_type = (
+            "SkillsRootIdentityUnavailable"
+            if root_verdict.status == "IDENTITY_UNAVAILABLE"
+            else "SkillsRootIdentityChanged"
+        )
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=error_type,
+                reason=root_verdict.reason,
             )
         ]
 
