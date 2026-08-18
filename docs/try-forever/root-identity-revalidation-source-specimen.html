@@ -17,34 +17,34 @@ button[aria-checked=true]{outline:4px solid currentColor;outline-offset:3px}butt
 </head>
 <body>
 <main>
-  <div class="scar">Warm wall · source only</div>
+  <div class="scar">Warm wall · owner source wired · runtime unproven</div>
   <h1>Root identity is not a pathname.</h1>
-  <p class="small">No phone. No P0. No renderer/controller. No Christmas blink. This is a touchable source-policy specimen, not runtime proof.</p>
+  <p class="small">Existing provenance owner consumes the policy in repository source. No phone. No P0. No second probe. No Christmas blink. This remains source evidence, not runtime or atomicity proof.</p>
   <div class="wall" role="radiogroup" aria-label="Root identity states">
-    <button role="radio" aria-checked="true" tabindex="0" data-state="real"><span class="token">●</span>Stable real root</button>
+    <button role="radio" aria-checked="true" tabindex="0" data-state="real"><span class="token">●</span>Owner source wired</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="redirect"><span class="token">×</span>Redirector blocked</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="changed"><span class="token">□</span>Identity changed</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="open"><span class="token">◇</span>Atomicity still open</button>
   </div>
   <div id="detail" class="detail" aria-live="polite"></div>
   <svg viewBox="0 0 720 150" role="img" aria-labelledby="svg-title svg-desc">
-    <title id="svg-title">Warm wall root identity scar</title>
-    <desc id="svg-desc">Two observations bracket candidate traversal. Persistent identity change is rejected, while a transient swap and restore between observations remains an open boundary.</desc>
+    <title id="svg-title">Warm wall root identity owner-wiring scar</title>
+    <desc id="svg-desc">The existing provenance owner now brackets candidate traversal with two root identity observations. Persistent identity change is rejected, while transient swap-and-restore and post-revalidation replacement remain open boundaries.</desc>
     <rect x="12" y="45" width="180" height="62" rx="18" fill="none" stroke="currentColor" stroke-width="3"/>
-    <text x="102" y="72" text-anchor="middle" fill="currentColor">OBSERVE A</text><text x="102" y="94" text-anchor="middle" fill="currentColor">no-follow identity</text>
+    <text x="102" y="72" text-anchor="middle" fill="currentColor">OBSERVE A</text><text x="102" y="94" text-anchor="middle" fill="currentColor">existing owner</text>
     <path d="M202 76H326" stroke="currentColor" stroke-width="3"/><text x="264" y="62" text-anchor="middle" fill="currentColor">bounded traversal</text>
     <rect x="336" y="45" width="180" height="62" rx="18" fill="none" stroke="currentColor" stroke-width="3"/>
-    <text x="426" y="72" text-anchor="middle" fill="currentColor">OBSERVE B</text><text x="426" y="94" text-anchor="middle" fill="currentColor">revalidate identity</text>
-    <path d="M526 76H650" stroke="currentColor" stroke-width="3"/><text x="588" y="62" text-anchor="middle" fill="currentColor">authority gate</text>
-    <circle cx="680" cy="76" r="22" fill="none" stroke="currentColor" stroke-width="3"/><text x="680" y="82" text-anchor="middle" fill="currentColor">?</text>
+    <text x="426" y="72" text-anchor="middle" fill="currentColor">OBSERVE B</text><text x="426" y="94" text-anchor="middle" fill="currentColor">owner revalidates</text>
+    <path d="M526 76H650" stroke="currentColor" stroke-width="3"/><text x="588" y="62" text-anchor="middle" fill="currentColor">per-file gate</text>
+    <circle cx="680" cy="76" r="22" fill="none" stroke="currentColor" stroke-width="3"/><text x="680" y="82" text-anchor="middle" fill="currentColor">◇</text>
   </svg>
 </main>
 <script>
 const descriptions={
- real:'STABLE — same ordinary directory identity before and after candidate enumeration. Source policy only; owner consumption is not yet wired.',
- redirect:'BLOCKED — symlink or Windows junction is redirected topology, not a repository-owned skills root.',
- changed:'FAULT — persistent device/inode or root-type change invalidates partial repository-skill authority before title/hash work.',
- open:'OPEN WOUND — two path observations cannot atomically exclude a swap-and-restore that begins and ends between them. Do not paint this green.'
+ real:'SOURCE WIRED — the existing provenance probe captures and revalidates root identity around candidate enumeration. Exact repository readback exists; execution/runtime remains unproven.',
+ redirect:'BLOCKED — symlink or Windows junction is redirected topology, not a repository-owned skills root; candidate traversal does not start.',
+ changed:'FAULT — persistent device/inode or root-type change invalidates all partial repository-skill authority before title/hash work.',
+ open:'OPEN WOUND — two path observations cannot atomically exclude swap-and-restore, post-revalidation replacement, or filesystem identity reuse. Do not paint this green.'
 };
 const radios=[...document.querySelectorAll('[role=radio]')];
 const detail=document.getElementById('detail');
