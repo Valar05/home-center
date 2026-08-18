@@ -27,11 +27,12 @@
 <main>
   <h1>CANDIDATE FILE IDENTITY / WARM WALL</h1>
   <p>One named <code>SKILL.md</code> must remain one ordinary repository-owned file across the checked work.</p>
-  <div class="scar">SOURCE POLICY ONLY · OWNER CONSUMPTION NO · TESTED NO · RUNTIME UNPROVEN · PHONE/P0 UNTOUCHED · STABLE OBSERVATIONS ≠ ATOMIC BINDING</div>
+  <div class="scar">SOURCE OWNER WIRED · TOPOLOGY GATE WIRED · FILE IDENTITY BRACKET WIRED · TESTED NO · RUNTIME UNPROVEN · PHONE/P0 UNTOUCHED · STABLE OBSERVATIONS ≠ ATOMIC BINDING</div>
 
   <div class="wall" role="radiogroup" aria-label="Candidate file identity states" id="states">
-    <button type="button" role="radio" aria-checked="true" tabindex="0" data-key="stable"><span class="token">●</span> STABLE OBSERVATION</button>
-    <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="redirector"><span class="token">×</span> REDIRECTOR BLOCKED</button>
+    <button type="button" role="radio" aria-checked="true" tabindex="0" data-key="wired"><span class="token">●</span> OWNER SOURCE WIRED</button>
+    <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="stable"><span class="token">●</span> STABLE OBSERVATION</button>
+    <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="redirector"><span class="token">×</span> REDIRECTOR / NON-FILE BLOCKED</button>
     <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="changed"><span class="token">□</span> FILE CHANGED</button>
     <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="unknown"><span class="token">◇</span> IDENTITY UNAVAILABLE</button>
     <button type="button" role="radio" aria-checked="false" tabindex="-1" data-key="atomic"><span class="token">!</span> ATOMICITY STILL OPEN</button>
@@ -41,7 +42,7 @@
 
   <svg class="map" viewBox="0 0 900 180" role="img" aria-labelledby="mapTitle mapDesc">
     <title id="mapTitle">Candidate file identity authority path</title>
-    <desc id="mapDesc">No-follow candidate admission leads to an identity observation, bounded title and exact bounded hash work, then revalidation. Stable revalidation is still not an atomic file-handle guarantee.</desc>
+    <desc id="mapDesc">The existing provenance owner performs no-follow candidate admission, captures candidate identity, reads bounded title and exact bounded hash, then revalidates identity. Stable revalidation is still not an atomic file-handle guarantee.</desc>
     <rect x="20" y="55" width="155" height="65" rx="12"/>
     <text x="36" y="83">NO-FOLLOW</text><text x="36" y="103">CANDIDATE</text>
     <line x1="175" y1="87" x2="240" y2="87"/>
@@ -63,8 +64,9 @@
   const detail = document.getElementById('detail');
   const radios = Array.from(document.querySelectorAll('[role="radio"]'));
   const copy = {
+    wired: 'OWNER SOURCE WIRED\nThe existing try_forever_skill_provenance_probe now owns both the no-follow candidate topology gate and before/after candidate-file identity revalidation. No neighboring probe or controller was created.',
     stable: 'STABLE\nSame no-follow device/inode + size/mtime observation bracketed the checked work. Eligible to continue, but this is observation truth—not atomic binding.',
-    redirector: 'REDIRECTOR BLOCKED\nA named SKILL.md is a symlink/junction redirector. Do not follow it, silently skip it, or let first-path-wins choose authority.',
+    redirector: 'REDIRECTOR / NON-FILE BLOCKED\nA named SKILL.md that is a symlink, redirector, directory, or other non-ordinary file fails the global candidate gate before title/hash authority. No first-path-wins alias is allowed.',
     changed: 'FILE CHANGED\nFile type, redirector state, object identity, size, or mtime changed between observations. Fail closed; no repository-skill authority.',
     unknown: 'IDENTITY UNAVAILABLE\nNo usable inode/file-index token is available. Portable revalidation cannot certify one file object, so authority stays blocked.',
     atomic: 'ATOMICITY STILL OPEN\nEqual observations cannot prove that swap-and-restore, identity reuse, or same-token content rewrite never happened between them. Do not paint STABLE green as ATOMIC.'
