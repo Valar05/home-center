@@ -59,6 +59,28 @@ public class HeartbeatDetailSurfacePolicyTest {
     }
 
     @Test
+    public void fiveLineSpatialBudgetConvertsToPixelHeight() {
+        assertEquals(
+                108,
+                HeartbeatDetailSurfacePolicy.maxViewportHeightPx(20, 8));
+    }
+
+    @Test
+    public void viewportHeightPolicyFailsClosedForNegativeDimensions() {
+        assertEquals(0, HeartbeatDetailSurfacePolicy.maxViewportHeightPx(-1, -1));
+        assertEquals(8, HeartbeatDetailSurfacePolicy.maxViewportHeightPx(-1, 8));
+    }
+
+    @Test
+    public void viewportHeightPolicyUsesOverflowSafeArithmetic() {
+        assertEquals(
+                Integer.MAX_VALUE,
+                HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
+                        Integer.MAX_VALUE,
+                        Integer.MAX_VALUE));
+    }
+
+    @Test
     public void backgroundRefreshPreservesLegalReadingPosition() {
         assertEquals(120, HeartbeatDetailSurfacePolicy.clampScrollY(120, 1000, 300));
     }
