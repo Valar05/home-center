@@ -1,0 +1,76 @@
+{
+  "schema": "venice.completion-review.v1",
+  "heartbeat": "2026-08-18-0100",
+  "pr": 329,
+  "reviewedSourceHead": "5c939cf8eea45b72b2281eb22aca7393365953f7",
+  "regnetReceipt": "receipts/regnet/2026-08-18-try-forever-heartbeat-0100-source-review.json",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_EXECUTION_PENDING__CAMPAIGN_CONTINUE_REQUIRED",
+  "codeReview": "PASS_BOUNDED_SOURCE",
+  "evidenceReview": "PASS_WITH_EXPLICIT_RUNTIME_AND_QUEUE_BOUNDARIES",
+  "judgments": [
+    {
+      "name": "mission-fidelity",
+      "result": "PASS",
+      "detail": "The pulse stayed on the existing heartbeat overlay/source organs and used a distinct non-phone Computer Hands lane for the proposed owner mutation. It did not touch the P0/phone chain or create a neighboring owner."
+    },
+    {
+      "name": "source-truth",
+      "result": "PASS",
+      "detail": "The actual owner remains legacy at blob c266e66a8004623efadab1933de4e429e677c6a5. The queued patch request is not called implemented, and the new source probe is not called executed."
+    },
+    {
+      "name": "accessibility",
+      "result": "PASS_SOURCE_ONLY",
+      "detail": "The corrected deep-detail contract still preserves full Why/Consequence/Evidence/Source, passive touch-scroll ownership, pixel-height spatial bounding, explicit-selection reset, and generation-bound background scroll preservation. Runtime Android/TalkBack remains unproven."
+    },
+    {
+      "name": "originality-tax",
+      "result": "PASS",
+      "detail": "The pulse did not repeat the prior whole-file-boundary lament or CI retry. It discovered the deployed Computer Hands operation, queued one blob-locked lease-protected owner request, and added a deterministic source-capability probe so future pulses do not repeat manual archaeology."
+    },
+    {
+      "name": "artifact-discipline",
+      "result": "PASS",
+      "detail": "Warm Walls/Swan Veil/Christmas motion stayed dark because no realized owner/runtime topology changed. Queue admission did not earn a decorative visual mutation."
+    },
+    {
+      "name": "test-truth",
+      "result": "BOUNDARY",
+      "detail": "Operator Overlay Android run 32106028378 on exact source head 5c939cf8eea45b72b2281eb22aca7393365953f7 failed. Job 95615536934 exposes zero steps and log retrieval returns 404 BlobNotFound. TESTED remains NO; no cause was invented and no retry was fired."
+    },
+    {
+      "name": "review-order-scar",
+      "result": "PRESERVED",
+      "detail": "A durable general pre-mutation plan existed before source mutation, but this pulse did not create a separate Venice plan-review artifact before the first source write. This completion review does not retroactively pretend otherwise."
+    },
+    {
+      "name": "she-raw",
+      "result": "FAULT_PRESERVED",
+      "detail": "Authoritative she_raw_ambient returned account-connection HTTP 400. No synthetic She-Raw judgment was substituted."
+    },
+    {
+      "name": "p0-firewall",
+      "result": "PASS",
+      "detail": "The Computer Hands request is non-phone. Phone Hands, primary phone, queue/relay recovery, P0 owners, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remained untouched."
+    }
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "sourceCapabilityProbe": true,
+    "sourceCapabilityProbeExecuted": false,
+    "queuedComputerHandsOwnerRequest": true,
+    "computerHandsRequestExecuted": false,
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextExactOwnerGate": "A later pulse may promote existing-owner source only after the queued Computer Hands request returns success and authenticated GitHub readback proves the owner blob/diff. If the worker remains offline, do not invent a substitute phone/P0 lane."
+}
