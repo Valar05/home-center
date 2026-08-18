@@ -22,9 +22,9 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +        heartbeatDetail.setVerticalScrollBarEnabled(true);
 +        heartbeatDetail.setMovementMethod(ScrollingMovementMethod.getInstance());
 +        // setMovementMethod mutates TextView focus/click ownership; restore the intended passive well.
-+        heartbeatDetail.setFocusable(false);
-+        heartbeatDetail.setClickable(false);
-+        heartbeatDetail.setLongClickable(false);
++        heartbeatDetail.setFocusable(HeartbeatDetailSurfacePolicy.KEYBOARD_FOCUSABLE);
++        heartbeatDetail.setClickable(HeartbeatDetailSurfacePolicy.CLICKABLE);
++        heartbeatDetail.setLongClickable(HeartbeatDetailSurfacePolicy.LONG_CLICKABLE);
          heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
          heartbeatDetail.setContentDescription(
                  "Touch a heartbeat light for why, consequence, evidence, and source detail.");
