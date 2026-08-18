@@ -1,0 +1,107 @@
+# BASE_BLOB: f7fe082751875e27213a9e324d85bc371f46f335
+# TARGET: tools/try_forever_skill_provenance_probe.py
+# STATUS: PROPOSED_NOT_APPLIED
+# CLAIM: persistent root replacement/type drift detection before per-file authority
+# NON_CLAIM: atomic exclusion of swap-and-restore races between two path observations
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ from pathlib import Path
+ from typing import Any, Iterable
++
++from try_forever_skill_root_identity import (
++    capture_skill_root_identity,
++    revalidate_skill_root_identity,
++)
+@@
+     intentionally precedes whole-file hashing.
+     """
+ 
+     skills_root = repo_root / "skills"
+-    if skills_root.is_symlink():
++    try:
++        root_before = capture_skill_root_identity(skills_root)
++    except FileNotFoundError:
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type="MissingSkillsDirectory",
++                reason="skills directory is missing",
++            )
++        ]
++    except OSError as error:
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type=type(error).__name__,
++                reason="skills root identity could not be observed without following redirectors",
++            )
++        ]
++
++    if root_before.redirector_kind:
++        error_type = (
++            "JunctionSkillsRoot"
++            if root_before.redirector_kind == "junction"
++            else "SymlinkedSkillsRoot"
++        )
+         return [], [
+             DiscoveryError(
+                 path="skills",
+                 stage="repository",
+-                error_type="SymlinkedSkillsRoot",
+-                reason="skills root is a symlink; repository-skill traversal outside repository-owned topology is forbidden",
++                error_type=error_type,
++                reason=f"skills root is a {root_before.redirector_kind}; repository-skill traversal outside repository-owned topology is forbidden",
+             )
+         ]
+-    if not skills_root.is_dir():
++    if not root_before.is_directory:
+         return [], [
+             DiscoveryError(
+                 path="skills",
+                 stage="repository",
+                 error_type="MissingSkillsDirectory",
+-                reason="skills directory is missing",
++                reason="skills root is not an ordinary directory",
+             )
+         ]
+@@
+     except OSError as error:
+         return [], [
+             DiscoveryError(
+                 path="skills",
+@@
+             )
+         ]
++
++    try:
++        root_after = capture_skill_root_identity(skills_root)
++    except OSError as error:
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type=type(error).__name__,
++                reason="skills root identity could not be revalidated after candidate enumeration; partial repository-skill authority is forbidden",
++            )
++        ]
++
++    root_verdict = revalidate_skill_root_identity(root_before, root_after)
++    if root_verdict.status != "STABLE":
++        error_type = (
++            "SkillsRootIdentityUnavailable"
++            if root_verdict.status == "IDENTITY_UNAVAILABLE"
++            else "SkillsRootIdentityChanged"
++        )
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type=error_type,
++                reason=root_verdict.reason,
++            )
++        ]
+ 
+     records: list[SkillRecord] = []
