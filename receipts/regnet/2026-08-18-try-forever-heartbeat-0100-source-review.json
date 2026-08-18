@@ -1,0 +1,100 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-18-0100",
+  "pr": 329,
+  "reviewedSourceHead": "5c939cf8eea45b72b2281eb22aca7393365953f7",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_QUEUE_STATE_ONLY",
+  "scope": [
+    "non-phone mutation-lane reorientation",
+    "deep-detail durable skill lane doctrine",
+    "deterministic existing-owner source capability probe",
+    "owner-probe durable skill harvest",
+    "Computer Hands request admission state",
+    "fresh exact-head CI boundary",
+    "P0/phone firewall"
+  ],
+  "findings": [
+    {
+      "severity": "PASS",
+      "id": "owner-remains-single",
+      "detail": "No neighboring heartbeat detail renderer, controller, state store, poller, phone path, or P0 coordinator was created. OperatorOverlayService remains the sole native owner."
+    },
+    {
+      "severity": "PASS",
+      "id": "owner-truth-not-promoted",
+      "detail": "Fresh authenticated readback still reports OperatorOverlayService blob c266e66a8004623efadab1933de4e429e677c6a5 with heartbeatDetail.setMaxLines(5), END ellipsis, and legacy showHeartbeatDetail. Existing-owner deep-detail wiring therefore remains NO."
+    },
+    {
+      "severity": "PASS",
+      "id": "queued-is-not-implemented",
+      "detail": "Computer Hands ticket hands-try-forever-20260818-0100-detail is QUEUED with zero completed steps while windows-hands-01 is offline. Queue admission is preserved as durable intent only, not owner implementation."
+    },
+    {
+      "severity": "PASS",
+      "id": "patch-request-fails-closed",
+      "detail": "The queued non-phone patch command fetches the current remote branch, locks the owner and patch blobs, uses git apply --check, requires exactly one changed file, checks required/forbidden owner markers, runs git diff --check, and pushes with force-with-lease against the fetched remote head. Branch or blob drift fails closed."
+    },
+    {
+      "severity": "PASS",
+      "id": "source-probe-conservative",
+      "detail": "tools/try_forever_heartbeat_detail_owner_probe.py separates LEGACY_OWNER, SOURCE_WIRED, and PARTIAL_UNSAFE; PARTIAL_UNSAFE cannot round up to success. Its capability payload explicitly keeps tested/runtime/deployed/callable/delivered/accepted false."
+    },
+    {
+      "severity": "BOUNDARY",
+      "id": "probe-not-executed-remotely",
+      "detail": "The owner probe has source readback but no authorized execution receipt. Its built-in self-test is source only and must not be called TESTED."
+    },
+    {
+      "severity": "BOUNDARY",
+      "id": "computer-hands-offline",
+      "detail": "Deployed Home Center reports windows-hands-01 online=false, status=idle. Do not create substitute worker architecture or route owner mutation through the phone."
+    },
+    {
+      "severity": "WARN",
+      "id": "stale-skill-index",
+      "detail": "droobiedoo.skill_match returned a skill index 33.57 days old, beyond its 14-day freshness limit, generated from a dirty source tree. It was treated as discovery noise only and not used as authoritative skill provenance."
+    },
+    {
+      "severity": "BOUNDARY",
+      "id": "ci-zero-steps",
+      "detail": "Operator Overlay Android run 32106028378 on exact source head 5c939cf8eea45b72b2281eb22aca7393365953f7 concluded failure. Job 95615536934 exposes zero steps; job-log retrieval returns 404 BlobNotFound. No cause is inferred and no manual retry was dispatched. TESTED remains NO."
+    },
+    {
+      "severity": "PASS",
+      "id": "art-dark-by-design",
+      "detail": "No realized native owner/runtime topology changed, so Swan Veil/Warm Walls/Christmas motion were not mutated merely to narrate queue admission."
+    },
+    {
+      "severity": "PASS",
+      "id": "p0-firewall",
+      "detail": "Zero Phone Hands tickets, primary-phone commands, queue/relay probes or mutations, P0 recovery mutations, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance actions were consumed by this swarm. The Computer Hands ticket is a distinct non-phone lane."
+    }
+  ],
+  "sourceCustody": {
+    "planCommit": "858ddf1f7f8b16b82132cb54f983f37b23466198",
+    "deepDetailSkillBlob": "51d79291c3d4bd8cd1bd34b9fbb400f804d890f4",
+    "ownerProbeBlob": "83300bccdac8d62e67e2077ee2d60c71b56dd7d3",
+    "ownerProbeSkillBlob": "dea8d902e5bd986628b2f452e19b3e7e3ae9ae7c",
+    "actualOwnerBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "correctedPatchBlob": "991cc7b950d1beb7ce9f50815b7107094562ba80"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "queuedComputerHandsOwnerRequest": true,
+    "computerHandsRequestExecuted": false,
+    "existingOwnerDeepDetailWiring": false,
+    "probeSourceImplemented": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "regnetGate": "SOURCE_PROGRESS_PASS__OWNER_QUEUE_PENDING__TESTED_NO__CAMPAIGN_CONTINUE_REQUIRED"
+}
