@@ -23,13 +23,15 @@ Per-light labels, ordinary active/recovered breadth, provenance, reason, consequ
 ## Attention rule
 Concise must not mean blind to danger.
 
-A collapsed action control may omit ordinary per-light names, but it must preserve exact **blocked/fault counts** when either exists. Do not recover state by parsing visible labels or prose. The typed scene/model state is the authority.
+A collapsed action control may omit ordinary per-light names, but it must preserve exact **blocked/fault counts** when either exists. Do not recover state by parsing visible labels or prose. The typed accepted/preserved scene is the authority.
 
 Current compact shape:
 
 `Attention: blocked N, fault N.`
 
 When both counts are zero, the attention sentence is absent.
+
+Attention counts are derived only from the visible accepted/preserved frame. A rejected or incomplete attempted pulse may not leak its blocked/fault state into current collapsed-owner speech. If the last-good frame has no attention states, a discarded attempted fault remains absent while `CONTACT HELD` explains the interrupted refresh.
 
 Do not add active/recovered histogram chatter merely because those counts are available. That would rebuild the same routine speech-load problem in a slightly more bureaucratic hat.
 
@@ -64,6 +66,7 @@ At minimum pin:
 - the surviving drag-handle description stays within the aggregate budget;
 - broad per-light labels and the full `States:` list are absent from the handle;
 - exact blocked/fault counts remain present;
+- a rejected/incomplete attempted fault does not leak into attention counts or current collapsed-owner prose;
 - explicit expand-for-details action remains present;
 - accepted-zero / waiting / held / blocked remain distinct;
 - expanded mode preserves the ordinary overlay action description;
@@ -84,4 +87,4 @@ This skill owns no Phone Hands ticket, primary-phone command, queue/relay probe,
 Those surfaces remain with their canonical P0 owners.
 
 ## Done for one pulse
-Light this skill only when collapsed-owner speech load, urgent-state compactness, aggregate returned budget, or runtime proof materially changes. Once the source seam is stable, keep it dark instead of turning the drag handle into office carpeting with a screen reader attached.
+Light this skill only when collapsed-owner speech load, urgent-state compactness, aggregate returned budget, accepted/preserved attention ownership, or runtime proof materially changes. Once the source seam is stable, keep it dark instead of turning the drag handle into office carpeting with a screen reader attached.
