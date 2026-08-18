@@ -51,6 +51,12 @@ public final class HeartbeatOverlayViewModel {
          * surface capable of honestly representing that structural transition.
          */
         public final boolean summaryTransitionMotion;
+        /**
+         * Compact attention-only status for surviving collapsed-owner speech.
+         * Empty when no blocked/fault light exists; active/recovered breadth remains
+         * behind explicit expansion instead of becoming routine action-control speech.
+         */
+        public final String attentionStatusDescription;
         public final String collapsedContentDescription;
         public final List<LightControl> controls;
 
@@ -59,12 +65,14 @@ public final class HeartbeatOverlayViewModel {
                 boolean refreshInterrupted,
                 String refreshBoundary,
                 boolean transitionMotionAllowed,
+                String attentionStatusDescription,
                 String collapsedContentDescription,
                 List<LightControl> controls) {
             this.visiblePulseId = raw(visiblePulseId);
             this.refreshInterrupted = refreshInterrupted;
             this.refreshBoundary = raw(refreshBoundary);
             this.transitionMotionAllowed = transitionMotionAllowed;
+            this.attentionStatusDescription = raw(attentionStatusDescription);
             this.collapsedContentDescription = raw(collapsedContentDescription);
             this.controls = Collections.unmodifiableList(new ArrayList<>(controls));
             boolean anyNodeMotion = false;
@@ -182,6 +190,7 @@ public final class HeartbeatOverlayViewModel {
                     true,
                     "Heartbeat scene unavailable.",
                     false,
+                    "",
                     "Heartbeat scene unavailable.",
                     Collections.emptyList());
         }
@@ -195,8 +204,21 @@ public final class HeartbeatOverlayViewModel {
                 frame.refreshInterrupted,
                 frame.refreshBoundary,
                 frame.transitionMotionAllowed,
+                attentionStatusDescription(frame),
                 HeartbeatFrameAccessibility.collapsedContentDescription(frame),
                 controls);
+    }
+
+    private static String attentionStatusDescription(HeartbeatSceneGraph.Frame frame) {
+        if (frame == null || frame.nodes.isEmpty()) return "";
+        int blocked = 0;
+        int fault = 0;
+        for (HeartbeatSceneGraph.Node node : frame.nodes) {
+            if (node.state == HeartbeatSkillPolicy.State.BLOCKED) blocked++;
+            else if (node.state == HeartbeatSkillPolicy.State.FAULT) fault++;
+        }
+        if (blocked == 0 && fault == 0) return "";
+        return "Attention: blocked " + blocked + ", fault " + fault + ".";
     }
 
     private static String visibleLabel(HeartbeatSceneGraph.Node node) {
