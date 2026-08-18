@@ -22,6 +22,7 @@ from typing import Any, Iterable
 
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
 MAX_FUTURE_SKEW_SECONDS = 5 * 60
+MAX_DISCOVERY_ERROR_PATH_CHARS = 512
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,15 @@ class SkillRecord:
     path: str
     sha256: str
     title: str
+
+
+@dataclass(frozen=True)
+class DiscoveryError:
+    path: str
+    stage: str
+    error_type: str
+    reason: str
+    sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -67,6 +77,41 @@ def markdown_title(path: Path) -> str:
             if stripped.startswith("# "):
                 return stripped[2:].strip()
     return path.parent.name
+
+
+def bounded_error_path(relative: str) -> str:
+    """Bound operator-facing discovery error paths without inventing aliases."""
+
+    if len(relative) <= MAX_DISCOVERY_ERROR_PATH_CHARS:
+        return relative
+    digest = hashlib.sha256(relative.encode("utf-8", errors="surrogatepass")).hexdigest()[:16]
+    suffix = f"...#{digest}"
+    keep = max(0, MAX_DISCOVERY_ERROR_PATH_CHARS - len(suffix))
+    return relative[:keep] + suffix
+
+
+def discovery_error(
+    *,
+    relative: str,
+    stage: str,
+    error: BaseException,
+    reason: str,
+    sha256: str = "",
+) -> DiscoveryError:
+    """Project one per-file failure into bounded non-hostile diagnostic data.
+
+    Raw exception prose is deliberately excluded because an OS error string or
+    malformed file content is not trusted operator-facing semantic text. The
+    exception class is enough to distinguish I/O from UTF-8 decoding failures.
+    """
+
+    return DiscoveryError(
+        path=bounded_error_path(relative),
+        stage=stage,
+        error_type=type(error).__name__,
+        reason=reason,
+        sha256=sha256,
+    )
 
 
 def command_text(args: list[str], cwd: Path) -> str:
@@ -181,13 +226,13 @@ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
     return candidate.resolve()
 
 
-def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[str]]:
+def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError | str]]:
     skills_root = repo_root / "skills"
     if not skills_root.is_dir():
         return [], ["skills directory is missing"]
 
     records: list[SkillRecord] = []
-    errors: list[str] = []
+    errors: list[DiscoveryError | str] = []
     canonical_seen: dict[str, str] = {}
     for path in sorted(skills_root.rglob("SKILL.md")):
         if not path.is_file():
@@ -200,18 +245,68 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[str]]:
         prior = canonical_seen.get(canonical)
         if prior is not None and prior != relative:
             errors.append(
-                f"case-insensitive repository-skill identity collision: {prior} vs {relative}"
+                DiscoveryError(
+                    path=bounded_error_path(relative),
+                    stage="identity",
+                    error_type="CaseInsensitiveIdentityCollision",
+                    reason=f"repository-skill identity collides with {bounded_error_path(prior)}",
+                )
             )
             continue
         canonical_seen[canonical] = relative
-        records.append(
-            SkillRecord(
-                path=relative,
-                sha256=sha256_file(path),
-                title=markdown_title(path),
+
+        try:
+            sha256 = sha256_file(path)
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="hash",
+                    error=error,
+                    reason="skill file bytes could not be read",
+                )
             )
-        )
+            continue
+
+        try:
+            title = markdown_title(path)
+        except UnicodeDecodeError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="title",
+                    error=error,
+                    reason="skill file is not valid UTF-8 text",
+                    sha256=sha256,
+                )
+            )
+            continue
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="title",
+                    error=error,
+                    reason="skill file title could not be read",
+                    sha256=sha256,
+                )
+            )
+            continue
+
+        records.append(SkillRecord(path=relative, sha256=sha256, title=title))
     return records, errors
+
+
+def discovery_error_json(error: DiscoveryError | str) -> dict[str, str]:
+    if isinstance(error, DiscoveryError):
+        return asdict(error)
+    return {
+        "path": "",
+        "stage": "repository",
+        "error_type": "RepositoryDiscoveryError",
+        "reason": error,
+        "sha256": "",
+    }
 
 
 def first_value(data: dict[str, Any], keys: Iterable[str]) -> Any:
@@ -486,7 +581,7 @@ def main() -> int:
         "expectedHeadError": head_error,
         "skillCount": len(skills),
         "skills": [asdict(record) for record in skills],
-        "discoveryErrors": discovery_errors,
+        "discoveryErrors": [discovery_error_json(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
             "repositorySkill": "direct current-tree skills/**/SKILL.md readback under a STABLE_CLEAN pre/post discovery snapshot",
