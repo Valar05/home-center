@@ -22,9 +22,10 @@
 <body>
 <main>
   <h1>WARM WALL / SKILL PROVENANCE RESOURCE THROATS</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> Title throat first, whole-file hash throat second. Repository policy specimen; not executed probe evidence, Android runtime proof, phone delivery, or Christmas blink permission.</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> Candidate throat first, title throat second, whole-file hash throat third. Repository policy specimen; not executed probe evidence, Android runtime proof, phone delivery, or Christmas blink permission.</p>
   <div role="radiogroup" aria-label="Skill provenance resource states" id="states">
-    <button role="radio" aria-checked="true" tabindex="0" data-state="accepted"><span class="token">● ACCEPTED</span> — bounded title + full-file SHA</button>
+    <button role="radio" aria-checked="true" tabindex="0" data-state="accepted"><span class="token">● ACCEPTED</span> — bounded candidates + title + full-file SHA</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="candidate"><span class="token">× CANDIDATE SET BLOCKED</span> — max+1 SKILL.md paths</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="line"><span class="token">× TITLE LINE BLOCKED</span> — one line exceeds 8 KiB</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="scan"><span class="token">× TITLE SCAN BLOCKED</span> — H1 unresolved within 64 KiB</button>
     <button role="radio" aria-checked="false" tabindex="-1" data-state="title"><span class="token">× TITLE TEXT BLOCKED</span> — H1 exceeds 256 code points</button>
@@ -34,7 +35,8 @@
 </main>
 <script>
 const copy = {
-  accepted: 'Why: title admission succeeded and the complete SKILL.md reached EOF inside the whole-file hash budget.\nConsequence: the record may continue through snapshot/index provenance gates.\nEvidence: exact full-file SHA; no prefix or truncation became authority.',
+  accepted: 'Why: the complete candidate set fit the declared count throat, title admission succeeded, and complete SKILL.md bytes reached EOF inside the whole-file hash budget.\nConsequence: records may continue through path identity, snapshot, and generated-index provenance gates.\nEvidence: deterministic bounded candidate ordering plus exact full-file SHA; no partial set, prefix, or truncation became authority.',
+  candidate: 'Why: discovery observed max+1 actual SKILL.md file candidates.\nConsequence: reject the entire repository-skill candidate set before title/hash work; return no partial SkillRecord authority.\nEvidence: an omitted later path could hide a case-insensitive identity collision, so first-2048-wins is forbidden. This throat bounds candidate count/list memory, not arbitrary non-candidate filesystem traversal.',
   line: 'Why: one title-stage source line crossed the 8 KiB byte throat.\nConsequence: omit the skill record immediately; do not spend whole-file hash work afterward.\nEvidence: structured stage=title failure; no diagnostic whole-file SHA is claimed.',
   scan: 'Why: title work crossed the 64 KiB total scan throat.\nConsequence: omit the skill instead of blessing a later H1; whole-file hashing never starts.\nEvidence: title resource failure is not malformed UTF-8 and not a speech-budget event.',
   title: 'Why: the decoded H1 crossed 256 code points.\nConsequence: reject; never truncate source into a plausible repository identity; whole-file hashing stays dark.\nEvidence: source remains source, authority does not materialize.',
