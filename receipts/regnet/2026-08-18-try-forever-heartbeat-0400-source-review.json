@@ -1,0 +1,56 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-0400",
+  "reviewedSourceHead": "64c4337c162ecb92a63d77b29b86cdada77f2fb2",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claims": {
+    "perFileDiscoveryFailureIsolation": "PASS_SOURCE_ONLY",
+    "structuredDiscoveryErrorsV2": "PASS_SOURCE_ONLY",
+    "hostileRegressionSource": "PASS_AS_SOURCE_ONLY",
+    "skillDoctrineSynchronized": "PASS",
+    "accessibleProvenanceSpecimen": "PASS_AS_SOURCE_ONLY",
+    "exactGitHubReadback": "PASS",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "phoneDelivery": "NO"
+  },
+  "exactBlobs": {
+    "tools/try_forever_skill_provenance_probe.py": "f9c1fc63e42a646f14e38a3ba7f9ce86fb142728",
+    "tools/test_try_forever_skill_provenance_probe.py": "a562e341d0ae653ac2f6dacd758b2bde7279f030",
+    "skills/heartbeat-skill-provenance-freshness/SKILL.md": "78ff2134397623a683abd029c71ae9465218081d",
+    "docs/try-forever/heartbeat-skill-provenance-source-specimen.html": "0076a42cddddf58ea1499749315841e163e71a62"
+  },
+  "reviewFindings": [
+    "A malformed-UTF-8 or per-file I/O failure is now isolated into a bounded structured DiscoveryError and does not erase unrelated valid skill records. The failing file itself is omitted from repository_skill authority.",
+    "Raw OSError prose and malformed file content are not copied into the structured error reason. A title decode failure may retain the already-computed exact byte SHA only as diagnostic evidence.",
+    "The first implementation changed discoveryErrors from strings to objects while leaving the outer report schema at v1. Code-first review rejected that silent contract mutation; the source now uses try-forever-skill-provenance.v2 and represents repository/identity failures in the same structured envelope.",
+    "Strict mode still treats any discovery error as failure. Isolation means the report completes; it does not convert a wounded skill into success.",
+    "The Warm Wall gained one materially distinct FILE FAULT ISOLATED state while preserving radio semantics, roving keyboard navigation, minimum touch sizing, non-color state tokens, one live detail surface, and no autoplay/Christmas blink.",
+    "Fresh Home Center readback rejects Command Center Codex jobs/workers as a permanently retired capability. The prior 0300 queued deep-detail ticket state is therefore historical evidence only and is not promoted as a current execution lane or current queue state.",
+    "Independent next wound: markdown_title still has no explicit per-line/title resource budget. A valid UTF-8 SKILL.md with an enormous first line can consume disproportionate memory/report space even though malformed/unreadable files are now isolated. Keep this open for a later non-P0 pulse."
+  ],
+  "executionEvidence": {
+    "sourceHead": "64c4337c162ecb92a63d77b29b86cdada77f2fb2",
+    "operatorOverlayRunId": 32120199650,
+    "operatorOverlayJobId": 95658663458,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "homeCenterEvidenceCorrection": {
+    "operationAttempted": "jobs.get",
+    "historicalTicketId": "hands-try-forever-20260818-0100-detail",
+    "currentResult": "Command Center Codex agents, jobs, sessions, and workers are permanently retired and are not a Home Center capability.",
+    "priorQueuedStatePromotedAsCurrent": false,
+    "phoneSubstituteUsed": false
+  },
+  "firewall": {
+    "phoneOrP0Consumption": 0,
+    "phoneOrP0Mutation": 0,
+    "duplicateArchitectureCreated": false
+  }
+}
