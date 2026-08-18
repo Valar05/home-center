@@ -1,0 +1,106 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v2",
+  "heartbeat": "2026-08-18-1100",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ATOMICITY_AND_TEST_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "frontsAdvanced": [
+    {
+      "front": "existing-owner integration",
+      "result": "APPLIED_SOURCE",
+      "evidence": "tools/try_forever_skill_provenance_probe.py blob e3627e342150c48f38099bb68fb118b3c54f2bf4"
+    },
+    {
+      "front": "hostile regression source",
+      "result": "IMPLEMENTED_SOURCE_NOT_TESTED",
+      "evidence": "tools/test_try_forever_skill_root_identity_integration.py blob 52d987404ec3837e70847f5d5ebbc175bbe3008d"
+    },
+    {
+      "front": "durable skill convergence",
+      "result": "SOURCE_WIRED_DOCTRINE",
+      "evidence": "skills/heartbeat-skill-root-identity-revalidation/SKILL.md blob 1b040ac935f1194458f619dc9f9c13bac2027873"
+    },
+    {
+      "front": "applied patch provenance",
+      "result": "STALE_PROPOSAL_RETIRED",
+      "evidence": "patches/try-forever-skill-root-identity-revalidation.patch blob 02bf7d3d5a5df2257aa1f769887b5f50d290e793"
+    },
+    {
+      "front": "accessible non-raster Warm Wall",
+      "result": "MUTATED_IN_PLACE_SOURCE_ONLY",
+      "evidence": "docs/try-forever/root-identity-revalidation-source-specimen.html blob 87b0a139a3ac3aa9c046577fd7ffa8e8538adfbf"
+    },
+    {
+      "front": "Regnet review",
+      "result": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "evidence": "receipts/regnet/2026-08-18-try-forever-heartbeat-1100-root-owner-integration-review.json"
+    },
+    {
+      "front": "Venice completion review",
+      "result": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+      "evidence": "receipts/venice/2026-08-18-try-forever-heartbeat-1100-completion-review.json"
+    },
+    {
+      "front": "fresh execution evidence",
+      "result": "FAILED_NO_CAUSE_ESTABLISHED_TESTED_NO",
+      "evidence": "Operator Overlay Android run 32158638263 job 95781861131 on source head 5c369b002fb4d0f621f0668fa610c6dece73f16a"
+    }
+  ],
+  "lights": {
+    "failureIsTheShovel": "ACTIVE: converted a stale proposed owner patch into audited existing-owner source wiring instead of repeating CI",
+    "canonAutoSelect": "ACTIVE: selected root-identity-revalidation and provenance owner organs from current repository state",
+    "autocorrectJudgmentJar": "DARK: no ambiguous/autocorrect token materially affected this pulse",
+    "originalityTax": "ACTIVE: no second provenance probe/controller and no manual CI retry",
+    "hunger": "ACTIVE: stale patch, skill doctrine, art capability scar, and receipts were forced to converge",
+    "everPolishedInterpreterEatEverything": "ACTIVE: exact owner/readback/test/doctrine/art/review states were cross-checked",
+    "operatorCampaign": "ACTIVE: existing owner and audited Home Center GitHub mutation lane preserved",
+    "harrowayDiscipline": "ACTIVE: owner/tool/evidence/capability membrane preserved",
+    "sheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no synthetic substitute",
+    "venice": "ACTIVE: bounded source slice stop, campaign continue",
+    "regnet": "ACTIVE: bounded source claim pass; atomicity/test/runtime not promoted",
+    "accessibilityTouch": "ACTIVE: existing Warm Wall remains radio/keyboard/touch semantic and now exposes owner-wired vs atomic-open truth",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED: zero consumption and zero mutation",
+    "deterministicRouting": "ACTIVE: persistent drift/unavailable identity/redirectors all fail closed before per-file authority",
+    "evidenceCapabilityDiscipline": "ACTIVE: requested/implemented/readback/tested/runtime/deployed/callable/executed/delivered/accepted separated",
+    "recoveryCheckpointIdempotence": "DARK: no runtime heartbeat/contact/checkpoint state changed",
+    "strangeNonRasterArt": "ACTIVE: existing DOM/inline-SVG Warm Wall mutated in place; source only",
+    "warmWalls": "ACTIVE: capability scar changed from owner-unwired to owner-source-wired",
+    "christmasLightSceneGraph": "DARK: provenance source wiring earns no decorative transition/motion",
+    "contactPreservation": "DARK_RUNTIME: no runtime frame mutation; fail-closed provenance preserved zero partial authority instead"
+  },
+  "crossPollination": "stale proposed patch -> audited existing-owner mutation -> exact readback -> hostile integration fixtures -> doctrine/art/provenance convergence -> code-first review preserves atomicity and discovers candidate-file symlink-alias question -> Venice closes only the source-wiring seam",
+  "newFinding": {
+    "scope": "non-P0 repository provenance",
+    "finding": "bounded_skill_candidates currently treats SKILL.md candidates with entry.is_file(follow_symlinks=true); later is_within containment prevents outside-root escape but does not establish whether two in-root symlink paths may earn distinct repository-skill identities for one underlying file",
+    "actionTaken": "PRESERVED_ONLY_NOT_MUTATED_THIS_PULSE"
+  },
+  "execution": {
+    "sourceHead": "5c369b002fb4d0f621f0668fa610c6dece73f16a",
+    "workflow": "Operator Overlay Android",
+    "runId": 32158638263,
+    "jobId": 95781861131,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "existingOwnerSourceWired": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "probeExecuted": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneSurfaceConsumed": 0,
+    "p0Mutations": 0,
+    "duplicateArchitecture": 0
+  }
+}
