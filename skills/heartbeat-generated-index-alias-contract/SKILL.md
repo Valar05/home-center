@@ -10,7 +10,7 @@ Prevent supported generated-index metadata aliases from becoming a silent first-
 
 ## Alias law
 
-1. Run the existing byte/UTF-8/JSON ingress gates first once that owner patch is applied.
+1. Run bounded byte/strict UTF-8/JSON ingress before alias semantics.
 2. Treat each supported metadata alias family as one typed declaration: source HEAD, generated timestamp, and dirty-source truth.
 3. If multiple aliases are present, they must carry the same value **and the same scalar type**.
 4. `bool` is not admitted as an integer timestamp merely because Python subclasses it from `int`.
@@ -27,6 +27,8 @@ Operator-facing detail should distinguish `ALIAS CONSISTENT`, `ALIAS CONFLICT`, 
 
 A pure helper, hostile regression source, patch artifact, GitHub commit, or review is source evidence only. Preserve `requested → implemented source → owner source wired → tested → runtime → deployed → callable → executed → delivered → accepted` separately.
 
+Owner composition commit `8603d51710d5147a5a7163dce05d9a998cf88557` produced owner blob `51e6efdbcec03d044ab89f37213659252514856a`. That proves source wiring/readback only.
+
 ## P0 / phone firewall
 
 This skill owns no Phone Hands, primary-phone execution, queue/relay recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work. P0 remains read-only evidence here.
@@ -35,9 +37,11 @@ This skill owns no Phone Hands, primary-phone execution, queue/relay recovery, N
 
 - Pure alias-contract policy source: **YES**
 - Hostile policy regression source: **YES**
-- Exact existing-owner patch provenance: **YES / PROPOSED_NOT_APPLIED**
-- Existing generated-index owner consumes alias contract: **NO**
-- Existing generated-index byte/UTF-8 ingress patch: **YES / PROPOSED_NOT_APPLIED**
+- Owner-composition regression source: **YES**
+- Exact existing-owner patch provenance: **YES / APPLIED_SOURCE**
+- Existing generated-index owner consumes alias contract: **YES / SOURCE_WIRED**
+- Existing generated-index byte/strict-UTF8 ingress: **YES / SOURCE_WIRED**
+- Exact authenticated owner readback: **YES**
 - TESTED: **NO**
 - Runtime UI/TalkBack: **NO**
 - Deployed/callable/executed/delivered/accepted: **NO**
