@@ -1,0 +1,38 @@
+# TRY FOREVER — generated-index ingress resource + UTF-8 isolation
+# STATUS: PROPOSED_NOT_APPLIED
+# Existing owner: tools/try_forever_skill_provenance_probe.py
+# Base owner blob observed before this source slice: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Scope: existing inspect_generated_index owner only; no second provenance probe.
+# Claim boundary: exact patch provenance is source, not implementation/test/runtime proof.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ MAX_SKILL_TRAVERSAL_ENTRIES = 32768
++MAX_GENERATED_INDEX_BYTES = 1024 * 1024
+@@
+-    try:
+-        data = json.loads(path.read_text(encoding="utf-8"))
+-    except (OSError, json.JSONDecodeError) as error:
++    try:
++        with path.open("rb") as handle:
++            raw = handle.read(MAX_GENERATED_INDEX_BYTES + 1)
++        if len(raw) > MAX_GENERATED_INDEX_BYTES:
++            return IndexVerdict(
++                status="UNRESOLVED",
++                reason=f"generated index exceeds byte budget {MAX_GENERATED_INDEX_BYTES}",
++                path=str(path),
++                source_head="",
++                generated_at="",
++                dirty_source=None,
++                age_hours=None,
++            )
++        data = json.loads(raw.decode("utf-8"))
++    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+         return IndexVerdict(
+             status="UNRESOLVED",
+-            reason=f"generated index is unreadable JSON: {type(error).__name__}",
++            reason=f"generated index is unreadable UTF-8 JSON: {type(error).__name__}",
+             path=str(path),
+             source_head="",
+             generated_at="",
