@@ -17,13 +17,16 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          heartbeatDetail.setContentDescription(
                  "Touch a heartbeat light for why, consequence, evidence, and source detail.");
 @@
-     private void showHeartbeatDetail(String detail, boolean announce) {
+-    private void showHeartbeatDetail(String detail, boolean announce) {
++    private void showHeartbeatDetail(String detail, boolean explicitSelection) {
          if (heartbeatDetail == null) return;
 -        String safe = detail == null || detail.trim().isEmpty()
 -                ? "No heartbeat detail available."
 -                : detail.trim();
 -        heartbeatDetail.setText(safe);
 -        heartbeatDetail.setContentDescription(safe);
+-        if (announce && !OperatorState.muted(this)) {
+-            heartbeatDetail.announceForAccessibility(safe);
 +        HeartbeatDetailSurfacePolicy.Presentation presentation =
 +                HeartbeatDetailSurfacePolicy.fromDetail(detail);
 +        heartbeatDetail.setText(presentation.text);
@@ -38,9 +41,11 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                presentation.verticallyScrollable
 +                        ? ScrollingMovementMethod.getInstance()
 +                        : null);
-+        heartbeatDetail.scrollTo(0, 0);
-         if (announce && !OperatorState.muted(this)) {
--            heartbeatDetail.announceForAccessibility(safe);
++        // A new explicit light selection owns the beginning of its detail. Background
++        // model refreshes must not yank an operator who is already reading deeper text
++        // back to the top merely because evidence changed in place.
++        if (explicitSelection) heartbeatDetail.scrollTo(0, 0);
++        if (explicitSelection && !OperatorState.muted(this)) {
 +            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
          }
      }
