@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Deterministic repository-local provenance probe for TRY FOREVER skill lights.
 
-This tool deliberately uses only the checked-out repository as authority for
-``repository_skill`` provenance. Generated indexes may help discovery, but they
-cannot prove that a current ``skills/**/SKILL.md`` exists.
-
-It owns no network calls, renderer, scheduler, phone surface, or P0 recovery.
+Only the checked-out repository may authorize ``repository_skill`` provenance.
+Generated indexes are discovery aids, never substitutes for current
+``skills/**/SKILL.md`` existence. This module owns no network, renderer,
+scheduler, phone surface, or P0 recovery lane.
 """
 
 from __future__ import annotations
@@ -26,10 +25,16 @@ MAX_DISCOVERY_ERROR_PATH_CHARS = 512
 MAX_SKILL_TITLE_SCAN_BYTES = 64 * 1024
 MAX_SKILL_TITLE_LINE_BYTES = 8 * 1024
 MAX_SKILL_TITLE_CHARS = 256
+MAX_SKILL_HASH_BYTES = 1024 * 1024
+SKILL_HASH_CHUNK_BYTES = 64 * 1024
 
 
 class SkillTitleResourceLimitError(ValueError):
     """A SKILL.md title cannot be admitted within the declared resource budget."""
+
+
+class SkillHashResourceLimitError(ValueError):
+    """A SKILL.md cannot earn a full-file SHA inside the declared byte budget."""
 
 
 @dataclass(frozen=True)
@@ -70,21 +75,37 @@ class RepositorySnapshotVerdict:
     dirty_after: bool | None
 
 
-def sha256_file(path: Path) -> str:
+def sha256_file(path: Path, *, max_bytes: int | None = None) -> str:
+    """Return an exact whole-file SHA only after EOF is reached inside budget.
+
+    The extra one-byte read at the limit distinguishes an exact-max file from a
+    max+1 file. An oversized file is rejected; a prefix digest is never returned
+    as repository-skill authority.
+    """
+
+    limit = MAX_SKILL_HASH_BYTES if max_bytes is None else max_bytes
+    if limit < 0:
+        raise ValueError("hash byte budget must be non-negative")
+
     digest = hashlib.sha256()
+    total = 0
     with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+        while True:
+            remaining = limit - total
+            read_size = min(SKILL_HASH_CHUNK_BYTES, remaining + 1)
+            chunk = handle.read(read_size)
+            if not chunk:
+                return digest.hexdigest()
+            total += len(chunk)
+            if total > limit:
+                raise SkillHashResourceLimitError(
+                    f"skill file exceeds whole-file hash byte budget {limit}"
+                )
             digest.update(chunk)
-    return digest.hexdigest()
 
 
 def markdown_title(path: Path) -> str:
-    """Read one bounded H1 title without truncating hostile input into authority.
-
-    The byte-first scan avoids Python allocating an arbitrarily large decoded
-    line. Any line/scan/title that exceeds the declared budget rejects the
-    skill record instead of truncating it into a plausible repository skill.
-    """
+    """Read one bounded H1 title without truncating hostile input into authority."""
 
     scanned_bytes = 0
     with path.open("rb") as handle:
@@ -97,18 +118,24 @@ def markdown_title(path: Path) -> str:
 
             scanned_bytes += len(raw_line)
             if len(raw_line) > read_limit:
-                raise SkillTitleResourceLimitError("skill title scan exceeded its byte/line budget")
+                raise SkillTitleResourceLimitError(
+                    "skill title scan exceeded its byte/line budget"
+                )
 
             line = raw_line.decode("utf-8")
             stripped = line.strip()
             if stripped.startswith("# "):
                 title = stripped[2:].strip()
                 if len(title) > MAX_SKILL_TITLE_CHARS:
-                    raise SkillTitleResourceLimitError("skill title exceeds its character budget")
+                    raise SkillTitleResourceLimitError(
+                        "skill title exceeds its character budget"
+                    )
                 return title
 
         if handle.read(1):
-            raise SkillTitleResourceLimitError("skill title was not resolved within the scan budget")
+            raise SkillTitleResourceLimitError(
+                "skill title was not resolved within the scan budget"
+            )
     return path.parent.name
 
 
@@ -117,7 +144,9 @@ def bounded_error_path(relative: str) -> str:
 
     if len(relative) <= MAX_DISCOVERY_ERROR_PATH_CHARS:
         return relative
-    digest = hashlib.sha256(relative.encode("utf-8", errors="surrogatepass")).hexdigest()[:16]
+    digest = hashlib.sha256(
+        relative.encode("utf-8", errors="surrogatepass")
+    ).hexdigest()[:16]
     suffix = f"...#{digest}"
     keep = max(0, MAX_DISCOVERY_ERROR_PATH_CHARS - len(suffix))
     return relative[:keep] + suffix
@@ -131,12 +160,7 @@ def discovery_error(
     reason: str,
     sha256: str = "",
 ) -> DiscoveryError:
-    """Project one per-file failure into bounded non-hostile diagnostic data.
-
-    Raw exception prose is deliberately excluded because an OS error string or
-    malformed file content is not trusted operator-facing semantic text. The
-    exception class is enough to distinguish I/O from UTF-8 decoding failures.
-    """
+    """Project one per-file failure into bounded non-hostile diagnostic data."""
 
     return DiscoveryError(
         path=bounded_error_path(relative),
@@ -188,13 +212,7 @@ def assess_repository_snapshot(
     dirty_before: bool | None,
     dirty_after: bool | None,
 ) -> RepositorySnapshotVerdict:
-    """Judge whether discovery was bracketed by one stable clean checkout.
-
-    A single pre-scan ``git status`` is not enough provenance: the worktree or
-    HEAD may move while skills are being read. Direct skill hashes are still
-    reported for diagnosis, but current-tree authority is granted only when
-    both observations prove the same clean HEAD.
-    """
+    """Judge whether discovery was bracketed by one stable clean checkout."""
 
     if not head_before or not head_after:
         return RepositorySnapshotVerdict(
@@ -260,6 +278,14 @@ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
 
 
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
+    """Discover independent skill records with fail-closed per-file isolation.
+
+    Cheap bounded title admission intentionally precedes whole-file hashing. A
+    malformed/over-budget title therefore cannot force an unnecessary full-file
+    hash. A valid short title with an oversized body reaches the hash throat and
+    is rejected there; healthy peers continue.
+    """
+
     skills_root = repo_root / "skills"
     if not skills_root.is_dir():
         return [], [
@@ -304,19 +330,6 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
         canonical_seen[canonical] = relative
 
         try:
-            sha256 = sha256_file(path)
-        except OSError as error:
-            errors.append(
-                discovery_error(
-                    relative=relative,
-                    stage="hash",
-                    error=error,
-                    reason="skill file bytes could not be read",
-                )
-            )
-            continue
-
-        try:
             title = markdown_title(path)
         except SkillTitleResourceLimitError as error:
             errors.append(
@@ -325,7 +338,6 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="title",
                     error=error,
                     reason="skill title extraction exceeded the declared resource budget",
-                    sha256=sha256,
                 )
             )
             continue
@@ -336,7 +348,6 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="title",
                     error=error,
                     reason="skill file is not valid UTF-8 text",
-                    sha256=sha256,
                 )
             )
             continue
@@ -347,7 +358,29 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="title",
                     error=error,
                     reason="skill file title could not be read",
-                    sha256=sha256,
+                )
+            )
+            continue
+
+        try:
+            sha256 = sha256_file(path)
+        except SkillHashResourceLimitError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="hash",
+                    error=error,
+                    reason="skill file exceeds the declared whole-file hash resource budget",
+                )
+            )
+            continue
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="hash",
+                    error=error,
+                    reason="skill file bytes could not be read",
                 )
             )
             continue
@@ -437,13 +470,24 @@ def inspect_generated_index(
             age_hours=None,
         )
 
-    source_head = str(first_value(data, ("sourceHead", "source_head", "gitHead", "git_head")) or "")
+    source_head = str(
+        first_value(data, ("sourceHead", "source_head", "gitHead", "git_head")) or ""
+    )
     generated_raw = first_value(
         data,
-        ("generatedAt", "generated_at", "generatedAtMs", "generated_at_ms", "updatedAt", "updated_at"),
+        (
+            "generatedAt",
+            "generated_at",
+            "generatedAtMs",
+            "generated_at_ms",
+            "updatedAt",
+            "updated_at",
+        ),
     )
     generated_dt = parse_timestamp(generated_raw)
-    dirty_raw = first_value(data, ("dirtySource", "dirty_source", "sourceDirty", "source_dirty"))
+    dirty_raw = first_value(
+        data, ("dirtySource", "dirty_source", "sourceDirty", "source_dirty")
+    )
     dirty_source = dirty_raw if isinstance(dirty_raw, bool) else None
     age_hours = None
     if generated_dt is not None:
@@ -563,12 +607,7 @@ def inspect_generated_index(
 
 
 def emitted_capability_boundary() -> dict[str, bool]:
-    """Capability truth for a report emitted by this executing probe process.
-
-    Merely seeing this source file in GitHub is still only IMPLEMENTED SOURCE.
-    The ``True`` execution fields become evidence only when this function is
-    present in output from an actually invoked probe process.
-    """
+    """Capability truth for a report emitted by this executing probe process."""
 
     return {
         "sourceProbe": True,
@@ -584,7 +623,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--generated-index")
-    parser.add_argument("--max-index-age-hours", type=float, default=DEFAULT_MAX_INDEX_AGE_HOURS)
+    parser.add_argument(
+        "--max-index-age-hours", type=float, default=DEFAULT_MAX_INDEX_AGE_HOURS
+    )
     parser.add_argument("--expected-head", default="")
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
@@ -617,7 +658,9 @@ def main() -> int:
     observed_head = head_after or head_before
     head_error = ""
     if args.expected_head and observed_head != args.expected_head:
-        head_error = f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
+        head_error = (
+            f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
+        )
 
     result = {
         "schema": "try-forever-skill-provenance.v2",
@@ -640,7 +683,9 @@ def main() -> int:
 
     snapshot_failure = snapshot.status != "STABLE_CLEAN"
     index_strict_failure = bool(args.generated_index) and index.status != "VERIFIED_CURRENT"
-    if args.strict and (head_error or discovery_errors or snapshot_failure or index_strict_failure):
+    if args.strict and (
+        head_error or discovery_errors or snapshot_failure or index_strict_failure
+    ):
         return 2
     return 0
 
