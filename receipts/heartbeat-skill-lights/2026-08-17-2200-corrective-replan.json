@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever.corrective-replan.v1",
+  "heartbeat": "2026-08-17-2200",
+  "pr": 329,
+  "status": "PLAN_CORRECTED_BEFORE_OWNER_MUTATION",
+  "trigger": "Code-first accessibility review found that the preserved owner patch promises background reading-position preservation but has no explicit post-layout clamp or stale-restore invalidation when refreshed detail becomes shorter.",
+  "sourceReasoning": {
+    "androidTextView": "AOSP TextView relayout/pre-draw code does not establish a contract that an arbitrary prior scrollY will be clamped to a newly shorter text layout for this use. ScrollingMovementMethod operates on TextView scroll coordinates. Therefore the patch should own its preservation/clamp semantics rather than infer them from platform side effects.",
+    "aospTextView": "https://android.googlesource.com/platform/frameworks/base/+/4213804/core/java/android/widget/TextView.java",
+    "aospScrollingMovementMethod": "https://android.googlesource.com/platform/frameworks/base/+/d24b8183b93e781080b2c16c487e60d51c12da31/core/java/android/text/method/ScrollingMovementMethod.java"
+  },
+  "originalPatchBlob": "aece3c2c2b43fd2128c105fd64e20145ceee748d",
+  "correction": [
+    "Add one pure bounded scroll clamp to HeartbeatDetailSurfacePolicy.",
+    "Add hostile source fixtures for preserved position, content shrink, negative input, and no-overflow cases.",
+    "Revise the existing-owner patch so background refresh captures prior scroll position, restores it after layout within the new legal range, and generation-invalidates stale restore callbacks.",
+    "Explicit new-light selection still resets to top and owns announcement.",
+    "Do not apply the old patch merely to satisfy the previous checkpoint; repair the reviewed delta first."
+  ],
+  "missionBoundary": {
+    "existingOwnerOnly": true,
+    "noNeighborControllerRenderer": true,
+    "noPhoneOrP0": true,
+    "ownerWiringAfterCorrection": "still required; remains NO until exact OperatorOverlayService readback proves it"
+  },
+  "review": {
+    "failureIsTheShovel": "PASS: the old patch became evidence for a better cut instead of being blindly applied",
+    "originalityTax": "PASS: no dead-CI retry and no repeat proposal theater",
+    "regnet": "REVISE_REQUIRED before owner application",
+    "venice": "PLAN_ALLOWED for corrected policy/test/patch/skill source only; owner application remains a later source mutation once the corrected delta is reviewed",
+    "sheRaw": "FAULT: account connection HTTP 400; no substitute verdict invented"
+  }
+}
