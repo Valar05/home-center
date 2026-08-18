@@ -1,0 +1,49 @@
+{
+  "schema": "regnet-review.v1",
+  "heartbeat": "2026-08-18-0800",
+  "claim": "Repository-skill traversal work now has a hard global filesystem-entry throat before candidate/title/hash authority.",
+  "reviewedSourceHead": "d226cfe25aa3b438a4038899f8ee8c270c6e8f27",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "passes": [
+    "MAX_SKILL_TRAVERSAL_ENTRIES is explicit and separate from MAX_SKILL_CANDIDATES",
+    "every observed child entry counts, including non-candidates",
+    "entry max+1 fails before bounded_skill_candidates returns any candidate list",
+    "discover_skills converts traversal resource/I-O failure into one structured global wound and returns no partial SkillRecord authority",
+    "title/hash work occurs only after full traversal/candidate admission",
+    "child directory symlinks are not recursed",
+    "per-directory sorting happens only inside the already admitted global entry budget",
+    "hostile regression source covers exact limit, non-candidate overflow, no per-file work, I-O failure, symlink non-recursion, zero and negative budgets",
+    "Warm Wall preserves radio/roving-keyboard/48px/non-color/reduced-motion source semantics"
+  ],
+  "evidenceBoundary": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "freshExecutionEvidence": {
+    "run": 32140801977,
+    "job": 95722720795,
+    "workflow": "Operator Overlay Android",
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "jobLogs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "nextIndependentWound": "The skills root itself is checked with is_dir() but is not explicitly rejected when it is a symlink. Child directory symlinks are not followed, yet a dirty checkout could still point the root at external topology before the later stable-clean snapshot denies authority. Entry work remains bounded, but traversal scope is not yet root-symlink-fail-closed.",
+  "p0": {
+    "finding": null,
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
