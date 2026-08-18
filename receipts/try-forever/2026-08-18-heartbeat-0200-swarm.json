@@ -1,0 +1,206 @@
+{
+  "heartbeat": "2026-08-18-0200",
+  "sourceHead": "5fb973b7a3eff5890bb98e4f13d19b9b6147eb2e",
+  "mission": "Broad non-P0 swarm: make heartbeat repository-skill provenance current-tree-grounded without racing the unresolved deep-detail owner request.",
+  "frontsAdvanced": [
+    {
+      "front": "deterministic provenance probe",
+      "result": "Added standard-library current-tree skill discovery/hash and generated-index VERIFIED_CURRENT / STALE / UNRESOLVED classification with fail-closed strict mode.",
+      "path": "tools/try_forever_skill_provenance_probe.py",
+      "blob": "61172d93fbdd97f5fc25097c682db062b3fbe780"
+    },
+    {
+      "front": "hostile regression source",
+      "result": "Added runner-stable fixtures for current-tree discovery, repo-relative index resolution, foreign head, dirty/unknown cleanliness, stale/future timestamps, and missing clean-tree declaration.",
+      "path": "tools/test_try_forever_skill_provenance_probe.py",
+      "blob": "04a6cd9baca7f1645e4989108107ea5e99022f85",
+      "executed": false
+    },
+    {
+      "front": "durable skill harvest",
+      "result": "Added repository doctrine that direct current-tree SKILL.md existence/hash outranks cached/generated skill indexes and preserves source/test/runtime/phone state separation.",
+      "path": "skills/heartbeat-skill-provenance-freshness/SKILL.md",
+      "blob": "250f3d780891fbf889689d1b0fe40558ac01a3d2"
+    },
+    {
+      "front": "touchable provenance topology",
+      "result": "Added DOM + inline-SVG Warm Wall for VERIFIED CURRENT / STALE INDEX / UNRESOLVED using radio semantics, roving keyboard focus, >=48px controls, one detail surface, reduced-motion support, and explicit source-only scars.",
+      "path": "docs/try-forever/heartbeat-skill-provenance-source-specimen.html",
+      "blob": "1dba2f248fb46beffddbe18cf025bd4b940938c9"
+    },
+    {
+      "front": "Regnet review",
+      "result": "Caught five concrete source defects and recorded PASS only for bounded source/readback; TESTED remains false.",
+      "path": "receipts/regnet/2026-08-18-try-forever-heartbeat-0200-source-review.json"
+    },
+    {
+      "front": "Venice review",
+      "result": "Pre-plan PLAN_ALLOWED and completion SOURCE_SLICE_STOP_ALLOWED; campaign remains CONTINUE_REQUIRED.",
+      "paths": [
+        "receipts/venice/2026-08-18-try-forever-heartbeat-0200-plan-review.json",
+        "receipts/venice/2026-08-18-try-forever-heartbeat-0200-completion-review.json"
+      ]
+    },
+    {
+      "front": "owner/evidence boundary",
+      "result": "Authenticated owner readback remains legacy blob c266e66a... with setMaxLines(5) + END ellipsis. No owner mutation this pulse; prior unresolved Computer Hands request was not raced."
+    }
+  ],
+  "skillLights": [
+    {
+      "id": "failure-is-the-shovel",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "The prior owner/CI path could not honestly advance.",
+      "consequence": "Changed evidence/recovery strategy to current-tree skill provenance instead of retrying CI or racing the owner mutation."
+    },
+    {
+      "id": "canon-auto-select",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "A stale generated matcher had been discovery noise.",
+      "consequence": "Repository-skill lights now have a durable direct-current-tree provenance/freshness rule and probe source."
+    },
+    {
+      "id": "autocorrect-judgment-jar",
+      "provenanceKind": "jar",
+      "state": "dark",
+      "why": "No material ambiguous/autocorrect token affected this pulse.",
+      "consequence": "No churn."
+    },
+    {
+      "id": "originality-tax",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "Repeating owner/CI failure shape was forbidden.",
+      "consequence": "Advanced a genuinely different skill-provenance front with tool, tests, skill, art, and review."
+    },
+    {
+      "id": "hunger-eat-everything",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "The stale-index scar had reusable value beyond one receipt.",
+      "consequence": "Cross-pollinated the scar into a deterministic tool, regression source, repository skill, and touchable source specimen."
+    },
+    {
+      "id": "operator-campaign-harroway",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "Owner/lane boundaries needed preservation while source work advanced.",
+      "consequence": "Kept OperatorOverlayService read-only, used audited GitHub admin source lane, and created no neighboring owner."
+    },
+    {
+      "id": "she-raw",
+      "provenanceKind": "reviewer",
+      "state": "fault",
+      "why": "Authoritative critique was attempted.",
+      "consequence": "Connector returned account-connection HTTP 400; no synthetic substitute was used."
+    },
+    {
+      "id": "venice-judgment",
+      "provenanceKind": "reviewer",
+      "state": "active",
+      "why": "The new source topology needed plan and completion gates.",
+      "consequence": "Allowed the bounded non-P0 provenance slice while keeping campaign/runtime claims open."
+    },
+    {
+      "id": "regnet-qa",
+      "provenanceKind": "reviewer",
+      "state": "active",
+      "why": "The first probe/test drafts contained real fail-open and runner-coupling defects.",
+      "consequence": "Forced repo-root path resolution, unknown-cleanliness fail-closed behavior, future-time rejection, strict unresolved rejection, and runner-stable test import."
+    },
+    {
+      "id": "accessibility-touch-semantics",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "VERIFIED / STALE / UNRESOLVED provenance became a real touchable choice topology.",
+      "consequence": "Specimen uses radio semantics, roving keyboard focus, >=48px controls, non-color tokens, one live detail surface, and reduced-motion handling."
+    },
+    {
+      "id": "phone-runtime-phone-hands",
+      "provenanceKind": "runtime_boundary",
+      "state": "blocked",
+      "why": "P0 Fortress and phone-resource firewalls remain binding.",
+      "consequence": "Zero Phone Hands tickets, primary-phone commands, queue/relay mutations, or phone-local execution were consumed by this pulse."
+    },
+    {
+      "id": "deterministic-routing-evidence",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "Skill provenance needed exact current-tree ownership rather than cached discovery guesses.",
+      "consequence": "Path + SHA-256 + HEAD + cleanliness + freshness semantics now have one explicit source contract."
+    },
+    {
+      "id": "recovery-checkpoint-idempotence",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "Stale/unresolved generated evidence must not overwrite stronger current-tree provenance.",
+      "consequence": "Fail-closed verdicts preserve direct current-tree authority and strict mode prevents ambiguous indexes from becoming accepted evidence."
+    },
+    {
+      "id": "warm-walls-vector-dom",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "The provenance states have real source consequences and merited a touchable teaching surface.",
+      "consequence": "Added one source-only Warm Wall with DOM/inline-SVG semantics and no raster/runtime claim."
+    },
+    {
+      "id": "christmas-light-motion",
+      "provenanceKind": "doctrine",
+      "state": "dark",
+      "why": "Provenance bookkeeping is not a heartbeat transition.",
+      "consequence": "No autoplay or decorative blink; only explicit button press feedback is permitted."
+    },
+    {
+      "id": "contact-preservation",
+      "provenanceKind": "doctrine",
+      "state": "active",
+      "why": "A stale index must not replace stronger provenance merely because it still contains matching words.",
+      "consequence": "Direct current-tree path/hash remains authoritative while STALE/UNRESOLVED indexes are demoted to discovery-only evidence."
+    },
+    {
+      "id": "heartbeat-skill-provenance-freshness",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/heartbeat-skill-provenance-freshness/SKILL.md",
+      "state": "active",
+      "why": "This pulse created a reusable current-tree provenance law.",
+      "consequence": "Future repository_skill lights have a concrete freshness/evidence gate rather than label-shaped provenance."
+    }
+  ],
+  "executionBoundary": {
+    "workflowRun": 32110450008,
+    "job": 95628498629,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "ownerBoundary": {
+    "operatorOverlayServiceBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "deepDetailOwnerWired": false,
+    "mutatedThisPulse": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "probeSource": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "touchableNonRasterSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "stale skill-index scar -> current-tree authority -> fail-closed freshness probe -> Regnet catches path/cleanliness/future-time/strict-mode wounds -> hostile regression source -> reusable provenance skill -> touchable VERIFIED/STALE/UNRESOLVED Warm Wall -> Venice keeps source progress behind runtime/phone membrane",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_EXECUTION_PENDING__CAMPAIGN_CONTINUE_REQUIRED"
+}
