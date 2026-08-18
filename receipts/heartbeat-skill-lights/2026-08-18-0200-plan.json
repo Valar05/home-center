@@ -1,0 +1,44 @@
+{
+  "heartbeat": "2026-08-18-0200",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts while the queued deep-detail owner surgery remains unproven.",
+  "ownerBoundary": {
+    "operatorOverlayService": "read-only this pulse",
+    "reason": "fresh authenticated GitHub readback still shows the legacy deep-detail owner; do not race the prior Computer Hands request"
+  },
+  "fronts": [
+    {
+      "id": "skill-provenance-probe",
+      "goal": "Create a deterministic repository-local probe that discovers actual skills/**/SKILL.md files, hashes them, and refuses stale/foreign generated indexes as authority."
+    },
+    {
+      "id": "skill-provenance-doctrine",
+      "goal": "Harvest the discovery/freshness rule into a reusable repository skill so heartbeat lights can prove repository_skill provenance rather than trust labels or stale indexes."
+    },
+    {
+      "id": "provenance-touch-specimen",
+      "goal": "Create one touchable non-raster DOM specimen for VERIFIED / STALE / UNRESOLVED provenance only if the states carry concrete source consequences."
+    },
+    {
+      "id": "regression-source",
+      "goal": "Add hostile standard-library test source for nested skills, duplicate canonical paths, foreign indexes, and stale generated-index timestamps."
+    },
+    {
+      "id": "evidence-review",
+      "goal": "Bind source claims to authenticated GitHub readback and keep source/test/runtime/deploy/delivery states separate."
+    }
+  ],
+  "requiredDarkOrFaultStates": {
+    "autocorrect": "dark unless a real token ambiguity appears",
+    "phoneRuntimePhoneHands": "dark and firewalled",
+    "p0Recovery": "read-only",
+    "christmasMotion": "dark unless a real scene transition topology is created",
+    "contactPreservation": "constraint only; no contact state is mutated this pulse",
+    "sheRaw": "attempt authoritative consultation once; preserve connector fault if unavailable"
+  },
+  "acceptance": [
+    "At least three independent repository/source fronts materially advance.",
+    "No OperatorOverlayService mutation while the prior owner request is unresolved.",
+    "No phone/P0 surface consumption or mutation.",
+    "Every positive source claim is commit/readback-bound; TESTED/runtime/deployed/callable/executed/delivered/accepted remain NO unless new evidence proves otherwise."
+  ]
+}
