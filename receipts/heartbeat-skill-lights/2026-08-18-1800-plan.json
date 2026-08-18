@@ -1,0 +1,88 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1800",
+  "commission": "Advance TRY FOREVER heartbeat skill lights as a broad non-P0 swarm without borrowing the shared phone/P0 recovery chain.",
+  "sourceHeadBefore": "c6de5a7aa616e50101023936604c7649773eb712",
+  "existingOwner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "blob": "51e6efdbcec03d044ab89f37213659252514856a",
+    "mutationPlanned": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400; no synthetic reviewer substituted"
+  },
+  "fronts": [
+    {
+      "id": "snapshot-certification",
+      "why": "The owner emits authority-facing skill records even when the repository snapshot is UNSTABLE or --expected-head mismatches unless a caller separately interprets strict exit status.",
+      "actions": [
+        "add pure fail-closed certification source",
+        "add hostile regression source",
+        "harvest reusable skill doctrine",
+        "preserve exact existing-owner patch provenance as PROPOSED_NOT_APPLIED"
+      ],
+      "ownerWiringClaim": "NO"
+    },
+    {
+      "id": "fallback-title-hygiene",
+      "why": "markdown_title applies title bounds to H1 text but returns path.parent.name directly on fallback, bypassing the explicit human-facing title resource/semantic boundary.",
+      "actions": [
+        "add pure fallback-title admission source",
+        "reject C0/C1 controls and bidi directional formatting/isolate controls without banning ordinary Unicode/ZWJ composition",
+        "add hostile regression source",
+        "harvest reusable skill doctrine",
+        "preserve exact existing-owner patch provenance as PROPOSED_NOT_APPLIED"
+      ],
+      "ownerWiringClaim": "NO"
+    },
+    {
+      "id": "accessible-certification-wall",
+      "why": "Make the distinction between discovered data and certified repository-skill authority touchable without claiming Android/runtime deployment.",
+      "actions": [
+        "add one DOM/inline-SVG source specimen",
+        "use persistent single-selection radio semantics, keyboard access, >=48px targets, non-color states and reduced-motion handling",
+        "forbid autoplay/decorative Christmas blinking"
+      ],
+      "runtimeClaim": "NO"
+    },
+    {
+      "id": "review-and-evidence",
+      "actions": [
+        "authenticated GitHub readback of every durable artifact",
+        "re-read existing owner to prove patches remain unapplied",
+        "Regnet bounded source review",
+        "Venice bounded completion review",
+        "fresh exact-head workflow readback only if automatically available"
+      ]
+    }
+  ],
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "forbidden": [
+      "Phone Ingress Swarm",
+      "Nightcore Playback Canary",
+      "Pocket TTS Swarm",
+      "Chromium Control Swarm",
+      "Context Organs Swarm",
+      "P0 recovery queue/relay/physical acceptance chain"
+    ]
+  },
+  "capabilityBefore": {
+    "requested": true,
+    "implementedSupportingSource": false,
+    "existingOwnerWiredForNewGates": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
