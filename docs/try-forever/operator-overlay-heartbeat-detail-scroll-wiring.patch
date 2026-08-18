@@ -1,7 +1,15 @@
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 +++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-@@
+@@ -86,6 +86,7 @@ public class OperatorOverlayService extends Service {
+     private HeartbeatSceneGraph.Frame heartbeatFrame;
+     private HeartbeatPersistedPollPolicy.Snapshot heartbeatProcessedPersistedSnapshot;
+     private long heartbeatViewportRestoreGeneration;
++    private long heartbeatDetailPresentationGeneration;
+     private boolean expandedText;
+     private boolean confirmDisable;
+     private float downRawX;
+@@ -402,8 +403,12 @@ public class OperatorOverlayService extends Service {
          heartbeatDetail = textView(11f, false);
          heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
          heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
@@ -16,7 +24,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
          heartbeatDetail.setContentDescription(
                  "Touch a heartbeat light for why, consequence, evidence, and source detail.");
-@@
+@@ -1270,11 +1275,63 @@ public class OperatorOverlayService extends Service {
 -    private void showHeartbeatDetail(String detail, boolean announce) {
 +    private void showHeartbeatDetail(String detail, boolean explicitSelection) {
          if (heartbeatDetail == null) return;
@@ -27,6 +35,8 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 -        heartbeatDetail.setContentDescription(safe);
 -        if (announce && !OperatorState.muted(this)) {
 -            heartbeatDetail.announceForAccessibility(safe);
++        long presentationGeneration = ++heartbeatDetailPresentationGeneration;
++        int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
 +        HeartbeatDetailSurfacePolicy.Presentation presentation =
 +                HeartbeatDetailSurfacePolicy.fromDetail(detail);
 +        heartbeatDetail.setText(presentation.text);
@@ -41,11 +51,48 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                presentation.verticallyScrollable
 +                        ? ScrollingMovementMethod.getInstance()
 +                        : null);
-+        // A new explicit light selection owns the beginning of its detail. Background
-+        // model refreshes must not yank an operator who is already reading deeper text
-+        // back to the top merely because evidence changed in place.
-+        if (explicitSelection) heartbeatDetail.scrollTo(0, 0);
++        if (explicitSelection) {
++            heartbeatDetail.scrollTo(0, 0);
++        } else {
++            restoreHeartbeatDetailScrollAfterLayout(
++                    preservedScrollY,
++                    presentationGeneration);
++        }
 +        if (explicitSelection && !OperatorState.muted(this)) {
 +            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
          }
      }
++
++    private void restoreHeartbeatDetailScrollAfterLayout(
++            int preservedScrollY,
++            long presentationGeneration) {
++        if (heartbeatDetail == null) return;
++        ViewTreeObserver observer = heartbeatDetail.getViewTreeObserver();
++        if (!observer.isAlive()) return;
++        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
++            @Override
++            public boolean onPreDraw() {
++                ViewTreeObserver current = heartbeatDetail.getViewTreeObserver();
++                if (current.isAlive()) current.removeOnPreDrawListener(this);
++                if (presentationGeneration != heartbeatDetailPresentationGeneration) {
++                    return true;
++                }
++                android.text.Layout layout = heartbeatDetail.getLayout();
++                int contentHeightPx = layout == null ? 0 : layout.getHeight();
++                int viewportHeightPx = Math.max(
++                        0,
++                        heartbeatDetail.getHeight()
++                                - heartbeatDetail.getTotalPaddingTop()
++                                - heartbeatDetail.getTotalPaddingBottom());
++                int targetScrollY = HeartbeatDetailSurfacePolicy.clampScrollY(
++                        preservedScrollY,
++                        contentHeightPx,
++                        viewportHeightPx);
++                if (heartbeatDetail.getScrollY() != targetScrollY) {
++                    heartbeatDetail.scrollTo(0, targetScrollY);
++                }
++                return true;
++            }
++        });
++        heartbeatDetail.requestLayout();
++    }
