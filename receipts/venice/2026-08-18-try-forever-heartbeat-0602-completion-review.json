@@ -1,0 +1,36 @@
+{
+  "schema": "venice-judgment-jar-review.v1",
+  "heartbeat": "2026-08-18-0602",
+  "mode": "SAME_WORKER_JUDGMENT_JAR",
+  "scope": "bounded non-P0 whole-skill provenance hash resource slice",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "the commissioned whole-file hash I/O wound advanced through the existing provenance owner rather than a neighboring probe",
+    "the source now distinguishes exact EOF within 1 MiB from max+1 and refuses prefix-hash authority",
+    "title admission moved before full hash work, and stale title-regression doctrine was repaired when review exposed it",
+    "the existing accessible Warm Wall was mutated in place to show the second hash throat rather than producing unrelated art",
+    "Regnet passed only the bounded source/readback claim and preserved TESTED=NO",
+    "Phone Hands/P0 and recovery ownership remained untouched"
+  ],
+  "doNotPromote": [
+    "regression source to TESTED",
+    "GitHub source to runtime UI or TalkBack observation",
+    "source art to deployed interface",
+    "workflow failure to a guessed step-level diagnosis",
+    "receipt commits to proof that the probe executed"
+  ],
+  "testBoundary": {
+    "runId": 32131030540,
+    "jobId": 95691996226,
+    "conclusion": "failure",
+    "steps": "UNEXPOSED",
+    "logs": "404 BlobNotFound",
+    "cause": "UNESTABLISHED",
+    "manualRetry": false
+  },
+  "next": "keep the completed title/hash throats dark unless fresh evidence changes them; future source work may attack the independent unbounded candidate-enumeration wound in sorted(rglob('SKILL.md'))",
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0
+  }
+}
