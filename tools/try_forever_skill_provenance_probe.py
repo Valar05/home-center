@@ -20,6 +20,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from try_forever_skill_file_identity import (
+    capture_skill_file_identity,
+    revalidate_skill_file_identity,
+)
 from try_forever_skill_root_identity import (
     capture_skill_root_identity,
     revalidate_skill_root_identity,
@@ -47,6 +51,17 @@ class SkillHashResourceLimitError(ValueError):
 
 class SkillCandidateResourceLimitError(ValueError):
     """Repository skill candidate enumeration exceeded its declared count budget."""
+
+
+class SkillCandidateTopologyError(ValueError):
+    """A named SKILL.md candidate is not one ordinary non-redirecting file."""
+
+    def __init__(self, path: Path):
+        super().__init__(
+            "SKILL.md candidate must be an ordinary non-redirecting file; "
+            "partial repository-skill authority is forbidden"
+        )
+        self.path = path
 
 
 class SkillTraversalResourceLimitError(ValueError):
@@ -187,6 +202,14 @@ def discovery_error(
     )
 
 
+def skill_file_identity_error_type(status: str) -> str:
+    return {
+        "REDIRECTOR_BLOCKED": "SkillFileRedirectorBlocked",
+        "FILE_CHANGED": "SkillFileChanged",
+        "IDENTITY_UNAVAILABLE": "SkillFileIdentityUnavailable",
+    }.get(status, "SkillFileIdentityRejected")
+
+
 def command_text(args: list[str], cwd: Path) -> str:
     try:
         completed = subprocess.run(
@@ -303,9 +326,11 @@ def bounded_skill_candidates(
 
     The traversal counts every encountered directory entry, including unrelated
     files/directories, and stops at ``entry_limit + 1``. Directory symlinks are
-    never followed. Candidate paths are accumulated only through
-    ``candidate_limit + 1``. Sorting happens only after both bounded admissions,
-    so discovery never materializes an unbounded recursive path list.
+    never followed. Named ``SKILL.md`` entries must be ordinary files under a
+    no-follow observation; redirectors/non-files fail the whole candidate gate.
+    Candidate paths are accumulated only through ``candidate_limit + 1``.
+    Sorting happens only after both bounded admissions, so discovery never
+    materializes an unbounded recursive path list.
     """
 
     candidate_limit = (
@@ -336,9 +361,11 @@ def bounded_skill_candidates(
 
                 path = Path(entry.path)
                 is_directory = entry.is_dir(follow_symlinks=False)
-                is_skill_file = (
-                    entry.name == "SKILL.md" and entry.is_file(follow_symlinks=True)
-                )
+                is_skill_file = False
+                if entry.name == "SKILL.md":
+                    if entry.is_symlink() or not entry.is_file(follow_symlinks=False):
+                        raise SkillCandidateTopologyError(path)
+                    is_skill_file = True
                 discovered.append(
                     (entry.name, path, is_directory, is_skill_file)
                 )
@@ -366,10 +393,11 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
     """Discover independent skill records with fail-closed resource throats.
 
     Filesystem traversal and candidate enumeration are admitted before any
-    per-file title/hash authority. If either global discovery throat fails,
-    discovery returns no partial records so an omitted path cannot hide an
-    identity collision. After those gates, cheap bounded title admission
-    intentionally precedes whole-file hashing.
+    per-file title/hash authority. If either global discovery throat or the
+    named-candidate topology gate fails, discovery returns no partial records so
+    an omitted path cannot hide an identity collision. After those gates, cheap
+    bounded title admission intentionally precedes whole-file hashing, bracketed
+    by candidate-file no-follow identity observations.
     """
 
     skills_root = repo_root / "skills"
@@ -420,6 +448,22 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
     try:
         candidates = bounded_skill_candidates(skills_root)
+    except SkillCandidateTopologyError as error:
+        try:
+            relative = error.path.relative_to(repo_root).as_posix()
+        except ValueError:
+            relative = "skills"
+        return [], [
+            DiscoveryError(
+                path=bounded_error_path(relative),
+                stage="identity",
+                error_type=type(error).__name__,
+                reason=(
+                    "SKILL.md candidate must be an ordinary non-redirecting file; "
+                    "partial repository-skill authority is forbidden"
+                ),
+            )
+        ]
     except SkillTraversalResourceLimitError as error:
         return [], [
             DiscoveryError(
@@ -481,6 +525,32 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
     canonical_seen: dict[str, str] = {}
     for path in candidates:
         relative = path.relative_to(repo_root).as_posix()
+
+        try:
+            file_before = capture_skill_file_identity(path)
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="identity",
+                    error=error,
+                    reason="skill file identity could not be observed before repository-skill authority work",
+                )
+            )
+            continue
+
+        before_verdict = revalidate_skill_file_identity(file_before, file_before)
+        if before_verdict.status != "STABLE":
+            errors.append(
+                DiscoveryError(
+                    path=bounded_error_path(relative),
+                    stage="identity",
+                    error_type=skill_file_identity_error_type(before_verdict.status),
+                    reason=before_verdict.reason,
+                )
+            )
+            continue
+
         if not is_within(path, skills_root):
             errors.append(
                 DiscoveryError(
@@ -558,6 +628,31 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="hash",
                     error=error,
                     reason="skill file bytes could not be read",
+                )
+            )
+            continue
+
+        try:
+            file_after = capture_skill_file_identity(path)
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="identity",
+                    error=error,
+                    reason="skill file identity could not be revalidated after title/hash authority work",
+                )
+            )
+            continue
+
+        file_verdict = revalidate_skill_file_identity(file_before, file_after)
+        if file_verdict.status != "STABLE":
+            errors.append(
+                DiscoveryError(
+                    path=bounded_error_path(relative),
+                    stage="identity",
+                    error_type=skill_file_identity_error_type(file_verdict.status),
+                    reason=file_verdict.reason,
                 )
             )
             continue
@@ -851,7 +946,7 @@ def main() -> int:
         "discoveryErrors": [asdict(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal/candidate admission under a STABLE_CLEAN pre/post discovery snapshot",
+            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal, no-follow candidate topology admission, candidate-file identity revalidation, and a STABLE_CLEAN pre/post discovery snapshot",
             "generatedIndex": "discovery aid only unless VERIFIED_CURRENT; never substitutes for direct skill existence",
         },
         "capabilityBoundary": emitted_capability_boundary(),
