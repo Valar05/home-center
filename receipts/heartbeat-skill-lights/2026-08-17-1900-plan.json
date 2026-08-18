@@ -1,0 +1,71 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "pulse": "2026-08-17-1900",
+  "commission": "Advance TRY FOREVER through multiple independent non-P0 source fronts while preserving the existing Operator Overlay owner, P0/phone firewall, accessibility, and capability-state truth.",
+  "researchHead": "2b140e4f2c31a59e9482a6bdf6681501555cef01",
+  "wound": "The 1800 repair correctly moved collapsed heartbeat truth onto the surviving dragHandle, but HeartbeatCollapsedOwnerAccessibility now concatenates the overlay action, summaryVisibleLabel, and the full broad collapsedContentDescription. A valid broad pulse can therefore make one action control narrate up to twelve named light labels plus histogram/omission prose every time the handle receives accessibility focus. The surviving owner needs concise status truth, not the entire expanded-detail summary transplanted onto the handle.",
+  "authorizedOwner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java via its existing HeartbeatCollapsedOwnerAccessibility projection; no new owner is authorized.",
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0/phone ownership, existing-overlay ownership, source-only delivery, and no-substitution constraints are binding."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "why": "Current branch source and exact GitHub readback must govern both the repair and the capability claims."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "The smallest coherent repair is inside the existing pure collapsed-owner projection plus regression source, not another accessibility/controller architecture."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "why": "The exact-head runner remains unproven; this pulse must advance a different source wound rather than repeat unchanged CI attempts."
+    },
+    {
+      "path": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "why": "Repository source mutation requires code-first completion review and explicit source/runtime separation."
+    }
+  ],
+  "reviewerPrecedent": "skills/venice-review-memory/SKILL.md",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "plan": [
+    "Keep expanded drag-handle behavior unchanged.",
+    "Make collapsed drag-handle speech concise: collapsed action + canonical model summary + interruption truth only when interrupted; do not transplant the broad per-light collapsed list onto the action control.",
+    "Apply one hard returned code-point budget to the entire collapsed-owner description using the existing HeartbeatPlainTextBudget; exact model/evidence text remains untouched.",
+    "Add hostile regression source proving broad constellations do not enumerate light labels on the collapsed dragHandle, the returned description stays inside its aggregate budget, waiting/accepted-zero/held/blocked remain distinct, and expanded mode remains unchanged.",
+    "Harvest one durable accessibility skill for collapsed-owner speech load so future workers keep action controls concise and route detail to explicit expansion rather than routine focus speech.",
+    "Mutate the existing warm-wall SVG in place only to represent the new short-voice/expand-for-detail topology; do not create a neighboring specimen family.",
+    "Run only fresh automatic/native validation already triggered by repository mutation when observable; do not manually retry an unchanged blocked runner.",
+    "Keep TESTED/runtime/deployed/callable/executed/delivered/accepted false absent fresh evidence."
+  ],
+  "antagonism": [
+    "Do not solve speech load by hiding contact/interruption truth; the surviving handle must still distinguish waiting, accepted-zero, CONTACT HELD, and REFRESH BLOCKED.",
+    "Do not truncate canonical scene/evidence fields to make the handle quiet; bound only the returned accessibility projection.",
+    "Do not move the full light list to another hidden/GONE child and call that accessible; detailed light truth remains available by explicit expansion.",
+    "Do not create another accessibility service, overlay controller, renderer, poller, or phone lane.",
+    "Do not call source fixtures TESTED or source wiring runtime TalkBack proof."
+  ],
+  "constraints": {
+    "newOverlayController": false,
+    "newRenderer": false,
+    "newPoller": false,
+    "phoneHands": false,
+    "primaryPhone": false,
+    "p0Mutation": false,
+    "p0EvidenceReadOnly": true,
+    "runtimeClaimWithoutRuntimeEvidence": false
+  },
+  "doneForThisSourceSlice": [
+    "existing collapsed-owner projection is concise and hard-bounded",
+    "broad-pulse regression source exists",
+    "durable accessibility skill exists or is materially updated",
+    "existing warm-wall source reflects the changed interaction topology",
+    "exact GitHub readback verifies changed source",
+    "Regnet/Venice completion receipts preserve TESTED/runtime boundaries"
+  ]
+}
