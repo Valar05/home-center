@@ -14,9 +14,9 @@ Use when the existing heartbeat detail surface already owns the correct full pro
 2. `HeartbeatEvidenceDetailProjection` remains the explicit typed-detail formatter. Do not invent another evidence formatter to solve layout.
 3. Spatial bounds and semantic bounds are different contracts. Keep the visible detail well bounded, but preserve the full already-bounded projected detail behind vertical touch inspection.
 4. Do not use `END` ellipsis when it makes omitted Evidence/Source text unreachable from the sighted/touch surface.
-5. The detail viewport keeps at least the existing 48dp touch floor.
+5. Reuse `OverlayUiPolicy.MIN_TOUCH_TARGET_DP` as the detail touch floor; do not grow a second 48dp literal that can drift.
 6. TalkBack content remains the same full explicit detail. Automatic/collapsed speech stays separate and must not inherit the deep-detail payload.
-7. Selecting a light may announce explicit detail only through the existing mute-aware owner path. A layout repair does not grant new speech authority.
+7. Selecting a new light may reset the detail well to the top and announce through the existing mute-aware owner path. A background model/evidence refresh must not yank an operator who is already reading deeper text back to the top.
 8. Source wiring, successful tests, runtime scrolling, runtime TalkBack behavior, deployment, phone delivery, and acceptance are separate capability states.
 9. Do not create a neighboring detail controller, renderer, state store, overlay, phone path, or P0 owner.
 
@@ -29,9 +29,9 @@ Use when the existing heartbeat detail surface already owns the correct full pro
 - five-line visible well;
 - no destructive end ellipsis;
 - vertical overflow inspectable;
-- 48dp minimum touch target.
+- the existing shared overlay minimum touch target.
 
-The Android owner must explicitly consume those semantics before `existing-owner wiring = YES` can be claimed.
+The Android owner must explicitly consume those semantics before `existing-owner wiring = YES` can be claimed. The exact proposed owner delta is preserved at `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch`; a patch artifact is not owner implementation.
 
 ## Regression doctrine
 
@@ -41,8 +41,11 @@ Source fixtures should prove:
 - content description equals the full projected detail;
 - the visible viewport stays bounded;
 - overflow is marked scroll-inspectable rather than ellipsized away;
+- the touch floor aliases the existing overlay touch contract;
 - empty detail receives one deterministic fallback;
 - interior Unicode/evidence content is not rewritten by layout policy.
+
+Owner review should separately verify that explicit selection may reset scroll to the beginning while background refresh preserves the current reading position.
 
 Regression source is not TESTED evidence until an authorized runner executes it successfully.
 
