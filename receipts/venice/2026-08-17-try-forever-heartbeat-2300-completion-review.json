@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever.venice-completion-review.v1",
+  "heartbeat": "2026-08-17-2300",
+  "pr": 329,
+  "reviewedSourceHead": "7b6fc7df39e4b83e7ae4f36a68692da37a142adc",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SEAM_CONTINUE_REQUIRED__CAMPAIGN_CONTINUE_REQUIRED",
+  "missionFidelity": "PASS",
+  "accessibility": "PASS_FOR_SOURCE_SEMANTICS_ONLY",
+  "duplicateArchitecture": "PASS",
+  "p0PhoneFirewall": "PASS",
+  "evidenceTruth": "PASS",
+  "testedGate": "NO",
+  "findings": [
+    "Failure Is The Shovel was correctly applied: the previous apply-owner-patch plan was stopped when movement-method focus ownership was shown to be undeclared.",
+    "The correction is materially different rather than cosmetic: one shared policy now owns passive focus/click/long-click state and the proposed native delta reapplies it after movement-method installation.",
+    "The real OperatorOverlayService was not mutated, so proposed source has not been promoted into owner implementation.",
+    "The pure ownership fixture is useful but cannot substitute for a real native TextView assertion; that evidence remains a required owner-seam gate.",
+    "Swan Veil paid a separate recurring accessibility tax: persistent single-selection now uses radio semantics and deterministic keyboard navigation rather than aria-pressed toggle semantics.",
+    "No scene topology or runtime transition changed, so no new Christmas-light motion is earned by this source repair."
+  ],
+  "processScar": "A general 2300 plan receipt existed before mutation, but no separate pre-mutation Venice plan-review artifact was produced. This completion review does not retroactively manufacture one.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteInvented": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "correctedOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+    "existingOwnerDeepDetailWiring": false,
+    "nativeFocusOwnershipFixture": false,
+    "swanVeilRadioSource": true,
+    "swanVeilRuntimeAccessibility": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
