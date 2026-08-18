@@ -2,7 +2,7 @@
   "schema": "venice.completion-review.v1",
   "heartbeat": "2026-08-18-0100",
   "pr": 329,
-  "reviewedSourceHead": "5c939cf8eea45b72b2281eb22aca7393365953f7",
+  "reviewedSourceHead": "430c6a42eadcb3e872fe5786e39d88ee448dfcd4",
   "regnetReceipt": "receipts/regnet/2026-08-18-try-forever-heartbeat-0100-source-review.json",
   "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_EXECUTION_PENDING__CAMPAIGN_CONTINUE_REQUIRED",
   "codeReview": "PASS_BOUNDED_SOURCE",
@@ -11,12 +11,17 @@
     {
       "name": "mission-fidelity",
       "result": "PASS",
-      "detail": "The pulse stayed on the existing heartbeat overlay/source organs and used a distinct non-phone Computer Hands lane for the proposed owner mutation. It did not touch the P0/phone chain or create a neighboring owner."
+      "detail": "The pulse stayed on existing heartbeat overlay/source organs, added source-only evidence tooling, and used the distinct non-phone Computer Hands lane for owner mutation intent. It did not touch the P0/phone chain or create a neighboring owner."
     },
     {
       "name": "source-truth",
       "result": "PASS",
-      "detail": "The actual owner remains legacy at blob c266e66a8004623efadab1933de4e429e677c6a5. The queued patch request is not called implemented, and the new source probe is not called executed."
+      "detail": "The actual owner remains legacy at blob c266e66a8004623efadab1933de4e429e677c6a5. The queued patch request is not called implemented, the source probe is not called executed, and the newly harvested lane skill is doctrine rather than runtime capability."
+    },
+    {
+      "name": "lane-truth",
+      "result": "PASS",
+      "detail": "The pulse corrected an old mental model: historical Command Center Codex jobs/workers are permanently retired, while deployed Home Center exposes Computer Hands separately through Home Drive operations. That distinction is now a durable repository skill instead of chat folklore."
     },
     {
       "name": "accessibility",
@@ -26,17 +31,17 @@
     {
       "name": "originality-tax",
       "result": "PASS",
-      "detail": "The pulse did not repeat the prior whole-file-boundary lament or CI retry. It discovered the deployed Computer Hands operation, queued one blob-locked lease-protected owner request, and added a deterministic source-capability probe so future pulses do not repeat manual archaeology."
+      "detail": "The pulse did not repeat the prior whole-file-boundary lament or CI retry. It discovered the deployed Computer Hands operation, queued one blob-locked lease-protected owner request, added a deterministic source-capability probe, and harvested reusable lane doctrine."
     },
     {
       "name": "artifact-discipline",
       "result": "PASS",
-      "detail": "Warm Walls/Swan Veil/Christmas motion stayed dark because no realized owner/runtime topology changed. Queue admission did not earn a decorative visual mutation."
+      "detail": "Warm Walls/Swan Veil/Christmas motion stayed dark because no realized owner/runtime topology changed. Queue admission and source introspection did not earn decorative art."
     },
     {
       "name": "test-truth",
       "result": "BOUNDARY",
-      "detail": "Operator Overlay Android run 32106028378 on exact source head 5c939cf8eea45b72b2281eb22aca7393365953f7 failed. Job 95615536934 exposes zero steps and log retrieval returns 404 BlobNotFound. TESTED remains NO; no cause was invented and no retry was fired."
+      "detail": "Operator Overlay Android run 32106197715 on exact source head 430c6a42eadcb3e872fe5786e39d88ee448dfcd4 failed. Job 95616029583 exposes zero steps and log retrieval returns 404 BlobNotFound. TESTED remains NO; no cause was invented and no retry was fired."
     },
     {
       "name": "review-order-scar",
@@ -54,12 +59,20 @@
       "detail": "The Computer Hands request is non-phone. Phone Hands, primary phone, queue/relay recovery, P0 owners, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remained untouched."
     }
   ],
+  "sourceCustody": {
+    "deepDetailSkillBlob": "51d79291c3d4bd8cd1bd34b9fbb400f804d890f4",
+    "ownerProbeBlob": "83300bccdac8d62e67e2077ee2d60c71b56dd7d3",
+    "ownerProbeSkillBlob": "dea8d902e5bd986628b2f452e19b3e7e3ae9ae7c",
+    "mutationLaneSkillBlob": "2dfb059a2112dbb609b6b938ce8c93cc44751db3",
+    "actualOwnerBlob": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
   "capability": {
     "requested": true,
     "implementedSource": true,
     "exactGitHubReadback": true,
     "sourceCapabilityProbe": true,
     "sourceCapabilityProbeExecuted": false,
+    "durableMutationLaneSkill": true,
     "queuedComputerHandsOwnerRequest": true,
     "computerHandsRequestExecuted": false,
     "existingOwnerDeepDetailWiring": false,
