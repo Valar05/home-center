@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
 import json
+import sys
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
 
 from try_forever_skill_provenance_probe import (
     discover_skills,
