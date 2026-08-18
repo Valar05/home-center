@@ -12,7 +12,9 @@ if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
 from try_forever_skill_provenance_probe import (
+    assess_repository_snapshot,
     discover_skills,
+    emitted_capability_boundary,
     inspect_generated_index,
     resolve_repo_path,
 )
@@ -43,6 +45,55 @@ class SkillProvenanceProbeTest(unittest.TestCase):
         self.assertEqual("skills/heartbeat-alpha/SKILL.md", records[0].path)
         self.assertEqual("Heartbeat Alpha", records[0].title)
         self.assertEqual(64, len(records[0].sha256))
+
+    def test_stable_clean_snapshot_brackets_direct_discovery(self):
+        verdict = assess_repository_snapshot(
+            head_before="abc123",
+            head_after="abc123",
+            dirty_before=False,
+            dirty_after=False,
+        )
+        self.assertEqual("STABLE_CLEAN", verdict.status)
+        self.assertIn("same clean git HEAD", verdict.reason)
+
+    def test_head_move_during_discovery_is_unstable(self):
+        verdict = assess_repository_snapshot(
+            head_before="abc123",
+            head_after="def456",
+            dirty_before=False,
+            dirty_after=False,
+        )
+        self.assertEqual("UNSTABLE", verdict.status)
+        self.assertIn("HEAD changed", verdict.reason)
+
+    def test_dirty_checkout_after_discovery_is_unstable(self):
+        verdict = assess_repository_snapshot(
+            head_before="abc123",
+            head_after="abc123",
+            dirty_before=False,
+            dirty_after=True,
+        )
+        self.assertEqual("UNSTABLE", verdict.status)
+        self.assertIn("dirty", verdict.reason)
+
+    def test_unknown_post_discovery_cleanliness_is_unstable(self):
+        verdict = assess_repository_snapshot(
+            head_before="abc123",
+            head_after="abc123",
+            dirty_before=False,
+            dirty_after=None,
+        )
+        self.assertEqual("UNSTABLE", verdict.status)
+        self.assertIn("cleanliness was unavailable", verdict.reason)
+
+    def test_emitted_report_declares_current_probe_process_executed(self):
+        boundary = emitted_capability_boundary()
+        self.assertTrue(boundary["sourceProbe"])
+        self.assertTrue(boundary["probeExecutedByThisArtifact"])
+        self.assertTrue(boundary["probeExecutedByThisProcess"])
+        self.assertFalse(boundary["tested"])
+        self.assertFalse(boundary["runtimeUi"])
+        self.assertFalse(boundary["phoneDelivery"])
 
     def test_repo_relative_generated_index_resolves_under_repo_root(self):
         expected = self.root / "generated" / "skill-index.json"
