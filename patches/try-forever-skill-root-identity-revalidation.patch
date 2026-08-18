@@ -1,8 +1,10 @@
 # BASE_BLOB: f7fe082751875e27213a9e324d85bc371f46f335
 # TARGET: tools/try_forever_skill_provenance_probe.py
-# STATUS: PROPOSED_NOT_APPLIED
-# CLAIM: observable persistent root identity/type drift detection before per-file authority
-# NON_CLAIM: atomic exclusion of swap-and-restore races or filesystem identity-token reuse between observations
+# STATUS: APPLIED_SOURCE
+# APPLIED_COMMIT: 3e3bdb5abc8d68dfe96c2337a931732e67a7a55a
+# APPLIED_BLOB: e3627e342150c48f38099bb68fb118b3c54f2bf4
+# CLAIM: observable persistent root identity/type drift detection before per-file authority is wired into the existing owner source
+# NON_CLAIM: atomic exclusion of swap-and-restore races, post-revalidation replacement, or filesystem identity-token reuse
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
 @@
