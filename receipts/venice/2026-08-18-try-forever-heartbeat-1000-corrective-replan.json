@@ -1,0 +1,23 @@
+{
+  "schema": "try-forever-venice-replan.v1",
+  "pulse": "2026-08-18T10:00:00-05:00",
+  "reviewer": "venice-judgment-jar",
+  "verdict": "PLAN_ALLOWED_WITH_NARROWER_CLAIM",
+  "trigger": "Primary Python platform evidence shows os.scandir(file_descriptor) is Unix-only, while Windows directory junctions are a distinct redirecting topology from symlinks. A universal atomic directory-fd no-follow implementation inside the current pure-stdlib probe would not be cross-platform.",
+  "replan": [
+    "Do not claim the root TOCTOU wound closed atomically.",
+    "Add a reusable non-executable root-identity policy helper for the existing probe: no-follow identity capture, junction/symlink redirector classification, and before/after identity comparison.",
+    "Add hostile regression source for identity equality/change and junction/symlink classification where the platform exposes it.",
+    "Publish an exact proposed integration diff for tools/try_forever_skill_provenance_probe.py; keep existing-probe consumption NO until that diff is actually applied through an authorized mutation lane.",
+    "Record the remaining swap-and-restore race explicitly: two path observations cannot exclude a transient replacement that is restored between observations.",
+    "Keep Phone Hands/P0 and duplicate architecture at zero."
+  ],
+  "capability_boundary": {
+    "policy_helper_source": "planned",
+    "existing_probe_consumption": "no",
+    "atomic_cross_platform_root_binding": "no",
+    "tested": "no",
+    "runtime": "no",
+    "phone_delivery": "no"
+  }
+}
