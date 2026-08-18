@@ -8,22 +8,27 @@ This skill owns source/evidence policy only. It owns no renderer, scheduler, pho
 
 ## Trigger
 
-Use after a named `SKILL.md` has passed the separate no-follow ordinary-file candidate topology gate but before treating title/hash evidence as authority. It lights when one admitted candidate can change identity or material stat observation while discovery is in progress.
+Use after a named `SKILL.md` has passed the no-follow ordinary-file candidate topology gate but before treating title/hash evidence as authority. It lights when one admitted candidate can change identity or material stat observation while discovery is in progress.
 
-## Canonical helper
+## Canonical owner and helper
 
-`tools/try_forever_skill_file_identity.py`
+Existing owner: `tools/try_forever_skill_provenance_probe.py`
 
-The helper captures one no-follow `SkillFileIdentity` containing:
+Helper: `tools/try_forever_skill_file_identity.py`
 
-- device;
-- inode/file-index component;
-- file type;
-- size;
-- nanosecond mtime when available;
-- symlink/junction redirector classification reused from the existing root-identity organ.
+The helper captures one no-follow `SkillFileIdentity` containing device, inode/file-index component, file type, size, nanosecond mtime when available, and redirector classification reused from the existing root-identity organ.
 
 `revalidate_skill_file_identity(before, after)` fails closed unless both observations describe the same ordinary file with a stable nonzero inode/file-index and unchanged size/mtime observation.
+
+## Owner composition
+
+The existing provenance owner now composes the policy directly:
+
+`repository-owned skills root -> bounded traversal -> no-follow ordinary SKILL.md candidate -> bounded candidate set -> candidate-file identity observation -> path/collision checks -> bounded title -> exact bounded whole-file SHA -> candidate-file identity revalidation -> stable repository snapshot`
+
+The candidate topology gate fails the whole discovery before title/hash authority if a named `SKILL.md` is a symlink/redirector or non-ordinary file. Post-admission identity failure rejects that candidate record with an explicit discovery error; it never appends the observed title/hash as repository-skill authority.
+
+No second provenance probe, registry, controller, scheduler, phone path, or recovery owner is created.
 
 ## Verdicts
 
@@ -32,57 +37,41 @@ The helper captures one no-follow `SkillFileIdentity` containing:
 - `FILE_CHANGED` — file type, redirector state, device/inode identity, size, or mtime changed between observations.
 - `IDENTITY_UNAVAILABLE` — the platform observation does not expose a usable inode/file-index token.
 
-Only `STABLE` is eligible to continue toward repository-skill authority.
+Only `STABLE` is eligible to become a `SkillRecord`.
 
 ## Atomicity boundary
 
 `STABLE` is an observation verdict, **not** an atomic file-handle claim.
 
-Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. It does not prove absence of:
-
-- swap-and-restore races entirely between observations;
-- inode/file-index reuse;
-- same-size/same-mtime content rewrites;
-- replacement after the final observation;
-- title/hash reads being bound to one immutable file handle on every platform.
+Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. It does not prove absence of swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime content rewrites, replacement after the final observation, or title/hash reads being bound to one immutable file handle on every platform.
 
 Do not rename `STABLE` to `ATOMIC`, `BOUND`, or `SAFE_TOCTOU` without platform-specific evidence and owner integration that actually earns that claim.
 
-## Composition
-
-The intended authority order is:
-
-`repository-owned skills root -> bounded traversal -> no-follow ordinary SKILL.md candidate -> bounded candidate set -> candidate-file identity observation -> path/collision checks -> bounded title -> exact bounded whole-file SHA -> candidate-file identity revalidation -> stable repository snapshot`
-
-The exact placement may be strengthened by future handle-bound platform code, but no second provenance probe may be created. Compose into the existing `tools/try_forever_skill_provenance_probe.py` owner.
-
 ## Regression source
 
-`tools/test_try_forever_skill_file_identity.py` pins:
+`tools/test_try_forever_skill_file_identity.py` pins the pure helper.
 
-- stable ordinary-file observation;
-- named file-symlink redirector rejection;
-- replacement with a new file object;
-- in-place size/mtime drift;
-- missing inode/file-index fail-closed behavior;
-- explicit refusal to describe equal observations as atomic binding.
+`tools/test_try_forever_skill_file_identity_integration.py` pins existing-owner source behavior for:
+
+- stable ordinary candidate authority;
+- named `SKILL.md` non-file topology rejection before title/hash work;
+- file-symlink rejection without following the target when the platform supports symlinks;
+- replacement after hashing rejected before `SkillRecord` append;
+- identity-capture failure rejected before title/hash work.
 
 These are regression **sources** until an authorized runner produces test evidence.
 
-## Owner capability state
-
-At the 2026-08-18 1300 heartbeat:
+## Capability state — 2026-08-18 heartbeat
 
 - helper source: **YES**;
+- static no-follow candidate topology gate in existing owner: **YES / SOURCE_WIRED**;
+- candidate-file identity bracket in existing owner: **YES / SOURCE_WIRED**;
+- exact authenticated GitHub readback: **YES**;
 - regression source: **YES**;
-- exact GitHub readback: **YES**;
-- existing provenance owner consumes helper: **NO**;
-- existing static candidate topology patch: **PROPOSED_NOT_APPLIED**;
-- probe executed: **NO**;
+- atomic cross-platform file binding: **NO**;
+- probe executed by authorized runner: **NO**;
 - tested: **NO**;
 - runtime/deployed/callable/executed/delivered/accepted: **NO**.
-
-The static candidate-topology wound and this post-admission revalidation wound are related but not interchangeable. A no-follow directory-entry check does not prove the file stayed the same afterward.
 
 ## P0 / phone firewall
 
@@ -90,4 +79,4 @@ Do not consume or mutate Phone Hands, primary-phone execution, queue/relay recov
 
 ## Done
 
-This skill lights only when candidate-file identity/revalidation truth materially changes. If owner wiring, atomicity, or test evidence has not changed, do not decorate the heartbeat with it.
+This skill lights only when candidate-file identity/revalidation truth materially changes. Source wiring does not imply atomicity, test passage, runtime delivery, or phone acceptance.
