@@ -31,11 +31,12 @@ public final class HeartbeatCollapsedOwnerAccessibility {
      * <p>Expanded mode keeps the ordinary overlay action description because the
      * heartbeat summary/detail subtree is visible and accessibility-reachable.
      * Collapsed mode keeps the surviving action control concise: action + canonical
-     * heartbeat summary + only the contact/interruption truth needed before explicit
-     * expansion. It deliberately does not transplant the broad per-light collapsed
-     * list onto the drag handle; detailed light names remain behind the existing
-     * expand action. The entire returned description has one hard aggregate speech
-     * budget while the exact model/evidence fields remain unchanged.</p>
+     * heartbeat summary + compact blocked/fault attention truth + only the contact/
+     * interruption truth needed before explicit expansion. It deliberately does not
+     * transplant the broad per-light collapsed list onto the drag handle; detailed
+     * light names remain behind the existing expand action. The entire returned
+     * description has one hard aggregate speech budget while exact model/evidence
+     * fields remain unchanged.</p>
      */
     public static String contentDescription(
             boolean collapsed,
@@ -50,6 +51,7 @@ public final class HeartbeatCollapsedOwnerAccessibility {
 
         String summary = clean(model.summaryVisibleLabel());
         appendSentence(out, summary.isEmpty() ? WAITING_DESCRIPTION : summary);
+        appendSentence(out, model.attentionStatusDescription);
 
         boolean hasVisibleContact = !clean(model.visiblePulseId).isEmpty();
         if (model.controls.isEmpty() && hasVisibleContact) {
