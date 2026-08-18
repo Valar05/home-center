@@ -1,0 +1,50 @@
+# TRY FOREVER — final skills-root authority gate
+# STATUS: PROPOSED_NOT_APPLIED
+# Existing owner: tools/try_forever_skill_provenance_probe.py
+# Base blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Scope: existing provenance owner only; no second probe/controller/registry.
+# Claim boundary: this patch is source provenance, not implementation/test/runtime proof.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+         records.append(SkillRecord(path=relative, sha256=sha256, title=title))
++
++    # Candidate enumeration was already bracketed earlier, but per-file
++    # title/hash/identity work can outlive that observation. Revalidate the
++    # original repository-owned skills root one final time before any gathered
++    # SkillRecord is allowed to escape as repository-skill authority.
++    try:
++        root_final = capture_skill_root_identity(skills_root)
++    except OSError as error:
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type=type(error).__name__,
++                reason=(
++                    "skills root identity could not be revalidated after per-file "
++                    "authority work; partial repository-skill authority is forbidden"
++                ),
++            )
++        ]
++
++    final_root_verdict = revalidate_skill_root_identity(root_before, root_final)
++    if final_root_verdict.status != "STABLE":
++        error_type = (
++            "SkillsRootIdentityUnavailable"
++            if final_root_verdict.status == "IDENTITY_UNAVAILABLE"
++            else "SkillsRootIdentityChanged"
++        )
++        return [], [
++            DiscoveryError(
++                path="skills",
++                stage="repository",
++                error_type=error_type,
++                reason=(
++                    "final skills-root revalidation rejected repository-skill "
++                    f"authority: {final_root_verdict.reason}"
++                ),
++            )
++        ]
+     return records, errors
