@@ -1,0 +1,52 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0602",
+  "scope": "independent non-P0 repository provenance source slice",
+  "wound": "tools/try_forever_skill_provenance_probe.py hashes every SKILL.md to EOF before bounded title extraction; chunk size bounds memory but total hash I/O/work is unbounded",
+  "owners": [
+    "tools/try_forever_skill_provenance_probe.py",
+    "skills/heartbeat-skill-provenance-freshness/SKILL.md"
+  ],
+  "plan": [
+    "add one explicit whole-SKILL.md hash byte budget to the existing provenance probe; do not create a second probe or registry",
+    "extract the already-bounded title before whole-file hashing so malformed/title-resource failures terminate before unnecessary full-file work",
+    "compute an exact full-file SHA only when EOF is reached inside the declared byte budget; max+1 must reject instead of hashing/truncating a prefix into authority",
+    "isolate an oversized-body hash failure as a structured per-file discovery error while healthy peer skills continue discovery",
+    "add hostile regression source for exact-max, max+1, short-title plus oversized body, and healthy-peer survival",
+    "synchronize existing provenance doctrine; mutate source art only if the hash-work distinction creates materially new touchable state",
+    "bind positive claims to authenticated GitHub readback; regression source is not TESTED until an authorized runner proves execution",
+    "do not consume Phone Hands, primary-phone execution, P0 recovery/queue surfaces, or create neighboring architecture"
+  ],
+  "acceptance": {
+    "fullShaOnlyAtEofWithinBudget": true,
+    "prefixHashNeverAuthority": true,
+    "boundedTitleRunsBeforeWholeHash": true,
+    "perFileFailureIsolation": true,
+    "healthyPeerDiscoverySurvives": true,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitectureCreated": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "venicePlan": {
+    "mode": "SAME_WORKER_JUDGMENT_JAR",
+    "verdict": "PLAN_ALLOWED",
+    "conditions": [
+      "existing provenance owner only",
+      "reject rather than counterfeit a prefix hash",
+      "preserve source/test/runtime/phone capability membrane",
+      "code-first Regnet review before completion"
+    ]
+  },
+  "currentCapability": {
+    "requested": true,
+    "implementedWholeSkillHashBudget": false,
+    "tested": false,
+    "runtimeUi": false,
+    "phoneDelivery": false
+  }
+}
