@@ -1,8 +1,8 @@
 # BASE_BLOB: f7fe082751875e27213a9e324d85bc371f46f335
 # TARGET: tools/try_forever_skill_provenance_probe.py
 # STATUS: PROPOSED_NOT_APPLIED
-# CLAIM: persistent root replacement/type drift detection before per-file authority
-# NON_CLAIM: atomic exclusion of swap-and-restore races between two path observations
+# CLAIM: observable persistent root identity/type drift detection before per-file authority
+# NON_CLAIM: atomic exclusion of swap-and-restore races or filesystem identity-token reuse between observations
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
 @@
