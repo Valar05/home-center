@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-venice-plan.v1",
+  "pulse": "2026-08-18T10:00:00-05:00",
+  "reviewer": "venice-judgment-jar",
+  "verdict": "PLAN_ALLOWED",
+  "mission": "Advance the existing repository-skill provenance probe against the open skills-root TOCTOU wound without touching Phone Hands/P0 or creating a second probe.",
+  "planned_fronts": [
+    "reject Windows directory-junction roots alongside symlink roots before traversal",
+    "capture a no-follow skills-root identity before candidate enumeration and revalidate it after enumeration before any title/hash authority",
+    "fail closed with zero SkillRecord authority if the root type/identity changes across enumeration",
+    "add hostile regression source for junction admission where supported and persistent root replacement between admission and post-enumeration revalidation",
+    "synchronize existing traversal/provenance skill doctrine",
+    "mutate the existing accessible Warm Wall in place only if the topology state materially changes",
+    "attempt She-Raw hostile review; preserve connector failure exactly if unavailable",
+    "keep requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted distinct"
+  ],
+  "claim_boundary": {
+    "will_claim": [
+      "static symlink/junction source rejection",
+      "cross-platform pre/post no-follow root identity revalidation source",
+      "persistent root replacement detection before per-file title/hash authority"
+    ],
+    "will_not_claim": [
+      "atomic no-follow traversal on every Python platform",
+      "elimination of swap-and-restore races that occur entirely between the two identity observations",
+      "probe execution",
+      "test pass",
+      "runtime UI or TalkBack observation",
+      "phone delivery or P0 recovery"
+    ]
+  },
+  "p0_phone_firewall": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicate_architecture": 0
+  },
+  "source_notes": [
+    "Python 3.13 documents os.scandir file-descriptor support on Unix only, so a universal directory-fd no-follow implementation would not be cross-platform.",
+    "Python pathlib exposes Windows directory-junction detection separately from symlink detection, so root topology admission must not treat is_symlink() as the whole name-surrogate surface."
+  ]
+}
