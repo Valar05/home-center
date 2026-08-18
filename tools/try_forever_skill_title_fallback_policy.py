@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Pure fallback-title admission for TRY FOREVER repository skill discovery.
+"""Pure source-title admission for TRY FOREVER repository skill discovery.
 
-A missing H1 may legitimately fall back to the containing directory name, but a
-filesystem name is still human-facing report/accessibility text. It must not
-bypass the owner's declared title bound or smuggle terminal/control or bidi
-formatting state into the title surface.
+A fallback filesystem name exposed a broader authority seam: H1 text and folder
+fallback ultimately feed the same human-facing ``SkillRecord.title`` field, so
+they must not have different semantic safety rules. This helper supplies one
+exact admission contract while allowing the existing owner to keep its byte/
+line/scan resource throats.
 
 This policy intentionally does *not* ban ordinary Unicode format characters as a
 class. ZWSP, ZWNJ, ZWJ, WORD JOINER and ordinary combining/emoji composition may
@@ -35,44 +36,50 @@ BIDI_DIRECTION_CONTROLS = frozenset(
 
 
 class SkillFallbackTitleError(ValueError):
-    """A filesystem-derived fallback title cannot enter human-facing authority."""
+    """Compatibility base class for a skill title that cannot enter authority."""
 
 
 class SkillFallbackTitleResourceLimitError(SkillFallbackTitleError):
-    """Fallback title exceeds the same declared source-title resource budget."""
+    """Skill title exceeds the owner's declared source-title resource budget."""
 
 
 class SkillFallbackTitleSemanticError(SkillFallbackTitleError):
-    """Fallback title contains control state unsafe for direct human presentation."""
+    """Skill title contains control state unsafe for canonical human presentation."""
 
 
-def admit_fallback_title(value: str, *, max_chars: int) -> str:
-    """Admit one exact fallback title or reject it without rewriting/truncating.
+def admit_skill_title(value: str, *, max_chars: int) -> str:
+    """Admit one exact H1/fallback title or reject without rewrite/truncation.
 
     ``max_chars`` is supplied by the existing owner so this helper does not grow
-    an independent source-bound constant. The returned string is exact source
-    text; human-facing projection may apply separate accessibility policies later.
+    an independent source-bound constant. The returned text is exact source text;
+    later human-facing projection may apply separate grapheme-safe display bounds.
     """
 
     if max_chars < 0:
-        raise ValueError("fallback title character budget must be non-negative")
+        raise ValueError("skill title character budget must be non-negative")
     if not isinstance(value, str) or not value:
-        raise SkillFallbackTitleSemanticError("fallback title must be non-empty text")
+        raise SkillFallbackTitleSemanticError("skill title must be non-empty text")
     if len(value) > max_chars:
         raise SkillFallbackTitleResourceLimitError(
-            f"fallback title exceeds source title character budget {max_chars}"
+            f"skill title exceeds source title character budget {max_chars}"
         )
 
     for char in value:
         if unicodedata.category(char) == "Cc":
             raise SkillFallbackTitleSemanticError(
-                "fallback title contains a control character"
+                "skill title contains a control character"
             )
         if char in BIDI_DIRECTION_CONTROLS:
             raise SkillFallbackTitleSemanticError(
-                "fallback title contains an explicit bidi-direction control"
+                "skill title contains an explicit bidi-direction control"
             )
     return value
+
+
+def admit_fallback_title(value: str, *, max_chars: int) -> str:
+    """Compatibility name for callers repairing the original fallback seam."""
+
+    return admit_skill_title(value, max_chars=max_chars)
 
 
 __all__ = [
@@ -81,4 +88,5 @@ __all__ = [
     "SkillFallbackTitleResourceLimitError",
     "SkillFallbackTitleSemanticError",
     "admit_fallback_title",
+    "admit_skill_title",
 ]
