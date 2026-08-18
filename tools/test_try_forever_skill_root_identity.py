@@ -98,6 +98,21 @@ class SkillRootIdentityPolicyTest(unittest.TestCase):
 
         self.assertEqual("IDENTITY_UNAVAILABLE", verdict.status)
 
+    def test_device_without_inode_does_not_fake_object_identity(self):
+        identity = SkillRootIdentity(
+            device=99,
+            inode=0,
+            file_type=stat.S_IFDIR,
+            file_attributes=0,
+            reparse_tag=0,
+            redirector_kind="",
+        )
+
+        verdict = revalidate_skill_root_identity(identity, identity)
+
+        self.assertFalse(identity.has_stable_token)
+        self.assertEqual("IDENTITY_UNAVAILABLE", verdict.status)
+
     def test_changed_to_redirector_wins_over_identity_comparison(self):
         before = SkillRootIdentity(
             device=1,
