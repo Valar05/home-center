@@ -22,7 +22,7 @@ The portable source policy in `tools/try_forever_skill_root_identity.py` instead
 
 When consumed by the existing provenance probe, a persistent root replacement, root type change, or redirector state that remains visible at the second observation can be rejected before any `SkillRecord` earns title/hash authority.
 
-If stable device/inode identity is unavailable, the portable revalidation must fail closed rather than calling a path string "the same directory."
+A filesystem device number by itself is not one-directory identity. The portable helper requires a non-zero inode/file-index component before `(device, inode)` may certify the same directory object; if that object identity is unavailable, revalidation fails closed.
 
 ## What this does not close
 
@@ -42,7 +42,7 @@ On Windows, `os.stat(..., follow_symlinks=False)` exposes `st_reparse_tag`; `sta
 - persistent root replacement detection;
 - no-follow symlink classification;
 - Windows mount-point reparse classification where the interpreter exposes the constant;
-- fail-closed behavior when device/inode identity is unavailable;
+- zero identity and device-only identity both failing closed;
 - redirector/type change taking priority over superficial token equality.
 
 Regression source is not test execution.
