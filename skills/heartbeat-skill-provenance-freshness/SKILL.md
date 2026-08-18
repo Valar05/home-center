@@ -29,6 +29,7 @@ One damaged `SKILL.md` must not erase evidence from every unrelated healthy skil
 - an I/O failure while hashing becomes a structured `discoveryErrors` record and that skill is omitted;
 - malformed UTF-8 while reading the title becomes a structured `discoveryErrors` record; the already-computed byte SHA may remain diagnostic, but the malformed skill does not earn `repository_skill` authority;
 - a later title-read I/O failure is isolated the same way;
+- missing repository-skill roots, path escapes, and case-insensitive identity collisions also use the same structured error envelope;
 - discovery continues deterministically through the remaining skill files;
 - raw exception prose and hostile file contents are not copied into operator-facing error reasons;
 - the error path projection is hard-bounded and carries a short digest suffix if truncation is required;
@@ -36,7 +37,7 @@ One damaged `SKILL.md` must not erase evidence from every unrelated healthy skil
 
 A report may therefore contain a `STABLE_CLEAN` repository snapshot **and** one or more structured per-file discovery errors. Those statements answer different questions: the checkout stayed stable, but some candidate skill files could not be admitted as valid skill records.
 
-Current structured per-file fields are `path`, `stage`, `error_type`, `reason`, and optional diagnostic `sha256`. They are evidence fields, not a TalkBack script and not permission to surface raw filesystem exception text.
+The probe report schema is `try-forever-skill-provenance.v2`. Its structured discovery-error fields are `path`, `stage`, `error_type`, `reason`, optional diagnostic `sha256`, and optional `related_path` for identity collisions. They are evidence fields, not a TalkBack script and not permission to surface raw filesystem exception text.
 
 ## Generated-index freshness gate
 
@@ -70,6 +71,7 @@ The probe is standard-library source and performs no network calls. It:
 - discovers current `skills/**/SKILL.md` files recursively;
 - records repository-relative path, H1 title, and exact SHA-256 for admitted records;
 - isolates unreadable/malformed individual skill files as bounded structured discovery errors instead of aborting the entire report;
+- represents repository/identity discovery failures in the same structured v2 envelope;
 - captures git HEAD and checkout cleanliness again after discovery;
 - grants direct current-tree authority only to a `STABLE_CLEAN` bracketed snapshot;
 - fails closed on case-insensitive current-tree path collisions;
