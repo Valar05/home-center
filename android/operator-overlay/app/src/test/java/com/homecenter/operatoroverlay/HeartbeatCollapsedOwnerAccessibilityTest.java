@@ -74,6 +74,36 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
     }
 
     @Test
+    public void rejectedAttemptCannotLeakDiscardedFaultIntoCollapsedAttention() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-attention-last-good",
+                Collections.singletonList(typed(
+                        "steady",
+                        "Steady last-good light",
+                        HeartbeatSkillPolicy.State.ACTIVE)),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame rejected = HeartbeatSceneGraph.build(
+                "pulse-attention-rejected",
+                Collections.singletonList(typed(
+                        "discarded-fault",
+                        "Discarded attempted fault",
+                        HeartbeatSkillPolicy.State.FAULT)),
+                false,
+                lastGood);
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(rejected);
+
+        String collapsed = HeartbeatCollapsedOwnerAccessibility.contentDescription(true, model);
+
+        assertTrue(model.refreshInterrupted);
+        assertEquals("pulse-attention-last-good", model.visiblePulseId);
+        assertTrue(model.attentionStatusDescription.isEmpty());
+        assertTrue(collapsed.contains("CONTACT HELD"));
+        assertFalse(collapsed.contains("fault 1"));
+        assertFalse(collapsed.contains("Discarded attempted fault"));
+    }
+
+    @Test
     public void preContactWaitingIsDistinctOnTheSameCollapsedSurface() {
         String collapsed = HeartbeatCollapsedOwnerAccessibility.contentDescription(true, null);
 
