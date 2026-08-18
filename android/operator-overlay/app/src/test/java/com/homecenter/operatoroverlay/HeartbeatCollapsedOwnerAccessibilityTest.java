@@ -32,15 +32,22 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
         assertTrue(collapsed.contains(
                 HeartbeatCollapsedOwnerAccessibility.ACCEPTED_ZERO_MATERIAL_DESCRIPTION));
         assertFalse(collapsed.toLowerCase(java.util.Locale.ROOT).contains("waiting"));
+        assertTrue(model.attentionStatusDescription.isEmpty());
     }
 
     @Test
-    public void broadPulseKeepsPerLightEnumerationBehindExplicitExpansion() {
+    public void broadPulseKeepsAttentionCountsButPerLightEnumerationBehindExpansion() {
         List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
         for (int index = 0; index < 20; index++) {
+            HeartbeatSkillPolicy.State state = index == 0
+                    ? HeartbeatSkillPolicy.State.BLOCKED
+                    : index == 1
+                            ? HeartbeatSkillPolicy.State.FAULT
+                            : HeartbeatSkillPolicy.State.ACTIVE;
             candidates.add(typed(
                     "broad-" + index,
-                    "Long broad label " + index + " " + repeat("🦢", 55)));
+                    "Long broad label " + index + " " + repeat("🦢", 55),
+                    state));
         }
         HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(
                 "pulse-broad-collapsed-owner",
@@ -53,10 +60,12 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
         String collapsedOwner = HeartbeatCollapsedOwnerAccessibility.contentDescription(true, model);
 
         assertEquals(20, model.controls.size());
+        assertEquals("Attention: blocked 1, fault 1.", model.attentionStatusDescription);
         assertTrue(expandedDetail.contains("Long broad label 0"));
         assertTrue(expandedDetail.codePointCount(0, expandedDetail.length())
                 > HeartbeatCollapsedOwnerAccessibility.MAX_COLLAPSED_OWNER_CODE_POINTS);
         assertTrue(collapsedOwner.contains("HEARTBEAT • 20 LIGHTS"));
+        assertTrue(collapsedOwner.contains("Attention: blocked 1, fault 1."));
         assertTrue(collapsedOwner.contains("Tap to expand for heartbeat details."));
         assertFalse(collapsedOwner.contains("Long broad label 0"));
         assertFalse(collapsedOwner.contains("States:"));
@@ -125,14 +134,17 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
                 HeartbeatCollapsedOwnerAccessibility.contentDescription(false, model));
     }
 
-    private static HeartbeatSkillPolicy.Candidate typed(String id, String label) {
+    private static HeartbeatSkillPolicy.Candidate typed(
+            String id,
+            String label,
+            HeartbeatSkillPolicy.State state) {
         return new HeartbeatSkillPolicy.Candidate(
                 id,
                 label,
                 "doctrine",
                 "fixture:collapsed-owner-speech-load",
                 "Broad collapsed-owner speech-load fixture is material.",
-                HeartbeatSkillPolicy.State.ACTIVE,
+                state,
                 true,
                 "Fixture changed the broad collapsed-owner consequence.",
                 "Fixture evidence remains source-only until the runner executes.");
