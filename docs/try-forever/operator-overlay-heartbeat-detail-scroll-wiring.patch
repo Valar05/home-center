@@ -1,0 +1,46 @@
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         heartbeatDetail = textView(11f, false);
+         heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
+         heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
+-        heartbeatDetail.setMaxLines(5);
+-        heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);
++        heartbeatDetail.setMaxLines(HeartbeatDetailSurfacePolicy.MAX_VISIBLE_LINES);
++        heartbeatDetail.setEllipsize(null);
++        heartbeatDetail.setMinHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
++        heartbeatDetail.setMinimumHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
++        heartbeatDetail.setVerticalScrollBarEnabled(true);
++        heartbeatDetail.setMovementMethod(ScrollingMovementMethod.getInstance());
+         heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
+         heartbeatDetail.setContentDescription(
+                 "Touch a heartbeat light for why, consequence, evidence, and source detail.");
+@@
+     private void showHeartbeatDetail(String detail, boolean announce) {
+         if (heartbeatDetail == null) return;
+-        String safe = detail == null || detail.trim().isEmpty()
+-                ? "No heartbeat detail available."
+-                : detail.trim();
+-        heartbeatDetail.setText(safe);
+-        heartbeatDetail.setContentDescription(safe);
++        HeartbeatDetailSurfacePolicy.Presentation presentation =
++                HeartbeatDetailSurfacePolicy.fromDetail(detail);
++        heartbeatDetail.setText(presentation.text);
++        heartbeatDetail.setContentDescription(presentation.contentDescription);
++        heartbeatDetail.setMaxLines(presentation.maxVisibleLines);
++        heartbeatDetail.setEllipsize(
++                presentation.ellipsizeEnd ? TextUtils.TruncateAt.END : null);
++        heartbeatDetail.setMinHeight(dp(presentation.minTouchTargetDp));
++        heartbeatDetail.setMinimumHeight(dp(presentation.minTouchTargetDp));
++        heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);
++        heartbeatDetail.setMovementMethod(
++                presentation.verticallyScrollable
++                        ? ScrollingMovementMethod.getInstance()
++                        : null);
++        heartbeatDetail.scrollTo(0, 0);
+         if (announce && !OperatorState.muted(this)) {
+-            heartbeatDetail.announceForAccessibility(safe);
++            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
+         }
+     }
