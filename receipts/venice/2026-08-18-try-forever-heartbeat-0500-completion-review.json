@@ -1,0 +1,35 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-0500",
+  "reviewedSourceHead": "11050e25ced631204e7f244e3cb4d5182873237f",
+  "reviewerMode": "same-worker Judgment Jar",
+  "authoritativeExternalVeniceConnectorClaimed": false,
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "missionFidelity": "PASS",
+  "accessibility": "PASS_FOR_SOURCE",
+  "duplicateArchitecture": "PASS",
+  "evidenceDiscipline": "PASS",
+  "phoneP0Firewall": "PASS",
+  "notes": [
+    "The source repair answers the commissioned title-resource wound directly and does not substitute another tool or owner.",
+    "The Warm Wall is explicitly source-only and uses radio semantics, roving keyboard navigation, >=48px controls, non-color tokens, one live detail surface, and reduced-motion handling.",
+    "No runtime success is inferred from repository source or failed CI.",
+    "She-Raw was attempted and faulted at account connection; no synthetic She-Raw verdict was invented.",
+    "The next independent wound is whole-file hash I/O work, not more polishing of the title throat."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
