@@ -10,21 +10,36 @@ This skill is source/evidence infrastructure. It owns no overlay controller, ren
 
 For a light whose `provenanceKind` is `repository_skill`:
 
-1. Resolve an actual current-tree `skills/**/SKILL.md` path.
-2. Read the bounded UTF-8 title throat first. A malformed or title-resource-over-budget file is rejected before whole-file hashing.
-3. Hash the **entire** admitted file with SHA-256 only when EOF is reached inside the whole-skill hash byte budget. A prefix digest is never authority.
-4. Bracket direct skill discovery with repository observations before and after the scan. Current-tree authority requires the same available git HEAD and a clean checkout at both observations.
-5. Preserve repository head, pre/post cleanliness, snapshot verdict, title admission, and exact whole-file hash as distinct evidence.
-6. Treat generated indexes only as discovery aids unless they independently pass the generated-index freshness gate.
-7. Even `VERIFIED_CURRENT` generated-index evidence never replaces direct current-tree skill existence.
+1. Admit the bounded current-tree `skills/**/SKILL.md` candidate set before any per-file authority work. Candidate overflow fails the entire direct discovery; partial repository-skill authority is forbidden.
+2. Resolve an actual current-tree `skills/**/SKILL.md` path from the admitted set.
+3. Read the bounded UTF-8 title throat first. A malformed or title-resource-over-budget file is rejected before whole-file hashing.
+4. Hash the **entire** admitted file with SHA-256 only when EOF is reached inside the whole-skill hash byte budget. A prefix digest is never authority.
+5. Bracket direct skill discovery with repository observations before and after the scan. Current-tree authority requires the same available git HEAD and a clean checkout at both observations.
+6. Preserve repository head, pre/post cleanliness, snapshot verdict, candidate admission, title admission, and exact whole-file hash as distinct evidence.
+7. Treat generated indexes only as discovery aids unless they independently pass the generated-index freshness gate.
+8. Even `VERIFIED_CURRENT` generated-index evidence never replaces direct current-tree skill existence.
 
 A single pre-scan `git status` is not a stable provenance snapshot. If HEAD moves, cleanliness becomes unavailable, or the checkout is dirty before/after discovery, classify the repository snapshot `UNSTABLE`. Discovered records may remain diagnostic, but they do not earn current repository-skill authority for that probe report.
 
 If direct current-tree resolution fails, keep the light dark or use the correct `doctrine`, `jar`, `reviewer`, or `runtime_boundary` provenance kind. Never promote a familiar label into `repository_skill` by vibes.
 
+## Candidate-enumeration resource throat
+
+A bounded parser is still vulnerable if discovery first materializes every candidate path. The canonical probe therefore:
+
+- sets `MAX_SKILL_CANDIDATES = 2048`;
+- accumulates at most `limit + 1` actual `SKILL.md` file candidates while deciding overflow;
+- sorts only the already-bounded admitted set for deterministic downstream path/collision work;
+- rejects max+1 with `SkillCandidateResourceLimitError` before title extraction or whole-file hashing;
+- returns **no partial `SkillRecord` authority** when candidate overflow occurs;
+- treats partial authority as forbidden because an omitted later path could hide a case-insensitive identity collision;
+- keeps arbitrary non-candidate filesystem traversal work as a separate, still-unclaimed seam rather than pretending candidate-count policy bounds the whole filesystem walk.
+
+The overflow diagnostic is `path=skills`, `stage=enumeration`, `error_type=SkillCandidateResourceLimitError`. Exact-limit acceptance and max+1 rejection are intentionally distinct.
+
 ## Per-file failure isolation
 
-One damaged `SKILL.md` must not erase unrelated healthy evidence. Each candidate file is independent after path-identity checks:
+One damaged `SKILL.md` must not erase unrelated healthy evidence **after the candidate set itself has been admitted**. Each candidate file is independent after path-identity checks:
 
 - malformed UTF-8 or title-resource failure becomes a bounded `stage=title` discovery error and stops before whole-file hash work;
 - title-read I/O failure is isolated the same way;
@@ -35,6 +50,8 @@ One damaged `SKILL.md` must not erase unrelated healthy evidence. Each candidate
 - raw exception prose and hostile file contents are never copied into operator-facing reasons;
 - error-path projection is hard-bounded and carries a short digest suffix when shortened;
 - `--strict` still fails on any discovery error. Isolation means “finish the evidence report,” not “declare the wounded skill healthy.”
+
+Candidate-set overflow is intentionally different from a per-file wound: it invalidates complete repository-skill discovery and returns no partial records.
 
 The probe report schema is `try-forever-skill-provenance.v2`. Discovery-error fields are `path`, `stage`, `error_type`, `reason`, optional diagnostic `sha256`, and optional `related_path`. They are evidence fields, not a TalkBack script.
 
@@ -90,11 +107,19 @@ A current index is still only discovery evidence. It never substitutes for the c
 
 Use `tools/try_forever_skill_provenance_probe.py`.
 
-The probe is standard-library source and performs no network calls. It captures pre/post HEAD and cleanliness, recursively discovers `skills/**/SKILL.md`, isolates per-file wounds, validates the bounded title throat before bounded full-file SHA, fails closed on case-insensitive path collisions, classifies an optional generated index, supports `--expected-head` and `--strict`, and emits capability truth from the executing process.
+The probe is standard-library source and performs no network calls. It captures pre/post HEAD and cleanliness, bounds candidate-path admission before per-file work, recursively discovers admitted `skills/**/SKILL.md`, isolates per-file wounds, validates the bounded title throat before bounded full-file SHA, fails closed on case-insensitive path collisions, classifies an optional generated index, supports `--expected-head` and `--strict`, and emits capability truth from the executing process.
 
 A probe file existing in GitHub is **IMPLEMENTED SOURCE**. A regression file existing in GitHub is **REGRESSION SOURCE**. Neither means execution occurred. Only output from an authorized invocation can prove `probe executed`; only an authorized test receipt can promote regression source to `TESTED`.
 
 ## Regression source
+
+`tools/test_try_forever_skill_candidate_enumeration.py` pins:
+
+- exact-limit deterministic candidate ordering;
+- max+1 candidate overflow;
+- no partial repository-skill authority on overflow;
+- no title/hash work after overflow;
+- zero-budget and negative-budget behavior.
 
 `tools/test_try_forever_skill_provenance_probe.py` pins:
 
@@ -116,7 +141,7 @@ Keep test imports independent of caller working directory. Test source is not te
 
 ## Heartbeat consequence
 
-This skill lights only when it changes provenance truth: for example, a stale matcher is demoted, a moving checkout is blocked from authority, a malformed or oversized skill is isolated, an unbounded title/hash workload gains an explicit throat, or a current path/hash is proven under a stable clean bracket. It stays dark when no repository-skill provenance work occurred.
+This skill lights only when it changes provenance truth: for example, an unbounded candidate list gains a fail-closed throat, a stale matcher is demoted, a moving checkout is blocked from authority, a malformed or oversized skill is isolated, an unbounded title/hash workload gains an explicit throat, or a current path/hash is proven under a stable clean bracket. It stays dark when no repository-skill provenance work occurred.
 
 ## Capability membrane
 
@@ -126,6 +151,7 @@ Preserve independently:
 
 No earlier state implies a later one. In particular:
 
+- bounded candidate admission does not prove arbitrary filesystem traversal is resource-bounded;
 - current-tree skill evidence does not prove Android rendering;
 - stable checkout does not make a malformed/resource-over-budget skill valid;
 - exact-max source acceptance does not prove a runner executed the probe;
@@ -141,4 +167,4 @@ If provenance work exposes a P0 defect, preserve one concise finding for the can
 
 ## Done
 
-A provenance pulse can close only when it can name the exact current-tree skill path/hash or structured admission failure, pre/post repository snapshot truth, generated-index verdict when used, whether the probe merely exists or actually ran, the exact capability state reached, and the fact that no later runtime/phone state was inferred without evidence.
+A provenance pulse can close only when it can name candidate-admission truth, the exact current-tree skill path/hash or structured admission failure, pre/post repository snapshot truth, generated-index verdict when used, whether the probe merely exists or actually ran, the exact capability state reached, and the fact that no later runtime/phone state was inferred without evidence.
