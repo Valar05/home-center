@@ -1,0 +1,51 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-0300",
+  "reviewedSourceHead": "5b50547c54fd423d585ebcd75d76ec8d97f0b39e",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claims": {
+    "repositorySnapshotStabilitySource": "PASS",
+    "probeExecutionTruthSource": "PASS",
+    "hostileRegressionSource": "PASS_AS_SOURCE_ONLY",
+    "skillDoctrineSynchronized": "PASS",
+    "accessibleProvenanceSpecimen": "PASS_AS_SOURCE_ONLY",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "phoneDelivery": "NO"
+  },
+  "exactBlobs": {
+    "tools/try_forever_skill_provenance_probe.py": "344246e8894e98c8aa62a07e29db87758ddde029",
+    "tools/test_try_forever_skill_provenance_probe.py": "8426da9cd54d394a0e29938777bbe1ca75e96867",
+    "skills/heartbeat-skill-provenance-freshness/SKILL.md": "310afc307c55795949648204f3b5c70668392937",
+    "docs/try-forever/heartbeat-skill-provenance-source-specimen.html": "1c0910cde9d2c1f800bc0563ff955ba3623a36f7"
+  },
+  "reviewFindings": [
+    "The old single pre-scan HEAD/cleanliness observation could be stale by the time direct skill discovery finished. The new pre/post STABLE_CLEAN gate prevents that state from being promoted into current provenance.",
+    "The previous emitted capability boundary said probeExecutedByThisArtifact=false even in output produced by an executing probe. The source now distinguishes source existence from report-time process execution while leaving tested/runtime states false.",
+    "The existing DOM specimen gained one materially new provenance state, UNSTABLE SNAPSHOT, while preserving radio semantics, roving keyboard navigation, >=48px targets, non-color tokens, one live detail surface, and reduced-motion behavior.",
+    "Fresh code review found one independent next wound: discover_skills still permits an unreadable or malformed-UTF-8 SKILL.md to raise during sha/title extraction instead of converting that file into a bounded discoveryErrors entry. This does not negate the bounded snapshot-stability source claim, but it must remain open rather than being painted green."
+  ],
+  "executionEvidence": {
+    "operatorOverlayRunId": 32114788399,
+    "operatorOverlayJobId": 95641743548,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "computerHandsBoundary": {
+    "ticketId": "hands-try-forever-20260818-0100-detail",
+    "status": "queued",
+    "completedSteps": 0,
+    "workerId": "windows-hands-01",
+    "workerOnline": false,
+    "mutationPromoted": false
+  },
+  "firewall": {
+    "phoneOrP0Consumption": 0,
+    "phoneOrP0Mutation": 0,
+    "duplicateArchitectureCreated": false
+  }
+}
