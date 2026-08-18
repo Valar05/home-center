@@ -24,6 +24,9 @@ Use when the existing heartbeat detail surface already owns the correct full pro
 12. Any deferred background scroll restore is owned by the detail presentation that scheduled it. A newer detail presentation invalidates the stale restore before it can yank a newer explicit selection or refresh.
 13. Source wiring, successful tests, runtime scrolling, runtime TalkBack behavior, deployment, phone delivery, and acceptance are separate capability states.
 14. Do not create a neighboring detail controller, renderer, state store, overlay, phone path, or P0 owner.
+15. An exact patch artifact, a queued Computer Hands request, and an applied owner commit are three different states. Never promote queue admission into source implementation.
+16. The retired Command Center agents/jobs/workers lane is not an execution fallback. For non-phone source mutation, use the deployed Home Center GitHub admin surface directly when an exact whole-file replacement is safe, or the distinct `computer_hands.*` Home Drive operation when its worker can execute a blob-locked patch safely.
+17. A Computer Hands patch request must fail closed on owner-blob drift, patch-blob drift, unexpected changed files, patch-check failure, or branch movement. A push must use lease protection; never force-overwrite a newer branch head.
 
 ## Source organ
 
@@ -51,7 +54,27 @@ Use when the existing heartbeat detail surface already owns the correct full pro
 
 The focus/click fields are not decorative metadata. The owner must reapply them after movement-method installation because Android movement-method wiring can otherwise change those states.
 
-The Android owner must explicitly consume all of those semantics before `existing-owner wiring = YES` can be claimed. The corrected owner delta is preserved at `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch`; it now uses a pixel-height viewport so the full TextView layout survives, adds a generation-bound one-shot pre-draw restore so stale callbacks cannot overwrite newer detail ownership, and restores passive focus/click/long-click state after movement-method installation. A patch artifact is not owner implementation.
+The Android owner must explicitly consume all of those semantics before `existing-owner wiring = YES` can be claimed. The corrected owner delta is preserved at `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch`; it uses a pixel-height viewport so the full TextView layout survives, adds a generation-bound one-shot pre-draw restore so stale callbacks cannot overwrite newer detail ownership, and restores passive focus/click/long-click state after movement-method installation. A patch artifact is not owner implementation.
+
+## Mutation-lane discipline
+
+The deployed Home Center capability registry distinguishes two relevant non-phone source lanes:
+
+- `github_admin.files.upsert`: audited repository write authority. It replaces complete file contents and is appropriate only when the caller has exact current content plus an exact blob lock; it is not a patch interpreter.
+- `computer_hands.request.create`: a separate Home Drive operation backed by `windows-hands-01`. It may execute a blob-locked `git apply --check` / apply / diff-check / lease-protected push sequence without touching the phone/P0 chain. Worker admission or queueing is not execution.
+
+Command Center Codex agents/jobs/sessions/workers are retired and must not be resurrected as a pretend patch lane. If Computer Hands is offline, preserve that exact boundary. A queued ticket may remain as durable intent, but `existing-owner wiring` remains **NO** until a remote GitHub readback proves the owner blob changed as intended.
+
+Any patch-capable request for this seam must verify at minimum:
+
+- expected current `OperatorOverlayService.java` blob;
+- expected corrected patch blob;
+- `git apply --check` before mutation;
+- exactly one changed file: the existing owner;
+- removal of `heartbeatDetail.setMaxLines(5)` from the heartbeat-detail setup;
+- presence of pixel-height viewport, generation-bound restore, and post-movement-method passive ownership markers;
+- `git diff --check`;
+- lease-protected branch push against the fetched remote head.
 
 ## Android platform evidence
 
@@ -87,7 +110,7 @@ Owner review must separately verify, on the real native `heartbeatDetail`, that 
 
 Regression source is not TESTED evidence until an authorized runner executes it successfully.
 
-## Capability membrane
+## Current capability membrane on PR #329
 
 - detail policy source: **YES**
 - pixel-height full-layout viewport policy source: **YES**
@@ -96,6 +119,8 @@ Regression source is not TESTED evidence until an authorized runner executes it 
 - post-layout clamp policy source: **YES**
 - hostile pure regression source: **YES**
 - corrected existing-owner patch artifact: **YES / PROPOSED_NOT_APPLIED**
+- blob-locked Computer Hands owner request: **YES / QUEUED_NOT_EXECUTED**
+- Computer Hands worker currently online: **NO**
 - real native full-layout/focus fixture executed: **NO**
 - existing `OperatorOverlayService` deep-detail wiring: **NO**
 - tested: **NO**
