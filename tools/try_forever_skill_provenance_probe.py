@@ -23,6 +23,13 @@ from typing import Any, Iterable
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
 MAX_FUTURE_SKEW_SECONDS = 5 * 60
 MAX_DISCOVERY_ERROR_PATH_CHARS = 512
+MAX_SKILL_TITLE_SCAN_BYTES = 64 * 1024
+MAX_SKILL_TITLE_LINE_BYTES = 8 * 1024
+MAX_SKILL_TITLE_CHARS = 256
+
+
+class SkillTitleResourceLimitError(ValueError):
+    """A SKILL.md title cannot be admitted within the declared resource budget."""
 
 
 @dataclass(frozen=True)
@@ -72,11 +79,36 @@ def sha256_file(path: Path) -> str:
 
 
 def markdown_title(path: Path) -> str:
-    with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
+    """Read one bounded H1 title without truncating hostile input into authority.
+
+    The byte-first scan avoids Python allocating an arbitrarily large decoded
+    line. Any line/scan/title that exceeds the declared budget rejects the
+    skill record instead of truncating it into a plausible repository skill.
+    """
+
+    scanned_bytes = 0
+    with path.open("rb") as handle:
+        while scanned_bytes < MAX_SKILL_TITLE_SCAN_BYTES:
+            remaining_scan = MAX_SKILL_TITLE_SCAN_BYTES - scanned_bytes
+            read_limit = min(MAX_SKILL_TITLE_LINE_BYTES, remaining_scan)
+            raw_line = handle.readline(read_limit + 1)
+            if not raw_line:
+                return path.parent.name
+
+            scanned_bytes += len(raw_line)
+            if len(raw_line) > read_limit:
+                raise SkillTitleResourceLimitError("skill title scan exceeded its byte/line budget")
+
+            line = raw_line.decode("utf-8")
             stripped = line.strip()
             if stripped.startswith("# "):
-                return stripped[2:].strip()
+                title = stripped[2:].strip()
+                if len(title) > MAX_SKILL_TITLE_CHARS:
+                    raise SkillTitleResourceLimitError("skill title exceeds its character budget")
+                return title
+
+        if handle.read(1):
+            raise SkillTitleResourceLimitError("skill title was not resolved within the scan budget")
     return path.parent.name
 
 
@@ -286,6 +318,17 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
         try:
             title = markdown_title(path)
+        except SkillTitleResourceLimitError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="title",
+                    error=error,
+                    reason="skill title extraction exceeded the declared resource budget",
+                    sha256=sha256,
+                )
+            )
+            continue
         except UnicodeDecodeError as error:
             errors.append(
                 discovery_error(
