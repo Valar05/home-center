@@ -19,6 +19,11 @@
       "evidence": "547376c303b84a1e094a6e0e9694c1ba3248d404"
     },
     {
+      "front": "provenance authority-order convergence",
+      "result": "DURABLE_SKILL_UPDATED",
+      "evidence": "3536d3dabc7f6f798ce7de254936f607cd4cddc9"
+    },
+    {
       "front": "accessible Warm Wall mutation",
       "result": "SOURCE_ART_UPDATED",
       "evidence": "c65378a4b4903f6f0ae9cddcd8062d4c56103012"
@@ -41,11 +46,11 @@
   ],
   "lights": {
     "FailureIsTheShovel": "ACTIVE: consumed the preserved root-symlink wound instead of retrying completed traversal-count work or failed CI",
-    "CanonAutoSelect": "ACTIVE: existing provenance probe, existing traversal skill, and existing Warm Wall were selected as current owners",
+    "CanonAutoSelect": "ACTIVE: existing provenance probe, traversal skill, provenance-freshness skill, and existing Warm Wall were selected as current owners",
     "AutocorrectJudgmentJar": "DARK: no material STT/autocorrect ambiguity",
     "OriginalityTax": "ACTIVE: no CI retry and no duplicate probe; source strategy changed to root-topology admission",
-    "Hunger": "ACTIVE: source, regression, doctrine, art, and evidence all advanced",
-    "EverPolishedInterpreterEatEverything": "ACTIVE: broken-symlink classification and exact capability wording were propagated across fronts",
+    "Hunger": "ACTIVE: source, regression, two doctrine surfaces, art, and evidence all advanced",
+    "EverPolishedInterpreterEatEverything": "ACTIVE: broken-symlink classification, authority order, static-vs-atomic boundary, and exact capability wording were propagated across fronts",
     "OperatorCampaign": "ACTIVE: existing-owner and capability-state discipline enforced",
     "HarrowayOperatorDiscipline": "ACTIVE: no adjacent execution lane substituted",
     "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no synthetic review",
@@ -61,14 +66,14 @@
     "ChristmasLightSceneGraph": "DARK: provenance bookkeeping earns no motion/blink",
     "ContactPreservation": "ACTIVE_AS_SOURCE_RULE: root-topology failure returns zero partial repository-skill authority; no runtime contact claim"
   },
-  "crossPollination": "bounded traversal exposed root-topology scope -> root symlink admission moved before traversal -> regression source proves zero downstream work -> traversal doctrine gains root ownership law -> Warm Wall makes topology visible/touchable -> Regnet identifies non-atomic check/open race -> Venice closes only the static seam",
+  "crossPollination": "bounded traversal exposed root-topology scope -> root symlink admission moved before traversal -> regression source proves zero downstream work -> traversal and provenance-freshness doctrine converge on repository-owned root topology -> Warm Wall makes topology visible/touchable -> Regnet identifies non-atomic check/open race -> Venice closes only the static seam",
   "nextIndependentWound": "Static is_symlink() admission and later os.scandir() are separate operations; investigate a no-follow or identity-revalidation strategy for root replacement races without adding a second probe and without touching phone/P0 surfaces.",
   "capability": {
     "requested": true,
     "implementedSource": true,
     "exactGitHubReadback": true,
     "regressionSource": true,
-    "durableSkill": true,
+    "durableSkills": true,
     "accessibleNonRasterSource": true,
     "probeExecuted": false,
     "tested": false,
