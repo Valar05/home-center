@@ -1,0 +1,45 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "heartbeat": "2026-08-18-1500",
+  "reviewMode": "same-worker-pre-mutation-plan-review",
+  "verdict": "PLAN_ALLOWED__BOUNDED_EXISTING_OWNER_SOURCE_SLICE",
+  "judgments": [
+    {
+      "axis": "mission fidelity",
+      "result": "PASS",
+      "reason": "The plan advances the exact preserved non-P0 provenance wound in the existing owner and does not touch P0 recovery, Phone Hands, primary-phone execution, or neighboring architecture."
+    },
+    {
+      "axis": "failure is the shovel / originality tax",
+      "result": "PASS",
+      "reason": "The prior candidate-file seam is ordered dark. This pulse targets the later root-replacement window rather than retrying CI or restating completed work."
+    },
+    {
+      "axis": "evidence truth",
+      "result": "PASS_WITH_BOUNDARY",
+      "reason": "Final root revalidation may prove persistent late drift detection in source only. It cannot establish atomic directory binding, swap-and-restore exclusion, identity-token non-reuse, runtime execution, deployment, delivery, or acceptance."
+    },
+    {
+      "axis": "accessibility/art",
+      "result": "PASS_IF_IN_PLACE",
+      "reason": "If the topology changes materially, mutate the existing accessible Warm Wall in place; preserve radio semantics, keyboard navigation, touch target intent, non-color signaling, polite live detail, reduced motion, and SOURCE ONLY scarring."
+    },
+    {
+      "axis": "test strategy",
+      "result": "PASS_SOURCE_ONLY",
+      "reason": "Regression source should prove final stable root preserves records and persistent late drift/unavailable identity returns zero records after title/hash work; fixture existence must not be called TESTED."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
