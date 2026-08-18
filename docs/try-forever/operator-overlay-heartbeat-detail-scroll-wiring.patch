@@ -9,7 +9,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
      private boolean expandedText;
      private boolean confirmDisable;
      private float downRawX;
-@@ -402,8 +403,12 @@ public class OperatorOverlayService extends Service {
+@@ -402,8 +403,15 @@ public class OperatorOverlayService extends Service {
          heartbeatDetail = textView(11f, false);
          heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
          heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
@@ -21,10 +21,14 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +        heartbeatDetail.setMinimumHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
 +        heartbeatDetail.setVerticalScrollBarEnabled(true);
 +        heartbeatDetail.setMovementMethod(ScrollingMovementMethod.getInstance());
++        // setMovementMethod mutates TextView focus/click ownership; restore the intended passive well.
++        heartbeatDetail.setFocusable(false);
++        heartbeatDetail.setClickable(false);
++        heartbeatDetail.setLongClickable(false);
          heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
          heartbeatDetail.setContentDescription(
                  "Touch a heartbeat light for why, consequence, evidence, and source detail.");
-@@ -1270,11 +1275,63 @@ public class OperatorOverlayService extends Service {
+@@ -1270,11 +1278,69 @@ public class OperatorOverlayService extends Service {
 -    private void showHeartbeatDetail(String detail, boolean announce) {
 +    private void showHeartbeatDetail(String detail, boolean explicitSelection) {
          if (heartbeatDetail == null) return;
@@ -51,6 +55,10 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                presentation.verticallyScrollable
 +                        ? ScrollingMovementMethod.getInstance()
 +                        : null);
++        // Movement methods change focus/click defaults. Apply policy ownership after the method.
++        heartbeatDetail.setFocusable(presentation.keyboardFocusable);
++        heartbeatDetail.setClickable(presentation.clickable);
++        heartbeatDetail.setLongClickable(presentation.longClickable);
 +        if (explicitSelection) {
 +            heartbeatDetail.scrollTo(0, 0);
 +        } else {
