@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import tempfile
 import unittest
@@ -32,6 +33,15 @@ class SkillCandidateEnumerationTest(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"# {name}\n", encoding="utf-8")
         return path
+
+    def make_skill_symlink(self, *, alias_name: str, target: Path) -> Path:
+        alias = self.skills_root / alias_name / "SKILL.md"
+        alias.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            os.symlink(target, alias)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"file symlink unavailable on this runner: {type(error).__name__}")
+        return alias
 
     def test_exact_limit_is_admitted_and_sorted_deterministically(self):
         self.write_skill("zeta")
@@ -75,6 +85,47 @@ class SkillCandidateEnumerationTest(unittest.TestCase):
         self.assertEqual("enumeration", errors[0].stage)
         self.assertEqual("SkillCandidateResourceLimitError", errors[0].error_type)
         self.assertIn("partial repository-skill authority is forbidden", errors[0].reason)
+        title.assert_not_called()
+        sha256.assert_not_called()
+
+    def test_in_root_skill_file_symlink_alias_fails_entire_discovery_before_title_or_hash(self):
+        target = self.write_skill("real")
+        alias = self.make_skill_symlink(alias_name="alias", target=target)
+        self.assertTrue(alias.is_symlink())
+
+        with (
+            patch("try_forever_skill_provenance_probe.markdown_title") as title,
+            patch("try_forever_skill_provenance_probe.sha256_file") as sha256,
+        ):
+            records, errors = discover_skills(self.root)
+
+        self.assertEqual([], records)
+        self.assertEqual(1, len(errors))
+        self.assertEqual("skills/alias/SKILL.md", errors[0].path)
+        self.assertEqual("identity", errors[0].stage)
+        self.assertEqual("SkillCandidateTopologyError", errors[0].error_type)
+        self.assertIn("ordinary non-redirecting file", errors[0].reason)
+        self.assertIn("partial repository-skill authority is forbidden", errors[0].reason)
+        title.assert_not_called()
+        sha256.assert_not_called()
+
+    def test_named_skill_md_directory_fails_entire_discovery_before_healthy_peer_authority(self):
+        self.write_skill("healthy")
+        malformed = self.skills_root / "odd" / "SKILL.md"
+        malformed.mkdir(parents=True, exist_ok=True)
+
+        with (
+            patch("try_forever_skill_provenance_probe.markdown_title") as title,
+            patch("try_forever_skill_provenance_probe.sha256_file") as sha256,
+        ):
+            records, errors = discover_skills(self.root)
+
+        self.assertEqual([], records)
+        self.assertEqual(1, len(errors))
+        self.assertEqual("skills/odd/SKILL.md", errors[0].path)
+        self.assertEqual("identity", errors[0].stage)
+        self.assertEqual("SkillCandidateTopologyError", errors[0].error_type)
+        self.assertIn("ordinary non-redirecting file", errors[0].reason)
         title.assert_not_called()
         sha256.assert_not_called()
 
