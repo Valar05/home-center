@@ -1,0 +1,85 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0300",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching the gated phone/P0 chain or duplicating owners.",
+  "initialPrHead": "3b7bbc6aadde15113eba4ee824731f311c0cdd2b",
+  "preMutationEvidence": {
+    "computerHandsTicket": {
+      "ticketId": "hands-try-forever-20260818-0100-detail",
+      "status": "queued",
+      "completedSteps": 0,
+      "workerId": "windows-hands-01",
+      "workerOnline": false,
+      "queueDepth": 3,
+      "consequence": "Deep-detail owner mutation remains pending. Do not substitute Phone Hands or P0."
+    },
+    "currentHeadCi": {
+      "operatorOverlayRunId": 32110624737,
+      "jobId": 95629039220,
+      "conclusion": "failure",
+      "steps": 0,
+      "jobLogs": "404 BlobNotFound",
+      "tested": false
+    },
+    "sheRaw": {
+      "attempted": true,
+      "result": "account_connection_http_400",
+      "syntheticSubstitute": false
+    }
+  },
+  "fronts": [
+    {
+      "id": "repository-snapshot-stability",
+      "action": "Repair the existing skill provenance probe so current-tree authority is granted only across a stable clean pre/post scan snapshot.",
+      "owner": "tools/try_forever_skill_provenance_probe.py"
+    },
+    {
+      "id": "probe-execution-truth",
+      "action": "Repair emitted capability evidence so an actually executing probe says this process executed while keeping TESTED/runtime/deployed states false.",
+      "owner": "tools/try_forever_skill_provenance_probe.py"
+    },
+    {
+      "id": "hostile-regression-source",
+      "action": "Add source fixtures for moving HEAD, dirty/unknown post-scan state, stable clean state, and self-execution capability truth.",
+      "owner": "tools/test_try_forever_skill_provenance_probe.py"
+    },
+    {
+      "id": "durable-skill-doctrine",
+      "action": "Synchronize the existing heartbeat-skill-provenance-freshness skill; do not create a duplicate registry/daemon.",
+      "owner": "skills/heartbeat-skill-provenance-freshness/SKILL.md"
+    },
+    {
+      "id": "accessible-provenance-organism",
+      "action": "Mutate the existing non-raster provenance DOM specimen in place with a distinct UNSTABLE SNAPSHOT state and preserved radio/keyboard/touch semantics.",
+      "owner": "docs/try-forever/heartbeat-skill-provenance-source-specimen.html"
+    },
+    {
+      "id": "execution-boundary-readback",
+      "action": "Observe fresh automatic CI on the resulting source head; do not manually retry an unchanged blocker and do not promote source fixtures to TESTED.",
+      "owner": "GitHub Actions readback"
+    }
+  ],
+  "review": {
+    "regnet": "Require exact source readback, fail closed on unstable snapshot, no capability promotion beyond evidence.",
+    "venice": "Reject decorative skill lights and duplicated architecture; allow art only because provenance topology gains a materially distinct unstable state."
+  },
+  "firewall": {
+    "phoneHands": "READ_NEVER_WRITE_THIS_PULSE",
+    "p0Recovery": "READ_ONLY_NO_COORDINATION",
+    "nightcorePocketTtsChromiumContextOrgans": "UNTOUCHED",
+    "duplicateArchitecture": "FORBIDDEN"
+  },
+  "targetCapability": {
+    "implementedSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "deployed": false,
+    "callable": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
