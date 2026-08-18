@@ -2,169 +2,143 @@
 
 ## Purpose
 
-Make `repository_skill` heartbeat lights prove that the named skill exists in the **current repository tree**. Generated indexes, cached matchers, old receipts, or label-shaped strings may help discover candidates, but they are never sufficient provenance by themselves.
+Make `repository_skill` heartbeat lights prove that the named skill exists in the **current repository tree**. Generated indexes, cached matchers, old receipts, or label-shaped strings may help discovery, but they are never sufficient provenance by themselves.
 
-This skill is deliberately source/evidence infrastructure. It owns no overlay controller, renderer, scheduler, phone lane, P0 recovery chain, deployment, or physical acceptance.
+This skill is source/evidence infrastructure. It owns no overlay controller, renderer, scheduler, phone lane, P0 recovery chain, deployment, or physical acceptance.
 
 ## Authority order
 
 For a light whose `provenanceKind` is `repository_skill`:
 
 1. Resolve an actual current-tree `skills/**/SKILL.md` path.
-2. Hash the exact current file bytes with SHA-256.
-3. Decode the skill as UTF-8 and derive its H1 title without rewriting malformed source into replacement text.
-4. Bracket direct skill discovery with repository observations **before and after** the scan. Current-tree authority requires the same available git HEAD and a clean checkout at both observations.
-5. Preserve the current repository head, pre/post cleanliness, and snapshot-stability verdict separately from the skill hash.
-6. Treat generated indexes only as discovery aids unless they independently pass the generated-index freshness gate below.
-7. Even a `VERIFIED_CURRENT` generated index does **not** replace direct current-tree skill existence. It only proves that the index itself may be trusted as current discovery evidence.
+2. Read the bounded UTF-8 title throat first. A malformed or title-resource-over-budget file is rejected before whole-file hashing.
+3. Hash the **entire** admitted file with SHA-256 only when EOF is reached inside the whole-skill hash byte budget. A prefix digest is never authority.
+4. Bracket direct skill discovery with repository observations before and after the scan. Current-tree authority requires the same available git HEAD and a clean checkout at both observations.
+5. Preserve repository head, pre/post cleanliness, snapshot verdict, title admission, and exact whole-file hash as distinct evidence.
+6. Treat generated indexes only as discovery aids unless they independently pass the generated-index freshness gate.
+7. Even `VERIFIED_CURRENT` generated-index evidence never replaces direct current-tree skill existence.
 
-A single pre-scan `git status` is not a stable provenance snapshot. If HEAD moves, cleanliness becomes unavailable, or the checkout is dirty before/after discovery, classify the repository snapshot `UNSTABLE`. The discovered paths/hashes may remain diagnostic data, but they may not earn current repository-skill authority for that probe report.
+A single pre-scan `git status` is not a stable provenance snapshot. If HEAD moves, cleanliness becomes unavailable, or the checkout is dirty before/after discovery, classify the repository snapshot `UNSTABLE`. Discovered records may remain diagnostic, but they do not earn current repository-skill authority for that probe report.
 
-If direct current-tree resolution fails, the light may remain dark or use the correct `doctrine`, `jar`, `reviewer`, or `runtime_boundary` provenance kind when that is what actually exists. Never promote a familiar label into `repository_skill` by vibes.
+If direct current-tree resolution fails, keep the light dark or use the correct `doctrine`, `jar`, `reviewer`, or `runtime_boundary` provenance kind. Never promote a familiar label into `repository_skill` by vibes.
 
-## Per-file discovery failure isolation
+## Per-file failure isolation
 
-One damaged `SKILL.md` must not erase evidence from every unrelated healthy skill. Direct discovery therefore treats each skill file as an independent provenance record after path-identity checks:
+One damaged `SKILL.md` must not erase unrelated healthy evidence. Each candidate file is independent after path-identity checks:
 
-- an I/O failure while hashing becomes a structured `discoveryErrors` record and that skill is omitted;
-- malformed UTF-8 while reading the title becomes a structured `discoveryErrors` record; the already-computed byte SHA may remain diagnostic, but the malformed skill does not earn `repository_skill` authority;
-- a later title-read I/O failure is isolated the same way;
-- missing repository-skill roots, path escapes, and case-insensitive identity collisions also use the same structured error envelope;
-- discovery continues deterministically through the remaining skill files;
-- raw exception prose and hostile file contents are not copied into operator-facing error reasons;
-- the error path projection is hard-bounded and carries a short digest suffix if truncation is required;
-- `--strict` still fails when any discovery error exists. Isolation means “finish the report,” not “declare the broken skill healthy.”
+- malformed UTF-8 or title-resource failure becomes a bounded `stage=title` discovery error and stops before whole-file hash work;
+- title-read I/O failure is isolated the same way;
+- whole-file hash I/O failure becomes a bounded `stage=hash` discovery error;
+- whole-file hash resource overflow becomes `SkillHashResourceLimitError`, omits that skill, and returns no prefix SHA;
+- missing skill roots, path escapes, and case-insensitive identity collisions use the same structured error envelope;
+- discovery continues deterministically through healthy peers;
+- raw exception prose and hostile file contents are never copied into operator-facing reasons;
+- error-path projection is hard-bounded and carries a short digest suffix when shortened;
+- `--strict` still fails on any discovery error. Isolation means “finish the evidence report,” not “declare the wounded skill healthy.”
 
-A report may therefore contain a `STABLE_CLEAN` repository snapshot **and** one or more structured per-file discovery errors. Those statements answer different questions: the checkout stayed stable, but some candidate skill files could not be admitted as valid skill records.
+The probe report schema is `try-forever-skill-provenance.v2`. Discovery-error fields are `path`, `stage`, `error_type`, `reason`, optional diagnostic `sha256`, and optional `related_path`. They are evidence fields, not a TalkBack script.
 
-The probe report schema is `try-forever-skill-provenance.v2`. Its structured discovery-error fields are `path`, `stage`, `error_type`, `reason`, optional diagnostic `sha256`, and optional `related_path` for identity collisions. They are evidence fields, not a TalkBack script and not permission to surface raw filesystem exception text.
+## Title extraction resource throat
 
-## Title extraction resource budget
+A valid UTF-8 file can still be hostile if title extraction scans or allocates without bounds. The canonical probe therefore:
 
-A valid UTF-8 file can still be hostile to provenance discovery if title extraction is allowed to allocate or scan without a declared bound. The canonical probe therefore uses byte-first bounded title extraction:
+- scans at most `MAX_SKILL_TITLE_SCAN_BYTES = 64 KiB` for the first Markdown H1;
+- reads at most `MAX_SKILL_TITLE_LINE_BYTES = 8 KiB` for one candidate line;
+- admits at most `MAX_SKILL_TITLE_CHARS = 256` Unicode code points as the H1 title;
+- decodes only a line already proven inside the byte budget;
+- rejects line/scan/title overflow with `SkillTitleResourceLimitError`;
+- never truncates hostile source into a plausible repository identity;
+- never skips an oversized preamble to bless a later H1;
+- preserves folder-name fallback only for titleless files that complete inside the scan budget.
 
-- scan at most `MAX_SKILL_TITLE_SCAN_BYTES = 64 KiB` while looking for the first Markdown H1;
-- read at most `MAX_SKILL_TITLE_LINE_BYTES = 8 KiB` for any one candidate line before rejecting the skill;
-- admit at most `MAX_SKILL_TITLE_CHARS = 256` Unicode code points as the derived H1 title;
-- decode only a line already proven to fit the byte budget, so a byte-limit cut cannot be misclassified as malformed UTF-8;
-- if a line, scan, or H1 title exceeds its resource budget, emit `SkillTitleResourceLimitError` as a structured `stage=title` discovery error and omit that skill record;
-- do **not** truncate an oversized line/title into a plausible repository-skill identity;
-- do **not** continue past an oversized preamble to bless a later plausible H1;
-- preserve the exact SHA-256 as diagnostic evidence when hashing already succeeded;
-- preserve the folder-name fallback only for titleless files that complete within the declared scan budget.
+Because title admission now precedes whole-file hashing, title-stage failure normally has no diagnostic whole-file SHA. That absence is intentional: do not pay later provenance work after an earlier admission gate already failed.
 
-This is a source-provenance resource contract, not a speech truncation contract. Shortening operator prose later cannot turn an oversized source skill into authority.
+## Whole-skill hash resource throat
+
+Chunk-bounded memory is not a bounded workload. A giant `SKILL.md` can still force unbounded total I/O if the probe hashes to EOF without a declared file budget. The canonical probe therefore also enforces:
+
+- `MAX_SKILL_HASH_BYTES = 1 MiB` total file bytes eligible for repository-skill hashing;
+- `SKILL_HASH_CHUNK_BYTES = 64 KiB` maximum normal read chunk;
+- an exact-max file must still reach EOF and receives the SHA of its complete bytes;
+- the probe performs one bounded look-ahead byte at the limit to distinguish exact-max EOF from max+1;
+- max+1 rejects with `SkillHashResourceLimitError` and returns **no prefix digest**;
+- a valid short title plus an oversized body is a `stage=hash` discovery error;
+- healthy peer skills continue discovery;
+- title admission runs before the whole-file hash so malformed/title-resource wounds terminate before unnecessary full-file work.
+
+This limit is source-provenance policy, not speech truncation and not a generated-index limit. Increasing it later requires an explicit policy change; silently hashing a prefix or normalizing a giant file into authority is forbidden.
 
 ## Generated-index freshness gate
 
-A generated/cached skill index may be classified `VERIFIED_CURRENT` only when all of these hold:
+A generated/cached skill index may be `VERIFIED_CURRENT` only when all of these hold:
 
-- the direct repository snapshot is `STABLE_CLEAN` across the skill scan;
-- current git HEAD is available and unchanged across that scan;
-- current checkout cleanliness is available and clean before and after that scan;
-- the index declares the exact same source HEAD;
-- the index explicitly declares that its source tree was clean;
-- its generation timestamp is parseable;
-- it is no older than the configured freshness window (default 14 days);
-- it is not implausibly in the future.
+- direct repository snapshot is `STABLE_CLEAN` across the skill scan;
+- git HEAD exists and is unchanged;
+- checkout cleanliness is available and clean before and after discovery;
+- index declares the exact same source HEAD;
+- index explicitly declares a clean source tree;
+- generation timestamp is parseable, not implausibly future, and inside the configured freshness window.
 
-Otherwise classify it fail-closed:
+Otherwise fail closed:
 
-- `STALE` when a known index mismatch exists, such as foreign HEAD, declared dirty source, or age beyond the freshness window;
-- `UNRESOLVED` when required proof is missing or ambiguous, including an unstable current repository snapshot, unavailable checkout cleanliness, missing source HEAD, missing clean-tree declaration, unreadable JSON, missing timestamp, or an implausible future timestamp.
+- `STALE` for known mismatch such as foreign HEAD, declared dirty source, or excess age;
+- `UNRESOLVED` when required proof is missing or ambiguous, including unstable checkout, missing cleanliness/source HEAD/timestamp, unreadable JSON, or implausible future time.
 
-`STALE` and `UNRESOLVED` indexes may suggest where to look. They may not earn an active repository-skill light.
+A current index is still only discovery evidence. It never substitutes for the current `SKILL.md` record.
 
 ## Canonical probe
 
-Use:
+Use `tools/try_forever_skill_provenance_probe.py`.
 
-`tools/try_forever_skill_provenance_probe.py`
+The probe is standard-library source and performs no network calls. It captures pre/post HEAD and cleanliness, recursively discovers `skills/**/SKILL.md`, isolates per-file wounds, validates the bounded title throat before bounded full-file SHA, fails closed on case-insensitive path collisions, classifies an optional generated index, supports `--expected-head` and `--strict`, and emits capability truth from the executing process.
 
-The probe is standard-library source and performs no network calls. It:
-
-- captures git HEAD and checkout cleanliness before direct skill discovery;
-- discovers current `skills/**/SKILL.md` files recursively;
-- records repository-relative path, H1 title, and exact SHA-256 for admitted records;
-- isolates unreadable/malformed/over-budget individual skill files as bounded structured discovery errors instead of aborting the entire report;
-- bounds title scan bytes, per-line bytes, and admitted title characters without truncating hostile source into authority;
-- represents repository/identity discovery failures in the same structured v2 envelope;
-- captures git HEAD and checkout cleanliness again after discovery;
-- grants direct current-tree authority only to a `STABLE_CLEAN` bracketed snapshot;
-- fails closed on case-insensitive current-tree path collisions;
-- classifies an optional generated index as `VERIFIED_CURRENT`, `STALE`, or `UNRESOLVED`;
-- supports `--expected-head` and `--strict`; strict mode rejects an unstable repository snapshot or any discovery error;
-- emits execution capability truth from the executing process: an emitted report may say `probeExecutedByThisProcess=true`, while the mere source file existing in GitHub remains only **IMPLEMENTED SOURCE**.
-
-A probe file existing in GitHub is **IMPLEMENTED SOURCE**. A regression file existing in GitHub is **REGRESSION SOURCE**. Neither means the probe or tests have executed. Only output from an authorized invocation can prove `probe executed`; only an authorized test receipt may promote regression source to `TESTED`.
+A probe file existing in GitHub is **IMPLEMENTED SOURCE**. A regression file existing in GitHub is **REGRESSION SOURCE**. Neither means execution occurred. Only output from an authorized invocation can prove `probe executed`; only an authorized test receipt can promote regression source to `TESTED`.
 
 ## Regression source
 
-`tools/test_try_forever_skill_provenance_probe.py` pins hostile cases including:
+`tools/test_try_forever_skill_provenance_probe.py` pins:
 
-- direct current-tree skill discovery and hashing;
-- malformed UTF-8 in one skill becoming a structured error while a healthy peer remains discoverable;
-- deterministic per-file hash I/O failure isolation without leaking raw exception prose;
-- hard-bounded discovery-error path projection;
-- stable clean pre/post repository snapshot;
-- HEAD movement during discovery;
-- dirty or unavailable post-discovery cleanliness;
-- emitted report execution-boundary truth;
-- repository-relative generated-index resolution;
-- matching clean/fresh index;
-- foreign source HEAD;
-- dirty index source;
-- dirty or unknown current checkout cleanliness;
-- stale generation age;
-- implausible future timestamps;
-- missing clean-tree declaration.
+- direct current-tree discovery and exact SHA;
+- malformed UTF-8 rejection before whole-file hash;
+- deterministic per-file hash I/O isolation without raw exception leakage;
+- exact-max whole-file hash acceptance;
+- max+1 whole-file hash rejection with no prefix authority;
+- title rejection occurring before hash invocation;
+- short-title/oversized-body hash rejection while a healthy peer survives;
+- hard-bounded discovery-error paths;
+- stable/unstable pre/post repository snapshots;
+- emitted process capability truth;
+- generated-index resolution, freshness, dirty/missing state, foreign HEAD, stale age, and future timestamp behavior.
 
-`tools/test_try_forever_skill_title_resource_budget.py` separately pins the resource wound:
+`tools/test_try_forever_skill_title_resource_budget.py` separately pins the title throat: exact-max H1, max+1 H1, oversized first line, total scan exhaustion, malformed UTF-8 classification, healthy-peer survival, and bounded folder fallback.
 
-- exact-max H1 title acceptance;
-- max+1 H1 rejection with no truncation into authority;
-- an oversized first line rejecting the skill before a later plausible H1;
-- total scan-budget exhaustion rejecting a too-late title;
-- malformed UTF-8 retaining its distinct error classification;
-- healthy-peer survival and bounded titleless folder fallback.
-
-Keep test imports independent of caller working directory so a future runner does not accidentally test Python path luck instead of the probe contract.
+Keep test imports independent of caller working directory. Test source is not test execution.
 
 ## Heartbeat consequence
 
-This skill materially lights when it changes provenance truth: for example, a previously trusted generated matcher is demoted to discovery-only, a current skill path/hash is proven under a stable clean bracket, a moving checkout is prevented from impersonating a current snapshot, one malformed or over-budget skill is isolated without erasing healthy discoveries, or ambiguous provenance is prevented from becoming an active repository-skill light.
-
-It stays dark when the pulse did not need repository-skill provenance work. Do not list it merely because it exists.
+This skill lights only when it changes provenance truth: for example, a stale matcher is demoted, a moving checkout is blocked from authority, a malformed or oversized skill is isolated, an unbounded title/hash workload gains an explicit throat, or a current path/hash is proven under a stable clean bracket. It stays dark when no repository-skill provenance work occurred.
 
 ## Capability membrane
 
-Preserve these states independently:
+Preserve independently:
 
 `requested -> implemented source -> exact repository readback -> probe executed -> regression tested -> runtime UI consumed -> deployed -> callable -> executed -> delivered -> accepted`
 
 No earlier state implies a later one. In particular:
 
-- repository skill discovery does not prove Android rendering;
-- a fresh index does not prove the named current-tree skill unless the skill itself resolves under a stable clean snapshot;
-- a stable checkout does not make an unreadable, malformed, or resource-over-budget individual skill valid;
-- a source probe does not prove it executed merely because its file exists;
-- a probe report emitted by an executing process may prove that process ran without proving regression tests passed;
-- a source probe does not clear Phone Runtime / Phone Hands / P0 gates;
+- current-tree skill evidence does not prove Android rendering;
+- stable checkout does not make a malformed/resource-over-budget skill valid;
+- exact-max source acceptance does not prove a runner executed the probe;
+- regression source does not mean TESTED;
+- repository provenance does not clear Phone Runtime / Phone Hands / P0 gates;
 - GitHub source progress is not phone delivery or physical acceptance.
 
 ## P0 and duplicate-architecture firewall
 
-This skill may inspect repository/source provenance only. It must not wake, retask, queue, replace, or coordinate Phone Hands, Phone Ingress, Nightcore, Pocket TTS, Chromium, Context Organs, P0 recovery, or their physical acceptance chain. It must not create a neighboring overlay controller, skill registry daemon, scheduler, or deployment path.
+This skill may inspect repository/source provenance only. It must not wake, retask, queue, replace, or coordinate Phone Hands, Phone Ingress, Nightcore, Pocket TTS, Chromium, Context Organs, P0 recovery, or their physical acceptance chain. It must not create a neighboring overlay controller, skill registry daemon, scheduler, provenance probe, or deployment path.
 
-If a provenance check exposes a P0-related defect, preserve one concise finding for the canonical P0 owner and stop there.
+If provenance work exposes a P0 defect, preserve one concise finding for the canonical P0 owner and stop there.
 
 ## Done
 
-A provenance pulse is complete only when it can name:
-
-- the exact current-tree skill path/hash or exact structured failure to admit it;
-- the pre/post HEAD and cleanliness observations plus `STABLE_CLEAN` or `UNSTABLE` snapshot verdict;
-- the generated-index verdict when one was consulted;
-- whether the probe was merely present as source or actually invoked by an authorized runner;
-- the exact capability state reached;
-- the fact that no later runtime/phone state was inferred without evidence.
+A provenance pulse can close only when it can name the exact current-tree skill path/hash or structured admission failure, pre/post repository snapshot truth, generated-index verdict when used, whether the probe merely exists or actually ran, the exact capability state reached, and the fact that no later runtime/phone state was inferred without evidence.
