@@ -1,0 +1,42 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-0300",
+  "reviewedSourceHead": "5b50547c54fd423d585ebcd75d76ec8d97f0b39e",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "missionFidelity": "PASS",
+    "accessibility": "PASS_SOURCE_ONLY",
+    "evidenceDiscipline": "PASS",
+    "duplicateArchitecture": "PASS",
+    "phoneP0Firewall": "PASS",
+    "testedRuntimeDelivery": "NOT_PROVEN"
+  },
+  "why": [
+    "The source slice materially changes provenance truth rather than decorating the heartbeat: a repository that moves during skill discovery can no longer be reported as one stable current snapshot.",
+    "The accessible Warm Wall mutation is warranted because UNSTABLE SNAPSHOT is a distinct operator-facing state, not a cosmetic variation of STALE or UNRESOLVED.",
+    "The emitting probe now tells the truth about its own process execution without claiming regression tests, Android runtime, phone execution, deployment, delivery, or acceptance.",
+    "Computer Hands remains queued on an offline non-phone worker; queue admission is not source mutation and did not authorize a phone/P0 substitute.",
+    "The unreadable-SKILL structured-error gap found by Regnet remains a live next wound. Do not call the provenance probe finished merely because this bounded slice may yield."
+  ],
+  "processScar": "The durable 0300 plan existed before mutation and contained Venice review criteria, but no separate Venice plan-review artifact preceded the first source write. This is preserved rather than retroactively invented.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstitute": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleSourceSpecimen": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
