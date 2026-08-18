@@ -1,0 +1,107 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-0800",
+  "reviewedSourceHead": "d226cfe25aa3b438a4038899f8ee8c270c6e8f27",
+  "fronts": [
+    {
+      "name": "bounded filesystem traversal source",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Path.rglob was replaced by a globally entry-bounded deterministic scandir walk inside the existing provenance probe."
+    },
+    {
+      "name": "hostile regression source",
+      "state": "REGRESSION_SOURCE",
+      "changed": "Added exact-limit, non-candidate overflow, zero-partial-authority, traversal-I/O, symlink-directory, zero-budget and negative-budget fixtures."
+    },
+    {
+      "name": "repository skill harvest",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Added heartbeat-skill-filesystem-traversal-budget."
+    },
+    {
+      "name": "doctrine convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Candidate-enumeration and provenance-freshness skills now compose traversal -> candidate -> identity -> title -> hash -> snapshot."
+    },
+    {
+      "name": "accessible Warm Wall",
+      "state": "SOURCE_ONLY",
+      "changed": "Existing resource-throat organism gained a touchable TRAVERSAL BLOCKED state and kept radio semantics, roving keyboard navigation, >=48px controls, non-color signals, one live region, and reduced-motion handling."
+    },
+    {
+      "name": "She-Raw adversarial gate",
+      "state": "FAULT",
+      "changed": "Authoritative ambient review was attempted; account connection returned HTTP 400; no synthetic reviewer substituted."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "changed": "Confirmed the entry-work throat while preserving TESTED/runtime/delivery as NO and exposing the skills-root symlink scope wound."
+    },
+    {
+      "name": "Venice Judgment",
+      "state": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+      "changed": "Closed only the original traversal-work wound and preserved the next independent scope wound."
+    }
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "LIT: moved from candidate-count throat to the distinct non-candidate traversal wound; no CI retry",
+    "CanonAutoSelect": "LIT: selected provenance/candidate/execution-truth/accessibility organs from current repository state",
+    "AutocorrectJudgmentJar": "DARK: no ambiguous token required resolution",
+    "OriginalityTax": "LIT: did not repeat sorted(rglob), candidate-only bounding, or manual CI retry",
+    "Hunger": "LIT: source, tests, skill doctrine, and Warm Wall all changed materially",
+    "EverPolishedInterpreterEatEverything": "LIT: synchronized stale doctrine and turned review findings into a next wound",
+    "OperatorCampaign": "LIT: existing provenance probe/discover_skills remained sole owner",
+    "HarrowayDiscipline": "LIT: requested/implemented/tested/runtime/delivery states stayed separate",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "VeniceJudgmentJars": "LIT: bounded-source completion only",
+    "RegnetQA": "LIT: bounded claim pass plus root-symlink scope scar",
+    "AccessibilityTalkBackTouch": "LIT: Warm Wall radio/touch/keyboard/non-color/live-region source semantics preserved",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALL: zero consumption, zero mutation",
+    "DeterministicRouting": "LIT: bounded per-directory sort + deterministic candidate sort",
+    "EvidenceCapabilityState": "LIT: exact GitHub readback and CI boundary kept separate from TESTED/runtime/delivery",
+    "RecoveryCheckpointIdempotence": "DARK: runtime contact/checkpoint semantics unchanged",
+    "StrangeNonRasterArt": "LIT: existing DOM source organism mutated in place",
+    "WarmWalls": "LIT: TRAVERSAL BLOCKED state added",
+    "ChristmasLightSceneGraph": "DARK: no runtime transition/motion semantics changed",
+    "ContactPreservation": "DARK_RUNTIME: traversal failure source semantics return no partial authority; heartbeat contact runtime untouched",
+    "HeartbeatSkillFilesystemTraversalBudget": "NEW_LIT: durable repository skill harvested"
+  },
+  "executionEvidence": {
+    "workflow": "Operator Overlay Android",
+    "run": 32140801977,
+    "job": 95722720795,
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "boundedTraversalSource": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleWarmWallSource": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null
+  },
+  "crossPollination": "candidate-count wound -> non-candidate traversal wound -> bounded scandir source -> hostile traversal fixtures -> durable traversal skill -> candidate/provenance doctrine convergence -> accessible Warm Wall -> Regnet exposes root-symlink scope seam -> Venice closes only this source slice",
+  "nextWound": "Reject a symlinked skills root before traversal so a dirty checkout cannot spend the bounded traversal budget outside repository-owned topology before stable-clean authority is denied."
+}
