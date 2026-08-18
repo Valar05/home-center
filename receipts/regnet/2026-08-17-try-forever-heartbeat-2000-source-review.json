@@ -1,0 +1,44 @@
+{
+  "slice": "2026-08-17-2000",
+  "reviewer": "Regnet QA",
+  "claim_reviewed": "HeartbeatPlainTextBudget preserves the existing hard returned code-point budget while refusing to cut the retained prefix inside a platform Unicode extended grapheme cluster.",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "source_head": "7818c4a6ef491d58ab56a986632cb1314c29d98e",
+  "source_blobs": {
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPlainTextBudget.java": "8ca1083f5e37e5e848b0f54222470263549f9a07",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPlainTextBudgetTest.java": "79877df561879970fc6203e5f9f007480efb3b6b",
+    "skills/heartbeat-hard-returned-text-budgets/SKILL.md": "9abf2d6d8c35b384f80f99bd4e6167c0044b10ac"
+  },
+  "checks": [
+    "Hard returned budget still counts Unicode code points and reserves one code point for the ellipsis.",
+    "Truncated prefix is assembled only from whole \\X matches; exact under-budget source bypasses projection unchanged.",
+    "Regression source covers combining marks, ZWJ emoji, emoji modifiers, regional-indicator flags, family emoji, supplementary swans, tiny budgets, and exact pass-through.",
+    "Java 17 and Android Pattern documentation both define \\X as a Unicode extended grapheme cluster matcher; the project remains runtime-unproven until an authorized Android/JVM lane executes the source.",
+    "No parser, scene renderer, overlay owner, transport, phone surface, P0 owner, or runtime delivery path changed.",
+    "Warm-wall / Swan-Veil / Christmas art correctly stayed dark because this is projection discipline, not new operator-state topology."
+  ],
+  "review_scar": "The first hostile ZWJ/modifier/flag/family fixtures accidentally made input code-point count equal to the requested budget, which would exercise exact pass-through instead of truncation. Code-first review caught this and added a second suffix code point before this review passed.",
+  "automatic_execution": {
+    "commit": "7818c4a6ef491d58ab56a986632cb1314c29d98e",
+    "operator_overlay_run": 32086890470,
+    "operator_overlay_job": 95561184253,
+    "conclusion": "failure",
+    "steps_exposed": 0,
+    "job_log_fetch": "404 BlobNotFound",
+    "manual_retry_dispatched": false
+  },
+  "capability": {
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0
+}
