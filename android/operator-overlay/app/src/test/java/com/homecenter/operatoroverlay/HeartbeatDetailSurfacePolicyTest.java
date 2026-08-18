@@ -45,4 +45,32 @@ public class HeartbeatDetailSurfacePolicyTest {
         assertEquals(detail, presentation.text);
         assertEquals(detail, presentation.contentDescription);
     }
+
+    @Test
+    public void backgroundRefreshPreservesLegalReadingPosition() {
+        assertEquals(120, HeartbeatDetailSurfacePolicy.clampScrollY(120, 1000, 300));
+    }
+
+    @Test
+    public void shorterRefreshedDetailClampsOldReadingPositionToNewBottom() {
+        assertEquals(700, HeartbeatDetailSurfacePolicy.clampScrollY(900, 1000, 300));
+        assertEquals(40, HeartbeatDetailSurfacePolicy.clampScrollY(500, 340, 300));
+    }
+
+    @Test
+    public void nonOverflowingOrNegativeReadingPositionCollapsesToTop() {
+        assertEquals(0, HeartbeatDetailSurfacePolicy.clampScrollY(90, 200, 300));
+        assertEquals(0, HeartbeatDetailSurfacePolicy.clampScrollY(-20, 1000, 300));
+        assertEquals(0, HeartbeatDetailSurfacePolicy.clampScrollY(90, -1, 300));
+    }
+
+    @Test
+    public void clampUsesOverflowSafeArithmeticAtIntegerEdges() {
+        assertEquals(
+                Integer.MAX_VALUE,
+                HeartbeatDetailSurfacePolicy.clampScrollY(
+                        Integer.MAX_VALUE,
+                        Integer.MAX_VALUE,
+                        0));
+    }
 }
