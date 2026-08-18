@@ -44,24 +44,28 @@
 <main>
   <section class="wall" aria-labelledby="title">
     <h1 id="title">WARM WALL / SKILL PROVENANCE</h1>
-    <p class="scar">A SKILL LIGHT NEEDS A CURRENT TREE, NOT A RUMOR.</p>
+    <p class="scar">A CURRENT TREE HAS TO STAY PUT LONG ENOUGH TO BE PROVEN.</p>
 
-    <svg viewBox="0 0 600 76" role="img" aria-label="Three provenance nodes connected to one current repository tree">
-      <path class="wire" d="M70 38 H530"/>
-      <circle class="node" cx="90" cy="38" r="18"/>
-      <rect class="node" x="282" y="20" width="36" height="36" rx="6"/>
-      <path class="node" d="M492 20 L528 56 M528 20 L492 56"/>
+    <svg viewBox="0 0 600 76" role="img" aria-label="Four provenance states connected across one repository scan">
+      <path class="wire" d="M55 38 H545"/>
+      <circle class="node" cx="80" cy="38" r="18"/>
+      <rect class="node" x="202" y="20" width="36" height="36" rx="6"/>
+      <path class="node" d="M342 20 L378 56 M378 20 L342 56"/>
+      <path class="node" d="M500 18 L522 38 L500 58 L478 38 Z"/>
     </svg>
 
     <div id="states" role="radiogroup" aria-label="Skill provenance state">
       <button type="button" role="radio" aria-checked="true" tabindex="0" data-state="verified">
-        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct current-tree SKILL.md + exact hash
+        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct SKILL.md + exact hash under one stable clean scan
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="stale">
         <span class="token" aria-hidden="true">□</span><strong>STALE INDEX</strong> — discovery only; cannot earn repository_skill provenance
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unresolved">
-        <span class="token" aria-hidden="true">×</span><strong>UNRESOLVED</strong> — missing proof; fail closed to dark or the correct non-skill provenance kind
+        <span class="token" aria-hidden="true">×</span><strong>UNRESOLVED</strong> — required proof is missing; fail closed
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unstable">
+        <span class="token" aria-hidden="true">◇</span><strong>UNSTABLE SNAPSHOT</strong> — HEAD or cleanliness moved while skills were being read
       </button>
     </div>
 
@@ -77,9 +81,9 @@
   const states = {
     verified: {
       state: 'VERIFIED CURRENT',
-      why: 'The skill resolves directly as skills/**/SKILL.md in the current tree and its exact bytes have a SHA-256 identity.',
+      why: 'The skill resolves directly as skills/**/SKILL.md, exact bytes have a SHA-256 identity, and the same clean git HEAD brackets the scan.',
       consequence: 'The heartbeat may truthfully use repository_skill provenance for that exact path.',
-      evidence: 'Current-tree path + exact hash. A fresh generated index is optional discovery evidence, never a substitute.',
+      evidence: 'Pre/post HEAD + pre/post clean checkout + current-tree path + exact hash. A generated index remains optional discovery evidence.',
       source: 'tools/try_forever_skill_provenance_probe.py'
     },
     stale: {
@@ -95,6 +99,13 @@
       consequence: 'Fail closed. Keep the light dark or use the truthful doctrine/jar/reviewer/runtime-boundary provenance kind.',
       evidence: 'Unknown is not promoted into VERIFIED CURRENT.',
       source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
+    },
+    unstable: {
+      state: 'UNSTABLE SNAPSHOT',
+      why: 'The repository moved while direct skill provenance was being assembled: HEAD changed, cleanliness became unavailable, or the checkout was dirty at one bracket.',
+      consequence: 'Discovered hashes remain diagnostic only. They cannot certify one current repository snapshot.',
+      evidence: 'Both pre-scan and post-scan repository observations remain visible; strict mode fails instead of choosing whichever observation is more convenient.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
     }
   };
 
