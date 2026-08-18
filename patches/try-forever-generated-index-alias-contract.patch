@@ -1,11 +1,12 @@
 # TRY FOREVER — generated-index alias ambiguity + scalar-shape owner surgery
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # Existing owner: tools/try_forever_skill_provenance_probe.py::inspect_generated_index
 # Base owner blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Applied owner commit: 8603d51710d5147a5a7163dce05d9a998cf88557
+# Applied owner blob: 51e6efdbcec03d044ab89f37213659252514856a
 # Pure policy source: tools/try_forever_generated_index_alias_policy.py
 # Scope: existing generated-index owner only; no second provenance probe.
-# Independent from, and compatible in intent with, the existing generated-index byte/UTF-8 ingress patch.
-# Claim boundary: patch provenance is source, not implementation/test/runtime proof.
+# Claim boundary: applied source/readback is not test/runtime/deployment/delivery proof.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
