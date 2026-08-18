@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall / Root Identity Revalidation</title>
+<style>
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#17130f;color:#f7ead2}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+main{width:min(760px,100%);border:2px solid currentColor;border-radius:24px;padding:22px;box-sizing:border-box;background:linear-gradient(180deg,#241b14,#17130f)}
+h1{font-size:clamp(1.35rem,4vw,2.4rem);margin:.1rem 0 .4rem}.scar{font-weight:800;letter-spacing:.08em;text-transform:uppercase}.wall{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+button[role=radio]{min-height:48px;min-width:48px;border:2px solid currentColor;border-radius:16px;background:transparent;color:inherit;padding:12px;text-align:left;font:inherit;cursor:pointer}
+button[aria-checked=true]{outline:4px solid currentColor;outline-offset:3px}button:focus-visible{outline:4px dashed currentColor;outline-offset:4px}
+.token{font-size:1.35rem;margin-right:.35rem}.detail{border-top:1px solid currentColor;padding-top:16px;min-height:7em}.small{opacity:.86;font-size:.92rem}svg{width:100%;height:auto;display:block;margin-top:10px}
+@media (prefers-reduced-motion:no-preference){button{transition:transform 120ms ease}button:active{transform:scale(.98)}}
+</style>
+</head>
+<body>
+<main>
+  <div class="scar">Warm wall · source only</div>
+  <h1>Root identity is not a pathname.</h1>
+  <p class="small">No phone. No P0. No renderer/controller. No Christmas blink. This is a touchable source-policy specimen, not runtime proof.</p>
+  <div class="wall" role="radiogroup" aria-label="Root identity states">
+    <button role="radio" aria-checked="true" tabindex="0" data-state="real"><span class="token">●</span>Stable real root</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="redirect"><span class="token">×</span>Redirector blocked</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="changed"><span class="token">□</span>Identity changed</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="open"><span class="token">◇</span>Atomicity still open</button>
+  </div>
+  <div id="detail" class="detail" aria-live="polite"></div>
+  <svg viewBox="0 0 720 150" role="img" aria-labelledby="svg-title svg-desc">
+    <title id="svg-title">Warm wall root identity scar</title>
+    <desc id="svg-desc">Two observations bracket candidate traversal. Persistent identity change is rejected, while a transient swap and restore between observations remains an open boundary.</desc>
+    <rect x="12" y="45" width="180" height="62" rx="18" fill="none" stroke="currentColor" stroke-width="3"/>
+    <text x="102" y="72" text-anchor="middle" fill="currentColor">OBSERVE A</text><text x="102" y="94" text-anchor="middle" fill="currentColor">no-follow identity</text>
+    <path d="M202 76H326" stroke="currentColor" stroke-width="3"/><text x="264" y="62" text-anchor="middle" fill="currentColor">bounded traversal</text>
+    <rect x="336" y="45" width="180" height="62" rx="18" fill="none" stroke="currentColor" stroke-width="3"/>
+    <text x="426" y="72" text-anchor="middle" fill="currentColor">OBSERVE B</text><text x="426" y="94" text-anchor="middle" fill="currentColor">revalidate identity</text>
+    <path d="M526 76H650" stroke="currentColor" stroke-width="3"/><text x="588" y="62" text-anchor="middle" fill="currentColor">authority gate</text>
+    <circle cx="680" cy="76" r="22" fill="none" stroke="currentColor" stroke-width="3"/><text x="680" y="82" text-anchor="middle" fill="currentColor">?</text>
+  </svg>
+</main>
+<script>
+const descriptions={
+ real:'STABLE — same ordinary directory identity before and after candidate enumeration. Source policy only; owner consumption is not yet wired.',
+ redirect:'BLOCKED — symlink or Windows junction is redirected topology, not a repository-owned skills root.',
+ changed:'FAULT — persistent device/inode or root-type change invalidates partial repository-skill authority before title/hash work.',
+ open:'OPEN WOUND — two path observations cannot atomically exclude a swap-and-restore that begins and ends between them. Do not paint this green.'
+};
+const radios=[...document.querySelectorAll('[role=radio]')];
+const detail=document.getElementById('detail');
+function choose(index,focus=true){radios.forEach((r,i)=>{r.setAttribute('aria-checked',i===index?'true':'false');r.tabIndex=i===index?0:-1});detail.textContent=descriptions[radios[index].dataset.state];if(focus)radios[index].focus()}
+radios.forEach((radio,index)=>{radio.addEventListener('click',()=>choose(index,false));radio.addEventListener('keydown',e=>{let next=index;if(e.key==='ArrowRight'||e.key==='ArrowDown')next=(index+1)%radios.length;else if(e.key==='ArrowLeft'||e.key==='ArrowUp')next=(index-1+radios.length)%radios.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=radios.length-1;else return;e.preventDefault();choose(next,true)})});choose(0,false);
+</script>
+</body>
+</html>
