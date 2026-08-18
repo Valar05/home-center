@@ -1,0 +1,69 @@
+# TRY FOREVER — repository-skill identity-set fail-closed owner surgery
+# STATUS: PROPOSED_NOT_APPLIED
+# Existing owner: tools/try_forever_skill_provenance_probe.py
+# Base owner blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Pure policy source: tools/try_forever_skill_identity_set.py
+# Scope: existing provenance owner only; no second probe/controller/registry.
+# Claim boundary: patch provenance is source, not implementation/test/runtime proof.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ from try_forever_skill_file_identity import (
+     capture_skill_file_identity,
+     revalidate_skill_file_identity,
+ )
++from try_forever_skill_identity_set import find_case_insensitive_collisions
+ from try_forever_skill_root_identity import (
+@@
+     if root_verdict.status != "STABLE":
+@@
+         ]
++
++    relative_candidates = tuple(
++        path.relative_to(repo_root).as_posix() for path in candidates
++    )
++    collisions = find_case_insensitive_collisions(relative_candidates)
++    if collisions:
++        collision_errors: list[DiscoveryError] = []
++        for collision in collisions:
++            owner = collision.paths[0]
++            for alias in collision.paths[1:]:
++                collision_errors.append(
++                    DiscoveryError(
++                        path=bounded_error_path(alias),
++                        stage="identity",
++                        error_type="CaseInsensitiveIdentityCollision",
++                        reason=(
++                            "repository-skill identity set is ambiguous under the "
++                            "existing case-insensitive owner key; first-wins and "
++                            "last-wins partial authority are forbidden"
++                        ),
++                        related_path=bounded_error_path(owner),
++                    )
++                )
++        return [], collision_errors
+ 
+     records: list[SkillRecord] = []
+     errors: list[DiscoveryError] = []
+-    canonical_seen: dict[str, str] = {}
+     for path in candidates:
+         relative = path.relative_to(repo_root).as_posix()
+@@
+-        canonical = relative.casefold()
+-        prior = canonical_seen.get(canonical)
+-        if prior is not None and prior != relative:
+-            errors.append(
+-                DiscoveryError(
+-                    path=bounded_error_path(relative),
+-                    stage="identity",
+-                    error_type="CaseInsensitiveIdentityCollision",
+-                    reason="repository-skill identity collides case-insensitively with another path",
+-                    related_path=bounded_error_path(prior),
+-                )
+-            )
+-            continue
+-        canonical_seen[canonical] = relative
+-
+         try:
+             title = markdown_title(path)
