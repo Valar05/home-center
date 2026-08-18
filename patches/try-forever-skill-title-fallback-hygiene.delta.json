@@ -4,22 +4,29 @@
   "owner": "tools/try_forever_skill_provenance_probe.py",
   "ownerBaseBlob": "51e6efdbcec03d044ab89f37213659252514856a",
   "supportingPolicy": "tools/try_forever_skill_title_fallback_policy.py",
-  "intent": "Filesystem-derived fallback titles must share the explicit title resource/semantic contract. This delta is provenance only and does not claim owner wiring.",
+  "intent": "H1 and filesystem-derived fallback titles feed one SkillRecord.title authority surface and must share the explicit resource/semantic admission contract. This delta is provenance only and does not claim owner wiring.",
+  "processScar": "The first supporting pass targeted fallback only. Review found H1 could retain embedded control/bidi-direction state too, so the correction converges both sources before owner integration.",
   "changes": [
     {
       "location": "imports",
       "action": "import",
       "symbols": [
         "SkillFallbackTitleError",
-        "admit_fallback_title"
+        "admit_skill_title"
       ],
       "from": "try_forever_skill_title_fallback_policy"
+    },
+    {
+      "location": "markdown_title H1 return",
+      "action": "replace",
+      "before": "return title",
+      "after": "return admit_skill_title(title, max_chars=MAX_SKILL_TITLE_CHARS)"
     },
     {
       "location": "markdown_title EOF fallback",
       "action": "replace",
       "before": "return path.parent.name",
-      "after": "return admit_fallback_title(path.parent.name, max_chars=MAX_SKILL_TITLE_CHARS)",
+      "after": "return admit_skill_title(path.parent.name, max_chars=MAX_SKILL_TITLE_CHARS)",
       "occurrences": 2
     },
     {
@@ -27,7 +34,7 @@
       "action": "add bounded failure branch",
       "exception": "SkillFallbackTitleError",
       "stage": "title",
-      "reason": "filesystem-derived fallback skill title failed the declared resource/semantic contract",
+      "reason": "skill title failed the declared source resource/semantic contract",
       "partialAuthority": "forbidden for the affected candidate"
     }
   ],
