@@ -21,6 +21,50 @@ public class HeartbeatPlainTextBudgetTest {
     }
 
     @Test
+    public void combiningSequenceIsNeverCutBeforeItsMark() {
+        String value = "e\u0301xy";
+
+        assertEquals("e\u0301…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
+        assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 2));
+    }
+
+    @Test
+    public void zwjEmojiIsKeptAsOneCluster() {
+        String technologist = "👩‍💻";
+        String value = technologist + "x";
+
+        assertEquals(technologist + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 4));
+        assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
+    }
+
+    @Test
+    public void emojiModifierSequenceIsKeptAsOneCluster() {
+        String thumbsUp = "👍🏽";
+        String value = thumbsUp + "x";
+
+        assertEquals(thumbsUp + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
+        assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 2));
+    }
+
+    @Test
+    public void regionalIndicatorFlagIsKeptAsOneCluster() {
+        String flag = "🇺🇸";
+        String value = flag + "x";
+
+        assertEquals(flag + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
+        assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 2));
+    }
+
+    @Test
+    public void familyEmojiIsNeverCutInsideItsZwjChain() {
+        String family = "👨‍👩‍👧‍👦";
+        String value = family + "x";
+
+        assertEquals(family + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 8));
+        assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 7));
+    }
+
+    @Test
     public void tinyPositiveBudgetReturnsOneBoundedSignal() {
         assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis("abcdef", 1));
         assertEquals("", HeartbeatPlainTextBudget.boundedWithEllipsis("abcdef", 0));
@@ -28,8 +72,11 @@ public class HeartbeatPlainTextBudgetTest {
 
     @Test
     public void exactAndUnderBudgetTextPassThroughWithoutInventingEllipsis() {
+        String family = "👨‍👩‍👧‍👦";
+
         assertEquals("abc", HeartbeatPlainTextBudget.boundedWithEllipsis("abc", 3));
         assertEquals("abc", HeartbeatPlainTextBudget.boundedWithEllipsis("abc", 4));
+        assertEquals(family, HeartbeatPlainTextBudget.boundedWithEllipsis(family, 7));
         assertTrue(HeartbeatPlainTextBudget.boundedWithEllipsis("", 4).isEmpty());
     }
 
