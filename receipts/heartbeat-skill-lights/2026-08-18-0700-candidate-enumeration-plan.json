@@ -1,0 +1,45 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0700",
+  "mission": "Bound repository skill candidate enumeration before per-file title/hash throats without touching P0 or phone execution surfaces.",
+  "provenWound": "tools/try_forever_skill_provenance_probe.py materializes sorted(skills_root.rglob('SKILL.md')), so candidate count and the complete candidate path list are unbounded before any per-file resource throat.",
+  "authorizedLane": "GitHub branch feat/heartbeat-skill-lights-20260815 only; repository/source artifacts and receipts. No phone, Phone Hands, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance actions.",
+  "plannedFronts": [
+    "Replace unbounded candidate-list materialization with a bounded candidate admission seam while preserving deterministic ordering inside the admitted set.",
+    "Fail closed on candidate overflow so an incomplete scan cannot authorize partial repository-skill provenance or miss a case-insensitive identity collision.",
+    "Add hostile regression source for exact-limit acceptance, max+1 overflow, no per-file title/hash work after overflow, deterministic ordering, and healthy bounded discovery.",
+    "Synchronize heartbeat-skill-provenance-freshness doctrine and harvest a candidate-enumeration resource rule if materially distinct.",
+    "Mutate the existing skill-resource Warm Wall in place only if the new candidate-overflow topology is materially visual/touchable.",
+    "Run Regnet code-first review and same-worker Venice completion review; preserve TESTED/runtime/deployed/delivered states separately.",
+    "Read current-head workflow evidence once; do not retry or recycle stale causes.",
+    "Attempt authoritative She-Raw critique once; account-connection failure is a reviewer fault, not permission to synthesize a verdict."
+  ],
+  "designConstraints": {
+    "partialAuthorityOnOverflow": "forbidden",
+    "duplicateArchitecture": "forbidden",
+    "completedTitleAndHashThroats": "stay dark unless review finds a regression",
+    "candidateLimitMustBoundStoredCandidatePaths": true,
+    "candidateOverflowMustOccurBeforeTitleOrHashAuthority": true,
+    "p0PhoneMutation": 0
+  },
+  "venicePlanGate": {
+    "verdict": "PLAN_ALLOWED",
+    "reason": "The candidate-enumeration wound is independently proven, non-P0, and can be repaired inside the existing provenance probe without changing execution ownership. Fail-closed overflow is required before any partial repository-skill authority can escape."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capabilityBefore": {
+    "requested": true,
+    "implementedSource": false,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
