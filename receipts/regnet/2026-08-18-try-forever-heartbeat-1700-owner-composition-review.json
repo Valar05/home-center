@@ -1,0 +1,56 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-1700",
+  "verdict": "PASS_FOR_BOUNDED_OWNER_SOURCE_CLAIM_ONLY",
+  "owner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "baseBlob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+    "compositionCommit": "8603d51710d5147a5a7163dce05d9a998cf88557",
+    "composedBlob": "51e6efdbcec03d044ab89f37213659252514856a"
+  },
+  "sourceClaims": {
+    "identitySetFailClosedOwnerWiring": true,
+    "generatedIndexByteStrictUtf8OwnerWiring": true,
+    "generatedIndexTypedAliasOwnerWiring": true,
+    "finalSkillsRootOwnerWiring": true,
+    "secondProvenanceOwnerCreated": false
+  },
+  "regressionSource": {
+    "ownerComposition": "tools/test_try_forever_provenance_owner_composition.py",
+    "ownerCompositionBlob": "1d7ca45279d4ab31774b6896cb91d8b14e2897a5",
+    "finalRootExistingFixture": "tools/test_try_forever_skill_final_root_revalidation.py",
+    "generatedIndexIngressExistingFixture": "tools/test_try_forever_generated_index_ingress_budget.py",
+    "executed": false
+  },
+  "review": {
+    "identityAmbiguity": "PASS_SOURCE: collision is set-level and returns zero records before per-file authority",
+    "generatedIndexIngress": "PASS_SOURCE: limit+1 byte throat and strict UTF-8 precede JSON semantics",
+    "generatedIndexAliases": "PASS_SOURCE: same typed value required; bool-as-timestamp and non-finite floats rejected by helper",
+    "finalRoot": "PASS_SOURCE: third root observation precedes return of gathered SkillRecords",
+    "accessibility": "PASS_SOURCE: existing Warm Wall is touch/keyboard/non-color/reduced-motion source only",
+    "evidenceMembrane": "PASS: source/readback/regression source are not promoted to tested/runtime/deployed/delivered",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS"
+  },
+  "executionEvidence": {
+    "exactSourceArtHead": "ffbb304076d9f931b68411cea3b5983225a0dbc2",
+    "homeCenterCi": {"run": 32191224094, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32191224032, "job": 95885771857, "conclusion": "failure", "steps": 0, "logs": "404 BlobNotFound"},
+    "buildAndroid": {"run": 32191224062, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "remainingBoundaries": [
+    "true atomic cross-platform root/file binding remains unproven",
+    "probe execution by an authorized runner remains unproven",
+    "runtime UI and TalkBack remain unobserved",
+    "deployment, callability, execution, delivery and acceptance remain unproven"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "p0Phone": {"consumption": 0, "mutation": 0, "duplicateArchitecture": 0}
+}
