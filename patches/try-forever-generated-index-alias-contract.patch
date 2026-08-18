@@ -1,0 +1,84 @@
+# TRY FOREVER — generated-index alias ambiguity + scalar-shape owner surgery
+# STATUS: PROPOSED_NOT_APPLIED
+# Existing owner: tools/try_forever_skill_provenance_probe.py::inspect_generated_index
+# Base owner blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Pure policy source: tools/try_forever_generated_index_alias_policy.py
+# Scope: existing generated-index owner only; no second provenance probe.
+# Independent from, and compatible in intent with, the existing generated-index byte/UTF-8 ingress patch.
+# Claim boundary: patch provenance is source, not implementation/test/runtime proof.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ from typing import Any, Iterable
+ 
++from try_forever_generated_index_alias_policy import (
++    GeneratedIndexAliasError,
++    resolve_consistent_alias,
++)
+ from try_forever_skill_file_identity import (
+@@
+     if not isinstance(data, dict):
+@@
+             age_hours=None,
+         )
+ 
+-    source_head = str(
+-        first_value(data, ("sourceHead", "source_head", "gitHead", "git_head")) or ""
+-    )
+-    generated_raw = first_value(
+-        data,
+-        (
+-            "generatedAt",
+-            "generated_at",
+-            "generatedAtMs",
+-            "generated_at_ms",
+-            "updatedAt",
+-            "updated_at",
+-        ),
+-    )
++    try:
++        source_alias = resolve_consistent_alias(
++            data,
++            ("sourceHead", "source_head", "gitHead", "git_head"),
++            field="sourceHead",
++            allowed_types=(str,),
++        )
++        generated_alias = resolve_consistent_alias(
++            data,
++            (
++                "generatedAt",
++                "generated_at",
++                "generatedAtMs",
++                "generated_at_ms",
++                "updatedAt",
++                "updated_at",
++            ),
++            field="generatedAt",
++            allowed_types=(str, int, float),
++        )
++        dirty_alias = resolve_consistent_alias(
++            data,
++            ("dirtySource", "dirty_source", "sourceDirty", "source_dirty"),
++            field="dirtySource",
++            allowed_types=(bool,),
++        )
++    except GeneratedIndexAliasError as error:
++        return IndexVerdict(
++            status="UNRESOLVED",
++            reason=f"generated index metadata contract rejected: {type(error).__name__}",
++            path=str(path),
++            source_head="",
++            generated_at="",
++            dirty_source=None,
++            age_hours=None,
++        )
++
++    source_head = source_alias.value or ""
++    generated_raw = generated_alias.value
+     generated_dt = parse_timestamp(generated_raw)
+-    dirty_raw = first_value(
+-        data, ("dirtySource", "dirty_source", "sourceDirty", "source_dirty")
+-    )
+-    dirty_source = dirty_raw if isinstance(dirty_raw, bool) else None
++    dirty_source = dirty_alias.value
