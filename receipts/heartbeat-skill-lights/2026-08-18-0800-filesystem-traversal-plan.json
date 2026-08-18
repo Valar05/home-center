@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0800",
+  "mission": "Bound repository-skill filesystem traversal work without touching P0/phone surfaces or creating duplicate provenance architecture.",
+  "currentWound": "Path.rglob can traverse arbitrarily many non-candidate entries/directories before candidate max+1 is observed.",
+  "authorizedOwner": "tools/try_forever_skill_provenance_probe.py::bounded_skill_candidates/discover_skills",
+  "plannedFronts": [
+    "replace Path.rglob with one bounded deterministic non-symlink-following scandir traversal",
+    "fail closed on traversal-entry overflow or traversal I/O before title/hash authority",
+    "add hostile regression source for exact limit, max+1 non-candidate overflow, no per-file authority after overflow, symlink-directory non-recursion, and I/O failure",
+    "harvest a repository skill and synchronize provenance/candidate doctrine",
+    "mutate the existing accessible Warm Wall source organism in place",
+    "run Regnet/Venice evidence review and record exact GitHub readback/test boundary"
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "partialRepositorySkillAuthorityOnTraversalFailure": false,
+    "repositorySourceIsNotRuntimeDelivery": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "gate": "PLAN_ALLOWED_SOURCE_ONLY"
+}
