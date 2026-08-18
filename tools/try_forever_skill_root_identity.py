@@ -38,10 +38,10 @@ class SkillRootIdentity:
 
     @property
     def has_stable_token(self) -> bool:
-        # Python documents st_ino/st_dev as the portable identity fields and
-        # returns a Windows file index in st_ino when available. If both are
-        # unavailable/zero, identity revalidation must fail closed.
-        return self.device != 0 or self.inode != 0
+        # st_dev identifies a filesystem, not one directory object. Require a
+        # non-zero inode/file-index component before (device, inode) may be used
+        # as a persistent object identity. If unavailable, fail closed.
+        return self.inode != 0
 
 
 @dataclass(frozen=True)
@@ -107,7 +107,7 @@ def revalidate_skill_root_identity(
     if not before.has_stable_token or not after.has_stable_token:
         return SkillRootRevalidationVerdict(
             status="IDENTITY_UNAVAILABLE",
-            reason="skills root device/inode identity is unavailable; portable revalidation cannot certify one directory object",
+            reason="skills root inode/file-index identity is unavailable; portable revalidation cannot certify one directory object",
         )
     if (before.device, before.inode) != (after.device, after.inode):
         return SkillRootRevalidationVerdict(
