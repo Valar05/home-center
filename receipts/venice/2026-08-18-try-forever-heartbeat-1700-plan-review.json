@@ -1,0 +1,22 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-18-1700",
+  "verdict": "PLAN_ALLOWED",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "expectedOwnerBlob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+  "review": {
+    "missionFidelity": "PASS",
+    "existingOwnerOnly": "PASS",
+    "duplicateArchitectureLaw": "PASS",
+    "phoneP0Firewall": "PASS",
+    "capabilityMembrane": "PASS",
+    "risk": "Multiple patches share one owner; require exact full-file readback and owner-integration regression source after composition. Do not promote patch artifacts or failing CI into runtime proof."
+  },
+  "allowedMutation": "Compose the four already-authored provenance policies into the existing owner and synchronize only directly affected regression/doctrine/art/receipts.",
+  "forbidden": [
+    "second provenance probe",
+    "phone or P0 execution",
+    "merging PR 329 as delivered runtime",
+    "claiming tests passed without exact evidence"
+  ]
+}
