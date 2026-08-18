@@ -1,0 +1,27 @@
+{
+  "schema": "venice.judgment-jar.plan-review.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "reviewMode": "code_and_evidence_first",
+  "verdict": "PLAN_ALLOWED",
+  "why": [
+    "The plan stays inside the existing OperatorOverlayService/deep-detail ownership seam and explicitly refuses duplicate architecture.",
+    "The phone/P0 firewall remains binding; no shared primary-phone execution surface is required.",
+    "Primary Android framework evidence may harden source doctrine without being promoted into native runtime proof.",
+    "The owner patch may be applied only through an exact whole-file-preserving non-phone mutation lane with GitHub readback; inability to do that is an exact boundary, not permission to substitute another lane.",
+    "Swan Veil may change only if inspection finds a real accessibility topology defect; decorative art churn is forbidden."
+  ],
+  "gates": {
+    "duplicateArchitecture": "PASS",
+    "p0Firewall": "PASS",
+    "sourceRuntimeMembrane": "PASS",
+    "accessibilityFirst": "PASS",
+    "mutationLaneTruth": "PASS",
+    "decorativeSkillLightsForbidden": "PASS"
+  },
+  "stopConditions": [
+    "Any required owner mutation would need Phone Hands/P0 or a neighboring controller.",
+    "The exact owner file cannot be mutated without reconstructive uncertainty or losing unrelated source.",
+    "No real Swan Veil/accessibility defect is found; leave that front dark rather than decorating it."
+  ]
+}
