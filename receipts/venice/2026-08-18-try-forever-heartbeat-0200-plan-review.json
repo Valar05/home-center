@@ -1,0 +1,22 @@
+{
+  "heartbeat": "2026-08-18-0200",
+  "reviewer": "Venice Judgment Jar",
+  "phase": "pre-source-mutation",
+  "verdict": "PLAN_ALLOWED",
+  "boundedClaim": "Repository-local skill provenance/freshness source may advance without touching the queued deep-detail owner or P0/phone chain.",
+  "checks": {
+    "missionBoundary": "PASS",
+    "duplicateArchitecture": "PASS",
+    "phoneP0Firewall": "PASS",
+    "evidenceMembrane": "PASS",
+    "accessibilityFirst": "PASS",
+    "artEarnedOnlyByTopology": "PASS_WITH_CONDITION"
+  },
+  "conditions": [
+    "Do not modify OperatorOverlayService or the queued deep-detail owner patch in this pulse.",
+    "Generated or cached indexes may assist discovery but cannot establish repository_skill provenance without direct current-tree resolution.",
+    "A source specimen may exist only if VERIFIED / STALE / UNRESOLVED states have real consequences; no decorative blinking or fake deployment.",
+    "Do not call source fixtures TESTED unless an authorized execution lane actually runs them.",
+    "Keep Phone Runtime / Phone Hands / P0 dark and untouched."
+  ]
+}
