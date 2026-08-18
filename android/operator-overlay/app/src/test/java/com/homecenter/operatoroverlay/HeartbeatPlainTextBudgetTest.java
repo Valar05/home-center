@@ -31,7 +31,7 @@ public class HeartbeatPlainTextBudgetTest {
     @Test
     public void zwjEmojiIsKeptAsOneCluster() {
         String technologist = "👩‍💻";
-        String value = technologist + "x";
+        String value = technologist + "xy";
 
         assertEquals(technologist + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 4));
         assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
@@ -40,7 +40,7 @@ public class HeartbeatPlainTextBudgetTest {
     @Test
     public void emojiModifierSequenceIsKeptAsOneCluster() {
         String thumbsUp = "👍🏽";
-        String value = thumbsUp + "x";
+        String value = thumbsUp + "xy";
 
         assertEquals(thumbsUp + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
         assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 2));
@@ -49,7 +49,7 @@ public class HeartbeatPlainTextBudgetTest {
     @Test
     public void regionalIndicatorFlagIsKeptAsOneCluster() {
         String flag = "🇺🇸";
-        String value = flag + "x";
+        String value = flag + "xy";
 
         assertEquals(flag + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 3));
         assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 2));
@@ -58,7 +58,7 @@ public class HeartbeatPlainTextBudgetTest {
     @Test
     public void familyEmojiIsNeverCutInsideItsZwjChain() {
         String family = "👨‍👩‍👧‍👦";
-        String value = family + "x";
+        String value = family + "xy";
 
         assertEquals(family + "…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 8));
         assertEquals("…", HeartbeatPlainTextBudget.boundedWithEllipsis(value, 7));
