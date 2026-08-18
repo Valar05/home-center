@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
@@ -28,6 +29,7 @@ MAX_SKILL_TITLE_CHARS = 256
 MAX_SKILL_HASH_BYTES = 1024 * 1024
 SKILL_HASH_CHUNK_BYTES = 64 * 1024
 MAX_SKILL_CANDIDATES = 2048
+MAX_SKILL_TRAVERSAL_ENTRIES = 32768
 
 
 class SkillTitleResourceLimitError(ValueError):
@@ -40,6 +42,10 @@ class SkillHashResourceLimitError(ValueError):
 
 class SkillCandidateResourceLimitError(ValueError):
     """Repository skill candidate enumeration exceeded its declared count budget."""
+
+
+class SkillTraversalResourceLimitError(ValueError):
+    """Repository skill traversal exceeded its declared filesystem-entry budget."""
 
 
 @dataclass(frozen=True)
@@ -283,29 +289,70 @@ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
 
 
 def bounded_skill_candidates(
-    skills_root: Path, *, max_candidates: int | None = None
+    skills_root: Path,
+    *,
+    max_candidates: int | None = None,
+    max_entries: int | None = None,
 ) -> list[Path]:
-    """Return deterministic SKILL.md candidates without an unbounded path list.
+    """Return deterministic SKILL.md candidates inside two resource throats.
 
-    Candidate paths are accumulated only through ``limit + 1`` so overflow can
-    fail closed before title/hash work. Sorting occurs only after the bounded set
-    has been admitted. Traversal itself remains a distinct filesystem-work seam;
-    this helper does not claim to bound arbitrary non-candidate directory walks.
+    The traversal counts every encountered directory entry, including unrelated
+    files/directories, and stops at ``entry_limit + 1``. Directory symlinks are
+    never followed. Candidate paths are accumulated only through
+    ``candidate_limit + 1``. Sorting happens only after both bounded admissions,
+    so discovery never materializes an unbounded recursive path list.
     """
 
-    limit = MAX_SKILL_CANDIDATES if max_candidates is None else max_candidates
-    if limit < 0:
+    candidate_limit = (
+        MAX_SKILL_CANDIDATES if max_candidates is None else max_candidates
+    )
+    entry_limit = (
+        MAX_SKILL_TRAVERSAL_ENTRIES if max_entries is None else max_entries
+    )
+    if candidate_limit < 0:
         raise ValueError("skill candidate budget must be non-negative")
+    if entry_limit < 0:
+        raise ValueError("skill traversal entry budget must be non-negative")
 
     candidates: list[Path] = []
-    for path in skills_root.rglob("SKILL.md"):
-        if not path.is_file():
-            continue
-        candidates.append(path)
-        if len(candidates) > limit:
-            raise SkillCandidateResourceLimitError(
-                f"skill candidate count exceeds declared budget {limit}"
-            )
+    stack: list[Path] = [skills_root]
+    entries_seen = 0
+
+    while stack:
+        directory = stack.pop()
+        discovered: list[tuple[str, Path, bool, bool]] = []
+        with os.scandir(directory) as iterator:
+            for entry in iterator:
+                entries_seen += 1
+                if entries_seen > entry_limit:
+                    raise SkillTraversalResourceLimitError(
+                        f"skill traversal entry count exceeds declared budget {entry_limit}"
+                    )
+
+                path = Path(entry.path)
+                is_directory = entry.is_dir(follow_symlinks=False)
+                is_skill_file = (
+                    entry.name == "SKILL.md" and entry.is_file(follow_symlinks=True)
+                )
+                discovered.append(
+                    (entry.name, path, is_directory, is_skill_file)
+                )
+
+        discovered.sort(key=lambda item: item[0])
+        child_directories: list[Path] = []
+        for _name, path, is_directory, is_skill_file in discovered:
+            if is_skill_file:
+                candidates.append(path)
+                if len(candidates) > candidate_limit:
+                    raise SkillCandidateResourceLimitError(
+                        f"skill candidate count exceeds declared budget {candidate_limit}"
+                    )
+            if is_directory:
+                child_directories.append(path)
+
+        for child in reversed(child_directories):
+            stack.append(child)
+
     candidates.sort()
     return candidates
 
@@ -313,10 +360,11 @@ def bounded_skill_candidates(
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
     """Discover independent skill records with fail-closed resource throats.
 
-    Candidate enumeration is admitted before any per-file title/hash authority.
-    If the candidate count overflows, discovery returns no partial records so an
-    omitted path cannot hide a case-insensitive identity collision. After that
-    gate, cheap bounded title admission intentionally precedes whole-file hashing.
+    Filesystem traversal and candidate enumeration are admitted before any
+    per-file title/hash authority. If either global discovery throat fails,
+    discovery returns no partial records so an omitted path cannot hide an
+    identity collision. After those gates, cheap bounded title admission
+    intentionally precedes whole-file hashing.
     """
 
     skills_root = repo_root / "skills"
@@ -332,6 +380,15 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
     try:
         candidates = bounded_skill_candidates(skills_root)
+    except SkillTraversalResourceLimitError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="traversal",
+                error_type=type(error).__name__,
+                reason="skill filesystem traversal exceeded the declared entry budget; partial repository-skill authority is forbidden",
+            )
+        ]
     except SkillCandidateResourceLimitError as error:
         return [], [
             DiscoveryError(
@@ -339,6 +396,15 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                 stage="enumeration",
                 error_type=type(error).__name__,
                 reason="skill candidate enumeration exceeded the declared count budget; partial repository-skill authority is forbidden",
+            )
+        ]
+    except OSError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="traversal",
+                error_type=type(error).__name__,
+                reason="skill filesystem traversal could not be completed; partial repository-skill authority is forbidden",
             )
         ]
 
@@ -717,7 +783,7 @@ def main() -> int:
         "discoveryErrors": [asdict(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback under a STABLE_CLEAN pre/post discovery snapshot",
+            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal/candidate admission under a STABLE_CLEAN pre/post discovery snapshot",
             "generatedIndex": "discovery aid only unless VERIFIED_CURRENT; never substitutes for direct skill existence",
         },
         "capabilityBoundary": emitted_capability_boundary(),
