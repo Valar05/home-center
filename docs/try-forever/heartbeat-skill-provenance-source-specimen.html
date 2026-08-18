@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall / Skill Provenance</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #151719; color: #f5f2e9; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px; }
+  .wall { border: 2px solid currentColor; border-radius: 24px; padding: 20px; background: #24211f; }
+  h1 { margin-top: 0; font-size: 1.35rem; }
+  .scar { font-weight: 800; letter-spacing: .04em; }
+  [role="radiogroup"] { display: grid; gap: 12px; margin: 18px 0; }
+  [role="radio"] {
+    min-height: 48px;
+    min-width: 48px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid currentColor;
+    border-radius: 16px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+  [role="radio"][aria-checked="true"] { outline: 4px double currentColor; outline-offset: 3px; }
+  [role="radio"]:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  .token { display: inline-block; width: 2.2em; font-weight: 900; }
+  .detail { min-height: 9rem; border-top: 1px solid currentColor; padding-top: 16px; }
+  .detail strong { display: inline-block; min-width: 8rem; }
+  svg { width: 100%; height: 76px; margin-top: 14px; }
+  .wire { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
+  .node { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
+  small { display: block; margin-top: 16px; line-height: 1.45; }
+  @media (prefers-reduced-motion: no-preference) {
+    [role="radio"] { transition: transform 120ms ease; }
+    [role="radio"]:active { transform: scale(.99); }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="wall" aria-labelledby="title">
+    <h1 id="title">WARM WALL / SKILL PROVENANCE</h1>
+    <p class="scar">A SKILL LIGHT NEEDS A CURRENT TREE, NOT A RUMOR.</p>
+
+    <svg viewBox="0 0 600 76" role="img" aria-label="Three provenance nodes connected to one current repository tree">
+      <path class="wire" d="M70 38 H530"/>
+      <circle class="node" cx="90" cy="38" r="18"/>
+      <rect class="node" x="282" y="20" width="36" height="36" rx="6"/>
+      <path class="node" d="M492 20 L528 56 M528 20 L492 56"/>
+    </svg>
+
+    <div id="states" role="radiogroup" aria-label="Skill provenance state">
+      <button type="button" role="radio" aria-checked="true" tabindex="0" data-state="verified">
+        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct current-tree SKILL.md + exact hash
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="stale">
+        <span class="token" aria-hidden="true">□</span><strong>STALE INDEX</strong> — discovery only; cannot earn repository_skill provenance
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unresolved">
+        <span class="token" aria-hidden="true">×</span><strong>UNRESOLVED</strong> — missing proof; fail closed to dark or the correct non-skill provenance kind
+      </button>
+    </div>
+
+    <div class="detail" id="detail" aria-live="polite" aria-atomic="true"></div>
+    <small>SOURCE SPECIMEN ONLY · NOT OPERATOR-OVERLAY RUNTIME PROOF · NOT PHONE DELIVERY · NO AUTOPLAY · NO CHRISTMAS BLINK</small>
+  </section>
+</main>
+<script>
+(() => {
+  const group = document.getElementById('states');
+  const radios = [...group.querySelectorAll('[role="radio"]')];
+  const detail = document.getElementById('detail');
+  const states = {
+    verified: {
+      state: 'VERIFIED CURRENT',
+      why: 'The skill resolves directly as skills/**/SKILL.md in the current tree and its exact bytes have a SHA-256 identity.',
+      consequence: 'The heartbeat may truthfully use repository_skill provenance for that exact path.',
+      evidence: 'Current-tree path + exact hash. A fresh generated index is optional discovery evidence, never a substitute.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
+    },
+    stale: {
+      state: 'STALE INDEX',
+      why: 'The generated index has a known mismatch such as foreign HEAD, dirty source declaration, or age beyond the freshness window.',
+      consequence: 'It may suggest where to look, but it cannot light a repository_skill by itself.',
+      evidence: 'Mismatch remains visible instead of being normalized into current authority.',
+      source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
+    },
+    unresolved: {
+      state: 'UNRESOLVED',
+      why: 'Required provenance proof is unavailable or ambiguous: missing head, cleanliness, timestamp, or other evidence.',
+      consequence: 'Fail closed. Keep the light dark or use the truthful doctrine/jar/reviewer/runtime-boundary provenance kind.',
+      evidence: 'Unknown is not promoted into VERIFIED CURRENT.',
+      source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
+    }
+  };
+
+  function render(button, announce = true) {
+    const item = states[button.dataset.state];
+    radios.forEach(radio => {
+      const selected = radio === button;
+      radio.setAttribute('aria-checked', String(selected));
+      radio.tabIndex = selected ? 0 : -1;
+    });
+    detail.replaceChildren();
+    const rows = [
+      ['State', item.state],
+      ['Why', item.why],
+      ['Consequence', item.consequence],
+      ['Evidence', item.evidence],
+      ['Source', item.source]
+    ];
+    rows.forEach(([label, value]) => {
+      const p = document.createElement('p');
+      const strong = document.createElement('strong');
+      strong.textContent = label + ':';
+      p.append(strong, document.createTextNode(' ' + value));
+      detail.appendChild(p);
+    });
+    if (!announce) detail.setAttribute('aria-live', 'off');
+    requestAnimationFrame(() => detail.setAttribute('aria-live', 'polite'));
+  }
+
+  radios.forEach((radio, index) => {
+    radio.addEventListener('click', () => render(radio));
+    radio.addEventListener('keydown', event => {
+      let next = index;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (index + 1) % radios.length;
+      else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (index - 1 + radios.length) % radios.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = radios.length - 1;
+      else return;
+      event.preventDefault();
+      radios[next].focus();
+      render(radios[next]);
+    });
+  });
+
+  render(radios[0], false);
+})();
+</script>
+</body>
+</html>
