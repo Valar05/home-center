@@ -13,7 +13,7 @@
   .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
   button { min-width: 48px; min-height: 48px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; background: transparent; color: inherit; font: inherit; font-weight: 760; cursor: pointer; }
   button:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
-  button[aria-pressed="true"] { background: #f4f0e8; color: #18191d; }
+  button[aria-checked="true"] { background: #f4f0e8; color: #18191d; }
   svg { width: 100%; height: auto; display: block; border-radius: 18px; background: #1d1f24; }
   .wire { stroke: #dbd5ca; stroke-width: 4; fill: none; }
   .veil { fill: none; stroke: #dbd5ca; stroke-width: 3; stroke-dasharray: 7 8; }
@@ -28,27 +28,28 @@
 <body>
 <main>
   <h1>SWAN VEIL / EVIDENCE VISIBILITY</h1>
-  <p class="scar">ONE DETAIL AUTHORITY · DEEP DETAIL = BOUNDED WELL + FULL SCROLL · ROUTINE SPEECH STAYS PLAIN · OWNER PATCH PROPOSED · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
+  <p class="scar">ONE DETAIL AUTHORITY · DEEP DETAIL = BOUNDED WELL + FULL SCROLL · PASSIVE DETAIL ≠ FOCUS OWNER · RADIO SELECTION ≠ TOGGLE · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
 
-  <div class="controls" role="group" aria-label="Choose semantic text evidence case">
-    <button type="button" data-case="plain" aria-pressed="true">Plain text</button>
-    <button type="button" data-case="zwsp" aria-pressed="false">Zero-width space</button>
-    <button type="button" data-case="wj" aria-pressed="false">Word joiner</button>
-    <button type="button" data-case="bom" aria-pressed="false">BOM</button>
-    <button type="button" data-case="zwj" aria-pressed="false">ZWJ</button>
-    <button type="button" data-case="zwnj" aria-pressed="false">ZWNJ</button>
-    <button type="button" data-case="literal" aria-pressed="false">Literal marker text</button>
-    <button type="button" data-case="detail" aria-pressed="false">Explicit detail tap</button>
-    <button type="button" data-case="overflow" aria-pressed="false">Projection overflow</button>
-    <button type="button" data-case="authority" aria-pressed="false">One detail authority</button>
-    <button type="button" data-case="candidate" aria-pressed="false">Candidate ↔ Node</button>
-    <button type="button" data-case="hardbudget" aria-pressed="false">64 means 64</button>
-    <button type="button" data-case="deepdetail" aria-pressed="false">Deep detail well</button>
+  <div class="controls" role="radiogroup" aria-label="Semantic text evidence case">
+    <button type="button" role="radio" data-case="plain" aria-checked="true" tabindex="0">Plain text</button>
+    <button type="button" role="radio" data-case="zwsp" aria-checked="false" tabindex="-1">Zero-width space</button>
+    <button type="button" role="radio" data-case="wj" aria-checked="false" tabindex="-1">Word joiner</button>
+    <button type="button" role="radio" data-case="bom" aria-checked="false" tabindex="-1">BOM</button>
+    <button type="button" role="radio" data-case="zwj" aria-checked="false" tabindex="-1">ZWJ</button>
+    <button type="button" role="radio" data-case="zwnj" aria-checked="false" tabindex="-1">ZWNJ</button>
+    <button type="button" role="radio" data-case="literal" aria-checked="false" tabindex="-1">Literal marker text</button>
+    <button type="button" role="radio" data-case="detail" aria-checked="false" tabindex="-1">Explicit detail tap</button>
+    <button type="button" role="radio" data-case="overflow" aria-checked="false" tabindex="-1">Projection overflow</button>
+    <button type="button" role="radio" data-case="authority" aria-checked="false" tabindex="-1">One detail authority</button>
+    <button type="button" role="radio" data-case="candidate" aria-checked="false" tabindex="-1">Candidate ↔ Node</button>
+    <button type="button" role="radio" data-case="hardbudget" aria-checked="false" tabindex="-1">64 means 64</button>
+    <button type="button" role="radio" data-case="deepdetail" aria-checked="false" tabindex="-1">Deep detail well</button>
+    <button type="button" role="radio" data-case="focus" aria-checked="false" tabindex="-1">Passive focus ownership</button>
   </div>
 
   <svg viewBox="0 0 900 350" role="img" aria-labelledby="diagramTitle diagramDesc">
     <title id="diagramTitle">Swan Veil explicit evidence projection, hard returned text budgets, and deep detail viewport</title>
-    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact source text stays unchanged. Compact and collapsed speech remain plain. Explicit evidence detail remains collision-safe and bounded semantically, while its visible native detail topology is a bounded-height scroll-inspectable well rather than destructive end ellipsis. Android owner wiring is proposed source only; runtime and phone delivery remain unproven.</desc>
+    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact source text stays unchanged. Compact and collapsed speech remain plain. Explicit evidence detail remains collision-safe and bounded semantically, while its visible native detail topology is a bounded-height touch-scroll-inspectable well rather than destructive end ellipsis. The proposed Android owner patch explicitly preserves passive focus and click ownership after movement-method installation; runtime and phone delivery remain unproven.</desc>
 
     <path class="wire" d="M180 175 H330" />
     <path class="wire" d="M570 175 H720" />
@@ -71,11 +72,11 @@
   </svg>
 
   <div id="status" role="status" aria-live="polite">Plain text: the explicit evidence projection is identical to the source. Compact speech, acceptance state, runtime claims, and Christmas motion remain unchanged.</div>
-  <p class="legend">● Routine speech stays plain and every named max is a hard returned budget. ◇ Explicit evidence detail may reveal invisible semantics through its separate bounded projection. ◇ Deep detail uses a spatially bounded scroll well so Evidence/Source remain touch-inspectable. × Destructive visible ellipsis is not full detail. □ Source identity, phone/P0, and runtime claims stay untouched.</p>
+  <p class="legend">● Routine speech stays plain and every named max is a hard returned budget. ◇ Explicit evidence detail may reveal invisible semantics through its separate bounded projection. ◇ Deep detail uses a spatially bounded touch-scroll well so Evidence/Source remain inspectable without stealing keyboard-focus ownership. ◇ Case selection is one persistent radio choice, not a toggle pretending it can be switched off. × Destructive visible ellipsis is not full detail. □ Source identity, phone/P0, and runtime claims stay untouched.</p>
 </main>
 <script>
 (() => {
-  const buttons = [...document.querySelectorAll('button[data-case]')];
+  const buttons = [...document.querySelectorAll('button[role="radio"][data-case]')];
   const status = document.getElementById('status');
   const sourceGlyph = document.getElementById('sourceGlyph');
   const decisionText = document.getElementById('decisionText');
@@ -133,13 +134,23 @@
     },
     deepdetail: {
       source: 'Why → Consequence → Evidence → Source', decision: 'SCROLL', rule: '5-line well; no END ellipsis', evidence: 'full detail survives below fold',
-      status: 'Deep detail well: the explicit detail remains one full projected string and one full TalkBack content description. The visible native source policy keeps a five-line well, removes destructive END ellipsis, requires a 48dp touch floor, and makes overflow vertically inspectable. OperatorOverlayService wiring is preserved as an exact proposed patch; runtime scrolling remains unproven and phone/P0 stay untouched.'
+      status: 'Deep detail well: the explicit detail remains one full projected string and one full TalkBack content description. The visible native source policy keeps a five-line well, removes destructive END ellipsis, requires the shared touch floor, and makes overflow vertically inspectable. OperatorOverlayService wiring remains a proposed patch; runtime scrolling remains unproven and phone/P0 stay untouched.'
+    },
+    focus: {
+      source: 'ScrollingMovementMethod', decision: 'PASSIVE', rule: 'focus/click restored after install', evidence: 'focus=false · click=false · long=false',
+      status: 'Passive focus ownership: movement-method installation is not allowed to silently make the detail well a keyboard-focus or click owner. The corrected source policy and proposed owner patch explicitly restore focusable=false, clickable=false, and longClickable=false after movement-method wiring while keeping touch-scroll inspection. Real Android owner execution remains unproven.'
     }
   };
 
-  function select(key) {
+  function select(key, moveFocus = false) {
     const chosen = cases[key];
-    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.case === key)));
+    const selectedIndex = buttons.findIndex(button => button.dataset.case === key);
+    buttons.forEach((button, index) => {
+      const selected = index === selectedIndex;
+      button.setAttribute('aria-checked', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    if (moveFocus && selectedIndex >= 0) buttons[selectedIndex].focus();
     sourceGlyph.textContent = chosen.source;
     decisionText.textContent = chosen.decision;
     ruleText.textContent = chosen.rule;
@@ -147,7 +158,23 @@
     status.textContent = chosen.status;
   }
 
-  buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.case)));
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => select(button.dataset.case));
+    button.addEventListener('keydown', event => {
+      let nextIndex = index;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % buttons.length;
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + buttons.length) % buttons.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = buttons.length - 1;
+      else if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        select(button.dataset.case);
+        return;
+      } else return;
+      event.preventDefault();
+      select(buttons[nextIndex].dataset.case, true);
+    });
+  });
 })();
 </script>
 </body>
