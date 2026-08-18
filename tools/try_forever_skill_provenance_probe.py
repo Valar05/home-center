@@ -42,6 +42,16 @@ class IndexVerdict:
     age_hours: float | None
 
 
+@dataclass(frozen=True)
+class RepositorySnapshotVerdict:
+    status: str
+    reason: str
+    head_before: str
+    head_after: str
+    dirty_before: bool | None
+    dirty_after: bool | None
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -91,6 +101,67 @@ def git_dirty(repo_root: Path) -> bool | None:
     except (OSError, subprocess.CalledProcessError):
         return None
     return bool(completed.stdout.strip())
+
+
+def assess_repository_snapshot(
+    *,
+    head_before: str,
+    head_after: str,
+    dirty_before: bool | None,
+    dirty_after: bool | None,
+) -> RepositorySnapshotVerdict:
+    """Judge whether discovery was bracketed by one stable clean checkout.
+
+    A single pre-scan ``git status`` is not enough provenance: the worktree or
+    HEAD may move while skills are being read. Direct skill hashes are still
+    reported for diagnosis, but current-tree authority is granted only when
+    both observations prove the same clean HEAD.
+    """
+
+    if not head_before or not head_after:
+        return RepositorySnapshotVerdict(
+            status="UNSTABLE",
+            reason="git HEAD was unavailable before or after skill discovery",
+            head_before=head_before,
+            head_after=head_after,
+            dirty_before=dirty_before,
+            dirty_after=dirty_after,
+        )
+    if head_before != head_after:
+        return RepositorySnapshotVerdict(
+            status="UNSTABLE",
+            reason="git HEAD changed while skill discovery was in progress",
+            head_before=head_before,
+            head_after=head_after,
+            dirty_before=dirty_before,
+            dirty_after=dirty_after,
+        )
+    if dirty_before is None or dirty_after is None:
+        return RepositorySnapshotVerdict(
+            status="UNSTABLE",
+            reason="checkout cleanliness was unavailable before or after skill discovery",
+            head_before=head_before,
+            head_after=head_after,
+            dirty_before=dirty_before,
+            dirty_after=dirty_after,
+        )
+    if dirty_before or dirty_after:
+        return RepositorySnapshotVerdict(
+            status="UNSTABLE",
+            reason="checkout was dirty before or after skill discovery",
+            head_before=head_before,
+            head_after=head_after,
+            dirty_before=dirty_before,
+            dirty_after=dirty_after,
+        )
+    return RepositorySnapshotVerdict(
+        status="STABLE_CLEAN",
+        reason="the same clean git HEAD bracketed direct skill discovery",
+        head_before=head_before,
+        head_after=head_after,
+        dirty_before=False,
+        dirty_after=False,
+    )
 
 
 def is_within(path: Path, root: Path) -> bool:
@@ -349,6 +420,24 @@ def inspect_generated_index(
     )
 
 
+def emitted_capability_boundary() -> dict[str, bool]:
+    """Capability truth for a report emitted by this executing probe process.
+
+    Merely seeing this source file in GitHub is still only IMPLEMENTED SOURCE.
+    The ``True`` execution fields become evidence only when this function is
+    present in output from an actually invoked probe process.
+    """
+
+    return {
+        "sourceProbe": True,
+        "probeExecutedByThisArtifact": True,
+        "probeExecutedByThisProcess": True,
+        "tested": False,
+        "runtimeUi": False,
+        "phoneDelivery": False,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -359,49 +448,57 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
-    head = git_head(repo_root)
-    dirty = git_dirty(repo_root)
+    head_before = git_head(repo_root)
+    dirty_before = git_dirty(repo_root)
     skills, discovery_errors = discover_skills(repo_root)
+    head_after = git_head(repo_root)
+    dirty_after = git_dirty(repo_root)
+    snapshot = assess_repository_snapshot(
+        head_before=head_before,
+        head_after=head_after,
+        dirty_before=dirty_before,
+        dirty_after=dirty_after,
+    )
+
     now = datetime.now(timezone.utc)
     index_path = resolve_repo_path(repo_root, args.generated_index)
+    stable_head = snapshot.head_after if snapshot.status == "STABLE_CLEAN" else ""
+    stable_dirty = False if snapshot.status == "STABLE_CLEAN" else None
     index = inspect_generated_index(
         index_path,
-        current_head=head,
-        current_tree_dirty=dirty,
+        current_head=stable_head,
+        current_tree_dirty=stable_dirty,
         max_age_hours=max(0.0, args.max_index_age_hours),
         now=now,
     )
 
+    observed_head = head_after or head_before
     head_error = ""
-    if args.expected_head and head != args.expected_head:
-        head_error = f"expected head {args.expected_head}, observed {head or '<unavailable>'}"
+    if args.expected_head and observed_head != args.expected_head:
+        head_error = f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
 
     result = {
         "schema": "try-forever-skill-provenance.v1",
         "repositoryRoot": str(repo_root),
-        "currentHead": head,
-        "currentTreeDirty": dirty,
+        "currentHead": observed_head,
+        "currentTreeDirty": dirty_after,
+        "repositorySnapshot": asdict(snapshot),
         "expectedHeadError": head_error,
         "skillCount": len(skills),
         "skills": [asdict(record) for record in skills],
         "discoveryErrors": discovery_errors,
         "generatedIndex": asdict(index),
         "authority": {
-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback",
+            "repositorySkill": "direct current-tree skills/**/SKILL.md readback under a STABLE_CLEAN pre/post discovery snapshot",
             "generatedIndex": "discovery aid only unless VERIFIED_CURRENT; never substitutes for direct skill existence",
         },
-        "capabilityBoundary": {
-            "sourceProbe": True,
-            "probeExecutedByThisArtifact": False,
-            "tested": False,
-            "runtimeUi": False,
-            "phoneDelivery": False,
-        },
+        "capabilityBoundary": emitted_capability_boundary(),
     }
     print(json.dumps(result, indent=2, sort_keys=True))
 
+    snapshot_failure = snapshot.status != "STABLE_CLEAN"
     index_strict_failure = bool(args.generated_index) and index.status != "VERIFIED_CURRENT"
-    if args.strict and (head_error or discovery_errors or index_strict_failure):
+    if args.strict and (head_error or discovery_errors or snapshot_failure or index_strict_failure):
         return 2
     return 0
 
