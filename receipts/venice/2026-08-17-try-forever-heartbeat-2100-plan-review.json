@@ -1,0 +1,22 @@
+{
+  "slice": "2026-08-17-2100",
+  "reviewer": "Venice Judgment Jar",
+  "phase": "plan",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "The target is materially different from the completed grapheme-budget seam: it concerns touch-visible evidence access on the existing native detail surface.",
+    "The repair composes the existing heartbeatDetail owner and existing HeartbeatEvidenceDetailProjection rather than creating parallel detail architecture.",
+    "A bounded-height scrollable viewport preserves overlay geometry while allowing the exact projected detail to remain inspectable instead of destructively ellipsized.",
+    "The plan preserves explicit-selection TalkBack behavior and forbids changes to automatic/collapsed speech, motion, checkpointing, P0, and phone ownership.",
+    "The new interaction topology materially justifies an in-place non-raster source-art mutation."
+  ],
+  "watch_for": [
+    "ScrollingMovementMethod accidentally replacing full TalkBack content with a visual-only projection.",
+    "A scroll surface smaller than the existing 48dp touch contract.",
+    "Unbounded wrap-content growth that lets evidence consume the overlay.",
+    "Changing detail text identity, mute behavior, automatic announcements, or collapsed-owner speech while fixing visual inspection.",
+    "Claiming runtime scrolling/TalkBack behavior from source wiring alone."
+  ],
+  "source_slice_only": true,
+  "campaign_after_slice": "CONTINUE_REQUIRED"
+}
