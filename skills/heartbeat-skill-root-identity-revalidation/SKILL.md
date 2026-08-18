@@ -20,13 +20,13 @@ The portable source policy in `tools/try_forever_skill_root_identity.py` instead
 
 ## What this closes
 
-When consumed by the existing provenance probe, a persistent root replacement, root type change, or redirector state that remains visible at the second observation can be rejected before any `SkillRecord` earns title/hash authority.
+When consumed by the existing provenance probe, an observable persistent root replacement, root type change, or redirector state that remains visible at the second observation can be rejected before any `SkillRecord` earns title/hash authority **when the observed object identity/type differs**.
 
 A filesystem device number by itself is not one-directory identity. The portable helper requires a non-zero inode/file-index component before `(device, inode)` may certify the same directory object; if that object identity is unavailable, revalidation fails closed.
 
 ## What this does not close
 
-Two path observations are not an atomic handle binding. A hostile actor could theoretically swap the root after the first observation and restore the original object before the second. The helper must not advertise elimination of that swap-and-restore race.
+Two path observations are not an atomic handle binding. A hostile actor could theoretically swap the root after the first observation and restore the original object before the second. Filesystem identity tokens can also be reused after object deletion on some filesystems. The helper must not advertise elimination of either class of race merely because the two observations compare equal.
 
 Closing that stronger wound would require a platform-specific handle-relative/no-follow traversal-and-file-read design, or another capability that proves equivalent atomicity. Do not smuggle a Unix-only directory-fd claim into Windows support.
 
@@ -39,7 +39,7 @@ On Windows, `os.stat(..., follow_symlinks=False)` exposes `st_reparse_tag`; `sta
 `tools/test_try_forever_skill_root_identity.py` pins:
 
 - same-directory revalidation when a stable identity token exists;
-- persistent root replacement detection;
+- persistent replacement that produces a different observed identity;
 - no-follow symlink classification;
 - Windows mount-point reparse classification where the interpreter exposes the constant;
 - zero identity and device-only identity both failing closed;
