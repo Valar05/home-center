@@ -10,11 +10,12 @@ It owns source/evidence policy only. It owns no renderer, scheduler, phone lane,
 
 For direct `skills/**/SKILL.md` discovery:
 
-1. Admit at most `MAX_SKILL_CANDIDATES = 2048` actual file candidates.
-2. Store at most `limit + 1` candidate paths while determining overflow.
-3. Sort only the already-bounded admitted set for deterministic downstream identity checks.
-4. If max+1 is observed, fail the **entire** repository-skill discovery before title extraction or whole-file hashing.
-5. Return no partial `SkillRecord` authority on overflow.
+1. Complete the separate bounded filesystem traversal throat first.
+2. Admit at most `MAX_SKILL_CANDIDATES = 2048` actual file candidates.
+3. Store at most `limit + 1` candidate paths while determining overflow.
+4. Sort only the already-bounded admitted set for deterministic downstream identity checks.
+5. If max+1 is observed, fail the **entire** repository-skill discovery before title extraction or whole-file hashing.
+6. Return no partial `SkillRecord` authority on overflow.
 
 Partial authority is forbidden because an omitted later candidate could collide case-insensitively with an already-admitted path. "First 2048 look healthy" is not a complete repository identity claim.
 
@@ -31,15 +32,15 @@ The result may still be emitted as diagnostic evidence, but it contains no repos
 
 ## Determinism
 
-Do not regain determinism by calling `sorted(skills_root.rglob("SKILL.md"))`; that recreates the unbounded list wound. Accumulate only the bounded candidate set, then sort it.
+Do not regain determinism by calling `sorted(skills_root.rglob("SKILL.md"))`; that recreates both the old unbounded candidate-list wound and the now-repaired unbounded recursive traversal wound. The canonical probe performs one bounded traversal, accumulates only the bounded candidate set, then sorts the admitted candidates.
 
 Exact-limit acceptance and max+1 rejection are different states. Zero budget rejects the first candidate. A negative configured budget is a programmer/configuration error, not a repository discovery result.
 
-## What this does not bound
+## What this bounds
 
-This skill bounds **candidate count and candidate-path list memory**. It does not yet claim a hard bound on arbitrary filesystem traversal work through non-candidate directories or on a single directory's implementation-level enumeration behavior. That is a separate wound if repository evidence proves it matters.
+This skill bounds **candidate count and candidate-path list memory**. The distinct filesystem traversal workload is now governed by `heartbeat-skill-filesystem-traversal-budget`; neither skill substitutes for the other.
 
-Do not silently paint that later seam green.
+Do not report the candidate count as the traversal count, and do not report a successful traversal as proof that candidate admission, title, hash, repository snapshot, runtime, or phone delivery succeeded.
 
 ## Regression source
 
@@ -52,6 +53,8 @@ Do not silently paint that later seam green.
 - zero-budget rejection;
 - negative-budget programmer-error behavior.
 
+`tools/test_try_forever_skill_filesystem_traversal_budget.py` separately pins the traversal throat; it does not replace these candidate fixtures.
+
 Regression source existing in GitHub is not TESTED. Only an authorized runner receipt can promote it.
 
 ## Composition
@@ -60,7 +63,7 @@ This skill composes into the existing `tools/try_forever_skill_provenance_probe.
 
 The order is:
 
-`bounded candidate admission -> path identity/collision checks -> bounded title admission -> bounded exact whole-file SHA -> stable pre/post repository snapshot verdict`
+`bounded filesystem traversal -> bounded candidate admission -> path identity/collision checks -> bounded title admission -> bounded exact whole-file SHA -> stable pre/post repository snapshot verdict`
 
 ## Capability membrane
 
@@ -76,4 +79,4 @@ Do not consume or mutate Phone Hands, primary-phone execution, queue/relay recov
 
 ## Done
 
-This skill may light only when candidate-enumeration truth materially changes: a count/list resource wound is bounded, overflow is made fail-closed, deterministic bounded ordering is repaired, or fresh evidence invalidates one of those claims. Otherwise it stays dark.
+This skill may light only when candidate-enumeration truth materially changes: a count/list resource wound is bounded, overflow is made fail-closed, deterministic bounded ordering is repaired, or fresh evidence invalidates one of those claims. Traversal work belongs to its separate skill light. Otherwise this one stays dark.
