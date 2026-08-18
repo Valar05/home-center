@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1300",
+  "mission": "Advance independent non-P0 candidate-file provenance work while the exact existing-owner topology mutation is blocked from safe execution.",
+  "constraints": {
+    "p0FortressFirewall": true,
+    "phoneSurfaceConsumption": 0,
+    "duplicateArchitecture": 0,
+    "existingOwner": "tools/try_forever_skill_provenance_probe.py",
+    "ownerMutationRule": "Do not reconstruct the large owner file from partial context; whole-file GitHub admin replacement is unsafe unless exact full content is preserved. Computer Hands is a separate canonical non-phone patch lane but is currently offline.",
+    "capabilityMembrane": "requested -> implemented source -> exact readback -> owner wired -> executed -> tested -> runtime -> deployed -> callable -> delivered -> accepted"
+  },
+  "preExecutionEvidence": {
+    "ownerBlob": "e3627e342150c48f38099bb68fb118b3c54f2bf4",
+    "ownerBehavior": "named SKILL.md still uses entry.is_file(follow_symlinks=True)",
+    "proposedPatch": "patches/try-forever-skill-file-topology.patch",
+    "proposedPatchState": "PROPOSED_NOT_APPLIED",
+    "computerHands": {
+      "workerId": "windows-hands-01",
+      "online": false,
+      "status": "idle",
+      "queueDepth": 3,
+      "activeLanePresent": true
+    },
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "fronts": [
+    "candidate-file no-follow identity helper with explicit non-atomicity boundary",
+    "hostile replacement/revalidation regression source",
+    "deterministic owner source-capability probe for safe future patch application",
+    "candidate-enumeration doctrine convergence",
+    "accessible non-raster provenance wall mutation only if topology meaningfully changes",
+    "Regnet and Venice bounded source review",
+    "fresh exact-head execution evidence without manual CI retry"
+  ],
+  "reviewGate": "PLAN_ALLOWED__OWNER_MUTATION_BLOCKED__INDEPENDENT_SOURCE_FRONTS_ALLOWED"
+}
