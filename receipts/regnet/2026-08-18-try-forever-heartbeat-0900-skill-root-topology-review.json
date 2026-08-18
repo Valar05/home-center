@@ -1,0 +1,62 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-18-0900",
+  "scope": "repository-skill root topology admission",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "sourceCommit": "09d70d24e2ea7023f848fa438992f6a40315beea",
+  "sourceBlob": "f7fe082751875e27213a9e324d85bc371f46f335",
+  "regressionCommit": "b130dfe9c6c3dc77ce29cf3288075f1e43217f3e",
+  "regressionBlob": "bd1db5566085b28ea6d19fee7b04b53f0063599a",
+  "checks": [
+    {
+      "name": "root symlink rejected before directory/traversal admission",
+      "result": "PASS_SOURCE",
+      "evidence": "discover_skills checks skills_root.is_symlink() before skills_root.is_dir() and before bounded_skill_candidates"
+    },
+    {
+      "name": "broken symlink classification",
+      "result": "PASS_REGRESSION_SOURCE",
+      "evidence": "regression source requires SymlinkedSkillsRoot rather than MissingSkillsDirectory"
+    },
+    {
+      "name": "zero partial authority",
+      "result": "PASS_REGRESSION_SOURCE",
+      "evidence": "regression source requires no candidate traversal, title extraction, or hashing after root-symlink rejection"
+    },
+    {
+      "name": "duplicate architecture",
+      "result": "PASS",
+      "evidence": "existing provenance probe remains sole owner; no second probe, registry, controller, scheduler, or recovery organ created"
+    },
+    {
+      "name": "test execution",
+      "result": "BLOCKED_UNKNOWN",
+      "evidence": "automatic Operator Overlay Android job on reviewed head exposed zero steps and BlobNotFound logs; regression source was not observed executing"
+    }
+  ],
+  "residualWounds": [
+    "The static root-symlink check and later os.scandir call are not one atomic no-follow operation; a filesystem replacement race could change root topology between admission and traversal. This is a distinct future source-hardening wound, not evidence that the static symlink gate failed.",
+    "No runtime, Android, TalkBack, deployment, phone, or physical-acceptance evidence exists for this repository-provenance slice."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
