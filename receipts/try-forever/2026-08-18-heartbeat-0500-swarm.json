@@ -1,0 +1,137 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-0500",
+  "sourceCustody": {
+    "reviewedSourceHead": "11050e25ced631204e7f244e3cb4d5182873237f",
+    "probeBlob": "4ea9cdc6ad63007251eac5d89a49ae8ac3fe7272",
+    "regressionBlob": "e7337f115ca9e61f0a78b3c219d442cd3c5df8ca",
+    "skillBlob": "01a5a4ad6961fa1bad645f02955ab85bff1b9d44",
+    "warmWallBlob": "1c5f12f7bb8f265a7123212a182899171d04c15f"
+  },
+  "frontsAdvanced": [
+    "bounded byte-first skill-title extraction",
+    "hostile resource-budget regression source",
+    "repository-skill provenance doctrine synchronization",
+    "accessible non-raster Warm Wall resource-throat specimen",
+    "duplicate-architecture/source-slice audit",
+    "exact-head automatic CI evidence",
+    "Regnet bounded source review",
+    "Venice same-worker completion review"
+  ],
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "changed": "Consumed the preserved 0400 title-resource wound and advanced source work instead of manually retrying failed CI."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "changed": "Selected the existing heartbeat-skill-provenance-freshness skill and canonical provenance probe as owners; no neighboring registry/probe architecture."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No STT/autocorrect ambiguity materially affected this source slice."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "changed": "Oversized source is rejected, not truncated into plausible authority; an oversized preamble cannot be skipped to bless a later H1."
+    },
+    {
+      "name": "Hunger / Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "changed": "Propagated the resource scar through source, regression fixtures, doctrine, accessible art, and review rather than stopping at one code edit."
+    },
+    {
+      "name": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "changed": "Stayed on the authorized GitHub repository/source lane and existing provenance owner; preserved the source/runtime/phone membrane."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "changed": "Authoritative ambient critique was attempted and failed account connection with HTTP 400; no synthetic substitute was invented."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "changed": "Same-worker completion review allows only this bounded source slice to yield; campaign remains CONTINUE_REQUIRED."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "changed": "Allowed only implemented-source/readback claims and preserved the next independent whole-file hash I/O resource wound."
+    },
+    {
+      "name": "accessibility/TalkBack and touch semantics",
+      "state": "ACTIVE",
+      "changed": "Warm Wall uses radio semantics, roving Arrow/Home/End navigation, >=48px controls, non-color tokens, one polite live region, and reduced-motion handling; source title bounds remain distinct from speech truncation."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "changed": "Zero consumption and zero mutation; canonical P0 owners retain the gated phone surface."
+    },
+    {
+      "name": "deterministic routing / evidence-capability discipline",
+      "state": "ACTIVE",
+      "changed": "Resource failure has a distinct structured title-stage error, exact diagnostic SHA is preserved, and source claims are bound to one reviewed GitHub head."
+    },
+    {
+      "name": "recovery/checkpointing/idempotence",
+      "state": "DARK",
+      "changed": "No heartbeat-frame retry/contact state changed in this repository-provenance slice."
+    },
+    {
+      "name": "strange non-raster vector/DOM/native UI art / warm walls",
+      "state": "ACTIVE",
+      "changed": "Added one source-only interactive resource-throat Warm Wall with ACCEPTED / LINE BLOCKED / SCAN BLOCKED / TITLE BLOCKED states."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "DARK",
+      "changed": "Repository provenance resource bookkeeping earned no transition animation or decorative blink."
+    },
+    {
+      "name": "contact preservation",
+      "state": "DARK",
+      "changed": "Per-file provenance isolation preserves healthy discovery but no heartbeat visible-contact semantics changed."
+    }
+  ],
+  "crossPollination": "0400 title-resource wound -> byte-first bounded scan -> reject-not-truncate authority law -> hostile fixtures -> provenance doctrine -> accessible resource-throat Warm Wall -> five-file source-slice audit -> exact-head CI boundary -> Regnet isolates whole-file hash I/O work as the next independent wound -> Venice closes only the title slice.",
+  "executionEvidence": {
+    "automaticOperatorOverlayRunId": 32124971157,
+    "automaticOperatorOverlayJobId": 95673383038,
+    "sourceHead": "11050e25ced631204e7f244e3cb4d5182873237f",
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleSourceArt": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "p0Finding": null,
+    "duplicateArchitectureCreated": false
+  },
+  "nextIndependentWound": "sha256_file still hashes the entire SKILL.md before bounded title extraction. Memory is chunk-bounded but file-size I/O/work is unbounded; treat that as a separate non-P0 provenance resource wound rather than extending the completed title throat."
+}
