@@ -1,9 +1,12 @@
 # TRY FOREVER — SKILL.md candidate file-topology owner delta
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # Existing owner: tools/try_forever_skill_provenance_probe.py
-# Base blob: e3627e342150c48f38099bb68fb118b3c54f2bf4
+# Former base blob: e3627e342150c48f38099bb68fb118b3c54f2bf4
+# Applied owner commit: b9922c7b0fc72dbbebca0648e37f70fbd609462e
+# Applied owner blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
 # Mission: reject named SKILL.md redirectors/non-ordinary file topology before per-file authority.
-# Capability: patch provenance only; existing-owner consumption remains NO until authenticated owner readback proves application.
+# Capability: existing-owner source wiring YES; TESTED/runtime/deployed/callable/executed/delivered/accepted remain NO.
+# Note: the applied owner commit also composes the separate candidate-file identity helper before/after title+hash authority work; this patch body preserves the original static-topology delta provenance.
 
 diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
 --- a/tools/try_forever_skill_provenance_probe.py
