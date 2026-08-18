@@ -1,0 +1,42 @@
+STATUS: PROPOSED_NOT_APPLIED
+OWNER: tools/try_forever_skill_provenance_probe.py
+OWNER_BASE_BLOB: 51e6efdbcec03d044ab89f37213659252514856a
+SUPPORTING_POLICY: tools/try_forever_skill_snapshot_authority.py
+INTENT: Authority-facing `skills`/`skillCount` must fail closed when the repository snapshot is not STABLE_CLEAN or an expected-head binding fails. Diagnostic discovery may remain separately labeled. Patch existence is not owner wiring.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ from try_forever_skill_root_identity import (
+     capture_skill_root_identity,
+     revalidate_skill_root_identity,
+ )
++from try_forever_skill_snapshot_authority import certify_repository_skills
+@@
+     head_error = ""
+     if args.expected_head and observed_head != args.expected_head:
+         head_error = (
+             f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
+         )
++
++    certification = certify_repository_skills(
++        skills,
++        snapshot_status=snapshot.status,
++        expected_head_error=head_error,
++    )
+ 
+     result = {
+@@
+-        "skillCount": len(skills),
+-        "skills": [asdict(record) for record in skills],
++        "skillAuthority": {
++            "status": certification.status,
++            "reason": certification.reason,
++            "authoritative": certification.authoritative,
++        },
++        "discoveredSkillCount": len(skills),
++        "skillCount": certification.count,
++        "skills": [asdict(record) for record in certification.records],
+@@
+-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal, no-follow candidate topology admission, set-level case-insensitive identity admission, candidate-file identity revalidation, final skills-root revalidation, and a STABLE_CLEAN pre/post discovery snapshot",
++            "repositorySkill": "authority-facing records are emitted only after bounded direct discovery plus a STABLE_CLEAN pre/post snapshot and any expected-head binding; uncertified discoveries remain diagnostic only",
