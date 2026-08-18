@@ -18,10 +18,10 @@ public class HeartbeatDetailSurfacePolicyTest {
 
         assertEquals(detail, presentation.text);
         assertEquals(detail, presentation.contentDescription);
-        assertEquals(5, presentation.maxVisibleLines);
+        assertEquals(HeartbeatDetailSurfacePolicy.MAX_VISIBLE_LINES, presentation.maxVisibleLines);
         assertFalse(presentation.ellipsizeEnd);
         assertTrue(presentation.verticallyScrollable);
-        assertEquals(48, presentation.minTouchTargetDp);
+        assertEquals(OverlayUiPolicy.MIN_TOUCH_TARGET_DP, presentation.minTouchTargetDp);
     }
 
     @Test
