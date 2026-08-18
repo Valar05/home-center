@@ -1,9 +1,11 @@
 # TRY FOREVER — final skills-root authority gate
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # Existing owner: tools/try_forever_skill_provenance_probe.py
 # Base blob: 532a5a004dbca1f99caab6e230ef565dd61bf258
+# Applied owner commit: 8603d51710d5147a5a7163dce05d9a998cf88557
+# Applied owner blob: 51e6efdbcec03d044ab89f37213659252514856a
 # Scope: existing provenance owner only; no second probe/controller/registry.
-# Claim boundary: this patch is source provenance, not implementation/test/runtime proof.
+# Claim boundary: applied source/readback is not test/runtime/deployment/delivery proof.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
