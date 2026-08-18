@@ -1,0 +1,107 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "sourceHead": "e7f456b5580c0dd165aa759ab8af27b5ae192f33",
+  "summary": "Two independent provenance ambiguity wounds advanced through pure policy, hostile source fixtures, exact existing-owner patch provenance, durable skill harvesting, accessible non-raster source art, and bounded review. Owner wiring remains intentionally unclaimed.",
+  "fronts": [
+    {
+      "name": "direct-skill-identity-set",
+      "changed": [
+        "tools/try_forever_skill_identity_set.py",
+        "tools/test_try_forever_skill_identity_set.py",
+        "patches/try-forever-skill-identity-set-fail-closed.patch",
+        "skills/heartbeat-skill-identity-set-fail-closed/SKILL.md"
+      ],
+      "result": "SET_LEVEL_FAIL_CLOSED_POLICY_SOURCE__OWNER_PATCH_PROPOSED_NOT_APPLIED"
+    },
+    {
+      "name": "generated-index-alias-contract",
+      "changed": [
+        "tools/try_forever_generated_index_alias_policy.py",
+        "tools/test_try_forever_generated_index_alias_policy.py",
+        "patches/try-forever-generated-index-alias-contract.patch",
+        "skills/heartbeat-generated-index-alias-contract/SKILL.md"
+      ],
+      "result": "TYPED_ALIAS_CONSISTENCY_POLICY_SOURCE__OWNER_PATCH_PROPOSED_NOT_APPLIED"
+    },
+    {
+      "name": "accessible-authority-ambiguity-warm-wall",
+      "changed": [
+        "docs/try-forever/heartbeat-provenance-ambiguity-source-specimen.html"
+      ],
+      "result": "TOUCH_KEYBOARD_NONCOLOR_INLINE_SVG_SOURCE_ONLY"
+    },
+    {
+      "name": "review-and-evidence",
+      "changed": [
+        "receipts/regnet/2026-08-18-try-forever-heartbeat-1600-provenance-ambiguity-review.json",
+        "receipts/venice/2026-08-18-try-forever-heartbeat-1600-completion-review.json"
+      ],
+      "result": "BOUNDED_SOURCE_PASS__OWNER_AND_TEST_GATES_OPEN"
+    }
+  ],
+  "crossPollination": [
+    "The existing case-insensitive direct-skill owner exposed first-wins partial authority; set-level ambiguity became a fail-closed policy instead of a winner-selection algorithm.",
+    "The same first-value smell was found independently in generated-index metadata aliases; that became a typed alias-consistency policy with finite-number and scalar-budget truth.",
+    "Accessibility turned both ambiguity classes into explicit touch/keyboard/non-color states rather than raw diagnostics or decorative lights.",
+    "Regnet and Venice kept helper/test/patch/art source from crossing the existing-owner, TESTED, runtime, phone, or delivery membranes."
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "ACTIVE_DIFFERENT_WOUNDS_NO_CI_RETRY",
+    "CanonAutoSelect": "ACTIVE_REPOSITORY_PROVENANCE_SKILLS_HARVESTED",
+    "AutocorrectJudgmentJar": "DARK_NO_MATERIAL_AMBIGUOUS_TOKEN",
+    "OriginalityTax": "ACTIVE_FIRST_HTML_ART_WRITE_BLOCKED__RECOVERED_WITH_NATIVE_DISCLOSURE_ART_NOT_SAME_RETRY",
+    "Hunger": "ACTIVE_TWO_AUTHORITY_AMBIGUITY_WOUNDS_CONSUMED_INTO_DURABLE_SOURCE",
+    "EverPolishedInterpreterEatEverything": "ACTIVE_ALIAS_TYPE_AND_RESOURCE_CONTRACT_PLUS_SKILL_CONVERGENCE",
+    "OperatorCampaign": "ACTIVE_EXISTING_OWNER_ONLY_PATCH_PROVENANCE",
+    "Harroway": "ACTIVE_CAPABILITY_MEMBRANE_AND_OWNER_DISCIPLINE",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "VeniceJudgmentJars": "ACTIVE_PLAN_AND_COMPLETION_GATES",
+    "RegnetQA": "ACTIVE_BOUNDED_SOURCE_PASS_OWNER_UNWIRED",
+    "AccessibilityTalkBackTouch": "ACTIVE_NATIVE_DISCLOSURE_TOUCH_KEYBOARD_NONCOLOR_REDUCED_MOTION_SOURCE",
+    "PhoneRuntimePhoneHands": "DARK_P0_FIREWALL",
+    "DeterministicRouting": "ACTIVE_NO_FIRST_WINS_IDENTITY_OR_ALIAS_AUTHORITY",
+    "EvidenceCapabilityState": "ACTIVE_SOURCE_OWNER_TEST_RUNTIME_DELIVERY_SEPARATED",
+    "RecoveryCheckpointIdempotence": "ACTIVE_FAIL_CLOSED_ZERO_PARTIAL_AUTHORITY_CONSTRAINT",
+    "StrangeNonRasterArt": "ACTIVE_DOM_INLINE_SVG_WARM_WALL",
+    "WarmWalls": "ACTIVE_AUTHORITY_AMBIGUITY_THROATS",
+    "ChristmasLightSceneGraph": "DARK_NO_DECORATIVE_BLINK_EARNED",
+    "ContactPreservation": "ACTIVE_AS_ZERO_PARTIAL_AUTHORITY_PRESERVATION__NO_RUNTIME_FRAME_CLAIM"
+  },
+  "freshExecutionEvidence": {
+    "sourceHead": "e7f456b5580c0dd165aa759ab8af27b5ae192f33",
+    "homeCenterCi": {"run": 32186033472, "conclusion": "failure"},
+    "buildAndroid": {"run": 32186033458, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32186033457, "job": 95869731049, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "preExistingOpenOwnerPatches": {
+    "finalSkillsRootRevalidation": "PROPOSED_NOT_APPLIED",
+    "generatedIndexByteUtf8Ingress": "PROPOSED_NOT_APPLIED"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactGitHubReadback": true,
+    "directSkillIdentitySetOwnerWired": false,
+    "generatedIndexAliasOwnerWired": false,
+    "generatedIndexByteUtf8OwnerWired": false,
+    "finalRootOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED"
+}
