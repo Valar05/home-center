@@ -1,0 +1,86 @@
+{
+  "schema": "regnet-qa.v1",
+  "heartbeat": "2026-08-18-1400",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "boundedPass": "EXISTING_OWNER_TOPOLOGY_AND_FILE_IDENTITY_SOURCE_WIRING_WITH_EXACT_READBACK",
+  "reviewedSourceHead": "b9922c7b0fc72dbbebca0648e37f70fbd609462e",
+  "findings": [
+    {
+      "severity": "pass",
+      "result": "OWNER_STATIC_TOPOLOGY_GATE_WIRED",
+      "finding": "Existing tools/try_forever_skill_provenance_probe.py moved from blob e3627e342150c48f38099bb68fb118b3c54f2bf4 to blob 532a5a004dbca1f99caab6e230ef565dd61bf258. Named SKILL.md entries are now admitted only as ordinary non-symlink files under no-follow directory-entry checks; redirector/non-file topology fails the global candidate gate before title/hash authority and returns zero partial SkillRecords."
+    },
+    {
+      "severity": "pass",
+      "result": "OWNER_FILE_IDENTITY_BRACKET_WIRED",
+      "finding": "The same existing owner now imports try_forever_skill_file_identity, captures a no-follow candidate identity before path/collision/title/hash work, revalidates it after exact bounded hashing, and refuses SkillRecord append when the persistent file identity observation is changed, redirected, or unavailable."
+    },
+    {
+      "severity": "pass",
+      "result": "HOSTILE_OWNER_INTEGRATION_REGRESSION_SOURCE",
+      "finding": "tools/test_try_forever_skill_file_identity_integration.py is durable as blob 1bb73365270a6c7d85eef0dbe66583d850b29be7. It covers stable ordinary authority, named non-file topology rejection before title/hash, symlink rejection when supported, post-hash os.replace replacement rejection, and identity-capture failure before title/hash. Regression source exists; it has not executed."
+    },
+    {
+      "severity": "pass",
+      "result": "DOCTRINE_PROVENANCE_AND_ACCESSIBLE_ART_CONVERGED",
+      "finding": "heartbeat-skill-file-identity-revalidation is blob 92eef169926fe44069a6154dc0b154eb2e500169 and now records existing-owner topology/file-identity wiring YES/SOURCE_WIRED. The static topology patch provenance is APPLIED_SOURCE with owner commit/blob. The existing candidate identity Warm Wall was mutated in place to owner-wired semantics while preserving radio/keyboard/touch/reduced-motion/non-raster behavior."
+    },
+    {
+      "severity": "boundary",
+      "result": "ATOMIC_FILE_BINDING_NOT_PROVEN",
+      "finding": "Pre/post no-follow file observations do not exclude swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime rewrites, or replacement after the final observation. STABLE remains an observation verdict, not an atomic file-handle claim."
+    },
+    {
+      "severity": "boundary",
+      "result": "FINAL_ROOT_REVALIDATION_AFTER_PER_FILE_AUTHORITY_NOT_PRESENT",
+      "finding": "The skills-root identity is currently revalidated after candidate enumeration but before per-file title/hash/file-identity work. A final root revalidation after all per-file authority work would detect persistent root replacement occurring later in the discovery window. That stronger persistent-drift check is not implemented in this slice and still would not prove atomic swap-and-restore exclusion."
+    },
+    {
+      "severity": "boundary",
+      "result": "TEST_EXECUTION_NOT_ESTABLISHED",
+      "finding": "Fresh automatic Operator Overlay Android evidence on exact owner source commit b9922c7b0fc72dbbebca0648e37f70fbd609462e concluded failure. Job 95832639575 exposes zero steps and log retrieval returned 404 BlobNotFound, so no step-level cause is established and no retry was dispatched."
+    }
+  ],
+  "executionEvidence": {
+    "exactSourceHead": "b9922c7b0fc72dbbebca0648e37f70fbd609462e",
+    "buildAndroidRun": 32174337737,
+    "operatorOverlayRun": 32174337699,
+    "operatorOverlayJob": 95832639575,
+    "homeCenterCiRun": 32174337599,
+    "conclusion": "failure",
+    "exposedStepCount": 0,
+    "jobLogResult": "HTTP_404_BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedRepositorySource": true,
+    "exactRepositoryReadback": true,
+    "existingOwnerStaticTopologyWired": true,
+    "existingOwnerFileIdentityWired": true,
+    "ownerIntegrationRegressionSource": true,
+    "atomicCrossPlatformFileBinding": false,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
