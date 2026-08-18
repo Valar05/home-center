@@ -4,9 +4,9 @@ package com.homecenter.operatoroverlay;
  * Pure source policy for the existing Operator Overlay heartbeat detail surface.
  *
  * <p>Explicit detail already contains the bounded Why / Consequence / Evidence /
- * Source projection. The native owner must not destructively ellipsize that text
- * merely to keep the overlay spatially bounded. Instead, one bounded-height detail
- * viewport keeps the exact projected detail and makes overflow vertically
+ * Source projection. The native owner must not destructively ellipsize or line-cap
+ * that text merely to keep the overlay spatially bounded. Instead, one bounded-height
+ * detail viewport keeps the exact projected detail and makes overflow vertically
  * inspectable by touch.</p>
  *
  * <p>This class owns no Android View, renderer, controller, storage, transport,
@@ -14,7 +14,7 @@ package com.homecenter.operatoroverlay;
  * the sole native owner.</p>
  */
 public final class HeartbeatDetailSurfacePolicy {
-    /** Keep the visible detail well compact while overflow remains scroll-inspectable. */
+    /** Spatial target only. Never feed this value to TextView.setMaxLines(...). */
     public static final int MAX_VISIBLE_LINES = 5;
     /** Reuse the overlay's existing first-class touch floor rather than drifting a duplicate literal. */
     public static final int MIN_TOUCH_TARGET_DP = OverlayUiPolicy.MIN_TOUCH_TARGET_DP;
@@ -31,6 +31,7 @@ public final class HeartbeatDetailSurfacePolicy {
         public final String text;
         /** TalkBack receives the same full explicit detail. */
         public final String contentDescription;
+        /** Spatial depth target; not a TextView layout-line truncation command. */
         public final int maxVisibleLines;
         /** END ellipsis would make omitted visible evidence unreachable by sight/touch. */
         public final boolean ellipsizeEnd;
@@ -74,6 +75,23 @@ public final class HeartbeatDetailSurfacePolicy {
     public static Presentation fromDetail(String detail) {
         String clean = detail == null ? "" : detail.trim();
         return new Presentation(clean.isEmpty() ? EMPTY_DETAIL : clean);
+    }
+
+    /**
+     * Convert the five-line spatial target into a pixel-height viewport while leaving
+     * the TextView layout itself unbounded in line count.
+     *
+     * <p>Android's TextView line-mode maximum is also supplied to StaticLayout as a
+     * layout max-lines value. Using {@code setMaxLines(5)} would therefore defeat the
+     * promise that later Evidence/Source text remains available by scrolling. The
+     * existing owner instead uses this pixel result with {@code setMaxHeight(...)}.
+     * Long arithmetic keeps hostile dimensions from overflowing.</p>
+     */
+    public static int maxViewportHeightPx(int lineHeightPx, int totalVerticalPaddingPx) {
+        long lineHeight = Math.max(0L, (long) lineHeightPx);
+        long padding = Math.max(0L, (long) totalVerticalPaddingPx);
+        long height = lineHeight * (long) MAX_VISIBLE_LINES + padding;
+        return (int) Math.min(height, Integer.MAX_VALUE);
     }
 
     /**
