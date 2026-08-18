@@ -18,12 +18,17 @@ import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
+from try_forever_generated_index_alias_policy import (
+    GeneratedIndexAliasError,
+    resolve_consistent_alias,
+)
 from try_forever_skill_file_identity import (
     capture_skill_file_identity,
     revalidate_skill_file_identity,
 )
+from try_forever_skill_identity_set import find_case_insensitive_collisions
 from try_forever_skill_root_identity import (
     capture_skill_root_identity,
     revalidate_skill_root_identity,
@@ -39,6 +44,7 @@ MAX_SKILL_HASH_BYTES = 1024 * 1024
 SKILL_HASH_CHUNK_BYTES = 64 * 1024
 MAX_SKILL_CANDIDATES = 2048
 MAX_SKILL_TRAVERSAL_ENTRIES = 32768
+MAX_GENERATED_INDEX_BYTES = 1024 * 1024
 
 
 class SkillTitleResourceLimitError(ValueError):
@@ -520,9 +526,32 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             )
         ]
 
+    relative_candidates = tuple(
+        path.relative_to(repo_root).as_posix() for path in candidates
+    )
+    collisions = find_case_insensitive_collisions(relative_candidates)
+    if collisions:
+        collision_errors: list[DiscoveryError] = []
+        for collision in collisions:
+            owner = collision.paths[0]
+            for alias in collision.paths[1:]:
+                collision_errors.append(
+                    DiscoveryError(
+                        path=bounded_error_path(alias),
+                        stage="identity",
+                        error_type="CaseInsensitiveIdentityCollision",
+                        reason=(
+                            "repository-skill identity set is ambiguous under the "
+                            "existing case-insensitive owner key; first-wins and "
+                            "last-wins partial authority are forbidden"
+                        ),
+                        related_path=bounded_error_path(owner),
+                    )
+                )
+        return [], collision_errors
+
     records: list[SkillRecord] = []
     errors: list[DiscoveryError] = []
-    canonical_seen: dict[str, str] = {}
     for path in candidates:
         relative = path.relative_to(repo_root).as_posix()
 
@@ -561,20 +590,6 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                 )
             )
             continue
-        canonical = relative.casefold()
-        prior = canonical_seen.get(canonical)
-        if prior is not None and prior != relative:
-            errors.append(
-                DiscoveryError(
-                    path=bounded_error_path(relative),
-                    stage="identity",
-                    error_type="CaseInsensitiveIdentityCollision",
-                    reason="repository-skill identity collides case-insensitively with another path",
-                    related_path=bounded_error_path(prior),
-                )
-            )
-            continue
-        canonical_seen[canonical] = relative
 
         try:
             title = markdown_title(path)
@@ -658,14 +673,41 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             continue
 
         records.append(SkillRecord(path=relative, sha256=sha256, title=title))
+
+    try:
+        root_final = capture_skill_root_identity(skills_root)
+    except OSError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=type(error).__name__,
+                reason=(
+                    "skills root identity could not be revalidated after per-file "
+                    "authority work; partial repository-skill authority is forbidden"
+                ),
+            )
+        ]
+
+    final_root_verdict = revalidate_skill_root_identity(root_before, root_final)
+    if final_root_verdict.status != "STABLE":
+        error_type = (
+            "SkillsRootIdentityUnavailable"
+            if final_root_verdict.status == "IDENTITY_UNAVAILABLE"
+            else "SkillsRootIdentityChanged"
+        )
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type=error_type,
+                reason=(
+                    "final skills-root revalidation rejected repository-skill "
+                    f"authority: {final_root_verdict.reason}"
+                ),
+            )
+        ]
     return records, errors
-
-
-def first_value(data: dict[str, Any], keys: Iterable[str]) -> Any:
-    for key in keys:
-        if key in data:
-            return data[key]
-    return None
 
 
 def parse_timestamp(value: Any) -> datetime | None:
@@ -720,11 +762,23 @@ def inspect_generated_index(
             age_hours=None,
         )
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
+        with path.open("rb") as handle:
+            raw = handle.read(MAX_GENERATED_INDEX_BYTES + 1)
+        if len(raw) > MAX_GENERATED_INDEX_BYTES:
+            return IndexVerdict(
+                status="UNRESOLVED",
+                reason=f"generated index exceeds byte budget {MAX_GENERATED_INDEX_BYTES}",
+                path=str(path),
+                source_head="",
+                generated_at="",
+                dirty_source=None,
+                age_hours=None,
+            )
+        data = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         return IndexVerdict(
             status="UNRESOLVED",
-            reason=f"generated index is unreadable JSON: {type(error).__name__}",
+            reason=f"generated index is unreadable UTF-8 JSON: {type(error).__name__}",
             path=str(path),
             source_head="",
             generated_at="",
@@ -742,25 +796,47 @@ def inspect_generated_index(
             age_hours=None,
         )
 
-    source_head = str(
-        first_value(data, ("sourceHead", "source_head", "gitHead", "git_head")) or ""
-    )
-    generated_raw = first_value(
-        data,
-        (
-            "generatedAt",
-            "generated_at",
-            "generatedAtMs",
-            "generated_at_ms",
-            "updatedAt",
-            "updated_at",
-        ),
-    )
+    try:
+        source_alias = resolve_consistent_alias(
+            data,
+            ("sourceHead", "source_head", "gitHead", "git_head"),
+            field="sourceHead",
+            allowed_types=(str,),
+        )
+        generated_alias = resolve_consistent_alias(
+            data,
+            (
+                "generatedAt",
+                "generated_at",
+                "generatedAtMs",
+                "generated_at_ms",
+                "updatedAt",
+                "updated_at",
+            ),
+            field="generatedAt",
+            allowed_types=(str, int, float),
+        )
+        dirty_alias = resolve_consistent_alias(
+            data,
+            ("dirtySource", "dirty_source", "sourceDirty", "source_dirty"),
+            field="dirtySource",
+            allowed_types=(bool,),
+        )
+    except GeneratedIndexAliasError as error:
+        return IndexVerdict(
+            status="UNRESOLVED",
+            reason=f"generated index metadata contract rejected: {type(error).__name__}",
+            path=str(path),
+            source_head="",
+            generated_at="",
+            dirty_source=None,
+            age_hours=None,
+        )
+
+    source_head = source_alias.value or ""
+    generated_raw = generated_alias.value
     generated_dt = parse_timestamp(generated_raw)
-    dirty_raw = first_value(
-        data, ("dirtySource", "dirty_source", "sourceDirty", "source_dirty")
-    )
-    dirty_source = dirty_raw if isinstance(dirty_raw, bool) else None
+    dirty_source = dirty_alias.value
     age_hours = None
     if generated_dt is not None:
         age_hours = max(0.0, (now - generated_dt).total_seconds() / 3600.0)
@@ -946,8 +1022,8 @@ def main() -> int:
         "discoveryErrors": [asdict(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal, no-follow candidate topology admission, candidate-file identity revalidation, and a STABLE_CLEAN pre/post discovery snapshot",
-            "generatedIndex": "discovery aid only unless VERIFIED_CURRENT; never substitutes for direct skill existence",
+            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal, no-follow candidate topology admission, set-level case-insensitive identity admission, candidate-file identity revalidation, final skills-root revalidation, and a STABLE_CLEAN pre/post discovery snapshot",
+            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency; never substitutes for direct skill existence",
         },
         "capabilityBoundary": emitted_capability_boundary(),
     }
