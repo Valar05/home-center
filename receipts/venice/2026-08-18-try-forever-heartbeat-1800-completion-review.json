@@ -1,0 +1,58 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-1800",
+  "reviewerMode": "judgment_jar_emulation",
+  "authoritativeVeniceSurface": "not callable in this run",
+  "durableAuthorizationBasis": [
+    "PR #329 prior gate SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+    "scheduled TRY FOREVER commission explicitly authorizes independent non-P0 source/doctrine/accessibility/art/review fronts while P0 is blocked"
+  ],
+  "processScar": "A durable general plan receipt existed before mutation, but no fresh Venice-specific pre-mutation review artifact was produced. This completion review does not retroactively invent one.",
+  "sourceHeadReviewed": "723fc6625b01e4b9f0825ead3c3d7bfff2f405cc",
+  "missionReview": {
+    "multipleIndependentFronts": true,
+    "p0PhoneFirewallPreserved": true,
+    "duplicateArchitectureCreated": false,
+    "sourceArtifactsSelfDisqualifyRuntimeProof": true,
+    "accessibilityInheritedPersistentSelectionCorrection": true,
+    "originalityTaxPaidOnRejectedPatchWrite": true,
+    "ownerIntegrationClaimHonest": true
+  },
+  "regnet": {
+    "boundedSupportingSource": "PASS",
+    "ownerIntegration": "REVISE_REQUIRED",
+    "tested": "BLOCKED_UNKNOWN"
+  },
+  "automaticWorkflowEvidence": {
+    "head": "723fc6625b01e4b9f0825ead3c3d7bfff2f405cc",
+    "operatorOverlayRun": 32196038237,
+    "operatorOverlayJob": 95900145280,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "verdict": "PASS",
+  "directive": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_TEST_RUNTIME_CONTINUE_REQUIRED",
+  "mergeAuthority": false,
+  "campaignComplete": false,
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "ownerPatchesApplied": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWounds": [
+    "Compose snapshot certification into the existing provenance owner so authority-facing skill records are zero on UNSTABLE/expected-head mismatch while preserving diagnostics separately.",
+    "Compose shared H1/fallback skill-title admission into the existing markdown_title owner and bounded title-error path.",
+    "Do not obtain those mutations by borrowing phone/P0 or creating a second provenance owner."
+  ]
+}
