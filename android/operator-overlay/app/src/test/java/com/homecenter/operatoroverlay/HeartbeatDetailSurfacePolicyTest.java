@@ -25,6 +25,18 @@ public class HeartbeatDetailSurfacePolicyTest {
     }
 
     @Test
+    public void touchScrollableDetailDoesNotClaimKeyboardOrClickOwnership() {
+        HeartbeatDetailSurfacePolicy.Presentation presentation =
+                HeartbeatDetailSurfacePolicy.fromDetail(
+                        "Why: inspect. Consequence: full detail remains touch-scrollable.");
+
+        assertTrue(presentation.verticallyScrollable);
+        assertFalse(presentation.keyboardFocusable);
+        assertFalse(presentation.clickable);
+        assertFalse(presentation.longClickable);
+    }
+
+    @Test
     public void emptyDetailUsesOneDeterministicInspectableFallback() {
         HeartbeatDetailSurfacePolicy.Presentation presentation =
                 HeartbeatDetailSurfacePolicy.fromDetail("   ");
