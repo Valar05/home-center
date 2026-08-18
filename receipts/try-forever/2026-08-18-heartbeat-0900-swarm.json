@@ -1,0 +1,89 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-18-0900",
+  "mission": "broad non-P0 TRY FOREVER skill-light swarm",
+  "frontsAdvanced": [
+    {
+      "front": "repository root-topology source repair",
+      "result": "IMPLEMENTED_SOURCE",
+      "evidence": "09d70d24e2ea7023f848fa438992f6a40315beea"
+    },
+    {
+      "front": "hostile root-topology regression source",
+      "result": "REGRESSION_SOURCE",
+      "evidence": "b130dfe9c6c3dc77ce29cf3288075f1e43217f3e"
+    },
+    {
+      "front": "filesystem traversal skill convergence",
+      "result": "DURABLE_SKILL_UPDATED",
+      "evidence": "547376c303b84a1e094a6e0e9694c1ba3248d404"
+    },
+    {
+      "front": "accessible Warm Wall mutation",
+      "result": "SOURCE_ART_UPDATED",
+      "evidence": "c65378a4b4903f6f0ae9cddcd8062d4c56103012"
+    },
+    {
+      "front": "Regnet bounded source review",
+      "result": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "evidence": "receipts/regnet/2026-08-18-try-forever-heartbeat-0900-skill-root-topology-review.json"
+    },
+    {
+      "front": "Venice completion judgment",
+      "result": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+      "evidence": "receipts/venice/2026-08-18-try-forever-heartbeat-0900-completion-review.json"
+    },
+    {
+      "front": "fresh CI boundary",
+      "result": "TESTED_NO",
+      "evidence": "Operator Overlay Android run 32146272535 / build job 95740665483 / failure / zero exposed steps / BlobNotFound logs"
+    }
+  ],
+  "lights": {
+    "FailureIsTheShovel": "ACTIVE: consumed the preserved root-symlink wound instead of retrying completed traversal-count work or failed CI",
+    "CanonAutoSelect": "ACTIVE: existing provenance probe, existing traversal skill, and existing Warm Wall were selected as current owners",
+    "AutocorrectJudgmentJar": "DARK: no material STT/autocorrect ambiguity",
+    "OriginalityTax": "ACTIVE: no CI retry and no duplicate probe; source strategy changed to root-topology admission",
+    "Hunger": "ACTIVE: source, regression, doctrine, art, and evidence all advanced",
+    "EverPolishedInterpreterEatEverything": "ACTIVE: broken-symlink classification and exact capability wording were propagated across fronts",
+    "OperatorCampaign": "ACTIVE: existing-owner and capability-state discipline enforced",
+    "HarrowayOperatorDiscipline": "ACTIVE: no adjacent execution lane substituted",
+    "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no synthetic review",
+    "VeniceJudgmentJars": "ACTIVE: bounded source slice allowed to yield; campaign continues",
+    "RegnetQA": "ACTIVE: bounded source claim passes; TESTED remains blocked/unknown",
+    "AccessibilityTalkBackTouch": "ACTIVE: Warm Wall gained ROOT SYMLINK BLOCKED with radio semantics, roving keyboard navigation, >=48px controls, non-color state, polite live detail, reduced-motion handling",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED: consumption 0; mutation 0",
+    "DeterministicRouting": "ACTIVE: symlink root is classified before traversal; no partial authority",
+    "EvidenceCapabilityState": "ACTIVE: source/readback/regression/test/runtime/deploy/delivery states remain separate",
+    "RecoveryCheckpointIdempotence": "DARK: no heartbeat runtime/contact checkpoint semantics changed",
+    "StrangeNonRasterArt": "ACTIVE: existing DOM source organism mutated in place",
+    "WarmWalls": "ACTIVE: root-topology state added to existing resource-throat wall",
+    "ChristmasLightSceneGraph": "DARK: provenance bookkeeping earns no motion/blink",
+    "ContactPreservation": "ACTIVE_AS_SOURCE_RULE: root-topology failure returns zero partial repository-skill authority; no runtime contact claim"
+  },
+  "crossPollination": "bounded traversal exposed root-topology scope -> root symlink admission moved before traversal -> regression source proves zero downstream work -> traversal doctrine gains root ownership law -> Warm Wall makes topology visible/touchable -> Regnet identifies non-atomic check/open race -> Venice closes only the static seam",
+  "nextIndependentWound": "Static is_symlink() admission and later os.scandir() are separate operations; investigate a no-follow or identity-revalidation strategy for root replacement races without adding a second probe and without touching phone/P0 surfaces.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleNonRasterSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
