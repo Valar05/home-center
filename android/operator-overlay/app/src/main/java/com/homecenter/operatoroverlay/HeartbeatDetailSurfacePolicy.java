@@ -16,8 +16,8 @@ package com.homecenter.operatoroverlay;
 public final class HeartbeatDetailSurfacePolicy {
     /** Keep the visible detail well compact while overflow remains scroll-inspectable. */
     public static final int MAX_VISIBLE_LINES = 5;
-    /** Same first-class touch floor used by the rest of the Operator Overlay. */
-    public static final int MIN_TOUCH_TARGET_DP = 48;
+    /** Reuse the overlay's existing first-class touch floor rather than drifting a duplicate literal. */
+    public static final int MIN_TOUCH_TARGET_DP = OverlayUiPolicy.MIN_TOUCH_TARGET_DP;
     public static final String EMPTY_DETAIL = "No heartbeat detail available.";
 
     public static final class Presentation {
