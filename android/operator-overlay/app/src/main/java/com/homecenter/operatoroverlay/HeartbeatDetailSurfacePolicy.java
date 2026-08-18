@@ -18,6 +18,12 @@ public final class HeartbeatDetailSurfacePolicy {
     public static final int MAX_VISIBLE_LINES = 5;
     /** Reuse the overlay's existing first-class touch floor rather than drifting a duplicate literal. */
     public static final int MIN_TOUCH_TARGET_DP = OverlayUiPolicy.MIN_TOUCH_TARGET_DP;
+    /** Passive detail is not part of direct keyboard-focus ownership. */
+    public static final boolean KEYBOARD_FOCUSABLE = false;
+    /** Passive detail scrolling is not a click action. */
+    public static final boolean CLICKABLE = false;
+    /** Passive detail scrolling does not expose a long-click action. */
+    public static final boolean LONG_CLICKABLE = false;
     public static final String EMPTY_DETAIL = "No heartbeat detail available.";
 
     public static final class Presentation {
@@ -49,9 +55,9 @@ public final class HeartbeatDetailSurfacePolicy {
             this.ellipsizeEnd = false;
             this.verticallyScrollable = true;
             this.minTouchTargetDp = MIN_TOUCH_TARGET_DP;
-            this.keyboardFocusable = false;
-            this.clickable = false;
-            this.longClickable = false;
+            this.keyboardFocusable = KEYBOARD_FOCUSABLE;
+            this.clickable = CLICKABLE;
+            this.longClickable = LONG_CLICKABLE;
         }
     }
 
