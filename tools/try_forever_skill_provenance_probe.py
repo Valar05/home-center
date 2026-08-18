@@ -368,6 +368,15 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
     """
 
     skills_root = repo_root / "skills"
+    if skills_root.is_symlink():
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type="SymlinkedSkillsRoot",
+                reason="skills root is a symlink; repository-skill traversal outside repository-owned topology is forbidden",
+            )
+        ]
     if not skills_root.is_dir():
         return [], [
             DiscoveryError(
