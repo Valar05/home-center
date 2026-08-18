@@ -1,0 +1,82 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-17-2200",
+  "pr": 329,
+  "verdict": "PASS_FOR_CORRECTED_SOURCE_SLICE",
+  "ownerWiring": "NO",
+  "tested": "NO",
+  "reviewed": {
+    "policy": {
+      "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicy.java",
+      "blob": "c014d8e56706995932d9ff814bbe7a4b16b90258",
+      "claim": "post-layout scroll clamp source exists"
+    },
+    "regressionSource": {
+      "path": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicyTest.java",
+      "blob": "1fb0a36ae7773738f4343be97951c14166023e89",
+      "claim": "legal-position, shrink, no-overflow, negative, and integer-edge fixtures exist; unexecuted"
+    },
+    "ownerPatch": {
+      "path": "docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch",
+      "blob": "65c5e931f1ebb4874d11940b766a4d747d427bd3",
+      "claim": "corrected valid unified diff exists with generation-bound one-shot post-layout restore; PROPOSED_NOT_APPLIED"
+    },
+    "skill": {
+      "path": "skills/heartbeat-deep-detail-viewport/SKILL.md",
+      "blob": "566cff03eaf2932b7566f3dbc602b7ceecc8330f",
+      "claim": "durable doctrine synchronized to corrected policy and capability membrane"
+    },
+    "actualOwner": {
+      "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+      "blob": "c266e66a8004623efadab1933de4e429e677c6a5",
+      "claim": "still legacy five-line END-ellipsized detail + legacy showHeartbeatDetail; corrected patch not applied"
+    }
+  },
+  "checks": {
+    "oneExistingAndroidOwner": "PASS",
+    "noDestructiveDetailEllipsisPolicy": "PASS_SOURCE",
+    "sharedTouchFloor": "PASS_SOURCE",
+    "backgroundReadingPositionHasExplicitBoundedRule": "PASS_SOURCE",
+    "contentShrinkCannotRetainOutOfRangeScrollByPolicy": "PASS_SOURCE",
+    "staleDeferredRestoreHasGenerationGuardInProposedDelta": "PASS_PATCH_SOURCE",
+    "regressionSourceExists": "PASS_SOURCE_ONLY",
+    "existingOwnerConsumesCorrectedPolicy": "FAIL_NOT_APPLIED",
+    "testsExecuted": "NO",
+    "runtimeUiObserved": "NO",
+    "runtimeTalkBackObserved": "NO"
+  },
+  "mutationLaneBoundary": {
+    "homeCenterGitHubAdmin": "github_admin.files.upsert requires complete content/contentBase64; a patch payload is not accepted by the current audited mutation primitive",
+    "computerHands": "windows-hands-01 was offline and was not queued or retasked",
+    "substitution": "none; no browser/phone/adjacent lane used to route around the owner mutation boundary"
+  },
+  "reviewerFaults": {
+    "sheRaw": "authoritative ambient call returned account-connection HTTP 400; no replacement verdict invented"
+  },
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "correctedOwnerPatch": "PROPOSED_NOT_APPLIED",
+    "existingOwnerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
