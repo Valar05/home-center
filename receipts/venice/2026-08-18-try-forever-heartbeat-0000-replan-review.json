@@ -1,0 +1,23 @@
+{
+  "schema": "venice.judgment-jar.replan-review.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "verdict": "PLAN_ALLOWED",
+  "reason": "The new AOSP layout evidence materially invalidates the previous proposed owner patch. Applying it now would satisfy patch provenance while defeating the commissioned full-detail touch inspection. Correct the source artifacts first and keep owner wiring false.",
+  "requiredCorrections": [
+    "five-line depth must be a spatial viewport bound, not StaticLayout max-lines truncation",
+    "full already-projected detail must remain present in the TextView layout for scrolling",
+    "viewport-height arithmetic must be bounded and overflow-safe",
+    "movement-method installation must still be followed by passive focus/click/long-click reassertion",
+    "background scroll restoration must still clamp against full content layout height",
+    "owner patch remains proposed until the corrected source slice is reviewed"
+  ],
+  "gates": {
+    "failureIsTheShovel": "PASS_REPLAN",
+    "originalityTax": "PASS_DIFFERENT_RECOVERY",
+    "accessibility": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0Firewall": "PASS",
+    "sourceRuntimeMembrane": "PASS"
+  }
+}
