@@ -50,6 +50,16 @@ The focus/click fields are not decorative metadata. The owner must reapply them 
 
 The Android owner must explicitly consume those semantics before `existing-owner wiring = YES` can be claimed. The corrected owner delta is preserved at `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch`; it adds a generation-bound one-shot pre-draw restore so stale callbacks cannot overwrite newer detail ownership and explicitly restores passive focus/click/long-click state after movement-method installation. A patch artifact is not owner implementation.
 
+## Android platform evidence
+
+The passive-ownership ordering is grounded in Android framework behavior rather than guessed from the patch:
+
+- AOSP `TextView.setMovementMethod(...)` calls `fixFocusableAndClickableSettings()` and explicitly warns callers that a `TextView` with a movement method that should not be focusable must call `setFocusable(...)` again after installing the movement method. Current framework source also sets focusable, clickable, and long-clickable when a movement method is present. Source: `https://android.googlesource.com/platform/frameworks/base/+/main/core/java/android/widget/TextView.java`.
+- `TextView.onTouchEvent(...)` delegates touch handling to the installed movement method when the view is enabled and has spannable laid-out text; that delegation is not conditioned on `isClickable()`. Source: the same AOSP `TextView.java`.
+- `ScrollingMovementMethod.onTouchEvent(...)` delegates to the framework scrolling touch helper. Source: `https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/method/ScrollingMovementMethod.java`; API reference: `https://developer.android.com/reference/android/text/method/ScrollingMovementMethod`.
+
+Therefore the corrected patch order—install the scrolling movement method, then reassert passive focus/click/long-click ownership—is platform-grounded source behavior, not a decorative preference. This evidence still does **not** prove runtime touch scrolling, runtime keyboard focus, or TalkBack behavior on the target Android overlay; those remain separate native/runtime evidence gates.
+
 ## Regression doctrine
 
 Source fixtures should prove:
@@ -67,7 +77,7 @@ Source fixtures should prove:
 - non-overflowing and negative positions resolve to top;
 - stale deferred restores are generation-invalidated by newer owner presentation.
 
-Owner review must separately verify, on the real native `heartbeatDetail`, that movement-method installation is followed by the declared passive ownership state; explicit selection resets to top; background refresh preserves/clamps reading position; and the detail surface does not become a new direct-keyboard-focus witness for heartbeat viewport restoration. That native assertion is not satisfied merely by the pure policy fixture.
+Owner review must separately verify, on the real native `heartbeatDetail`, that movement-method installation is followed by the declared passive ownership state; explicit selection resets to top; background refresh preserves/clamps reading position; and the detail surface does not become a new direct-keyboard-focus witness for heartbeat viewport restoration. The AOSP source evidence above strengthens the ordering contract but does not satisfy that native assertion.
 
 Regression source is not TESTED evidence until an authorized runner executes it successfully.
 
@@ -75,6 +85,7 @@ Regression source is not TESTED evidence until an authorized runner executes it 
 
 - detail policy source: **YES**
 - passive focus/click ownership policy source: **YES**
+- Android framework source evidence for movement-method side effects: **YES / SOURCE EVIDENCE**
 - post-layout clamp policy source: **YES**
 - hostile pure regression source: **YES**
 - corrected existing-owner patch artifact: **YES / PROPOSED_NOT_APPLIED**
