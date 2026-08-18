@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Keep one case-insensitive repository-skill owner key from authorizing more than one candidate path. The current provenance owner already uses case-insensitive identity semantics; therefore a collision is a **set-level ambiguity**, not a contest where arrival order may pick a winner.
+Keep one case-insensitive repository-skill owner key from authorizing more than one candidate path. The provenance owner uses case-insensitive identity semantics; therefore a collision is a **set-level ambiguity**, not a contest where arrival order may pick a winner.
 
 ## Existing owner
 
@@ -25,6 +25,8 @@ Operator-facing state should say `IDENTITY SET AMBIGUOUS` / `AUTHORITY BLOCKED`,
 
 A pure helper, hostile regression source, patch artifact, GitHub commit, or PR review is source evidence only. Preserve `requested → implemented source → owner source wired → tested → runtime → deployed → callable → executed → delivered → accepted` separately.
 
+Owner composition commit `8603d51710d5147a5a7163dce05d9a998cf88557` produced owner blob `51e6efdbcec03d044ab89f37213659252514856a`. That proves source wiring/readback only; it does not prove test execution or runtime behavior.
+
 ## P0 / phone firewall
 
 This skill owns no Phone Hands, primary-phone execution, queue/relay recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work. P0 remains read-only evidence here.
@@ -33,8 +35,10 @@ This skill owns no Phone Hands, primary-phone execution, queue/relay recovery, N
 
 - Pure identity-set policy source: **YES**
 - Hostile policy regression source: **YES**
-- Exact existing-owner patch provenance: **YES / PROPOSED_NOT_APPLIED**
-- Existing owner consumes global fail-closed identity-set gate: **NO**
+- Owner-composition regression source: **YES**
+- Exact existing-owner patch provenance: **YES / APPLIED_SOURCE**
+- Existing owner consumes global fail-closed identity-set gate: **YES / SOURCE_WIRED**
+- Exact authenticated owner readback: **YES**
 - TESTED: **NO**
 - Runtime UI/TalkBack: **NO**
 - Deployed/callable/executed/delivered/accepted: **NO**
