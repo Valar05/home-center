@@ -42,7 +42,7 @@ class SkillTitleResourceBudgetTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertEqual(title, records[0].title)
 
-    def test_title_character_budget_plus_one_is_rejected_not_truncated(self):
+    def test_title_character_budget_plus_one_rejects_before_whole_file_hash(self):
         path = self.skill_path("oversized-title")
         title = "T" * (MAX_SKILL_TITLE_CHARS + 1)
         path.write_text(f"# {title}\n", encoding="utf-8")
@@ -54,17 +54,24 @@ class SkillTitleResourceBudgetTest(unittest.TestCase):
         self.assertEqual([], records)
         self.assertEqual(1, len(errors))
         self.assertEqual("SkillTitleResourceLimitError", errors[0].error_type)
-        self.assertEqual("skill title extraction exceeded the declared resource budget", errors[0].reason)
-        self.assertEqual(64, len(errors[0].sha256))
+        self.assertEqual(
+            "skill title extraction exceeded the declared resource budget",
+            errors[0].reason,
+        )
+        self.assertEqual("", errors[0].sha256)
 
     def test_oversized_first_line_is_rejected_before_later_plausible_h1(self):
         path = self.skill_path("oversized-line")
-        path.write_bytes((b"x" * (MAX_SKILL_TITLE_LINE_BYTES + 1)) + b"\n# Counterfeit Later Title\n")
+        path.write_bytes(
+            (b"x" * (MAX_SKILL_TITLE_LINE_BYTES + 1))
+            + b"\n# Counterfeit Later Title\n"
+        )
 
         records, errors = discover_skills(self.root)
         self.assertEqual([], records)
         self.assertEqual(1, len(errors))
         self.assertEqual("SkillTitleResourceLimitError", errors[0].error_type)
+        self.assertEqual("", errors[0].sha256)
 
     def test_scan_budget_exhaustion_rejects_late_title_instead_of_truncating_into_authority(self):
         path = self.skill_path("late-title")
@@ -76,6 +83,7 @@ class SkillTitleResourceBudgetTest(unittest.TestCase):
         self.assertEqual([], records)
         self.assertEqual(1, len(errors))
         self.assertEqual("SkillTitleResourceLimitError", errors[0].error_type)
+        self.assertEqual("", errors[0].sha256)
 
     def test_malformed_utf8_within_budget_keeps_utf8_error_classification(self):
         bad = self.skill_path("broken-utf8")
@@ -88,6 +96,7 @@ class SkillTitleResourceBudgetTest(unittest.TestCase):
         self.assertEqual(1, len(errors))
         self.assertEqual("UnicodeDecodeError", errors[0].error_type)
         self.assertEqual("skill file is not valid UTF-8 text", errors[0].reason)
+        self.assertEqual("", errors[0].sha256)
 
     def test_titleless_file_within_scan_budget_keeps_folder_fallback(self):
         path = self.skill_path("fallback-name")
