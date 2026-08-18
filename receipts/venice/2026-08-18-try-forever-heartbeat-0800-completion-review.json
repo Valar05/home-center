@@ -1,0 +1,35 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-0800",
+  "reviewedSourceHead": "d226cfe25aa3b438a4038899f8ee8c270c6e8f27",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__ROOT_SYMLINK_SCOPE_WOUND_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "missionFidelity": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS",
+    "accessibilitySourceSemantics": "PASS",
+    "evidenceTruth": "PASS",
+    "tested": "NO",
+    "runtimeDelivery": "NO"
+  },
+  "why": [
+    "The original unbounded non-candidate traversal-work wound is materially closed at source by a separate 32768-entry throat.",
+    "Traversal and candidate budgets remain distinct; neither is reported as the other.",
+    "The existing provenance probe/discover_skills owner was composed rather than duplicated.",
+    "Regression source, durable skill doctrine, provenance/candidate convergence, and the existing Warm Wall all moved with the source contract.",
+    "Current workflow evidence proves failure with zero exposed steps and unavailable logs; it does not prove a cause or a passed test.",
+    "The newly discovered skills-root symlink scope wound is preserved as the next independent non-P0 cut instead of being hidden by this completion verdict."
+  ],
+  "darkLights": [
+    "Autocorrect Judgment Jar: no ambiguity required resolution",
+    "Phone Runtime / Phone Hands: firewalled and untouched",
+    "P0 recovery: read-only by commission",
+    "Christmas motion: resource-policy topology changed only in source art; no runtime motion claim",
+    "contact/checkpoint runtime semantics: unchanged"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  }
+}
