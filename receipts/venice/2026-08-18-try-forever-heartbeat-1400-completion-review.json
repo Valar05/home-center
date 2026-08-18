@@ -1,0 +1,87 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "heartbeat": "2026-08-18-1400",
+  "reviewMode": "same-worker-code-first-completion-review",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__FINAL_ROOT_ATOMICITY_AND_TEST_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "reviewedSourceHead": "b9922c7b0fc72dbbebca0648e37f70fbd609462e",
+  "judgments": [
+    {
+      "axis": "mission fidelity",
+      "result": "PASS",
+      "reason": "The swarm stayed in the existing provenance owner and independent non-P0 repository/source surfaces. It did not consume Phone Hands, primary-phone execution, recovery queues, P0 owners, or neighboring architecture."
+    },
+    {
+      "axis": "failure is the shovel / originality tax",
+      "result": "PASS",
+      "reason": "A prior whole-file-mutation boundary changed because full authenticated owner blob readback became available. The swarm used that new evidence to apply the existing-owner surgery rather than repeating the old blocked-lane story, creating another probe, or routing through a phone-shaped substitute."
+    },
+    {
+      "axis": "source quality",
+      "result": "PASS_BOUNDED",
+      "reason": "The existing owner now combines a global no-follow named-candidate topology gate with before/after candidate-file identity observations around bounded title and exact bounded whole-file hashing. Hostile integration regression source is durable."
+    },
+    {
+      "axis": "accessibility",
+      "result": "PASS_SOURCE",
+      "reason": "The existing candidate identity Warm Wall was mutated in place and retains radiogroup/radio semantics, roving Arrow/Home/End navigation, >=48px controls, non-color state signals, polite live detail, inline SVG, and reduced-motion handling. Runtime TalkBack remains unproven."
+    },
+    {
+      "axis": "evidence truth",
+      "result": "PASS",
+      "reason": "Owner source wiring, exact readback, regression source, test execution, runtime, deployment, delivery, acceptance, and atomicity remain separate. STABLE is not renamed atomic."
+    },
+    {
+      "axis": "existing owner",
+      "result": "PASS_SOURCE_WIRED",
+      "reason": "Authenticated owner blob 532a5a004dbca1f99caab6e230ef565dd61bf258 no longer contains the legacy follow-links candidate admission and now imports/consumes the existing candidate-file identity helper."
+    },
+    {
+      "axis": "test gate",
+      "result": "CONTINUE_REQUIRED",
+      "reason": "Automatic Operator Overlay Android run 32174337699 on exact owner commit b9922c7b0fc72dbbebca0648e37f70fbd609462e concluded failure. Job 95832639575 exposes zero steps and logs return 404 BlobNotFound. No step-level cause is established and no retry was dispatched; TESTED remains NO."
+    },
+    {
+      "axis": "remaining provenance window",
+      "result": "CONTINUE_REQUIRED",
+      "reason": "The skills root is revalidated after candidate enumeration but not again after all per-file authority work. A final root revalidation can strengthen persistent-drift detection, while stronger atomic swap-and-restore exclusion still requires platform-specific evidence."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutation": 0,
+    "p0Mutation": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "implementedRepositorySource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "existingOwnerStaticTopologyWired": true,
+    "existingOwnerFileIdentityWired": true,
+    "atomicCrossPlatformFileBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWounds": [
+    "Revalidate the existing skills-root identity again after all per-file title/hash/file-identity authority work so persistent late root replacement cannot survive until report emission.",
+    "Keep swap-and-restore, identity-token reuse, same-token rewrite, and true handle-bound atomicity as separate platform-evidence wounds; do not green-paint portable stat bracketing.",
+    "Do not retry the unchanged CI failure without fresh evidence that the execution predicate changed."
+  ]
+}
