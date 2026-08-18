@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRY FOREVER — Provenance Certification Warm Wall</title>
+<style>
+  :root { font-family: system-ui, sans-serif; line-height: 1.35; }
+  body { margin: 0; padding: 1rem; background: Canvas; color: CanvasText; }
+  main { max-width: 54rem; margin: auto; }
+  .scar { border: 2px solid currentColor; padding: .75rem; font-weight: 700; }
+  svg { width: 100%; height: auto; margin: 1rem 0; }
+  fieldset { border: 2px solid currentColor; padding: .75rem; }
+  legend { font-weight: 800; padding: 0 .4rem; }
+  .choice { position: relative; }
+  .choice input { position: absolute; inline-size: 1px; block-size: 1px; opacity: .01; }
+  .choice label {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: .5rem;
+    align-items: center;
+    min-block-size: 48px;
+    padding: .5rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .choice input:focus-visible + label { outline: 3px solid currentColor; outline-offset: 2px; }
+  .choice input:checked + label { border-color: currentColor; font-weight: 800; }
+  .token { font-size: 1.5rem; text-align: center; }
+  .detail { display: none; margin: 0 0 .75rem 3rem; padding: .5rem; border-inline-start: 4px solid currentColor; }
+  .choice input:checked ~ .detail { display: block; }
+  code { overflow-wrap: anywhere; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Provenance Certification Warm Wall</h1>
+  <p class="scar">SOURCE ONLY · OWNER PATCHES UNAPPLIED · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+
+  <svg viewBox="0 0 760 190" role="img" aria-labelledby="wall-title wall-desc">
+    <title id="wall-title">Warm wall with discovery flowing through certification gates</title>
+    <desc id="wall-desc">A discovered skill set reaches repository-skill authority only through stable snapshot and expected-head gates. Fallback title text has a separate source-admission throat.</desc>
+    <path d="M40 95 H180 M250 95 H390 M460 95 H600" fill="none" stroke="currentColor" stroke-width="6"/>
+    <rect x="20" y="55" width="160" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="180" y="55" width="140" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="390" y="55" width="140" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="600" y="55" width="140" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="100" y="88" text-anchor="middle">DISCOVERED</text>
+    <text x="100" y="112" text-anchor="middle">diagnostic set</text>
+    <text x="250" y="88" text-anchor="middle">SNAPSHOT</text>
+    <text x="250" y="112" text-anchor="middle">certification</text>
+    <text x="460" y="88" text-anchor="middle">HEAD</text>
+    <text x="460" y="112" text-anchor="middle">binding</text>
+    <text x="670" y="88" text-anchor="middle">AUTHORITY</text>
+    <text x="670" y="112" text-anchor="middle">or zero</text>
+  </svg>
+
+  <fieldset>
+    <legend>Touch a certification state</legend>
+
+    <div class="choice">
+      <input type="radio" name="state" id="verified" checked aria-describedby="verified-detail">
+      <label for="verified"><span class="token" aria-hidden="true">●</span><span>Verified current</span></label>
+      <p class="detail" id="verified-detail"><strong>Authority open.</strong> Snapshot is <code>STABLE_CLEAN</code> and expected-head binding has no mismatch. The bounded discovered set may become repository-skill authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="unstable" aria-describedby="unstable-detail">
+      <label for="unstable"><span class="token" aria-hidden="true">×</span><span>Unstable snapshot</span></label>
+      <p class="detail" id="unstable-detail"><strong>Authority zero.</strong> Discovery may remain diagnostic, but a moving/dirty/unknown checkout cannot emit authoritative-looking repository-skill records.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="head-mismatch" aria-describedby="head-mismatch-detail">
+      <label for="head-mismatch"><span class="token" aria-hidden="true">□</span><span>Expected head mismatch</span></label>
+      <p class="detail" id="head-mismatch-detail"><strong>Authority zero.</strong> A clean current checkout is not authority for a different requested commit. Commit-bound evidence does not float forward.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="fallback-title" aria-describedby="fallback-title-detail">
+      <label for="fallback-title"><span class="token" aria-hidden="true">◇</span><span>Fallback title rejected</span></label>
+      <p class="detail" id="fallback-title-detail"><strong>Affected candidate blocked.</strong> Folder-name fallback must obey the source title bound and reject control/bidi-direction state; ordinary Unicode composition remains valid.</p>
+    </div>
+  </fieldset>
+
+  <p><strong>Christmas-light rule:</strong> certification bookkeeping earns no autoplay, blink, or transition motion. This wall is an inspectable source specimen, not deployed Operator Overlay evidence.</p>
+</main>
+</body>
+</html>
