@@ -2,13 +2,14 @@
   "schema": "regnet.source-review.v1",
   "heartbeat": "2026-08-18-0100",
   "pr": 329,
-  "reviewedSourceHead": "5c939cf8eea45b72b2281eb22aca7393365953f7",
+  "reviewedSourceHead": "430c6a42eadcb3e872fe5786e39d88ee448dfcd4",
   "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_QUEUE_STATE_ONLY",
   "scope": [
     "non-phone mutation-lane reorientation",
     "deep-detail durable skill lane doctrine",
     "deterministic existing-owner source capability probe",
     "owner-probe durable skill harvest",
+    "Home Center mutation-lane truth skill harvest",
     "Computer Hands request admission state",
     "fresh exact-head CI boundary",
     "P0/phone firewall"
@@ -17,12 +18,17 @@
     {
       "severity": "PASS",
       "id": "owner-remains-single",
-      "detail": "No neighboring heartbeat detail renderer, controller, state store, poller, phone path, or P0 coordinator was created. OperatorOverlayService remains the sole native owner."
+      "detail": "No neighboring heartbeat detail renderer, controller, state store, poller, phone path, patch daemon, or P0 coordinator was created. OperatorOverlayService remains the sole native owner."
     },
     {
       "severity": "PASS",
       "id": "owner-truth-not-promoted",
       "detail": "Fresh authenticated readback still reports OperatorOverlayService blob c266e66a8004623efadab1933de4e429e677c6a5 with heartbeatDetail.setMaxLines(5), END ellipsis, and legacy showHeartbeatDetail. Existing-owner deep-detail wiring therefore remains NO."
+    },
+    {
+      "severity": "PASS",
+      "id": "deployed-lane-reorientation",
+      "detail": "Home Center deployed capabilities expose computer_hands.* as a Home Drive operation family while current Command Center operations no longer include historical agents/jobs/workers/sessions. A direct historical workers.list attempt returned permanent retirement. The new home-center-mutation-lane-truth skill captures that deployed-vs-historical distinction without opening the phone lane."
     },
     {
       "severity": "PASS",
@@ -47,7 +53,7 @@
     {
       "severity": "BOUNDARY",
       "id": "computer-hands-offline",
-      "detail": "Deployed Home Center reports windows-hands-01 online=false, status=idle. Do not create substitute worker architecture or route owner mutation through the phone."
+      "detail": "Deployed Home Center reports windows-hands-01 online=false, status=idle, queueDepth=3 with the new TRY FOREVER lane present. Do not create substitute worker architecture or route owner mutation through the phone."
     },
     {
       "severity": "WARN",
@@ -57,12 +63,12 @@
     {
       "severity": "BOUNDARY",
       "id": "ci-zero-steps",
-      "detail": "Operator Overlay Android run 32106028378 on exact source head 5c939cf8eea45b72b2281eb22aca7393365953f7 concluded failure. Job 95615536934 exposes zero steps; job-log retrieval returns 404 BlobNotFound. No cause is inferred and no manual retry was dispatched. TESTED remains NO."
+      "detail": "Operator Overlay Android run 32106197715 on exact source head 430c6a42eadcb3e872fe5786e39d88ee448dfcd4 concluded failure. Job 95616029583 exposes zero steps; job-log retrieval returns 404 BlobNotFound. No cause is inferred and no manual retry was dispatched. TESTED remains NO."
     },
     {
       "severity": "PASS",
       "id": "art-dark-by-design",
-      "detail": "No realized native owner/runtime topology changed, so Swan Veil/Warm Walls/Christmas motion were not mutated merely to narrate queue admission."
+      "detail": "No realized native owner/runtime topology changed, so Swan Veil/Warm Walls/Christmas motion were not mutated merely to narrate queue admission or source-capability tooling."
     },
     {
       "severity": "PASS",
@@ -75,6 +81,7 @@
     "deepDetailSkillBlob": "51d79291c3d4bd8cd1bd34b9fbb400f804d890f4",
     "ownerProbeBlob": "83300bccdac8d62e67e2077ee2d60c71b56dd7d3",
     "ownerProbeSkillBlob": "dea8d902e5bd986628b2f452e19b3e7e3ae9ae7c",
+    "mutationLaneSkillBlob": "2dfb059a2112dbb609b6b938ce8c93cc44751db3",
     "actualOwnerBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
     "correctedPatchBlob": "991cc7b950d1beb7ce9f50815b7107094562ba80"
   },
@@ -87,6 +94,7 @@
     "existingOwnerDeepDetailWiring": false,
     "probeSourceImplemented": true,
     "probeExecuted": false,
+    "durableMutationLaneSkill": true,
     "tested": false,
     "runtimeUi": false,
     "runtimeTalkBack": false,
