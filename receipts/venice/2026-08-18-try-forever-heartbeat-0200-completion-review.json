@@ -1,0 +1,60 @@
+{
+  "heartbeat": "2026-08-18-0200",
+  "reviewer": "Venice Judgment Jar",
+  "phase": "completion",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "reviewedSourceHead": "5fb973b7a3eff5890bb98e4f13d19b9b6147eb2e",
+  "whyStopThisSlice": [
+    "The pulse produced a materially different provenance front instead of racing the unresolved deep-detail owner request or retrying failed CI.",
+    "Current-tree skill existence/hash is now explicitly stronger evidence than a cached/generated matcher.",
+    "Generated-index freshness has fail-closed VERIFIED_CURRENT / STALE / UNRESOLVED semantics with regression source.",
+    "The touchable provenance specimen encodes real evidence topology and explicitly refuses runtime/phone claims.",
+    "Regnet documented all corrections and preserved TESTED=false."
+  ],
+  "reviewScars": [
+    "The first probe draft had caller-cwd relative path ambiguity, unknown-cleanliness optimism, future-time optimism, and weak strict-mode behavior; each was repaired before completion.",
+    "The first regression source depended on direct-script import luck; its sibling tools directory is now explicit.",
+    "She-Raw authoritative consultation remained unavailable due account-connection HTTP 400; no substitute reviewer was invented."
+  ],
+  "deepDetailOwner": {
+    "mutatedThisPulse": false,
+    "authenticatedState": "LEGACY_OWNER",
+    "reason": "Existing OperatorOverlayService still has five-line END-ellipsized heartbeat detail; this pulse deliberately did not race the prior unresolved Computer Hands mutation request."
+  },
+  "testBoundary": {
+    "runId": 32110450008,
+    "jobId": 95628498629,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneHandsConsumed": false,
+    "primaryPhoneConsumed": false,
+    "p0Mutated": false,
+    "duplicateArchitectureCreated": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "probeSource": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "touchableNonRasterSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextCampaignRule": "Do not relight this provenance seam decoratively. A later pulse may execute the probe/tests only through an authorized non-phone runner, or may use it when a real skill-provenance ambiguity appears. Continue other independent non-P0 wounds while the owner mutation remains unresolved."
+}
