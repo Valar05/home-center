@@ -1,0 +1,74 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-0602",
+  "scope": "TRY FOREVER non-P0 repository-skill provenance",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed": {
+    "sourceCommit": "d2deaaa1e0176606b10eff1c8232685bd7c4a0cd",
+    "sourceBlob": "6a53623f8f7271de8906855e75bafc7304a327c9",
+    "regressionCommit": "3e3db5aa4d9337d384b084f58f8d6080d0de9ae3",
+    "regressionBlob": "4d92cc9d3dbfb179edf08daac79fb1c5db406ee4",
+    "titleRegressionCorrectionCommit": "556f347fccc9e8ebd94bec2cfb01838c75dd59a7",
+    "titleRegressionCorrectionBlob": "6ab2917994fe2508a4ffc06b4689d26ae5062c85",
+    "skillCommit": "344c362ea1ce08df298c024361e2f1ada0327a62",
+    "skillBlob": "bdde3b48801440cfed19a0291352b2cd166972bf",
+    "artCommit": "139fdd1df6959a57bc34ae58733e8b53f624e83d",
+    "artBlob": "a309299670141dc0f568f62968f2973ccd5ef9f7"
+  },
+  "passes": [
+    "whole-SKILL.md hash work has an explicit 1 MiB total byte throat",
+    "exact-max requires EOF; max+1 rejects and no prefix digest is returned as authority",
+    "bounded title admission runs before whole-file hash work",
+    "oversized-body failure is isolated per file and healthy peers continue",
+    "source, regression, doctrine, and touchable art all preserve source/runtime/phone capability boundaries",
+    "no neighboring provenance probe, registry daemon, overlay controller, phone path, or P0 owner was created"
+  ],
+  "reviewScars": [
+    {
+      "finding": "the pre-existing dedicated title-resource regression still expected diagnostic SHA on title failure",
+      "consequence": "it contradicted the new title-before-hash contract and would fail if executed",
+      "repair": "commit 556f347f... now requires empty sha256 for title-stage rejection"
+    }
+  ],
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 32131030540,
+    "jobId": 95691996226,
+    "status": "completed",
+    "conclusion": "failure",
+    "stepsExposed": false,
+    "jobLogReadback": "404 BlobNotFound",
+    "tested": false,
+    "causeEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextIndependentWound": {
+    "finding": "discover_skills still materializes sorted(skills_root.rglob('SKILL.md')) before per-file throats",
+    "risk": "candidate enumeration/count and path-list memory remain unbounded before title/hash resource policy can help",
+    "instruction": "treat this as a distinct future non-P0 discovery-enumeration resource wound; do not reopen the completed hash throat unless fresh evidence changes it"
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "findingForP0": null
+  }
+}
