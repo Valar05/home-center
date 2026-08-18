@@ -56,4 +56,24 @@ public final class HeartbeatDetailSurfacePolicy {
         String clean = detail == null ? "" : detail.trim();
         return new Presentation(clean.isEmpty() ? EMPTY_DETAIL : clean);
     }
+
+    /**
+     * Preserve a reader's vertical position only while that position still exists
+     * in the refreshed detail layout.
+     *
+     * <p>The owner calls this after layout because refreshed evidence may be shorter
+     * than the prior detail. Negative positions and non-overflowing layouts collapse
+     * to zero. Long arithmetic avoids integer overflow while deriving the legal
+     * maximum.</p>
+     */
+    public static int clampScrollY(
+            int requestedScrollY,
+            int contentHeightPx,
+            int viewportHeightPx) {
+        long requested = Math.max(0L, (long) requestedScrollY);
+        long content = Math.max(0L, (long) contentHeightPx);
+        long viewport = Math.max(0L, (long) viewportHeightPx);
+        long maxScroll = Math.max(0L, content - viewport);
+        return (int) Math.min(requested, Math.min(maxScroll, Integer.MAX_VALUE));
+    }
 }
