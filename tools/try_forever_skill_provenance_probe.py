@@ -27,6 +27,7 @@ MAX_SKILL_TITLE_LINE_BYTES = 8 * 1024
 MAX_SKILL_TITLE_CHARS = 256
 MAX_SKILL_HASH_BYTES = 1024 * 1024
 SKILL_HASH_CHUNK_BYTES = 64 * 1024
+MAX_SKILL_CANDIDATES = 2048
 
 
 class SkillTitleResourceLimitError(ValueError):
@@ -35,6 +36,10 @@ class SkillTitleResourceLimitError(ValueError):
 
 class SkillHashResourceLimitError(ValueError):
     """A SKILL.md cannot earn a full-file SHA inside the declared byte budget."""
+
+
+class SkillCandidateResourceLimitError(ValueError):
+    """Repository skill candidate enumeration exceeded its declared count budget."""
 
 
 @dataclass(frozen=True)
@@ -277,13 +282,41 @@ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
     return candidate.resolve()
 
 
-def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
-    """Discover independent skill records with fail-closed per-file isolation.
+def bounded_skill_candidates(
+    skills_root: Path, *, max_candidates: int | None = None
+) -> list[Path]:
+    """Return deterministic SKILL.md candidates without an unbounded path list.
 
-    Cheap bounded title admission intentionally precedes whole-file hashing. A
-    malformed/over-budget title therefore cannot force an unnecessary full-file
-    hash. A valid short title with an oversized body reaches the hash throat and
-    is rejected there; healthy peers continue.
+    Candidate paths are accumulated only through ``limit + 1`` so overflow can
+    fail closed before title/hash work. Sorting occurs only after the bounded set
+    has been admitted. Traversal itself remains a distinct filesystem-work seam;
+    this helper does not claim to bound arbitrary non-candidate directory walks.
+    """
+
+    limit = MAX_SKILL_CANDIDATES if max_candidates is None else max_candidates
+    if limit < 0:
+        raise ValueError("skill candidate budget must be non-negative")
+
+    candidates: list[Path] = []
+    for path in skills_root.rglob("SKILL.md"):
+        if not path.is_file():
+            continue
+        candidates.append(path)
+        if len(candidates) > limit:
+            raise SkillCandidateResourceLimitError(
+                f"skill candidate count exceeds declared budget {limit}"
+            )
+    candidates.sort()
+    return candidates
+
+
+def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
+    """Discover independent skill records with fail-closed resource throats.
+
+    Candidate enumeration is admitted before any per-file title/hash authority.
+    If the candidate count overflows, discovery returns no partial records so an
+    omitted path cannot hide a case-insensitive identity collision. After that
+    gate, cheap bounded title admission intentionally precedes whole-file hashing.
     """
 
     skills_root = repo_root / "skills"
@@ -297,12 +330,22 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             )
         ]
 
+    try:
+        candidates = bounded_skill_candidates(skills_root)
+    except SkillCandidateResourceLimitError as error:
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="enumeration",
+                error_type=type(error).__name__,
+                reason="skill candidate enumeration exceeded the declared count budget; partial repository-skill authority is forbidden",
+            )
+        ]
+
     records: list[SkillRecord] = []
     errors: list[DiscoveryError] = []
     canonical_seen: dict[str, str] = {}
-    for path in sorted(skills_root.rglob("SKILL.md")):
-        if not path.is_file():
-            continue
+    for path in candidates:
         relative = path.relative_to(repo_root).as_posix()
         if not is_within(path, skills_root):
             errors.append(
