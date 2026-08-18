@@ -1,0 +1,113 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-1200",
+  "sourceArtHeadReviewed": "65c3af4f5b809658cc494bf2528b9d0e8089c354",
+  "frontsAdvanced": [
+    {
+      "front": "hostile candidate-topology regression",
+      "state": "REGRESSION_SOURCE",
+      "artifact": "tools/test_try_forever_skill_candidate_enumeration.py",
+      "blob": "1c0e6f053a8bcbeb75c21f8224eee5495f665b89",
+      "change": "Pins in-root SKILL.md file-symlink alias rejection and named SKILL.md non-ordinary topology rejection with zero partial authority and zero title/hash work."
+    },
+    {
+      "front": "existing-owner delta provenance",
+      "state": "PROPOSED_NOT_APPLIED",
+      "artifact": "patches/try-forever-skill-file-topology.patch",
+      "blob": "d55cedbb6a7030e9d855f42e7bdb706f42481530",
+      "change": "Base-blob-locked no-follow ordinary-file candidate gate for the existing provenance owner."
+    },
+    {
+      "front": "candidate-enumeration doctrine",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "skills/heartbeat-skill-candidate-enumeration/SKILL.md",
+      "blob": "7eef61401f337b6269ab64f8d02826a3bd467b4b",
+      "change": "Makes candidate file topology a global authority gate and preserves owner-wiring/test/runtime states separately."
+    },
+    {
+      "front": "accessible Warm Wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "docs/try-forever/heartbeat-skill-provenance-source-specimen.html",
+      "blob": "4ac1df5ed1c7b18b0f1b7377e524bb37c41d272c",
+      "change": "Adds a sixth SKILL.md REDIRECTOR BLOCKED state to the existing radio/keyboard/touch DOM/SVG organism; no runtime claim."
+    },
+    {
+      "front": "Regnet QA",
+      "state": "REVISE_REQUIRED",
+      "artifact": "receipts/regnet/2026-08-18-try-forever-heartbeat-1200-skill-file-topology-review.json",
+      "change": "Confirms current owner still follows SKILL.md symlinks, supporting artifacts are durable, owner remains unwired, and per-file atomic binding is unclaimed."
+    },
+    {
+      "front": "Venice Judgment Jar",
+      "state": "CONTINUE_REQUIRED",
+      "artifact": "receipts/venice/2026-08-18-try-forever-heartbeat-1200-completion-review.json",
+      "change": "Allows the bounded supporting-source slice to yield while refusing owner/test/runtime promotion."
+    },
+    {
+      "front": "exact-head execution evidence",
+      "state": "FAILURE_CAUSE_UNRESOLVED",
+      "run": 32163954720,
+      "job": 95799046086,
+      "head": "65c3af4f5b809658cc494bf2528b9d0e8089c354",
+      "change": "Fresh Operator Overlay Android run concluded failure. Current Home Center evidence exposes one failed job but no step-level cause; no manual retry was dispatched."
+    }
+  ],
+  "currentOwnerEvidence": {
+    "artifact": "tools/try_forever_skill_provenance_probe.py",
+    "blob": "e3627e342150c48f38099bb68fb118b3c54f2bf4",
+    "observedBehavior": "entry.name == SKILL.md is admitted with entry.is_file(follow_symlinks=True)",
+    "candidateFileTopologyWound": "OPEN"
+  },
+  "lights": {
+    "FailureIsTheShovel": "LIT",
+    "CanonAutoSelect": "LIT",
+    "AutocorrectJudgmentJar": "DARK",
+    "OriginalityTax": "LIT",
+    "Hunger": "LIT",
+    "EverPolishedInterpreterEatEverything": "LIT",
+    "OperatorCampaign": "LIT",
+    "HarrowayOperatorDiscipline": "LIT",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "VeniceJudgmentJars": "LIT_CONTINUE_REQUIRED",
+    "RegnetQA": "LIT_REVISE_REQUIRED",
+    "AccessibilityTalkBackTouch": "LIT",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED",
+    "DeterministicRouting": "LIT",
+    "EvidenceCapabilityState": "LIT",
+    "RecoveryCheckpointIdempotence": "LIT_ZERO_PARTIAL_AUTHORITY",
+    "StrangeNonRasterArt": "LIT_EXISTING_WALL_MUTATED",
+    "WarmWalls": "LIT",
+    "ChristmasLightSceneGraph": "DARK_NO_SCENE_TRANSITION",
+    "ContactPreservation": "LIT_FAIL_CLOSED_AUTHORITY"
+  },
+  "crossPollination": "root/candidate provenance archaeology -> in-root symlink alias wound -> red hostile fixture -> exact existing-owner patch provenance -> candidate skill doctrine -> accessible Warm Wall redirector scar -> Regnet narrows scope to owner-not-wired and non-atomic per-file binding -> Venice refuses capability laundering",
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutation": 0,
+    "p0Mutation": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "existingOwnerPatch": "PROPOSED_NOT_APPLIED",
+    "existingOwnerCandidateTopologyWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWound": "Apply the existing-owner no-follow candidate topology gate without reconstructing a large owner file unsafely; authenticated owner readback is required before SOURCE_WIRED. After source wiring, separately review candidate-file replacement races rather than pretending static no-follow admission is atomic binding."
+}
