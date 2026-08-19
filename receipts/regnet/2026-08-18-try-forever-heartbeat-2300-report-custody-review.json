@@ -1,0 +1,60 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-2300",
+  "sourceHeadReviewed": "bcc818dcbb45d0375787b5e40995267342d4eed5",
+  "verdict": "PASS_SUPPORTING_SOURCE__REVISE_REQUIRED_OWNER_UNWIRED",
+  "boundedClaim": "Generated-index VERIFIED_CURRENT currentness is now modeled as subordinate to the same final report-emission repository-custody gate as direct repository-skill authority, with hostile pure-policy and proposed owner-integration regression source.",
+  "findings": [
+    {
+      "severity": "fixed_in_supporting_source",
+      "finding": "Patch v2 could report generatedIndex.status=VERIFIED_CURRENT while currentHead/currentTreeDirty reflected a later failed emission observation.",
+      "repair": "New pure emission policy downgrades only prior positive currentness to UNRESOLVED on failed final custody, preserving already-negative diagnostics and avoiding a post-final-gate re-read."
+    },
+    {
+      "severity": "source_only",
+      "finding": "Existing provenance owner remains schema v3 and does not import portable report-path, report-emission snapshot, or generated-index emission-custody policies.",
+      "evidence": "Authenticated owner blob afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a remains unchanged."
+    },
+    {
+      "severity": "test_boundary",
+      "finding": "Regression source exists but automatic workflows on exact source head concluded failure without available step-level cause.",
+      "evidence": {
+        "homeCenterCiRun": 32214608402,
+        "buildAndroidRun": 32214608395,
+        "operatorOverlayRun": 32214608458,
+        "operatorOverlayJob": 95953659182
+      }
+    }
+  ],
+  "acceptanceChecks": {
+    "positiveIndexCurrentnessCannotOutliveFailedFinalCustody": "PASS_SOURCE",
+    "negativeIndexDiagnosticsAreNotPromoted": "PASS_SOURCE",
+    "noPostFinalGateIndexRereadRequired": "PASS_SOURCE",
+    "ownerPatchStatesProposedNotApplied": "PASS",
+    "authenticatedOwnerConsumption": "FAIL_OWNER_UNWIRED",
+    "tested": "NO"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactAuthenticatedReadback": true,
+    "regressionSource": true,
+    "ownerPatch": "PROPOSED_NOT_APPLIED",
+    "existingOwnerConsumesNewPolicies": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0,
+    "duplicateArchitecture": 0
+  }
+}
