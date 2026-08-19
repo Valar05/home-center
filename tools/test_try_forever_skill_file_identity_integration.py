@@ -116,9 +116,9 @@ class SkillFileIdentityIntegrationTest(unittest.TestCase):
             {"SkillFileRedirectorBlocked", "SkillFileChanged"},
         )
         self.assertEqual("identity", errors[0].stage)
-        # RED until the existing owner revalidates no-follow topology immediately
-        # before authority-facing title/hash I/O. A post-I/O identity rejection is
-        # too late to prevent following or blocking on replacement topology.
+        # Source contract: persistent topology drift at the last pre-I/O seam
+        # must reject before either authority-facing content reader is invoked.
+        # This fixture remains unexecuted until an authorized runner proves it.
         title.assert_not_called()
         digest.assert_not_called()
 
