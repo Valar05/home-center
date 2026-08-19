@@ -36,11 +36,11 @@
 <body>
 <main>
   <h1>Provenance Certification Warm Wall</h1>
-  <p class="scar">SOURCE ONLY · SNAPSHOT/TITLE/TRAVERSAL OWNER WIRING NO · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+  <p class="scar">SOURCE OWNER WIRED · SCHEMA v3 · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
 
   <svg viewBox="0 0 900 190" role="img" aria-labelledby="wall-title wall-desc">
     <title id="wall-title">Warm wall with discovery flowing through topology and certification gates</title>
-    <desc id="wall-desc">Repository-owned traversal, stable snapshot, expected-head binding and exact title admission are distinct gates before repository-skill authority.</desc>
+    <desc id="wall-desc">Repository-owned traversal and exact title admission produce diagnostic discoveries; stable snapshot and expected-head certification decide whether those records may become repository-skill authority.</desc>
     <path d="M35 95 H865" fill="none" stroke="currentColor" stroke-width="6"/>
     <rect x="10" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="185" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -48,11 +48,11 @@
     <rect x="535" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="710" y="55" width="180" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <text x="85" y="88" text-anchor="middle">TRAVERSAL</text>
-    <text x="85" y="112" text-anchor="middle">owned topology</text>
+    <text x="85" y="112" text-anchor="middle">owner wired</text>
     <text x="260" y="88" text-anchor="middle">DISCOVERED</text>
     <text x="260" y="112" text-anchor="middle">diagnostic set</text>
-    <text x="435" y="88" text-anchor="middle">SNAPSHOT</text>
-    <text x="435" y="112" text-anchor="middle">certification</text>
+    <text x="435" y="88" text-anchor="middle">CERTIFY</text>
+    <text x="435" y="112" text-anchor="middle">owner wired</text>
     <text x="610" y="88" text-anchor="middle">HEAD</text>
     <text x="610" y="112" text-anchor="middle">binding</text>
     <text x="800" y="88" text-anchor="middle">AUTHORITY</text>
@@ -65,19 +65,19 @@
     <div class="choice">
       <input type="radio" name="state" id="verified" checked aria-describedby="verified-detail">
       <label for="verified"><span class="token" aria-hidden="true">●</span><span>Verified current</span></label>
-      <p class="detail" id="verified-detail"><strong>Authority open only after all gates.</strong> Repository-owned traversal remains in scope, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch.</p>
+      <p class="detail" id="verified-detail"><strong>Authority open only after all gates.</strong> Repository-owned traversal remains in scope, title admission is exact, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch. Schema v3 reports discovered breadth separately from certified authority.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="child-race" aria-describedby="child-race-detail">
       <label for="child-race"><span class="token" aria-hidden="true">×</span><span>Queued child changed</span></label>
-      <p class="detail" id="child-race-detail"><strong>Supporting guard source exists; owner wiring does not.</strong> A child observed as an ordinary directory can be replaced before later <code>scandir(path)</code>. Revalidate the queued child before traversal; do not call the portable observation pair atomic.</p>
+      <p class="detail" id="child-race-detail"><strong>Existing owner source is wired.</strong> Each queued child carries no-follow identity from parent enumeration and is revalidated immediately before its later <code>scandir</code>. Persistent replacement/redirector drift fails discovery globally. The portable observation pair is still not atomic.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="unstable" aria-describedby="unstable-detail">
       <label for="unstable"><span class="token" aria-hidden="true">×</span><span>Unstable snapshot</span></label>
-      <p class="detail" id="unstable-detail"><strong>Authority zero.</strong> Discovery may remain diagnostic, but a moving/dirty/unknown checkout cannot emit authoritative-looking repository-skill records. Supporting certification exists; existing owner wiring remains NO.</p>
+      <p class="detail" id="unstable-detail"><strong>Authority zero.</strong> Discovery may remain diagnostic through <code>discoveredSkillCount</code>, but <code>skillCount</code> and <code>skills</code> are certified authority and therefore empty when the checkout is moving, dirty, or unknown.</p>
     </div>
 
     <div class="choice">
@@ -89,7 +89,7 @@
     <div class="choice">
       <input type="radio" name="state" id="title-source" aria-describedby="title-source-detail">
       <label for="title-source"><span class="token" aria-hidden="true">◇</span><span>Skill title control rejected</span></label>
-      <p class="detail" id="title-source-detail"><strong>Do not launder controls with broad strip.</strong> H1 and folder fallback share one title authority surface. Structural CR/LF and ASCII-space margin are distinct from edge Cc controls such as U+0085, which must be rejected before authority; legitimate ZWJ/combining Unicode remains valid.</p>
+      <p class="detail" id="title-source-detail"><strong>Existing owner source is wired before broad normalization.</strong> H1 and folder fallback share one title authority surface. Structural CR/LF and ASCII-space margin are distinct from edge Cc controls such as U+0085, which are rejected before authority; legitimate ZWJ/combining Unicode remains valid.</p>
     </div>
 
     <div class="choice">
