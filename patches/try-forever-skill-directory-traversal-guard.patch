@@ -1,79 +1,17 @@
-STATUS: PROPOSED_NOT_APPLIED
+STATUS: APPLIED_SOURCE
 OWNER: tools/try_forever_skill_provenance_probe.py
 OWNER_BASE_BLOB: 51e6efdbcec03d044ab89f37213659252514856a
+APPLIED_OWNER_COMMIT: d05261c74998f1f818d2a3b30efa229b695de100
+APPLIED_OWNER_BLOB: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
 SUPPORTING_POLICY: tools/try_forever_skill_directory_traversal_guard.py
-INTENT: A queued child directory must be revalidated no-follow immediately before traversal so persistent replacement/redirector drift cannot expand repository-owned traversal scope. Patch existence is not owner wiring and this portable observation pair is not atomic.
+INTENT: A queued child directory is revalidated no-follow immediately before traversal so persistent replacement/redirector drift cannot expand repository-owned traversal scope.
 
---- a/tools/try_forever_skill_provenance_probe.py
-+++ b/tools/try_forever_skill_provenance_probe.py
-@@
-+from try_forever_skill_directory_traversal_guard import (
-+    SkillDirectoryIdentity,
-+    capture_skill_directory_identity,
-+    revalidate_skill_directory_for_traversal,
-+)
-@@
- class SkillTraversalResourceLimitError(ValueError):
-     """Repository skill traversal exceeded its declared filesystem-entry budget."""
-+
-+
-+class SkillDirectoryTraversalTopologyError(ValueError):
-+    """A queued child directory lost repository-owned traversal identity."""
-+
-+    def __init__(self, path: Path, *, status: str, reason: str):
-+        super().__init__(reason)
-+        self.path = path
-+        self.status = status
-+        self.reason = reason
-@@
--    stack: list[Path] = [skills_root]
-+    root_directory_identity = capture_skill_directory_identity(skills_root)
-+    stack: list[tuple[Path, SkillDirectoryIdentity]] = [
-+        (skills_root, root_directory_identity)
-+    ]
-@@
--        directory = stack.pop()
-+        directory, discovered_directory_identity = stack.pop()
-+        before_scan_identity = capture_skill_directory_identity(directory)
-+        traversal_verdict = revalidate_skill_directory_for_traversal(
-+            discovered_directory_identity,
-+            before_scan_identity,
-+        )
-+        if traversal_verdict.status != "STABLE":
-+            raise SkillDirectoryTraversalTopologyError(
-+                directory,
-+                status=traversal_verdict.status,
-+                reason=traversal_verdict.reason,
-+            )
-@@
--        child_directories: list[Path] = []
-+        child_directories: list[tuple[Path, SkillDirectoryIdentity]] = []
-@@
-             if is_directory:
--                child_directories.append(path)
-+                child_directories.append(
-+                    (path, capture_skill_directory_identity(path))
-+                )
-@@
-     try:
-         candidates = bounded_skill_candidates(skills_root)
-+    except SkillDirectoryTraversalTopologyError as error:
-+        try:
-+            relative = error.path.relative_to(repo_root).as_posix()
-+        except ValueError:
-+            relative = "skills"
-+        return [], [
-+            DiscoveryError(
-+                path=bounded_error_path(relative),
-+                stage="traversal",
-+                error_type=f"SkillDirectoryTraversal{error.status.title().replace('_', '')}",
-+                reason=(
-+                    "queued child-directory traversal identity was rejected; "
-+                    f"partial repository-skill authority is forbidden: {error.reason}"
-+                ),
-+            )
-+        ]
-     except SkillCandidateTopologyError as error:
-@@
+APPLIED DELTA:
+- import SkillDirectoryIdentity / capture_skill_directory_identity / revalidate_skill_directory_for_traversal
+- add SkillDirectoryTraversalTopologyError
+- carry `(Path, SkillDirectoryIdentity)` in the bounded traversal stack
+- re-observe each queued directory immediately before `scandir`
+- reject non-STABLE traversal identity globally with zero partial repository-skill authority
+- capture child-directory identity at parent enumeration time
 
-BOUNDARY: This detects persistent redirector/type/device/inode drift between child admission and the immediate pre-scan observation. It does not close replacement after revalidation but before `scandir`, swap-and-restore, or identity reuse. A stronger platform-specific handle-binding strategy would be a separate proposal, not silently implied by this patch.
+BOUNDARY: This detects persistent redirector/type/device/inode drift between child admission and the immediate pre-scan observation. It does not close replacement after revalidation but before `scandir`, swap-and-restore, or identity reuse. APPLIED_SOURCE is not test execution, runtime proof, deployment, delivery, or acceptance.
