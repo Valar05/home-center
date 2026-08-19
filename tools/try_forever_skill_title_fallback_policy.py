@@ -51,8 +51,9 @@ def admit_skill_title(value: str, *, max_chars: int) -> str:
     """Admit one exact H1/fallback title or reject without rewrite/truncation.
 
     ``max_chars`` is supplied by the existing owner so this helper does not grow
-    an independent source-bound constant. The returned text is exact source text;
-    later human-facing projection may apply separate grapheme-safe display bounds.
+    an independent source-bound constant. The returned text is exact admitted
+    title text; later human-facing projection may apply separate grapheme-safe
+    display bounds.
     """
 
     if max_chars < 0:
@@ -76,6 +77,38 @@ def admit_skill_title(value: str, *, max_chars: int) -> str:
     return value
 
 
+def admit_markdown_h1_title(line: str, *, max_chars: int) -> str | None:
+    """Parse one decoded Markdown line without broad-whitespace laundering.
+
+    The existing owner historically calls ``line.strip()`` before H1 semantics.
+    Python broad stripping removes some Cc whitespace (for example U+0085 NEL,
+    tabs and several C0 separators), so a forbidden edge control can disappear
+    before ``admit_skill_title`` sees it. This helper removes only structural
+    CR/LF line endings and ordinary ASCII-space margin around the Markdown H1.
+
+    If broad stripping would make a line look like an H1 but ASCII-space-only
+    handling does not, reject it rather than silently normalizing hidden control
+    state into title authority. Non-H1 lines return ``None``.
+    """
+
+    if not isinstance(line, str):
+        raise SkillFallbackTitleSemanticError("markdown title line must be text")
+
+    without_line_ending = line.rstrip("\r\n")
+    broad = without_line_ending.strip()
+    ascii_space_only = without_line_ending.strip(" ")
+
+    if broad.startswith("# ") and not ascii_space_only.startswith("# "):
+        raise SkillFallbackTitleSemanticError(
+            "markdown H1 relies on non-space control/whitespace normalization"
+        )
+    if not ascii_space_only.startswith("# "):
+        return None
+
+    title = ascii_space_only[2:].strip(" ")
+    return admit_skill_title(title, max_chars=max_chars)
+
+
 def admit_fallback_title(value: str, *, max_chars: int) -> str:
     """Compatibility name for callers repairing the original fallback seam."""
 
@@ -88,5 +121,6 @@ __all__ = [
     "SkillFallbackTitleResourceLimitError",
     "SkillFallbackTitleSemanticError",
     "admit_fallback_title",
+    "admit_markdown_h1_title",
     "admit_skill_title",
 ]
