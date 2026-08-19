@@ -51,6 +51,20 @@ A queued ticket means only **QUEUED**. It does not mean leased, running, complet
 
 An offline worker may retain queued work, but no capability ledger may promote it until a completed request receipt and target-system readback exist.
 
+### Active lane is not request identity
+
+`worker.status.activeLanes` is an aggregate scheduling signal. It does **not** identify which ticket owns the lane, prove that a remembered request ID still exists, or authorize creating another request merely because the remembered ticket cannot be found.
+
+When a lane appears active but `computer_hands.request.status` for the expected request/ticket returns not found:
+
+- revoke the specific queued-ticket claim;
+- preserve the lane as **OCCUPIED_OR_UNRESOLVED**, not empty and not proven queued for that request;
+- do not enqueue a duplicate surgery blindly into the same lane;
+- require either an exact request/ticket identity, a completed worker receipt, or fresh target-system readback before promoting or replacing the work;
+- continue independent non-overlapping fronts rather than manufacturing queue churn.
+
+This prevents stale chat/PR receipts from becoming current queue authority and preserves fair shared-lane scheduling.
+
 ## P0 / phone firewall
 
 A non-phone source blockage never authorizes use of the gated primary-phone surface. Phone Hands, recovery queues, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain with their canonical owners unless fresh P0 evidence explicitly reopens a non-overlapping phone-local front.
