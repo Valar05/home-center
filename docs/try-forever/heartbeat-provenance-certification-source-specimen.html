@@ -36,11 +36,11 @@
 <body>
 <main>
   <h1>Provenance Certification Warm Wall</h1>
-  <p class="scar">OWNER v5 · FINAL RECORD-PATH PROJECTOR WIRED · DISCOVERY-ERROR PRE-BOUNDARY WOUND · PRE-I/O SKILL IDENTITY WIRED · INITIAL SNAPSHOT STILL SPLIT · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+  <p class="scar">OWNER v5 · FINAL RECORD-PATH PROJECTOR WIRED · DISCOVERY-ERROR PRE-BOUNDARY WOUND · PRE-I/O SKILL IDENTITY WIRED · LATE GIT ENV INJECTION BLOCKED · INITIAL SNAPSHOT STILL SPLIT · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
 
   <svg viewBox="0 0 1320 190" role="img" aria-labelledby="wall-title wall-desc">
     <title id="wall-title">Warm wall from initial repository observation through final provenance emission</title>
-    <desc id="wall-desc">The sole provenance owner is schema v5. Direct skill discovery, certification, generated-index named-path and finite-file admission, exact inspection SHA, late artifact custody, final repository custody, portable report serialization, and pre-I/O skill-file identity are source-wired. Two source wounds remain visible here: the initial before-and-after discovery snapshot still uses split Git HEAD and dirty subprocesses, and over-budget discovery-error paths can be raw-prefix-bounded before the collision-safe final projector sees the original identity. This is source state, not tested runtime or phone delivery.</desc>
+    <desc id="wall-desc">The sole provenance owner is schema v5. Direct skill discovery, certification, generated-index named-path and finite-file admission, exact inspection SHA, late artifact custody, final repository custody, portable report serialization, and pre-I/O skill-file identity are source-wired. The late repository observer now strips inherited Git repository and command-scope configuration redirects before invoking Git. Two source wounds remain visible here: the initial before-and-after discovery snapshot still uses split Git HEAD and dirty subprocesses, and over-budget discovery-error paths can be raw-prefix-bounded before the collision-safe final projector sees the original identity. This is source state, not tested runtime or phone delivery.</desc>
     <path d="M25 95 H1295" fill="none" stroke="currentColor" stroke-width="6"/>
     <rect x="5" y="55" width="135" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="150" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -56,7 +56,7 @@
     <text x="532" y="88" text-anchor="middle">INDEX FILE</text><text x="532" y="112" text-anchor="middle">owner wired</text>
     <text x="687" y="88" text-anchor="middle">INSPECT SHA</text><text x="687" y="112" text-anchor="middle">carried</text>
     <text x="842" y="88" text-anchor="middle">LATE FILE</text><text x="842" y="112" text-anchor="middle">conditional</text>
-    <text x="997" y="88" text-anchor="middle">LATE REPO</text><text x="997" y="112" text-anchor="middle">one process</text>
+    <text x="997" y="88" text-anchor="middle">LATE REPO</text><text x="997" y="112" text-anchor="middle">env isolated</text>
     <text x="1187" y="88" text-anchor="middle">REPORT v5</text><text x="1187" y="112" text-anchor="middle">pre-bound scar</text>
   </svg>
 
@@ -73,6 +73,12 @@
       <input type="radio" name="state" id="custody" aria-describedby="custody-detail">
       <label for="custody"><span class="token" aria-hidden="true">●</span><span>Late exact custody survives</span></label>
       <p class="detail" id="custody-detail"><strong>Existing owner source is wired.</strong> Initial generated-index SHA, optional late artifact SHA, and one final repository observation feed preservation-only emission composition. Repository authority is zeroed if final custody fails; generated-index positive currentness is withheld if its exact artifact identity changes.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="git-env" aria-describedby="git-env-detail">
+      <label for="git-env"><span class="token" aria-hidden="true">●</span><span>Late Git observation rejects inherited repository/config redirects</span></label>
+      <p class="detail" id="git-env-detail"><strong>Implemented source, regression unexecuted.</strong> The one-process repository observer now removes <code>GIT_DIR</code>, <code>GIT_WORK_TREE</code>, common-dir/index/object/namespace/shallow redirects and command-scope <code>GIT_CONFIG_*</code> injection before Git runs, while preserving benign process environment such as <code>PATH</code>. This prevents a parent process from silently making <code>cwd=repo_root</code> observe a different repository or injected worktree configuration. It still does not claim atomic repository binding.</p>
     </div>
 
     <div class="choice">
@@ -102,7 +108,7 @@
     <div class="choice">
       <input type="radio" name="state" id="atomicity" aria-describedby="atomicity-detail">
       <label for="atomicity"><span class="token" aria-hidden="true">□</span><span>Atomicity still open</span></label>
-      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> One-process Git observations and file/path identity gates detect many persistent changes but do not prove away every swap-and-restore, identity reuse, or mutation after the final observation.</p>
+      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> One-process Git observations, environment isolation, and file/path identity gates detect many persistent changes but do not prove away every swap-and-restore, identity reuse, or mutation after the final observation.</p>
     </div>
   </fieldset>
 
