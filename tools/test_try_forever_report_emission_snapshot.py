@@ -32,6 +32,17 @@ class ReportEmissionSnapshotTest(unittest.TestCase):
         self.assertFalse(verdict.prior_authoritative)
         self.assertIn("cannot manufacture authority", verdict.reason)
 
+    def test_truthy_non_boolean_prior_authority_fails_closed(self) -> None:
+        verdict = revalidate_report_emission_snapshot(
+            prior_authoritative="false",  # type: ignore[arg-type]
+            certified_head="abc123",
+            final_head="abc123",
+            final_dirty=False,
+        )
+        self.assertEqual("UNSTABLE", verdict.status)
+        self.assertFalse(verdict.prior_authoritative)
+        self.assertIn("explicitly authoritative", verdict.reason)
+
     def test_head_change_fails_closed(self) -> None:
         verdict = revalidate_report_emission_snapshot(
             prior_authoritative=True,
