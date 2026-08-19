@@ -14,7 +14,7 @@ A clean repository snapshot observed around direct skill discovery can become st
 - Porcelain output stays bytes; only the canonical ASCII `branch.oid` is decoded. Non-header records mark dirtiness without decoding filenames.
 - Exactly one canonical branch object ID is required. Ambiguous/malformed headers fail closed.
 - The process has a finite deadline; timeout becomes `UNAVAILABLE` and cannot donate stale evidence.
-- The observer removes inherited Git repository-redirection environment (`GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow overrides) while preserving ordinary process environment such as `PATH`. `cwd=repo_root` alone is not sufficient evidence that Git observed the requested repository.
+- The observer removes inherited Git repository-redirection environment (`GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow overrides) and command-scope config injection (`GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_KEY_*`, `GIT_CONFIG_VALUE_*`) while preserving ordinary process environment such as `PATH`. `cwd=repo_root` alone is not sufficient evidence that Git observed the requested repository under the requested repository configuration.
 - This narrows observation drift and parent-process injection but **does not prove atomic repository binding**.
 - Failed final repository custody zeroes emitted repository-skill authority.
 - A prior generated-index `VERIFIED_CURRENT` is also withheld when final repository custody or exact late artifact custody fails.
@@ -38,15 +38,15 @@ This is source wiring, not runtime execution or tested evidence.
 
 ## Cross-pollinated initial-snapshot wound
 
-The final-emission observer is stronger than the owner's current **initial** snapshot plumbing. `main()` still builds the pre/post-discovery certification snapshot from separate `git_head()` and `git_dirty()` subprocesses. Those calls lack the final observer's one-process coherence, byte-safe porcelain handling, submodule-ignore override, finite deadline, and repository-redirection environment isolation.
+The final-emission observer is stronger than the owner's current **initial** snapshot plumbing. `main()` still builds the pre/post-discovery certification snapshot from separate `git_head()` and `git_dirty()` subprocesses. Those calls lack the final observer's one-process coherence, byte-safe porcelain handling, submodule-ignore override, finite deadline, and repository/config-redirection environment isolation.
 
 The existing final-emission organ should be reused for the two initial bracket observations as well. This is a composition improvement, not permission to rename it atomic. A dedicated RED owner-boundary regression and exact proposed owner delta preserve that cut.
 
 ## Hostile fixtures
 
-Pure fixtures cover prior-authority preservation, changed/unavailable final custody, duplicate/malformed OIDs, timeout, submodules, byte-hostile paths, exact generated-index artifact A→B change, negative-state late-I/O suppression, and inherited Git repository-redirection variables. Owner-level source fixtures cover stable survival, late HEAD change zeroing skill authority, generated-index currentness withholding, strict-mode failure, and portable v5 report projection.
+Pure fixtures cover prior-authority preservation, changed/unavailable final custody, duplicate/malformed OIDs, timeout, submodules, byte-hostile paths, exact generated-index artifact A→B change, negative-state late-I/O suppression, and inherited Git repository/config redirection. Owner-level source fixtures cover stable survival, late HEAD change zeroing skill authority, generated-index currentness withholding, strict-mode failure, and portable v5 report projection.
 
-`tools/test_try_forever_repository_emission_observation.py` now explicitly poisons `GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow environment while preserving a benign `PATH`, and requires the observer subprocess environment to remove every repository redirect. This is **REGRESSION_SOURCE / UNEXECUTED**.
+`tools/test_try_forever_repository_emission_observation.py` now explicitly poisons `GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow environment plus `GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_KEY_*`, and `GIT_CONFIG_VALUE_*`; it preserves a benign `PATH` and requires every repository/config redirect to be absent from the Git subprocess environment. This is **REGRESSION_SOURCE / UNEXECUTED**.
 
 The initial-snapshot owner boundary `tools/test_try_forever_provenance_initial_snapshot_owner_boundary.py` requires the existing bounded one-process observer before discovery, after discovery, and again at final emission; it is **REGRESSION_SOURCE / UNEXECUTED**.
 
@@ -54,7 +54,7 @@ The initial-snapshot owner boundary `tools/test_try_forever_provenance_initial_s
 
 - pure final-emission revalidation policy: **YES / SOURCE**
 - one-process bounded final repository observation primitive: **YES / SOURCE**
-- repository-redirection environment isolation in that primitive: **YES / SOURCE**
+- repository/config-redirection environment isolation in that primitive: **YES / SOURCE**
 - repository-observation regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumes late repository observation: **YES / SOURCE_WIRED**
 - existing owner composes final repository + generated-index artifact custody into emitted authority: **YES / SOURCE_WIRED**
