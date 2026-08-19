@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Keep a generated index's `VERIFIED_CURRENT` claim bound to both the repository state and the exact generated-index artifact that earned that verdict.
+Keep a generated index's `VERIFIED_CURRENT` claim bound to both the repository state and the exact finite generated-index artifact that earned that verdict.
 
 ## Law
 
@@ -15,27 +15,44 @@ A generated index may be inspected against a certified clean repository snapshot
 
 A stable repository HEAD/cleanliness verdict cannot certify continuity of a separately mutable external index file. If the index cannot be re-read, its whole-artifact SHA-256 is missing/non-canonical, or the emission digest differs from the inspected digest, positive currentness is withheld as `UNRESOLVED`.
 
-`tools/try_forever_generated_index_artifact_observation.py` now provides the bounded content-identity throat needed by the owner integration: complete read to EOF inside the caller's existing byte budget, exact SHA-256 over those complete bytes, and strict UTF-8 text for semantic inspection. Max+1 rejects without returning prefix authority. The helper deliberately does not decide currentness or report authority.
+## Finite-artifact throat
+
+**Bounded bytes are not bounded I/O.** A byte ceiling applied only after `open()`/`read()` begins does not stop a FIFO, named pipe, socket, device, redirector, or other special object from blocking or inheriting finite-file authority.
+
+`tools/try_forever_generated_index_artifact_observation.py` therefore owns this source contract before authority-facing content is admitted:
+
+1. no-follow pre-open observation must identify an ordinary regular file;
+2. redirectors and non-regular special files fail closed before authority-facing open/read;
+3. where the platform exposes them, `O_NONBLOCK` and `O_NOFOLLOW` are applied to the descriptor open;
+4. the opened descriptor is independently `fstat`-verified as a regular file before content reads;
+5. complete content must reach EOF inside the caller's existing byte budget before exact SHA-256/text is returned;
+6. max+1 rejects without returning prefix digest authority;
+7. UTF-8 decoding is strict.
+
+This closes the special-file/FIFO admission wound. It does **not** prove atomic path binding, eliminate a path replacement race on every platform/filesystem, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
 
 Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
 
-Digest revalidation narrows the evidence window; it does **not** prove atomic cross-filesystem binding, prevent swap-and-restore, or certify runtime delivery.
-
 ## Hostile fixtures
 
-- exact-max artifact reaches EOF and earns a whole-artifact digest;
+- exact-max ordinary artifact reaches EOF and earns a whole-artifact digest;
 - max+1 rejects without prefix digest authority;
 - invalid UTF-8 cannot become semantic index text;
+- a FIFO/special file is rejected before authority-facing `os.open`;
+- a symlink cannot inherit its target's regular-file authority;
 - external content A → content B yields `CHANGED` artifact custody even while repository custody can remain stable;
-- identical complete content can yield `STABLE` artifact custody.
+- identical complete ordinary content can yield `STABLE` artifact custody.
 
 ## Current capability truth
 
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
-- hostile regression source including external mutation/resource/UTF-8 cases: **REGRESSION_SOURCE / UNEXECUTED**
+- finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
+- opened-object regular-file verification: **IMPLEMENTED_SOURCE**
+- hostile regression source including special-file/resource/UTF-8/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption: **NO**
-- prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until it consumes both a coherent late repository observation and exact generated-index artifact custody
+- prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
+- universal wall-clock I/O deadline / atomic artifact binding: **NO**
 - tested: **NO**
 - runtime UI / TalkBack / deployment / callability / execution / delivery / acceptance: **NO**
 
