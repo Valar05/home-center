@@ -1,0 +1,45 @@
+STATUS: PROPOSED_NOT_APPLIED
+OWNER: tools/try_forever_skill_provenance_probe.py
+OWNER_BASE_BLOB: 51e6efdbcec03d044ab89f37213659252514856a
+SUPPORTING_POLICY: tools/try_forever_skill_directory_traversal_guard.py
+INTENT: A queued child directory must be revalidated no-follow immediately before traversal so persistent replacement/redirector drift cannot expand repository-owned traversal scope. Patch existence is not owner wiring and this portable observation pair is not atomic.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
++from try_forever_skill_directory_traversal_guard import (
++    SkillDirectoryIdentity,
++    capture_skill_directory_identity,
++    revalidate_skill_directory_for_traversal,
++)
+@@
+-    stack: list[Path] = [skills_root]
++    root_directory_identity = capture_skill_directory_identity(skills_root)
++    stack: list[tuple[Path, SkillDirectoryIdentity]] = [
++        (skills_root, root_directory_identity)
++    ]
+@@
+-        directory = stack.pop()
++        directory, discovered_directory_identity = stack.pop()
++        before_scan_identity = capture_skill_directory_identity(directory)
++        traversal_verdict = revalidate_skill_directory_for_traversal(
++            discovered_directory_identity,
++            before_scan_identity,
++        )
++        if traversal_verdict.status != "STABLE":
++            raise SkillCandidateTopologyError(directory)
+@@
+-        child_directories: list[Path] = []
++        child_directories: list[tuple[Path, SkillDirectoryIdentity]] = []
+@@
+             if is_directory:
+-                child_directories.append(path)
++                child_directories.append(
++                    (path, capture_skill_directory_identity(path))
++                )
+@@
+-        for child in reversed(child_directories):
++        for child in reversed(child_directories):
+             stack.append(child)
+
+NOTE: The concrete owner integration should preserve a directory-specific bounded error type/reason rather than laundering a traversal identity wound into a candidate-file topology message. This patch is a structural delta, not a tested implementation. The integration must also preserve the explicit remaining boundary: replacement after revalidation but before scandir, swap-and-restore, and identity reuse are not closed by this portable policy.
