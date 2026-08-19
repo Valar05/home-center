@@ -34,7 +34,10 @@ from try_forever_provenance_emission_composition import (
     compose_provenance_emission,
     needs_generated_index_artifact_revalidation,
 )
-from try_forever_provenance_report_path import project_report_path
+from try_forever_provenance_report_path import (
+    project_report_path,
+    project_repository_relative_report_path,
+)
 from try_forever_repository_emission_observation import observe_repository_emission
 from try_forever_skill_directory_traversal_guard import (
     SkillDirectoryIdentity,
@@ -220,6 +223,32 @@ def bounded_error_path(relative: str) -> str:
     suffix = f"...#{digest}"
     keep = max(0, MAX_DISCOVERY_ERROR_PATH_CHARS - len(suffix))
     return relative[:keep] + suffix
+
+
+def project_skill_record_for_report(record: SkillRecord) -> dict[str, Any]:
+    """Project report display text without rewriting repository-skill identity."""
+
+    payload = asdict(record)
+    payload["path"] = project_repository_relative_report_path(
+        record.path,
+    ).display_path
+    return payload
+
+
+def project_discovery_error_for_report(error: DiscoveryError) -> dict[str, Any]:
+    """Project diagnostic record paths only at report serialization."""
+
+    payload = asdict(error)
+    payload["path"] = project_repository_relative_report_path(
+        error.path,
+        max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
+    ).display_path
+    if error.related_path:
+        payload["related_path"] = project_repository_relative_report_path(
+            error.related_path,
+            max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
+        ).display_path
+    return payload
 
 
 def discovery_error(
@@ -645,6 +674,34 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="identity",
                     error_type="SkillPathEscape",
                     reason="resolved skill path escapes the skills root",
+                )
+            )
+            continue
+
+        try:
+            file_pre_io = capture_skill_file_identity(path)
+        except OSError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="identity",
+                    error=error,
+                    reason="skill file identity could not be revalidated immediately before title/hash content I/O",
+                )
+            )
+            continue
+
+        pre_io_verdict = revalidate_skill_file_identity(file_before, file_pre_io)
+        if pre_io_verdict.status != "STABLE":
+            errors.append(
+                DiscoveryError(
+                    path=bounded_error_path(relative),
+                    stage="identity",
+                    error_type=skill_file_identity_error_type(pre_io_verdict.status),
+                    reason=(
+                        "pre-I/O skill file identity/topology revalidation rejected "
+                        f"authority-facing content work: {pre_io_verdict.reason}"
+                    ),
                 )
             )
             continue
@@ -1159,7 +1216,7 @@ def main() -> int:
     }
 
     result = {
-        "schema": "try-forever-skill-provenance.v4",
+        "schema": "try-forever-skill-provenance.v5",
         "repositoryRoot": repository_path.display_path,
         "repositoryRootScope": repository_path.scope,
         "currentHead": final_head,
@@ -1183,13 +1240,15 @@ def main() -> int:
         },
         "discoveredSkillCount": len(skills),
         "skillCount": len(emitted_records),
-        "skills": [asdict(record) for record in emitted_records],
-        "discoveryErrors": [asdict(error) for error in discovery_errors],
+        "skills": [project_skill_record_for_report(record) for record in emitted_records],
+        "discoveryErrors": [
+            project_discovery_error_for_report(error) for error in discovery_errors
+        ],
         "generatedIndex": generated_index_report,
         "authority": {
             "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed late custody zeroes emitted repository-skill authority",
             "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow initial artifact admission; prior VERIFIED_CURRENT survives only when exact inspection SHA and late artifact SHA match under stable final repository custody",
-            "reportPaths": "operator-facing paths are portable display projections only; repository-local paths are bounded relative evidence and external paths become <external-path>; exact Path values remain internal I/O/authority inputs",
+            "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
         },
         "capabilityBoundary": emitted_capability_boundary(),
     }
