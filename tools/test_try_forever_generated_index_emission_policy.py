@@ -136,6 +136,19 @@ def test_unknown_prior_status_cannot_be_rescued_by_green_late_gates():
     assert verdict.status != "VERIFIED_CURRENT"
 
 
+def test_non_string_prior_status_fails_closed_instead_of_raising():
+    verdict = project_generated_index_at_emission(
+        prior_status=["VERIFIED_CURRENT"],  # type: ignore[arg-type]
+        prior_reason="hostile runtime shape",
+        emission_status="STABLE_CLEAN",
+        artifact_custody_status="STABLE",
+    )
+    assert verdict.status == "UNRESOLVED"
+    assert verdict.reason == (
+        "generated-index prior status is outside the declared evidence contract"
+    )
+
+
 def test_failed_gates_never_relabel_stale_as_verified():
     verdict = project_generated_index_at_emission(
         prior_status="STALE",
