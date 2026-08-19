@@ -101,11 +101,12 @@ def project_generated_index_at_emission(
     A prior VERIFIED_CURRENT claim survives only when the final repository gate is
     STABLE_CLEAN *and* the exact generated-index artifact has a STABLE content
     custody verdict. Declared negative diagnostics remain diagnostic and are never
-    promoted. An unknown prior status is itself invalid evidence and therefore
-    fails closed to UNRESOLVED instead of being copied into the durable report.
+    promoted. An unknown or non-string prior status is itself invalid evidence and
+    therefore fails closed to UNRESOLVED instead of being copied into the durable
+    report or raising through an authority-facing path.
     """
 
-    if prior_status not in DECLARED_PRIOR_STATUSES:
+    if not isinstance(prior_status, str) or prior_status not in DECLARED_PRIOR_STATUSES:
         return GeneratedIndexEmissionVerdict(
             status="UNRESOLVED",
             reason="generated-index prior status is outside the declared evidence contract",
