@@ -30,6 +30,12 @@ from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
 )
+from try_forever_provenance_emission_composition import (
+    compose_provenance_emission,
+    needs_generated_index_artifact_revalidation,
+)
+from try_forever_provenance_report_path import project_report_path
+from try_forever_repository_emission_observation import observe_repository_emission
 from try_forever_skill_directory_traversal_guard import (
     SkillDirectoryIdentity,
     capture_skill_directory_identity,
@@ -127,6 +133,7 @@ class IndexVerdict:
     generated_at: str
     dirty_source: bool | None
     age_hours: float | None
+    inspection_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -1019,6 +1026,7 @@ def inspect_generated_index(
         generated_at=generated_text,
         dirty_source=False,
         age_hours=age_hours,
+        inspection_sha256=observation.sha256,
     )
 
 
@@ -1084,35 +1092,119 @@ def main() -> int:
         expected_head_error=head_error,
     )
 
+    emission_index_sha256 = ""
+    emission_index_readable = False
+    if index_path is not None and needs_generated_index_artifact_revalidation(index.status):
+        try:
+            emission_observation = observe_generated_index_artifact(
+                index_path,
+                max_bytes=MAX_GENERATED_INDEX_BYTES,
+            )
+            emission_index_sha256 = emission_observation.sha256
+            emission_index_readable = True
+        except (
+            FileNotFoundError,
+            GeneratedIndexArtifactResourceLimitError,
+            GeneratedIndexArtifactTopologyError,
+            GeneratedIndexArtifactChangedError,
+            OSError,
+            UnicodeDecodeError,
+        ):
+            emission_index_sha256 = ""
+            emission_index_readable = False
+
+    final_repository_observation = observe_repository_emission(repo_root)
+    composition = compose_provenance_emission(
+        prior_repository_authoritative=certification.authoritative,
+        certified_head=(snapshot.head_after if snapshot.status == "STABLE_CLEAN" else ""),
+        final_repository_observation=final_repository_observation,
+        prior_generated_index_status=index.status,
+        prior_generated_index_reason=index.reason,
+        inspected_generated_index_sha256=index.inspection_sha256,
+        emission_generated_index_sha256=emission_index_sha256,
+        emission_generated_index_readable=emission_index_readable,
+    )
+
+    repository_path = project_report_path(repo_root, repo_root)
+    generated_index_path = project_report_path(repo_root, index_path)
+    final_head = (
+        final_repository_observation.head
+        if final_repository_observation.status == "OBSERVED"
+        else ""
+    )
+    final_dirty = (
+        final_repository_observation.dirty
+        if final_repository_observation.status == "OBSERVED"
+        else None
+    )
+    emitted_records = (
+        certification.records if composition.repository_authoritative else ()
+    )
+    generated_index_report = {
+        "status": composition.generated_index_status,
+        "reason": composition.generated_index_reason,
+        "inspectionStatus": index.status,
+        "inspectionReason": index.reason,
+        "path": generated_index_path.display_path,
+        "pathScope": generated_index_path.scope,
+        "sourceHead": index.source_head,
+        "generatedAt": index.generated_at,
+        "dirtySource": index.dirty_source,
+        "ageHours": index.age_hours,
+        "inspectionSha256": index.inspection_sha256,
+        "emissionSha256": emission_index_sha256,
+        "emissionArtifactStatus": composition.generated_index_artifact_status,
+        "emissionArtifactReason": composition.generated_index_artifact_reason,
+        "currentnessWithheld": composition.generated_index_currentness_withheld,
+    }
+
     result = {
-        "schema": "try-forever-skill-provenance.v3",
-        "repositoryRoot": str(repo_root),
-        "currentHead": observed_head,
-        "currentTreeDirty": dirty_after,
+        "schema": "try-forever-skill-provenance.v4",
+        "repositoryRoot": repository_path.display_path,
+        "repositoryRootScope": repository_path.scope,
+        "currentHead": final_head,
+        "currentTreeDirty": final_dirty,
         "repositorySnapshot": asdict(snapshot),
+        "reportEmissionRepository": {
+            "status": composition.repository_status,
+            "reason": composition.repository_reason,
+            "authoritative": composition.repository_authoritative,
+            "observedHead": final_head,
+            "observedDirty": final_dirty,
+        },
         "expectedHeadError": head_error,
         "skillAuthority": {
             "status": certification.status,
             "reason": certification.reason,
-            "authoritative": certification.authoritative,
+            "authoritativeAtCertification": certification.authoritative,
+            "emissionAuthoritative": composition.repository_authoritative,
+            "emissionStatus": composition.repository_status,
+            "emissionReason": composition.repository_reason,
         },
         "discoveredSkillCount": len(skills),
-        "skillCount": certification.count,
-        "skills": [asdict(record) for record in certification.records],
+        "skillCount": len(emitted_records),
+        "skills": [asdict(record) for record in emitted_records],
         "discoveryErrors": [asdict(error) for error in discovery_errors],
-        "generatedIndex": asdict(index),
+        "generatedIndex": generated_index_report,
         "authority": {
-            "repositorySkill": "authority-facing records are emitted only after bounded direct discovery plus a STABLE_CLEAN pre/post snapshot and any expected-head binding; uncertified discoveries remain diagnostic only",
-            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow artifact admission; never substitutes for direct skill existence",
+            "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed late custody zeroes emitted repository-skill authority",
+            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow initial artifact admission; prior VERIFIED_CURRENT survives only when exact inspection SHA and late artifact SHA match under stable final repository custody",
+            "reportPaths": "operator-facing paths are portable display projections only; repository-local paths are bounded relative evidence and external paths become <external-path>; exact Path values remain internal I/O/authority inputs",
         },
         "capabilityBoundary": emitted_capability_boundary(),
     }
     print(json.dumps(result, indent=2, sort_keys=True))
 
-    snapshot_failure = snapshot.status != "STABLE_CLEAN"
-    index_strict_failure = bool(args.generated_index) and index.status != "VERIFIED_CURRENT"
+    final_repository_failure = not composition.repository_authoritative
+    final_index_strict_failure = (
+        bool(args.generated_index)
+        and composition.generated_index_status != "VERIFIED_CURRENT"
+    )
     if args.strict and (
-        head_error or discovery_errors or snapshot_failure or index_strict_failure
+        head_error
+        or discovery_errors
+        or final_repository_failure
+        or final_index_strict_failure
     ):
         return 2
     return 0
