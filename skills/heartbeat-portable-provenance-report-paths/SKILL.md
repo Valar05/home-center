@@ -12,19 +12,23 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 - Long repository-relative report paths are hard-bounded with a deterministic suffix because that text is already within the allowed repository-relative evidence domain.
 - The display budget has a declared semantic minimum; a caller may not shrink it until `<external-path>` or the bounded-suffix contract becomes amputated nonsense.
 - Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
+- Owner integration changes durable report semantics and therefore requires an explicit schema revision; the preserved owner delta advances `try-forever-skill-provenance.v3` to `v4` rather than silently changing v3.
 
 ## Evidence discipline
 Keep internal filesystem identity, display projection, provenance authority, source implementation, tests, runtime, deployment, delivery, and acceptance separate.
 
 Current state:
 - pure path-projection policy: **YES / SOURCE**
-- hostile regression source: **YES / SOURCE / UNEXECUTED**
+- hostile policy regression source: **YES / SOURCE / UNEXECUTED**
+- owner-integration regression source: **YES / SOURCE / UNEXECUTED**
+- exact existing-owner integration delta: **YES / PROPOSED_NOT_APPLIED**
+- proposed report schema: **v4**
 - first deterministic external-path fingerprint design: **REJECTED DURING SOURCE REVIEW**
 - first tiny-budget marker-amputation behavior: **REJECTED DURING SOURCE REVIEW**
 - existing provenance owner consumes the policy: **NO**
-- owner report schema changed: **NO**
+- authenticated current owner blob: **afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a**
 - tested: **NO**
 - runtime/deployed/callable/executed/delivered/accepted: **NO**
 
 ## Ownership / firewall
-No second provenance probe, serializer daemon, path registry, overlay controller, Phone Hands lane, or P0 owner may be created for this rule. Compose the existing provenance owner if/when owner wiring is authorized and reviewed. Phone/P0 surfaces are outside this skill.
+No second provenance probe, serializer daemon, path registry, overlay controller, Phone Hands lane, or P0 owner may be created for this rule. Compose the existing provenance owner only. Phone/P0 surfaces are outside this skill.
