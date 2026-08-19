@@ -130,6 +130,30 @@ def test_descriptor_revalidation_rejects_changed_post_read_observation(tmp_path,
         observe_generated_index_artifact(path, max_bytes=1024)
 
 
+def test_named_path_revalidation_rejects_persistent_replacement_after_open(tmp_path, monkeypatch):
+    path = tmp_path / "index.json"
+    other = tmp_path / "other.json"
+    path.write_text('{"version":"stable"}', encoding="utf-8")
+    other.write_text('{"version":"other"}', encoding="utf-8")
+
+    real_lstat = Path.lstat
+    other_stat = other.stat()
+    calls = 0
+
+    def drifting_lstat(self):
+        nonlocal calls
+        if self == path:
+            calls += 1
+            if calls >= 2:
+                return other_stat
+        return real_lstat(self)
+
+    monkeypatch.setattr(Path, "lstat", drifting_lstat)
+
+    with pytest.raises(GeneratedIndexArtifactChangedError):
+        observe_generated_index_artifact(path, max_bytes=1024)
+
+
 def test_external_mutation_changes_exact_artifact_custody(tmp_path):
     path = tmp_path / "index.json"
     path.write_text('{"version":"a"}', encoding="utf-8")
