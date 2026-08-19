@@ -7,9 +7,10 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 ## Contract
 
 - The existing owner remains `tools/try_forever_skill_provenance_probe.py`.
-- Filesystem paths used for I/O and authority remain exact internal values. **Display projection is never authorization.**
+- Filesystem paths and repository-relative identities used for I/O and authority remain exact internal values. **Display projection is never authorization.**
 - Repository-root display projects to `.`.
-- Repository-local report paths project to bounded repo-relative POSIX paths.
+- Repository-local report paths project to bounded repo-relative POSIX text.
+- `project_repository_relative_report_path(...)` is for identities already established as repository-relative by the owner. It performs no filesystem lookup, rejects absolute/parent-traversal misuse, and therefore cannot grant repository authority.
 - Repository-relative display projection reveals Unicode `Cc`, `Cf`, and `Cs` code points as explicit `\u{XXXX}` evidence units rather than emitting them raw.
 - Literal backslash is escaped before semantic markers, so literal source text cannot collide with the projection of an actual invisible character.
 - Hard bounding may truncate only between complete projection units.
@@ -18,42 +19,57 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 
 ## Existing-owner schema v4
 
-Schema `try-forever-skill-provenance.v4` now uses `project_report_path(...)` for:
+Schema `try-forever-skill-provenance.v4` currently uses `project_report_path(...)` for:
 
 - `repositoryRoot`, which emits `.` plus `repositoryRootScope=REPOSITORY`; and
 - `generatedIndex.path`, which emits a bounded repository-relative path or the constant `<external-path>` plus an explicit scope.
 
 The exact generated-index `Path` is retained separately inside the process for initial and late artifact custody I/O. The display path never feeds those gates.
 
-## Regnet wound: portable-path wiring is not yet complete
+## New supporting source: repository-relative record projection
 
-Code-first review after the owner v4 surgery found that two path-bearing families still bypass the explicit report projection:
+`tools/try_forever_provenance_report_path.py` now also provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The new helper reuses the exact same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
 
-- `skills[*].path` is serialized from the existing repository-relative `SkillRecord.path`; and
-- `discoveryErrors[*].path` / `related_path` are serialized from their existing bounded relative diagnostic strings.
+Hostile regression source now pins:
 
-Those values are already repository-relative and `json.dumps` escapes control code points in transport, but they have **not** been routed through the collision-safe `Cc`/`Cf`/`Cs` display projection. Therefore the owner must not be described as having complete portable-report-path wiring yet. This is the next source seam, not permission to rewrite authority identity or create a second serializer.
+- ordinary repository-relative skill paths;
+- newline, bidi-control, and ZWJ visibility;
+- literal marker versus actual invisible-character collision resistance;
+- hard bounds that do not split `\u{XXXX}` projection units; and
+- fail-closed rejection of absolute, parent-traversing, or empty misuse of the repository-relative channel.
 
-Any repair must preserve exact internal record identity separately from operator-facing display projection and must use the existing provenance owner/schema-v4 report assembly.
+These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
+
+## Current owner wound: record families remain unwired
+
+Code-first owner readback still shows:
+
+- `skills[*].path` serialized from `asdict(record)`; and
+- `discoveryErrors[*].path` / `related_path` serialized from `asdict(error)`.
+
+Those values therefore do **not yet consume** the new repository-relative display helper. The report authority prose says operator-facing paths are portable, so this is a real report-contract mismatch, not a cosmetic improvement.
+
+The safe owner surgery is narrow: keep exact `SkillRecord` / `DiscoveryError` values for internal authority and diagnostics, project only their serialized path fields, and use an explicit schema revision because report-path semantics change. Do not create a second serializer or reinterpret display text as authority.
 
 ## Evidence discipline
 
-Keep internal filesystem identity, display projection, provenance authority, source implementation, tests, runtime, deployment, delivery, and acceptance separate.
+Keep internal filesystem identity, report display projection, provenance authority, source implementation, tests, runtime, deployment, delivery, and acceptance separate.
 
 ## Current state
 
-- pure path-projection policy: **YES / SOURCE**
+- pure absolute/external path-projection policy: **YES / SOURCE**
+- repository-relative record projection policy: **YES / SOURCE**
 - collision-safe control/format/surrogate evidence projection: **YES / SOURCE**
-- policy source blob: **94c473490f1745b11ac11040e1f25a6196bbd8e4**
+- path-policy source blob: **5c3e25121d2cca52561b235084d37ae2cea074a3**
+- hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
+- regression blob: **8acb40c6cdf78dd48c4ba5ccb76eebed39edc894**
 - existing owner projects repository root: **YES / SOURCE_WIRED**
 - existing owner projects generated-index display path: **YES / SOURCE_WIRED**
-- existing owner projects skill record paths through this policy: **NO**
-- existing owner projects discovery-error paths through this policy: **NO**
+- existing owner projects skill record paths through repository-relative policy: **NO**
+- existing owner projects discovery-error paths through repository-relative policy: **NO**
 - overall portable report-path owner wiring: **PARTIAL**
 - owner schema: **try-forever-skill-provenance.v4**
-- owner commit/blob: **90054f3f0761b0993d635527d60ad43f68c20a8d / f6f1bafc6b9e99030ad29b408d74cd088f910b82**
-- owner-v4 regression source covering root/generated-index path behavior: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- regression commit/blob: **19dd1621093eaefc830b13938404a2192c979584 / ebea66749d5038be4d303827681df38adfe1d554**
+- owner blob at latest authenticated readback before this supporting-source slice: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
 - tested: **NO**
 - runtime/deployed/callable/executed/delivered/accepted: **NO**
 
