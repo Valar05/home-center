@@ -3,8 +3,9 @@
 
 This module is evidence-presentation policy only. It MUST NOT decide filesystem
 access, repository containment, provenance authority, generated-index trust, or
-runtime capability. Callers keep the exact Path object for I/O and use this
-projection only when serializing operator-facing report metadata.
+runtime capability. Callers keep the exact Path or repository-relative identity
+for I/O/authority and use this projection only when serializing operator-facing
+report metadata.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ import hashlib
 import os
 import unicodedata
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 MAX_REPORT_PATH_CHARS = 256
 MIN_REPORT_PATH_CHARS = 32
@@ -80,6 +81,35 @@ def _bounded_relative(relative: str, *, max_chars: int) -> str:
     return "".join(prefix_units) + suffix
 
 
+def project_repository_relative_report_path(
+    relative: str,
+    *,
+    max_chars: int = MAX_REPORT_PATH_CHARS,
+) -> ReportPathProjection:
+    """Project already-authorized repository-relative text for durable display.
+
+    This function exists for report records whose repository-relative identity was
+    established earlier by the owning provenance code. It performs no filesystem
+    lookup and therefore cannot turn display projection back into authorization.
+    Absolute paths and parent traversal are rejected so callers cannot accidentally
+    launder host topology through the repository-relative channel.
+    """
+
+    _validate_budget(max_chars)
+    if not isinstance(relative, str) or not relative:
+        raise ValueError("repository-relative report path must be a non-empty string")
+
+    lexical = PurePosixPath(relative)
+    if lexical.is_absolute() or any(part == ".." for part in lexical.parts):
+        raise ValueError("repository-relative report path cannot be absolute or traverse parents")
+
+    normalized = "." if relative == "." else relative
+    return ReportPathProjection(
+        display_path=_bounded_relative(normalized, max_chars=max_chars),
+        scope="REPOSITORY",
+    )
+
+
 def project_report_path(
     repo_root: Path,
     path: Path | None,
@@ -114,7 +144,4 @@ def project_report_path(
     relative = relative_path.as_posix()
     if relative in ("", "."):
         relative = "."
-    return ReportPathProjection(
-        display_path=_bounded_relative(relative, max_chars=max_chars),
-        scope="REPOSITORY",
-    )
+    return project_repository_relative_report_path(relative, max_chars=max_chars)
