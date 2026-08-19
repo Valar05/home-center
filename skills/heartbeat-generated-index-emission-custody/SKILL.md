@@ -17,21 +17,24 @@ A stable repository HEAD/cleanliness verdict cannot certify continuity of a sepa
 
 ## Finite-artifact throat
 
-**Bounded bytes are not bounded I/O.** A byte ceiling applied only after `open()`/`read()` begins does not stop a FIFO, named pipe, socket, device, redirector, or other special object from blocking or inheriting finite-file authority.
+**Bounded bytes are not bounded I/O.** A byte ceiling applied only after `open()`/`read()` begins does not stop a FIFO, named pipe, socket, device, redirector, reparse-backed object, or other special object from blocking or inheriting finite-file authority.
 
 `tools/try_forever_generated_index_artifact_observation.py` therefore owns this source contract before authority-facing content is admitted:
 
 1. no-follow pre-open observation must identify an ordinary regular file with usable inode/file-index identity;
 2. redirectors and non-regular special files fail closed before authority-facing open/read;
-3. where the platform exposes them, `O_NONBLOCK` and `O_NOFOLLOW` are applied to the descriptor open;
-4. the opened descriptor is independently `fstat`-verified as a regular file and must match the pre-open device/inode/size/mtime observation;
-5. complete content must reach EOF inside the caller's existing byte budget before exact SHA-256/text is returned;
-6. the opened descriptor is revalidated after the complete read; device/inode/size/mtime drift rejects the observation rather than returning mixed or stale authority-facing evidence;
-7. the named path is re-observed after EOF and must still identify the same stable descriptor observation; persistent replacement after open therefore fails closed;
-8. max+1 rejects without returning prefix digest authority;
-9. UTF-8 decoding is strict.
+3. **on Windows, regular-file shape is not enough:** any observation carrying `FILE_ATTRIBUTE_REPARSE_POINT` fails closed, including regular-shaped reparse/filter/cloud-stub topology; do not special-case only symlink/junction tags;
+4. where the platform exposes them, `O_NONBLOCK` and `O_NOFOLLOW` are applied to the descriptor open;
+5. the opened descriptor is independently `fstat`-verified as a regular non-reparse object and must match the pre-open device/inode/size/mtime observation;
+6. complete content must reach EOF inside the caller's existing byte budget before exact SHA-256/text is returned;
+7. the opened descriptor is revalidated after the complete read; device/inode/size/mtime drift or newly observed reparse topology rejects the observation rather than returning mixed or stale authority-facing evidence;
+8. the named path is re-observed after EOF and must still identify the same stable non-reparse descriptor observation; persistent replacement after open therefore fails closed;
+9. max+1 rejects without returning prefix digest authority;
+10. UTF-8 decoding is strict.
 
-These checks close special-file/FIFO admission and common pre-open replacement / post-open persistent replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades all observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
+Python exposes Windows `st_file_attributes` on stat results, and `FILE_ATTRIBUTE_REPARSE_POINT` is the platform signal that the file/directory carries reparse-point topology. This topology check is evidence admission, not a claim that the helper understands or safely follows individual reparse tags.
+
+These checks close special-file/FIFO admission, Windows regular-shaped reparse admission, and common pre-open replacement / post-open persistent replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades all observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
 
 Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
 
@@ -41,6 +44,8 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - max+1 rejects without prefix digest authority;
 - invalid UTF-8 cannot become semantic index text;
 - a FIFO/special file is rejected before authority-facing `os.open`;
+- a regular-shaped Windows metadata observation carrying `FILE_ATTRIBUTE_REPARSE_POINT` is rejected before authority-facing `os.open`;
+- an opened descriptor that exposes Windows reparse-point metadata is rejected even if the pre-open path looked ordinary;
 - a symlink cannot inherit its target's regular-file authority;
 - replacement between no-follow admission and descriptor open rejects before authority is returned;
 - descriptor identity/size/mtime drift observed after the complete read rejects the observation;
@@ -53,10 +58,11 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
 - finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
+- Windows reparse-point admission gate: **IMPLEMENTED_SOURCE**
 - pre-open path → opened-descriptor identity gate: **IMPLEMENTED_SOURCE**
 - post-read descriptor stability gate: **IMPLEMENTED_SOURCE**
 - post-read named-path stability gate: **IMPLEMENTED_SOURCE**
-- hostile regression source including special-file/resource/UTF-8/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
+- hostile regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption: **NO**
 - prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
 - universal wall-clock I/O deadline / atomic artifact binding: **NO**
