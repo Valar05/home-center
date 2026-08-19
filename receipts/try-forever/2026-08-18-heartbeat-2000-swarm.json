@@ -1,0 +1,182 @@
+{
+  "schema": "try-forever-swarm-receipt.v3",
+  "heartbeat": "2026-08-18-2000",
+  "sourceHeadReviewed": "01357a2d3c6dfd92d0e44117aa67662eaba5c62a",
+  "owner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "baseBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+    "convergenceCommit": "d05261c74998f1f818d2a3b30efa229b695de100",
+    "authenticatedBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a"
+  },
+  "frontsAdvanced": [
+    {
+      "front": "snapshot certification owner convergence",
+      "result": "SOURCE_WIRED",
+      "changed": "The existing provenance owner now zeroes authority-facing skills on UNSTABLE snapshot or expected-head mismatch while retaining discoveredSkillCount as diagnostic breadth. Report schema bumped v2 -> v3 rather than silently changing skillCount semantics."
+    },
+    {
+      "front": "title semantic owner convergence",
+      "result": "SOURCE_WIRED",
+      "changed": "Bounded raw H1 lines now pass through semantic admission before broad whitespace normalization; H1 and folder fallback share one source-title authority gate."
+    },
+    {
+      "front": "queued-child traversal identity",
+      "result": "SOURCE_WIRED_WITH_ATOMICITY_BOUNDARY",
+      "changed": "Child directories carry no-follow identity from parent admission and are revalidated immediately before later scandir. Persistent redirector/type/device/inode drift fails discovery globally; swap-and-restore/identity reuse remain unproven."
+    },
+    {
+      "front": "owner-composition regression source",
+      "result": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "changed": "New focused source fixtures cover v3 authority/discovery separation, expected-head mismatch, raw H1 control rejection, fallback title safety, and queued-child replacement before title/hash work."
+    },
+    {
+      "front": "skill doctrine convergence",
+      "result": "IMPLEMENTED_SOURCE",
+      "changed": "Snapshot certification, title hygiene, and directory traversal guard skills now record existing-owner SOURCE_WIRED state with exact commit/blob while keeping TESTED/runtime/deployed/delivered states NO."
+    },
+    {
+      "front": "patch provenance repair",
+      "result": "IMPLEMENTED_SOURCE",
+      "changed": "Three historical PROPOSED_NOT_APPLIED patch/delta artifacts now record APPLIED_SOURCE with exact existing-owner commit/blob and the remaining boundaries."
+    },
+    {
+      "front": "accessible non-raster Warm Wall",
+      "result": "IMPLEMENTED_SOURCE",
+      "changed": "Existing provenance Warm Wall mutated in place to source-wired v3 truth with native radio controls, visible focus, >=48px target intent, non-color states, reduced motion, and no autoplay/decorative blink."
+    },
+    {
+      "front": "review and exact-head execution evidence",
+      "result": "SOURCE_REVIEW_PASS_TESTED_NO",
+      "changed": "Regnet and Venice receipts are durable. Automatic Operator Overlay Android run 32203790198 on exact reviewed head failed; job 95922852990 exposed zero steps and log retrieval returned 404 BlobNotFound. No step-level cause was invented and no retry was fired."
+    }
+  ],
+  "lights": [
+    {
+      "light": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "why": "Converted three supporting-source-only scars into one existing-owner surgery rather than restating proposals or retrying CI."
+    },
+    {
+      "light": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "why": "Selected exactly the three repository skills whose owner state changed and synchronized their doctrine."
+    },
+    {
+      "light": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No speech-to-text/autocorrect ambiguity materially affected this pulse."
+    },
+    {
+      "light": "Originality Tax",
+      "state": "ACTIVE",
+      "why": "The skillCount contract change triggered a schema-v3 correction rather than silent compatibility breakage; the existing Warm Wall was mutated instead of cloned."
+    },
+    {
+      "light": "Hunger",
+      "state": "ACTIVE",
+      "why": "Ate stale PROPOSED_NOT_APPLIED and owner-wiring-NO receipts after authenticated source convergence."
+    },
+    {
+      "light": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "why": "Converged owner code, regression source, skill doctrine, patch provenance, and art around one source truth."
+    },
+    {
+      "light": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "why": "Mutation stayed in the sole existing provenance owner and used the authenticated Home Center GitHub-admin lane; no adjacent execution family substituted."
+    },
+    {
+      "light": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "why": "Authoritative ambient review was attempted and account connection returned HTTP 400; no synthetic contribution substituted."
+    },
+    {
+      "light": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "why": "Completion review allows this bounded source slice to yield while keeping the larger campaign/test/runtime gates open."
+    },
+    {
+      "light": "Regnet QA",
+      "state": "ACTIVE",
+      "why": "Code-first review passes the bounded source/readback claim and preserves atomicity/test/runtime boundaries."
+    },
+    {
+      "light": "accessibility/TalkBack and touch semantics",
+      "state": "ACTIVE",
+      "why": "Title-source controls can no longer be laundered by broad strip; the existing Warm Wall retains native single-selection semantics, focus, touch-size intent, non-color state, and reduced-motion behavior."
+    },
+    {
+      "light": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "why": "Considered but deliberately untouched under the P0/shared-phone firewall."
+    },
+    {
+      "light": "deterministic routing / evidence capability discipline",
+      "state": "ACTIVE",
+      "why": "Discovery breadth, certified authority, source wiring, regression source, tests, runtime, deployment, delivery, and acceptance are represented as separate states."
+    },
+    {
+      "light": "recovery/checkpointing/idempotence",
+      "state": "DARK",
+      "why": "No heartbeat runtime/checkpoint mechanism materially changed; fail-closed provenance authority is not relabeled as runtime recovery."
+    },
+    {
+      "light": "strange non-raster vector/DOM/native UI art + warm walls",
+      "state": "ACTIVE",
+      "why": "Existing DOM/inline-SVG Warm Wall was materially updated in place and remains inspectable source rather than deployed UI proof."
+    },
+    {
+      "light": "Christmas-light scene graph",
+      "state": "DARK",
+      "why": "Repository provenance bookkeeping earned no autoplay, blink, or transition motion."
+    },
+    {
+      "light": "contact preservation",
+      "state": "DARK",
+      "why": "No heartbeat frame/contact semantics changed in this source slice; diagnostic discovery vs authority was handled as provenance evidence, not runtime contact."
+    }
+  ],
+  "crossPollination": [
+    "supporting snapshot authority exposed a report-contract problem -> schema v3 separates discovered breadth from certified authority",
+    "title fallback policy exposed broad-strip laundering in the real owner -> raw-line semantic admission moved before normalization",
+    "bounded traversal exposed path-vs-directory-object drift -> queued child identities now ride the traversal stack and revalidate before scan",
+    "owner convergence invalidated stale doctrine/patch receipts -> skills, patch provenance, and the existing Warm Wall were synchronized",
+    "exact-head workflow failure with no steps/logs -> Execution Truth keeps TESTED=NO instead of inventing a source/test diagnosis"
+  ],
+  "executionEvidence": {
+    "operatorRunId": 32203790198,
+    "operatorJobId": 95922852990,
+    "sha": "01357a2d3c6dfd92d0e44117aa67662eaba5c62a",
+    "runConclusion": "failure",
+    "exposedStepCount": 0,
+    "logReadback": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "ownerSnapshotCertificationWired": true,
+    "ownerTitleAdmissionWired": true,
+    "ownerQueuedChildTraversalGuardWired": true,
+    "regressionSource": true,
+    "tested": false,
+    "probeExecutedByAuthorizedRunner": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED"
+}
