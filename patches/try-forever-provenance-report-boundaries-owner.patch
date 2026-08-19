@@ -7,6 +7,10 @@
 # This patch composes two already-reviewed pure policies into the existing owner.
 # It creates no second probe/serializer/controller and touches no Phone Hands/P0 lane.
 # Applying the patch is NOT implementation until authenticated owner readback proves it.
+#
+# Code-first correction: v1 of this patch left currentHead/currentTreeDirty bound to
+# the earlier discovery observation even after adding a later emission observation.
+# This version makes those "current" fields report the final emission observation.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
@@ -25,7 +29,7 @@
          expected_head_error=head_error,
      )
 +
-+    # Report presentation is never filesystem authority.  Keep exact Paths for I/O,
++    # Report presentation is never filesystem authority. Keep exact Paths for I/O,
 +    # but serialize only bounded repository-relative paths or a constant external
 +    # marker so a durable report does not leak host-local topology.
 +    repository_path = project_report_path(repo_root, repo_root)
@@ -35,7 +39,7 @@
 +    generated_index_report["pathScope"] = generated_index_path.scope
 +
 +    # Make the final custody observation after discovery/index work and immediately
-+    # before authority-facing report assembly.  This narrows the late mutation window
++    # before authority-facing report assembly. This narrows the late mutation window
 +    # but deliberately does not claim atomic repository binding.
 +    emission_snapshot = revalidate_report_emission_snapshot(
 +        certified_head=snapshot.head_after if certification.authoritative else "",
@@ -58,11 +62,13 @@
      result = {
 -        "schema": "try-forever-skill-provenance.v3",
 -        "repositoryRoot": str(repo_root),
+-        "currentHead": observed_head,
+-        "currentTreeDirty": dirty_after,
 +        "schema": "try-forever-skill-provenance.v4",
 +        "repositoryRoot": repository_path.display_path,
 +        "repositoryRootScope": repository_path.scope,
-         "currentHead": observed_head,
-         "currentTreeDirty": dirty_after,
++        "currentHead": emission_snapshot.final_head,
++        "currentTreeDirty": emission_snapshot.final_dirty,
          "repositorySnapshot": asdict(snapshot),
 +        "reportEmissionSnapshot": asdict(emission_snapshot),
          "expectedHeadError": head_error,
