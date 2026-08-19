@@ -1,0 +1,62 @@
+{
+  "schema": "heartbeat-skill-lights-plan.v3",
+  "heartbeat": "2026-08-18-2100",
+  "commission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching Phone Hands/P0 or duplicating provenance ownership.",
+  "startingOwner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "authenticatedBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "fronts": [
+    {
+      "name": "portable provenance report paths",
+      "wound": "The owner emits absolute repositoryRoot and generated-index paths into durable JSON. That leaks host-local path topology and makes equivalent reports differ across machines even though those strings are diagnostic rather than authority.",
+      "plannedAction": "Add one pure path-projection policy plus hostile source fixtures. Repository-root projects to '.', in-repository evidence projects repo-relative, external evidence projects to a deterministic non-reversible digest marker. Never use display projection for filesystem access or authorization.",
+      "ownerMutation": "NO_IN_THIS_SLICE_UNLESS_REVIEW_PROVES_A_SAFE_COMPLETE_OWNER_DELTA"
+    },
+    {
+      "name": "emission-time repository snapshot revalidation",
+      "wound": "Current snapshot certification ends before generated-index inspection/report assembly. A later HEAD or cleanliness change can occur after certification but before the authority report is emitted.",
+      "plannedAction": "Add one pure final-emission revalidation policy and regression source. It may reduce the late custody window but must explicitly refuse to claim atomic cross-platform repository binding.",
+      "ownerMutation": "NO_IN_THIS_SLICE_UNLESS_REVIEW_PROVES_A_SAFE_COMPLETE_OWNER_DELTA"
+    },
+    {
+      "name": "durable skill harvest",
+      "plannedAction": "Harvest only genuinely new repository skills for the two source contracts if no matching current-tree skill exists. Keep owner/test/runtime/deployment states explicit."
+    },
+    {
+      "name": "accessible Warm Wall",
+      "plannedAction": "Mutate the existing provenance certification DOM/inline-SVG specimen in place so path privacy and final-emission custody are touch-inspectable with existing radio/focus/touch/reduced-motion semantics; no raster and no decorative motion."
+    },
+    {
+      "name": "Regnet and Venice review",
+      "plannedAction": "Code-first bounded-source review. Any supporting policy remains supporting source until the existing owner consumes it. TESTED remains NO unless exact-head execution evidence proves otherwise."
+    },
+    {
+      "name": "execution evidence",
+      "plannedAction": "Read fresh automatic workflow state only after source commits. Do not dispatch/retry unchanged failing CI and do not recycle an older failure cause."
+    }
+  ],
+  "firewall": {
+    "phoneP0ConsumptionPlanned": 0,
+    "phoneP0MutationPlanned": 0,
+    "duplicateArchitecturePlanned": 0,
+    "p0EvidenceMode": "READ_ONLY"
+  },
+  "capabilityIntent": {
+    "supportingSource": true,
+    "ownerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
