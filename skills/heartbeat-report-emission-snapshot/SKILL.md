@@ -6,7 +6,7 @@ A clean repository snapshot observed around direct skill discovery can become st
 ## Contract
 - The existing owner remains `tools/try_forever_skill_provenance_probe.py`.
 - A late revalidation is **preservation-only**: it may preserve an earlier authoritative certification but may never manufacture authority from a non-empty matching HEAD string.
-- Prior certification authority is an explicit input to the pure revalidation policy. `prior_authoritative=false` fails closed even when `certified_head == final_head` and the final checkout is clean.
+- Prior certification authority is an explicit boolean input to the pure revalidation policy. Only literal `True` is authority-bearing; `False`, missing/unknown state, or arbitrary truthy values fail closed.
 - A late revalidation may certify only that an already-authoritative clean HEAD is observed again immediately before authority-facing report assembly.
 - Missing final HEAD, changed HEAD, unknown cleanliness, or a newly dirty checkout fail closed.
 - **Do not synthesize the late observation from separate `git rev-parse` and `git status` subprocesses.** `tools/try_forever_repository_emission_observation.py` supplies HEAD plus worktree cleanliness from one `git status --porcelain=v2 --branch --untracked-files=normal` process.
@@ -17,7 +17,7 @@ A clean repository snapshot observed around direct skill discovery can become st
 - Strict mode must treat a failed final-emission gate as failure.
 - Owner integration changes the durable report contract and therefore requires a new schema revision rather than silently mutating v3.
 
-## Hostile fixture
+## Hostile fixtures
 
 `nonAuthoritativePriorSnapshotMustNotBecomeStableByMatchingFinalHead()`:
 - prior observation has non-empty HEAD `abc123` but is non-authoritative;
@@ -25,14 +25,18 @@ A clean repository snapshot observed around direct skill discovery can become st
 - required verdict remains `UNSTABLE` and explicitly says late revalidation cannot manufacture authority;
 - control: prior-authoritative `abc123` plus final-clean `abc123` may earn narrow `STABLE_CLEAN`.
 
+`truthyNonBooleanPriorAuthorityMustFailClosed()`:
+- a value such as string `"false"` must not satisfy the authority gate merely because Python considers it truthy;
+- required verdict remains `UNSTABLE` and records `prior_authoritative=false`.
+
 ## Evidence discipline
 Keep discovery-time snapshot certification, prior-authority state, generated-index inspection, final-emission observation, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
 
 Current state:
 - pure final-emission revalidation policy: **YES / SOURCE**
-- explicit prior-authority gate: **YES / SOURCE**
+- explicit strict-boolean prior-authority gate: **YES / SOURCE**
 - single-command final repository observation primitive: **YES / SOURCE**
-- hostile regression source including non-empty/non-authoritative prior snapshot: **YES / SOURCE / UNEXECUTED**
+- hostile regression source including non-empty/non-authoritative and truthy-nonboolean prior state: **YES / SOURCE / UNEXECUTED**
 - generated-index emission-custody projection policy: **YES / SOURCE**
 - existing provenance owner consumes the late observation primitive: **NO**
 - prior report-boundary owner patch: **REJECTED_UNSAFE / DO NOT APPLY**
