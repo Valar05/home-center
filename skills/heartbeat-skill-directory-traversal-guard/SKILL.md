@@ -15,7 +15,9 @@ A child directory observed as ordinary during parent enumeration can be replaced
 Current state:
 - supporting guard source: **YES / SOURCE**
 - hostile regression source: **YES / SOURCE / UNEXECUTED**
-- existing provenance owner consumes guard: **NO**
+- existing provenance owner consumes guard: **YES / SOURCE_WIRED**
+- owner convergence commit: `d05261c74998f1f818d2a3b30efa229b695de100`
+- authenticated owner blob: `afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a`
 - atomic cross-platform child-directory binding: **NO**
 - tested/runtime/deployed/callable/delivered/accepted: **NO**
 
