@@ -70,7 +70,6 @@ class ProvenanceReportPathTest(unittest.TestCase):
         projection = project_repository_relative_report_path(relative, max_chars=64)
         self.assertLessEqual(len(projection.display_path), 64)
         self.assertRegex(projection.display_path, r"^<repo-path>\.\.\.#[0-9a-f]{16}$")
-        self.assertNotIn("e", projection.display_path.split("...#", 1)[0])
         self.assertNotIn("\u0301", projection.display_path)
 
     def test_over_budget_path_collapses_without_partial_emoji_zwj_grapheme(self) -> None:
