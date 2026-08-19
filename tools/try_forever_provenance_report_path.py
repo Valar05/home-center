@@ -63,22 +63,27 @@ def _display_unit(character: str) -> str:
 
 
 def _bounded_relative(relative: str, *, max_chars: int) -> str:
+    """Project one repository-relative identity inside a hard display budget.
+
+    In-budget text stays readable and collision-safe. If the projected text would
+    exceed the budget, do not expose an arbitrary partial human-text prefix: a
+    code-point cut can bisect an extended grapheme cluster such as a combining
+    sequence, emoji modifier, or ZWJ composition. Collapse the entire over-budget
+    display to a constant repository-path marker plus a digest of the exact
+    already-authorized repository-relative identity instead. The digest is an
+    evidence disambiguator for repository-local text only; external host paths
+    are still never fingerprinted.
+    """
+
     _validate_budget(max_chars)
-    units = tuple(_display_unit(character) for character in relative)
-    projected = "".join(units)
+    projected = "".join(_display_unit(character) for character in relative)
     if len(projected) <= max_chars:
         return projected
 
-    suffix = f"...#{_fingerprint(relative)[:16]}"
-    available = max_chars - len(suffix)
-    prefix_units: list[str] = []
-    used = 0
-    for unit in units:
-        if used + len(unit) > available:
-            break
-        prefix_units.append(unit)
-        used += len(unit)
-    return "".join(prefix_units) + suffix
+    collapsed = f"<repo-path>...#{_fingerprint(relative)[:16]}"
+    if len(collapsed) > max_chars:
+        raise AssertionError("minimum report-path budget cannot hold collapse marker")
+    return collapsed
 
 
 def project_repository_relative_report_path(
