@@ -4,9 +4,9 @@
 The generated-index verdict and the final-emission custody check need to refer to
 the exact same artifact bytes, not merely the same path. This helper admits only
 an ordinary finite regular-file object, binds the pre-open path observation to
-the opened descriptor, performs a bounded complete read, reaches EOF before
-returning authority-facing SHA-256, and preserves strict UTF-8 text for the
-semantic inspector.
+the opened descriptor, performs a bounded complete read, revalidates both the
+opened descriptor and the named path after EOF, and preserves strict UTF-8 text
+for the semantic inspector.
 
 It deliberately does not decide whether the index is current, trusted, or safe
 to emit. It owns no provenance report, renderer, scheduler, phone surface, or
@@ -107,9 +107,9 @@ def _open_regular_file_descriptor(path: Path) -> tuple[int, os.stat_result]:
     try:
         opened = os.fstat(descriptor)
         _require_regular_identity(opened, phase="opened descriptor")
-        if not _same_object(preopen, opened):
+        if not _same_observation(preopen, opened):
             raise GeneratedIndexArtifactChangedError(
-                "generated-index path identity changed between no-follow admission and descriptor open"
+                "generated-index path identity/size/mtime changed between no-follow admission and descriptor open"
             )
         return descriptor, opened
     except BaseException:
@@ -130,12 +130,13 @@ def observe_generated_index_artifact(
     separate responsibility.
 
     Finite regular-file topology is checked before authority-facing content I/O,
-    again on the opened descriptor, and again after the complete read. The
-    pre-open path identity must match the descriptor, and descriptor size/mtime
-    identity must remain stable across the read. These checks detect common
-    replacement and in-place mutation races; they deliberately do not claim a
-    universal atomic filesystem snapshot or prove away swap-and-restore/identity
-    reuse that evades both observations.
+    again on the opened descriptor, and after the complete read. The pre-open
+    named-path observation must match the descriptor; descriptor identity/size/
+    mtime must remain stable across the read; and the named path must still refer
+    to that same stable observation at EOF. These checks detect common replacement
+    and in-place mutation races. They deliberately do not claim a universal atomic
+    filesystem snapshot or prove away swap-and-restore/identity reuse that evades
+    all observations.
     """
 
     if max_bytes < 0:
@@ -158,6 +159,17 @@ def observe_generated_index_artifact(
                     if not _same_observation(opened_before, opened_after):
                         raise GeneratedIndexArtifactChangedError(
                             "generated-index descriptor identity/size/mtime changed during complete read"
+                        )
+                    try:
+                        path_after = path.lstat()
+                    except OSError as error:
+                        raise GeneratedIndexArtifactChangedError(
+                            "generated-index named path became unavailable after complete read"
+                        ) from error
+                    _require_regular_identity(path_after, phase="post-read path observation")
+                    if not _same_observation(opened_after, path_after):
+                        raise GeneratedIndexArtifactChangedError(
+                            "generated-index named path no longer identifies the stable descriptor object after complete read"
                         )
                     raw = bytes(payload)
                     return GeneratedIndexArtifactObservation(
