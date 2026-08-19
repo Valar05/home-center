@@ -25,6 +25,43 @@ class ProvenanceReportPathTest(unittest.TestCase):
         self.assertEqual("REPOSITORY", projection.scope)
         self.assertNotIn("/srv/home-center", projection.display_path)
 
+    def test_repository_control_and_format_characters_are_revealed_not_spoken_raw(self) -> None:
+        projection = project_report_path(
+            Path("/srv/home-center"),
+            Path("/srv/home-center") / "reports" / "line\nbidi\u202ejoin\u200d.json",
+        )
+        self.assertEqual("REPOSITORY", projection.scope)
+        self.assertNotIn("\n", projection.display_path)
+        self.assertNotIn("\u202e", projection.display_path)
+        self.assertNotIn("\u200d", projection.display_path)
+        self.assertIn(r"\u{000A}", projection.display_path)
+        self.assertIn(r"\u{202E}", projection.display_path)
+        self.assertIn(r"\u{200D}", projection.display_path)
+
+    def test_literal_escape_spelling_cannot_collide_with_projected_control(self) -> None:
+        projected_control = project_report_path(
+            Path("/srv/home-center"),
+            Path("/srv/home-center") / "reports" / "x\ny.json",
+        )
+        literal_marker = project_report_path(
+            Path("/srv/home-center"),
+            Path("/srv/home-center") / "reports" / r"x\u{000A}y.json",
+        )
+        self.assertNotEqual(projected_control.display_path, literal_marker.display_path)
+        self.assertIn(r"x\u{000A}y.json", projected_control.display_path)
+        self.assertIn(r"x\\u{000A}y.json", literal_marker.display_path)
+
+    def test_repository_evidence_projection_never_splits_an_escape_unit_at_bound(self) -> None:
+        relative = "reports/" + ("\u202e" * 12) + "index.json"
+        projection = project_report_path(
+            Path("/srv/home-center"),
+            Path("/srv/home-center") / relative,
+            max_chars=64,
+        )
+        self.assertLessEqual(len(projection.display_path), 64)
+        prefix = projection.display_path.split("...#", 1)[0]
+        self.assertNotRegex(prefix, r"\\u\{[0-9A-F]{0,3}$")
+
     def test_external_path_never_serializes_host_topology_or_hash_oracle(self) -> None:
         secret_path = Path("/home/alice/private/generated-index.json")
         projection = project_report_path(Path("/srv/home-center"), secret_path)
