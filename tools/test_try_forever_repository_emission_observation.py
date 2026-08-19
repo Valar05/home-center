@@ -156,6 +156,39 @@ def test_repository_emission_observation_must_bound_git_status_execution(monkeyp
     assert "deadline" in observed.reason
 
 
+def test_repository_redirect_environment_cannot_select_a_different_repo(monkeypatch, tmp_path):
+    seen = {}
+    poison = {
+        "GIT_DIR": "/tmp/not-the-requested-repo/.git",
+        "GIT_WORK_TREE": "/tmp/not-the-requested-repo",
+        "GIT_COMMON_DIR": "/tmp/not-the-requested-repo/.git",
+        "GIT_INDEX_FILE": "/tmp/not-the-requested-repo/index",
+        "GIT_OBJECT_DIRECTORY": "/tmp/not-the-requested-repo/objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/alternate-objects",
+        "GIT_NAMESPACE": "wrong-namespace",
+        "GIT_SHALLOW_FILE": "/tmp/not-the-requested-repo/shallow",
+    }
+    for key, value in poison.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setenv("PATH", "/safe/bin")
+
+    def completed(*args, **kwargs):
+        seen["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(
+            args=args[0],
+            returncode=0,
+            stdout=f"# branch.oid {HEAD}\n# branch.head main\n".encode("ascii"),
+        )
+
+    monkeypatch.setattr(emission_observation.subprocess, "run", completed)
+    observed = observe_repository_emission(tmp_path)
+
+    assert observed.status == "OBSERVED"
+    assert seen["env"]["PATH"] == "/safe/bin"
+    for key in poison:
+        assert key not in seen["env"]
+
+
 def test_completed_bounded_git_status_forces_submodule_visibility_and_keeps_bytes(monkeypatch, tmp_path):
     seen = {}
 
