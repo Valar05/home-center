@@ -1,9 +1,13 @@
 # TRY FOREVER provenance record-path projection owner surgery
 # Base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
-# Status: PROPOSED_NOT_APPLIED
+# Status: PROPOSED_NOT_APPLIED__REGRESSION_LOCKED
 # Capability: PATCH_SOURCE only. This file is not evidence that owner source changed.
 # Intent: complete operator-facing portable path semantics for skills/discoveryErrors
 # while keeping exact internal authority identities untouched. Explicit schema v5.
+# Regression lock: tools/test_try_forever_provenance_owner_v5_record_paths.py
+# is RED SOURCE until this owner surgery is applied. The historical v4 owner-emission
+# fixture must migrate its schema assertion in the same surgery so applying v5
+# cannot manufacture a known deterministic regression.
 
 diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
 --- a/tools/try_forever_skill_provenance_probe.py
@@ -59,3 +63,13 @@ diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_ski
 -            "reportPaths": "operator-facing paths are portable display projections only; repository-local paths are bounded relative evidence and external paths become <external-path>; exact Path values remain internal I/O/authority inputs",
 +            "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
          },
+
+diff --git a/tools/test_try_forever_provenance_owner_v4_emission.py b/tools/test_try_forever_provenance_owner_v4_emission.py
+--- a/tools/test_try_forever_provenance_owner_v4_emission.py
++++ b/tools/test_try_forever_provenance_owner_v4_emission.py
+@@
+-"""Regression source for TRY FOREVER provenance owner schema v4.
++"""Regression source for TRY FOREVER provenance owner emission contract.
+@@
+-        self.assertEqual("try-forever-skill-provenance.v4", report["schema"])
++        self.assertEqual("try-forever-skill-provenance.v5", report["schema"])
