@@ -4,23 +4,25 @@
   "owner": "tools/try_forever_skill_provenance_probe.py",
   "ownerBaseBlob": "51e6efdbcec03d044ab89f37213659252514856a",
   "supportingPolicy": "tools/try_forever_skill_title_fallback_policy.py",
-  "intent": "H1 and filesystem-derived fallback titles feed one SkillRecord.title authority surface and must share the explicit resource/semantic admission contract. This delta is provenance only and does not claim owner wiring.",
-  "processScar": "The first supporting pass targeted fallback only. Review found H1 could retain embedded control/bidi-direction state too, so the correction converges both sources before owner integration.",
+  "intent": "H1 and filesystem-derived fallback titles feed one SkillRecord.title authority surface and must share the explicit resource/semantic admission contract without broad-strip laundering of edge controls. This delta is provenance only and does not claim owner wiring.",
+  "processScar": "The first pass protected fallback only; the second converged H1/fallback but proposed admission after line.strip(). Review found Python broad stripping can remove edge Cc whitespace such as U+0085 before semantic admission. The corrected owner delta parses the decoded raw Markdown line through admit_markdown_h1_title, which removes only structural CR/LF plus ordinary ASCII-space margin and rejects H1-looking lines that depend on broader hidden-control normalization.",
   "changes": [
     {
       "location": "imports",
       "action": "import",
       "symbols": [
         "SkillFallbackTitleError",
+        "admit_markdown_h1_title",
         "admit_skill_title"
       ],
       "from": "try_forever_skill_title_fallback_policy"
     },
     {
-      "location": "markdown_title H1 return",
-      "action": "replace",
-      "before": "return title",
-      "after": "return admit_skill_title(title, max_chars=MAX_SKILL_TITLE_CHARS)"
+      "location": "markdown_title decoded-line H1 handling",
+      "action": "replace block",
+      "before": "stripped = line.strip(); if stripped.startswith('# '): derive/strip title, resource-check, return title",
+      "after": "title = admit_markdown_h1_title(line, max_chars=MAX_SKILL_TITLE_CHARS); if title is not None: return title",
+      "reason": "semantic admission must observe edge controls before broad whitespace normalization can erase them"
     },
     {
       "location": "markdown_title EOF fallback",
