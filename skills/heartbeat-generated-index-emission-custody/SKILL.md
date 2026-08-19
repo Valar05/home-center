@@ -23,7 +23,7 @@ The artifact gate can reject a symlink, junction, reparse point, or other redire
 
 `Path.resolve()` is not an acceptable pre-gate normalization for the generated-index argument. It follows a redirector and replaces the caller's named path with its target, which can make a later no-follow topology gate certify an ordinary target while never seeing the redirector that was actually supplied.
 
-The source regression `tools/test_try_forever_generated_index_named_path_owner_boundary.py` pins that requirement. `patches/try-forever-generated-index-named-path-preservation.patch` is an exact base-blob-locked owner delta, but it remains **PROPOSED_NOT_APPLIED**. Patch existence is not owner wiring.
+The source regression `tools/test_try_forever_generated_index_named_path_owner_boundary.py` pins that requirement. The exact owner surgery in `patches/try-forever-generated-index-named-path-preservation.patch` is now **APPLIED_SOURCE**: owner commit `3e0608e3d2a70e9d1392ae0cf9ab3463e0dd6d24`, owner blob `9d7b421484b5e1ad5f44a086af96c92201dfa14d`. This closes early named-path erasure in the existing owner source. It does **not** by itself make the owner consume the finite-artifact observer or late emission custody.
 
 ## Finite-artifact throat
 
@@ -79,8 +79,8 @@ Declared negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are nev
 - post-read descriptor stability gate: **IMPLEMENTED_SOURCE**
 - post-read named-path stability gate: **IMPLEMENTED_SOURCE**
 - named-path-preservation regression source: **REGRESSION_SOURCE / UNEXECUTED**
-- named-path-preservation owner patch: **PROPOSED_NOT_APPLIED**
-- existing provenance owner preserves caller named path for the future artifact gate: **NO**
+- named-path-preservation owner patch: **APPLIED_SOURCE**
+- existing provenance owner preserves caller named path for the future artifact gate: **YES / SOURCE_WIRED**
 - hostile emission-policy regression including unknown/case-drifted/non-string prior-status cases: **REGRESSION_SOURCE / UNEXECUTED**
 - emission-policy regression blob: **da163b5eed971630c29f18391607528ccbf7f1c1**
 - hostile artifact regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
