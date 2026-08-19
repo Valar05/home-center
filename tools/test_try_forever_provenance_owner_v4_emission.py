@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression source for TRY FOREVER provenance owner schema v4.
+"""Regression source for TRY FOREVER provenance owner emission contract.
 
 These fixtures pin the existing owner's composition of initial generated-index
 artifact identity, late repository/artifact custody, portable report paths, and
@@ -71,7 +71,7 @@ def stale_index(path: Path) -> probe.IndexVerdict:
     )
 
 
-class ProvenanceOwnerV4EmissionTest(unittest.TestCase):
+class ProvenanceOwnerEmissionTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.repo = Path(self.temp.name)
@@ -153,14 +153,14 @@ class ProvenanceOwnerV4EmissionTest(unittest.TestCase):
         self.assertEqual("VERIFIED_CURRENT", verdict.status)
         self.assertEqual(hashlib.sha256(raw).hexdigest(), verdict.inspection_sha256)
 
-    def test_stable_repo_and_same_artifact_emit_v4_authority(self):
+    def test_stable_repo_and_same_artifact_emit_current_schema_authority(self):
         code, report, artifact_mock = self.run_main(
             index_verdict=verified_index(self.index_path),
             emission_sha256=SHA_A,
         )
 
         self.assertEqual(0, code)
-        self.assertEqual("try-forever-skill-provenance.v4", report["schema"])
+        self.assertEqual("try-forever-skill-provenance.v5", report["schema"])
         self.assertEqual(".", report["repositoryRoot"])
         self.assertEqual("REPOSITORY", report["repositoryRootScope"])
         self.assertTrue(report["skillAuthority"]["emissionAuthoritative"])
