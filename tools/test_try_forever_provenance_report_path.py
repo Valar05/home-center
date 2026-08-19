@@ -57,9 +57,17 @@ class ProvenanceReportPathTest(unittest.TestCase):
         self.assertEqual("NONE", projection.scope)
         self.assertEqual("", projection.display_path)
 
-    def test_nonpositive_budget_is_programmer_error(self) -> None:
+    def test_tiny_budget_cannot_amputate_semantic_markers(self) -> None:
         with self.assertRaises(ValueError):
-            project_report_path(Path("/srv/home-center"), Path("/srv/home-center/x"), max_chars=0)
+            project_report_path(
+                Path("/srv/home-center"), Path("/home/alice/index.json"), max_chars=16
+            )
+
+    def test_minimum_budget_still_preserves_external_marker(self) -> None:
+        projection = project_report_path(
+            Path("/srv/home-center"), Path("/home/alice/index.json"), max_chars=32
+        )
+        self.assertEqual("<external-path>", projection.display_path)
 
 
 if __name__ == "__main__":
