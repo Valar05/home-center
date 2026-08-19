@@ -1,18 +1,22 @@
 # TRY FOREVER generated-index named-path preservation
 #
-# State: PROPOSED_NOT_APPLIED
+# State: APPLIED_SOURCE
 # Owner base blob: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
+# Applied owner commit: 3e0608e3d2a70e9d1392ae0cf9ab3463e0dd6d24
+# Applied owner blob: 9d7b421484b5e1ad5f44a086af96c92201dfa14d
 # Owner: tools/try_forever_skill_provenance_probe.py
 #
 # Why this exists:
-# `resolve_repo_path()` currently calls Path.resolve(). That follows a caller-supplied
-# generated-index symlink before the finite-artifact no-follow gate can inspect the
-# named path. The target may be an ordinary file while the caller's path is a
-# redirector; erasing the redirector makes later topology checks prove the wrong name.
+# `resolve_repo_path()` used to call Path.resolve(). That followed a caller-supplied
+# generated-index symlink before the finite-artifact no-follow gate could inspect the
+# named path. The target could be an ordinary file while the caller's path was a
+# redirector; erasing the redirector made later topology checks prove the wrong name.
 #
-# This delta keeps the path absolute and lexically normalized without dereferencing
-# symlinks/reparse topology. It does NOT by itself wire the generated-index artifact
-# observer into the owner and therefore does not establish complete custody.
+# The owner now keeps the path absolute and lexically normalized without
+# dereferencing symlinks/reparse topology. This closes named-path erasure in the
+# existing owner source. It does NOT by itself wire the generated-index artifact
+# observer or late emission composition into the owner and therefore does not
+# establish complete artifact custody, testing, runtime behavior, or delivery.
 #
 # P0/phone surfaces are not involved.
 
@@ -20,12 +24,7 @@
 +++ b/tools/try_forever_skill_provenance_probe.py
 @@
  def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
-+    """Resolve CLI spelling to an absolute named path without following redirectors.
-+
-+    Generated-index topology belongs to the later no-follow artifact gate. Using
-+    `Path.resolve()` here would erase a symlink/reparse spelling before that gate can
-+    reject it. This helper performs lexical absolute-path normalization only.
-+    """
++    """Normalize CLI spelling to an absolute named path without dereferencing it."""
 +
      if not value:
          return None
