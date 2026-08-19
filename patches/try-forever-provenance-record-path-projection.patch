@@ -1,0 +1,61 @@
+# TRY FOREVER provenance record-path projection owner surgery
+# Base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
+# Status: PROPOSED_NOT_APPLIED
+# Capability: PATCH_SOURCE only. This file is not evidence that owner source changed.
+# Intent: complete operator-facing portable path semantics for skills/discoveryErrors
+# while keeping exact internal authority identities untouched. Explicit schema v5.
+
+diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+-from try_forever_provenance_report_path import project_report_path
++from try_forever_provenance_report_path import (
++    project_report_path,
++    project_repository_relative_report_path,
++)
+@@
+ def bounded_error_path(relative: str) -> str:
+     """Bound operator-facing discovery error paths without inventing aliases."""
+@@
+     return relative[:keep] + suffix
++
++
++def project_skill_record_for_report(record: SkillRecord) -> dict[str, Any]:
++    """Project one emitted skill path without rewriting its authority identity."""
++
++    payload = asdict(record)
++    payload["path"] = project_repository_relative_report_path(
++        record.path,
++    ).display_path
++    return payload
++
++
++def project_discovery_error_for_report(error: DiscoveryError) -> dict[str, Any]:
++    """Project diagnostic repository-relative paths only at report serialization."""
++
++    payload = asdict(error)
++    payload["path"] = project_repository_relative_report_path(
++        error.path,
++        max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
++    ).display_path
++    if error.related_path:
++        payload["related_path"] = project_repository_relative_report_path(
++            error.related_path,
++            max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
++        ).display_path
++    return payload
+@@
+-        "schema": "try-forever-skill-provenance.v4",
++        "schema": "try-forever-skill-provenance.v5",
+@@
+-        "skills": [asdict(record) for record in emitted_records],
+-        "discoveryErrors": [asdict(error) for error in discovery_errors],
++        "skills": [project_skill_record_for_report(record) for record in emitted_records],
++        "discoveryErrors": [
++            project_discovery_error_for_report(error) for error in discovery_errors
++        ],
+@@
+-            "reportPaths": "operator-facing paths are portable display projections only; repository-local paths are bounded relative evidence and external paths become <external-path>; exact Path values remain internal I/O/authority inputs",
++            "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
+         },
