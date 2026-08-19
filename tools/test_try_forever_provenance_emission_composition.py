@@ -14,7 +14,10 @@ TOOLS_DIR = Path(__file__).resolve().parent
 if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
-from try_forever_provenance_emission_composition import compose_provenance_emission
+from try_forever_provenance_emission_composition import (
+    compose_provenance_emission,
+    needs_generated_index_artifact_revalidation,
+)
 from try_forever_repository_emission_observation import RepositoryEmissionObservation
 
 SHA_A = "a" * 64
@@ -53,6 +56,14 @@ def compose(**overrides):
     )
     values.update(overrides)
     return compose_provenance_emission(**values)
+
+
+def test_only_verified_current_needs_late_artifact_revalidation_work():
+    assert needs_generated_index_artifact_revalidation("VERIFIED_CURRENT") is True
+    assert needs_generated_index_artifact_revalidation("STALE") is False
+    assert needs_generated_index_artifact_revalidation("UNRESOLVED") is False
+    assert needs_generated_index_artifact_revalidation("CURRENTISH") is False
+    assert needs_generated_index_artifact_revalidation(["VERIFIED_CURRENT"]) is False
 
 
 def test_stable_repository_and_exact_artifact_preserve_authority_and_currentness():
@@ -97,16 +108,26 @@ def test_declared_negative_index_diagnostic_is_never_promoted_by_green_late_gate
     result = compose(
         prior_generated_index_status="STALE",
         prior_generated_index_reason="fixture stale",
+        inspected_generated_index_sha256="",
+        emission_generated_index_sha256="",
+        emission_generated_index_readable=False,
     )
 
     assert result.repository_status == "STABLE_CLEAN"
+    assert result.generated_index_artifact_status == "UNRESOLVED"
     assert result.generated_index_status == "STALE"
     assert result.generated_index_reason == "fixture stale"
     assert result.generated_index_currentness_withheld is False
 
 
 def test_unknown_prior_index_status_fails_closed_even_with_green_late_gates():
-    result = compose(prior_generated_index_status="CURRENTISH")
+    result = compose(
+        prior_generated_index_status="CURRENTISH",
+        inspected_generated_index_sha256="",
+        emission_generated_index_sha256="",
+        emission_generated_index_readable=False,
+    )
 
+    assert result.generated_index_artifact_status == "UNRESOLVED"
     assert result.generated_index_status == "UNRESOLVED"
     assert "outside the declared evidence contract" in result.generated_index_reason
