@@ -22,7 +22,7 @@ The helper captures one no-follow `SkillFileIdentity` containing device, inode/f
 
 ## Owner composition
 
-The existing provenance owner now composes the policy directly:
+The existing provenance owner currently composes:
 
 `repository-owned skills root -> bounded traversal -> no-follow ordinary SKILL.md candidate -> bounded candidate set -> candidate-file identity observation -> path/collision checks -> bounded title -> exact bounded whole-file SHA -> candidate-file identity revalidation -> stable repository snapshot`
 
@@ -49,19 +49,27 @@ The current owner still has a narrower degraded-operation gap between the initia
 4. open it again in `sha256_file(...)` with ordinary path I/O;
 5. only then capture/revalidate identity again.
 
-A candidate replaced after the first observation but before title/hash I/O can therefore be *rejected eventually* while the content I/O has already followed or waited on the replacement topology. That is insufficient for an authority lane whose finite-work contract must fail before reading a redirector/special file.
+A candidate replaced after the first observation but before title/hash I/O can therefore be *rejected eventually* while the content I/O has already followed or waited on the replacement topology. That is insufficient for an authority lane whose finite-work contract must fail before reading a persistent redirector/special file.
 
-`tools/test_try_forever_skill_file_identity_integration.py` now contains the intentionally RED fixture `test_redirector_replacement_before_title_io_must_be_revalidated_before_any_content_open`. It replaces an admitted ordinary candidate with a symlink at the last existing pre-I/O seam and requires the owner to reject on identity/topology **before `markdown_title` or `sha256_file` is called**.
+`tools/test_try_forever_skill_file_identity_integration.py` contains the intentionally RED fixture `test_redirector_replacement_before_title_io_must_be_revalidated_before_any_content_open`. It replaces an admitted ordinary candidate with a symlink at the last existing pre-I/O seam and requires the owner to reject on identity/topology **before `markdown_title` or `sha256_file` is called**.
 
-This fixture does not prescribe a second probe or a shadow reader. The repair belongs in the existing owner/file-identity path, for example by revalidating no-follow topology immediately before authority-facing content I/O or by later composing one handle-bound finite artifact observation. Any stronger handle-bound design must retain the declared atomicity boundary rather than claim universal filesystem immunity.
+## Combined owner surgery
+
+`patches/try-forever-provenance-owner-preio-v5.patch` is now the canonical prepared surgery for this wound. It is base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and is explicitly **PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**.
+
+The patch inserts a second no-follow candidate-file identity observation immediately after containment and immediately before either content reader. Persistent redirector/type/device/inode/size/mtime drift therefore takes the existing identity error path before content I/O. The later post-I/O revalidation remains in place.
+
+The same surgery also composes the independent schema-v5 record-path projection wound. Combining them under one exact base prevents two future patches from racing over the same large owner file; it does **not** merge their evidence claims or make either implemented.
+
+The fixture does not prescribe a second probe or a shadow reader. A future stronger handle-bound design may supersede the portable precheck, but it must retain the declared atomicity boundary rather than claim universal filesystem immunity.
 
 ## Atomicity boundary
 
 `STABLE` is an observation verdict, **not** an atomic file-handle claim.
 
-Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. It does not prove absence of swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime content rewrites, replacement after the final observation, or title/hash reads being bound to one immutable file handle on every platform.
+Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. Even with the prepared pre-I/O gate it does not prove absence of swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime content rewrites, replacement after the precheck, or title/hash reads being bound to one immutable file handle on every platform.
 
-The new pre-I/O RED fixture narrows one concrete work-admission wound; even after that fixture is repaired, do not rename `STABLE` to `ATOMIC`, `BOUND`, or `SAFE_TOCTOU` without platform-specific evidence and owner integration that actually earns that claim.
+Do not rename `STABLE` to `ATOMIC`, `BOUND`, or `SAFE_TOCTOU` without platform-specific evidence and owner integration that actually earns that claim.
 
 ## Regression source
 
@@ -84,6 +92,8 @@ These are regression **sources** until an authorized runner produces test eviden
 - static no-follow candidate topology gate in existing owner: **YES / SOURCE_WIRED**;
 - candidate-file identity bracket in existing owner: **YES / SOURCE_WIRED**;
 - pre-I/O redirector/special-topology revalidation: **NO / RED REGRESSION SOURCE**;
+- combined exact owner surgery: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**;
+- combined owner surgery blob: **8e71807cc5917d100c745b190e3b8a2e6e7a8c8f**;
 - exact authenticated GitHub readback: **YES**;
 - regression source: **YES / UNEXECUTED**;
 - atomic cross-platform file binding: **NO**;
@@ -97,4 +107,4 @@ Do not consume or mutate Phone Hands, primary-phone execution, queue/relay recov
 
 ## Done
 
-This skill lights only when candidate-file identity/revalidation truth materially changes. Source wiring does not imply finite pre-I/O admission, atomicity, test passage, runtime delivery, or phone acceptance.
+This skill lights only when candidate-file identity/revalidation truth materially changes. A prepared patch does not imply owner wiring, finite pre-I/O admission, atomicity, test passage, runtime delivery, or phone acceptance.
