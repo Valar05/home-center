@@ -15,6 +15,14 @@ A generated index may be inspected against a certified clean repository snapshot
 
 A stable repository HEAD/cleanliness verdict cannot certify continuity of a separately mutable external index file. If the index cannot be re-read, its whole-artifact SHA-256 is missing/non-canonical, or the emission digest differs from the inspected digest, positive currentness is withheld as `UNRESOLVED`.
 
+## Named-path preservation before topology admission
+
+The artifact gate can reject a symlink, junction, reparse point, or other redirecting spelling only if the existing provenance owner passes the caller's **named path** into that gate. Path normalization before topology admission must therefore be lexical only: make a relative CLI path absolute without dereferencing it.
+
+`Path.resolve()` is not an acceptable pre-gate normalization for the generated-index argument. It follows a redirector and replaces the caller's named path with its target, which can make a later no-follow topology gate certify an ordinary target while never seeing the redirector that was actually supplied.
+
+The source regression `tools/test_try_forever_generated_index_named_path_owner_boundary.py` pins that requirement. `patches/try-forever-generated-index-named-path-preservation.patch` is an exact base-blob-locked owner delta, but it remains **PROPOSED_NOT_APPLIED**. Patch existence is not owner wiring.
+
 ## Finite-artifact throat
 
 **Bounded bytes are not bounded I/O.** A byte ceiling applied only after `open()`/`read()` begins does not stop a FIFO, named pipe, socket, device, redirector, reparse-backed object, or other special object from blocking or inheriting finite-file authority.
@@ -40,6 +48,7 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 
 ## Hostile fixtures
 
+- generated-index CLI path spelling remains intact until topology admission; a symlink must not be erased by pre-gate `Path.resolve()`;
 - exact-max ordinary artifact reaches EOF and earns a whole-artifact digest;
 - max+1 rejects without prefix digest authority;
 - invalid UTF-8 cannot become semantic index text;
@@ -63,8 +72,11 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - pre-open path → opened-descriptor identity gate: **IMPLEMENTED_SOURCE**
 - post-read descriptor stability gate: **IMPLEMENTED_SOURCE**
 - post-read named-path stability gate: **IMPLEMENTED_SOURCE**
+- named-path-preservation regression source: **REGRESSION_SOURCE / UNEXECUTED**
+- named-path-preservation owner patch: **PROPOSED_NOT_APPLIED**
+- existing provenance owner preserves caller named path for the future artifact gate: **NO**
 - hostile regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
-- existing provenance owner consumption: **NO**
+- existing provenance owner consumption of artifact/emission custody: **NO**
 - prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
 - universal wall-clock I/O deadline / atomic artifact binding: **NO**
 - tested: **NO**
