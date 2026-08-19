@@ -12,6 +12,7 @@ from try_forever_skill_title_fallback_policy import (
     SkillFallbackTitleResourceLimitError,
     SkillFallbackTitleSemanticError,
     admit_fallback_title,
+    admit_markdown_h1_title,
     admit_skill_title,
 )
 
@@ -55,6 +56,25 @@ class SkillTitleSourcePolicyTest(unittest.TestCase):
             admit_skill_title("", max_chars=256)
         with self.assertRaises(SkillFallbackTitleSemanticError):
             admit_skill_title(None, max_chars=256)  # type: ignore[arg-type]
+
+    def test_markdown_h1_removes_only_structural_line_ending_and_ascii_margin(self):
+        self.assertEqual(
+            "Safe title",
+            admit_markdown_h1_title("  # Safe title  \r\n", max_chars=256),
+        )
+
+    def test_markdown_h1_edge_control_cannot_disappear_via_broad_strip(self):
+        for marker in ("\x09", "\x0b", "\x0c", "\x1c", "\x1f", "\x85"):
+            with self.subTest(marker=hex(ord(marker))):
+                with self.assertRaises(SkillFallbackTitleSemanticError):
+                    admit_markdown_h1_title(f"# safe{marker}\n", max_chars=256)
+
+    def test_markdown_h1_bidi_control_is_rejected_before_authority(self):
+        with self.assertRaises(SkillFallbackTitleSemanticError):
+            admit_markdown_h1_title("# alpha\u202ebeta\n", max_chars=256)
+
+    def test_non_h1_line_returns_none(self):
+        self.assertIsNone(admit_markdown_h1_title("ordinary text\n", max_chars=256))
 
 
 if __name__ == "__main__":
