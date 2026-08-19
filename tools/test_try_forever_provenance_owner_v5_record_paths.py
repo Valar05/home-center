@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Owner-integration regression source for provenance schema v5 record paths.
 
-This fixture is intentionally RED SOURCE until the existing
-``try_forever_skill_provenance_probe`` consumes the already-reviewed
-repository-relative report-path projection at serialization time. It owns no
-filesystem authority, renderer, scheduler, phone surface, or P0 lane.
+This fixture locks the existing owner's repository-relative report-path projection at
+serialization time. It owns no filesystem authority, renderer, scheduler, phone
+surface, or P0 lane.
 
 SOURCE / REGRESSION_SOURCE only. Importing or committing this file is not test
 execution evidence.
