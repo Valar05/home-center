@@ -10,8 +10,10 @@ for the semantic inspector.
 
 On Windows, ``S_ISREG`` alone is not sufficient admission: a regular-shaped file
 may still carry ``FILE_ATTRIBUTE_REPARSE_POINT`` and redirect/filter content.
-Any reparse-point topology therefore fails closed before authority-facing read,
-and the same gate is applied to opened/post-read metadata when available.
+Python's no-follow stat semantics do not expose every non-name-surrogate reparse
+kind directly, so the named path is also checked with the Win32 file-attribute
+surface before authority-facing open and after EOF. Reparse topology fails
+closed; no tag is treated as an approved exception.
 
 It deliberately does not decide whether the index is current, trusted, or safe
 to emit. It owns no provenance report, renderer, scheduler, phone surface, or
@@ -30,6 +32,7 @@ READ_CHUNK_BYTES = 64 * 1024
 WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT = int(
     getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x00000400)
 )
+WINDOWS_INVALID_FILE_ATTRIBUTES = 0xFFFFFFFF
 
 
 class GeneratedIndexArtifactResourceLimitError(ValueError):
@@ -59,6 +62,46 @@ def _mtime_ns(metadata: os.stat_result) -> int:
             int(metadata.st_mtime * 1_000_000_000),
         )
     )
+
+
+def _windows_named_path_attributes(path: Path) -> int | None:
+    """Return raw named-path Win32 attributes without relying on stat traversal.
+
+    ``Path.lstat()``/``os.stat(..., follow_symlinks=False)`` disable following
+    name-surrogate reparse points on Windows, but other reparse kinds may still
+    be resolved by the operating system. ``GetFileAttributesW`` is therefore the
+    named-path admission check for the reparse bit itself.
+    """
+
+    if os.name != "nt":
+        return None
+
+    import ctypes
+    from ctypes import wintypes
+
+    get_file_attributes = ctypes.WinDLL("kernel32", use_last_error=True).GetFileAttributesW
+    get_file_attributes.argtypes = [wintypes.LPCWSTR]
+    get_file_attributes.restype = wintypes.DWORD
+    attributes = int(get_file_attributes(str(path)))
+    if attributes == WINDOWS_INVALID_FILE_ATTRIBUTES:
+        error_code = ctypes.get_last_error()
+        raise OSError(error_code, "GetFileAttributesW failed", str(path))
+    return attributes
+
+
+def _require_named_path_not_windows_reparse(path: Path, *, phase: str) -> None:
+    try:
+        attributes = _windows_named_path_attributes(path)
+    except OSError as error:
+        raise GeneratedIndexArtifactTopologyError(
+            f"generated-index Windows named-path attributes unavailable at {phase}"
+        ) from error
+    if attributes is None:
+        return
+    if int(attributes) & WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT:
+        raise GeneratedIndexArtifactTopologyError(
+            f"generated-index named path must not be a Windows reparse point at {phase}"
+        )
 
 
 def _is_windows_reparse_point(metadata: os.stat_result) -> bool:
@@ -109,9 +152,11 @@ def _require_preopen_regular_file(path: Path) -> os.stat_result:
     separately compared with this no-follow observation. Platforms exposing
     O_NONBLOCK and O_NOFOLLOW also receive those flags so common FIFO/symlink
     races cannot turn the evidence lane into an indefinite special-file wait.
-    Windows reparse-point metadata is rejected independently of ``st_mode``.
+    Windows named-path attributes are checked before stat because Python may
+    resolve non-name-surrogate reparse kinds even for no-follow stat calls.
     """
 
+    _require_named_path_not_windows_reparse(path, phase="pre-open named-path observation")
     metadata = path.lstat()
     _require_regular_identity(metadata, phase="pre-open observation")
     return metadata
@@ -152,8 +197,9 @@ def observe_generated_index_artifact(
     separate responsibility.
 
     Finite regular-file topology is checked before authority-facing content I/O,
-    again on the opened descriptor, and after the complete read. On Windows, each
-    available observation must also be free of reparse-point attributes. The
+    again on the opened descriptor, and after the complete read. On Windows, the
+    named path is checked directly for the reparse attribute before open and after
+    EOF; any available stat/fstat observation must also be reparse-free. The
     pre-open named-path observation must match the descriptor; descriptor
     identity/size/mtime must remain stable across the read; and the named path
     must still refer to that same stable observation at EOF. These checks detect
@@ -183,6 +229,10 @@ def observe_generated_index_artifact(
                         raise GeneratedIndexArtifactChangedError(
                             "generated-index descriptor identity/size/mtime changed during complete read"
                         )
+                    _require_named_path_not_windows_reparse(
+                        path,
+                        phase="post-read named-path observation",
+                    )
                     try:
                         path_after = path.lstat()
                     except OSError as error:
