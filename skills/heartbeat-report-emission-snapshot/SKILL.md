@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A clean repository snapshot observed around direct skill discovery can become stale while later generated-index inspection and report assembly are still running. Authority must not escape without one final custody check.
+A clean repository snapshot observed around direct skill discovery can become stale while generated-index inspection and report assembly are still running. Authority must not escape without one final custody check.
 
 ## Contract
 
@@ -16,13 +16,13 @@ A clean repository snapshot observed around direct skill discovery can become st
 - The process has a finite deadline; timeout becomes `UNAVAILABLE` and cannot donate stale evidence.
 - This narrows observation drift but **does not prove atomic repository binding**.
 - Failed final repository custody zeroes emitted repository-skill authority.
-- A prior generated-index `VERIFIED_CURRENT` is also withheld when final repository custody fails.
+- A prior generated-index `VERIFIED_CURRENT` is also withheld when final repository custody or exact late artifact custody fails.
 - No new authority-facing generated-index read is performed after the declared final repository observation.
 - Strict mode treats failed final-emission authority as failure.
 
-## Existing-owner v4 composition
+## Existing-owner v5 composition
 
-Schema `try-forever-skill-provenance.v4` now invokes `observe_repository_emission(repo_root)` after optional late generated-index artifact revalidation and before pure report assembly. The resulting observation feeds `compose_provenance_emission(...)` with the earlier literal repository certification state and certified HEAD.
+Schema `try-forever-skill-provenance.v5` invokes exact generated-index late artifact revalidation only for prior positive currentness, then invokes `observe_repository_emission(repo_root)` as the final repository custody observation before pure report assembly. `compose_provenance_emission(...)` receives the earlier literal repository certification state, certified HEAD, exact initial generated-index inspection SHA, optional late artifact SHA, and final repository observation.
 
 The emitted report separates:
 
@@ -30,25 +30,34 @@ The emitted report separates:
 - authority at certification;
 - final `reportEmissionRepository` status/reason/authority;
 - final observed HEAD/dirty state;
-- emitted skill records, which are zeroed when late authority is lost.
+- exact initial/late generated-index artifact identities;
+- emitted skill records, which are zeroed when late repository authority is lost.
 
 This is source wiring, not runtime execution or tested evidence.
 
+## Cross-pollinated initial-snapshot wound
+
+The final-emission observer is stronger than the owner's current **initial** snapshot plumbing. `main()` still builds the pre/post-discovery certification snapshot from separate `git_head()` and `git_dirty()` subprocesses. Those calls lack the final observer's one-process coherence, byte-safe porcelain handling, submodule-ignore override, and finite deadline.
+
+The existing final-emission organ should be reused for the two initial bracket observations as well. This is a composition improvement, not permission to rename it atomic. A dedicated RED owner-boundary regression and exact proposed owner delta now preserve that cut.
+
 ## Hostile fixtures
 
-Pure fixtures cover prior-authority preservation, changed/unavailable final custody, duplicate/malformed OIDs, timeout, submodules, and byte-hostile paths. `tools/test_try_forever_provenance_owner_v4_emission.py` adds owner-level source fixtures for stable survival, late HEAD change zeroing skill authority, generated-index currentness withholding, and strict-mode failure.
+Pure fixtures cover prior-authority preservation, changed/unavailable final custody, duplicate/malformed OIDs, timeout, submodules, byte-hostile paths, exact generated-index artifact A→B change, and negative-state late-I/O suppression. Owner-level source fixtures cover stable survival, late HEAD change zeroing skill authority, generated-index currentness withholding, strict-mode failure, and portable v5 report projection.
+
+New initial-snapshot owner boundary: `tools/test_try_forever_provenance_initial_snapshot_owner_boundary.py` requires the existing bounded one-process observer before discovery, after discovery, and again at final emission; it is **REGRESSION_SOURCE / UNEXECUTED**.
 
 ## Current capability truth
 
 - pure final-emission revalidation policy: **YES / SOURCE**
 - one-process bounded final repository observation primitive: **YES / SOURCE**
 - existing provenance owner consumes late repository observation: **YES / SOURCE_WIRED**
-- existing owner composes final repository authority into emitted skill records: **YES / SOURCE_WIRED**
-- owner schema: **try-forever-skill-provenance.v4**
-- owner commit/blob: **90054f3f0761b0993d635527d60ad43f68c20a8d / f6f1bafc6b9e99030ad29b408d74cd088f910b82**
-- owner-v4 regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- owner-v4 regression commit/blob: **19dd1621093eaefc830b13938404a2192c979584 / ebea66749d5038be4d303827681df38adfe1d554**
-- prior unsafe report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY**
+- existing owner composes final repository + generated-index artifact custody into emitted authority: **YES / SOURCE_WIRED**
+- owner schema: **try-forever-skill-provenance.v5**
+- authenticated owner blob: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**
+- initial pre/post discovery use of the same one-process observer: **NO**
+- initial-snapshot owner delta: `patches/try-forever-provenance-initial-snapshot-observation.patch` **YES / PROPOSED_NOT_APPLIED**
+- initial-snapshot regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
 - atomic repository binding: **NO**
 - tested: **NO**
 - runtime UI / TalkBack: **NO**
@@ -56,4 +65,4 @@ Pure fixtures cover prior-authority preservation, changed/unavailable final cust
 
 ## Ownership / firewall
 
-No second provenance probe, watcher, repository daemon, scheduler, Phone Hands lane, or P0 owner may be created. Phone/P0 consumption and mutation remain zero.
+No second provenance probe, watcher, repository daemon, scheduler, Phone Hands lane, or P0 owner may be created. Reuse the existing repository-observation organ and sole provenance owner. Phone/P0 consumption and mutation remain zero.
