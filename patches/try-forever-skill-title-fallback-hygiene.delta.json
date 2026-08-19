@@ -1,48 +1,23 @@
 {
   "schema": "try-forever-owner-delta.v1",
-  "status": "PROPOSED_NOT_APPLIED",
+  "status": "APPLIED_SOURCE",
   "owner": "tools/try_forever_skill_provenance_probe.py",
   "ownerBaseBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+  "appliedOwnerCommit": "d05261c74998f1f818d2a3b30efa229b695de100",
+  "appliedOwnerBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
   "supportingPolicy": "tools/try_forever_skill_title_fallback_policy.py",
-  "intent": "H1 and filesystem-derived fallback titles feed one SkillRecord.title authority surface and must share the explicit resource/semantic admission contract without broad-strip laundering of edge controls. This delta is provenance only and does not claim owner wiring.",
-  "processScar": "The first pass protected fallback only; the second converged H1/fallback but proposed admission after line.strip(). Review found Python broad stripping can remove edge Cc whitespace such as U+0085 before semantic admission. The corrected owner delta parses the decoded raw Markdown line through admit_markdown_h1_title, which removes only structural CR/LF plus ordinary ASCII-space margin and rejects H1-looking lines that depend on broader hidden-control normalization.",
-  "changes": [
-    {
-      "location": "imports",
-      "action": "import",
-      "symbols": [
-        "SkillFallbackTitleError",
-        "admit_markdown_h1_title",
-        "admit_skill_title"
-      ],
-      "from": "try_forever_skill_title_fallback_policy"
-    },
-    {
-      "location": "markdown_title decoded-line H1 handling",
-      "action": "replace block",
-      "before": "stripped = line.strip(); if stripped.startswith('# '): derive/strip title, resource-check, return title",
-      "after": "title = admit_markdown_h1_title(line, max_chars=MAX_SKILL_TITLE_CHARS); if title is not None: return title",
-      "reason": "semantic admission must observe edge controls before broad whitespace normalization can erase them"
-    },
-    {
-      "location": "markdown_title EOF fallback",
-      "action": "replace",
-      "before": "return path.parent.name",
-      "after": "return admit_skill_title(path.parent.name, max_chars=MAX_SKILL_TITLE_CHARS)",
-      "occurrences": 2
-    },
-    {
-      "location": "discover_skills title error handling",
-      "action": "add bounded failure branch",
-      "exception": "SkillFallbackTitleError",
-      "stage": "title",
-      "reason": "skill title failed the declared source resource/semantic contract",
-      "partialAuthority": "forbidden for the affected candidate"
-    }
+  "intent": "H1 and filesystem-derived fallback titles feed one SkillRecord.title authority surface and share the explicit resource/semantic admission contract without broad-strip laundering of edge controls.",
+  "processScar": "The first pass protected fallback only; the second converged H1/fallback but proposed admission after line.strip(). Review found Python broad stripping can remove edge Cc whitespace such as U+0085 before semantic admission. The applied owner parses each decoded raw Markdown line through admit_markdown_h1_title and sends folder fallback through admit_skill_title.",
+  "appliedChanges": [
+    "import SkillFallbackTitleError, admit_markdown_h1_title, admit_skill_title",
+    "replace broad stripped H1 parsing with raw decoded-line semantic admission",
+    "route both no-H1 folder fallback exits through admit_skill_title",
+    "isolate SkillFallbackTitleError as a bounded title-stage discovery error"
   ],
   "capability": {
     "supportingSource": true,
-    "ownerWired": false,
+    "ownerWired": true,
+    "exactAuthenticatedReadback": true,
     "tested": false,
     "runtime": false,
     "deployed": false,
