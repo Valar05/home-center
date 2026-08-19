@@ -1,0 +1,66 @@
+diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+-import subprocess
+ import sys
+@@
+-def command_text(args: list[str], cwd: Path) -> str:
+-    try:
+-        completed = subprocess.run(
+-            args,
+-            cwd=cwd,
+-            check=True,
+-            stdout=subprocess.PIPE,
+-            stderr=subprocess.DEVNULL,
+-            text=True,
+-        )
+-    except (OSError, subprocess.CalledProcessError):
+-        return ""
+-    return completed.stdout.strip()
+-
+-
+-def git_head(repo_root: Path) -> str:
+-    return command_text(["git", "rev-parse", "HEAD"], repo_root)
+-
+-
+-def git_dirty(repo_root: Path) -> bool | None:
+-    try:
+-        completed = subprocess.run(
+-            ["git", "status", "--porcelain"],
+-            cwd=repo_root,
+-            check=True,
+-            stdout=subprocess.PIPE,
+-            stderr=subprocess.DEVNULL,
+-            text=True,
+-        )
+-    except (OSError, subprocess.CalledProcessError):
+-        return None
+-    return bool(completed.stdout.strip())
+-
+-
+ def assess_repository_snapshot(
+@@
+     args = parser.parse_args()
+ 
+     repo_root = Path(args.repo_root).resolve()
+-    head_before = git_head(repo_root)
+-    dirty_before = git_dirty(repo_root)
++    snapshot_before = observe_repository_emission(repo_root)
+     skills, discovery_errors = discover_skills(repo_root)
+-    head_after = git_head(repo_root)
+-    dirty_after = git_dirty(repo_root)
++    snapshot_after = observe_repository_emission(repo_root)
+     snapshot = assess_repository_snapshot(
+-        head_before=head_before,
+-        head_after=head_after,
+-        dirty_before=dirty_before,
+-        dirty_after=dirty_after,
++        head_before=(snapshot_before.head if snapshot_before.status == "OBSERVED" else ""),
++        head_after=(snapshot_after.head if snapshot_after.status == "OBSERVED" else ""),
++        dirty_before=(snapshot_before.dirty if snapshot_before.status == "OBSERVED" else None),
++        dirty_after=(snapshot_after.dirty if snapshot_after.status == "OBSERVED" else None),
+     )
+@@
+-    observed_head = head_after or head_before
++    observed_head = snapshot.head_after or snapshot.head_before
