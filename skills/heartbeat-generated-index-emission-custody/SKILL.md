@@ -21,15 +21,16 @@ A stable repository HEAD/cleanliness verdict cannot certify continuity of a sepa
 
 `tools/try_forever_generated_index_artifact_observation.py` therefore owns this source contract before authority-facing content is admitted:
 
-1. no-follow pre-open observation must identify an ordinary regular file;
+1. no-follow pre-open observation must identify an ordinary regular file with usable inode/file-index identity;
 2. redirectors and non-regular special files fail closed before authority-facing open/read;
 3. where the platform exposes them, `O_NONBLOCK` and `O_NOFOLLOW` are applied to the descriptor open;
-4. the opened descriptor is independently `fstat`-verified as a regular file before content reads;
+4. the opened descriptor is independently `fstat`-verified as a regular file and must match the pre-open device/inode identity;
 5. complete content must reach EOF inside the caller's existing byte budget before exact SHA-256/text is returned;
-6. max+1 rejects without returning prefix digest authority;
-7. UTF-8 decoding is strict.
+6. the opened descriptor is revalidated after the complete read; device/inode/size/mtime drift rejects the observation rather than returning a mixed or stale authority-facing digest;
+7. max+1 rejects without returning prefix digest authority;
+8. UTF-8 decoding is strict.
 
-This closes the special-file/FIFO admission wound. It does **not** prove atomic path binding, eliminate a path replacement race on every platform/filesystem, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
+These checks close special-file/FIFO admission and common pre-open replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades both observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
 
 Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
 
@@ -40,6 +41,8 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - invalid UTF-8 cannot become semantic index text;
 - a FIFO/special file is rejected before authority-facing `os.open`;
 - a symlink cannot inherit its target's regular-file authority;
+- replacement between no-follow admission and descriptor open rejects before authority is returned;
+- descriptor identity/size/mtime drift observed after the complete read rejects the observation;
 - external content A → content B yields `CHANGED` artifact custody even while repository custody can remain stable;
 - identical complete ordinary content can yield `STABLE` artifact custody.
 
@@ -48,8 +51,9 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
 - finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
-- opened-object regular-file verification: **IMPLEMENTED_SOURCE**
-- hostile regression source including special-file/resource/UTF-8/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
+- pre-open path → opened-descriptor identity gate: **IMPLEMENTED_SOURCE**
+- post-read descriptor stability gate: **IMPLEMENTED_SOURCE**
+- hostile regression source including special-file/resource/UTF-8/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption: **NO**
 - prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
 - universal wall-clock I/O deadline / atomic artifact binding: **NO**
