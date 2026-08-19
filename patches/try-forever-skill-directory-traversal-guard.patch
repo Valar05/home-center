@@ -13,6 +13,19 @@ INTENT: A queued child directory must be revalidated no-follow immediately befor
 +    revalidate_skill_directory_for_traversal,
 +)
 @@
+ class SkillTraversalResourceLimitError(ValueError):
+     """Repository skill traversal exceeded its declared filesystem-entry budget."""
++
++
++class SkillDirectoryTraversalTopologyError(ValueError):
++    """A queued child directory lost repository-owned traversal identity."""
++
++    def __init__(self, path: Path, *, status: str, reason: str):
++        super().__init__(reason)
++        self.path = path
++        self.status = status
++        self.reason = reason
+@@
 -    stack: list[Path] = [skills_root]
 +    root_directory_identity = capture_skill_directory_identity(skills_root)
 +    stack: list[tuple[Path, SkillDirectoryIdentity]] = [
@@ -27,7 +40,11 @@ INTENT: A queued child directory must be revalidated no-follow immediately befor
 +            before_scan_identity,
 +        )
 +        if traversal_verdict.status != "STABLE":
-+            raise SkillCandidateTopologyError(directory)
++            raise SkillDirectoryTraversalTopologyError(
++                directory,
++                status=traversal_verdict.status,
++                reason=traversal_verdict.reason,
++            )
 @@
 -        child_directories: list[Path] = []
 +        child_directories: list[tuple[Path, SkillDirectoryIdentity]] = []
@@ -38,8 +55,25 @@ INTENT: A queued child directory must be revalidated no-follow immediately befor
 +                    (path, capture_skill_directory_identity(path))
 +                )
 @@
--        for child in reversed(child_directories):
-+        for child in reversed(child_directories):
-             stack.append(child)
+     try:
+         candidates = bounded_skill_candidates(skills_root)
++    except SkillDirectoryTraversalTopologyError as error:
++        try:
++            relative = error.path.relative_to(repo_root).as_posix()
++        except ValueError:
++            relative = "skills"
++        return [], [
++            DiscoveryError(
++                path=bounded_error_path(relative),
++                stage="traversal",
++                error_type=f"SkillDirectoryTraversal{error.status.title().replace('_', '')}",
++                reason=(
++                    "queued child-directory traversal identity was rejected; "
++                    f"partial repository-skill authority is forbidden: {error.reason}"
++                ),
++            )
++        ]
+     except SkillCandidateTopologyError as error:
+@@
 
-NOTE: The concrete owner integration should preserve a directory-specific bounded error type/reason rather than laundering a traversal identity wound into a candidate-file topology message. This patch is a structural delta, not a tested implementation. The integration must also preserve the explicit remaining boundary: replacement after revalidation but before scandir, swap-and-restore, and identity reuse are not closed by this portable policy.
+BOUNDARY: This detects persistent redirector/type/device/inode drift between child admission and the immediate pre-scan observation. It does not close replacement after revalidation but before `scandir`, swap-and-restore, or identity reuse. A stronger platform-specific handle-binding strategy would be a separate proposal, not silently implied by this patch.
