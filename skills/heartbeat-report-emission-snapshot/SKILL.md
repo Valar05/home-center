@@ -10,8 +10,10 @@ A clean repository snapshot observed around direct skill discovery can become st
 - A late revalidation may certify only that an already-authoritative clean HEAD is observed again immediately before authority-facing report assembly.
 - Missing final HEAD, changed HEAD, unknown cleanliness, or a newly dirty checkout fail closed.
 - **Do not synthesize the late observation from separate `git rev-parse` and `git status` subprocesses.** `tools/try_forever_repository_emission_observation.py` supplies HEAD plus worktree cleanliness from one `git status --porcelain=v2 --branch --untracked-files=normal` process.
+- **One process must also be a bounded process.** The repository-emission observation owns a finite execution deadline. `subprocess.TimeoutExpired` must become bounded `UNAVAILABLE` evidence with empty HEAD and unknown cleanliness; timeout may not escape and stale prior repository evidence may not be reused as if the late check succeeded.
 - The one-process parser requires **exactly one canonical `branch.oid` header**. Duplicate headers are ambiguous even when identical; malformed-first/valid-later, first-wins, and last-wins evidence all fail closed rather than letting output order choose repository identity.
 - The one-process observation narrows split-observation drift but **does not prove atomic repository binding**. Git may observe a moving worktree while scanning; swap-and-restore, identity reuse, or mutation after the command remain outside the claim.
+- A finite Git-status timeout bounds the helper-owned subprocess wait; it does **not** prove Git produced an atomic filesystem snapshot or that every underlying filesystem operation has an independent deadline.
 - If the final gate fails after an earlier certification, authority-facing repository-skill records must be zeroed and the report must name an emission-snapshot failure rather than leave the earlier certification floating forward.
 - A generated index that was `VERIFIED_CURRENT` against the earlier certified snapshot cannot remain current after the final custody gate fails. Its positive currentness is withheld as `UNRESOLVED`; already-negative `STALE`/`UNRESOLVED` diagnostics may remain diagnostic.
 - Do not re-read or re-verify the generated index after the declared final repository-custody observation merely to recover a positive claim. That would create new evidence work after the supposed final gate.
@@ -35,15 +37,22 @@ A clean repository snapshot observed around direct skill discovery can become st
 - two conflicting canonical headers return `UNAVAILABLE`;
 - malformed-first / valid-later output cannot repair itself into authority.
 
+`repositoryEmissionObservationMustBoundGitStatusExecution()`:
+- the exact Git-status call must carry the finite helper-owned deadline;
+- simulated `subprocess.TimeoutExpired` returns `UNAVAILABLE`, empty HEAD, and unknown cleanliness;
+- timeout must not escape and no stale prior observation may be substituted;
+- a completed canonical porcelain-v2 observation still returns exact HEAD + cleanliness.
+
 ## Evidence discipline
-Keep discovery-time snapshot certification, prior-authority state, generated-index inspection, final-emission observation, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
+Keep discovery-time snapshot certification, prior-authority state, generated-index inspection, final-emission observation, subprocess completion, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
 
 Current state:
 - pure final-emission revalidation policy: **YES / SOURCE**
 - explicit strict-boolean prior-authority gate: **YES / SOURCE**
 - single-command final repository observation primitive: **YES / SOURCE**
+- finite Git-status execution deadline + timeout fail-closed projection: **YES / SOURCE**
 - duplicate/conflicting `branch.oid` fail-closed parser gate: **YES / SOURCE**
-- hostile regression source including prior-authority and duplicate-OID cases: **YES / SOURCE / UNEXECUTED**
+- hostile regression source including prior-authority, duplicate-OID, and subprocess-timeout cases: **YES / SOURCE / UNEXECUTED**
 - generated-index emission-custody projection policy: **YES / SOURCE**
 - existing provenance owner consumes the late observation primitive: **NO**
 - prior report-boundary owner patch: **REJECTED_UNSAFE / DO NOT APPLY**
