@@ -1,16 +1,20 @@
 # TRY FOREVER provenance owner next surgery
 # Base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
 # Base historical emission fixture blob: ebea66749d5038be4d303827681df38adfe1d554
-# Status: PROPOSED_NOT_APPLIED__REGRESSION_LOCKED
-# Capability: PATCH_SOURCE only. This is not evidence that owner source changed.
-# Existing RED owner regressions:
+# Applied owner commit: bf91827aa74651e1500edd916a26ff9f6acac13e
+# Applied owner blob: e1d10fb4c917813bc89780486c79a5e2d2bc4bea
+# Applied historical fixture commit: fc9a26d0f2670977f0b90dfc8734d0d6720a88f0
+# Applied historical fixture blob: 492a66c6a2145b167c16fb05564b461d4391c012
+# Status: APPLIED_SOURCE__REGRESSION_SOURCE_UNEXECUTED
+# Capability: provenance of source surgery only. This file is not TESTED/runtime evidence.
+# Existing owner regressions:
 # - tools/test_try_forever_skill_file_identity_integration.py
 # - tools/test_try_forever_provenance_owner_v5_record_paths.py
-# Intent: compose two independent existing-owner wounds in one blob-locked surgery:
+# Intent delivered at source layer:
 # (1) reject persistent SKILL.md identity/topology drift immediately before title/hash I/O;
 # (2) project every serialized repository-relative record path through the existing
 #     collision-safe display policy under explicit schema v5.
-# Atomicity boundary: the new pre-I/O observation is still not an atomic handle bind;
+# Atomicity boundary remains open: the pre-I/O observation is not an atomic handle bind;
 # swap-and-restore / identity reuse / replacement after the precheck remain unproven.
 
 diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
