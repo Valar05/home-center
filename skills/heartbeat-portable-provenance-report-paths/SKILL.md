@@ -26,7 +26,7 @@ Current state:
 - collision-safe control/format/surrogate evidence projection: **YES / SOURCE**
 - policy source blob: **94c473490f1745b11ac11040e1f25a6196bbd8e4**
 - hostile policy regression source: **YES / SOURCE / UNEXECUTED**
-- regression source blob: **6c41654cdd264c366584871bc28e164e84f28c6d**
+- regression source blob after code-first fixture correction: **0f5caeb7adbf94509e779ad4315bd31bd5f1b81d**
 - existing provenance owner consumes the policy: **NO**
 - authenticated current owner blob before owner composition: **afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a**
 - tested: **NO**
