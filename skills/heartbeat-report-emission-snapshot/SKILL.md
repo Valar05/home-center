@@ -11,7 +11,8 @@ A clean repository snapshot observed around direct skill discovery can become st
 - **Do not synthesize the late observation from separate `git rev-parse` and `git status` subprocesses.** `tools/try_forever_repository_emission_observation.py` supplies HEAD plus worktree cleanliness from one Git-status process.
 - The exact status command must carry `--ignore-submodules=none`. Repository custody may not inherit a local or `.gitmodules` ignore rule that hides dirty submodule worktrees from the final cleanliness observation.
 - **One process must also be a bounded process.** The repository-emission observation owns a finite execution deadline. `subprocess.TimeoutExpired` becomes bounded `UNAVAILABLE` evidence with empty HEAD and unknown cleanliness; stale prior repository evidence may not be reused.
-- The one-process parser requires **exactly one canonical `branch.oid` header**. Duplicate headers are ambiguous even when identical; malformed-first/valid-later, first-wins, and last-wins evidence all fail closed.
+- **Porcelain path bytes are not authority text.** Capture status stdout as bytes. Decode only the ASCII `branch.oid` value needed for authority; any non-header record marks the observation dirty without decoding its filename/path payload. Host-locale decode failure or a non-UTF-8 filename must never crash the evidence lane or turn dirty state into unknown success.
+- The one-process parser requires **exactly one canonical ASCII `branch.oid` header**. Duplicate headers are ambiguous even when identical; malformed-first/valid-later, non-ASCII OID text, first-wins, and last-wins evidence all fail closed.
 - The one-process observation narrows split-observation drift but **does not prove atomic repository binding**. Git may observe a moving worktree while scanning; swap-and-restore, identity reuse, or mutation after the command remain outside the claim.
 - A finite Git-status timeout bounds the helper-owned subprocess wait; it does **not** prove Git produced an atomic filesystem snapshot or that every underlying filesystem operation has an independent deadline.
 - If the final gate fails after an earlier certification, authority-facing repository-skill records must be zeroed and the report must name an emission-snapshot failure rather than leave the earlier certification floating forward.
@@ -23,13 +24,14 @@ A clean repository snapshot observed around direct skill discovery can become st
 ## Hostile fixtures
 - non-authoritative prior snapshot + matching final HEAD remains `UNSTABLE`.
 - arbitrary truthy prior authority such as string `"false"` remains `UNSTABLE`.
-- duplicate/conflicting/malformed `branch.oid` headers fail closed.
+- duplicate/conflicting/malformed/non-ASCII `branch.oid` headers fail closed.
+- non-UTF-8 bytes inside a changed/untracked path still mark the observation dirty without path decoding.
 - finite status deadline survives timeout as `UNAVAILABLE`.
-- the exact Git-status command includes `--ignore-submodules=none`.
+- the exact Git-status command includes `--ignore-submodules=none` and captures stdout as bytes.
 - a porcelain-v2 submodule change record makes the observation dirty.
 
 ## Evidence discipline
-Keep discovery-time snapshot certification, prior-authority state, generated-index inspection, final-emission observation, subprocess completion, submodule visibility, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
+Keep discovery-time snapshot certification, prior-authority state, generated-index inspection, final-emission observation, subprocess completion, raw porcelain bytes, submodule visibility, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
 
 Current state:
 - pure final-emission revalidation policy: **YES / SOURCE**
@@ -37,10 +39,11 @@ Current state:
 - single-command final repository observation primitive: **YES / SOURCE**
 - finite Git-status execution deadline + timeout fail-closed projection: **YES / SOURCE**
 - explicit submodule-ignore override: **YES / SOURCE**
-- repository-emission source blob: **3509459c256f2add1a418f12792071e313677676**
-- duplicate/conflicting `branch.oid` fail-closed parser gate: **YES / SOURCE**
-- hostile regression source including timeout and submodule-command cases: **YES / SOURCE / UNEXECUTED**
-- regression source blob: **19f39162aad871db39c7a46df94b1fd015692cf4**
+- byte-preserving porcelain capture + ASCII-only authority decode: **YES / SOURCE**
+- repository-emission source blob: **e96d20fdf24bdc3d6e918b414b7b2f1cad47f48e**
+- duplicate/conflicting/non-ASCII `branch.oid` fail-closed parser gate: **YES / SOURCE**
+- hostile regression source including timeout, submodule-command, and non-UTF-8 path cases: **YES / SOURCE / UNEXECUTED**
+- regression source blob: **df5595ae3d191938e6f03af6dac7ad4737b28836**
 - generated-index emission-custody projection policy: **YES / SOURCE**
 - existing provenance owner consumes the late observation primitive: **NO**
 - prior report-boundary owner patch: **REJECTED_UNSAFE / DO NOT APPLY**
