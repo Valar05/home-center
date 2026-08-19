@@ -26,6 +26,14 @@ class RepositoryEmissionObservation:
     dirty: bool | None
 
 
+def _is_git_object_id(value: str) -> bool:
+    """Accept canonical SHA-1 or SHA-256 object ids, not arbitrary header text."""
+
+    return len(value) in (40, 64) and all(
+        character in "0123456789abcdef" for character in value
+    )
+
+
 def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservation:
     """Parse one porcelain-v2 branch/status observation fail closed."""
 
@@ -38,7 +46,7 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
         if line.startswith("# branch.oid "):
             saw_oid = True
             oid = line[len("# branch.oid ") :].strip()
-            if oid and oid != "(initial)":
+            if _is_git_object_id(oid):
                 head = oid
             continue
         if not line or line.startswith("# "):
@@ -50,7 +58,7 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
     if not saw_oid or not head:
         return RepositoryEmissionObservation(
             status="UNAVAILABLE",
-            reason="single-command git status did not report a usable branch.oid",
+            reason="single-command git status did not report a canonical branch.oid",
             head="",
             dirty=None,
         )
