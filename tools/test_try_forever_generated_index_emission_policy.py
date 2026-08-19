@@ -111,6 +111,31 @@ def test_negative_diagnostics_survive_without_becoming_authority():
     )
 
 
+def test_unknown_prior_status_is_not_copied_into_durable_report():
+    verdict = project_generated_index_at_emission(
+        prior_status="MAYBE_CURRENT",
+        prior_reason="unexpected internal value",
+        emission_status="STABLE_CLEAN",
+        artifact_custody_status="STABLE",
+    )
+    assert verdict.status == "UNRESOLVED"
+    assert verdict.reason == (
+        "generated-index prior status is outside the declared evidence contract"
+    )
+    assert verdict.currentness_withheld is False
+
+
+def test_unknown_prior_status_cannot_be_rescued_by_green_late_gates():
+    verdict = project_generated_index_at_emission(
+        prior_status="verified_current",
+        prior_reason="case drift",
+        emission_status="STABLE_CLEAN",
+        artifact_custody_status="STABLE",
+    )
+    assert verdict.status == "UNRESOLVED"
+    assert verdict.status != "VERIFIED_CURRENT"
+
+
 def test_failed_gates_never_relabel_stale_as_verified():
     verdict = project_generated_index_at_emission(
         prior_status="STALE",
