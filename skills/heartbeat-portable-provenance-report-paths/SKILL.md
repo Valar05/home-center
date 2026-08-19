@@ -43,6 +43,8 @@ Hostile regression source pins:
 
 These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
 
+Code-first Regnet review caught and repaired one bad first fixture: it searched for the ordinary letter `e` inside the constant `<repo-path>` marker and would therefore have failed for the wrong reason. The corrected regression removes that false assertion while retaining the actual partial-grapheme guard. Preserve that review scar; a regression must exercise the wound it claims to lock.
+
 ## Owner integration is regression-locked, not applied
 
 `tools/test_try_forever_provenance_owner_v5_record_paths.py` is a commit-bound **RED owner-integration regression source**. It requires the future existing-owner v5 report to:
@@ -91,7 +93,7 @@ Keep internal filesystem identity, report display projection, provenance authori
 - over-budget repository-local partial-grapheme avoidance: **YES / SOURCE**
 - path-policy source blob: **fd79305fa9ea6413dadbd15f9eb2ccc8b27e1a69**
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- path-regression blob: **45112f8e3533b2999b214314d80af8d7fcd6b5cb**
+- path-regression blob: **76c10450ef0c4191c0bdd83bfdba7e06b9498b3a**
 - owner v5 record-path integration regression source: **YES / RED_SOURCE / UNEXECUTED**
 - owner-v5-regression blob: **f813b2cb170ded33038ec86d0cf7d18e7b1ad52e**
 - exact owner patch source: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**
