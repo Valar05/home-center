@@ -7,7 +7,7 @@
 <style>
   :root { font-family: system-ui, sans-serif; line-height: 1.35; }
   body { margin: 0; padding: 1rem; background: Canvas; color: CanvasText; }
-  main { max-width: 54rem; margin: auto; }
+  main { max-width: 58rem; margin: auto; }
   .scar { border: 2px solid currentColor; padding: .75rem; font-weight: 700; }
   svg { width: 100%; height: auto; margin: 1rem 0; }
   fieldset { border: 2px solid currentColor; padding: .75rem; }
@@ -36,27 +36,30 @@
 <body>
 <main>
   <h1>Provenance Certification Warm Wall</h1>
-  <p class="scar">SOURCE OWNER WIRED · SCHEMA v3 · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+  <p class="scar">OWNER v3 WIRED · NEW REPORT-PATH + EMISSION-CUSTODY POLICIES SOURCE-ONLY · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
 
-  <svg viewBox="0 0 900 190" role="img" aria-labelledby="wall-title wall-desc">
-    <title id="wall-title">Warm wall with discovery flowing through topology and certification gates</title>
-    <desc id="wall-desc">Repository-owned traversal and exact title admission produce diagnostic discoveries; stable snapshot and expected-head certification decide whether those records may become repository-skill authority.</desc>
-    <path d="M35 95 H865" fill="none" stroke="currentColor" stroke-width="6"/>
-    <rect x="10" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="185" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="360" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="535" y="55" width="150" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="710" y="55" width="180" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <text x="85" y="88" text-anchor="middle">TRAVERSAL</text>
-    <text x="85" y="112" text-anchor="middle">owner wired</text>
-    <text x="260" y="88" text-anchor="middle">DISCOVERED</text>
-    <text x="260" y="112" text-anchor="middle">diagnostic set</text>
-    <text x="435" y="88" text-anchor="middle">CERTIFY</text>
-    <text x="435" y="112" text-anchor="middle">owner wired</text>
-    <text x="610" y="88" text-anchor="middle">HEAD</text>
-    <text x="610" y="112" text-anchor="middle">binding</text>
-    <text x="800" y="88" text-anchor="middle">AUTHORITY</text>
-    <text x="800" y="112" text-anchor="middle">or zero</text>
+  <svg viewBox="0 0 1080 190" role="img" aria-labelledby="wall-title wall-desc">
+    <title id="wall-title">Warm wall from repository traversal through late report-emission custody</title>
+    <desc id="wall-desc">Repository-owned traversal and exact title admission produce diagnostic discoveries. Snapshot certification decides authority, later index and report work happen without inheriting authority automatically, and a proposed final-emission observation can fail closed before authority leaves the report.</desc>
+    <path d="M35 95 H1045" fill="none" stroke="currentColor" stroke-width="6"/>
+    <rect x="10" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="175" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="340" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="505" y="55" width="170" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="695" y="55" width="170" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="885" y="55" width="180" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="82" y="88" text-anchor="middle">TRAVERSAL</text>
+    <text x="82" y="112" text-anchor="middle">owner wired</text>
+    <text x="247" y="88" text-anchor="middle">DISCOVERED</text>
+    <text x="247" y="112" text-anchor="middle">diagnostic set</text>
+    <text x="412" y="88" text-anchor="middle">CERTIFY</text>
+    <text x="412" y="112" text-anchor="middle">owner wired</text>
+    <text x="590" y="88" text-anchor="middle">INDEX + REPORT</text>
+    <text x="590" y="112" text-anchor="middle">later work</text>
+    <text x="780" y="88" text-anchor="middle">EMISSION</text>
+    <text x="780" y="112" text-anchor="middle">recheck source</text>
+    <text x="975" y="88" text-anchor="middle">AUTHORITY</text>
+    <text x="975" y="112" text-anchor="middle">or zero</text>
   </svg>
 
   <fieldset>
@@ -65,7 +68,19 @@
     <div class="choice">
       <input type="radio" name="state" id="verified" checked aria-describedby="verified-detail">
       <label for="verified"><span class="token" aria-hidden="true">●</span><span>Verified current</span></label>
-      <p class="detail" id="verified-detail"><strong>Authority open only after all gates.</strong> Repository-owned traversal remains in scope, title admission is exact, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch. Schema v3 reports discovered breadth separately from certified authority.</p>
+      <p class="detail" id="verified-detail"><strong>Current owner authority opens only after its wired gates.</strong> Repository-owned traversal remains in scope, title admission is exact, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch. Schema v3 reports discovered breadth separately from certified authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="portable-path" aria-describedby="portable-path-detail">
+      <label for="portable-path"><span class="token" aria-hidden="true">◇</span><span>Portable report path</span></label>
+      <p class="detail" id="portable-path-detail"><strong>Supporting policy source exists; owner consumption does not.</strong> Durable report display should use <code>.</code> for repository root, repo-relative paths for in-repository evidence, and an opaque external-path marker instead of serializing usernames, home directories, drive roots, mounts, or temporary directory topology. Display projection is never filesystem or provenance authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="late-head" aria-describedby="late-head-detail">
+      <label for="late-head"><span class="token" aria-hidden="true">×</span><span>Repository changed before emission</span></label>
+      <p class="detail" id="late-head-detail"><strong>Supporting final-emission policy source exists; owner consumption does not.</strong> If the certified HEAD moves, cleanliness becomes unknown, or the checkout becomes dirty during later index/report work, authority should fail closed instead of letting an earlier clean observation float forward. Equal observations still do not prove atomic binding.</p>
     </div>
 
     <div class="choice">
@@ -76,7 +91,7 @@
 
     <div class="choice">
       <input type="radio" name="state" id="unstable" aria-describedby="unstable-detail">
-      <label for="unstable"><span class="token" aria-hidden="true">×</span><span>Unstable snapshot</span></label>
+      <label for="unstable"><span class="token" aria-hidden="true">×</span><span>Unstable discovery snapshot</span></label>
       <p class="detail" id="unstable-detail"><strong>Authority zero.</strong> Discovery may remain diagnostic through <code>discoveredSkillCount</code>, but <code>skillCount</code> and <code>skills</code> are certified authority and therefore empty when the checkout is moving, dirty, or unknown.</p>
     </div>
 
@@ -95,7 +110,7 @@
     <div class="choice">
       <input type="radio" name="state" id="atomicity" aria-describedby="atomicity-detail">
       <label for="atomicity"><span class="token" aria-hidden="true">□</span><span>Atomicity still open</span></label>
-      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> Child-directory revalidation catches persistent replacement but does not prove away swap-and-restore, identity reuse, or replacement after revalidation.</p>
+      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> Child-directory and proposed final-emission revalidation can catch persistent changes but do not prove away swap-and-restore, identity reuse, or mutation after the final observation.</p>
     </div>
   </fieldset>
 
