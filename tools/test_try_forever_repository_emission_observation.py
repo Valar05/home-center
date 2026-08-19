@@ -167,6 +167,10 @@ def test_repository_redirect_environment_cannot_select_a_different_repo(monkeypa
         "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/alternate-objects",
         "GIT_NAMESPACE": "wrong-namespace",
         "GIT_SHALLOW_FILE": "/tmp/not-the-requested-repo/shallow",
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "core.worktree",
+        "GIT_CONFIG_VALUE_0": "/tmp/not-the-requested-repo",
+        "GIT_CONFIG_PARAMETERS": "'core.worktree'='/tmp/not-the-requested-repo'",
     }
     for key, value in poison.items():
         monkeypatch.setenv(key, value)
