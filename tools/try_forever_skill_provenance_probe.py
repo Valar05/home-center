@@ -24,6 +24,12 @@ from try_forever_generated_index_alias_policy import (
     GeneratedIndexAliasError,
     resolve_consistent_alias,
 )
+from try_forever_generated_index_artifact_observation import (
+    GeneratedIndexArtifactChangedError,
+    GeneratedIndexArtifactResourceLimitError,
+    GeneratedIndexArtifactTopologyError,
+    observe_generated_index_artifact,
+)
 from try_forever_skill_directory_traversal_guard import (
     SkillDirectoryIdentity,
     capture_skill_directory_identity,
@@ -806,7 +812,14 @@ def inspect_generated_index(
             dirty_source=None,
             age_hours=None,
         )
-    if not path.is_file():
+
+    try:
+        observation = observe_generated_index_artifact(
+            path,
+            max_bytes=MAX_GENERATED_INDEX_BYTES,
+        )
+        data = json.loads(observation.utf8_text)
+    except FileNotFoundError:
         return IndexVerdict(
             status="UNRESOLVED",
             reason="generated index path does not exist",
@@ -816,24 +829,24 @@ def inspect_generated_index(
             dirty_source=None,
             age_hours=None,
         )
-    try:
-        with path.open("rb") as handle:
-            raw = handle.read(MAX_GENERATED_INDEX_BYTES + 1)
-        if len(raw) > MAX_GENERATED_INDEX_BYTES:
-            return IndexVerdict(
-                status="UNRESOLVED",
-                reason=f"generated index exceeds byte budget {MAX_GENERATED_INDEX_BYTES}",
-                path=str(path),
-                source_head="",
-                generated_at="",
-                dirty_source=None,
-                age_hours=None,
-            )
-        data = json.loads(raw.decode("utf-8"))
+    except (
+        GeneratedIndexArtifactResourceLimitError,
+        GeneratedIndexArtifactTopologyError,
+        GeneratedIndexArtifactChangedError,
+    ) as error:
+        return IndexVerdict(
+            status="UNRESOLVED",
+            reason=f"generated index artifact admission rejected: {type(error).__name__}",
+            path=str(path),
+            source_head="",
+            generated_at="",
+            dirty_source=None,
+            age_hours=None,
+        )
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         return IndexVerdict(
             status="UNRESOLVED",
-            reason=f"generated index is unreadable UTF-8 JSON: {type(error).__name__}",
+            reason=f"generated index is unreadable strict UTF-8 JSON: {type(error).__name__}",
             path=str(path),
             source_head="",
             generated_at="",
@@ -1090,7 +1103,7 @@ def main() -> int:
         "generatedIndex": asdict(index),
         "authority": {
             "repositorySkill": "authority-facing records are emitted only after bounded direct discovery plus a STABLE_CLEAN pre/post snapshot and any expected-head binding; uncertified discoveries remain diagnostic only",
-            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency; never substitutes for direct skill existence",
+            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow artifact admission; never substitutes for direct skill existence",
         },
         "capabilityBoundary": emitted_capability_boundary(),
     }
