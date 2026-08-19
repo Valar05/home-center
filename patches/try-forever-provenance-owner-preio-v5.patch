@@ -1,0 +1,124 @@
+# TRY FOREVER provenance owner next surgery
+# Base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
+# Base historical emission fixture blob: ebea66749d5038be4d303827681df38adfe1d554
+# Status: PROPOSED_NOT_APPLIED__REGRESSION_LOCKED
+# Capability: PATCH_SOURCE only. This is not evidence that owner source changed.
+# Existing RED owner regressions:
+# - tools/test_try_forever_skill_file_identity_integration.py
+# - tools/test_try_forever_provenance_owner_v5_record_paths.py
+# Intent: compose two independent existing-owner wounds in one blob-locked surgery:
+# (1) reject persistent SKILL.md identity/topology drift immediately before title/hash I/O;
+# (2) project every serialized repository-relative record path through the existing
+#     collision-safe display policy under explicit schema v5.
+# Atomicity boundary: the new pre-I/O observation is still not an atomic handle bind;
+# swap-and-restore / identity reuse / replacement after the precheck remain unproven.
+
+diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+-from try_forever_provenance_report_path import project_report_path
++from try_forever_provenance_report_path import (
++    project_report_path,
++    project_repository_relative_report_path,
++)
+@@
+ def bounded_error_path(relative: str) -> str:
+@@
+     return relative[:keep] + suffix
++
++
++def project_skill_record_for_report(record: SkillRecord) -> dict[str, Any]:
++    """Project report display text without rewriting repository-skill identity."""
++
++    payload = asdict(record)
++    payload["path"] = project_repository_relative_report_path(
++        record.path,
++    ).display_path
++    return payload
++
++
++def project_discovery_error_for_report(error: DiscoveryError) -> dict[str, Any]:
++    """Project diagnostic record paths only at report serialization."""
++
++    payload = asdict(error)
++    payload["path"] = project_repository_relative_report_path(
++        error.path,
++        max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
++    ).display_path
++    if error.related_path:
++        payload["related_path"] = project_repository_relative_report_path(
++            error.related_path,
++            max_chars=MAX_DISCOVERY_ERROR_PATH_CHARS,
++        ).display_path
++    return payload
+@@
+         if not is_within(path, skills_root):
+@@
+             )
+             continue
++
++        # Persistent replacement/redirector drift after initial admission must
++        # fail before either authority-facing content reader is allowed to open
++        # the named path. This is a portable no-follow observation pair, not an
++        # atomic file-handle binding; retain the later post-I/O revalidation too.
++        try:
++            file_pre_io = capture_skill_file_identity(path)
++        except OSError as error:
++            errors.append(
++                discovery_error(
++                    relative=relative,
++                    stage="identity",
++                    error=error,
++                    reason="skill file identity could not be revalidated immediately before title/hash content I/O",
++                )
++            )
++            continue
++
++        pre_io_verdict = revalidate_skill_file_identity(file_before, file_pre_io)
++        if pre_io_verdict.status != "STABLE":
++            errors.append(
++                DiscoveryError(
++                    path=bounded_error_path(relative),
++                    stage="identity",
++                    error_type=skill_file_identity_error_type(pre_io_verdict.status),
++                    reason=(
++                        "pre-I/O skill file identity/topology revalidation rejected "
++                        f"authority-facing content work: {pre_io_verdict.reason}"
++                    ),
++                )
++            )
++            continue
+ 
+         try:
+             title = markdown_title(path)
+@@
+-        "schema": "try-forever-skill-provenance.v4",
++        "schema": "try-forever-skill-provenance.v5",
+@@
+-        "skills": [asdict(record) for record in emitted_records],
+-        "discoveryErrors": [asdict(error) for error in discovery_errors],
++        "skills": [project_skill_record_for_report(record) for record in emitted_records],
++        "discoveryErrors": [
++            project_discovery_error_for_report(error) for error in discovery_errors
++        ],
+@@
+-            "reportPaths": "operator-facing paths are portable display projections only; repository-local paths are bounded relative evidence and external paths become <external-path>; exact Path values remain internal I/O/authority inputs",
++            "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
+         },
+
+diff --git a/tools/test_try_forever_provenance_owner_v4_emission.py b/tools/test_try_forever_provenance_owner_v4_emission.py
+--- a/tools/test_try_forever_provenance_owner_v4_emission.py
++++ b/tools/test_try_forever_provenance_owner_v4_emission.py
+@@
+-"""Regression source for TRY FOREVER provenance owner schema v4.
++"""Regression source for TRY FOREVER provenance owner emission contract.
+@@
+-class ProvenanceOwnerV4EmissionTest(unittest.TestCase):
++class ProvenanceOwnerEmissionTest(unittest.TestCase):
+@@
+-    def test_stable_repo_and_same_artifact_emit_v4_authority(self):
++    def test_stable_repo_and_same_artifact_emit_current_schema_authority(self):
+@@
+-        self.assertEqual("try-forever-skill-provenance.v4", report["schema"])
++        self.assertEqual("try-forever-skill-provenance.v5", report["schema"])
