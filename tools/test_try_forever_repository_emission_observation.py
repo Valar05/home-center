@@ -7,6 +7,7 @@ from try_forever_repository_emission_observation import (
 
 
 HEAD = "0123456789abcdef0123456789abcdef01234567"
+OTHER_HEAD = "89abcdef0123456789abcdef0123456789abcdef"
 HEAD_SHA256 = "0123456789abcdef" * 4
 
 
@@ -61,6 +62,33 @@ def test_unborn_missing_or_malformed_oid_fails_closed():
         assert observed.status == "UNAVAILABLE"
         assert observed.head == ""
         assert observed.dirty is None
+
+
+def test_duplicate_identical_oid_headers_are_ambiguous_and_fail_closed():
+    observed = parse_porcelain_v2_branch_status(
+        f"# branch.oid {HEAD}\n# branch.oid {HEAD}\n# branch.head main\n"
+    )
+    assert observed.status == "UNAVAILABLE"
+    assert observed.head == ""
+    assert observed.dirty is None
+
+
+def test_duplicate_conflicting_oid_headers_never_become_last_wins_authority():
+    observed = parse_porcelain_v2_branch_status(
+        f"# branch.oid {HEAD}\n# branch.oid {OTHER_HEAD}\n# branch.head main\n"
+    )
+    assert observed.status == "UNAVAILABLE"
+    assert observed.head == ""
+    assert observed.dirty is None
+
+
+def test_malformed_first_oid_cannot_be_repaired_by_later_valid_header():
+    observed = parse_porcelain_v2_branch_status(
+        f"# branch.oid NOT-A-CANONICAL-OID\n# branch.oid {HEAD}\n"
+    )
+    assert observed.status == "UNAVAILABLE"
+    assert observed.head == ""
+    assert observed.dirty is None
 
 
 def test_comment_headers_do_not_create_false_dirty_state():
