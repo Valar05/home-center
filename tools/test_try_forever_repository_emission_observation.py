@@ -52,6 +52,15 @@ def test_untracked_change_marks_same_observation_dirty():
     assert observed.dirty is True
 
 
+def test_submodule_change_record_marks_same_observation_dirty():
+    observed = parse_porcelain_v2_branch_status(
+        f"# branch.oid {HEAD}\n"
+        "1 .M S.M. 160000 160000 160000 abc def vendor/dependency\n"
+    )
+    assert observed.status == "OBSERVED"
+    assert observed.dirty is True
+
+
 def test_unborn_missing_or_malformed_oid_fails_closed():
     unborn = parse_porcelain_v2_branch_status(
         "# branch.oid (initial)\n# branch.head main\n"
@@ -119,6 +128,7 @@ def test_repository_emission_observation_must_bound_git_status_execution(monkeyp
     observed = observe_repository_emission(tmp_path)
 
     assert seen["command"][:2] == ["git", "status"]
+    assert "--ignore-submodules=none" in seen["command"]
     assert seen["timeout"] == GIT_STATUS_TIMEOUT_SECONDS
     assert isinstance(seen["timeout"], (int, float))
     assert 0 < seen["timeout"] < float("inf")
@@ -128,8 +138,11 @@ def test_repository_emission_observation_must_bound_git_status_execution(monkeyp
     assert "deadline" in observed.reason
 
 
-def test_completed_bounded_git_status_still_projects_exact_head_and_cleanliness(monkeypatch, tmp_path):
+def test_completed_bounded_git_status_forces_submodule_visibility(monkeypatch, tmp_path):
+    seen = {}
+
     def completed(*args, **kwargs):
+        seen["command"] = args[0]
         assert kwargs.get("timeout") == GIT_STATUS_TIMEOUT_SECONDS
         return subprocess.CompletedProcess(
             args=args[0],
@@ -140,6 +153,14 @@ def test_completed_bounded_git_status_still_projects_exact_head_and_cleanliness(
     monkeypatch.setattr(emission_observation.subprocess, "run", completed)
     observed = observe_repository_emission(tmp_path)
 
+    assert seen["command"] == [
+        "git",
+        "status",
+        "--porcelain=v2",
+        "--branch",
+        "--untracked-files=normal",
+        "--ignore-submodules=none",
+    ]
     assert observed.status == "OBSERVED"
     assert observed.head == HEAD
     assert observed.dirty is False
