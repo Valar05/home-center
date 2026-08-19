@@ -26,11 +26,11 @@ Schema `try-forever-skill-provenance.v4` currently uses `project_report_path(...
 
 The exact generated-index `Path` is retained separately inside the process for initial and late artifact custody I/O. The display path never feeds those gates.
 
-## New supporting source: repository-relative record projection
+## Repository-relative record projection source
 
-`tools/try_forever_provenance_report_path.py` now also provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
+`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
 
-Hostile regression source now pins:
+Hostile regression source pins:
 
 - ordinary repository-relative skill paths;
 - newline, bidi-control, and ZWJ visibility;
@@ -40,29 +40,41 @@ Hostile regression source now pins:
 
 These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
 
-## Exact existing-owner surgery is preserved but unapplied
+## Owner integration is regression-locked, not applied
 
-`patches/try-forever-provenance-record-path-projection.patch` is base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and is explicitly **PROPOSED_NOT_APPLIED**. It proposes only:
+`tools/test_try_forever_provenance_owner_v5_record_paths.py` is a commit-bound **RED owner-integration regression source**. It requires the future existing-owner v5 report to:
 
-- importing the new repository-relative display helper;
-- projecting serialized `SkillRecord.path` and `DiscoveryError.path` / `related_path` without rewriting the internal records;
-- bumping the report contract to schema `try-forever-skill-provenance.v5`; and
-- correcting the report-path authority prose to match all serialized path families.
+- serialize `SkillRecord.path` through the repository-relative display channel;
+- serialize `DiscoveryError.path` and `related_path` through that same channel;
+- preserve literal-marker versus actual invisible/control character distinction; and
+- leave the owner's exact internal record identities unchanged by display serialization.
 
-The Computer Hands worker is currently offline and its provenance lane is already occupied. No duplicate request was queued. Patch existence is not owner implementation.
+The test is intentionally red while the owner remains schema v4. Its existence is not TESTED evidence and is not owner implementation.
+
+`patches/try-forever-provenance-record-path-projection.patch` remains base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and is explicitly **PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**. It proposes only:
+
+- importing the existing repository-relative display helper;
+- projecting serialized `SkillRecord.path` and `DiscoveryError.path` / `related_path` without rewriting internal records;
+- bumping the report contract from v4 to explicit schema v5;
+- correcting report-path authority prose to match every serialized path family; and
+- migrating the historical owner-emission regression's schema assertion in the same surgery, so applying v5 cannot knowingly create a deterministic v4 assertion failure.
 
 ## Current owner wound: record families remain unwired
 
-Authenticated owner readback still shows:
+Authenticated owner readback at the bound source head still shows:
 
 - `skills[*].path` serialized from `asdict(record)`; and
 - `discoveryErrors[*].path` / `related_path` serialized from `asdict(error)`.
 
-Those values therefore do **not yet consume** the new repository-relative display helper. The report authority prose says operator-facing paths are portable, so this is a real report-contract mismatch, not a cosmetic improvement.
+Those values therefore do **not yet consume** the repository-relative display helper. The report authority prose says operator-facing paths are portable, so this is a real report-contract mismatch, not a cosmetic improvement.
+
+## Mutation-lane truth
+
+The non-phone Computer Hands worker currently reports offline while `lane-try-forever-provenance-owner` is present among its active lanes. An active lane is not an exact request identity. No duplicate owner request may be created merely from lane presence; owner execution remains unresolved until an exact existing request/worker receipt or authenticated owner mutation readback establishes it.
 
 ## Evidence discipline
 
-Keep internal filesystem identity, report display projection, provenance authority, source implementation, queued work, tests, runtime, deployment, delivery, and acceptance separate.
+Keep internal filesystem identity, report display projection, provenance authority, supporting source, owner patch source, queued/executed mutation, tests, runtime, deployment, delivery, and acceptance separate.
 
 ## Current state
 
@@ -71,16 +83,19 @@ Keep internal filesystem identity, report display projection, provenance authori
 - collision-safe control/format/surrogate evidence projection: **YES / SOURCE**
 - path-policy source blob: **5c3e25121d2cca52561b235084d37ae2cea074a3**
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- regression blob: **8acb40c6cdf78dd48c4ba5ccb76eebed39edc894**
-- exact owner patch source: **YES / PROPOSED_NOT_APPLIED**
-- owner patch blob: **ad323583079ac63becc3c845fbeae8002a45a35d**
+- path-regression blob: **8acb40c6cdf78dd48c4ba5ccb76eebed39edc894**
+- owner v5 record-path integration regression source: **YES / RED_SOURCE / UNEXECUTED**
+- owner-v5-regression blob: **f813b2cb170ded33038ec86d0cf7d18e7b1ad52e**
+- exact owner patch source: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**
+- owner patch blob: **99e6a5bf2eac42b338274104ed7b9a38e1c9ccec**
 - existing owner projects repository root: **YES / SOURCE_WIRED**
 - existing owner projects generated-index display path: **YES / SOURCE_WIRED**
 - existing owner projects skill record paths through repository-relative policy: **NO**
 - existing owner projects discovery-error paths through repository-relative policy: **NO**
 - overall portable report-path owner wiring: **PARTIAL**
 - owner schema: **try-forever-skill-provenance.v4**
-- owner blob at latest authenticated readback: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
+- owner blob at authenticated bound readback: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
+- Computer Hands provenance owner execution: **UNRESOLVED / WORKER_OFFLINE / NO_DUPLICATE_REQUEST**
 - tested: **NO**
 - runtime/deployed/callable/executed/delivered/accepted: **NO**
 
