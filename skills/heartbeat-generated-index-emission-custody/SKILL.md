@@ -15,6 +15,8 @@ A generated index may be inspected against a certified clean repository snapshot
 
 A stable repository HEAD/cleanliness verdict cannot certify continuity of a separately mutable external index file. If the index cannot be re-read, its whole-artifact SHA-256 is missing/non-canonical, or the emission digest differs from the inspected digest, positive currentness is withheld as `UNRESOLVED`.
 
+The prior generated-index status itself is a typed evidence value, not free-form prose. Only `VERIFIED_CURRENT`, `STALE`, and `UNRESOLVED` are declared prior statuses. An unknown/case-drifted/internal status fails closed to `UNRESOLVED` at emission rather than being copied into durable operator evidence. A green late repository/artifact gate cannot rescue an undeclared prior status.
+
 ## Named-path preservation before topology admission
 
 The artifact gate can reject a symlink, junction, reparse point, or other redirecting spelling only if the existing provenance owner passes the caller's **named path** into that gate. Path normalization before topology admission must therefore be lexical only: make a relative CLI path absolute without dereferencing it.
@@ -44,7 +46,7 @@ Python exposes `st_file_attributes` / `st_reparse_tag` on Windows stat results, 
 
 These checks close special-file/FIFO admission, persistent Windows named-path reparse admission, and common pre-open replacement / post-open persistent replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades all observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
 
-Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
+Declared negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted. Undeclared prior status values are not preserved as a fourth ad-hoc state; they fail closed to `UNRESOLVED`.
 
 ## Hostile fixtures
 
@@ -60,11 +62,14 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - descriptor identity/size/mtime drift observed after the complete read rejects the observation;
 - persistent named-path replacement after descriptor open rejects at the post-read path gate;
 - external content A → content B yields `CHANGED` artifact custody even while repository custody can remain stable;
-- identical complete ordinary content can yield `STABLE` artifact custody.
+- identical complete ordinary content can yield `STABLE` artifact custody;
+- unknown/case-drifted prior status becomes `UNRESOLVED` even when both late gates are green.
 
 ## Current capability truth
 
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
+- declared prior-status vocabulary gate: **IMPLEMENTED_SOURCE**
+- emission-policy source blob: **fba139846ae816e8824dc96604782caf2401dbf6**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
 - finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
 - direct Windows named-path reparse admission gate: **IMPLEMENTED_SOURCE**
@@ -75,7 +80,9 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - named-path-preservation regression source: **REGRESSION_SOURCE / UNEXECUTED**
 - named-path-preservation owner patch: **PROPOSED_NOT_APPLIED**
 - existing provenance owner preserves caller named path for the future artifact gate: **NO**
-- hostile regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
+- hostile emission-policy regression including undeclared prior-status cases: **REGRESSION_SOURCE / UNEXECUTED**
+- emission-policy regression blob: **ebf11a38c352e5b230b94127b7adc24dc32e3973**
+- hostile artifact regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption of artifact/emission custody: **NO**
 - prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
 - universal wall-clock I/O deadline / atomic artifact binding: **NO**
