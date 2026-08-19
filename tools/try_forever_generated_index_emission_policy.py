@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+DECLARED_PRIOR_STATUSES = frozenset({"VERIFIED_CURRENT", "STALE", "UNRESOLVED"})
+
 
 @dataclass(frozen=True)
 class GeneratedIndexArtifactCustodyVerdict:
@@ -32,7 +34,9 @@ class GeneratedIndexEmissionVerdict:
 
 
 def _is_canonical_sha256(value: str) -> bool:
-    return len(value) == 64 and all(character in "0123456789abcdef" for character in value)
+    return len(value) == 64 and all(
+        character in "0123456789abcdef" for character in value
+    )
 
 
 def assess_generated_index_artifact_custody(
@@ -96,9 +100,17 @@ def project_generated_index_at_emission(
 
     A prior VERIFIED_CURRENT claim survives only when the final repository gate is
     STABLE_CLEAN *and* the exact generated-index artifact has a STABLE content
-    custody verdict. Negative or already-unresolved diagnostics remain diagnostic
-    and are never promoted.
+    custody verdict. Declared negative diagnostics remain diagnostic and are never
+    promoted. An unknown prior status is itself invalid evidence and therefore
+    fails closed to UNRESOLVED instead of being copied into the durable report.
     """
+
+    if prior_status not in DECLARED_PRIOR_STATUSES:
+        return GeneratedIndexEmissionVerdict(
+            status="UNRESOLVED",
+            reason="generated-index prior status is outside the declared evidence contract",
+            currentness_withheld=False,
+        )
 
     if prior_status != "VERIFIED_CURRENT":
         return GeneratedIndexEmissionVerdict(
