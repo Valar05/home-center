@@ -22,11 +22,11 @@ The helper captures one no-follow `SkillFileIdentity` containing device, inode/f
 
 ## Owner composition
 
-The existing provenance owner currently composes:
+The existing provenance owner now composes:
 
-`repository-owned skills root -> bounded traversal -> no-follow ordinary SKILL.md candidate -> bounded candidate set -> candidate-file identity observation -> path/collision checks -> bounded title -> exact bounded whole-file SHA -> candidate-file identity revalidation -> stable repository snapshot`
+`repository-owned skills root -> bounded traversal -> no-follow ordinary SKILL.md candidate -> bounded candidate set -> admitted candidate-file identity -> path/collision/containment checks -> pre-I/O candidate-file identity revalidation -> bounded title -> exact bounded whole-file SHA -> post-I/O candidate-file identity revalidation -> stable repository snapshot`
 
-The candidate topology gate fails the whole discovery before title/hash authority if a named `SKILL.md` is a symlink/redirector or non-ordinary file at enumeration time. Post-admission identity failure rejects that candidate record with an explicit discovery error; it never appends the observed title/hash as repository-skill authority.
+The candidate topology gate fails the whole discovery before title/hash authority if a named `SKILL.md` is a symlink/redirector or non-ordinary file at enumeration time. The new pre-I/O revalidation rejects persistent redirector/type/device/inode/size/mtime drift before either content reader. The later revalidation remains and rejects drift during/after content work before `SkillRecord` append.
 
 No second provenance probe, registry, controller, scheduler, phone path, or recovery owner is created.
 
@@ -39,35 +39,23 @@ No second provenance probe, registry, controller, scheduler, phone path, or reco
 
 Only `STABLE` is eligible to become a `SkillRecord`.
 
-## Pre-I/O topology wound
+## Pre-I/O topology repair
 
-The current owner still has a narrower degraded-operation gap between the initial no-follow identity observation and authority-facing content I/O:
+`tools/test_try_forever_skill_file_identity_integration.py` contains `test_redirector_replacement_before_title_io_must_be_revalidated_before_any_content_open`. The owner now has the source gate that this fixture requires: after containment and immediately before `markdown_title(...)`, it captures a fresh no-follow identity and compares it with the admitted identity. A persistent symlink/redirector replacement therefore takes the existing identity error path before either `markdown_title(...)` or `sha256_file(...)` is invoked.
 
-1. capture candidate identity;
-2. run containment logic;
-3. open the named path in `markdown_title(...)` with ordinary path I/O;
-4. open it again in `sha256_file(...)` with ordinary path I/O;
-5. only then capture/revalidate identity again.
+This is **SOURCE_WIRED**, not TESTED. The regression has not been observed passing on an authorized runner in this heartbeat.
 
-A candidate replaced after the first observation but before title/hash I/O can therefore be *rejected eventually* while the content I/O has already followed or waited on the replacement topology. That is insufficient for an authority lane whose finite-work contract must fail before reading a persistent redirector/special file.
+## Applied surgery provenance
 
-`tools/test_try_forever_skill_file_identity_integration.py` contains the intentionally RED fixture `test_redirector_replacement_before_title_io_must_be_revalidated_before_any_content_open`. It replaces an admitted ordinary candidate with a symlink at the last existing pre-I/O seam and requires the owner to reject on identity/topology **before `markdown_title` or `sha256_file` is called**.
+`patches/try-forever-provenance-owner-preio-v5.patch` records the exact applied surgery. It was base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82`; the owner source mutation landed at commit `bf91827aa74651e1500edd916a26ff9f6acac13e`, authenticated owner blob `e1d10fb4c917813bc89780486c79a5e2d2bc4bea`.
 
-## Combined owner surgery
-
-`patches/try-forever-provenance-owner-preio-v5.patch` is now the canonical prepared surgery for this wound. It is base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and is explicitly **PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**.
-
-The patch inserts a second no-follow candidate-file identity observation immediately after containment and immediately before either content reader. Persistent redirector/type/device/inode/size/mtime drift therefore takes the existing identity error path before content I/O. The later post-I/O revalidation remains in place.
-
-The same surgery also composes the independent schema-v5 record-path projection wound. Combining them under one exact base prevents two future patches from racing over the same large owner file; it does **not** merge their evidence claims or make either implemented.
-
-The fixture does not prescribe a second probe or a shadow reader. A future stronger handle-bound design may supersede the portable precheck, but it must retain the declared atomicity boundary rather than claim universal filesystem immunity.
+The same source surgery also composes the independent schema-v5 record-path projection wound. Combining the non-overlapping hunks under one base prevented two future whole-file mutations from racing; it does **not** merge their evidence claims.
 
 ## Atomicity boundary
 
 `STABLE` is an observation verdict, **not** an atomic file-handle claim.
 
-Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. Even with the prepared pre-I/O gate it does not prove absence of swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime content rewrites, replacement after the precheck, or title/hash reads being bound to one immutable file handle on every platform.
+Portable no-follow stat revalidation can detect persistent replacement and common in-place mutation. The new pre-I/O gate still does not prove absence of swap-and-restore races entirely between observations, inode/file-index reuse, same-size/same-mtime content rewrites, replacement after the precheck, or title/hash reads being bound to one immutable file handle on every platform.
 
 Do not rename `STABLE` to `ATOMIC`, `BOUND`, or `SAFE_TOCTOU` without platform-specific evidence and owner integration that actually earns that claim.
 
@@ -75,14 +63,7 @@ Do not rename `STABLE` to `ATOMIC`, `BOUND`, or `SAFE_TOCTOU` without platform-s
 
 `tools/test_try_forever_skill_file_identity.py` pins the pure helper.
 
-`tools/test_try_forever_skill_file_identity_integration.py` pins existing-owner source behavior for:
-
-- stable ordinary candidate authority;
-- named `SKILL.md` non-file topology rejection before title/hash work;
-- file-symlink rejection without following the target when the platform supports symlinks;
-- **RED / UNEXECUTED:** redirector replacement after initial identity admission must be rejected before any title/hash content I/O;
-- replacement after hashing rejected before `SkillRecord` append; and
-- identity-capture failure rejected before title/hash work.
+`tools/test_try_forever_skill_file_identity_integration.py` pins existing-owner source behavior for stable authority, named non-file/symlink rejection, pre-I/O persistent replacement rejection before content readers, replacement after hashing before record append, and identity-capture failure before content work.
 
 These are regression **sources** until an authorized runner produces test evidence.
 
@@ -91,9 +72,10 @@ These are regression **sources** until an authorized runner produces test eviden
 - helper source: **YES**;
 - static no-follow candidate topology gate in existing owner: **YES / SOURCE_WIRED**;
 - candidate-file identity bracket in existing owner: **YES / SOURCE_WIRED**;
-- pre-I/O redirector/special-topology revalidation: **NO / RED REGRESSION SOURCE**;
-- combined exact owner surgery: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**;
-- combined owner surgery blob: **8e71807cc5917d100c745b190e3b8a2e6e7a8c8f**;
+- pre-I/O redirector/special-topology revalidation: **YES / SOURCE_WIRED**;
+- applied owner source commit: **bf91827aa74651e1500edd916a26ff9f6acac13e**;
+- authenticated owner source blob: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**;
+- applied surgery provenance blob: **580bdc724c02086a14aacddddc568608968dc293**;
 - exact authenticated GitHub readback: **YES**;
 - regression source: **YES / UNEXECUTED**;
 - atomic cross-platform file binding: **NO**;
@@ -107,4 +89,4 @@ Do not consume or mutate Phone Hands, primary-phone execution, queue/relay recov
 
 ## Done
 
-This skill lights only when candidate-file identity/revalidation truth materially changes. A prepared patch does not imply owner wiring, finite pre-I/O admission, atomicity, test passage, runtime delivery, or phone acceptance.
+This skill lights only when candidate-file identity/revalidation truth materially changes. Source wiring does not imply atomicity, test passage, runtime delivery, or phone acceptance.
