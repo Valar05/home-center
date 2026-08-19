@@ -24,6 +24,11 @@ from try_forever_generated_index_alias_policy import (
     GeneratedIndexAliasError,
     resolve_consistent_alias,
 )
+from try_forever_skill_directory_traversal_guard import (
+    SkillDirectoryIdentity,
+    capture_skill_directory_identity,
+    revalidate_skill_directory_for_traversal,
+)
 from try_forever_skill_file_identity import (
     capture_skill_file_identity,
     revalidate_skill_file_identity,
@@ -32,6 +37,12 @@ from try_forever_skill_identity_set import find_case_insensitive_collisions
 from try_forever_skill_root_identity import (
     capture_skill_root_identity,
     revalidate_skill_root_identity,
+)
+from try_forever_skill_snapshot_authority import certify_repository_skills
+from try_forever_skill_title_fallback_policy import (
+    SkillFallbackTitleError,
+    admit_markdown_h1_title,
+    admit_skill_title,
 )
 
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
@@ -74,6 +85,16 @@ class SkillTraversalResourceLimitError(ValueError):
     """Repository skill traversal exceeded its declared filesystem-entry budget."""
 
 
+class SkillDirectoryTraversalTopologyError(ValueError):
+    """A queued child directory lost repository-owned traversal identity."""
+
+    def __init__(self, path: Path, *, status: str, reason: str):
+        super().__init__(reason)
+        self.path = path
+        self.status = status
+        self.reason = reason
+
+
 @dataclass(frozen=True)
 class SkillRecord:
     path: str
@@ -113,12 +134,7 @@ class RepositorySnapshotVerdict:
 
 
 def sha256_file(path: Path, *, max_bytes: int | None = None) -> str:
-    """Return an exact whole-file SHA only after EOF is reached inside budget.
-
-    The extra one-byte read at the limit distinguishes an exact-max file from a
-    max+1 file. An oversized file is rejected; a prefix digest is never returned
-    as repository-skill authority.
-    """
+    """Return an exact whole-file SHA only after EOF is reached inside budget."""
 
     limit = MAX_SKILL_HASH_BYTES if max_bytes is None else max_bytes
     if limit < 0:
@@ -142,7 +158,7 @@ def sha256_file(path: Path, *, max_bytes: int | None = None) -> str:
 
 
 def markdown_title(path: Path) -> str:
-    """Read one bounded H1 title without truncating hostile input into authority."""
+    """Read one bounded H1/fallback title without normalization laundering."""
 
     scanned_bytes = 0
     with path.open("rb") as handle:
@@ -151,7 +167,10 @@ def markdown_title(path: Path) -> str:
             read_limit = min(MAX_SKILL_TITLE_LINE_BYTES, remaining_scan)
             raw_line = handle.readline(read_limit + 1)
             if not raw_line:
-                return path.parent.name
+                return admit_skill_title(
+                    path.parent.name,
+                    max_chars=MAX_SKILL_TITLE_CHARS,
+                )
 
             scanned_bytes += len(raw_line)
             if len(raw_line) > read_limit:
@@ -160,20 +179,21 @@ def markdown_title(path: Path) -> str:
                 )
 
             line = raw_line.decode("utf-8")
-            stripped = line.strip()
-            if stripped.startswith("# "):
-                title = stripped[2:].strip()
-                if len(title) > MAX_SKILL_TITLE_CHARS:
-                    raise SkillTitleResourceLimitError(
-                        "skill title exceeds its character budget"
-                    )
+            title = admit_markdown_h1_title(
+                line,
+                max_chars=MAX_SKILL_TITLE_CHARS,
+            )
+            if title is not None:
                 return title
 
         if handle.read(1):
             raise SkillTitleResourceLimitError(
                 "skill title was not resolved within the scan budget"
             )
-    return path.parent.name
+    return admit_skill_title(
+        path.parent.name,
+        max_chars=MAX_SKILL_TITLE_CHARS,
+    )
 
 
 def bounded_error_path(relative: str) -> str:
@@ -328,15 +348,12 @@ def bounded_skill_candidates(
     max_candidates: int | None = None,
     max_entries: int | None = None,
 ) -> list[Path]:
-    """Return deterministic SKILL.md candidates inside two resource throats.
+    """Return deterministic SKILL.md candidates inside bounded traversal throats.
 
-    The traversal counts every encountered directory entry, including unrelated
-    files/directories, and stops at ``entry_limit + 1``. Directory symlinks are
-    never followed. Named ``SKILL.md`` entries must be ordinary files under a
-    no-follow observation; redirectors/non-files fail the whole candidate gate.
-    Candidate paths are accumulated only through ``candidate_limit + 1``.
-    Sorting happens only after both bounded admissions, so discovery never
-    materializes an unbounded recursive path list.
+    Each queued directory carries the no-follow identity observed when its parent
+    admitted it. The same path is re-observed immediately before its later scan;
+    persistent redirector/type/device/inode drift fails the whole discovery. This
+    remains a portable observation pair, not an atomic directory-handle binding.
     """
 
     candidate_limit = (
@@ -351,11 +368,26 @@ def bounded_skill_candidates(
         raise ValueError("skill traversal entry budget must be non-negative")
 
     candidates: list[Path] = []
-    stack: list[Path] = [skills_root]
+    root_directory_identity = capture_skill_directory_identity(skills_root)
+    stack: list[tuple[Path, SkillDirectoryIdentity]] = [
+        (skills_root, root_directory_identity)
+    ]
     entries_seen = 0
 
     while stack:
-        directory = stack.pop()
+        directory, discovered_directory_identity = stack.pop()
+        before_scan_identity = capture_skill_directory_identity(directory)
+        traversal_verdict = revalidate_skill_directory_for_traversal(
+            discovered_directory_identity,
+            before_scan_identity,
+        )
+        if traversal_verdict.status != "STABLE":
+            raise SkillDirectoryTraversalTopologyError(
+                directory,
+                status=traversal_verdict.status,
+                reason=traversal_verdict.reason,
+            )
+
         discovered: list[tuple[str, Path, bool, bool]] = []
         with os.scandir(directory) as iterator:
             for entry in iterator:
@@ -372,12 +404,10 @@ def bounded_skill_candidates(
                     if entry.is_symlink() or not entry.is_file(follow_symlinks=False):
                         raise SkillCandidateTopologyError(path)
                     is_skill_file = True
-                discovered.append(
-                    (entry.name, path, is_directory, is_skill_file)
-                )
+                discovered.append((entry.name, path, is_directory, is_skill_file))
 
         discovered.sort(key=lambda item: item[0])
-        child_directories: list[Path] = []
+        child_directories: list[tuple[Path, SkillDirectoryIdentity]] = []
         for _name, path, is_directory, is_skill_file in discovered:
             if is_skill_file:
                 candidates.append(path)
@@ -386,7 +416,9 @@ def bounded_skill_candidates(
                         f"skill candidate count exceeds declared budget {candidate_limit}"
                     )
             if is_directory:
-                child_directories.append(path)
+                child_directories.append(
+                    (path, capture_skill_directory_identity(path))
+                )
 
         for child in reversed(child_directories):
             stack.append(child)
@@ -396,15 +428,7 @@ def bounded_skill_candidates(
 
 
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
-    """Discover independent skill records with fail-closed resource throats.
-
-    Filesystem traversal and candidate enumeration are admitted before any
-    per-file title/hash authority. If either global discovery throat or the
-    named-candidate topology gate fails, discovery returns no partial records so
-    an omitted path cannot hide an identity collision. After those gates, cheap
-    bounded title admission intentionally precedes whole-file hashing, bracketed
-    by candidate-file no-follow identity observations.
-    """
+    """Discover independent skill records with fail-closed resource throats."""
 
     skills_root = repo_root / "skills"
     try:
@@ -454,6 +478,25 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
     try:
         candidates = bounded_skill_candidates(skills_root)
+    except SkillDirectoryTraversalTopologyError as error:
+        try:
+            relative = error.path.relative_to(repo_root).as_posix()
+        except ValueError:
+            relative = "skills"
+        return [], [
+            DiscoveryError(
+                path=bounded_error_path(relative),
+                stage="traversal",
+                error_type=(
+                    "SkillDirectoryTraversal"
+                    + error.status.title().replace("_", "")
+                ),
+                reason=(
+                    "queued child-directory traversal identity was rejected; "
+                    f"partial repository-skill authority is forbidden: {error.reason}"
+                ),
+            )
+        ]
     except SkillCandidateTopologyError as error:
         try:
             relative = error.path.relative_to(repo_root).as_posix()
@@ -600,6 +643,16 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     stage="title",
                     error=error,
                     reason="skill title extraction exceeded the declared resource budget",
+                )
+            )
+            continue
+        except SkillFallbackTitleError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="title",
+                    error=error,
+                    reason="skill title failed the declared source resource/semantic contract",
                 )
             )
             continue
@@ -1010,19 +1063,31 @@ def main() -> int:
             f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
         )
 
+    certification = certify_repository_skills(
+        skills,
+        snapshot_status=snapshot.status,
+        expected_head_error=head_error,
+    )
+
     result = {
-        "schema": "try-forever-skill-provenance.v2",
+        "schema": "try-forever-skill-provenance.v3",
         "repositoryRoot": str(repo_root),
         "currentHead": observed_head,
         "currentTreeDirty": dirty_after,
         "repositorySnapshot": asdict(snapshot),
         "expectedHeadError": head_error,
-        "skillCount": len(skills),
-        "skills": [asdict(record) for record in skills],
+        "skillAuthority": {
+            "status": certification.status,
+            "reason": certification.reason,
+            "authoritative": certification.authoritative,
+        },
+        "discoveredSkillCount": len(skills),
+        "skillCount": certification.count,
+        "skills": [asdict(record) for record in certification.records],
         "discoveryErrors": [asdict(error) for error in discovery_errors],
         "generatedIndex": asdict(index),
         "authority": {
-            "repositorySkill": "direct current-tree skills/**/SKILL.md readback after bounded filesystem traversal, no-follow candidate topology admission, set-level case-insensitive identity admission, candidate-file identity revalidation, final skills-root revalidation, and a STABLE_CLEAN pre/post discovery snapshot",
+            "repositorySkill": "authority-facing records are emitted only after bounded direct discovery plus a STABLE_CLEAN pre/post snapshot and any expected-head binding; uncertified discoveries remain diagnostic only",
             "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency; never substitutes for direct skill existence",
         },
         "capabilityBoundary": emitted_capability_boundary(),
