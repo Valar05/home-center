@@ -7,7 +7,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from try_forever_provenance_report_path import project_report_path
+from try_forever_provenance_report_path import (
+    project_report_path,
+    project_repository_relative_report_path,
+)
 
 
 class ProvenanceReportPathTest(unittest.TestCase):
@@ -24,6 +27,43 @@ class ProvenanceReportPathTest(unittest.TestCase):
         self.assertEqual("reports/skills/index.json", projection.display_path)
         self.assertEqual("REPOSITORY", projection.scope)
         self.assertNotIn("/srv/home-center", projection.display_path)
+
+    def test_repository_relative_record_path_uses_same_projection_without_filesystem_lookup(self) -> None:
+        projection = project_repository_relative_report_path("skills/swan/SKILL.md")
+        self.assertEqual("skills/swan/SKILL.md", projection.display_path)
+        self.assertEqual("REPOSITORY", projection.scope)
+
+    def test_repository_relative_record_path_reveals_controls_and_escapes_literal_markers(self) -> None:
+        projected_control = project_repository_relative_report_path(
+            "skills/line\nbidi\u202ejoin\u200d/SKILL.md"
+        )
+        literal_marker = project_repository_relative_report_path(
+            r"skills/line\u{000A}bidi\u{202E}join\u{200D}/SKILL.md"
+        )
+        self.assertNotIn("\n", projected_control.display_path)
+        self.assertNotIn("\u202e", projected_control.display_path)
+        self.assertNotIn("\u200d", projected_control.display_path)
+        self.assertIn(r"\u{000A}", projected_control.display_path)
+        self.assertIn(r"\u{202E}", projected_control.display_path)
+        self.assertIn(r"\u{200D}", projected_control.display_path)
+        self.assertNotEqual(projected_control.display_path, literal_marker.display_path)
+        self.assertIn(r"\\u{000A}", literal_marker.display_path)
+
+    def test_repository_relative_record_path_rejects_absolute_and_parent_traversal_channels(self) -> None:
+        with self.assertRaises(ValueError):
+            project_repository_relative_report_path("/home/alice/secret")
+        with self.assertRaises(ValueError):
+            project_repository_relative_report_path("skills/../secret")
+        with self.assertRaises(ValueError):
+            project_repository_relative_report_path("")
+
+    def test_repository_relative_record_path_is_hard_bounded_without_splitting_marker(self) -> None:
+        relative = "skills/" + ("\u202e" * 12) + ("swan-" * 20) + "/SKILL.md"
+        projection = project_repository_relative_report_path(relative, max_chars=64)
+        self.assertLessEqual(len(projection.display_path), 64)
+        self.assertIn("...#", projection.display_path)
+        prefix = projection.display_path.split("...#", 1)[0]
+        self.assertNotRegex(prefix, r"\\u\{[0-9A-F]*$")
 
     def test_repository_control_and_format_characters_are_revealed_not_spoken_raw(self) -> None:
         projection = project_report_path(
