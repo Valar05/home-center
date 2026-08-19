@@ -22,7 +22,10 @@ The current provenance owner still builds the **initial** discovery snapshot fro
 2. direct `discover_skills(...)`;
 3. a second bounded observation after discovery;
 4. `assess_repository_snapshot(...)` compares those two observations;
-5. the later final-emission observation remains a third, independent preservation-only custody check.
+5. expected-head binding derives from the certified snapshot observations, not retired split helper locals; and
+6. the later final-emission observation remains a third, independent preservation-only custody check.
+
+The completed owner surgery must retire `command_text`, `git_head`, and `git_dirty` from this owner module rather than leaving dead unbounded observation helpers as a tempting future regression path.
 
 This narrows each observation. It does **not** prove atomic repository binding across discovery, swap-and-restore immunity, or identity-reuse immunity.
 
@@ -33,13 +36,14 @@ Current source state for this heartbeat:
 - supporting certification policy: **YES / SOURCE**
 - existing provenance owner consumes certification policy: **YES / SOURCE_WIRED**
 - current owner schema: **try-forever-skill-provenance.v5**
-- authenticated owner blob: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**
+- authenticated owner blob at this wound: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**
 - one-process final-emission observation owner wiring: **YES / SOURCE_WIRED**
 - one-process initial before/after discovery observation owner wiring: **NO**
 - RED owner-boundary regression source: `tools/test_try_forever_provenance_initial_snapshot_owner_boundary.py` **YES / REGRESSION_SOURCE / UNEXECUTED**
+- RED regression additionally pins call order, expected-head derivation, and retirement of split helper symbols: **YES / SOURCE**
 - exact owner delta: `patches/try-forever-provenance-initial-snapshot-observation.patch` **YES / PROPOSED_NOT_APPLIED**
 - tested: **NO**
 - runtime/deployed/callable/delivered/accepted: **NO**
 
 ## Ownership / firewall
-No second provenance probe, registry, index daemon, overlay controller, scheduler, Phone Hands lane, or P0 recovery owner may be created for this rule. Compose the existing provenance owner and existing repository-observation organ only. Phone/P0 surfaces are outside this skill.
+No second provenance probe, registry, index daemon, overlay controller, scheduler, Phone Hands lane, or P0 recovery owner may be created for this rule. Compose the existing provenance owner and existing repository-observation organ only. If the canonical non-phone mutation worker is offline or its lane identity is unresolved, do not create a duplicate request; continue independent repository-source fronts and preserve the owner boundary. Phone/P0 surfaces are outside this skill.
