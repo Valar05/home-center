@@ -10,6 +10,7 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 - Repository-local report paths project to bounded repo-relative POSIX paths.
 - External report paths project to the constant marker `<external-path>`. Do not preserve a deterministic hash of the absolute host path: a digest can become a dictionary oracle over usernames, home directories, drive roots, mount points, or temporary-directory layouts.
 - Long repository-relative report paths are hard-bounded with a deterministic suffix because that text is already within the allowed repository-relative evidence domain.
+- The display budget has a declared semantic minimum; a caller may not shrink it until `<external-path>` or the bounded-suffix contract becomes amputated nonsense.
 - Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
 
 ## Evidence discipline
@@ -19,6 +20,7 @@ Current state:
 - pure path-projection policy: **YES / SOURCE**
 - hostile regression source: **YES / SOURCE / UNEXECUTED**
 - first deterministic external-path fingerprint design: **REJECTED DURING SOURCE REVIEW**
+- first tiny-budget marker-amputation behavior: **REJECTED DURING SOURCE REVIEW**
 - existing provenance owner consumes the policy: **NO**
 - owner report schema changed: **NO**
 - tested: **NO**
