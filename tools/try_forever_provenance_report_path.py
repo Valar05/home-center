@@ -21,10 +21,11 @@ MAX_REPORT_PATH_CHARS = 256
 class ReportPathProjection:
     display_path: str
     scope: str
-    fingerprint: str
 
 
 def _fingerprint(text: str) -> str:
+    """Bound already-allowed repository-relative text; never fingerprint host paths."""
+
     return hashlib.sha256(text.encode("utf-8", errors="surrogatepass")).hexdigest()
 
 
@@ -55,34 +56,30 @@ def project_report_path(
     """Project one path without leaking host-local absolute topology.
 
     Repository-local paths become bounded POSIX paths relative to the repository
-    root.  The repository root itself becomes ``.``.  External paths become an
-    opaque deterministic fingerprint marker: enough to tell two observations
-    apart without serializing usernames, home directories, drive roots, mount
-    points, or temporary-directory layouts.
+    root.  The repository root itself becomes ``.``.  External paths become the
+    constant marker ``<external-path>``: durable reports do not preserve a hash
+    oracle over usernames, home directories, drive roots, mount points, or temp
+    layouts merely to distinguish diagnostic files.
 
-    The fingerprint is diagnostic only and MUST NOT be used as filesystem or
-    provenance identity.
+    This is display projection only.  It never changes the exact Path retained by
+    the caller for I/O or provenance checks.
     """
 
     if max_chars <= 0:
         raise ValueError("report path budget must be positive")
     if path is None:
-        return ReportPathProjection(display_path="", scope="NONE", fingerprint="")
+        return ReportPathProjection(display_path="", scope="NONE")
 
     repo = _absolute_lexical(repo_root)
     candidate = _absolute_lexical(path)
-    exact = os.fspath(candidate)
-    digest = _fingerprint(exact)
 
     try:
         relative_path = candidate.relative_to(repo)
     except ValueError:
-        marker = f"<external-path>#{digest[:16]}"
-        return ReportPathProjection(
-            display_path=marker[:max_chars],
-            scope="EXTERNAL",
-            fingerprint=digest,
-        )
+        marker = "<external-path>"
+        if len(marker) > max_chars:
+            return ReportPathProjection(display_path=marker[:max_chars], scope="EXTERNAL")
+        return ReportPathProjection(display_path=marker, scope="EXTERNAL")
 
     relative = relative_path.as_posix()
     if relative in ("", "."):
@@ -90,5 +87,4 @@ def project_report_path(
     return ReportPathProjection(
         display_path=_bounded_relative(relative, max_chars=max_chars),
         scope="REPOSITORY",
-        fingerprint="",
     )
