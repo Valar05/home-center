@@ -17,68 +17,47 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 - External report paths project to the constant marker `<external-path>`; do not preserve a host-path hash oracle.
 - Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
 
-## Existing-owner schema v4
+## Existing-owner schema v5
 
-Schema `try-forever-skill-provenance.v4` currently uses `project_report_path(...)` for:
+Schema `try-forever-skill-provenance.v5` now uses display projection for every serialized path family:
 
-- `repositoryRoot`, which emits `.` plus `repositoryRootScope=REPOSITORY`; and
-- `generatedIndex.path`, which emits a bounded repository-relative path or the constant `<external-path>` plus an explicit scope.
+- `repositoryRoot` projects to `.` plus `repositoryRootScope=REPOSITORY`;
+- `generatedIndex.path` uses bounded repository-relative or constant `<external-path>` projection plus explicit scope;
+- `skills[*].path` uses `project_repository_relative_report_path(...)`; and
+- `discoveryErrors[*].path` and non-empty `related_path` use that same repository-relative display channel.
 
-The exact generated-index `Path` is retained separately inside the process for initial and late artifact custody I/O. The display path never feeds those gates.
+The exact generated-index `Path`, `SkillRecord.path`, and `DiscoveryError` path identities remain internal authority/evidence inputs. The display text is created only at report serialization.
 
-## Repository-relative record projection source
+## Repository-relative projection source
 
-`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection as root/index report projection without reconstructing a host path or touching the filesystem.
-
-In-budget paths remain readable. Over-budget paths deliberately collapse to a constant repository marker plus digest rather than truncating arbitrary Unicode source text.
+`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)`. In-budget paths remain readable and collision-safe. Over-budget paths deliberately collapse to a constant repository marker plus digest rather than truncating arbitrary Unicode source text.
 
 Hostile regression source pins ordinary repository-relative skill paths, newline/bidi/ZWJ visibility, literal-marker collision resistance, over-budget combining and emoji-ZWJ collapse, repository-local digest distinction, and fail-closed absolute/parent-traversal/empty misuse.
 
-These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
+## Owner integration source
 
-## Owner integration regression
+`tools/test_try_forever_provenance_owner_v5_record_paths.py` pins existing-owner v5 serialization. It requires:
 
-`tools/test_try_forever_provenance_owner_v5_record_paths.py` is a commit-bound **RED owner-integration regression source**. It requires the future existing-owner v5 report to:
+- `SkillRecord.path` through the repository-relative display channel;
+- `DiscoveryError.path` and `related_path` through that same channel;
+- literal-marker versus actual invisible/control character distinction; and
+- exact internal record identities unchanged by display serialization.
 
-- serialize `SkillRecord.path` through the repository-relative display channel;
-- serialize `DiscoveryError.path` and `related_path` through that same channel;
-- preserve literal-marker versus actual invisible/control character distinction; and
-- leave the owner's exact internal record identities unchanged by display serialization.
+The owner source now contains the matching integration. The regression remains **UNEXECUTED** until an authorized runner produces evidence.
 
-The test is intentionally red while the owner remains schema v4. Its existence is not TESTED evidence and is not owner implementation.
+## Applied surgery provenance
 
-## Combined owner surgery
+`patches/try-forever-provenance-owner-preio-v5.patch` records the applied owner surgery. It was base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82`; owner source landed at commit `bf91827aa74651e1500edd916a26ff9f6acac13e`, authenticated blob `e1d10fb4c917813bc89780486c79a5e2d2bc4bea`.
 
-`patches/try-forever-provenance-owner-preio-v5.patch` is now the canonical exact prepared surgery for the record-path owner wound. It is base-locked to current owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and historical emission fixture blob `ebea66749d5038be4d303827681df38adfe1d554`, with status **PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**.
+The historical owner emission fixture was migrated to schema v5 at commit `fc9a26d0f2670977f0b90dfc8734d0d6720a88f`, blob `492a66c6a2145b167c16fb05564b461d4391c012`.
 
-The surgery proposes only existing-owner composition:
+The same source surgery also composes the independent pre-I/O candidate-file identity gate. Combining the non-overlapping hunks under one exact base prevented competing whole-file mutations; it does **not** merge the evidence claims.
 
-- import the existing repository-relative display helper;
-- project serialized `SkillRecord.path` and `DiscoveryError.path` / `related_path` without rewriting internal records;
-- bump the report contract from v4 to explicit schema v5;
-- correct report-path authority prose to match every serialized path family; and
-- migrate the historical owner-emission regression's schema assertion in the same surgery.
-
-The same blob-locked surgery also composes the independent pre-I/O candidate-file identity gate. Combining those non-overlapping hunks under one base prevents two future patch applications from racing over the same large sole owner file. It does **not** merge their evidence claims and does not make either implemented.
-
-The older `patches/try-forever-provenance-record-path-projection.patch` remains historical supporting provenance; the combined patch supersedes it as the preferred future owner surgery while both are unapplied.
-
-## Current owner wound: record families remain unwired
-
-Authenticated owner readback still shows:
-
-- `skills[*].path` serialized from `asdict(record)`; and
-- `discoveryErrors[*].path` / `related_path` serialized from `asdict(error)`.
-
-Those values therefore do **not yet consume** the repository-relative display helper. The report authority prose says operator-facing paths are portable, so this is a real report-contract mismatch, not a cosmetic improvement.
-
-## Mutation-lane truth
-
-The retired Command Center Codex worker surface is not a current Home Center execution capability. Do not fabricate a worker receipt or queue a phone-shaped substitute. The audited GitHub-admin lane can replace complete files under blob lock but is not a patch interpreter; until the exact owner surgery is actually applied and read back, owner record-path wiring remains NO.
+The older `patches/try-forever-provenance-record-path-projection.patch` is historical proposal provenance only and is superseded by the applied combined surgery.
 
 ## Evidence discipline
 
-Keep internal filesystem identity, report display projection, provenance authority, supporting source, owner patch source, queued/executed mutation, tests, runtime, deployment, delivery, and acceptance separate.
+Keep internal filesystem identity, report display projection, provenance authority, implemented source, tests, runtime, deployment, delivery, and acceptance separate.
 
 ## Current state
 
@@ -88,19 +67,18 @@ Keep internal filesystem identity, report display projection, provenance authori
 - over-budget repository-local partial-grapheme avoidance: **YES / SOURCE**;
 - path-policy source blob: **fd79305fa9ea6413dadbd15f9eb2ccc8b27e1a69**;
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
-- owner v5 record-path integration regression source: **YES / RED_SOURCE / UNEXECUTED**;
-- combined exact owner surgery: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**;
-- combined owner surgery blob: **8e71807cc5917d100c745b190e3b8a2e6e7a8c8f**;
+- owner v5 record-path integration regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
 - existing owner projects repository root: **YES / SOURCE_WIRED**;
 - existing owner projects generated-index display path: **YES / SOURCE_WIRED**;
-- existing owner projects skill record paths through repository-relative policy: **NO**;
-- existing owner projects discovery-error paths through repository-relative policy: **NO**;
-- overall portable report-path owner wiring: **PARTIAL**;
-- owner schema: **try-forever-skill-provenance.v4**;
-- owner blob at authenticated bound readback: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**;
+- existing owner projects skill record paths through repository-relative policy: **YES / SOURCE_WIRED**;
+- existing owner projects discovery-error paths through repository-relative policy: **YES / SOURCE_WIRED**;
+- overall portable report-path owner wiring: **YES / SOURCE_WIRED**;
+- owner schema: **try-forever-skill-provenance.v5**;
+- authenticated owner blob: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**;
+- applied surgery provenance blob: **580bdc724c02086a14aacddddc568608968dc293**;
 - tested: **NO**;
 - runtime/deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Ownership / firewall
 
-No second provenance probe, serializer daemon, path registry, overlay controller, Phone Hands lane, or P0 owner may be created. Compose the existing provenance owner only. Phone/P0 consumption and mutation remain zero.
+No second provenance probe, serializer daemon, path registry, overlay controller, Phone Hands lane, or P0 owner may be created. Phone/P0 consumption and mutation remain zero.
