@@ -61,9 +61,39 @@ class ProvenanceReportPathTest(unittest.TestCase):
         relative = "skills/" + ("\u202e" * 12) + ("swan-" * 20) + "/SKILL.md"
         projection = project_repository_relative_report_path(relative, max_chars=64)
         self.assertLessEqual(len(projection.display_path), 64)
-        self.assertIn("...#", projection.display_path)
+        self.assertTrue(projection.display_path.startswith("<repo-path>...#"))
         prefix = projection.display_path.split("...#", 1)[0]
         self.assertNotRegex(prefix, r"\\u\{[0-9A-F]*$")
+
+    def test_over_budget_path_collapses_without_partial_combining_grapheme(self) -> None:
+        relative = "skills/" + ("A" * 48) + "e\u0301" + ("tail-" * 12) + "/SKILL.md"
+        projection = project_repository_relative_report_path(relative, max_chars=64)
+        self.assertLessEqual(len(projection.display_path), 64)
+        self.assertRegex(projection.display_path, r"^<repo-path>\.\.\.#[0-9a-f]{16}$")
+        self.assertNotIn("e", projection.display_path.split("...#", 1)[0])
+        self.assertNotIn("\u0301", projection.display_path)
+
+    def test_over_budget_path_collapses_without_partial_emoji_zwj_grapheme(self) -> None:
+        relative = "skills/" + ("A" * 48) + "👩‍🚀" + ("tail-" * 12) + "/SKILL.md"
+        projection = project_repository_relative_report_path(relative, max_chars=64)
+        self.assertLessEqual(len(projection.display_path), 64)
+        self.assertRegex(projection.display_path, r"^<repo-path>\.\.\.#[0-9a-f]{16}$")
+        self.assertNotIn("👩", projection.display_path)
+        self.assertNotIn("🚀", projection.display_path)
+        self.assertNotIn("\u200d", projection.display_path)
+
+    def test_distinct_over_budget_repository_paths_keep_distinct_repo_local_digests(self) -> None:
+        first = project_repository_relative_report_path(
+            "skills/" + ("A" * 100) + "/SKILL.md",
+            max_chars=64,
+        )
+        second = project_repository_relative_report_path(
+            "skills/" + ("B" * 100) + "/SKILL.md",
+            max_chars=64,
+        )
+        self.assertNotEqual(first.display_path, second.display_path)
+        self.assertTrue(first.display_path.startswith("<repo-path>...#"))
+        self.assertTrue(second.display_path.startswith("<repo-path>...#"))
 
     def test_repository_control_and_format_characters_are_revealed_not_spoken_raw(self) -> None:
         projection = project_report_path(
@@ -127,7 +157,7 @@ class ProvenanceReportPathTest(unittest.TestCase):
         )
         self.assertEqual("REPOSITORY", projection.scope)
         self.assertLessEqual(len(projection.display_path), 80)
-        self.assertIn("...#", projection.display_path)
+        self.assertRegex(projection.display_path, r"^<repo-path>\.\.\.#[0-9a-f]{16}$")
 
     def test_none_stays_explicitly_none(self) -> None:
         projection = project_report_path(Path("/srv/home-center"), None)
