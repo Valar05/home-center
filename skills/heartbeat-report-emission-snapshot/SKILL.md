@@ -10,14 +10,17 @@ A clean repository snapshot observed around direct skill discovery can become st
 - A final clean observation may narrow the late custody window but **does not prove atomic repository binding**. Swap-and-restore, filesystem identity reuse, or mutation after the final observation remain outside the claim.
 - The final check must not upgrade an earlier uncertified snapshot. No certified HEAD means no late revalidation can manufacture authority.
 - If the final gate fails after an earlier certification, authority-facing repository-skill records must be zeroed and the report must name an emission-snapshot failure rather than leave the earlier certification floating forward.
+- A generated index that was `VERIFIED_CURRENT` against the earlier certified snapshot cannot remain current after the final custody gate fails. Its positive currentness is withheld as `UNRESOLVED`; already-negative `STALE`/`UNRESOLVED` diagnostics may remain diagnostic.
+- Do not re-read or re-verify the generated index after the declared final repository-custody observation merely to recover a positive claim. That would create new evidence work after the supposed final gate.
 - Strict mode must treat a failed final-emission gate as failure.
 - Owner integration changes the durable report contract and therefore requires schema `try-forever-skill-provenance.v4` rather than silently mutating v3.
 
 ## Evidence discipline
-Keep discovery-time snapshot certification, final-emission observation, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
+Keep discovery-time snapshot certification, generated-index inspection, final-emission observation, atomic binding, source implementation, regression source, execution, tests, runtime, deployment, delivery, and acceptance separate.
 
 Current state:
 - pure final-emission revalidation policy: **YES / SOURCE**
+- generated-index emission-custody projection policy: **YES / SOURCE**
 - hostile policy regression source: **YES / SOURCE / UNEXECUTED**
 - owner-integration regression source: **YES / SOURCE / UNEXECUTED**
 - exact existing-owner integration delta: **YES / PROPOSED_NOT_APPLIED**
