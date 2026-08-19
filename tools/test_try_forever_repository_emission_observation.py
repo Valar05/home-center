@@ -52,6 +52,24 @@ def test_untracked_change_marks_same_observation_dirty():
     assert observed.dirty is True
 
 
+def test_non_utf8_path_bytes_mark_dirty_without_decoding_the_path():
+    observed = parse_porcelain_v2_branch_status(
+        f"# branch.oid {HEAD}\n".encode("ascii") + b"? skills/\xff/SKILL.md\n"
+    )
+    assert observed.status == "OBSERVED"
+    assert observed.head == HEAD
+    assert observed.dirty is True
+
+
+def test_non_ascii_branch_oid_fails_closed_without_host_locale_decoding():
+    observed = parse_porcelain_v2_branch_status(
+        b"# branch.oid " + (HEAD[:-1].encode("ascii") + b"\xff") + b"\n"
+    )
+    assert observed.status == "UNAVAILABLE"
+    assert observed.head == ""
+    assert observed.dirty is None
+
+
 def test_submodule_change_record_marks_same_observation_dirty():
     observed = parse_porcelain_v2_branch_status(
         f"# branch.oid {HEAD}\n"
@@ -138,16 +156,17 @@ def test_repository_emission_observation_must_bound_git_status_execution(monkeyp
     assert "deadline" in observed.reason
 
 
-def test_completed_bounded_git_status_forces_submodule_visibility(monkeypatch, tmp_path):
+def test_completed_bounded_git_status_forces_submodule_visibility_and_keeps_bytes(monkeypatch, tmp_path):
     seen = {}
 
     def completed(*args, **kwargs):
         seen["command"] = args[0]
+        seen["text"] = kwargs.get("text")
         assert kwargs.get("timeout") == GIT_STATUS_TIMEOUT_SECONDS
         return subprocess.CompletedProcess(
             args=args[0],
             returncode=0,
-            stdout=f"# branch.oid {HEAD}\n# branch.head main\n",
+            stdout=f"# branch.oid {HEAD}\n# branch.head main\n".encode("ascii"),
         )
 
     monkeypatch.setattr(emission_observation.subprocess, "run", completed)
@@ -161,6 +180,7 @@ def test_completed_bounded_git_status_forces_submodule_visibility(monkeypatch, t
         "--untracked-files=normal",
         "--ignore-submodules=none",
     ]
+    assert seen["text"] is False
     assert observed.status == "OBSERVED"
     assert observed.head == HEAD
     assert observed.dirty is False
