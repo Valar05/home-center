@@ -4,11 +4,13 @@
 import hashlib
 import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 import try_forever_generated_index_artifact_observation as artifact_observation
 from try_forever_generated_index_artifact_observation import (
+    WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT,
     GeneratedIndexArtifactChangedError,
     GeneratedIndexArtifactResourceLimitError,
     GeneratedIndexArtifactTopologyError,
@@ -17,6 +19,19 @@ from try_forever_generated_index_artifact_observation import (
 from try_forever_generated_index_emission_policy import (
     assess_generated_index_artifact_custody,
 )
+
+
+def _with_windows_reparse_metadata(metadata, *, tag=0xA000001A):
+    return SimpleNamespace(
+        st_mode=metadata.st_mode,
+        st_ino=metadata.st_ino,
+        st_dev=metadata.st_dev,
+        st_size=metadata.st_size,
+        st_mtime=metadata.st_mtime,
+        st_mtime_ns=getattr(metadata, "st_mtime_ns", int(metadata.st_mtime * 1_000_000_000)),
+        st_file_attributes=WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT,
+        st_reparse_tag=tag,
+    )
 
 
 def test_exact_budget_reaches_eof_and_returns_whole_artifact_sha(tmp_path):
@@ -57,6 +72,38 @@ def test_non_regular_fifo_fails_closed_before_authority_open(tmp_path, monkeypat
 
     monkeypatch.setattr(os, "open", forbidden_open)
     with pytest.raises(GeneratedIndexArtifactTopologyError):
+        observe_generated_index_artifact(path, max_bytes=1024)
+
+
+def test_windows_reparse_regular_file_shape_fails_closed_before_authority_open(tmp_path, monkeypatch):
+    path = tmp_path / "index.json"
+    path.write_text('{"cloud":"stub"}', encoding="utf-8")
+    real_lstat = Path.lstat
+    fake_reparse = _with_windows_reparse_metadata(path.stat())
+
+    def reparse_lstat(self):
+        if self == path:
+            return fake_reparse
+        return real_lstat(self)
+
+    def forbidden_open(*_args, **_kwargs):
+        raise AssertionError("Windows reparse-point rejection must happen before os.open")
+
+    monkeypatch.setattr(Path, "lstat", reparse_lstat)
+    monkeypatch.setattr(artifact_observation.os, "open", forbidden_open)
+
+    with pytest.raises(GeneratedIndexArtifactTopologyError, match="reparse-point"):
+        observe_generated_index_artifact(path, max_bytes=1024)
+
+
+def test_opened_descriptor_reparse_metadata_fails_closed_after_preopen_admission(tmp_path, monkeypatch):
+    path = tmp_path / "index.json"
+    path.write_text('{"ordinary":"before-open"}', encoding="utf-8")
+    fake_reparse = _with_windows_reparse_metadata(path.stat())
+
+    monkeypatch.setattr(artifact_observation.os, "fstat", lambda _descriptor: fake_reparse)
+
+    with pytest.raises(GeneratedIndexArtifactTopologyError, match="reparse-point"):
         observe_generated_index_artifact(path, max_bytes=1024)
 
 
