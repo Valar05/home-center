@@ -60,7 +60,7 @@ class ProvenanceReportPathTest(unittest.TestCase):
         )
         self.assertLessEqual(len(projection.display_path), 64)
         prefix = projection.display_path.split("...#", 1)[0]
-        self.assertNotRegex(prefix, r"\\u\{[0-9A-F]{0,3}$")
+        self.assertNotRegex(prefix, r"\\u\{[0-9A-F]*$")
 
     def test_external_path_never_serializes_host_topology_or_hash_oracle(self) -> None:
         secret_path = Path("/home/alice/private/generated-index.json")
