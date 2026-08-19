@@ -1,0 +1,36 @@
+# TRY FOREVER generated-index named-path preservation
+#
+# State: PROPOSED_NOT_APPLIED
+# Owner base blob: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
+# Owner: tools/try_forever_skill_provenance_probe.py
+#
+# Why this exists:
+# `resolve_repo_path()` currently calls Path.resolve(). That follows a caller-supplied
+# generated-index symlink before the finite-artifact no-follow gate can inspect the
+# named path. The target may be an ordinary file while the caller's path is a
+# redirector; erasing the redirector makes later topology checks prove the wrong name.
+#
+# This delta keeps the path absolute and lexically normalized without dereferencing
+# symlinks/reparse topology. It does NOT by itself wire the generated-index artifact
+# observer into the owner and therefore does not establish complete custody.
+#
+# P0/phone surfaces are not involved.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
++    """Resolve CLI spelling to an absolute named path without following redirectors.
++
++    Generated-index topology belongs to the later no-follow artifact gate. Using
++    `Path.resolve()` here would erase a symlink/reparse spelling before that gate can
++    reject it. This helper performs lexical absolute-path normalization only.
++    """
++
+     if not value:
+         return None
+     candidate = Path(value)
+     if not candidate.is_absolute():
+         candidate = repo_root / candidate
+-    return candidate.resolve()
++    return Path(os.path.abspath(os.fspath(candidate)))
