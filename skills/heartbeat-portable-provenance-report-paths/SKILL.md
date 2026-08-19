@@ -28,7 +28,7 @@ The exact generated-index `Path` is retained separately inside the process for i
 
 ## New supporting source: repository-relative record projection
 
-`tools/try_forever_provenance_report_path.py` now also provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The new helper reuses the exact same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
+`tools/try_forever_provenance_report_path.py` now also provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
 
 Hostile regression source now pins:
 
@@ -40,20 +40,29 @@ Hostile regression source now pins:
 
 These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
 
+## Exact existing-owner surgery is preserved but unapplied
+
+`patches/try-forever-provenance-record-path-projection.patch` is base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82` and is explicitly **PROPOSED_NOT_APPLIED**. It proposes only:
+
+- importing the new repository-relative display helper;
+- projecting serialized `SkillRecord.path` and `DiscoveryError.path` / `related_path` without rewriting the internal records;
+- bumping the report contract to schema `try-forever-skill-provenance.v5`; and
+- correcting the report-path authority prose to match all serialized path families.
+
+The Computer Hands worker is currently offline and its provenance lane is already occupied. No duplicate request was queued. Patch existence is not owner implementation.
+
 ## Current owner wound: record families remain unwired
 
-Code-first owner readback still shows:
+Authenticated owner readback still shows:
 
 - `skills[*].path` serialized from `asdict(record)`; and
 - `discoveryErrors[*].path` / `related_path` serialized from `asdict(error)`.
 
 Those values therefore do **not yet consume** the new repository-relative display helper. The report authority prose says operator-facing paths are portable, so this is a real report-contract mismatch, not a cosmetic improvement.
 
-The safe owner surgery is narrow: keep exact `SkillRecord` / `DiscoveryError` values for internal authority and diagnostics, project only their serialized path fields, and use an explicit schema revision because report-path semantics change. Do not create a second serializer or reinterpret display text as authority.
-
 ## Evidence discipline
 
-Keep internal filesystem identity, report display projection, provenance authority, source implementation, tests, runtime, deployment, delivery, and acceptance separate.
+Keep internal filesystem identity, report display projection, provenance authority, source implementation, queued work, tests, runtime, deployment, delivery, and acceptance separate.
 
 ## Current state
 
@@ -63,13 +72,15 @@ Keep internal filesystem identity, report display projection, provenance authori
 - path-policy source blob: **5c3e25121d2cca52561b235084d37ae2cea074a3**
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
 - regression blob: **8acb40c6cdf78dd48c4ba5ccb76eebed39edc894**
+- exact owner patch source: **YES / PROPOSED_NOT_APPLIED**
+- owner patch blob: **ad323583079ac63becc3c845fbeae8002a45a35d**
 - existing owner projects repository root: **YES / SOURCE_WIRED**
 - existing owner projects generated-index display path: **YES / SOURCE_WIRED**
 - existing owner projects skill record paths through repository-relative policy: **NO**
 - existing owner projects discovery-error paths through repository-relative policy: **NO**
 - overall portable report-path owner wiring: **PARTIAL**
 - owner schema: **try-forever-skill-provenance.v4**
-- owner blob at latest authenticated readback before this supporting-source slice: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
+- owner blob at latest authenticated readback: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
 - tested: **NO**
 - runtime/deployed/callable/executed/delivered/accepted: **NO**
 
