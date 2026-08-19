@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 MAX_REPORT_PATH_CHARS = 256
+MIN_REPORT_PATH_CHARS = 32
 
 
 @dataclass(frozen=True)
@@ -35,15 +36,19 @@ def _absolute_lexical(path: Path) -> Path:
     return Path(os.path.abspath(os.fspath(path)))
 
 
+def _validate_budget(max_chars: int) -> None:
+    if max_chars < MIN_REPORT_PATH_CHARS:
+        raise ValueError(
+            f"report path budget must be at least {MIN_REPORT_PATH_CHARS} characters"
+        )
+
+
 def _bounded_relative(relative: str, *, max_chars: int) -> str:
-    if max_chars <= 0:
-        raise ValueError("report path budget must be positive")
+    _validate_budget(max_chars)
     if len(relative) <= max_chars:
         return relative
 
     suffix = f"...#{_fingerprint(relative)[:16]}"
-    if len(suffix) >= max_chars:
-        return suffix[:max_chars]
     return relative[: max_chars - len(suffix)] + suffix
 
 
@@ -65,8 +70,7 @@ def project_report_path(
     the caller for I/O or provenance checks.
     """
 
-    if max_chars <= 0:
-        raise ValueError("report path budget must be positive")
+    _validate_budget(max_chars)
     if path is None:
         return ReportPathProjection(display_path="", scope="NONE")
 
@@ -76,10 +80,7 @@ def project_report_path(
     try:
         relative_path = candidate.relative_to(repo)
     except ValueError:
-        marker = "<external-path>"
-        if len(marker) > max_chars:
-            return ReportPathProjection(display_path=marker[:max_chars], scope="EXTERNAL")
-        return ReportPathProjection(display_path=marker, scope="EXTERNAL")
+        return ReportPathProjection(display_path="<external-path>", scope="EXTERNAL")
 
     relative = relative_path.as_posix()
     if relative in ("", "."):
