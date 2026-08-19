@@ -75,6 +75,29 @@ def test_non_regular_fifo_fails_closed_before_authority_open(tmp_path, monkeypat
         observe_generated_index_artifact(path, max_bytes=1024)
 
 
+def test_windows_named_path_reparse_attribute_fails_before_stat_and_open(tmp_path, monkeypatch):
+    path = tmp_path / "index.json"
+    path.write_text('{"cloud":"stub"}', encoding="utf-8")
+
+    monkeypatch.setattr(
+        artifact_observation,
+        "_windows_named_path_attributes",
+        lambda target: WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT if target == path else None,
+    )
+
+    def forbidden_lstat(_self):
+        raise AssertionError("named-path reparse rejection must happen before Path.lstat")
+
+    def forbidden_open(*_args, **_kwargs):
+        raise AssertionError("named-path reparse rejection must happen before os.open")
+
+    monkeypatch.setattr(Path, "lstat", forbidden_lstat)
+    monkeypatch.setattr(artifact_observation.os, "open", forbidden_open)
+
+    with pytest.raises(GeneratedIndexArtifactTopologyError, match="named path.*reparse point"):
+        observe_generated_index_artifact(path, max_bytes=1024)
+
+
 def test_windows_reparse_regular_file_shape_fails_closed_before_authority_open(tmp_path, monkeypatch):
     path = tmp_path / "index.json"
     path.write_text('{"cloud":"stub"}', encoding="utf-8")
