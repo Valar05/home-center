@@ -78,6 +78,50 @@ class SkillFileIdentityIntegrationTest(unittest.TestCase):
         title.assert_not_called()
         digest.assert_not_called()
 
+    def test_redirector_replacement_before_title_io_must_be_revalidated_before_any_content_open(self):
+        candidate = self.write_skill("alpha")
+        outside = self.repo / "outside-target.md"
+        outside.write_text("# Outside Target\n", encoding="utf-8")
+        original_is_within = probe.is_within
+        replacement_done = False
+
+        def replace_after_initial_identity(path: Path, root: Path) -> bool:
+            nonlocal replacement_done
+            result = original_is_within(path, root)
+            if path == candidate and not replacement_done:
+                replacement_done = True
+                candidate.unlink()
+                try:
+                    os.symlink(outside, candidate)
+                except (OSError, NotImplementedError) as error:
+                    self.skipTest(
+                        f"file symlink unavailable on this runner: {type(error).__name__}"
+                    )
+            return result
+
+        with mock.patch.object(
+            probe, "is_within", side_effect=replace_after_initial_identity
+        ), mock.patch.object(
+            probe, "markdown_title", return_value="Must Not Read"
+        ) as title, mock.patch.object(
+            probe, "sha256_file", return_value="d" * 64
+        ) as digest:
+            records, errors = probe.discover_skills(self.repo)
+
+        self.assertTrue(replacement_done)
+        self.assertEqual([], records)
+        self.assertEqual(1, len(errors))
+        self.assertIn(
+            errors[0].error_type,
+            {"SkillFileRedirectorBlocked", "SkillFileChanged"},
+        )
+        self.assertEqual("identity", errors[0].stage)
+        # RED until the existing owner revalidates no-follow topology immediately
+        # before authority-facing title/hash I/O. A post-I/O identity rejection is
+        # too late to prevent following or blocking on replacement topology.
+        title.assert_not_called()
+        digest.assert_not_called()
+
     def test_replacement_after_hash_is_rejected_before_record_append(self):
         path = self.write_skill("alpha")
         real_hash = probe.sha256_file
