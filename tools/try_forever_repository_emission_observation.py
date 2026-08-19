@@ -21,8 +21,9 @@ prevents a hostile or non-decodable filename from crashing the evidence path.
 
 Inherited Git repository-redirection variables are removed before the subprocess
 runs. ``cwd`` alone does not defeat ``GIT_DIR`` / ``GIT_WORK_TREE`` / alternate
-index or common-dir overrides; authority must observe the repository named by the
-caller rather than whichever repository the parent process happened to inject.
+index/common-dir overrides, and command-scope ``GIT_CONFIG_*`` injection can also
+rewrite repository behavior. Authority must observe the repository named by the
+caller rather than whichever repository/config the parent process injected.
 Benign process environment such as ``PATH`` is preserved.
 
 It is still an observation, not atomic repository binding: the filesystem can
@@ -50,6 +51,12 @@ _GIT_REPOSITORY_REDIRECT_ENV = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_NAMESPACE",
     "GIT_SHALLOW_FILE",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+)
+_GIT_CONFIG_INJECTION_PREFIXES = (
+    "GIT_CONFIG_KEY_",
+    "GIT_CONFIG_VALUE_",
 )
 
 
@@ -76,11 +83,14 @@ def _porcelain_bytes(output: str | bytes) -> bytes:
 
 
 def _repository_observation_env() -> dict[str, str]:
-    """Preserve normal process environment while removing Git repo redirects."""
+    """Preserve normal process environment while removing Git authority redirects."""
 
     env = os.environ.copy()
     for key in _GIT_REPOSITORY_REDIRECT_ENV:
         env.pop(key, None)
+    for key in tuple(env):
+        if key.startswith(_GIT_CONFIG_INJECTION_PREFIXES):
+            env.pop(key, None)
     return env
 
 
@@ -138,7 +148,7 @@ def parse_porcelain_v2_branch_status(
         reason=(
             "HEAD and worktree cleanliness were derived from one unambiguous git "
             "status --porcelain=v2 --branch process with submodule ignores disabled "
-            "and inherited repository-redirection variables removed"
+            "and inherited repository/config redirection removed"
         ),
         head=head,
         dirty=dirty,
