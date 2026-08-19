@@ -1,0 +1,97 @@
+# TRY FOREVER provenance report-boundary owner integration
+#
+# State: PROPOSED_NOT_APPLIED
+# Owner base blob: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
+# Owner: tools/try_forever_skill_provenance_probe.py
+#
+# This patch composes two already-reviewed pure policies into the existing owner.
+# It creates no second probe/serializer/controller and touches no Phone Hands/P0 lane.
+# Applying the patch is NOT implementation until authenticated owner readback proves it.
+
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ from try_forever_generated_index_alias_policy import (
+     GeneratedIndexAliasError,
+     resolve_consistent_alias,
+ )
++from try_forever_provenance_report_path import project_report_path
++from try_forever_report_emission_snapshot import revalidate_report_emission_snapshot
+ from try_forever_skill_directory_traversal_guard import (
+@@
+     certification = certify_repository_skills(
+         skills,
+         snapshot_status=snapshot.status,
+         expected_head_error=head_error,
+     )
++
++    # Report presentation is never filesystem authority.  Keep exact Paths for I/O,
++    # but serialize only bounded repository-relative paths or a constant external
++    # marker so a durable report does not leak host-local topology.
++    repository_path = project_report_path(repo_root, repo_root)
++    generated_index_path = project_report_path(repo_root, index_path)
++    generated_index_report = asdict(index)
++    generated_index_report["path"] = generated_index_path.display_path
++    generated_index_report["pathScope"] = generated_index_path.scope
++
++    # Make the final custody observation after discovery/index work and immediately
++    # before authority-facing report assembly.  This narrows the late mutation window
++    # but deliberately does not claim atomic repository binding.
++    emission_snapshot = revalidate_report_emission_snapshot(
++        certified_head=snapshot.head_after if certification.authoritative else "",
++        final_head=git_head(repo_root),
++        final_dirty=git_dirty(repo_root),
++    )
++    emission_stable = emission_snapshot.status == "STABLE_CLEAN"
++    emitted_records = certification.records if emission_stable else ()
++    emitted_authoritative = certification.authoritative and emission_stable
++    if certification.authoritative and not emission_stable:
++        emitted_authority_status = "EMISSION_SNAPSHOT_UNSTABLE"
++        emitted_authority_reason = (
++            "late report-emission snapshot revalidation failed; earlier certified "
++            "records are withheld from repository-skill authority"
++        )
++    else:
++        emitted_authority_status = certification.status
++        emitted_authority_reason = certification.reason
+ 
+     result = {
+-        "schema": "try-forever-skill-provenance.v3",
+-        "repositoryRoot": str(repo_root),
++        "schema": "try-forever-skill-provenance.v4",
++        "repositoryRoot": repository_path.display_path,
++        "repositoryRootScope": repository_path.scope,
+         "currentHead": observed_head,
+         "currentTreeDirty": dirty_after,
+         "repositorySnapshot": asdict(snapshot),
++        "reportEmissionSnapshot": asdict(emission_snapshot),
+         "expectedHeadError": head_error,
+         "skillAuthority": {
+-            "status": certification.status,
+-            "reason": certification.reason,
+-            "authoritative": certification.authoritative,
++            "status": emitted_authority_status,
++            "reason": emitted_authority_reason,
++            "authoritative": emitted_authoritative,
+         },
+         "discoveredSkillCount": len(skills),
+-        "skillCount": certification.count,
+-        "skills": [asdict(record) for record in certification.records],
++        "skillCount": len(emitted_records),
++        "skills": [asdict(record) for record in emitted_records],
+         "discoveryErrors": [asdict(error) for error in discovery_errors],
+-        "generatedIndex": asdict(index),
++        "generatedIndex": generated_index_report,
+@@
+     snapshot_failure = snapshot.status != "STABLE_CLEAN"
++    emission_failure = emission_snapshot.status != "STABLE_CLEAN"
+     index_strict_failure = bool(args.generated_index) and index.status != "VERIFIED_CURRENT"
+     if args.strict and (
+-        head_error or discovery_errors or snapshot_failure or index_strict_failure
++        head_error
++        or discovery_errors
++        or snapshot_failure
++        or emission_failure
++        or index_strict_failure
+     ):
+         return 2
