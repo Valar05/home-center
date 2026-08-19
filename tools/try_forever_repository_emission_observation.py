@@ -2,12 +2,12 @@
 """Single-command repository observation for TRY FOREVER report emission.
 
 This helper narrows the gap created by separately invoking ``git rev-parse`` and
-``git status`` for a late report-emission check.  One ``git status --porcelain=v2
+``git status`` for a late report-emission check. One ``git status --porcelain=v2
 --branch`` process supplies both the reported HEAD and worktree cleanliness.
 
 It is still an observation, not atomic repository binding: the filesystem can
 change while Git is scanning, and equal observations cannot prove away
-swap-and-restore or identity reuse.  This module owns no renderer, scheduler,
+swap-and-restore or identity reuse. This module owns no renderer, scheduler,
 phone surface, P0 recovery lane, or provenance authority by itself.
 """
 
@@ -35,19 +35,38 @@ def _is_git_object_id(value: str) -> bool:
 
 
 def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservation:
-    """Parse one porcelain-v2 branch/status observation fail closed."""
+    """Parse one porcelain-v2 branch/status observation fail closed.
+
+    ``branch.oid`` is authority-facing identity, so exactly one canonical header
+    is required. Duplicate headers are ambiguous even when they repeat the same
+    value; accepting first-wins or last-wins evidence would make parser behavior
+    depend on hostile or malformed output ordering rather than one Git identity.
+    """
 
     head = ""
     dirty = False
-    saw_oid = False
+    oid_headers = 0
 
     for raw_line in output.splitlines():
         line = raw_line.rstrip("\r\n")
         if line.startswith("# branch.oid "):
-            saw_oid = True
+            oid_headers += 1
+            if oid_headers != 1:
+                return RepositoryEmissionObservation(
+                    status="UNAVAILABLE",
+                    reason="single-command git status reported duplicate branch.oid headers",
+                    head="",
+                    dirty=None,
+                )
             oid = line[len("# branch.oid ") :].strip()
-            if _is_git_object_id(oid):
-                head = oid
+            if not _is_git_object_id(oid):
+                return RepositoryEmissionObservation(
+                    status="UNAVAILABLE",
+                    reason="single-command git status did not report a canonical branch.oid",
+                    head="",
+                    dirty=None,
+                )
+            head = oid
             continue
         if not line or line.startswith("# "):
             continue
@@ -55,10 +74,10 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
         # ignored when requested) means the checkout is not clean for authority.
         dirty = True
 
-    if not saw_oid or not head:
+    if oid_headers != 1 or not head:
         return RepositoryEmissionObservation(
             status="UNAVAILABLE",
-            reason="single-command git status did not report a canonical branch.oid",
+            reason="single-command git status did not report exactly one canonical branch.oid",
             head="",
             dirty=None,
         )
@@ -66,8 +85,8 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
     return RepositoryEmissionObservation(
         status="OBSERVED",
         reason=(
-            "HEAD and worktree cleanliness were derived from one git status "
-            "--porcelain=v2 --branch process"
+            "HEAD and worktree cleanliness were derived from one unambiguous git "
+            "status --porcelain=v2 --branch process"
         ),
         head=head,
         dirty=dirty,
