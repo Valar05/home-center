@@ -62,15 +62,22 @@ class ProvenanceReportOwnerIntegrationTest(unittest.TestCase):
         self.assertNotIn("alice", json.dumps(report, sort_keys=True))
         self.assertTrue(report["skillAuthority"]["authoritative"])
         self.assertEqual(1, report["skillCount"])
+        self.assertEqual("VERIFIED_CURRENT", report["generatedIndex"]["status"])
+        self.assertFalse(report["generatedIndex"]["currentnessWithheld"])
 
-    def test_late_head_change_withholds_previously_certified_skill_authority(self) -> None:
+    def test_late_head_change_withholds_all_positive_currentness_claims(self) -> None:
         status, report = self._run_owner(final_head="def456")
         self.assertEqual(0, status)
         self.assertEqual("UNSTABLE", report["reportEmissionSnapshot"]["status"])
+        self.assertEqual("def456", report["currentHead"])
         self.assertEqual("EMISSION_SNAPSHOT_UNSTABLE", report["skillAuthority"]["status"])
         self.assertFalse(report["skillAuthority"]["authoritative"])
         self.assertEqual(0, report["skillCount"])
         self.assertEqual([], report["skills"])
+        self.assertEqual("UNRESOLVED", report["generatedIndex"]["status"])
+        self.assertTrue(report["generatedIndex"]["currentnessWithheld"])
+        self.assertIn("currentness is withheld", report["generatedIndex"]["reason"])
+        self.assertNotEqual("VERIFIED_CURRENT", report["generatedIndex"]["status"])
 
     def test_strict_mode_treats_late_emission_instability_as_failure(self) -> None:
         record = probe.SkillRecord(
@@ -109,6 +116,7 @@ class ProvenanceReportOwnerIntegrationTest(unittest.TestCase):
         self.assertEqual(2, status)
         self.assertFalse(report["skillAuthority"]["authoritative"])
         self.assertEqual([], report["skills"])
+        self.assertEqual("UNRESOLVED", report["generatedIndex"]["status"])
 
 
 if __name__ == "__main__":
