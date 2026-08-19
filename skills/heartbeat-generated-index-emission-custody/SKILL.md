@@ -15,26 +15,27 @@ A generated index may be inspected against a certified clean repository snapshot
 
 A stable repository HEAD/cleanliness verdict cannot certify continuity of a separately mutable external index file. If the index cannot be re-read, its whole-artifact SHA-256 is missing/non-canonical, or the emission digest differs from the inspected digest, positive currentness is withheld as `UNRESOLVED`.
 
+`tools/try_forever_generated_index_artifact_observation.py` now provides the bounded content-identity throat needed by the owner integration: complete read to EOF inside the caller's existing byte budget, exact SHA-256 over those complete bytes, and strict UTF-8 text for semantic inspection. Max+1 rejects without returning prefix authority. The helper deliberately does not decide currentness or report authority.
+
 Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
 
 Digest revalidation narrows the evidence window; it does **not** prove atomic cross-filesystem binding, prevent swap-and-restore, or certify runtime delivery.
 
-## Hostile fixture
+## Hostile fixtures
 
-`externalGeneratedIndexMutationAfterInspectionMustWithholdCurrentness()`:
-
-- inspect external content A and bind its complete bounded SHA-256;
-- keep repository HEAD H clean and stable;
-- replace the external artifact with content B;
-- final repository custody may still be `STABLE_CLEAN`;
-- required: generated-index currentness is withheld unless the exact artifact/content identity is independently revalidated.
+- exact-max artifact reaches EOF and earns a whole-artifact digest;
+- max+1 rejects without prefix digest authority;
+- invalid UTF-8 cannot become semantic index text;
+- external content A → content B yields `CHANGED` artifact custody even while repository custody can remain stable;
+- identical complete content can yield `STABLE` artifact custody.
 
 ## Current capability truth
 
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
-- hostile regression source including external mutation: **REGRESSION_SOURCE / UNEXECUTED**
+- bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
+- hostile regression source including external mutation/resource/UTF-8 cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption: **NO**
-- prior report-boundary patch: **REJECTED_UNSAFE / DO_NOT APPLY** until it inherits external-artifact custody and coherent final repository observation
+- prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until it consumes both a coherent late repository observation and exact generated-index artifact custody
 - tested: **NO**
 - runtime UI / TalkBack / deployment / callability / execution / delivery / acceptance: **NO**
 
