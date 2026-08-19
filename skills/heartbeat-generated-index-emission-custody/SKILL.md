@@ -23,18 +23,18 @@ A stable repository HEAD/cleanliness verdict cannot certify continuity of a sepa
 
 1. no-follow pre-open observation must identify an ordinary regular file with usable inode/file-index identity;
 2. redirectors and non-regular special files fail closed before authority-facing open/read;
-3. **on Windows, regular-file shape is not enough:** any observation carrying `FILE_ATTRIBUTE_REPARSE_POINT` fails closed, including regular-shaped reparse/filter/cloud-stub topology; do not special-case only symlink/junction tags;
+3. **on Windows, regular-file shape is not enough:** the named path is checked through the Win32 file-attribute surface before `lstat`/open because Python may resolve non-name-surrogate reparse kinds even under no-follow stat semantics; any `FILE_ATTRIBUTE_REPARSE_POINT` fails closed, with no approved tag exceptions;
 4. where the platform exposes them, `O_NONBLOCK` and `O_NOFOLLOW` are applied to the descriptor open;
 5. the opened descriptor is independently `fstat`-verified as a regular non-reparse object and must match the pre-open device/inode/size/mtime observation;
 6. complete content must reach EOF inside the caller's existing byte budget before exact SHA-256/text is returned;
-7. the opened descriptor is revalidated after the complete read; device/inode/size/mtime drift or newly observed reparse topology rejects the observation rather than returning mixed or stale authority-facing evidence;
-8. the named path is re-observed after EOF and must still identify the same stable non-reparse descriptor observation; persistent replacement after open therefore fails closed;
+7. the opened descriptor is revalidated after the complete read; device/inode/size/mtime drift or reparse metadata rejects the observation rather than returning mixed or stale authority-facing evidence;
+8. on Windows the named path is checked again for the raw reparse attribute after EOF, then re-observed and required to identify the same stable descriptor observation; persistent replacement/reparse topology therefore fails closed;
 9. max+1 rejects without returning prefix digest authority;
 10. UTF-8 decoding is strict.
 
-Python exposes Windows `st_file_attributes` on stat results, and `FILE_ATTRIBUTE_REPARSE_POINT` is the platform signal that the file/directory carries reparse-point topology. This topology check is evidence admission, not a claim that the helper understands or safely follows individual reparse tags.
+Python exposes `st_file_attributes` / `st_reparse_tag` on Windows stat results, while Win32 `GetFileAttributesW` is the named-path reparse-bit check. The source uses the direct named-path check specifically because Python documents that non-name-surrogate reparse kinds may be resolved by the operating system even for no-follow stat calls. This is evidence admission, not permission to follow or classify any reparse tag.
 
-These checks close special-file/FIFO admission, Windows regular-shaped reparse admission, and common pre-open replacement / post-open persistent replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades all observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
+These checks close special-file/FIFO admission, persistent Windows named-path reparse admission, and common pre-open replacement / post-open persistent replacement / in-read mutation wounds. They still do **not** prove a universal atomic filesystem snapshot, eliminate swap-and-restore or identity reuse that evades all observations, impose a universal wall-clock deadline on ordinary storage, or certify runtime delivery. Those are separate claims.
 
 Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are never promoted.
 
@@ -44,8 +44,8 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - max+1 rejects without prefix digest authority;
 - invalid UTF-8 cannot become semantic index text;
 - a FIFO/special file is rejected before authority-facing `os.open`;
-- a regular-shaped Windows metadata observation carrying `FILE_ATTRIBUTE_REPARSE_POINT` is rejected before authority-facing `os.open`;
-- an opened descriptor that exposes Windows reparse-point metadata is rejected even if the pre-open path looked ordinary;
+- a simulated Windows named path carrying `FILE_ATTRIBUTE_REPARSE_POINT` is rejected before `Path.lstat` or authority-facing `os.open`;
+- a regular-shaped stat/fstat observation carrying Windows reparse metadata is rejected;
 - a symlink cannot inherit its target's regular-file authority;
 - replacement between no-follow admission and descriptor open rejects before authority is returned;
 - descriptor identity/size/mtime drift observed after the complete read rejects the observation;
@@ -58,7 +58,8 @@ Already-negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are neve
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
 - finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
-- Windows reparse-point admission gate: **IMPLEMENTED_SOURCE**
+- direct Windows named-path reparse admission gate: **IMPLEMENTED_SOURCE**
+- Windows stat/fstat reparse metadata gate: **IMPLEMENTED_SOURCE**
 - pre-open path → opened-descriptor identity gate: **IMPLEMENTED_SOURCE**
 - post-read descriptor stability gate: **IMPLEMENTED_SOURCE**
 - post-read named-path stability gate: **IMPLEMENTED_SOURCE**
