@@ -9,11 +9,11 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 - The existing owner remains `tools/try_forever_skill_provenance_probe.py`.
 - Filesystem paths and repository-relative identities used for I/O and authority remain exact internal values. **Display projection is never authorization.**
 - Repository-root display projects to `.`.
-- Repository-local report paths project to bounded repo-relative POSIX text.
+- Repository-local report paths project to bounded repo-relative POSIX text while they fit the display budget.
 - `project_repository_relative_report_path(...)` is for identities already established as repository-relative by the owner. It performs no filesystem lookup, rejects absolute/parent-traversal misuse, and therefore cannot grant repository authority.
 - Repository-relative display projection reveals Unicode `Cc`, `Cf`, and `Cs` code points as explicit `\u{XXXX}` evidence units rather than emitting them raw.
 - Literal backslash is escaped before semantic markers, so literal source text cannot collide with the projection of an actual invisible character.
-- Hard bounding may truncate only between complete projection units.
+- **Over-budget repository-local display does not expose a partial human-text prefix.** It collapses to `<repo-path>...#<digest>` where the digest is computed only from already-authorized repository-relative identity. This avoids splitting combining, modifier, or ZWJ graphemes while preserving a bounded repository-local disambiguator.
 - External report paths project to the constant marker `<external-path>`; do not preserve a host-path hash oracle.
 - Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
 
@@ -28,14 +28,17 @@ The exact generated-index `Path` is retained separately inside the process for i
 
 ## Repository-relative record projection source
 
-`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection and bounded-fingerprint law as root/index report projection without reconstructing a host path or touching the filesystem.
+`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)` for path-bearing report records whose repository-relative authority was established earlier. The helper reuses the same collision-safe invisible-character/backslash projection as root/index report projection without reconstructing a host path or touching the filesystem.
+
+In-budget paths remain readable. Over-budget paths deliberately collapse to a constant repository marker plus digest rather than truncating arbitrary Unicode source text. This pays the already-established accessibility scar that human-facing projections must not manufacture a partial user-perceived grapheme merely to preserve a pretty prefix.
 
 Hostile regression source pins:
 
 - ordinary repository-relative skill paths;
-- newline, bidi-control, and ZWJ visibility;
+- newline, bidi-control, and ZWJ visibility while in budget;
 - literal marker versus actual invisible-character collision resistance;
-- hard bounds that do not split `\u{XXXX}` projection units; and
+- over-budget combining and emoji-ZWJ cases collapsing without partial grapheme output;
+- distinct over-budget repository-local identities retaining distinct repository-local digests; and
 - fail-closed rejection of absolute, parent-traversing, or empty misuse of the repository-relative channel.
 
 These are **SOURCE / REGRESSION_SOURCE** claims only. No authorized runner result has promoted them to TESTED.
@@ -59,6 +62,8 @@ The test is intentionally red while the owner remains schema v4. Its existence i
 - correcting report-path authority prose to match every serialized path family; and
 - migrating the historical owner-emission regression's schema assertion in the same surgery, so applying v5 cannot knowingly create a deterministic v4 assertion failure.
 
+The helper changed after that patch was authored, but the patch imports/calls the helper rather than embedding its old truncation implementation; the proposed owner surgery therefore naturally inherits the current helper behavior if eventually applied against its still-matching base owner blob.
+
 ## Current owner wound: record families remain unwired
 
 Authenticated owner readback at the bound source head still shows:
@@ -70,7 +75,9 @@ Those values therefore do **not yet consume** the repository-relative display he
 
 ## Mutation-lane truth
 
-The non-phone Computer Hands worker currently reports offline while `lane-try-forever-provenance-owner` is present among its active lanes. An active lane is not an exact request identity. No duplicate owner request may be created merely from lane presence; owner execution remains unresolved until an exact existing request/worker receipt or authenticated owner mutation readback establishes it.
+The deployed non-phone Computer Hands worker currently reports offline while `lane-try-forever-provenance-owner` is present among its active lanes. An active lane is not an exact request identity. No duplicate owner request may be created merely from lane presence; owner execution remains unresolved until an exact existing request/worker receipt or authenticated owner mutation readback establishes it.
+
+The Home Center GitHub-admin lane can replace a complete file under a blob lock, but it is not a patch interpreter. The large sole provenance owner must not be reconstructed from partial context merely to turn a safe unapplied patch into an implementation claim.
 
 ## Evidence discipline
 
@@ -81,9 +88,10 @@ Keep internal filesystem identity, report display projection, provenance authori
 - pure absolute/external path-projection policy: **YES / SOURCE**
 - repository-relative record projection policy: **YES / SOURCE**
 - collision-safe control/format/surrogate evidence projection: **YES / SOURCE**
-- path-policy source blob: **5c3e25121d2cca52561b235084d37ae2cea074a3**
+- over-budget repository-local partial-grapheme avoidance: **YES / SOURCE**
+- path-policy source blob: **fd79305fa9ea6413dadbd15f9eb2ccc8b27e1a69**
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- path-regression blob: **8acb40c6cdf78dd48c4ba5ccb76eebed39edc894**
+- path-regression blob: **45112f8e3533b2999b214314d80af8d7fcd6b5cb**
 - owner v5 record-path integration regression source: **YES / RED_SOURCE / UNEXECUTED**
 - owner-v5-regression blob: **f813b2cb170ded33038ec86d0cf7d18e7b1ad52e**
 - exact owner patch source: **YES / PROPOSED_NOT_APPLIED__REGRESSION_LOCKED**
@@ -95,7 +103,7 @@ Keep internal filesystem identity, report display projection, provenance authori
 - overall portable report-path owner wiring: **PARTIAL**
 - owner schema: **try-forever-skill-provenance.v4**
 - owner blob at authenticated bound readback: **f6f1bafc6b9e99030ad29b408d74cd088f910b82**
-- Computer Hands provenance owner execution: **UNRESOLVED / WORKER_OFFLINE / NO_DUPLICATE_REQUEST**
+- Computer Hands provenance owner execution: **UNRESOLVED / WORKER_OFFLINE / ACTIVE_LANE_NOT_REQUEST_ID / NO_DUPLICATE_REQUEST**
 - tested: **NO**
 - runtime/deployed/callable/executed/delivered/accepted: **NO**
 
