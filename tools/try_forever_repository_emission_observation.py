@@ -5,6 +5,11 @@ This helper narrows the gap created by separately invoking ``git rev-parse`` and
 ``git status`` for a late report-emission check. One ``git status --porcelain=v2
 --branch`` process supplies both the reported HEAD and worktree cleanliness.
 
+The observation explicitly overrides configured submodule-ignore policy with
+``--ignore-submodules=none``. A repository must not earn a clean emission receipt
+merely because local configuration or .gitmodules asked status to ignore dirty
+submodule worktrees.
+
 The process itself is bounded by an owner-defined execution deadline. Timeout is
 projected into the same fail-closed ``UNAVAILABLE`` state as other observation
 failures; no stale prior HEAD/cleanliness evidence is returned.
@@ -73,8 +78,10 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
         )
     return RepositoryEmissionObservation(
         status="OBSERVED",
-        reason=("HEAD and worktree cleanliness were derived from one unambiguous git "
-                "status --porcelain=v2 --branch process"),
+        reason=(
+            "HEAD and worktree cleanliness were derived from one unambiguous git "
+            "status --porcelain=v2 --branch process with submodule ignores disabled"
+        ),
         head=head,
         dirty=dirty,
     )
@@ -83,7 +90,14 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
 def observe_repository_emission(repo_root: Path) -> RepositoryEmissionObservation:
     try:
         completed = subprocess.run(
-            ["git", "status", "--porcelain=v2", "--branch", "--untracked-files=normal"],
+            [
+                "git",
+                "status",
+                "--porcelain=v2",
+                "--branch",
+                "--untracked-files=normal",
+                "--ignore-submodules=none",
+            ],
             cwd=repo_root,
             check=True,
             stdout=subprocess.PIPE,
