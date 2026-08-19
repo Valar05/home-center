@@ -17,8 +17,9 @@ Current source state:
 - shared H1/fallback admission policy: **YES / SOURCE**
 - pre-normalization H1 admission policy: **YES / SOURCE**
 - hostile regression source: **YES / SOURCE / UNEXECUTED**
-- corrected existing-owner delta: **YES / PROPOSED_NOT_APPLIED**
-- existing `markdown_title` consumes the policy: **NO**
+- existing `markdown_title` consumes the policy: **YES / SOURCE_WIRED**
+- owner convergence commit: `d05261c74998f1f818d2a3b30efa229b695de100`
+- authenticated owner blob: `afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a`
 - tested/runtime/deployed/callable/delivered/accepted: **NO**
 
 ## Correction scars
