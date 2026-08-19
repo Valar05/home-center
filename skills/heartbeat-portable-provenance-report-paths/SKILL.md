@@ -8,9 +8,9 @@ Durable provenance reports must not leak host-local filesystem topology merely b
 - Filesystem paths used for I/O and authority remain exact internal values. **Display projection is never authorization.**
 - Repository-root display projects to `.`.
 - Repository-local report paths project to bounded repo-relative POSIX paths.
-- External report paths project to an opaque deterministic marker; usernames, home directories, drive roots, mount points, and temporary-directory layouts do not enter durable operator-facing JSON.
-- Long report paths are hard-bounded with a deterministic suffix.
-- An external-path fingerprint is diagnostic only. It must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
+- External report paths project to the constant marker `<external-path>`. Do not preserve a deterministic hash of the absolute host path: a digest can become a dictionary oracle over usernames, home directories, drive roots, mount points, or temporary-directory layouts.
+- Long repository-relative report paths are hard-bounded with a deterministic suffix because that text is already within the allowed repository-relative evidence domain.
+- Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
 
 ## Evidence discipline
 Keep internal filesystem identity, display projection, provenance authority, source implementation, tests, runtime, deployment, delivery, and acceptance separate.
@@ -18,6 +18,7 @@ Keep internal filesystem identity, display projection, provenance authority, sou
 Current state:
 - pure path-projection policy: **YES / SOURCE**
 - hostile regression source: **YES / SOURCE / UNEXECUTED**
+- first deterministic external-path fingerprint design: **REJECTED DURING SOURCE REVIEW**
 - existing provenance owner consumes the policy: **NO**
 - owner report schema changed: **NO**
 - tested: **NO**
