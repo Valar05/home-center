@@ -4,13 +4,16 @@
 # Owner base blob: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
 # Owner: tools/try_forever_skill_provenance_probe.py
 #
-# This patch composes two already-reviewed pure policies into the existing owner.
+# This patch composes reviewed pure policies into the existing owner.
 # It creates no second probe/serializer/controller and touches no Phone Hands/P0 lane.
 # Applying the patch is NOT implementation until authenticated owner readback proves it.
 #
-# Code-first correction: v1 of this patch left currentHead/currentTreeDirty bound to
-# the earlier discovery observation even after adding a later emission observation.
-# This version makes those "current" fields report the final emission observation.
+# Code-first corrections:
+# - v1 left currentHead/currentTreeDirty bound to the earlier discovery observation.
+# - v2 fixed those fields but could leave generatedIndex.status=VERIFIED_CURRENT after
+#   the final emission snapshot had become unstable, contradicting the new currentHead.
+# - this version projects generated-index currentness through the same final custody
+#   gate without re-reading the index after the declared final repository observation.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
@@ -19,6 +22,9 @@
      GeneratedIndexAliasError,
      resolve_consistent_alias,
  )
++from try_forever_generated_index_emission_policy import (
++    project_generated_index_at_emission,
++)
 +from try_forever_provenance_report_path import project_report_path
 +from try_forever_report_emission_snapshot import revalidate_report_emission_snapshot
  from try_forever_skill_directory_traversal_guard import (
@@ -58,6 +64,21 @@
 +    else:
 +        emitted_authority_status = certification.status
 +        emitted_authority_reason = certification.reason
++
++    # Generated-index currentness was established against the earlier certified
++    # snapshot. It cannot remain VERIFIED_CURRENT if that repository custody later
++    # fails. Do not re-read the index after the final gate; conservatively withhold
++    # only the positive currentness claim while preserving negative diagnostics.
++    index_emission = project_generated_index_at_emission(
++        prior_status=index.status,
++        prior_reason=index.reason,
++        emission_status=emission_snapshot.status,
++    )
++    generated_index_report["status"] = index_emission.status
++    generated_index_report["reason"] = index_emission.reason
++    generated_index_report["currentnessWithheld"] = (
++        index_emission.currentness_withheld
++    )
  
      result = {
 -        "schema": "try-forever-skill-provenance.v3",
