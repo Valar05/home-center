@@ -19,6 +19,12 @@ needs the ASCII ``branch.oid`` header plus whether any non-header record exists;
 path bytes are therefore never decoded merely to decide clean/dirty state. This
 prevents a hostile or non-decodable filename from crashing the evidence path.
 
+Inherited Git repository-redirection variables are removed before the subprocess
+runs. ``cwd`` alone does not defeat ``GIT_DIR`` / ``GIT_WORK_TREE`` / alternate
+index or common-dir overrides; authority must observe the repository named by the
+caller rather than whichever repository the parent process happened to inject.
+Benign process environment such as ``PATH`` is preserved.
+
 It is still an observation, not atomic repository binding: the filesystem can
 change while Git is scanning, and equal observations cannot prove away
 swap-and-restore or identity reuse. This module owns no renderer, scheduler,
@@ -27,6 +33,7 @@ phone surface, P0 recovery lane, or provenance authority by itself.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,6 +41,16 @@ from pathlib import Path
 GIT_STATUS_TIMEOUT_SECONDS = 5.0
 _BRANCH_OID_PREFIX = b"# branch.oid "
 _COMMENT_PREFIX = b"# "
+_GIT_REPOSITORY_REDIRECT_ENV = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_NAMESPACE",
+    "GIT_SHALLOW_FILE",
+)
 
 
 @dataclass(frozen=True)
@@ -56,6 +73,15 @@ def _porcelain_bytes(output: str | bytes) -> bytes:
     if isinstance(output, str):
         return output.encode("utf-8", errors="surrogatepass")
     raise TypeError("porcelain-v2 status output must be str or bytes")
+
+
+def _repository_observation_env() -> dict[str, str]:
+    """Preserve normal process environment while removing Git repo redirects."""
+
+    env = os.environ.copy()
+    for key in _GIT_REPOSITORY_REDIRECT_ENV:
+        env.pop(key, None)
+    return env
 
 
 def parse_porcelain_v2_branch_status(
@@ -111,7 +137,8 @@ def parse_porcelain_v2_branch_status(
         status="OBSERVED",
         reason=(
             "HEAD and worktree cleanliness were derived from one unambiguous git "
-            "status --porcelain=v2 --branch process with submodule ignores disabled"
+            "status --porcelain=v2 --branch process with submodule ignores disabled "
+            "and inherited repository-redirection variables removed"
         ),
         head=head,
         dirty=dirty,
@@ -135,6 +162,7 @@ def observe_repository_emission(repo_root: Path) -> RepositoryEmissionObservatio
             stderr=subprocess.DEVNULL,
             text=False,
             timeout=GIT_STATUS_TIMEOUT_SECONDS,
+            env=_repository_observation_env(),
         )
     except subprocess.TimeoutExpired:
         return RepositoryEmissionObservation(
