@@ -36,11 +36,11 @@
 <body>
 <main>
   <h1>Provenance Certification Warm Wall</h1>
-  <p class="scar">OWNER v3 WIRED · REPORT-BOUNDARY OWNER PATCH PREPARED, NOT APPLIED · PROPOSED v4 · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+  <p class="scar">OWNER v3 WIRED · REPORT-BOUNDARY OWNER PATCH REJECTED · NAMED-PATH DELTA PREPARED, NOT APPLIED · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
 
   <svg viewBox="0 0 1080 190" role="img" aria-labelledby="wall-title wall-desc">
     <title id="wall-title">Warm wall from repository traversal through late report-emission custody</title>
-    <desc id="wall-desc">Repository-owned traversal and exact title admission produce diagnostic discoveries. Snapshot certification decides authority, later index and report work happen without inheriting authority automatically, and a proposed existing-owner surgery combines portable report paths with a final-emission observation before authority leaves the report.</desc>
+    <desc id="wall-desc">Repository-owned traversal and exact title admission produce diagnostic discoveries. Snapshot certification decides authority, later generated-index work must preserve the caller's named path until no-follow topology admission, and report-emission custody cannot inherit authority automatically.</desc>
     <path d="M35 95 H1045" fill="none" stroke="currentColor" stroke-width="6"/>
     <rect x="10" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="175" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -54,10 +54,10 @@
     <text x="247" y="112" text-anchor="middle">diagnostic set</text>
     <text x="412" y="88" text-anchor="middle">CERTIFY</text>
     <text x="412" y="112" text-anchor="middle">owner wired</text>
-    <text x="590" y="88" text-anchor="middle">INDEX + REPORT</text>
-    <text x="590" y="112" text-anchor="middle">later work</text>
+    <text x="590" y="88" text-anchor="middle">INDEX NAME</text>
+    <text x="590" y="112" text-anchor="middle">must survive</text>
     <text x="780" y="88" text-anchor="middle">EMISSION</text>
-    <text x="780" y="112" text-anchor="middle">patch prepared</text>
+    <text x="780" y="112" text-anchor="middle">owner unwired</text>
     <text x="975" y="88" text-anchor="middle">AUTHORITY</text>
     <text x="975" y="112" text-anchor="middle">or zero</text>
   </svg>
@@ -68,19 +68,25 @@
     <div class="choice">
       <input type="radio" name="state" id="verified" checked aria-describedby="verified-detail">
       <label for="verified"><span class="token" aria-hidden="true">●</span><span>Verified current</span></label>
-      <p class="detail" id="verified-detail"><strong>Current owner authority opens only after its wired gates.</strong> Repository-owned traversal remains in scope, title admission is exact, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch. Current owner schema remains v3 until the report-boundary surgery is actually applied and read back.</p>
+      <p class="detail" id="verified-detail"><strong>Current owner authority opens only after its wired gates.</strong> Repository-owned traversal remains in scope, title admission is exact, snapshot is <code>STABLE_CLEAN</code>, and expected-head binding has no mismatch. Current owner schema remains v3 until report-boundary custody is actually composed, applied, and read back.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="named-path" aria-describedby="named-path-detail">
+      <label for="named-path"><span class="token" aria-hidden="true">×</span><span>Named redirector erased too early</span></label>
+      <p class="detail" id="named-path-detail"><strong>Owner wound: lexical identity must survive until the no-follow gate.</strong> A caller-supplied generated-index symlink cannot be run through <code>Path.resolve()</code> first, because that replaces the redirector with its ordinary target and makes the later topology gate inspect the wrong name. Regression source + exact owner delta exist; owner consumption remains NO.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="portable-path" aria-describedby="portable-path-detail">
       <label for="portable-path"><span class="token" aria-hidden="true">◇</span><span>Portable report path</span></label>
-      <p class="detail" id="portable-path-detail"><strong>Policy + exact owner delta exist; owner consumption still does not.</strong> The preserved surgery projects repository root to <code>.</code>, in-repository evidence to bounded relative paths, and external paths to the constant <code>&lt;external-path&gt;</code> marker. It also requires report schema v4 instead of silently changing v3. Display projection is never filesystem or provenance authority.</p>
+      <p class="detail" id="portable-path-detail"><strong>Policy exists; current report-boundary owner patch is rejected.</strong> Repository root should serialize as <code>.</code>, in-repository evidence as bounded relative paths, and external paths as the constant <code>&lt;external-path&gt;</code> marker. Display projection is never filesystem or provenance authority.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="late-head" aria-describedby="late-head-detail">
       <label for="late-head"><span class="token" aria-hidden="true">×</span><span>Repository changed before emission</span></label>
-      <p class="detail" id="late-head-detail"><strong>Policy + exact owner delta exist; owner consumption still does not.</strong> The proposed gate re-observes HEAD and cleanliness after later index/report work, zeros earlier certified skill authority on a late wound, and makes currentHead/currentTreeDirty reflect that final observation. Equal observations still do not prove atomic binding.</p>
+      <p class="detail" id="late-head-detail"><strong>Supporting policy exists; owner consumption still does not.</strong> A correct future gate must re-observe HEAD and cleanliness after later index/report work, zero earlier certified skill authority on a late wound, and keep equal observations distinct from atomic binding.</p>
     </div>
 
     <div class="choice">
@@ -110,7 +116,7 @@
     <div class="choice">
       <input type="radio" name="state" id="atomicity" aria-describedby="atomicity-detail">
       <label for="atomicity"><span class="token" aria-hidden="true">□</span><span>Atomicity still open</span></label>
-      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> Child-directory and proposed final-emission revalidation can catch persistent changes but do not prove away swap-and-restore, identity reuse, or mutation after the final observation.</p>
+      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> Child-directory and future final-emission revalidation can catch persistent changes but do not prove away swap-and-restore, identity reuse, or mutation after the final observation.</p>
     </div>
   </fieldset>
 
