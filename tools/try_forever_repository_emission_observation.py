@@ -14,6 +14,11 @@ The process itself is bounded by an owner-defined execution deadline. Timeout is
 projected into the same fail-closed ``UNAVAILABLE`` state as other observation
 failures; no stale prior HEAD/cleanliness evidence is returned.
 
+Porcelain output is captured as bytes rather than host-locale text. Authority only
+needs the ASCII ``branch.oid`` header plus whether any non-header record exists;
+path bytes are therefore never decoded merely to decide clean/dirty state. This
+prevents a hostile or non-decodable filename from crashing the evidence path.
+
 It is still an observation, not atomic repository binding: the filesystem can
 change while Git is scanning, and equal observations cannot prove away
 swap-and-restore or identity reuse. This module owns no renderer, scheduler,
@@ -27,6 +32,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 GIT_STATUS_TIMEOUT_SECONDS = 5.0
+_BRANCH_OID_PREFIX = b"# branch.oid "
+_COMMENT_PREFIX = b"# "
 
 
 @dataclass(frozen=True)
@@ -38,16 +45,30 @@ class RepositoryEmissionObservation:
 
 
 def _is_git_object_id(value: str) -> bool:
-    return len(value) in (40, 64) and all(character in "0123456789abcdef" for character in value)
+    return len(value) in (40, 64) and all(
+        character in "0123456789abcdef" for character in value
+    )
 
 
-def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservation:
+def _porcelain_bytes(output: str | bytes) -> bytes:
+    if isinstance(output, bytes):
+        return output
+    if isinstance(output, str):
+        return output.encode("utf-8", errors="surrogatepass")
+    raise TypeError("porcelain-v2 status output must be str or bytes")
+
+
+def parse_porcelain_v2_branch_status(
+    output: str | bytes,
+) -> RepositoryEmissionObservation:
+    raw_output = _porcelain_bytes(output)
     head = ""
     dirty = False
     oid_headers = 0
-    for raw_line in output.splitlines():
-        line = raw_line.rstrip("\r\n")
-        if line.startswith("# branch.oid "):
+
+    for raw_line in raw_output.splitlines():
+        line = raw_line.rstrip(b"\r\n")
+        if line.startswith(_BRANCH_OID_PREFIX):
             oid_headers += 1
             if oid_headers != 1:
                 return RepositoryEmissionObservation(
@@ -56,7 +77,16 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
                     head="",
                     dirty=None,
                 )
-            oid = line[len("# branch.oid ") :].strip()
+            raw_oid = line[len(_BRANCH_OID_PREFIX) :].strip()
+            try:
+                oid = raw_oid.decode("ascii", errors="strict")
+            except UnicodeDecodeError:
+                return RepositoryEmissionObservation(
+                    status="UNAVAILABLE",
+                    reason="single-command git status did not report an ASCII canonical branch.oid",
+                    head="",
+                    dirty=None,
+                )
             if not _is_git_object_id(oid):
                 return RepositoryEmissionObservation(
                     status="UNAVAILABLE",
@@ -66,9 +96,10 @@ def parse_porcelain_v2_branch_status(output: str) -> RepositoryEmissionObservati
                 )
             head = oid
             continue
-        if not line or line.startswith("# "):
+        if not line or line.startswith(_COMMENT_PREFIX):
             continue
         dirty = True
+
     if oid_headers != 1 or not head:
         return RepositoryEmissionObservation(
             status="UNAVAILABLE",
@@ -102,7 +133,7 @@ def observe_repository_emission(repo_root: Path) -> RepositoryEmissionObservatio
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            text=True,
+            text=False,
             timeout=GIT_STATUS_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
