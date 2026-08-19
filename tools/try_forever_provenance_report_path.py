@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Portable display projection for TRY FOREVER provenance report paths.
 
-This module is evidence-presentation policy only.  It MUST NOT decide filesystem
+This module is evidence-presentation policy only. It MUST NOT decide filesystem
 access, repository containment, provenance authority, generated-index trust, or
-runtime capability.  Callers keep the exact Path object for I/O and use this
+runtime capability. Callers keep the exact Path object for I/O and use this
 projection only when serializing operator-facing report metadata.
 """
 
@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -43,13 +44,40 @@ def _validate_budget(max_chars: int) -> None:
         )
 
 
+def _display_unit(character: str) -> str:
+    """Reveal non-printing semantic path text without rewriting source identity.
+
+    Repository paths may legally contain controls or Unicode format characters on
+    some filesystems. Durable operator/TalkBack evidence must not emit those
+    characters raw. Backslash is escaped first so a literal source spelling such
+    as ``\\u{202E}`` cannot collide with the projection of an actual U+202E.
+    """
+
+    if character == "\\":
+        return "\\\\"
+    category = unicodedata.category(character)
+    if category in {"Cc", "Cf", "Cs"}:
+        return f"\\u{{{ord(character):04X}}}"
+    return character
+
+
 def _bounded_relative(relative: str, *, max_chars: int) -> str:
     _validate_budget(max_chars)
-    if len(relative) <= max_chars:
-        return relative
+    units = tuple(_display_unit(character) for character in relative)
+    projected = "".join(units)
+    if len(projected) <= max_chars:
+        return projected
 
     suffix = f"...#{_fingerprint(relative)[:16]}"
-    return relative[: max_chars - len(suffix)] + suffix
+    available = max_chars - len(suffix)
+    prefix_units: list[str] = []
+    used = 0
+    for unit in units:
+        if used + len(unit) > available:
+            break
+        prefix_units.append(unit)
+        used += len(unit)
+    return "".join(prefix_units) + suffix
 
 
 def project_report_path(
@@ -61,12 +89,13 @@ def project_report_path(
     """Project one path without leaking host-local absolute topology.
 
     Repository-local paths become bounded POSIX paths relative to the repository
-    root.  The repository root itself becomes ``.``.  External paths become the
-    constant marker ``<external-path>``: durable reports do not preserve a hash
-    oracle over usernames, home directories, drive roots, mount points, or temp
-    layouts merely to distinguish diagnostic files.
+    root. Control/format/surrogate characters are made explicit in the display
+    projection while the caller retains the exact Path for I/O and authority.
+    The repository root itself becomes ``.``. External paths become the constant
+    marker ``<external-path>``: durable reports do not preserve a hash oracle over
+    usernames, home directories, drive roots, mount points, or temp layouts.
 
-    This is display projection only.  It never changes the exact Path retained by
+    This is display projection only. It never changes the exact Path retained by
     the caller for I/O or provenance checks.
     """
 
