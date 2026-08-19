@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Red owner-boundary regression for generated-index named-path preservation.
+"""Owner-boundary regression for generated-index named-path preservation.
 
 The finite-artifact custody gate can reject symlinks/reparse topology only if the
-existing provenance owner hands it the caller's named path. Resolving the path
-through ``Path.resolve()`` before that gate erases the redirector and converts the
-check into target-file inspection.
+existing provenance owner keeps the caller's named path intact. Lexical path
+normalization and the finite-artifact observer are now both source-wired in the
+sole provenance owner; these fixtures pin that composition without claiming the
+regressions have executed in CI.
 
-This fixture is intentionally source evidence only until the existing owner is
-wired. It owns no second probe, renderer, phone surface, or P0 lane.
+This fixture owns no second probe, renderer, phone surface, or P0 lane.
 """
 
 from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -75,3 +76,31 @@ def test_regular_relative_path_is_made_absolute_without_requiring_existence(tmp_
 
     assert resolved == _lexical_absolute(candidate)
     assert not resolved.exists()
+
+
+def test_owner_inspection_rejects_named_symlink_before_json_semantics(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    target = tmp_path / "external-index.json"
+    target.write_text(
+        '{"sourceHead":"abc123","generatedAt":"2026-08-19T10:00:00+00:00","dirtySource":false}',
+        encoding="utf-8",
+    )
+    alias = repo / "generated-index.json"
+    try:
+        alias.symlink_to(target)
+    except (NotImplementedError, OSError):
+        pytest.skip("symlink fixture unavailable")
+
+    named_path = probe.resolve_repo_path(repo, "generated-index.json")
+    verdict = probe.inspect_generated_index(
+        named_path,
+        current_head="abc123",
+        current_tree_dirty=False,
+        max_age_hours=24.0,
+        now=datetime(2026, 8, 19, 10, 1, tzinfo=timezone.utc),
+    )
+
+    assert verdict.status == "UNRESOLVED"
+    assert "GeneratedIndexArtifactTopologyError" in verdict.reason
+    assert verdict.source_head == ""
