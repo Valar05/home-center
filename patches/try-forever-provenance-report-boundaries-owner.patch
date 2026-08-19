@@ -1,19 +1,27 @@
 # TRY FOREVER provenance report-boundary owner integration
 #
-# State: PROPOSED_NOT_APPLIED
+# State: REJECTED_UNSAFE__DO_NOT_APPLY
 # Owner base blob: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
 # Owner: tools/try_forever_skill_provenance_probe.py
 #
-# This patch composes reviewed pure policies into the existing owner.
-# It creates no second probe/serializer/controller and touches no Phone Hands/P0 lane.
-# Applying the patch is NOT implementation until authenticated owner readback proves it.
+# PRESERVED FOR PROVENANCE ONLY. DO NOT APPLY THIS REVISION.
 #
-# Code-first corrections:
-# - v1 left currentHead/currentTreeDirty bound to the earlier discovery observation.
-# - v2 fixed those fields but could leave generatedIndex.status=VERIFIED_CURRENT after
-#   the final emission snapshot had become unstable, contradicting the new currentHead.
-# - this version projects generated-index currentness through the same final custody
-#   gate without re-reading the index after the declared final repository observation.
+# Two independent current-head rejections invalidate it:
+# 1. final repository custody composes separate git_head()/git_dirty() observations,
+#    so a repository transition between them can synthesize a false STABLE_CLEAN pair;
+# 2. generated-index VERIFIED_CURRENT is projected only through repository custody.
+#    A separately mutable external generated-index artifact can change after inspection
+#    while repository HEAD/cleanliness remains stable. Repository custody cannot certify
+#    that external artifact's continuity.
+#
+# Supporting policy now requires an independent artifact-custody verdict derived from
+# an exact whole-artifact digest revalidation. This preserved diff does not supply it
+# and calls an obsolete project_generated_index_at_emission signature, so focused tests
+# must reject any accidental application.
+#
+# No second probe/serializer/controller is authorized. A corrected future owner delta
+# must inherit coherent/bracketed final repository observation AND exact generated-index
+# artifact custody, then earn authenticated owner readback and independent test evidence.
 
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
@@ -44,9 +52,8 @@
 +    generated_index_report["path"] = generated_index_path.display_path
 +    generated_index_report["pathScope"] = generated_index_path.scope
 +
-+    # Make the final custody observation after discovery/index work and immediately
-+    # before authority-facing report assembly. This narrows the late mutation window
-+    # but deliberately does not claim atomic repository binding.
++    # REJECTED: these are split subprocess observations and do not prove one coherent
++    # repository state. Kept only to preserve the exact rejected proposal.
 +    emission_snapshot = revalidate_report_emission_snapshot(
 +        certified_head=snapshot.head_after if certification.authoritative else "",
 +        final_head=git_head(repo_root),
@@ -65,10 +72,8 @@
 +        emitted_authority_status = certification.status
 +        emitted_authority_reason = certification.reason
 +
-+    # Generated-index currentness was established against the earlier certified
-+    # snapshot. It cannot remain VERIFIED_CURRENT if that repository custody later
-+    # fails. Do not re-read the index after the final gate; conservatively withhold
-+    # only the positive currentness claim while preserving negative diagnostics.
++    # REJECTED: this old call has no independent generated-index artifact-custody
++    # verdict. It is intentionally obsolete after the external-artifact rejection.
 +    index_emission = project_generated_index_at_emission(
 +        prior_status=index.status,
 +        prior_reason=index.reason,
