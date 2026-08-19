@@ -15,6 +15,7 @@ wiring, testing, runtime proof, deployment, or delivery.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from try_forever_generated_index_emission_policy import (
     assess_generated_index_artifact_custody,
@@ -34,6 +35,18 @@ class ProvenanceEmissionComposition:
     generated_index_currentness_withheld: bool
     generated_index_artifact_status: str
     generated_index_artifact_reason: str
+
+
+def needs_generated_index_artifact_revalidation(prior_status: Any) -> bool:
+    """Return whether late artifact I/O can still affect durable currentness.
+
+    Only a declared prior ``VERIFIED_CURRENT`` can lose positive currentness at
+    emission. Negative/undeclared prior states cannot be promoted by late gates,
+    so forcing another artifact read for them is needless authority-facing I/O.
+    This is work-planning policy only; it does not perform I/O or grant trust.
+    """
+
+    return isinstance(prior_status, str) and prior_status == "VERIFIED_CURRENT"
 
 
 def compose_provenance_emission(
