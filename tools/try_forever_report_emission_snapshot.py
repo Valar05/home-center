@@ -2,7 +2,8 @@
 """Late repository-snapshot revalidation for TRY FOREVER provenance reports.
 
 This pure policy narrows the custody window between direct skill certification
-and report emission.  It is intentionally weaker than atomic repository
+and report emission. It may preserve prior authority but may never manufacture
+it from a matching HEAD string. It is intentionally weaker than atomic repository
 binding: equal observations do not prove away swap-and-restore, filesystem
 identity reuse, or mutation after the final observation.
 """
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 class ReportEmissionSnapshotVerdict:
     status: str
     reason: str
+    prior_authoritative: bool
     certified_head: str
     final_head: str
     final_dirty: bool | None
@@ -23,16 +25,32 @@ class ReportEmissionSnapshotVerdict:
 
 def revalidate_report_emission_snapshot(
     *,
+    prior_authoritative: bool,
     certified_head: str,
     final_head: str,
     final_dirty: bool | None,
 ) -> ReportEmissionSnapshotVerdict:
-    """Require the certified clean HEAD to still be observed at report emission."""
+    """Require prior authority and the same certified clean HEAD at emission.
 
+    Late revalidation is preservation-only. A caller must mechanically supply the
+    earlier certification result; a non-empty `certified_head` by itself cannot
+    turn an earlier unstable/mismatched snapshot into authority.
+    """
+
+    if not prior_authoritative:
+        return ReportEmissionSnapshotVerdict(
+            status="UNSTABLE",
+            reason="prior repository snapshot was not authoritative; late revalidation cannot manufacture authority",
+            prior_authoritative=False,
+            certified_head=certified_head,
+            final_head=final_head,
+            final_dirty=final_dirty,
+        )
     if not certified_head:
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
             reason="no certified repository HEAD exists to revalidate at report emission",
+            prior_authoritative=True,
             certified_head=certified_head,
             final_head=final_head,
             final_dirty=final_dirty,
@@ -41,6 +59,7 @@ def revalidate_report_emission_snapshot(
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
             reason="repository HEAD is unavailable at report emission",
+            prior_authoritative=True,
             certified_head=certified_head,
             final_head=final_head,
             final_dirty=final_dirty,
@@ -49,6 +68,7 @@ def revalidate_report_emission_snapshot(
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
             reason="repository HEAD changed after skill certification and before report emission",
+            prior_authoritative=True,
             certified_head=certified_head,
             final_head=final_head,
             final_dirty=final_dirty,
@@ -57,6 +77,7 @@ def revalidate_report_emission_snapshot(
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
             reason="repository cleanliness is unavailable at report emission",
+            prior_authoritative=True,
             certified_head=certified_head,
             final_head=final_head,
             final_dirty=None,
@@ -65,13 +86,15 @@ def revalidate_report_emission_snapshot(
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
             reason="repository became dirty after skill certification and before report emission",
+            prior_authoritative=True,
             certified_head=certified_head,
             final_head=final_head,
             final_dirty=True,
         )
     return ReportEmissionSnapshotVerdict(
         status="STABLE_CLEAN",
-        reason="the certified clean HEAD is still observed immediately before report emission",
+        reason="prior repository authority remains bound to the same clean HEAD at report emission",
+        prior_authoritative=True,
         certified_head=certified_head,
         final_head=final_head,
         final_dirty=False,
