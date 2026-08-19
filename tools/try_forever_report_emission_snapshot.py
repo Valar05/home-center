@@ -34,13 +34,14 @@ def revalidate_report_emission_snapshot(
 
     Late revalidation is preservation-only. A caller must mechanically supply the
     earlier certification result; a non-empty `certified_head` by itself cannot
-    turn an earlier unstable/mismatched snapshot into authority.
+    turn an earlier unstable/mismatched snapshot into authority. Only literal
+    boolean True is authority-bearing; arbitrary truthy values fail closed.
     """
 
-    if not prior_authoritative:
+    if prior_authoritative is not True:
         return ReportEmissionSnapshotVerdict(
             status="UNSTABLE",
-            reason="prior repository snapshot was not authoritative; late revalidation cannot manufacture authority",
+            reason="prior repository snapshot was not explicitly authoritative; late revalidation cannot manufacture authority",
             prior_authoritative=False,
             certified_head=certified_head,
             final_head=final_head,
