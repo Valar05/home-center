@@ -1,14 +1,15 @@
 # TRY FOREVER provenance record-path projection owner surgery
-# Base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
-# Status: PROPOSED_NOT_APPLIED__REGRESSION_LOCKED
-# Capability: PATCH_SOURCE only. This file is not evidence that owner source changed.
-# Intent: complete operator-facing portable path semantics for skills/discoveryErrors
-# while keeping exact internal authority identities untouched. Explicit schema v5.
-# Regression lock: tools/test_try_forever_provenance_owner_v5_record_paths.py
-# is RED SOURCE until this owner surgery is applied. The historical v4 owner-emission
-# fixture must migrate its schema assertion in the same surgery so applying v5
-# cannot manufacture a known deterministic regression.
+# Original base owner blob: f6f1bafc6b9e99030ad29b408d74cd088f910b82
+# Status: SUPERSEDED_BY_APPLIED_COMBINED_SURGERY
+# Superseding provenance: patches/try-forever-provenance-owner-preio-v5.patch
+# Applied owner commit: bf91827aa74651e1500edd916a26ff9f6acac13e
+# Applied owner blob: e1d10fb4c917813bc89780486c79a5e2d2bc4bea
+# Capability: historical PATCH_SOURCE only. Do not apply this file now.
+# The standalone proposal is retained only to preserve design provenance.
+# Record-path projection is now SOURCE_WIRED in the existing owner under schema v5;
+# TESTED/runtime/deployed/delivered/accepted remain separate and unproven.
 
+# Historical proposed delta follows.
 diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
 --- a/tools/try_forever_skill_provenance_probe.py
 +++ b/tools/try_forever_skill_provenance_probe.py
@@ -20,7 +21,6 @@ diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_ski
 +)
 @@
  def bounded_error_path(relative: str) -> str:
-     """Bound operator-facing discovery error paths without inventing aliases."""
 @@
      return relative[:keep] + suffix
 +
