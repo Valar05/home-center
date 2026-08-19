@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """Regression source for single-command report-emission repository observation."""
 
+import subprocess
+
+import try_forever_repository_emission_observation as emission_observation
 from try_forever_repository_emission_observation import (
+    GIT_STATUS_TIMEOUT_SECONDS,
+    observe_repository_emission,
     parse_porcelain_v2_branch_status,
 )
 
@@ -99,4 +104,42 @@ def test_comment_headers_do_not_create_false_dirty_state():
         "# branch.ab +0 -0\n"
     )
     assert observed.status == "OBSERVED"
+    assert observed.dirty is False
+
+
+def test_repository_emission_observation_must_bound_git_status_execution(monkeypatch, tmp_path):
+    seen = {}
+
+    def timed_out(*args, **kwargs):
+        seen["command"] = args[0]
+        seen["timeout"] = kwargs.get("timeout")
+        raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
+
+    monkeypatch.setattr(emission_observation.subprocess, "run", timed_out)
+    observed = observe_repository_emission(tmp_path)
+
+    assert seen["command"][:2] == ["git", "status"]
+    assert seen["timeout"] == GIT_STATUS_TIMEOUT_SECONDS
+    assert isinstance(seen["timeout"], (int, float))
+    assert 0 < seen["timeout"] < float("inf")
+    assert observed.status == "UNAVAILABLE"
+    assert observed.head == ""
+    assert observed.dirty is None
+    assert "deadline" in observed.reason
+
+
+def test_completed_bounded_git_status_still_projects_exact_head_and_cleanliness(monkeypatch, tmp_path):
+    def completed(*args, **kwargs):
+        assert kwargs.get("timeout") == GIT_STATUS_TIMEOUT_SECONDS
+        return subprocess.CompletedProcess(
+            args=args[0],
+            returncode=0,
+            stdout=f"# branch.oid {HEAD}\n# branch.head main\n",
+        )
+
+    monkeypatch.setattr(emission_observation.subprocess, "run", completed)
+    observed = observe_repository_emission(tmp_path)
+
+    assert observed.status == "OBSERVED"
+    assert observed.head == HEAD
     assert observed.dirty is False
