@@ -33,6 +33,28 @@ class InitialSnapshotOwnerBoundaryTest(unittest.TestCase):
         self.assertIn("snapshot_before", source)
         self.assertIn("snapshot_after", source)
 
+        before_index = source.index("snapshot_before = observe_repository_emission(repo_root)")
+        discovery_index = source.index("skills, discovery_errors = discover_skills(repo_root)")
+        after_index = source.index("snapshot_after = observe_repository_emission(repo_root)")
+        assessment_index = source.index("snapshot = assess_repository_snapshot(")
+
+        self.assertLess(before_index, discovery_index)
+        self.assertLess(discovery_index, after_index)
+        self.assertLess(after_index, assessment_index)
+
+    def test_expected_head_binding_uses_certified_snapshot_observation_not_retired_helpers(self):
+        source = inspect.getsource(probe.main)
+        self.assertIn("observed_head = snapshot.head_after or snapshot.head_before", source)
+        self.assertNotIn("observed_head = head_after or head_before", source)
+
+    def test_split_git_helpers_are_retired_from_owner_module(self):
+        # Keeping dead unbounded helpers around after owner rewiring would leave a
+        # tempting future regression path. The completed source surgery removes
+        # the split observation organs rather than merely ceasing to call them.
+        self.assertFalse(hasattr(probe, "git_head"))
+        self.assertFalse(hasattr(probe, "git_dirty"))
+        self.assertFalse(hasattr(probe, "command_text"))
+
 
 if __name__ == "__main__":
     unittest.main()
