@@ -334,12 +334,14 @@ def is_within(path: Path, root: Path) -> bool:
 
 
 def resolve_repo_path(repo_root: Path, value: str | None) -> Path | None:
+    """Normalize CLI spelling to an absolute named path without dereferencing it."""
+
     if not value:
         return None
     candidate = Path(value)
     if not candidate.is_absolute():
         candidate = repo_root / candidate
-    return candidate.resolve()
+    return Path(os.path.abspath(os.fspath(candidate)))
 
 
 def bounded_skill_candidates(
