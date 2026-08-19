@@ -1,0 +1,82 @@
+{
+  "schema": "regnet-review.v2",
+  "heartbeat": "2026-08-18-2100",
+  "reviewMode": "code_first_bounded_supporting_source_review",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIM_ONLY__OWNER_UNWIRED",
+  "quality": "mixed_repaired_before_completion",
+  "reviewedSourceHead": "72aa7c051a67b92c56fe61375d11ba2b093ebdd2",
+  "checks": [
+    {
+      "name": "portable report path policy",
+      "result": "PASS_SOURCE_AFTER_TWO_REPAIRS",
+      "detail": "Repository-local display becomes bounded repo-relative evidence and external display becomes the constant <external-path>. The first design exposed a deterministic absolute-path fingerprint and was rejected as a possible host-path dictionary oracle. The second review found tiny budgets could amputate semantic markers; the final source requires a 32-character minimum. Display projection is explicitly non-authoritative."
+    },
+    {
+      "name": "report-emission snapshot revalidation",
+      "result": "PASS_SOURCE_WITH_ATOMICITY_BOUNDARY",
+      "detail": "The pure policy rejects missing/changed final HEAD, unknown cleanliness, and newly dirty checkout after certification. It cannot upgrade an uncertified snapshot and explicitly does not claim atomic binding or protection from swap-and-restore, identity reuse, or mutation after the final observation."
+    },
+    {
+      "name": "regression source",
+      "result": "PASS_SOURCE_UNEXECUTED",
+      "detail": "Dedicated source fixtures cover portable path privacy/bounds and late emission HEAD/dirty/unknown behavior. They have not executed."
+    },
+    {
+      "name": "skill harvest",
+      "result": "PASS_SOURCE",
+      "detail": "Two new current-tree skills encode portable report-path projection and final-emission snapshot revalidation while keeping owner/test/runtime/deployment states separate."
+    },
+    {
+      "name": "accessible Warm Wall",
+      "result": "PASS_SOURCE",
+      "detail": "The existing provenance certification DOM/inline-SVG specimen was mutated in place with portable-path and late-emission states, native radio controls, visible focus, >=48px touch intent, non-color state, reduced motion, and no decorative animation."
+    },
+    {
+      "name": "existing owner",
+      "result": "REVISE_REQUIRED_OWNER_UNWIRED",
+      "detail": "Authenticated owner blob afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a still serializes absolute repositoryRoot/generated-index paths and does not perform the new final-emission snapshot revalidation. Supporting source is not owner implementation."
+    },
+    {
+      "name": "execution evidence",
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "Automatic Operator Overlay Android run 32207464366 on exact reviewed source head 72aa7c051a67b92c56fe61375d11ba2b093ebdd2 concluded failure. Job 95933360316 exposes zero steps; decoded logs returned 404 BlobNotFound. No step-level cause is established and no retry was fired."
+    }
+  ],
+  "sourceBlobs": {
+    "portablePathPolicy": "150f8d927c28c4421e495919fada5c5f6a0fb2f4",
+    "portablePathTests": "5fd75f147832e0474baa3b975ff84f3eaa1eb8a1",
+    "emissionSnapshotPolicy": "a0aa8089290b2b2d0951fb6cae9ef3bb9ed066aa",
+    "emissionSnapshotTests": "e537f44456d33f0a5a5561194987b90cd8522c64",
+    "portablePathSkill": "bd5afdf8fd15648ecd5f14334188a341c42178fa",
+    "emissionSnapshotSkill": "3e849f4123614bc89abbe45cc8a9c42c36f8ffbc",
+    "warmWall": "aa01297a6c49fd2cfd0b86dba947e80b709188fd"
+  },
+  "openBoundaries": [
+    "existing provenance owner does not consume either new supporting policy",
+    "owner report schema has not been changed for portable path fields or late-emission snapshot evidence",
+    "late observation narrows but does not eliminate repository atomicity races",
+    "regression source has not executed",
+    "runtime UI/TalkBack/deployment/callability/execution/delivery/acceptance remain unproven"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "ownerPortablePathWired": false,
+    "ownerEmissionSnapshotWired": false,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
