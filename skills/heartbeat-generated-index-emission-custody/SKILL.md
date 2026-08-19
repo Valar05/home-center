@@ -15,7 +15,7 @@ A generated index may be inspected against a certified clean repository snapshot
 
 A stable repository HEAD/cleanliness verdict cannot certify continuity of a separately mutable external index file. If the index cannot be re-read, its whole-artifact SHA-256 is missing/non-canonical, or the emission digest differs from the inspected digest, positive currentness is withheld as `UNRESOLVED`.
 
-The prior generated-index status itself is a typed evidence value, not free-form prose. Only `VERIFIED_CURRENT`, `STALE`, and `UNRESOLVED` are declared prior statuses. An unknown/case-drifted/internal status fails closed to `UNRESOLVED` at emission rather than being copied into durable operator evidence. A green late repository/artifact gate cannot rescue an undeclared prior status.
+The prior generated-index status itself is a typed evidence value, not free-form prose. Only string values `VERIFIED_CURRENT`, `STALE`, and `UNRESOLVED` are declared prior statuses. An unknown, case-drifted, or non-string runtime shape fails closed to `UNRESOLVED` at emission rather than being copied into durable operator evidence or raising through the authority-facing path. A green late repository/artifact gate cannot rescue an undeclared prior status.
 
 ## Named-path preservation before topology admission
 
@@ -63,13 +63,14 @@ Declared negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are nev
 - persistent named-path replacement after descriptor open rejects at the post-read path gate;
 - external content A → content B yields `CHANGED` artifact custody even while repository custody can remain stable;
 - identical complete ordinary content can yield `STABLE` artifact custody;
-- unknown/case-drifted prior status becomes `UNRESOLVED` even when both late gates are green.
+- unknown/case-drifted prior status becomes `UNRESOLVED` even when both late gates are green;
+- a non-string prior status fails closed to `UNRESOLVED` instead of crashing the evidence path.
 
 ## Current capability truth
 
 - pure artifact-custody + emission policy source: **IMPLEMENTED_SOURCE**
-- declared prior-status vocabulary gate: **IMPLEMENTED_SOURCE**
-- emission-policy source blob: **fba139846ae816e8824dc96604782caf2401dbf6**
+- declared prior-status vocabulary + runtime type gate: **IMPLEMENTED_SOURCE**
+- emission-policy source blob: **0aeba966a104e677e0a4ad1486f1af40a9adfe3e**
 - bounded exact artifact-observation primitive: **IMPLEMENTED_SOURCE**
 - finite regular-artifact topology gate: **IMPLEMENTED_SOURCE**
 - direct Windows named-path reparse admission gate: **IMPLEMENTED_SOURCE**
@@ -80,8 +81,8 @@ Declared negative `STALE`/`UNRESOLVED` diagnostics remain diagnostic and are nev
 - named-path-preservation regression source: **REGRESSION_SOURCE / UNEXECUTED**
 - named-path-preservation owner patch: **PROPOSED_NOT_APPLIED**
 - existing provenance owner preserves caller named path for the future artifact gate: **NO**
-- hostile emission-policy regression including undeclared prior-status cases: **REGRESSION_SOURCE / UNEXECUTED**
-- emission-policy regression blob: **ebf11a38c352e5b230b94127b7adc24dc32e3973**
+- hostile emission-policy regression including unknown/case-drifted/non-string prior-status cases: **REGRESSION_SOURCE / UNEXECUTED**
+- emission-policy regression blob: **da163b5eed971630c29f18391607528ccbf7f1c1**
 - hostile artifact regression source including special-file/resource/UTF-8/reparse/replacement/drift/external-mutation cases: **REGRESSION_SOURCE / UNEXECUTED**
 - existing provenance owner consumption of artifact/emission custody: **NO**
 - prior report-boundary patch: **REJECTED_UNSAFE / DO NOT APPLY** until a replacement composes coherent late repository observation, exact generated-index artifact custody, and this finite-artifact throat
