@@ -1,7 +1,7 @@
 # BASE OWNER BLOB: c266e66a8004623efadab1933de4e429e677c6a5
 # STATE: PROPOSED_NOT_APPLIED
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-# PURPOSE: Compose the two independent accessibility repairs already accepted as supporting source into one sole-owner surgery.
+# PURPOSE: Compose three independent accessibility repairs already proven at source level into one sole-owner surgery: deep-detail inspectability, grapheme-safe Spotify announcement, and dynamic Spotify focused-status semantics.
 # CAPABILITY: patch source only; not owner wiring, not TESTED, not runtime/phone proof.
 # FIREWALL: no Phone Hands, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or second overlay/accessibility owner.
 
@@ -14,12 +14,27 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
      private long heartbeatViewportRestoreGeneration;
 +    private long heartbeatDetailPresentationGeneration;
 @@
-         if (spotifyStatus != null) spotifyStatus.setText(summary);
+-        if (spotifyStatus != null) spotifyStatus.setText(summary);
++        if (spotifyStatus != null) {
++            spotifyStatus.setText(summary);
++            spotifyStatus.setContentDescription(
++                    HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160));
++        }
          if (requestId > 0L && spotifyStatus != null) {
 -            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
 +            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
              spotifyStatus.announceForAccessibility(announcement);
          }
+@@
+         spotifyStatus = textView(12f, false);
+-        spotifyStatus.setText(OperatorState.spotifySummary(this));
+-        spotifyStatus.setContentDescription("Current Spotify playback status");
++        String currentSpotifySummary = OperatorState.spotifySummary(this);
++        spotifyStatus.setText(currentSpotifySummary);
++        spotifyStatus.setContentDescription(
++                HeartbeatPlainTextBudget.boundedWithEllipsis(currentSpotifySummary, 160));
+         spotifyStatus.setSingleLine(true);
+         spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
 @@
          heartbeatDetail = textView(11f, false);
          heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
