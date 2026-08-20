@@ -14,35 +14,31 @@ Light when generated-index timestamp text is normalized before semantic admissio
 
 `tools/try_forever_generated_index_timestamp_policy.py` preserves the current numeric seconds/milliseconds convention and naive-as-UTC compatibility while rejecting normalization-dependent string input. Boolean and non-finite numeric shapes fail closed.
 
-## Current owner wound
+## Existing-owner source wiring
 
-Authenticated owner blob `cd94af837245f6c9d6c64ad4f4620699acbb19fb` still implements `parse_timestamp()` with broad `value.strip()` before parsing.
+Authenticated Home Center GitHub-admin mutation applied the prepared exact-timestamp delta to the sole provenance owner in commit `52e47781f5e9c11a17bc59c3b842700fcc784127`; authenticated owner readback blob is `2f3ebd530f46283a59bd6ff34149042a1b825d89`.
 
-`tools/test_try_forever_generated_index_timestamp_owner_boundary.py` now locks both source shape and behavior: the owner adapter must delegate to `parse_generated_index_timestamp(...)`, must not contain `.strip()`, must reject edge whitespace/control/bidi evidence, and must preserve the accepted exact string/numeric compatibility.
+`tools/try_forever_skill_provenance_probe.py::parse_timestamp(...)` now delegates to `parse_generated_index_timestamp(...)`, converts `GeneratedIndexTimestampError` to the historical optional `None` result, and contains no broad `.strip()` normalization.
 
-## Prepared existing-owner surgery
+## Applied surgery provenance
 
-`patches/try-forever-provenance-content-timestamp-owner.delta.json` is durable exact-delta source, content blob `2924cc86c83238a3ce35de80d6d6db1caf227ab1`, first committed at `28fb76390199bd77d57c65f601a7e295e16162cc`.
-
-The delta replaces the broad-strip owner parser with the existing exact timestamp policy while preserving the historical optional-return adapter shape. It shares the same owner mutation with the independent single-artifact `SKILL.md` custody surgery rather than creating a second provenance owner.
-
-**Status: `PROPOSED_NOT_APPLIED`.** Delta existence is not owner wiring.
+`patches/try-forever-provenance-content-timestamp-owner.delta.json`, originally blob `2924cc86c83238a3ce35de80d6d6db1caf227ab1`, defined the exact timestamp adapter together with the independent single-artifact `SKILL.md` custody surgery. Its timestamp portion is now **APPLIED_SOURCE**.
 
 ## Regression source
 
 - `tools/test_try_forever_generated_index_timestamp_policy.py` pins the pure policy.
-- `tools/test_try_forever_generated_index_timestamp_owner_boundary.py` pins the owner integration seam and remains intentionally RED until owner composition lands.
+- `tools/test_try_forever_generated_index_timestamp_owner_boundary.py` pins the owner integration seam.
 
 Both remain **UNEXECUTED** until an authorized runner produces evidence.
 
 ## Capability state — 2026-08-20 heartbeat
 
 - exact timestamp policy source: **YES**;
-- exact authenticated owner readback: **YES**;
-- strengthened RED owner-boundary regression source: **YES / UNEXECUTED**;
-- exact existing-owner delta source: **YES / PROPOSED_NOT_APPLIED**;
-- owner consumes exact timestamp policy: **NO**;
-- owner broad-strip normalization wound: **YES / CURRENT**;
+- authenticated owner readback: **YES**;
+- owner-boundary regression source: **YES / UNEXECUTED**;
+- existing-owner delta source: **YES / APPLIED_SOURCE**;
+- owner consumes exact timestamp policy: **YES / SOURCE_WIRED**;
+- owner broad-strip normalization wound: **NO / RETIRED_FROM_AUTHORITY_PATH**;
 - tested: **NO**;
 - runtime/deployed/callable/executed/delivered/accepted: **NO**.
 
