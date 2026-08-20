@@ -1,0 +1,69 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestamp": "2026-08-20T06:00:00-05:00",
+  "reviewedSourceHead": "08c64ef880529c021600b411f28d62aca8c1a3d8",
+  "frontsAdvanced": [
+    "bounded raw-HEAD skill blob observation",
+    "exact worktree-content to HEAD-blob identity policy",
+    "replacement-object suppression for authority-facing Git subprocesses",
+    "hostile pure and RED owner-boundary regression source",
+    "durable heartbeat-skill-head-content-binding repository skill",
+    "existing accessible non-raster Warm Wall mutated in place",
+    "Regnet code-first correction and evidence review",
+    "Venice bounded completion review"
+  ],
+  "lights": {
+    "FailureIsTheShovel": "LIT: current provenance architecture exposed a distinct committed-content authority gap",
+    "CanonAutoSelect": "LIT: reused tracked-skill, content-custody, repository-emission, and provenance-owner organs",
+    "AutocorrectJudgmentJar": "DARK: no material language ambiguity",
+    "OriginalityTax": "LIT: first HEAD-tree source had replacement-ref authority hole; corrected through shared Git authority environment rather than defended",
+    "HungerEatEverything": "LIT: source, regressions, doctrine, art, review, and capability states converged",
+    "OperatorCampaignHarroway": "LIT: sole provenance owner preserved; supporting organs only",
+    "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no synthetic substitute",
+    "Venice": "LIT: PLAN_ALLOWED before substantive mutation; completion gate source-slice only",
+    "RegnetQA": "LIT: bounded supporting-source PASS, owner REVISE_REQUIRED, regressions UNEXECUTED, TESTED NO",
+    "AccessibilityTalkBackTouch": "LIT: existing provenance wall now exposes HEAD CONTENT MISMATCH with radio/keyboard/touch/non-color/reduced-motion semantics",
+    "PhoneRuntimePhoneHands": "DARK_BY_FIREWALL: consumption 0, mutation 0",
+    "DeterministicRouting": "LIT: bounded literal candidate set and exact set equality for HEAD blob observation",
+    "EvidenceCapabilityDiscipline": "LIT: source/owner/test/runtime/deployment/delivery states remain separate",
+    "RecoveryCheckpointIdempotence": "LIT: fail-closed zero partial blob authority; no status-based recovery from content mismatch",
+    "WarmWallsVectorDom": "LIT: existing non-raster source organism mutated in place",
+    "ChristmasLightSceneGraph": "DARK: no runtime scene-transition law changed; no decorative blink",
+    "ContactPreservation": "LIT_AS_AUTHORITY_ANALOG: existing valid evidence is not rewritten to hide a mismatch; rejected authority remains rejected"
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32362622330,
+    "operatorOverlayJob": 96405275620,
+    "operatorOverlayConclusion": "failure",
+    "exposedSteps": 0,
+    "jobLogs": "404 BlobNotFound",
+    "buildAndroidRun": 32362622374,
+    "homeCenterCiRun": 32362622354,
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "sharedGitReplacementSuppressionSourceWired": true,
+    "headContentOwnerWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "nextExactCut": "Single-artifact skill content observation must expose Git blob identity from those same bytes; sole provenance owner must compare it to the bounded raw-HEAD blob observation before repository_skill authority is emitted."
+}
