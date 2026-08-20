@@ -7,9 +7,11 @@ phone/P0 chain, or promote source evidence into TESTED/runtime/deployed evidence
 SOURCE_WIRED is deliberately narrower than raw substring presence: comments and
 literals are blanked first, the public OperatorOverlayService class is isolated, and
 expected markers must occur inside a direct private-void member method that owns the
-consequence. This is still source-structure evidence only. It does not prove Java
-control flow, Android execution, runtime focus, TalkBack behavior, deployment, or
-phone delivery.
+consequence. Dynamic TextView semantics are evaluated separately: Android's native
+TextView text remains the focused semantic value only when the owner does not replace
+it with a non-null contentDescription. This is still source-structure evidence only.
+It does not prove Java control flow, Android execution, runtime focus, TalkBack
+behavior, deployment, or phone delivery.
 """
 
 from __future__ import annotations
@@ -72,21 +74,13 @@ SPOTIFY_SPEECH_WIRED = {
     ),
 }
 
-SPOTIFY_STATUS_LEGACY = {
-    "createOverlay": (
-        'spotifyStatus.setContentDescription(\"Current Spotify playback status\");',
-    ),
+SPOTIFY_TEXT_MARKERS = {
+    "createOverlay": ("spotifyStatus.setText(",),
+    "handleSpotifyReceipt": ("spotifyStatus.setText(summary);",),
 }
-SPOTIFY_STATUS_WIRED = {
-    "createOverlay": (
-        "String currentSpotifySummary = OperatorState.spotifySummary(this);",
-        "spotifyStatus.setContentDescription(",
-        "HeartbeatPlainTextBudget.boundedWithEllipsis(currentSpotifySummary, 160)",
-    ),
-    "handleSpotifyReceipt": (
-        "spotifyStatus.setContentDescription(",
-        "HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160)",
-    ),
+HOME_CENTER_STATUS_TEXT_MARKERS = {
+    "createOverlay": ("status.setText(",),
+    "refreshUi": ("status.setText(state);",),
 }
 
 
@@ -192,11 +186,7 @@ def java_lexical_code_surface(source: str) -> str:
 
 
 def java_named_class_surface(code_surface: str, class_name: str) -> str:
-    """Return one named public class from the lexical code surface.
-
-    Nested classes outside the named owner's body and declarations elsewhere in the
-    file cannot donate accessibility-owner evidence through this gate.
-    """
+    """Return one named public class from the lexical code surface."""
 
     declaration = re.compile(rf"\bpublic\s+class\s+{re.escape(class_name)}\b")
     match = declaration.search(code_surface)
@@ -218,12 +208,7 @@ def java_named_class_surface(code_surface: str, class_name: str) -> str:
 
 
 def java_private_void_method_surface(class_surface: str, method_name: str) -> str:
-    """Return one direct private-void member method from the owner class.
-
-    The class surface has already had literals/comments blanked. A matching method
-    declaration must occur at owner-class brace depth one, so an identically named
-    method inside a nested helper class cannot counterfeit owner wiring.
-    """
+    """Return one direct private-void member method from the owner class."""
 
     declaration = re.compile(rf"\bprivate\s+void\s+{re.escape(method_name)}\s*\(")
     depth = 0
@@ -270,6 +255,7 @@ def owner_scopes(code_surface: str) -> dict[str, str]:
         "handleSpotifyReceipt": java_private_void_method_surface(
             owner_class, "handleSpotifyReceipt"
         ),
+        "refreshUi": java_private_void_method_surface(owner_class, "refreshUi"),
         "showHeartbeatDetail": java_private_void_method_surface(
             owner_class, "showHeartbeatDetail"
         ),
@@ -338,11 +324,70 @@ def classify_scoped(
     )
 
 
+def content_description_arguments(surface: str, view_name: str) -> tuple[str, ...]:
+    pattern = re.compile(
+        rf"\b{re.escape(view_name)}\.setContentDescription\s*\((.*?)\)\s*;",
+        re.DOTALL,
+    )
+    return tuple(match.group(1).strip() for match in pattern.finditer(surface))
+
+
+def classify_dynamic_textview_semantics(
+    scopes: dict[str, str],
+    *,
+    view_name: str,
+    text_markers: dict[str, tuple[str, ...]],
+    description_scopes: tuple[str, ...],
+    label: str,
+) -> SeamVerdict:
+    text_present = scoped_markers(scopes, text_markers)
+    required_text = required_marker_count(text_markers)
+    overrides: list[str] = []
+    explicit_native: list[str] = []
+    for scope_name in description_scopes:
+        for argument in content_description_arguments(scopes.get(scope_name, ""), view_name):
+            marker = f"{scope_name}::{view_name}.setContentDescription({argument or '<literal>'})"
+            if argument == "null":
+                explicit_native.append(marker)
+            else:
+                overrides.append(marker)
+
+    if overrides and len(text_present) == required_text and not explicit_native:
+        return SeamVerdict(
+            status="LEGACY_OWNER",
+            reason=(
+                f"{label} changes TextView text but also replaces native text semantics "
+                "with a non-null contentDescription"
+            ),
+            legacy_markers=tuple(overrides),
+            wired_markers=text_present,
+        )
+    if not overrides and len(text_present) == required_text:
+        return SeamVerdict(
+            status="SOURCE_WIRED",
+            reason=(
+                f"{label} keeps the dynamic TextView text as the accessibility semantic "
+                "value without a non-null contentDescription override"
+            ),
+            legacy_markers=(),
+            wired_markers=text_present + tuple(explicit_native),
+        )
+    return SeamVerdict(
+        status="PARTIAL_UNSAFE",
+        reason=(
+            f"{label} has mixed/incomplete dynamic-text ownership or conflicting "
+            "contentDescription semantics"
+        ),
+        legacy_markers=tuple(overrides),
+        wired_markers=text_present + tuple(explicit_native),
+    )
+
+
 def probe(source: str) -> dict[str, object]:
     code_surface = java_lexical_code_surface(source)
     scopes = owner_scopes(code_surface)
     return {
-        "schema": "try-forever-operator-accessibility-owner-probe.v5",
+        "schema": "try-forever-operator-accessibility-owner-probe.v6",
         "evidenceClass": "JAVA_DIRECT_OWNER_METHOD_SCOPED_LEXICAL_CODE_SURFACE",
         "ownerClassFound": bool(scopes["class"]),
         "deepDetail": asdict(classify_scoped(
@@ -357,17 +402,26 @@ def probe(source: str) -> dict[str, object]:
             wired=SPOTIFY_SPEECH_WIRED,
             label="Spotify accessibility announcement owner",
         )),
-        "spotifyStatusFocus": asdict(classify_scoped(
+        "spotifyStatusFocus": asdict(classify_dynamic_textview_semantics(
             scopes,
-            legacy=SPOTIFY_STATUS_LEGACY,
-            wired=SPOTIFY_STATUS_WIRED,
+            view_name="spotifyStatus",
+            text_markers=SPOTIFY_TEXT_MARKERS,
+            description_scopes=("createOverlay", "handleSpotifyReceipt"),
             label="Spotify focused-status semantic owner",
+        )),
+        "homeCenterStatusFocus": asdict(classify_dynamic_textview_semantics(
+            scopes,
+            view_name="status",
+            text_markers=HOME_CENTER_STATUS_TEXT_MARKERS,
+            description_scopes=("createOverlay", "refreshUi"),
+            label="Home Center dynamic-status semantic owner",
         )),
         "capabilityBoundary": {
             "sourceInspected": True,
             "lexicalLiteralsExcluded": True,
             "ownerClassScoped": True,
             "directMethodScopedSource": True,
+            "nativeTextViewSemanticsSourceOnly": True,
             "controlFlowProven": False,
             "tested": False,
             "runtimeUi": False,
