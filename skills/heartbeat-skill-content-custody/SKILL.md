@@ -8,7 +8,7 @@ This skill owns source/evidence policy only. It owns no repository discovery con
 
 ## Trigger
 
-Light when authority-facing evidence for one admitted `SKILL.md` risks being derived from different content observations, or when a later authority gate needs an exact identity that should be derived from the already-observed bytes rather than reopening the path.
+Light when authority-facing evidence for one admitted `SKILL.md` risks being derived from different content observations, when a later authority gate needs an identity derived from already-observed bytes rather than reopening the path, or when regression source drifts back toward retired multi-open helper assumptions.
 
 ## Existing owner and supporting organ
 
@@ -26,37 +26,47 @@ It does **not** prove that two separate opens in the middle saw one immutable ob
 
 ## Existing-owner source wiring
 
-Authenticated Home Center GitHub-admin mutation applied the prepared content-custody delta to the sole owner in commit `52e47781f5e9c11a17bc59c3b842700fcc784127`; authenticated owner readback later remained on the single `observe_skill_content(...)` authority path. `discover_skills(...)` calls that organ exactly once per admitted candidate with the owner's existing byte/title resource authorities, takes `content.title` and `content.sha256` from that one observation, and preserves post-content file-identity revalidation.
+Authenticated Home Center GitHub-admin mutation applied the original content-custody surgery in commit `52e47781f5e9c11a17bc59c3b842700fcc784127`. The sole owner calls `observe_skill_content(...)` exactly once per admitted candidate with the owner's existing byte/title resource authorities, takes `content.title`, `content.sha256`, and `content.git_blob_identity` from that one observation, and preserves post-content file-identity revalidation.
 
-The 2026-08-20 0700 source advance extends the already-consumed `SkillContentObservation` with `git_blob_identity`, derived from the same strict-UTF-8 observation. The finite artifact's byte count must equal the re-encoded strict-UTF-8 byte count or the observation fails closed. This does **not** yet mean the sole owner compares that identity against the committed HEAD blob; that separate authority seam remains open and is governed by `heartbeat-skill-head-content-binding`.
+Authenticated follow-up surgery in commit `94122a12714414686d34827321eaf7481d543424` wired the bounded HEAD blob set plus `assess_skill_head_content_binding(...)` into the same sole owner. The owner now compares the Git blob identity derived from the exact admitted `SKILL.md` observation to the ordinary blob committed at the discovery HEAD before `SkillRecord` append.
+
+Therefore the old claim that content↔HEAD owner binding is still proposed/unwired is retired.
 
 ## Applied surgery provenance
 
-`patches/try-forever-provenance-content-timestamp-owner.delta.json`, originally blob `2924cc86c83238a3ce35de80d6d6db1caf227ab1`, defined the earlier title/SHA source change together with the independent exact timestamp adapter. Its content-custody portion is **APPLIED_SOURCE**.
+- `patches/try-forever-provenance-content-timestamp-owner.delta.json` — content-custody portion **APPLIED_SOURCE**.
+- `patches/try-forever-skill-head-content-owner.delta.json` — content↔HEAD portion **APPLIED_SOURCE**.
 
-`patches/try-forever-skill-head-content-owner.delta.json` is a later base-blob-locked proposal for composing the new Git blob identity with bounded raw-HEAD evidence inside the same owner. It is **PROPOSED_NOT_APPLIED**.
+Patch artifacts are provenance; current authenticated owner source is the capability truth.
 
-## Regression source
+## Regression-source ownership
+
+Canonical current fixtures:
 
 - `tools/test_try_forever_skill_content_custody.py` pins title/raw-SHA/Git-blob identity to one artifact observation and fails closed on byte-count drift.
-- `tools/test_try_forever_skill_content_custody_owner_boundary.py` pins the existing owner integration seam for single-artifact content custody.
-- `tools/test_try_forever_skill_head_content_owner_boundary.py` remains RED until the owner binds `content.git_blob_identity` to the bounded HEAD blob observation.
+- `tools/test_try_forever_skill_content_custody_owner_boundary.py` pins the sole-owner single-artifact integration.
+- `tools/test_try_forever_skill_head_content_owner_boundary.py` pins the source-wired HEAD binding.
+- `tools/test_try_forever_skill_title_resource_budget.py` was migrated at the 2026-08-20 1100 heartbeat to exercise title budgets through `observe_skill_content(...)`, not the retired owner-local `markdown_title(...)` helper path.
+- `tools/test_try_forever_skill_provenance_probe.py` was narrowed at the same heartbeat to pure top-level probe/report/index contracts. It no longer treats a non-Git temp root as repository-skill authority and no longer patches legacy `sha256_file(...)` / `markdown_title(...)` helpers as if the owner consumed them.
 
-These remain regression **sources** until an authorized runner produces execution evidence.
+Legacy helper functions may remain in the owner module as compatibility/source archaeology until separately removed, but **they are not the authority path and regression source must not imply that they are**.
 
-## Capability state — 2026-08-20 0700 heartbeat
+All regression files remain regression **source** until an authorized runner produces execution evidence.
+
+## Capability state — 2026-08-20 1100 heartbeat
 
 - supporting single-artifact observation source: **YES**;
-- authenticated owner uses that single-artifact title/SHA path: **YES / SOURCE_WIRED**;
-- same observation now exposes Git blob object identity: **YES / SOURCE_WIRED DATA SURFACE**;
+- authenticated owner uses single-artifact title/SHA/Git-blob path: **YES / SOURCE_WIRED**;
+- bounded HEAD blob-set observation: **YES / SOURCE_WIRED**;
+- owner content↔HEAD binding before record append: **YES / SOURCE_WIRED**;
 - same-observation regression source: **YES / UNEXECUTED**;
 - owner-boundary regression source: **YES / UNEXECUTED**;
-- post-content file-identity revalidation retained: **YES / SOURCE_WIRED**;
-- owner content↔HEAD binding: **NO**;
-- exact content↔HEAD owner delta: **YES / PROPOSED_NOT_APPLIED**;
-- atomic universal filesystem snapshot: **NO**;
+- title-resource regression migrated to current custody path: **YES / SOURCE**;
+- top-level provenance regression retired stale legacy-helper assumptions: **YES / SOURCE**;
+- atomic universal filesystem snapshot: **NO / UNCLAIMED**;
 - tested: **NO**;
-- runtime/deployed/callable/executed/delivered/accepted: **NO**.
+- runtime UI / TalkBack: **NO**;
+- deployed / callable / executed / delivered / accepted: **NO**.
 
 ## P0 / phone firewall
 
@@ -64,4 +74,4 @@ Do not consume or mutate Phone Hands, primary-phone execution, queue/relay recov
 
 ## Done
 
-This skill lights only when single-artifact content custody materially changes. Source wiring and authenticated readback do not imply HEAD authority, test passage, runtime behavior, or phone acceptance.
+This skill lights only when single-artifact content custody materially changes or its regression/doctrine truth is corrected. Source wiring and authenticated readback do not imply test passage, runtime behavior, deployment, or phone acceptance.
