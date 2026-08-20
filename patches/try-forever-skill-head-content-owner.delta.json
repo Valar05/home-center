@@ -1,55 +1,27 @@
 {
   "schema": "try-forever-owner-delta.v1",
-  "status": "PROPOSED_NOT_APPLIED",
+  "status": "APPLIED_SOURCE",
   "owner": "tools/try_forever_skill_provenance_probe.py",
   "baseOwnerBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
+  "appliedCommit": "94122a12714414686d34827321eaf7481d543424",
+  "appliedOwnerBlob": "60e85d95c484cee0ca5f637ac3d5763fd20d21cf",
   "mission": "Bind each admitted single-artifact SKILL.md observation to the exact ordinary blob committed at the already-observed discovery HEAD before repository_skill authority can be emitted.",
-  "constraints": [
-    "Use the existing try_forever_skill_head_blob_observation and try_forever_skill_head_content_binding organs.",
-    "Use content.git_blob_identity from the existing single-artifact observe_skill_content call; never reopen SKILL.md to compute Git object identity.",
-    "Keep try_forever_skill_provenance_probe.py as the sole provenance owner.",
-    "Observe the bounded raw HEAD blob set once per bounded candidate set before per-file authority work.",
-    "Fail the whole repository-skill authority set closed if the HEAD blob observation is unavailable or incomplete.",
-    "Reject an individual candidate before SkillRecord append when exact content identity mismatches or cannot bind to its HEAD blob.",
-    "Preserve existing tracked-set, root, file-identity, content-custody, snapshot, expected-head, and final-emission custody gates.",
-    "No P0 or phone surface consumption."
+  "appliedContract": [
+    "The existing try_forever_skill_head_blob_observation and try_forever_skill_head_content_binding organs are composed into the sole provenance owner.",
+    "One bounded raw-HEAD blob observation is performed for the bounded candidate set before per-file authority work when an authority HEAD is available.",
+    "The owner compares content.git_blob_identity from the existing single-artifact observe_skill_content call; SKILL.md is not reopened to compute Git object identity.",
+    "Unavailable HEAD blob authority fails the repository-skill set closed before per-file content authority work.",
+    "Mismatch or unavailable exact content binding rejects the candidate before SkillRecord append.",
+    "Existing tracked-set, root, file-identity, content-custody, snapshot, expected-head, and final-emission custody gates remain in place.",
+    "No phone/P0 surface or duplicate provenance owner was introduced."
   ],
-  "edits": [
-    {
-      "kind": "import",
-      "after": "from try_forever_skill_file_identity import (",
-      "requiredText": [
-        "from try_forever_skill_head_blob_observation import observe_head_skill_blobs",
-        "from try_forever_skill_head_content_binding import assess_skill_head_content_binding"
-      ]
-    },
-    {
-      "kind": "signature",
-      "target": "def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:",
-      "replacement": "def discover_skills(\\n    repo_root: Path, *, authority_head: str = \\\"\\\"\\n) -> tuple[list[SkillRecord], list[DiscoveryError]]:"
-    },
-    {
-      "kind": "insert_after_tracked_authority",
-      "anchor": "if tracked_authority.status != \\\"STABLE\\\":",
-      "intent": "After the existing fail-closed tracked-authority return block, if authority_head is non-empty call observe_head_skill_blobs(repo_root, authority_head, relative_candidates). Require status OBSERVED; otherwise return zero records with HeadSkillContentUnavailable. Cache observation.blob_by_path for the per-file loop. Empty authority_head may leave source discovery available, but cannot earn emitted authority because main only supplies it from an OBSERVED pre-discovery repository snapshot and later certification remains fail-closed."
-    },
-    {
-      "kind": "insert_before_record_append",
-      "anchor": "records.append(SkillRecord(path=relative, sha256=sha256, title=title))",
-      "intent": "When authority_head is non-empty, call assess_skill_head_content_binding(head_blob_by_path.get(relative, \\\"\\\"), content.git_blob_identity). On MISMATCH append DiscoveryError(stage=\\\"repository\\\", error_type=\\\"HeadSkillContentMismatch\\\", reason=binding.reason, sha256=sha256) and continue. On any non-MATCH unavailable result use error_type HeadSkillContentUnavailable and continue. Only append SkillRecord after both existing post-content file-identity revalidation and exact content↔HEAD binding pass."
-    },
-    {
-      "kind": "main_call",
-      "target": "skills, discovery_errors = discover_skills(repo_root)",
-      "replacementIntent": "Call discover_skills(repo_root, authority_head=(snapshot_before.head if snapshot_before.status == \\\"OBSERVED\\\" else \\\"\\\")). Do not run a second content read or create a second repository observer solely for this binding."
-    }
-  ],
-  "acceptance": [
-    "tools/test_try_forever_skill_content_custody.py passes after authorized execution and proves one artifact observation supplies title, raw SHA, and Git blob identity.",
-    "tools/test_try_forever_skill_head_blob_observation.py passes after authorized execution.",
-    "tools/test_try_forever_skill_head_content_binding.py passes after authorized execution.",
-    "tools/test_try_forever_skill_head_content_owner_boundary.py turns GREEN only after owner source contains the existing organs and rejects mismatch/unavailable state before SkillRecord append.",
-    "Authenticated owner readback proves the sole owner changed from baseOwnerBlob and contains no second content-read implementation.",
-    "TESTED remains NO until an authorized runner actually executes the focused regressions."
-  ]
+  "evidence": {
+    "authenticatedOwnerReadback": true,
+    "ownerSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "phoneP0Consumed": false
+  }
 }
