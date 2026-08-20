@@ -5,7 +5,7 @@ The single-artifact content observation now exposes Git blob identity derived fr
 that same admitted artifact, and bounded raw-HEAD blob observation/binding organs
 already exist. The sole provenance owner still does not compose them. This fixture
 stays intentionally RED until reviewed owner wiring uses those existing organs
-without a second content read or second provenance owner.
+without a second content read, per-file Git query, or second provenance owner.
 """
 
 import sys
@@ -36,14 +36,28 @@ class SkillHeadContentOwnerBoundaryTest(unittest.TestCase):
         self.assertIn("try_forever_skill_head_blob_observation", self.owner)
         self.assertIn("observe_head_skill_blobs", self.owner)
 
+    def test_owner_observes_bounded_head_blob_set_once_before_per_file_loop(self):
+        self.assertEqual(self.owner.count("observe_head_skill_blobs("), 1)
+        observation_index = self.owner.index("observe_head_skill_blobs(")
+        loop_index = self.owner.index("for path in candidates:")
+        self.assertLess(observation_index, loop_index)
+
     def test_owner_composes_existing_content_binding_policy(self):
         self.assertIn("try_forever_skill_head_content_binding", self.owner)
         self.assertIn("assess_skill_head_content_binding", self.owner)
         self.assertIn("content.git_blob_identity", self.owner)
 
+    def test_owner_does_not_recompute_git_blob_identity_from_another_read(self):
+        self.assertNotIn("git_blob_content_identity_from_utf8", self.owner)
+        self.assertNotIn("git_blob_content_identity(", self.owner)
+        self.assertNotIn("git hash-object", self.owner)
+
     def test_owner_binds_against_certified_discovery_head(self):
         self.assertIn("authority_head", self.owner)
         self.assertIn("snapshot_before.head", self.owner)
+        call_index = self.owner.index("discover_skills(", self.owner.index("def main"))
+        snapshot_index = self.owner.index("snapshot_before = observe_repository_emission")
+        self.assertLess(snapshot_index, call_index)
 
     def test_owner_rejects_missing_or_mismatched_head_content_before_record_append(self):
         self.assertIn("HeadSkillContentMismatch", self.owner)
@@ -51,6 +65,10 @@ class SkillHeadContentOwnerBoundaryTest(unittest.TestCase):
         binding_index = self.owner.index("assess_skill_head_content_binding")
         append_index = self.owner.index("records.append(SkillRecord")
         self.assertLess(binding_index, append_index)
+
+    def test_owner_keeps_single_provenance_owner(self):
+        self.assertNotIn("class SecondaryProvenance", self.owner)
+        self.assertNotIn("def discover_head_authoritative_skills", self.owner)
 
 
 if __name__ == "__main__":
