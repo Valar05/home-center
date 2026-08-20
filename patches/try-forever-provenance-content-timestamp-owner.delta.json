@@ -1,45 +1,34 @@
 {
   "schema": "try-forever-owner-delta.v1",
-  "status": "PROPOSED_NOT_APPLIED",
+  "status": "APPLIED_SOURCE",
   "target": "tools/try_forever_skill_provenance_probe.py",
   "baseBlob": "cd94af837245f6c9d6c64ad4f4620699acbb19fb",
-  "purpose": "Compose two already-existing supporting organs into the sole provenance owner without creating a second probe: one bounded SKILL.md content observation for title+SHA, and exact generated-index timestamp admission without broad strip normalization.",
+  "appliedCommit": "52e47781f5e9c11a17bc59c3b842700fcc784127",
+  "appliedOwnerBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+  "purpose": "Compose existing single-artifact SKILL.md content custody and exact generated-index timestamp admission into the sole provenance owner without creating a second probe.",
+  "appliedChanges": [
+    "Owner imports try_forever_generated_index_timestamp_policy and delegates parse_timestamp without broad strip normalization.",
+    "Owner imports try_forever_skill_content_custody and uses one observe_skill_content call for title+SHA under existing byte/title resource authorities.",
+    "Owner retains pre-I/O and post-content skill file identity revalidation.",
+    "Separate title = markdown_title(path) and sha256 = sha256_file(path) calls are absent from the authority path."
+  ],
+  "acceptance": [
+    "tools/test_try_forever_skill_content_custody_owner_boundary.py source contract is satisfied by authenticated owner source",
+    "tools/test_try_forever_generated_index_timestamp_owner_boundary.py source contract is satisfied by authenticated owner source",
+    "no Phone Hands, P0, renderer, scheduler, or second provenance owner is introduced"
+  ],
   "capabilityBoundary": {
     "deltaSource": true,
-    "ownerWired": false,
+    "ownerWired": true,
+    "authenticatedReadback": true,
     "regressionSource": true,
+    "regressionExecuted": false,
     "tested": false,
     "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false,
     "phoneOrP0": false
-  },
-  "operations": [
-    {
-      "kind": "insert_after_exact",
-      "anchor": "from try_forever_generated_index_alias_policy import (\n    GeneratedIndexAliasError,\n    resolve_consistent_alias,\n)\n",
-      "text": "from try_forever_generated_index_timestamp_policy import (\n    GeneratedIndexTimestampError,\n    parse_generated_index_timestamp,\n)\n"
-    },
-    {
-      "kind": "insert_after_exact",
-      "anchor": "from try_forever_skill_identity_set import find_case_insensitive_collisions\n",
-      "text": "from try_forever_skill_content_custody import (\n    SkillContentCustodyChangedError,\n    SkillContentCustodyResourceLimitError,\n    SkillContentCustodyTextError,\n    SkillContentCustodyTitleResourceLimitError,\n    SkillContentCustodyTopologyError,\n    observe_skill_content,\n)\n"
-    },
-    {
-      "kind": "replace_exact",
-      "old": "def parse_timestamp(value: Any) -> datetime | None:\n    if isinstance(value, (int, float)):\n        raw = float(value)\n        if raw > 10_000_000_000:\n            raw /= 1000.0\n        try:\n            return datetime.fromtimestamp(raw, tz=timezone.utc)\n        except (OverflowError, OSError, ValueError):\n            return None\n    if not isinstance(value, str) or not value.strip():\n        return None\n    text = value.strip()\n    if text.endswith(\"Z\"):\n        text = text[:-1] + \"+00:00\"\n    try:\n        parsed = datetime.fromisoformat(text)\n    except ValueError:\n        return None\n    if parsed.tzinfo is None:\n        parsed = parsed.replace(tzinfo=timezone.utc)\n    return parsed.astimezone(timezone.utc)\n",
-      "new": "def parse_timestamp(value: Any) -> datetime | None:\n    \"\"\"Preserve the historical optional-return owner API while using exact admission.\"\"\"\n\n    try:\n        return parse_generated_index_timestamp(value)\n    except GeneratedIndexTimestampError:\n        return None\n"
-    },
-    {
-      "kind": "replace_exact",
-      "old": "        try:\n            title = markdown_title(path)\n        except SkillTitleResourceLimitError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill title extraction exceeded the declared resource budget\",\n                )\n            )\n            continue\n        except SkillFallbackTitleError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill title failed the declared source resource/semantic contract\",\n                )\n            )\n            continue\n        except UnicodeDecodeError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill file is not valid UTF-8 text\",\n                )\n            )\n            continue\n        except OSError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill file title could not be read\",\n                )\n            )\n            continue\n\n        try:\n            sha256 = sha256_file(path)\n        except SkillHashResourceLimitError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"hash\",\n                    error=error,\n                    reason=\"skill file exceeds the declared whole-file hash resource budget\",\n                )\n            )\n            continue\n        except OSError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"hash\",\n                    error=error,\n                    reason=\"skill file bytes could not be read\",\n                )\n            )\n            continue\n",
-      "new": "        try:\n            content = observe_skill_content(\n                path,\n                max_bytes=MAX_SKILL_HASH_BYTES,\n                max_title_scan_bytes=MAX_SKILL_TITLE_SCAN_BYTES,\n                max_title_line_bytes=MAX_SKILL_TITLE_LINE_BYTES,\n                max_title_chars=MAX_SKILL_TITLE_CHARS,\n            )\n        except SkillContentCustodyTitleResourceLimitError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill title extraction exceeded the declared resource budget inside one content observation\",\n                )\n            )\n            continue\n        except SkillFallbackTitleError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill title failed the declared source resource/semantic contract\",\n                )\n            )\n            continue\n        except SkillContentCustodyTextError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"title\",\n                    error=error,\n                    reason=\"skill file is not valid UTF-8 across the complete observed artifact\",\n                )\n            )\n            continue\n        except SkillContentCustodyResourceLimitError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"hash\",\n                    error=error,\n                    reason=\"skill file exceeds the declared complete-content byte budget\",\n                )\n            )\n            continue\n        except (SkillContentCustodyTopologyError, SkillContentCustodyChangedError) as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"identity\",\n                    error=error,\n                    reason=\"single-artifact skill content custody rejected topology or object drift\",\n                )\n            )\n            continue\n        except OSError as error:\n            errors.append(\n                discovery_error(\n                    relative=relative,\n                    stage=\"content\",\n                    error=error,\n                    reason=\"single-artifact skill content could not be observed\",\n                )\n            )\n            continue\n\n        title = content.title\n        sha256 = content.sha256\n"
-    }
-  ],
-  "postconditions": [
-    "discover_skills contains observe_skill_content(...) exactly once in the per-candidate authority path",
-    "discover_skills contains no title = markdown_title(path)",
-    "discover_skills contains no sha256 = sha256_file(path)",
-    "parse_timestamp delegates to parse_generated_index_timestamp without value.strip()",
-    "existing pre-I/O and post-I/O file-identity revalidation remains in place",
-    "no Phone Hands, P0, renderer, scheduler, or second provenance owner is introduced"
-  ]
+  }
 }
