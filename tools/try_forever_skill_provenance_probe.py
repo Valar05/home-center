@@ -27,6 +27,10 @@ from try_forever_generated_index_json_policy import (
     GeneratedIndexJsonError,
     parse_generated_index_json,
 )
+from try_forever_generated_index_source_head_policy import (
+    GeneratedIndexSourceHeadError,
+    admit_generated_index_source_head,
+)
 from try_forever_generated_index_timestamp_policy import (
     GeneratedIndexTimestampError,
     parse_generated_index_timestamp,
@@ -67,6 +71,8 @@ from try_forever_skill_file_identity import (
     capture_skill_file_identity,
     revalidate_skill_file_identity,
 )
+from try_forever_skill_head_blob_observation import observe_head_skill_blobs
+from try_forever_skill_head_content_binding import assess_skill_head_content_binding
 from try_forever_skill_identity_set import find_case_insensitive_collisions
 from try_forever_skill_root_identity import (
     capture_skill_root_identity,
@@ -456,7 +462,9 @@ def bounded_skill_candidates(
     return candidates
 
 
-def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
+def discover_skills(
+    repo_root: Path, *, authority_head: str = ""
+) -> tuple[list[SkillRecord], list[DiscoveryError]]:
     """Discover independent skill records with fail-closed resource throats."""
 
     skills_root = repo_root / "skills"
@@ -654,6 +662,27 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             for path in tracked_authority.untracked_paths
         ]
 
+    head_blob_by_path: dict[str, str] = {}
+    if authority_head:
+        head_observation = observe_head_skill_blobs(
+            repo_root,
+            authority_head,
+            relative_candidates,
+        )
+        if head_observation.status != "OBSERVED":
+            return [], [
+                DiscoveryError(
+                    path="skills",
+                    stage="repository",
+                    error_type="HeadSkillContentUnavailable",
+                    reason=(
+                        "bounded raw-HEAD skill blob observation failed closed before "
+                        f"repository-skill content authority work: {head_observation.reason}"
+                    ),
+                )
+            ]
+        head_blob_by_path = head_observation.blob_by_path
+
     records: list[SkillRecord] = []
     errors: list[DiscoveryError] = []
     for path in candidates:
@@ -820,6 +849,27 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             )
             continue
 
+        if authority_head:
+            binding = assess_skill_head_content_binding(
+                head_blob_by_path.get(relative, ""),
+                content.git_blob_identity,
+            )
+            if binding.status != "MATCH":
+                errors.append(
+                    DiscoveryError(
+                        path=bounded_error_path(relative),
+                        stage="repository",
+                        error_type=(
+                            "HeadSkillContentMismatch"
+                            if binding.status == "MISMATCH"
+                            else "HeadSkillContentUnavailable"
+                        ),
+                        reason=binding.reason,
+                        sha256=sha256,
+                    )
+                )
+                continue
+
         records.append(SkillRecord(path=relative, sha256=sha256, title=title))
 
     try:
@@ -974,7 +1024,19 @@ def inspect_generated_index(
             age_hours=None,
         )
 
-    source_head = source_alias.value or ""
+    try:
+        source_head = admit_generated_index_source_head(source_alias.value)
+    except GeneratedIndexSourceHeadError as error:
+        return IndexVerdict(
+            status="UNRESOLVED",
+            reason=f"generated index source head contract rejected: {type(error).__name__}",
+            path=str(path),
+            source_head="",
+            generated_at="",
+            dirty_source=None,
+            age_hours=None,
+        )
+
     generated_raw = generated_alias.value
     generated_dt = parse_timestamp(generated_raw)
     dirty_source = dirty_alias.value
@@ -1130,7 +1192,12 @@ def main() -> int:
 
     repo_root = Path(args.repo_root).resolve()
     snapshot_before = observe_repository_emission(repo_root)
-    skills, discovery_errors = discover_skills(repo_root)
+    skills, discovery_errors = discover_skills(
+        repo_root,
+        authority_head=(
+            snapshot_before.head if snapshot_before.status == "OBSERVED" else ""
+        ),
+    )
     snapshot_after = observe_repository_emission(repo_root)
     snapshot = assess_repository_snapshot(
         head_before=(snapshot_before.head if snapshot_before.status == "OBSERVED" else ""),
@@ -1265,8 +1332,8 @@ def main() -> int:
         ],
         "generatedIndex": generated_index_report,
         "authority": {
-            "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, exact Git-tracked candidate admission, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed tracked custody or late custody zeroes emitted repository-skill authority",
-            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow initial artifact admission; prior VERIFIED_CURRENT survives only when exact inspection SHA and late artifact SHA match under stable final repository custody",
+            "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, exact Git-tracked candidate admission, exact worktree-content-to-HEAD blob binding when a discovery HEAD is available, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed tracked custody, unavailable/mismatched HEAD content, or late custody prevents the affected authority from being emitted",
+            "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency, exact sourceHead object-ID admission, and finite no-follow initial artifact admission; prior VERIFIED_CURRENT survives only when exact inspection SHA and late artifact SHA match under stable final repository custody",
             "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
         },
         "capabilityBoundary": emitted_capability_boundary(),
