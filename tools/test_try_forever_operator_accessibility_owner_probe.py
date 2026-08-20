@@ -166,7 +166,7 @@ private long heartbeatDetailPresentationGeneration;
 """)
     result = probe(source)
     assert result["deepDetail"]["status"] == "PARTIAL_UNSAFE"
-    assert result["spotifyAnnouncement"]["status"] == "SOURCE_WIRED"
+    assert result["spotifyAnnouncement"]["status"] == "PARTIAL_UNSAFE"
     assert result["spotifyStatusFocus"]["status"] == "PARTIAL_UNSAFE"
     assert result["homeCenterStatusFocus"]["status"] == "PARTIAL_UNSAFE"
 
@@ -222,7 +222,7 @@ private static final class CounterfeitOwner {
 """)
     result = probe(source)
     assert result["deepDetail"]["status"] == "PARTIAL_UNSAFE"
-    assert result["spotifyAnnouncement"]["status"] == "SOURCE_WIRED"
+    assert result["spotifyAnnouncement"]["status"] == "PARTIAL_UNSAFE"
     assert result["spotifyStatusFocus"]["status"] == "PARTIAL_UNSAFE"
     assert result["homeCenterStatusFocus"]["status"] == "PARTIAL_UNSAFE"
     assert result["deepDetail"]["wired_markers"] == ()
