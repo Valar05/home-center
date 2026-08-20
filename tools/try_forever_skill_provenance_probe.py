@@ -23,11 +23,19 @@ from try_forever_generated_index_alias_policy import (
     GeneratedIndexAliasError,
     resolve_consistent_alias,
 )
+from try_forever_generated_index_timestamp_policy import (
+    GeneratedIndexTimestampError,
+    parse_generated_index_timestamp,
+)
 from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactChangedError,
     GeneratedIndexArtifactResourceLimitError,
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
+)
+from try_forever_provenance_cli_evidence_policy import (
+    ProvenanceCliEvidenceError,
+    admit_cli_evidence,
 )
 from try_forever_provenance_emission_composition import (
     compose_provenance_emission,
@@ -38,6 +46,14 @@ from try_forever_provenance_report_path import (
     project_repository_relative_report_path,
 )
 from try_forever_repository_emission_observation import observe_repository_emission
+from try_forever_skill_content_custody import (
+    SkillContentCustodyChangedError,
+    SkillContentCustodyResourceLimitError,
+    SkillContentCustodyTextError,
+    SkillContentCustodyTitleResourceLimitError,
+    SkillContentCustodyTopologyError,
+    observe_skill_content,
+)
 from try_forever_skill_directory_traversal_guard import (
     SkillDirectoryIdentity,
     capture_skill_directory_identity,
@@ -435,6 +451,7 @@ def bounded_skill_candidates(
     candidates.sort()
     return candidates
 
+
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
     """Discover independent skill records with fail-closed resource throats."""
 
@@ -703,14 +720,20 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             continue
 
         try:
-            title = markdown_title(path)
-        except SkillTitleResourceLimitError as error:
+            content = observe_skill_content(
+                path,
+                max_bytes=MAX_SKILL_HASH_BYTES,
+                max_title_scan_bytes=MAX_SKILL_TITLE_SCAN_BYTES,
+                max_title_line_bytes=MAX_SKILL_TITLE_LINE_BYTES,
+                max_title_chars=MAX_SKILL_TITLE_CHARS,
+            )
+        except SkillContentCustodyTitleResourceLimitError as error:
             errors.append(
                 discovery_error(
                     relative=relative,
                     stage="title",
                     error=error,
-                    reason="skill title extraction exceeded the declared resource budget",
+                    reason="skill title extraction exceeded the declared resource budget inside one content observation",
                 )
             )
             continue
@@ -724,13 +747,33 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                 )
             )
             continue
-        except UnicodeDecodeError as error:
+        except SkillContentCustodyTextError as error:
             errors.append(
                 discovery_error(
                     relative=relative,
                     stage="title",
                     error=error,
-                    reason="skill file is not valid UTF-8 text",
+                    reason="skill file is not valid UTF-8 across the complete observed artifact",
+                )
+            )
+            continue
+        except SkillContentCustodyResourceLimitError as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="hash",
+                    error=error,
+                    reason="skill file exceeds the declared complete-content byte budget",
+                )
+            )
+            continue
+        except (SkillContentCustodyTopologyError, SkillContentCustodyChangedError) as error:
+            errors.append(
+                discovery_error(
+                    relative=relative,
+                    stage="identity",
+                    error=error,
+                    reason="single-artifact skill content custody rejected topology or object drift",
                 )
             )
             continue
@@ -738,35 +781,15 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
             errors.append(
                 discovery_error(
                     relative=relative,
-                    stage="title",
+                    stage="content",
                     error=error,
-                    reason="skill file title could not be read",
+                    reason="single-artifact skill content could not be observed",
                 )
             )
             continue
 
-        try:
-            sha256 = sha256_file(path)
-        except SkillHashResourceLimitError as error:
-            errors.append(
-                discovery_error(
-                    relative=relative,
-                    stage="hash",
-                    error=error,
-                    reason="skill file exceeds the declared whole-file hash resource budget",
-                )
-            )
-            continue
-        except OSError as error:
-            errors.append(
-                discovery_error(
-                    relative=relative,
-                    stage="hash",
-                    error=error,
-                    reason="skill file bytes could not be read",
-                )
-            )
-            continue
+        title = content.title
+        sha256 = content.sha256
 
         try:
             file_after = capture_skill_file_identity(path)
@@ -832,26 +855,12 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
 
 
 def parse_timestamp(value: Any) -> datetime | None:
-    if isinstance(value, (int, float)):
-        raw = float(value)
-        if raw > 10_000_000_000:
-            raw /= 1000.0
-        try:
-            return datetime.fromtimestamp(raw, tz=timezone.utc)
-        except (OverflowError, OSError, ValueError):
-            return None
-    if not isinstance(value, str) or not value.strip():
-        return None
-    text = value.strip()
-    if text.endswith("Z"):
-        text = text[:-1] + "+00:00"
+    """Preserve the historical optional-return owner API while using exact admission."""
+
     try:
-        parsed = datetime.fromisoformat(text)
-    except ValueError:
+        return parse_generated_index_timestamp(value)
+    except GeneratedIndexTimestampError:
         return None
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
-    return parsed.astimezone(timezone.utc)
 
 
 def inspect_generated_index(
@@ -1095,6 +1104,7 @@ def emitted_capability_boundary() -> dict[str, bool]:
         "phoneDelivery": False,
     }
 
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -1105,6 +1115,14 @@ def main() -> int:
     parser.add_argument("--expected-head", default="")
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
+
+    try:
+        cli_evidence = admit_cli_evidence(
+            expected_head=args.expected_head,
+            max_index_age_hours=args.max_index_age_hours,
+        )
+    except ProvenanceCliEvidenceError as error:
+        parser.error(str(error))
 
     repo_root = Path(args.repo_root).resolve()
     snapshot_before = observe_repository_emission(repo_root)
@@ -1125,15 +1143,15 @@ def main() -> int:
         index_path,
         current_head=stable_head,
         current_tree_dirty=stable_dirty,
-        max_age_hours=max(0.0, args.max_index_age_hours),
+        max_age_hours=cli_evidence.max_index_age_hours,
         now=now,
     )
 
     observed_head = snapshot.head_after or snapshot.head_before
     head_error = ""
-    if args.expected_head and observed_head != args.expected_head:
+    if cli_evidence.expected_head and observed_head != cli_evidence.expected_head:
         head_error = (
-            f"expected head {args.expected_head}, observed {observed_head or '<unavailable>'}"
+            f"expected head {cli_evidence.expected_head}, observed {observed_head or '<unavailable>'}"
         )
 
     certification = certify_repository_skills(
@@ -1209,7 +1227,7 @@ def main() -> int:
     }
 
     result = {
-        "schema": "try-forever-skill-provenance.v5",
+        "schema": "try-forever-skill-provenance.v6",
         "repositoryRoot": repository_path.display_path,
         "repositoryRootScope": repository_path.scope,
         "currentHead": final_head,
@@ -1221,6 +1239,10 @@ def main() -> int:
             "authoritative": composition.repository_authoritative,
             "observedHead": final_head,
             "observedDirty": final_dirty,
+        },
+        "cliEvidence": {
+            "expectedHead": cli_evidence.expected_head,
+            "maxIndexAgeHours": cli_evidence.max_index_age_hours,
         },
         "expectedHeadError": head_error,
         "skillAuthority": {
