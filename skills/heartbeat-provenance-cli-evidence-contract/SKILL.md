@@ -15,17 +15,17 @@ Use this skill when a provenance command accepts caller-supplied expected reposi
 - Reject `NaN`, positive/negative infinity, negative values, booleans, and text masquerading as numbers.
 - Do not silently clamp negative freshness to zero.
 - Do not let infinity disable freshness comparison by arithmetic accident.
-- The sole owner must compose `admit_cli_evidence(...)` exactly once before either caller value enters authority or report logic.
-- A durable provenance report must expose the exact admitted expected-head binding and max-index-age window that governed its authority decisions. A `VERIFIED_CURRENT` verdict without the freshness bound used is not self-auditing evidence.
-- Adding that authority-input contract changes the durable report contract: the owner must advance explicitly from `try-forever-skill-provenance.v5` to `try-forever-skill-provenance.v6`; do not silently widen v5.
+- The sole owner composes `admit_cli_evidence(...)` exactly once before either caller value enters authority or report logic.
+- A durable provenance report exposes the exact admitted expected-head binding and max-index-age window that governed its authority decisions. A `VERIFIED_CURRENT` verdict without the freshness bound used is not self-auditing evidence.
+- Adding that authority-input contract changed the durable report contract explicitly from `try-forever-skill-provenance.v5` to `try-forever-skill-provenance.v6`; do not silently widen an existing schema.
 - Keep source policy, owner wiring, regression source, executed tests, runtime, deployment, delivery, and acceptance as separate capability states.
 
 ## Existing owner
 `tools/try_forever_skill_provenance_probe.py` remains the sole provenance owner. This skill does not authorize a second parser/probe/controller.
 
-## Exact owner surgery
+## Applied existing-owner surgery
 
-`patches/try-forever-provenance-cli-evidence-owner.delta.json` is base-blob locked to owner blob `cd94af837245f6c9d6c64ad4f4620699acbb19fb` and records the only accepted owner delta for this source slice:
+`patches/try-forever-provenance-cli-evidence-owner.delta.json` was base-blob locked to owner blob `cd94af837245f6c9d6c64ad4f4620699acbb19fb` and defined the accepted owner delta:
 
 1. import the existing CLI evidence policy;
 2. admit caller evidence before authority use;
@@ -33,19 +33,19 @@ Use this skill when a provenance command accepts caller-supplied expected reposi
 4. advance the report schema to v6;
 5. serialize `cliEvidence.expectedHead` and `cliEvidence.maxIndexAgeHours` from admitted values.
 
-Patch/delta existence is not owner implementation. The delta is **PROPOSED_NOT_APPLIED** until authenticated owner readback proves the sole owner changed.
+Authenticated Home Center GitHub-admin mutation applied that contract to the existing owner in commit `52e47781f5e9c11a17bc59c3b842700fcc784127`; authenticated owner readback blob is `2f3ebd530f46283a59bd6ff34149042a1b825d89`.
 
 ## Current capability state
 
 - Pure CLI evidence policy: **YES / SUPPORTING_SOURCE**
 - Hostile pure regression source: **YES / UNEXECUTED**
-- RED existing-owner admission regression: **YES / UNEXECUTED / STRENGTHENED**
-- RED durable-report auditability regression: **YES / UNEXECUTED / STRENGTHENED**
-- Exact base-blob-locked owner delta: **YES / PROPOSED_NOT_APPLIED**
-- Existing owner consumes `admit_cli_evidence`: **NO**
-- Existing owner reports admitted `cliEvidence`: **NO**
-- Existing owner report schema: **v5**
-- Required owner report schema after this surgery: **v6**
+- Existing-owner admission regression source: **YES / UNEXECUTED**
+- Durable-report auditability regression source: **YES / UNEXECUTED**
+- Exact base-blob-locked owner delta: **YES / APPLIED_SOURCE**
+- Existing owner consumes `admit_cli_evidence`: **YES / SOURCE_WIRED**
+- Existing owner reports admitted `cliEvidence`: **YES / SOURCE_WIRED**
+- Existing owner report schema: **v6 / SOURCE_WIRED**
+- Authenticated owner readback: **YES**
 - Tested: **NO**
 - Runtime UI / TalkBack: **NO**
 - Deployed / callable / executed / delivered / accepted: **NO**
