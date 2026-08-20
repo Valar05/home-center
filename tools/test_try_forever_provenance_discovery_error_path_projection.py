@@ -37,6 +37,19 @@ class DiscoveryErrorPathProjectionTest(unittest.TestCase):
         self.assertTrue(serialized.startswith("<repo-path>...#"))
         self.assertNotIn("e...#", serialized)
 
+    def test_over_budget_zwj_identity_never_exposes_a_partial_prefix(self):
+        relative = ("A" * 505) + "👩\u200d💻" + ("B" * 40)
+        self.assertGreater(len(relative), probe.MAX_DISCOVERY_ERROR_PATH_CHARS)
+
+        bounded = probe.bounded_error_path(relative)
+        expected = f"<repo-path>...#{hashlib.sha256(relative.encode('utf-8')).hexdigest()[:16]}"
+
+        self.assertEqual(expected, bounded)
+        self.assertLessEqual(len(bounded), probe.MAX_DISCOVERY_ERROR_PATH_CHARS)
+        self.assertNotIn("👩", bounded)
+        self.assertNotIn("💻", bounded)
+        self.assertNotIn("\u200d", bounded)
+
     def test_over_budget_digest_is_bound_to_exact_original_relative_identity(self):
         left = ("A" * 520) + "X"
         right = ("A" * 520) + "Y"
