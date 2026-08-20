@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner boundary for exact generated-index sourceHead admission.
+"""Owner-boundary regression for exact generated-index sourceHead admission.
 
-The supporting policy exists, but the sole provenance owner must consume it before a
-malformed declared sourceHead can be distinguished from an ordinary stale canonical
-Git identity. This fixture stays RED until that reviewed owner wiring lands.
+The sole provenance owner now consumes the supporting policy before ordinary stale
+comparison. This fixture is source-wired and should be GREEN when an authorized
+runner executes it; existence/readback alone remains no TESTED evidence.
 """
 
 import unittest
