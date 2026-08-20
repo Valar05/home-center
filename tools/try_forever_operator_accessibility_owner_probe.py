@@ -29,6 +29,13 @@ DEEP_DETAIL_WIRED = (
     "HeartbeatDetailSurfacePolicy.fromDetail",
     "HeartbeatDetailSurfacePolicy.maxViewportHeightPx",
     "HeartbeatDetailSurfacePolicy.clampScrollY",
+    "heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);",
+    "heartbeatDetail.setMovementMethod(",
+    "heartbeatDetail.setFocusable(presentation.keyboardFocusable);",
+    "heartbeatDetail.setClickable(presentation.clickable);",
+    "heartbeatDetail.setLongClickable(presentation.longClickable);",
+    "restoreHeartbeatDetailScrollAfterLayout(",
+    "heartbeatDetail.announceForAccessibility(presentation.contentDescription);",
 )
 
 SPOTIFY_SPEECH_LEGACY = (
@@ -67,7 +74,7 @@ def classify(source: str, *, legacy: tuple[str, ...], wired: tuple[str, ...], la
 
 def probe(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-operator-accessibility-owner-probe.v1",
+        "schema": "try-forever-operator-accessibility-owner-probe.v2",
         "deepDetail": asdict(classify(
             source,
             legacy=DEEP_DETAIL_LEGACY,
