@@ -40,8 +40,10 @@ def _literal_skill_pathspec(path: str) -> str:
     if not path or "\x00" in path:
         raise ValueError("tracked-skill identity must be non-empty and contain no NUL")
     parsed = PurePosixPath(path)
-    if parsed.is_absolute() or any(part in ("", ".", "..") for part in parsed.parts):
-        raise ValueError("tracked-skill identity must be a normalized repository-relative path")
+    if parsed.is_absolute() or parsed.as_posix() != path:
+        raise ValueError("tracked-skill identity must already be canonical repository-relative POSIX text")
+    if any(part in ("", ".", "..") for part in parsed.parts):
+        raise ValueError("tracked-skill identity must contain no traversal components")
     if len(parsed.parts) < 3 or parsed.parts[0] != "skills" or parsed.parts[-1] != "SKILL.md":
         raise ValueError("tracked-skill identity must name skills/**/SKILL.md")
     return f":(literal){path}"
