@@ -51,6 +51,7 @@ class HeadSkillBlobObservationTest(unittest.TestCase):
         self.assertIn(f":(literal)skills/alpha/SKILL.md", argv)
         self.assertIn(f":(literal)skills/zeta/SKILL.md", argv)
         self.assertFalse(run.call_args.kwargs["text"])
+        self.assertEqual("1", run.call_args.kwargs["env"]["GIT_NO_REPLACE_OBJECTS"])
 
     def test_head_symlink_mode_fails_closed_with_zero_partial_authority(self):
         stdout = (
