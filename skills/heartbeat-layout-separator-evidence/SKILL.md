@@ -26,6 +26,12 @@ Compose existing owners only:
 
 Do not create a second path serializer, heartbeat formatter, renderer, overlay controller, phone lane, or P0 coordinator.
 
+## Java source scar
+
+Java processes Unicode-escape syntax before normal tokenization, including inside comments. A comment/Javadoc example that literally spells a backslash followed by `u{...}` is therefore compile-hostile rather than harmless documentation. Keep Java comments in `U+2028`, `U+2029`, or neutral `marker[...]` notation. Actual marker strings remain escaped Java string literals.
+
+This scar was found by code-first review after the separator source change and repaired in `HeartbeatInvisibleSemanticControlPolicy`. Do not reintroduce raw malformed Unicode-escape examples into Java comments under the excuse that they are only prose.
+
 ## Regression doctrine
 
 Pin these independently:
@@ -37,7 +43,8 @@ Pin these independently:
 5. Literal heartbeat marker text remains distinct from an actual separator.
 6. Typed explicit detail uses the same marker projection while exact Candidate source text remains unchanged.
 7. Routine compact speech is not silently redesigned by this source repair.
-8. Regression source is not TESTED evidence until an authorized execution lane runs it.
+8. Java comments/Javadocs use `U+...` or neutral marker notation rather than malformed raw Unicode-escape syntax.
+9. Regression source is not TESTED evidence until an authorized execution lane runs it.
 
 ## Capability membrane
 
@@ -45,6 +52,7 @@ Current source state for this scar:
 
 - provenance path separator projection: **YES / SOURCE_WIRED through existing report projection consumers**
 - heartbeat explicit-detail separator projection: **YES / SOURCE_WIRED through existing evidence-detail consumer**
+- compile-hostile Java comment examples in the changed policy: **REPAIRED / SOURCE**
 - provenance hostile regression source: **YES / UNEXECUTED**
 - Android hostile regression source: **YES / UNEXECUTED**
 - Android test execution: **NO**
