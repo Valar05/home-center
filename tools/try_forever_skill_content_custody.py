@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Single-artifact content custody for TRY FOREVER repository skills.
 
-The current provenance owner separately opens one admitted ``SKILL.md`` for title
-extraction and again for whole-file SHA. Portable path identity revalidation can
-detect persistent replacement around those reads, but it cannot prove that the
-title and digest came from one immutable opened object when a swap-and-restore
-occurs entirely between observations.
+The sole provenance owner already uses this organ so one admitted ``SKILL.md``
+observation supplies its title and whole-file SHA. This module preserves that
+single-artifact custody while extending the same observation with Git blob object
+identity for the next content-to-HEAD authority gate; it does not reopen the path.
 
 This supporting helper deliberately composes the repository's already-hardened
 finite regular-file observation organ instead of growing a second no-follow/
