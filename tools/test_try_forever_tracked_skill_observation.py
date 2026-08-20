@@ -102,14 +102,23 @@ class TrackedSkillObservationTest(unittest.TestCase):
         self.assertEqual(size.status, "UNAVAILABLE")
         run.assert_not_called()
 
-    def test_non_repository_skill_identity_fails_before_git(self):
+    def test_noncanonical_or_outside_identity_fails_before_git(self):
         with patch("try_forever_tracked_skill_observation.subprocess.run") as run:
-            observation = observe_tracked_skill_candidates(
+            dotted = observe_tracked_skill_candidates(
+                Path("/repo"),
+                ("skills/a/./SKILL.md",),
+            )
+            doubled = observe_tracked_skill_candidates(
+                Path("/repo"),
+                ("skills//a/SKILL.md",),
+            )
+            outside = observe_tracked_skill_candidates(
                 Path("/repo"),
                 ("../outside/SKILL.md",),
             )
-        self.assertEqual(observation.status, "UNAVAILABLE")
-        self.assertEqual(observation.tracked_paths, ())
+        for observation in (dotted, doubled, outside):
+            self.assertEqual(observation.status, "UNAVAILABLE")
+            self.assertEqual(observation.tracked_paths, ())
         run.assert_not_called()
 
     def test_git_failure_and_timeout_do_not_invent_tracked_paths(self):
