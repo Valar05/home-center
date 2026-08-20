@@ -43,15 +43,20 @@ private void restoreHeartbeatDetailScrollAfterLayout(int oldY, long presentation
 """
 
 
-def complete_spotify_wiring() -> str:
-    return """
-private void createOverlay() {
+def add_spotify_focus_create_wiring(body: str) -> str:
+    return body.replace(
+        "private void createOverlay() {",
+        """private void createOverlay() {
     String currentSpotifySummary = OperatorState.spotifySummary(this);
     spotifyStatus.setText(currentSpotifySummary);
     spotifyStatus.setContentDescription(
-            HeartbeatPlainTextBudget.boundedWithEllipsis(currentSpotifySummary, 160));
-}
+            HeartbeatPlainTextBudget.boundedWithEllipsis(currentSpotifySummary, 160));""",
+        1,
+    )
 
+
+def complete_spotify_handle_wiring() -> str:
+    return """
 private void handleSpotifyReceipt(long requestId, String receiptJson) {
     spotifyStatus.setContentDescription(
             HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160));
@@ -59,6 +64,12 @@ private void handleSpotifyReceipt(long requestId, String receiptJson) {
     spotifyStatus.announceForAccessibility(announcement);
 }
 """
+
+
+def complete_all_wiring() -> str:
+    return add_spotify_focus_create_wiring(
+        complete_deep_detail_wiring()
+    ) + complete_spotify_handle_wiring()
 
 
 def test_current_legacy_shapes_are_classified_without_promoting_runtime():
@@ -94,8 +105,7 @@ private void handleSpotifyReceipt(long requestId, String receiptJson) {
 
 
 def test_complete_existing_organ_markers_in_direct_owner_methods_classify_source_wired():
-    source = owner_class(complete_deep_detail_wiring() + complete_spotify_wiring())
-    result = probe(source)
+    result = probe(owner_class(complete_all_wiring()))
     assert result["deepDetail"]["status"] == "SOURCE_WIRED"
     assert result["spotifyAnnouncement"]["status"] == "SOURCE_WIRED"
     assert result["spotifyStatusFocus"]["status"] == "SOURCE_WIRED"
@@ -217,7 +227,7 @@ private void createOverlay() {
 
 
 def test_legacy_markers_in_unrelated_method_do_not_poison_complete_owner_wiring():
-    source = owner_class(complete_deep_detail_wiring() + complete_spotify_wiring() + """
+    source = owner_class(complete_all_wiring() + """
 private void historicalExample() {
     heartbeatDetail.setMaxLines(5);
     heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);
@@ -246,7 +256,7 @@ private void showHeartbeatDetail(String detail, boolean explicitSelection) {
 
 
 def test_partial_owner_surgery_fails_closed():
-    body = complete_deep_detail_wiring() + complete_spotify_wiring()
+    body = complete_all_wiring()
     body = body.replace(
         "private void createOverlay() {",
         "private void createOverlay() {\n    heartbeatDetail.setMaxLines(5);",
@@ -255,6 +265,7 @@ def test_partial_owner_surgery_fails_closed():
     result = probe(owner_class(body))
     assert result["deepDetail"]["status"] == "PARTIAL_UNSAFE"
     assert result["spotifyAnnouncement"]["status"] == "SOURCE_WIRED"
+    assert result["spotifyStatusFocus"]["status"] == "SOURCE_WIRED"
 
 
 def test_spotify_legacy_and_new_budget_markers_together_in_owner_method_are_partial_unsafe():
