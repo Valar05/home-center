@@ -86,6 +86,7 @@ public class OperatorOverlayService extends Service {
     private HeartbeatSceneGraph.Frame heartbeatFrame;
     private HeartbeatPersistedPollPolicy.Snapshot heartbeatProcessedPersistedSnapshot;
     private long heartbeatViewportRestoreGeneration;
+    private long heartbeatDetailPresentationGeneration;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -208,7 +209,7 @@ public class OperatorOverlayService extends Service {
         }
         if (spotifyStatus != null) spotifyStatus.setText(summary);
         if (requestId > 0L && spotifyStatus != null) {
-            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
+            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
             spotifyStatus.announceForAccessibility(announcement);
         }
     }
@@ -320,7 +321,9 @@ public class OperatorOverlayService extends Service {
 
         spotifyStatus = textView(12f, false);
         spotifyStatus.setText(OperatorState.spotifySummary(this));
-        spotifyStatus.setContentDescription("Current Spotify playback status");
+        // TextView text is the focused semantic value; do not override it with a stale
+        // generic description. Explicit command receipts still use bounded announcements.
+        spotifyStatus.setContentDescription(null);
         spotifyStatus.setSingleLine(true);
         spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
         spotifyStatus.setPadding(dp(4), 0, dp(4), 0);
@@ -362,7 +365,9 @@ public class OperatorOverlayService extends Service {
 
         status = textView(14f, true);
         status.setText("HOME CENTER • OFFLINE");
-        status.setContentDescription("Home Center connection and control state");
+        // This status text changes continuously; let TextView expose its current text
+        // instead of replacing it with a generic description that can mask the state.
+        status.setContentDescription(null);
         statusRow.addView(status, new LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -402,9 +407,18 @@ public class OperatorOverlayService extends Service {
         heartbeatDetail = textView(11f, false);
         heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
         heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
-        heartbeatDetail.setMaxLines(5);
-        heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);
         heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
+        heartbeatDetail.setEllipsize(null);
+        heartbeatDetail.setMaxHeight(HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
+                heartbeatDetail.getLineHeight(),
+                heartbeatDetail.getTotalPaddingTop() + heartbeatDetail.getTotalPaddingBottom()));
+        heartbeatDetail.setMinHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
+        heartbeatDetail.setMinimumHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
+        heartbeatDetail.setVerticalScrollBarEnabled(true);
+        heartbeatDetail.setMovementMethod(ScrollingMovementMethod.getInstance());
+        heartbeatDetail.setFocusable(HeartbeatDetailSurfacePolicy.KEYBOARD_FOCUSABLE);
+        heartbeatDetail.setClickable(HeartbeatDetailSurfacePolicy.CLICKABLE);
+        heartbeatDetail.setLongClickable(HeartbeatDetailSurfacePolicy.LONG_CLICKABLE);
         heartbeatDetail.setContentDescription(
                 "Touch a heartbeat light for why, consequence, evidence, and source detail.");
 
@@ -1267,16 +1281,73 @@ public class OperatorOverlayService extends Service {
         }
     }
 
-    private void showHeartbeatDetail(String detail, boolean announce) {
+    private void showHeartbeatDetail(String detail, boolean explicitSelection) {
         if (heartbeatDetail == null) return;
-        String safe = detail == null || detail.trim().isEmpty()
-                ? "No heartbeat detail available."
-                : detail.trim();
-        heartbeatDetail.setText(safe);
-        heartbeatDetail.setContentDescription(safe);
-        if (announce && !OperatorState.muted(this)) {
-            heartbeatDetail.announceForAccessibility(safe);
+        long presentationGeneration = ++heartbeatDetailPresentationGeneration;
+        int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
+        HeartbeatDetailSurfacePolicy.Presentation presentation =
+                HeartbeatDetailSurfacePolicy.fromDetail(detail);
+        heartbeatDetail.setText(presentation.text);
+        heartbeatDetail.setContentDescription(presentation.contentDescription);
+        heartbeatDetail.setEllipsize(
+                presentation.ellipsizeEnd ? TextUtils.TruncateAt.END : null);
+        heartbeatDetail.setMinHeight(dp(presentation.minTouchTargetDp));
+        heartbeatDetail.setMinimumHeight(dp(presentation.minTouchTargetDp));
+        heartbeatDetail.setMaxHeight(HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
+                heartbeatDetail.getLineHeight(),
+                heartbeatDetail.getTotalPaddingTop() + heartbeatDetail.getTotalPaddingBottom()));
+        heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);
+        heartbeatDetail.setMovementMethod(
+                presentation.verticallyScrollable
+                        ? ScrollingMovementMethod.getInstance()
+                        : null);
+        heartbeatDetail.setFocusable(presentation.keyboardFocusable);
+        heartbeatDetail.setClickable(presentation.clickable);
+        heartbeatDetail.setLongClickable(presentation.longClickable);
+        if (explicitSelection) {
+            heartbeatDetail.scrollTo(0, 0);
+        } else {
+            restoreHeartbeatDetailScrollAfterLayout(
+                    preservedScrollY,
+                    presentationGeneration);
         }
+        if (explicitSelection && !OperatorState.muted(this)) {
+            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
+        }
+    }
+
+    private void restoreHeartbeatDetailScrollAfterLayout(
+            int preservedScrollY,
+            long presentationGeneration) {
+        if (heartbeatDetail == null) return;
+        ViewTreeObserver observer = heartbeatDetail.getViewTreeObserver();
+        if (!observer.isAlive()) return;
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                ViewTreeObserver current = heartbeatDetail.getViewTreeObserver();
+                if (current.isAlive()) current.removeOnPreDrawListener(this);
+                if (presentationGeneration != heartbeatDetailPresentationGeneration) {
+                    return true;
+                }
+                android.text.Layout layout = heartbeatDetail.getLayout();
+                int contentHeightPx = layout == null ? 0 : layout.getHeight();
+                int viewportHeightPx = Math.max(
+                        0,
+                        heartbeatDetail.getHeight()
+                                - heartbeatDetail.getTotalPaddingTop()
+                                - heartbeatDetail.getTotalPaddingBottom());
+                int targetScrollY = HeartbeatDetailSurfacePolicy.clampScrollY(
+                        preservedScrollY,
+                        contentHeightPx,
+                        viewportHeightPx);
+                if (heartbeatDetail.getScrollY() != targetScrollY) {
+                    heartbeatDetail.scrollTo(0, targetScrollY);
+                }
+                return true;
+            }
+        });
+        heartbeatDetail.requestLayout();
     }
 
     private Button adamModeButton(String label, String mode, String description) {
