@@ -1,0 +1,69 @@
+{
+  "heartbeat": "2026-08-20-1000",
+  "reviewedSourceHead": "f49b58ee7a128d0f8cc1c5ca71da8e79265c3c8c",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "provenancePathProjection": {
+      "status": "PASS_SOURCE",
+      "change": "Cc/Cf/Cs projection now also reveals Unicode Zl/Zp line and paragraph separators as explicit evidence units while exact repository identity remains unchanged.",
+      "blob": "3e064b115c8759de7e0d76ae457f8461c9a3c810"
+    },
+    "heartbeatExplicitEvidence": {
+      "status": "PASS_SOURCE",
+      "change": "U+2028/U+2029 are revealable named evidence markers in the existing explicit-detail projection; routine compact speech is unchanged.",
+      "blob": "c66645254bfe95f52bc91bfb133e49c435fc60d3"
+    },
+    "hostileRegressions": {
+      "status": "SOURCE_ONLY_UNEXECUTED",
+      "provenance": "tools/test_try_forever_provenance_report_path_separators.py",
+      "android": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEvidenceLayoutSeparatorProjectionTest.java"
+    },
+    "codeFirstCorrection": {
+      "status": "CORRECTED_SOURCE",
+      "finding": "The Java policy comments used raw malformed Unicode-escape marker notation; Java performs Unicode-escape translation before tokenization, including comments, so the comment examples were compile-hostile. Comments now use U+ / neutral marker notation while actual marker strings remain escaped literals.",
+      "testedClaim": "NO"
+    },
+    "skillHarvest": {
+      "status": "PASS_SOURCE",
+      "path": "skills/heartbeat-layout-separator-evidence/SKILL.md",
+      "blob": "b992a76c1653e5d67e02afb025b93da305f5a3e9"
+    },
+    "touchableSource": {
+      "status": "PASS_SOURCE_ONLY",
+      "path": "docs/try-forever/heartbeat-layout-separator-evidence-source-specimen.html",
+      "runtimeClaim": false
+    }
+  },
+  "executionEvidence": {
+    "operatorOverlayRun": 32384476985,
+    "operatorJob": 96475458115,
+    "operatorConclusion": "failure",
+    "homeCenterCiRun": 32384477022,
+    "buildAndroidRun": 32384477000,
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "account connection HTTP 400; no substitute reviewer invented"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
