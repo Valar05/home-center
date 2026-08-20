@@ -7,10 +7,10 @@
 <style>
   :root { color-scheme: dark; font-family: system-ui, sans-serif; }
   body { margin: 0; background: #151719; color: #f5f2e9; }
-  main { max-width: 760px; margin: 0 auto; padding: 24px; }
+  main { max-width: 780px; margin: 0 auto; padding: 24px; }
   .wall { border: 2px solid currentColor; border-radius: 24px; padding: 20px; background: #24211f; }
   h1 { margin-top: 0; font-size: 1.35rem; }
-  .scar { font-weight: 800; letter-spacing: .04em; }
+  .scar { font-weight: 800; letter-spacing: .04em; line-height: 1.45; }
   [role="radiogroup"] { display: grid; gap: 12px; margin: 18px 0; }
   [role="radio"] {
     min-height: 48px;
@@ -28,11 +28,10 @@
   [role="radio"][aria-checked="true"] { outline: 4px double currentColor; outline-offset: 3px; }
   [role="radio"]:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
   .token { display: inline-block; width: 2.2em; font-weight: 900; }
-  .detail { min-height: 9rem; border-top: 1px solid currentColor; padding-top: 16px; }
+  .detail { min-height: 10rem; border-top: 1px solid currentColor; padding-top: 16px; }
   .detail strong { display: inline-block; min-width: 8rem; }
-  svg { width: 100%; height: 76px; margin-top: 14px; }
-  .wire { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
-  .node { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
+  svg { width: 100%; height: 80px; margin-top: 14px; }
+  .wire, .node { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
   small { display: block; margin-top: 16px; line-height: 1.45; }
   @media (prefers-reduced-motion: no-preference) {
     [role="radio"] { transition: transform 120ms ease; }
@@ -44,41 +43,45 @@
 <main>
   <section class="wall" aria-labelledby="title">
     <h1 id="title">WARM WALL / SKILL PROVENANCE</h1>
-    <p class="scar">ONE WOUNDED SKILL DOES NOT GET TO BURN DOWN THE CATALOG. ONE REDIRECTOR DOES NOT GET TWO IDENTITIES.</p>
+    <p class="scar">TRACKED ≠ COMMITTED CONTENT. CLEAN-LOOKING ≠ BYTE-IDENTICAL TO HEAD. ONE EXACT SKILL LIGHT NEEDS ONE EXACT CONTENT IDENTITY.</p>
 
-    <svg viewBox="0 0 660 76" role="img" aria-label="Six provenance states connected across one repository scan">
-      <path class="wire" d="M28 38 H632"/>
-      <circle class="node" cx="58" cy="38" r="17"/>
-      <rect class="node" x="144" y="21" width="34" height="34" rx="6"/>
-      <path class="node" d="M251 21 L285 55 M285 21 L251 55"/>
-      <path class="node" d="M376 19 L397 38 L376 57 L355 38 Z"/>
-      <path class="node" d="M472 20 L500 20 L486 56 Z"/>
-      <path class="node" d="M578 20 L610 56 M610 20 L578 56 M574 38 H614"/>
+    <svg viewBox="0 0 700 80" role="img" aria-label="Seven provenance states connected across one repository authority chain">
+      <path class="wire" d="M25 40 H675"/>
+      <circle class="node" cx="55" cy="40" r="17"/>
+      <path class="node" d="M135 23 L169 57 M169 23 L135 57"/>
+      <rect class="node" x="232" y="23" width="34" height="34" rx="6"/>
+      <path class="node" d="M345 21 L366 40 L345 59 L324 40 Z"/>
+      <path class="node" d="M441 22 L469 22 L455 58 Z"/>
+      <path class="node" d="M540 22 L572 58 M572 22 L540 58 M536 40 H576"/>
+      <path class="node" d="M640 21 L660 40 L640 59 L620 40 Z M629 40 H651"/>
     </svg>
 
     <div id="states" role="radiogroup" aria-label="Skill provenance state">
       <button type="button" role="radio" aria-checked="true" tabindex="0" data-state="verified">
-        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct ordinary SKILL.md + exact hash under one stable clean scan
+        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct ordinary SKILL.md under one stable certified repository state
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="headmismatch">
+        <span class="token" aria-hidden="true">×</span><strong>HEAD CONTENT MISMATCH</strong> — tracked path / clean-looking status cannot override different bytes
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="stale">
-        <span class="token" aria-hidden="true">□</span><strong>STALE INDEX</strong> — discovery only; cannot earn repository_skill provenance
+        <span class="token" aria-hidden="true">□</span><strong>STALE INDEX</strong> — generated discovery aid cannot earn repository authority
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unresolved">
-        <span class="token" aria-hidden="true">×</span><strong>UNRESOLVED</strong> — required proof is missing; fail closed
+        <span class="token" aria-hidden="true">◇</span><strong>UNRESOLVED</strong> — required proof unavailable; fail closed
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unstable">
-        <span class="token" aria-hidden="true">◇</span><strong>UNSTABLE SNAPSHOT</strong> — HEAD or cleanliness moved while skills were being read
+        <span class="token" aria-hidden="true">△</span><strong>UNSTABLE SNAPSHOT</strong> — repository custody moved or became unknowable
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="filefault">
-        <span class="token" aria-hidden="true">△</span><strong>FILE FAULT ISOLATED</strong> — one admitted ordinary skill is unreadable; healthy peers keep their evidence
+        <span class="token" aria-hidden="true">!</span><strong>FILE FAULT ISOLATED</strong> — wounded skill earns no record; peer evidence stays diagnosable
       </button>
       <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="redirector">
-        <span class="token" aria-hidden="true">⊘</span><strong>SKILL.md REDIRECTOR BLOCKED</strong> — candidate-set authority stops before title/hash work; no alias wins
+        <span class="token" aria-hidden="true">⊘</span><strong>SKILL.md REDIRECTOR BLOCKED</strong> — existing owner refuses redirecting/non-file candidate topology
       </button>
     </div>
 
     <div class="detail" id="detail" aria-live="polite" aria-atomic="true"></div>
-    <small>SOURCE SPECIMEN ONLY · OWNER TOPOLOGY PATCH PROPOSED, NOT APPLIED · NOT OPERATOR-OVERLAY RUNTIME PROOF · NOT PHONE DELIVERY · NO AUTOPLAY · NO CHRISTMAS BLINK</small>
+    <small>SOURCE SPECIMEN ONLY · HEAD-BLOB OBSERVATION SOURCE YES · CONTENT↔HEAD OWNER GATE NO · REGRESSION SOURCE UNEXECUTED · NOT OPERATOR-OVERLAY RUNTIME PROOF · NOT PHONE DELIVERY · NO AUTOPLAY · NO CHRISTMAS BLINK</small>
   </section>
 </main>
 <script>
@@ -89,45 +92,52 @@
   const states = {
     verified: {
       state: 'VERIFIED CURRENT',
-      why: 'The skill resolves directly as an ordinary non-redirecting skills/**/SKILL.md, exact bytes have a SHA-256 identity, and the same clean git HEAD brackets the scan.',
-      consequence: 'The heartbeat may truthfully use repository_skill provenance for that exact admitted record.',
-      evidence: 'Root topology + bounded traversal + ordinary candidate topology + bounded candidate set + pre/post HEAD and cleanliness + current-tree path + exact hash.',
+      why: 'The existing owner admits ordinary non-redirecting tracked SKILL.md files inside bounded repository custody and records exact worktree evidence.',
+      consequence: 'Repository-skill provenance may be emitted only through the owner’s certified authority membrane.',
+      evidence: 'Root/traversal/candidate topology, tracked-path gate, single-artifact content custody, repository snapshot certification, expected-head binding, and late custody.',
       source: 'tools/try_forever_skill_provenance_probe.py'
+    },
+    headmismatch: {
+      state: 'HEAD CONTENT MISMATCH',
+      why: 'Git can intentionally reduce ordinary worktree checking through index flags. A tracked path and clean-looking status therefore do not prove that the exact observed SKILL.md bytes equal the blob committed at HEAD.',
+      consequence: 'The proposed source gate compares exact Git blob identity for the observed bytes with the ordinary blob identity from the named HEAD tree. Mismatch fails closed; status cannot vote it away.',
+      evidence: 'Supporting HEAD-tree observation + exact Git blob framing policy + hostile mismatch fixtures exist. Existing owner consumption remains NO.',
+      source: 'skills/heartbeat-skill-head-content-binding/SKILL.md'
     },
     stale: {
       state: 'STALE INDEX',
-      why: 'The generated index has a known mismatch such as foreign HEAD, dirty source declaration, or age beyond the freshness window.',
-      consequence: 'It may suggest where to look, but it cannot light a repository_skill by itself.',
-      evidence: 'Mismatch remains visible instead of being normalized into current authority.',
+      why: 'The generated index has a known custody/freshness mismatch.',
+      consequence: 'It remains a discovery aid only and cannot authorize repository_skill provenance.',
+      evidence: 'Typed status and custody evidence remain visible rather than normalized into current authority.',
       source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
     },
     unresolved: {
       state: 'UNRESOLVED',
-      why: 'Required provenance proof is unavailable or ambiguous: missing head, cleanliness, timestamp, topology, or other evidence.',
-      consequence: 'Fail closed. Keep the light dark or use the truthful doctrine/jar/reviewer/runtime-boundary provenance kind.',
-      evidence: 'Unknown is not promoted into VERIFIED CURRENT.',
-      source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
+      why: 'Required provenance proof is unavailable or ambiguous.',
+      consequence: 'Fail closed. Keep repository_skill authority dark instead of replacing missing evidence with confidence.',
+      evidence: 'Unknown state survives as unknown.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
     },
     unstable: {
       state: 'UNSTABLE SNAPSHOT',
-      why: 'The repository moved while direct skill provenance was being assembled: HEAD changed, cleanliness became unavailable, or the checkout was dirty at one bracket.',
-      consequence: 'Discovered hashes remain diagnostic only. They cannot certify one current repository snapshot.',
-      evidence: 'Both pre-scan and post-scan repository observations remain visible; strict mode fails instead of choosing whichever observation is convenient.',
-      source: 'tools/try_forever_skill_provenance_probe.py'
+      why: 'Repository HEAD or cleanliness moved, was dirty, or became unavailable while authority was assembled.',
+      consequence: 'Discovered records cannot be promoted through the current-snapshot authority gate.',
+      evidence: 'One-process repository observations bracket discovery and late emission.',
+      source: 'skills/heartbeat-skill-snapshot-certification/SKILL.md'
     },
     filefault: {
       state: 'FILE FAULT ISOLATED',
-      why: 'One already-admitted ordinary SKILL.md could not be read or validated after global root/traversal/candidate admission succeeded.',
-      consequence: 'That ordinary file earns no repository_skill authority, but unrelated admitted peers can retain diagnostic evidence. Strict mode still fails when discoveryErrors exist.',
-      evidence: 'A bounded structured discoveryErrors record carries path, stage, error type, fixed reason, and optional diagnostic SHA without raw exception prose.',
-      source: 'tools/try_forever_skill_provenance_probe.py + skills/heartbeat-skill-provenance-freshness/SKILL.md'
+      why: 'One otherwise admitted SKILL.md fails bounded content or identity custody.',
+      consequence: 'That file produces a structured diagnostic instead of authority. Healthy peer evidence may remain diagnosable under the existing owner contract.',
+      evidence: 'Bounded discoveryErrors preserve stage/type/fixed reason without raw host exception prose.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
     },
     redirector: {
       state: 'SKILL.md REDIRECTOR BLOCKED',
-      why: 'The current owner follows file symlinks during candidate enumeration, so one underlying in-root SKILL.md can appear under multiple repository path identities. Later outside-root validation does not solve that alias case.',
-      consequence: 'The proposed gate requires named SKILL.md entries to be ordinary files under no-follow inspection. A redirector or non-ordinary candidate fails the entire candidate set: zero partial SkillRecord authority, zero title/hash work, no first-path-wins alias.',
-      evidence: 'Red regression source and a base-blob-locked owner patch exist. Existing owner consumption remains NO until authenticated readback proves application.',
-      source: 'tools/test_try_forever_skill_candidate_enumeration.py + patches/try-forever-skill-file-topology.patch'
+      why: 'The existing owner requires named SKILL.md candidates to be ordinary non-redirecting files under no-follow admission and revalidates file identity around content custody.',
+      consequence: 'Redirecting or non-file topology cannot earn title/hash authority or a second repository path identity.',
+      evidence: 'Candidate topology and file-identity owner wiring are already source-wired; runtime/test claims remain separate.',
+      source: 'skills/heartbeat-skill-file-identity-revalidation/SKILL.md'
     }
   };
 
@@ -139,14 +149,7 @@
       radio.tabIndex = selected ? 0 : -1;
     });
     detail.replaceChildren();
-    const rows = [
-      ['State', item.state],
-      ['Why', item.why],
-      ['Consequence', item.consequence],
-      ['Evidence', item.evidence],
-      ['Source', item.source]
-    ];
-    rows.forEach(([label, value]) => {
+    [['State', item.state], ['Why', item.why], ['Consequence', item.consequence], ['Evidence', item.evidence], ['Source', item.source]].forEach(([label, value]) => {
       const p = document.createElement('p');
       const strong = document.createElement('strong');
       strong.textContent = label + ':';
