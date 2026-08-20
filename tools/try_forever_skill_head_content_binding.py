@@ -42,7 +42,7 @@ def git_blob_content_identity(content: bytes) -> GitBlobContentIdentity:
     framed = header + content
     return GitBlobContentIdentity(
         size_bytes=len(content),
-        sha1_oid=hashlib.sha1(framed).hexdigest(),  # Git SHA-1 object format compatibility.
+        sha1_oid=hashlib.sha1(framed, usedforsecurity=False).hexdigest(),
         sha256_oid=hashlib.sha256(framed).hexdigest(),
     )
 
