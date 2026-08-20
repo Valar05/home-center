@@ -1,0 +1,45 @@
+{
+  "schema": "try-forever-owner-delta.v1",
+  "status": "PROPOSED_NOT_APPLIED",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "target": "tools/try_forever_skill_provenance_probe.py",
+  "baseBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+  "purpose": "Compose strict generated-index JSON admission into the existing sole provenance owner without creating a second parser owner.",
+  "operations": [
+    {
+      "kind": "insert_after",
+      "match": "from try_forever_generated_index_alias_policy import (\n    GeneratedIndexAliasError,\n    resolve_consistent_alias,\n)\n",
+      "content": "from try_forever_generated_index_json_policy import (\n    GeneratedIndexJsonError,\n    parse_generated_index_json,\n)\n"
+    },
+    {
+      "kind": "replace_exact",
+      "match": "        data = json.loads(observation.utf8_text)\n",
+      "content": "        data = parse_generated_index_json(observation.utf8_text)\n"
+    },
+    {
+      "kind": "replace_exact",
+      "match": "    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:\n",
+      "content": "    except (OSError, UnicodeDecodeError, GeneratedIndexJsonError) as error:\n"
+    }
+  ],
+  "acceptance": [
+    "authenticated owner blob still equals baseBlob before mutation",
+    "all exact matches occur once",
+    "owner imports and calls parse_generated_index_json",
+    "owner no longer calls json.loads(observation.utf8_text)",
+    "GeneratedIndexJsonError maps to the existing UNRESOLVED generated-index failure surface",
+    "strict JSON policy and owner-boundary regression execute before TESTED can advance"
+  ],
+  "capabilityBoundary": {
+    "supportingPolicySource": true,
+    "hostileRegressionSource": true,
+    "ownerBoundaryRegressionSource": true,
+    "ownerDeltaPrepared": true,
+    "ownerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "phoneDelivery": false,
+    "p0Mutation": false
+  }
+}
