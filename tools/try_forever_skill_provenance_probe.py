@@ -23,6 +23,10 @@ from try_forever_generated_index_alias_policy import (
     GeneratedIndexAliasError,
     resolve_consistent_alias,
 )
+from try_forever_generated_index_json_policy import (
+    GeneratedIndexJsonError,
+    parse_generated_index_json,
+)
 from try_forever_generated_index_timestamp_policy import (
     GeneratedIndexTimestampError,
     parse_generated_index_timestamp,
@@ -887,7 +891,7 @@ def inspect_generated_index(
             path,
             max_bytes=MAX_GENERATED_INDEX_BYTES,
         )
-        data = json.loads(observation.utf8_text)
+        data = parse_generated_index_json(observation.utf8_text)
     except FileNotFoundError:
         return IndexVerdict(
             status="UNRESOLVED",
@@ -912,7 +916,7 @@ def inspect_generated_index(
             dirty_source=None,
             age_hours=None,
         )
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+    except (OSError, UnicodeDecodeError, GeneratedIndexJsonError) as error:
         return IndexVerdict(
             status="UNRESOLVED",
             reason=f"generated index is unreadable strict UTF-8 JSON: {type(error).__name__}",
