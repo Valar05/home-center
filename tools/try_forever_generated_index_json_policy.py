@@ -6,10 +6,11 @@ value and also accepts NaN/Infinity extensions. Neither behavior is acceptable
 for provenance metadata because a parser convenience must not become an
 implicit last-wins authority channel.
 
-This module is supporting source only. It owns no filesystem I/O, repository
-traversal, report serializer, runtime UI, phone surface, P0 recovery, or
-provenance owner. ``try_forever_skill_provenance_probe.py`` remains the sole
-owner until it explicitly composes this policy.
+This module is a supporting policy organ now consumed by the sole provenance
+owner, ``try_forever_skill_provenance_probe.py``. It owns no filesystem I/O,
+repository traversal, report serializer, runtime UI, phone surface, P0 recovery,
+or separate provenance authority. Source composition does not itself prove
+regression execution, TESTED state, runtime behavior, deployment, or delivery.
 """
 
 from __future__ import annotations
