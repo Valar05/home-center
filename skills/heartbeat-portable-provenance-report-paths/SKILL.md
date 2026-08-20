@@ -34,13 +34,13 @@ The exact generated-index `Path`, `SkillRecord.path`, and `DiscoveryError` path 
 
 Hostile regression source pins ordinary repository-relative skill paths, newline/bidi/ZWJ visibility, literal-marker collision resistance, over-budget combining and emoji-ZWJ collapse, repository-local digest distinction, and fail-closed absolute/parent-traversal/empty misuse.
 
-## Discovery-error pre-boundary scar
+## Discovery-error pre-boundary collapse
 
-The owner still contains an older `bounded_error_path(...)` pre-boundary before final report serialization. For an over-budget diagnostic path it currently takes a raw prefix and appends a digest. That can split a combining sequence or emoji/ZWJ grapheme **before** `project_discovery_error_for_report(...)` reaches the collision-safe repository-relative projector. The later projector therefore cannot recover the original whole-identity display law.
+The older discovery-error pre-boundary scar is now source-wired in the existing owner. `bounded_error_path(...)` keeps an in-budget repository-relative diagnostic unchanged until report serialization, but an over-budget diagnostic collapses immediately to `<repo-path>...#<digest>` computed from the exact original relative identity. It no longer exposes an arbitrary raw prefix that can split combining or emoji/ZWJ grapheme text before the final collision-safe projector.
 
-`tools/test_try_forever_provenance_discovery_error_path_projection.py` is a RED regression source for this exact seam. It requires final serialized discovery-error paths to equal the direct whole-identity repository-relative projection, preserve exact-identity digest distinction, and keep in-budget control text raw until serialization.
+`tools/test_try_forever_provenance_discovery_error_path_projection.py` pins this exact seam. It requires final serialized discovery-error paths to equal the direct whole-identity repository-relative projection, preserve exact-identity digest distinction, and keep in-budget control text raw until serialization. The regression remains **UNEXECUTED** until an authorized runner produces evidence.
 
-`patches/try-forever-provenance-discovery-error-path-collapse.patch` preserves the exact existing-owner surgery: keep in-budget diagnostic identity unchanged, but collapse an over-budget diagnostic to `<repo-path>...#<digest>` rather than exposing an arbitrary raw prefix. The patch is **PROPOSED_NOT_APPLIED**. This is a display/evidence correction only; it does not grant repository authority or runtime capability.
+`patches/try-forever-provenance-discovery-error-path-collapse.patch` is now **APPLIED_SOURCE provenance**. Existing-owner source landed at commit `7c0859d8a5d9cedbfeceb436a540ae8827cdb913`, authenticated owner blob `cd94af837245f6c9d6c64ad4f4620699acbb19fb`. A compare against the previous PR head shows exactly one modified file with 2 additions / 6 deletions in this source slice; no adjacent owner or architecture was introduced.
 
 ## Owner integration source
 
@@ -51,7 +51,7 @@ The owner still contains an older `bounded_error_path(...)` pre-boundary before 
 - literal-marker versus actual invisible/control character distinction; and
 - exact internal record identities unchanged by display serialization.
 
-The owner source now contains the matching integration. The regression remains **UNEXECUTED** until an authorized runner produces evidence. The discovery-error pre-boundary scar above is a narrower upstream exception and is not cleared merely because final serialization calls the correct projector.
+The owner source contains the matching integration. The regression remains **UNEXECUTED** until an authorized runner produces evidence.
 
 ## Applied surgery provenance
 
@@ -76,15 +76,16 @@ Keep internal filesystem identity, report display projection, provenance authori
 - path-policy source blob: **fd79305fa9ea6413dadbd15f9eb2ccc8b27e1a69**;
 - hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
 - owner v5 record-path integration regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
-- discovery-error pre-boundary regression source: **YES / RED / UNEXECUTED**;
-- discovery-error collapse owner patch: **YES / PROPOSED_NOT_APPLIED**;
+- discovery-error pre-boundary regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
+- discovery-error collapse owner wiring: **YES / SOURCE_WIRED**;
+- discovery-error collapse provenance: **YES / APPLIED_SOURCE**;
 - existing owner projects repository root: **YES / SOURCE_WIRED**;
 - existing owner projects generated-index display path: **YES / SOURCE_WIRED**;
 - existing owner projects skill record paths through repository-relative policy: **YES / SOURCE_WIRED**;
-- existing owner projects discovery-error paths through repository-relative policy: **YES / SOURCE_WIRED, BUT PRE-BOUNDARY PARTIAL-PREFIX WOUND OPEN**;
-- overall portable report-path owner wiring: **PARTIAL / SOURCE_WIRED WITH OPEN PRE-BOUNDARY WOUND**;
+- existing owner projects discovery-error paths through repository-relative policy: **YES / SOURCE_WIRED**;
+- overall portable report-path owner wiring: **YES / SOURCE_WIRED**;
 - owner schema: **try-forever-skill-provenance.v5**;
-- authenticated owner blob at wound discovery: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**;
+- authenticated owner blob after discovery-error collapse: **cd94af837245f6c9d6c64ad4f4620699acbb19fb**;
 - applied v5 surgery provenance blob: **580bdc724c02086a14aacddddc568608968dc293**;
 - tested: **NO**;
 - runtime/deployed/callable/executed/delivered/accepted: **NO**.
