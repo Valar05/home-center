@@ -2,94 +2,88 @@
 
 ## Purpose
 
-Durable provenance reports must not leak host-local filesystem topology merely because the probe executed on a particular machine, and repository-local evidence must not speak invisible/control path text as if it were ordinary visible text.
+Durable provenance reports must not leak host-local filesystem topology, and repository-local path evidence must not silently emit layout/control text as if it were ordinary visible prose.
 
-## Contract
+## Owner and authority law
 
-- The existing owner remains `tools/try_forever_skill_provenance_probe.py`.
-- Filesystem paths and repository-relative identities used for I/O and authority remain exact internal values. **Display projection is never authorization.**
-- Repository-root display projects to `.`.
-- Repository-local report paths project to bounded repo-relative POSIX text while they fit the display budget.
-- `project_repository_relative_report_path(...)` is for identities already established as repository-relative by the owner. It performs no filesystem lookup, rejects absolute/parent-traversal misuse, and therefore cannot grant repository authority.
-- Repository-relative display projection reveals Unicode `Cc`, `Cf`, and `Cs` code points as explicit `\u{XXXX}` evidence units rather than emitting them raw.
-- Literal backslash is escaped before semantic markers, so literal source text cannot collide with the projection of an actual invisible character.
-- **Over-budget repository-local display does not expose a partial human-text prefix.** It collapses to `<repo-path>...#<digest>` where the digest is computed only from already-authorized repository-relative identity.
-- External report paths project to the constant marker `<external-path>`; do not preserve a host-path hash oracle.
-- Display projection must never become repository identity, generated-index trust, filesystem authority, or runtime capability.
+The sole provenance owner remains `tools/try_forever_skill_provenance_probe.py`.
 
-## Existing-owner schema v5
+Filesystem `Path` values and exact repository-relative record identities remain the authority/I/O inputs. **Display projection is never authorization.** Do not create a second path serializer, provenance probe, path registry, renderer, phone lane, or P0 coordinator.
 
-Schema `try-forever-skill-provenance.v5` now uses display projection for every serialized path family:
+## Display contract
 
-- `repositoryRoot` projects to `.` plus `repositoryRootScope=REPOSITORY`;
-- `generatedIndex.path` uses bounded repository-relative or constant `<external-path>` projection plus explicit scope;
-- `skills[*].path` uses `project_repository_relative_report_path(...)`; and
-- `discoveryErrors[*].path` and non-empty `related_path` use that same repository-relative display channel.
+`tools/try_forever_provenance_report_path.py` owns the display-only projection.
 
-The exact generated-index `Path`, `SkillRecord.path`, and `DiscoveryError` path identities remain internal authority/evidence inputs. The display text is created only at report serialization.
+- repository root → `.` with `scope=REPOSITORY`;
+- repository-local paths → bounded repository-relative POSIX display text;
+- external paths → constant `<external-path>` with `scope=EXTERNAL`; never preserve a host-path hash oracle;
+- already-authorized record identities use `project_repository_relative_report_path(...)`, which performs no filesystem lookup and rejects absolute/parent-traversal misuse;
+- literal backslash is escaped before evidence-marker insertion;
+- Unicode `Cc`, `Cf`, `Cs`, `Zl`, and `Zp` characters are revealed as explicit `\\u{XXXX}` evidence units rather than emitted raw;
+- in particular, U+2028 LINE SEPARATOR and U+2029 PARAGRAPH SEPARATOR are legitimate source text but must not silently fracture operator-facing path evidence;
+- over-budget repository-local display collapses from the **exact already-authorized repository-relative identity** to `<repo-path>...#<digest>` rather than exposing an arbitrary partial human-text/grapheme prefix;
+- display projection never changes canonical path identity, Git authority, generated-index trust, runtime capability, deployment, or delivery state.
 
-## Repository-relative projection source
+## Existing-owner report contract
 
-`tools/try_forever_provenance_report_path.py` provides `project_repository_relative_report_path(...)`. In-budget paths remain readable and collision-safe. Over-budget paths deliberately collapse to a constant repository marker plus digest rather than truncating arbitrary Unicode source text.
+The current sole owner emits `try-forever-skill-provenance.v6`.
 
-Hostile regression source pins ordinary repository-relative skill paths, newline/bidi/ZWJ visibility, literal-marker collision resistance, over-budget combining and emoji-ZWJ collapse, repository-local digest distinction, and fail-closed absolute/parent-traversal/empty misuse.
+Its serialized path families already consume the display channels:
 
-## Discovery-error pre-boundary collapse
+- `repositoryRoot` + `repositoryRootScope`;
+- `generatedIndex.path` + `pathScope`;
+- `skills[*].path` through the repository-relative projector;
+- `discoveryErrors[*].path` and non-empty `related_path` through that same projector.
 
-The older discovery-error pre-boundary scar is now source-wired in the existing owner. `bounded_error_path(...)` keeps an in-budget repository-relative diagnostic unchanged until report serialization, but an over-budget diagnostic collapses immediately to `<repo-path>...#<digest>` computed from the exact original relative identity. It no longer exposes an arbitrary raw prefix that can split combining or emoji/ZWJ grapheme text before the final collision-safe projector.
+Schema v6 was introduced by the independent CLI-evidence auditability work. Do not regress this skill back to the historical v5 label merely because record-path wiring originally landed during v5.
 
-`tools/test_try_forever_provenance_discovery_error_path_projection.py` pins this exact seam. It requires final serialized discovery-error paths to equal the direct whole-identity repository-relative projection, preserve exact-identity digest distinction, and keep in-budget control text raw until serialization. The regression remains **UNEXECUTED** until an authorized runner produces evidence.
+## Discovery-error pre-boundary scar
 
-`patches/try-forever-provenance-discovery-error-path-collapse.patch` is now **APPLIED_SOURCE provenance**. Existing-owner source landed at commit `7c0859d8a5d9cedbfeceb436a540ae8827cdb913`, authenticated owner blob `cd94af837245f6c9d6c64ad4f4620699acbb19fb`. A compare against the previous PR head shows exactly one modified file with 2 additions / 6 deletions in this source slice; no adjacent owner or architecture was introduced.
+`bounded_error_path(...)` is already source-wired in the owner. In-budget repository-relative diagnostics remain exact until final serialization; over-budget diagnostics collapse immediately to the whole-identity repository marker + digest. Never restore raw-prefix truncation: it can split combining/emoji-ZWJ text before the collision-safe final projector sees the original identity.
 
-## Owner integration source
+Historical patch files remain provenance artifacts; their existence does not override current owner/source readback.
 
-`tools/test_try_forever_provenance_owner_v5_record_paths.py` pins existing-owner v5 serialization. It requires:
+## Layout-separator cross-pollination
 
-- `SkillRecord.path` through the repository-relative display channel;
-- `DiscoveryError.path` and `related_path` through that same channel;
-- literal-marker versus actual invisible/control character distinction; and
-- exact internal record identities unchanged by display serialization.
+`heartbeat-layout-separator-evidence` extends this same evidence law across provenance paths and selected heartbeat detail:
 
-The owner source contains the matching integration. The regression remains **UNEXECUTED** until an authorized runner produces evidence.
+- reject neither U+2028 nor U+2029 merely for being layout semantics;
+- reveal them in explicit operator-facing evidence;
+- keep canonical source identity unchanged;
+- keep literal marker text collision-safe;
+- keep routine speech changes separate from explicit evidence changes.
 
-## Applied surgery provenance
+## Regression doctrine
 
-`patches/try-forever-provenance-owner-preio-v5.patch` records the applied owner surgery. It was base-locked to owner blob `f6f1bafc6b9e99030ad29b408d74cd088f910b82`; owner source landed at commit `bf91827aa74651e1500edd916a26ff9f6acac13e`, authenticated blob `e1d10fb4c917813bc89780486c79a5e2d2bc4bea`.
+Pin all of these independently:
 
-The historical owner emission fixture was migrated to schema v5 at commit `fc9a26d0f2670977f0b90dfc8734d0d6720a88f`, blob `492a66c6a2145b167c16fb05564b461d4391c012`.
+1. repository root is `.` and external paths are the constant non-fingerprinting marker;
+2. repository-relative record paths cannot launder absolute/parent-traversal host topology;
+3. Cc/Cf/Cs/Zl/Zp evidence characters are not emitted raw;
+4. literal marker-looking text cannot alias an actual projected character;
+5. U+2028/U+2029 are explicitly revealed in in-budget path evidence;
+6. over-budget repository paths collapse from exact identity without partial combining/ZWJ/layout-control text;
+7. distinct repository-local over-budget identities retain distinct repository-local digests;
+8. exact internal `SkillRecord` / `DiscoveryError` identities survive display serialization unchanged;
+9. discovery-error pre-boundary collapse and final serialization remain compatible;
+10. regression source is not TESTED evidence until an authorized runner actually executes it.
 
-The same source surgery also composes the independent pre-I/O candidate-file identity gate. Combining the non-overlapping hunks under one exact base prevented competing whole-file mutations; it does **not** merge the evidence claims.
+## Current capability state
 
-The older `patches/try-forever-provenance-record-path-projection.patch` is historical proposal provenance only and is superseded by the applied combined surgery.
+- absolute/external projection policy: **YES / SOURCE_WIRED**
+- repository-relative record projection: **YES / SOURCE_WIRED**
+- Cc/Cf/Cs/Zl/Zp explicit path evidence: **YES / SOURCE_WIRED**
+- over-budget whole-identity collapse: **YES / SOURCE_WIRED**
+- discovery-error pre-boundary collapse: **YES / SOURCE_WIRED**
+- current path-policy blob: **3e064b115c8759de7e0d76ae457f8461c9a3c810**
+- current owner schema: **try-forever-skill-provenance.v6**
+- authenticated owner blob at the reviewed 1000 source base: **60e85d95c484cee0ca5f637ac3d5763fd20d21cf**
+- hostile path regression source: **YES / UNEXECUTED**
+- layout-separator regression source: **YES / UNEXECUTED**
+- TESTED: **NO**
+- runtime UI/TalkBack: **NO**
+- deployed/callable/executed/delivered/accepted: **NO**
 
-## Evidence discipline
+## P0 / phone firewall
 
-Keep internal filesystem identity, report display projection, provenance authority, implemented source, tests, runtime, deployment, delivery, and acceptance separate.
-
-## Current state
-
-- pure absolute/external path-projection policy: **YES / SOURCE**;
-- repository-relative record projection policy: **YES / SOURCE**;
-- collision-safe control/format/surrogate evidence projection: **YES / SOURCE**;
-- over-budget repository-local partial-grapheme avoidance in the direct projector: **YES / SOURCE**;
-- path-policy source blob: **fd79305fa9ea6413dadbd15f9eb2ccc8b27e1a69**;
-- hostile path regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
-- owner v5 record-path integration regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
-- discovery-error pre-boundary regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**;
-- discovery-error collapse owner wiring: **YES / SOURCE_WIRED**;
-- discovery-error collapse provenance: **YES / APPLIED_SOURCE**;
-- existing owner projects repository root: **YES / SOURCE_WIRED**;
-- existing owner projects generated-index display path: **YES / SOURCE_WIRED**;
-- existing owner projects skill record paths through repository-relative policy: **YES / SOURCE_WIRED**;
-- existing owner projects discovery-error paths through repository-relative policy: **YES / SOURCE_WIRED**;
-- overall portable report-path owner wiring: **YES / SOURCE_WIRED**;
-- owner schema: **try-forever-skill-provenance.v5**;
-- authenticated owner blob after discovery-error collapse: **cd94af837245f6c9d6c64ad4f4620699acbb19fb**;
-- applied v5 surgery provenance blob: **580bdc724c02086a14aacddddc568608968dc293**;
-- tested: **NO**;
-- runtime/deployed/callable/executed/delivered/accepted: **NO**.
-
-## Ownership / firewall
-
-No second provenance probe, serializer daemon, path registry, overlay controller, Phone Hands lane, or P0 owner may be created. Phone/P0 consumption and mutation remain zero.
+This skill owns no Phone Hands action, primary-phone command, queue/relay work, Home Center P0 recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or duplicate recovery architecture. Phone/P0 consumption and mutation remain zero.
