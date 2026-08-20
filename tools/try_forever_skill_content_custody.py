@@ -10,9 +10,9 @@ occurs entirely between observations.
 This supporting helper deliberately composes the repository's already-hardened
 finite regular-file observation organ instead of growing a second no-follow/
 reparse/descriptor-custody implementation. It observes one complete bounded UTF-8
-artifact once, derives both title and SHA from that same observation, and owns no
-repository discovery, authority certification, renderer, phone surface, P0 lane,
-deployment, or acceptance path.
+artifact once, derives title, raw SHA, and Git blob object identity from that same
+admitted observation, and owns no repository discovery, authority certification,
+renderer, phone surface, P0 lane, deployment, or acceptance path.
 """
 
 from __future__ import annotations
@@ -26,6 +26,10 @@ from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactResourceLimitError,
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
+)
+from try_forever_skill_head_content_binding import (
+    GitBlobContentIdentity,
+    git_blob_content_identity_from_utf8,
 )
 from try_forever_skill_title_fallback_policy import (
     SkillFallbackTitleError,
@@ -63,6 +67,7 @@ class SkillContentObservation:
     size_bytes: int
     sha256: str
     title: str
+    git_blob_identity: GitBlobContentIdentity
 
 
 def _title_from_observed_text(
@@ -116,15 +121,20 @@ def observe_skill_content(
     max_title_line_bytes: int,
     max_title_chars: int,
 ) -> SkillContentObservation:
-    """Return one title/SHA pair derived from one bounded stable opened artifact.
+    """Return title/SHA/Git-blob identity from one bounded stable artifact.
 
     The finite artifact organ already enforces no-follow/reparse topology,
     path-to-descriptor identity, complete bounded EOF, descriptor stability, named
     path revalidation, and strict UTF-8. This wrapper translates those failure
-    classes into skill-content language and derives title entirely from the returned
-    observed text. There is no second ``Path.open`` between title and digest.
+    classes into skill-content language and derives title plus Git blob identity
+    entirely from the returned strict-UTF-8 observation. Re-encoding strict UTF-8
+    is byte-preserving; the byte-count guard below fails closed if that invariant is
+    ever violated by a future observation implementation. There is no second
+    ``Path.open`` between title, digest, and Git object identity.
 
-    This is supporting source only until the sole provenance owner consumes it.
+    This is source evidence only; repository authority still requires the sole
+    provenance owner to bind this exact content identity to the bounded raw-HEAD
+    blob observation.
     """
 
     try:
@@ -146,6 +156,12 @@ def observe_skill_content(
             "SKILL.md must be strict UTF-8 across the complete observed artifact"
         ) from error
 
+    git_blob_identity = git_blob_content_identity_from_utf8(artifact.utf8_text)
+    if git_blob_identity.size_bytes != artifact.size_bytes:
+        raise SkillContentCustodyTextError(
+            "SKILL.md strict UTF-8 round-trip did not preserve the observed byte count"
+        )
+
     try:
         title = _title_from_observed_text(
             artifact.utf8_text,
@@ -161,6 +177,7 @@ def observe_skill_content(
         size_bytes=artifact.size_bytes,
         sha256=artifact.sha256,
         title=title,
+        git_blob_identity=git_blob_identity,
     )
 
 
