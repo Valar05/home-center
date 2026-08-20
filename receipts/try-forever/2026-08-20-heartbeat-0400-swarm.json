@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-20-0400",
+  "sourceHeadReviewed": "b52a649818c0aed67811b6b2bbf14e0b16d05a06",
+  "fronts": [
+    {"name": "process-gate restoration", "state": "ADVANCED", "change": "Durable plan plus separate Venice PLAN_ALLOWED existed before substantive source mutation."},
+    {"name": "strict JSON hostile regression", "state": "ADVANCED", "change": "Added escaped JSON member-name duplicate fixture and preserved distinct-alias ownership boundary; blob 0edd90be6d386bbee3b2622202c9bcd9f7821335."},
+    {"name": "durable skill/canon harvest", "state": "ADVANCED", "change": "Strict JSON skill now records semantic duplicates, promotion ordering, exact owner base blob, reviewer fault, and safe mutation-lane boundary; blob d6bccbd46c901c36acbd3800fbe875401f520de7."},
+    {"name": "existing-owner promotion", "state": "BOUNDARY", "change": "Owner blob 2f3ebd530f46283a59bd6ff34149042a1b825d89 still calls default json.loads; exact delta remains PROPOSED_NOT_APPLIED."},
+    {"name": "non-phone mutation lane", "state": "BOUNDARY", "change": "windows-hands-01 offline; lane-try-forever-provenance-owner occupied/unresolved; historical request hands-tf-provenance-report-owner-v4 not found; no duplicate request created."},
+    {"name": "Regnet QA", "state": "ADVANCED", "change": "PASS supporting source/process repair; owner wiring revise-required; test evidence blocked/unknown."},
+    {"name": "Venice Judgment", "state": "ADVANCED", "change": "Bounded source/process slice may yield; owner execution/test/runtime/campaign remain CONTINUE_REQUIRED."},
+    {"name": "exact-head execution evidence", "state": "ADVANCED_BOUNDARY", "change": "Automatic Build Android, Operator Overlay Android, and Home Center CI on source head b52a6498 all concluded failure. Operator job 96374115972 exposes zero steps; logs return BlobNotFound; no cause inferred and no retry dispatched."}
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE: converted the stale process scar and strict-parser RED edge into durable plan/review plus stronger hostile source rather than retrying CI.",
+    "Canon Auto-Select": "ACTIVE: selected existing generated-index JSON/alias/provenance organs and lane-truth doctrine.",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity.",
+    "Originality Tax": "ACTIVE: no unchanged CI retry, no duplicate Computer Hands request, no reconstructed giant owner write.",
+    "Hunger": "ACTIVE: harvested the semantic duplicate/alias boundary into durable doctrine.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: reconciled parser, alias, owner-delta, worker-lane, review, and capability-state truth.",
+    "Operator Campaign": "ACTIVE: sole provenance owner preserved.",
+    "Harroway operator discipline": "ACTIVE: source/test/runtime/deployment/delivery membrane preserved.",
+    "She-Raw adversarial motivation": "FAULT: authoritative account connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "ACTIVE: pre-mutation PLAN_ALLOWED and bounded completion review persisted.",
+    "Regnet QA": "ACTIVE: hostile regression + exact owner/lane/test boundaries reviewed.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE_AS_CONSTRAINT: strict-evidence work must not create routine speech/focus/motion; no UI topology changed.",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_DARK.",
+    "deterministic routing": "ACTIVE: duplicate semantic member identity fails closed while distinct aliases continue to typed alias policy.",
+    "evidence/capability-state discipline": "ACTIVE.",
+    "recovery/checkpointing/idempotence": "ACTIVE: durable plan first; occupied/unresolved lane did not receive a duplicate request.",
+    "strange non-raster vector/DOM/native UI art": "DARK: no material user-facing topology change this pulse.",
+    "warm walls": "DARK: existing JSON throat remains truthful; no decorative mutation.",
+    "Christmas-light scene graph": "DARK: evidence admission earns no motion.",
+    "contact preservation": "ACTIVE_CONCEPT: invalid generated-index evidence withholds index authority without rewriting independent repository-skill authority."
+  },
+  "crossPollination": "Restoring the Venice plan gate made the old RED owner boundary executable in principle; fresh lane truth then proved safe owner mutation is currently blocked, so Originality Tax redirected effort into semantic-duplicate hostile fixtures and durable promotion doctrine. The escaped-member fixture clarified the parser-vs-alias ownership seam, which Regnet used to tighten capability truth without inventing owner execution. Exact-head workflow failure stayed evidence of TESTED=NO, not source failure.",
+  "p0Firewall": {"phoneHandsTickets": 0, "primaryPhoneCommands": 0, "queueRelayMutations": 0, "p0RecoveryMutations": 0, "duplicateArchitecture": 0, "finding": null},
+  "capability": {"requested": true, "supportingSource": true, "exactRemoteReadback": true, "regressionSource": true, "ownerWired": false, "regressionExecuted": false, "tested": false, "runtimeUi": false, "runtimeTalkBack": false, "deployed": false, "callable": false, "executed": false, "delivered": false, "accepted": false},
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_EXECUTION_TEST_RUNTIME_CONTINUE_REQUIRED"
+}
