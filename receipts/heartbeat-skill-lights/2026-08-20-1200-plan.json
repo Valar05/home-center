@@ -1,0 +1,46 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-20-1200",
+  "mission": "Advance multiple materially different non-P0 accessibility/source fronts through the existing Operator Overlay owner boundary without touching phone/P0 or retrying unchanged CI.",
+  "owner": "Valar05/home-center PR #329 branch feat/heartbeat-skill-lights-20260815",
+  "fronts": [
+    {
+      "id": "deep-detail-owner-boundary",
+      "intent": "Pin the existing OperatorOverlayService heartbeat detail wound: source still hard-caps explicit Why/Consequence/Evidence/Source detail with five lines and END ellipsis while HeartbeatDetailSurfacePolicy already defines full-layout bounded-height semantics.",
+      "allowed": ["RED owner-boundary regression source", "existing skill convergence", "exact patch/readback evidence"],
+      "forbidden": ["claim owner wired without source mutation", "claim runtime TalkBack proof", "phone/P0 execution"]
+    },
+    {
+      "id": "spotify-accessibility-budget-boundary",
+      "intent": "Pin the independent existing-owner accessibility wound where Spotify announcements truncate by UTF-16 substring(0,160), which can split surrogate/grapheme clusters despite the already-owned grapheme-safe plain-text budget organ.",
+      "allowed": ["RED owner-boundary regression source", "small existing-organ patch provenance", "source-only accessibility doctrine"],
+      "forbidden": ["Spotify phone execution", "Nightcore/P0 mutation", "new accessibility controller"]
+    },
+    {
+      "id": "touchable-source-organism",
+      "intent": "Create one non-raster, keyboard/touch-inspectable source specimen that makes both accessibility wounds and their intended existing-organ composition visible without claiming deployment.",
+      "allowed": ["DOM", "inline SVG", "native disclosure/radio semantics", "reduced-motion source"],
+      "forbidden": ["raster", "autoplay blink", "runtime/deployed claim"]
+    },
+    {
+      "id": "review-and-evidence",
+      "intent": "Run code-first Regnet/Venice review over exact remote source and preserve She-Raw connector failure as a fault rather than a synthetic verdict.",
+      "allowed": ["same-worker Judgment Jar review", "authenticated GitHub/Home Center readback", "PR checkpoint"],
+      "forbidden": ["manual CI retry", "source-to-tested promotion"]
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0FindingsMutationAllowed": false
+  },
+  "plannedCapabilityMembrane": {
+    "supportingSource": "may advance",
+    "ownerWiring": "must remain exact per source readback",
+    "regressionSource": "may advance",
+    "tested": "must remain NO without authorized runner evidence",
+    "runtimeUiTalkBack": "NO",
+    "deployedCallableExecutedDeliveredAccepted": "NO"
+  }
+}
