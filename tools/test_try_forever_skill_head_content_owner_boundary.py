@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""RED owner-boundary regression for exact repository-skill content↔HEAD binding.
+"""Owner-boundary regression for exact repository-skill content↔HEAD binding.
 
-The single-artifact content observation now exposes Git blob identity derived from
-that same admitted artifact, and bounded raw-HEAD blob observation/binding organs
-already exist. The sole provenance owner still does not compose them. This fixture
-stays intentionally RED until reviewed owner wiring uses those existing organs
-without a second content read, per-file Git query, or second provenance owner.
+The sole provenance owner now composes the bounded HEAD-blob observation with the
+Git blob identity derived from the same admitted SKILL.md artifact before record
+append. This fixture is source-wired and should be GREEN when an authorized runner
+executes it; source/readback alone remains no TESTED evidence.
 """
 
 import sys
