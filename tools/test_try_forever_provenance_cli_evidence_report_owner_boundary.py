@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """RED owner-report fixture for authority-facing CLI evidence auditability.
 
-The generated-index currentness verdict depends on the admitted freshness window,
-and repository certification may depend on an expected-head binding. A durable
-report must therefore state the exact admitted policy inputs that governed it.
+A durable provenance verdict must state the exact admitted expected-head binding
+and generated-index freshness window that governed it. Adding this authority
+input contract changes the report contract, so the sole owner must advance the
+schema explicitly rather than slipping an undocumented field into v5.
 This remains regression source, not executed test evidence.
 """
 
@@ -24,6 +25,16 @@ class ProvenanceCliEvidenceReportOwnerBoundaryTest(unittest.TestCase):
         source = inspect.getsource(probe.main)
 
         self.assertIn(
+            '"schema": "try-forever-skill-provenance.v6"',
+            source,
+            "RED: adding durable authority-input evidence requires an explicit schema revision",
+        )
+        self.assertNotIn(
+            '"schema": "try-forever-skill-provenance.v5"',
+            source,
+            "RED: v5 must not silently acquire a new authority-evidence contract",
+        )
+        self.assertIn(
             '"cliEvidence"',
             source,
             "RED: durable report must identify the admitted authority-input contract",
@@ -37,6 +48,16 @@ class ProvenanceCliEvidenceReportOwnerBoundaryTest(unittest.TestCase):
             '"maxIndexAgeHours"',
             source,
             "RED: VERIFIED_CURRENT is not auditable without the freshness window used",
+        )
+        self.assertIn(
+            "cli_evidence.expected_head",
+            source,
+            "RED: report evidence must derive from admitted expected-head state",
+        )
+        self.assertIn(
+            "cli_evidence.max_index_age_hours",
+            source,
+            "RED: report evidence must derive from admitted freshness state",
         )
 
 
