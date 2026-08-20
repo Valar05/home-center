@@ -15,6 +15,7 @@ Use this skill when a provenance command accepts caller-supplied expected reposi
 - Reject `NaN`, positive/negative infinity, negative values, booleans, and text masquerading as numbers.
 - Do not silently clamp negative freshness to zero.
 - Do not let infinity disable freshness comparison by arithmetic accident.
+- A durable provenance report must expose the exact admitted expected-head binding and max-index-age window that governed its authority decisions. A `VERIFIED_CURRENT` verdict without the freshness bound used is not self-auditing evidence.
 - Keep source policy, owner wiring, regression source, executed tests, runtime, deployment, delivery, and acceptance as separate capability states.
 
 ## Existing owner
@@ -24,8 +25,10 @@ Use this skill when a provenance command accepts caller-supplied expected reposi
 
 - Pure CLI evidence policy: **YES / SUPPORTING_SOURCE**
 - Hostile pure regression source: **YES / UNEXECUTED**
-- RED existing-owner boundary regression: **YES / UNEXECUTED**
+- RED existing-owner admission regression: **YES / UNEXECUTED**
+- RED durable-report auditability regression: **YES / UNEXECUTED**
 - Existing owner consumes `admit_cli_evidence`: **NO**
+- Existing owner reports admitted `cliEvidence`: **NO**
 - Tested: **NO**
 - Runtime UI / TalkBack: **NO**
 - Deployed / callable / executed / delivered / accepted: **NO**
