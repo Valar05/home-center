@@ -221,9 +221,7 @@ def bounded_error_path(relative: str) -> str:
     digest = hashlib.sha256(
         relative.encode("utf-8", errors="surrogatepass")
     ).hexdigest()[:16]
-    suffix = f"...#{digest}"
-    keep = max(0, MAX_DISCOVERY_ERROR_PATH_CHARS - len(suffix))
-    return relative[:keep] + suffix
+    return f"<repo-path>...#{digest}"
 
 
 def project_skill_record_for_report(record: SkillRecord) -> dict[str, Any]:
@@ -436,7 +434,6 @@ def bounded_skill_candidates(
 
     candidates.sort()
     return candidates
-
 
 def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryError]]:
     """Discover independent skill records with fail-closed resource throats."""
@@ -1097,7 +1094,6 @@ def emitted_capability_boundary() -> dict[str, bool]:
         "runtimeUi": False,
         "phoneDelivery": False,
     }
-
 
 def main() -> int:
     parser = argparse.ArgumentParser()
