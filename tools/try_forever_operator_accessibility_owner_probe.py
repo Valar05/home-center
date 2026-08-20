@@ -4,16 +4,18 @@
 This probe reads source text only. It does not execute Android, render UI, touch the
 phone/P0 chain, or promote source evidence into TESTED/runtime/deployed evidence.
 
-SOURCE_WIRED is deliberately narrower than raw substring presence: markers must
-occur on the Java lexical code surface, outside comments and string/char/text-block
-literals. That is still source-structure evidence only, not control-flow or runtime
-proof.
+SOURCE_WIRED is deliberately narrower than raw substring presence: comments and
+literals are blanked first, then expected markers must occur inside the native owner
+method that is supposed to own each consequence. This is still source-structure
+evidence only. It does not prove Java control flow, Android execution, runtime focus,
+TalkBack behavior, deployment, or phone delivery.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -26,38 +28,58 @@ class SeamVerdict:
     wired_markers: tuple[str, ...]
 
 
-DEEP_DETAIL_LEGACY = (
-    "heartbeatDetail.setMaxLines(5);",
-    "heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);",
-)
-DEEP_DETAIL_WIRED = (
-    "HeartbeatDetailSurfacePolicy.fromDetail",
-    "HeartbeatDetailSurfacePolicy.maxViewportHeightPx",
-    "HeartbeatDetailSurfacePolicy.clampScrollY",
-    "heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);",
-    "heartbeatDetail.setMovementMethod(",
-    "heartbeatDetail.setFocusable(presentation.keyboardFocusable);",
-    "heartbeatDetail.setClickable(presentation.clickable);",
-    "heartbeatDetail.setLongClickable(presentation.longClickable);",
-    "restoreHeartbeatDetailScrollAfterLayout(",
-    "heartbeatDetail.announceForAccessibility(presentation.contentDescription);",
-)
+DEEP_DETAIL_LEGACY = {
+    "createOverlay": (
+        "heartbeatDetail.setMaxLines(5);",
+        "heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END);",
+    ),
+}
+DEEP_DETAIL_WIRED = {
+    "class": (
+        "private long heartbeatDetailPresentationGeneration;",
+    ),
+    "createOverlay": (
+        "HeartbeatDetailSurfacePolicy.maxViewportHeightPx",
+        "heartbeatDetail.setVerticalScrollBarEnabled(",
+        "heartbeatDetail.setMovementMethod(",
+        "heartbeatDetail.setFocusable(",
+        "heartbeatDetail.setClickable(",
+        "heartbeatDetail.setLongClickable(",
+    ),
+    "showHeartbeatDetail": (
+        "HeartbeatDetailSurfacePolicy.fromDetail",
+        "presentation.verticallyScrollable",
+        "presentation.keyboardFocusable",
+        "presentation.clickable",
+        "presentation.longClickable",
+        "restoreHeartbeatDetailScrollAfterLayout(",
+        "heartbeatDetail.scrollTo(0, 0);",
+        "heartbeatDetail.announceForAccessibility(presentation.contentDescription);",
+    ),
+    "restoreHeartbeatDetailScrollAfterLayout": (
+        "presentationGeneration != heartbeatDetailPresentationGeneration",
+        "HeartbeatDetailSurfacePolicy.clampScrollY",
+    ),
+}
 
-SPOTIFY_SPEECH_LEGACY = (
-    "summary.substring(0, 160)",
-)
-SPOTIFY_SPEECH_WIRED = (
-    "HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160)",
-)
+SPOTIFY_SPEECH_LEGACY = {
+    "handleSpotifyReceipt": (
+        "summary.substring(0, 160)",
+    ),
+}
+SPOTIFY_SPEECH_WIRED = {
+    "handleSpotifyReceipt": (
+        "HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160)",
+    ),
+}
 
 
 def java_lexical_code_surface(source: str) -> str:
-    """Return Java source with comments and literals blanked but line shape preserved.
+    """Blank Java comments and literals while preserving code shape and newlines.
 
-    This is intentionally a lexical source-evidence filter, not a Java parser. It
-    prevents inert marker text in comments, strings, chars, and text blocks from
-    earning SOURCE_WIRED while preserving executable/source-structure spelling for
-    deterministic marker inspection.
+    The result is a lexical evidence surface, not a Java parser. Braces inside
+    comments, strings, chars, and text blocks are blanked, which also makes bounded
+    method-body extraction materially stronger than file-wide marker search.
     """
 
     out: list[str] = []
@@ -74,7 +96,7 @@ def java_lexical_code_surface(source: str) -> str:
         next_three = source[index:index + 3]
 
         if state == "code":
-            if next_three == '\"\"\"':
+            if next_three == '"""':
                 out.extend("   ")
                 index += 3
                 state = "text_block"
@@ -139,7 +161,7 @@ def java_lexical_code_surface(source: str) -> str:
                 out.append(blank(source[index + 1]))
                 index += 2
                 continue
-            if next_three == '\"\"\"':
+            if next_three == '"""':
                 out.extend("   ")
                 index += 3
                 state = "code"
@@ -153,33 +175,106 @@ def java_lexical_code_surface(source: str) -> str:
     return "".join(out)
 
 
-def classify(
-    code_surface: str,
+def java_private_void_method_surface(code_surface: str, method_name: str) -> str:
+    """Return one private-void method declaration/body from a lexical code surface.
+
+    This deliberately targets only the concrete methods whose ownership matters for
+    the current OperatorOverlayService accessibility seams. It is not a general Java
+    parser and therefore cannot promote the result beyond method-scoped source
+    structure evidence.
+    """
+
+    declaration = re.compile(
+        rf"\bprivate\s+void\s+{re.escape(method_name)}\s*\("
+    )
+    match = declaration.search(code_surface)
+    if match is None:
+        return ""
+    open_brace = code_surface.find("{", match.end())
+    if open_brace < 0:
+        return ""
+    depth = 0
+    for index in range(open_brace, len(code_surface)):
+        char = code_surface[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return code_surface[match.start():index + 1]
+    return ""
+
+
+def owner_scopes(code_surface: str) -> dict[str, str]:
+    return {
+        "class": code_surface,
+        "createOverlay": java_private_void_method_surface(code_surface, "createOverlay"),
+        "handleSpotifyReceipt": java_private_void_method_surface(
+            code_surface, "handleSpotifyReceipt"
+        ),
+        "showHeartbeatDetail": java_private_void_method_surface(
+            code_surface, "showHeartbeatDetail"
+        ),
+        "restoreHeartbeatDetailScrollAfterLayout": java_private_void_method_surface(
+            code_surface, "restoreHeartbeatDetailScrollAfterLayout"
+        ),
+    }
+
+
+def scoped_markers(
+    scopes: dict[str, str],
+    requirements: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    present: list[str] = []
+    for scope_name, markers in requirements.items():
+        surface = scopes.get(scope_name, "")
+        for marker in markers:
+            if marker in surface:
+                present.append(f"{scope_name}::{marker}")
+    return tuple(present)
+
+
+def required_marker_count(requirements: dict[str, tuple[str, ...]]) -> int:
+    return sum(len(markers) for markers in requirements.values())
+
+
+def classify_scoped(
+    scopes: dict[str, str],
     *,
-    legacy: tuple[str, ...],
-    wired: tuple[str, ...],
+    legacy: dict[str, tuple[str, ...]],
+    wired: dict[str, tuple[str, ...]],
     label: str,
 ) -> SeamVerdict:
-    legacy_present = tuple(marker for marker in legacy if marker in code_surface)
-    wired_present = tuple(marker for marker in wired if marker in code_surface)
+    legacy_present = scoped_markers(scopes, legacy)
+    wired_present = scoped_markers(scopes, wired)
+    expected_wired = required_marker_count(wired)
 
     if legacy_present and not wired_present:
         return SeamVerdict(
             status="LEGACY_OWNER",
-            reason=f"{label} still exposes the legacy lexical code shape; owner repair is not implemented",
+            reason=(
+                f"{label} still exposes the legacy shape inside the owning method; "
+                "owner repair is not implemented"
+            ),
             legacy_markers=legacy_present,
             wired_markers=(),
         )
-    if not legacy_present and len(wired_present) == len(wired):
+    if not legacy_present and len(wired_present) == expected_wired:
         return SeamVerdict(
             status="SOURCE_WIRED",
-            reason=f"{label} contains the complete expected existing-organ markers on the Java lexical code surface",
+            reason=(
+                f"{label} contains every expected existing-organ marker inside its "
+                "required owner method scope"
+            ),
             legacy_markers=(),
             wired_markers=wired_present,
         )
     return SeamVerdict(
         status="PARTIAL_UNSAFE",
-        reason=f"{label} is neither the complete legacy shape nor the complete expected wired lexical code shape",
+        reason=(
+            f"{label} is neither the complete legacy owner-method shape nor the "
+            "complete expected method-scoped wiring"
+        ),
         legacy_markers=legacy_present,
         wired_markers=wired_present,
     )
@@ -187,23 +282,26 @@ def classify(
 
 def probe(source: str) -> dict[str, object]:
     code_surface = java_lexical_code_surface(source)
+    scopes = owner_scopes(code_surface)
     return {
-        "schema": "try-forever-operator-accessibility-owner-probe.v3",
-        "evidenceClass": "JAVA_LEXICAL_CODE_SURFACE",
-        "deepDetail": asdict(classify(
-            code_surface,
+        "schema": "try-forever-operator-accessibility-owner-probe.v4",
+        "evidenceClass": "JAVA_METHOD_SCOPED_LEXICAL_CODE_SURFACE",
+        "deepDetail": asdict(classify_scoped(
+            scopes,
             legacy=DEEP_DETAIL_LEGACY,
             wired=DEEP_DETAIL_WIRED,
             label="heartbeat deep-detail owner",
         )),
-        "spotifyAnnouncement": asdict(classify(
-            code_surface,
+        "spotifyAnnouncement": asdict(classify_scoped(
+            scopes,
             legacy=SPOTIFY_SPEECH_LEGACY,
             wired=SPOTIFY_SPEECH_WIRED,
             label="Spotify accessibility announcement owner",
         )),
         "capabilityBoundary": {
             "sourceInspected": True,
+            "lexicalLiteralsExcluded": True,
+            "methodScopedSource": True,
             "controlFlowProven": False,
             "tested": False,
             "runtimeUi": False,
