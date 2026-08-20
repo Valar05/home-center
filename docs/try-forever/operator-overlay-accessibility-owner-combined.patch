@@ -1,8 +1,10 @@
 # BASE OWNER BLOB: c266e66a8004623efadab1933de4e429e677c6a5
-# STATE: PROPOSED_NOT_APPLIED
+# STATE: APPLIED_SOURCE
+# APPLIED OWNER COMMIT: aafece5e8e1d8d2631ade85ba9c1bec3e4e6089f
+# APPLIED OWNER BLOB: 5dc7f2f52db7e2b7cff867ee6b82cc1492e1b835
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 # PURPOSE: Compose four accessibility repairs into one sole-owner surgery: deep-detail inspectability, grapheme-safe Spotify announcement, native TextView semantics for dynamic Spotify status, and native TextView semantics for dynamic Home Center status.
-# CAPABILITY: patch source only; not owner wiring, not TESTED, not runtime/phone proof.
+# CAPABILITY: owner source wiring and authenticated readback only; not TESTED, not runtime/phone proof.
 # EVIDENCE: Android Developers says not to provide descriptions for TextView elements because accessibility services automatically announce the text itself. Do not duplicate dynamic TextView text into contentDescription merely to make a source marker green.
 # FIREWALL: no Phone Hands, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or second overlay/accessibility owner.
 
