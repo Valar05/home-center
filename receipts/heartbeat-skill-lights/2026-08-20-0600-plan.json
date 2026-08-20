@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestamp": "2026-08-20T06:00:00-05:00",
+  "commission": "Advance independent non-P0 TRY FOREVER work without touching phone/P0 owners.",
+  "selectedWound": {
+    "name": "repository-skill worktree content can diverge from HEAD while Git status remains clean-looking",
+    "evidence": [
+      "tools/try_forever_skill_provenance_probe.py certifies exact worktree SKILL.md content after Git-tracked-path and repository-cleanliness gates, but does not bind that observed content to the HEAD blob",
+      "official Git documentation states assume-unchanged permits Git to presume working-tree content matches the index, and skip-worktree changes ordinary worktree checking semantics"
+    ]
+  },
+  "authorizedFronts": [
+    "supporting source that observes exact HEAD blob identities for the already-discovered bounded candidate set",
+    "pure fail-closed policy comparing each observed worktree content identity to its HEAD blob identity",
+    "hostile regression source including assume-unchanged/skip-worktree-shaped mismatch cases without mutating Git index state",
+    "durable repository skill doctrine",
+    "touchable non-raster source specimen only if it carries the authority distinction rather than decoration",
+    "Regnet code-first review and Venice bounded completion review"
+  ],
+  "ownerBoundary": "Do not create a second provenance owner. Existing tools/try_forever_skill_provenance_probe.py remains sole owner. Supporting source may remain OWNER_UNWIRED if a safe composed owner mutation is not proven in this pulse.",
+  "capabilityMembrane": [
+    "source != owner wiring",
+    "regression source != executed test",
+    "tested != runtime",
+    "runtime != deployed/callable/executed/delivered/accepted"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
