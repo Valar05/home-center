@@ -1,0 +1,58 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "checkpoint": "2026-08-20-1100",
+  "reviewedSourceHead": "dbe3cbbcfcd68ad843ab55d5a3b5a652c676a12d",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "title-resource regression",
+      "status": "PASS_SOURCE",
+      "reason": "The regression now exercises the actual single-artifact observe_skill_content path and current owner resource constants instead of retired markdown_title/discover_skills assumptions. It preserves hidden-control, malformed-UTF8, line, scan, title, and fallback semantics without claiming repository authority from a non-Git temp root."
+    },
+    {
+      "front": "top-level provenance regression",
+      "status": "PASS_SOURCE",
+      "reason": "The broad probe fixture now owns top-level snapshot/report/generated-index contracts only. It uses canonical lowercase 40-hex sourceHead values, tests malformed sourceHead as UNRESOLVED, and no longer patches legacy sha256_file/markdown_title as though they were owner authority paths."
+    },
+    {
+      "front": "content-custody doctrine",
+      "status": "PASS_SOURCE",
+      "reason": "The skill now matches authenticated owner truth: one-artifact title/SHA/Git-blob custody and content-to-HEAD binding are SOURCE_WIRED; the old PROPOSED_NOT_APPLIED owner-binding state is retired."
+    },
+    {
+      "front": "scope diff",
+      "status": "PASS",
+      "reason": "Compared with prior PR head bf686baacd5d25c5e2445daf40cfe86e61bfe71a, substantive changes are confined to two regression files and one existing skill doctrine; the other two files are governance receipts. No runtime/phone/P0/duplicate architecture was touched."
+    }
+  ],
+  "executionEvidence": {
+    "automaticRunsOnReviewedSourceHead": [
+      {"name": "Build Android", "runId": 32389895269, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32389895195, "conclusion": "failure", "jobId": 96493186927, "exposedSteps": 0, "logs": "404 BlobNotFound"},
+      {"name": "Home Center CI", "runId": 32389895306, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
