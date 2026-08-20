@@ -174,6 +174,7 @@ def test_repository_redirect_environment_cannot_select_a_different_repo(monkeypa
     }
     for key, value in poison.items():
         monkeypatch.setenv(key, value)
+    monkeypatch.setenv("GIT_NO_REPLACE_OBJECTS", "0")
     monkeypatch.setenv("PATH", "/safe/bin")
 
     def completed(*args, **kwargs):
@@ -189,6 +190,7 @@ def test_repository_redirect_environment_cannot_select_a_different_repo(monkeypa
 
     assert observed.status == "OBSERVED"
     assert seen["env"]["PATH"] == "/safe/bin"
+    assert seen["env"]["GIT_NO_REPLACE_OBJECTS"] == "1"
     for key in poison:
         assert key not in seen["env"]
 
@@ -199,6 +201,7 @@ def test_completed_bounded_git_status_forces_submodule_visibility_and_keeps_byte
     def completed(*args, **kwargs):
         seen["command"] = args[0]
         seen["text"] = kwargs.get("text")
+        seen["env"] = kwargs.get("env")
         assert kwargs.get("timeout") == GIT_STATUS_TIMEOUT_SECONDS
         return subprocess.CompletedProcess(
             args=args[0],
@@ -218,6 +221,7 @@ def test_completed_bounded_git_status_forces_submodule_visibility_and_keeps_byte
         "--ignore-submodules=none",
     ]
     assert seen["text"] is False
+    assert seen["env"]["GIT_NO_REPLACE_OBJECTS"] == "1"
     assert observed.status == "OBSERVED"
     assert observed.head == HEAD
     assert observed.dirty is False
