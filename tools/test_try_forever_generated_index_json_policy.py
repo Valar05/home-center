@@ -43,6 +43,25 @@ class GeneratedIndexJsonPolicyTest(unittest.TestCase):
                 with self.assertRaises(GeneratedIndexJsonDuplicateMemberError):
                     parse_generated_index_json(text)
 
+    def test_escaped_member_name_cannot_hide_a_semantic_duplicate(self):
+        # JSON escape decoding happens before object_pairs_hook. Different source
+        # spelling must therefore not create two authority-bearing instances of
+        # the same decoded member name.
+        with self.assertRaises(GeneratedIndexJsonDuplicateMemberError):
+            parse_generated_index_json(
+                '{"sourceHead":"a","\\u0073ourceHead":"b"}'
+            )
+
+    def test_distinct_supported_alias_names_remain_distinct_for_alias_policy(self):
+        # The JSON throat owns duplicate decoded member names, not supported alias
+        # reconciliation. Distinct alias spellings must survive for the existing
+        # typed alias policy to compare their values deterministically afterward.
+        value = parse_generated_index_json(
+            '{"sourceHead":"a","source_head":"a"}'
+        )
+        self.assertEqual(value["sourceHead"], "a")
+        self.assertEqual(value["source_head"], "a")
+
     def test_nonstandard_numeric_constants_are_rejected(self):
         for token in ("NaN", "Infinity", "-Infinity"):
             with self.subTest(token=token):
