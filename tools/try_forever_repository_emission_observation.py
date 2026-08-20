@@ -24,6 +24,10 @@ runs. ``cwd`` alone does not defeat ``GIT_DIR`` / ``GIT_WORK_TREE`` / alternate
 index/common-dir overrides, and command-scope ``GIT_CONFIG_*`` injection can also
 rewrite repository behavior. Authority must observe the repository named by the
 caller rather than whichever repository/config the parent process injected.
+
+Authority-facing Git subprocesses also force ``GIT_NO_REPLACE_OBJECTS=1``. Git
+replacement refs are a useful porcelain/debugging feature, but provenance must
+observe the named raw repository objects rather than a replacement object graph.
 Benign process environment such as ``PATH`` is preserved.
 
 It is still an observation, not atomic repository binding: the filesystem can
@@ -91,6 +95,7 @@ def _repository_observation_env() -> dict[str, str]:
     for key in tuple(env):
         if key.startswith(_GIT_CONFIG_INJECTION_PREFIXES):
             env.pop(key, None)
+    env["GIT_NO_REPLACE_OBJECTS"] = "1"
     return env
 
 
@@ -147,8 +152,8 @@ def parse_porcelain_v2_branch_status(
         status="OBSERVED",
         reason=(
             "HEAD and worktree cleanliness were derived from one unambiguous git "
-            "status --porcelain=v2 --branch process with submodule ignores disabled "
-            "and inherited repository/config redirection removed"
+            "status --porcelain=v2 --branch process with submodule ignores disabled, "
+            "inherited repository/config redirection removed, and replacement objects disabled"
         ),
         head=head,
         dirty=dirty,
