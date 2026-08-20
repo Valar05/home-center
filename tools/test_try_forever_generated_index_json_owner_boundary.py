@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner-boundary source fixture for strict generated-index JSON admission.
+"""Owner-boundary regression source for strict generated-index JSON admission.
 
-The sole provenance owner currently calls ``json.loads`` directly. This fixture
-stays RED / UNEXECUTED until the owner composes the existing strict JSON policy.
+The sole provenance owner is now SOURCE_WIRED to the existing strict JSON policy.
+This fixture preserves the promotion contract but remains REGRESSION_SOURCE /
+UNEXECUTED until an authorized test body executes it on the exact reviewed head.
 """
 
 import sys
