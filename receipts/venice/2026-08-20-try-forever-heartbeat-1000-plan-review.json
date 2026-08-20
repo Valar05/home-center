@@ -1,0 +1,14 @@
+{
+  "heartbeat": "2026-08-20-1000",
+  "reviewer": "Venice Judgment Jar / same-worker bounded review",
+  "verdict": "PLAN_ALLOWED",
+  "basis": [
+    "Both fronts are independent non-P0 source/evidence work.",
+    "The changes compose existing projection organs and do not create a second parser, renderer, provenance owner, phone ingress, or recovery controller.",
+    "Canonical source identity must remain unchanged; only explicit operator-facing evidence projection may reveal U+2028/U+2029.",
+    "Routine heartbeat speech must remain unchanged; on-demand detail may expose separator semantics explicitly.",
+    "Regression source cannot be promoted to TESTED without actual authorized execution evidence.",
+    "Phone/P0 surfaces remain untouched."
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_ONLY__P0_PHONE_FIREWALL_BINDING"
+}
