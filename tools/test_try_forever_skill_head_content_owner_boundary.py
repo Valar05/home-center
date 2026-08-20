@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """RED owner-boundary regression for exact repository-skill content↔HEAD binding.
 
-Supporting HEAD-tree and Git-blob identity organs exist, but the sole provenance
-owner does not consume them yet. This fixture is intentionally RED until one
-reviewed owner composition uses those existing organs without adding a second
-content read or second provenance owner.
+The single-artifact content observation now exposes Git blob identity derived from
+that same admitted artifact, and bounded raw-HEAD blob observation/binding organs
+already exist. The sole provenance owner still does not compose them. This fixture
+stays intentionally RED until reviewed owner wiring uses those existing organs
+without a second content read or second provenance owner.
 """
 
 import sys
@@ -27,7 +28,8 @@ class SkillHeadContentOwnerBoundaryTest(unittest.TestCase):
         )
 
     def test_single_artifact_content_observation_exposes_git_blob_identity(self):
-        self.assertIn("git_blob", self.content_custody)
+        self.assertIn("git_blob_identity", self.content_custody)
+        self.assertIn("git_blob_content_identity_from_utf8", self.content_custody)
         self.assertNotIn("git hash-object", self.content_custody)
 
     def test_owner_composes_existing_head_blob_observation(self):
@@ -37,11 +39,18 @@ class SkillHeadContentOwnerBoundaryTest(unittest.TestCase):
     def test_owner_composes_existing_content_binding_policy(self):
         self.assertIn("try_forever_skill_head_content_binding", self.owner)
         self.assertIn("assess_skill_head_content_binding", self.owner)
+        self.assertIn("content.git_blob_identity", self.owner)
 
-    def test_owner_does_not_claim_status_or_tracked_membership_overrides_mismatch(self):
+    def test_owner_binds_against_certified_discovery_head(self):
+        self.assertIn("authority_head", self.owner)
+        self.assertIn("snapshot_before.head", self.owner)
+
+    def test_owner_rejects_missing_or_mismatched_head_content_before_record_append(self):
         self.assertIn("HeadSkillContentMismatch", self.owner)
-        self.assertIn("content", self.owner)
-        self.assertIn("HEAD", self.owner)
+        self.assertIn("HeadSkillContentUnavailable", self.owner)
+        binding_index = self.owner.index("assess_skill_head_content_binding")
+        append_index = self.owner.index("records.append(SkillRecord")
+        self.assertLess(binding_index, append_index)
 
 
 if __name__ == "__main__":
