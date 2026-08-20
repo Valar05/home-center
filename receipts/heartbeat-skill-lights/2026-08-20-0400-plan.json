@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-20-0400",
+  "sourceHeadBeforePlan": "2e591e6e418c2c3ba53393946ca00cb7649f3ae5",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts while preserving the sole provenance owner, accessibility truth, capability-state evidence, and the phone/P0 firewall.",
+  "freshWound": "The sole provenance owner still parses generated-index evidence with default json.loads even though a strict duplicate-member/non-standard-number admission policy and RED owner-boundary regression already exist.",
+  "research": [
+    "Authenticated PR #329 head is 2e591e6e418c2c3ba53393946ca00cb7649f3ae5 and remains open/unmerged.",
+    "tools/try_forever_skill_provenance_probe.py blob 2f3ebd530f46283a59bd6ff34149042a1b825d89 calls data = json.loads(observation.utf8_text).",
+    "tools/try_forever_generated_index_json_policy.py blob a612ca16b600384e5d613182532e755afa8281e1 already rejects duplicate object members, NaN/Infinity, over-budget numeric lexemes, and decoder/recursion failures through GeneratedIndexJsonError.",
+    "tools/test_try_forever_generated_index_json_owner_boundary.py blob c79b9ae4782b51115254e7b2aea02f0c8e671387 defines the existing-owner acceptance seam.",
+    "She-Raw authoritative pre-execution consultation was attempted; connector returned account-connection HTTP 400, so no synthetic She-Raw verdict is permitted."
+  ],
+  "selectedJudgmentJars": [
+    {"id": "mission-boundary", "reason": "Keep all work non-P0 and inside the existing provenance owner and repository source lane."},
+    {"id": "repository-truth", "reason": "Compose the existing strict JSON organ instead of inventing a second parser or provenance owner."},
+    {"id": "failure-is-the-shovel", "reason": "Turn the known RED owner boundary into a real owner wiring change rather than another supporting-source specimen."},
+    {"id": "originality-tax", "reason": "Do not retry unchanged CI failure or repeat owner-unwired narration."},
+    {"id": "evidence-capability-membrane", "reason": "Keep source wiring, regression source, executed tests, runtime, deployment, delivery, and acceptance separate."},
+    {"id": "regnet-qa", "reason": "Require hostile duplicate/non-standard-number behavior and source diff review before bounded PASS."},
+    {"id": "venice-review-gate", "reason": "Require PLAN_ALLOWED before source mutation and a separate bounded completion verdict afterward."},
+    {"id": "accessibility-first", "reason": "Do not broaden routine operator speech or UI merely because evidence admission changed; art stays dark unless topology changes."}
+  ],
+  "activeFronts": [
+    "wire strict generated-index JSON admission into the sole provenance owner",
+    "migrate the owner-boundary regression from RED wording to source-wired/unexecuted truth and strengthen failure-containment assertions if source review exposes drift",
+    "inspect the composed owner for a materially different generated-index evidence wound after strict JSON admission",
+    "synchronize the existing generated-index JSON skill and source organism only if their capability truth becomes stale",
+    "perform Regnet code/evidence review and Venice bounded completion review",
+    "read fresh exact-head workflow evidence without dispatching retries"
+  ],
+  "constraints": {
+    "existingProvenanceOwnerOnly": true,
+    "duplicateArchitectureForbidden": true,
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "manualCiRetryAllowed": false,
+    "testedMayNotBeInferredFromSource": true,
+    "runtimeMayNotBeInferredFromRepository": true,
+    "artMutationRequiresTopologyChange": true
+  },
+  "requiredSkillLights": {
+    "Failure Is The Shovel": "ACTIVE",
+    "Canon Auto-Select": "ACTIVE",
+    "Autocorrect Judgment Jar": "DARK unless material ambiguity appears",
+    "Originality Tax": "ACTIVE",
+    "Hunger": "ACTIVE",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE",
+    "Operator Campaign": "ACTIVE",
+    "Harroway operator discipline": "ACTIVE",
+    "She-Raw adversarial motivation": "FAULT: authoritative connector account connection HTTP 400",
+    "Venice Judgment Jars": "ACTIVE",
+    "Regnet QA": "ACTIVE",
+    "accessibility/TalkBack and touch semantics": "ACTIVE as a non-regression constraint; no UI mutation planned",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_DARK",
+    "deterministic routing": "ACTIVE",
+    "evidence/capability-state discipline": "ACTIVE",
+    "recovery/checkpointing/idempotence": "ACTIVE",
+    "strange non-raster vector/DOM/native UI art": "DARK unless capability/topology truth changes materially",
+    "warm walls": "DARK unless capability/topology truth changes materially",
+    "Christmas-light scene graph": "DARK; evidence admission earns no motion",
+    "contact preservation": "ACTIVE conceptually: invalid generated-index syntax withholds index authority without rewriting repository-skill authority"
+  },
+  "p0Firewall": {"finding": null, "phoneHandsTickets": 0, "primaryPhoneCommands": 0, "queueRelayMutations": 0, "p0RecoveryMutations": 0}
+}
