@@ -1,10 +1,12 @@
 {
   "schema": "try-forever-owner-delta.v1",
-  "status": "PROPOSED_NOT_APPLIED",
+  "status": "APPLIED_SOURCE",
   "repository": "Valar05/home-center",
   "branch": "feat/heartbeat-skill-lights-20260815",
   "target": "tools/try_forever_skill_provenance_probe.py",
   "baseBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+  "appliedCommit": "0c137eac3c84cfa6c9fba0b26615e5ddc8ba6628",
+  "appliedBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
   "purpose": "Compose strict generated-index JSON admission into the existing sole provenance owner without creating a second parser owner.",
   "operations": [
     {
@@ -24,19 +26,21 @@
     }
   ],
   "acceptance": [
-    "authenticated owner blob still equals baseBlob before mutation",
-    "all exact matches occur once",
-    "owner imports and calls parse_generated_index_json",
+    "authenticated owner blob equaled baseBlob immediately before mutation",
+    "all exact matches occurred once",
+    "authenticated commit diff shows exactly one changed file and exactly the three intended hunks",
+    "authenticated owner readback shows strict parser import/call/failure mapping and blob 1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
     "owner no longer calls json.loads(observation.utf8_text)",
     "GeneratedIndexJsonError maps to the existing UNRESOLVED generated-index failure surface",
-    "strict JSON policy and owner-boundary regression execute before TESTED can advance"
+    "strict JSON policy and owner-boundary regression remain unexecuted; TESTED cannot advance"
   ],
   "capabilityBoundary": {
     "supportingPolicySource": true,
     "hostileRegressionSource": true,
     "ownerBoundaryRegressionSource": true,
     "ownerDeltaPrepared": true,
-    "ownerWired": false,
+    "ownerWired": true,
+    "regressionExecuted": false,
     "tested": false,
     "runtimeUi": false,
     "phoneDelivery": false,
