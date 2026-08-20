@@ -13,7 +13,6 @@ import argparse
 import hashlib
 import json
 import os
-import subprocess
 import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -59,6 +58,8 @@ from try_forever_skill_title_fallback_policy import (
     admit_markdown_h1_title,
     admit_skill_title,
 )
+from try_forever_skill_tracked_authority import require_tracked_skill_candidates
+from try_forever_tracked_skill_observation import observe_tracked_skill_candidates
 
 DEFAULT_MAX_INDEX_AGE_HOURS = 14 * 24
 MAX_FUTURE_SKEW_SECONDS = 5 * 60
@@ -276,40 +277,6 @@ def skill_file_identity_error_type(status: str) -> str:
         "FILE_CHANGED": "SkillFileChanged",
         "IDENTITY_UNAVAILABLE": "SkillFileIdentityUnavailable",
     }.get(status, "SkillFileIdentityRejected")
-
-
-def command_text(args: list[str], cwd: Path) -> str:
-    try:
-        completed = subprocess.run(
-            args,
-            cwd=cwd,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-        )
-    except (OSError, subprocess.CalledProcessError):
-        return ""
-    return completed.stdout.strip()
-
-
-def git_head(repo_root: Path) -> str:
-    return command_text(["git", "rev-parse", "HEAD"], repo_root)
-
-
-def git_dirty(repo_root: Path) -> bool | None:
-    try:
-        completed = subprocess.run(
-            ["git", "status", "--porcelain"],
-            cwd=repo_root,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-        )
-    except (OSError, subprocess.CalledProcessError):
-        return None
-    return bool(completed.stdout.strip())
 
 
 def assess_repository_snapshot(
@@ -636,6 +603,38 @@ def discover_skills(repo_root: Path) -> tuple[list[SkillRecord], list[DiscoveryE
                     )
                 )
         return [], collision_errors
+
+    tracked_observation = observe_tracked_skill_candidates(repo_root, relative_candidates)
+    if tracked_observation.status != "OBSERVED":
+        return [], [
+            DiscoveryError(
+                path="skills",
+                stage="repository",
+                error_type="TrackedSkillObservationUnavailable",
+                reason=(
+                    "Git-tracked skill identity observation failed closed before "
+                    f"repository-skill content authority work: {tracked_observation.reason}"
+                ),
+            )
+        ]
+
+    tracked_authority = require_tracked_skill_candidates(
+        relative_candidates,
+        tracked_observation.tracked_paths,
+    )
+    if tracked_authority.status != "STABLE":
+        return [], [
+            DiscoveryError(
+                path=bounded_error_path(path),
+                stage="repository",
+                error_type="UntrackedSkillCandidate",
+                reason=(
+                    "discovered SKILL.md is not present in the bounded exact Git-tracked "
+                    "identity set; partial repository-skill authority is forbidden"
+                ),
+            )
+            for path in tracked_authority.untracked_paths
+        ]
 
     records: list[SkillRecord] = []
     errors: list[DiscoveryError] = []
@@ -1112,16 +1111,14 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
-    head_before = git_head(repo_root)
-    dirty_before = git_dirty(repo_root)
+    snapshot_before = observe_repository_emission(repo_root)
     skills, discovery_errors = discover_skills(repo_root)
-    head_after = git_head(repo_root)
-    dirty_after = git_dirty(repo_root)
+    snapshot_after = observe_repository_emission(repo_root)
     snapshot = assess_repository_snapshot(
-        head_before=head_before,
-        head_after=head_after,
-        dirty_before=dirty_before,
-        dirty_after=dirty_after,
+        head_before=(snapshot_before.head if snapshot_before.status == "OBSERVED" else ""),
+        head_after=(snapshot_after.head if snapshot_after.status == "OBSERVED" else ""),
+        dirty_before=(snapshot_before.dirty if snapshot_before.status == "OBSERVED" else None),
+        dirty_after=(snapshot_after.dirty if snapshot_after.status == "OBSERVED" else None),
     )
 
     now = datetime.now(timezone.utc)
@@ -1136,7 +1133,7 @@ def main() -> int:
         now=now,
     )
 
-    observed_head = head_after or head_before
+    observed_head = snapshot.head_after or snapshot.head_before
     head_error = ""
     if args.expected_head and observed_head != args.expected_head:
         head_error = (
@@ -1246,7 +1243,7 @@ def main() -> int:
         ],
         "generatedIndex": generated_index_report,
         "authority": {
-            "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed late custody zeroes emitted repository-skill authority",
+            "repositorySkill": "authority-facing records survive emission only after bounded direct discovery, exact Git-tracked candidate admission, STABLE_CLEAN certification, expected-head binding, and one late preservation-only repository observation; failed tracked custody or late custody zeroes emitted repository-skill authority",
             "generatedIndex": "bounded strict-UTF-8 JSON discovery aid with typed alias consistency and finite no-follow initial artifact admission; prior VERIFIED_CURRENT survives only when exact inspection SHA and late artifact SHA match under stable final repository custody",
             "reportPaths": "operator-facing paths are portable display projections only; root/generated-index paths use absolute/external projection, skill/discovery-error paths use the repository-relative display channel, collision-safe invisible/control projection applies to every serialized path family, and exact internal Path/record identities remain authority inputs rather than display text",
         },
