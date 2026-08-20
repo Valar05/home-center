@@ -1,0 +1,51 @@
+{
+  "schema": "try-forever-owner-delta.v1",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "baseBlob": "cd94af837245f6c9d6c64ad4f4620699acbb19fb",
+  "state": "PROPOSED_NOT_APPLIED",
+  "purpose": "Compose the existing exact CLI evidence policy into the sole provenance owner and make the governing policy inputs durable evidence.",
+  "requiredChanges": [
+    {
+      "location": "imports",
+      "require": "Import ProvenanceCliEvidenceError and admit_cli_evidence from try_forever_provenance_cli_evidence_policy."
+    },
+    {
+      "location": "main.after_parse_args",
+      "require": "Call admit_cli_evidence(expected_head=args.expected_head, max_index_age_hours=args.max_index_age_hours) exactly once before either raw value enters authority/report logic. Convert ProvenanceCliEvidenceError into an argparse error; do not repair rejected text or arithmetic."
+    },
+    {
+      "location": "generated_index_inspection",
+      "replace": "max_age_hours=max(0.0, args.max_index_age_hours)",
+      "with": "max_age_hours=cli_evidence.max_index_age_hours"
+    },
+    {
+      "location": "expected_head_binding",
+      "require": "Compare observed_head only with cli_evidence.expected_head and build expected-head mismatch evidence only from that admitted canonical object id."
+    },
+    {
+      "location": "durable_report",
+      "require": "Advance report schema from try-forever-skill-provenance.v5 to try-forever-skill-provenance.v6 and add cliEvidence = {expectedHead: cli_evidence.expected_head, maxIndexAgeHours: cli_evidence.max_index_age_hours}."
+    }
+  ],
+  "acceptance": [
+    "tools/test_try_forever_provenance_cli_evidence_owner_boundary.py passes",
+    "tools/test_try_forever_provenance_cli_evidence_report_owner_boundary.py passes",
+    "raw args.expected_head does not enter authority comparison or durable mismatch evidence",
+    "max(0.0, args.max_index_age_hours) is absent from main",
+    "schema v6 report exposes the exact admitted CLI authority-input contract",
+    "no neighboring provenance owner/parser/controller is created"
+  ],
+  "capabilityBoundary": {
+    "supportingSource": true,
+    "ownerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "No Phone Hands, primary-phone, recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or P0 mutation is authorized by this delta."
+}
