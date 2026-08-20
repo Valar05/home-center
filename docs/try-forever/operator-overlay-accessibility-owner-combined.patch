@@ -1,8 +1,9 @@
 # BASE OWNER BLOB: c266e66a8004623efadab1933de4e429e677c6a5
 # STATE: PROPOSED_NOT_APPLIED
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-# PURPOSE: Compose three independent accessibility repairs already proven at source level into one sole-owner surgery: deep-detail inspectability, grapheme-safe Spotify announcement, and dynamic Spotify focused-status semantics.
+# PURPOSE: Compose four accessibility repairs into one sole-owner surgery: deep-detail inspectability, grapheme-safe Spotify announcement, native TextView semantics for dynamic Spotify status, and native TextView semantics for dynamic Home Center status.
 # CAPABILITY: patch source only; not owner wiring, not TESTED, not runtime/phone proof.
+# EVIDENCE: Android Developers says not to provide descriptions for TextView elements because accessibility services automatically announce the text itself. Do not duplicate dynamic TextView text into contentDescription merely to make a source marker green.
 # FIREWALL: no Phone Hands, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or second overlay/accessibility owner.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
@@ -15,11 +16,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +    private long heartbeatDetailPresentationGeneration;
 @@
 -        if (spotifyStatus != null) spotifyStatus.setText(summary);
-+        if (spotifyStatus != null) {
-+            spotifyStatus.setText(summary);
-+            spotifyStatus.setContentDescription(
-+                    HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160));
-+        }
++        if (spotifyStatus != null) spotifyStatus.setText(summary);
          if (requestId > 0L && spotifyStatus != null) {
 -            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
 +            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
@@ -27,14 +24,21 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          }
 @@
          spotifyStatus = textView(12f, false);
--        spotifyStatus.setText(OperatorState.spotifySummary(this));
+         spotifyStatus.setText(OperatorState.spotifySummary(this));
 -        spotifyStatus.setContentDescription("Current Spotify playback status");
-+        String currentSpotifySummary = OperatorState.spotifySummary(this);
-+        spotifyStatus.setText(currentSpotifySummary);
-+        spotifyStatus.setContentDescription(
-+                HeartbeatPlainTextBudget.boundedWithEllipsis(currentSpotifySummary, 160));
++        // TextView text is the focused semantic value; do not override it with a stale
++        // generic description. Explicit command receipts still use bounded announcements.
++        spotifyStatus.setContentDescription(null);
          spotifyStatus.setSingleLine(true);
          spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
+@@
+         status = textView(14f, true);
+         status.setText("HOME CENTER • OFFLINE");
+-        status.setContentDescription("Home Center connection and control state");
++        // This status text changes continuously; let TextView expose its current text
++        // instead of replacing it with a generic description that can mask the state.
++        status.setContentDescription(null);
+         statusRow.addView(status, new LinearLayout.LayoutParams(
 @@
          heartbeatDetail = textView(11f, false);
          heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
