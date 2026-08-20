@@ -27,6 +27,7 @@
   <label><input type="radio" name="scar" checked aria-describedby="d-good"><span class="token">●</span><span>Canonical evidence admitted</span></label>
   <label><input type="radio" name="scar" aria-describedby="d-head"><span class="token">×</span><span>Expected-head text rejected</span></label>
   <label><input type="radio" name="scar" aria-describedby="d-age"><span class="token">×</span><span>Freshness arithmetic rejected</span></label>
+  <label><input type="radio" name="scar" aria-describedby="d-report"><span class="token">×</span><span>Authority inputs missing from durable report</span></label>
   <label><input type="radio" name="scar" aria-describedby="d-owner"><span class="token">□</span><span>Existing owner still unwired</span></label>
 </fieldset>
 
@@ -34,22 +35,25 @@
   <p id="d-good"><strong>● admitted:</strong> empty/no expected-head binding, or exact lowercase SHA-1/SHA-256; finite non-negative freshness only.</p>
   <p id="d-head"><strong>× expected head:</strong> whitespace repair, uppercase folding, control-bearing text, and arbitrary prose do not become repository authority or durable error evidence.</p>
   <p id="d-age"><strong>× freshness:</strong> negative values are not clamped; NaN/±infinity cannot quietly rewrite or disable the freshness gate.</p>
-  <p id="d-owner"><strong>□ owner:</strong> <code>try_forever_skill_provenance_probe.py</code> still compares raw expected-head text and applies <code>max(0.0, age)</code>. Policy source is not owner wiring.</p>
+  <p id="d-report"><strong>× report auditability:</strong> a VERIFIED_CURRENT verdict is not self-auditing unless the durable report states the exact admitted expected-head binding and max-index-age window that governed it.</p>
+  <p id="d-owner"><strong>□ owner:</strong> <code>try_forever_skill_provenance_probe.py</code> still compares raw expected-head text, applies <code>max(0.0, age)</code>, and does not serialize an admitted <code>cliEvidence</code> contract. Policy source is not owner wiring.</p>
 </section>
 
 <svg viewBox="0 0 720 180" role="img" aria-labelledby="svg-title svg-desc">
   <title id="svg-title">Provenance CLI evidence flow</title>
-  <desc id="svg-desc">Caller parameters pass through an exact admission throat before repository and generated-index authority. Rejected values stop before authority.</desc>
+  <desc id="svg-desc">Caller parameters pass through an exact admission throat before repository and generated-index authority, then the admitted policy must remain visible in durable report evidence. Rejected values stop before authority.</desc>
   <g fill="none" stroke="currentColor" stroke-width="3">
-    <rect x="10" y="45" width="160" height="80" rx="12"/>
-    <rect x="280" y="25" width="170" height="120" rx="12"/>
-    <rect x="560" y="45" width="150" height="80" rx="12"/>
-    <path d="M170 85H280M450 85H560"/>
+    <rect x="10" y="45" width="150" height="80" rx="12"/>
+    <rect x="220" y="25" width="160" height="120" rx="12"/>
+    <rect x="440" y="45" width="120" height="80" rx="12"/>
+    <rect x="610" y="45" width="100" height="80" rx="12"/>
+    <path d="M160 85H220M380 85H440M560 85H610"/>
   </g>
-  <g fill="currentColor" font-family="system-ui, sans-serif" font-size="18" text-anchor="middle">
-    <text x="90" y="78">CLI evidence</text><text x="90" y="104">raw caller values</text>
-    <text x="365" y="65">EXACT THROAT</text><text x="365" y="92">head identity</text><text x="365" y="118">finite freshness</text>
-    <text x="635" y="78">authority logic</text><text x="635" y="104">only if admitted</text>
+  <g fill="currentColor" font-family="system-ui, sans-serif" font-size="16" text-anchor="middle">
+    <text x="85" y="78">CLI evidence</text><text x="85" y="102">raw caller values</text>
+    <text x="300" y="64">EXACT THROAT</text><text x="300" y="90">head identity</text><text x="300" y="116">finite freshness</text>
+    <text x="500" y="78">authority</text><text x="500" y="102">only if admitted</text>
+    <text x="660" y="78">report</text><text x="660" y="102">policy visible</text>
   </g>
 </svg>
 </body>
