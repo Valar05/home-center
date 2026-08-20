@@ -21,8 +21,8 @@ package com.homecenter.operatoroverlay;
  *
  * <p>The projection reserves backslash as its marker introducer and doubles literal
  * source backslashes. That makes an actual invisible/control character distinguishable
- * from source text that merely spells a marker such as {@code \u{200B ZWSP}} or
- * {@code \u{2028 LS}}. A diagnostic projection that aliases those sources would be
+ * from source text that merely spells a marker such as {@code marker[200B ZWSP]} or
+ * {@code marker[2028 LS]}. A diagnostic projection that aliases those sources would be
  * evidence theater.</p>
  *
  * <p>This class owns no parser, acceptance gate, scene, renderer, storage, transport,
@@ -83,10 +83,10 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
      * source before projection would therefore fail to bound the actual TalkBack/detail
      * output.</p>
      *
-     * <p>Projection units are atomic. A marker such as {@code \u{200B ZWSP}},
-     * {@code \u{2028 LS}}, or an escaped literal backslash is either emitted whole or
-     * not emitted at all, so truncation cannot create a partial marker that aliases
-     * some other source text. The truncation indicator is part of the same hard
+     * <p>Projection units are atomic. A marker for U+200B ZERO WIDTH SPACE, a marker
+     * for U+2028 LINE SEPARATOR, or an escaped literal backslash is either emitted
+     * whole or not emitted at all, so truncation cannot create a partial marker that
+     * aliases some other source text. The truncation indicator is part of the same hard
      * code-point budget; it must not be appended after the budget has already been
      * consumed. The exact source string remains separately authoritative.</p>
      */
