@@ -1,0 +1,18 @@
+{
+  "schema": "venice-judgment.v1",
+  "timestamp": "2026-08-20T08:05:00-05:00",
+  "phase": "plan",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "bounded non-P0 source swarm",
+  "judgment": [
+    "The owner content-to-HEAD seam is real and current: supporting organs exist, but the sole provenance owner still has no binding before SkillRecord append.",
+    "Do not reconstruct the large owner from partial context merely to manufacture an implementation receipt; strengthen its exact guarded delta and RED acceptance boundary instead unless an authorized safe mutation surface appears.",
+    "Generated-index sourceHead identity is a distinct evidence seam: malformed or normalization-dependent Git object identity should fail as UNRESOLVED rather than be treated as an ordinary stale-but-well-formed declaration.",
+    "Reuse existing Git object-ID semantics and alias policy; do not create another provenance owner or parser family.",
+    "Accessibility art is permitted only when it makes the new evidence distinction inspectable without runtime/deployment claims.",
+    "Phone/P0 and duplicate-architecture firewalls remain absolute; no CI rerun without a changed execution predicate."
+  ],
+  "sourceMutationAllowed": true,
+  "ownerMutationPreapproved": false,
+  "requiredCompletionGate": "Regnet code-first review, exact remote readback, capability membrane, and Venice completion verdict"
+}
