@@ -8,6 +8,7 @@ import math
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 TOOLS_DIR = Path(__file__).resolve().parent
 if str(TOOLS_DIR) not in sys.path:
@@ -57,13 +58,18 @@ class GeneratedIndexJsonPolicyTest(unittest.TestCase):
         with self.assertRaises(GeneratedIndexJsonNumberError):
             parse_generated_index_json('{"generatedAt":' + token + "}")
 
-    def test_syntax_and_recursion_fail_inside_typed_boundary(self):
+    def test_syntax_and_decoder_recursion_fail_inside_typed_boundary(self):
         with self.assertRaises(GeneratedIndexJsonSyntaxError):
             parse_generated_index_json('{"sourceHead":')
 
-        nested = "[" * 2000 + "0" + "]" * 2000
-        with self.assertRaises(GeneratedIndexJsonSyntaxError):
-            parse_generated_index_json(nested)
+        # Do not depend on the runner's global recursion limit. Pin the owner's
+        # required failure-containment behavior directly.
+        with patch(
+            "try_forever_generated_index_json_policy.json.loads",
+            side_effect=RecursionError("host parser recursion limit"),
+        ):
+            with self.assertRaises(GeneratedIndexJsonSyntaxError):
+                parse_generated_index_json("{}")
 
     def test_duplicate_like_text_inside_string_is_inert(self):
         value = parse_generated_index_json(
