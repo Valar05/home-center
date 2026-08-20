@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Keep accessibility source policy, the existing Android owner, and runtime proof separate. Use this when an accessibility helper/policy exists but `OperatorOverlayService` may still contain an older presentation or speech path.
+Keep accessibility source policy, the existing Android owner, and runtime proof separate. Use this when an accessibility helper/policy exists, when `OperatorOverlayService` may still contain an older presentation or speech path, or when source wiring has landed but regression/runtime evidence has not.
 
 ## Trigger
 
@@ -13,7 +13,8 @@ Use when repository source shows one of these shapes:
 - a returned speech/text budget uses UTF-16 substring/counting while an existing grapheme-safe budget organ already exists;
 - a visible/touchable detail surface destructively ellipsizes or line-caps semantic evidence that policy says must remain inspectable;
 - a source-capability probe can be fooled by comments, literals, correct-looking markers placed in the wrong owner method, or identically named methods inside a nested class;
-- a dynamic non-interactive `TextView` carries a static or otherwise non-null `contentDescription` that replaces the current visible text as its accessibility semantic value.
+- a dynamic non-interactive `TextView` carries a static or otherwise non-null `contentDescription` that replaces the current visible text as its accessibility semantic value;
+- source wiring exists but TESTED/runtime/TalkBack/deployment evidence is still absent.
 
 ## Law
 
@@ -27,33 +28,28 @@ Use when repository source shows one of these shapes:
 8. For non-interactive dynamic `TextView` status surfaces, prefer the framework's native text semantics. Android accessibility guidance explicitly says not to provide descriptions for `TextView` elements because accessibility services announce the text itself. A non-null `contentDescription` that replaces changing Spotify or Home Center status text is source-level stale/duplicated semantics, even when the description is dynamically rebuilt. Explicit event announcements remain a separate surface and may use the existing grapheme-safe plain-text budget.
 9. Spotify focused-status source wiring requires current text at initialization and receipt update plus no non-null `contentDescription` override. An explicit `setContentDescription(null)` is acceptable source evidence of intentional native TextView semantics but is not required if no override exists.
 10. Home Center connection/control status source wiring requires current status text at initialization and `refreshUi` plus no non-null `contentDescription` override. Generic text such as `"Home Center connection and control state"` must not replace the actual current status value.
-11. A patch artifact is proposed source, not owner wiring. A deterministic source probe is evidence about source shape, not TESTED/runtime proof.
-12. When multiple independent accessibility wounds overlap the same owner file, prefer one base-blob-locked composed surgery over racing multiple patches. Patch composition still does not equal application.
+11. A patch artifact is proposed source until authenticated owner mutation/readback proves application. After that point, mark it `APPLIED_SOURCE`; neither state is TESTED/runtime proof.
+12. When multiple independent accessibility wounds overlap the same owner file, prefer one base-blob-locked composed surgery over racing multiple patches.
 13. Retired or unavailable worker machinery is not a reason to create duplicate queue sludge or route through the phone. Use an authorized existing non-phone mutation lane when it can preserve exact owner identity; otherwise stop at the exact boundary.
 14. Source wiring, regression-source existence, regression execution, Android runtime UI, TalkBack behavior, deployment, phone delivery, and acceptance are distinct capability states.
 15. The P0/phone firewall is binding. No Phone Hands, primary-phone execution, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance may be consumed by this skill.
 
 ## Current PR #329 source truth
 
-Authenticated owner readback at this checkpoint is blob `c266e66a8004623efadab1933de4e429e677c6a5` and still contains four independent legacy source shapes:
+Authenticated owner mutation/readback now proves `OperatorOverlayService` blob `5dc7f2f52db7e2b7cff867ee6b82cc1492e1b835` at owner commit `aafece5e8e1d8d2631ade85ba9c1bec3e4e6089f` consumes all four reviewed repairs at source level:
 
-- deep detail in `createOverlay`: `heartbeatDetail.setMaxLines(5)` plus `heartbeatDetail.setEllipsize(TextUtils.TruncateAt.END)`;
-- Spotify explicit receipt announcement in `handleSpotifyReceipt`: `summary.substring(0, 160)`;
-- Spotify status in `createOverlay`: changing visible summary text is paired with static `spotifyStatus.setContentDescription("Current Spotify playback status")`;
-- Home Center status in `createOverlay`: changing `status` text is paired with static `status.setContentDescription("Home Center connection and control state")` while `refreshUi` later updates only the visible text.
+- deep detail no longer uses destructive `setMaxLines(5)` + `END`; it composes `HeartbeatDetailSurfacePolicy`, a bounded pixel-height viewport, vertical scrolling, passive focus/click ownership, generation-bound post-layout scroll restoration, explicit-selection top reset, and explicit detail announcement;
+- Spotify explicit receipt announcement in `handleSpotifyReceipt` now uses `HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160)` instead of UTF-16 `substring(0, 160)`;
+- Spotify dynamic status keeps its changing TextView text as the semantic value with no non-null content-description override;
+- Home Center dynamic status likewise keeps current TextView text as the semantic value with no generic content-description override.
 
-Supporting source now exists at:
+Supporting source remains at:
 
 - `tools/try_forever_operator_accessibility_owner_probe.py` — v6 deterministic direct-owner-method source classification. It blanks Java comments and string/char/text-block literals, isolates the named public `OperatorOverlayService` class, only accepts markers inside direct private-void owner members, and separately classifies dynamic TextView semantics by requiring current text ownership with no non-null content-description override;
 - `tools/test_try_forever_operator_accessibility_owner_probe.py` — regression source for legacy/wired/partial states, inert-text counterfeits, wrong-method counterfeits, nested-class method counterfeits, missing owner class, mixed null/non-null description state, Spotify native TextView focus semantics, and Home Center status semantics;
-- `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch` — deep-detail sole-owner surgery provenance;
-- `docs/try-forever/operator-overlay-spotify-announcement-budget.patch` — Spotify existing-organ announcement surgery provenance;
-- `docs/try-forever/operator-overlay-accessibility-owner-combined.patch` — exact composed four-wound surgery whose declared base owner blob still matches authenticated current owner source. The corrected patch uses native TextView text semantics for dynamic Spotify/Home Center status instead of duplicating text into `contentDescription`.
-
-Fresh Android platform guidance supporting the correction:
-
-- Android Developers, “Make apps more accessible (Views)”: do not provide descriptions for `TextView` elements; accessibility services automatically announce the text itself.
-- This guidance changes the earlier proposed Spotify repair: dynamically rebuilding a duplicate `contentDescription` is not required merely to keep focused status current.
+- `docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch` — deep-detail surgery provenance;
+- `docs/try-forever/operator-overlay-spotify-announcement-budget.patch` — Spotify announcement surgery provenance;
+- `docs/try-forever/operator-overlay-accessibility-owner-combined.patch` — exact composed four-wound surgery, now `APPLIED_SOURCE`, base owner blob `c266e66a8004623efadab1933de4e429e677c6a5`, applied owner commit `aafece5e8e1d8d2631ade85ba9c1bec3e4e6089f`, applied owner blob `5dc7f2f52db7e2b7cff867ee6b82cc1492e1b835`.
 
 Current capability membrane:
 
@@ -66,12 +62,12 @@ Current capability membrane:
 - regression source: **YES / UNEXECUTED**;
 - deep-detail policy source: **YES**;
 - grapheme-safe plain-text budget source: **YES**;
-- corrected combined four-wound owner surgery: **YES / PROPOSED_NOT_APPLIED**;
-- combined surgery base matches authenticated owner blob: **YES / SOURCE READBACK**;
-- deep-detail owner wiring: **NO**;
-- Spotify speech-budget owner wiring: **NO**;
-- Spotify native TextView focused-status owner wiring: **NO**;
-- Home Center native TextView dynamic-status owner wiring: **NO**;
+- corrected combined four-wound owner surgery: **YES / APPLIED_SOURCE**;
+- authenticated sole-owner source readback: **YES**;
+- deep-detail owner wiring: **YES / SOURCE_WIRED**;
+- Spotify speech-budget owner wiring: **YES / SOURCE_WIRED**;
+- Spotify native TextView focused-status owner wiring: **YES / SOURCE_WIRED**;
+- Home Center native TextView dynamic-status owner wiring: **YES / SOURCE_WIRED**;
 - Java control-flow proof: **NO**;
 - TESTED: **NO**;
 - runtime UI / TalkBack: **NO**;
@@ -105,4 +101,5 @@ Owner repair review should additionally prove:
 - Spotify accessibility announcement uses the grapheme-safe existing plain-text budget rather than UTF-16 substring;
 - Spotify and Home Center non-interactive status TextViews expose their changing text directly without non-null content-description overrides;
 - no second owner/controller is introduced;
-- exact remote owner readback is required before changing any owner-wiring state to YES.
+- exact remote owner readback is required before changing any owner-wiring state to YES;
+- passing these source checks still does not prove Android runtime rendering or TalkBack behavior.
