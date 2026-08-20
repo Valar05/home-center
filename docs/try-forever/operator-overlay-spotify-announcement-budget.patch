@@ -1,0 +1,17 @@
+# BASE OWNER BLOB: c266e66a8004623efadab1933de4e429e677c6a5
+# STATE: PROPOSED_NOT_APPLIED
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# PURPOSE: Reuse the existing grapheme-safe plain-text budget for Spotify TalkBack announcement text.
+# CAPABILITY: source patch only; not owner wiring, not TESTED, not runtime/phone proof.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         if (spotifyStatus != null) spotifyStatus.setText(summary);
+         if (requestId > 0L && spotifyStatus != null) {
+-            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
++            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
+             spotifyStatus.announceForAccessibility(announcement);
+         }
+     }
