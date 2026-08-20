@@ -1,0 +1,24 @@
+{
+  "schema": "venice-judgment.v1",
+  "timestamp": "2026-08-20T06:00:00-05:00",
+  "phase": "completion",
+  "reviewedSourceHead": "08c64ef880529c021600b411f28d62aca8c1a3d8",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "quality": "mixed",
+  "judgment": [
+    "The swarm brought home materially different treasure: committed-content authority, replacement-object suppression, hostile fixtures, durable skill doctrine, and an accessibility-first source organism.",
+    "The first HEAD-tree implementation had a real Git replacement-ref authority hole. The correction is substantive and shared with existing authority-facing Git subprocesses; this earns the Originality Tax rather than a cosmetic retry.",
+    "The source specimen is justified because the new mismatch state is user-inspectable authority topology, not decoration.",
+    "Do not call this repository-skill content protection complete: the sole provenance owner still does not compare the exact observed SKILL.md content identity to its HEAD blob identity.",
+    "Do not promote regression fixtures to TESTED: exact-source-head workflows failed before exposing steps and logs were unavailable.",
+    "Phone/P0 and duplicate-architecture firewalls remained intact."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "nextExactCut": "Extend the existing single-artifact skill content observation with the Git blob identity derived from those same bytes, then compose the existing bounded HEAD blob observation + content-binding policy in the sole provenance owner. Do not add a second content read or a second provenance owner.",
+  "sourceSliceMayYield": true,
+  "campaignComplete": false
+}
