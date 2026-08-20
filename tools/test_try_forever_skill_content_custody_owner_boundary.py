@@ -19,13 +19,13 @@ import try_forever_skill_provenance_probe as probe
 
 
 class SkillContentCustodyOwnerBoundaryTest(unittest.TestCase):
-    def test_owner_must_not_open_title_and_hash_as_separate_authority_reads(self):
+    def test_owner_must_use_one_bounded_content_observation(self):
         source = inspect.getsource(probe.discover_skills)
 
-        self.assertIn(
-            "observe_skill_content",
-            source,
-            "RED: owner must compose one bounded content observation",
+        self.assertEqual(
+            1,
+            source.count("observe_skill_content("),
+            "RED: one and only one content observation should own title+SHA",
         )
         self.assertNotIn(
             "title = markdown_title(path)",
@@ -36,6 +36,31 @@ class SkillContentCustodyOwnerBoundaryTest(unittest.TestCase):
             "sha256 = sha256_file(path)",
             source,
             "RED: separate hash Path.open remains in authority flow",
+        )
+
+    def test_owner_reuses_existing_resource_authorities(self):
+        source = inspect.getsource(probe.discover_skills)
+        for token in (
+            "max_bytes=MAX_SKILL_HASH_BYTES",
+            "max_title_scan_bytes=MAX_SKILL_TITLE_SCAN_BYTES",
+            "max_title_line_bytes=MAX_SKILL_TITLE_LINE_BYTES",
+            "max_title_chars=MAX_SKILL_TITLE_CHARS",
+        ):
+            self.assertIn(token, source, f"RED: owner content custody must reuse {token}")
+
+    def test_single_content_observation_does_not_remove_identity_revalidation(self):
+        source = inspect.getsource(probe.discover_skills)
+        content_index = source.index("observe_skill_content(")
+        post_identity_index = source.index("file_after = capture_skill_file_identity(path)")
+        self.assertLess(
+            content_index,
+            post_identity_index,
+            "RED: post-content identity revalidation must remain after custody read",
+        )
+        self.assertIn(
+            "file_verdict = revalidate_skill_file_identity(file_before, file_after)",
+            source,
+            "RED: one content read complements, not replaces, persistent identity revalidation",
         )
 
 
