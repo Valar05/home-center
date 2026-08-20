@@ -1,0 +1,118 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "pulse": "2026-08-20-1500",
+  "pr": 329,
+  "reviewedSourceHead": "ce577f88a1cdf97924ac030b089d09e0187c120a",
+  "startingHead": "a07e185b66343862291fed80e9aa2dacd4a44ba8",
+  "fronts": [
+    {
+      "name": "method-scoped-owner-proof",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Owner probe advanced from file-wide lexical marker evidence to method-scoped lexical evidence; wrong-method counterfeits cannot earn SOURCE_WIRED.",
+      "blob": "d454318f7f5085dda23393e051d52089a7fa7b4a"
+    },
+    {
+      "name": "hostile-owner-regressions",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "changed": "Added owning-method, wrong-method, inert-text, unrelated-legacy, partial-surgery, and mixed Spotify old/new source fixtures.",
+      "blob": "096c25402b8b109dcaf9091c8c0df9589d7acb8c"
+    },
+    {
+      "name": "operator-accessibility-doctrine",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Method scope is now required durable evidence; Java control flow/runtime remain explicitly unproven; current owner wounds remain NO.",
+      "blob": "1f10681a2102a7562c29d3d1bd2a0d542bafb3bb"
+    },
+    {
+      "name": "mutation-lane-capability-drift",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Deployed Home Center registry has no computer_hands surface; Command Center workers.list reports Codex workers/jobs/sessions permanently retired. Doctrine now forbids treating historical worker state as current callability.",
+      "blob": "166aeb3d2e5c9cf6beabefdea0b72048f220daf6"
+    },
+    {
+      "name": "combined-owner-surgery-readiness",
+      "state": "SOURCE_READY_OWNER_UNWIRED",
+      "changed": "Authenticated current OperatorOverlayService blob c266e66a8004623efadab1933de4e429e677c6a5 still matches the declared base blob of the composed accessibility patch. The real owner still contains setMaxLines(5)+END and summary.substring(0,160)."
+    }
+  ],
+  "regnet": {
+    "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_READBACK__REGRESSION_UNEXECUTED__OWNER_UNWIRED",
+    "reason": "The evidence gate is materially stronger and the exact owner/patch base is authenticated, but no authorized runner executed the regression and the native owner repair has not been applied."
+  },
+  "venice": {
+    "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "reason": "This evidence/doctrine slice may yield; native owner repair, tests, runtime TalkBack/UI, deployment, delivery, and acceptance remain open."
+  },
+  "sheRaw": {
+    "state": "FAULT",
+    "boundary": "account connection HTTP 400",
+    "syntheticReplacement": false
+  },
+  "executionTruth": {
+    "automaticRunsOnReviewedSourceHead": {
+      "operatorOverlayAndroid": 32412377769,
+      "homeCenterCI": 32412377766,
+      "buildAndroid": 32412377810
+    },
+    "operatorJob": 96565539359,
+    "operatorStepsExposed": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "lights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation (FAULT)",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "operator-accessibility-owner-boundary",
+      "execution-truth",
+      "home-center-mutation-lane-truth"
+    ],
+    "dark": [
+      "Autocorrect Judgment Jar — no material ambiguity",
+      "Phone Runtime / Phone Hands recovery — firewalled",
+      "strange non-raster art — no new operator-state topology",
+      "warm walls — no topology change",
+      "Christmas-light scene graph — evidence proof earns no motion",
+      "contact preservation — runtime contact semantics unchanged"
+    ]
+  },
+  "crossPollination": "Lexical false-positive hardening exposed wrong-method false positives; method ownership became the stronger source-evidence gate. Exact owner/patch readback then exposed stale mutation-lane doctrine: historical desktop workers are not deployed callability. Execution Truth kept both source improvements behind the TESTED/runtime membrane.",
+  "p0Firewall": {
+    "phoneOrP0Consumption": 0,
+    "phoneOrP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "deepDetailOwnerWired": false,
+    "spotifySpeechOwnerWired": false,
+    "javaControlFlowProven": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
