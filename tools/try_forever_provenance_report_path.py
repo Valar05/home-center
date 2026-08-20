@@ -46,18 +46,20 @@ def _validate_budget(max_chars: int) -> None:
 
 
 def _display_unit(character: str) -> str:
-    """Reveal non-printing semantic path text without rewriting source identity.
+    """Reveal layout-breaking semantic path text without rewriting source identity.
 
-    Repository paths may legally contain controls or Unicode format characters on
-    some filesystems. Durable operator/TalkBack evidence must not emit those
-    characters raw. Backslash is escaped first so a literal source spelling such
-    as ``\\u{202E}`` cannot collide with the projection of an actual U+202E.
+    Repository paths may legally contain controls, Unicode format characters, or
+    Unicode line/paragraph separators on some filesystems. Durable operator/TalkBack
+    evidence must not emit those characters raw: U+2028/U+2029 are not ISO controls,
+    but they can still create an invisible line/paragraph boundary in a decoded report.
+    Backslash is escaped first so a literal source spelling such as ``\\u{2028}``
+    cannot collide with the projection of an actual separator.
     """
 
     if character == "\\":
         return "\\\\"
     category = unicodedata.category(character)
-    if category in {"Cc", "Cf", "Cs"}:
+    if category in {"Cc", "Cf", "Cs", "Zl", "Zp"}:
         return f"\\u{{{ord(character):04X}}}"
     return character
 
@@ -124,11 +126,11 @@ def project_report_path(
     """Project one path without leaking host-local absolute topology.
 
     Repository-local paths become bounded POSIX paths relative to the repository
-    root. Control/format/surrogate characters are made explicit in the display
-    projection while the caller retains the exact Path for I/O and authority.
-    The repository root itself becomes ``.``. External paths become the constant
-    marker ``<external-path>``: durable reports do not preserve a hash oracle over
-    usernames, home directories, drive roots, mount points, or temp layouts.
+    root. Control/format/surrogate/line-separator characters are made explicit in
+    the display projection while the caller retains the exact Path for I/O and
+    authority. The repository root itself becomes ``.``. External paths become the
+    constant marker ``<external-path>``: durable reports do not preserve a hash oracle
+    over usernames, home directories, drive roots, mount points, or temp layouts.
 
     This is display projection only. It never changes the exact Path retained by
     the caller for I/O or provenance checks.
