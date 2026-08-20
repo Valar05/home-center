@@ -62,6 +62,6 @@ public class HeartbeatEvidenceLayoutSeparatorProjectionTest {
         String projected = HeartbeatInvisibleSemanticControlPolicy.boundedEvidenceProjection(exact, 16);
 
         assertTrue(projected.codePointCount(0, projected.length()) <= 16);
-        assertFalse(projected.matches(".*\\\\u\\{[0-9A-F]*(?:\\s[A-Z]*)?$"));
+        assertEquals("A… (truncated)", projected);
     }
 }
