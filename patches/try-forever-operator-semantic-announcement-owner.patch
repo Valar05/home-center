@@ -1,0 +1,124 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: PROPOSED_NOT_APPLIED
+# Scope: existing OperatorOverlayService only; no second accessibility controller; no phone/P0 action.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private Button muteButton;
+     private Button controlButton;
+     private EditText adamInput;
++    private TextView adamStatus;
+     private String adamMode = "terminal";
+@@
+-        if (spotifyStatus != null) spotifyStatus.setText(summary);
+-        if (requestId > 0L && spotifyStatus != null) {
+-            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
+-            spotifyStatus.announceForAccessibility(announcement);
++        if (spotifyStatus != null) {
++            spotifyStatus.setAccessibilityLiveRegion(
++                    AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                            AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
++                            requestId > 0L,
++                            false,
++                            OperatorState.muted(this)));
++            spotifyStatus.setText(summary);
+         }
+@@
+         // TextView text is the focused semantic value; do not override it with a stale
+-        // generic description. Explicit command receipts still use bounded announcements.
++        // generic description. Explicit command receipts temporarily enable the
++        // consequence-specific polite live-region gate before changing this value.
+         spotifyStatus.setContentDescription(null);
++        spotifyStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         spotifyStatus.setSingleLine(true);
+@@
+         heartbeatSummary = textView(12f, true);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+@@
+         heartbeatDetail.setFocusable(HeartbeatDetailSurfacePolicy.KEYBOARD_FOCUSABLE);
+         heartbeatDetail.setClickable(HeartbeatDetailSurfacePolicy.CLICKABLE);
+         heartbeatDetail.setLongClickable(HeartbeatDetailSurfacePolicy.LONG_CLICKABLE);
++        heartbeatDetail.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatDetail.setContentDescription(
+                 "Touch a heartbeat light for why, consequence, evidence, and source detail.");
+@@
+         Button adamSendButton = button("Send");
+         adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
+         adamSendButton.setOnClickListener(v -> submitAdamRequest());
+         adamInputRow.addView(adamSendButton);
++
++        adamStatus = textView(11f, false);
++        adamStatus.setText("Adam • ready");
++        adamStatus.setTextColor(Color.rgb(190, 198, 212));
++        adamStatus.setPadding(dp(8), dp(2), dp(8), dp(2));
++        adamStatus.setContentDescription(null);
++        adamStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+@@
+         details.addView(latest);
+         details.addView(adamModeRow);
+         details.addView(adamInputRow);
++        details.addView(adamStatus);
+         details.addView(actionRow);
+@@
+         String spotifySummary = OperatorState.spotifySummary(this);
+         if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
++            spotifyStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+             spotifyStatus.setText(spotifySummary);
+         }
+@@
+         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                 heartbeatAnnouncementIdentity,
+                 next,
+                 muted,
+                 overlayVisible,
+                 heartbeatSurfaceVisible);
++        heartbeatSummary.setAccessibilityLiveRegion(
++                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                        AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
++                        false,
++                        announce,
++                        muted));
+@@
+-        if (announce) {
+-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
+-        }
+-
+         heartbeatStructureIdentity = next.structureIdentity;
+@@
+         int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
+         HeartbeatDetailSurfacePolicy.Presentation presentation =
+                 HeartbeatDetailSurfacePolicy.fromDetail(detail);
++        heartbeatDetail.setAccessibilityLiveRegion(
++                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                        AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION,
++                        explicitSelection,
++                        false,
++                        OperatorState.muted(this)));
+         heartbeatDetail.setText(presentation.text);
+@@
+-        if (explicitSelection && !OperatorState.muted(this)) {
+-            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
+-        }
+     }
+@@
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+         adamInput.setHint("Adam — " + adamMode + " • sent");
+-        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
++        if (adamStatus != null) {
++            adamStatus.setAccessibilityLiveRegion(
++                    AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                            AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION,
++                            true,
++                            false,
++                            OperatorState.muted(this)));
++            adamStatus.setText("Adam • " + adamMode + " • sent");
++        }
+     }
