@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-venice-plan.v1",
+  "timestamp": "2026-08-21T16:03:09-05:00",
+  "campaign": "TRY FOREVER",
+  "gate": "PLAN_ALLOWED",
+  "mission": "Advance independent non-P0 accessibility source fronts without consuming phone/P0 or creating duplicate owners.",
+  "fronts": [
+    {
+      "id": "collapsed-owner-operational-truth",
+      "owner": "HeartbeatCollapsedOwnerAccessibility",
+      "wound": "Collapsed dragHandle contentDescription can mask the visible HC operational state because it currently composes heartbeat truth but not the changing compact Home Center state.",
+      "authorized": "supporting source + regression source + doctrine/art; existing OperatorOverlayService owner remains unwired unless a separately safe full-owner mutation is available"
+    },
+    {
+      "id": "adam-send-availability",
+      "owner": "AdamSendActionAccessibilityPolicy",
+      "wound": "Adam Send remains actionable when trimmed input is empty, producing a silent no-op. Prefer native enabled/disabled semantics over inventing a repeatable announcement receipt.",
+      "authorized": "supporting source + regression source + doctrine/art; preserve legacy Adam send receipt and existing transport"
+    }
+  ],
+  "constraints": [
+    "P0 Fortress and primary-phone surfaces are read-only/untouched",
+    "no neighboring overlay/accessibility controller",
+    "no source artifact may be reported as TESTED, runtime, deployed, callable, delivered, or accepted",
+    "Autocorrect stays dark unless a real ambiguity appears",
+    "no decorative motion unless a material state consequence warrants it"
+  ]
+}
