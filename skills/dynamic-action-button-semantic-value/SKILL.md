@@ -13,23 +13,28 @@ Use this skill when a Button's visible label changes at runtime but source also 
 3. A compact visual Button may keep terse text such as `STOP`, `ENABLE`, or `CONFIRM`, but its accessibility description must carry the exact full current action.
 4. Safety confirmation is a distinct state. `Confirm disable` must not collapse into a generic `Disable or enable` description.
 5. Source evidence must include the direct owner refresh/update path where the action label changes, not just initialization.
-6. Reuse the existing Java lexical/direct-owner evidence helpers for source-boundary regressions. Comments, literals, wrong methods, and neighboring owners are not wiring proof.
-7. Do not create a neighboring accessibility controller. Compose the existing `OperatorOverlayService` owner.
-8. When multiple source-ready accessibility repairs target the same owner/base blob, converge them into one base-locked surgery before owner mutation. Independent patch application creates stale-base/partial-state risk.
-9. Source regression, owner source wiring, regression execution, Android runtime UI, TalkBack behavior, deployment, phone delivery, and acceptance are separate capability states.
-10. Phone/P0 firewall is binding. This skill does not authorize Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
+6. For the current `OperatorOverlayService` contract, the semantic writes are direct `refreshUi()` statements after action labels are computed. Regression evidence must not accept equivalent marker text buried in nested/unreachable branches as proof of that direct refresh contract.
+7. Reuse the existing Java lexical/direct-owner evidence helpers. Comments, literals, wrong methods, neighboring owners, and nested counterfeit branches are not wiring proof.
+8. Source structure is not Java execution proof. Even a direct-method green fixture remains `REGRESSION_SOURCE`; it does not prove Android execution, runtime TalkBack behavior, deployment, or phone delivery.
+9. Do not create a neighboring accessibility controller. Compose the existing `OperatorOverlayService` owner.
+10. Source regression, owner source wiring, regression execution, Android runtime UI, TalkBack behavior, deployment, phone delivery, and acceptance are separate capability states.
+11. Phone/P0 firewall is binding. This skill does not authorize Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
 
-## Current PR #329 source truth
+## Current PR #329 source truth — authenticated 2026-08-21
 
-- Authenticated owner surgery commit: `a87d21b48eba28433688b40860f9befeb6347278`.
-- Current source-wired owner blob from that surgery: `d8cad8c2931c688d0c6fad6f67626fae75e044d1`.
-- `muteButton`: `refreshUi()` now synchronizes its `contentDescription` to the exact current `Mute speech` / `Unmute speech` action. **OWNER_WIRED YES / SOURCE**.
-- `controlButton`: `refreshUi()` now synchronizes its semantic description to `fullControlLabel`, preserving distinct `Enable control`, `Disable control`, and `Confirm disable`. **OWNER_WIRED YES / SOURCE**.
-- `compactControlButton`: visual text remains terse `ENABLE` / `STOP` / `CONFIRM`, while its semantic description now uses the exact full current action via `fullControlLabel`. **OWNER_WIRED YES / SOURCE**.
-- Direct owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_dynamic_action_button_accessibility_owner_boundary.py`.
-- Canonical combined owner surgery provenance: **APPLIED_SOURCE** at `patches/try-forever-operator-interaction-accessibility-owner-combined.patch`.
-- Historical standalone dynamic-action patch remains **SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY**.
-- TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
+Authenticated owner blob on current PR head at review time: `c5de1411a6b68087ae17aff83c032af754587150`.
+
+The owner source already contains the three exact dynamic-action semantic writes in direct `refreshUi()` statements:
+
+- `muteButton`: visible and semantic action both track `Mute speech` / `Unmute speech`.
+- `controlButton`: semantic action tracks `fullControlLabel`, preserving `Enable control`, `Disable control`, and the separate safety state `Confirm disable`.
+- `compactControlButton`: visual text remains terse `ENABLE` / `STOP` / `CONFIRM`, while semantic description uses the exact full `fullControlLabel` action.
+
+`createOverlay()` ends by calling `refreshUi()` synchronously, so the generic construction-time descriptions are not a separately established first-frame accessibility defect. Do not manufacture that wound merely because the initialization strings are generic.
+
+Historical commit/blob identifiers from other source slices are provenance, not current-owner authority. Current capability is derived from authenticated current-head owner readback plus the bounded regression source.
+
+Direct owner-boundary regression: `tools/test_try_forever_dynamic_action_button_accessibility_owner_boundary.py` is **REGRESSION_SOURCE / UNEXECUTED**. It now checks the direct method-body surface and includes a nested impossible-branch counterfeit so marker presence alone cannot satisfy the current direct-refresh contract.
 
 ## Regression doctrine
 
@@ -39,12 +44,12 @@ At minimum prove:
 - `muteButton` semantic description equals its exact current Mute/Unmute action;
 - `controlButton` semantic description equals `fullControlLabel` every refresh;
 - compact control semantics equal the exact `fullControlLabel` every refresh even while visual text stays `STOP` / `ENABLE` / `CONFIRM`;
-- `Confirm disable` remains distinct from ordinary disable;
-- comments/literals/wrong-method counterfeits cannot earn source authority;
-- source proof does not claim runtime TalkBack behavior.
+- the owner still has a distinct `Confirm disable` branch;
+- comments/literals/wrong-method/nested counterfeit writes cannot earn source authority;
+- source proof does not claim Android control flow, runtime TalkBack behavior, or deployment.
 
 ## Evidence membrane
 
-`requested → doctrine → owner regression source → combined exact owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
+`requested → doctrine → owner regression source → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
 
-Current state: `requested YES → doctrine/regression/combined-owner-source YES → owner wiring YES/SOURCE → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
+Current state: `requested YES → doctrine/regression YES → owner wiring YES/SOURCE → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
