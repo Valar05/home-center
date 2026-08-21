@@ -2,12 +2,13 @@
 """Source-only inventory guard for TRY FOREVER accessibility announcement migration.
 
 This regression deliberately does not execute Android or TalkBack. It guards the current
-existing-owner surface against three failures:
+existing-owner surface against four failures:
 
 * a fifth legacy announceForAccessibility consequence appearing unnoticed;
 * an over-broad migration patch removing explicit-event receipts whose replacement contract is
-  still blocked; and
-* a supposedly review-ready owner patch silently drifting off the exact owner blob it names.
+  still blocked;
+* the review-ready narrow patch silently drifting off the exact current owner blob it names; and
+* rejected historical surgery being continuously re-based and made deceptively apply-shaped.
 
 The lexical Java helper is the existing source-evidence organ. No second Java parser is created.
 """
@@ -60,9 +61,10 @@ class SemanticAnnouncementInventoryTest(unittest.TestCase):
             self.assertIn(marker, method)
             self.assertEqual(1, method.count(".announceForAccessibility("))
 
-    def test_narrow_patch_is_blob_locked_to_current_owner_and_removes_only_heartbeat(self) -> None:
+    def test_narrow_patch_is_current_blob_locked_and_removes_only_heartbeat(self) -> None:
         patch = NARROW_PATCH.read_text(encoding="utf-8")
         self.assertIn(f"# Base blob: {self.owner_blob}", patch)
+        self.assertIn("# State: CORRECTED_PROPOSED_NOT_APPLIED", patch)
         removed_lines = [
             line for line in patch.splitlines()
             if line.startswith("-") and "announceForAccessibility(" in line
@@ -73,11 +75,13 @@ class SemanticAnnouncementInventoryTest(unittest.TestCase):
         self.assertNotIn("heartbeatDetail.announceForAccessibility(", removed_lines[0])
         self.assertNotIn("adamInput.announceForAccessibility(", removed_lines[0])
 
-    def test_broad_patch_is_rejected_archaeology_even_when_it_names_current_owner(self) -> None:
+    def test_rejected_broad_patch_stays_historical_not_current_owner_provenance(self) -> None:
         patch = BROAD_PATCH.read_text(encoding="utf-8")
-        self.assertIn(f"# Base blob: {self.owner_blob}", patch)
         self.assertIn("# State: REJECTED_SUPERSEDED__DO_NOT_APPLY", patch)
         self.assertIn("historical source provenance only", patch)
+        self.assertIn("DO NOT APPLY this artifact as owner surgery", patch)
+        # Rejected archaeology is not required to chase each later owner blob. The narrow,
+        # review-ready surgery above is the only artifact whose current-owner lock matters.
 
     def test_every_migration_unready_consequence_has_a_named_source_blocker(self) -> None:
         policy = POLICY.read_text(encoding="utf-8")
