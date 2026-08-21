@@ -23,8 +23,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
     public enum SemanticChannel {
         /** A changing TextView remains the semantic value; a polite live region may surface it. */
         POLITE_LIVE_REGION_VALUE,
-        /** User-selected detail should be exposed through the selected/focused detail value itself. */
-        FOCUSED_DETAIL_VALUE,
+        /** User-selected detail is exposed through the selected detail semantic value. */
+        SELECTED_DETAIL_VALUE,
         /** A completed edit/action should use semantic state or a dedicated status value. */
         STATUS_OR_STATE_DESCRIPTION
     }
@@ -76,7 +76,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true);
             case HEARTBEAT_EXPLICIT_DETAIL_SELECTION:
                 return new Decision(
-                        SemanticChannel.FOCUSED_DETAIL_VALUE,
+                        SemanticChannel.SELECTED_DETAIL_VALUE,
                         false,
                         true,
                         true,
