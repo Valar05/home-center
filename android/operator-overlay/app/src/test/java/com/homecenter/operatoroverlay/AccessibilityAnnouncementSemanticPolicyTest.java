@@ -27,6 +27,9 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertFalse(decision.syntheticRepeatReceiptRequired);
         assertTrue(decision.ownerMigrationReady);
         assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.NONE,
+                decision.migrationBlocker);
+        assertEquals(
                 View.ACCESSIBILITY_LIVE_REGION_POLITE,
                 AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
@@ -68,6 +71,9 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertFalse(decision.syntheticRepeatReceiptRequired);
         assertFalse(decision.ownerMigrationReady);
         assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED,
+                decision.migrationBlocker);
+        assertEquals(
                 View.ACCESSIBILITY_LIVE_REGION_NONE,
                 AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
@@ -92,6 +98,9 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.repeatableIdenticalValuePossible);
         assertFalse(decision.syntheticRepeatReceiptRequired);
         assertFalse(decision.ownerMigrationReady);
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED,
+                decision.migrationBlocker);
         assertEquals(
                 View.ACCESSIBILITY_LIVE_REGION_NONE,
                 AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
@@ -118,12 +127,27 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertFalse(decision.syntheticRepeatReceiptRequired);
         assertFalse(decision.ownerMigrationReady);
         assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.ADAM_REPEAT_SEND_RESULT_UNRESOLVED,
+                decision.migrationBlocker);
+        assertEquals(
                 View.ACCESSIBILITY_LIVE_REGION_NONE,
                 AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION,
                         true,
                         true,
                         false));
+    }
+
+    @Test
+    public void migrationReadinessAlwaysHasAnExplicitBlockerState() {
+        for (AccessibilityAnnouncementSemanticPolicy.Consequence consequence
+                : AccessibilityAnnouncementSemanticPolicy.Consequence.values()) {
+            AccessibilityAnnouncementSemanticPolicy.Decision decision =
+                    AccessibilityAnnouncementSemanticPolicy.decisionFor(consequence);
+            assertEquals(
+                    decision.ownerMigrationReady,
+                    decision.migrationBlocker == AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.NONE);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
