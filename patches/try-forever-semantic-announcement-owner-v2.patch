@@ -1,0 +1,143 @@
+# TRY FOREVER semantic announcement owner surgery v2
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: PROPOSED_NOT_APPLIED
+# Owner: existing OperatorOverlayService only.
+# Goal: retire all four deprecated announceForAccessibility call sites without creating
+# a global announcement cannon, fake freshness, focus theft, or a neighboring controller.
+# Phone/P0: untouched.
+#
+# Consequence mapping:
+# - heartbeat automatic material transition -> one-shot POLITE summary value under existing gate;
+# - Spotify explicit receipt -> one-shot POLITE only when explicit command changes status value;
+# - heartbeat explicit detail -> native selected Button state + persistent full detail; no announcement;
+# - Adam send -> mode-specific Send action + persistent input hint + selected-button state; no announcement.
+#
+# This artifact is source provenance only. It is not owner wiring, test evidence, runtime TalkBack,
+# deployment, delivery, or acceptance.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private Button muteButton;
+     private Button controlButton;
++    private Button adamSendButton;
+     private EditText adamInput;
+@@
+-        if (spotifyStatus != null) spotifyStatus.setText(summary);
+-        if (requestId > 0L && spotifyStatus != null) {
+-            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
+-            spotifyStatus.announceForAccessibility(announcement);
++        if (spotifyStatus != null) {
++            boolean statusChanged = !TextUtils.equals(spotifyStatus.getText(), summary);
++            int liveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                    AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
++                    requestId > 0L,
++                    statusChanged,
++                    false);
++            spotifyStatus.setAccessibilityLiveRegion(liveRegionMode);
++            if (statusChanged) spotifyStatus.setText(summary);
++            if (liveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
++                spotifyStatus.post(() -> spotifyStatus.setAccessibilityLiveRegion(
++                        View.ACCESSIBILITY_LIVE_REGION_NONE));
++            }
+         }
+@@
+         spotifyStatus.setContentDescription(null);
++        spotifyStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+@@
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+@@
+-        Button adamSendButton = button("Send");
+-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
++        adamSendButton = button("Send");
++        refreshAdamSendButtonAccessibility(false);
+         adamSendButton.setOnClickListener(v -> submitAdamRequest());
+@@
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+@@
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+@@
+         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                 heartbeatAnnouncementIdentity,
+                 next,
+                 muted,
+                 overlayVisible,
+                 heartbeatSurfaceVisible);
++        int heartbeatLiveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
++                false,
++                announce,
++                muted);
++        heartbeatSummary.setAccessibilityLiveRegion(heartbeatLiveRegionMode);
+@@
+-        if (announce) {
+-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
++        if (heartbeatLiveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
++            heartbeatSummary.post(() -> heartbeatSummary.setAccessibilityLiveRegion(
++                    View.ACCESSIBILITY_LIVE_REGION_NONE));
+         }
+@@
+-        light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
++        applyHeartbeatSelectionState(
++                light,
++                control.id.equalsIgnoreCase(heartbeatSelectedId));
+@@
+     private void refreshHeartbeatSelection() {
+         if (heartbeatLights == null) return;
+         for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+             View child = heartbeatLights.getChildAt(index);
+             Object tag = child.getTag();
+-            child.setSelected(tag != null
+-                    && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
++            applyHeartbeatSelectionState(
++                    child,
++                    tag != null && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+         }
+     }
++
++    private void applyHeartbeatSelectionState(View child, boolean selected) {
++        if (child == null) return;
++        child.setSelected(selected);
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
++            child.setStateDescription(selected ? "Selected" : null);
++        }
++    }
+@@
+-        if (explicitSelection && !OperatorState.muted(this)) {
+-            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
+-        }
+     }
+@@
+         value.setOnClickListener(v -> {
+             adamMode = mode;
++            refreshAdamSendButtonAccessibility(false);
+             if (adamInput != null) {
+@@
+         return value;
+     }
++
++    private void refreshAdamSendButtonAccessibility(boolean sent) {
++        if (adamSendButton == null) return;
++        adamSendButton.setContentDescription(
++                "Send request to Adam in " + adamMode + " mode");
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
++            adamSendButton.setStateDescription(sent ? "Sent" : null);
++        }
++    }
+@@
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+         adamInput.setHint("Adam — " + adamMode + " • sent");
+-        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
++        refreshAdamSendButtonAccessibility(true);
+@@
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
