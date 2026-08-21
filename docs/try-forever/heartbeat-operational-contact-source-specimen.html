@@ -26,7 +26,7 @@
     <p class="scar">SOURCE ONLY · OWNER WIRING PARTIAL/NO · TESTED NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
     <svg viewBox="0 0 720 100" role="img" aria-labelledby="wall-title wall-desc">
       <title id="wall-title">Two independent accessibility throats</title>
-      <desc id="wall-desc">Collapsed Home Center operational truth flows into heartbeat contact speech; Adam editable request truth flows into native Send availability.</desc>
+      <desc id="wall-desc">Collapsed Home Center operational truth flows independently of heartbeat dedupe; Adam editable request truth flows into native Send availability.</desc>
       <path d="M30 50 H300 M420 50 H690" fill="none" stroke="currentColor" stroke-width="4"/>
       <circle cx="300" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
       <circle cx="420" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -36,14 +36,15 @@
   </header>
 
   <section>
-    <h2>Collapsed owner: visible state must survive custom speech</h2>
+    <h2>Collapsed owner: HC state has its own clock</h2>
     <fieldset aria-describedby="collapsed-detail">
       <legend>Choose a source state</legend>
-      <label><input type="radio" name="hc" checked onclick="document.getElementById('collapsed-detail').value='Drag Home Center overlay. Tap to expand for heartbeat details. Home Center active. Remote input is reserved. HEARTBEAT • 3 LIGHTS.'">HC active</label>
-      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='Drag Home Center overlay. Tap to expand for heartbeat details. Home Center offline. HEARTBEAT • CONTACT HELD.'">HC offline + contact held</label>
-      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='Owner source gap: OperatorOverlayService still calls the heartbeat-only overload, so runtime collapsed operational truth is not yet proven.'">Owner gap</label>
+      <label><input type="radio" name="hc" checked onclick="document.getElementById('collapsed-detail').value='HEARTBEAT UNCHANGED + HC ACTIVE: custom collapsed semantics must still refresh from the owner status. Heartbeat dedupe may skip heartbeat work; it may not freeze operational truth.'">Heartbeat quiet / HC active</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='HEARTBEAT UNCHANGED + HC OFFLINE: the same accepted heartbeat model remains, but the surviving semantic owner must change to Home Center offline.'">Heartbeat quiet / HC offline</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='CONTACT HELD: preserved heartbeat truth and current Home Center operational truth coexist on the same collapsed owner.'">HC state + contact held</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='OWNER GAP: current OperatorOverlayService only refreshes collapsed semantics from heartbeat-owned call sites. SKIP_UNCHANGED can leave HC semantics stale. Combined owner surgery is prepared, not applied.'">Owner cadence gap</label>
     </fieldset>
-    <output id="collapsed-detail" aria-live="polite">Drag Home Center overlay. Tap to expand for heartbeat details. Home Center active. Remote input is reserved. HEARTBEAT • 3 LIGHTS.</output>
+    <output id="collapsed-detail" aria-live="polite">HEARTBEAT UNCHANGED + HC ACTIVE: custom collapsed semantics must still refresh from the owner status. Heartbeat dedupe may skip heartbeat work; it may not freeze operational truth.</output>
   </section>
 
   <section>
@@ -52,7 +53,8 @@
       <legend>Choose an editable request state</legend>
       <label><input type="radio" name="send" checked onclick="document.getElementById('send-detail').value='EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.'">Empty / whitespace</label>
       <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='MATERIAL: native Send may be enabled. Its action description still names the exact selected Adam mode.'">Material request</label>
-      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='Owner gap: current OperatorOverlayService still leaves Send enabled when trim() would reject the request.'">Owner gap</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='EDIT OR MODE CHANGE: availability/action semantics must refresh through the existing owner rather than a second controller.'">Edit / mode refresh</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='OWNER GAP: current OperatorOverlayService still leaves Send enabled when trim() would reject the request. Combined owner surgery is prepared, not applied.'">Owner gap</label>
     </fieldset>
     <output id="send-detail" aria-live="polite">EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.</output>
   </section>
