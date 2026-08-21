@@ -27,18 +27,18 @@
 <body>
 <main>
   <h1>WARM WALL / LATEST MESSAGE</h1>
-  <p>The changing message stays the semantic value. Expansion is a separate interaction state. The wall uses labeled action + semantic state, not a forced announcement that tells a screen reader what to say.</p>
+  <p>The changing message stays the semantic value. Expansion is a separate interaction state. The source owner now carries the labeled action and semantic state without replacing the message value or forcing a confirmation announcement.</p>
 
   <svg class="wall" viewBox="0 0 720 150" role="img" aria-labelledby="wallTitle wallDesc">
     <title id="wallTitle">Latest-message accessibility wall</title>
-    <desc id="wallDesc">A changing text value passes through a separate labeled click action and semantic state gate. The owner surgery is combined with dynamic action-button semantics but remains unapplied.</desc>
+    <desc id="wallDesc">A changing text value passes through a separate labeled click action and semantic state gate. The existing Android owner is source-wired; regression execution and runtime TalkBack remain unproven.</desc>
     <rect x="8" y="8" width="704" height="134" rx="24" fill="none" stroke="currentColor" stroke-width="3"/>
     <text x="34" y="48" fill="currentColor" font-size="18">MESSAGE TEXT</text>
     <path d="M190 42 H318" stroke="currentColor" stroke-width="3"/>
     <text x="330" y="48" fill="currentColor" font-size="18">ACTION / STATE</text>
     <path d="M516 42 H650" stroke="currentColor" stroke-width="3"/>
     <text x="34" y="102" fill="currentColor" font-size="15">VALUE ≠ CONTENTDESCRIPTION</text>
-    <text x="370" y="102" fill="currentColor" font-size="15">STATE ≠ ANNOUNCEMENT</text>
+    <text x="370" y="102" fill="currentColor" font-size="15">SOURCE ≠ RUNTIME</text>
   </svg>
 
   <fieldset>
@@ -50,22 +50,22 @@
 
     <input id="expanded" type="radio" name="state">
     <label for="expanded">Expanded · action: Collapse latest message</label>
-    <div class="detail">Current state: Expanded. On API 30+ the view uses stateDescription=Expanded. On older supported Android versions the labeled standard click action still carries the consequence.</div>
+    <div class="detail">Current state: Expanded. On API 30+ the source owner uses stateDescription=Expanded. The shared applyExpandedTextState path also owns programmatic reset.</div>
 
-    <input id="semantic" type="radio" name="state">
-    <label for="semantic">Semantic state · no explicit confirmation announcement</label>
-    <div class="detail">Android 16 / API 36 deprecates announceForAccessibility for this kind of simple confirmation. The source contract uses semantic UI state instead; it does not bypass mute by inventing a second speech channel.</div>
+    <input id="programmatic" type="radio" name="state">
+    <label for="programmatic">Panel collapse · semantic state resets through the same owner</label>
+    <div class="detail">setCollapsed forces expandedText=false and calls applyExpandedTextState, so a programmatic overlay collapse cannot leave a stale Expanded semantic state behind.</div>
 
-    <input id="combined" type="radio" name="state">
-    <label for="combined">One owner surgery · two accessibility seams</label>
-    <div class="detail">Latest-message interaction and dynamic action-button semantics share the same OperatorOverlayService base blob. Their standalone patches are superseded for independent application; one combined base-locked surgery prevents partial owner state.</div>
+    <input id="actions" type="radio" name="state">
+    <label for="actions">Dynamic buttons · exact action semantics source-wired</label>
+    <div class="detail">Mute/Unmute and Enable/Disable/Confirm descriptions now follow the exact action that will happen now. Compact STOP/ENABLE/CONFIRM keeps terse visual text while exposing the full action semantically.</div>
 
-    <input id="wound" type="radio" name="state">
-    <label for="wound">Owner wound · interaction semantics still unwired</label>
-    <div class="detail">Policy, RED owner regressions, and the combined exact patch source exist. The authenticated owner remains unchanged. Runtime TalkBack and phone delivery are unproven.</div>
+    <input id="owner" type="radio" name="state">
+    <label for="owner">Existing owner · source wired</label>
+    <div class="detail">Authenticated owner commit a87d21b48eba28433688b40860f9befeb6347278 applied the combined surgery to OperatorOverlayService. Regression execution, Android runtime, TalkBack runtime, deployment, and phone delivery remain separate and unproven.</div>
   </fieldset>
 
-  <p class="scar">SOURCE ONLY · COMBINED OWNER PATCH PROPOSED/NOT APPLIED · OWNER INTERACTION WIRING NO · REGRESSIONS UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">SOURCE OWNER WIRED · AUTHENTICATED READBACK YES · REGRESSIONS UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · DEPLOYED NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 </main>
 </body>
 </html>
