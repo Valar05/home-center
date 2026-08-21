@@ -31,10 +31,9 @@ Use this skill when a native Android `TextView` changes over time and source als
 - Latest-message interaction policy: **YES / SUPPORTING_SOURCE** at `LatestMessageAccessibilityPolicy`.
 - Latest-message ACTION_CLICK label: **YES / SOURCE_WIRED** through the existing `OperatorOverlayService` accessibility delegate.
 - Latest-message expanded/collapsed state: **YES / SOURCE_WIRED**. API 30+ `stateDescription` is synchronized in `applyExpandedTextState()`.
-- Latest-message expanded full-layout policy: **YES / SUPPORTING_SOURCE** — `LatestMessageAccessibilityPolicy.maxLines(true)` is unbounded and keeps the existing 520dp scroll viewport as the spatial limit.
+- Latest-message expanded full-layout policy: **YES / SOURCE_WIRED** — `OperatorOverlayService.applyExpandedTextState()` now consumes `LatestMessageAccessibilityPolicy.maxLines(...)` and the existing 520dp height throat. Owner commit `5ad44ee456a8b1666b740ae7f44e019e3ef43142`, owner blob `c5de1411a6b68087ae17aff83c032af754587150`.
 - Latest-message expanded full-layout owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_latest_message_surface_owner_boundary.py`.
-- Latest-message full-layout owner patch: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-latest-message-full-layout-owner.patch`, blob-locked to the current owner source used by this slice.
-- Existing owner still uses `setMaxLines(30)` in expanded mode: **YES / LEGACY OWNER**. Therefore expanded full-layout owner wiring is **NO**.
+- Latest-message full-layout owner patch provenance: **YES / APPLIED_SOURCE** at `patches/try-forever-latest-message-full-layout-owner.patch`.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Regression doctrine
@@ -55,6 +54,6 @@ At minimum prove:
 
 `requested → semantic policy source → deterministic source regression → existing-owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
 
-Current new-slice state: `requested YES → expanded full-layout policy/regression/patch YES → owner wiring NO → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
+Current new-slice state: `requested YES → expanded full-layout policy/regression YES → owner wiring YES / SOURCE_WIRED → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
 
 Never promote a state because a patch or helper exists. Owner source wiring requires authenticated owner readback; runtime/TalkBack/phone acceptance requires its own evidence lane.
