@@ -14,6 +14,7 @@ public class AdamInputResultAccessibilityPolicyTest {
                         "continue",
                         AdamInputResultAccessibilityPolicy.ResultState.READY);
         assertTrue(decision.preserveEditableTextValue);
+        assertFalse(decision.useContentDescriptionForEditableValue);
         assertTrue(decision.useStateDescription);
         assertFalse(decision.ownerAnnouncementMigrationReady);
         assertEquals("Continue mode. Ready to send.", decision.stateDescription);
@@ -25,6 +26,8 @@ public class AdamInputResultAccessibilityPolicyTest {
                 AdamInputResultAccessibilityPolicy.decisionFor(
                         "radio",
                         AdamInputResultAccessibilityPolicy.ResultState.SENT);
+        assertTrue(decision.preserveEditableTextValue);
+        assertFalse(decision.useContentDescriptionForEditableValue);
         assertEquals("Radio mode. Sent.", decision.stateDescription);
         assertFalse(decision.ownerAnnouncementMigrationReady);
     }
