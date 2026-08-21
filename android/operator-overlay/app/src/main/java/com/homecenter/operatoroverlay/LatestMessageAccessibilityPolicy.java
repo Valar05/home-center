@@ -1,7 +1,5 @@
 package com.homecenter.operatoroverlay;
 
-import android.view.accessibility.AccessibilityNodeInfo;
-
 /**
  * Pure source policy for the existing latest-message TextView interaction.
  *
@@ -12,13 +10,19 @@ import android.view.accessibility.AccessibilityNodeInfo;
  *
  * Do not add a separate confirmation announcement for this simple action. Android 16
  * (API 36) deprecates announceForAccessibility/TYPE_ANNOUNCEMENT in favor of semantic
- * UI state. API 30+ stateDescription remains the compatibility semantic state; API 36+
- * additionally has AccessibilityNodeInfo expanded-state semantics for expandable
- * elements. The native owner must apply the API-36 value only under its platform gate.
+ * UI state. API 30+ stateDescription remains the compatibility semantic state. API 36
+ * additionally defines AccessibilityNodeInfo expanded-state semantics, but this module
+ * currently compiles against SDK 35, so supporting policy must not directly reference
+ * API-36-only symbols until the existing Android build contract is deliberately raised.
  */
 final class LatestMessageAccessibilityPolicy {
     private static final int COLLAPSED_MAX_LINES = 2;
     private static final int EXPANDED_MAX_HEIGHT_DP = 520;
+
+    // Android 16 AccessibilityNodeInfo contract values, kept platform-neutral while
+    // compileSdk remains 35. These are evidence/policy values, not owner API wiring.
+    static final int API36_EXPANDED_STATE_COLLAPSED = 1;
+    static final int API36_EXPANDED_STATE_FULL = 3;
 
     private LatestMessageAccessibilityPolicy() {}
 
@@ -31,13 +35,14 @@ final class LatestMessageAccessibilityPolicy {
     }
 
     /**
-     * API-36 semantic expansion state. This is supporting source only until the existing
-     * OperatorOverlayService accessibility delegate consumes it behind an API-36 gate.
+     * API-36 semantic expansion state value. This remains supporting source only while
+     * compileSdk is 35; owner use of AccessibilityNodeInfo.setExpandedState requires a
+     * separately reviewed compileSdk >= 36 build-contract change plus owner wiring.
      */
     static int expandedStateApi36(boolean expanded) {
         return expanded
-                ? AccessibilityNodeInfo.EXPANDED_STATE_FULL
-                : AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED;
+                ? API36_EXPANDED_STATE_FULL
+                : API36_EXPANDED_STATE_COLLAPSED;
     }
 
     /**
