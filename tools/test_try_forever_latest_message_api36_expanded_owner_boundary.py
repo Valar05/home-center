@@ -3,11 +3,13 @@
 
 This source fixture does not execute Android or TalkBack. It prevents policy existence,
 stateDescription fallback, comments, literals, or wrong-owner code from being reported as
-API-36 owner wiring.
+API-36 owner wiring. The module currently compiles against SDK 35, so real owner wiring is
+also blocked until the Android build contract deliberately advances to compileSdk >= 36.
 """
 
 from __future__ import annotations
 
+import re
 import unittest
 from pathlib import Path
 
@@ -20,6 +22,15 @@ from try_forever_operator_accessibility_owner_probe import (
 ROOT = Path(__file__).resolve().parents[1]
 OWNER = ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 POLICY = ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/LatestMessageAccessibilityPolicy.java"
+BUILD = ROOT / "android/operator-overlay/app/build.gradle"
+
+
+def compile_sdk() -> int:
+    source = BUILD.read_text(encoding="utf-8")
+    match = re.search(r"\bcompileSdk\s+(\d+)\b", source)
+    if not match:
+        raise AssertionError("compileSdk not found in operator-overlay app build.gradle")
+    return int(match.group(1))
 
 
 class LatestMessageApi36ExpandedOwnerBoundaryTest(unittest.TestCase):
@@ -31,16 +42,17 @@ class LatestMessageApi36ExpandedOwnerBoundaryTest(unittest.TestCase):
         self.create_overlay = java_private_void_method_surface(self.owner, "createOverlay")
         self.assertTrue(self.create_overlay, "missing direct owner createOverlay method")
 
-    def test_supporting_policy_has_api36_expanded_state_authority(self) -> None:
+    def test_supporting_policy_has_compilesdk_safe_api36_state_values(self) -> None:
         policy = POLICY.read_text(encoding="utf-8")
         self.assertIn("expandedStateApi36", policy)
-        self.assertIn("AccessibilityNodeInfo.EXPANDED_STATE_FULL", policy)
-        self.assertIn("AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED", policy)
+        self.assertIn("API36_EXPANDED_STATE_FULL = 3", policy)
+        self.assertIn("API36_EXPANDED_STATE_COLLAPSED = 1", policy)
+        self.assertNotIn("import android.view.accessibility.AccessibilityNodeInfo", policy)
 
-    def test_existing_owner_must_expose_expanded_state_under_api36_gate(self) -> None:
-        # Intentionally RED until the existing owner accessibility delegate consumes the
-        # supporting policy. API30 stateDescription remains a compatibility semantic, but it
-        # is not source evidence for the API36 expanded-state API.
+    def test_existing_owner_requires_api36_build_contract_and_direct_wiring(self) -> None:
+        # Intentionally RED under the current compileSdk 35. Owner promotion requires the
+        # build contract and the direct accessibility delegate wiring to move together.
+        self.assertGreaterEqual(compile_sdk(), 36)
         self.assertIn("Build.VERSION.SDK_INT >= 36", self.create_overlay)
         self.assertIn("info.setExpandedState(", self.create_overlay)
         self.assertIn("LatestMessageAccessibilityPolicy.expandedStateApi36(expandedText)", self.create_overlay)
