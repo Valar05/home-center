@@ -62,8 +62,34 @@ def main() -> int:
     )
     result = classify(adam_partial)
     assert result["adamSendAvailability"]["status"] == "PARTIAL_UNSAFE"
-    assert "editable-value refresh" in result["adamSendAvailability"]["reason"]
+    assert "edit callback" in result["adamSendAvailability"]["reason"]
     assert "mode-change refresh" in result["adamSendAvailability"]["reason"]
+
+    # Counterfeit the old v1 evidence shape: a watcher and onTextChanged declaration exist,
+    # but the callback itself never refreshes availability. Two nearby refresh calls must not
+    # be allowed to impersonate edit-driven ownership.
+    adam_counterfeit_edit = wrap(
+        "private void refreshUi() { }\n"
+        "private void applyHeartbeatCollapsedOwnerAccessibility() { }\n"
+        "private void createOverlay() {\n"
+        "  adamSendButton = button(\"Send\");\n"
+        "  adamInput.addTextChangedListener(new TextWatcher() {\n"
+        "    public void onTextChanged(CharSequence value, int start, int before, int count) { }\n"
+        "  });\n"
+        "  refreshAdamSendAvailability();\n"
+        "  refreshAdamSendAvailability();\n"
+        "}\n"
+        "private Button adamModeButton() { refreshAdamSendAvailability(); return button; }\n"
+        "private void refreshAdamSendAvailability() {\n"
+        "  AdamSendAvailabilityAccessibilityPolicy.Decision d = AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, adamInput.getText());\n"
+        "  adamSendButton.setEnabled(d.enabled);\n"
+        "  adamSendButton.setContentDescription(d.actionDescription);\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
+    )
+    result = classify(adam_counterfeit_edit)
+    assert result["adamSendAvailability"]["status"] == "PARTIAL_UNSAFE"
+    assert "edit callback" in result["adamSendAvailability"]["reason"]
 
     adam_wired = wrap(
         "private void refreshUi() { }\n"
@@ -87,7 +113,7 @@ def main() -> int:
     assert result["adamSendAvailability"]["status"] == "SOURCE_WIRED"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-operational-contact-owner-probe.v1"
+    assert result["schema"] == "try-forever-operational-contact-owner-probe.v2"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
