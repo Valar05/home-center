@@ -1,0 +1,16 @@
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         latest.setPadding(dp(8), dp(7), dp(8), dp(7));
+         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
+         latest.setVerticalScrollBarEnabled(true);
+         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
+-        latest.setContentDescription("Latest Home Center or Adam message. Tap to expand or collapse text.");
++        // TextView text is the semantic value; a static description would mask the
++        // changing Home Center message for accessibility services.
++        latest.setContentDescription(null);
+         latest.setOnClickListener(v -> {
+             expandedText = !expandedText;
+             applyExpandedTextState();
+         });
