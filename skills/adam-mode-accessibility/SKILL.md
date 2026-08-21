@@ -6,12 +6,12 @@ Keep the existing Operator Overlay Adam controls truthful for accessibility with
 
 ## Trigger
 
-Use when the overlay exposes multiple Adam modes, when selecting a mode moves focus into the input, when a successful send changes result state, when new editing can make a previous SENT state stale, or when the Send action's consequence changes with the selected mode.
+Use when the overlay exposes multiple Adam modes, when selecting a mode moves focus into the input, when a successful send changes result state, when new editing can make a previous SENT state stale, when the Send action's consequence changes with the selected mode, or when the Send button can be focused/activated despite having no admissible request to send.
 
 ## Law
 
 1. TERM / CHAT / CONT / VLAD / RADIO are one persistent mutually-exclusive selection set. Activating the selected mode does not turn that mode off.
-2. Selection state, keyboard focus, accessibility focus, editable input value, send-action consequence, and send-result state are distinct. Moving keyboard focus into the input does not make the chosen mode discoverable later.
+2. Selection state, keyboard focus, accessibility focus, editable input value, send-action consequence, send availability, and send-result state are distinct. Moving keyboard focus into the input does not make the chosen mode discoverable later.
 3. Expose exactly one selected mode through native selected/checked semantics. Do not model the five choices as independent toggles, and do not duplicate the same selected state into generic custom state text merely for decoration.
 4. One-of-many context also needs stable set identity. The canonical mode order is TERM / CHAT / CONT / VLAD / RADIO, with one-based positions 1..5 and set size 5. Native owner evidence is complete only when the owner exposes both the single-selection collection context and each mode's stable item position; `setSelected(...)` alone is `PARTIAL_UNSAFE`.
 5. Collection/set-position semantics must reuse the same exact `AdamModeSelectionAccessibilityPolicy` decision that owns persistent selection. Do not infer positions from labels or focus, and do not claim selection owns keyboard or accessibility focus.
@@ -28,8 +28,11 @@ Use when the overlay exposes multiple Adam modes, when selecting a mode moves fo
 16. Owner evidence for Send action is complete only when creation and subsequent mode changes both consume `AdamSendActionAccessibilityPolicy`; a one-time description is `PARTIAL_UNSAFE` because it can go stale after mode selection changes.
 17. Source policy, owner source wiring, regression execution, Android runtime UI, TalkBack behavior, deployment, callability, phone delivery, and acceptance are separate capability states.
 18. The P0/phone firewall is binding. This skill cannot queue Phone Hands, execute on the primary phone, mutate recovery, or consume the physical acceptance chain.
+19. An enabled focusable Send button must correspond to an actually admissible request. The current owner silently returns when `adamInput.getText().toString().trim()` is empty; source availability therefore mirrors that exact trim boundary rather than silently widening request semantics.
+20. Empty or ASCII-whitespace-only input should use native disabled-button semantics instead of a synthetic repeated announcement. Mode-specific action text remains available from `AdamSendActionAccessibilityPolicy`; disabling the button does not transfer selection/focus ownership to the Send action.
+21. Any future change to Adam request normalization must update request admission and `AdamSendAvailabilityAccessibilityPolicy` together. Do not let the semantic enabled state disagree with what `submitAdamRequest()` will actually accept.
 
-## Current PR #329 source truth — 2026-08-21 1358
+## Current PR #329 source truth — 2026-08-21 1603
 
 - Selection policy: `AdamModeSelectionAccessibilityPolicy` — **IMPLEMENTED SOURCE YES**. It carries stable one-based position-in-set plus set-size metadata for the five canonical modes.
 - Position/set metadata regression source: `AdamModeSelectionAccessibilityPolicyTest` — **YES / UNEXECUTED**.
@@ -38,9 +41,11 @@ Use when the overlay exposes multiple Adam modes, when selecting a mode moves fo
 - Native owner consumption of position/set context: **NO**. The authenticated owner does not expose collection/set-position semantics today.
 - Input-result policy: `AdamInputResultAccessibilityPolicy` — **IMPLEMENTED SOURCE YES**. Changing EditText value must not be replaced by generic `contentDescription`; READY/SENT context belongs in state semantics.
 - Send-action policy: `AdamSendActionAccessibilityPolicy` — **IMPLEMENTED SOURCE YES**. Exact selected mode determines the semantic action while the compact visible label remains `Send`.
-- Authenticated owner blob remains `c5de1411a6b68087ae17aff83c032af754587150`: selection, input lifecycle/value preservation, dynamic Send semantics, and set-position context are **OWNER WIRING NO / LEGACY_OWNER**.
-- Exact combined owner surgery provenance: `patches/try-forever-adam-mode-input-accessibility-owner.patch` — **CORRECTED_PROPOSED_NOT_APPLIED**, base locked to owner blob `c5de1411a6b68087ae17aff83c032af754587150`. The surgery now includes compileSdk-safe native collection/set-position semantics using the existing `AccessibilityNodeInfo` surface, plus persistent selection, READY/SENT edit recovery, and dynamic Send semantics.
-- Owner mutation remains **NO** in this slice. The current Command Center Codex worker/job/session surface is retired, and audited GitHub upsert is a whole-file replacement rather than a patch interpreter. No duplicate worker/controller or phone-shaped substitute was created.
+- Send-availability policy: `AdamSendAvailabilityAccessibilityPolicy` — **IMPLEMENTED SOURCE YES**. It mirrors the current owner `String.trim()` admission rule and requires native disabled semantics when activation would be a guaranteed empty-input no-op.
+- Send-availability regression source: `AdamSendAvailabilityAccessibilityPolicyTest` — **YES / UNEXECUTED**.
+- Authenticated owner blob remains `c5de1411a6b68087ae17aff83c032af754587150`: selection, input lifecycle/value preservation, dynamic Send semantics, set-position context, and Send availability are **OWNER WIRING NO / LEGACY_OWNER**.
+- Exact combined owner surgery provenance: `patches/try-forever-adam-mode-input-accessibility-owner.patch` — **CORRECTED_PROPOSED_NOT_APPLIED**, base locked to owner blob `c5de1411a6b68087ae17aff83c032af754587150`. The surgery includes compileSdk-safe native collection/set-position semantics using the existing `AccessibilityNodeInfo` surface, plus persistent selection, READY/SENT edit recovery, and dynamic Send semantics. It does **not yet** include the new Send-availability gate.
+- Owner mutation remains **NO** in this slice. No duplicate worker/controller or phone-shaped substitute was created.
 - The proposal preserves the legacy Adam send announcement because announcement migration remains blocked by `ADAM_REPEAT_SEND_RESULT_UNRESOLVED` — **DO NOT REMOVE LEGACY RECEIPT**.
 - TESTED / Android runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
@@ -64,6 +69,9 @@ At minimum prove:
 - a source owner with READY/SENT setters but no edit recovery is `PARTIAL_UNSAFE`;
 - the Send action names the exact selected mode and refreshes when the mode changes;
 - a one-time or generic Send description is `LEGACY_OWNER`/`PARTIAL_UNSAFE`, not SOURCE_WIRED;
+- null/empty/ASCII-whitespace-only input makes Send unavailable under the exact current owner trim contract;
+- material input makes Send available without inventing a synthetic announcement;
+- non-ASCII whitespace is not silently reclassified unless owner request admission changes with it;
 - persistent SENT state does not claim announcement migration is ready;
 - policy/source/patch presence cannot be reported as Android or TalkBack runtime proof.
 
