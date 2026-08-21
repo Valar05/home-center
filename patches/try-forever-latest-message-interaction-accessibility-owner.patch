@@ -1,0 +1,46 @@
+# STATUS: PROPOSED_NOT_APPLIED
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# BASE_BLOB: 44d4e273e79f8dc37227651ba11a31842169db18
+# PURPOSE: preserve native changing-text semantics while exposing expand/collapse state and a labeled standard click action.
+# CAPABILITY: supporting patch source only; OWNER_WIRED=NO; TESTED=NO; RUNTIME_TALKBACK=NO; PHONE_P0=UNTOUCHED.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+ import android.view.ViewConfiguration;
+ import android.view.ViewTreeObserver;
+ import android.view.WindowInsets;
+ import android.view.WindowManager;
+ import android.view.WindowMetrics;
++import android.view.accessibility.AccessibilityEvent;
++import android.view.accessibility.AccessibilityNodeInfo;
+@@
+         // TextView text is the semantic value; a static description would mask the
+         // changing Home Center message for accessibility services.
+         latest.setContentDescription(null);
++        latest.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
++        latest.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
++                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(),
++                        LatestMessageAccessibilityPolicy.clickActionLabel(expandedText)));
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
++                    info.setStateDescription(
++                            LatestMessageAccessibilityPolicy.stateDescription(expandedText));
++                }
++            }
++        });
+         latest.setOnClickListener(v -> {
+             expandedText = !expandedText;
+             applyExpandedTextState();
++            latest.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
++            if (!OperatorState.muted(this)) {
++                latest.announceForAccessibility(
++                        LatestMessageAccessibilityPolicy.confirmationAnnouncement(expandedText));
++            }
+         });
