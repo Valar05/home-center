@@ -11,6 +11,8 @@ package com.homecenter.operatoroverlay;
 public final class HeartbeatCollapsedOwnerAccessibility {
     /** Hard returned budget for the entire collapsed drag-handle description. */
     public static final int MAX_COLLAPSED_OWNER_CODE_POINTS = 320;
+    /** Keep operator state concise so it cannot starve heartbeat/contact truth. */
+    public static final int MAX_OPERATOR_STATUS_CODE_POINTS = 96;
     public static final String OVERLAY_ACTION_DESCRIPTION =
             "Drag Home Center overlay. Tap to shrink or expand.";
     public static final String COLLAPSED_ACTION_DESCRIPTION =
@@ -47,13 +49,15 @@ public final class HeartbeatCollapsedOwnerAccessibility {
      * compact HC state from accessibility services.</p>
      *
      * <p>The operator-status text is supplied by the existing owner; this projection
-     * does not re-derive control, connectivity, remote-input, mute, or P0 state. The
-     * heartbeat portion keeps the surviving action control concise: action + current
-     * operator status + canonical heartbeat summary + compact blocked/fault attention
-     * truth + only the contact/interruption truth needed before explicit expansion.
-     * Detailed light names remain behind the existing expand action. The entire
-     * returned description has one hard aggregate speech budget while exact model and
-     * evidence fields remain unchanged.</p>
+     * does not re-derive control, connectivity, remote-input, mute, or P0 state. It is
+     * independently bounded before composition so an accidental verbose status cannot
+     * consume the aggregate budget and erase heartbeat/contact truth. The heartbeat
+     * portion keeps the surviving action control concise: action + current operator
+     * status + canonical heartbeat summary + compact blocked/fault attention truth +
+     * only the contact/interruption truth needed before explicit expansion. Detailed
+     * light names remain behind the existing expand action. The entire returned
+     * description has one hard aggregate speech budget while exact model and evidence
+     * fields remain unchanged.</p>
      */
     public static String contentDescription(
             boolean collapsed,
@@ -62,7 +66,7 @@ public final class HeartbeatCollapsedOwnerAccessibility {
         if (!collapsed) return OVERLAY_ACTION_DESCRIPTION;
 
         StringBuilder out = new StringBuilder(COLLAPSED_ACTION_DESCRIPTION);
-        appendSentence(out, operatorStatusDescription);
+        appendSentence(out, boundedOperatorStatus(operatorStatusDescription));
         if (model == null) {
             appendSentence(out, WAITING_DESCRIPTION);
             return bounded(out.toString());
@@ -85,6 +89,12 @@ public final class HeartbeatCollapsedOwnerAccessibility {
             appendSentence(out, model.interruptionDetailContentDescription());
         }
         return bounded(out.toString());
+    }
+
+    private static String boundedOperatorStatus(String value) {
+        return HeartbeatPlainTextBudget.boundedWithEllipsis(
+                clean(value),
+                MAX_OPERATOR_STATUS_CODE_POINTS);
     }
 
     private static void appendSentence(StringBuilder out, String value) {
