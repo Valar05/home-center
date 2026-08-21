@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""RED source boundary for the latest-message expanded inspection surface.
+"""Source boundary for the latest-message expanded inspection surface.
 
-Supporting policy is not owner wiring. This fixture uses the existing Java lexical owner
-surface and remains source-only; it proves neither Android execution nor TalkBack behavior.
+The sole owner now consumes the supporting policy. This fixture still proves source shape only;
+it proves neither Android execution nor TalkBack runtime behavior.
 """
 
 from __future__ import annotations
