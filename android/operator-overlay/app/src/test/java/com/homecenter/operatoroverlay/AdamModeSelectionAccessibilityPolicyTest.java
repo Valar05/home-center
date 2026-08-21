@@ -43,6 +43,16 @@ public class AdamModeSelectionAccessibilityPolicyTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void whitespaceModeDoesNotNormalizeIntoAuthority() {
+        AdamModeSelectionAccessibilityPolicy.requireMode(" terminal ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void caseDriftDoesNotNormalizeIntoAuthority() {
+        AdamModeSelectionAccessibilityPolicy.requireMode("TERMINAL");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void unknownModeFailsClosed() {
         AdamModeSelectionAccessibilityPolicy.requireMode("office-carpet");
     }
