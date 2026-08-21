@@ -6,11 +6,10 @@ import android.view.View;
  * Source-only decision policy for migrating legacy accessibility announcements.
  *
  * <p>Android 16 / API 36 deprecates {@code View.announceForAccessibility(...)}.
- * This policy deliberately does not replace that call mechanically. A live region
- * represents a semantic value whose content changed; it is not a generic repeatable
- * event broadcaster. Consequences that can repeat with the same value therefore stay
- * owner-unready until they have an event/status design with a genuinely fresh semantic
- * value.</p>
+ * This policy deliberately does not replace that call mechanically. It distinguishes
+ * automatic semantic value changes from explicit actions whose native control/state
+ * semantics already describe the action. A repeated identical action does not need a
+ * fake fresh announcement merely to prove the press happened.</p>
  *
  * <p>This class owns no View instance, renderer, controller, phone surface,
  * transport, deployment, or P0 recovery path. {@code OperatorOverlayService}
@@ -25,17 +24,19 @@ public final class AccessibilityAnnouncementSemanticPolicy {
     }
 
     public enum SemanticChannel {
-        /** A changing TextView value may use a polite live region under a strict semantic gate. */
+        /** A changing semantic value may use a polite live region under a strict gate. */
         LIVE_REGION_VALUE_CHANGE,
-        /** Explicit consequence may repeat without changing the current value; exact event semantics unresolved. */
-        REPEATABLE_ACTION_EVENT_UNRESOLVED
+        /** The selected control state plus persistent detail value is the semantic receipt. */
+        NATIVE_SELECTION_AND_DETAIL,
+        /** The native action plus a persistent result/state surface is the semantic receipt. */
+        NATIVE_ACTION_AND_RESULT_STATE
     }
 
     public enum OwnerMechanism {
-        /** Existing heartbeat summary changes when material transition semantics change. */
         HEARTBEAT_SUMMARY_MATERIAL_TRANSITION,
-        /** No exact owner mechanism is accepted yet for repeatable same-value action consequences. */
-        UNRESOLVED_REPEATABLE_ACTION_EVENT
+        SPOTIFY_ACTION_AND_STATUS_VALUE,
+        HEARTBEAT_SELECTED_CONTROL_AND_DETAIL,
+        ADAM_MODED_SEND_AND_INPUT_RESULT
     }
 
     public static final class Decision {
@@ -46,6 +47,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
         public final boolean preserveNativeTextValue;
         public final boolean requiresMaterialTransition;
         public final boolean repeatableIdenticalValuePossible;
+        public final boolean syntheticRepeatReceiptRequired;
         public final boolean ownerMigrationReady;
         public final boolean legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring;
 
@@ -57,6 +59,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                 boolean preserveNativeTextValue,
                 boolean requiresMaterialTransition,
                 boolean repeatableIdenticalValuePossible,
+                boolean syntheticRepeatReceiptRequired,
                 boolean ownerMigrationReady) {
             this.channel = channel;
             this.ownerMechanism = ownerMechanism;
@@ -65,6 +68,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
             this.preserveNativeTextValue = preserveNativeTextValue;
             this.requiresMaterialTransition = requiresMaterialTransition;
             this.repeatableIdenticalValuePossible = repeatableIdenticalValuePossible;
+            this.syntheticRepeatReceiptRequired = syntheticRepeatReceiptRequired;
             this.ownerMigrationReady = ownerMigrationReady;
             this.legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring = true;
         }
@@ -87,31 +91,54 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         true,
                         false,
+                        false,
                         true);
             case SPOTIFY_COMMAND_RECEIPT:
+                return new Decision(
+                        SemanticChannel.LIVE_REGION_VALUE_CHANGE,
+                        OwnerMechanism.SPOTIFY_ACTION_AND_STATUS_VALUE,
+                        false,
+                        true,
+                        true,
+                        true,
+                        true,
+                        false,
+                        true);
             case HEARTBEAT_EXPLICIT_DETAIL_SELECTION:
+                return new Decision(
+                        SemanticChannel.NATIVE_SELECTION_AND_DETAIL,
+                        OwnerMechanism.HEARTBEAT_SELECTED_CONTROL_AND_DETAIL,
+                        false,
+                        true,
+                        true,
+                        false,
+                        true,
+                        false,
+                        true);
             case ADAM_SEND_CONFIRMATION:
                 return new Decision(
-                        SemanticChannel.REPEATABLE_ACTION_EVENT_UNRESOLVED,
-                        OwnerMechanism.UNRESOLVED_REPEATABLE_ACTION_EVENT,
+                        SemanticChannel.NATIVE_ACTION_AND_RESULT_STATE,
+                        OwnerMechanism.ADAM_MODED_SEND_AND_INPUT_RESULT,
                         false,
                         true,
                         true,
                         false,
                         true,
-                        false);
+                        false,
+                        true);
             default:
                 throw new IllegalArgumentException("unsupported consequence: " + consequence);
         }
     }
 
     /**
-     * Return a live-region mode only for consequences that are already valid
-     * value-change semantics.
+     * Return a live-region mode only when a consequence is represented by a changed
+     * semantic value and all of that consequence's source-level gates are satisfied.
      *
-     * <p>Repeatable action consequences deliberately return NONE. Their deprecated
-     * legacy calls may not be removed merely by setting POLITE on a value that can
-     * remain byte-for-byte identical across two completed actions.</p>
+     * <p>For Spotify this means an explicit command whose resulting status value
+     * actually changed. Repeating Status against an identical steady state stays
+     * quiet by design; the button action remains self-describing and no fake sequence,
+     * timestamp, punctuation, or invisible marker is manufactured as a receipt.</p>
      */
     public static int liveRegionModeFor(
             Consequence consequence,
@@ -123,7 +150,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                 || decision.channel != SemanticChannel.LIVE_REGION_VALUE_CHANGE) {
             return View.ACCESSIBILITY_LIVE_REGION_NONE;
         }
-        boolean polite = materialTransition && !muted;
+        boolean polite = !muted;
         if (decision.requiresExplicitUserAction && !explicitUserAction) {
             polite = false;
         }
