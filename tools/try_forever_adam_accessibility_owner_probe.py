@@ -149,7 +149,7 @@ def classify_input_result(source: str) -> SeamVerdict:
     if policy_reference and has_result_state:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam owner exposes READY/SENT state and returns SENT to READY on real new editing while preserving empty programmatic clears",
+            "direct Adam owner preserves the editable text as value, exposes READY/SENT state, and returns SENT to READY on real new editing while preserving empty programmatic clears",
             policy,
             True,
             True,
@@ -161,17 +161,55 @@ def classify_input_result(source: str) -> SeamVerdict:
         or policy in apply_method
         or "adamInput.setStateDescription(" in owner
         or "adamInput.addTextChangedListener(" in owner
+        or "adamInput.setContentDescription(null)" in owner
     ):
         return SeamVerdict(
             "PARTIAL_UNSAFE",
-            "Adam owner contains only part of the READY/SENT/edit-recovery lifecycle; stale SENT can still describe newly typed unsent text",
+            "Adam owner contains only part of editable-value preservation plus the READY/SENT/edit-recovery lifecycle",
             policy,
             policy in create_method or policy in mode_method or policy in send_method or policy in apply_method,
-            "adamInput.setStateDescription(" in owner,
+            "adamInput.setStateDescription(" in owner and "adamInput.setContentDescription(null)" in owner,
         )
     return SeamVerdict(
         "LEGACY_OWNER",
-        "mode/send owners use input hint/legacy receipt without persistent READY/SENT state or edit recovery",
+        "Adam input is masked by generic contentDescription/hint semantics and has no persistent READY/SENT edit-recovery lifecycle",
+        policy,
+        False,
+        False,
+    )
+
+
+def classify_send_action(source: str) -> SeamVerdict:
+    owner = _owner_surface(source)
+    create_method = _direct_method_surface(owner, "createOverlay")
+    mode_method = _direct_method_surface(owner, "adamModeButton")
+    refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
+    policy = "AdamSendActionAccessibilityPolicy"
+
+    created_owner = "adamSendButton" in create_method and policy in create_method
+    refresh_policy = policy in refresh_method and "adamSendButton.setContentDescription(" in refresh_method
+    mode_refresh = "refreshAdamSendAction(" in mode_method
+    policy_reference = created_owner and refresh_policy and mode_refresh
+
+    if policy_reference:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam Send owner exposes the exact current mode consequence and refreshes it when mode changes",
+            policy,
+            True,
+            True,
+        )
+    if policy in create_method or policy in refresh_method or "refreshAdamSendAction(" in mode_method:
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam Send owner contains only part of the mode-specific action-semantic lifecycle",
+            policy,
+            policy in create_method or policy in refresh_method,
+            "adamSendButton.setContentDescription(" in refresh_method,
+        )
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "Send action uses a generic semantic label that does not expose which selected Adam mode will receive the request",
         policy,
         False,
         False,
@@ -180,9 +218,10 @@ def classify_input_result(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v3",
+        "schema": "try-forever-adam-accessibility-owner-probe.v4",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
+        "sendAction": asdict(classify_send_action(source)),
         "capability": {
             "sourceInspection": True,
             "regressionExecuted": False,
