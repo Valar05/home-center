@@ -186,7 +186,9 @@ def classify_send_action(source: str) -> SeamVerdict:
     refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
     policy = "AdamSendActionAccessibilityPolicy"
 
-    created_owner = "adamSendButton" in create_method and policy in create_method
+    # Creation owns the native button, but the shared refresh method owns semantic projection.
+    # Requiring a direct policy reference in createOverlay would reject the intended DRY owner shape.
+    created_owner = "adamSendButton" in create_method and "refreshAdamSendAction(" in create_method
     refresh_policy = policy in refresh_method and "adamSendButton.setContentDescription(" in refresh_method
     mode_refresh = "refreshAdamSendAction(" in mode_method
     policy_reference = created_owner and refresh_policy and mode_refresh
@@ -194,12 +196,17 @@ def classify_send_action(source: str) -> SeamVerdict:
     if policy_reference:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam Send owner exposes the exact current mode consequence and refreshes it when mode changes",
+            "direct Adam Send owner initializes and refreshes the exact current-mode action consequence through one shared policy method",
             policy,
             True,
             True,
         )
-    if policy in create_method or policy in refresh_method or "refreshAdamSendAction(" in mode_method:
+    if (
+        policy in create_method
+        or policy in refresh_method
+        or "refreshAdamSendAction(" in create_method
+        or "refreshAdamSendAction(" in mode_method
+    ):
         return SeamVerdict(
             "PARTIAL_UNSAFE",
             "Adam Send owner contains only part of the mode-specific action-semantic lifecycle",
