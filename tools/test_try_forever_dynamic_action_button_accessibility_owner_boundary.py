@@ -14,35 +14,33 @@ OWNER = Path(
 )
 
 
-def _owner_methods() -> tuple[str, str]:
+def _refresh_ui_surface() -> str:
     code_surface = java_lexical_code_surface(OWNER.read_text(encoding="utf-8"))
     owner = java_named_class_surface(code_surface, "OperatorOverlayService")
     assert owner, "missing named OperatorOverlayService class"
-    create_overlay = java_private_void_method_surface(owner, "createOverlay")
     refresh_ui = java_private_void_method_surface(owner, "refreshUi")
-    assert create_overlay, "missing direct owner method: createOverlay"
     assert refresh_ui, "missing direct owner method: refreshUi"
-    return create_overlay, refresh_ui
+    return refresh_ui
 
 
-def test_full_text_action_buttons_do_not_hide_current_action_with_generic_description() -> None:
-    create_overlay, refresh_ui = _owner_methods()
+def test_full_text_action_buttons_expose_the_exact_current_action() -> None:
+    refresh_ui = _refresh_ui_surface()
 
     assert 'muteButton.setText(muted ? "Unmute speech" : "Mute speech");' in refresh_ui
-    assert "controlButton.setText(fullControlLabel);" in refresh_ui
-
-    assert "muteButton.setContentDescription(null);" in create_overlay, (
-        "ACCESSIBILITY WOUND: muteButton has current action text but a static generic "
-        "contentDescription can mask whether the current action is Mute or Unmute"
+    assert 'muteButton.setContentDescription(muted ? "Unmute speech" : "Mute speech");' in refresh_ui, (
+        "ACCESSIBILITY WOUND: muteButton text changes with the current action while its "
+        "semantic description remains generic"
     )
-    assert "controlButton.setContentDescription(null);" in create_overlay, (
-        "ACCESSIBILITY WOUND: full control button text changes among Enable, Disable, "
-        "and Confirm disable, but a generic static contentDescription can hide that state"
+
+    assert "controlButton.setText(fullControlLabel);" in refresh_ui
+    assert "controlButton.setContentDescription(fullControlLabel);" in refresh_ui, (
+        "ACCESSIBILITY WOUND: full control action changes among Enable, Disable, and "
+        "Confirm disable while its semantic description remains generic"
     )
 
 
 def test_compact_control_button_exposes_exact_full_current_action() -> None:
-    _create_overlay, refresh_ui = _owner_methods()
+    refresh_ui = _refresh_ui_surface()
 
     assert "compactControlButton.setText(compactControlLabel);" in refresh_ui
     assert "compactControlButton.setContentDescription(fullControlLabel);" in refresh_ui, (
