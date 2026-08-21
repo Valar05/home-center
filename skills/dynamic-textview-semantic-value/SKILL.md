@@ -21,6 +21,7 @@ Use this skill when a native Android `TextView` changes over time and source als
 11. Do not create a neighboring accessibility controller. Compose the existing `OperatorOverlayService` owner.
 12. Multiple source-ready repairs against the same owner/base must be composed before owner mutation.
 13. Phone/P0 firewall is binding: no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance belongs to this skill.
+14. **Spatial bound is not semantic amputation.** An expanded inspectable TextView may use a bounded-height scrolling viewport, but must not impose a finite line ceiling that makes later source text unreachable. Collapse may intentionally use a short line+ellipsis preview; expansion must preserve the full layout.
 
 ## Current PR #329 source truth
 
@@ -28,12 +29,12 @@ Use this skill when a native Android `TextView` changes over time and source als
 - Home Center connection/control status TextView: **YES / SOURCE_WIRED** — current changing text remains the semantic value.
 - Latest Home Center/Adam message TextView value: **YES / SOURCE_WIRED** — owner leaves `latest` with native changing-text semantics via `setContentDescription(null)` while `refreshUi()` updates the text.
 - Latest-message interaction policy: **YES / SUPPORTING_SOURCE** at `LatestMessageAccessibilityPolicy`.
-- Authenticated latest-message interaction owner surgery: commit `a87d21b48eba28433688b40860f9befeb6347278`, resulting owner blob `d8cad8c2931c688d0c6fad6f67626fae75e044d1`.
 - Latest-message ACTION_CLICK label: **YES / SOURCE_WIRED** through the existing `OperatorOverlayService` accessibility delegate.
-- Latest-message expanded/collapsed state: **YES / SOURCE_WIRED**. API 30+ `stateDescription` is initialized at construction and subsequently synchronized in `applyExpandedTextState()`, so direct clicks and programmatic panel collapse share one semantic state path.
-- Latest-message interaction owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_latest_message_interaction_accessibility_owner_boundary.py`; the fixture now explicitly requires the shared `applyExpandedTextState()` synchronization path and programmatic `setCollapsed()` flow.
-- Canonical combined owner surgery provenance: **APPLIED_SOURCE** at `patches/try-forever-operator-interaction-accessibility-owner-combined.patch`.
-- Historical standalone latest-message patch remains **SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY**.
+- Latest-message expanded/collapsed state: **YES / SOURCE_WIRED**. API 30+ `stateDescription` is synchronized in `applyExpandedTextState()`.
+- Latest-message expanded full-layout policy: **YES / SUPPORTING_SOURCE** — `LatestMessageAccessibilityPolicy.maxLines(true)` is unbounded and keeps the existing 520dp scroll viewport as the spatial limit.
+- Latest-message expanded full-layout owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_latest_message_surface_owner_boundary.py`.
+- Latest-message full-layout owner patch: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-latest-message-full-layout-owner.patch`, blob-locked to the current owner source used by this slice.
+- Existing owner still uses `setMaxLines(30)` in expanded mode: **YES / LEGACY OWNER**. Therefore expanded full-layout owner wiring is **NO**.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Regression doctrine
@@ -46,13 +47,14 @@ At minimum prove:
 - API-30 state description is guarded and uses the shared presentation-state owner;
 - programmatic panel collapse resets latest-message expanded state through that same semantic owner;
 - simple expand/collapse does not reintroduce deprecated explicit announcements;
+- expanded inspection uses full layout plus bounded-height scrolling, not a finite expanded line ceiling;
 - comment/literal/wrong-method/nested-class markers cannot earn wiring authority;
 - source proof does not claim runtime TalkBack behavior.
 
 ## Evidence membrane
 
-`requested → semantic policy source → deterministic source regression → combined existing-owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
+`requested → semantic policy source → deterministic source regression → existing-owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
 
-Current state: `requested YES → semantic policy/regression/owner source wiring YES → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
+Current new-slice state: `requested YES → expanded full-layout policy/regression/patch YES → owner wiring NO → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
 
 Never promote a state because a patch or helper exists. Owner source wiring requires authenticated owner readback; runtime/TalkBack/phone acceptance requires its own evidence lane.
