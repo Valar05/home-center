@@ -1,27 +1,18 @@
 # STATUS: PROPOSED_NOT_APPLIED
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 # BASE_BLOB: 44d4e273e79f8dc37227651ba11a31842169db18
-# PURPOSE: keep full-text action buttons on their current text semantics and give the compact control button the exact full current action.
+# PURPOSE: keep every dynamic action Button's accessibility description synchronized with the exact action that will happen now.
 # CAPABILITY: supporting patch source only; OWNER_WIRED=NO; TESTED=NO; RUNTIME_TALKBACK=NO; PHONE_P0=UNTOUCHED.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 +++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 @@
-         compactControlButton = button("STOP");
--        compactControlButton.setContentDescription("Disable or enable Home Center control");
-         compactControlButton.setOnClickListener(v -> handleControlButton());
-@@
-         controlButton = button("Disable control");
--        controlButton.setContentDescription("Disable or enable Home Center control");
-+        controlButton.setContentDescription(null);
-         controlButton.setOnClickListener(v -> handleControlButton());
-@@
-         muteButton = button("Mute speech");
--        muteButton.setContentDescription("Mute or unmute Home Center status speech");
-+        muteButton.setContentDescription(null);
-         muteButton.setOnClickListener(v -> {
+         muteButton.setText(muted ? "Unmute speech" : "Mute speech");
++        muteButton.setContentDescription(muted ? "Unmute speech" : "Mute speech");
+         String fullControlLabel;
 @@
          controlButton.setText(fullControlLabel);
          compactControlButton.setText(compactControlLabel);
++        controlButton.setContentDescription(fullControlLabel);
 +        compactControlButton.setContentDescription(fullControlLabel);
