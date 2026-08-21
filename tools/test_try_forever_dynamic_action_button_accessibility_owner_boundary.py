@@ -45,14 +45,18 @@ def _top_level_method_body(method_surface: str) -> str:
     return "".join(out)
 
 
-def _refresh_ui_surface(source: str | None = None) -> str:
+def _refresh_ui_method_surface(source: str | None = None) -> str:
     source_text = OWNER.read_text(encoding="utf-8") if source is None else source
     code_surface = java_lexical_code_surface(source_text)
     owner = java_named_class_surface(code_surface, "OperatorOverlayService")
     assert owner, "missing named OperatorOverlayService class"
     refresh_ui = java_private_void_method_surface(owner, "refreshUi")
     assert refresh_ui, "missing direct owner method: refreshUi"
-    return _top_level_method_body(refresh_ui)
+    return refresh_ui
+
+
+def _refresh_ui_surface(source: str | None = None) -> str:
+    return _top_level_method_body(_refresh_ui_method_surface(source))
 
 
 def test_full_text_action_buttons_expose_the_exact_current_action() -> None:
@@ -73,14 +77,15 @@ def test_full_text_action_buttons_expose_the_exact_current_action() -> None:
 
 def test_compact_control_button_exposes_exact_full_current_action() -> None:
     refresh_ui = _refresh_ui_surface()
+    full_method = _refresh_ui_method_surface()
 
     assert "compactControlButton.setText(compactControlLabel);" in refresh_ui
     assert "compactControlButton.setContentDescription(fullControlLabel);" in refresh_ui, (
         "ACCESSIBILITY WOUND: compact STOP/ENABLE/CONFIRM text needs the exact full "
         "current action as its semantic description"
     )
-    assert 'fullControlLabel = "Confirm disable";' not in refresh_ui, (
-        "branch-local label assignment is intentionally outside the direct-statement evidence surface"
+    assert 'fullControlLabel = "Confirm disable";' in full_method, (
+        "SAFETY REGRESSION: confirm-disable must remain a distinct action state"
     )
 
 
