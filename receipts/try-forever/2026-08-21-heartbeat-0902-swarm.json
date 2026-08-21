@@ -1,0 +1,131 @@
+{
+  "kind": "try_forever_broad_swarm_receipt",
+  "date": "2026-08-21T09:02:06-05:00",
+  "pr": 329,
+  "startingHead": "de614c5f4428cb3bd8256fd335ec5ea29ed9319d",
+  "positiveSourceHead": "3d3b9f2c17efab66a9940342492bd09ea15f5476",
+  "sourceDiff": {
+    "fileCount": 5,
+    "files": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/LatestMessageAccessibilityPolicy.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/LatestMessageAccessibilityPolicyTest.java",
+      "receipts/heartbeat-skill-lights/2026-08-21-0902-plan.json",
+      "skills/dynamic-textview-semantic-value/SKILL.md",
+      "tools/test_try_forever_latest_message_api36_expanded_owner_boundary.py"
+    ]
+  },
+  "frontsAdvanced": [
+    {
+      "id": "api36-expanded-state-policy",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "result": "Latest-message accessibility policy now carries documented Android 16 collapsed/full expanded-state values without directly importing API36-only symbols under compileSdk35."
+    },
+    {
+      "id": "api36-policy-regression",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "result": "JUnit source pins collapsed=1, full=3 and preserves existing full-layout/520dp behavior."
+    },
+    {
+      "id": "api36-owner-boundary",
+      "state": "RED_REGRESSION_SOURCE_UNEXECUTED",
+      "result": "Owner promotion now requires compileSdk >=36 plus direct named-owner setExpandedState wiring; comments/literals cannot counterfeit it."
+    },
+    {
+      "id": "compileSdk-contract-review",
+      "state": "EXACT_BOUNDARY_PROVEN",
+      "result": "operator-overlay app build.gradle is compileSdk35; direct API36 symbol use is therefore not legal owner source yet."
+    },
+    {
+      "id": "dynamic-textview-skill-convergence",
+      "state": "DURABLE_DOCTRINE_UPDATED",
+      "result": "Skill now separates API30 stateDescription owner wiring from API36 supporting policy/build-contract readiness."
+    },
+    {
+      "id": "announcement-owner-custody",
+      "state": "VERIFIED_UNCHANGED",
+      "result": "Heartbeat-only announcement surgery remains current-blob-locked, CORRECTED_PROPOSED_NOT_APPLIED, and owner-wired NO; no duplicate owner mutation was attempted."
+    },
+    {
+      "id": "review-governance",
+      "state": "DURABLE",
+      "result": "Pre-mutation plan, Regnet source review, and same-worker Venice Judgment Jar completion are remote repository artifacts."
+    }
+  ],
+  "skillLights": {
+    "failureIsTheShovel": "LIT: source review caught direct API36 imports under compileSdk35 and forced a replacement design.",
+    "originalityTax": "LIT: no duplicate worker/phone workaround; first contradictory RED fixture was replaced with a materially different counterfeit-source check.",
+    "canonAutoSelect": "LIT: reused existing dynamic-textview skill and existing lexical owner-evidence organs.",
+    "autocorrectJudgmentJar": "DARK: no material token ambiguity.",
+    "hungerEatEverything": "LIT: platform contract, build contract, source regression, skill doctrine, and owner custody were converged.",
+    "operatorCampaignHarroway": "LIT: OperatorOverlayService remains sole owner; source policy did not become owner wiring.",
+    "sheRaw": "FAULT: authoritative pre-execution call returned account-connection HTTP 400; no substitute critique.",
+    "venice": "LIT: same-worker bounded completion judgment; external Venice worker offline, no fabricated external verdict.",
+    "regnet": "LIT: caught two self-inflicted defects and bounded capability claims.",
+    "accessibilityTalkBackTouch": "LIT: Android16 expanded-state semantics plus compileSdk-safe compatibility boundary.",
+    "phoneRuntimePhoneHands": "DARK_BY_FIREWALL: consumption 0, mutation 0.",
+    "deterministicRouting": "LIT: direct named-owner lexical regression; build contract parsed deterministically.",
+    "evidenceCapabilityState": "LIT: supporting source != owner wired != regression executed != tested != runtime/deployed/delivered.",
+    "recoveryCheckpointIdempotence": "LIT: Computer Hands offline + active heartbeat-detail lane did not trigger duplicate request creation.",
+    "warmWallsVectorArt": "DARK: no new operator-state topology; art mutation would be decorative heartbeat theater.",
+    "christmasLightSceneGraph": "DARK: no scene-transition/motion law changed.",
+    "contactPreservation": "DARK_AS_MUTATION: no heartbeat frame/contact semantics changed; preserved as a non-regression constraint."
+  },
+  "crossPollination": [
+    "Android16 platform evidence suggested stronger expanded-state semantics.",
+    "Build-contract archaeology immediately disproved the first direct-API source design because compileSdk is 35.",
+    "Failure Is The Shovel converted that failure into a platform-neutral policy plus a RED build-contract/owner gate.",
+    "Regnet also found the first owner fixture would remain red after future repair; the counterfeit check was redesigned to be future-safe.",
+    "Dynamic TextView doctrine now carries the split between API30 compatibility semantics and API36 future owner promotion."
+  ],
+  "executionTruth": {
+    "computerHands": {
+      "workerId": "windows-hands-01",
+      "online": false,
+      "queueDepth": 4,
+      "activeHeartbeatLane": true,
+      "duplicateRequestCreated": false
+    },
+    "veniceWorker": {
+      "workerId": "windows-venice-nerve-01",
+      "online": false,
+      "queueDepth": 2
+    },
+    "automaticWorkflowEvidence": {
+      "head": "28c1e401a6a1afad4eefe952d87434d414752d4d",
+      "operatorOverlayRun": 32490781878,
+      "operatorOverlayJob": 96797642531,
+      "operatorOverlayConclusion": "failure",
+      "homeCenterCiRun": 32490781881,
+      "buildAndroidRun": 32490781861,
+      "stepLevelCauseEstablished": false,
+      "manualRetryFired": false,
+      "tested": false
+    }
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "buildContractReadyForApi36Owner": false,
+    "api36OwnerSourceWired": false,
+    "heartbeatAnnouncementOwnerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__BUILD_CONTRACT_OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
