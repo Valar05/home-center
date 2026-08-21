@@ -9,7 +9,7 @@ Use this skill when a Button's visible label changes at runtime but source also 
 ## Law
 
 1. Accessibility semantics must describe the action that will happen now, not a menu of possible actions.
-2. A full-text Button such as `Enable control`, `Disable control`, `Confirm disable`, `Mute speech`, or `Unmute speech` may preserve its current visible text as the semantic label by keeping `contentDescription` null.
+2. A full-text Button such as `Enable control`, `Disable control`, `Confirm disable`, `Mute speech`, or `Unmute speech` may derive semantics from its visible text, but if the owner uses an explicit `contentDescription` it must be synchronized to the exact current action in the same direct refresh path. For the current Operator Overlay owner, the selected repair is an exact dynamic description rather than relying on initialization-time text semantics.
 3. A compact visual Button may keep terse text such as `STOP`, `ENABLE`, or `CONFIRM`, but its accessibility description must carry the exact full current action.
 4. Safety confirmation is a distinct state. `Confirm disable` must not collapse into a generic `Disable or enable` description.
 5. Source evidence must include the direct owner refresh/update path where the action label changes, not just initialization.
@@ -21,9 +21,10 @@ Use this skill when a Button's visible label changes at runtime but source also 
 ## Current PR #329 source truth
 
 - Current authenticated owner blob: `44d4e273e79f8dc37227651ba11a31842169db18`.
-- `muteButton`: visible text changes between `Mute speech` and `Unmute speech`, but owner still initializes a generic static `Mute or unmute Home Center status speech` description. **OWNER_WIRED NO / LEGACY**.
-- `controlButton`: visible text changes among `Enable control`, `Disable control`, and `Confirm disable`, but owner still initializes a generic static `Disable or enable Home Center control` description. **OWNER_WIRED NO / LEGACY**.
+- `muteButton`: visible text changes between `Mute speech` and `Unmute speech`, but owner still initializes a generic static `Mute or unmute Home Center status speech` description and does not refresh that semantic description. **OWNER_WIRED NO / LEGACY**.
+- `controlButton`: visible text changes among `Enable control`, `Disable control`, and `Confirm disable`, but owner still initializes a generic static `Disable or enable Home Center control` description and does not refresh it. **OWNER_WIRED NO / LEGACY**.
 - `compactControlButton`: visual text changes among `ENABLE`, `STOP`, and `CONFIRM`; owner still carries a generic static description rather than the exact full current action. **OWNER_WIRED NO / LEGACY**.
+- Selected repair: refresh `muteButton` description to the exact current Mute/Unmute text, refresh `controlButton` description to `fullControlLabel`, and refresh `compactControlButton` description to the same exact `fullControlLabel` while keeping its terse visual text.
 - Direct owner-boundary regression: **YES / RED / UNEXECUTED** at `tools/test_try_forever_dynamic_action_button_accessibility_owner_boundary.py`.
 - Exact owner surgery: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-dynamic-action-button-accessibility-owner.patch`, base-blob locked to `44d4e273e79f8dc37227651ba11a31842169db18`.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
@@ -33,8 +34,9 @@ Use this skill when a Button's visible label changes at runtime but source also 
 At minimum prove:
 
 - current visible action text is owned in `refreshUi`;
-- full-text dynamic action buttons do not retain generic static content descriptions that can mask the current action;
-- compact control semantics equal the exact `fullControlLabel` every refresh;
+- `muteButton` semantic description equals its exact current Mute/Unmute action;
+- `controlButton` semantic description equals `fullControlLabel` every refresh;
+- compact control semantics equal the exact `fullControlLabel` every refresh even while visual text stays `STOP` / `ENABLE` / `CONFIRM`;
 - `Confirm disable` remains distinct from ordinary disable;
 - comments/literals/wrong-method counterfeits cannot earn source authority;
 - source proof does not claim runtime TalkBack behavior.
