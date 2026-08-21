@@ -26,24 +26,43 @@ public final class HeartbeatCollapsedOwnerAccessibility {
     }
 
     /**
-     * Description for the existing drag handle.
-     *
-     * <p>Expanded mode keeps the ordinary overlay action description because the
-     * heartbeat summary/detail subtree is visible and accessibility-reachable.
-     * Collapsed mode keeps the surviving action control concise: action + canonical
-     * heartbeat summary + compact blocked/fault attention truth + only the contact/
-     * interruption truth needed before explicit expansion. It deliberately does not
-     * transplant the broad per-light collapsed list onto the drag handle; detailed
-     * light names remain behind the existing expand action. The entire returned
-     * description has one hard aggregate speech budget while exact model/evidence
-     * fields remain unchanged.</p>
+     * Backward-compatible heartbeat-only projection. New owner wiring should prefer
+     * the overload that also receives the current operator-status description so a
+     * custom contentDescription cannot mask the changing visible HC state.
      */
     public static String contentDescription(
             boolean collapsed,
             HeartbeatOverlayViewModel.Model model) {
+        return contentDescription(collapsed, "", model);
+    }
+
+    /**
+     * Description for the existing drag handle.
+     *
+     * <p>Expanded mode keeps the ordinary overlay action description because the
+     * heartbeat summary/detail subtree and operational status surfaces are visible and
+     * accessibility-reachable. Collapsed mode has only one surviving owner, so its
+     * custom contentDescription must include any material operator-status description
+     * before heartbeat truth. Otherwise the custom description masks the visible
+     * compact HC state from accessibility services.</p>
+     *
+     * <p>The operator-status text is supplied by the existing owner; this projection
+     * does not re-derive control, connectivity, remote-input, mute, or P0 state. The
+     * heartbeat portion keeps the surviving action control concise: action + current
+     * operator status + canonical heartbeat summary + compact blocked/fault attention
+     * truth + only the contact/interruption truth needed before explicit expansion.
+     * Detailed light names remain behind the existing expand action. The entire
+     * returned description has one hard aggregate speech budget while exact model and
+     * evidence fields remain unchanged.</p>
+     */
+    public static String contentDescription(
+            boolean collapsed,
+            String operatorStatusDescription,
+            HeartbeatOverlayViewModel.Model model) {
         if (!collapsed) return OVERLAY_ACTION_DESCRIPTION;
 
         StringBuilder out = new StringBuilder(COLLAPSED_ACTION_DESCRIPTION);
+        appendSentence(out, operatorStatusDescription);
         if (model == null) {
             appendSentence(out, WAITING_DESCRIPTION);
             return bounded(out.toString());
