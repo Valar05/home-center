@@ -1,0 +1,17 @@
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private boolean heartbeatHasVisibleViewportContact(View control) {
+-        if (heartbeatScroller == null || control == null) return false;
++        if (heartbeatScroller == null || control == null || !control.isShown()) return false;
+         int viewportWidth = Math.max(0,
+                 heartbeatScroller.getWidth()
+                         - heartbeatScroller.getPaddingLeft()
+                         - heartbeatScroller.getPaddingRight());
+         return HeartbeatViewportRestorePolicy.hasVisibleViewportContact(
+                 control.getLeft(),
+                 control.getWidth(),
+                 heartbeatScroller.getScrollX(),
+                 viewportWidth);
+     }
