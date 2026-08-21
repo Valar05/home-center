@@ -32,20 +32,24 @@ def test_latest_message_preserves_text_value_and_exposes_interaction_semantics()
     )
     assert "latest.setAccessibilityDelegate" in create_overlay, (
         "ACCESSIBILITY WOUND: clickable latest-message text has no explicit source "
-        "surface for expand/collapse accessibility action/state semantics"
+        "surface for expand/collapse accessibility action semantics"
     )
     assert "LatestMessageAccessibilityPolicy.clickActionLabel(expandedText)" in create_overlay
     assert "AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId()" in create_overlay
-    assert "LatestMessageAccessibilityPolicy.stateDescription(expandedText)" in create_overlay
     assert "Build.VERSION.SDK_INT >= Build.VERSION_CODES.R" in create_overlay
+    assert "latest.setStateDescription(" in create_overlay
+    assert "LatestMessageAccessibilityPolicy.stateDescription(expandedText)" in create_overlay
 
 
-def test_latest_message_click_confirmation_honors_mute_contract() -> None:
+def test_latest_message_state_change_uses_semantics_not_deprecated_announcement() -> None:
     create_overlay = _create_overlay_surface()
 
-    assert "LatestMessageAccessibilityPolicy.confirmationAnnouncement(expandedText)" in create_overlay
-    assert "!OperatorState.muted(this)" in create_overlay, (
-        "ACCESSIBILITY WOUND: explicit expand/collapse confirmation must not bypass "
-        "the overlay's existing mute contract"
+    assert "expandedText = !expandedText;" in create_overlay
+    assert "applyExpandedTextState();" in create_overlay
+    assert "latest.setStateDescription(" in create_overlay, (
+        "ACCESSIBILITY WOUND: expanded/collapsed state must be updated semantically"
     )
-    assert "latest.announceForAccessibility" in create_overlay
+    assert "latest.announceForAccessibility" not in create_overlay, (
+        "ACCESSIBILITY REGRESSION: Android API 36 deprecates announceForAccessibility; "
+        "a simple expand/collapse action should expose action/state semantics instead"
+    )
