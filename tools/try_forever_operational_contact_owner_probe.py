@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -20,6 +21,35 @@ class SeamVerdict:
     status: str
     reason: str
     supporting_policy: str
+
+
+def _nested_public_void_callback_surface(method_surface: str, callback_name: str) -> str:
+    """Return one public void callback body nested inside a direct owner method.
+
+    The input is already a Java lexical code surface through _owner_surface, so comments
+    and string/text-block literals cannot counterfeit a callback declaration. Requiring
+    the declaration and extracting its braces is stronger than merely seeing a watcher,
+    an onTextChanged token, and some refresh calls somewhere nearby in createOverlay.
+    """
+    declaration = re.compile(
+        rf"\bpublic\s+void\s+{re.escape(callback_name)}\s*\("
+    )
+    match = declaration.search(method_surface)
+    if match is None:
+        return ""
+    open_brace = method_surface.find("{", match.end())
+    if open_brace < 0:
+        return ""
+    depth = 0
+    for end in range(open_brace, len(method_surface)):
+        char = method_surface[end]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return method_surface[match.start():end + 1]
+    return ""
 
 
 def classify_collapsed_operational_refresh(source: str) -> SeamVerdict:
@@ -67,17 +97,15 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
     create = _direct_method_surface(owner, "createOverlay")
     mode = _direct_method_surface(owner, "adamModeButton")
     refresh = _direct_method_surface(owner, "refreshAdamSendAvailability")
+    on_text_changed = _nested_public_void_callback_surface(create, "onTextChanged")
     policy = "AdamSendAvailabilityAccessibilityPolicy"
 
     persistent_button = "adamSendButton = button(\"Send\")" in create
-    # Require two direct calls in createOverlay: one from the edit listener and one
-    # initial projection. Merely installing a watcher next to a one-time refresh is
-    # not evidence that edits actually drive availability.
-    edit_refresh = (
-        "adamInput.addTextChangedListener(" in create
-        and "onTextChanged(" in create
-        and create.count("refreshAdamSendAvailability(") >= 2
-    )
+    watcher_installed = "adamInput.addTextChangedListener(" in create
+    callback_refresh = "refreshAdamSendAvailability(" in on_text_changed
+    create_without_callback = create.replace(on_text_changed, "", 1) if on_text_changed else create
+    initial_refresh = "refreshAdamSendAvailability(" in create_without_callback
+    edit_refresh = watcher_installed and callback_refresh and initial_refresh
     mode_refresh = "refreshAdamSendAvailability(" in mode
     policy_projection = policy in refresh
     native_enabled = "adamSendButton.setEnabled(" in refresh
@@ -86,7 +114,7 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
     if all((persistent_button, edit_refresh, mode_refresh, policy_projection, native_enabled, action_semantics)):
         return SeamVerdict(
             "SOURCE_WIRED",
-            "existing Adam Send owner tracks the exact trim-based admission boundary on edits and mode changes using native enabled state plus current-mode action semantics",
+            "existing Adam Send owner tracks the exact trim-based admission boundary on real onTextChanged edits and mode changes using native enabled state plus current-mode action semantics",
             policy,
         )
     if policy in owner or "refreshAdamSendAvailability(" in owner or "adamSendButton.setEnabled(" in owner:
@@ -94,7 +122,7 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
         if not persistent_button:
             missing.append("persistent native Send owner")
         if not edit_refresh:
-            missing.append("editable-value refresh")
+            missing.append("edit callback plus independent initial availability projection")
         if not mode_refresh:
             missing.append("mode-change refresh")
         if not policy_projection:
@@ -117,7 +145,7 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-operational-contact-owner-probe.v1",
+        "schema": "try-forever-operational-contact-owner-probe.v2",
         "collapsedOperationalRefresh": asdict(classify_collapsed_operational_refresh(source)),
         "adamSendAvailability": asdict(classify_adam_send_availability(source)),
         "capability": {
