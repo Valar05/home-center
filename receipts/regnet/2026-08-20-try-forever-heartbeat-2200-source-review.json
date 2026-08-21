@@ -1,0 +1,59 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-20-2200",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "reviewedOwner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "authenticatedBlob": "44d4e273e79f8dc37227651ba11a31842169db18"
+  },
+  "fronts": {
+    "latestMessageInteraction": {
+      "policySource": "YES",
+      "policyRegressionSource": "YES_UNEXECUTED",
+      "ownerBoundaryRegression": "YES_RED_UNEXECUTED",
+      "exactOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+      "ownerWiring": "NO",
+      "review": "The source design preserves latest.setContentDescription(null), labels the existing standard click consequence, gates stateDescription behind API 30, and gates explicit confirmation behind the existing mute contract. Source-level approach is coherent; runtime TalkBack behavior remains unproven."
+    },
+    "dynamicActionButtons": {
+      "ownerBoundaryRegression": "YES_RED_UNEXECUTED",
+      "exactOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+      "ownerWiring": "NO",
+      "review": "Code-first review rejected the first null-description repair as underspecified for dynamic Button actions. The corrected source contract refreshes mute/control/compact semantic descriptions to the exact current action, including Confirm disable, in the direct owner refresh path."
+    },
+    "accessibleSourceOrganism": {
+      "latestMessageStateWall": "YES_SOURCE_ONLY",
+      "runtimeProof": "NO"
+    }
+  },
+  "crossPollination": [
+    "Dynamic TextView semantic-value doctrine exposed the separate clickable latest-message action/state wound without reopening the completed value seam.",
+    "Owner archaeology then exposed dynamic Button action descriptions whose static generic labels can lag current Mute/Unmute/Enable/Disable/Confirm state.",
+    "Originality Tax forced the second front through a fresh replan and then forced a second correction when the initial null-description strategy was weaker than exact dynamic action labeling."
+  ],
+  "reviewerFaults": {
+    "sheRaw": "ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_SUBSTITUTE"
+  },
+  "capabilityMembrane": {
+    "supportingSource": true,
+    "authenticatedOwnerReadback": true,
+    "latestMessageInteractionOwnerWired": false,
+    "dynamicActionButtonOwnerWired": false,
+    "regressionSource": true,
+    "regressionsExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
