@@ -3,7 +3,10 @@
 # State: CORRECTED_PROPOSED_NOT_APPLIED
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
-# Review scar: preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
+# Review scars:
+# - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
+# - editable EditText value must not be masked by a generic contentDescription; mode/result context is stateDescription.
+# - the compact Send button must name the exact selected mode in its semantic action and refresh with mode changes.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
@@ -17,6 +20,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 @@
      private Button muteButton;
      private Button controlButton;
++    private Button adamSendButton;
 +    private LinearLayout adamModeRow;
      private EditText adamInput;
      private String adamMode = "terminal";
@@ -51,6 +55,15 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                if (next != adamInputResultState) applyAdamInputResultState(next);
 +            }
 +        });
+         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
+                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+ 
+-        Button adamSendButton = button("Send");
+-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
++        adamSendButton = button("Send");
++        refreshAdamSendAction();
+         adamSendButton.setOnClickListener(v -> submitAdamRequest());
+         adamInputRow.addView(adamSendButton);
 @@
      private Button adamModeButton(String label, String mode, String description) {
          Button value = button(label);
@@ -64,6 +77,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 -            adamMode = mode;
 +            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
 +            refreshAdamModeSelection();
++            refreshAdamSendAction();
 +            AdamInputResultAccessibilityPolicy.ResultState next =
 +                    AdamInputResultAccessibilityPolicy.nextState(
 +                            adamInputResultState,
@@ -92,6 +106,14 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                            tag.toString());
 +            child.setSelected(decision.selected);
 +        }
++    }
++
++    private void refreshAdamSendAction() {
++        if (adamSendButton == null) return;
++        AdamSendActionAccessibilityPolicy.Decision decision =
++                AdamSendActionAccessibilityPolicy.decisionFor(adamMode);
++        adamSendButton.setText(decision.visibleLabel);
++        adamSendButton.setContentDescription(decision.actionDescription);
 +    }
 +
 +    private void applyAdamInputResultState(
