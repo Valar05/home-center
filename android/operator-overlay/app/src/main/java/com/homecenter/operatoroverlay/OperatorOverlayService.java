@@ -265,7 +265,10 @@ public class OperatorOverlayService extends Service {
         recomputeExpandedWidth();
 
         touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
+        touchGuard.setImportantForAccessibility(
+                TechnicalTouchGuardAccessibilityPolicy.importantForAccessibility());
+        touchGuard.setContentDescription(
+                TechnicalTouchGuardAccessibilityPolicy.contentDescription());
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -707,12 +710,12 @@ public class OperatorOverlayService extends Service {
     private void applyExpandedTextState() {
         if (latest == null) return;
         if (expandedText) {
-            latest.setMaxLines(30);
-            latest.setMaxHeight(dp(520));
+            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(true));
+            latest.setMaxHeight(dp(LatestMessageAccessibilityPolicy.expandedMaxHeightDp()));
             latest.setEllipsize(null);
         } else {
             latest.scrollTo(0, 0);
-            latest.setMaxLines(2);
+            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(false));
             latest.setMaxHeight(Integer.MAX_VALUE);
             latest.setEllipsize(TextUtils.TruncateAt.END);
         }
