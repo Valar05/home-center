@@ -1,0 +1,20 @@
+{
+  "schema": "venice-plan-review.v1",
+  "timestamp": "2026-08-21T11:00:00-05:00",
+  "pullRequest": 329,
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-21-1059-plan.json",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "Bounded non-P0 Adam accessibility source lifecycle/evidence/art/doctrine work in the existing Operator Overlay ownership lane.",
+  "conditions": [
+    "OperatorOverlayService remains the sole native owner.",
+    "Do not remove the legacy Adam send announcement; repeatable-send event migration is unresolved.",
+    "A persistent SENT state must return to READY only on a material new-input or mode-selection transition, not on polling or decoration.",
+    "Comments, literals, unrelated owner methods, policy existence, and patch existence cannot count as owner wiring.",
+    "Any owner patch artifact must be locked to authenticated current owner blob c5de1411a6b68087ae17aff83c032af754587150 and remain PROPOSED_NOT_APPLIED unless exact owner readback proves otherwise.",
+    "Regression source remains UNEXECUTED until an authorized runner actually executes it.",
+    "Phone Runtime, Phone Hands, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, queue/relay, and physical acceptance remain untouched.",
+    "Warm-wall changes must represent the new lifecycle consequence, not decorative blinking."
+  ],
+  "sheRawPreExecution": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "gate": "PLAN_ALLOWED__SOURCE_MUTATION_AUTHORIZED__OWNER_PROMOTION_REQUIRES_READBACK"
+}
