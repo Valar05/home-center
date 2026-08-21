@@ -36,6 +36,54 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
     }
 
     @Test
+    public void collapsedOwnerCanExposeOperationalTruthWithoutMaskingHeartbeatTruth() {
+        HeartbeatSceneGraph.Frame accepted = HeartbeatSceneGraph.build(
+                "pulse-operator-status-owner",
+                Collections.singletonList(typed(
+                        "active-light",
+                        "Active light",
+                        HeartbeatSkillPolicy.State.ACTIVE)),
+                true,
+                null);
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(accepted);
+
+        String collapsed = HeartbeatCollapsedOwnerAccessibility.contentDescription(
+                true,
+                "Home Center active. Remote input is reserved",
+                model);
+
+        assertTrue(collapsed.startsWith(
+                HeartbeatCollapsedOwnerAccessibility.COLLAPSED_ACTION_DESCRIPTION));
+        assertTrue(collapsed.contains("Home Center active."));
+        assertTrue(collapsed.contains("Remote input is reserved."));
+        assertTrue(collapsed.contains("HEARTBEAT • 1 LIGHT"));
+        assertTrue(collapsed.codePointCount(0, collapsed.length())
+                <= HeartbeatCollapsedOwnerAccessibility.MAX_COLLAPSED_OWNER_CODE_POINTS);
+    }
+
+    @Test
+    public void verboseOperatorStatusIsBoundedBeforeHeartbeatComposition() {
+        HeartbeatSceneGraph.Frame accepted = HeartbeatSceneGraph.build(
+                "pulse-operator-status-budget",
+                Collections.singletonList(typed(
+                        "budget-light",
+                        "Budget light",
+                        HeartbeatSkillPolicy.State.ACTIVE)),
+                true,
+                null);
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(accepted);
+
+        String collapsed = HeartbeatCollapsedOwnerAccessibility.contentDescription(
+                true,
+                "Home Center status " + repeat("🦢", 220),
+                model);
+
+        assertTrue(collapsed.contains("HEARTBEAT • 1 LIGHT"));
+        assertTrue(collapsed.codePointCount(0, collapsed.length())
+                <= HeartbeatCollapsedOwnerAccessibility.MAX_COLLAPSED_OWNER_CODE_POINTS);
+    }
+
+    @Test
     public void broadPulseKeepsAttentionCountsButPerLightEnumerationBehindExpansion() {
         List<HeartbeatSkillPolicy.Candidate> candidates = new ArrayList<>();
         for (int index = 0; index < 20; index++) {
@@ -162,6 +210,12 @@ public class HeartbeatCollapsedOwnerAccessibilityTest {
         assertEquals(
                 HeartbeatCollapsedOwnerAccessibility.OVERLAY_ACTION_DESCRIPTION,
                 HeartbeatCollapsedOwnerAccessibility.contentDescription(false, model));
+        assertEquals(
+                HeartbeatCollapsedOwnerAccessibility.OVERLAY_ACTION_DESCRIPTION,
+                HeartbeatCollapsedOwnerAccessibility.contentDescription(
+                        false,
+                        "Home Center active",
+                        model));
     }
 
     private static HeartbeatSkillPolicy.Candidate typed(
