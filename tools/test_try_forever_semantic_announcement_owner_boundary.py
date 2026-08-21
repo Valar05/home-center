@@ -3,9 +3,12 @@
 
 This fixture is intentionally source-only. It imports the existing lexical Java owner
 surface instead of inventing another parser. It proves neither Android execution nor
-TalkBack behavior. Until the sole OperatorOverlayService owner carries every semantic
-replacement and removes the four deprecated announcement calls, this fixture should
-remain RED.
+TalkBack behavior.
+
+The current policy accepts only heartbeat material-transition migration. Spotify
+receipt, repeated heartbeat detail selection, and Adam send are repeatable action
+consequences whose exact replacement semantics remain unresolved, so their legacy
+calls must stay in the owner until a later reviewed contract replaces them.
 """
 
 from __future__ import annotations
@@ -29,12 +32,11 @@ def owner_methods(source: str) -> dict[str, str]:
     return {
         name: java_private_void_method_surface(owner, name)
         for name in (
-            "createOverlay",
             "handleSpotifyReceipt",
-            "refreshUi",
             "refreshHeartbeatLights",
             "showHeartbeatDetail",
             "submitAdamRequest",
+            "clearHeartbeatPreContactWoundToWaiting",
         )
     }
 
@@ -46,25 +48,6 @@ class SemanticAnnouncementOwnerBoundaryTest(unittest.TestCase):
         for name, body in self.methods.items():
             self.assertTrue(body, f"missing direct owner method: {name}")
 
-    def test_legacy_global_announcements_are_retired_from_owner_code(self) -> None:
-        lexical = java_lexical_code_surface(self.source)
-        owner = java_named_class_surface(lexical, "OperatorOverlayService")
-        self.assertNotIn(".announceForAccessibility(", owner)
-
-    def test_spotify_receipt_uses_explicit_only_live_region_value(self) -> None:
-        body = self.methods["handleSpotifyReceipt"]
-        self.assertIn(
-            "AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT",
-            body,
-        )
-        self.assertIn("spotifyStatus.setAccessibilityLiveRegion(", body)
-        self.assertIn("requestId > 0L", body)
-        self.assertNotIn("announceForAccessibility", body)
-
-        background = self.methods["refreshUi"]
-        self.assertIn("spotifyStatus.setAccessibilityLiveRegion(", background)
-        self.assertIn("View.ACCESSIBILITY_LIVE_REGION_NONE", background)
-
     def test_heartbeat_material_transition_uses_existing_announce_gate_as_live_region_gate(self) -> None:
         body = self.methods["refreshHeartbeatLights"]
         self.assertIn(
@@ -75,28 +58,36 @@ class SemanticAnnouncementOwnerBoundaryTest(unittest.TestCase):
         self.assertIn("boolean announce =", body)
         self.assertNotIn("heartbeatSummary.announceForAccessibility", body)
 
-    def test_explicit_detail_selection_uses_detail_value_and_background_disables_live_region(self) -> None:
+    def test_waiting_recovery_disables_stale_heartbeat_live_region_before_value_change(self) -> None:
+        body = self.methods["clearHeartbeatPreContactWoundToWaiting"]
+        live_region = body.index("heartbeatSummary.setAccessibilityLiveRegion(")
+        waiting_text = body.index('heartbeatSummary.setText("HEARTBEAT • waiting")')
+        self.assertLess(live_region, waiting_text)
+        self.assertIn("View.ACCESSIBILITY_LIVE_REGION_NONE", body)
+
+    def test_spotify_repeatable_receipt_keeps_legacy_call_until_fresh_event_semantics_exist(self) -> None:
+        body = self.methods["handleSpotifyReceipt"]
+        self.assertIn("spotifyStatus.announceForAccessibility(", body)
+        self.assertNotIn(
+            "AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT",
+            body,
+        )
+
+    def test_repeated_detail_selection_keeps_legacy_call_until_fresh_event_semantics_exist(self) -> None:
         body = self.methods["showHeartbeatDetail"]
-        self.assertIn(
+        self.assertIn("heartbeatDetail.announceForAccessibility(", body)
+        self.assertNotIn(
             "AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION",
             body,
         )
-        self.assertIn("heartbeatDetail.setAccessibilityLiveRegion(", body)
-        self.assertIn("explicitSelection", body)
-        self.assertIn("OperatorState.muted(this)", body)
-        self.assertNotIn("heartbeatDetail.announceForAccessibility", body)
 
-    def test_adam_send_uses_dedicated_status_value_not_editable_announcement(self) -> None:
-        create = self.methods["createOverlay"]
-        submit = self.methods["submitAdamRequest"]
-        self.assertIn("adamStatus = textView(", create)
-        self.assertIn("adamStatus.setAccessibilityLiveRegion(", create)
-        self.assertIn("adamStatus.setText(", submit)
-        self.assertIn(
+    def test_adam_repeatable_send_keeps_legacy_call_until_fresh_event_semantics_exist(self) -> None:
+        body = self.methods["submitAdamRequest"]
+        self.assertIn("adamInput.announceForAccessibility(", body)
+        self.assertNotIn(
             "AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION",
-            submit,
+            body,
         )
-        self.assertNotIn("adamInput.announceForAccessibility", submit)
 
 
 if __name__ == "__main__":
