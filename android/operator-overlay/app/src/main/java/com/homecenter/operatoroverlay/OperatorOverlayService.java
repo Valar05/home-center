@@ -29,6 +29,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -433,6 +434,22 @@ public class OperatorOverlayService extends Service {
         // TextView text is the semantic value; a static description would mask the
         // changing Home Center message for accessibility services.
         latest.setContentDescription(null);
+        latest.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            latest.setStateDescription(
+                    LatestMessageAccessibilityPolicy.stateDescription(expandedText));
+        }
+        latest.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(
+                    View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(),
+                        LatestMessageAccessibilityPolicy.clickActionLabel(expandedText)));
+            }
+        });
         latest.setOnClickListener(v -> {
             expandedText = !expandedText;
             applyExpandedTextState();
@@ -699,6 +716,10 @@ public class OperatorOverlayService extends Service {
             latest.setMaxHeight(Integer.MAX_VALUE);
             latest.setEllipsize(TextUtils.TruncateAt.END);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            latest.setStateDescription(
+                    LatestMessageAccessibilityPolicy.stateDescription(expandedText));
+        }
         latest.requestLayout();
         latest.post(this::clampAndPersistPosition);
     }
@@ -773,6 +794,7 @@ public class OperatorOverlayService extends Service {
         }
 
         muteButton.setText(muted ? "Unmute speech" : "Mute speech");
+        muteButton.setContentDescription(muted ? "Unmute speech" : "Mute speech");
         String fullControlLabel;
         String compactControlLabel;
         if (!enabled) {
@@ -787,6 +809,8 @@ public class OperatorOverlayService extends Service {
         }
         controlButton.setText(fullControlLabel);
         compactControlButton.setText(compactControlLabel);
+        controlButton.setContentDescription(fullControlLabel);
+        compactControlButton.setContentDescription(fullControlLabel);
 
         String source = OperatorState.latestSource(this);
         long lastUpdate = OperatorState.lastUpdateMs(this);
