@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TRY FOREVER — Operational Contact Throat</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; background:#111; color:#f4f4f4; }
+    body { margin:0; padding:24px; }
+    main { max-width:760px; margin:auto; display:grid; gap:20px; }
+    section { border:1px solid currentColor; border-radius:18px; padding:18px; }
+    h1,h2,p { margin-top:0; }
+    fieldset { border:0; padding:0; margin:0; display:grid; gap:10px; }
+    label { min-height:56px; border:1px solid currentColor; border-radius:14px; padding:10px 14px; display:flex; gap:12px; align-items:center; cursor:pointer; }
+    input[type=radio] { width:24px; height:24px; flex:0 0 auto; }
+    output { display:block; min-height:64px; margin-top:12px; padding:12px; border:1px dashed currentColor; border-radius:12px; }
+    .scar { font-weight:700; letter-spacing:.04em; }
+    svg { width:100%; height:auto; max-height:120px; }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>OPERATIONAL CONTACT THROAT</h1>
+    <p class="scar">SOURCE ONLY · OWNER WIRING PARTIAL/NO · TESTED NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+    <svg viewBox="0 0 720 100" role="img" aria-labelledby="wall-title wall-desc">
+      <title id="wall-title">Two independent accessibility throats</title>
+      <desc id="wall-desc">Collapsed Home Center operational truth flows into heartbeat contact speech; Adam editable request truth flows into native Send availability.</desc>
+      <path d="M30 50 H300 M420 50 H690" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="300" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="420" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="300" y="56" text-anchor="middle" fill="currentColor" font-size="18">HC</text>
+      <text x="420" y="56" text-anchor="middle" fill="currentColor" font-size="18">SEND</text>
+    </svg>
+  </header>
+
+  <section>
+    <h2>Collapsed owner: visible state must survive custom speech</h2>
+    <fieldset aria-describedby="collapsed-detail">
+      <legend>Choose a source state</legend>
+      <label><input type="radio" name="hc" checked onclick="document.getElementById('collapsed-detail').value='Drag Home Center overlay. Tap to expand for heartbeat details. Home Center active. Remote input is reserved. HEARTBEAT • 3 LIGHTS.'">HC active</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='Drag Home Center overlay. Tap to expand for heartbeat details. Home Center offline. HEARTBEAT • CONTACT HELD.'">HC offline + contact held</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='Owner source gap: OperatorOverlayService still calls the heartbeat-only overload, so runtime collapsed operational truth is not yet proven.'">Owner gap</label>
+    </fieldset>
+    <output id="collapsed-detail" aria-live="polite">Drag Home Center overlay. Tap to expand for heartbeat details. Home Center active. Remote input is reserved. HEARTBEAT • 3 LIGHTS.</output>
+  </section>
+
+  <section>
+    <h2>Adam Send: enabled must mean there is something to send</h2>
+    <fieldset aria-describedby="send-detail">
+      <legend>Choose an editable request state</legend>
+      <label><input type="radio" name="send" checked onclick="document.getElementById('send-detail').value='EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.'">Empty / whitespace</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='MATERIAL: native Send may be enabled. Its action description still names the exact selected Adam mode.'">Material request</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='Owner gap: current OperatorOverlayService still leaves Send enabled when trim() would reject the request.'">Owner gap</label>
+    </fieldset>
+    <output id="send-detail" aria-live="polite">EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.</output>
+  </section>
+</main>
+</body>
+</html>
