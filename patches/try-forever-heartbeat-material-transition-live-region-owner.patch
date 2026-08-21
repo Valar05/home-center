@@ -1,0 +1,41 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: PROPOSED_NOT_APPLIED
+# Scope: heartbeat automatic material transition only; existing OperatorOverlayService;
+# explicit Spotify/detail/Adam legacy calls deliberately remain until exact repeatable-event semantics exist.
+# No second accessibility controller. No phone/P0 action.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         heartbeatSummary = textView(12f, true);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+@@
+         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                 heartbeatAnnouncementIdentity,
+                 next,
+                 muted,
+                 overlayVisible,
+                 heartbeatSurfaceVisible);
++        heartbeatSummary.setAccessibilityLiveRegion(
++                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                        AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
++                        false,
++                        announce,
++                        muted));
+@@
+-        if (announce) {
+-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
+-        }
+-
+         heartbeatStructureIdentity = next.structureIdentity;
+@@
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
