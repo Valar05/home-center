@@ -1,0 +1,127 @@
+# TRY FOREVER — Adam mode/input accessibility owner surgery
+# Base owner blob: c5de1411a6b68087ae17aff83c032af754587150
+# State: PROPOSED_NOT_APPLIED
+# Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
+# Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+ import android.provider.Settings;
++import android.text.Editable;
+ import android.text.TextUtils;
++import android.text.TextWatcher;
+ import android.text.method.ScrollingMovementMethod;
+@@
+     private Button muteButton;
+     private Button controlButton;
++    private LinearLayout adamModeRow;
+     private EditText adamInput;
+     private String adamMode = "terminal";
++    private AdamInputResultAccessibilityPolicy.ResultState adamInputResultState =
++            AdamInputResultAccessibilityPolicy.ResultState.READY;
+@@
+-        LinearLayout adamModeRow = new LinearLayout(this);
++        adamModeRow = new LinearLayout(this);
+         adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
+@@
+-        adamInput.setContentDescription("Adam input. Current mode terminal.");
++        adamInput.setContentDescription(null);
++        applyAdamInputResultState(adamInputResultState);
++        adamInput.addTextChangedListener(new TextWatcher() {
++            @Override
++            public void beforeTextChanged(CharSequence value, int start, int count, int after) {
++            }
++
++            @Override
++            public void onTextChanged(CharSequence value, int start, int before, int count) {
++            }
++
++            @Override
++            public void afterTextChanged(Editable editable) {
++                boolean hasNonWhitespaceText = editable != null
++                        && !editable.toString().trim().isEmpty();
++                AdamInputResultAccessibilityPolicy.ResultState next =
++                        AdamInputResultAccessibilityPolicy.nextState(
++                                adamInputResultState,
++                                AdamInputResultAccessibilityPolicy.Transition.EDITED,
++                                hasNonWhitespaceText);
++                if (next != adamInputResultState) applyAdamInputResultState(next);
++            }
++        });
+@@
+     private Button adamModeButton(String label, String mode, String description) {
+         Button value = button(label);
+-        value.setContentDescription(description);
++        value.setTag(mode);
++        AdamModeSelectionAccessibilityPolicy.Decision initial =
++                AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
++        value.setSelected(initial.selected);
++        value.setContentDescription(initial.actionDescription);
+         value.setOnClickListener(v -> {
+-            adamMode = mode;
++            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
++            refreshAdamModeSelection();
++            AdamInputResultAccessibilityPolicy.ResultState next =
++                    AdamInputResultAccessibilityPolicy.nextState(
++                            adamInputResultState,
++                            AdamInputResultAccessibilityPolicy.Transition.MODE_SELECTED,
++                            false);
++            applyAdamInputResultState(next);
+             if (adamInput != null) {
+-                adamInput.setHint("Adam — " + mode);
+-                adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
+                 adamInput.requestFocus();
+             }
+         });
+         return value;
+     }
++
++    private void refreshAdamModeSelection() {
++        if (adamModeRow == null) return;
++        for (int index = 0; index < adamModeRow.getChildCount(); index++) {
++            View child = adamModeRow.getChildAt(index);
++            if (!(child instanceof Button)) continue;
++            Object tag = child.getTag();
++            if (tag == null) continue;
++            AdamModeSelectionAccessibilityPolicy.Decision decision =
++                    AdamModeSelectionAccessibilityPolicy.decisionFor(
++                            adamMode,
++                            tag.toString());
++            child.setSelected(decision.selected);
++            child.setContentDescription(decision.actionDescription);
++        }
++    }
++
++    private void applyAdamInputResultState(
++            AdamInputResultAccessibilityPolicy.ResultState resultState) {
++        adamInputResultState = resultState;
++        if (adamInput == null) return;
++        AdamInputResultAccessibilityPolicy.Decision decision =
++                AdamInputResultAccessibilityPolicy.decisionFor(adamMode, resultState);
++        adamInput.setContentDescription(null);
++        adamInput.setHint("Adam — " + decision.mode.wireValue
++                + (resultState == AdamInputResultAccessibilityPolicy.ResultState.SENT
++                        ? " • sent"
++                        : ""));
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
++            adamInput.setStateDescription(decision.stateDescription);
++        }
++    }
+ 
+     private void submitAdamRequest() {
+@@
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+-        adamInput.setHint("Adam — " + adamMode + " • sent");
++        AdamInputResultAccessibilityPolicy.ResultState next =
++                AdamInputResultAccessibilityPolicy.nextState(
++                        adamInputResultState,
++                        AdamInputResultAccessibilityPolicy.Transition.SUBMIT_SUCCEEDED,
++                        false);
++        applyAdamInputResultState(next);
++        // Deliberately retained: persistent SENT state is not a reviewed replacement for
++        // a repeatable identical-send event receipt.
+         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+     }
