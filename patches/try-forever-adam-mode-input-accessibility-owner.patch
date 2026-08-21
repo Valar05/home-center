@@ -1,8 +1,9 @@
 # TRY FOREVER — Adam mode/input accessibility owner surgery
 # Base owner blob: c5de1411a6b68087ae17aff83c032af754587150
-# State: PROPOSED_NOT_APPLIED
+# State: CORRECTED_PROPOSED_NOT_APPLIED
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
+# Review scar: preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
@@ -58,7 +59,7 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +        AdamModeSelectionAccessibilityPolicy.Decision initial =
 +                AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
 +        value.setSelected(initial.selected);
-+        value.setContentDescription(initial.actionDescription);
++        value.setContentDescription(description);
          value.setOnClickListener(v -> {
 -            adamMode = mode;
 +            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
@@ -90,7 +91,6 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                            adamMode,
 +                            tag.toString());
 +            child.setSelected(decision.selected);
-+            child.setContentDescription(decision.actionDescription);
 +        }
 +    }
 +
