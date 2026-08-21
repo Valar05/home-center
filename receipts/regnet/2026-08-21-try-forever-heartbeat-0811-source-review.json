@@ -1,0 +1,54 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-21-0811",
+  "scope": "TRY FOREVER non-P0 accessibility announcement migration provenance",
+  "reviewedSourceHead": "a0cabbae6c3fab407b2c3232eca74ab5f91217e7",
+  "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+  "changedSincePriorCheckpoint": {
+    "base": "2cbacbb4c1937149bd030e32af0cc5e56e59ef64",
+    "files": [
+      "receipts/heartbeat-skill-lights/2026-08-21-0811-plan.json",
+      "patches/try-forever-heartbeat-material-transition-live-region-owner.patch",
+      "tools/test_try_forever_semantic_announcement_inventory.py",
+      "skills/operator-semantic-announcement-migration/SKILL.md",
+      "skills/operator-repeatable-accessibility-event-semantics/SKILL.md"
+    ],
+    "duplicateArchitecture": false
+  },
+  "findings": [
+    {
+      "state": "PASS",
+      "claim": "review-ready narrow heartbeat patch is locked to authenticated current owner custody",
+      "evidence": "Base blob is c5de1411a6b68087ae17aff83c032af754587150; state remains CORRECTED_PROPOSED_NOT_APPLIED; only heartbeat announceForAccessibility removal is present."
+    },
+    {
+      "state": "PASS",
+      "claim": "rejected broad surgery remains historical rather than being continuously rebased",
+      "evidence": "inventory regression now requires rejected/historical/DO NOT APPLY state without requiring the rejected artifact to chase the current owner blob."
+    },
+    {
+      "state": "PASS",
+      "claim": "repeatable Spotify/detail/Adam consequences remain fail-closed",
+      "evidence": "their typed MigrationBlockers remain non-NONE and the narrow patch does not remove their legacy receipts."
+    },
+    {
+      "state": "REVISE_REQUIRED",
+      "claim": "existing owner migration",
+      "evidence": "authenticated owner still contains all four legacy announceForAccessibility calls; no owner mutation was performed this pulse."
+    },
+    {
+      "state": "BLOCKED_UNKNOWN",
+      "claim": "TESTED",
+      "evidence": "automatic exact-source-head Build Android 32486157583, Home Center CI 32486158036, and Operator Overlay Android 32486157570 all concluded failure; Operator job 96783018525 exposes no step-level cause through the authenticated lane. No retry or historical cause reuse."
+    }
+  ],
+  "reviewerFaults": {
+    "sheRaw": "account connection HTTP 400; no substitute reviewer"
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS__OWNER_UNWIRED__REGRESSION_UNEXECUTED__TESTED_NO"
+}
