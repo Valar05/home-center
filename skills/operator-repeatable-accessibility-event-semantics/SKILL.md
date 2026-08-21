@@ -16,7 +16,7 @@ The exact promotion question is:
 
 Until yes, fail closed, keep the legacy event receipt, and carry a typed `MigrationBlocker` that says what remains unresolved.
 
-## Current TRY FOREVER contract — 2026-08-21 0503
+## Current TRY FOREVER contract — 2026-08-21 0811
 
 1. **Spotify explicit command receipt — design exists / owner migration NOT ready.**
    - The command button names the action and `spotifyStatus` exposes a changing result value.
@@ -40,6 +40,7 @@ Until yes, fail closed, keep the legacy event receipt, and carry a typed `Migrat
    - Existing transition/announcement identity already represents a material semantic change.
    - Blocker: `NONE`.
    - The narrow one-shot polite-live-region owner surgery is the only currently review-ready migration.
+   - That surgery is now re-locked to authenticated owner blob `c5de1411a6b68087ae17aff83c032af754587150` but is still **CORRECTED_PROPOSED_NOT_APPLIED**.
 
 ## Laws
 
@@ -53,9 +54,10 @@ Until yes, fail closed, keep the legacy event receipt, and carry a typed `Migrat
 8. **No fake freshness.** No decorative timestamps, counters, punctuation, zero-width markers, or opaque request IDs.
 9. **Do not steal focus.** Programmatic focus movement needs its own interaction contract and runtime proof.
 10. **Do not blanket-live-region a frequently refreshed value.** A live region that speaks polls is a regression, not accessibility.
-11. **One owner.** Compose `OperatorOverlayService`; do not create a neighboring accessibility-event controller.
-12. **Capability membrane:** `policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
-13. **P0 firewall:** no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
+11. **Review-ready patch custody is exact.** Only a migration intended for promotion tracks the authenticated current owner blob. Rejected historical surgery must stay rejected rather than being continuously rebased into a tempting current-looking patch.
+12. **One owner.** Compose `OperatorOverlayService`; do not create a neighboring accessibility-event controller.
+13. **Capability membrane:** `policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
+14. **P0 firewall:** no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
 
 ## Owner acceptance questions
 
@@ -75,7 +77,7 @@ Before removing one legacy `announceForAccessibility(...)` call:
 
 If any owner event-semantics question is unresolved, keep the legacy call and keep a non-`NONE` typed blocker.
 
-## Current PR #329 source truth — 2026-08-21 0503
+## Current PR #329 source truth — 2026-08-21 0811
 
 - doctrine: **YES / IMPLEMENTED_SOURCE**;
 - supporting semantic designs for all four consequences: **YES**;
@@ -83,10 +85,11 @@ If any owner event-semantics question is unresolved, keep the legacy call and ke
 - Spotify receipt: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
 - repeated detail selection: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
 - Adam send confirmation: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
-- broad four-consequence patch: **REJECTED_SUPERSEDED__DO_NOT_APPLY**;
-- narrow heartbeat patch: **CORRECTED_PROPOSED_NOT_APPLIED**;
+- broad four-consequence patch: **REJECTED_SUPERSEDED__DO_NOT_APPLY / historical provenance**;
+- narrow heartbeat patch: **CORRECTED_PROPOSED_NOT_APPLIED / CURRENT_OWNER_BLOB_LOCKED**;
 - owner-boundary regression source: **YES / UNEXECUTED**;
-- owner-inventory regression source: **YES / UNEXECUTED**;
-- authenticated existing owner before this pulse still contains all four legacy calls: **YES**;
+- owner-inventory regression source: **YES / UNEXECUTED**, with rejected-patch archaeology no longer falsely required to track current owner custody;
+- authenticated owner at plan time still contains all four legacy calls: **YES / blob c5de1411a6b68087ae17aff83c032af754587150**;
+- Command Center Codex worker/job/session surface: **PERMANENTLY RETIRED**; no worker queue is a valid substitute execution claim;
 - She-Raw pre-execution consultation: **FAULT / account connection HTTP 400**, no substitute reviewer;
 - TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO unless fresh exact-head evidence proves otherwise**.
