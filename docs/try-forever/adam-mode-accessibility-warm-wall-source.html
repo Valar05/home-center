@@ -32,7 +32,7 @@
 <body>
 <main>
   <h1>ADAM MODE / WARM WALL</h1>
-  <p class="scar">SOURCE LIFECYCLE + VALUE + ACTION + SET POSITION READY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">SOURCE LIFECYCLE + VALUE + ACTION + SET POSITION READY · OWNER SURGERY PREPARED · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 
   <fieldset id="modeGroup">
     <legend>Adam mode — one persistent choice, five stable positions</legend>
@@ -52,21 +52,22 @@
   <p id="inputState" aria-live="polite">Terminal mode. Ready to send.</p>
 
   <div class="wall" aria-label="Source capability states">
-    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state still missing in the native owner.</section>
-    <section class="cell"><div class="token">●</div><strong>SET POSITION SOURCE</strong><br>Canonical TERM/CHAT/CONT/VLAD/RADIO order now carries stable positions 1..5; native owner consumption is still NO.</section>
-    <section class="cell"><div class="token">□</div><strong>INPUT OWNER</strong><br>Native READY/SENT/edit-recovery lifecycle still unwired.</section>
+    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state is still missing in the native owner.</section>
+    <section class="cell"><div class="token">●</div><strong>SET POSITION SOURCE</strong><br>Canonical TERM/CHAT/CONT/VLAD/RADIO order carries stable positions 1..5 and set size 5.</section>
+    <section class="cell"><div class="token">●</div><strong>OWNER SURGERY</strong><br>The exact owner patch now carries single-selection collection + per-mode collection-item position semantics; it is still unapplied.</section>
+    <section class="cell"><div class="token">□</div><strong>NATIVE SET CONTEXT</strong><br><code>setSelected(...)</code> alone is PARTIAL_UNSAFE until collection and item-position context are both present.</section>
+    <section class="cell"><div class="token">□</div><strong>INPUT OWNER</strong><br>Native READY/SENT/edit-recovery lifecycle is still unwired.</section>
     <section class="cell"><div class="token">●</div><strong>EDITABLE VALUE</strong><br>The input text stays the semantic value; context is state, not a generic replacement description.</section>
     <section class="cell"><div class="token">□</div><strong>SEND ACTION OWNER</strong><br>Native Send action still fails to name the exact selected mode.</section>
     <section class="cell"><div class="token">●</div><strong>EDIT RECOVERY</strong><br>SENT + real new text → READY; empty programmatic clear keeps SENT.</section>
-    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result lifecycle + mode-specific Send action contracts exist as repository source.</section>
     <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence.</section>
   </div>
 
-  <div id="detail" role="status">Terminal selected, position 1 of 5. Selection is not focus ownership.</div>
+  <div id="detail" role="status">Terminal selected, position 1 of 5. Source policy knows the set; native owner does not yet expose it.</div>
 
-  <svg viewBox="0 0 800 180" role="img" aria-labelledby="svgTitle svgDesc">
-    <title id="svgTitle">Warm-wall source lifecycle</title>
-    <desc id="svgDesc">Five Adam modes have stable positions in one persistent selection set. The editable input remains its own semantic value. The send action names the selected mode. The input moves from ready to sent after submit and back to ready when real new text is typed. Native owner wiring and runtime proof remain blocked.</desc>
+  <svg viewBox="0 0 800 200" role="img" aria-labelledby="svgTitle svgDesc">
+    <title id="svgTitle">Warm-wall source lifecycle and native set-position boundary</title>
+    <desc id="svgDesc">Five Adam modes have stable positions in one persistent selection set. The owner surgery contains single-selection collection and per-item position semantics but is not applied. The editable input remains its own semantic value. The send action names the selected mode. The input moves from ready to sent after submit and back to ready when real new text is typed. Runtime proof remains blocked.</desc>
     <path d="M40 65 H210 M210 65 H390 M390 65 H570 M570 65 H750" fill="none" stroke="currentColor" stroke-width="4"/>
     <circle cx="75" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="220" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -77,7 +78,8 @@
     <text x="470" y="72" text-anchor="middle" fill="currentColor" font-size="18">SENT</text>
     <text x="650" y="72" text-anchor="middle" fill="currentColor" font-size="18">EDIT → READY</text>
     <text x="400" y="126" text-anchor="middle" fill="currentColor" font-size="17">MODE = POSITION / 5 · INPUT VALUE = TEXT</text>
-    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">SOURCE POLICY ● · NATIVE OWNER □</text>
+    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">OWNER SURGERY ● · OWNER APPLIED □</text>
+    <text x="400" y="182" text-anchor="middle" fill="currentColor" font-size="17">TESTED × · PHONE/P0 UNTOUCHED</text>
   </svg>
 </main>
 <script>
@@ -97,10 +99,8 @@
     const position = order.indexOf(mode) + 1;
     state.textContent = `${label} mode. ${result}`;
     send.setAttribute('aria-label', `Send request to Adam using ${label} mode`);
-    detail.textContent = `${label} selected, position ${position} of ${order.length}. ${result} Editable text remains the field value; Send names the current mode; selection is not keyboard or accessibility focus ownership.`;
+    detail.textContent = `${label} selected, position ${position} of ${order.length}. ${result} Source collection semantics are prepared for the native owner but remain unapplied; selection is not keyboard or accessibility focus ownership.`;
   };
-  // Native radio keyboard navigation keeps focus in the mode group. Selecting a mode is a
-  // material lifecycle transition to READY, but does not steal keyboard focus into the input.
   group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
   send.addEventListener('click', () => {
     if (!request.value.trim()) return;
@@ -108,8 +108,6 @@
     request.value = '';
     render();
   });
-  // Programmatic empty clear after send intentionally leaves SENT intact. Real new non-empty
-  // editing means an unsent request now exists, so stale SENT becomes READY.
   request.addEventListener('input', () => {
     if (request.value.trim() && result === 'Sent.') {
       result = 'Ready to send.';
