@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class AccessibilityAnnouncementSemanticPolicyTest {
     @Test
-    public void heartbeatMaterialTransitionIsTheOnlyReadyLiveRegionValueChange() {
+    public void heartbeatMaterialTransitionUsesExistingMaterialChangeGate() {
         AccessibilityAnnouncementSemanticPolicy.Decision decision =
                 AccessibilityAnnouncementSemanticPolicy.decisionFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION);
@@ -24,6 +24,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.automaticUpdateAllowed);
         assertTrue(decision.requiresMaterialTransition);
         assertFalse(decision.repeatableIdenticalValuePossible);
+        assertFalse(decision.syntheticRepeatReceiptRequired);
         assertTrue(decision.ownerMigrationReady);
         assertEquals(
                 View.ACCESSIBILITY_LIVE_REGION_POLITE,
@@ -49,50 +50,98 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
     }
 
     @Test
-    public void spotifyReceiptCanRepeatWithoutChangingCurrentStatusSoMigrationStaysUnready() {
-        assertRepeatableActionUnready(
-                AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT);
+    public void spotifyExplicitReceiptUsesChangedStatusValueWithoutFakeRepeatFreshness() {
+        AccessibilityAnnouncementSemanticPolicy.Decision decision =
+                AccessibilityAnnouncementSemanticPolicy.decisionFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT);
+
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.LIVE_REGION_VALUE_CHANGE,
+                decision.channel);
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.OwnerMechanism.SPOTIFY_ACTION_AND_STATUS_VALUE,
+                decision.ownerMechanism);
+        assertFalse(decision.automaticUpdateAllowed);
+        assertTrue(decision.requiresExplicitUserAction);
+        assertTrue(decision.requiresMaterialTransition);
+        assertTrue(decision.repeatableIdenticalValuePossible);
+        assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertTrue(decision.ownerMigrationReady);
+        assertEquals(
+                View.ACCESSIBILITY_LIVE_REGION_POLITE,
+                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
+                        true,
+                        true,
+                        false));
+        assertEquals(
+                View.ACCESSIBILITY_LIVE_REGION_NONE,
+                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
+                        true,
+                        false,
+                        false));
+        assertEquals(
+                View.ACCESSIBILITY_LIVE_REGION_NONE,
+                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.SPOTIFY_COMMAND_RECEIPT,
+                        false,
+                        true,
+                        false));
     }
 
     @Test
-    public void explicitDetailCanBeSelectedRepeatedlyWithoutChangingDetailSoMigrationStaysUnready() {
-        assertRepeatableActionUnready(
-                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION);
+    public void explicitDetailUsesNativeSelectionAndPersistentDetailNotRepeatAnnouncement() {
+        AccessibilityAnnouncementSemanticPolicy.Decision decision =
+                AccessibilityAnnouncementSemanticPolicy.decisionFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION);
+
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.NATIVE_SELECTION_AND_DETAIL,
+                decision.channel);
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.OwnerMechanism.HEARTBEAT_SELECTED_CONTROL_AND_DETAIL,
+                decision.ownerMechanism);
+        assertTrue(decision.requiresExplicitUserAction);
+        assertTrue(decision.repeatableIdenticalValuePossible);
+        assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertTrue(decision.ownerMigrationReady);
+        assertEquals(
+                View.ACCESSIBILITY_LIVE_REGION_NONE,
+                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION,
+                        true,
+                        true,
+                        false));
     }
 
     @Test
-    public void adamSendCanRepeatInSameModeWithoutChangingSimpleSentLabelSoMigrationStaysUnready() {
-        assertRepeatableActionUnready(
-                AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION);
+    public void adamSendUsesSelfDescribingActionAndPersistentInputResultNotRepeatAnnouncement() {
+        AccessibilityAnnouncementSemanticPolicy.Decision decision =
+                AccessibilityAnnouncementSemanticPolicy.decisionFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION);
+
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.NATIVE_ACTION_AND_RESULT_STATE,
+                decision.channel);
+        assertEquals(
+                AccessibilityAnnouncementSemanticPolicy.OwnerMechanism.ADAM_MODED_SEND_AND_INPUT_RESULT,
+                decision.ownerMechanism);
+        assertTrue(decision.requiresExplicitUserAction);
+        assertTrue(decision.repeatableIdenticalValuePossible);
+        assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertTrue(decision.ownerMigrationReady);
+        assertEquals(
+                View.ACCESSIBILITY_LIVE_REGION_NONE,
+                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                        AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION,
+                        true,
+                        true,
+                        false));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullConsequenceFailsClosed() {
         AccessibilityAnnouncementSemanticPolicy.decisionFor(null);
-    }
-
-    private static void assertRepeatableActionUnready(
-            AccessibilityAnnouncementSemanticPolicy.Consequence consequence) {
-        AccessibilityAnnouncementSemanticPolicy.Decision decision =
-                AccessibilityAnnouncementSemanticPolicy.decisionFor(consequence);
-        assertEquals(
-                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.REPEATABLE_ACTION_EVENT_UNRESOLVED,
-                decision.channel);
-        assertEquals(
-                AccessibilityAnnouncementSemanticPolicy.OwnerMechanism.UNRESOLVED_REPEATABLE_ACTION_EVENT,
-                decision.ownerMechanism);
-        assertFalse(decision.automaticUpdateAllowed);
-        assertTrue(decision.requiresExplicitUserAction);
-        assertTrue(decision.preserveNativeTextValue);
-        assertTrue(decision.repeatableIdenticalValuePossible);
-        assertFalse(decision.ownerMigrationReady);
-        assertTrue(decision.legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring);
-        assertEquals(
-                View.ACCESSIBILITY_LIVE_REGION_NONE,
-                AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
-                        consequence,
-                        true,
-                        true,
-                        false));
     }
 }
