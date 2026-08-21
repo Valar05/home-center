@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "checkpoint": "2026-08-20-2200",
+  "trigger": "Source archaeology during latest-message accessibility review exposed a separate interactive-label wound in the same existing owner.",
+  "wound": "controlButton, compactControlButton, and muteButton change their visible action labels in refreshUi while static generic contentDescription values can hide the current exact action from accessibility services; compactControlButton additionally needs a full semantic action because STOP/ENABLE/CONFIRM are intentionally terse visual labels.",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "constraints": [
+    "Do not reopen completed dynamic TextView semantic-value seams.",
+    "Do not create a neighboring accessibility controller.",
+    "Full text buttons should expose their changing visible action text rather than a generic static contentDescription.",
+    "The compact control button may keep terse visual text but must expose the exact full current action semantically.",
+    "Confirm-disable must be distinguishable from ordinary disable; safety state may not collapse into a generic 'disable or enable' label.",
+    "Phone/P0 consumption and mutation remain zero."
+  ],
+  "fronts": [
+    "Add a RED existing-owner source regression for dynamic mute/control action semantics.",
+    "Preserve one exact base-blob-locked owner surgery without promoting it to implementation.",
+    "Harvest reusable dynamic action-button accessibility doctrine.",
+    "Keep the latest-message action/state front independent so either seam can advance without falsely completing the other."
+  ],
+  "gate": "REPLAN_REQUIRED__SECOND_INDEPENDENT_ACCESSIBILITY_FRONT"
+}
