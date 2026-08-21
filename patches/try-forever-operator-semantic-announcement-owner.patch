@@ -92,6 +92,15 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 -
          heartbeatStructureIdentity = next.structureIdentity;
 @@
+         heartbeatFrame = null;
+         heartbeatSelectedId = "";
+         heartbeatStructureIdentity = "";
+         heartbeatRenderIdentity = "";
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+@@
          int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
          HeartbeatDetailSurfacePolicy.Presentation presentation =
                  HeartbeatDetailSurfacePolicy.fromDetail(detail);
