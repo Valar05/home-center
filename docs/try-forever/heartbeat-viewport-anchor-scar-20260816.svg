@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="1100" viewBox="0 0 960 1100" role="img" aria-labelledby="title desc">
-  <title id="title">Heartbeat viewport ownership, persisted-poll coherence, waiting recovery, and interruption chrome truth scars</title>
-  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Persisted poll classification and coherent one-map SharedPreferences reading are wired into the existing Operator Overlay owner. Model-owned interruption summary and detail truth distinguish refresh blocked from contact held. The existing owner now also consumes the one-shot policy that clears a stale pre-contact read wound when healthy empty persistence returns to waiting, then leaves repeated empty polls quiet. Floating persisted metadata is rejected rather than truncated into evidence. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
+  <title id="title">Heartbeat viewport ownership, hierarchy-visible contact, persisted-poll coherence, and interruption chrome truth scars</title>
+  <desc id="desc">A non-raster warm-wall diagram showing source-level heartbeat ownership constraints. Horizontal rectangle intersection is not promoted to visible contact when the native control or an ancestor is hidden; the current Operator Overlay owner remains geometry-only at this checkpoint and the exact hierarchy-visibility owner surgery is preserved but unapplied. Persisted-poll, coherent-read, contact-preservation, and waiting-recovery source wiring remain intact. Android runtime, TalkBack behavior, deployment, phone delivery, and P0 recovery remain unproven and untouched.</desc>
   <defs>
     <style>
       text { font-family: system-ui, sans-serif; fill: currentColor; }
@@ -16,8 +16,8 @@
   </defs>
 
   <rect class="wall" x="28" y="26" width="904" height="1046" rx="30"/>
-  <text class="big" x="56" y="66">WARM WALL / PERSISTENT SELECTION ≠ PERMANENT OWNER</text>
-  <text class="tiny" x="56" y="92">OWNER SOURCE WIRED • RUNTIME UNPROVEN • TALKBACK UNCLAIMED • PHONE/P0 UNTOUCHED</text>
+  <text class="big" x="56" y="66">WARM WALL / VISIBLE CONTACT ≠ RECTANGLE INTERSECTION</text>
+  <text class="tiny" x="56" y="92">OWNER GEOMETRY WIRED • HIERARCHY GATE OPEN • TESTED NO • TALKBACK UNCLAIMED • PHONE/P0 UNTOUCHED</text>
 
   <rect class="wall" x="66" y="122" width="382" height="150" rx="18"/>
   <text class="label" x="86" y="150">CAPTURE</text>
@@ -26,28 +26,28 @@
   <rect class="node" x="246" y="170" width="132" height="48" rx="12"/>
   <text class="tiny" x="260" y="199">□ FOCUSED A</text>
   <path class="wire" d="M386 194 H424"/>
-  <text class="tiny" x="86" y="242">Capture anchor + keyboard baseline + viewport offset.</text>
+  <text class="tiny" x="86" y="242">Capture requires shown hierarchy + viewport intersection.</text>
 
   <path class="wire" d="M466 196 C500 154 518 238 552 196"/>
   <text class="label" x="474" y="156">SHOVEL</text>
-  <text class="tiny" x="468" y="222">newer interaction wins</text>
+  <text class="tiny" x="468" y="222">hidden geometry is not contact</text>
 
   <rect class="wall" x="570" y="122" width="322" height="150" rx="18"/>
-  <text class="label" x="590" y="150">BEFORE RESTORE</text>
+  <text class="label" x="590" y="150">HIDDEN ANCESTOR</text>
   <rect class="ghost" x="594" y="170" width="126" height="48" rx="12"/>
-  <text class="tiny" x="606" y="199">● SELECTED A</text>
+  <text class="tiny" x="606" y="199">× SELECTED A</text>
   <rect class="scar" x="738" y="170" width="132" height="48" rx="12"/>
   <text class="tiny" x="752" y="199">□ FOCUSED B</text>
-  <text class="tiny" x="590" y="242">selection persists; newer keyboard navigation kills A ticket</text>
+  <text class="tiny" x="590" y="242">A may intersect stale coordinates; shown B must win.</text>
 
   <rect class="wall" x="66" y="298" width="826" height="128" rx="18"/>
-  <text class="label" x="86" y="326">EXISTING OWNER / EXPLICIT SCOPE</text>
-  <text class="tiny" x="86" y="350">Stable in-place refresh → mutation may destroy focus = NO. Empty child focus gets no rebuild costume.</text>
-  <text class="tiny" x="86" y="374">Structural or drift fallback rebuild → may destroy focus = YES; root direct-focus scope is checked before restore.</text>
-  <text class="tiny" x="86" y="398">Different heartbeat focus or any non-heartbeat direct focus → stale ticket dies. TalkBack remains separate evidence.</text>
+  <text class="label" x="86" y="326">EXISTING OWNER / PARTIAL-UNSAFE CONTACT</text>
+  <text class="tiny" x="86" y="350">Current helper checks horizontal geometry only; it does not yet require control.isShown() / equivalent ancestor visibility.</text>
+  <text class="tiny" x="86" y="374">Exact owner surgery is preserved separately. Until applied, hidden descendants can retain stale geometry and must not be called visible contact.</text>
+  <text class="tiny" x="86" y="398">Selection, keyboard focus, hierarchy visibility, viewport intersection, and TalkBack focus remain distinct evidence states.</text>
 
   <rect class="wall" x="66" y="444" width="826" height="44" rx="16"/>
-  <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Source wiring ≠ Android execution. Direct keyboard focus ≠ TalkBack focus.</text>
+  <text class="tiny" x="86" y="471">No geometry-only Christmas twitch. Source patch ≠ owner wiring. Direct keyboard focus ≠ TalkBack focus.</text>
 
   <rect class="scar" x="66" y="506" width="826" height="62" rx="16"/>
   <text class="label" x="86" y="532">SOURCE BOUNDS / PARSER = DIRECT TYPED GATE</text>
