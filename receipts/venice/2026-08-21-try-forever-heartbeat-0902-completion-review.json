@@ -1,0 +1,28 @@
+{
+  "kind": "venice_judgment_jar_completion",
+  "date": "2026-08-21T09:02:06-05:00",
+  "pr": 329,
+  "reviewSurface": "same_worker_judgment_jar",
+  "externalVeniceWorker": {
+    "workerId": "windows-venice-nerve-01",
+    "online": false,
+    "queueDepth": 2,
+    "externalVerdictInvented": false
+  },
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__BUILD_CONTRACT_OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The source slice now captures Android 16 expanded-state semantics without knowingly breaking the current compileSdk35 build contract.",
+    "Regnet found and repaired two self-inflicted source/fixture defects before completion.",
+    "Direct API36 owner wiring is not legal source under compileSdk35 and is therefore kept RED rather than painted green.",
+    "Computer Hands is offline with an existing heartbeat-detail lane, so no duplicate owner request was created.",
+    "No phone/P0 surface or duplicate architecture was consumed."
+  ],
+  "limits": [
+    "No external Venice worker verdict.",
+    "No regression execution evidence.",
+    "No Android build-contract upgrade.",
+    "No owner API36 setExpandedState wiring.",
+    "No runtime UI/TalkBack/deployment/delivery claim."
+  ],
+  "nextIndependentWound": "If compileSdk is deliberately advanced to 36+, compose API36 expanded-state owner wiring into the existing latest accessibility delegate in the same reviewed source slice; until then this seam stays source-only and RED at the owner gate."
+}
