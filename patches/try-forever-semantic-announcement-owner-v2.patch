@@ -1,7 +1,7 @@
 # TRY FOREVER semantic announcement owner surgery v2
 # Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 # Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
-# State: PROPOSED_NOT_APPLIED
+# State: CORRECTED_PROPOSED_NOT_APPLIED
 # Owner: existing OperatorOverlayService only.
 # Goal: retire all four deprecated announceForAccessibility call sites without creating
 # a global announcement cannon, fake freshness, focus theft, or a neighboring controller.
@@ -11,7 +11,10 @@
 # - heartbeat automatic material transition -> one-shot POLITE summary value under existing gate;
 # - Spotify explicit receipt -> one-shot POLITE only when explicit command changes status value;
 # - heartbeat explicit detail -> native selected Button state + persistent full detail; no announcement;
-# - Adam send -> mode-specific Send action + persistent input hint + selected-button state; no announcement.
+# - Adam send -> mode-specific Send action + persistent input hint/button state; no announcement.
+#
+# Regnet correction: patch hunks are kept in source order so the artifact itself is a viable
+# git-apply surgery rather than documentation shaped like a patch.
 #
 # This artifact is source provenance only. It is not owner wiring, test evidence, runtime TalkBack,
 # deployment, delivery, or acceptance.
@@ -59,9 +62,15 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 @@
              if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
 +                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                         persistedDecision,
+                         heartbeatFrame)) {
 @@
+             }
              if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
 +                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                 return;
 @@
          boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
                  heartbeatAnnouncementIdentity,
@@ -87,6 +96,11 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +        applyHeartbeatSelectionState(
 +                light,
 +                control.id.equalsIgnoreCase(heartbeatSelectedId));
+@@
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
 @@
      private void refreshHeartbeatSelection() {
          if (heartbeatLights == null) return;
@@ -136,8 +150,3 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          adamInput.setHint("Adam — " + adamMode + " • sent");
 -        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
 +        refreshAdamSendButtonAccessibility(true);
-@@
-         heartbeatAnnouncementIdentity = "";
-         if (heartbeatLights != null) heartbeatLights.removeAllViews();
-+        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
-         heartbeatSummary.setText("HEARTBEAT • waiting");
