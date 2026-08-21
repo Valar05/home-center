@@ -45,8 +45,20 @@ class LatestMessageApi36ExpandedOwnerBoundaryTest(unittest.TestCase):
         self.assertIn("info.setExpandedState(", self.create_overlay)
         self.assertIn("LatestMessageAccessibilityPolicy.expandedStateApi36(expandedText)", self.create_overlay)
 
-    def test_policy_or_comment_markers_outside_owner_do_not_count(self) -> None:
-        self.assertNotIn("info.setExpandedState(", self.create_overlay)
+    def test_comments_and_literals_cannot_counterfeit_owner_wiring(self) -> None:
+        counterfeit = r'''
+            class OperatorOverlayService {
+                private void createOverlay() {
+                    // info.setExpandedState(LatestMessageAccessibilityPolicy.expandedStateApi36(expandedText));
+                    String fake = "Build.VERSION.SDK_INT >= 36 info.setExpandedState(";
+                }
+            }
+        '''
+        lexical = java_lexical_code_surface(counterfeit)
+        owner = java_named_class_surface(lexical, "OperatorOverlayService")
+        method = java_private_void_method_surface(owner, "createOverlay")
+        self.assertNotIn("info.setExpandedState(", method)
+        self.assertNotIn("Build.VERSION.SDK_INT >= 36", method)
 
 
 if __name__ == "__main__":
