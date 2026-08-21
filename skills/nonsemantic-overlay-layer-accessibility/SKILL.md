@@ -21,10 +21,9 @@ Use this skill for transparent/technical overlay views whose job is pointer inte
 
 - Supporting policy: **YES / SOURCE** at `TechnicalTouchGuardAccessibilityPolicy`.
 - Policy regression: **YES / SOURCE / UNEXECUTED** at `TechnicalTouchGuardAccessibilityPolicyTest`.
-- Existing-owner RED boundary: **YES / SOURCE / UNEXECUTED** at `tools/test_try_forever_touch_guard_accessibility_owner_boundary.py`.
-- Exact owner patch provenance: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-touch-guard-accessibility-owner.patch`.
-- Current `OperatorOverlayService.createOverlay()` still assigns `touchGuard.setContentDescription("Remote input active")`: **YES / LEGACY OWNER**.
-- Existing-owner policy consumption: **NO**.
+- Existing-owner source boundary: **YES / SOURCE / UNEXECUTED** at `tools/test_try_forever_touch_guard_accessibility_owner_boundary.py`.
+- Exact owner patch provenance: **YES / APPLIED_SOURCE** at `patches/try-forever-touch-guard-accessibility-owner.patch`.
+- Existing-owner policy consumption: **YES / SOURCE_WIRED**. `OperatorOverlayService.createOverlay()` now calls `TechnicalTouchGuardAccessibilityPolicy.importantForAccessibility()` and `contentDescription()`; owner commit `5ad44ee456a8b1666b740ae7f44e019e3ef43142`, owner blob `c5de1411a6b68087ae17aff83c032af754587150`.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Acceptance
@@ -35,6 +34,6 @@ Source-level promotion requires all of:
 - the guard has no semantic content description;
 - current operator state remains available on the existing semantic status surfaces;
 - no neighboring overlay/input/accessibility owner is introduced;
-- deterministic owner-boundary regression source is updated from RED only after authenticated owner readback.
+- deterministic owner-boundary regression source remains aligned with authenticated owner readback.
 
 Runtime promotion requires separate Android/TalkBack evidence. Source inspection is not runtime proof.
