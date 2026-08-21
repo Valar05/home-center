@@ -1,0 +1,52 @@
+{
+  "schema": "venice-completion-review.v1",
+  "timestamp": "2026-08-21T10:14:10-05:00",
+  "campaign": "TRY FOREVER",
+  "reviewedSourceHead": "7df0c8d7e6d53455dc9e082aeb7e39abeba01404",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "tasteAndTruth": {
+    "keep": [
+      "persistent one-of-many semantics instead of five invisible mode buttons",
+      "selection separate from keyboard/accessibility focus",
+      "editable text remains value while READY/SENT is persistent context",
+      "legacy Adam send receipt remains until repeatable-event semantics are solved",
+      "source-only warm wall with native radio keyboard behavior",
+      "direct-owner lexical evidence rather than giant-file marker vibes"
+    ],
+    "reject": [
+      "decorative skill lights with no consequence",
+      "duplicate custom state text for a native selected state",
+      "radio selection that steals focus out of the group",
+      "source policy reported as Android/TalkBack runtime behavior",
+      "owner surgery without a reviewed direct-owner acceptance contract",
+      "phone/P0 route-around"
+    ]
+  },
+  "ownerTruth": {
+    "authenticatedOwnerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "modeSelection": "LEGACY_OWNER",
+    "inputResult": "LEGACY_OWNER",
+    "ownerMutationThisSlice": false
+  },
+  "reviewerBoundary": {
+    "sheRawAttempted": true,
+    "sheRawResult": "account connection HTTP 400",
+    "syntheticSheRaw": false,
+    "regnetReceipt": "receipts/regnet/2026-08-21-try-forever-heartbeat-0959-source-review.json"
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32496385413,
+    "operatorOverlayJob": 96815675266,
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "failureCauseEstablished": false,
+    "tested": false,
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "nextAuthorizedCut": "If a later pulse chooses owner promotion, compose the existing OperatorOverlayService only: persist one selected Adam mode through native selected/checked semantics and expose READY/SENT input state without removing the blocked legacy Adam send receipt. Do not touch phone/P0."
+}
