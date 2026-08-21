@@ -1,0 +1,21 @@
+{
+  "schema": "venice-completion-review.v1",
+  "checkpoint": "2026-08-20-2200",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "boundedResult": [
+    "Latest-message interaction policy, policy regression, RED direct-owner regression, exact base-blob-locked owner surgery, updated doctrine, and touchable non-raster source organism are durable repository source.",
+    "Dynamic action-button RED direct-owner regression, corrected exact owner surgery, and durable skill doctrine are durable repository source.",
+    "Neither proposed owner surgery is applied. Neither regression has executed. Runtime UI/TalkBack, deployment, delivery, and acceptance remain unproven."
+  ],
+  "reviewScars": [
+    "The dynamic action-button repair was replanned after review: the first null-description strategy was replaced with exact current action descriptions in refreshUi.",
+    "She-Raw authoritative consultation failed with account-connection HTTP 400; no synthetic reviewer was substituted."
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "nextGate": "OWNER_WIRING_OR_DIFFERENT_NON_P0_WOUND__NO_PHONE_P0_SUBSTITUTION"
+}
