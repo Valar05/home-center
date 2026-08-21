@@ -1,0 +1,51 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestamp": "2026-08-21T13:12:00-05:00",
+  "pullRequest": 329,
+  "sourceHeadReviewed": "068fd086840a199f5b9f203a03b7cf57ca7ed950",
+  "verdict": "PASS_BOUNDED_SOURCE_READBACK__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "passes": [
+    "AdamModeSelectionAccessibilityPolicy now carries stable one-based position-in-set and set-size source metadata for the five exact canonical modes",
+    "AdamModeSelectionAccessibilityPolicyTest contains an unexecuted regression for positions 1..5 and set size 5",
+    "adam-mode-accessibility skill and existing non-raster Warm Wall were synchronized to the new set-position source truth without claiming native collection/TalkBack runtime consumption",
+    "home-center-mutation-lane-truth was corrected from stale missing-Computer-Hands doctrine to fresh deployed capability truth: request/worker operation surface callable, registered Windows worker offline, queueDepth 4",
+    "P0/phone consumption and mutation remained zero; no duplicate worker request or neighboring owner/controller was created"
+  ],
+  "ownerGaps": [
+    "OperatorOverlayService authenticated owner blob c5de1411a6b68087ae17aff83c032af754587150 remains legacy for Adam persistent selection, editable-value/result lifecycle, and mode-specific Send semantics",
+    "native collection/set-position consumption for Adam modes is NO",
+    "patches/try-forever-adam-mode-input-accessibility-owner.patch remains CORRECTED_PROPOSED_NOT_APPLIED",
+    "Computer Hands API is callable but windows-hands-01 is offline; no execution receipt exists"
+  ],
+  "executionEvidence": {
+    "head": "068fd086840a199f5b9f203a03b7cf57ca7ed950",
+    "homeCenterCiRun": 32511981431,
+    "buildAndroidRun": 32511981440,
+    "operatorOverlayRun": 32511981432,
+    "operatorJob": 96864989179,
+    "conclusions": "all failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "reviewerEvidence": {
+    "sheRaw": "ATTEMPTED_PRE_EXECUTION__ACCOUNT_CONNECTION_HTTP_400",
+    "venicePlan": "PLAN_ALLOWED"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
