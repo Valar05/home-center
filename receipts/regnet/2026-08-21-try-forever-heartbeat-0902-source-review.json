@@ -1,0 +1,79 @@
+{
+  "kind": "regnet_source_review",
+  "date": "2026-08-21T09:02:06-05:00",
+  "pr": 329,
+  "reviewedBranch": "feat/heartbeat-skill-lights-20260815",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIM_ONLY__OWNER_BUILD_CONTRACT_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "api36Policy": {
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "blob": "f41374678d06bcbe7f8a5cc73b43192765829502",
+      "claim": "Latest-message policy carries Android 16 expanded/collapsed state values without importing API-36-only symbols under compileSdk35."
+    },
+    "policyRegression": {
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "blob": "82dfe839323275d9409d07313a0636211243127b"
+    },
+    "ownerBoundaryRegression": {
+      "state": "RED_REGRESSION_SOURCE_UNEXECUTED",
+      "blob": "cda1d0155abbaedd724776cdb391bbb2dfee6342",
+      "requires": [
+        "compileSdk >= 36",
+        "direct OperatorOverlayService accessibility delegate wiring",
+        "API36 platform gate",
+        "comment/literal counterfeit rejection"
+      ]
+    },
+    "dynamicTextviewSkill": {
+      "state": "DURABLE_DOCTRINE_UPDATED",
+      "blob": "ad03ca97b50418cd8848dd2e273fb19d14fd515d"
+    },
+    "announcementPatchCustody": {
+      "state": "UNCHANGED_CORRECTED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+      "patchBlob": "6184e3e34ba42bef7c794f2b98d20c99b5744992",
+      "ownerWired": false
+    }
+  },
+  "reviewCorrections": [
+    "First API36 source draft directly imported AccessibilityNodeInfo API36 constants while module compileSdk is 35; rejected and replaced with compileSdk35-safe supporting values plus an explicit build-contract gate.",
+    "First RED owner-boundary fixture contained a future-invalid contradictory assertion; corrected to a synthetic comment/literal counterfeit fixture.",
+    "Android platform docs confirm setExpandedState and EXPANDED_STATE_* are API36-only, making compileSdk35 an exact owner-promotion boundary rather than a style preference."
+  ],
+  "executionBoundary": {
+    "computerHandsWorker": "windows-hands-01",
+    "online": false,
+    "queueDepth": 4,
+    "activeLaneAlreadyPresent": "lane-try-forever-heartbeat-detail",
+    "duplicateRequestCreated": false,
+    "ownerMutationAttempted": false
+  },
+  "reviewerBoundary": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "veniceExternalWorker": "OFFLINE",
+    "substituteExternalVerdictInvented": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "buildContractReady": false,
+    "ownerSourceWiredApi36": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
