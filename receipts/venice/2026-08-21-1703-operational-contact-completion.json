@@ -1,0 +1,78 @@
+{
+  "schema": "try-forever-swarm-completion.v1",
+  "slice": "2026-08-21-1703",
+  "reviewed_source_head": "e024fe2596982f90cb1fddb225c437c78a93504c",
+  "starting_head": "80a302ce9575c3725272fd9907a80d97a697da97",
+  "fronts_advanced": [
+    {
+      "front": "collapsed operational truth refresh",
+      "result": "NEW_TEMPORAL_WOUND_PROVEN_AND_SOURCE_GUARDED",
+      "detail": "HC operational state changes on the owner refresh clock while heartbeat persistence may take SKIP_UNCHANGED. A custom collapsed contentDescription therefore needs owner-refresh projection independent of heartbeat-model mutation. New source probe, regression fixtures, durable skill, combined owner patch, and touchable source specimen preserve that law.",
+      "owner_wiring": "NO_PARTIAL_UNSAFE"
+    },
+    {
+      "front": "Adam Send availability",
+      "result": "OWNER_ACCEPTANCE_GATE_STRENGTHENED",
+      "detail": "Send is still enabled for trim-empty guaranteed no-op input. The new owner probe requires persistent Send ownership, edit-driven refresh, mode-driven refresh, native enabled state, and current-mode action semantics. Regnet review tightened the edit proof so a watcher plus unrelated one-time refresh cannot counterfeit wiring.",
+      "owner_wiring": "NO_LEGACY_OWNER"
+    },
+    {
+      "front": "owner surgery convergence",
+      "result": "EXACT_COMBINED_PATCH_PREPARED",
+      "detail": "One base-blob-locked OperatorOverlayService patch composes operational-status refresh and Adam Send availability without creating a second owner/controller.",
+      "state": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "front": "non-raster source organism",
+      "result": "EXISTING_ART_MUTATED_IN_PLACE",
+      "detail": "Operational Contact Throat now makes heartbeat-quiet/HC-changing semantics and edit/mode-driven Send availability touchable; source-only/runtime-unproven scars remain visible."
+    }
+  ],
+  "regnet": {
+    "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS_ONLY",
+    "owner_promotion": "REVISE_REQUIRED",
+    "regression_execution": "UNEXECUTED",
+    "tested": false,
+    "review_correction": "Adam availability probe originally accepted a watcher plus any createOverlay refresh. It was hardened to require an onTextChanged surface and at least two direct refresh calls: edit callback plus initial projection."
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute": false
+  },
+  "venice_gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "execution_truth": {
+    "head": "e024fe2596982f90cb1fddb225c437c78a93504c",
+    "workflow_runs": {
+      "Operator Overlay Android": {"id": 32531763566, "status": "queued", "conclusion": null},
+      "Build Android": {"id": 32531763567, "status": "queued", "conclusion": null},
+      "Home Center CI": {"id": 32531763631, "status": "queued", "conclusion": null}
+    },
+    "tested": false
+  },
+  "capability_membrane": {
+    "requested": true,
+    "supporting_source": true,
+    "authenticated_remote_readback": true,
+    "regression_source": true,
+    "regression_executed": false,
+    "owner_patch": "PROPOSED_NOT_APPLIED",
+    "collapsed_operational_refresh_owner_wiring": false,
+    "adam_send_availability_owner_wiring": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_firewall": {
+    "phone_p0_consumption": 0,
+    "phone_p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null
+  },
+  "cross_pollination": "Collapsed speech + persisted-poll idempotence exposed temporal coupling: heartbeat dedupe may be correct while HC operational semantics still need refresh. Adam no-op review + dynamic action semantics produced a native availability gate. Evidence review then hardened the probe so edit ownership cannot be counterfeited by a nearby watcher."
+}
