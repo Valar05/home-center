@@ -8,79 +8,79 @@ This skill is repository/source accessibility doctrine only. It owns no Android 
 
 ## Core distinction
 
-A live region is a semantic **value-change** surface. A native control already exposes an **action**. A persistent selected/result surface exposes the **resulting state**.
+A live region is a semantic **value-change** surface. A native control exposes an **action**. A persistent selected/result surface exposes **state**. Those ingredients can describe a replacement, but a plausible replacement design is not automatically safe enough to remove an existing explicit event receipt.
 
-If an explicit action repeats while the steady-state value is identical, do not manufacture freshness with counters, timestamps, punctuation, zero-width text, opaque IDs, focus theft, or global announcement events merely to prove that the user pressed the button.
+The exact promotion question is:
 
-The exact replacement question is instead:
+`Has this repeatable explicit event been reviewed as a complete owner contract, including identical-repeat behavior, failure/result behavior, focus ownership, mute behavior, and persistent inspection?`
 
-`Is the action self-describing, and is any meaningful changed result persistently inspectable?`
+Until yes, fail closed and keep the legacy event receipt.
 
-When yes, a same-value repeat may correctly stay quiet.
+## Current TRY FOREVER contract — 2026-08-21 0400
 
-## Current TRY FOREVER semantic designs
+1. **Spotify explicit command receipt — design exists / owner migration NOT ready.**
+   - The command button names the action and `spotifyStatus` exposes a changing result value.
+   - A changed-status live-region design exists, but identical-repeat event semantics remain unresolved as an owner contract.
+   - `ownerMigrationReady=false`; keep the legacy receipt for now.
 
-1. **Spotify explicit command receipt — design ready / owner unwired.**
-   - The Spotify command button already names the action.
-   - `spotifyStatus` is the native changing result value.
-   - For an explicit command, a polite live region is allowed only when the result value actually changes.
-   - Repeating Status against the same playback state stays quiet by design; no fake receipt sequence is created.
-   - Startup/background status refresh must not inherit the explicit-action live-region gate.
+2. **Heartbeat explicit detail selection — design exists / owner migration NOT ready.**
+   - The light owns semantic selection and the detail well persistently exposes Why/Consequence/Evidence/Source.
+   - Re-selection semantics are not yet accepted as a complete replacement for the explicit event receipt.
+   - `ownerMigrationReady=false`; keep the legacy receipt for now.
 
-2. **Heartbeat explicit detail selection — design ready / owner unwired.**
-   - The heartbeat light Button owns the selection action and semantic identity.
-   - The selected state plus the persistent full Why/Consequence/Evidence/Source detail is the receipt.
-   - Selecting the same light twice may correctly remain quiet; the second press does not create a new semantic fact.
-   - The passive detail well remains passive. No programmatic focus transfer is introduced merely to obtain speech.
+3. **Adam send confirmation — design exists / owner migration NOT ready.**
+   - Mode-specific action/result semantics exist in source design.
+   - Same-mode resend and future asynchronous result/failure semantics are not yet accepted as a complete owner contract.
+   - `ownerMigrationReady=false`; keep the legacy receipt for now.
 
-3. **Adam send confirmation — design ready / owner unwired.**
-   - The Send button action must identify the currently selected Adam mode.
-   - The input/result surface already clears the submitted text and exposes the `sent` result in its persistent hint/state.
-   - A second send in the same mode may correctly remain quiet; no synthetic event counter is required.
-   - If a future asynchronous failure/result surface exists, that changed result gets its own semantic contract rather than reviving a global announcement event.
-
-The automatic heartbeat **material transition** remains a separate value-change case: its existing transition/announcement identity already represents a material semantic change and may drive a one-shot polite live-region update.
+4. **Automatic heartbeat material transition — separate value-change case / owner migration READY.**
+   - Existing transition/announcement identity already represents a material semantic change.
+   - The narrow one-shot polite-live-region owner surgery is the only currently review-ready migration.
 
 ## Laws
 
-1. **Repeated action does not automatically imply repeated announcement.** Prefer native action + persistent semantic result.
-2. **Same value is not fresh evidence.** Never mutate text solely to trigger accessibility output.
-3. **Changed async result may use a live region.** Gate it to the explicit action and actual semantic value change; startup/poll changes remain silent unless independently authorized.
-4. **Selection is state.** For repeated detail selection, expose selected control semantics and durable detail instead of replaying a global announcement.
-5. **Action labels track action.** Adam send semantics must include the selected mode; Mute/Enable/Confirm-style labels remain exact-current-action precedent.
-6. **No fake freshness.** No decorative timestamps, counters, punctuation, zero-width markers, or opaque request IDs.
-7. **Do not steal focus.** Programmatic focus movement needs its own interaction contract and runtime proof.
-8. **Do not blanket-live-region a frequently refreshed value.** A live region that speaks polls is a regression, not accessibility.
-9. **One owner.** Compose `OperatorOverlayService`; do not create a neighboring accessibility-event controller.
-10. **Capability membrane:** `policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
-11. **P0 firewall:** no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
+1. **Repeated action does not automatically imply repeated announcement.** Prefer native action + persistent semantic result when that replacement contract is actually complete.
+2. **Design-ready is not owner-migration-ready.** Keep those capability states separate.
+3. **Same value is not fresh evidence.** Never mutate text solely to trigger accessibility output.
+4. **Changed async result may use a live region.** Gate it to the explicit action and actual semantic value change; startup/poll changes remain silent unless independently authorized.
+5. **Selection is state.** Selection+detail can be part of a replacement, but must not silently erase a meaningful event receipt before acceptance.
+6. **Action labels track action.** Mode/state-sensitive controls must expose their exact current action.
+7. **No fake freshness.** No decorative timestamps, counters, punctuation, zero-width markers, or opaque request IDs.
+8. **Do not steal focus.** Programmatic focus movement needs its own interaction contract and runtime proof.
+9. **Do not blanket-live-region a frequently refreshed value.** A live region that speaks polls is a regression, not accessibility.
+10. **One owner.** Compose `OperatorOverlayService`; do not create a neighboring accessibility-event controller.
+11. **Capability membrane:** `policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
+12. **P0 firewall:** no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
 
 ## Owner acceptance questions
 
 Before removing one legacy `announceForAccessibility(...)` call:
 
-- Is the control/action itself accurately named?
+- Is the control/action accurately named?
 - Is the resulting semantic state/value persistently inspectable?
+- What happens when the same action repeats and the persistent value does not change?
+- What happens on asynchronous failure or delayed result?
 - For live-region use, did the semantic value actually change?
-- Can background/poll work mutate the same surface, and if so is that path gated silent?
+- Can background/poll work mutate the same surface, and is that path gated silent?
 - Does the design preserve mute, selection, focus, viewport-contact, and contact-preservation laws?
 - Does the existing native owner carry the design?
 - Is any one-shot live-region authority reset after the intended mutation?
 - Does regression source distinguish source design from owner wiring and runtime proof?
 
-If owner wiring is missing, keep the legacy call and mark **OWNER_WIRED=NO** even when the source-level design is ready.
+If any owner event-semantics question is unresolved, keep the legacy call and mark **OWNER_MIGRATION_READY=false**.
 
-## Current PR #329 source truth — 2026-08-21 0300
+## Current PR #329 source truth — 2026-08-21 0400
 
 - doctrine: **YES / IMPLEMENTED_SOURCE**;
-- `AccessibilityAnnouncementSemanticPolicy` has exact source designs for all four consequences: **YES**;
-- Spotify changed-status design: **SOURCE_READY / OWNER_WIRED NO**;
-- repeated detail selection+detail design: **SOURCE_READY / OWNER_WIRED NO**;
-- Adam mode-specific action+persistent result design: **SOURCE_READY / OWNER_WIRED NO**;
-- heartbeat material-transition design: **SOURCE_READY / OWNER_WIRED NO**;
-- earlier heartbeat-only patch had a sticky live-region authority defect: **FOUND / CORRECTED IN PATCH SOURCE**;
-- corrected heartbeat patch: `CORRECTED_PROPOSED_NOT_APPLIED`;
-- regression source: **YES / UNEXECUTED**;
-- authenticated existing owner still contains all four legacy calls: **YES / OWNER_WIRED NO**;
+- supporting semantic designs for all four consequences: **YES**;
+- heartbeat material transition: **OWNER_MIGRATION_READY=true / OWNER_WIRED NO**;
+- Spotify receipt: **OWNER_MIGRATION_READY=false / OWNER_WIRED NO**;
+- repeated detail selection: **OWNER_MIGRATION_READY=false / OWNER_WIRED NO**;
+- Adam send confirmation: **OWNER_MIGRATION_READY=false / OWNER_WIRED NO**;
+- broad four-consequence patch: **REJECTED_SUPERSEDED__DO_NOT_APPLY**;
+- narrow heartbeat patch: **CORRECTED_PROPOSED_NOT_APPLIED**;
+- owner-boundary regression source: **YES / UNEXECUTED**;
+- authenticated existing owner still contains all four legacy calls: **YES**;
+- Computer Hands worker: **offline** with existing TRY FOREVER lanes; no duplicate request;
 - She-Raw pre-execution consultation: **FAULT / account connection HTTP 400**, no substitute reviewer;
 - TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
