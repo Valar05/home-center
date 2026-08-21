@@ -1,0 +1,41 @@
+{
+  "schema": "venice-completion-review.v1",
+  "timestamp": "2026-08-21T11:11:00-05:00",
+  "pullRequest": 329,
+  "reviewedSourceHead": "2fdefb0be5878322163f9a92dbc1f7f799f028f0",
+  "planReview": "receipts/venice/2026-08-21-try-forever-heartbeat-1059-plan-review.json",
+  "regnetReview": "receipts/regnet/2026-08-21-try-forever-heartbeat-1059-source-review.json",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "quality": "MIXED_SOURCE_ONLY",
+  "reasons": [
+    "The READY/SENT lifecycle now has a real material-edit consequence instead of a stale status sticker.",
+    "Probe v3 makes partial owner state semantics fail closed rather than calling them wired.",
+    "The existing Adam warm wall was changed in place and earns its art mutation because the lifecycle topology changed.",
+    "Code-first review caught and repaired a regression that would have discarded richer existing per-mode descriptions.",
+    "The exact native owner remains legacy, so policy, patch, and art are not implementation or runtime proof.",
+    "The legacy Adam send announcement remains because repeatable identical-send event semantics are still unresolved.",
+    "Fresh automatic workflows failed on the exact reviewed head without an established step-level cause; TESTED therefore remains NO."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteInvented": false
+  },
+  "capabilityGate": {
+    "supportingSource": "YES",
+    "ownerWiring": "NO",
+    "regressionExecuted": "NO",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "nextAuthorizedNonP0Cut": "When an exact safe existing-owner mutation lane is available, apply the corrected base-locked Adam mode/input accessibility surgery; otherwise choose a different independent non-P0 wound rather than generating another proposal for this seam."
+}
