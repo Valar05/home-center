@@ -1,0 +1,76 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-21-0200",
+  "pr": 329,
+  "reviewedSourceHead": "fd849c975c409e2b3ed06ef35a3406dfc217bf33",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_WIRING_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "codeFirstFindings": [
+    {
+      "severity": "REJECTED_AND_REPAIRED",
+      "finding": "The first four-consequence live-region owner patch was not semantically equivalent to the four legacy announcements. Spotify explicit receipt, repeated heartbeat detail selection, and Adam send can repeat with the proposed semantic value unchanged; a live region represents View value changes and cannot be treated as a generic repeatable-event broadcaster.",
+      "repair": "Corrective replan; policy now marks only heartbeat material transition migration-ready; first owner patch marked REJECTED_UNSAFE__DO_NOT_APPLY; RED owner regression requires the three explicit legacy calls to remain until exact event semantics exist."
+    },
+    {
+      "severity": "PASS_SOURCE",
+      "finding": "Heartbeat automatic material transition composes an existing semantic-transition identity with the existing summary value and existing mute/overlay/heartbeat-surface presentation gate.",
+      "repair": "Narrow base-blob-locked heartbeat-only owner patch preserved; waiting recovery explicitly resets live-region mode to NONE before writing waiting text."
+    },
+    {
+      "severity": "PASS_SOURCE",
+      "finding": "New repeatable-event doctrine forbids fake freshness through punctuation, invisible markers, opaque IDs, accidental focus theft, or a second accessibility controller.",
+      "repair": "Harvested operator-repeatable-accessibility-event-semantics skill and converged the existing announcement-migration skill."
+    },
+    {
+      "severity": "PASS_SOURCE_ART",
+      "finding": "Existing warm-wall source organism now communicates one migration-ready value change versus three unresolved repeatable events with keyboard/touch semantics and explicit source/runtime/P0 scars.",
+      "repair": "No raster, autoplay, or decorative Christmas motion introduced."
+    }
+  ],
+  "ownerTruth": {
+    "authenticatedBaseBlob": "d8cad8c2931c688d0c6fad6f67626fae75e044d1",
+    "legacyCallsPresent": 4,
+    "heartbeatMaterialTransitionOwnerPatch": "PROPOSED_NOT_APPLIED",
+    "spotifyExplicitReceiptOwnerMigration": "NO",
+    "heartbeatExplicitDetailOwnerMigration": "NO",
+    "adamSendOwnerMigration": "NO"
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32457933732,
+    "operatorOverlayJob": 96698760744,
+    "head": "fd849c975c409e2b3ed06ef35a3406dfc217bf33",
+    "conclusion": "failure",
+    "jobSteps": 0,
+    "logs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "reviewerTruth": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "externalVeniceWorker": "OFFLINE_NO_WORKER_VERDICT",
+    "syntheticReviewerUsed": false
+  },
+  "p0Firewall": {
+    "phoneHandsConsumption": 0,
+    "phoneCommands": 0,
+    "p0Mutations": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_PASS__HEARTBEAT_OWNER_PATCH_MAY_REMAIN_PROPOSED__REPEATABLE_EVENT_OWNER_DESIGNS_AND_TEST_RUNTIME_CONTINUE_REQUIRED"
+}
