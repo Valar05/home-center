@@ -86,7 +86,9 @@
     state.textContent = `${label} mode. ${result}`;
     detail.textContent = `${label} selected. Selection is persistent state, not keyboard or accessibility focus ownership.`;
   };
-  group.addEventListener('change', () => { result = 'Ready to send.'; render(); request.focus(); });
+  // Native radio keyboard navigation keeps focus in the mode group. Selecting a mode does not
+  // steal keyboard focus into the request field; users move there through ordinary navigation.
+  group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
   document.getElementById('send').addEventListener('click', () => { result = 'Sent.'; request.value = ''; render(); });
   render();
 })();
