@@ -1,22 +1,25 @@
 # TRY FOREVER semantic announcement owner surgery v2
 # Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 # Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
-# State: CORRECTED_PROPOSED_NOT_APPLIED
+# State: REJECTED_SUPERSEDED__DO_NOT_APPLY
 # Owner: existing OperatorOverlayService only.
-# Goal: retire all four deprecated announceForAccessibility call sites without creating
-# a global announcement cannon, fake freshness, focus theft, or a neighboring controller.
+#
+# This broad four-consequence surgery is retained as historical source provenance only.
+# It conflicts with the current fail-closed owner-boundary contract: only automatic heartbeat
+# material-transition migration is currently review-ready. Spotify command receipts, repeated
+# heartbeat detail selection, and Adam send remain repeatable explicit-event semantics whose
+# owner migration is deliberately NOT ready. Apply the narrow heartbeat material-transition
+# patch instead when the existing owner can be safely mutated and read back.
+#
 # Phone/P0: untouched.
 #
-# Consequence mapping:
+# Historical consequence mapping preserved below for review archaeology only:
 # - heartbeat automatic material transition -> one-shot POLITE summary value under existing gate;
 # - Spotify explicit receipt -> one-shot POLITE only when explicit command changes status value;
 # - heartbeat explicit detail -> native selected Button state + persistent full detail; no announcement;
 # - Adam send -> mode-specific Send action + persistent input hint/button state; no announcement.
 #
-# Regnet correction: patch hunks are kept in source order so the artifact itself is a viable
-# git-apply surgery rather than documentation shaped like a patch.
-#
-# This artifact is source provenance only. It is not owner wiring, test evidence, runtime TalkBack,
+# DO NOT APPLY this artifact as owner surgery. It is not owner wiring, test evidence, runtime TalkBack,
 # deployment, delivery, or acceptance.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
