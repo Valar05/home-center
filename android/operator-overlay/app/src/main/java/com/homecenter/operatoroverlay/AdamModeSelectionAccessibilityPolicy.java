@@ -1,7 +1,5 @@
 package com.homecenter.operatoroverlay;
 
-import java.util.Locale;
-
 /**
  * Pure source policy for the existing Adam mode selector.
  *
@@ -12,9 +10,11 @@ import java.util.Locale;
  *
  * <p>The owner should expose selection through a native selected/checked semantic state. Do not
  * duplicate that same state into a generic custom stateDescription merely to make the source look
- * more accessible. This policy owns no View, RadioGroup, controller, renderer, phone surface,
- * transport, or P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.
- * Source policy is not Android/TalkBack runtime proof.</p>
+ * more accessible. Mode wire identities are exact; whitespace or case drift fails closed instead
+ * of being normalized into a different source identity. This policy owns no View, RadioGroup,
+ * controller, renderer, phone surface, transport, or P0 recovery path.
+ * {@link OperatorOverlayService} remains the sole native owner. Source policy is not
+ * Android/TalkBack runtime proof.</p>
  */
 public final class AdamModeSelectionAccessibilityPolicy {
     public enum Mode {
@@ -55,9 +55,8 @@ public final class AdamModeSelectionAccessibilityPolicy {
     }
 
     public static Mode requireMode(String value) {
-        String normalized = value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
         for (Mode mode : Mode.values()) {
-            if (mode.wireValue.equals(normalized)) return mode;
+            if (mode.wireValue.equals(value)) return mode;
         }
         throw new IllegalArgumentException("unsupported Adam mode: " + value);
     }
