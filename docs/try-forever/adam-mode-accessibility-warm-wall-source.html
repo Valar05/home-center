@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adam Mode Accessibility Warm Wall — Source Only</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; background: #17191f; color: #f5f7fb; display: grid; place-items: center; }
+  main { width: min(920px, calc(100vw - 24px)); border: 1px solid #737b8f; border-radius: 22px; padding: 20px; background: #22252d; }
+  h1 { margin: 0 0 8px; font-size: clamp(1.3rem, 4vw, 2.2rem); }
+  .scar { margin: 0 0 18px; font-weight: 700; }
+  fieldset { border: 1px solid #737b8f; border-radius: 16px; padding: 12px; }
+  legend { padding: 0 8px; font-weight: 700; }
+  .modes { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 8px; }
+  .choice { min-height: 52px; display: flex; align-items: center; gap: 8px; border: 1px solid #737b8f; border-radius: 12px; padding: 4px 10px; cursor: pointer; }
+  .choice:has(input:checked) { outline: 3px solid currentColor; }
+  input[type="radio"] { inline-size: 24px; block-size: 24px; }
+  label, button, input { font: inherit; }
+  .sendrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+  #request { min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 12px; background: #17191f; color: inherit; }
+  button { min-width: 96px; min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 14px; background: #303540; color: inherit; }
+  button:focus-visible, input:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  .wall { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 10px; }
+  .cell { border: 1px solid #737b8f; border-radius: 14px; padding: 12px; min-height: 92px; }
+  .token { font-size: 1.35rem; font-weight: 900; }
+  #detail { margin-top: 14px; min-height: 52px; border-left: 4px solid currentColor; padding: 8px 12px; }
+  svg { width: 100%; height: auto; margin-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>ADAM MODE / WARM WALL</h1>
+  <p class="scar">SOURCE ONLY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+
+  <fieldset id="modeGroup">
+    <legend>Adam mode — one persistent choice</legend>
+    <div class="modes">
+      <label class="choice"><input type="radio" name="mode" value="terminal" checked> TERM</label>
+      <label class="choice"><input type="radio" name="mode" value="chat"> CHAT</label>
+      <label class="choice"><input type="radio" name="mode" value="continue"> CONT</label>
+      <label class="choice"><input type="radio" name="mode" value="vlad"> VLAD</label>
+      <label class="choice"><input type="radio" name="mode" value="radio"> RADIO</label>
+    </div>
+  </fieldset>
+
+  <div class="sendrow">
+    <input id="request" aria-describedby="inputState" placeholder="Adam request">
+    <button id="send" type="button">Send</button>
+  </div>
+  <p id="inputState" aria-live="polite">Terminal mode. Ready to send.</p>
+
+  <div class="wall" aria-label="Source capability states">
+    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state missing in native owner.</section>
+    <section class="cell"><div class="token">□</div><strong>INPUT RESULT</strong><br>Sent state exists as hint/legacy receipt, not persistent field state.</section>
+    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result-state contracts exist as repository source.</section>
+    <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence.</section>
+  </div>
+
+  <div id="detail" role="status">Terminal selected. Selection is not focus ownership.</div>
+
+  <svg viewBox="0 0 800 130" role="img" aria-labelledby="svgTitle svgDesc">
+    <title id="svgTitle">Warm-wall source flow</title>
+    <desc id="svgDesc">Five Adam modes converge on one selected mode, then the editable input carries a separate ready or sent state. Owner wiring and runtime proof remain blocked.</desc>
+    <path d="M40 65 H250 M250 65 H470 M470 65 H720" fill="none" stroke="currentColor" stroke-width="4"/>
+    <circle cx="80" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="260" y="35" width="170" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="500" y="35" width="170" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="80" y="72" text-anchor="middle" fill="currentColor" font-size="20">1/5</text>
+    <text x="345" y="72" text-anchor="middle" fill="currentColor" font-size="18">INPUT STATE</text>
+    <text x="585" y="72" text-anchor="middle" fill="currentColor" font-size="18">OWNER □</text>
+  </svg>
+</main>
+<script>
+(() => {
+  const labels = {terminal:'Terminal',chat:'Chat',continue:'Continue',vlad:'Vlad',radio:'Radio'};
+  const group = document.getElementById('modeGroup');
+  const request = document.getElementById('request');
+  const state = document.getElementById('inputState');
+  const detail = document.getElementById('detail');
+  let result = 'Ready to send.';
+  const active = () => document.querySelector('input[name="mode"]:checked').value;
+  const render = () => {
+    const label = labels[active()];
+    state.textContent = `${label} mode. ${result}`;
+    detail.textContent = `${label} selected. Selection is persistent state, not keyboard or accessibility focus ownership.`;
+  };
+  group.addEventListener('change', () => { result = 'Ready to send.'; render(); request.focus(); });
+  document.getElementById('send').addEventListener('click', () => { result = 'Sent.'; request.value = ''; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
