@@ -9,7 +9,7 @@ def wrap(body: str) -> str:
 
 def main() -> int:
     legacy = wrap(
-        "private void createOverlay() { adamInput.requestFocus(); }\n"
+        "private Button adamModeButton() { adamMode = mode; adamInput.requestFocus(); return button; }\n"
         "private void submitAdamRequest() { adamInput.announceForAccessibility(\"sent\"); }"
     )
     result = classify(legacy)
@@ -18,38 +18,56 @@ def main() -> int:
 
     counterfeit = wrap(
         "// AdamModeSelectionAccessibilityPolicy setSelected setStateDescription\n"
-        "private void createOverlay() { String x = \"AdamInputResultAccessibilityPolicy adamInput.setStateDescription\"; }"
+        "private Button adamModeButton() { String x = \"AdamInputResultAccessibilityPolicy setSelected setStateDescription\"; return button; }\n"
+        "private void submitAdamRequest() { String x = \"AdamInputResultAccessibilityPolicy adamInput.setStateDescription\"; }"
     )
     result = classify(counterfeit)
     assert result["modeSelection"]["status"] == "LEGACY_OWNER"
     assert result["inputResult"]["status"] == "LEGACY_OWNER"
 
+    wrong_method_counterfeit = wrap(
+        "private Button adamModeButton() { return button; }\n"
+        "private void unrelated() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); button.setSelected(true); button.setStateDescription(state); }\n"
+        "private void submitAdamRequest() { }"
+    )
+    result = classify(wrong_method_counterfeit)
+    assert result["modeSelection"]["status"] == "LEGACY_OWNER"
+
     mode_partial = wrap(
-        "private void createOverlay() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); }"
+        "private Button adamModeButton() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); return button; }\n"
+        "private void submitAdamRequest() { }"
     )
     result = classify(mode_partial)
     assert result["modeSelection"]["status"] == "PARTIAL_UNSAFE"
 
     mode_wired = wrap(
-        "private void createOverlay() {\n"
+        "private Button adamModeButton() {\n"
         "  AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate);\n"
         "  button.setSelected(true);\n"
         "  button.setStateDescription(state);\n"
-        "}"
+        "  return button;\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
     )
     result = classify(mode_wired)
     assert result["modeSelection"]["status"] == "SOURCE_WIRED"
 
     input_partial = wrap(
-        "private void submitAdamRequest() { AdamInputResultAccessibilityPolicy.decisionFor(mode, state); }"
+        "private Button adamModeButton() { AdamInputResultAccessibilityPolicy.decisionFor(mode, ready); return button; }\n"
+        "private void submitAdamRequest() { }"
     )
     result = classify(input_partial)
     assert result["inputResult"]["status"] == "PARTIAL_UNSAFE"
 
     input_wired_with_legacy_announcement = wrap(
+        "private Button adamModeButton() {\n"
+        "  AdamInputResultAccessibilityPolicy.decisionFor(mode, ready);\n"
+        "  adamInput.setStateDescription(readyDescription);\n"
+        "  return button;\n"
+        "}\n"
         "private void submitAdamRequest() {\n"
-        "  AdamInputResultAccessibilityPolicy.decisionFor(mode, state);\n"
-        "  adamInput.setStateDescription(description);\n"
+        "  AdamInputResultAccessibilityPolicy.decisionFor(mode, sent);\n"
+        "  adamInput.setStateDescription(sentDescription);\n"
         "  adamInput.announceForAccessibility(announcement);\n"
         "}"
     )
