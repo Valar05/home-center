@@ -4,7 +4,7 @@
 
 Keep a native Button's accessibility label synchronized with the action it will perform now, especially when visual text changes among safety-relevant states.
 
-Use this skill when a Button's visible label changes at runtime but source also installs a static or generic `contentDescription`, or when a compact visual label is intentionally too terse to carry the full action semantics.
+Use this skill when a Button's visible label changes at runtime but source also assigns a static or generic `contentDescription`, or when a compact visual label is intentionally too terse to carry the full action semantics.
 
 ## Law
 
@@ -21,14 +21,14 @@ Use this skill when a Button's visible label changes at runtime but source also 
 
 ## Current PR #329 source truth
 
-- Current authenticated owner blob: `44d4e273e79f8dc37227651ba11a31842169db18`.
-- `muteButton`: visible text changes between `Mute speech` and `Unmute speech`, but owner still initializes a generic static `Mute or unmute Home Center status speech` description and does not refresh that semantic description. **OWNER_WIRED NO / LEGACY**.
-- `controlButton`: visible text changes among `Enable control`, `Disable control`, and `Confirm disable`, but owner still initializes a generic static `Disable or enable Home Center control` description and does not refresh it. **OWNER_WIRED NO / LEGACY**.
-- `compactControlButton`: visual text changes among `ENABLE`, `STOP`, and `CONFIRM`; owner still carries a generic static description rather than the exact full current action. **OWNER_WIRED NO / LEGACY**.
-- Selected repair: refresh `muteButton` description to the exact current Mute/Unmute text, refresh `controlButton` description to `fullControlLabel`, and refresh `compactControlButton` description to the same exact `fullControlLabel` while keeping its terse visual text.
-- Direct owner-boundary regression: **YES / RED / UNEXECUTED** at `tools/test_try_forever_dynamic_action_button_accessibility_owner_boundary.py`.
-- Canonical same-owner surgery: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-operator-interaction-accessibility-owner-combined.patch`, base-blob locked to `44d4e273e79f8dc37227651ba11a31842169db18` and composed with latest-message interaction semantics.
-- Historical standalone dynamic-action patch: **SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY**.
+- Authenticated owner surgery commit: `a87d21b48eba28433688b40860f9befeb6347278`.
+- Current source-wired owner blob from that surgery: `d8cad8c2931c688d0c6fad6f67626fae75e044d1`.
+- `muteButton`: `refreshUi()` now synchronizes its `contentDescription` to the exact current `Mute speech` / `Unmute speech` action. **OWNER_WIRED YES / SOURCE**.
+- `controlButton`: `refreshUi()` now synchronizes its semantic description to `fullControlLabel`, preserving distinct `Enable control`, `Disable control`, and `Confirm disable`. **OWNER_WIRED YES / SOURCE**.
+- `compactControlButton`: visual text remains terse `ENABLE` / `STOP` / `CONFIRM`, while its semantic description now uses the exact full current action via `fullControlLabel`. **OWNER_WIRED YES / SOURCE**.
+- Direct owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_dynamic_action_button_accessibility_owner_boundary.py`.
+- Canonical combined owner surgery provenance: **APPLIED_SOURCE** at `patches/try-forever-operator-interaction-accessibility-owner-combined.patch`.
+- Historical standalone dynamic-action patch remains **SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY**.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Regression doctrine
@@ -45,6 +45,6 @@ At minimum prove:
 
 ## Evidence membrane
 
-`requested → doctrine → RED owner regression → combined exact owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
+`requested → doctrine → owner regression source → combined exact owner surgery → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
 
-Current state: `requested YES → doctrine/regression/combined-patch source YES → owner wiring NO → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
+Current state: `requested YES → doctrine/regression/combined-owner-source YES → owner wiring YES/SOURCE → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
