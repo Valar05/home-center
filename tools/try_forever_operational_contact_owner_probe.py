@@ -70,7 +70,14 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
     policy = "AdamSendAvailabilityAccessibilityPolicy"
 
     persistent_button = "adamSendButton = button(\"Send\")" in create
-    edit_refresh = "adamInput.addTextChangedListener(" in create and "refreshAdamSendAvailability(" in create
+    # Require two direct calls in createOverlay: one from the edit listener and one
+    # initial projection. Merely installing a watcher next to a one-time refresh is
+    # not evidence that edits actually drive availability.
+    edit_refresh = (
+        "adamInput.addTextChangedListener(" in create
+        and "onTextChanged(" in create
+        and create.count("refreshAdamSendAvailability(") >= 2
+    )
     mode_refresh = "refreshAdamSendAvailability(" in mode
     policy_projection = policy in refresh
     native_enabled = "adamSendButton.setEnabled(" in refresh
