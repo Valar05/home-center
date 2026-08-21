@@ -23,12 +23,13 @@ Use this skill when a native Android `TextView` changes over time (status, messa
 
 - Spotify dynamic status TextView: **YES / SOURCE_WIRED** — current changing text remains the semantic value.
 - Home Center connection/control status TextView: **YES / SOURCE_WIRED** — current changing text remains the semantic value.
-- Latest Home Center/Adam message TextView: **NO / LEGACY OWNER** — authenticated current owner still assigns `"Latest Home Center or Adam message. Tap to expand or collapse text."` as a non-null description while `latest` changes at initialization and `refreshUi`.
+- Latest Home Center/Adam message TextView: **YES / SOURCE_WIRED** — `OperatorOverlayService.createOverlay()` now leaves `latest` with native changing-text semantics via `setContentDescription(null)`, while `refreshUi()` continues to update the text.
+- Existing-owner latest-message source commit: **YES** — `4a48e0e0dbd540291fbb75ca6c8800be58736dab`; authenticated owner blob after surgery: `44d4e273e79f8dc37227651ba11a31842169db18`.
 - Existing deterministic accessibility owner probe: **YES / SUPPORTING_SOURCE** — its additive `latestMessageFocus` result uses the same v6 lexical/direct-owner-method evidence contract rather than introducing Probe II.
 - Owner-probe latest seam regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_operator_accessibility_latest_probe.py`.
-- Latest-message direct owner-boundary regression: **YES / RED SOURCE / UNEXECUTED** at `tools/test_try_forever_latest_textview_semantics_owner_boundary.py`; it requires both initialization and refresh ownership plus native TextView semantics.
-- Canonical combined existing-owner surgery: **YES / PROPOSED_NOT_APPLIED** at `patches/try-forever-operator-accessibility-viewport-latest-combined.patch`.
-- Existing-owner latest-message wiring: **NO** until authenticated owner mutation/readback proves it.
+- Latest-message direct owner-boundary regression: **YES / REGRESSION_SOURCE / UNEXECUTED** at `tools/test_try_forever_latest_textview_semantics_owner_boundary.py`; it requires both initialization and refresh ownership plus native TextView semantics.
+- Canonical combined existing-owner surgery: **YES / APPLIED_SOURCE** at `patches/try-forever-operator-accessibility-viewport-latest-combined.patch`; the authenticated commit diff matches the intended latest-message semantic change plus the viewport visibility gate.
+- Existing-owner latest-message wiring: **YES / SOURCE_WIRED**.
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Regression doctrine
@@ -47,4 +48,6 @@ At minimum prove:
 
 `requested → semantic policy source → deterministic source probe → regression source → existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
 
-Never promote a state because a patch or helper exists.
+Current state: `requested YES → policy/probe/regression source YES → existing-owner source wiring YES → regression executed NO → tested/runtime/deployed/delivered/accepted NO`.
+
+Never promote a state because a patch or helper exists; this skill was promoted only after authenticated owner mutation plus commit/readback evidence.
