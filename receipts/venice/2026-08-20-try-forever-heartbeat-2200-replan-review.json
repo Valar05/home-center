@@ -1,0 +1,16 @@
+{
+  "schema": "venice-plan-review.v1",
+  "checkpoint": "2026-08-20-2200-replan",
+  "verdict": "PLAN_ALLOWED",
+  "boundedClaim": "A second independent source-only accessibility front may advance for dynamic native Button action semantics inside the existing OperatorOverlayService owner.",
+  "requiredConstraints": [
+    "Do not merge this wound with latest-message TextView interaction state; keep capability states independent.",
+    "Do not create a neighboring accessibility controller.",
+    "Full text action buttons may rely on their current visible text semantic value rather than static generic contentDescription.",
+    "The compact control button must expose the exact full current action semantically because its visible STOP/ENABLE/CONFIRM labels are abbreviated.",
+    "Confirm-disable must remain a distinct accessibility action state.",
+    "Source patch/regression existence is not owner wiring or TESTED evidence.",
+    "Phone/P0 firewall remains binding."
+  ],
+  "gate": "PLAN_ALLOWED__SECOND_INDEPENDENT_SOURCE_FRONT__P0_PHONE_FIREWALL_BINDING"
+}
