@@ -11,7 +11,7 @@ Use this skill when a native Android owner still emits explicit announcements, e
 1. **Deprecation is not permission for blanket replacement.** Classify the consequence first.
 2. **Changing TextView text stays the semantic value.** Do not mask it with a generic `contentDescription` merely to obtain announcement behavior.
 3. **Polite live regions are for meaningful changing status, not every poll.** Automatic heartbeat updates may surface only when the existing material-transition gate says the semantic consequence changed.
-4. **Explicit detail selection is not an automatic broadcast.** Prefer the selected/focused detail semantic value; do not turn background evidence refresh into unsolicited speech.
+4. **Explicit detail selection is not an automatic broadcast.** Prefer the selected detail semantic value; do not turn background evidence refresh into unsolicited speech or pretend the passive detail well itself owns keyboard focus.
 5. **Action confirmation should be modeled as state/status when that is the real consequence.** Do not preserve a deprecated global announcer merely because it is convenient.
 6. **User-triggered and automatic consequences are different authority classes.** A semantic channel that is acceptable for an explicit Spotify command receipt may be noisy or wrong for periodic status refresh.
 7. **Legacy calls may be removed only after the existing native owner carries the replacement semantics.** Policy/helper/fixture existence alone is not owner wiring.
@@ -25,7 +25,7 @@ Use this skill when a native Android owner still emits explicit announcements, e
 
 - Spotify explicit command receipt → `POLITE_LIVE_REGION_VALUE`, user-triggered only.
 - Heartbeat material transition → `POLITE_LIVE_REGION_VALUE`, automatic only behind the existing material-transition gate.
-- Heartbeat explicit detail selection → `FOCUSED_DETAIL_VALUE`, user-triggered; background refresh must not become speech.
+- Heartbeat explicit detail selection → `SELECTED_DETAIL_VALUE`, user-triggered; background refresh must not become speech and the passive detail well is not claimed as a focus owner.
 - Adam send confirmation → `STATUS_OR_STATE_DESCRIPTION`, user-triggered.
 
 Current `OperatorOverlayService` still contains four `announceForAccessibility(...)` call sites for those consequences. Therefore:
@@ -44,7 +44,7 @@ Before owner mutation, verify each call site independently:
 - whether the existing view already owns the changing semantic value;
 - whether automatic updates are already deduplicated/material-gated;
 - whether a live-region choice would cause periodic or evidence-only over-announcement;
-- whether explicit selection has a real focused/selected semantic surface;
+- whether explicit selection has a real selected semantic surface without inventing focus ownership;
 - whether action confirmation can be represented as status/state without replacing editable/value text;
 - whether the proposed change removes one legacy call without inventing a second owner.
 
