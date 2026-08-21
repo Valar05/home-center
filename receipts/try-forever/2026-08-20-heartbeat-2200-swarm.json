@@ -1,0 +1,61 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "checkpoint": "2026-08-20-2200",
+  "frontsAdvanced": [
+    "latest-message interaction policy",
+    "latest-message policy regression source",
+    "latest-message RED direct-owner regression",
+    "latest-message exact owner surgery provenance",
+    "dynamic TextView doctrine convergence",
+    "touchable latest-message non-raster state wall",
+    "dynamic action-button RED direct-owner regression",
+    "dynamic action-button exact owner surgery provenance",
+    "dynamic action-button durable skill harvest",
+    "Regnet and Venice bounded review receipts"
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "LIT: moved off completed accessibility seams and refused manual CI retry",
+    "CanonAutoSelect": "LIT: reused dynamic-textview-semantic-value and harvested dynamic-action-button-semantic-value from current owner evidence",
+    "AutocorrectJudgmentJar": "DARK: no material ambiguity",
+    "OriginalityTax": "LIT: second accessibility wound received a fresh replan; first null-description repair was rejected and materially replaced",
+    "Hunger": "LIT: owner archaeology expanded one TextView interaction wound into a second independent dynamic-action Button wound",
+    "EverPolishedInterpreterEatEverything": "LIT: corrected skill doctrine after code-first review so source, patch, regression, and capability states agree",
+    "OperatorCampaign": "LIT: kept OperatorOverlayService as the sole native owner; both surgeries remain proposed rather than routed through a neighboring controller",
+    "Harroway": "LIT: exact owner/blob and requested/implemented/tested/runtime states preserved",
+    "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no substitute",
+    "VeniceJudgmentJars": "LIT: pre-mutation plan gates plus bounded completion gate",
+    "RegnetQA": "LIT: supporting source PASS; both owner seams REVISE_REQUIRED; regressions UNEXECUTED",
+    "AccessibilityTalkBackTouch": "LIT: standard click/state source contract, exact current Button action semantics, touchable radio-based source wall",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED: consumption 0 mutation 0",
+    "DeterministicRouting": "LIT: direct-owner lexical evidence helpers reused; base-blob-locked owner patches",
+    "EvidenceCapabilityState": "LIT: policy/patch/regression source kept separate from owner wiring, TESTED, runtime, deployment, delivery, acceptance",
+    "RecoveryCheckpointIdempotence": "LIT_AS_CONSTRAINT: owner mutations not attempted through unsafe whole-file reconstruction; capability remains retryable at exact owner boundary",
+    "StrangeNonRasterArt": "LIT: latest-message accessibility state wall is DOM plus inline SVG source only",
+    "WarmWalls": "LIT: touchable state contract, not decorative status art",
+    "ChristmasLightSceneGraph": "DARK: no scene-transition/motion law changed",
+    "ContactPreservation": "LIT_AS_CONSTRAINT: latest changing message remains native semantic value while action/state semantics stay separate"
+  },
+  "crossPollination": "dynamic TextView value preservation -> clickable latest-message action/state wound -> owner archaeology -> dynamic action-button stale-label wound -> corrected exact action semantics -> shared direct-owner evidence discipline",
+  "capabilityMembrane": {
+    "supportingSource": true,
+    "authenticatedOwnerReadback": true,
+    "latestMessageInteractionOwnerWired": false,
+    "dynamicActionButtonOwnerWired": false,
+    "regressionSource": true,
+    "regressionsExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null
+  }
+}
