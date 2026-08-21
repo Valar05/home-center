@@ -1,0 +1,26 @@
+{
+  "schema": "venice-judgment-jar-completion-review.v1",
+  "timestamp": "2026-08-21T12:12:10-05:00",
+  "pullRequest": 329,
+  "reviewedSourceHead": "a9dfe9980f9fcab12bc3f30194df877e49310dfc",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "Multiple independent non-P0 fronts materially advanced through the audited repository lane.",
+    "Android accessibility guidance supports preserving TextView/EditText text as its semantic value rather than masking it with contentDescription.",
+    "Send action consequence is now explicit supporting source and refresh-aware owner evidence, not a generic static label.",
+    "Regnet caught and repaired the first send-evidence false-negative design before completion.",
+    "The sole native owner remains unchanged and legacy, so the slice does not claim owner implementation or runtime behavior.",
+    "Automatic workflow failure supplies no step-level cause; TESTED remains NO and no manual retry was fired.",
+    "Phone/P0 and duplicate-architecture firewalls held at zero."
+  ],
+  "ownerGate": "CONTINUE_REQUIRED",
+  "testGate": "CONTINUE_REQUIRED",
+  "runtimeGate": "CONTINUE_REQUIRED",
+  "campaignGate": "CONTINUE_REQUIRED",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "capabilityMembrane": "requested YES; supporting source YES; authenticated readback YES; regressions source-only; owner wiring NO; TESTED/runtime/deployed/callable/executed/delivered/accepted NO"
+}
