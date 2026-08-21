@@ -81,33 +81,65 @@ def _direct_method_surface(class_surface: str, method_name: str) -> str:
 
 def classify_mode_selection(source: str) -> SeamVerdict:
     owner = _owner_surface(source)
+    create_method = _direct_method_surface(owner, "createOverlay")
     mode_method = _direct_method_surface(owner, "adamModeButton")
     refresh_method = _direct_method_surface(owner, "refreshAdamModeSelection")
     policy = "AdamModeSelectionAccessibilityPolicy"
+
     policy_reference = policy in mode_method and policy in refresh_method
     initial_state = "setSelected(" in mode_method
     refresh_state = "setSelected(" in refresh_method
     refresh_call = "refreshAdamModeSelection(" in mode_method
     has_persistent_state = initial_state and refresh_state and refresh_call
-    if policy_reference and has_persistent_state:
+
+    row_set_context = (
+        "adamModeRow.setAccessibilityDelegate(" in create_method
+        and "AccessibilityNodeInfo.CollectionInfo.obtain(" in create_method
+        and "AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE" in create_method
+        and "AdamModeSelectionAccessibilityPolicy.SET_SIZE" in create_method
+    )
+    item_set_context = (
+        "setAccessibilityDelegate(" in mode_method
+        and "AccessibilityNodeInfo.CollectionItemInfo.obtain(" in mode_method
+        and "positionInSet" in mode_method
+        and "selected" in mode_method
+    )
+    has_native_set_context = row_set_context and item_set_context
+
+    if policy_reference and has_persistent_state and has_native_set_context:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam mode owner initializes and refreshes one-of-many native selection through the policy",
+            "direct Adam mode owner initializes and refreshes one-of-many native selection and exposes stable single-selection set-position context through the same policy",
             policy,
             True,
             True,
         )
-    if policy in mode_method or policy in refresh_method or initial_state or refresh_state or refresh_call:
+    if (
+        policy in mode_method
+        or policy in refresh_method
+        or initial_state
+        or refresh_state
+        or refresh_call
+        or row_set_context
+        or item_set_context
+    ):
+        missing = []
+        if not has_persistent_state:
+            missing.append("persistent selected-state lifecycle")
+        if not row_set_context:
+            missing.append("single-selection collection context")
+        if not item_set_context:
+            missing.append("per-mode position-in-set context")
         return SeamVerdict(
             "PARTIAL_UNSAFE",
-            "Adam mode owner contains only part of the persistent one-of-many selection lifecycle",
+            "Adam mode owner is incomplete: missing " + ", ".join(missing),
             policy,
             policy in mode_method or policy in refresh_method,
-            initial_state or refresh_state,
+            has_persistent_state or has_native_set_context,
         )
     return SeamVerdict(
         "LEGACY_OWNER",
-        "direct Adam mode owner changes mode/focus but exposes no persistent selected/checked semantic lifecycle",
+        "direct Adam mode owner changes mode/focus but exposes no persistent selected/checked semantic lifecycle or native one-of-many set-position context",
         policy,
         False,
         False,
