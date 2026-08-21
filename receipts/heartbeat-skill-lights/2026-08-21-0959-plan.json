@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-plan.v1",
+  "timestamp": "2026-08-21T09:59:45-05:00",
+  "campaign": "TRY FOREVER",
+  "scope": "non-P0 Operator Overlay accessibility source",
+  "sourceHeadBeforePlan": "cd5261aad04a5dcfec230b4fbdf65da2ba3ad823",
+  "missionBoundary": {
+    "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "ownerMutationThisSlice": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "observedWounds": [
+    {
+      "id": "adam-mode-selection-state",
+      "evidence": "adamModeButton() changes adamMode but exposes no persistent selected/checked state on the five mutually-exclusive mode controls.",
+      "fronts": ["pure policy", "policy regression source", "owner evidence probe", "durable skill", "touchable non-raster specimen"]
+    },
+    {
+      "id": "adam-input-result-state",
+      "evidence": "submitAdamRequest() changes the empty-field hint to include sent while the EditText contentDescription remains mode-only and the legacy explicit announcement remains the only direct sent receipt.",
+      "fronts": ["pure state policy", "policy regression source", "owner evidence probe", "durable skill", "touchable non-raster specimen"]
+    }
+  ],
+  "crossPollination": [
+    "persistent-selection-semantics: one-of-many choice is not a toggle",
+    "Android focus semantics: keyboard focus and accessibility focus are distinct; mode state must not be inferred from focus",
+    "dynamic semantic value doctrine: persistent state belongs in state semantics, not a stale generic description",
+    "announcement migration: source design does not authorize removal of legacy Adam send feedback until repeatable-event semantics are solved"
+  ],
+  "plannedCapabilityMembrane": "requested YES -> plan YES -> supporting source -> authenticated readback -> regression source unexecuted -> owner wiring NO -> tested NO -> runtime TalkBack NO -> deployed/callable/executed/delivered/accepted NO"
+}
