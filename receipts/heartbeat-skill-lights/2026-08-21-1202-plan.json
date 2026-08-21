@@ -1,0 +1,48 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestamp": "2026-08-21T12:02:22-05:00",
+  "pullRequest": 329,
+  "mission": "Advance multiple independent non-P0 Adam accessibility/evidence fronts without touching phone/P0 or creating a second owner.",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "authenticatedOwnerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+  "fronts": [
+    {
+      "id": "adam-editable-value-semantics",
+      "why": "Current EditText contentDescription masks/replaces the changing editable value even though the existing policy says text remains the semantic value.",
+      "authorizedAction": "Strengthen existing Adam input policy and owner-evidence regression around null contentDescription plus persistent stateDescription; no native-owner mutation this pulse unless a safe exact owner lane is available."
+    },
+    {
+      "id": "adam-send-action-semantics",
+      "why": "The Send button's consequence depends on the selected Adam mode but its current semantic label is generic and does not name that mode.",
+      "authorizedAction": "Add one pure source policy and hostile regression for exact mode-specific send action semantics; keep OperatorOverlayService as sole owner and owner wiring explicitly NO."
+    },
+    {
+      "id": "owner-evidence-v4",
+      "why": "Source evidence must distinguish editable-value preservation, READY/SENT lifecycle, selected mode, and mode-specific send consequence; partial setters must not false-green.",
+      "authorizedAction": "Extend the existing Adam source probe and fixture rather than spawning another probe."
+    },
+    {
+      "id": "touchable-adam-warm-wall",
+      "why": "The existing source organism should make value/state/action distinctions inspectable without claiming deployment.",
+      "authorizedAction": "Mutate the existing non-raster Adam warm wall in place only if the source topology materially changes."
+    },
+    {
+      "id": "review-evidence",
+      "why": "Keep supporting source, owner wiring, regression execution, TESTED, runtime, phone delivery, and acceptance separate.",
+      "authorizedAction": "Regnet/Venice receipts, exact GitHub readback, fresh workflow evidence; no manual CI retry."
+    }
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "ownerMutationDefault": "NO unless exact safe owner surgery becomes callable",
+    "regressionExecutionClaim": false,
+    "runtimeClaim": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  }
+}
