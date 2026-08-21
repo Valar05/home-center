@@ -1,0 +1,60 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-21-1803",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "reviewedHead": "0b8a9cd8eeb10ead7620174221ff908635a8123a",
+  "fronts": {
+    "collapsedOperationalRefresh": {
+      "policySource": "YES",
+      "ownerProbe": "YES / v2",
+      "ownerWiring": "NO / PARTIAL_UNSAFE",
+      "finding": "Current owner can update visible HC state while heartbeat persistence takes SKIP_UNCHANGED; custom collapsed semantics remain heartbeat-cadence-bound until the prepared owner surgery is applied."
+    },
+    "adamSendAvailability": {
+      "policySource": "YES",
+      "ownerProbe": "YES / v2",
+      "ownerWiring": "NO / LEGACY_OWNER",
+      "finding": "Current owner leaves Send enabled for trim-empty guaranteed no-op requests. Probe v2 now requires the actual onTextChanged callback to own availability refresh plus a separate initial projection."
+    },
+    "evidenceHardening": {
+      "probeBlob": "10846d9638a96d0e880279101a9d9fd4ce713891",
+      "fixtureBlob": "b8184434c69a311592815cacf3fcfdf85cca4466",
+      "counterfeitClosed": "empty onTextChanged callback plus nearby refresh calls no longer qualifies as edit-driven ownership"
+    },
+    "touchableSource": {
+      "artifactBlob": "dfe5259c883514aa88a9f950894f9b1bd5fbdedc",
+      "runtimeClaim": false
+    }
+  },
+  "owner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "authenticatedBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "patch": "patches/try-forever-operational-contact-owner.patch",
+    "patchState": "PROPOSED_NOT_APPLIED"
+  },
+  "executionBoundary": {
+    "computerHandsSurfaceCallable": true,
+    "windowsHandsOnline": false,
+    "queueDepth": 4,
+    "duplicateRequestCreated": false,
+    "githubWholeFileUpsertIsPatchInterpreter": false
+  },
+  "automaticWorkflows": {
+    "operatorOverlayRun": 32535957436,
+    "operatorJob": 96936816835,
+    "operatorConclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "buildAndroidRun": 32535957438,
+    "homeCenterCiRun": 32535957448,
+    "tested": false,
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
