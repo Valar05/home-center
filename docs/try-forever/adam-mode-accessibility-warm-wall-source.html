@@ -32,7 +32,7 @@
 <body>
 <main>
   <h1>ADAM MODE / WARM WALL</h1>
-  <p class="scar">SOURCE LIFECYCLE READY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">SOURCE LIFECYCLE + VALUE + ACTION READY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 
   <fieldset id="modeGroup">
     <legend>Adam mode — one persistent choice</legend>
@@ -54,16 +54,18 @@
   <div class="wall" aria-label="Source capability states">
     <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state still missing in the native owner.</section>
     <section class="cell"><div class="token">□</div><strong>INPUT OWNER</strong><br>Native READY/SENT/edit-recovery lifecycle still unwired.</section>
+    <section class="cell"><div class="token">●</div><strong>EDITABLE VALUE</strong><br>The input text stays the semantic value; context is state, not a generic replacement description.</section>
+    <section class="cell"><div class="token">□</div><strong>SEND ACTION OWNER</strong><br>Native Send action still fails to name the exact selected mode.</section>
     <section class="cell"><div class="token">●</div><strong>EDIT RECOVERY</strong><br>SENT + real new text → READY; empty programmatic clear keeps SENT.</section>
-    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result lifecycle contracts exist as repository source.</section>
+    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result lifecycle + mode-specific Send action contracts exist as repository source.</section>
     <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence.</section>
   </div>
 
   <div id="detail" role="status">Terminal selected. Selection is not focus ownership.</div>
 
-  <svg viewBox="0 0 800 150" role="img" aria-labelledby="svgTitle svgDesc">
+  <svg viewBox="0 0 800 180" role="img" aria-labelledby="svgTitle svgDesc">
     <title id="svgTitle">Warm-wall source lifecycle</title>
-    <desc id="svgDesc">Five Adam modes converge on one selected mode. The editable input moves from ready to sent after submit and back to ready when real new text is typed. Owner wiring and runtime proof remain blocked.</desc>
+    <desc id="svgDesc">Five Adam modes converge on one selected mode. The editable input remains its own semantic value. The send action names the selected mode. The input moves from ready to sent after submit and back to ready when real new text is typed. Owner wiring and runtime proof remain blocked.</desc>
     <path d="M40 65 H210 M210 65 H390 M390 65 H570 M570 65 H750" fill="none" stroke="currentColor" stroke-width="4"/>
     <circle cx="75" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="220" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -73,7 +75,8 @@
     <text x="290" y="72" text-anchor="middle" fill="currentColor" font-size="18">READY</text>
     <text x="470" y="72" text-anchor="middle" fill="currentColor" font-size="18">SENT</text>
     <text x="650" y="72" text-anchor="middle" fill="currentColor" font-size="18">EDIT → READY</text>
-    <text x="400" y="128" text-anchor="middle" fill="currentColor" font-size="17">SOURCE POLICY ● · NATIVE OWNER □</text>
+    <text x="400" y="126" text-anchor="middle" fill="currentColor" font-size="17">INPUT VALUE = TEXT · SEND ACTION = CURRENT MODE</text>
+    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">SOURCE POLICY ● · NATIVE OWNER □</text>
   </svg>
 </main>
 <script>
@@ -83,17 +86,19 @@
   const request = document.getElementById('request');
   const state = document.getElementById('inputState');
   const detail = document.getElementById('detail');
+  const send = document.getElementById('send');
   let result = 'Ready to send.';
   const active = () => document.querySelector('input[name="mode"]:checked').value;
   const render = () => {
     const label = labels[active()];
     state.textContent = `${label} mode. ${result}`;
-    detail.textContent = `${label} selected. ${result} Selection is persistent state, not keyboard or accessibility focus ownership.`;
+    send.setAttribute('aria-label', `Send request to Adam using ${label} mode`);
+    detail.textContent = `${label} selected. ${result} Editable text remains the field value; Send names the current mode; selection is not keyboard or accessibility focus ownership.`;
   };
   // Native radio keyboard navigation keeps focus in the mode group. Selecting a mode is a
   // material lifecycle transition to READY, but does not steal keyboard focus into the input.
   group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
-  document.getElementById('send').addEventListener('click', () => {
+  send.addEventListener('click', () => {
     if (!request.value.trim()) return;
     result = 'Sent.';
     request.value = '';
