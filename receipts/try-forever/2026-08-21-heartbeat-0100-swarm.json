@@ -1,0 +1,67 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-21-0100",
+  "reviewedSourceHead": "c198aeaa8f694edd85fe6a0f68ab9d2e44528b8a",
+  "activeLights": {
+    "Failure Is The Shovel": "Moved off completed latest-message/button seams into API36 semantic-announcement migration and removed a stale mechanism-specific Adam contract.",
+    "Originality Tax": "Rejected a blanket deprecated-call replacement and corrected false focus ownership discovered during code-first review.",
+    "Canon Auto-Select": "Activated existing dynamic TextView/detail/contact doctrines and harvested operator-semantic-announcement-migration.",
+    "Hunger / Eat Everything": "Converged policy, regression source, stale contract, durable skill, source art, Regnet, and Venice receipts.",
+    "Operator Campaign / Harroway": "Kept OperatorOverlayService as sole native owner; no owner mutation was promoted without per-consequence semantic proof.",
+    "Accessibility/TalkBack": "Classified four legacy announcement consequences and preserved native value semantics; API36 deprecation is treated as a semantic migration problem, not a search/replace problem.",
+    "Deterministic routing / evidence discipline": "Source head, owner legacy call sites, correction scar, capability membrane, and failed workflow evidence are separately recorded.",
+    "Recovery/checkpoint/idempotence": "Heartbeat automatic semantic surfacing remains behind the existing material-transition/dedup gate; background evidence refresh is not authorized to speak.",
+    "Warm Walls / strange non-raster art": "Added one touchable DOM/inline-SVG semantic-announcement throat, explicitly source-only.",
+    "Regnet QA": "PASS for bounded supporting-source claims; owner migration unwired; regressions unexecuted; TESTED NO.",
+    "Venice Judgment": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED."
+  },
+  "faultLights": {
+    "She-Raw": "authoritative ambient consultation attempted; account connection HTTP 400; no substitute verdict"
+  },
+  "darkLights": {
+    "Autocorrect Judgment Jar": "no material ambiguity",
+    "Christmas-light motion": "no runtime scene-topology change",
+    "Phone Runtime / Phone Hands": "firewalled; consumption 0, mutation 0",
+    "P0 recovery chain": "read-only; no finding requiring handoff",
+    "Nightcore / Pocket TTS / Chromium / Context Organs": "firewalled and untouched"
+  },
+  "frontsAdvanced": [
+    "semantic announcement consequence policy",
+    "policy regression source",
+    "Adam overlay mechanism-contract repair",
+    "durable accessibility skill",
+    "touchable non-raster source specimen",
+    "Regnet review",
+    "Venice judgment",
+    "exact workflow/test-boundary evidence"
+  ],
+  "crossPollination": "Android API36 deprecation made the four legacy announcement call sites suspicious; dynamic TextView doctrine prevented a generic contentDescription replacement; heartbeat material-transition/idempotence doctrine constrained automatic speech; detail-surface accessibility exposed false focus ownership and forced SELECTED_DETAIL_VALUE; Adam contract archaeology found a stale mechanism-specific assertion that would have blocked migration.",
+  "executionTruth": {
+    "sourceHeadWorkflowRuns": {
+      "Operator Overlay Android": {"id": 32452871215, "conclusion": "failure", "job": 96684444234, "steps": 0, "logs": "404 BlobNotFound"},
+      "Home Center CI": {"id": 32452871216, "conclusion": "failure"},
+      "Build Android": {"id": 32452871280, "conclusion": "failure"}
+    },
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedRemoteReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerSemanticMigrationWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneLedger": {"consumption": 0, "mutation": 0, "duplicateArchitecture": 0},
+  "nextExactCut": "Review each of the four legacy announcement consequences against the policy and choose an exact existing-owner semantic mechanism. Do not remove all four calls through a generic replacement channel."
+}
