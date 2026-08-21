@@ -96,15 +96,16 @@ Repository artifacts and patch files can establish intended/implemented source. 
 
 Do not create a neighboring worker registry, patch daemon, phone ingress path, recovery coordinator, alternate overlay owner, or alternate provenance owner because one execution body is offline. Improve existing repository organs through a currently deployed authorized lane, or preserve the exact boundary and advance a different independent front.
 
-## Current TRY FOREVER checkpoint — 2026-08-21 1302
+## Current TRY FOREVER checkpoint — 2026-08-21 1803
 
 - audited Home Center GitHub admin read/upsert: **CALLABLE YES**;
 - Home Center `computer_hands.*` operation surface: **CALLABLE YES**;
-- `windows-hands-01`: **OFFLINE**, queueDepth **4**, existing TRY FOREVER lanes present;
+- `windows-hands-01`: **OFFLINE**, status `idle`, queueDepth **4**, existing TRY FOREVER lanes present;
 - Computer Hands mutation execution in this pulse: **NO**;
-- Adam owner patch: **CORRECTED_PROPOSED_NOT_APPLIED**; exact base owner blob remains `c5de1411a6b68087ae17aff83c032af754587150`;
-- reason not queued: worker offline; request execution would be deferred, and this heartbeat already has independent source fronts that can advance without creating queue sludge;
-- audited GitHub whole-file upsert is not a patch interpreter; no risky partial reconstruction of `OperatorOverlayService` was used;
+- operational-contact owner patch: **PROPOSED_NOT_APPLIED**; exact base owner blob remains `c5de1411a6b68087ae17aff83c032af754587150`;
+- reason not queued: worker offline with four pending requests and active TRY FOREVER lanes; adding another deferred request would be queue theater rather than present execution;
+- audited GitHub whole-file upsert remains a complete-replacement surface, not a patch interpreter; the large owner was not reconstructed from partial context merely to manufacture an implementation receipt;
+- independent repository work advanced instead: operational-contact owner probe v2, hostile counterfeit-edit fixture, Adam doctrine, and the existing touchable source organism;
 - gated primary-phone/Phone Hands surface for TRY FOREVER: **FIREWALLED / NOT A FALLBACK**;
 - local scratch as completion proof: **FORBIDDEN**;
 - source/readback/test/runtime/deploy/delivery states: **MUST REMAIN SEPARATE**.
