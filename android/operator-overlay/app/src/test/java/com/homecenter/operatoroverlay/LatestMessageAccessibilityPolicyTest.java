@@ -11,6 +11,7 @@ public class LatestMessageAccessibilityPolicyTest {
                 LatestMessageAccessibilityPolicy.clickActionLabel(false));
         assertEquals("Collapsed",
                 LatestMessageAccessibilityPolicy.stateDescription(false));
+        assertEquals(2, LatestMessageAccessibilityPolicy.maxLines(false));
     }
 
     @Test
@@ -19,5 +20,12 @@ public class LatestMessageAccessibilityPolicyTest {
                 LatestMessageAccessibilityPolicy.clickActionLabel(true));
         assertEquals("Expanded",
                 LatestMessageAccessibilityPolicy.stateDescription(true));
+        assertEquals(Integer.MAX_VALUE, LatestMessageAccessibilityPolicy.maxLines(true));
+        assertEquals(520, LatestMessageAccessibilityPolicy.expandedMaxHeightDp());
+    }
+
+    @Test
+    public void expandedInspectionUsesHeightNotFiniteLineAmputation() {
+        assertEquals(Integer.MAX_VALUE, LatestMessageAccessibilityPolicy.maxLines(true));
     }
 }
