@@ -82,6 +82,10 @@ HOME_CENTER_STATUS_TEXT_MARKERS = {
     "createOverlay": ("status.setText(",),
     "refreshUi": ("status.setText(state);",),
 }
+LATEST_MESSAGE_TEXT_MARKERS = {
+    "createOverlay": ("latest.setText(OperatorState.latestText(this));",),
+    "refreshUi": ("latest.setText(OperatorState.latestText(this));",),
+}
 
 
 def java_lexical_code_surface(source: str) -> str:
@@ -387,7 +391,7 @@ def probe(source: str) -> dict[str, object]:
     code_surface = java_lexical_code_surface(source)
     scopes = owner_scopes(code_surface)
     return {
-        "schema": "try-forever-operator-accessibility-owner-probe.v6",
+        "schema": "try-forever-operator-accessibility-owner-probe.v7",
         "evidenceClass": "JAVA_DIRECT_OWNER_METHOD_SCOPED_LEXICAL_CODE_SURFACE",
         "ownerClassFound": bool(scopes["class"]),
         "deepDetail": asdict(classify_scoped(
@@ -415,6 +419,13 @@ def probe(source: str) -> dict[str, object]:
             text_markers=HOME_CENTER_STATUS_TEXT_MARKERS,
             description_scopes=("createOverlay", "refreshUi"),
             label="Home Center dynamic-status semantic owner",
+        )),
+        "latestMessageFocus": asdict(classify_dynamic_textview_semantics(
+            scopes,
+            view_name="latest",
+            text_markers=LATEST_MESSAGE_TEXT_MARKERS,
+            description_scopes=("createOverlay", "refreshUi"),
+            label="Latest Home Center/Adam message semantic owner",
         )),
         "capabilityBoundary": {
             "sourceInspected": True,
