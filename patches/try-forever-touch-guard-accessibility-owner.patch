@@ -1,0 +1,21 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: PROPOSED_NOT_APPLIED
+# Scope: full-screen technical touchGuard accessibility semantics only.
+# The guard intercepts pointer input; it is not status/operator content and must not
+# become a giant focusable "Remote input active" accessibility node.
+# Existing status/screenBadge/dragHandle remain the semantic state surfaces.
+# No second overlay owner. No phone/P0 action.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         touchGuard = new View(this);
+-        touchGuard.setContentDescription("Remote input active");
++        touchGuard.setImportantForAccessibility(
++                TechnicalTouchGuardAccessibilityPolicy.importantForAccessibility());
++        touchGuard.setContentDescription(
++                TechnicalTouchGuardAccessibilityPolicy.contentDescription());
+         touchGuard.setOnTouchListener((view, event) -> true);
