@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall / Latest Message Accessibility State</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #17191d; color: #f4f4f4; }
+  main { width: min(760px, calc(100vw - 24px)); border: 2px solid currentColor; border-radius: 24px; padding: 18px; }
+  h1 { font-size: 1.2rem; margin: 0 0 8px; }
+  p { line-height: 1.45; }
+  fieldset { border: 0; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; }
+  legend { font-weight: 700; margin-bottom: 8px; }
+  input { position: absolute; opacity: 0; pointer-events: none; }
+  label { min-height: 56px; display: flex; align-items: center; gap: 12px; border: 2px solid currentColor; border-radius: 16px; padding: 8px 14px; cursor: pointer; }
+  label::before { content: "◇"; font-size: 1.4rem; }
+  input:checked + label::before { content: "●"; }
+  input:focus-visible + label { outline: 4px solid currentColor; outline-offset: 3px; }
+  .detail { display: none; margin: -2px 12px 4px; padding: 12px 14px; border-left: 3px solid currentColor; }
+  input:checked + label + .detail { display: block; }
+  .wall { width: 100%; height: auto; margin-top: 14px; }
+  .scar { font-family: ui-monospace, monospace; font-size: .85rem; border-top: 1px solid currentColor; padding-top: 12px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / LATEST MESSAGE</h1>
+  <p>The changing message stays the semantic value. Expansion is a separate interaction state. Touch the wall to inspect the consequence without replacing the message with accessibility wallpaper.</p>
+
+  <svg class="wall" viewBox="0 0 720 150" role="img" aria-labelledby="wallTitle wallDesc">
+    <title id="wallTitle">Latest-message accessibility wall</title>
+    <desc id="wallDesc">A changing text value passes through a separate expand or collapse action gate. Source policy exists, owner wiring remains unproven.</desc>
+    <rect x="8" y="8" width="704" height="134" rx="24" fill="none" stroke="currentColor" stroke-width="3"/>
+    <text x="34" y="48" fill="currentColor" font-size="18">MESSAGE TEXT</text>
+    <path d="M190 42 H318" stroke="currentColor" stroke-width="3"/>
+    <text x="330" y="48" fill="currentColor" font-size="18">ACTION / STATE</text>
+    <path d="M516 42 H650" stroke="currentColor" stroke-width="3"/>
+    <text x="34" y="102" fill="currentColor" font-size="15">VALUE ≠ CONTENTDESCRIPTION</text>
+    <text x="370" y="102" fill="currentColor" font-size="15">CLICK LABEL ≠ VALUE</text>
+  </svg>
+
+  <fieldset>
+    <legend>Inspect the state contract</legend>
+
+    <input id="collapsed" type="radio" name="state" checked>
+    <label for="collapsed">Collapsed · action: Expand latest message</label>
+    <div class="detail">Current state: Collapsed. The changing Home Center message remains the TextView value. The standard click action should say what happens next.</div>
+
+    <input id="expanded" type="radio" name="state">
+    <label for="expanded">Expanded · action: Collapse latest message</label>
+    <div class="detail">Current state: Expanded. On API 30+ the node may expose stateDescription=Expanded; on older supported Android versions the labeled standard click action still carries the consequence.</div>
+
+    <input id="wound" type="radio" name="state">
+    <label for="wound">Owner wound · interaction semantics unwired</label>
+    <div class="detail">Current authenticated owner preserves native message text but does not yet label expand/collapse accessibility action/state. Policy, RED owner regression, and exact patch source exist. Runtime TalkBack is unproven.</div>
+  </fieldset>
+
+  <p class="scar">SOURCE ONLY · OWNER INTERACTION WIRING NO · REGRESSION UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+</main>
+</body>
+</html>
