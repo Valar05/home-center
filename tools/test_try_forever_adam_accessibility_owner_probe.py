@@ -133,15 +133,15 @@ def main() -> int:
     assert result["inputResult"]["status"] == "SOURCE_WIRED"
 
     send_partial = wrap(
-        "private void createOverlay() { AdamSendActionAccessibilityPolicy.decisionFor(adamMode); adamSendButton = button(\"Send\"); }\n"
-        "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
+        "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
+        "private Button adamModeButton() { return button; }\n"
         "private void submitAdamRequest() { }"
     )
     result = classify(send_partial)
     assert result["sendAction"]["status"] == "PARTIAL_UNSAFE"
 
     send_wired = wrap(
-        "private void createOverlay() { AdamSendActionAccessibilityPolicy.decisionFor(adamMode); adamSendButton = button(\"Send\"); }\n"
+        "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
         "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
         "private void refreshAdamSendAction() {\n"
         "  AdamSendActionAccessibilityPolicy.Decision decision = AdamSendActionAccessibilityPolicy.decisionFor(adamMode);\n"
