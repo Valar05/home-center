@@ -2,17 +2,19 @@
 """Source-only inventory guard for TRY FOREVER accessibility announcement migration.
 
 This regression deliberately does not execute Android or TalkBack. It guards the current
-existing-owner surface against two opposite failures:
+existing-owner surface against three failures:
 
-* a fifth legacy announceForAccessibility consequence appearing unnoticed; and
+* a fifth legacy announceForAccessibility consequence appearing unnoticed;
 * an over-broad migration patch removing explicit-event receipts whose replacement contract is
-  still blocked.
+  still blocked; and
+* a supposedly review-ready owner patch silently drifting off the exact owner blob it names.
 
 The lexical Java helper is the existing source-evidence organ. No second Java parser is created.
 """
 
 from __future__ import annotations
 
+import hashlib
 import unittest
 from pathlib import Path
 
@@ -36,12 +38,19 @@ EXPECTED_LEGACY_METHODS = {
 }
 
 
+def git_blob_sha1(path: Path) -> str:
+    payload = path.read_bytes()
+    framed = b"blob " + str(len(payload)).encode("ascii") + b"\0" + payload
+    return hashlib.sha1(framed).hexdigest()
+
+
 class SemanticAnnouncementInventoryTest(unittest.TestCase):
     def setUp(self) -> None:
         source = OWNER.read_text(encoding="utf-8")
         lexical = java_lexical_code_surface(source)
         self.owner = java_named_class_surface(lexical, "OperatorOverlayService")
         self.assertTrue(self.owner, "missing direct OperatorOverlayService source surface")
+        self.owner_blob = git_blob_sha1(OWNER)
 
     def test_legacy_announcement_inventory_is_exactly_the_four_known_consequences(self) -> None:
         self.assertEqual(4, self.owner.count(".announceForAccessibility("))
@@ -51,8 +60,9 @@ class SemanticAnnouncementInventoryTest(unittest.TestCase):
             self.assertIn(marker, method)
             self.assertEqual(1, method.count(".announceForAccessibility("))
 
-    def test_narrow_patch_removes_only_the_migration_ready_heartbeat_legacy_call(self) -> None:
+    def test_narrow_patch_is_blob_locked_to_current_owner_and_removes_only_heartbeat(self) -> None:
         patch = NARROW_PATCH.read_text(encoding="utf-8")
+        self.assertIn(f"# Base blob: {self.owner_blob}", patch)
         removed_lines = [
             line for line in patch.splitlines()
             if line.startswith("-") and "announceForAccessibility(" in line
@@ -63,8 +73,9 @@ class SemanticAnnouncementInventoryTest(unittest.TestCase):
         self.assertNotIn("heartbeatDetail.announceForAccessibility(", removed_lines[0])
         self.assertNotIn("adamInput.announceForAccessibility(", removed_lines[0])
 
-    def test_broad_patch_is_retained_only_as_rejected_archaeology(self) -> None:
+    def test_broad_patch_is_rejected_archaeology_even_when_it_names_current_owner(self) -> None:
         patch = BROAD_PATCH.read_text(encoding="utf-8")
+        self.assertIn(f"# Base blob: {self.owner_blob}", patch)
         self.assertIn("# State: REJECTED_SUPERSEDED__DO_NOT_APPLY", patch)
         self.assertIn("historical source provenance only", patch)
 
