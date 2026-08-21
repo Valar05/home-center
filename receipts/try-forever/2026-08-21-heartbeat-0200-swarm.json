@@ -1,0 +1,123 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-21-0200",
+  "pr": 329,
+  "reviewedSourceHead": "fd849c975c409e2b3ed06ef35a3406dfc217bf33",
+  "mission": "Broad non-P0 TRY FOREVER swarm: multiple independent repository/source fronts, real review pressure, no duplicate owner, exact capability states, zero phone/P0 consumption.",
+  "lights": [
+    {
+      "name": "Failure Is The Shovel / Originality Tax",
+      "state": "ACTIVE",
+      "why": "The first four-consequence live-region owner patch failed code-first review because three explicit actions can repeat while the proposed semantic value stays identical.",
+      "changed": "Rejected the broad patch as REJECTED_UNSAFE__DO_NOT_APPLY, wrote a corrective replan, and replaced it with a narrow heartbeat-only owner patch plus three explicit unresolved-event boundaries."
+    },
+    {
+      "name": "Accessibility / TalkBack / Touch Semantics",
+      "state": "ACTIVE",
+      "why": "Android 16 deprecates announceForAccessibility, but live regions represent changing semantic values rather than a universal repeatable-event bus.",
+      "changed": "AccessibilityAnnouncementSemanticPolicy now distinguishes LIVE_REGION_VALUE_CHANGE from REPEATABLE_ACTION_EVENT_UNRESOLVED. Only automatic heartbeat material transition is migration-ready; Spotify explicit receipt, repeated detail selection, and Adam send remain owner-unready."
+    },
+    {
+      "name": "Canon Auto-Select / Hunger / Eat Everything",
+      "state": "ACTIVE",
+      "why": "The corrected failure shape deserved durable doctrine, not another one-off patch explanation.",
+      "changed": "Converged operator-semantic-announcement-migration and harvested operator-repeatable-accessibility-event-semantics."
+    },
+    {
+      "name": "Deterministic Routing / Evidence / Contact Preservation / Idempotence",
+      "state": "ACTIVE",
+      "why": "Automatic heartbeat speech already has a deterministic transition identity plus cold-start, mute, whole-overlay, and heartbeat-surface visibility gates.",
+      "changed": "The narrow owner patch reuses that exact gate and explicitly resets heartbeatSummary live-region mode to NONE before waiting/recovery text, preventing stale transition authority from leaking into bookkeeping."
+    },
+    {
+      "name": "Operator Campaign / Harroway / Duplicate-Architecture Law",
+      "state": "ACTIVE",
+      "why": "All four consequences live in the existing OperatorOverlayService.",
+      "changed": "Preserved one base-blob-locked heartbeat-only owner patch as PROPOSED_NOT_APPLIED. No second accessibility controller, giant substitute owner, duplicate Computer Hands request, or phone-shaped execution lane was created."
+    },
+    {
+      "name": "Warm Walls / Strange Non-Raster Art / Touch",
+      "state": "ACTIVE",
+      "why": "The semantic topology materially changed from four generic replacements to one value-change throat plus three unresolved repeatable-event wounds.",
+      "changed": "Mutated the existing DOM/inline-SVG announcement throat in place with accessible radio/touch/keyboard states, reduced motion, source-only scarring, and no decorative blink."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "why": "Code-first review materially invalidated the first implementation strategy.",
+      "changed": "PASS for bounded supporting source/readback; owner migration remains REVISE_REQUIRED; regression source remains UNEXECUTED; TESTED remains NO."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "why": "The bounded source slice needed a completion gate without fabricating unavailable external reviewer work.",
+      "changed": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED. External Venice worker is offline; same-worker durable Judgment Jar is explicit."
+    },
+    {
+      "name": "She-Raw",
+      "state": "FAULT",
+      "why": "Authoritative pre-execution consultation was attempted.",
+      "changed": "Account connection returned HTTP 400; no synthetic She-Raw verdict substituted."
+    },
+    {
+      "name": "Execution Truth",
+      "state": "BLOCKED_UNKNOWN",
+      "why": "Fresh automatic workflows exercised the exact reviewed source/art head.",
+      "changed": "Operator Overlay Android run 32457933732 / job 96698760744 failed with zero exposed steps; job logs returned 404 BlobNotFound. Home Center CI 32457933712 and Build Android 32457933717 also failed. No step-level cause established and no manual retry fired. TESTED remains NO."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No material token ambiguity occurred in this slice.",
+      "changed": "No decorative invocation."
+    },
+    {
+      "name": "Christmas-Light Motion",
+      "state": "DARK",
+      "why": "This pulse changed semantic ownership/evidence, not the runtime scene-transition contract.",
+      "changed": "No decorative motion or blink added."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands / P0 Fortress",
+      "state": "FIREWALLED_DARK",
+      "why": "Binding P0 and shared-phone firewall remains in force.",
+      "changed": "Phone/P0 consumption 0; mutation 0; duplicate architecture 0. No phone commands, tickets, recovery work, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance actions."
+    }
+  ],
+  "frontsAdvanced": [
+    "announcement semantic policy",
+    "policy regression source",
+    "RED owner-boundary regression",
+    "broad owner patch rejection + corrective replan",
+    "narrow heartbeat-only owner patch provenance",
+    "existing skill convergence",
+    "new repeatable-event skill harvest",
+    "existing warm-wall source mutation",
+    "Regnet review",
+    "Venice completion review",
+    "fresh exact-head workflow evidence"
+  ],
+  "crossPollination": "Android 16 deprecation -> per-consequence classification -> first broad live-region surgery -> Regnet finds repeatable same-value event loss -> Originality Tax rejects and replans -> one migration-ready heartbeat value-change path + three unresolved repeatable events -> durable skill doctrine + touchable warm wall -> execution/reviewer evidence keeps source behind owner/test/runtime membrane.",
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "heartbeatOwnerPatchPrepared": true,
+    "heartbeatOwnerPatchApplied": false,
+    "spotifyRepeatableEventOwnerDesign": false,
+    "detailRepeatableEventOwnerDesign": false,
+    "adamRepeatableEventOwnerDesign": false,
+    "ownerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
