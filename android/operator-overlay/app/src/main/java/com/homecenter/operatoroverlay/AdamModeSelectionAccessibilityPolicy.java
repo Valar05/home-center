@@ -10,9 +10,11 @@ import java.util.Locale;
  * unrelated toggles. Selection, keyboard focus, accessibility focus, and the editable Adam input
  * are separate states.</p>
  *
- * <p>This class owns no View, RadioGroup, controller, renderer, phone surface, transport, or P0
- * recovery path. {@link OperatorOverlayService} remains the sole native owner. Source policy is
- * not Android/TalkBack runtime proof.</p>
+ * <p>The owner should expose selection through a native selected/checked semantic state. Do not
+ * duplicate that same state into a generic custom stateDescription merely to make the source look
+ * more accessible. This policy owns no View, RadioGroup, controller, renderer, phone surface,
+ * transport, or P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.
+ * Source policy is not Android/TalkBack runtime proof.</p>
  */
 public final class AdamModeSelectionAccessibilityPolicy {
     public enum Mode {
@@ -37,7 +39,6 @@ public final class AdamModeSelectionAccessibilityPolicy {
         public final boolean persistentOneOfMany;
         public final boolean selectionOwnsKeyboardFocus;
         public final boolean selectionOwnsAccessibilityFocus;
-        public final String stateDescription;
         public final String actionDescription;
 
         private Decision(Mode mode, boolean selected) {
@@ -46,7 +47,6 @@ public final class AdamModeSelectionAccessibilityPolicy {
             this.persistentOneOfMany = true;
             this.selectionOwnsKeyboardFocus = false;
             this.selectionOwnsAccessibilityFocus = false;
-            this.stateDescription = selected ? "Selected" : "Not selected";
             this.actionDescription = "Use Adam " + mode.spokenLabel + " mode";
         }
     }
@@ -68,10 +68,7 @@ public final class AdamModeSelectionAccessibilityPolicy {
         return new Decision(candidate, active == candidate);
     }
 
-    /**
-     * Exactly one known mode must be selected. This helper keeps the source model explicit without
-     * choosing a concrete Android widget implementation for the owner.
-     */
+    /** Exactly one canonical mode is active. */
     public static int selectedCount(String activeMode) {
         Mode active = requireMode(activeMode);
         int count = 0;
