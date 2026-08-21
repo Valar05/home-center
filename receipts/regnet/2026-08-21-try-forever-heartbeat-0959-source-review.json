@@ -1,0 +1,73 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestamp": "2026-08-21T10:13:30-05:00",
+  "campaign": "TRY FOREVER",
+  "reviewedSourceHead": "7df0c8d7e6d53455dc9e082aeb7e39abeba01404",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "materialFronts": [
+    "Adam persistent one-of-many mode-selection policy",
+    "Adam READY/SENT input-result state policy",
+    "two pure JUnit regression sources",
+    "direct-owner lexical capability probe plus hostile probe fixture",
+    "durable adam-mode-accessibility skill",
+    "touchable non-raster Adam warm wall",
+    "authenticated owner readback",
+    "exact-head workflow evidence"
+  ],
+  "sourceReview": {
+    "modeSelection": "PASS supporting source. Exactly one canonical mode is modeled; case/whitespace drift fails closed; selection does not claim keyboard or accessibility focus ownership; duplicate custom state text was removed in favor of native selected/checked semantics.",
+    "inputResult": "PASS supporting source. Editable value remains value; READY/SENT context is persistent state source; ownerAnnouncementMigrationReady remains false so the legacy Adam send receipt is not removed by implication.",
+    "ownerProbe": "PASS after correction. First version searched too broadly across the giant owner; v2 scopes evidence to direct adamModeButton/submitAdamRequest methods and blanks comments/literals through the existing Java lexical helper.",
+    "art": "PASS after correction. First specimen moved keyboard focus out of the native radio group on change; corrected source preserves native radio keyboard navigation and separates selection from focus ownership.",
+    "capability": "Current authenticated OperatorOverlayService still has no AdamModeSelectionAccessibilityPolicy or AdamInputResultAccessibilityPolicy owner consumption; owner remains LEGACY_OWNER for both seams."
+  },
+  "reviewScars": [
+    "class-wide owner marker search could false-positive unrelated accessibility state",
+    "duplicating native selection into custom stateDescription risked redundant semantics",
+    "radio selection change stealing focus into input broke the source specimen's own keyboard contract",
+    "normalizing Adam mode whitespace/case could hide source identity drift"
+  ],
+  "executionTruth": {
+    "operatorOverlayRun": 32496385413,
+    "operatorOverlayJob": 96815675266,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "operatorOverlayLogs": "404 BlobNotFound",
+    "homeCenterCiRun": 32496385402,
+    "homeCenterCiStatusAtReview": "queued",
+    "buildAndroidRun": 32496385417,
+    "buildAndroidStatusAtReview": "queued",
+    "tested": false,
+    "failureCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "account connection HTTP 400",
+    "syntheticSubstitute": false
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "plan": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "modeOwnerWired": false,
+    "inputResultOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
