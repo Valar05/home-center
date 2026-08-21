@@ -5,6 +5,8 @@
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
+# - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
+# - collection/set-position source must not claim keyboard/accessibility focus ownership.
 # - editable EditText value must not be masked by a generic contentDescription; mode/result context is stateDescription.
 # - the compact Send button must name the exact selected mode in its semantic action and refresh with mode changes.
 
@@ -30,6 +32,21 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 -        LinearLayout adamModeRow = new LinearLayout(this);
 +        adamModeRow = new LinearLayout(this);
          adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
+         adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+         adamModeRow.setPadding(0, dp(6), 0, dp(2));
++        adamModeRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
++                        1,
++                        AdamModeSelectionAccessibilityPolicy.SET_SIZE,
++                        false,
++                        AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE));
++            }
++        });
 @@
 -        adamInput.setContentDescription("Adam input. Current mode terminal.");
 +        adamInput.setContentDescription(null);
@@ -73,6 +90,23 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
 +        value.setSelected(initial.selected);
 +        value.setContentDescription(description);
++        value.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                AdamModeSelectionAccessibilityPolicy.Decision decision =
++                        AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
++                info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
++                        0,
++                        1,
++                        decision.positionInSet - 1,
++                        1,
++                        false,
++                        decision.selected));
++            }
++        });
          value.setOnClickListener(v -> {
 -            adamMode = mode;
 +            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
