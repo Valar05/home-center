@@ -21,7 +21,7 @@
   #request { min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 12px; background: #17191f; color: inherit; }
   button { min-width: 96px; min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 14px; background: #303540; color: inherit; }
   button:focus-visible, input:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
-  .wall { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 10px; }
+  .wall { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
   .cell { border: 1px solid #737b8f; border-radius: 14px; padding: 12px; min-height: 92px; }
   .token { font-size: 1.35rem; font-weight: 900; }
   #detail { margin-top: 14px; min-height: 52px; border-left: 4px solid currentColor; padding: 8px 12px; }
@@ -32,7 +32,7 @@
 <body>
 <main>
   <h1>ADAM MODE / WARM WALL</h1>
-  <p class="scar">SOURCE ONLY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">SOURCE LIFECYCLE READY · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 
   <fieldset id="modeGroup">
     <legend>Adam mode — one persistent choice</legend>
@@ -52,24 +52,28 @@
   <p id="inputState" aria-live="polite">Terminal mode. Ready to send.</p>
 
   <div class="wall" aria-label="Source capability states">
-    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state missing in native owner.</section>
-    <section class="cell"><div class="token">□</div><strong>INPUT RESULT</strong><br>Sent state exists as hint/legacy receipt, not persistent field state.</section>
-    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result-state contracts exist as repository source.</section>
+    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state still missing in the native owner.</section>
+    <section class="cell"><div class="token">□</div><strong>INPUT OWNER</strong><br>Native READY/SENT/edit-recovery lifecycle still unwired.</section>
+    <section class="cell"><div class="token">●</div><strong>EDIT RECOVERY</strong><br>SENT + real new text → READY; empty programmatic clear keeps SENT.</section>
+    <section class="cell"><div class="token">●</div><strong>POLICY SOURCE</strong><br>Selection + result lifecycle contracts exist as repository source.</section>
     <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence.</section>
   </div>
 
   <div id="detail" role="status">Terminal selected. Selection is not focus ownership.</div>
 
-  <svg viewBox="0 0 800 130" role="img" aria-labelledby="svgTitle svgDesc">
-    <title id="svgTitle">Warm-wall source flow</title>
-    <desc id="svgDesc">Five Adam modes converge on one selected mode, then the editable input carries a separate ready or sent state. Owner wiring and runtime proof remain blocked.</desc>
-    <path d="M40 65 H250 M250 65 H470 M470 65 H720" fill="none" stroke="currentColor" stroke-width="4"/>
-    <circle cx="80" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="260" y="35" width="170" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <rect x="500" y="35" width="170" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <text x="80" y="72" text-anchor="middle" fill="currentColor" font-size="20">1/5</text>
-    <text x="345" y="72" text-anchor="middle" fill="currentColor" font-size="18">INPUT STATE</text>
-    <text x="585" y="72" text-anchor="middle" fill="currentColor" font-size="18">OWNER □</text>
+  <svg viewBox="0 0 800 150" role="img" aria-labelledby="svgTitle svgDesc">
+    <title id="svgTitle">Warm-wall source lifecycle</title>
+    <desc id="svgDesc">Five Adam modes converge on one selected mode. The editable input moves from ready to sent after submit and back to ready when real new text is typed. Owner wiring and runtime proof remain blocked.</desc>
+    <path d="M40 65 H210 M210 65 H390 M390 65 H570 M570 65 H750" fill="none" stroke="currentColor" stroke-width="4"/>
+    <circle cx="75" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="220" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="400" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="580" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="75" y="72" text-anchor="middle" fill="currentColor" font-size="20">1/5</text>
+    <text x="290" y="72" text-anchor="middle" fill="currentColor" font-size="18">READY</text>
+    <text x="470" y="72" text-anchor="middle" fill="currentColor" font-size="18">SENT</text>
+    <text x="650" y="72" text-anchor="middle" fill="currentColor" font-size="18">EDIT → READY</text>
+    <text x="400" y="128" text-anchor="middle" fill="currentColor" font-size="17">SOURCE POLICY ● · NATIVE OWNER □</text>
   </svg>
 </main>
 <script>
@@ -84,12 +88,25 @@
   const render = () => {
     const label = labels[active()];
     state.textContent = `${label} mode. ${result}`;
-    detail.textContent = `${label} selected. Selection is persistent state, not keyboard or accessibility focus ownership.`;
+    detail.textContent = `${label} selected. ${result} Selection is persistent state, not keyboard or accessibility focus ownership.`;
   };
-  // Native radio keyboard navigation keeps focus in the mode group. Selecting a mode does not
-  // steal keyboard focus into the request field; users move there through ordinary navigation.
+  // Native radio keyboard navigation keeps focus in the mode group. Selecting a mode is a
+  // material lifecycle transition to READY, but does not steal keyboard focus into the input.
   group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
-  document.getElementById('send').addEventListener('click', () => { result = 'Sent.'; request.value = ''; render(); });
+  document.getElementById('send').addEventListener('click', () => {
+    if (!request.value.trim()) return;
+    result = 'Sent.';
+    request.value = '';
+    render();
+  });
+  // Programmatic empty clear after send intentionally leaves SENT intact. Real new non-empty
+  // editing means an unsent request now exists, so stale SENT becomes READY.
+  request.addEventListener('input', () => {
+    if (request.value.trim() && result === 'Sent.') {
+      result = 'Ready to send.';
+      render();
+    }
+  });
   render();
 })();
 </script>
