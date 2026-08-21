@@ -430,7 +430,9 @@ public class OperatorOverlayService extends Service {
         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
         latest.setVerticalScrollBarEnabled(true);
         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
-        latest.setContentDescription("Latest Home Center or Adam message. Tap to expand or collapse text.");
+        // TextView text is the semantic value; a static description would mask the
+        // changing Home Center message for accessibility services.
+        latest.setContentDescription(null);
         latest.setOnClickListener(v -> {
             expandedText = !expandedText;
             applyExpandedTextState();
@@ -1040,7 +1042,7 @@ public class OperatorOverlayService extends Service {
     }
 
     private boolean heartbeatHasVisibleViewportContact(View control) {
-        if (heartbeatScroller == null || control == null) return false;
+        if (heartbeatScroller == null || control == null || !control.isShown()) return false;
         int viewportWidth = Math.max(0,
                 heartbeatScroller.getWidth()
                         - heartbeatScroller.getPaddingLeft()
