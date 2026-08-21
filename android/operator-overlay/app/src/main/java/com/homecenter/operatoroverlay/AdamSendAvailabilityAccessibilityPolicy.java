@@ -6,10 +6,13 @@ package com.homecenter.operatoroverlay;
  * <p>The native owner currently trims the editable request and silently returns when
  * the result is empty. A focusable enabled button whose activation is guaranteed to
  * no-op is misleading for touch, keyboard, and accessibility users. Prefer native
- * enabled/disabled semantics tied to the actual trimmed request over inventing a new
- * repeated announcement receipt.</p>
+ * enabled/disabled semantics tied to the exact request-admission rule over inventing
+ * a new repeated announcement receipt.</p>
  *
- * <p>Mode-specific action wording remains owned by
+ * <p>This source intentionally mirrors the owner's current {@link String#trim()}
+ * admission boundary instead of silently broadening whitespace semantics. Any future
+ * request-normalization change must update owner admission and availability together.
+ * Mode-specific action wording remains owned by
  * {@link AdamSendActionAccessibilityPolicy}. Editable value and READY/SENT context
  * remain owned by {@link AdamInputResultAccessibilityPolicy}. This policy owns no
  * Button, TextWatcher, request transport, announcement, controller, phone execution,
@@ -47,11 +50,6 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
     }
 
     public static boolean hasMaterialRequest(CharSequence editableValue) {
-        if (editableValue == null) return false;
-        int length = editableValue.length();
-        for (int index = 0; index < length; index++) {
-            if (!Character.isWhitespace(editableValue.charAt(index))) return true;
-        }
-        return false;
+        return editableValue != null && !editableValue.toString().trim().isEmpty();
     }
 }
