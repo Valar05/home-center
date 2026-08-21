@@ -1,46 +1,8 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-# BASE_BLOB: 44d4e273e79f8dc37227651ba11a31842169db18
-# PURPOSE: preserve native changing-text semantics while exposing expand/collapse state and a labeled standard click action.
-# CAPABILITY: supporting patch source only; OWNER_WIRED=NO; TESTED=NO; RUNTIME_TALKBACK=NO; PHONE_P0=UNTOUCHED.
-
-diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
---- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-+++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-@@
- import android.view.ViewConfiguration;
- import android.view.ViewTreeObserver;
- import android.view.WindowInsets;
- import android.view.WindowManager;
- import android.view.WindowMetrics;
-+import android.view.accessibility.AccessibilityEvent;
-+import android.view.accessibility.AccessibilityNodeInfo;
-@@
-         // TextView text is the semantic value; a static description would mask the
-         // changing Home Center message for accessibility services.
-         latest.setContentDescription(null);
-+        latest.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-+        latest.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-+            @Override
-+            public void onInitializeAccessibilityNodeInfo(
-+                    View host,
-+                    AccessibilityNodeInfo info) {
-+                super.onInitializeAccessibilityNodeInfo(host, info);
-+                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
-+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(),
-+                        LatestMessageAccessibilityPolicy.clickActionLabel(expandedText)));
-+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-+                    info.setStateDescription(
-+                            LatestMessageAccessibilityPolicy.stateDescription(expandedText));
-+                }
-+            }
-+        });
-         latest.setOnClickListener(v -> {
-             expandedText = !expandedText;
-             applyExpandedTextState();
-+            latest.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
-+            if (!OperatorState.muted(this)) {
-+                latest.announceForAccessibility(
-+                        LatestMessageAccessibilityPolicy.confirmationAnnouncement(expandedText));
-+            }
-         });
+# HISTORICAL_BASE_BLOB: 44d4e273e79f8dc37227651ba11a31842169db18
+# SUPERSEDED_BY: patches/try-forever-operator-interaction-accessibility-owner-combined.patch
+# REASON_1: this historical standalone surgery used announceForAccessibility for simple expand/collapse confirmation; Android 16 / API 36 deprecates announcement APIs and recommends semantic UI state instead.
+# REASON_2: the dynamic-action accessibility surgery targets the same owner/base blob; applying either standalone patch first would stale the other's base-lock and invite partial owner state.
+# CURRENT_CONTRACT: changing latest-message TextView text remains the semantic value; standard ACTION_CLICK is labeled; API 30+ uses stateDescription; no explicit confirmation announcement.
+# CAPABILITY: provenance only; OWNER_WIRED=NO; TESTED=NO; RUNTIME_TALKBACK=NO; PHONE_P0=UNTOUCHED.
