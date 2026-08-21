@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED source boundary for the full-screen technical touch guard.
+"""Source boundary for the full-screen technical touch guard.
 
-The guard is an interception layer, not operator content. This fixture requires the sole
-OperatorOverlayService owner to suppress it from the accessibility tree using the existing
-supporting policy. It is source evidence only, not Android/TalkBack runtime proof.
+The guard is an interception layer, not operator content. The sole OperatorOverlayService
+owner now consumes the supporting accessibility policy. This is source evidence only, not
+Android/TalkBack runtime proof.
 """
 
 from __future__ import annotations
