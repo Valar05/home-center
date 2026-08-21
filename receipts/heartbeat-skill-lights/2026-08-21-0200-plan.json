@@ -1,0 +1,69 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-21-0200",
+  "mission": "Advance several independent non-P0 TRY FOREVER fronts around Android semantic-announcement migration while preserving the sole OperatorOverlayService owner, exact capability states, and the phone/P0 firewall.",
+  "preconditions": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "ownerBlobObserved": "d8cad8c2931c688d0c6fad6f67626fae75e044d1",
+    "p0PhoneConsumptionAuthorized": false,
+    "duplicateArchitectureAuthorized": false,
+    "computerHands": "windows-hands-01 offline; queue depth 4; existing TRY FOREVER lanes active; no duplicate request authorized",
+    "veniceWorker": "windows-venice-nerve-01 offline; no external worker verdict will be fabricated"
+  },
+  "freshEvidence": {
+    "legacyAnnouncementConsequences": [
+      "Spotify explicit command receipt",
+      "heartbeat material transition",
+      "heartbeat explicit detail selection",
+      "Adam send confirmation"
+    ],
+    "platform": "Android 16 deprecates announceForAccessibility/TYPE_ANNOUNCEMENT. Polite live regions are a semantic alternative but should be used sparingly and not on frequently updating UI.",
+    "owner": "current owner still contains all four legacy calls",
+    "sheRaw": "attempted pre-execution; account connection returned HTTP 400; no substitute verdict"
+  },
+  "fronts": [
+    {
+      "name": "per-consequence owner mechanism",
+      "action": "Refine AccessibilityAnnouncementSemanticPolicy from broad channel families into exact owner mechanisms and lifecycle gates. Avoid one generic replacement cannon.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "semantic gating regression",
+      "action": "Strengthen pure regression source so periodic/background Spotify and heartbeat evidence refresh cannot inherit user/material announcement permission; Adam confirmation remains a dedicated status/state consequence; explicit detail remains selection-scoped.",
+      "stateTarget": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "name": "existing-owner surgery provenance",
+      "action": "Prepare one base-blob-locked patch against the existing OperatorOverlayService only. Do not queue duplicate Computer Hands while the worker is offline/occupied; do not route through phone/P0.",
+      "stateTarget": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "name": "durable skill convergence",
+      "action": "Update operator-semantic-announcement-migration doctrine with the exact consequence mechanisms, worker boundary, and capability membrane.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "touchable warm-wall convergence",
+      "action": "Mutate the existing semantic-announcement DOM/inline-SVG specimen in place only because the semantic mechanism topology materially changes; keep it source-only and non-raster.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "Regnet/Venice evidence review",
+      "action": "Code-first review the changed source, preserve worker/reviewer faults, refresh PR checkpoint, and never promote source into TESTED/runtime/deployed/delivered.",
+      "stateTarget": "EVIDENCE_ONLY"
+    }
+  ],
+  "darkByDesign": [
+    "Phone Runtime / Phone Hands",
+    "P0 recovery chain",
+    "Nightcore",
+    "Pocket TTS",
+    "Chromium",
+    "Context Organs",
+    "Autocorrect unless an actual ambiguous token appears",
+    "Christmas motion unless a real scene-transition contract changes"
+  ],
+  "gate": "PLAN_ALLOWED__NON_P0_SOURCE_ONLY__OWNER_PATCH_MAY_BE_PREPARED_NOT_PROMOTED"
+}
