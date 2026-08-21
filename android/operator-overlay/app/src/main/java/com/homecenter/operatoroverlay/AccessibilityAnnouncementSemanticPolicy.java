@@ -103,7 +103,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         true,
                         false,
-                        true);
+                        false);
             case HEARTBEAT_EXPLICIT_DETAIL_SELECTION:
                 return new Decision(
                         SemanticChannel.NATIVE_SELECTION_AND_DETAIL,
@@ -114,7 +114,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         false,
                         true,
                         false,
-                        true);
+                        false);
             case ADAM_SEND_CONFIRMATION:
                 return new Decision(
                         SemanticChannel.NATIVE_ACTION_AND_RESULT_STATE,
@@ -125,7 +125,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         false,
                         true,
                         false,
-                        true);
+                        false);
             default:
                 throw new IllegalArgumentException("unsupported consequence: " + consequence);
         }
@@ -133,12 +133,13 @@ public final class AccessibilityAnnouncementSemanticPolicy {
 
     /**
      * Return a live-region mode only when a consequence is represented by a changed
-     * semantic value and all of that consequence's source-level gates are satisfied.
+     * semantic value, is currently migration-ready, and all of that consequence's
+     * source-level gates are satisfied.
      *
-     * <p>For Spotify this means an explicit command whose resulting status value
-     * actually changed. Repeating Status against an identical steady state stays
-     * quiet by design; the button action remains self-describing and no fake sequence,
-     * timestamp, punctuation, or invisible marker is manufactured as a receipt.</p>
+     * <p>The repeatable Spotify/detail/Adam consequence shapes remain deliberately
+     * migration-unready until their existing-owner event semantics are reviewed as a
+     * complete contract. Supporting design is not permission to remove a working legacy
+     * receipt.</p>
      */
     public static int liveRegionModeFor(
             Consequence consequence,
