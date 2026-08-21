@@ -13,12 +13,20 @@ The existing source chain remains authoritative:
 When the heartbeat detail subtree is collapsed, the surviving owner description contains only:
 
 1. the existing drag/expand action;
-2. the canonical heartbeat summary (`waiting`, `0 LIGHTS`, `N LIGHTS`, `CONTACT HELD`, or `REFRESH BLOCKED`);
-3. a compact exact attention status when blocked/fault lights exist;
-4. zero-material contact truth when material count is zero;
-5. interruption/contact-preservation truth when refresh is interrupted.
+2. the current material Home Center operational-status description supplied by the existing owner;
+3. the canonical heartbeat summary (`waiting`, `0 LIGHTS`, `N LIGHTS`, `CONTACT HELD`, or `REFRESH BLOCKED`);
+4. a compact exact attention status when blocked/fault lights exist;
+5. zero-material contact truth when material count is zero;
+6. interruption/contact-preservation truth when refresh is interrupted.
 
 Per-light labels, ordinary active/recovered breadth, provenance, reason, consequence, and evidence remain behind explicit expansion/touch detail.
+
+## Operational-status masking rule
+A custom `contentDescription` replaces the visible TextView text as the semantic value. Therefore a collapsed drag handle whose visible compact text changes between states such as OFF / OFFLINE / ACTIVE / ON must not expose a custom description that talks only about heartbeat state and silently masks the changing Home Center operational truth.
+
+`HeartbeatCollapsedOwnerAccessibility` now has a source overload that accepts the **already-derived owner status description**. It does not re-derive control, connectivity, remote-input, mute, phone, queue, or P0 state. That status input has its own 96-code-point returned budget before aggregate composition so an accidentally verbose status cannot starve heartbeat/contact truth.
+
+This is supporting source only until `OperatorOverlayService.dragHandle` actually supplies the owner status description. Owner consumption, Android runtime, and TalkBack behavior remain separate states.
 
 ## Attention rule
 Concise must not mean blind to danger.
@@ -40,7 +48,9 @@ Per-field bounds do not prove the composed action-control description is bounded
 
 The entire collapsed-owner `contentDescription` has one hard returned Unicode code-point budget. The ellipsis, if needed, lives inside the same budget through `HeartbeatPlainTextBudget`.
 
-This is a **projection budget only**. Never truncate or rewrite canonical scene, pulse, evidence, provenance, or checkpoint fields to make TalkBack quieter.
+The operator-status component also has a separate hard returned budget before aggregate composition. This protects the heartbeat/contact portion from starvation without rewriting the exact operational source state.
+
+This is a **projection budget only**. Never truncate or rewrite canonical scene, pulse, evidence, provenance, checkpoint, or owner operational-state fields to make TalkBack quieter.
 
 ## Zero-material and wound truth
 Preserve the existing contact distinctions:
@@ -69,15 +79,24 @@ At minimum pin:
 - a rejected/incomplete attempted fault does not leak into attention counts or current collapsed-owner prose;
 - explicit expand-for-details action remains present;
 - accepted-zero / waiting / held / blocked remain distinct;
+- a material owner operational-status description survives the custom collapsed contentDescription instead of being masked;
+- an overlong owner status is independently bounded while heartbeat summary/contact truth remains present;
 - expanded mode preserves the ordinary overlay action description;
 - exact scene/detail text remains available outside this concise projection.
 
 Regression source is **not TESTED** until an authorized runner executes it.
 
+## Current PR #329 source truth — 2026-08-21 1603
+- `HeartbeatCollapsedOwnerAccessibility` overload for owner operational status: **IMPLEMENTED SOURCE YES**.
+- Separate operator-status speech budget: **IMPLEMENTED SOURCE YES**.
+- `HeartbeatCollapsedOwnerAccessibilityTest` operational-status and starvation fixtures: **REGRESSION SOURCE YES / UNEXECUTED**.
+- `OperatorOverlayService.dragHandle` consumption of the new overload: **NO**. Authenticated owner still calls the heartbeat-only overload in this slice.
+- Android runtime / TalkBack / deployment / phone delivery / acceptance: **NO**.
+
 ## Evidence membrane
 Keep the states separate:
 
-`requested -> implemented source -> exact GitHub readback -> regression source -> tested -> existing-owner runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> implemented source -> exact GitHub readback -> regression source -> owner source wiring -> regression executed -> tested -> existing-owner runtime observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
 Repository source can prove only repository/source states. It cannot prove Android runtime, TalkBack behavior, primary-phone delivery, or user acceptance.
 
@@ -87,4 +106,4 @@ This skill owns no Phone Hands ticket, primary-phone command, queue/relay probe,
 Those surfaces remain with their canonical P0 owners.
 
 ## Done for one pulse
-Light this skill only when collapsed-owner speech load, urgent-state compactness, aggregate returned budget, accepted/preserved attention ownership, or runtime proof materially changes. Once the source seam is stable, keep it dark instead of turning the drag handle into office carpeting with a screen reader attached.
+Light this skill only when collapsed-owner speech load, operational-state masking, urgent-state compactness, aggregate returned budget, accepted/preserved attention ownership, or runtime proof materially changes. Once the source seam is stable, keep it dark instead of turning the drag handle into office carpeting with a screen reader attached.
