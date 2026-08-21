@@ -36,13 +36,13 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
     }
 
     @Test
-    public void explicitDetailSelectionUsesDetailValueNotGlobalAnnouncementChannel() {
+    public void explicitDetailSelectionUsesSelectedDetailValueNotGlobalAnnouncementChannel() {
         AccessibilityAnnouncementSemanticPolicy.Decision decision =
                 AccessibilityAnnouncementSemanticPolicy.decisionFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_EXPLICIT_DETAIL_SELECTION);
 
         assertEquals(
-                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.FOCUSED_DETAIL_VALUE,
+                AccessibilityAnnouncementSemanticPolicy.SemanticChannel.SELECTED_DETAIL_VALUE,
                 decision.channel);
         assertFalse(decision.automaticUpdateAllowed);
         assertTrue(decision.requiresExplicitUserAction);
