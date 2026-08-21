@@ -8,13 +8,24 @@ package com.homecenter.operatoroverlay;
  * masks that hint. This supporting policy does not authorize removal of the current explicit send
  * announcement: repeated identical sends still require a separately reviewed event-result contract.</p>
  *
- * <p>This class owns no View, announcement surface, controller, phone execution, or P0 recovery
- * path. {@link OperatorOverlayService} remains the sole native owner.</p>
+ * <p>SENT is persistent only while there is no newer unsent request. Selecting another mode makes
+ * the field READY. A successful submit makes it SENT. Programmatic clearing after submit does not
+ * erase SENT, while real new non-empty editing does return the field to READY. That distinction
+ * prevents the send-result state from lying about newly typed, unsent text.</p>
+ *
+ * <p>This class owns no View, TextWatcher, announcement surface, controller, phone execution, or
+ * P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.</p>
  */
 public final class AdamInputResultAccessibilityPolicy {
     public enum ResultState {
         READY,
         SENT
+    }
+
+    public enum Transition {
+        MODE_SELECTED,
+        SUBMIT_SUCCEEDED,
+        EDITED
     }
 
     public static final class Decision {
@@ -46,5 +57,30 @@ public final class AdamInputResultAccessibilityPolicy {
             throw new IllegalArgumentException("resultState is required");
         }
         return new Decision(AdamModeSelectionAccessibilityPolicy.requireMode(mode), resultState);
+    }
+
+    /**
+     * Return the next persistent result state for one material owner transition.
+     *
+     * <p>For {@link Transition#EDITED}, {@code hasNonWhitespaceText} means the user-visible field
+     * now contains a real unsent request. An empty edit intentionally preserves the current state;
+     * this is what lets the owner's programmatic {@code setText("")} after submit retain SENT.</p>
+     */
+    public static ResultState nextState(
+            ResultState current,
+            Transition transition,
+            boolean hasNonWhitespaceText) {
+        if (current == null) throw new IllegalArgumentException("current state is required");
+        if (transition == null) throw new IllegalArgumentException("transition is required");
+        switch (transition) {
+            case MODE_SELECTED:
+                return ResultState.READY;
+            case SUBMIT_SUCCEEDED:
+                return ResultState.SENT;
+            case EDITED:
+                return hasNonWhitespaceText ? ResultState.READY : current;
+            default:
+                throw new IllegalArgumentException("unsupported transition: " + transition);
+        }
     }
 }
