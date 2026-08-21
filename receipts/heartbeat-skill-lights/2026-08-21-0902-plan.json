@@ -1,0 +1,36 @@
+{
+  "kind": "try_forever_heartbeat_plan",
+  "date": "2026-08-21T09:02:06-05:00",
+  "pr": 329,
+  "startingHead": "de614c5f4428cb3bd8256fd335ec5ea29ed9319d",
+  "mission": "Advance independent non-P0 accessibility source work without consuming the gated phone/P0 chain or creating duplicate owners.",
+  "fronts": [
+    {
+      "id": "latest-message-api36-expanded-state",
+      "intent": "Add source policy and regression for Android 16 AccessibilityNodeInfo expanded-state semantics while preserving changing TextView value and existing API30 stateDescription fallback.",
+      "ownerBoundary": "OperatorOverlayService remains sole native owner; owner integration is not claimed in this pulse."
+    },
+    {
+      "id": "announcement-inventory-custody",
+      "intent": "Strengthen source inventory evidence so the current heartbeat-only announcement surgery remains blob-locked and rejected broad archaeology stays historical.",
+      "ownerBoundary": "No owner mutation unless a safe exact-content lane is available."
+    },
+    {
+      "id": "skill-convergence",
+      "intent": "Converge dynamic TextView and announcement-migration doctrine onto fresh platform evidence and exact capability states."
+    }
+  ],
+  "platformEvidence": {
+    "android16ExpandedState": "AccessibilityNodeInfo.setExpandedState added API 36; Android 16 guidance recommends expanded/collapsed semantic state for expandable elements.",
+    "announceForAccessibility": "Deprecated API 36; semantic alternatives preferred."
+  },
+  "p0Firewall": {
+    "phoneSurfaceConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "sheRaw": "attempted pre-execution; connector account connection HTTP 400; no substitute verdict",
+  "venicePlan": "external Venice worker is offline; no external verdict fabricated; same-worker bounded plan gate recorded here",
+  "capabilityRule": "requested != supporting source != owner source wired != regression executed != tested != runtime != deployed != delivered != accepted"
+}
