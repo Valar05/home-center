@@ -1,0 +1,19 @@
+{
+  "schema": "try-forever-heartbeat-corrective-replan.v1",
+  "heartbeat": "2026-08-21-0200",
+  "reason": "Code-first Regnet review found that a polite live region only announces View content changes. Three explicit legacy consequences can repeat with byte-for-byte identical semantic values, so the first owner patch could silently lose repeated confirmation/detail speech even though it removed the deprecated calls.",
+  "platformEvidence": {
+    "android16": "announceForAccessibility/TYPE_ANNOUNCEMENT are deprecated; live regions are a semantic alternative but should be used sparingly because View updates can generate announcements.",
+    "liveRegion": "ACCESSIBILITY_LIVE_REGION_POLITE asks services to notify users of changes to the View; it is not a generic repeatable-event broadcaster."
+  },
+  "rejectedAssumption": "Setting POLITE before writing a value is sufficient to preserve every legacy explicit announcement consequence, including when the new value equals the old value.",
+  "correctivePlan": [
+    "Keep heartbeat automatic material-transition migration as the only currently exact live-region candidate because the existing announcement identity represents a material semantic transition.",
+    "Mark Spotify explicit receipt, repeated explicit heartbeat detail selection, and Adam send confirmation as repeatable-action consequences that need a fresh semantic event/status design before owner migration.",
+    "Reject the first four-consequence owner patch as unsafe; do not apply it and do not queue another offline Computer Hands request.",
+    "Strengthen policy/regressions/skill/art to make VALUE_CHANGE versus REPEATABLE_EVENT explicit.",
+    "Preserve all four current owner calls until each consequence has an exact replacement; owner wiring remains NO."
+  ],
+  "phoneP0": "untouched",
+  "gate": "REPLAN_ALLOWED__REJECT_UNSAFE_OWNER_PATCH__SUPPORTING_SOURCE_MAY_ADVANCE"
+}
