@@ -7,7 +7,7 @@
 <style>
   :root { font-family: system-ui, sans-serif; background:#17191d; color:#f3f5f7; }
   body { margin:0; padding:24px; min-height:100vh; display:grid; place-items:center; }
-  main { width:min(860px,100%); border:2px solid currentColor; border-radius:24px; padding:20px; box-sizing:border-box; }
+  main { width:min(900px,100%); border:2px solid currentColor; border-radius:24px; padding:20px; box-sizing:border-box; }
   h1 { margin-top:0; font-size:clamp(1.4rem,5vw,2.4rem); }
   fieldset { border:0; padding:0; margin:18px 0 0; display:grid; gap:12px; }
   label { display:grid; grid-template-columns:56px 1fr; gap:12px; align-items:center; min-height:56px; padding:10px; border:1px solid currentColor; border-radius:16px; cursor:pointer; }
@@ -15,6 +15,7 @@
   .glyph { font-size:34px; text-align:center; }
   #detail { margin-top:18px; padding:16px; min-height:96px; border-left:5px solid currentColor; background:rgba(255,255,255,.06); }
   .scar { margin-top:18px; font-weight:700; }
+  code { overflow-wrap:anywhere; }
   svg { width:100%; height:auto; margin-top:18px; }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
 </style>
@@ -22,44 +23,49 @@
 <body>
 <main>
   <h1>OPERATOR ACCESSIBILITY THROAT</h1>
-  <p>Six accessibility repairs now cross the existing Operator Overlay owner at source level. The source wall is warmer; the runtime membrane is still shut.</p>
+  <p>Six accessibility repairs cross the existing owner at source level. Two independent source-ready wounds are now explicit instead of hiding inside a generally green-looking wall.</p>
   <fieldset aria-label="Inspect accessibility source wiring and evidence boundaries">
-    <label><input type="radio" name="state" value="detail" checked><span><span class="glyph">▤</span><strong>Deep detail — source wired</strong><br>Five-line semantic amputation is gone; the existing owner now uses a bounded-height, scroll-inspectable detail well.</span></label>
-    <label><input type="radio" name="state" value="voice"><span><span class="glyph">◖</span><strong>Whole voice — source wired</strong><br>Spotify receipt announcements use the existing grapheme-safe returned-text budget instead of UTF-16 substring.</span></label>
-    <label><input type="radio" name="state" value="spotify"><span><span class="glyph">♫</span><strong>Spotify status — source wired</strong><br>The dynamic TextView keeps its current visible playback text as its semantic value; no stale non-null content-description override.</span></label>
-    <label><input type="radio" name="state" value="status"><span><span class="glyph">●</span><strong>Home Center status — source wired</strong><br>The changing connection/control text remains the TextView semantic value instead of being masked by generic status prose.</span></label>
-    <label><input type="radio" name="state" value="viewport"><span><span class="glyph">◫</span><strong>Viewport contact — source wired</strong><br>The owner now requires effective Android hierarchy visibility with <code>control.isShown()</code> before horizontal intersection can count as visible contact.</span></label>
-    <label><input type="radio" name="state" value="latest"><span><span class="glyph">≋</span><strong>Latest message semantics — source wired</strong><br>The changing message TextView now keeps native text semantics instead of a static non-null description that could mask the current value.</span></label>
-    <label><input type="radio" name="state" value="proof"><span><span class="glyph">⌂</span><strong>Owner source proof</strong><br>All six source repairs have authenticated existing-owner readback; the latest two are commit-bound to the current source surgery.</span></label>
+    <label><input type="radio" name="state" value="detail" checked><span><span class="glyph">▤</span><strong>Deep heartbeat detail — source wired</strong><br>The existing owner uses a bounded-height, scroll-inspectable detail well instead of five-line semantic amputation.</span></label>
+    <label><input type="radio" name="state" value="voice"><span><span class="glyph">◖</span><strong>Whole Spotify receipt voice — source wired</strong><br>Explicit Spotify receipt speech uses the grapheme-safe returned-text budget instead of UTF-16 substring.</span></label>
+    <label><input type="radio" name="state" value="spotify"><span><span class="glyph">♫</span><strong>Spotify status — source wired</strong><br>The dynamic TextView keeps its visible playback text as its semantic value.</span></label>
+    <label><input type="radio" name="state" value="status"><span><span class="glyph">●</span><strong>Home Center status — source wired</strong><br>Changing connection/control text remains the TextView semantic value.</span></label>
+    <label><input type="radio" name="state" value="viewport"><span><span class="glyph">◫</span><strong>Viewport contact — source wired</strong><br>The owner requires effective hierarchy visibility before horizontal intersection can count as visible contact.</span></label>
+    <label><input type="radio" name="state" value="latest"><span><span class="glyph">≋</span><strong>Latest message semantics — source wired</strong><br>Changing message text remains the native semantic value with explicit click/state semantics.</span></label>
+    <label><input type="radio" name="state" value="latestSurface"><span><span class="glyph">↕</span><strong>Latest expanded full layout — owner unwired</strong><br>Supporting policy says expansion must preserve the full layout and use height+scroll as the spatial bound; the owner still uses <code>setMaxLines(30)</code>.</span></label>
+    <label><input type="radio" name="state" value="touchGuard"><span><span class="glyph">⌁</span><strong>Technical touch guard — owner unwired</strong><br>The full-screen interception layer still owns the semantic phrase “Remote input active”; supporting policy now requires it to be absent from the accessibility tree.</span></label>
+    <label><input type="radio" name="state" value="proof"><span><span class="glyph">⌂</span><strong>Owner/source proof membrane</strong><br>Six repairs have existing-owner source readback. The two new wounds have policy/test/patch provenance only; neither is owner-wired.</span></label>
     <label><input type="radio" name="state" value="boundary"><span><span class="glyph">◇</span><strong>Runtime boundary still shut</strong><br>Regression execution, Android rendering, TalkBack behavior, deployment, phone delivery, and acceptance remain unproven.</span></label>
   </fieldset>
-  <div id="detail" role="status" aria-live="polite">DETAIL SOURCE — full semantic depth is wired behind the existing bounded spatial viewport; runtime behavior remains unproven.</div>
-  <svg viewBox="0 0 820 220" role="img" aria-labelledby="svgTitle svgDesc">
+  <div id="detail" role="status" aria-live="polite">DETAIL SOURCE — full heartbeat semantic depth is wired behind the existing bounded spatial viewport; runtime behavior remains unproven.</div>
+  <svg viewBox="0 0 860 240" role="img" aria-labelledby="svgTitle svgDesc">
     <title id="svgTitle">Warm wall accessibility source-wiring throat</title>
-    <desc id="svgDesc">Six accessibility repairs feed the existing Operator Overlay owner at source level. Viewport contact now requires effective hierarchy visibility and latest-message text now remains the native semantic value. Runtime and phone membranes remain closed.</desc>
-    <path d="M20 38 H270 L350 82 L270 126 H20" fill="none" stroke="currentColor" stroke-width="4"/>
-    <path d="M800 38 H550 L470 82 L550 126 H800" fill="none" stroke="currentColor" stroke-width="4"/>
-    <path d="M410 202 V132" fill="none" stroke="currentColor" stroke-width="4"/>
-    <circle cx="410" cy="84" r="48" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="410" y="89" text-anchor="middle" fill="currentColor" font-size="16">OWNER</text>
+    <desc id="svgDesc">Six source-wired accessibility repairs feed the existing Operator Overlay owner. Two new source-ready owner wounds remain: latest-message expanded line amputation and a semantic full-screen technical touch guard. Runtime and phone membranes remain closed.</desc>
+    <path d="M20 38 H285 L365 82 L285 126 H20" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M840 38 H575 L495 82 L575 126 H840" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M430 222 V142" fill="none" stroke="currentColor" stroke-width="4"/>
+    <circle cx="430" cy="90" r="48" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="430" y="95" text-anchor="middle" fill="currentColor" font-size="16">OWNER</text>
     <text x="24" y="28" fill="currentColor" font-size="15">6 SOURCE WIRED</text>
-    <text x="796" y="28" text-anchor="end" fill="currentColor" font-size="15">RUNTIME UNPROVEN</text>
-    <text x="410" y="188" text-anchor="middle" fill="currentColor" font-size="14">VIEWPORT HIERARCHY + LATEST MESSAGE WIRED</text>
-    <text x="410" y="216" text-anchor="middle" fill="currentColor" font-size="15">SOURCE TRUTH ≠ RUNTIME PROOF</text>
+    <text x="836" y="28" text-anchor="end" fill="currentColor" font-size="15">2 OWNER WOUNDS</text>
+    <text x="430" y="176" text-anchor="middle" fill="currentColor" font-size="14">FULL-LAYOUT POLICY + NONSEMANTIC GUARD POLICY</text>
+    <text x="430" y="204" text-anchor="middle" fill="currentColor" font-size="14">PATCHES PREPARED · OWNER NOT MUTATED</text>
+    <text x="430" y="236" text-anchor="middle" fill="currentColor" font-size="15">SOURCE TRUTH ≠ RUNTIME PROOF</text>
   </svg>
-  <p class="scar">6 OWNER SOURCE WIRED · VIEWPORT HIERARCHY YES · LATEST MESSAGE SEMANTICS YES · REGRESSION SOURCE YES/UNEXECUTED · TESTED NO · RUNTIME/TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">6 OWNER SOURCE WIRED · LATEST FULL-LAYOUT POLICY YES / OWNER NO · TOUCH-GUARD POLICY YES / OWNER NO · REGRESSION SOURCE YES/UNEXECUTED · TESTED NO · RUNTIME/TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 </main>
 <script>
 const detail = document.getElementById('detail');
 const copy = {
-  detail: 'DETAIL SOURCE — full semantic depth is wired behind the existing bounded spatial viewport; runtime behavior remains unproven.',
+  detail: 'DETAIL SOURCE — full heartbeat semantic depth is wired behind the existing bounded spatial viewport; runtime behavior remains unproven.',
   voice: 'VOICE SOURCE — explicit Spotify receipt speech uses the grapheme-safe plain-text budget; Android execution remains unproven.',
-  spotify: 'SPOTIFY TEXTVIEW SOURCE — changing playback text is the semantic value; the stale generic content-description override is gone.',
-  status: 'HOME CENTER STATUS SOURCE — changing connection/control text is the semantic value; the stale generic status override is gone.',
-  viewport: 'VIEWPORT SOURCE — control.isShown() now gates the existing horizontal intersection organ. Hidden self/ancestor geometry cannot be promoted to visible contact in source; runtime viewport behavior remains unobserved.',
-  latest: 'LATEST MESSAGE SOURCE — the TextView still updates in createOverlay and refreshUi, and the static non-null description is gone so current text remains the semantic value. Runtime TalkBack remains unobserved.',
-  proof: 'EVIDENCE GATE — six owner repairs have authenticated source readback. The latest two are commit-bound to 4a48e0e0dbd540291fbb75ca6c8800be58736dab.',
-  boundary: 'CAPABILITY MEMBRANE — TESTED, runtime UI, TalkBack, deployed, callable, executed, delivered, accepted, and phone/P0 remain NO.'
+  spotify: 'SPOTIFY TEXTVIEW SOURCE — changing playback text is the semantic value; no stale generic content-description override.',
+  status: 'HOME CENTER STATUS SOURCE — changing connection/control text is the semantic value; no stale generic status override.',
+  viewport: 'VIEWPORT SOURCE — control.isShown() gates the existing horizontal intersection organ. Runtime viewport behavior remains unobserved.',
+  latest: 'LATEST MESSAGE SOURCE — native changing text plus labeled click/state semantics are source-wired. Runtime TalkBack remains unobserved.',
+  latestSurface: 'LATEST FULL-LAYOUT WOUND — policy and RED owner regression now require unbounded expanded line layout inside the existing 520dp scroll viewport. Current owner still uses setMaxLines(30).',
+  touchGuard: 'TECHNICAL GUARD WOUND — policy and RED owner regression now require IMPORTANT_FOR_ACCESSIBILITY_NO and null semantic description. Current owner still exposes “Remote input active” on the full-screen technical guard.',
+  proof: 'EVIDENCE GATE — six repairs are owner source-wired. The two new wounds have supporting source + exact patch provenance only; owner wiring remains NO.',
+  boundary: 'CAPABILITY MEMBRANE — regression execution, TESTED, runtime UI, TalkBack, deployed, callable, executed, delivered, accepted, and phone/P0 remain NO.'
 };
 for (const input of document.querySelectorAll('input[name="state"]')) {
   input.addEventListener('change', () => { if (input.checked) detail.textContent = copy[input.value]; });
