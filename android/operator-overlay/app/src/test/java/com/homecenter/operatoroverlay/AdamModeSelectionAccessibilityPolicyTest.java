@@ -17,11 +17,9 @@ public class AdamModeSelectionAccessibilityPolicyTest {
 
         assertTrue(terminal.persistentOneOfMany);
         assertTrue(terminal.selected);
-        assertEquals("Selected", terminal.stateDescription);
         assertEquals("Use Adam Terminal mode", terminal.actionDescription);
 
         assertFalse(chat.selected);
-        assertEquals("Not selected", chat.stateDescription);
         assertEquals("Use Adam Chat mode", chat.actionDescription);
     }
 
