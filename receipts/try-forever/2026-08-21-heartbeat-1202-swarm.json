@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "timestamp": "2026-08-21T12:12:30-05:00",
+  "pullRequest": 329,
+  "reviewedSourceHead": "a9dfe9980f9fcab12bc3f30194df877e49310dfc",
+  "frontCount": 7,
+  "fronts": [
+    {"id":"adam-editable-value","advanced":true,"change":"Input policy now explicitly keeps changing EditText text as semantic value and rejects generic contentDescription replacement; JUnit source pins it."},
+    {"id":"adam-send-action","advanced":true,"change":"New pure policy and JUnit source make the compact Send action name the exact selected mode without owning selection/focus."},
+    {"id":"adam-owner-evidence-v4","advanced":true,"change":"Existing source probe now independently classifies mode selection, editable-value/result lifecycle, and dynamic Send consequence; hostile fixture expanded."},
+    {"id":"owner-surgery-provenance","advanced":true,"change":"Existing base-blob-locked Adam owner surgery now composes null editable contentDescription, READY/SENT/edit recovery, persistent mode selection, and mode-refreshing Send semantics; remains unapplied."},
+    {"id":"adam-warm-wall","advanced":true,"change":"Existing DOM/inline-SVG organism now makes editable value versus state and mode-specific Send action touchable; runtime/phone membrane remains visible."},
+    {"id":"skill-doctrine","advanced":true,"change":"adam-mode-accessibility now carries editable-value and Send-action laws, probe v4 evidence, exact owner boundary, and capability membrane."},
+    {"id":"review-evidence","advanced":true,"change":"Fresh plan/Venice gate, She-Raw fault receipt, exact compare/readback, Regnet correction, workflow evidence, Venice completion, and P0 firewall are durable."}
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","consequence":"Moved from lifecycle-only source into the distinct editable-value and action-consequence wounds."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","consequence":"Reused existing Adam policies/probe/skill/warm wall and sole OperatorOverlayService owner."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","consequence":"No material token ambiguity required resolution."},
+    {"name":"Originality Tax","state":"ACTIVE","consequence":"Regnet rejected the first Send owner-evidence gate because it contradicted the intended shared-refresh owner shape; gate and fixture were materially redesigned."},
+    {"name":"Hunger","state":"ACTIVE","consequence":"Pushed beyond READY/SENT labels into actual editable-value preservation and current-mode action consequence."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Converged policy, tests, owner evidence, patch provenance, skill doctrine, and touchable source art."},
+    {"name":"Operator Campaign","state":"ACTIVE","consequence":"Kept OperatorOverlayService the sole native owner; supporting owner surgery stays one unapplied patch, not a second controller."},
+    {"name":"Harroway operator discipline","state":"ACTIVE","consequence":"Stopped at the safe owner-mutation boundary rather than reconstructing the giant owner file or routing around it."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative pre-execution consultation attempted; account connection HTTP 400; no substitute reviewer."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","consequence":"PLAN_ALLOWED preceded mutation; completion closes only the bounded source slice while owner/test/runtime/campaign continue."},
+    {"name":"Regnet QA","state":"ACTIVE","consequence":"Caught the first send-evidence contract bug and prevents supporting source from becoming owner/test/runtime proof."},
+    {"name":"accessibility/TalkBack and touch semantics","state":"ACTIVE","consequence":"Editable input value is preserved, state is supplemental, Send names current mode, warm wall is keyboard/touch operable."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Consumption 0; mutation 0; P0 chain untouched."},
+    {"name":"deterministic routing","state":"ACTIVE","consequence":"Exact canonical mode identities, one shared Send refresh method, base-blob-locked owner patch, exact source-head workflow evidence."},
+    {"name":"evidence/capability-state discipline","state":"ACTIVE","consequence":"Supporting source YES; owner wiring NO; regressions UNEXECUTED; TESTED/runtime/deployed/callable/executed/delivered/accepted NO."},
+    {"name":"recovery/checkpointing/idempotence","state":"ACTIVE","consequence":"SENT still survives programmatic empty clear; new real text and mode selection are the only material READY recovery events."},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"ACTIVE","consequence":"Existing Adam source organism mutated in place; no raster and no deployment claim."},
+    {"name":"warm walls","state":"ACTIVE","consequence":"Warm wall now exposes value/state/action separation rather than only lifecycle state."},
+    {"name":"Christmas-light scene graph","state":"DARK","consequence":"No scene-motion contract changed; evidence work earned no decorative blink."},
+    {"name":"contact preservation","state":"ACTIVE","consequence":"Editable text remains the value and SENT survives only non-material programmatic clearing; source identity is not replaced by descriptions."},
+    {"name":"adam-mode-accessibility","state":"ACTIVE","consequence":"Repository skill materially expanded to include value preservation, mode-specific Send action, and probe v4 evidence."}
+  ],
+  "crossPollination": [
+    "READY/SENT lifecycle review exposed that the current EditText contentDescription can mask the actual changing request value.",
+    "Exact mode selection then made the generic Send action suspicious because its consequence changes with mode.",
+    "Both wounds converged on the same existing owner surgery without deleting the unresolved repeatable Adam send receipt.",
+    "Owner-evidence review caught a false-negative contract in its own first Send gate and forced a shared-refresh proof shape.",
+    "The corrected distinctions propagated into JUnit source, hostile owner fixtures, durable skill doctrine, and the touchable Warm Wall."
+  ],
+  "executionTruth": {
+    "head":"a9dfe9980f9fcab12bc3f30194df877e49310dfc",
+    "operatorOverlayRun":32506792666,
+    "operatorOverlayJob":96848654564,
+    "buildAndroidRun":32506792578,
+    "homeCenterCiRun":32506792589,
+    "automaticRunsConclusion":"failure",
+    "stepLevelCauseEstablished":false,
+    "operatorLogs":"404 BlobNotFound",
+    "manualRetryFired":false,
+    "tested":false
+  },
+  "firewall":{"phoneP0Consumption":0,"phoneP0Mutation":0,"duplicateArchitecture":0,"newP0Finding":null},
+  "gate":"SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
