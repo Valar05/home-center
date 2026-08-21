@@ -24,6 +24,20 @@ public class AdamModeSelectionAccessibilityPolicyTest {
     }
 
     @Test
+    public void canonicalOrderProvidesStableOneBasedSetPositions() {
+        assertEquals(5, AdamModeSelectionAccessibilityPolicy.SET_SIZE);
+        int expectedPosition = 1;
+        for (AdamModeSelectionAccessibilityPolicy.Mode mode
+                : AdamModeSelectionAccessibilityPolicy.Mode.values()) {
+            AdamModeSelectionAccessibilityPolicy.Decision decision =
+                    AdamModeSelectionAccessibilityPolicy.decisionFor("terminal", mode.wireValue);
+            assertEquals(expectedPosition, decision.positionInSet);
+            assertEquals(AdamModeSelectionAccessibilityPolicy.SET_SIZE, decision.setSize);
+            expectedPosition++;
+        }
+    }
+
+    @Test
     public void selectionDoesNotOwnKeyboardOrAccessibilityFocus() {
         AdamModeSelectionAccessibilityPolicy.Decision decision =
                 AdamModeSelectionAccessibilityPolicy.decisionFor("vlad", "vlad");
