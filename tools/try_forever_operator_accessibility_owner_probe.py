@@ -391,7 +391,7 @@ def probe(source: str) -> dict[str, object]:
     code_surface = java_lexical_code_surface(source)
     scopes = owner_scopes(code_surface)
     return {
-        "schema": "try-forever-operator-accessibility-owner-probe.v7",
+        "schema": "try-forever-operator-accessibility-owner-probe.v6",
         "evidenceClass": "JAVA_DIRECT_OWNER_METHOD_SCOPED_LEXICAL_CODE_SURFACE",
         "ownerClassFound": bool(scopes["class"]),
         "deepDetail": asdict(classify_scoped(
