@@ -84,13 +84,11 @@ def classify_mode_selection(source: str) -> SeamVerdict:
     method = _direct_method_surface(owner, "adamModeButton")
     policy = "AdamModeSelectionAccessibilityPolicy"
     policy_reference = policy in method
-    has_persistent_state = "setStateDescription(" in method and (
-        "setSelected(" in method or "setChecked(" in method
-    )
+    has_persistent_state = "setSelected(" in method or "setChecked(" in method
     if policy_reference and has_persistent_state:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam mode owner consumes the one-of-many policy and exposes persistent selection state",
+            "direct Adam mode owner consumes the one-of-many policy and exposes native persistent selection state",
             policy,
             True,
             True,
