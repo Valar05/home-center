@@ -39,6 +39,18 @@ public final class AccessibilityAnnouncementSemanticPolicy {
         ADAM_MODED_SEND_AND_INPUT_RESULT
     }
 
+    /**
+     * Exact source-review reason why an otherwise designed consequence is not ready for
+     * existing-owner migration. This is not runtime evidence and must not be inferred from
+     * a missing patch or a failed workflow.
+     */
+    public enum MigrationBlocker {
+        NONE,
+        SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED,
+        DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED,
+        ADAM_REPEAT_SEND_RESULT_UNRESOLVED
+    }
+
     public static final class Decision {
         public final SemanticChannel channel;
         public final OwnerMechanism ownerMechanism;
@@ -49,6 +61,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
         public final boolean repeatableIdenticalValuePossible;
         public final boolean syntheticRepeatReceiptRequired;
         public final boolean ownerMigrationReady;
+        public final MigrationBlocker migrationBlocker;
         public final boolean legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring;
 
         private Decision(
@@ -60,7 +73,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                 boolean requiresMaterialTransition,
                 boolean repeatableIdenticalValuePossible,
                 boolean syntheticRepeatReceiptRequired,
-                boolean ownerMigrationReady) {
+                boolean ownerMigrationReady,
+                MigrationBlocker migrationBlocker) {
             this.channel = channel;
             this.ownerMechanism = ownerMechanism;
             this.automaticUpdateAllowed = automaticUpdateAllowed;
@@ -70,7 +84,12 @@ public final class AccessibilityAnnouncementSemanticPolicy {
             this.repeatableIdenticalValuePossible = repeatableIdenticalValuePossible;
             this.syntheticRepeatReceiptRequired = syntheticRepeatReceiptRequired;
             this.ownerMigrationReady = ownerMigrationReady;
+            this.migrationBlocker = migrationBlocker;
             this.legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring = true;
+            if (ownerMigrationReady != (migrationBlocker == MigrationBlocker.NONE)) {
+                throw new IllegalArgumentException(
+                        "owner migration readiness must agree with the explicit blocker");
+            }
         }
     }
 
@@ -92,7 +111,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         false,
                         false,
-                        true);
+                        true,
+                        MigrationBlocker.NONE);
             case SPOTIFY_COMMAND_RECEIPT:
                 return new Decision(
                         SemanticChannel.LIVE_REGION_VALUE_CHANGE,
@@ -103,7 +123,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         true,
                         false,
-                        false);
+                        false,
+                        MigrationBlocker.SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED);
             case HEARTBEAT_EXPLICIT_DETAIL_SELECTION:
                 return new Decision(
                         SemanticChannel.NATIVE_SELECTION_AND_DETAIL,
@@ -114,7 +135,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         false,
                         true,
                         false,
-                        false);
+                        false,
+                        MigrationBlocker.DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED);
             case ADAM_SEND_CONFIRMATION:
                 return new Decision(
                         SemanticChannel.NATIVE_ACTION_AND_RESULT_STATE,
@@ -125,7 +147,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         false,
                         true,
                         false,
-                        false);
+                        false,
+                        MigrationBlocker.ADAM_REPEAT_SEND_RESULT_UNRESOLVED);
             default:
                 throw new IllegalArgumentException("unsupported consequence: " + consequence);
         }
