@@ -1,5 +1,7 @@
 package com.homecenter.operatoroverlay;
 
+import android.view.accessibility.AccessibilityNodeInfo;
+
 /**
  * Pure source policy for the existing latest-message TextView interaction.
  *
@@ -10,8 +12,9 @@ package com.homecenter.operatoroverlay;
  *
  * Do not add a separate confirmation announcement for this simple action. Android 16
  * (API 36) deprecates announceForAccessibility/TYPE_ANNOUNCEMENT in favor of semantic
- * UI state, and View.setStateDescription(...) already emits the appropriate semantic
- * state-change event on supported platform versions.
+ * UI state. API 30+ stateDescription remains the compatibility semantic state; API 36+
+ * additionally has AccessibilityNodeInfo expanded-state semantics for expandable
+ * elements. The native owner must apply the API-36 value only under its platform gate.
  */
 final class LatestMessageAccessibilityPolicy {
     private static final int COLLAPSED_MAX_LINES = 2;
@@ -25,6 +28,16 @@ final class LatestMessageAccessibilityPolicy {
 
     static String stateDescription(boolean expanded) {
         return expanded ? "Expanded" : "Collapsed";
+    }
+
+    /**
+     * API-36 semantic expansion state. This is supporting source only until the existing
+     * OperatorOverlayService accessibility delegate consumes it behind an API-36 gate.
+     */
+    static int expandedStateApi36(boolean expanded) {
+        return expanded
+                ? AccessibilityNodeInfo.EXPANDED_STATE_FULL
+                : AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED;
     }
 
     /**
