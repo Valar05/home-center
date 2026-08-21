@@ -2,6 +2,8 @@ package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertEquals;
 
+import android.view.accessibility.AccessibilityNodeInfo;
+
 import org.junit.Test;
 
 public class LatestMessageAccessibilityPolicyTest {
@@ -11,6 +13,8 @@ public class LatestMessageAccessibilityPolicyTest {
                 LatestMessageAccessibilityPolicy.clickActionLabel(false));
         assertEquals("Collapsed",
                 LatestMessageAccessibilityPolicy.stateDescription(false));
+        assertEquals(AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED,
+                LatestMessageAccessibilityPolicy.expandedStateApi36(false));
         assertEquals(2, LatestMessageAccessibilityPolicy.maxLines(false));
     }
 
@@ -20,6 +24,8 @@ public class LatestMessageAccessibilityPolicyTest {
                 LatestMessageAccessibilityPolicy.clickActionLabel(true));
         assertEquals("Expanded",
                 LatestMessageAccessibilityPolicy.stateDescription(true));
+        assertEquals(AccessibilityNodeInfo.EXPANDED_STATE_FULL,
+                LatestMessageAccessibilityPolicy.expandedStateApi36(true));
         assertEquals(Integer.MAX_VALUE, LatestMessageAccessibilityPolicy.maxLines(true));
         assertEquals(520, LatestMessageAccessibilityPolicy.expandedMaxHeightDp());
     }
