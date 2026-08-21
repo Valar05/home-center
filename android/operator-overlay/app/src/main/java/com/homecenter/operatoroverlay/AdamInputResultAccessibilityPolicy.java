@@ -4,9 +4,13 @@ package com.homecenter.operatoroverlay;
  * Pure source policy for the Adam editable-input result state.
  *
  * <p>The editable text remains the field's value. Mode/result context belongs in state semantics;
- * it must not be hidden exclusively in an empty-field hint while a generic contentDescription
- * masks that hint. This supporting policy does not authorize removal of the current explicit send
- * announcement: repeated identical sends still require a separately reviewed event-result contract.</p>
+ * it must not be hidden exclusively in an empty-field hint or replaced by a generic
+ * contentDescription. In the native owner, the editable field's contentDescription should remain
+ * null so accessibility services can expose the actual changing EditText value; READY/SENT mode
+ * context belongs in stateDescription where the platform supports it.</p>
+ *
+ * <p>This supporting policy does not authorize removal of the current explicit send announcement:
+ * repeated identical sends still require a separately reviewed event-result contract.</p>
  *
  * <p>SENT is persistent only while there is no newer unsent request. Selecting another mode makes
  * the field READY. A successful submit makes it SENT. Programmatic clearing after submit does not
@@ -32,6 +36,7 @@ public final class AdamInputResultAccessibilityPolicy {
         public final AdamModeSelectionAccessibilityPolicy.Mode mode;
         public final ResultState resultState;
         public final boolean preserveEditableTextValue;
+        public final boolean useContentDescriptionForEditableValue;
         public final boolean useStateDescription;
         public final boolean ownerAnnouncementMigrationReady;
         public final String stateDescription;
@@ -42,6 +47,7 @@ public final class AdamInputResultAccessibilityPolicy {
             this.mode = mode;
             this.resultState = resultState;
             this.preserveEditableTextValue = true;
+            this.useContentDescriptionForEditableValue = false;
             this.useStateDescription = true;
             this.ownerAnnouncementMigrationReady = false;
             this.stateDescription = mode.spokenLabel + " mode. "
