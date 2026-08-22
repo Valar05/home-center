@@ -13,7 +13,7 @@
   details { border: 1px solid currentColor; margin: 12px 0; }
   summary { min-height: 56px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; font-weight: 700; }
   details > div { border-top: 1px solid currentColor; padding: 12px 16px 16px; }
-  .token { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid currentColor; flex: 0 0 auto; }
+  .token { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border: 1px solid currentColor; padding: 2px 5px; flex: 0 0 auto; }
   .flow { display: grid; gap: 8px; margin: 18px 0; }
   .step { border-left: 4px solid currentColor; padding: 10px 12px; }
   code { overflow-wrap: anywhere; }
@@ -22,68 +22,82 @@
 </head>
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
-<p>One owner at a time. Patch and structured-delta provenance share one finite custody throat.</p>
-<div class="scar">× SOURCE CUSTODY ONLY · PATCH + DELTA · FAIL-CLOSED ARTIFACT THROAT · OWNER PROMOTION UNCHANGED · TESTED NO · PHONE/P0 UNTOUCHED</div>
-<p class="owner"><strong>Operator owner:</strong> OperatorOverlayService.java<br><strong>Authenticated blob:</strong> <code>c5de1411a6b68087ae17aff83c032af754587150</code></p>
+<p>One owner at a time. Patch and structured-delta provenance share bounded traversal, candidate, and finite-artifact custody throats.</p>
+<div class="scar">× SOURCE CUSTODY v6 · 32K DIRECTORY THROAT · 2048 CANDIDATE THROAT · 1 MiB FINITE REGULAR ARTIFACT · OWNER PROMOTION UNCHANGED · TESTED NO · PHONE/P0 UNTOUCHED</div>
+<p class="owner"><strong>Operator owner:</strong> OperatorOverlayService.java<br><strong>Owner mutation by this slice:</strong> NO</p>
 
 <details open>
   <summary><span class="token">↔</span> Artifact family — patch + delta</summary>
   <div>
-    <p><strong>v2 wound:</strong> the custody probe scanned only <code>try-forever-*.patch</code>, while the repository also stores owner surgery provenance as <code>try-forever-*.delta.json</code>.</p>
-    <p><strong>v3 wound:</strong> malformed structured deltas failed closed, but matching malformed patches could still disappear quietly or throw during raw text reads.</p>
-    <p><strong>v4 source rule:</strong> both representations enter one deterministic finite admission throat. Every matching artifact becomes either an admitted surgery or a bounded discovery error.</p>
+    <p><strong>v2 wound:</strong> patch-only discovery missed structured owner deltas.</p>
+    <p><strong>v3 wound:</strong> malformed delta evidence failed closed while malformed matching patches could still vanish or crash admission.</p>
+    <p><strong>v4 wound:</strong> content bytes were bounded, but ordinary path open could still follow or block on hostile topology.</p>
+    <p><strong>v5 wound:</strong> matching candidates were bounded, but glob scanning did not bound work spent on unrelated directory entries.</p>
+    <p><strong>v6 source rule:</strong> count every directory entry, bound matching candidates separately, then admit each artifact through one hardened finite regular-file organ.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">×</span> Patch fault isolated</summary>
+  <summary><span class="token">32K</span> Directory traversal throat</summary>
   <div>
-    <p><strong>Missing base / state / owner evidence:</strong> blocked. A matching patch may not return a quiet “not interesting” result while the inventory calls itself complete.</p>
-    <p><strong>Malformed UTF-8:</strong> blocked. Replacement decoding may not manufacture surgery metadata.</p>
-    <p><strong>Consequence:</strong> <code>evidenceComplete=false</code>; healthy sibling evidence may still be reported, but exhaustive promotion authority is withheld.</p>
+    <p><strong>Budget:</strong> 32,768 non-recursive directory entries. Unrelated clutter counts.</p>
+    <p><strong>Max+1:</strong> the entire promotion inventory fails closed; the first observed matches do not become partial authority.</p>
+    <p><strong>Why:</strong> “only 12 matching patches” does not mean discovery work was finite if the directory contains millions of unrelated entries.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">1M</span> Artifact throat — finite before parse</summary>
+  <summary><span class="token">2048</span> Matching candidate throat</summary>
   <div>
-    <p><strong>Budget:</strong> 1 MiB + one sentinel byte for both patch and delta custody reads.</p>
-    <p><strong>Max+1:</strong> reject before metadata/JSON parsing. Prefix content never becomes surgery authority.</p>
-    <p><strong>Capability:</strong> source probe + regression source only. No owner mutation, runtime, TalkBack, or phone execution is implied.</p>
+    <p><strong>Budget:</strong> 2,048 matching <code>try-forever-*.patch</code> / <code>*.delta.json</code> artifacts.</p>
+    <p><strong>Max+1:</strong> zero partial promotion authority. Sorting happens only after bounded admission.</p>
+    <p><strong>Distinct job:</strong> candidate count and directory traversal are separate resource contracts.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">1</span> Canonical heartbeat selection + announcement</summary>
+  <summary><span class="token">FILE</span> Finite ordinary-artifact custody</summary>
   <div>
-    <p><strong>State:</strong> CANONICAL_PROPOSED_NOT_APPLIED</p>
-    <p>Known patch-form candidate sharing the authenticated OperatorOverlayService base. Promotion remains separate from custody discovery.</p>
+    <p><strong>Reuse, not duplication:</strong> owner-surgery custody reuses the existing hardened finite-artifact observer.</p>
+    <p><strong>Before content trust:</strong> ordinary regular-file topology, no-follow/reparse checks, path↔descriptor identity, bounded complete EOF, strict UTF-8, and post-read stability.</p>
+    <p><strong>Redirector / directory / FIFO / special / replacement drift:</strong> bounded discovery error; never surgery authority and never an intentional blocking read.</p>
+    <p><strong>Boundary:</strong> this detects common topology/replacement races. It does not claim universal atomic filesystem binding.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">2</span> Collapsed operational contact</summary>
+  <summary><span class="token">1M</span> Artifact content throat</summary>
   <div>
-    <p><strong>State:</strong> CORRECTED_PROPOSED_NOT_APPLIED</p>
-    <p>Known patch-form candidate. Applying an earlier sibling changes owner custody and requires authenticated readback before later promotion.</p>
+    <p><strong>Budget:</strong> complete artifact must fit within 1 MiB.</p>
+    <p><strong>Max+1:</strong> reject before patch metadata or delta JSON can earn authority. No prefix digest/text is promoted.</p>
+    <p><strong>Encoding:</strong> strict UTF-8 only.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">3</span> Adam mode / input / Send accessibility</summary>
+  <summary><span class="token">×</span> Patch / delta fault isolated</summary>
   <div>
-    <p><strong>State:</strong> CORRECTED_PROPOSED_NOT_APPLIED</p>
-    <p>Known patch-form candidate. It is not evidence that the known list is the complete repository surgery inventory.</p>
+    <p>Missing base/state/owner evidence, malformed UTF-8, conflicting aliases, duplicate JSON members, unsupported schema, topology wounds, artifact drift, and resource overflow become bounded <code>discoveryErrors</code>.</p>
+    <p><strong>Consequence:</strong> <code>evidenceComplete=false</code>. Healthy siblings may still be inspectable unless the global traversal/candidate throat failed; exhaustive promotion authority is withheld.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="token">1</span> Known current-base surgery family</summary>
+  <div>
+    <p>Known candidates may be shown when current-owner custody is supplied, but a known list is not automatically an exhaustive inventory.</p>
+    <p>Applying one surgery changes owner custody and stales siblings until fresh authenticated readback and deliberate rebase/convergence.</p>
   </div>
 </details>
 
 <div class="flow" aria-label="Custody evidence sequence">
-  <div class="step"><strong>● Discover:</strong> inspect both supported source-artifact representations.</div>
-  <div class="step"><strong>□ Bound:</strong> finite byte admission happens before UTF-8 decode or parse.</div>
-  <div class="step"><strong>× Fail closed:</strong> any matching artifact admission wound sets <code>evidenceComplete=false</code>.</div>
-  <div class="step"><strong>◇ Bind:</strong> current-base readiness requires authenticated owner blob evidence.</div>
+  <div class="step"><strong>● Scan:</strong> bounded non-recursive directory-entry work.</div>
+  <div class="step"><strong>□ Match:</strong> bounded patch + delta candidate collection.</div>
+  <div class="step"><strong>□ Admit:</strong> finite ordinary-file custody before parsing.</div>
+  <div class="step"><strong>× Fail closed:</strong> traversal/candidate overflow gives zero partial promotion authority; artifact wounds mark evidence incomplete.</div>
+  <div class="step"><strong>◇ Bind:</strong> current-base readiness separately requires authenticated current-owner blob evidence.</div>
   <div class="step"><strong>→ Promote separately:</strong> custody discovery never applies a surgery.</div>
-  <div class="step"><strong>□ Re-read:</strong> authenticate owner custody after any future mutation before promoting another sibling.</div>
+  <div class="step"><strong>□ Re-read:</strong> authenticate owner custody after any future mutation before another sibling is promoted.</div>
 </div>
 
 <details>
@@ -94,9 +108,9 @@
 </details>
 
 <details>
-  <summary><span class="token">×</span> Evidence-complete rule</summary>
+  <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><code>MATCHING SURGERY ARTIFACT + ADMISSION FAILURE</code> means the inventory is incomplete. Known candidates may still be shown, but they cannot be promoted as an exhaustive collision set.</p>
+    <p><strong>Implemented source:</strong> YES. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>Owner mutation:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
