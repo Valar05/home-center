@@ -18,6 +18,8 @@ The portable source policy in `tools/try_forever_skill_root_identity.py` provide
 4. a second no-follow observation after candidate enumeration and before per-file title/hash authority;
 5. fail-closed identity comparison.
 
+The historical skill-root wrappers remain source compatible. The underlying capture/revalidation functions are now subject-aware and reusable by another bounded non-P0 directory owner without duplicating the topology organ.
+
 ## What this closes
 
 The existing provenance probe now consumes this policy in source. An observable persistent root replacement, root type change, or redirector state that remains visible at the second observation is rejected before any `SkillRecord` earns title/hash authority **when the observed object identity/type differs**.
@@ -65,6 +67,12 @@ Current capability truth:
 - runtime UI/TalkBack: **NO**
 - deployed/callable/executed/delivered/accepted: **NO**
 
+## Reusable-organ cross-pollination
+
+The same no-follow identity payload and subject-aware revalidation are now reused by `tools/try_forever_owner_surgery_custody_probe.py` around the named `patches/` root. This does **not** make owner-surgery custody part of skill provenance, and it does not create a second root-custody architecture. It is one organ with two bounded callers.
+
+Owner-surgery custody still has its own evidence membrane: root revalidation source may be wired there while atomic root binding, regression execution, TESTED, runtime, and phone delivery remain NO.
+
 ## Evidence discipline
 
 Keep these states separate:
@@ -79,4 +87,4 @@ Phone/P0 consumption **0**, mutation **0**, duplicate architecture **0**. Never 
 
 ## Done
 
-The existing-owner integration seam is now source-wired and should go dark unless evidence changes it. The stronger atomic swap-and-restore / post-revalidation replacement / identity-reuse wound remains explicitly open for a different, platform-evidenced source slice.
+The existing skill-provenance owner integration seam is source-wired and should go dark unless evidence changes it. The helper itself may be reused by bounded non-P0 callers. The stronger atomic swap-and-restore / post-revalidation replacement / identity-reuse wound remains explicitly open for a different, platform-evidenced source slice.
