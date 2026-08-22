@@ -3,14 +3,16 @@
 
 This organ strengthens *root* custody when the local Python/OS surface exposes the required POSIX
 primitives. It opens the named directory once with O_DIRECTORY|O_NOFOLLOW, keeps that descriptor as
-the authority root, enumerates through fresh descriptor-relative directory handles, and opens
-candidate names relative to that same held authority root.
+the authority root, enumerates through fresh descriptor-relative directory handles, captures each
+candidate object's no-follow identity during that held-root enumeration, and opens candidate names
+relative to that same held authority root.
 
 It deliberately does not claim universal filesystem atomicity. A held root descriptor prevents a
-later replacement of the root pathname from redirecting subsequent descriptor-relative work, but
-candidate names may still be replaced between observations and filesystem identity reuse remains a
-separate boundary. Regression execution, owner integration, runtime behavior, deployment, phone
-execution, delivery, and acceptance are all separate capability states.
+later replacement of the root pathname from redirecting subsequent descriptor-relative work. A
+captured candidate identity also rejects persistent candidate replacement between enumeration and
+authority-facing open/read. Candidate swap-and-restore between observations and filesystem identity
+reuse remain separate boundaries. Regression execution, owner integration, runtime behavior,
+deployment, phone execution, delivery, and acceptance are all separate capability states.
 """
 
 from __future__ import annotations
@@ -44,6 +46,18 @@ class DescriptorIdentity:
     inode: int
     size: int
     mtime_ns: int
+
+
+@dataclass(frozen=True)
+class DescriptorCandidate:
+    """One candidate name plus its held-root no-follow enumeration identity."""
+
+    name: str
+    identity: DescriptorIdentity
+    mode: int
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -123,25 +137,30 @@ class HeldDirectoryCustody:
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
-    def candidate_names(
+    def candidate_entries(
         self,
         *,
         is_candidate: Callable[[str], bool],
         max_entries: int,
         max_candidates: int,
-    ) -> tuple[str, ...]:
-        """Enumerate through a fresh descriptor-relative directory handle.
+    ) -> tuple[DescriptorCandidate, ...]:
+        """Enumerate bounded candidate names and capture their no-follow identity in the same pass.
 
         A new `open(".", dir_fd=self.fd)` is intentional. Directory descriptors can carry stream
         position; reusing the authority descriptor directly for repeated scans can make later scans
         depend on earlier enumeration. The fresh scan handle stays anchored to the held root while
         giving each bounded inventory pass an independent directory position.
+
+        Capturing each matching entry's no-follow identity here does not make candidate-name custody
+        atomic. It does, however, let the later authority-facing open reject persistent replacement
+        that occurred after enumeration instead of silently treating the replacement as the object
+        that was enumerated.
         """
 
         if max_entries < 0 or max_candidates < 0:
             raise ValueError("custody budgets must be non-negative")
         entries_seen = 0
-        candidates: list[str] = []
+        candidates: list[DescriptorCandidate] = []
         scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
         try:
             with os.scandir(scan_fd) as entries:
@@ -154,32 +173,73 @@ class HeldDirectoryCustody:
                     name = _require_simple_name(entry.name)
                     if not is_candidate(name):
                         continue
-                    candidates.append(name)
+                    observed = entry.stat(follow_symlinks=False)
+                    identity = _identity_from_stat(observed)
+                    if identity.inode == 0:
+                        raise DescriptorArtifactCustodyError(
+                            "enumerated candidate exposes no stable inode identity"
+                        )
+                    candidates.append(
+                        DescriptorCandidate(
+                            name=name,
+                            identity=identity,
+                            mode=int(observed.st_mode),
+                        )
+                    )
                     if len(candidates) > max_candidates:
                         raise DescriptorArtifactCustodyError(
                             f"held-directory candidate set exceeds {max_candidates} budget"
                         )
         finally:
             os.close(scan_fd)
-        candidates.sort()
+        candidates.sort(key=lambda item: item.name)
         return tuple(candidates)
+
+    def candidate_names(
+        self,
+        *,
+        is_candidate: Callable[[str], bool],
+        max_entries: int,
+        max_candidates: int,
+    ) -> tuple[str, ...]:
+        """Compatibility projection over `candidate_entries`; identity evidence remains available."""
+
+        return tuple(
+            item.name
+            for item in self.candidate_entries(
+                is_candidate=is_candidate,
+                max_entries=max_entries,
+                max_candidates=max_candidates,
+            )
+        )
 
     def observe_utf8_regular_file(
         self,
         name: str,
         *,
         max_bytes: int,
+        expected_candidate: DescriptorCandidate | None = None,
     ) -> DescriptorArtifactObservation:
         """Observe one named regular file through the held root descriptor.
 
-        The candidate is no-follow stat'ed relative to the held root, opened relative to the same
-        descriptor with O_NOFOLLOW, read completely within the byte budget, then revalidated both
-        through the open descriptor and through the still-held directory descriptor.
+        The candidate is no-follow stat'ed relative to the held root, optionally required to match
+        the identity captured during held-root enumeration, opened relative to the same descriptor
+        with O_NOFOLLOW, read completely within the byte budget, then revalidated both through the
+        open descriptor and through the still-held directory descriptor.
         """
 
         name = _require_simple_name(name)
         if max_bytes < 0:
             raise ValueError("artifact byte budget must be non-negative")
+        if expected_candidate is not None:
+            if expected_candidate.name != name:
+                raise DescriptorArtifactCustodyError(
+                    "expected candidate identity belongs to a different basename"
+                )
+            if not stat.S_ISREG(expected_candidate.mode):
+                raise DescriptorArtifactCustodyError(
+                    "enumerated candidate is not an ordinary regular file"
+                )
 
         pre = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
         if not stat.S_ISREG(pre.st_mode):
@@ -187,6 +247,13 @@ class HeldDirectoryCustody:
         pre_identity = _identity_from_stat(pre)
         if pre_identity.inode == 0:
             raise DescriptorArtifactCustodyError("candidate exposes no stable inode identity")
+        if expected_candidate is not None and not _same_identity(
+            expected_candidate.identity,
+            pre_identity,
+        ):
+            raise DescriptorArtifactCustodyError(
+                "candidate identity changed after held-root enumeration"
+            )
 
         flags = os.O_RDONLY | os.O_NOFOLLOW
         if hasattr(os, "O_CLOEXEC"):
