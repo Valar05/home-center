@@ -8,24 +8,29 @@ This skill owns no patch executor, overlay controller, recovery daemon, phone la
 ## Core law
 `NORMALIZATION-DEPENDENT OWNER BLOB TEXT != AUTHENTICATED OWNER IDENTITY`.
 
-## Closed artifact-evidence seam
-Canonical owner-surgery custody v10 now enforces exact artifact base identity in both admitted surgery forms:
+## Source-wired artifact evidence
+Canonical owner-surgery custody v10 enforces exact artifact base identity in both admitted surgery forms:
 - textual patch evidence may keep case-flexible header spelling, but the captured 40-hex evidence token must already satisfy the lowercase SHA contract;
 - structured delta base evidence is validated before any case transformation and is never repaired by trimming/lowercasing.
 
-Authenticated source wiring:
-- applied commit: `2ba4254f8e9b736fe47dbe0f5192fe270397359a`;
-- resulting owner blob: `d5c22feac7b3f71045cc139e120b2ae45a3b1c37`;
+Applied artifact-evidence source:
+- commit: `2ba4254f8e9b736fe47dbe0f5192fe270397359a`;
+- resulting historical owner blob: `d5c22feac7b3f71045cc139e120b2ae45a3b1c37`;
 - provenance artifact: `patches/try-forever-owner-surgery-base-blob-exactness.patch` = **APPLIED_SOURCE**.
 
-## Fresh independent wound: current-owner custody input
-The same owner still normalizes the **authenticated current-owner blob input** used to decide current/stale/collision authority:
-- `_parse_owner_blob(...)` applies `strip().lower()` before its lowercase-SHA check;
-- `classify(...)` lowercases programmatic `current_owner_blobs` values before comparison.
+## Source-wired authenticated current-owner custody
+The formerly RED current-owner input seam is now wired in the same canonical owner:
+- CLI `_parse_owner_blob(...)` no longer trims or lowercases the blob evidence token before validation;
+- programmatic `classify(...)` no longer lowercases supplied current-owner blob values;
+- both paths share fail-closed exact lowercase-SHA admission;
+- malformed uppercase or padded blob evidence cannot be repaired into current-base authority.
 
-That means uppercase or padded current-owner evidence can still be repaired into authority even though artifact base evidence can no longer do so.
+Authenticated source wiring:
+- applied commit: `bbc13531816eb48353d01c201b2ef4e8d3715563`;
+- resulting owner blob: `f3457f82f5ea135e303c6ca7b93491511a471dd7`;
+- owner report capability: `exactCurrentOwnerBlobAdmission = true`.
 
-This wound is intentionally **RED SUPPORTING SOURCE ONLY** this pulse. It is not folded into the already-applied artifact surgery without a separate owner review.
+Owner-key handling was deliberately not widened in this surgery. CLI owner text retains its prior structural trimming behavior; this slice repairs only authenticated blob authority evidence.
 
 ## Regression source
 `tools/test_try_forever_owner_surgery_base_blob_exactness.py` — **UNEXECUTED**.
@@ -33,13 +38,18 @@ This wound is intentionally **RED SUPPORTING SOURCE ONLY** this pulse. It is not
 It now requires:
 - lowercase patch/delta base evidence admitted exactly;
 - uppercase patch/delta base evidence rejected rather than normalized;
-- uppercase authenticated current-owner CLI blob rejected rather than normalized;
-- padded authenticated current-owner CLI blob rejected rather than trimmed.
+- lowercase authenticated current-owner CLI evidence admitted exactly;
+- uppercase and padded authenticated current-owner CLI evidence rejected rather than normalized;
+- lowercase programmatic current-owner evidence preserved exactly in the report;
+- uppercase and padded programmatic current-owner evidence rejected rather than normalized.
 
-The current-owner tests are intentionally RED against current owner source. Source existence is not TESTED evidence.
+Source existence is not TESTED evidence.
+
+## Descriptor-custody boundary
+The stronger POSIX held-directory backend remains supporting source only. Exact current-owner identity repair does not imply descriptor canonical-owner integration, universal filesystem atomicity, Windows parity, regression execution, runtime UI/TalkBack, deployment, phone callability, delivery, or acceptance.
 
 ## Capability membrane
-Artifact base-identity owner wiring **YES / SOURCE_WIRED** · authenticated remote readback **YES** · current-owner exact-input wiring **NO / RED** · regression source **YES / UNEXECUTED** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Artifact base-identity owner wiring **YES / SOURCE_WIRED** · authenticated current-owner exact-input wiring **YES / SOURCE_WIRED** · authenticated remote readback **YES** · regression source **YES / UNEXECUTED** · descriptor owner integration **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
 
 ## P0 / phone firewall
 Consumes no Phone Hands, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.
