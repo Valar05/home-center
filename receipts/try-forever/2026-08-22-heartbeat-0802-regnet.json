@@ -1,0 +1,19 @@
+{
+  "schema": "try-forever-regnet-receipt.v1",
+  "checkpoint": "2026-08-22T08:02:00-05:00",
+  "reviewedSourceHead": "67f86bb7dc45c97e008f50775ed72f8fc4abae39",
+  "ownerCommit": "0b4fc24113650741b50f4d57c29cb3c7eb6612d3",
+  "ownerBlob": "fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK_ONLY",
+  "sourceWired": true,
+  "regressionSource": true,
+  "regressionExecuted": false,
+  "tested": false,
+  "atomicRootBinding": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "phoneP0Consumption": 0,
+  "phoneP0Mutation": 0,
+  "duplicateArchitecture": 0,
+  "boundary": "v10 source wiring and provenance convergence are real; regression execution, current-inventory behavior under strict state headers, atomic binding, runtime, deployment, delivery, and acceptance remain unproven."
+}
