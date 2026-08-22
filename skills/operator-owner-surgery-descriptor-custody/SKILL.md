@@ -69,6 +69,9 @@ This narrows the wound; it does **not** close swap-and-restore or identity-reuse
 ### Review scar: stronger backend must preserve evidence metrics
 A first owner-composition review found the descriptor helper had candidate identities but not the total directory-entry count exposed by canonical v10. The helper now returns a `DescriptorCandidateInventory` with both `entries_observed` and candidate identities/count. Descriptor owner integration remains NO until the canonical owner can consume this without changing its published evidence semantics or portable fallback.
 
+### Review scar: budget overflow returns no partial inventory
+The descriptor inventory source already enforced independent directory-entry and matching-candidate budgets, but those two throats were not pinned by hostile fixtures. The regression source now covers unrelated-entry max+1 and candidate max+1. Both require an exception rather than a partial `DescriptorCandidateInventory`, so a stronger backend cannot quietly preserve the first N objects as authority after its declared budget is exceeded.
+
 ## Regression source
 `tools/test_try_forever_posix_directory_handle_custody.py` — **UNEXECUTED**.
 
@@ -77,6 +80,8 @@ It now includes:
 - candidate enumeration remains on the held original directory after root-path replacement;
 - repeated candidate scans return the same deterministic inventory rather than inheriting old stream position;
 - inventory evidence counts unrelated directory entries separately from matching candidates;
+- unrelated directory-entry max+1 rejects the entire inventory rather than returning partial authority;
+- matching-candidate max+1 rejects the entire inventory rather than returning partial authority;
 - enumerated candidate identity survives into the bounded read;
 - persistent candidate replacement after enumeration is rejected before authority-facing read;
 - descriptor-relative symlink artifact rejection;
@@ -86,12 +91,13 @@ It now includes:
 `tools/test_try_forever_directory_handle_binding_capability.py` is also **UNEXECUTED** and pins descriptor-relative no-follow stat as a required primitive.
 
 ## Canonical owner relationship
-Canonical owner-surgery custody remains `tools/try_forever_owner_surgery_custody_probe.py` v10. It is already **SOURCE_WIRED** for portable persistent-drift root revalidation.
+Canonical owner-surgery custody remains `tools/try_forever_owner_surgery_custody_probe.py` v10. It is already **SOURCE_WIRED** for portable persistent-drift root revalidation and now also **SOURCE_WIRED** for exact base-owner identity admission.
 
 Descriptor-bound custody is currently:
 - supporting implementation **YES**;
 - authenticated GitHub source readback **YES**;
 - bounded inventory metrics compatible with v10 evidence fields **YES / SUPPORTING SOURCE**;
+- independent inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED**;
 - enumeration→read candidate identity handoff **YES / SUPPORTING SOURCE**;
 - regression source **YES / UNEXECUTED**;
 - canonical v10 owner consumption **NO**;
@@ -100,10 +106,10 @@ Descriptor-bound custody is currently:
 - TESTED **NO**;
 - runtime/deployed/delivered/accepted **NO**.
 
-Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback, `artifactDirectoryEntriesObserved`, `artifactCandidatesObserved`, error semantics, and exact owner custody/review before mutation.
+Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback, `artifactDirectoryEntriesObserved`, `artifactCandidatesObserved`, error semantics, exact base-owner identity admission, and exact owner custody/review before mutation.
 
 ## Current inventory companion
-`tools/test_try_forever_owner_surgery_current_inventory.py` independently targets whether the actual current `patches/` inventory is fully admissible under v10's stricter exact textual state grammar. It is **REGRESSION SOURCE / UNEXECUTED** and must not be reported as a successful inventory audit until it has an authorized execution receipt.
+`tools/test_try_forever_owner_surgery_current_inventory.py` independently targets whether the actual current `patches/` inventory is fully admissible under v10's stricter exact textual state grammar and exact lowercase base-owner identity. It is **REGRESSION SOURCE / UNEXECUTED** and must not be reported as a successful inventory audit until it has an authorized execution receipt.
 
 ## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
@@ -111,4 +117,4 @@ This skill consumes no Phone Hands ticket, primary-phone command, recovery queue
 ## Capability membrane
 `requested → supporting source → authenticated source readback → regression source → regression executed → canonical owner composition → authenticated owner readback → TESTED → runtime → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 10:02 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · regressions **SOURCE / UNEXECUTED** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Current state at 2026-08-22 11:05 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
