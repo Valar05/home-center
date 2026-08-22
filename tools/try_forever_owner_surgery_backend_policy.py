@@ -10,6 +10,7 @@ silently weakening evidence after a stronger backend has already been admitted.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from typing import Mapping
 
 
 SUPPORTED_POSIX = "SUPPORTED_POSIX_PRIMITIVES"
@@ -20,6 +21,11 @@ DESCRIPTOR_BACKEND = "HELD_DIRECTORY_DESCRIPTOR"
 REQUIRED_OWNER_EVIDENCE_FIELDS = (
     "artifactDirectoryEntriesObserved",
     "artifactCandidatesObserved",
+)
+OWNER_AUTHORITY_FIELDS = (
+    "collisionSets",
+    "staleBaseGroups",
+    "unverifiedBaseGroups",
 )
 
 
@@ -95,6 +101,73 @@ def classify_selected_backend_failure(
         "boundary": failure_boundary,
         "portableFallbackAttempted": False,
         "ownerEvidenceAdmitted": False,
+    }
+
+
+def _nonnegative_int(result: Mapping[str, object], field: str) -> int:
+    value = result.get(field)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{field} must be one non-negative integer")
+    return value
+
+
+def admit_selected_backend_result(
+    selection: OwnerSurgeryBackendSelection,
+    result: Mapping[str, object],
+) -> dict[str, object]:
+    """Admit one future backend result without weakening the canonical v10 evidence membrane.
+
+    This is deliberately a *result* gate, not a backend implementation. It prevents a future owner
+    composition from dropping the two published work metrics, reporting impossible candidate/entry
+    counts, silently switching backend identity, claiming portable fallback after a stronger backend
+    was selected, or carrying promotion authority out of an incomplete exhaustive-custody result.
+
+    Canonical v10 currently exposes the three promotion-authority groups named by
+    ``OWNER_AUTHORITY_FIELDS``. When ``evidenceComplete`` is false those groups must be empty before
+    this composition gate will admit the result. Diagnostic ``surgeries`` may remain present; source
+    inspection evidence is not itself promotion authority.
+    """
+
+    if not isinstance(result, Mapping):
+        raise ValueError("backend result must be one mapping")
+
+    backend = result.get("backend", selection.backend)
+    if backend != selection.backend:
+        raise ValueError("backend result identity does not match selected backend")
+
+    if result.get("portableFallbackAttempted", False) is not False:
+        raise ValueError("selected backend result must not claim a weaker fallback attempt")
+
+    entries_observed = _nonnegative_int(result, "artifactDirectoryEntriesObserved")
+    candidates_observed = _nonnegative_int(result, "artifactCandidatesObserved")
+    if candidates_observed > entries_observed:
+        raise ValueError("artifactCandidatesObserved cannot exceed artifactDirectoryEntriesObserved")
+
+    evidence_complete = result.get("evidenceComplete")
+    if not isinstance(evidence_complete, bool):
+        raise ValueError("evidenceComplete must be one boolean")
+
+    authority_counts: dict[str, int] = {}
+    for field in OWNER_AUTHORITY_FIELDS:
+        value = result.get(field)
+        if not isinstance(value, list):
+            raise ValueError(f"{field} must be one list")
+        authority_counts[field] = len(value)
+
+    if not evidence_complete and any(authority_counts.values()):
+        raise ValueError(
+            "incomplete exhaustive custody must not carry partial promotion authority groups"
+        )
+
+    return {
+        "backend": selection.backend,
+        "status": "EVIDENCE_ADMITTED",
+        "artifactDirectoryEntriesObserved": entries_observed,
+        "artifactCandidatesObserved": candidates_observed,
+        "evidenceComplete": evidence_complete,
+        "authorityGroupCounts": authority_counts,
+        "portableFallbackAttempted": False,
+        "ownerEvidenceAdmitted": evidence_complete,
     }
 
 
