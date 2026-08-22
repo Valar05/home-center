@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT EVIDENCE THROAT: SOURCE · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · ZERO-PARTIAL-AUTHORITY OWNER REPAIR: NOT APPLIED · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT EVIDENCE THROAT: SOURCE · OWNER-COVERAGE GATE: SOURCE · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · ZERO-PARTIAL-AUTHORITY OWNER REPAIR: NOT APPLIED · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend selection and evidence admission custody path</title>
-    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. A separate evidence throat preserves work counts, error evidence, and authenticated owner evidence while rejecting partial promotion authority from incomplete custody.</desc>
+    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. A separate evidence throat preserves work counts, error evidence, and exact owner coverage while rejecting partial or cross-owner promotion authority.</desc>
     <path d="M30 90 H210 M290 90 H440 M520 90 H670 M750 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
     <circle cx="250" cy="90" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="440" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -56,6 +56,10 @@
       <span><span class="token">◇ EVIDENCE THROAT</span><br>Counts, discovery errors, and authenticated current-owner blobs remain separate evidence. Incomplete custody cannot carry promotion-authority groups.</span>
     </label>
     <label>
+      <input type="radio" name="backend" value="coverage">
+      <span><span class="token">× OWNER A ≠ OWNER B AUTHORITY</span><br>Authenticated custody for one owner cannot upgrade another owner's unverified promotion group into owner evidence.</span>
+    </label>
+    <label>
       <input type="radio" name="backend" value="wound">
       <span><span class="token">× DESCRIPTOR WOUND → FAIL CLOSED</span><br>Once the stronger backend is selected, setup/inventory/artifact/cleanup failure does not earn a silent downgrade to portable custody.</span>
     </label>
@@ -68,7 +72,8 @@
     const copy = {
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
       descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact state/base/current-owner admission. Canonical owner consumption is still NO.',
-      evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must exactly agree with discoveryErrors emptiness. Complete exhaustive evidence without authenticated current-owner custody is not owner evidence. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
+      evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must exactly agree with discoveryErrors emptiness. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
+      coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. UNVERIFIED means that owner has no authenticated current-owner blob. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
       wound: 'DESCRIPTOR WOUND → FAIL CLOSED\nNo retry through weaker pathname custody in the same classification attempt. Owner evidence admitted: NO.'
     };
     for (const radio of document.querySelectorAll('input[name=backend]')) {
