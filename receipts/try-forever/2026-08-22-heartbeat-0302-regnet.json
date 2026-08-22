@@ -1,0 +1,23 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "sourceHead": "293f40ecddc2f76345166860b2b0f1c5e85126f8",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+  "review": {
+    "firstPassWound": "candidate max+1 was added on top of Path.glob, which bounded stored matching paths but not directory work over unrelated entries",
+    "correction": "v6 replaces glob discovery with one non-recursive bounded os.scandir pass; all directory entries count against a 32768-entry throat and matching artifacts separately count against a 2048-candidate throat",
+    "artifactCustody": "patch/delta content now reuses the existing hardened finite regular-artifact observer: topology/no-follow/reparse, path-descriptor identity, bounded EOF, strict UTF-8, post-read stability",
+    "partialAuthority": "directory or candidate overflow emits zero surgery/collision/stale/unverified promotion authority",
+    "remainingBoundary": "the patches root path itself is not atomically bound and may still be a redirecting/replaced root; universal filesystem atomicity is not claimed"
+  },
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "ownerMutation": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "phoneOrP0Consumed": false
+  }
+}
