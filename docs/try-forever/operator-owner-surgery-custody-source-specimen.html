@@ -23,21 +23,40 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · ● TYPED I/O + UTF-8 REJECTION SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Current custody-owner blob:</strong> f3457f82f5ea135e303c6ca7b93491511a471dd7<br><strong>Current-owner exactness applied commit:</strong> bbc13531816eb48353d01c201b2ef4e8d3715563<br><strong>Earlier artifact-base exactness commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · ● ROOT I/O TYPED SUPPORTING SOURCE · ● INVENTORY I/O TYPED SUPPORTING SOURCE · ● ARTIFACT I/O + UTF-8 TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Current custody-owner blob:</strong> f3457f82f5ea135e303c6ca7b93491511a471dd7<br><strong>Current-owner exactness applied commit:</strong> bbc13531816eb48353d01c201b2ef4e8d3715563<br><strong>Earlier artifact-base exactness commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a<br><strong>Descriptor root/inventory source:</strong> supporting source only; canonical v10 consumption remains NO.</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody adds stronger source-only candidate identity and bounded failure containment without canonical-owner integration.</desc>
-  <path d="M45 75 H730"/>
-  <circle cx="60" cy="75" r="22"/><text x="39" y="80">ROOT</text>
-  <circle cx="180" cy="75" r="22"/><text x="162" y="80">SCAN</text>
-  <circle cx="300" cy="75" r="22"/><text x="284" y="80">FILE</text>
-  <circle cx="420" cy="75" r="22"/><text x="399" y="80">STATE</text>
-  <circle cx="540" cy="75" r="22"/><text x="514" y="80">BASE ID</text>
-  <circle cx="660" cy="75" r="22"/><text x="624" y="80">CURRENT</text>
-  <rect x="704" y="31" width="70" height="88"/><text x="716" y="60">HELD</text><text x="722" y="83">FD</text><text x="712" y="106">SOURCE</text>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody adds typed root setup, inventory, artifact I/O and UTF-8 failure gates without canonical-owner integration.</desc>
+  <path d="M35 75 H735"/>
+  <circle cx="55" cy="75" r="22"/><text x="35" y="80">ROOT</text>
+  <circle cx="155" cy="75" r="22"/><text x="136" y="80">SCAN</text>
+  <circle cx="255" cy="75" r="22"/><text x="239" y="80">FILE</text>
+  <circle cx="355" cy="75" r="22"/><text x="334" y="80">STATE</text>
+  <circle cx="455" cy="75" r="22"/><text x="429" y="80">BASE ID</text>
+  <circle cx="565" cy="75" r="22"/><text x="530" y="80">CURRENT</text>
+  <rect x="625" y="31" width="70" height="88"/><text x="637" y="60">HELD</text><text x="643" y="83">FD</text><text x="633" y="106">SOURCE</text>
+  <rect x="705" y="31" width="70" height="88"/><text x="714" y="60">I/O</text><text x="715" y="83">TYPED</text><text x="713" y="106">SOURCE</text>
 </svg>
+
+<details open>
+  <summary><span class="token">ROOT</span> Root setup I/O — typed supporting source</summary>
+  <div>
+    <p>A named-root open failure or root-descriptor identity-read failure cannot escape as raw OS error or leave a half-established custody object.</p>
+    <p><strong>Consequence:</strong> bounded <code>PosixDirectoryHandleCustodyUnavailable</code>; any partially opened root descriptor is cleaned up without masking the original setup wound.</p>
+    <p><strong>Regression source:</strong> missing-root open failure and synthetic root <code>fstat</code> failure; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">SCAN</span> Inventory I/O — typed supporting source</summary>
+  <div>
+    <p>Fresh scan-handle open, <code>scandir</code> enumeration, and candidate <code>DirEntry.stat</code> failures occur before candidate inventory can earn authority.</p>
+    <p><strong>Consequence:</strong> bounded <code>DescriptorArtifactCustodyError</code> with no partial inventory returned. Caller-supplied candidate-policy failures remain caller failures and are not laundered into filesystem wounds.</p>
+    <p><strong>Regression source:</strong> scan open, enumeration, candidate stat, and caller-policy separation; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
 
 <details open>
   <summary><span class="token">BASE</span> Exact artifact base-owner identity — SOURCE WIRED</summary>
@@ -83,7 +102,7 @@
 </details>
 
 <details open>
-  <summary><span class="token">I/O</span> Filesystem failure containment — supporting source</summary>
+  <summary><span class="token">I/O</span> Artifact filesystem failure containment — supporting source</summary>
   <div>
     <p>A candidate disappearing after enumeration, failing descriptor-relative open, failing descriptor read/fstat, or failing the post-read named-path recheck stays inside the custody error domain.</p>
     <p>Raw OS exception text is not promoted into authority evidence. The source produces bounded phase-level <code>DescriptorArtifactCustodyError</code> wounds and returns no admitted observation.</p>
@@ -110,9 +129,17 @@
 </details>
 
 <details>
+  <summary><span class="token">NEXT</span> Exact remaining cleanup wound</summary>
+  <div>
+    <p>The fresh scan descriptor is still closed by raw <code>os.close(scan_fd)</code> in <code>finally</code>. A close failure can remain a raw cleanup channel and can theoretically mask an earlier typed inventory wound.</p>
+    <p>This is deliberately <strong>not</strong> painted green by the root/inventory open-enumerate-stat repair. It is a separate future source target.</p>
+  </div>
+</details>
+
+<details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Descriptor typed I/O + strict UTF-8 rejection:</strong> SUPPORTING SOURCE. <strong>Descriptor regression:</strong> SOURCE / UNEXECUTED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Descriptor root setup I/O:</strong> SUPPORTING SOURCE. <strong>Descriptor inventory I/O:</strong> SUPPORTING SOURCE. <strong>Descriptor artifact I/O + strict UTF-8:</strong> SUPPORTING SOURCE. <strong>Focused root/inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Scan-close cleanup:</strong> NO / NEXT WOUND. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
