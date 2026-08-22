@@ -32,6 +32,30 @@
     "ContactPreservation": "LIT: canonical evidence fields and existing v10 portable fallback contract preserved"
   },
   "crossPollination": "descriptor backend hardening -> owner composition selection hazard -> no-downgrade fail-closed law -> v10 evidence-field preservation -> focused v10 drift fixture -> durable skill -> touchable backend wall -> Regnet/Venice membrane",
+  "executionEvidence": {
+    "sourceHead": "d33b9ab4a8784a96227d1b8a4a4292f032ba7236",
+    "operatorOverlayAndroid": {
+      "runId": 32598556155,
+      "jobId": 97093194910,
+      "status": "completed",
+      "conclusion": "failure",
+      "stepsExposed": 0,
+      "logs": "404 BlobNotFound"
+    },
+    "buildAndroid": {
+      "runId": 32598556059,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "homeCenterCi": {
+      "runId": 32598556020,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
   "capability": {
     "supportingSource": true,
     "authenticatedReadback": true,
