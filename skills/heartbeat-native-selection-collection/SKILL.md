@@ -27,14 +27,14 @@ The existing `OperatorOverlayService` already carries a semantic selected id and
 
 `HeartbeatSelectionAccessibilityPolicy` defines source-only collection/item semantics from the already accepted `HeartbeatOverlayViewModel.Model`:
 - one single-selection collection when controls exist;
-- because the native control strip is a horizontal list, Android collection geometry is **rows = item count, columns = 1**;
+- because the native control strip is a horizontal list, Android framework collection geometry is **rows = item count, columns = 1**;
 - each item uses zero-based `rowIndex=index`, `columnIndex=0` for native collection geometry;
 - a separate source-level one-based `positionInSet=index+1` remains useful for human/set-order semantics;
 - semantic id remains the identity across reorder;
 - stale selection does not invent a replacement selection;
 - selection does not claim keyboard or accessibility focus ownership.
 
-The Android platform documents a horizontal list as one column with as many rows as list items. Do not transpose this into one row/many columns merely because the Views are laid out left-to-right; that was caught and repaired in the 2026-08-21 19:57 Regnet pass.
+The Android framework documentation models a horizontal list as one column with as many rows as list items. Do not transpose this custom `HorizontalScrollView` + horizontal `LinearLayout` owner into one row/many columns merely because some higher-level collection widgets use a different convention. That geometry distinction is a review boundary, not a reason to cargo-cult a RecyclerView implementation into this owner.
 
 ### Owner lifecycle application law
 Collection semantics belong to the **collection lifecycle**, not to each child-construction call.
@@ -48,9 +48,14 @@ For the native owner to count as `SOURCE_WIRED`:
 - an implementation that only calls collection wiring from `applyHeartbeatLight(...)` is **PARTIAL_UNSAFE** even if every marker is present, because it rewrites collection semantics as a per-child side effect and does not prove later selection refresh;
 - comments, literals, wrong methods, policy existence, or patch artifacts do not count as owner wiring.
 
-In-place content refresh may also reapply the helper because it is harmless and keeps delegate snapshots aligned, but it does not replace the required post-rebuild and post-selection lifecycle owners.
+Stable-structure in-place content refresh is **not a third required owner proof**. The collection metadata derives from current child order/identity plus the persistent selected id; those are already governed by structure rebuild and selection-refresh owners. Reapplying the helper during an in-place content refresh is allowed as a defensive synchronization step, but a source probe must not falsely downgrade an otherwise complete owner merely because a consequence/evidence-only refresh did not rebuild identical collection metadata.
 
-For the current minSdk 26 source contract, eventual owner implementation must use Android APIs available to that runtime. `AccessibilityNodeInfo.CollectionInfo.obtain(...)`, `CollectionItemInfo.obtain(...)`, and single-selection mode are API-21-compatible source shapes. Their presence still does not prove TalkBack runtime behavior.
+For the current minSdk 26 source contract, eventual owner implementation must use Android APIs available to that runtime. `AccessibilityNodeInfo.CollectionInfo.obtain(...)`, `CollectionItemInfo.obtain(...)`, and single-selection mode are API-21-compatible source shapes. Android now deprecates the pooling `obtain(...)` APIs in API 33 in favor of constructors added later; that deprecation is **not** permission to raise the runtime floor or add version-branch churn to a minSdk-26 owner. Prefer the oldest correct runtime-compatible shape until the build/runtime contract changes deliberately. Deprecation status does not prove runtime TalkBack behavior either.
+
+## Broad-doctrine convergence scar
+`skills/heartbeat-skill-lights/SKILL.md` still contains older prose permitting `aria-pressed` for this persistent one-of-many light set even though the current specimen and specialized doctrine use radio semantics. That broad sentence is stale and must not outrank this skill or `persistent-selection-semantics`.
+
+Current status: **REVISE_REQUIRED / BROAD DOCTRINE NOT YET CONVERGED**. An exact base-blob-locked correction plus regression should remove the stale permission rather than leaving two accessibility contracts in the same repository.
 
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
@@ -64,11 +69,11 @@ Keep these separate:
 
 A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not runtime TalkBack proof.
 
-## Current PR #329 truth — 2026-08-21 21:01 CT
+## Current PR #329 truth — 2026-08-21 22:02 CT
 - persistent-selection reusable doctrine: **YES**;
 - corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
 - `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES**;
-- Android horizontal geometry Regnet correction: **APPLIED SOURCE YES**;
+- Android framework horizontal geometry review: **ROWS=N / COLUMNS=1 RETAINED**;
 - deterministic JUnit source: **YES / UNEXECUTED**;
 - direct-owner source probe: **v2 / SOURCE YES / UNEXECUTED**;
 - hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
@@ -76,6 +81,7 @@ A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not
 - authenticated owner base blob for that surgery: `c5de1411a6b68087ae17aff83c032af754587150`;
 - current native owner selected-state lifecycle: **YES / SOURCE**;
 - native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
+- broad heartbeat doctrine radio/toggle wording: **STALE / REVISE_REQUIRED**;
 - TESTED / runtime UI / runtime TalkBack / deployed / phone delivered / accepted: **NO**.
 
 ## P0 / phone firewall
