@@ -10,6 +10,8 @@ def wrap(body: str) -> str:
 def main() -> int:
     selected_only = wrap(
         "private void applyHeartbeatLight(Button light, Object control) { light.setSelected(true); }\n"
+        "private void refreshHeartbeatSelection() { child.setSelected(true); }\n"
+        "private void rebuildHeartbeatLights(Object model) { }\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) { }"
     )
     result = classify(selected_only)
@@ -21,8 +23,16 @@ def main() -> int:
     wired = wrap(
         "private void applyHeartbeatLight(Button light, Object control) {\n"
         "  light.setSelected(true);\n"
+        "}\n"
+        "private void rebuildHeartbeatLights(Object model) {\n"
+        "  createHeartbeatLight(control);\n"
         "  applyHeartbeatSelectionAccessibility(model);\n"
         "}\n"
+        "private void refreshHeartbeatSelection() {\n"
+        "  child.setSelected(true);\n"
+        "  applyHeartbeatSelectionAccessibility(currentHeartbeatModel());\n"
+        "}\n"
+        "private Object currentHeartbeatModel() { return model; }\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) {\n"
         "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId);\n"
         "  heartbeatLights.setAccessibilityDelegate(delegate);\n"
@@ -34,6 +44,29 @@ def main() -> int:
     result = classify(wired)
     assert result["nativePersistentSelection"]["status"] == "SOURCE_WIRED"
 
+    # A per-light-only implementation repeatedly rewrites collection semantics while children are
+    # being created and does not prove selected item metadata refreshes after a later selection.
+    per_light_only = wrap(
+        "private void applyHeartbeatLight(Button light, Object control) {\n"
+        "  light.setSelected(true);\n"
+        "  applyHeartbeatSelectionAccessibility(model);\n"
+        "}\n"
+        "private void rebuildHeartbeatLights(Object model) { createHeartbeatLight(control); }\n"
+        "private void refreshHeartbeatSelection() { child.setSelected(true); }\n"
+        "private void applyHeartbeatSelectionAccessibility(Object model) {\n"
+        "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId);\n"
+        "  heartbeatLights.setAccessibilityDelegate(delegate);\n"
+        "  AccessibilityNodeInfo.CollectionInfo.obtain(d.rowCount, d.columnCount, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
+        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(item.rowIndex, 1, item.columnIndex, 1, false, item.selected);\n"
+        "  boolean selected = item.selected;\n"
+        "}"
+    )
+    result = classify(per_light_only)
+    seam = result["nativePersistentSelection"]
+    assert seam["status"] == "PARTIAL_UNSAFE"
+    assert "per-light side effect" in seam["reason"]
+    assert "selection-change collection refresh" in seam["reason"]
+
     # Counterfeit markers inside comments/literals must not become owner wiring.
     counterfeit = wrap(
         "private void applyHeartbeatLight(Button light, Object control) {\n"
@@ -41,6 +74,8 @@ def main() -> int:
         "  // applyHeartbeatSelectionAccessibility(model);\n"
         "  String fake = \"HeartbeatSelectionAccessibilityPolicy.fromModel AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain rowCount columnCount rowIndex columnIndex selected\";\n"
         "}\n"
+        "private void rebuildHeartbeatLights(Object model) { }\n"
+        "private void refreshHeartbeatSelection() { child.setSelected(true); }\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) { }"
     )
     result = classify(counterfeit)
@@ -49,6 +84,8 @@ def main() -> int:
     # A perfect-looking collection implementation in the wrong owner method must not count.
     wrong_method = wrap(
         "private void applyHeartbeatLight(Button light, Object control) { light.setSelected(true); }\n"
+        "private void rebuildHeartbeatLights(Object model) { }\n"
+        "private void refreshHeartbeatSelection() { child.setSelected(true); }\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) { }\n"
         "private void unrelated() {\n"
         "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId);\n"
@@ -62,7 +99,7 @@ def main() -> int:
     assert result["nativePersistentSelection"]["status"] == "PARTIAL_UNSAFE"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-heartbeat-selection-owner-probe.v1"
+    assert result["schema"] == "try-forever-heartbeat-selection-owner-probe.v2"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
@@ -75,7 +112,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Heartbeat persistent-selection owner evidence boundaries: PASS")
+    print("Heartbeat persistent-selection owner lifecycle evidence boundaries: PASS")
     return 0
 
 
