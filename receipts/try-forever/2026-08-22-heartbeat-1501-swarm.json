@@ -1,0 +1,67 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-22T15:01:32-05:00",
+  "reviewedSourceHead": "570ae4b31403e75de1a969fe27784d7b28793d68",
+  "lights": {
+    "failureIsTheShovel": {"state":"LIT","changed":"Used the preserved cleanup-close wound instead of retrying CI."},
+    "canonAutoSelect": {"state":"LIT","changed":"Selected descriptor custody, accessibility/touch, evidence truth, Regnet, Venice, and recovery/idempotence as material organs."},
+    "autocorrectJudgmentJar": {"state":"DARK","why":"No material speech/autocorrect ambiguity in this source slice."},
+    "originalityTax": {"state":"LIT","changed":"Changed failure ownership semantics rather than repeating open/enumerate/stat work."},
+    "hungerEatEverything": {"state":"LIT","changed":"Propagated cleanup truth into source, hostile fixtures, skill doctrine, and the existing Warm Wall."},
+    "operatorCampaignHarroway": {"state":"LIT","changed":"Stayed inside the existing descriptor source and portable v10 owner boundary; no duplicate owner/controller."},
+    "sheRaw": {"state":"FAULT","why":"Authoritative ambient consultation returned account-connection HTTP 400; no substitute verdict."},
+    "veniceJudgment": {"state":"LIT","changed":"Allowed only the bounded source slice to yield; owner integration/test/runtime/campaign remain open."},
+    "regnetQA": {"state":"LIT","changed":"Bounded the claim to supporting source/readback and preserved regression/test/runtime NO states."},
+    "accessibilityTouch": {"state":"LIT","changed":"Existing non-raster custody wall gained a touch-inspectable cleanup failure-ownership state."},
+    "phoneRuntimePhoneHands": {"state":"DARK_FIREWALL","why":"P0/phone surface untouched by binding firewall."},
+    "deterministicRouting": {"state":"LIT","changed":"Root/scan/artifact close failures now enter one typed cleanup boundary when primary."},
+    "evidenceCapabilityDiscipline": {"state":"LIT","changed":"Supporting source, regression source, TESTED, owner integration, runtime, delivery and acceptance remain distinct."},
+    "recoveryCheckpointIdempotence": {"state":"LIT","changed":"Explicit root descriptor ownership is retired before close; a failed close is not retried against a possibly recycled fd."},
+    "contactPreservation": {"state":"LIT","changed":"Cleanup failure cannot mask the earlier body/inventory/artifact wound already owning the failure path."},
+    "warmWallsVectorDom": {"state":"LIT","changed":"Mutated the existing DOM/inline-SVG custody organism in place; no new artifact family."},
+    "christmasLightSceneGraph": {"state":"DARK","why":"Cleanup/evidence plumbing is not a runtime semantic transition and earns no decorative motion."}
+  },
+  "frontsAdvanced": [
+    "descriptor cleanup-close supporting source",
+    "root/scan/artifact hostile cleanup regression source",
+    "descriptor custody repository skill doctrine",
+    "existing touchable non-raster custody Warm Wall",
+    "authenticated code-first source slice/readback",
+    "exact-head workflow evidence and TESTED membrane"
+  ],
+  "crossPollination": "Raw cleanup close channels -> primary-vs-secondary failure ownership -> fd retirement before explicit root close -> hostile root/scan/artifact fixtures -> durable descriptor doctrine -> touchable custody wall -> Regnet/Venice capability membrane.",
+  "executionTruth": {
+    "operatorOverlayAndroid": {"runId":32595661541,"status":"completed","conclusion":"failure"},
+    "homeCenterCI": {"runId":32595661603,"status":"completed","conclusion":"failure"},
+    "buildAndroid": {"runId":32595661529,"status":"completed","conclusion":"failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "cleanupCloseTyped": true,
+    "primaryFailurePreserved": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorOwnerIntegrated": false,
+    "atomicRootBinding": false,
+    "atomicCandidateBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
