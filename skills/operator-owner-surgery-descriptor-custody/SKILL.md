@@ -20,6 +20,10 @@ This skill owns one source/evidence distinction. It does **not** own a second cu
 
 `INVENTORY I/O FAILURE != PARTIAL CANDIDATE AUTHORITY`.
 
+`CLEANUP CLOSE FAILURE != PERMISSION TO MASK AN EARLIER PRIMARY CUSTODY WOUND`.
+
+`CLOSE FAILED AS PRIMARY FAILURE != RAW OS ERROR ESCAPING THE CUSTODY DOMAIN`.
+
 A root opened once with `O_DIRECTORY|O_NOFOLLOW` and then used through descriptor-relative scan/open/stat cannot be silently redirected by replacing the **root pathname after the descriptor is held**. That is materially stronger than a pre/post pathname bracket.
 
 A candidate whose no-follow identity is captured during held-root enumeration can also reject **persistent replacement between enumeration and the later authority-facing stat/open/read**. It still does not prove:
@@ -63,7 +67,10 @@ It:
 14. requires the still-held directory name to identify the same regular-file object after the read;
 15. contains authority-facing pre-stat/open/read/post-stat OS failures inside bounded `DescriptorArtifactCustodyError` boundaries rather than leaking raw `OSError` subclasses;
 16. decodes strict UTF-8 and converts malformed text into bounded `DescriptorArtifactCustodyError` rather than leaking `UnicodeDecodeError` outside the custody domain;
-17. returns exact SHA-256 evidence only with the admitted observation.
+17. returns exact SHA-256 evidence only with the admitted observation;
+18. retires root descriptor ownership before explicit close so a failed `close(2)` cannot invite a dangerous retry against a descriptor number the kernel may already have recycled;
+19. converts a primary root/scan/artifact close failure to bounded `DescriptorCustodyCleanupError` rather than leaking raw `OSError`;
+20. preserves an earlier body/inventory/artifact exception when cleanup close also fails, so cleanup cannot replace the more informative primary custody wound.
 
 `candidate_inventory(...)` is the full evidence-bearing source surface. `candidate_entries(...)` and `candidate_names(...)` remain compatibility projections.
 
@@ -95,8 +102,12 @@ The 12:57 review deliberately left `candidate_inventory(...)` with raw `os.open(
 ### Review scar: root setup failure cannot masquerade as a usable held root
 The same review found root construction still leaked raw `os.open`/`os.fstat` failures before `root_identity` existed. The current supporting source converts those setup failures to `PosixDirectoryHandleCustodyUnavailable`, tears down any partially opened descriptor without masking the original setup wound, and leaves no half-initialized custody object as authority.
 
-### Next exact wound: scan cleanup can still be a separate failure channel
-`candidate_inventory(...)` still closes the fresh scan fd in `finally` with raw `os.close(scan_fd)`. A close failure can therefore become a raw cleanup exception and, in the worst combined case, can mask an earlier typed inventory rejection. This is **not** being silently folded into the completed open/scandir/stat slice. It remains a distinct future source target; no TESTED or owner-integration claim depends on it being solved now.
+### Review scar: cleanup owns failure only when cleanup is primary
+The 14:02 checkpoint preserved raw close channels on the fresh scan descriptor, artifact descriptor, and explicit held-root close. A scan/artifact close failure could leak raw `OSError`; worse, a cleanup failure in `finally` could mask the actual typed inventory/artifact wound that triggered cleanup.
+
+The current supporting source centralizes owned-descriptor close semantics. If close is the only failure, it becomes bounded `DescriptorCustodyCleanupError`. If a body/inventory/artifact exception is already propagating, close failure is suppressed so the primary wound remains the exception observed by the caller. Explicit root close also retires `self.fd` before the syscall; a failed close is not retried through a potentially recycled descriptor number.
+
+This is failure-ownership hardening only. It does **not** prove the kernel completed close, universal close semantics, canonical-owner integration, regression execution, or atomic filesystem binding.
 
 ## Regression source
 `tools/test_try_forever_posix_directory_handle_custody.py` — **UNEXECUTED**.
@@ -124,6 +135,14 @@ It includes:
 - candidate `DirEntry.stat` failure → typed inventory rejection;
 - caller `is_candidate` failure remains a caller/programmer failure and is not laundered into an I/O custody wound.
 
+`tools/test_try_forever_posix_directory_handle_cleanup_failures.py` — **UNEXECUTED** — adds focused source fixtures for:
+- explicit held-root close failure → typed cleanup rejection and retired root descriptor ownership;
+- root close failure during a body exception → body exception remains primary;
+- scan-handle close failure after a successful inventory → typed cleanup rejection;
+- scan-handle close failure during an inventory rejection → inventory rejection remains primary;
+- artifact close failure after an otherwise successful observation → typed cleanup rejection;
+- artifact close failure during an artifact rejection → artifact rejection remains primary.
+
 `tools/test_try_forever_directory_handle_binding_capability.py` is also **UNEXECUTED** and pins descriptor-relative no-follow stat as a required primitive.
 
 ## Canonical owner relationship
@@ -139,7 +158,10 @@ Descriptor-bound custody is currently:
 - typed inventory open/enumeration/stat I/O failure containment **YES / SUPPORTING SOURCE**;
 - typed artifact filesystem-I/O failure containment **YES / SUPPORTING SOURCE**;
 - strict UTF-8 typed rejection **YES / SUPPORTING SOURCE**;
+- typed root/scan/artifact cleanup-close containment **YES / SUPPORTING SOURCE**;
+- cleanup primary-failure preservation **YES / SUPPORTING SOURCE**;
 - focused root/inventory I/O regression source **YES / UNEXECUTED**;
+- focused cleanup-close regression source **YES / UNEXECUTED**;
 - canonical v10 owner consumption **NO**;
 - atomic root binding **NO**;
 - atomic candidate binding **NO**;
@@ -157,4 +179,4 @@ This skill consumes no Phone Hands ticket, primary-phone command, recovery queue
 ## Capability membrane
 `requested → supporting source → authenticated source readback → regression source → regression executed → canonical owner composition → authenticated owner readback → TESTED → runtime → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 14:02 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · typed root setup I/O containment **YES / SUPPORTING SOURCE** · typed inventory I/O containment **YES / SUPPORTING SOURCE** · typed artifact filesystem-I/O containment **YES / SUPPORTING SOURCE** · strict UTF-8 typed rejection **YES / SUPPORTING SOURCE** · focused root/inventory I/O regression source **YES / UNEXECUTED** · scan-close cleanup containment **NO / NEXT WOUND** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Current state at 2026-08-22 15:01 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · typed root setup I/O containment **YES / SUPPORTING SOURCE** · typed inventory I/O containment **YES / SUPPORTING SOURCE** · typed artifact filesystem-I/O containment **YES / SUPPORTING SOURCE** · strict UTF-8 typed rejection **YES / SUPPORTING SOURCE** · typed cleanup-close containment **YES / SUPPORTING SOURCE** · primary-failure preservation across cleanup **YES / SUPPORTING SOURCE** · focused root/inventory I/O regression source **YES / UNEXECUTED** · focused cleanup-close regression source **YES / UNEXECUTED** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
