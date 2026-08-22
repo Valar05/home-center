@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedSourceHead": "1415ed1821fc3525de21f8b5073fa38d4f9c9fee",
+  "scope": "owner-surgery custody probe v2 + regression source + skill convergence + promotion plan + touchable source organism",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__REGRESSION_UNEXECUTED__OWNER_UNMUTATED__TESTED_NO",
+  "checks": [
+    {
+      "name": "authenticated-current-owner distinction",
+      "result": "PASS",
+      "detail": "Probe v2 distinguishes current-base collision sets from stale-base and unverified-base groups using caller-supplied authenticated owner custody."
+    },
+    {
+      "name": "fail-closed promotion readiness",
+      "result": "PASS",
+      "detail": "No current owner blob means no current-base collision claim; stale base remains non-promotion-ready source provenance."
+    },
+    {
+      "name": "regression coverage source",
+      "result": "PASS_SOURCE_ONLY",
+      "detail": "Fixture covers current collision, stale group, unverified group, owner movement, and rejected/superseded/applied exclusions. It has not executed."
+    },
+    {
+      "name": "promotion-plan evidence discipline",
+      "result": "PASS_AFTER_CORRECTION",
+      "detail": "Initial plan overclaimed a complete collision set before probe execution. It was corrected to a known set with provisional ordering and an explicit exhaustive-probe precondition."
+    },
+    {
+      "name": "duplicate architecture",
+      "result": "PASS",
+      "detail": "No second overlay/controller/patch executor/phone lane/P0 coordinator was created."
+    },
+    {
+      "name": "capability membrane",
+      "result": "PASS",
+      "detail": "Source/readback is not TESTED/runtime/deployed/delivered/accepted evidence."
+    }
+  ],
+  "owner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "authenticatedBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "mutatedThisSlice": false
+  },
+  "execution": {
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
