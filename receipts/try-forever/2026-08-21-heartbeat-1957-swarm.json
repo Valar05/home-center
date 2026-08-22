@@ -1,0 +1,110 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "pulse": "2026-08-21T19:57:00-05:00",
+  "startHead": "8a7712825da10e8d9566d10172407e282b193f02",
+  "sourceHeadReviewed": "e39ba29ab6b8312b1655f27a8f45bc698a3375d0",
+  "mission": "Advance broad non-P0 heartbeat work with material skill lights and no duplicate owner architecture.",
+  "fronts": [
+    {
+      "name": "persistent_dom_selection",
+      "advanced": true,
+      "result": "Existing heartbeat DOM specimen repaired from persistent aria-pressed toggle semantics to direct-child radiogroup/radio + aria-checked + roving tabindex + Arrow/Home/End selection."
+    },
+    {
+      "name": "native_selection_collection_policy",
+      "advanced": true,
+      "result": "Pure Java policy + JUnit source define one persistent native selection collection. Regnet corrected horizontal Android geometry to rows=itemCount, columns=1."
+    },
+    {
+      "name": "native_owner_evidence",
+      "advanced": true,
+      "result": "Direct-owner probe and hostile fixture distinguish selected-state-only PARTIAL_UNSAFE from selected-state plus native collection/item semantics. Intentionally RED actual-owner boundary added."
+    },
+    {
+      "name": "skill_harvest",
+      "advanced": true,
+      "result": "Added heartbeat-native-selection-collection and updated persistent-selection-semantics to make persistent one-of-many selection explicitly non-toggle."
+    },
+    {
+      "name": "warm_wall_source_art",
+      "advanced": true,
+      "result": "Existing source specimen mutated in place; no raster, no autoplay, no decorative blink, source-only capability scar retained."
+    },
+    {
+      "name": "review_evidence",
+      "advanced": true,
+      "result": "Regnet review and same-worker Venice completion persisted; She-Raw attempted once and fault preserved; execution evidence kept commit-bound."
+    }
+  ],
+  "selfCorrections": [
+    "Android horizontal collection was initially modeled as one row/many columns; platform review corrected it to rows=itemCount/columns=1.",
+    "First radio repair left list wrappers between radiogroup and radios; corrected to direct radio children and pinned by source regression."
+  ],
+  "changedPathsFromStartToSourceHead": 10,
+  "sourceArtifacts": {
+    "selectionPolicyBlob": "98dbc2350fd62e8233955b05a57dd1b33a6ef67d",
+    "selectionPolicyTestBlob": "31e44cf316af47fefe128d34ebf9e9a49218acfd",
+    "ownerProbeBlob": "e46c1608e677723ae58f82ab04d56421899bedd3",
+    "ownerProbeTestBlob": "f6d1a6749509d8d45444f945b2e73f81ee2e161f",
+    "ownerRedBoundaryBlob": "016549dc6e53b7299d47fa753064c584c994882a",
+    "selectionSkillBlob": "b117783109edd19366597dc4042a3d7d2b5ef2d5",
+    "persistentSelectionSkillBlob": "ad38517ea15abbf9a35268cc588b62b8e9139011",
+    "domSpecimenBlob": "b6584edc87a253e1e797f6e653a96def92cafcce",
+    "domRegressionBlob": "8dbe62b3213e1fdb4abf2f76a64f6a56e8e85554",
+    "nativeOwnerBlobUnchanged": "c5de1411a6b68087ae17aff83c032af754587150"
+  },
+  "lights": [
+    {"id":"failure-is-the-shovel","state":"RECOVERED","consequence":"Two flawed first repairs were replaced with materially different corrected structures."},
+    {"id":"originality-tax","state":"ACTIVE","consequence":"No retry of the same CI failure and no repeated aria-pressed selection implementation."},
+    {"id":"canon-auto-select","state":"ACTIVE","consequence":"persistent-selection-semantics and the new heartbeat-native-selection-collection skill governed this pulse."},
+    {"id":"hunger-eat-everything","state":"ACTIVE","consequence":"Doctrine, source art, native source, hostile evidence, and review were converged instead of leaving a one-file patch."},
+    {"id":"accessibility-talkback-touch","state":"ACTIVE","consequence":"Persistent selection now matches one-of-many semantics in the source specimen; native collection semantics gained a source contract."},
+    {"id":"regnet-qa","state":"RECOVERED","consequence":"Caught and corrected Android collection geometry and radiogroup ownership defects."},
+    {"id":"she-raw","state":"FAULT","consequence":"Authoritative connector returned account-connection HTTP 400; no synthetic substitute used."},
+    {"id":"execution-truth","state":"BLOCKED","consequence":"Automatic Operator Overlay run failed with zero exposed steps and 404 logs; TESTED remains NO."},
+    {"id":"phone-runtime-phone-hands","state":"DARK","consequence":"P0/phone firewall forbade consumption; no execution surface used."},
+    {"id":"autocorrect-judgment-jar","state":"DARK","consequence":"No material ambiguity required resolution."},
+    {"id":"christmas-motion","state":"DARK","consequence":"Selection/source semantics did not earn a new heartbeat transition or decorative motion rule."}
+  ],
+  "executionTruth": {
+    "executionHead": "2ef05c06046c283f8bef42ff90c7030fa0d17d60",
+    "homeCenterCiRun": 32542526525,
+    "operatorOverlayRun": 32542526504,
+    "operatorOverlayJob": 96955138019,
+    "buildAndroidRun": 32542526508,
+    "operatorSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "knownOpenWounds": [
+    "Native OperatorOverlayService selection remains selected-state-only; explicit collection/item owner wiring is PARTIAL_UNSAFE.",
+    "The large heartbeat-skill-lights doctrine still contains stale aria-pressed persistent-selection wording. Specialized persistent-selection skills supersede it, but full cleanup remains open.",
+    "All new regression sources are unexecuted; runtime UI/TalkBack/deployment/delivery/acceptance remain unproven."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "nativeOwnerCollectionWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
