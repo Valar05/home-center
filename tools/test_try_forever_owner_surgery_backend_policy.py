@@ -181,11 +181,11 @@ def main() -> int:
     expect_rejected(
         descriptor,
         complete_result(
-            collisionSets=[{"owner": "x"}],
+            collisionSets=[collision_group()],
             discoveryErrors=[{"boundary": "artifact wounded"}],
             evidenceComplete=False,
         ),
-        "entries must be mappings" if False else "partial promotion authority",
+        "partial promotion authority",
     )
     expect_rejected(
         descriptor,
