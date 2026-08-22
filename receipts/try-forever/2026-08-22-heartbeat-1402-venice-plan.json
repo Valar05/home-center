@@ -1,0 +1,24 @@
+{
+  "heartbeat": "2026-08-22T14:02:57-05:00",
+  "reviewer": "VENICE_JUDGMENT_JAR_SAME_WORKER",
+  "phase": "PRE_MUTATION_PLAN_REVIEW",
+  "verdict": "PLAN_ALLOWED",
+  "why": [
+    "The next source wound is authenticated on PR #329: candidate_inventory still leaks raw authority-facing I/O failures.",
+    "The adjacent HeldDirectoryCustody root-open/fstat failure channel is independently bounded and does not require P0/phone execution.",
+    "The plan composes existing custody organs, hostile source fixtures, the existing descriptor skill, and the existing non-raster custody wall; it creates no neighboring controller, recovery daemon, phone ingress path, or P0 coordinator.",
+    "The plan preserves descriptor canonical-owner integration NO, atomicity NO, regression execution NO, TESTED NO, runtime NO, deployment NO, delivery NO, and acceptance NO unless separately evidenced."
+  ],
+  "adversarial_checks": [
+    "Do not catch caller policy exceptions from is_candidate as custody I/O wounds; only authority-facing OS failures are in scope.",
+    "Do not return partial inventory after any scan/open/stat failure.",
+    "Do not weaken strict UTF-8, identity, entry/candidate budgets, or portable v10 evidence fields.",
+    "Do not use art as runtime proof and do not add decorative motion."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substitute_verdict_invented": false
+  },
+  "gate": "PLAN_ALLOWED__P0_PHONE_FIREWALL_BINDING"
+}
