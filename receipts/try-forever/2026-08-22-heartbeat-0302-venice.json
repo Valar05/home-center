@@ -1,0 +1,23 @@
+{
+  "schema": "try-forever-venice.v1",
+  "sourceHead": "293f40ecddc2f76345166860b2b0f1c5e85126f8",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "basis": [
+    "mission stayed inside non-P0 repository/source scope",
+    "duplicate architecture law held; existing finite-artifact observer was composed rather than cloned",
+    "the first incomplete glob-based correction was preserved as a process scar and replaced before completion",
+    "touchable source organism changed only because evidence topology materially changed",
+    "source/test/runtime/deployment/delivery states remain separate"
+  ],
+  "reviewerSurface": {
+    "sheRawAttempted": true,
+    "sheRawResult": "HTTP_400_ACCOUNT_CONNECTION",
+    "syntheticSheRawUsed": false
+  },
+  "openWounds": [
+    "regression source is unexecuted",
+    "patches root redirector/replacement custody is not yet proven",
+    "automatic workflows failed without an authenticated step-level cause",
+    "runtime UI/TalkBack/phone delivery remain unproven"
+  ]
+}
