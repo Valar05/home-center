@@ -1,0 +1,36 @@
+{
+  "schema": "try-forever-venice.v1",
+  "pulse": "2026-08-22T04:57:00-05:00",
+  "sourceHeadReviewed": "d5945a8c1c583dd0d2579a1d17cce18c5e7ceb3d",
+  "planGate": "PLAN_ALLOWED",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__PATCH_APPLICATION_REGRESSION_EXECUTION_ATOMIC_BINDING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "sourceProgress": "PASS",
+    "missionBoundary": "PASS",
+    "duplicateArchitecture": "PASS",
+    "accessibilityTouchSource": "PASS",
+    "evidenceLaundering": "PASS",
+    "v8OwnerProbeImplemented": "NO",
+    "regressionExecuted": "NO",
+    "tested": "NO",
+    "atomicRootBinding": "NO"
+  },
+  "why": "The pulse advances a distinct deterministic custody gap with a base-locked unapplied patch, RED regression source, durable skill doctrine, and an in-place non-raster custody organism. It preserves the current v7 probe as current source truth, refuses to call repeated pathname observations atomic, and does not trespass on the phone/P0 chain.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "executionBoundary": {
+    "computerHandsOnline": false,
+    "queueDepth": 4,
+    "duplicateRequestCreated": false,
+    "canonicalProbeMutation": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}
