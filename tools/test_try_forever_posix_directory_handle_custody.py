@@ -7,7 +7,6 @@ existence is not execution, TESTED, runtime, deployment, phone delivery, or acce
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -65,6 +64,25 @@ def test_candidate_enumeration_stays_on_held_root_after_path_replacement(tmp_pat
             max_candidates=8,
         )
         assert names == ("try-forever-a.patch",)
+
+
+def test_repeated_candidate_scans_get_fresh_directory_position(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    (root / "try-forever-a.patch").write_text("a", encoding="utf-8")
+    (root / "try-forever-b.patch").write_text("b", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        kwargs = dict(
+            is_candidate=lambda name: name.startswith("try-forever-") and name.endswith(".patch"),
+            max_entries=32,
+            max_candidates=8,
+        )
+        first = held.candidate_names(**kwargs)
+        second = held.candidate_names(**kwargs)
+        assert first == ("try-forever-a.patch", "try-forever-b.patch")
+        assert second == first
 
 
 def test_symlink_artifact_is_rejected_relative_to_held_root(tmp_path: Path):
