@@ -138,17 +138,17 @@ def test_candidate_stat_failure_is_typed_inventory_rejection(tmp_path: Path, mon
             )
 
 
-def test_candidate_policy_failure_is_not_laundered_into_io_custody_error(tmp_path: Path):
+def test_candidate_policy_oserror_is_not_laundered_into_io_custody_error(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
     root.mkdir()
     (root / "try-forever-a.patch").write_text("a", encoding="utf-8")
 
     def fail_policy(_name: str) -> bool:
-        raise RuntimeError("caller policy failed")
+        raise OSError("caller policy failed")
 
     with HeldDirectoryCustody(root) as held:
-        with pytest.raises(RuntimeError, match="caller policy failed"):
+        with pytest.raises(OSError, match="caller policy failed"):
             held.candidate_inventory(
                 is_candidate=fail_policy,
                 max_entries=32,
