@@ -14,6 +14,8 @@ def test_posix_with_all_required_primitives_is_source_ready_only():
         os_name="posix",
         scandir_accepts_fd=True,
         open_accepts_dir_fd=True,
+        stat_accepts_dir_fd=True,
+        stat_accepts_follow_symlinks=True,
         has_o_directory=True,
         has_o_nofollow=True,
     )
@@ -26,6 +28,8 @@ def test_non_posix_never_inherits_posix_atomicity_claim():
         os_name="nt",
         scandir_accepts_fd=True,
         open_accepts_dir_fd=True,
+        stat_accepts_dir_fd=True,
+        stat_accepts_follow_symlinks=True,
         has_o_directory=True,
         has_o_nofollow=True,
     )
@@ -34,10 +38,12 @@ def test_non_posix_never_inherits_posix_atomicity_claim():
 
 def test_each_missing_primitive_fails_closed():
     cases = (
-        dict(scandir_accepts_fd=False, open_accepts_dir_fd=True, has_o_directory=True, has_o_nofollow=True),
-        dict(scandir_accepts_fd=True, open_accepts_dir_fd=False, has_o_directory=True, has_o_nofollow=True),
-        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, has_o_directory=False, has_o_nofollow=True),
-        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, has_o_directory=True, has_o_nofollow=False),
+        dict(scandir_accepts_fd=False, open_accepts_dir_fd=True, stat_accepts_dir_fd=True, stat_accepts_follow_symlinks=True, has_o_directory=True, has_o_nofollow=True),
+        dict(scandir_accepts_fd=True, open_accepts_dir_fd=False, stat_accepts_dir_fd=True, stat_accepts_follow_symlinks=True, has_o_directory=True, has_o_nofollow=True),
+        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, stat_accepts_dir_fd=False, stat_accepts_follow_symlinks=True, has_o_directory=True, has_o_nofollow=True),
+        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, stat_accepts_dir_fd=True, stat_accepts_follow_symlinks=False, has_o_directory=True, has_o_nofollow=True),
+        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, stat_accepts_dir_fd=True, stat_accepts_follow_symlinks=True, has_o_directory=False, has_o_nofollow=True),
+        dict(scandir_accepts_fd=True, open_accepts_dir_fd=True, stat_accepts_dir_fd=True, stat_accepts_follow_symlinks=True, has_o_directory=True, has_o_nofollow=False),
     )
     for case in cases:
         verdict = classify_directory_handle_binding_capability(os_name="posix", **case)
