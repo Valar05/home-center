@@ -262,7 +262,9 @@ class HeldDirectoryCustody:
         The candidate is no-follow stat'ed relative to the held root, optionally required to match
         the identity captured during held-root enumeration, opened relative to the same descriptor
         with O_NOFOLLOW, read completely within the byte budget, then revalidated both through the
-        open descriptor and through the still-held directory descriptor.
+        open descriptor and through the still-held directory descriptor. Strict UTF-8 is part of
+        custody admission; malformed bytes fail through DescriptorArtifactCustodyError rather than
+        escaping as a raw decoder exception.
         """
 
         name = _require_simple_name(name)
@@ -342,9 +344,15 @@ class HeldDirectoryCustody:
                 )
 
             raw = b"".join(chunks)
+            try:
+                utf8_text = raw.decode("utf-8", errors="strict")
+            except UnicodeDecodeError:
+                raise DescriptorArtifactCustodyError(
+                    "candidate content is not strict UTF-8"
+                ) from None
             return DescriptorArtifactObservation(
                 name=name,
-                utf8_text=raw.decode("utf-8", errors="strict"),
+                utf8_text=utf8_text,
                 byte_count=total,
                 sha256=digest.hexdigest(),
                 identity=opened_identity,
