@@ -3,8 +3,8 @@
 
 This organ strengthens *root* custody when the local Python/OS surface exposes the required POSIX
 primitives. It opens the named directory once with O_DIRECTORY|O_NOFOLLOW, keeps that descriptor as
-the authority root, enumerates through the held descriptor, and opens candidate names relative to
-that same descriptor.
+the authority root, enumerates through fresh descriptor-relative directory handles, and opens
+candidate names relative to that same held authority root.
 
 It deliberately does not claim universal filesystem atomicity. A held root descriptor prevents a
 later replacement of the root pathname from redirecting subsequent descriptor-relative work, but
@@ -79,6 +79,13 @@ def _require_simple_name(name: str) -> str:
     return name
 
 
+def _directory_open_flags() -> int:
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    return flags
+
+
 class HeldDirectoryCustody:
     """One held POSIX directory descriptor and bounded descriptor-relative operations."""
 
@@ -87,11 +94,8 @@ class HeldDirectoryCustody:
         if capability.status != "SUPPORTED_POSIX_PRIMITIVES":
             raise PosixDirectoryHandleCustodyUnavailable(capability.boundary)
 
-        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-        if hasattr(os, "O_CLOEXEC"):
-            flags |= os.O_CLOEXEC
         self.path = Path(path)
-        self.fd = os.open(os.fspath(self.path), flags)
+        self.fd = os.open(os.fspath(self.path), _directory_open_flags())
         try:
             opened = os.fstat(self.fd)
             if not stat.S_ISDIR(opened.st_mode):
@@ -126,25 +130,37 @@ class HeldDirectoryCustody:
         max_entries: int,
         max_candidates: int,
     ) -> tuple[str, ...]:
+        """Enumerate through a fresh descriptor-relative directory handle.
+
+        A new `open(".", dir_fd=self.fd)` is intentional. Directory descriptors can carry stream
+        position; reusing the authority descriptor directly for repeated scans can make later scans
+        depend on earlier enumeration. The fresh scan handle stays anchored to the held root while
+        giving each bounded inventory pass an independent directory position.
+        """
+
         if max_entries < 0 or max_candidates < 0:
             raise ValueError("custody budgets must be non-negative")
         entries_seen = 0
         candidates: list[str] = []
-        with os.scandir(self.fd) as entries:
-            for entry in entries:
-                entries_seen += 1
-                if entries_seen > max_entries:
-                    raise DescriptorArtifactCustodyError(
-                        f"held-directory scan exceeds {max_entries} entry budget"
-                    )
-                name = _require_simple_name(entry.name)
-                if not is_candidate(name):
-                    continue
-                candidates.append(name)
-                if len(candidates) > max_candidates:
-                    raise DescriptorArtifactCustodyError(
-                        f"held-directory candidate set exceeds {max_candidates} budget"
-                    )
+        scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
+        try:
+            with os.scandir(scan_fd) as entries:
+                for entry in entries:
+                    entries_seen += 1
+                    if entries_seen > max_entries:
+                        raise DescriptorArtifactCustodyError(
+                            f"held-directory scan exceeds {max_entries} entry budget"
+                        )
+                    name = _require_simple_name(entry.name)
+                    if not is_candidate(name):
+                        continue
+                    candidates.append(name)
+                    if len(candidates) > max_candidates:
+                        raise DescriptorArtifactCustodyError(
+                            f"held-directory candidate set exceeds {max_candidates} budget"
+                        )
+        finally:
+            os.close(scan_fd)
         candidates.sort()
         return tuple(candidates)
 
