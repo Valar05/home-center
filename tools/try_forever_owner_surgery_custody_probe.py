@@ -6,18 +6,18 @@ surgery into owner wiring. It exposes patch-order hazards when several unapplied
 target the same exact owner blob and binds that evidence to an authenticated current-owner blob
 when one is supplied.
 
-v5 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
-family. Every matching artifact must either become an admitted surgery record or a bounded
-``discoveryError``. Candidate enumeration is bounded before parsing, and artifact content reuses
-the existing hardened finite regular-file observation organ so redirectors/special files or
-replacement drift cannot silently become surgery authority or turn custody inspection into an
-unbounded wait.
+v6 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+family. Directory traversal and matching-candidate collection are independently bounded before
+parsing. Every admitted artifact reuses the existing hardened finite regular-file observation organ
+so redirectors/special files or replacement drift cannot silently become surgery authority or turn
+custody inspection into an unbounded wait.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -36,10 +36,7 @@ DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/opera
 DELTA_SCHEMA = "try-forever-owner-delta.v1"
 MAX_ARTIFACT_BYTES = 1_048_576
 MAX_CUSTODY_ARTIFACTS = 2_048
-ARTIFACT_PATTERNS = (
-    ("try-forever-*.patch", "patch"),
-    ("try-forever-*.delta.json", "delta_json"),
-)
+MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
@@ -75,6 +72,16 @@ def _promotion_candidate(state: str) -> bool:
     if any(token in upper for token in ("REJECTED", "SUPERSEDED", "APPLIED_SOURCE")):
         return False
     return "PROPOSED" in upper
+
+
+def _artifact_kind_for_name(name: str) -> str | None:
+    if not name.startswith("try-forever-"):
+        return None
+    if name.endswith(".delta.json"):
+        return "delta_json"
+    if name.endswith(".patch"):
+        return "patch"
+    return None
 
 
 def _read_bounded_utf8(path: Path) -> str:
@@ -128,34 +135,51 @@ def _discover_artifact_candidates(
     root: Path,
     *,
     max_candidates: int,
-) -> tuple[list[tuple[Path, str]], DiscoveryError | None, int]:
-    """Collect only a bounded patch+delta candidate set before any artifact parsing.
+    max_entries: int,
+) -> tuple[list[tuple[Path, str]], DiscoveryError | None, int, int]:
+    """Bound directory work and candidate storage before any artifact parsing.
 
-    Max+1 withholds the entire promotion inventory; the first N paths are not treated as a complete
-    set. ``max_candidates`` may be lowered by regression callers but may not exceed the canonical
-    production budget.
+    Every directory entry counts against ``max_entries`` even when it is unrelated to TRY FOREVER.
+    Every matching patch/delta counts against ``max_candidates``. Max+1 on either throat withholds
+    the entire promotion inventory; the first N paths are never treated as a complete authority set.
+    Regression callers may lower either budget but cannot raise the canonical production ceilings.
     """
 
     if max_candidates < 0 or max_candidates > MAX_CUSTODY_ARTIFACTS:
         raise ValueError(
             f"owner surgery candidate budget must be between 0 and {MAX_CUSTODY_ARTIFACTS}"
         )
+    if max_entries < 0 or max_entries > MAX_CUSTODY_DIRECTORY_ENTRIES:
+        raise ValueError(
+            f"owner surgery directory-entry budget must be between 0 and {MAX_CUSTODY_DIRECTORY_ENTRIES}"
+        )
 
     candidates: list[tuple[Path, str]] = []
+    entries_observed = 0
     try:
-        for pattern, artifact_kind in ARTIFACT_PATTERNS:
-            for path in root.glob(pattern):
-                candidates.append((path, artifact_kind))
+        with os.scandir(root) as entries:
+            for entry in entries:
+                entries_observed += 1
+                if entries_observed > max_entries:
+                    exc = ArtifactAdmissionError(
+                        f"owner surgery directory scan exceeds {max_entries} entry custody budget"
+                    )
+                    return [], _error(root, "artifact_inventory", exc), len(candidates), entries_observed
+
+                artifact_kind = _artifact_kind_for_name(entry.name)
+                if artifact_kind is None:
+                    continue
+                candidates.append((root / entry.name, artifact_kind))
                 if len(candidates) > max_candidates:
                     exc = ArtifactAdmissionError(
                         f"owner surgery candidate set exceeds {max_candidates} artifact custody budget"
                     )
-                    return [], _error(root, "artifact_inventory", exc), len(candidates)
+                    return [], _error(root, "artifact_inventory", exc), len(candidates), entries_observed
     except OSError as exc:
-        return [], _error(root, "artifact_inventory", exc), len(candidates)
+        return [], _error(root, "artifact_inventory", exc), len(candidates), entries_observed
 
     candidates.sort(key=lambda item: (item[0].as_posix(), item[1]))
-    return candidates, None, len(candidates)
+    return candidates, None, len(candidates), entries_observed
 
 
 def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
@@ -272,6 +296,7 @@ def classify(
     current_owner_blobs: dict[str, str] | None = None,
     *,
     max_candidates: int = MAX_CUSTODY_ARTIFACTS,
+    max_entries: int = MAX_CUSTODY_DIRECTORY_ENTRIES,
 ) -> dict[str, object]:
     current_owner_blobs = {
         owner: blob.lower()
@@ -280,9 +305,10 @@ def classify(
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
 
-    candidates, inventory_error, candidates_observed = _discover_artifact_candidates(
+    candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
         root,
         max_candidates=max_candidates,
+        max_entries=max_entries,
     )
     if inventory_error is not None:
         discovery_errors.append(inventory_error)
@@ -344,11 +370,13 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v5",
+        "schema": "try-forever-owner-surgery-custody.v6",
         "artifactKindsScanned": ["patch", "delta_json"],
         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
         "artifactCandidateBudget": max_candidates,
         "artifactCandidatesObserved": candidates_observed,
+        "artifactDirectoryEntryBudget": max_entries,
+        "artifactDirectoryEntriesObserved": entries_observed,
         "surgeries": [asdict(item) for item in surgeries],
         "discoveryErrors": [asdict(item) for item in discovery_errors],
         "evidenceComplete": not discovery_errors,
@@ -360,6 +388,7 @@ def classify(
             "sourceInspection": True,
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
+            "boundedArtifactDirectoryScan": True,
             "boundedArtifactCandidateSet": True,
             "boundedArtifactRead": True,
             "finiteRegularArtifactCustody": True,
