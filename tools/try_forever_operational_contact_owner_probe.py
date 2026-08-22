@@ -109,12 +109,15 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
     mode_refresh = "refreshAdamSendAvailability(" in mode
     policy_projection = policy in refresh
     native_enabled = "adamSendButton.setEnabled(" in refresh
-    action_semantics = "adamSendButton.setContentDescription(" in refresh
 
-    if all((persistent_button, edit_refresh, mode_refresh, policy_projection, native_enabled, action_semantics)):
+    # Availability and action wording are deliberately separate owner seams. The
+    # AdamSendActionAccessibilityPolicy/Adam owner probe owns the exact current-mode
+    # action description. Requiring setContentDescription here would force duplicate
+    # semantic writers and make one concern impersonate another.
+    if all((persistent_button, edit_refresh, mode_refresh, policy_projection, native_enabled)):
         return SeamVerdict(
             "SOURCE_WIRED",
-            "existing Adam Send owner tracks the exact trim-based admission boundary on real onTextChanged edits and mode changes using native enabled state plus current-mode action semantics",
+            "existing Adam Send owner tracks the exact trim-based admission boundary on real onTextChanged edits and mode changes using native enabled state; action wording remains independently owned",
             policy,
         )
     if policy in owner or "refreshAdamSendAvailability(" in owner or "adamSendButton.setEnabled(" in owner:
@@ -129,8 +132,6 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
             missing.append("availability policy projection")
         if not native_enabled:
             missing.append("native enabled/disabled consequence")
-        if not action_semantics:
-            missing.append("current-mode action description")
         return SeamVerdict(
             "PARTIAL_UNSAFE",
             "Adam Send availability is incomplete: missing " + ", ".join(missing),
@@ -145,7 +146,7 @@ def classify_adam_send_availability(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-operational-contact-owner-probe.v2",
+        "schema": "try-forever-operational-contact-owner-probe.v3",
         "collapsedOperationalRefresh": asdict(classify_collapsed_operational_refresh(source)),
         "adamSendAvailability": asdict(classify_adam_send_availability(source)),
         "capability": {
