@@ -7,22 +7,23 @@
 <style>
   :root { font-family: system-ui, sans-serif; color-scheme: light dark; }
   body { margin: 0; padding: 1rem; min-height: 100vh; }
-  main { max-width: 52rem; margin: 0 auto; display: grid; gap: .8rem; }
+  main { max-width: 58rem; margin: 0 auto; display: grid; gap: .8rem; }
   header, details { border: 2px solid currentColor; border-radius: 1rem; padding: .9rem; }
   summary { min-height: 48px; display: flex; align-items: center; gap: .7rem; cursor: pointer; font-weight: 800; }
   .token { font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
   .scar { font-weight: 900; letter-spacing: .04em; }
-  .rail { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: .35rem; margin-top: .7rem; }
+  .rail { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: .35rem; margin-top: .7rem; }
   .rail span { border: 1px solid currentColor; border-radius: .6rem; padding: .55rem .4rem; text-align: center; min-height: 48px; display: grid; place-items: center; }
+  @media (max-width: 760px) { .rail { grid-template-columns: repeat(4, minmax(0,1fr)); } }
 </style>
 </head>
 <body>
 <main>
   <header>
     <div class="scar">WARM WALL / OWNER SURGERY CUSTODY THROAT</div>
-    <p>SOURCE ONLY · OWNER v10 SOURCE WIRED · REGRESSIONS UNEXECUTED · TESTED NO · ATOMIC BINDING NO · PHONE/P0 UNTOUCHED</p>
+    <p>SOURCE ONLY · OWNER v10 SOURCE WIRED · HELD-DESCRIPTOR SUPPORTING SOURCE · REGRESSIONS UNEXECUTED · TESTED NO · PHONE/P0 UNTOUCHED</p>
     <div class="rail" aria-label="custody chain">
-      <span>ROOT</span><span>SCAN</span><span>FINITE FILE</span><span>HEADER</span><span>EXACT STATE</span><span>FINAL ROOT</span>
+      <span>ROOT</span><span>SCAN</span><span>FINITE FILE</span><span>HEADER</span><span>EXACT STATE</span><span>FINAL ROOT</span><span>HELD FD</span><span>NAME RECHECK</span>
     </div>
   </header>
 
@@ -38,7 +39,7 @@
     <summary><span aria-hidden="true">●</span> v10 owner source wired</summary>
     <p class="token">owner commit: 0b4fc24113650741b50f4d57c29cb3c7eb6612d3</p>
     <p class="token">owner blob: fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f</p>
-    <p>Final-root persistent-drift custody, exact state admission, and the non-normalizing textual state header now live in the existing owner source. This is not regression execution or runtime proof.</p>
+    <p>Final-root persistent-drift custody, exact state admission, and the non-normalizing textual state header live in the existing owner source. This is not regression execution or runtime proof.</p>
   </details>
 
   <details>
@@ -49,15 +50,28 @@
   </details>
 
   <details>
-    <summary><span aria-hidden="true">◇</span> Final root gate</summary>
+    <summary><span aria-hidden="true">◇</span> Portable final-root gate</summary>
     <p>v10 keeps the scan bracket, then checks the named <span class="token">patches/</span> root again after artifact authority work and before emitting surgery/collision/stale/unverified authority.</p>
     <p>Persistent late replacement → zero promotion authority. Complete swap-and-restore and identity reuse remain open.</p>
   </details>
 
   <details>
-    <summary><span aria-hidden="true">□</span> Atomic binding capability</summary>
-    <p>POSIX descriptor primitives can be source-detected: <span class="token">scandir(fd)</span>, <span class="token">open(..., dir_fd=...)</span>, <span class="token">O_DIRECTORY</span>, <span class="token">O_NOFOLLOW</span>.</p>
+    <summary><span aria-hidden="true">●</span> Held-directory descriptor source</summary>
+    <p class="token">O_DIRECTORY + O_NOFOLLOW → held root fd → scandir(fd) → open(name, dir_fd=fd) → stat(name, dir_fd=fd, follow_symlinks=false)</p>
+    <p>Replacing the root pathname after the descriptor is held cannot redirect the descriptor-relative source operation. The candidate name is still rechecked against the opened regular-file object after the bounded read.</p>
+    <p><strong>Boundary:</strong> supporting POSIX source only. Candidate swap-and-restore and filesystem identity reuse remain open; canonical v10 owner consumption is NO.</p>
+  </details>
+
+  <details>
+    <summary><span aria-hidden="true">□</span> Descriptor capability gate got stricter</summary>
+    <p>The gate now requires descriptor-relative no-follow <span class="token">stat</span> in addition to <span class="token">scandir(fd)</span>, <span class="token">open(..., dir_fd=...)</span>, <span class="token">O_DIRECTORY</span>, and <span class="token">O_NOFOLLOW</span>.</p>
     <p>Primitive availability is not filesystem atomicity, TESTED, runtime, deployment, delivery, or acceptance.</p>
+  </details>
+
+  <details>
+    <summary><span aria-hidden="true">□</span> Current inventory exactness — regression source</summary>
+    <p>The real <span class="token">patches/</span> inventory now has a repository-level regression source requiring v10 exact-grammar admission with no discovery errors and keeping v8/v9/v10 historical/applied states out of promotion authority.</p>
+    <p><strong>UNEXECUTED.</strong> Source existence does not mean the inventory has passed.</p>
   </details>
 </main>
 </body>
