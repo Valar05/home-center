@@ -263,8 +263,8 @@ class HeldDirectoryCustody:
         the identity captured during held-root enumeration, opened relative to the same descriptor
         with O_NOFOLLOW, read completely within the byte budget, then revalidated both through the
         open descriptor and through the still-held directory descriptor. Strict UTF-8 is part of
-        custody admission; malformed bytes fail through DescriptorArtifactCustodyError rather than
-        escaping as a raw decoder exception.
+        custody admission; malformed bytes and authority-facing filesystem I/O failures stay inside
+        the DescriptorArtifactCustodyError domain rather than leaking raw decoder/OS exceptions.
         """
 
         name = _require_simple_name(name)
@@ -280,7 +280,12 @@ class HeldDirectoryCustody:
                     "enumerated candidate is not an ordinary regular file"
                 )
 
-        pre = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
+        try:
+            pre = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
+        except OSError:
+            raise DescriptorArtifactCustodyError(
+                "candidate unavailable during pre-open descriptor-relative stat"
+            ) from None
         if not stat.S_ISREG(pre.st_mode):
             raise DescriptorArtifactCustodyError("candidate is not an ordinary regular file")
         pre_identity = _identity_from_stat(pre)
@@ -300,48 +305,58 @@ class HeldDirectoryCustody:
         if hasattr(os, "O_NONBLOCK"):
             flags |= os.O_NONBLOCK
 
-        artifact_fd = os.open(name, flags, dir_fd=self.fd)
         try:
-            opened = os.fstat(artifact_fd)
-            if not stat.S_ISREG(opened.st_mode):
-                raise DescriptorArtifactCustodyError("opened candidate is not a regular file")
-            opened_identity = _identity_from_stat(opened)
-            if not _same_identity(pre_identity, opened_identity):
-                raise DescriptorArtifactCustodyError(
-                    "candidate identity changed between descriptor-relative stat and open"
-                )
-
-            chunks: list[bytes] = []
-            total = 0
-            digest = hashlib.sha256()
-            while True:
-                chunk = os.read(artifact_fd, min(READ_CHUNK_BYTES, max_bytes + 1 - total))
-                if not chunk:
-                    break
-                total += len(chunk)
-                if total > max_bytes:
+            artifact_fd = os.open(name, flags, dir_fd=self.fd)
+        except OSError:
+            raise DescriptorArtifactCustodyError(
+                "candidate open failed after pre-open identity admission"
+            ) from None
+        try:
+            try:
+                opened = os.fstat(artifact_fd)
+                if not stat.S_ISREG(opened.st_mode):
+                    raise DescriptorArtifactCustodyError("opened candidate is not a regular file")
+                opened_identity = _identity_from_stat(opened)
+                if not _same_identity(pre_identity, opened_identity):
                     raise DescriptorArtifactCustodyError(
-                        f"candidate exceeds {max_bytes} byte custody budget"
+                        "candidate identity changed between descriptor-relative stat and open"
                     )
-                digest.update(chunk)
-                chunks.append(chunk)
 
-            after_fd = _identity_from_stat(os.fstat(artifact_fd))
-            if not _same_identity(opened_identity, after_fd):
-                raise DescriptorArtifactCustodyError(
-                    "opened candidate changed during bounded descriptor read"
-                )
+                chunks: list[bytes] = []
+                total = 0
+                digest = hashlib.sha256()
+                while True:
+                    chunk = os.read(artifact_fd, min(READ_CHUNK_BYTES, max_bytes + 1 - total))
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise DescriptorArtifactCustodyError(
+                            f"candidate exceeds {max_bytes} byte custody budget"
+                        )
+                    digest.update(chunk)
+                    chunks.append(chunk)
 
-            after_name = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
-            if not stat.S_ISREG(after_name.st_mode):
+                after_fd = _identity_from_stat(os.fstat(artifact_fd))
+                if not _same_identity(opened_identity, after_fd):
+                    raise DescriptorArtifactCustodyError(
+                        "opened candidate changed during bounded descriptor read"
+                    )
+
+                after_name = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
+                if not stat.S_ISREG(after_name.st_mode):
+                    raise DescriptorArtifactCustodyError(
+                        "candidate name no longer identifies an ordinary regular file"
+                    )
+                after_name_identity = _identity_from_stat(after_name)
+                if not _same_identity(opened_identity, after_name_identity):
+                    raise DescriptorArtifactCustodyError(
+                        "candidate name no longer identifies the opened artifact object"
+                    )
+            except OSError:
                 raise DescriptorArtifactCustodyError(
-                    "candidate name no longer identifies an ordinary regular file"
-                )
-            after_name_identity = _identity_from_stat(after_name)
-            if not _same_identity(opened_identity, after_name_identity):
-                raise DescriptorArtifactCustodyError(
-                    "candidate name no longer identifies the opened artifact object"
-                )
+                    "candidate descriptor I/O failed during bounded custody"
+                ) from None
 
             raw = b"".join(chunks)
             try:
