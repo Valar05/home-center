@@ -20,6 +20,8 @@ This skill is about **promotion topology and evidence custody**, not another ove
 
 `PREFIX CONTENT NEVER EARNS SURGERY AUTHORITY`.
 
+`POST-SCAN ROOT STABILITY != FINAL AUTHORITY ROOT STABILITY`.
+
 Applying one current-base surgery changes owner custody and therefore stales the base lock of the others. Parallel source design is allowed; parallel promotion against the same exact owner/base is not automatically safe.
 
 ## Owner-surgery artifact family
@@ -85,6 +87,7 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - A stale-base or unverified-base candidate may remain useful design provenance, but it is **not** promotion-ready.
 - If root custody, directory traversal, candidate collection, or any matching artifact admission produces a discovery error, do not call the candidate inventory exhaustive.
 - On root, traversal, or candidate failure, emit **zero partial promotion authority** from that inventory.
+- A root check performed before artifact reads does not authorize later artifact-derived promotion if the named root persistently changes afterward. Final promotion authority requires a root observation that also brackets artifact authority work.
 - When multiple unapplied promotion candidates share one authenticated current owner/base, deliberately choose one of:
   1. converge compatible consequences into one canonical surgery;
   2. define an explicit promotion order and rebase later surgeries after authenticated owner readback;
@@ -95,7 +98,7 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Deterministic source evidence
-`tools/try_forever_owner_surgery_custody_probe.py` **v7**:
+`tools/try_forever_owner_surgery_custody_probe.py` **v7** is the current implemented probe:
 - reuses the existing portable no-follow root identity/revalidation organ around the named `patches/` root;
 - performs one bounded non-recursive directory scan only after initial root admission;
 - counts all directory entries;
@@ -124,10 +127,35 @@ Its outputs distinguish:
 
 It remains regression source only until an authorized non-phone execution lane runs it.
 
-## Current PR #329 source truth — 2026-08-22
-The native overlay owner is not mutated by this skill slice. Owner-surgery custody v7 is repository/source evidence only.
+## Prepared v8 final root commit gate — 2026-08-22 04:57 CT
+Fresh readback of v7 exposed a narrower persistent-drift gap **after** its post-traversal root check. v7 revalidates the named `patches/` root, then reads/parses admitted artifact paths. If the root is persistently replaced after that check but before/during artifact observation, candidate paths can resolve through the replacement root before any later root custody check exists.
 
-Root topology / persistent-identity revalidation **YES / SOURCE**. Atomic root binding **NO**. Regression source **YES / UNEXECUTED**.
+The bounded repair is deliberately not a new custody architecture:
+1. retain root identity from before the authority-producing operation;
+2. keep the existing v7 root bracket around bounded traversal;
+3. observe/parse admitted finite artifacts through the existing artifact organ;
+4. capture/revalidate the named root **again after artifact observations and before emitting surgery/collision/stale/unverified authority**;
+5. if this final root gate fails, clear all surgery authority from that inventory and emit bounded `artifact_root` evidence.
+
+Durable proposal:
+- `patches/try-forever-owner-surgery-custody-v8-final-root.patch`
+- base probe blob: `a3a11139faf426ddeae90c035708d4a3e0e1e36f`
+- state: **CORRECTED_PROPOSED_NOT_APPLIED**
+
+Hostile regression source:
+- `tools/test_try_forever_owner_surgery_final_root_revalidation.py`
+- requires a persistent root replacement after the post-scan check but before artifact read to produce zero surgery/collision/stale/unverified authority;
+- state: **REGRESSION SOURCE / UNEXECUTED**.
+
+**Important boundary:** this final observation improves persistent-drift custody but still is **not atomic root binding**. A complete swap-and-restore entirely between observations and filesystem identity reuse remain explicitly unclosed. Do not relabel v8 as atomic or runtime security proof.
+
+## Mutation-lane truth for this repair
+Home Center currently exposes Computer Hands operations, but `windows-hands-01` is offline with existing TRY FOREVER lanes and queue depth 4. Do not enqueue duplicate surgery merely to manufacture activity. The audited GitHub file-upsert surface is whole-file replacement, not a patch interpreter; the prepared v8 delta therefore remains unapplied until an authorized safe existing-owner mutation body is genuinely callable.
+
+## Current PR #329 source truth — 2026-08-22 04:57 CT
+The native overlay owner is not mutated by this skill slice. The canonical owner-surgery custody probe remains **v7 / IMPLEMENTED SOURCE**.
+
+Root topology / persistent-identity revalidation through post-traversal **YES / SOURCE**. Final post-artifact root revalidation **NO / PREPARED PATCH ONLY**. Atomic root binding **NO**. Existing v7 regression source **YES / UNEXECUTED**. New v8 late-root regression source **YES / UNEXECUTED**.
 
 Known patch-form current-base promotion candidates remain design provenance subject to fresh authenticated owner custody and this inventory's completeness. A known list is never automatically an exhaustive list.
 
@@ -139,4 +167,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state: v7 skill/probe source **YES**; root + bounded traversal + candidate + finite-artifact hostile regression source **YES / UNEXECUTED**; atomic root binding **NO**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
+Current state: canonical v7 skill/probe source **YES**; v8 final-root patch **YES / PROPOSED_NOT_APPLIED**; root + bounded traversal + candidate + finite-artifact hostile regression source **YES / UNEXECUTED**; late-root final-gate regression source **YES / UNEXECUTED**; atomic root binding **NO**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
