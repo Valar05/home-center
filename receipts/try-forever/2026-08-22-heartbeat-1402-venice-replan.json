@@ -1,0 +1,12 @@
+{
+  "heartbeat": "2026-08-22T14:02:57-05:00",
+  "reviewer": "VENICE_JUDGMENT_JAR_SAME_WORKER",
+  "phase": "CORRECTIVE_REPLAN_REVIEW",
+  "verdict": "PLAN_ALLOWED",
+  "why": [
+    "The first source repair violated its own evidence taxonomy by catching callback OSError as filesystem I/O.",
+    "The replacement narrows exception ownership rather than weakening containment: directory open/iteration/stat remain typed custody wounds, while caller policy remains caller-owned.",
+    "The correction touches the existing source and regression only and preserves every prior owner/firewall/capability boundary."
+  ],
+  "gate": "CORRECTIVE_PLAN_ALLOWED__P0_PHONE_FIREWALL_BINDING"
+}
