@@ -1,0 +1,12 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "localCheckpoint": "2026-08-22 10:02 CT",
+  "trigger": "Code-first owner-composition review found that canonical v10 reports artifactDirectoryEntriesObserved and artifactCandidatesObserved, while the held-descriptor helper exposed candidate names/identities but not the total scanned-entry count needed to preserve those evidence metrics.",
+  "decision": "Strengthen the existing descriptor helper with one bounded inventory observation carrying both candidate identity records and entriesObserved. Keep candidate_entries/candidate_names as compatibility projections. Do not wire canonical v10 owner in this pulse.",
+  "constraints": [
+    "Preserve existing helper ownership; no new custody controller.",
+    "Preserve canonical v10 output/evidence shape as a future owner-integration requirement.",
+    "Regression source remains UNEXECUTED and cannot advance TESTED.",
+    "No Phone Hands / P0 consumption or mutation."
+  ]
+}
