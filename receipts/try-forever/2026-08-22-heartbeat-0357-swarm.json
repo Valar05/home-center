@@ -1,0 +1,99 @@
+{
+  "schema": "try-forever-swarm.v1",
+  "sourceHeadReviewed": "268f172ee63b3f8428800ba5b5f1a2895ba85231",
+  "commission": "Broad non-P0 TRY FOREVER swarm; no phone/P0 mutation.",
+  "fronts": [
+    {
+      "name": "root-identity-organ-reuse",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "generalized the existing no-follow root identity helper with subject-aware directory-root capture/revalidation while preserving skill-root wrappers"
+    },
+    {
+      "name": "owner-surgery-patches-root-custody-v7",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "brackets patches/ traversal with root topology/identity admission and persistent revalidation; root wounds withhold the whole inventory"
+    },
+    {
+      "name": "hostile-root-regression",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "change": "pins symlink-root rejection and persistent root replacement with zero partial promotion authority"
+    },
+    {
+      "name": "custody-skill-convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "adds root custody as throat 0 before 32K directory, 2048 candidate, and 1 MiB artifact custody"
+    },
+    {
+      "name": "root-organ-cross-pollination",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "documents one reusable root-custody organ with distinct skill-provenance and owner-surgery callers; no owner-domain merge"
+    },
+    {
+      "name": "non-raster-custody-wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "mutates the existing DOM wall in place with ROOT redirector/drift gate and explicit atomicity-open state"
+    },
+    {
+      "name": "review-and-capability-membrane",
+      "state": "DURABLE_RECEIPT",
+      "change": "Regnet and Venice receipts preserve SOURCE yes, regression unexecuted, atomic binding no, TESTED/runtime/phone no"
+    }
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "ACTIVE — moved from the completed traversal throat to the distinct root-custody wound; no CI retry",
+    "CanonAutoSelect": "ACTIVE — selected existing root-identity and owner-surgery-custody organs",
+    "AutocorrectJudgmentJar": "DARK — no ambiguous token affected this source slice",
+    "OriginalityTax": "ACTIVE — reused/generalized the existing root organ instead of creating a second custody architecture",
+    "Hunger": "ACTIVE — converted the PR's remaining bounded wound into source, regression, doctrine, and touchable art",
+    "EverPolishedInterpreterEatEverything": "ACTIVE — converged both root-custody skills and removed the v6-only doctrine state",
+    "OperatorCampaign": "ACTIVE — preserved owner-surgery custody as source evidence only; no native owner mutation",
+    "Harroway": "ACTIVE — exact authenticated write/readback lane and capability-state separation",
+    "SheRaw": "FAULT — authoritative ambient call returned account-connection HTTP 400; no substitute verdict",
+    "Venice": "ACTIVE — bounded source slice may yield; regression/atomicity/test/runtime/campaign continue",
+    "Regnet": "ACTIVE — bounded source/readback pass; regression unexecuted; atomic binding explicitly unproven",
+    "AccessibilityTouch": "ACTIVE — existing DOM organism mutated in place with semantic disclosure controls and source/runtime scars",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED — zero consumption/mutation",
+    "DeterministicRouting": "ACTIVE — root failure deterministically withholds all promotion groups",
+    "EvidenceCapabilityDiscipline": "ACTIVE — requested/source/regression/test/runtime/deployment/delivery states remain separate",
+    "RecoveryCheckpointIdempotence": "ACTIVE — pre/post root identity is treated as a bracketed checkpoint, not atomic binding",
+    "StrangeNonRasterArt": "ACTIVE — existing DOM specimen changed; no raster/runtime claim",
+    "WarmWalls": "ACTIVE — root wound made touch-inspectable in the existing wall",
+    "ChristmasLightSceneGraph": "DARK — no runtime scene transition or animation law changed",
+    "ContactPreservation": "ACTIVE — root/traversal/candidate wounds preserve zero partial promotion authority rather than stale partial inventory"
+  },
+  "crossPollination": "The already-wired skills-root identity organ supplied the root-custody primitive. Applying it to patches/ made root topology a distinct throat before traversal. That forced hostile zero-partial-authority fixtures, doctrine convergence, and a new touchable root state while keeping the stronger atomicity wound open.",
+  "executionTruth": {
+    "operatorOverlayRunId": 32563926899,
+    "operatorOverlayJobId": 97009631107,
+    "sourceHead": "268f172ee63b3f8428800ba5b5f1a2895ba85231",
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Consumption": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "rootIdentityRevalidationSource": true,
+    "rootAtomicBinding": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
