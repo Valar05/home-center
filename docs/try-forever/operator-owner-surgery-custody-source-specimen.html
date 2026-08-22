@@ -23,16 +23,17 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One owner at a time. Patch and structured-delta provenance share one root, bounded traversal, bounded candidate, and finite-artifact custody chain.</p>
-<div class="scar">× SOURCE CUSTODY v7 · ROOT REDIRECTOR/DRIFT GATE · 32K DIRECTORY THROAT · 2048 CANDIDATE THROAT · 1 MiB FINITE REGULAR ARTIFACT · ATOMIC BINDING UNCLAIMED · TESTED NO · PHONE/P0 UNTOUCHED</div>
-<p class="owner"><strong>Operator owner:</strong> OperatorOverlayService.java<br><strong>Owner mutation by this slice:</strong> NO</p>
+<div class="scar">× CURRENT PROBE v7 · v8 FINAL ROOT GATE PREPARED / NOT APPLIED · ROOT → SCAN → POST-SCAN CHECK → ARTIFACTS → FINAL ROOT COMMIT GATE · ATOMIC BINDING UNCLAIMED · TESTED NO · PHONE/P0 UNTOUCHED</div>
+<p class="owner"><strong>Custody owner:</strong> tools/try_forever_owner_surgery_custody_probe.py<br><strong>Canonical probe:</strong> v7 SOURCE<br><strong>Prepared repair:</strong> v8 PROPOSED_NOT_APPLIED<br><strong>Native overlay mutation by this slice:</strong> NO</p>
 
 <details open>
   <summary><span class="token">ROOT</span> Named patches root — redirector / identity gate</summary>
   <div>
     <p><strong>Before traversal:</strong> capture the named <code>patches/</code> root with the existing no-follow root-identity organ. Symlink/junction topology or unavailable object identity fails closed before scanning.</p>
-    <p><strong>After traversal:</strong> re-observe the same named root. Persistent type/device/inode/redirector drift invalidates the entire observed candidate set.</p>
-    <p><strong>Consequence:</strong> root wounds produce <code>artifact_root</code> evidence, <code>evidenceComplete=false</code>, and zero partial promotion authority.</p>
-    <p><strong>Honest boundary:</strong> pre/post identity is not an atomic directory handle. Swap-and-restore entirely between observations and identity reuse remain open.</p>
+    <p><strong>After traversal:</strong> v7 re-observes the same named root. Persistent type/device/inode/redirector drift invalidates the observed candidate set before parsing.</p>
+    <p><strong>Fresh wound:</strong> v7 then reads/parses artifact paths without another root observation. Persistent replacement after the post-scan check can therefore occur before artifact authority work finishes.</p>
+    <p><strong>Prepared v8 consequence:</strong> revalidate the original root again after all artifact observations and before emitting surgery/collision/stale/unverified authority. Failure clears all promotion authority from that inventory.</p>
+    <p><strong>Honest boundary:</strong> even the prepared final gate is not an atomic directory handle. Swap-and-restore entirely between observations and identity reuse remain open.</p>
   </div>
 </details>
 
@@ -45,6 +46,7 @@
     <p><strong>v5 wound:</strong> matching candidates were bounded, but glob scanning did not bound work spent on unrelated directory entries.</p>
     <p><strong>v6 wound:</strong> traversal and candidate/file work were bounded, but the named <code>patches/</code> root itself was not bracketed by no-follow identity evidence.</p>
     <p><strong>v7 source rule:</strong> root admission/revalidation → count every directory entry → bound matching candidates separately → admit each artifact through one hardened finite regular-file organ.</p>
+    <p><strong>v8 proposal:</strong> keep v7, then add a final root commit gate after artifact reads before promotion authority is emitted.</p>
   </div>
 </details>
 
@@ -77,6 +79,16 @@
 </details>
 
 <details>
+  <summary><span class="token">COMMIT</span> Final root commit gate — prepared v8</summary>
+  <div>
+    <p><strong>Why it exists:</strong> a stable root at scan completion does not prove the same named root still owns later artifact reads.</p>
+    <p><strong>Required order:</strong> capture authority root → bounded scan → post-scan root check → finite artifact observations → <strong>final root check</strong> → only then emit promotion authority.</p>
+    <p><strong>Late persistent drift:</strong> zero surgeries, zero collision/stale/unverified groups, <code>evidenceComplete=false</code>, bounded <code>artifact_root</code> evidence.</p>
+    <p><strong>Current capability:</strong> exact v8 patch prepared and base-blob locked; canonical probe remains v7 because the patch-capable non-phone worker is offline. No duplicate request was queued.</p>
+  </div>
+</details>
+
+<details>
   <summary><span class="token">1M</span> Artifact content throat</summary>
   <div>
     <p><strong>Budget:</strong> complete artifact must fit within 1 MiB.</p>
@@ -104,10 +116,10 @@
 <div class="flow" aria-label="Custody evidence sequence">
   <div class="step"><strong>● Root:</strong> no-follow named-root admission; reject redirectors/unavailable identity.</div>
   <div class="step"><strong>□ Scan:</strong> bounded non-recursive directory-entry work.</div>
-  <div class="step"><strong>□ Revalidate:</strong> persistent root identity must still match before candidate parsing.</div>
+  <div class="step"><strong>□ Post-scan check:</strong> persistent root identity must still match before candidate parsing.</div>
   <div class="step"><strong>□ Match:</strong> bounded patch + delta candidate collection.</div>
   <div class="step"><strong>□ Admit:</strong> finite ordinary-file custody before parsing.</div>
-  <div class="step"><strong>× Fail closed:</strong> root/traversal/candidate wounds give zero partial promotion authority; artifact wounds mark evidence incomplete.</div>
+  <div class="step"><strong>× Final root gate:</strong> PREPARED v8; late persistent drift must erase all promotion authority.</div>
   <div class="step"><strong>◇ Bind:</strong> current-base readiness separately requires authenticated current-owner blob evidence.</div>
   <div class="step"><strong>→ Promote separately:</strong> custody discovery never applies a surgery.</div>
 </div>
@@ -115,14 +127,14 @@
 <details>
   <summary><span class="token">!</span> Why not “atomic”?</summary>
   <div>
-    <p>Portable pre/post root identity catches persistent redirector/replacement drift. It does not turn pathname traversal into a single atomic root handle. The wall keeps that wound visible instead of painting it green.</p>
+    <p>Portable repeated root identity catches persistent redirector/replacement drift. It does not turn pathname traversal and later artifact reads into a single atomic root handle. The wall keeps swap-and-restore and identity reuse visible instead of painting them green.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Implemented source:</strong> YES. <strong>Root identity revalidation:</strong> YES / SOURCE. <strong>Atomic root binding:</strong> NO. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>Owner mutation:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Canonical probe:</strong> v7 / IMPLEMENTED SOURCE. <strong>Prepared v8 patch:</strong> YES / NOT APPLIED. <strong>Late-root regression source:</strong> YES / UNEXECUTED. <strong>Final post-artifact root revalidation:</strong> NO. <strong>Atomic root binding:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
