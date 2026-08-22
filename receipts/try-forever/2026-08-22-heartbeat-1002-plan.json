@@ -1,0 +1,36 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localCheckpoint": "2026-08-22 10:02 CT",
+  "mission": "Advance independent non-P0 TRY FOREVER source/evidence fronts without touching the phone/P0 chain or creating duplicate architecture.",
+  "preExecutionReview": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdictInvented": false
+  },
+  "fronts": [
+    {
+      "id": "descriptor-candidate-identity",
+      "action": "Strengthen HeldDirectoryCustody so candidate identity captured during held-root enumeration must still match before authority-facing open/read.",
+      "boundary": "Persistent candidate replacement becomes fail-closed; swap-and-restore and filesystem identity reuse remain unproven."
+    },
+    {
+      "id": "descriptor-owner-composition",
+      "action": "Create an exact owner-composition regression/proposal that preserves canonical v10 portable fallback and uses descriptor custody only when its capability gate is actually supported.",
+      "boundary": "Supporting source/proposal is not canonical owner integration, regression execution, TESTED, runtime, deployment, phone delivery, or acceptance."
+    },
+    {
+      "id": "skill-art-convergence",
+      "action": "Synchronize descriptor-custody doctrine and mutate the existing non-raster Warm Wall in place only if the source topology materially changes.",
+      "boundary": "No new overlay controller, recovery daemon, P0 owner, phone lane, or decorative Christmas motion."
+    },
+    {
+      "id": "execution-truth",
+      "action": "Read fresh automatic workflow evidence after source changes without manually retrying a known-bad execution lane or inventing a cause.",
+      "boundary": "TESTED advances only from actual executed test evidence."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
