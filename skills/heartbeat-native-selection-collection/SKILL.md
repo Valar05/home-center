@@ -57,6 +57,11 @@ The stale broad heartbeat sentence permitting `aria-pressed` for this persistent
 
 The exact correction provenance remains at `patches/try-forever-heartbeat-selection-doctrine-convergence.patch` with status **APPLIED_SOURCE**. The source regression at `tools/test_heartbeat_selection_doctrine_convergence.py` pins broad doctrine + specialized doctrine + current DOM specimen to the same radio-style contract. That regression is repository source only until an authorized execution lane runs it.
 
+## Owner-surgery convergence
+Two review-ready accessibility repairs target the same authenticated native owner blob `c5de1411a6b68087ae17aff83c032af754587150`: this native-selection collection repair and the automatic heartbeat material-transition announcement migration. Applying either standalone patch first would stale the other's owner custody.
+
+Therefore the canonical review-ready source surgery is now `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` with status **CANONICAL_PROPOSED_NOT_APPLIED**. The old standalone selection patch remains historical provenance with status **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE**. `tools/test_try_forever_heartbeat_owner_patch_convergence.py` pins the combined scope and preserves the owner/test/runtime membrane. This convergence changes patch topology only; it does not make native collection wiring true.
+
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
 
@@ -69,7 +74,7 @@ Keep these separate:
 
 A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not runtime TalkBack proof.
 
-## Current PR #329 truth — 2026-08-21 22:02 CT
+## Current PR #329 truth — 2026-08-21 22:59 CT
 - persistent-selection reusable doctrine: **YES**;
 - broad heartbeat persistent-selection doctrine: **CONVERGED / APPLIED_SOURCE**;
 - doctrine convergence regression source: **YES / UNEXECUTED**;
@@ -79,7 +84,9 @@ A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not
 - deterministic JUnit source: **YES / UNEXECUTED**;
 - direct-owner source probe: **v2 / SOURCE YES / UNEXECUTED**;
 - hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
-- exact base-blob-locked native owner surgery: **YES / PROPOSED_NOT_APPLIED**;
+- canonical combined owner surgery: **YES / CANONICAL_PROPOSED_NOT_APPLIED**;
+- standalone native-selection surgery: **SUPERSEDED / DO_NOT_APPLY_ALONE**;
+- owner-patch convergence regression source: **YES / UNEXECUTED**;
 - authenticated owner base blob for that surgery: `c5de1411a6b68087ae17aff83c032af754587150`;
 - current native owner selected-state lifecycle: **YES / SOURCE**;
 - native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
