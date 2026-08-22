@@ -40,6 +40,10 @@ class DescriptorArtifactCustodyError(ValueError):
     """A descriptor-relative candidate could not earn artifact authority."""
 
 
+class DescriptorCustodyCleanupError(RuntimeError):
+    """Descriptor cleanup failed when no earlier custody wound already owned the failure."""
+
+
 @dataclass(frozen=True)
 class DescriptorIdentity:
     device: int
@@ -115,6 +119,29 @@ def _directory_open_flags() -> int:
     return flags
 
 
+def _close_owned_fd(
+    fd: int,
+    *,
+    boundary: str,
+    preserve_primary_failure: bool,
+) -> None:
+    """Close one owned descriptor without stealing an earlier custody failure.
+
+    Close failure is authority-relevant when it is the only failure: the caller cannot claim clean
+    cleanup. When another exception is already propagating, cleanup failure must not replace that
+    primary wound with a less useful close error. This helper therefore converts a primary cleanup
+    failure to `DescriptorCustodyCleanupError`, but suppresses close failure when a prior exception
+    already owns the failure path.
+    """
+
+    try:
+        os.close(fd)
+    except OSError:
+        if preserve_primary_failure:
+            return
+        raise DescriptorCustodyCleanupError(boundary) from None
+
+
 class HeldDirectoryCustody:
     """One held POSIX directory descriptor and bounded descriptor-relative operations."""
 
@@ -155,16 +182,27 @@ class HeldDirectoryCustody:
             self.fd = -1
             raise
 
+    def _close(self, *, preserve_primary_failure: bool) -> None:
+        if self.fd < 0:
+            return
+        fd = self.fd
+        # Ownership is surrendered before close. A failed close must never invite a retry against a
+        # descriptor number that the kernel may already have released and recycled.
+        self.fd = -1
+        _close_owned_fd(
+            fd,
+            boundary="held directory descriptor close failed",
+            preserve_primary_failure=preserve_primary_failure,
+        )
+
     def close(self) -> None:
-        if self.fd >= 0:
-            os.close(self.fd)
-            self.fd = -1
+        self._close(preserve_primary_failure=False)
 
     def __enter__(self) -> "HeldDirectoryCustody":
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        self.close()
+        self._close(preserve_primary_failure=exc_type is not None)
 
     def candidate_inventory(
         self,
@@ -192,6 +230,7 @@ class HeldDirectoryCustody:
         Authority-facing scan-handle open, iterator advance, and candidate stat failures stay inside
         the custody error domain. Caller-supplied `is_candidate` failures stay caller-owned, even when
         the caller happens to raise an OSError. A failed inventory returns no partial candidate authority.
+        Cleanup-close failure is typed when it is the only failure and cannot mask an earlier inventory wound.
         """
 
         if max_entries < 0 or max_candidates < 0:
@@ -204,6 +243,7 @@ class HeldDirectoryCustody:
             raise DescriptorArtifactCustodyError(
                 "held-directory scan handle open failed"
             ) from None
+        primary_failure = False
         try:
             try:
                 entries_context = os.scandir(scan_fd)
@@ -253,8 +293,15 @@ class HeldDirectoryCustody:
                         raise DescriptorArtifactCustodyError(
                             f"held-directory candidate set exceeds {max_candidates} budget"
                         )
+        except BaseException:
+            primary_failure = True
+            raise
         finally:
-            os.close(scan_fd)
+            _close_owned_fd(
+                scan_fd,
+                boundary="held-directory scan handle close failed",
+                preserve_primary_failure=primary_failure,
+            )
         candidates.sort(key=lambda item: item.name)
         return DescriptorCandidateInventory(
             candidates=tuple(candidates),
@@ -309,6 +356,7 @@ class HeldDirectoryCustody:
         open descriptor and through the still-held directory descriptor. Strict UTF-8 is part of
         custody admission; malformed bytes and authority-facing filesystem I/O failures stay inside
         the DescriptorArtifactCustodyError domain rather than leaking raw decoder/OS exceptions.
+        Cleanup-close failure is typed when it is primary and cannot mask an earlier artifact wound.
         """
 
         name = _require_simple_name(name)
@@ -355,6 +403,7 @@ class HeldDirectoryCustody:
             raise DescriptorArtifactCustodyError(
                 "candidate open failed after pre-open identity admission"
             ) from None
+        primary_failure = False
         try:
             try:
                 opened = os.fstat(artifact_fd)
@@ -416,5 +465,12 @@ class HeldDirectoryCustody:
                 sha256=digest.hexdigest(),
                 identity=opened_identity,
             )
+        except BaseException:
+            primary_failure = True
+            raise
         finally:
-            os.close(artifact_fd)
+            _close_owned_fd(
+                artifact_fd,
+                boundary="candidate descriptor close failed",
+                preserve_primary_failure=primary_failure,
+            )
