@@ -89,6 +89,28 @@ def test_repeated_candidate_scans_get_fresh_directory_position(tmp_path: Path):
         assert second == first
 
 
+def test_candidate_inventory_preserves_total_directory_entry_evidence(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    (root / "try-forever-a.patch").write_text("a", encoding="utf-8")
+    (root / "try-forever-b.patch").write_text("b", encoding="utf-8")
+    (root / "unrelated.txt").write_text("x", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        inventory = held.candidate_inventory(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )
+        assert inventory.entries_observed == 3
+        assert inventory.candidates_observed == 2
+        assert tuple(item.name for item in inventory.candidates) == (
+            "try-forever-a.patch",
+            "try-forever-b.patch",
+        )
+
+
 def test_candidate_identity_captured_during_enumeration_survives_into_read(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
