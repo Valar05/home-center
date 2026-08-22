@@ -24,8 +24,22 @@
     "The held-root descriptor source may describe root-path replacement resistance only after descriptor acquisition. It may not claim candidate-name atomicity, identity-reuse immunity, Windows parity, or universal filesystem atomicity.",
     "The first descriptor-source draft had a directory-stream-position wound; the corrected source opens a fresh '.' scan descriptor relative to the held authority root for every bounded inventory pass.",
     "The current patches/ exact-grammar fixture is an unexecuted regression, not proof that the inventory currently passes v10 admission.",
-    "Current exact-head workflows are queued, therefore TESTED remains NO."
+    "Automatic workflows on the exact reviewed source head concluded failure, but Operator Overlay exposed zero steps and 404 BlobNotFound logs. No step-level cause is established; TESTED remains NO and no manual retry was fired."
   ],
+  "executionTruth": {
+    "operatorOverlayRun": 32577754037,
+    "operatorOverlayJob": 97042484596,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "operatorOverlayLogs": "404 BlobNotFound",
+    "homeCenterCiRun": 32577754038,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32577754083,
+    "buildAndroidConclusion": "failure",
+    "tested": false,
+    "causeEstablished": false,
+    "manualRetryFired": false
+  },
   "reviewerFaults": {
     "sheRaw": "FAULTED_ACCOUNT_CONNECTION_HTTP_400__NO_SUBSTITUTE_VERDICT"
   },
