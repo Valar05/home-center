@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever-replan-receipt.v1",
+  "trigger": "Code-first review after the UTF-8 repair found a separate failure-containment wound in the same descriptor source: candidate disappearance/open/read/path-recheck errors can still escape as raw OSError subclasses.",
+  "evidence": [
+    "pre-open os.stat(name, dir_fd=held_root) is not domain-wrapped",
+    "descriptor-relative os.open(name, ...) is not domain-wrapped",
+    "os.read(artifact_fd, ...) is not domain-wrapped",
+    "post-read os.stat(name, dir_fd=held_root) is not domain-wrapped"
+  ],
+  "decision": "Advance a second independent source front: convert authority-facing filesystem I/O failure into bounded DescriptorArtifactCustodyError phase boundaries without changing successful bytes/SHA/identity behavior.",
+  "mustPreserve": [
+    "strict UTF-8 typed rejection already implemented",
+    "enumeration-time identity handoff",
+    "entry/candidate/byte budgets",
+    "no-follow descriptor-relative ownership",
+    "canonical v10 integration remains NO",
+    "atomicity remains unclaimed",
+    "regression source remains UNEXECUTED",
+    "Phone/P0 consumption and mutation remain zero"
+  ],
+  "venice": "REPLAN_ALLOWED: materially independent error-containment wound; same source owner; no duplicate architecture."
+}
