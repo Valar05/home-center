@@ -17,12 +17,18 @@ from try_forever_owner_surgery_backend_policy import (
 )
 
 
+OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
+BASE = "c5de1411a6b68087ae17aff83c032af754587150"
+
+
 def complete_result(**overrides):
     result = {
         "backend": DESCRIPTOR_BACKEND,
         "artifactDirectoryEntriesObserved": 7,
         "artifactCandidatesObserved": 3,
+        "discoveryErrors": [],
         "evidenceComplete": True,
+        "currentOwnerBlobs": {OWNER: BASE},
         "collisionSets": [],
         "staleBaseGroups": [],
         "unverifiedBaseGroups": [],
@@ -51,6 +57,8 @@ def main() -> int:
     assert descriptor.required_owner_evidence_fields == (
         "artifactDirectoryEntriesObserved",
         "artifactCandidatesObserved",
+        "discoveryErrors",
+        "currentOwnerBlobs",
     )
     assert OWNER_AUTHORITY_FIELDS == (
         "collisionSets",
@@ -64,34 +72,57 @@ def main() -> int:
         "status": "EVIDENCE_ADMITTED",
         "artifactDirectoryEntriesObserved": 7,
         "artifactCandidatesObserved": 3,
+        "discoveryErrorCount": 0,
         "evidenceComplete": True,
+        "currentOwnerCustodyProvided": True,
         "authorityGroupCounts": {
             "collisionSets": 0,
             "staleBaseGroups": 0,
             "unverifiedBaseGroups": 0,
         },
         "portableFallbackAttempted": False,
+        "exhaustiveEvidenceAdmitted": True,
         "ownerEvidenceAdmitted": True,
     }
 
     incomplete = admit_selected_backend_result(
         descriptor,
-        complete_result(evidenceComplete=False),
+        complete_result(
+            discoveryErrors=[{"boundary": "artifact wounded"}],
+            evidenceComplete=False,
+        ),
     )
     assert incomplete["ownerEvidenceAdmitted"] is False
+    assert incomplete["exhaustiveEvidenceAdmitted"] is False
     assert incomplete["evidenceComplete"] is False
+    assert incomplete["discoveryErrorCount"] == 1
 
     # Diagnostic surgeries may remain present after a wounded exhaustive scan; they are not promotion authority.
-    incomplete_with_diagnostics = complete_result(evidenceComplete=False)
+    incomplete_with_diagnostics = complete_result(
+        discoveryErrors=[{"boundary": "artifact wounded"}],
+        evidenceComplete=False,
+    )
     incomplete_with_diagnostics["surgeries"] = [{"path": "diagnostic-only.patch"}]
     assert admit_selected_backend_result(
         descriptor,
         incomplete_with_diagnostics,
     )["ownerEvidenceAdmitted"] is False
 
+    no_owner = admit_selected_backend_result(
+        descriptor,
+        complete_result(currentOwnerBlobs={}),
+    )
+    assert no_owner["exhaustiveEvidenceAdmitted"] is True
+    assert no_owner["currentOwnerCustodyProvided"] is False
+    assert no_owner["ownerEvidenceAdmitted"] is False
+
     expect_rejected(
         descriptor,
-        complete_result(collisionSets=[{"owner": "x"}], evidenceComplete=False),
+        complete_result(
+            collisionSets=[{"owner": "x"}],
+            discoveryErrors=[{"boundary": "artifact wounded"}],
+            evidenceComplete=False,
+        ),
         "partial promotion authority",
     )
     expect_rejected(
@@ -113,6 +144,29 @@ def main() -> int:
         descriptor,
         complete_result(evidenceComplete="yes"),
         "evidenceComplete",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(discoveryErrors=None),
+        "discoveryErrors",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(
+            discoveryErrors=[{"boundary": "artifact wounded"}],
+            evidenceComplete=True,
+        ),
+        "agree with discoveryErrors",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(currentOwnerBlobs=None),
+        "currentOwnerBlobs",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(currentOwnerBlobs={OWNER: BASE.upper()}),
+        "40 lowercase hexadecimal",
     )
     expect_rejected(
         descriptor,
