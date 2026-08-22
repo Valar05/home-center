@@ -12,9 +12,10 @@ no-follow root-identity organ around bounded non-recursive traversal, then reval
 all admitted artifact observations before any surgery/collision/stale/unverified authority is
 emitted. Directory-entry work, matching-candidate collection, and each admitted finite ordinary
 artifact remain independently bounded. Promotion readiness is admitted by exact canonical state,
-never by a ``PROPOSED`` substring or by regex/whitespace normalization. Root redirectors,
-persistent root drift, unavailable identity, or invalid state evidence fail closed. This is
-persistent-drift evidence, not an atomic filesystem binding claim.
+never by a ``PROPOSED`` substring or by regex/whitespace normalization. Authenticated current-owner
+blob custody is also exact: normalization-dependent blob text cannot be repaired into authority.
+Root redirectors, persistent root drift, unavailable identity, or invalid state/evidence fail
+closed. This is persistent-drift evidence, not an atomic filesystem binding claim.
 """
 
 from __future__ import annotations
@@ -328,6 +329,19 @@ def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str
     }
 
 
+def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
+    """Admit authenticated current-owner blob evidence without normalization or repair."""
+
+    result: dict[str, str] = {}
+    for owner, blob in (values or {}).items():
+        if not isinstance(owner, str) or not owner:
+            raise ValueError("current owner custody requires a non-empty owner identity")
+        if not isinstance(blob, str) or SHA1_RE.fullmatch(blob) is None:
+            raise ValueError("current owner custody requires a 40-lowercase-hex-blob")
+        result[owner] = blob
+    return result
+
+
 def classify(
     root: Path = PATCH_ROOT,
     current_owner_blobs: dict[str, str] | None = None,
@@ -335,10 +349,7 @@ def classify(
     max_candidates: int = MAX_CUSTODY_ARTIFACTS,
     max_entries: int = MAX_CUSTODY_DIRECTORY_ENTRIES,
 ) -> dict[str, object]:
-    current_owner_blobs = {
-        owner: blob.lower()
-        for owner, blob in (current_owner_blobs or {}).items()
-    }
+    current_owner_blobs = _admit_current_owner_blobs(current_owner_blobs)
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
 
@@ -455,6 +466,7 @@ def classify(
             "artifactRootFinalRevalidation": True,
             "exactOwnerSurgeryStateAdmission": True,
             "nonNormalizingPatchStateHeader": True,
+            "exactCurrentOwnerBlobAdmission": True,
             "substringPromotionAuthority": False,
             "artifactRootAtomicBinding": False,
             "boundedArtifactDirectoryScan": True,
@@ -478,13 +490,12 @@ def _parse_owner_blob(values: Iterable[str]) -> dict[str, str]:
     for raw in values:
         owner, separator, blob = raw.partition("=")
         owner = owner.strip()
-        blob = blob.strip().lower()
-        if not separator or not owner or not SHA1_RE.fullmatch(blob):
+        if not separator or not owner or SHA1_RE.fullmatch(blob) is None:
             raise ValueError("--current-owner must be OWNER=40-lowercase-hex-blob")
         if owner in result and result[owner] != blob:
             raise ValueError(f"conflicting current owner blob for {owner}")
         result[owner] = blob
-    return result
+    return _admit_current_owner_blobs(result)
 
 
 def main(argv: Iterable[str] | None = None) -> int:
