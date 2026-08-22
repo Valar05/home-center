@@ -1,0 +1,56 @@
+{
+  "schema": "try-forever-owner-surgery-promotion-plan.v1",
+  "timestampCt": "2026-08-21T23:57:25-05:00",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "authenticatedCurrentOwnerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+  "status": "SOURCE_PROMOTION_PLAN_ONLY",
+  "decision": {
+    "strategy": "SERIALIZE_AND_REBASE",
+    "megaPatchRequired": false,
+    "reason": "The active surgeries share one exact native owner/base but own distinct semantic consequences. Promotion must serialize because any applied mutation changes owner custody; semantic independence does not make stale base locks safe.",
+    "firstPromotionCandidate": "patches/try-forever-heartbeat-selection-announcement-owner-combined.patch",
+    "firstPromotionReason": "This artifact is already the canonical convergence of two earlier overlapping heartbeat surgeries, so promoting it first retires the largest known internal patch-order hazard before rebasing independent siblings.",
+    "afterFirstPromotion": [
+      "Fetch authenticated post-mutation OperatorOverlayService blob.",
+      "Rebase patches/try-forever-operational-contact-owner.patch to the new owner blob and re-review its exact diff.",
+      "Only after operational-contact readback, rebase patches/try-forever-adam-mode-input-accessibility-owner.patch to the then-current owner blob and re-review.",
+      "Do not call any rebased sibling promotion-ready until its new base blob matches authenticated current owner custody."
+    ]
+  },
+  "currentBaseCollisionSet": [
+    {
+      "path": "patches/try-forever-heartbeat-selection-announcement-owner-combined.patch",
+      "state": "CANONICAL_PROPOSED_NOT_APPLIED",
+      "semanticOwner": "heartbeat selection collection + automatic material-transition announcement"
+    },
+    {
+      "path": "patches/try-forever-operational-contact-owner.patch",
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "semanticOwner": "collapsed Home Center operational-contact refresh"
+    },
+    {
+      "path": "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "semanticOwner": "Adam persistent mode/input/Send accessibility lifecycle"
+    }
+  ],
+  "supersededStandaloneRule": "Earlier heartbeat-selection-only and heartbeat-announcement-only surgeries remain provenance and must not be promoted independently.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateNativeOwner": 0,
+    "ownerMutationThisPlan": false
+  },
+  "capability": {
+    "sourcePlan": true,
+    "ownerMutation": false,
+    "authenticatedPostMutationReadback": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
