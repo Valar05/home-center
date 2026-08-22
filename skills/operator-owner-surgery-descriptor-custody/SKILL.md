@@ -14,6 +14,8 @@ This skill owns one source/evidence distinction. It does **not** own a second cu
 
 `STRICT UTF-8 ADMISSION FAILURE != RAW DECODER EXCEPTION ESCAPING THE CUSTODY DOMAIN`.
 
+`AUTHORITY-FACING FILESYSTEM I/O FAILURE != RAW OS ERROR ESCAPING THE CUSTODY DOMAIN`.
+
 A root opened once with `O_DIRECTORY|O_NOFOLLOW` and then used through descriptor-relative scan/open/stat cannot be silently redirected by replacing the **root pathname after the descriptor is held**. That is materially stronger than a pre/post pathname bracket.
 
 A candidate whose no-follow identity is captured during held-root enumeration can also reject **persistent replacement between enumeration and the later authority-facing stat/open/read**. It still does not prove:
@@ -54,8 +56,9 @@ It:
 11. reads complete content inside a hard max+1 byte throat;
 12. requires post-read descriptor stability;
 13. requires the still-held directory name to identify the same regular-file object after the read;
-14. decodes strict UTF-8 and converts malformed text into bounded `DescriptorArtifactCustodyError` rather than leaking `UnicodeDecodeError` outside the custody domain;
-15. returns exact SHA-256 evidence only with the admitted observation.
+14. contains authority-facing pre-stat/open/read/post-stat OS failures inside bounded `DescriptorArtifactCustodyError` boundaries rather than leaking raw `OSError` subclasses;
+15. decodes strict UTF-8 and converts malformed text into bounded `DescriptorArtifactCustodyError` rather than leaking `UnicodeDecodeError` outside the custody domain;
+16. returns exact SHA-256 evidence only with the admitted observation.
 
 `candidate_inventory(...)` is the full evidence-bearing source surface. `candidate_entries(...)` and `candidate_names(...)` remain compatibility projections.
 
@@ -78,6 +81,9 @@ The descriptor inventory source already enforced independent directory-entry and
 ### Review scar: strict text failure is still custody failure
 The descriptor backend originally performed `raw.decode("utf-8", errors="strict")` directly inside observation construction. A malformed text artifact therefore escaped as raw `UnicodeDecodeError` even though every other authority rejection on this source surface uses `DescriptorArtifactCustodyError`. The source now keeps strict UTF-8 admission but converts decoder failure into a bounded custody-domain error with no observation returned. This changes error containment, not the bytes, SHA, identity gates, resource budget, canonical-owner state, or atomicity claims.
 
+### Review scar: disappearance and descriptor failure are still custody wounds
+Code-first review after the UTF-8 repair found a separate failure channel: pre-open `stat`, descriptor-relative `open`, descriptor reads/fstats, and the post-read named-path recheck could still leak raw `OSError` subclasses. The source now maps those authority-facing I/O failures to bounded custody-domain errors. A candidate disappearing after enumeration therefore fails as a typed custody wound rather than an unstructured `FileNotFoundError`. This does not make the operation more atomic; it makes failure evidence deterministic and composable.
+
 ## Regression source
 `tools/test_try_forever_posix_directory_handle_custody.py` — **UNEXECUTED**.
 
@@ -90,6 +96,7 @@ It now includes:
 - matching-candidate max+1 rejects the entire inventory rather than returning partial authority;
 - enumerated candidate identity survives into the bounded read;
 - persistent candidate replacement after enumeration is rejected before authority-facing read;
+- disappearing candidate after enumeration produces typed custody rejection rather than raw OS error;
 - descriptor-relative symlink artifact rejection;
 - max+1 byte rejection with no prefix authority;
 - malformed UTF-8 produces typed custody rejection with no admitted observation authority;
@@ -106,6 +113,7 @@ Descriptor-bound custody is currently:
 - bounded inventory metrics compatible with v10 evidence fields **YES / SUPPORTING SOURCE**;
 - independent inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED**;
 - enumeration→read candidate identity handoff **YES / SUPPORTING SOURCE**;
+- typed filesystem-I/O failure containment **YES / SUPPORTING SOURCE**;
 - strict UTF-8 typed rejection **YES / SUPPORTING SOURCE**;
 - regression source **YES / UNEXECUTED**;
 - canonical v10 owner consumption **NO**;
@@ -114,7 +122,7 @@ Descriptor-bound custody is currently:
 - TESTED **NO**;
 - runtime/deployed/delivered/accepted **NO**.
 
-Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback, `artifactDirectoryEntriesObserved`, `artifactCandidatesObserved`, error semantics, exact base-owner identity admission, exact current-owner identity admission, and exact owner custody/review before mutation.
+Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback, `artifactDirectoryEntriesObserved`, `artifactCandidatesObserved`, bounded error semantics, exact base-owner identity admission, exact current-owner identity admission, and exact owner custody/review before mutation.
 
 ## Current inventory companion
 `tools/test_try_forever_owner_surgery_current_inventory.py` independently targets whether the actual current `patches/` inventory is fully admissible under v10's stricter exact textual state grammar and exact lowercase base-owner identity. It is **REGRESSION SOURCE / UNEXECUTED** and must not be reported as a successful inventory audit until it has an authorized execution receipt.
@@ -125,4 +133,4 @@ This skill consumes no Phone Hands ticket, primary-phone command, recovery queue
 ## Capability membrane
 `requested → supporting source → authenticated source readback → regression source → regression executed → canonical owner composition → authenticated owner readback → TESTED → runtime → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 12:57 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · strict UTF-8 typed rejection **YES / SUPPORTING SOURCE** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Current state at 2026-08-22 12:57 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · inventory-budget hostile fixtures **YES / SOURCE / UNEXECUTED** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · typed filesystem-I/O containment **YES / SUPPORTING SOURCE** · strict UTF-8 typed rejection **YES / SUPPORTING SOURCE** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
