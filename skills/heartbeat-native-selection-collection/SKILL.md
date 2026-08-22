@@ -36,9 +36,21 @@ The existing `OperatorOverlayService` already carries a semantic selected id and
 
 The Android platform documents a horizontal list as one column with as many rows as list items. Do not transpose this into one row/many columns merely because the Views are laid out left-to-right; that was caught and repaired in the 2026-08-21 19:57 Regnet pass.
 
-Before native owner state may be called `SOURCE_WIRED`, direct owner evidence must include both the existing selected-state lifecycle and explicit collection/item semantics for the heartbeat row/items. Comments, literals, wrong methods, policy existence, or a patch artifact do not count.
+### Owner lifecycle application law
+Collection semantics belong to the **collection lifecycle**, not to each child-construction call.
 
-For the current minSdk 26 source contract, any eventual owner implementation must also respect Android API availability. Do not silently replace source policy with API-level assumptions or claim runtime TalkBack behavior from `AccessibilityNodeInfo` source alone.
+For the native owner to count as `SOURCE_WIRED`:
+- initial native selected state must be applied by the existing light owner;
+- selected state must be refreshed when the persistent selected id changes;
+- the collection/item policy must be projected inside one dedicated existing-owner helper;
+- the helper must be applied **after the heartbeat row is constructed** so the collection and every current child can be described together;
+- the helper must run again after persistent selection changes so `CollectionItemInfo.selected` cannot stay stale;
+- an implementation that only calls collection wiring from `applyHeartbeatLight(...)` is **PARTIAL_UNSAFE** even if every marker is present, because it rewrites collection semantics as a per-child side effect and does not prove later selection refresh;
+- comments, literals, wrong methods, policy existence, or patch artifacts do not count as owner wiring.
+
+In-place content refresh may also reapply the helper because it is harmless and keeps delegate snapshots aligned, but it does not replace the required post-rebuild and post-selection lifecycle owners.
+
+For the current minSdk 26 source contract, eventual owner implementation must use Android APIs available to that runtime. `AccessibilityNodeInfo.CollectionInfo.obtain(...)`, `CollectionItemInfo.obtain(...)`, and single-selection mode are API-21-compatible source shapes. Their presence still does not prove TalkBack runtime behavior.
 
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
@@ -50,15 +62,18 @@ An interrupted or rejected heartbeat keeps the last-good visible selection surfa
 Keep these separate:
 `requested → supporting source → owner source wired → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-A Java policy, JUnit source, DOM specimen, or owner probe is not runtime TalkBack proof.
+A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not runtime TalkBack proof.
 
-## Current PR #329 truth — 2026-08-21 19:57 CT
+## Current PR #329 truth — 2026-08-21 21:01 CT
 - persistent-selection reusable doctrine: **YES**;
 - corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
 - `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES**;
 - Android horizontal geometry Regnet correction: **APPLIED SOURCE YES**;
 - deterministic JUnit source: **YES / UNEXECUTED**;
-- direct-owner source probe + hostile fixture: **YES / UNEXECUTED**;
+- direct-owner source probe: **v2 / SOURCE YES / UNEXECUTED**;
+- hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
+- exact base-blob-locked owner surgery: **YES / PROPOSED_NOT_APPLIED**;
+- authenticated owner base blob for that surgery: `c5de1411a6b68087ae17aff83c032af754587150`;
 - current native owner selected-state lifecycle: **YES / SOURCE**;
 - native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
 - TESTED / runtime UI / runtime TalkBack / deployed / phone delivered / accepted: **NO**.
