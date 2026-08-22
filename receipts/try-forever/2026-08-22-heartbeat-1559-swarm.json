@@ -1,0 +1,59 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-22T15:59:34-05:00",
+  "reviewedSourceHead": "d33b9ab4a8784a96227d1b8a4a4292f032ba7236",
+  "frontsAdvanced": [
+    "backend-selection supporting policy",
+    "backend-selection hostile regression source",
+    "focused canonical-v10 contract regression source",
+    "durable backend-selection skill",
+    "touchable non-raster backend-selection Warm Wall"
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "LIT: moved from syscall cleanup polishing to the distinct owner-composition selection wound",
+    "CanonAutoSelect": "LIT: activated descriptor custody, owner-surgery custody, evidence truth, accessibility/touch, and backend-selection doctrine",
+    "AutocorrectJudgmentJar": "DARK: no material token ambiguity",
+    "OriginalityTax": "LIT: forbids silent descriptor-failure downgrade to the weaker portable backend",
+    "Hunger": "LIT: turned the owner-composition boundary into policy + fixture + skill + touchable organism",
+    "EatEverything": "LIT: cross-pollinated v10 evidence fields, descriptor failure semantics, regression drift, and art truth",
+    "OperatorCampaign": "LIT: canonical owner remains sole owner; no neighboring custody controller created",
+    "Harroway": "LIT: source/readback/test/runtime/phone states kept separate",
+    "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no substitute verdict",
+    "Venice": "LIT: bounded source slice may yield; owner integration/test/runtime/campaign continue",
+    "Regnet": "LIT: bounded source/readback PASS only; owner and TESTED promotions rejected",
+    "AccessibilityTalkBackTouch": "LIT: native radio controls, large targets, non-color state, reduced-motion source organism",
+    "PhoneRuntimePhoneHands": "DARK_BY_FIREWALL: consumption 0, mutation 0",
+    "DeterministicRouting": "LIT: capability status deterministically selects portable or descriptor backend",
+    "EvidenceCapabilityState": "LIT: supporting source != owner wired != regression executed != TESTED/runtime/deployed/delivered",
+    "RecoveryCheckpointIdempotence": "LIT: selected descriptor failure fails closed; no weaker retry laundering",
+    "StrangeNonRasterArt": "LIT: DOM + inline SVG source organism, no raster",
+    "WarmWalls": "LIT: backend-selection wall makes PORTABLE / HELD FD / FAIL CLOSED touchable",
+    "ChristmasLightSceneGraph": "DARK: no runtime transition/motion law changed; no decorative blink",
+    "ContactPreservation": "LIT: canonical evidence fields and existing v10 portable fallback contract preserved"
+  },
+  "crossPollination": "descriptor backend hardening -> owner composition selection hazard -> no-downgrade fail-closed law -> v10 evidence-field preservation -> focused v10 drift fixture -> durable skill -> touchable backend wall -> Regnet/Venice membrane",
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "backendSelectionPolicy": true,
+    "backendSelectionRegressionSource": true,
+    "focusedV10RegressionSource": true,
+    "regressionsExecuted": false,
+    "canonicalOwnerBackendSelection": false,
+    "canonicalOwnerDescriptorIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
