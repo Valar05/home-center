@@ -16,7 +16,7 @@ def main() -> int:
     seam = result["nativePersistentSelection"]
     assert seam["status"] == "PARTIAL_UNSAFE"
     assert "collection" in seam["reason"]
-    assert "position-in-set" in seam["reason"]
+    assert "row/item" in seam["reason"]
 
     wired = wrap(
         "private void applyHeartbeatLight(Button light, Object control) {\n"
@@ -24,11 +24,11 @@ def main() -> int:
         "  applyHeartbeatSelectionAccessibility(model);\n"
         "}\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) {\n"
-        "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selected);\n"
+        "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId);\n"
         "  heartbeatLights.setAccessibilityDelegate(delegate);\n"
-        "  AccessibilityNodeInfo.CollectionInfo.obtain(1, d.columnCount, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
-        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(0, 1, item.positionInSet - 1, 1, false, item.selected);\n"
-        "  int positionInSet = item.positionInSet; int setSize = item.setSize; boolean selected = item.selected;\n"
+        "  AccessibilityNodeInfo.CollectionInfo.obtain(d.rowCount, d.columnCount, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
+        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(item.rowIndex, 1, item.columnIndex, 1, false, item.selected);\n"
+        "  boolean selected = item.selected;\n"
         "}"
     )
     result = classify(wired)
@@ -39,7 +39,7 @@ def main() -> int:
         "private void applyHeartbeatLight(Button light, Object control) {\n"
         "  light.setSelected(true);\n"
         "  // applyHeartbeatSelectionAccessibility(model);\n"
-        "  String fake = \"HeartbeatSelectionAccessibilityPolicy.fromModel AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain positionInSet setSize selected\";\n"
+        "  String fake = \"HeartbeatSelectionAccessibilityPolicy.fromModel AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain rowCount columnCount rowIndex columnIndex selected\";\n"
         "}\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) { }"
     )
@@ -51,11 +51,11 @@ def main() -> int:
         "private void applyHeartbeatLight(Button light, Object control) { light.setSelected(true); }\n"
         "private void applyHeartbeatSelectionAccessibility(Object model) { }\n"
         "private void unrelated() {\n"
-        "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selected);\n"
+        "  HeartbeatSelectionAccessibilityPolicy.CollectionDecision d = HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId);\n"
         "  heartbeatLights.setAccessibilityDelegate(delegate);\n"
-        "  AccessibilityNodeInfo.CollectionInfo.obtain(1, d.columnCount, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
-        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(0, 1, item.positionInSet - 1, 1, false, item.selected);\n"
-        "  int positionInSet = item.positionInSet; int setSize = item.setSize; boolean selected = item.selected;\n"
+        "  AccessibilityNodeInfo.CollectionInfo.obtain(d.rowCount, d.columnCount, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
+        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(item.rowIndex, 1, item.columnIndex, 1, false, item.selected);\n"
+        "  boolean selected = item.selected;\n"
         "}"
     )
     result = classify(wrong_method)
