@@ -1,12 +1,15 @@
 # TRY FOREVER heartbeat persistent-selection doctrine convergence
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE BLOB: 76e93aa2613139718f7d89cd6e44dea84f23d883
 # TARGET: skills/heartbeat-skill-lights/SKILL.md
+# APPLIED COMMIT: 01038f86ee131257b0eb68acf3e59e585d779891
+# RESULT BLOB: 6287c7660a00a45b07bc00675af353f2a7ac6e0e
+# MUTATION LANE: audited Home Center GitHub admin whole-file upsert from authenticated base
 #
 # Intent: remove stale toggle-shaped permission from the broad heartbeat doctrine.
 # The current DOM specimen plus `persistent-selection-semantics` and
-# `heartbeat-native-selection-collection` already use persistent one-of-many radio semantics.
-# This patch changes doctrine only; it does not claim runtime TalkBack or native owner wiring.
+# `heartbeat-native-selection-collection` use persistent one-of-many radio semantics.
+# This is repository/source doctrine only; it does not claim runtime TalkBack or native owner wiring.
 
 diff --git a/skills/heartbeat-skill-lights/SKILL.md b/skills/heartbeat-skill-lights/SKILL.md
 --- a/skills/heartbeat-skill-lights/SKILL.md
