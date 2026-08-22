@@ -1,44 +1,18 @@
-# TRY FOREVER owner surgery — operational contact + Adam Send availability
+# TRY FOREVER owner surgery — collapsed operational contact only
 # Base owner blob: c5de1411a6b68087ae17aff83c032af754587150
 # Target: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-# State: PROPOSED_NOT_APPLIED
+# State: CORRECTED_PROPOSED_NOT_APPLIED
 # P0/phone: untouched
+# Ownership correction 2026-08-21:
+# - This patch now owns ONLY collapsed Home Center operational-contact refresh.
+# - Adam Send availability moved into the existing Adam mode/input accessibility owner surgery.
+# - Reason: both previous proposals touched the same Adam fields/TextWatcher/mode method on the
+#   same base blob. Keeping availability here would create overlapping patch order hazards and
+#   duplicate semantic writers. One concern, one canonical surgery surface.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 +++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
-@@
- import android.provider.Settings;
-+import android.text.Editable;
- import android.text.TextUtils;
-+import android.text.TextWatcher;
- import android.text.method.ScrollingMovementMethod;
-@@
-     private Button muteButton;
-     private Button controlButton;
-     private EditText adamInput;
-+    private Button adamSendButton;
-@@
--        Button adamSendButton = button("Send");
--        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
-+        adamSendButton = button("Send");
-         adamSendButton.setOnClickListener(v -> submitAdamRequest());
-+        adamInput.addTextChangedListener(new TextWatcher() {
-+            @Override
-+            public void beforeTextChanged(CharSequence value, int start, int count, int after) {
-+            }
-+
-+            @Override
-+            public void onTextChanged(CharSequence value, int start, int before, int count) {
-+                refreshAdamSendAvailability();
-+            }
-+
-+            @Override
-+            public void afterTextChanged(Editable value) {
-+            }
-+        });
-+        refreshAdamSendAvailability();
-         adamInputRow.addView(adamSendButton);
 @@
          status.setText(state);
          status.setTextColor(stateColor);
@@ -65,31 +39,3 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +        if (!TextUtils.equals(dragHandle.getContentDescription(), nextDescription)) {
 +            dragHandle.setContentDescription(nextDescription);
 +        }
-@@
-     private Button adamModeButton(String label, String mode, String description) {
-         Button value = button(label);
-         value.setContentDescription(description);
-         value.setOnClickListener(v -> {
-             adamMode = mode;
-             if (adamInput != null) {
-                 adamInput.setHint("Adam — " + mode);
-                 adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
-                 adamInput.requestFocus();
-             }
-+            refreshAdamSendAvailability();
-         });
-         return value;
-     }
-+
-+    private void refreshAdamSendAvailability() {
-+        if (adamSendButton == null || adamInput == null) return;
-+        AdamSendAvailabilityAccessibilityPolicy.Decision decision =
-+                AdamSendAvailabilityAccessibilityPolicy.decisionFor(
-+                        adamMode,
-+                        adamInput.getText());
-+        adamSendButton.setText(decision.visibleLabel);
-+        adamSendButton.setEnabled(decision.enabled);
-+        adamSendButton.setContentDescription(decision.actionDescription);
-+    }
- 
-     private void submitAdamRequest() {
