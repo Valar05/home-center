@@ -1,9 +1,10 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: REJECTED_NORMALIZATION_WOUND__SUPERSEDED_BY_V10
 # BASE OWNER BLOB: a3a11139faf426ddeae90c035708d4a3e0e1e36f
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
-# PURPOSE: combine final post-artifact root revalidation with exact fail-closed surgery-state admission.
-# SUPERSEDES: patches/try-forever-owner-surgery-custody-v8-final-root.patch
-# BOUNDARY: supporting source only; does not claim atomic root binding, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+# PURPOSE: historical v9 attempt to combine final post-artifact root revalidation with exact fail-closed surgery-state admission.
+# SUPERSEDED BY: patches/try-forever-owner-surgery-custody-v10-root-state-exact.patch
+# REJECTION: current STATE_RE consumes surrounding whitespace before state.group(1), so this patch could still normalize textual patch state before the exact state policy sees it.
+# BOUNDARY: rejected historical source only; DO NOT APPLY. Does not claim owner wiring, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
 --- a/tools/try_forever_owner_surgery_custody_probe.py
 +++ b/tools/try_forever_owner_surgery_custody_probe.py
 @@ -6,12 +6,16 @@
