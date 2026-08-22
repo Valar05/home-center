@@ -9,7 +9,7 @@ SPECIMEN = Path("docs/try-forever/heartbeat-skill-lights-source-specimen.html")
 def main() -> int:
     source = SPECIMEN.read_text(encoding="utf-8")
 
-    assert 'role="radiogroup"' in source
+    assert '<div class="grid" role="radiogroup"' in source
     assert 'role="radio"' in source
     assert 'aria-checked="true"' in source
     assert 'aria-checked="false"' in source
@@ -24,9 +24,11 @@ def main() -> int:
     assert "SOURCE ONLY" in source
     assert "PHONE" in source
 
-    # Persistent one-of-many selection must never regress to toggle semantics.
+    # Persistent one-of-many selection must never regress to toggle/list semantics.
     assert "aria-pressed" not in source
     assert "innerHTML" not in source
+    assert "<li" not in source
+    assert "<ul" not in source
 
     print("Heartbeat source specimen persistent-selection semantics: PASS")
     return 0
