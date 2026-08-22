@@ -1,0 +1,69 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "pulse": "2026-08-22T04:57:00-05:00",
+  "sourceHeadReviewed": "d5945a8c1c583dd0d2579a1d17cce18c5e7ceb3d",
+  "claim": "bounded supporting source/readback for owner-surgery custody late-root final gate",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_PATCH_NOT_APPLIED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "evidence": {
+    "canonicalProbe": {
+      "path": "tools/try_forever_owner_surgery_custody_probe.py",
+      "blob": "a3a11139faf426ddeae90c035708d4a3e0e1e36f",
+      "implementedVersion": "v7"
+    },
+    "plan": {
+      "path": "operator-evidence/try-forever-heartbeat-20260822T0457-plan.md",
+      "blob": "2d294f84a0d160e2eff1fd5a43d3816979c69139"
+    },
+    "preparedPatch": {
+      "path": "patches/try-forever-owner-surgery-custody-v8-final-root.patch",
+      "blob": "d7782a192e3035cf974d1cf1082d97fe01b8efee",
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED"
+    },
+    "redRegression": {
+      "path": "tools/test_try_forever_owner_surgery_final_root_revalidation.py",
+      "blob": "43855a0d086d5404b7e0b3787a423a44396a8fa8",
+      "executed": false
+    },
+    "skill": {
+      "path": "skills/operator-owner-surgery-custody/SKILL.md",
+      "blob": "786cb059c60ff3c7915a6567a662a50b154d6c24"
+    },
+    "sourceOrganism": {
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "blob": "be4db74101ee9d1a9b0afcb0fb85928beb0c72e5"
+    }
+  },
+  "finding": "v7 revalidates patches-root identity after traversal but not after subsequent artifact observations. Persistent root replacement after the post-scan check can therefore change the pathname root before artifact-derived promotion evidence is emitted. Prepared v8 adds a final post-artifact root revalidation and zero-authority failure consequence.",
+  "review": {
+    "failureIsTheShovel": "PASS: chose a distinct late-root custody wound rather than retrying CI or repainting the v7 root gate.",
+    "originalityTax": "PASS: prepared a different three-observation custody model; did not call it atomic.",
+    "duplicateArchitecture": "PASS: reused existing root identity and finite-artifact organs; no second custody controller.",
+    "evidenceTruth": "PASS: canonical probe remains v7; v8 patch is not applied; regression is unexecuted.",
+    "atomicBinding": "UNPROVEN_BY_DESIGN: swap-and-restore entirely between observations and identity reuse remain open.",
+    "phoneP0Firewall": "PASS: zero consumption, zero mutation, zero duplicate architecture."
+  },
+  "executionBoundary": {
+    "computerHandsWorker": "windows-hands-01",
+    "online": false,
+    "queueDepth": 4,
+    "duplicateRequestCreated": false,
+    "reason": "patch-capable non-phone body unavailable; active TRY FOREVER lanes already exist"
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "canonicalProbeV8": false,
+    "v8PatchPrepared": true,
+    "v8PatchApplied": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
