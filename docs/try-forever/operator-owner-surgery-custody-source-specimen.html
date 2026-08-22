@@ -23,12 +23,12 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · ● STRICT UTF-8 TYPED REJECTION SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
 <p class="owner"><strong>Current custody-owner blob:</strong> f3457f82f5ea135e303c6ca7b93491511a471dd7<br><strong>Current-owner exactness applied commit:</strong> bbc13531816eb48353d01c201b2ef4e8d3715563<br><strong>Earlier artifact-base exactness commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody is a stronger supporting backend that has not been composed into the canonical owner.</desc>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody adds stronger source-only candidate identity and strict UTF-8 rejection without canonical-owner integration.</desc>
   <path d="M45 75 H730"/>
   <circle cx="60" cy="75" r="22"/><text x="39" y="80">ROOT</text>
   <circle cx="180" cy="75" r="22"/><text x="162" y="80">SCAN</text>
@@ -82,19 +82,28 @@
   </div>
 </details>
 
+<details open>
+  <summary><span class="token">UTF8</span> Strict text admission — supporting source</summary>
+  <div>
+    <p>Malformed UTF-8 does not become replacement text, partial authority, or a raw decoder exception escaping the custody surface.</p>
+    <p>The held-descriptor source keeps strict decoding and converts decode failure to bounded <code>DescriptorArtifactCustodyError</code>. Exact byte/SHA evidence is computed from the observed bytes but no <code>DescriptorArtifactObservation</code> is returned when text admission fails.</p>
+    <p><strong>Regression source:</strong> malformed UTF-8 must produce the typed custody rejection after the existing root/candidate/file identity gates; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
+
 <details>
   <summary><span class="token">FD</span> Held-directory backend — supporting source</summary>
   <div>
     <p>On POSIX runtimes with the required descriptor primitives, supporting source can hold the root directory, scan through fresh descriptor-relative handles, carry enumeration-time candidate identity into pre-open checks, and read candidates through no-follow descriptor-relative operations.</p>
     <p>It preserves total-entry and candidate-count evidence. It detects persistent root/candidate replacement more strongly than pathname-only custody.</p>
-    <p><strong>Cross-review this pulse:</strong> no fresh safe canonical-owner composition was established. <strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
+    <p><strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Exact-owner regression:</strong> SOURCE / UNEXECUTED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Descriptor strict UTF-8 rejection:</strong> SUPPORTING SOURCE. <strong>Descriptor regression:</strong> SOURCE / UNEXECUTED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
