@@ -86,7 +86,8 @@ def main() -> int:
             "try-forever-c.delta.json",
         ]
         assert [item["artifact_kind"] for item in candidates] == [
-            "patch", "patch", "delta_json"]
+            "patch", "patch", "delta_json",
+        ]
         assert all(item["promotion_candidate"] for item in candidates)
 
         stale = result["staleBaseGroups"]
