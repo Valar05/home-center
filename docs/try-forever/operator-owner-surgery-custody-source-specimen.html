@@ -9,132 +9,81 @@
   body { margin: 0; padding: 24px; max-width: 920px; }
   h1 { font-size: 1.35rem; margin: 0 0 8px; }
   .scar { border: 2px solid currentColor; padding: 12px; margin: 16px 0; font-weight: 700; }
-  .owner { overflow-wrap: anywhere; font-family: ui-monospace, monospace; }
+  .owner, code { overflow-wrap: anywhere; font-family: ui-monospace, monospace; }
   details { border: 1px solid currentColor; margin: 12px 0; }
   summary { min-height: 56px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; font-weight: 700; }
   details > div { border-top: 1px solid currentColor; padding: 12px 16px 16px; }
-  .token { display: inline-grid; place-items: center; min-width: 2rem; min-height: 2rem; border: 1px solid currentColor; padding: 2px 5px; flex: 0 0 auto; }
-  .flow { display: grid; gap: 8px; margin: 18px 0; }
-  .step { border-left: 4px solid currentColor; padding: 10px 12px; }
-  code { overflow-wrap: anywhere; }
+  .token { display: inline-grid; place-items: center; min-width: 2.5rem; min-height: 2.5rem; border: 1px solid currentColor; padding: 2px 6px; flex: 0 0 auto; }
+  .flow { width: 100%; max-width: 780px; height: auto; margin: 18px 0; }
+  .flow text { fill: currentColor; font: 700 13px system-ui, sans-serif; }
+  .flow path, .flow circle, .flow rect { stroke: currentColor; fill: none; stroke-width: 2; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
-<p>One owner at a time. Patch and structured-delta provenance share one root, bounded traversal, bounded candidate, and finite-artifact custody chain.</p>
-<div class="scar">× CURRENT PROBE v7 · v8 FINAL ROOT GATE PREPARED / NOT APPLIED · ROOT → SCAN → POST-SCAN CHECK → ARTIFACTS → FINAL ROOT COMMIT GATE · ATOMIC BINDING UNCLAIMED · TESTED NO · PHONE/P0 UNTOUCHED</div>
-<p class="owner"><strong>Custody owner:</strong> tools/try_forever_owner_surgery_custody_probe.py<br><strong>Canonical probe:</strong> v7 SOURCE<br><strong>Prepared repair:</strong> v8 PROPOSED_NOT_APPLIED<br><strong>Native overlay mutation by this slice:</strong> NO</p>
+<p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Custody owner:</strong> tools/try_forever_owner_surgery_custody_probe.py<br><strong>Base-identity owner blob:</strong> d5c22feac7b3f71045cc139e120b2ae45a3b1c37<br><strong>Base-identity applied commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a</p>
+
+<svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
+  <title id="flow-title">Owner surgery custody chain</title>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state and exact base identity. POSIX held-descriptor custody is a stronger supporting backend that has not been composed into the canonical owner.</desc>
+  <path d="M60 75 H720"/>
+  <circle cx="70" cy="75" r="24"/><text x="48" y="80">ROOT</text>
+  <circle cx="210" cy="75" r="24"/><text x="192" y="80">SCAN</text>
+  <circle cx="350" cy="75" r="24"/><text x="334" y="80">FILE</text>
+  <circle cx="490" cy="75" r="24"/><text x="469" y="80">STATE</text>
+  <circle cx="630" cy="75" r="24"/><text x="604" y="80">BASE ID</text>
+  <rect x="672" y="31" width="96" height="88"/><text x="689" y="60">HELD FD</text><text x="688" y="83">SOURCE</text><text x="688" y="106">ONLY</text>
+</svg>
 
 <details open>
-  <summary><span class="token">ROOT</span> Named patches root — redirector / identity gate</summary>
+  <summary><span class="token">BASE</span> Exact base-owner identity — SOURCE WIRED</summary>
   <div>
-    <p><strong>Before traversal:</strong> capture the named <code>patches/</code> root with the existing no-follow root-identity organ. Symlink/junction topology or unavailable object identity fails closed before scanning.</p>
-    <p><strong>After traversal:</strong> v7 re-observes the same named root. Persistent type/device/inode/redirector drift invalidates the observed candidate set before parsing.</p>
-    <p><strong>Fresh wound:</strong> v7 then reads/parses artifact paths without another root observation. Persistent replacement after the post-scan check can therefore occur before artifact authority work finishes.</p>
-    <p><strong>Prepared v8 consequence:</strong> revalidate the original root again after all artifact observations and before emitting surgery/collision/stale/unverified authority. Failure clears all promotion authority from that inventory.</p>
-    <p><strong>Honest boundary:</strong> even the prepared final gate is not an atomic directory handle. Swap-and-restore entirely between observations and identity reuse remain open.</p>
+    <p>Patch/delta base-owner SHA text is authority evidence, not display text. Uppercase or normalization-dependent evidence is rejected instead of lowercased into authority.</p>
+    <p><strong>Applied source:</strong> textual patch evidence preserves the captured token and validates exact lowercase SHA; structured delta evidence is validated before any case transformation.</p>
+    <p><strong>Regression source:</strong> lowercase admission and uppercase rejection exist for both patch and delta forms. They remain <strong>UNEXECUTED</strong>.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">↔</span> Artifact family — patch + delta</summary>
+  <summary><span class="token">v10</span> Portable canonical owner</summary>
   <div>
-    <p><strong>v2 wound:</strong> patch-only discovery missed structured owner deltas.</p>
-    <p><strong>v3 wound:</strong> malformed delta evidence failed closed while malformed matching patches could still vanish or crash admission.</p>
-    <p><strong>v4 wound:</strong> content bytes were bounded, but ordinary path open could still follow or block on hostile topology.</p>
-    <p><strong>v5 wound:</strong> matching candidates were bounded, but glob scanning did not bound work spent on unrelated directory entries.</p>
-    <p><strong>v6 wound:</strong> traversal and candidate/file work were bounded, but the named <code>patches/</code> root itself was not bracketed by no-follow identity evidence.</p>
-    <p><strong>v7 source rule:</strong> root admission/revalidation → count every directory entry → bound matching candidates separately → admit each artifact through one hardened finite regular-file organ.</p>
-    <p><strong>v8 proposal:</strong> keep v7, then add a final root commit gate after artifact reads before promotion authority is emitted.</p>
+    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, and now exact base identity.</p>
+    <p><strong>Still not atomic:</strong> pathname revalidation does not eliminate swap-and-restore or filesystem identity reuse.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">32K</span> Directory traversal throat</summary>
+  <summary><span class="token">32K</span> Directory-entry throat</summary>
   <div>
-    <p><strong>Budget:</strong> 32,768 non-recursive directory entries. Unrelated clutter counts.</p>
-    <p><strong>Max+1:</strong> the entire promotion inventory fails closed; the first observed matches do not become partial authority.</p>
-    <p><strong>Precondition:</strong> named-root custody must already be admitted.</p>
+    <p>Unrelated entries count. The portable owner and held-descriptor supporting source both treat total directory-entry work separately from matching candidate count.</p>
+    <p><strong>Descriptor hostile source added:</strong> unrelated-entry max+1 must reject the entire inventory rather than return partial authority.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">2048</span> Matching candidate throat</summary>
+  <summary><span class="token">2048</span> Candidate throat</summary>
   <div>
-    <p><strong>Budget:</strong> 2,048 matching <code>try-forever-*.patch</code> / <code>*.delta.json</code> artifacts.</p>
-    <p><strong>Max+1:</strong> zero partial promotion authority. Sorting happens only after bounded admission.</p>
-    <p><strong>Distinct job:</strong> root custody, directory-entry work, and candidate count are three separate contracts.</p>
+    <p>Matching patch/delta candidates have an independent budget. Candidate max+1 must reject the inventory instead of blessing the first N candidates.</p>
+    <p>This budget rule is now pinned in descriptor regression source and remains <strong>UNEXECUTED</strong>.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">FILE</span> Finite ordinary-artifact custody</summary>
+  <summary><span class="token">FD</span> Held-directory backend — supporting source</summary>
   <div>
-    <p><strong>Reuse, not duplication:</strong> owner-surgery custody reuses the existing hardened finite-artifact observer.</p>
-    <p><strong>Before content trust:</strong> ordinary regular-file topology, no-follow/reparse checks, path↔descriptor identity, bounded complete EOF, strict UTF-8, and post-read stability.</p>
-    <p><strong>Redirector / directory / FIFO / special / replacement drift:</strong> bounded discovery error; never surgery authority and never an intentional blocking read.</p>
-    <p><strong>Boundary:</strong> this detects common topology/replacement races. It does not claim universal atomic filesystem binding.</p>
-  </div>
-</details>
-
-<details>
-  <summary><span class="token">COMMIT</span> Final root commit gate — prepared v8</summary>
-  <div>
-    <p><strong>Why it exists:</strong> a stable root at scan completion does not prove the same named root still owns later artifact reads.</p>
-    <p><strong>Required order:</strong> capture authority root → bounded scan → post-scan root check → finite artifact observations → <strong>final root check</strong> → only then emit promotion authority.</p>
-    <p><strong>Late persistent drift:</strong> zero surgeries, zero collision/stale/unverified groups, <code>evidenceComplete=false</code>, bounded <code>artifact_root</code> evidence.</p>
-    <p><strong>Current capability:</strong> exact v8 patch prepared and base-blob locked; canonical probe remains v7 because the patch-capable non-phone worker is offline. No duplicate request was queued.</p>
-  </div>
-</details>
-
-<details>
-  <summary><span class="token">1M</span> Artifact content throat</summary>
-  <div>
-    <p><strong>Budget:</strong> complete artifact must fit within 1 MiB.</p>
-    <p><strong>Max+1:</strong> reject before patch metadata or delta JSON can earn authority. No prefix digest/text is promoted.</p>
-    <p><strong>Encoding:</strong> strict UTF-8 only.</p>
-  </div>
-</details>
-
-<details>
-  <summary><span class="token">×</span> Root / patch / delta fault isolated</summary>
-  <div>
-    <p>Root redirector/drift/identity failure, missing base/state/owner evidence, malformed UTF-8, conflicting aliases, duplicate JSON members, unsupported schema, artifact topology wounds, artifact drift, and resource overflow become bounded <code>discoveryErrors</code>.</p>
-    <p><strong>Consequence:</strong> <code>evidenceComplete=false</code>. Root/traversal/candidate failures withhold the whole promotion inventory; per-artifact wounds keep exhaustive authority withheld without pretending healthy sibling inspection equals completion.</p>
-  </div>
-</details>
-
-<details>
-  <summary><span class="token">1</span> Known current-base surgery family</summary>
-  <div>
-    <p>Known candidates may be shown when current-owner custody is supplied, but a known list is not automatically an exhaustive inventory.</p>
-    <p>Applying one surgery changes owner custody and stales siblings until fresh authenticated readback and deliberate rebase/convergence.</p>
-  </div>
-</details>
-
-<div class="flow" aria-label="Custody evidence sequence">
-  <div class="step"><strong>● Root:</strong> no-follow named-root admission; reject redirectors/unavailable identity.</div>
-  <div class="step"><strong>□ Scan:</strong> bounded non-recursive directory-entry work.</div>
-  <div class="step"><strong>□ Post-scan check:</strong> persistent root identity must still match before candidate parsing.</div>
-  <div class="step"><strong>□ Match:</strong> bounded patch + delta candidate collection.</div>
-  <div class="step"><strong>□ Admit:</strong> finite ordinary-file custody before parsing.</div>
-  <div class="step"><strong>× Final root gate:</strong> PREPARED v8; late persistent drift must erase all promotion authority.</div>
-  <div class="step"><strong>◇ Bind:</strong> current-base readiness separately requires authenticated current-owner blob evidence.</div>
-  <div class="step"><strong>→ Promote separately:</strong> custody discovery never applies a surgery.</div>
-</div>
-
-<details>
-  <summary><span class="token">!</span> Why not “atomic”?</summary>
-  <div>
-    <p>Portable repeated root identity catches persistent redirector/replacement drift. It does not turn pathname traversal and later artifact reads into a single atomic root handle. The wall keeps swap-and-restore and identity reuse visible instead of painting them green.</p>
+    <p>On POSIX runtimes with the required descriptor primitives, supporting source can hold the root directory, scan through fresh descriptor-relative handles, carry enumeration-time candidate identity into pre-open checks, and read candidates through no-follow descriptor-relative operations.</p>
+    <p>It preserves total-entry and candidate-count evidence. It detects persistent root/candidate replacement more strongly than pathname-only custody.</p>
+    <p><strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Canonical probe:</strong> v7 / IMPLEMENTED SOURCE. <strong>Prepared v8 patch:</strong> YES / NOT APPLIED. <strong>Late-root regression source:</strong> YES / UNEXECUTED. <strong>Final post-artifact root revalidation:</strong> NO. <strong>Atomic root binding:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact base identity:</strong> SOURCE_WIRED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
