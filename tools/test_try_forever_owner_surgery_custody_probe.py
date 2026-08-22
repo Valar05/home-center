@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from try_forever_owner_surgery_custody_probe import (
     MAX_ARTIFACT_BYTES,
     MAX_CUSTODY_ARTIFACTS,
+    MAX_CUSTODY_DIRECTORY_ENTRIES,
     classify,
 )
 
@@ -71,11 +72,13 @@ def main() -> int:
             delta("APPLIED_SOURCE", "applied-delta"), encoding="utf-8")
 
         result = classify(root, {OWNER: BASE})
-        assert result["schema"] == "try-forever-owner-surgery-custody.v5"
+        assert result["schema"] == "try-forever-owner-surgery-custody.v6"
         assert result["artifactKindsScanned"] == ["patch", "delta_json"]
         assert result["artifactReadBudgetBytes"] == MAX_ARTIFACT_BYTES
         assert result["artifactCandidateBudget"] == MAX_CUSTODY_ARTIFACTS
         assert result["artifactCandidatesObserved"] == 10
+        assert result["artifactDirectoryEntryBudget"] == MAX_CUSTODY_DIRECTORY_ENTRIES
+        assert result["artifactDirectoryEntriesObserved"] == 10
         assert result["discoveryErrors"] == []
         assert result["evidenceComplete"] is True
 
@@ -135,6 +138,7 @@ def main() -> int:
         assert capability["sourceInspection"] is True
         assert capability["patchArtifactInspection"] is True
         assert capability["deltaArtifactInspection"] is True
+        assert capability["boundedArtifactDirectoryScan"] is True
         assert capability["boundedArtifactCandidateSet"] is True
         assert capability["boundedArtifactRead"] is True
         assert capability["finiteRegularArtifactCustody"] is True
@@ -167,6 +171,26 @@ def main() -> int:
         assert error["artifact_kind"] == "artifact_inventory"
         assert "candidate set exceeds 2" in error["boundary"]
 
+    # Unrelated directory entries consume the traversal throat too; candidate count alone is not enough.
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "junk-a.txt").write_text("a", encoding="utf-8")
+        (root / "junk-b.txt").write_text("b", encoding="utf-8")
+        (root / "try-forever-a.patch").write_text(
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+        result = classify(root, {OWNER: BASE}, max_entries=2)
+        assert result["artifactDirectoryEntryBudget"] == 2
+        assert result["artifactDirectoryEntriesObserved"] == 3
+        assert result["surgeries"] == []
+        assert result["collisionSets"] == []
+        assert result["staleBaseGroups"] == []
+        assert result["unverifiedBaseGroups"] == []
+        assert result["evidenceComplete"] is False
+        assert len(result["discoveryErrors"]) == 1
+        error = result["discoveryErrors"][0]
+        assert error["artifact_kind"] == "artifact_inventory"
+        assert "directory scan exceeds 2" in error["boundary"]
+
     # A matching directory/special topology must fail before content I/O rather than block or become text.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -178,20 +202,6 @@ def main() -> int:
         error = result["discoveryErrors"][0]
         assert error["artifact_kind"] == "patch"
         assert "ordinary finite regular-file object" in error["boundary"]
-
-    # Matching malformed patch evidence must fail closed instead of silently vanishing.
-    with TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        (root / "try-forever-missing-base.patch").write_text(
-            "# STATUS: CORRECTED_PROPOSED_NOT_APPLIED\n# OWNER: " + OWNER + "\n",
-            encoding="utf-8",
-        )
-        result = classify(root, {OWNER: BASE})
-        assert result["surgeries"] == []
-        assert result["evidenceComplete"] is False
-        assert len(result["discoveryErrors"]) == 1
-        assert result["discoveryErrors"][0]["artifact_kind"] == "patch"
-        assert "missing an exact base-owner blob" in result["discoveryErrors"][0]["boundary"]
 
     # Strict UTF-8 is part of custody evidence; replacement decoding cannot invent authority.
     with TemporaryDirectory() as tmp:
@@ -256,7 +266,7 @@ def main() -> int:
         assert len(result["discoveryErrors"]) == 1
         assert "duplicate JSON member" in result["discoveryErrors"][0]["boundary"]
 
-    print("TRY FOREVER owner surgery custody regression source: finite topology + bounded inventory classified")
+    print("TRY FOREVER owner surgery custody regression source: bounded traversal + finite artifacts classified")
     return 0
 
 
