@@ -1,0 +1,124 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "localCheckpoint": "2026-08-22T17:01:33-05:00",
+  "reviewedSourceHead": "4fe4614de490dd307ad386bae1783ef7d3ec02a8",
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "changed": "Refused to treat backend-selection source as composition-ready after discovering incomplete canonical v10 scans can still project promotion authority."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "changed": "Changed evidence path instead of retrying CI: added a result-admission throat, a RED canonical-owner regression, and a narrow existing-owner repair."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "changed": "Activated operator-owner-surgery-backend-selection, operator-owner-surgery-descriptor-custody, operator-owner-surgery-custody, and new operator-owner-surgery-exhaustive-authority doctrine."
+    },
+    {
+      "name": "Hunger / Eat Everything",
+      "state": "ACTIVE",
+      "changed": "Converged policy, regressions, owner patch provenance, skill doctrine, and the existing Warm Wall around one evidence membrane."
+    },
+    {
+      "name": "Operator Campaign / Harroway",
+      "state": "ACTIVE",
+      "changed": "Kept canonical v10 as sole custody owner; prepared one narrow owner patch and did not create a second probe/controller."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "changed": "Caught two evidence overclaims: partial authority on incomplete custody, and the first result gate equating complete scan evidence with authenticated owner evidence."
+    },
+    {
+      "name": "Venice Judgment Jar",
+      "state": "ACTIVE",
+      "changed": "Allowed this bounded source slice to yield while owner repair, backend owner composition, regression execution, test, runtime, and campaign remain open."
+    },
+    {
+      "name": "She-Raw",
+      "state": "FAULT",
+      "changed": "Authoritative pre-execution call attempted; account connection returned HTTP 400. No substitute verdict."
+    },
+    {
+      "name": "Accessibility / TalkBack / Touch",
+      "state": "ACTIVE_SOURCE_ONLY",
+      "changed": "Mutated the existing DOM/inline-SVG backend Warm Wall with a touchable evidence throat; no runtime/TalkBack claim."
+    },
+    {
+      "name": "Deterministic Routing / Evidence Discipline",
+      "state": "ACTIVE",
+      "changed": "Backend result gate now preserves directory/candidate counts, discoveryErrors, currentOwnerBlobs, exact backend identity, and separates exhaustive from owner evidence."
+    },
+    {
+      "name": "Recovery / Checkpoint / Idempotence / Contact Preservation",
+      "state": "ACTIVE",
+      "changed": "Incomplete custody keeps healthy surgery diagnostics but must not retain promotion authority; stronger-backend failure cannot silently downgrade."
+    },
+    {
+      "name": "Warm Walls / Vector DOM Art",
+      "state": "ACTIVE_SOURCE_ONLY",
+      "changed": "Existing wall mutated in place; no neighboring art/controller family."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No material token ambiguity required resolution."
+    },
+    {
+      "name": "Christmas-Light Scene Graph",
+      "state": "DARK",
+      "changed": "No runtime semantic transition earned motion; evidence plumbing did not receive decorative blink."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands / P0",
+      "state": "FIREWALLED_DARK",
+      "changed": "Consumption 0; mutation 0; duplicate architecture 0; new P0 finding none."
+    }
+  ],
+  "frontsAdvanced": [
+    "backend selection result-admission source",
+    "backend hostile regression source",
+    "canonical v10 zero-partial-authority RED regression",
+    "exact canonical-owner repair provenance",
+    "new exhaustive-authority skill",
+    "backend-selection skill convergence",
+    "existing Warm Wall evidence-throat mutation",
+    "Regnet/Venice/execution evidence synthesis"
+  ],
+  "crossPollination": "Descriptor custody became strong enough that owner composition evidence, not another syscall, became the weak seam. Reviewing that seam exposed canonical v10 partial promotion authority during incomplete custody. The result gate then exposed a second overclaim: exhaustive scan completion is not authenticated current-owner custody. Both corrections propagated through regressions, one existing-owner patch, durable skills, and the existing touchable wall.",
+  "executionTruth": {
+    "operatorRun": 32601646797,
+    "operatorJob": 97100714047,
+    "operatorConclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404_BlobNotFound",
+    "homeCenterCiRun": 32601646784,
+    "buildAndroidRun": 32601646790,
+    "causeEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "capability": {
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerRepairPrepared": true,
+    "ownerRepairApplied": false,
+    "backendSelectionOwnerIntegration": false,
+    "descriptorOwnerIntegration": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ZERO_PARTIAL_OWNER_REPAIR_BACKEND_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
