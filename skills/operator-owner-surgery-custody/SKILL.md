@@ -24,6 +24,8 @@ This skill owns **promotion topology and evidence custody**, not another overlay
 
 `STATE CONTAINS "PROPOSED" != PROMOTION READY`.
 
+`REGEX/TRIM NORMALIZATION BEFORE STATE POLICY != EXACT STATE ADMISSION`.
+
 `PATHNAME PRE/POST IDENTITY BRACKET != ATOMIC DIRECTORY BINDING`.
 
 Applying one current-base surgery changes owner custody and therefore stales the base lock of the others. Parallel source design is allowed; parallel promotion against the same exact owner/base is not automatically safe.
@@ -79,10 +81,10 @@ Symlink/reparse/special-file topology, path/object drift, malformed UTF-8, or ma
 ### 4. Final root authority gate
 Root custody must bracket the authority-producing artifact observations, not only directory traversal. If the named root persistently changes after post-scan revalidation but before/during artifact reads, every surgery/collision/stale/unverified authority from that inventory must be cleared before emission.
 
-The prepared v9 surgery carries this final root gate. It remains a persistent-drift improvement, not atomic binding.
+The prepared v10 surgery carries this final root gate. It remains a persistent-drift improvement, not atomic binding.
 
 ## Exact owner-surgery state admission
-Promotion authority must never come from substring matching. Supporting source authority is `tools/try_forever_owner_surgery_state_policy.py`.
+Promotion authority must never come from substring matching or normalization. Supporting source authority is `tools/try_forever_owner_surgery_state_policy.py`.
 
 Current exact promotion-ready states are:
 - `PROPOSED_NOT_APPLIED`
@@ -91,14 +93,18 @@ Current exact promotion-ready states are:
 Rules:
 - state must already be a canonical uppercase ASCII/digit/underscore token;
 - no `.strip()`, case folding, control removal, or other normalization may turn rejected text into authority;
+- textual patch metadata must preserve the state token exactly after its structural header delimiter; a regex may not consume leading/trailing token whitespace before policy admission;
 - `NOT_PROPOSED`, `PROPOSEDISH`, `PROPOSED_NOT_APPLIED_EXTRA`, or any other unknown token is **not** promotion-ready;
 - unknown but canonical historical state may remain readable provenance, but cannot enter promotion-candidate groups;
 - invalid state evidence becomes a bounded admission failure, not a quiet skip and not a process abort.
 
-Regression source: `tools/test_try_forever_owner_surgery_state_policy.py` — **UNEXECUTED**.
+Regression source:
+- `tools/test_try_forever_owner_surgery_state_policy.py` — direct token policy, **UNEXECUTED**;
+- `tools/test_try_forever_owner_surgery_patch_state_exactness.py` — textual patch-header normalization attacks, **UNEXECUTED**;
+- `tools/test_try_forever_owner_surgery_state_owner_boundary.py` — RED v10 owner boundary, **UNEXECUTED**.
 
 ## Representation-specific admission
-Textual patch provenance requires exact base-owner metadata, exact admitted state/status, and owner evidence. Unreadable bytes, malformed UTF-8, over-budget input, non-ordinary topology, artifact drift, missing metadata, or invalid state become bounded `discoveryErrors`; they do not earn authority.
+Textual patch provenance requires exact base-owner metadata, a single structural ASCII space after `STATUS:` / `State:` before the exact state token, exact admitted state/status, and owner evidence. Extra leading/trailing token whitespace, tab separators, unreadable bytes, malformed UTF-8, over-budget input, non-ordinary topology, artifact drift, missing metadata, or invalid state become bounded `discoveryErrors`; they do not earn authority.
 
 Structured owner deltas may use historical compatible exact aliases for base blob (`baseBlob`, `ownerBaseBlob`, `baseOwnerBlob`) and state (`state`, `status`). Multiple supported aliases must agree exactly. Duplicate JSON members, conflicting aliases, unsupported schema, malformed JSON, invalid owner/base/state, malformed UTF-8, over-budget input, non-ordinary topology, or artifact drift fail closed.
 
@@ -112,22 +118,27 @@ Structured owner deltas may use historical compatible exact aliases for base blo
 
 Current outputs include `CURRENT_BASE_COLLISION_SET`, `STALE_BASE_GROUP`, `UNVERIFIED_BASE_GROUP`, bounded `discoveryErrors`, and `evidenceComplete`.
 
-### Prepared v9 root + state surgery — 2026-08-22 06:02 CT
-`patches/try-forever-owner-surgery-custody-v9-root-state.patch` is the canonical prepared owner surgery against probe blob `a3a11139faf426ddeae90c035708d4a3e0e1e36f`.
+### Prepared v10 root + exact-state surgery — 2026-08-22 06:59 CT
+`patches/try-forever-owner-surgery-custody-v10-root-state-exact.patch` is the canonical prepared owner surgery against probe blob `a3a11139faf426ddeae90c035708d4a3e0e1e36f`.
 
-It deliberately converges two compatible authority repairs against the same owner/base:
+It deliberately converges three compatible authority repairs against the same owner/base:
 1. final post-artifact root revalidation before emitting promotion authority;
-2. exact fail-closed surgery-state admission through `try_forever_owner_surgery_state_policy.py`.
+2. exact fail-closed surgery-state admission through `try_forever_owner_surgery_state_policy.py`;
+3. a non-normalizing textual state-header grammar so regex parsing cannot erase whitespace before exact state admission.
 
 State: **CORRECTED_PROPOSED_NOT_APPLIED**.
 
-The older `patches/try-forever-owner-surgery-custody-v8-final-root.patch` is **SUPERSEDED_BY_V9__DO_NOT_APPLY** historical provenance and must not be promoted independently.
+Historical rejected/superseded provenance:
+- `patches/try-forever-owner-surgery-custody-v9-root-state.patch` is **REJECTED_NORMALIZATION_WOUND__SUPERSEDED_BY_V10** because its exact-state policy sat behind a whitespace-normalizing `STATE_RE`;
+- `patches/try-forever-owner-surgery-custody-v8-final-root.patch` is superseded historical provenance and must not be promoted independently.
 
 Hostile source fixtures:
 - `tools/test_try_forever_owner_surgery_final_root_revalidation.py` — late persistent root replacement;
-- `tools/test_try_forever_owner_surgery_state_policy.py` — substring/normalization/type attacks.
+- `tools/test_try_forever_owner_surgery_state_policy.py` — substring/normalization/type attacks;
+- `tools/test_try_forever_owner_surgery_patch_state_exactness.py` — regex/header normalization attacks;
+- `tools/test_try_forever_owner_surgery_state_owner_boundary.py` — v10 owner integration boundary.
 
-Both are **REGRESSION SOURCE / UNEXECUTED**.
+All are **REGRESSION SOURCE / UNEXECUTED**.
 
 ## Stronger atomic-binding capability gate
 `tools/try_forever_directory_handle_binding_capability.py` separates portable pathname custody from a stronger POSIX descriptor-bound design.
@@ -149,6 +160,7 @@ Regression source: `tools/test_try_forever_directory_handle_binding_capability.p
 - Any root/traversal/candidate/artifact/state admission error makes exhaustive custody unproven.
 - On root, traversal, or candidate failure, emit **zero partial promotion authority**.
 - A root check before artifact reads cannot authorize later artifact-derived promotion after persistent root replacement; final authority needs a root observation after artifact authority work too.
+- Textual parsing must not normalize authority tokens before exact policy admission.
 - Multiple current-base candidates require deliberate convergence, explicit serialized/rebased promotion, or continued source-only status.
 - Never apply one surgery and continue calling siblings current-base-ready without authenticated rebase/readback.
 - Do not infer a mega-patch merely because a collision set exists.
@@ -156,7 +168,7 @@ Regression source: `tools/test_try_forever_directory_handle_binding_capability.p
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Mutation-lane truth
-The prepared v9 patch is not implementation. Do not reconstruct the large owner from partial/truncated readback merely to manufacture an owner-mutation receipt. Do not enqueue duplicate offline-worker sludge. Apply only through an authorized safe existing-owner mutation body that yields authenticated owner readback.
+The prepared v10 patch is not implementation. v9 is explicitly rejected; do not apply it. Do not reconstruct the large owner from partial/truncated readback merely to manufacture an owner-mutation receipt. Do not enqueue duplicate offline-worker sludge. Apply only through an authorized safe existing-owner mutation body that yields authenticated owner readback.
 
 ## P0 / phone firewall
 This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, P0 coordination, or duplicate native owner. P0 receipts are read-only evidence here.
@@ -164,4 +176,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 06:02 CT: canonical probe v7 **IMPLEMENTED SOURCE**; exact state policy **IMPLEMENTED SUPPORTING SOURCE**; v9 final-root + state owner surgery **PREPARED / NOT APPLIED**; v8 **SUPERSEDED**; root/pathname persistent-drift revalidation **SOURCE**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; owner mutation from this slice **NO**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
+Current state at 2026-08-22 06:59 CT: canonical probe v7 **IMPLEMENTED SOURCE**; exact state policy **IMPLEMENTED SUPPORTING SOURCE**; v10 final-root + exact-header/state owner surgery **PREPARED / NOT APPLIED**; v9 **REJECTED/SUPERSEDED**; v8 **SUPERSEDED**; root/pathname persistent-drift revalidation **SOURCE**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; owner mutation from this slice **NO**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
