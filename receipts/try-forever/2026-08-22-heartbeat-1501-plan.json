@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-22T15:01:32-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without consuming Phone/P0 surfaces.",
+  "sourceHeadBefore": "934b3260ce8795a2f86a24d479bb09cc0ee2a552",
+  "venicePlanGate": "PLAN_ALLOWED",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "fronts": [
+    {
+      "name": "descriptor cleanup-close containment",
+      "target": "tools/try_forever_posix_directory_handle_custody.py",
+      "constraint": "Close failures become typed custody failures when they are the primary failure; cleanup close must never mask an earlier primary wound."
+    },
+    {
+      "name": "hostile cleanup regressions",
+      "target": "tools/test_try_forever_posix_directory_handle_cleanup_failures.py",
+      "constraint": "Pin held-root, scan-handle, and artifact-handle close semantics including primary-error preservation. Source only; unexecuted."
+    },
+    {
+      "name": "descriptor custody doctrine",
+      "target": "skills/operator-owner-surgery-descriptor-custody/SKILL.md",
+      "constraint": "Record cleanup ownership and capability membrane without claiming canonical owner integration or atomicity."
+    },
+    {
+      "name": "custody warm wall",
+      "target": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "constraint": "Mutate existing non-raster touchable organism only if cleanup adds a real inspectable state; no autoplay/blink."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
