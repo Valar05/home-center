@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner boundary for exact surgery-state admission plus v9 final-root custody.
+"""RED owner boundary for exact surgery-state admission plus v10 final-root custody.
 
-This source is intentionally red against canonical probe v7 until the prepared v9 surgery is
-actually applied and authenticated. Source existence is not owner wiring or TESTED evidence.
+This source is intentionally red against canonical probe v7 until the corrected v10 surgery is
+actually applied and authenticated. v9 is rejected because current textual STATE_RE normalization
+can erase whitespace before exact state admission. Source existence is not owner wiring or TESTED.
 """
 
 from pathlib import Path
@@ -23,9 +24,16 @@ def test_owner_uses_exact_state_admission_not_proposed_substring():
     assert "return \"PROPOSED\" in upper" not in source
 
 
-def test_owner_v9_brackets_artifact_authority_with_final_root_gate():
+def test_owner_textual_state_header_does_not_normalize_state_token():
     source = _owner_source()
-    assert '"schema": "try-forever-owner-surgery-custody.v9"' in source
+    assert 'STATE_RE = re.compile(r"^#\\s*(?:STATUS|State)\\s*: ([^\\r\\n]*)$", re.I | re.M)' in source
+    assert 'STATE_RE = re.compile(r"^#\\s*(?:STATUS|State)\\s*:\\s*([^\\n]+?)\\s*$", re.I | re.M)' not in source
+
+
+def test_owner_v10_brackets_artifact_authority_with_final_root_gate():
+    source = _owner_source()
+    assert '"schema": "try-forever-owner-surgery-custody.v10"' in source
     assert '"artifactRootFinalRevalidation": True' in source
     assert '"exactOwnerSurgeryStateAdmission": True' in source
+    assert '"nonNormalizingPatchStateHeader": True' in source
     assert '"substringPromotionAuthority": False' in source
