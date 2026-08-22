@@ -8,7 +8,7 @@ A heartbeat light selects one item whose Why/Consequence/Evidence/Source appears
 ## Core law
 `PERSISTENT ONE-OF-MANY ≠ TOGGLE`.
 
-Selection, keyboard focus, accessibility focus, activation, and detail presentation are separate state machines. Do not use toggle semantics merely because they are convenient.
+Selection, keyboard focus, accessibility focus, activation, and detail presentation are separate state machines. Do not infer one from another.
 
 ### DOM / source specimens
 Use radio-style semantics for a persistent mutually-exclusive light set:
@@ -27,12 +27,18 @@ The existing `OperatorOverlayService` already carries a semantic selected id and
 
 `HeartbeatSelectionAccessibilityPolicy` defines source-only collection/item semantics from the already accepted `HeartbeatOverlayViewModel.Model`:
 - one single-selection collection when controls exist;
-- stable rendered order becomes one-based position-in-set for that frame;
+- because the native control strip is a horizontal list, Android collection geometry is **rows = item count, columns = 1**;
+- each item uses zero-based `rowIndex=index`, `columnIndex=0` for native collection geometry;
+- a separate source-level one-based `positionInSet=index+1` remains useful for human/set-order semantics;
 - semantic id remains the identity across reorder;
 - stale selection does not invent a replacement selection;
 - selection does not claim keyboard or accessibility focus ownership.
 
-Before native owner state may be called `SOURCE_WIRED`, direct owner evidence must include both the existing selected-state lifecycle and explicit collection/set-position semantics for the heartbeat row/items. Comments, literals, wrong methods, policy existence, or a patch artifact do not count.
+The Android platform documents a horizontal list as one column with as many rows as list items. Do not transpose this into one row/many columns merely because the Views are laid out left-to-right; that was caught and repaired in the 2026-08-21 19:57 Regnet pass.
+
+Before native owner state may be called `SOURCE_WIRED`, direct owner evidence must include both the existing selected-state lifecycle and explicit collection/item semantics for the heartbeat row/items. Comments, literals, wrong methods, policy existence, or a patch artifact do not count.
+
+For the current minSdk 26 source contract, any eventual owner implementation must also respect Android API availability. Do not silently replace source policy with API-level assumptions or claim runtime TalkBack behavior from `AccessibilityNodeInfo` source alone.
 
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
@@ -48,12 +54,13 @@ A Java policy, JUnit source, DOM specimen, or owner probe is not runtime TalkBac
 
 ## Current PR #329 truth — 2026-08-21 19:57 CT
 - persistent-selection reusable doctrine: **YES**;
+- corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
 - `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES**;
+- Android horizontal geometry Regnet correction: **APPLIED SOURCE YES**;
 - deterministic JUnit source: **YES / UNEXECUTED**;
 - direct-owner source probe + hostile fixture: **YES / UNEXECUTED**;
 - current native owner selected-state lifecycle: **YES / SOURCE**;
-- native collection/set-position owner wiring: **NO / PARTIAL_UNSAFE**;
-- corrected DOM heartbeat selection specimen: **SOURCE TARGET IN THIS PULSE**;
+- native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
 - TESTED / runtime UI / runtime TalkBack / deployed / phone delivered / accepted: **NO**.
 
 ## P0 / phone firewall
