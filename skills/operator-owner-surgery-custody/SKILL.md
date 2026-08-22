@@ -12,7 +12,9 @@ This skill is about **promotion topology and evidence custody**, not another ove
 
 `NO AUTHENTICATED CURRENT OWNER BLOB = UNVERIFIED_BASE_GROUP`.
 
-`RECOGNIZED OWNER-SURGERY ARTIFACT THAT CANNOT BE SAFELY PARSED = EVIDENCE INCOMPLETE`.
+`MATCHING OWNER-SURGERY ARTIFACT THAT CANNOT BE SAFELY ADMITTED = EVIDENCE INCOMPLETE`.
+
+`PREFIX CONTENT NEVER EARNS SURGERY AUTHORITY`.
 
 Applying one current-base surgery changes owner custody and therefore stales the base lock of the others. Parallel source design is allowed; parallel promotion against the same exact owner/base is not automatically safe.
 
@@ -21,9 +23,18 @@ Owner surgery provenance currently exists in more than one durable representatio
 - textual `patches/try-forever-*.patch` artifacts;
 - structured `patches/try-forever-*.delta.json` artifacts using `try-forever-owner-delta.v1`.
 
-A custody probe that scans only one representation is a discovery aid, not exhaustive promotion evidence.
+A custody probe that scans only one representation is a discovery aid, not exhaustive promotion evidence. Likewise, a scan that silently drops a matching malformed patch is not exhaustive evidence.
 
-Structured owner deltas may use historical compatible spellings for their exact base blob (`baseBlob`, `ownerBaseBlob`, or `baseOwnerBlob`) and state (`state` or `status`). If multiple supported aliases occur, their values must agree exactly. Duplicate JSON members, conflicting aliases, unsupported schema, malformed JSON, invalid owner/base/state, or other parse failure become bounded `discoveryErrors`; they are not silently ignored.
+Every matching artifact enters one finite admission throat before metadata parsing:
+- read at most **1 MiB + one sentinel byte**;
+- reject max+1 before parsing;
+- decode strict UTF-8 only;
+- never replacement-decode malformed evidence;
+- never parse or hash a prefix and call it the artifact.
+
+For textual patch provenance, missing exact base-owner metadata, missing state/status, missing owner evidence, unreadable bytes, malformed UTF-8, or an over-budget artifact become bounded `discoveryErrors`; they do not return a quiet `None` and they do not abort the whole custody inventory.
+
+Structured owner deltas may use historical compatible spellings for their exact base blob (`baseBlob`, `ownerBaseBlob`, or `baseOwnerBlob`) and state (`state` or `status`). If multiple supported aliases occur, their values must agree exactly. Duplicate JSON members, conflicting aliases, unsupported schema, malformed JSON, invalid owner/base/state, malformed UTF-8, over-budget input, or other parse failure become bounded `discoveryErrors`; they are not silently ignored.
 
 ## Required behavior
 - Preserve the existing owner. Do not create a neighboring controller merely to avoid surgery conflicts.
@@ -31,7 +42,7 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - Before calling a surgery current-base-ready, bind source inspection to a fresh authenticated current-owner blob.
 - Rejected, superseded, and already-applied artifacts are provenance, not promotion candidates.
 - A stale-base or unverified-base candidate may remain useful design provenance, but it is **not** promotion-ready.
-- If recognized surgery artifacts produced discovery errors, do not call the candidate inventory exhaustive.
+- If any matching surgery artifact produced a discovery error, do not call the candidate inventory exhaustive.
 - When multiple unapplied promotion candidates share one authenticated current owner/base, deliberately choose one of:
   1. converge compatible consequences into one canonical surgery;
   2. define an explicit promotion order and rebase later surgeries after authenticated owner readback;
@@ -42,25 +53,25 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Deterministic source evidence
-`tools/try_forever_owner_surgery_custody_probe.py` **v3** scans both patch and structured-delta surgery provenance, groups active unapplied surgeries by owner + exact base blob, and accepts caller-supplied authenticated current-owner blob evidence.
+`tools/try_forever_owner_surgery_custody_probe.py` **v4** scans both patch and structured-delta surgery provenance, admits both through the same bounded strict-UTF-8 read throat, groups active unapplied surgeries by owner + exact base blob, and accepts caller-supplied authenticated current-owner blob evidence.
 
 Its outputs distinguish:
 - `CURRENT_BASE_COLLISION_SET` — multiple active candidates share the authenticated current owner/base;
 - `STALE_BASE_GROUP` — candidate base differs from authenticated current owner custody;
 - `UNVERIFIED_BASE_GROUP` — no authenticated current owner blob was supplied, so promotion readiness is unproven;
-- `discoveryErrors` + `evidenceComplete=false` — recognized owner-delta evidence could not be safely admitted, so exhaustive custody is unproven.
+- `discoveryErrors` + `evidenceComplete=false` — any matching patch/delta evidence could not be safely admitted, so exhaustive custody is unproven.
 
-`tools/test_try_forever_owner_surgery_custody_probe.py` is regression source only until an authorized non-phone execution lane runs it.
+`tools/test_try_forever_owner_surgery_custody_probe.py` now includes hostile source fixtures for malformed patch metadata, malformed UTF-8, and over-budget patch/delta evidence in addition to patch+delta collision/stale/unverified behavior. It remains regression source only until an authorized non-phone execution lane runs it.
 
 ## Current PR #329 source truth — 2026-08-22
-Authenticated `OperatorOverlayService` blob is `c5de1411a6b68087ae17aff83c032af754587150`.
+Authenticated `OperatorOverlayService` blob at this review is `c5de1411a6b68087ae17aff83c032af754587150`.
 
 Known patch-form current-base promotion candidates include:
 - `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch`;
 - `patches/try-forever-operational-contact-owner.patch`;
 - `patches/try-forever-adam-mode-input-accessibility-owner.patch`.
 
-The repository also contains structured owner-delta provenance for other owners. v2 scanned only `.patch`; therefore the previous three-item inventory was **known patch evidence, not an exhaustive repository owner-surgery inventory**. v3 closes that source blind spot, but its regression/exhaustive execution remains unproven until an authorized runner supplies a receipt.
+These are **known candidates**, not automatically an exhaustive promotion inventory. v4 closes two source-level custody gaps left by v3: matching malformed patches can no longer silently vanish, and patch/delta parsing can no longer consume unbounded artifact text before deciding authority.
 
 The earlier selection-only and heartbeat-announcement-only artifacts remain superseded provenance and must not be applied alone.
 
@@ -70,4 +81,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state: v3 skill/probe source **YES**; patch+delta regression source **YES / UNEXECUTED**; authenticated current owner readback **YES**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
+Current state: v4 skill/probe source **YES**; finite patch+delta hostile regression source **YES / UNEXECUTED**; authenticated current owner readback **YES**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
