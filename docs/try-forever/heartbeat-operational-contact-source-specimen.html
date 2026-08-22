@@ -11,11 +11,11 @@
     section { border:1px solid currentColor; border-radius:18px; padding:18px; }
     h1,h2,p { margin-top:0; }
     fieldset { border:0; padding:0; margin:0; display:grid; gap:10px; }
-    label { min-height:56px; border:1px solid currentColor; border-radius:14px; padding:10px 14px; display:flex; gap:12px; align-items:center; cursor:pointer; }
+    label, summary { min-height:56px; border:1px solid currentColor; border-radius:14px; padding:10px 14px; display:flex; gap:12px; align-items:center; cursor:pointer; box-sizing:border-box; }
     input[type=radio] { width:24px; height:24px; flex:0 0 auto; }
-    output { display:block; min-height:64px; margin-top:12px; padding:12px; border:1px dashed currentColor; border-radius:12px; }
+    output, details p { display:block; min-height:64px; margin-top:12px; padding:12px; border:1px dashed currentColor; border-radius:12px; box-sizing:border-box; }
     .scar { font-weight:700; letter-spacing:.04em; }
-    svg { width:100%; height:auto; max-height:120px; }
+    svg { width:100%; height:auto; max-height:140px; }
     @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
   </style>
 </head>
@@ -23,15 +23,17 @@
 <main>
   <header>
     <h1>OPERATIONAL CONTACT THROAT</h1>
-    <p class="scar">SOURCE ONLY · OWNER WIRING PARTIAL/NO · EVIDENCE PROBE v2 · TESTED NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
-    <svg viewBox="0 0 720 100" role="img" aria-labelledby="wall-title wall-desc">
-      <title id="wall-title">Two independent accessibility throats</title>
-      <desc id="wall-desc">Collapsed Home Center operational truth flows independently of heartbeat dedupe; Adam editable request truth flows into native Send availability, while source evidence rejects a watcher whose edit callback does not own the refresh.</desc>
-      <path d="M30 50 H300 M420 50 H690" fill="none" stroke="currentColor" stroke-width="4"/>
-      <circle cx="300" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
-      <circle cx="420" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
-      <text x="300" y="56" text-anchor="middle" fill="currentColor" font-size="18">HC</text>
-      <text x="420" y="56" text-anchor="middle" fill="currentColor" font-size="18">SEND</text>
+    <p class="scar">SOURCE ONLY · OWNER WIRING PARTIAL/NO · EVIDENCE PROBE v3 · SURGERIES SPLIT BY CONCERN · TESTED NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+    <svg viewBox="0 0 720 120" role="img" aria-labelledby="wall-title wall-desc">
+      <title id="wall-title">Two independent accessibility throats with non-overlapping owner surgeries</title>
+      <desc id="wall-desc">Collapsed Home Center operational truth flows independently of heartbeat dedupe. Adam editable request truth flows into native Send availability. Their prepared owner patches no longer compete for the same Adam fields or callbacks.</desc>
+      <path d="M30 50 H275 M445 50 H690" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="275" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="445" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+      <path d="M301 50 H419" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="8 8"/>
+      <text x="275" y="56" text-anchor="middle" fill="currentColor" font-size="18">HC</text>
+      <text x="445" y="56" text-anchor="middle" fill="currentColor" font-size="18">SEND</text>
+      <text x="360" y="96" text-anchor="middle" fill="currentColor" font-size="14">SAME OWNER · DIFFERENT SURGERY SURFACES</text>
     </svg>
   </header>
 
@@ -42,7 +44,7 @@
       <label><input type="radio" name="hc" checked onclick="document.getElementById('collapsed-detail').value='HEARTBEAT UNCHANGED + HC ACTIVE: custom collapsed semantics must still refresh from the owner status. Heartbeat dedupe may skip heartbeat work; it may not freeze operational truth.'">Heartbeat quiet / HC active</label>
       <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='HEARTBEAT UNCHANGED + HC OFFLINE: the same accepted heartbeat model remains, but the surviving semantic owner must change to Home Center offline.'">Heartbeat quiet / HC offline</label>
       <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='CONTACT HELD: preserved heartbeat truth and current Home Center operational truth coexist on the same collapsed owner.'">HC state + contact held</label>
-      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='OWNER GAP: current OperatorOverlayService only refreshes collapsed semantics from heartbeat-owned call sites. SKIP_UNCHANGED can leave HC semantics stale. Combined owner surgery is prepared, not applied.'">Owner cadence gap</label>
+      <label><input type="radio" name="hc" onclick="document.getElementById('collapsed-detail').value='OWNER GAP: current OperatorOverlayService only refreshes collapsed semantics from heartbeat-owned call sites. SKIP_UNCHANGED can leave HC semantics stale. The collapsed-only owner surgery is prepared, not applied.'">Owner cadence gap</label>
     </fieldset>
     <output id="collapsed-detail" aria-live="polite">HEARTBEAT UNCHANGED + HC ACTIVE: custom collapsed semantics must still refresh from the owner status. Heartbeat dedupe may skip heartbeat work; it may not freeze operational truth.</output>
   </section>
@@ -52,12 +54,24 @@
     <fieldset aria-describedby="send-detail">
       <legend>Choose an editable request state</legend>
       <label><input type="radio" name="send" checked onclick="document.getElementById('send-detail').value='EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.'">Empty / whitespace</label>
-      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='MATERIAL: native Send may be enabled. Its action description still names the exact selected Adam mode.'">Material request</label>
-      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='EDIT OR MODE CHANGE: availability/action semantics must refresh through the existing owner rather than a second controller.'">Edit / mode refresh</label>
-      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='COUNTERFEIT SOURCE: installing a TextWatcher plus an empty onTextChanged callback and placing two refresh calls elsewhere does not prove edit-driven ownership. Probe v2 keeps this PARTIAL_UNSAFE.'">Watcher nearby ≠ edit ownership</label>
-      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='OWNER GAP: current OperatorOverlayService still leaves Send enabled when trim() would reject the request. Combined owner surgery is prepared, not applied.'">Owner gap</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='MATERIAL: native Send may be enabled. Its action description still names the exact selected Adam mode through the separate action-semantic owner.'">Material request</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='EDIT OR MODE CHANGE: availability must refresh through the Adam owner lifecycle. Availability owns enabled state; action wording remains independently owned.'">Edit / mode refresh</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='COUNTERFEIT SOURCE: installing a TextWatcher plus an empty onTextChanged callback and placing two refresh calls elsewhere does not prove edit-driven ownership. Probe v3 keeps this PARTIAL_UNSAFE.'">Watcher nearby ≠ edit ownership</label>
+      <label><input type="radio" name="send" onclick="document.getElementById('send-detail').value='OWNER GAP: current OperatorOverlayService still leaves Send enabled when trim() would reject the request. Adam mode/input owner surgery now owns this repair and is prepared, not applied.'">Owner gap</label>
     </fieldset>
     <output id="send-detail" aria-live="polite">EMPTY: native Send should be disabled. Do not invent a repeated announcement for a guaranteed no-op.</output>
+  </section>
+
+  <section>
+    <h2>Surgery ownership: overlap is not a swarm</h2>
+    <details>
+      <summary>Collapsed operational patch</summary>
+      <p><strong>Owns:</strong> refresh current HC operational truth on the surviving collapsed semantic surface, independently of heartbeat dedupe, with an equality guard. <strong>Does not own:</strong> Adam fields, TextWatcher, mode selection, Send action, or Send availability.</p>
+    </details>
+    <details>
+      <summary>Adam mode/input patch</summary>
+      <p><strong>Owns:</strong> persistent mode selection, editable-value/result semantics, exact mode-specific Send action, and native Send availability through the one existing Adam field/TextWatcher/mode lifecycle. Availability does not duplicate the action-description writer.</p>
+    </details>
   </section>
 </main>
 </body>
