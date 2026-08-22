@@ -5,256 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TRY FOREVER — Heartbeat Skill Lights Source Specimen</title>
 <style>
-  :root {
-    font-family: system-ui, sans-serif;
-    color-scheme: dark;
-    --wall: #2b2524;
-    --panel: #171515;
-    --ink: #fff7e8;
-    --muted: #d6c5ad;
-    --wire: #d7b78e;
-    --focus: #ffffff;
-  }
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; --wall:#2b2524; --panel:#171515; --ink:#fff7e8; --muted:#d6c5ad; --wire:#d7b78e; --focus:#fff; }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--wall);
-    color: var(--ink);
-  }
-  main {
-    max-width: 74rem;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-  header {
-    border: 2px solid var(--wire);
-    border-radius: 1.25rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-  h1 { margin: 0 0 .5rem; font-size: clamp(1.35rem, 4vw, 2.25rem); }
-  .scar {
-    display: inline-block;
-    margin-top: .5rem;
-    padding: .4rem .65rem;
-    background: var(--ink);
-    color: var(--panel);
-    border-radius: .45rem;
-    font: 700 .9rem ui-monospace, monospace;
-  }
-  .wire {
-    height: .35rem;
-    margin: .9rem 0 1.1rem;
-    background: var(--wire);
-    border-radius: 999px;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: .8rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .skill {
-    width: 100%;
-    min-height: 7.4rem;
-    min-inline-size: 48px;
-    min-block-size: 48px;
-    border: 2px solid var(--wire);
-    border-radius: 1rem;
-    background: var(--panel);
-    color: var(--ink);
-    padding: .9rem;
-    text-align: left;
-    cursor: pointer;
-  }
-  .skill:focus-visible {
-    outline: 4px solid var(--focus);
-    outline-offset: 3px;
-  }
-  .skill:active { transform: translateY(1px); }
-  .topline {
-    display: flex;
-    gap: .7rem;
-    align-items: center;
-    margin-bottom: .55rem;
-  }
-  .token { font: 800 1.7rem ui-monospace, monospace; min-width: 1.5em; }
-  .label { font-weight: 800; }
-  .state { font: 700 .8rem ui-monospace, monospace; }
-  .consequence { display: block; margin-top: .4rem; line-height: 1.3; }
-  .provenance { display: block; margin-top: .45rem; color: var(--muted); font: .72rem ui-monospace, monospace; overflow-wrap: anywhere; }
-  #detail {
-    margin-top: 1rem;
-    border: 2px solid var(--wire);
-    border-radius: 1rem;
-    padding: 1rem;
-    min-height: 8rem;
-    background: var(--panel);
-  }
-  #detail h2 { margin: 0 0 .6rem; }
-  #detail dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: .35rem .75rem; }
-  #detail dt { font-weight: 800; }
-  #detail dd { margin: 0; overflow-wrap: anywhere; }
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  footer { color: var(--muted); margin-top: 1rem; font-size: .85rem; }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
-  }
+  body { margin:0; min-height:100vh; background:var(--wall); color:var(--ink); }
+  main { max-width:74rem; margin:0 auto; padding:1rem; }
+  header, #detail { border:2px solid var(--wire); border-radius:1.2rem; padding:1rem; background:var(--panel); }
+  header { margin-bottom:1rem; }
+  h1 { margin:0 0 .45rem; font-size:clamp(1.35rem,4vw,2.25rem); }
+  .scar { display:inline-block; margin-top:.55rem; padding:.4rem .65rem; background:var(--ink); color:var(--panel); border-radius:.45rem; font:700 .86rem ui-monospace,monospace; }
+  .wire { height:.35rem; margin:.8rem 0 1rem; background:var(--wire); border-radius:999px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.8rem; list-style:none; margin:0; padding:0; }
+  .skill { width:100%; min-height:7.4rem; min-inline-size:48px; min-block-size:48px; border:2px solid var(--wire); border-radius:1rem; background:var(--panel); color:var(--ink); padding:.9rem; text-align:left; cursor:pointer; }
+  .skill[aria-checked="true"] { box-shadow:inset 0 0 0 3px var(--ink); }
+  .skill:focus-visible { outline:4px solid var(--focus); outline-offset:3px; }
+  .skill:active { transform:translateY(1px); }
+  .topline { display:flex; gap:.7rem; align-items:center; margin-bottom:.55rem; }
+  .token { font:800 1.7rem ui-monospace,monospace; min-width:1.5em; }
+  .label { font-weight:800; }
+  .state { font:700 .8rem ui-monospace,monospace; }
+  .consequence { display:block; margin-top:.4rem; line-height:1.3; }
+  .provenance { display:block; margin-top:.45rem; color:var(--muted); font:.72rem ui-monospace,monospace; overflow-wrap:anywhere; }
+  #detail { margin-top:1rem; min-height:8rem; }
+  #detail h2 { margin:0 0 .6rem; }
+  #detail dl { margin:0; display:grid; grid-template-columns:max-content 1fr; gap:.35rem .75rem; }
+  #detail dt { font-weight:800; }
+  #detail dd { margin:0; overflow-wrap:anywhere; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  footer { color:var(--muted); margin-top:1rem; font-size:.85rem; }
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; animation:none!important; scroll-behavior:auto!important; } }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>HEARTBEAT LIGHTS / TOUCHABLE SOURCE SPECIMEN</h1>
-    <div>Warm walls carry state. Every lit control names a consequence and an evidence boundary. No raster art. No decorative blinking.</div>
-    <div class="scar">SOURCE • NOT OPERATOR-OVERLAY PROOF</div>
+    <h1>HEARTBEAT LIGHTS / PERSISTENT SELECTION SOURCE</h1>
+    <div>Warm walls carry material state. One light stays selected; selection is not a toggle. Every light names a consequence and evidence boundary.</div>
+    <div class="scar">SOURCE ONLY · RADIO SELECTION · NOT OPERATOR-OVERLAY / TALKBACK / PHONE PROOF</div>
   </header>
-
   <div class="wire" aria-hidden="true"></div>
 
-  <ul class="grid" aria-label="Material heartbeat skill lights">
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Heartbeat Skill Lights" data-state="active" data-token="●"
-      data-kind="repository skill" data-locator="skills/heartbeat-skill-lights/SKILL.md"
-      data-why="The pulse needed truthful broad skill telemetry rather than decorative lights."
-      data-consequence="Scene semantics now fail closed on anonymous or untyped material pulses."
-      data-evidence="PR #329 source readback; deterministic tests remain unexecuted.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Heartbeat Skill Lights</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">Fail-closed scene semantics advanced.</span>
-      <span class="provenance">skills/heartbeat-skill-lights/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Execution Truth" data-state="active" data-token="●"
-      data-kind="repository skill" data-locator="skills/execution-truth/SKILL.md"
-      data-why="Source progress must not impersonate phone or deployed capability."
-      data-consequence="This artifact labels itself source-only and keeps Tested/Deployed/Callable/Delivered/Accepted unresolved."
-      data-evidence="Exact GitHub branch source only.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Execution Truth</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">Capability membrane held.</span>
-      <span class="provenance">skills/execution-truth/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Operator Campaign" data-state="active" data-token="●"
-      data-kind="repository skill" data-locator="skills/operator-campaign/SKILL.md"
-      data-why="The heartbeat required executable source progress instead of narration."
-      data-consequence="Advanced the existing heartbeat source contract without creating a neighboring controller."
-      data-evidence="PR #329 commits on the existing source branch.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Operator Campaign</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">Existing organ advanced; no duplicate controller.</span>
-      <span class="provenance">skills/operator-campaign/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Regnet QA" data-state="blocked" data-token="□"
-      data-kind="repository skill" data-locator="skills/renee-qa/SKILL.md"
-      data-why="The new source needs deterministic regression evidence before it can be called tested."
-      data-consequence="Source fixtures were strengthened, but TESTED remains NO."
-      data-evidence="GitHub Actions job has zero executed steps because the Actions budget prevents use.">
-      <span class="topline"><span class="token" aria-hidden="true">□</span><span class="label">Regnet QA</span></span>
-      <span class="state">BLOCKED</span><span class="consequence">Regression source strengthened; tests did not execute.</span>
-      <span class="provenance">skills/renee-qa/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Venice Review Memory" data-state="active" data-token="●"
-      data-kind="repository skill" data-locator="skills/venice-review-memory/SKILL.md"
-      data-why="Prior scars prohibit status-without-capability and evidence laundering."
-      data-consequence="The source specimen cannot be reported as rendered, deployed, or accepted."
-      data-evidence="Repository-durable Venice precedent loaded from the canonical skill.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Venice Review Memory</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">Old scars prevented capability laundering.</span>
-      <span class="provenance">skills/venice-review-memory/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Embodied Communication" data-state="active" data-token="●"
-      data-kind="repository skill" data-locator="skills/embodied-communication/SKILL.md"
-      data-why="Touchable source art is not the same thing as a physical interface effect."
-      data-consequence="The DOM specimen is explicitly disqualified as phone presentation evidence."
-      data-evidence="Repository source artifact only; no physical receipt exists.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Embodied Communication</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">Touchable source ≠ physical presentation.</span>
-      <span class="provenance">skills/embodied-communication/SKILL.md</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Failure Is The Shovel" data-state="recovered" data-token="◇"
-      data-kind="doctrine" data-locator="Failure Is The Shovel"
-      data-why="The CI lane is budget-blocked and repeating it would add no evidence."
-      data-consequence="The pulse changed strategy: source invariants and touchable DOM specimen advanced instead of blind CI retries."
-      data-evidence="New branch commits plus unchanged CI budget boundary.">
-      <span class="topline"><span class="token" aria-hidden="true">◇</span><span class="label">Failure Is The Shovel</span></span>
-      <span class="state">RECOVERED</span><span class="consequence">Failure changed the evidence path.</span>
-      <span class="provenance">doctrine: Failure Is The Shovel</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="Mission Boundary" data-state="active" data-token="●"
-      data-kind="jar" data-locator="P0 Fortress Firewall / Phone Resource Firewall"
-      data-why="Shared phone and recovery ownership are reserved to the canonical P0 conductor."
-      data-consequence="No phone ticket, queue mutation, wake, retask, Nightcore, Pocket TTS, Chromium, or Context Organ action was attempted."
-      data-evidence="This pulse used GitHub source/review surfaces only.">
-      <span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Mission Boundary Jar</span></span>
-      <span class="state">ACTIVE</span><span class="consequence">P0 and primary-phone surfaces remained untouched.</span>
-      <span class="provenance">jar: P0 / phone resource firewall</span>
-    </button></li>
-
-    <li><button class="skill" type="button" aria-controls="detail" aria-pressed="false"
-      data-label="She-Raw" data-state="fault" data-token="×"
-      data-kind="reviewer" data-locator="She-Raw.she_raw_ambient"
-      data-why="The heartbeat required adversarial pressure from the authoritative reviewer when available."
-      data-consequence="No synthetic She-Raw critique was substituted."
-      data-evidence="Connector returned HTTP 400: account connection unavailable.">
-      <span class="topline"><span class="token" aria-hidden="true">×</span><span class="label">She-Raw</span></span>
-      <span class="state">FAULT</span><span class="consequence">Authoritative reviewer unavailable; no puppet substituted.</span>
-      <span class="provenance">reviewer: She-Raw.she_raw_ambient</span>
-    </button></li>
+  <ul class="grid" role="radiogroup" aria-label="Material heartbeat skill lights; one persistent selection">
+    <li><button class="skill" type="button" role="radio" aria-checked="true" tabindex="0" aria-controls="detail" data-label="Heartbeat Skill Lights" data-state="active" data-token="●" data-kind="repository skill" data-locator="skills/heartbeat-skill-lights/SKILL.md" data-why="The pulse needs truthful broad skill telemetry rather than decorative lights." data-consequence="Material lights remain typed source telemetry; persistent selection now follows one-of-many semantics." data-evidence="PR #329 repository source; runtime and test execution remain separate."><span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Heartbeat Skill Lights</span></span><span class="state">ACTIVE</span><span class="consequence">Persistent selection contract corrected.</span><span class="provenance">skills/heartbeat-skill-lights/SKILL.md</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Persistent Selection Semantics" data-state="recovered" data-token="◇" data-kind="repository skill" data-locator="skills/persistent-selection-semantics/SKILL.md" data-why="The prior specimen used aria-pressed for a selection that cannot be toggled off." data-consequence="The light set is now a radio-style persistent choice with roving keyboard navigation." data-evidence="Reusable skill law plus this corrected repository specimen."><span class="topline"><span class="token" aria-hidden="true">◇</span><span class="label">Persistent Selection</span></span><span class="state">RECOVERED</span><span class="consequence">Toggle-shaped selection removed.</span><span class="provenance">skills/persistent-selection-semantics/SKILL.md</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Native Selection Collection" data-state="active" data-token="●" data-kind="repository skill" data-locator="skills/heartbeat-native-selection-collection/SKILL.md" data-why="Native Buttons already carry selected state but lack an explicit collection/set-position source contract." data-consequence="Pure Java source now defines single-selection collection and stable position-in-set semantics without claiming owner wiring." data-evidence="HeartbeatSelectionAccessibilityPolicy source; owner integration remains unresolved."><span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Native Selection Collection</span></span><span class="state">ACTIVE</span><span class="consequence">Native collection source contract added.</span><span class="provenance">skills/heartbeat-native-selection-collection/SKILL.md</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Regnet QA" data-state="blocked" data-token="□" data-kind="reviewer" data-locator="Regnet QA / source regression" data-why="Source fixtures exist but must not be called tested until an authorized test lane executes them." data-consequence="Owner selected-state-only wiring stays PARTIAL_UNSAFE instead of being promoted." data-evidence="JUnit and hostile source-probe fixtures are repository source only."><span class="topline"><span class="token" aria-hidden="true">□</span><span class="label">Regnet QA</span></span><span class="state">BLOCKED</span><span class="consequence">Source evidence sharpened; TESTED stays NO.</span><span class="provenance">reviewer: Regnet QA</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Execution Truth" data-state="active" data-token="●" data-kind="repository skill" data-locator="skills/execution-truth/SKILL.md" data-why="Source progress must not impersonate native runtime or phone delivery." data-consequence="This organism and Java policy explicitly remain source-only." data-evidence="Authenticated GitHub branch source; no device receipt."><span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Execution Truth</span></span><span class="state">ACTIVE</span><span class="consequence">Capability membrane held.</span><span class="provenance">skills/execution-truth/SKILL.md</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Failure Is The Shovel" data-state="recovered" data-token="◇" data-kind="doctrine" data-locator="Failure Is The Shovel" data-why="A recurring semantic failure must change the repair strategy, not merely the wording." data-consequence="The old toggle-shaped specimen was replaced by a radio state machine and a native collection source contract." data-evidence="Current branch source changed through the audited Home Center GitHub lane."><span class="topline"><span class="token" aria-hidden="true">◇</span><span class="label">Failure Is The Shovel</span></span><span class="state">RECOVERED</span><span class="consequence">Failure paid for a different structure.</span><span class="provenance">doctrine: Failure Is The Shovel</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="Mission Boundary" data-state="active" data-token="●" data-kind="jar" data-locator="P0 Fortress Firewall / Phone Resource Firewall" data-why="The shared phone and recovery chain belongs to canonical P0 owners." data-consequence="This source pulse uses no phone command, Phone Hands ticket, recovery mutation, or physical acceptance path." data-evidence="Repository-only actions in this pulse."><span class="topline"><span class="token" aria-hidden="true">●</span><span class="label">Mission Boundary</span></span><span class="state">ACTIVE</span><span class="consequence">P0 and phone surfaces remain untouched.</span><span class="provenance">jar: P0 / phone resource firewall</span></button></li>
+    <li><button class="skill" type="button" role="radio" aria-checked="false" tabindex="-1" aria-controls="detail" data-label="She-Raw" data-state="fault" data-token="×" data-kind="reviewer" data-locator="She-Raw.she_raw_ambient" data-why="Authoritative adversarial pressure was requested when available." data-consequence="No synthetic She-Raw critique replaces an unavailable connector." data-evidence="Connector returned HTTP 400: account connection unavailable."><span class="topline"><span class="token" aria-hidden="true">×</span><span class="label">She-Raw</span></span><span class="state">FAULT</span><span class="consequence">Authoritative reviewer unavailable.</span><span class="provenance">reviewer: She-Raw.she_raw_ambient</span></button></li>
   </ul>
 
   <p id="selection-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
-
-  <section id="detail" tabindex="-1" aria-label="Selected skill light detail">
-    <h2>Touch a light</h2>
-    <p>The selected light will expose its state, why it lit, what changed, its source, and its evidence boundary.</p>
-  </section>
-
-  <footer>State is never color-only: ● active · □ blocked · × fault · ◇ recovered. Selection is keyboard and touch reachable and exposed as pressed state. Motion is user-action-only; there is no decorative heartbeat loop.</footer>
+  <section id="detail" aria-label="Selected skill light detail"><h2>Selected light detail</h2><p>Use Arrow keys, Home/End, touch, or click. The selected light remains selected when activated again.</p></section>
+  <footer>State is never color-only: ● active · □ blocked · × fault · ◇ recovered. Selection uses one-of-many radio semantics; it is not a toggle. Motion is user-action-only and reduced-motion safe; there is no decorative heartbeat loop.</footer>
 </main>
 <script>
 (() => {
   const detail = document.getElementById('detail');
   const status = document.getElementById('selection-status');
-  const buttons = [...document.querySelectorAll('.skill')];
+  const radios = [...document.querySelectorAll('.skill[role="radio"]')];
 
-  function node(name, text) {
-    const element = document.createElement(name);
-    element.textContent = String(text ?? '');
-    return element;
-  }
+  function node(name, text) { const element = document.createElement(name); element.textContent = String(text ?? ''); return element; }
+  function detailRow(list, label, value) { list.append(node('dt', label), node('dd', value)); }
 
-  function detailRow(list, label, value) {
-    list.append(node('dt', label), node('dd', value));
-  }
-
-  function select(button) {
-    for (const item of buttons) item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
-    const d = button.dataset;
-
+  function select(radio, focus = false) {
+    for (const item of radios) {
+      const selected = item === radio;
+      item.setAttribute('aria-checked', selected ? 'true' : 'false');
+      item.tabIndex = selected ? 0 : -1;
+    }
+    const d = radio.dataset;
     const heading = node('h2', `${d.token} ${d.label} — ${d.state.toUpperCase()}`);
     const list = document.createElement('dl');
     detailRow(list, 'Why', d.why);
@@ -262,18 +82,29 @@
     detailRow(list, 'Evidence', d.evidence);
     detailRow(list, 'Source', `${d.kind} · ${d.locator}`);
     detail.replaceChildren(heading, list);
-
     status.textContent = `Selected ${d.label}, ${d.state}. Detail updated below.`;
+    if (focus) radio.focus();
   }
 
-  for (const button of buttons) {
-    const d = button.dataset;
-    button.setAttribute(
-      'aria-label',
-      `${d.label}, ${d.state}. ${d.consequence} Activate for why, evidence, and source.`
-    );
-    button.addEventListener('click', () => select(button));
+  function move(current, delta) {
+    const index = radios.indexOf(current);
+    const next = (index + delta + radios.length) % radios.length;
+    select(radios[next], true);
   }
+
+  for (const radio of radios) {
+    const d = radio.dataset;
+    radio.setAttribute('aria-label', `${d.label}, ${d.state}. ${d.consequence} Select for why, evidence, and source.`);
+    radio.addEventListener('click', () => select(radio, false));
+    radio.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); move(radio, 1); }
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); move(radio, -1); }
+      else if (event.key === 'Home') { event.preventDefault(); select(radios[0], true); }
+      else if (event.key === 'End') { event.preventDefault(); select(radios[radios.length - 1], true); }
+    });
+  }
+
+  select(radios.find(radio => radio.getAttribute('aria-checked') === 'true') || radios[0], false);
 })();
 </script>
 </body>
