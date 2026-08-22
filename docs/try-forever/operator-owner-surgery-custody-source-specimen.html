@@ -22,18 +22,29 @@
 </head>
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
-<p>One owner at a time. Patch and structured-delta provenance share bounded traversal, candidate, and finite-artifact custody throats.</p>
-<div class="scar">× SOURCE CUSTODY v6 · 32K DIRECTORY THROAT · 2048 CANDIDATE THROAT · 1 MiB FINITE REGULAR ARTIFACT · OWNER PROMOTION UNCHANGED · TESTED NO · PHONE/P0 UNTOUCHED</div>
+<p>One owner at a time. Patch and structured-delta provenance share one root, bounded traversal, bounded candidate, and finite-artifact custody chain.</p>
+<div class="scar">× SOURCE CUSTODY v7 · ROOT REDIRECTOR/DRIFT GATE · 32K DIRECTORY THROAT · 2048 CANDIDATE THROAT · 1 MiB FINITE REGULAR ARTIFACT · ATOMIC BINDING UNCLAIMED · TESTED NO · PHONE/P0 UNTOUCHED</div>
 <p class="owner"><strong>Operator owner:</strong> OperatorOverlayService.java<br><strong>Owner mutation by this slice:</strong> NO</p>
 
 <details open>
+  <summary><span class="token">ROOT</span> Named patches root — redirector / identity gate</summary>
+  <div>
+    <p><strong>Before traversal:</strong> capture the named <code>patches/</code> root with the existing no-follow root-identity organ. Symlink/junction topology or unavailable object identity fails closed before scanning.</p>
+    <p><strong>After traversal:</strong> re-observe the same named root. Persistent type/device/inode/redirector drift invalidates the entire observed candidate set.</p>
+    <p><strong>Consequence:</strong> root wounds produce <code>artifact_root</code> evidence, <code>evidenceComplete=false</code>, and zero partial promotion authority.</p>
+    <p><strong>Honest boundary:</strong> pre/post identity is not an atomic directory handle. Swap-and-restore entirely between observations and identity reuse remain open.</p>
+  </div>
+</details>
+
+<details>
   <summary><span class="token">↔</span> Artifact family — patch + delta</summary>
   <div>
     <p><strong>v2 wound:</strong> patch-only discovery missed structured owner deltas.</p>
     <p><strong>v3 wound:</strong> malformed delta evidence failed closed while malformed matching patches could still vanish or crash admission.</p>
     <p><strong>v4 wound:</strong> content bytes were bounded, but ordinary path open could still follow or block on hostile topology.</p>
     <p><strong>v5 wound:</strong> matching candidates were bounded, but glob scanning did not bound work spent on unrelated directory entries.</p>
-    <p><strong>v6 source rule:</strong> count every directory entry, bound matching candidates separately, then admit each artifact through one hardened finite regular-file organ.</p>
+    <p><strong>v6 wound:</strong> traversal and candidate/file work were bounded, but the named <code>patches/</code> root itself was not bracketed by no-follow identity evidence.</p>
+    <p><strong>v7 source rule:</strong> root admission/revalidation → count every directory entry → bound matching candidates separately → admit each artifact through one hardened finite regular-file organ.</p>
   </div>
 </details>
 
@@ -42,7 +53,7 @@
   <div>
     <p><strong>Budget:</strong> 32,768 non-recursive directory entries. Unrelated clutter counts.</p>
     <p><strong>Max+1:</strong> the entire promotion inventory fails closed; the first observed matches do not become partial authority.</p>
-    <p><strong>Why:</strong> “only 12 matching patches” does not mean discovery work was finite if the directory contains millions of unrelated entries.</p>
+    <p><strong>Precondition:</strong> named-root custody must already be admitted.</p>
   </div>
 </details>
 
@@ -51,7 +62,7 @@
   <div>
     <p><strong>Budget:</strong> 2,048 matching <code>try-forever-*.patch</code> / <code>*.delta.json</code> artifacts.</p>
     <p><strong>Max+1:</strong> zero partial promotion authority. Sorting happens only after bounded admission.</p>
-    <p><strong>Distinct job:</strong> candidate count and directory traversal are separate resource contracts.</p>
+    <p><strong>Distinct job:</strong> root custody, directory-entry work, and candidate count are three separate contracts.</p>
   </div>
 </details>
 
@@ -75,10 +86,10 @@
 </details>
 
 <details>
-  <summary><span class="token">×</span> Patch / delta fault isolated</summary>
+  <summary><span class="token">×</span> Root / patch / delta fault isolated</summary>
   <div>
-    <p>Missing base/state/owner evidence, malformed UTF-8, conflicting aliases, duplicate JSON members, unsupported schema, topology wounds, artifact drift, and resource overflow become bounded <code>discoveryErrors</code>.</p>
-    <p><strong>Consequence:</strong> <code>evidenceComplete=false</code>. Healthy siblings may still be inspectable unless the global traversal/candidate throat failed; exhaustive promotion authority is withheld.</p>
+    <p>Root redirector/drift/identity failure, missing base/state/owner evidence, malformed UTF-8, conflicting aliases, duplicate JSON members, unsupported schema, artifact topology wounds, artifact drift, and resource overflow become bounded <code>discoveryErrors</code>.</p>
+    <p><strong>Consequence:</strong> <code>evidenceComplete=false</code>. Root/traversal/candidate failures withhold the whole promotion inventory; per-artifact wounds keep exhaustive authority withheld without pretending healthy sibling inspection equals completion.</p>
   </div>
 </details>
 
@@ -91,26 +102,27 @@
 </details>
 
 <div class="flow" aria-label="Custody evidence sequence">
-  <div class="step"><strong>● Scan:</strong> bounded non-recursive directory-entry work.</div>
+  <div class="step"><strong>● Root:</strong> no-follow named-root admission; reject redirectors/unavailable identity.</div>
+  <div class="step"><strong>□ Scan:</strong> bounded non-recursive directory-entry work.</div>
+  <div class="step"><strong>□ Revalidate:</strong> persistent root identity must still match before candidate parsing.</div>
   <div class="step"><strong>□ Match:</strong> bounded patch + delta candidate collection.</div>
   <div class="step"><strong>□ Admit:</strong> finite ordinary-file custody before parsing.</div>
-  <div class="step"><strong>× Fail closed:</strong> traversal/candidate overflow gives zero partial promotion authority; artifact wounds mark evidence incomplete.</div>
+  <div class="step"><strong>× Fail closed:</strong> root/traversal/candidate wounds give zero partial promotion authority; artifact wounds mark evidence incomplete.</div>
   <div class="step"><strong>◇ Bind:</strong> current-base readiness separately requires authenticated current-owner blob evidence.</div>
   <div class="step"><strong>→ Promote separately:</strong> custody discovery never applies a surgery.</div>
-  <div class="step"><strong>□ Re-read:</strong> authenticate owner custody after any future mutation before another sibling is promoted.</div>
 </div>
 
 <details>
-  <summary><span class="token">!</span> Why not one mega-patch?</summary>
+  <summary><span class="token">!</span> Why not “atomic”?</summary>
   <div>
-    <p>Shared custody is a promotion-order problem, not proof that unrelated semantics belong in one giant surgery. Converge only concrete overlap; otherwise serialize and rebase.</p>
+    <p>Portable pre/post root identity catches persistent redirector/replacement drift. It does not turn pathname traversal into a single atomic root handle. The wall keeps that wound visible instead of painting it green.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Implemented source:</strong> YES. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>Owner mutation:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Implemented source:</strong> YES. <strong>Root identity revalidation:</strong> YES / SOURCE. <strong>Atomic root binding:</strong> NO. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>Owner mutation:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
