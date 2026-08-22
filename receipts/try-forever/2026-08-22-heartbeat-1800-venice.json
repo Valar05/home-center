@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-22T18:00:42-05:00",
+  "reviewedSourceHead": "6129dbb7d656aae19adab8a70cf89ce45127cfd3",
+  "reviewKind": "same-worker-judgment-jar",
+  "planGate": "PLAN_ALLOWED_BEFORE_SUBSTANTIVE_MUTATION",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_ZERO_PARTIAL_OWNER_REPAIR_BACKEND_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The source slice materially tightened backend authority evidence instead of rephrasing the prior checkpoint.",
+    "The new cross-owner coverage law is touchable and durable without claiming deployed UI or TalkBack runtime behavior.",
+    "The canonical zero-partial-authority wound is still real and remains unapplied; source progress was not promoted into owner implementation.",
+    "Automatic workflow failure produced no usable step-level cause, so TESTED remains NO and no retry was fired.",
+    "No phone/P0 surface or duplicate architecture was consumed."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdictInvented": false
+  },
+  "capabilityMembrane": {
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "canonicalZeroPartialOwnerRepairApplied": false,
+    "canonicalBackendComposition": false,
+    "descriptorOwnerIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
