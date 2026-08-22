@@ -1,0 +1,78 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-21-1901",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_PATCH_TOPOLOGY__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "reviewedHead": "74222c464c80698c03fc17c886ed2fb9c4853a38",
+  "compareFrom": "ffe151afa1576191706167f250fa1046a997583d",
+  "changedPaths": 8,
+  "fronts": {
+    "patchTopology": {
+      "finding": "Two unapplied surgeries previously competed for the same Adam Send field, TextWatcher, and mode owner on the same base blob. The collapsed-operational patch is now collapsed-only; Adam Send availability moved into the existing Adam mode/input surgery.",
+      "duplicateSemanticWriterRiskReduced": true,
+      "neighborControllerCreated": false
+    },
+    "collapsedOperationalRefresh": {
+      "policySource": "YES",
+      "ownerProbe": "YES / v3",
+      "patch": "patches/try-forever-operational-contact-owner.patch",
+      "patchState": "CORRECTED_PROPOSED_NOT_APPLIED / COLLAPSED_ONLY",
+      "ownerWiring": "NO / PARTIAL_UNSAFE",
+      "finding": "HC operational state and heartbeat persistence have separate clocks; current owner can still leave collapsed custom semantics stale across heartbeat SKIP_UNCHANGED."
+    },
+    "adamSendAvailability": {
+      "policySource": "YES",
+      "ownerProbe": "YES / v3",
+      "patch": "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "patchState": "CORRECTED_PROPOSED_NOT_APPLIED / CANONICAL_ADAM_OWNER_SURGERY",
+      "ownerWiring": "NO / LEGACY_OWNER",
+      "finding": "Availability now owns only native enabled/disabled consequence; exact current-mode action wording remains independently owned by AdamSendActionAccessibilityPolicy. Probe v3 no longer requires a duplicate contentDescription writer."
+    },
+    "evidenceHardening": {
+      "probeBlob": "856d702fb5cd0ad89b5c5f95cb48389c7675a5ba",
+      "fixtureBlob": "86f47762e614f0537dc6053768b65d47e0afd7fe",
+      "counterfeitEditStillRejected": true,
+      "availabilityActionResponsibilitySplit": true
+    },
+    "skillDoctrine": {
+      "collapsedOperationalSkillBlob": "2de233a6db808c3c1fafde513b33ecff613d4c22",
+      "adamAccessibilitySkillBlob": "6a6e59f7278a65b5c3b62553eca5675175e9797e",
+      "staleCombinedPatchDoctrineRemoved": true
+    },
+    "touchableSource": {
+      "artifact": "docs/try-forever/heartbeat-operational-contact-source-specimen.html",
+      "artifactBlob": "1c9603e970fcffed89310646051d108588c86501",
+      "mutatedInPlace": true,
+      "runtimeClaim": false
+    }
+  },
+  "owner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "authenticatedBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "mutatedThisPulse": false,
+    "reason": "No safe patch-application body was used; the audited whole-file upsert lane was not substituted for a bounded owner surgery."
+  },
+  "automaticWorkflows": {
+    "sourceHead": "74222c464c80698c03fc17c886ed2fb9c4853a38",
+    "operatorOverlayRun": 32539386687,
+    "operatorJob": 96946221881,
+    "operatorConclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "buildAndroidRun": 32539386694,
+    "homeCenterCiRun": 32539386760,
+    "tested": false,
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "reviewers": {
+    "sheRawAttempted": true,
+    "sheRawResult": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteSheRawUsed": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
