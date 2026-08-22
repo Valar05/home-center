@@ -19,6 +19,9 @@ from try_forever_owner_surgery_backend_policy import (
 
 OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 BASE = "c5de1411a6b68087ae17aff83c032af754587150"
+STALE_BASE = "1111111111111111111111111111111111111111"
+OTHER_OWNER = "tools/other-owner.py"
+OTHER_BASE = "2222222222222222222222222222222222222222"
 
 
 def complete_result(**overrides):
@@ -36,6 +39,41 @@ def complete_result(**overrides):
     }
     result.update(overrides)
     return result
+
+
+def collision_group(**overrides):
+    group = {
+        "owner": OWNER,
+        "baseBlob": BASE,
+        "status": "CURRENT_BASE_COLLISION_SET",
+        "currentOwnerBlob": BASE,
+        "promotionCandidates": [],
+    }
+    group.update(overrides)
+    return group
+
+
+def stale_group(**overrides):
+    group = {
+        "owner": OWNER,
+        "baseBlob": STALE_BASE,
+        "status": "STALE_BASE_GROUP",
+        "currentOwnerBlob": BASE,
+        "promotionCandidates": [],
+    }
+    group.update(overrides)
+    return group
+
+
+def unverified_group(**overrides):
+    group = {
+        "owner": OTHER_OWNER,
+        "baseBlob": OTHER_BASE,
+        "status": "UNVERIFIED_BASE_GROUP",
+        "promotionCandidates": [],
+    }
+    group.update(overrides)
+    return group
 
 
 def expect_rejected(descriptor, result, needle: str) -> None:
@@ -85,6 +123,30 @@ def main() -> int:
         "ownerEvidenceAdmitted": True,
     }
 
+    valid_collision = admit_selected_backend_result(
+        descriptor,
+        complete_result(collisionSets=[collision_group()]),
+    )
+    assert valid_collision["ownerEvidenceAdmitted"] is True
+    assert valid_collision["authorityGroupCounts"]["collisionSets"] == 1
+
+    valid_stale = admit_selected_backend_result(
+        descriptor,
+        complete_result(staleBaseGroups=[stale_group()]),
+    )
+    assert valid_stale["ownerEvidenceAdmitted"] is True
+    assert valid_stale["authorityGroupCounts"]["staleBaseGroups"] == 1
+
+    # Authenticated custody for OWNER must not upgrade OTHER_OWNER's unverified authority.
+    unrelated_authenticated_owner = admit_selected_backend_result(
+        descriptor,
+        complete_result(unverifiedBaseGroups=[unverified_group()]),
+    )
+    assert unrelated_authenticated_owner["currentOwnerCustodyProvided"] is True
+    assert unrelated_authenticated_owner["exhaustiveEvidenceAdmitted"] is True
+    assert unrelated_authenticated_owner["ownerEvidenceAdmitted"] is False
+    assert unrelated_authenticated_owner["authorityGroupCounts"]["unverifiedBaseGroups"] == 1
+
     incomplete = admit_selected_backend_result(
         descriptor,
         complete_result(
@@ -123,7 +185,7 @@ def main() -> int:
             discoveryErrors=[{"boundary": "artifact wounded"}],
             evidenceComplete=False,
         ),
-        "partial promotion authority",
+        "entries must be mappings" if False else "partial promotion authority",
     )
     expect_rejected(
         descriptor,
@@ -182,6 +244,46 @@ def main() -> int:
         descriptor,
         complete_result(portableFallbackAttempted=True),
         "fallback",
+    )
+
+    # Authority groups must agree with authenticated current-owner custody, not merely be list-shaped.
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(owner=OTHER_OWNER)]),
+        "missing authenticated current-owner custody",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(currentOwnerBlob=OTHER_BASE)]),
+        "must match currentOwnerBlobs",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(baseBlob=STALE_BASE)]),
+        "must equal authenticated current owner blob",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(staleBaseGroups=[stale_group(baseBlob=BASE)]),
+        "must differ from authenticated current owner blob",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(
+            currentOwnerBlobs={OWNER: BASE, OTHER_OWNER: OTHER_BASE},
+            unverifiedBaseGroups=[unverified_group()],
+        ),
+        "must not have authenticated current-owner custody",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(unverifiedBaseGroups=[unverified_group(currentOwnerBlob=OTHER_BASE)]),
+        "must not claim a currentOwnerBlob",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=["not-a-group"]),
+        "entries must be mappings",
     )
 
     wound = classify_selected_backend_failure(
