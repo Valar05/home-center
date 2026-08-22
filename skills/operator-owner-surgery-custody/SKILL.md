@@ -14,6 +14,8 @@ This skill is about **promotion topology and evidence custody**, not another ove
 
 `MATCHING OWNER-SURGERY ARTIFACT THAT CANNOT BE SAFELY ADMITTED = EVIDENCE INCOMPLETE`.
 
+`PATCHES ROOT REDIRECTOR / PERSISTENT IDENTITY DRIFT / IDENTITY UNAVAILABLE = ZERO PARTIAL PROMOTION AUTHORITY`.
+
 `UNBOUNDED DIRECTORY ENTRIES != BOUNDED CANDIDATE SET`.
 
 `PREFIX CONTENT NEVER EARNS SURGERY AUTHORITY`.
@@ -25,11 +27,23 @@ Owner surgery provenance currently exists in more than one durable representatio
 - textual `patches/try-forever-*.patch` artifacts;
 - structured `patches/try-forever-*.delta.json` artifacts using `try-forever-owner-delta.v1`.
 
-A custody probe that scans only one representation is a discovery aid, not exhaustive promotion evidence. Likewise, a scan that silently drops a matching malformed artifact, follows a redirector, waits on a special file, or traverses an unbounded directory while claiming a bounded inventory is not exhaustive evidence.
+A custody probe that scans only one representation is a discovery aid, not exhaustive promotion evidence. Likewise, a scan that silently drops a matching malformed artifact, follows a redirector, waits on a special file, traverses an unbounded directory, or begins from an untrusted `patches/` root while claiming a complete inventory is not exhaustive evidence.
 
-## Three finite custody throats
+## Four finite custody throats
+### 0. Root topology / persistent-identity throat
+Before directory traversal, the named `patches/` root is captured with the existing portable no-follow root-identity organ from `tools/try_forever_skill_root_identity.py`:
+- symlink/junction-style redirector roots fail closed before traversal;
+- ordinary-directory identity must expose a nonzero inode/file-index token;
+- the same root identity is re-observed after bounded traversal;
+- persistent device/inode/type/redirector drift withholds the entire candidate inventory;
+- root capture/revalidation failure yields a bounded `artifact_root` discovery error and **zero partial promotion authority**.
+
+This is deliberate reuse of an existing root-custody organ, not a second owner-surgery-specific topology stack.
+
+**Boundary:** pre/post identity revalidation is not an atomic cross-platform directory binding. A complete swap-and-restore between observations and filesystem identity reuse remain explicitly unclosed.
+
 ### 1. Directory traversal throat
-The `patches/` inventory is non-recursive and bounded before parsing:
+Only after root admission, the `patches/` inventory is non-recursive and bounded before parsing:
 - inspect at most **32,768 directory entries**;
 - every entry counts, including unrelated names;
 - max+1 fails the whole promotion inventory closed;
@@ -69,8 +83,8 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - Before calling a surgery current-base-ready, bind source inspection to a fresh authenticated current-owner blob.
 - Rejected, superseded, and already-applied artifacts are provenance, not promotion candidates.
 - A stale-base or unverified-base candidate may remain useful design provenance, but it is **not** promotion-ready.
-- If directory traversal, candidate collection, or any matching artifact admission produces a discovery error, do not call the candidate inventory exhaustive.
-- On traversal or candidate overflow, emit **zero partial promotion authority** from that inventory.
+- If root custody, directory traversal, candidate collection, or any matching artifact admission produces a discovery error, do not call the candidate inventory exhaustive.
+- On root, traversal, or candidate failure, emit **zero partial promotion authority** from that inventory.
 - When multiple unapplied promotion candidates share one authenticated current owner/base, deliberately choose one of:
   1. converge compatible consequences into one canonical surgery;
   2. define an explicit promotion order and rebase later surgeries after authenticated owner readback;
@@ -81,10 +95,12 @@ Structured owner deltas may use historical compatible spellings for their exact 
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Deterministic source evidence
-`tools/try_forever_owner_surgery_custody_probe.py` **v6**:
-- performs one bounded non-recursive directory scan;
+`tools/try_forever_owner_surgery_custody_probe.py` **v7**:
+- reuses the existing portable no-follow root identity/revalidation organ around the named `patches/` root;
+- performs one bounded non-recursive directory scan only after initial root admission;
 - counts all directory entries;
 - bounds the matching patch+delta candidate set separately;
+- revalidates root identity after traversal before parsing candidates;
 - reuses the existing finite ordinary-file observer for each admitted artifact;
 - groups active unapplied surgeries by owner + exact base blob;
 - accepts caller-supplied authenticated current-owner blob evidence.
@@ -93,9 +109,12 @@ Its outputs distinguish:
 - `CURRENT_BASE_COLLISION_SET` — multiple active candidates share the authenticated current owner/base;
 - `STALE_BASE_GROUP` — candidate base differs from authenticated current owner custody;
 - `UNVERIFIED_BASE_GROUP` — no authenticated current owner blob was supplied, so promotion readiness is unproven;
-- `discoveryErrors` + `evidenceComplete=false` — traversal, candidate-set, or artifact evidence could not be safely admitted, so exhaustive custody is unproven.
+- `artifact_root` discovery error + `evidenceComplete=false` — named root topology/identity could not be safely admitted or persistently revalidated;
+- other `discoveryErrors` + `evidenceComplete=false` — traversal, candidate-set, or artifact evidence could not be safely admitted, so exhaustive custody is unproven.
 
-`tools/test_try_forever_owner_surgery_custody_probe.py` now includes hostile source fixtures for:
+`tools/test_try_forever_owner_surgery_custody_probe.py` includes hostile source fixtures for:
+- root symlink rejection before traversal with zero partial authority;
+- persistent root replacement after traversal with zero partial authority;
 - candidate max+1 with zero partial authority;
 - unrelated directory-entry max+1 with zero partial authority;
 - matching special/non-ordinary topology;
@@ -106,7 +125,9 @@ Its outputs distinguish:
 It remains regression source only until an authorized non-phone execution lane runs it.
 
 ## Current PR #329 source truth — 2026-08-22
-The native overlay owner is not mutated by this skill slice. Owner-surgery custody v6 is repository/source evidence only.
+The native overlay owner is not mutated by this skill slice. Owner-surgery custody v7 is repository/source evidence only.
+
+Root topology / persistent-identity revalidation **YES / SOURCE**. Atomic root binding **NO**. Regression source **YES / UNEXECUTED**.
 
 Known patch-form current-base promotion candidates remain design provenance subject to fresh authenticated owner custody and this inventory's completeness. A known list is never automatically an exhaustive list.
 
@@ -118,4 +139,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state: v6 skill/probe source **YES**; bounded traversal + candidate + finite-artifact hostile regression source **YES / UNEXECUTED**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
+Current state: v7 skill/probe source **YES**; root + bounded traversal + candidate + finite-artifact hostile regression source **YES / UNEXECUTED**; atomic root binding **NO**; owner mutation from this skill **NO**; TESTED/runtime/phone states **NO**.
