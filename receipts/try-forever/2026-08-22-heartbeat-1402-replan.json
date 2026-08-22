@@ -1,0 +1,21 @@
+{
+  "heartbeat": "2026-08-22T14:02:57-05:00",
+  "phase": "CODE_FIRST_CORRECTIVE_REPLAN",
+  "trigger": "Regnet review found the first inventory I/O containment too broad.",
+  "wound": "The outer OSError catch around the enumeration loop would also relabel an is_candidate callback that itself raises OSError as a filesystem enumeration wound, contradicting the plan's caller-policy separation law.",
+  "replacement_strategy": [
+    "Catch OSError while creating scandir separately.",
+    "Iterate explicitly and catch OSError only around iterator next(), where directory enumeration I/O can occur.",
+    "Run _require_simple_name, is_candidate, and policy logic outside that OSError catcher.",
+    "Keep candidate DirEntry.stat OSError mapped to its specific custody wound.",
+    "Strengthen the regression so the caller policy itself raises OSError; it must escape as caller OSError rather than DescriptorArtifactCustodyError."
+  ],
+  "unchanged_constraints": [
+    "No P0/phone surface consumption.",
+    "No duplicate custody owner or controller.",
+    "No partial inventory authority on real scan/open/stat I/O failure.",
+    "Descriptor owner integration remains NO; TESTED/runtime/deployed/delivered remain NO.",
+    "Scan-close cleanup failure remains a separate future wound."
+  ],
+  "gate": "CORRECTIVE_REPLAN_READY_FOR_VENICE"
+}
