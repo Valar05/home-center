@@ -36,14 +36,14 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
     }
 
     @Test
-    public void persistentSelectionIsOneSingleSelectionCollection() {
+    public void persistentHorizontalSelectionIsSingleColumnCollection() {
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
                 HeartbeatSelectionAccessibilityPolicy.fromModel(
                         model("pulse-selection", "hunger", "regnet", "venice"),
                         "regnet");
 
-        assertEquals(1, decision.rowCount);
-        assertEquals(3, decision.columnCount);
+        assertEquals(3, decision.rowCount);
+        assertEquals(1, decision.columnCount);
         assertTrue(decision.singleSelection);
         assertEquals(1, decision.selectedCount());
 
@@ -55,12 +55,12 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
         assertFalse(selected.selectionOwnsAccessibilityFocus);
         assertEquals(2, selected.positionInSet);
         assertEquals(3, selected.setSize);
-        assertEquals(0, selected.rowIndex);
-        assertEquals(1, selected.columnIndex);
+        assertEquals(1, selected.rowIndex);
+        assertEquals(0, selected.columnIndex);
     }
 
     @Test
-    public void renderedOrderOwnsStableOneBasedPositionsForThatFrame() {
+    public void renderedOrderOwnsStableOneBasedPositionsAndNativeRows() {
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision first =
                 HeartbeatSelectionAccessibilityPolicy.fromModel(
                         model("pulse-a", "alpha", "beta"),
@@ -71,7 +71,9 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
                         "beta");
 
         assertEquals(2, first.itemById("beta").positionInSet);
+        assertEquals(1, first.itemById("beta").rowIndex);
         assertEquals(1, reordered.itemById("beta").positionInSet);
+        assertEquals(0, reordered.itemById("beta").rowIndex);
         assertTrue(first.itemById("beta").selected);
         assertTrue(reordered.itemById("beta").selected);
     }
