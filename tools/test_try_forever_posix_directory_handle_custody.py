@@ -228,6 +228,30 @@ def test_max_plus_one_byte_is_rejected_without_prefix_authority(tmp_path: Path):
             held.observe_utf8_regular_file("try-forever-a.patch", max_bytes=3)
 
 
+def test_malformed_utf8_is_typed_custody_rejection_without_observation_authority(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    path = root / "try-forever-bad.patch"
+    path.write_bytes(b"valid-prefix\xffbroken")
+
+    with HeldDirectoryCustody(root) as held:
+        candidate = held.candidate_entries(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )[0]
+        with pytest.raises(
+            DescriptorArtifactCustodyError,
+            match="content is not strict UTF-8",
+        ):
+            held.observe_utf8_regular_file(
+                candidate.name,
+                max_bytes=1024,
+                expected_candidate=candidate,
+            )
+
+
 def test_path_traversal_name_is_rejected_before_descriptor_open(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
