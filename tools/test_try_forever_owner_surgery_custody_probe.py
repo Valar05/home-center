@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from try_forever_owner_surgery_custody_probe import classify
+from try_forever_owner_surgery_custody_probe import MAX_ARTIFACT_BYTES, classify
 
 
 OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
@@ -67,8 +67,9 @@ def main() -> int:
             delta("APPLIED_SOURCE", "applied-delta"), encoding="utf-8")
 
         result = classify(root, {OWNER: BASE})
-        assert result["schema"] == "try-forever-owner-surgery-custody.v3"
+        assert result["schema"] == "try-forever-owner-surgery-custody.v4"
         assert result["artifactKindsScanned"] == ["patch", "delta_json"]
+        assert result["artifactReadBudgetBytes"] == MAX_ARTIFACT_BYTES
         assert result["discoveryErrors"] == []
         assert result["evidenceComplete"] is True
 
@@ -128,12 +129,61 @@ def main() -> int:
         assert capability["sourceInspection"] is True
         assert capability["patchArtifactInspection"] is True
         assert capability["deltaArtifactInspection"] is True
+        assert capability["boundedArtifactRead"] is True
         assert capability["currentOwnerCustodyProvided"] is True
         assert capability["patchApplied"] is False
         assert capability["ownerWired"] is False
         assert capability["regressionExecuted"] is False
         assert capability["tested"] is False
         assert capability["phoneDelivered"] is False
+
+    # Matching malformed patch evidence must fail closed instead of silently vanishing.
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "try-forever-missing-base.patch").write_text(
+            "# STATUS: CORRECTED_PROPOSED_NOT_APPLIED\n# OWNER: " + OWNER + "\n",
+            encoding="utf-8",
+        )
+        result = classify(root, {OWNER: BASE})
+        assert result["surgeries"] == []
+        assert result["evidenceComplete"] is False
+        assert len(result["discoveryErrors"]) == 1
+        assert result["discoveryErrors"][0]["artifact_kind"] == "patch"
+        assert "missing an exact base-owner blob" in result["discoveryErrors"][0]["boundary"]
+
+    # Strict UTF-8 is part of custody evidence; replacement decoding cannot invent authority.
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "try-forever-bad-utf8.patch").write_bytes(
+            b"# STATUS: CORRECTED_PROPOSED_NOT_APPLIED\n# BASE OWNER BLOB: "
+            + BASE.encode("ascii")
+            + b"\n# OWNER: "
+            + OWNER.encode("ascii")
+            + b"\n\xff\n"
+        )
+        result = classify(root, {OWNER: BASE})
+        assert result["evidenceComplete"] is False
+        assert len(result["discoveryErrors"]) == 1
+        assert "strict UTF-8" in result["discoveryErrors"][0]["boundary"]
+
+    # Both recognized artifact representations share one finite pre-parse read throat.
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "try-forever-oversized.patch").write_bytes(b"x" * (MAX_ARTIFACT_BYTES + 1))
+        (root / "try-forever-oversized.delta.json").write_bytes(
+            b"{" + b"x" * MAX_ARTIFACT_BYTES
+        )
+        result = classify(root, {OWNER: BASE})
+        assert result["surgeries"] == []
+        assert result["evidenceComplete"] is False
+        assert len(result["discoveryErrors"]) == 2
+        assert {item["artifact_kind"] for item in result["discoveryErrors"]} == {
+            "patch", "delta_json",
+        }
+        assert all(
+            "custody budget" in item["boundary"]
+            for item in result["discoveryErrors"]
+        )
 
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -164,7 +214,7 @@ def main() -> int:
         assert len(result["discoveryErrors"]) == 1
         assert "duplicate JSON member" in result["discoveryErrors"][0]["boundary"]
 
-    print("TRY FOREVER owner surgery custody regression source: patch + delta custody classified")
+    print("TRY FOREVER owner surgery custody regression source: finite patch + delta custody classified")
     return 0
 
 
