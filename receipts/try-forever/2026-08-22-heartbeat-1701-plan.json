@@ -1,0 +1,50 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localTime": "2026-08-22T17:01:33-05:00",
+  "mission": "Advance a broad non-P0 TRY FOREVER swarm from authenticated PR #329 state without consuming phone/P0 surfaces or creating duplicate architecture.",
+  "authenticatedStart": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "head": "862a1a29b4d0165ad33ce9bc03fa7cba7a803eeb",
+    "canonicalCustody": "try-forever-owner-surgery-custody.v10",
+    "canonicalDescriptorIntegration": false
+  },
+  "fronts": [
+    {
+      "id": "backend-evidence-admission",
+      "action": "Strengthen the existing owner-surgery backend-selection policy so selected backend evidence cannot drop v10 metrics, report impossible counts, or emit partial authority after an incomplete custody result."
+    },
+    {
+      "id": "v10-regression-hygiene",
+      "action": "Add a current broad v10 regression companion covering exact state/current-owner admission and final post-artifact root revalidation without calling the stale historical v7 fixture current proof."
+    },
+    {
+      "id": "skill-convergence",
+      "action": "Converge operator-owner-surgery-backend-selection doctrine with the strengthened evidence throat and current-v10 regression surface."
+    },
+    {
+      "id": "touchable-warm-wall",
+      "action": "Mutate the existing non-raster backend-selection source wall in place so the new evidence-admission consequence is touch/keyboard inspectable without claiming runtime deployment."
+    },
+    {
+      "id": "regnet-venice-evidence",
+      "action": "Perform code-first review, preserve She-Raw connector failure truth, fetch exact-head workflow evidence after mutation, and update the durable PR checkpoint."
+    }
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "noManualWorkflowRetry": true,
+    "sourceIsNotTested": true,
+    "sourceIsNotRuntime": true,
+    "noNewControllerOrRecoveryDaemon": true
+  },
+  "sheRawPreExecution": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "venicePlan": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE",
+  "gate": "OWNER_INTEGRATION_TEST_RUNTIME_PHONE_DELIVERY_REMAIN_SEPARATE"
+}
