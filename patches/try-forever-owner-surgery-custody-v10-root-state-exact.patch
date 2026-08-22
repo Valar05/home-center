@@ -1,10 +1,12 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: a3a11139faf426ddeae90c035708d4a3e0e1e36f
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# APPLIED OWNER COMMIT: 0b4fc24113650741b50f4d57c29cb3c7eb6612d3
+# RESULT OWNER BLOB: fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f
 # PURPOSE: combine final post-artifact root revalidation with non-normalizing exact surgery-state admission.
 # SUPERSEDES: patches/try-forever-owner-surgery-custody-v9-root-state.patch
 # ALSO SUPERSEDES: patches/try-forever-owner-surgery-custody-v8-final-root.patch
-# BOUNDARY: supporting source only; does not claim atomic root binding, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+# BOUNDARY: applied source provenance only; does not claim atomic root binding, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
 --- a/tools/try_forever_owner_surgery_custody_probe.py
 +++ b/tools/try_forever_owner_surgery_custody_probe.py
 @@ -6,12 +6,17 @@
