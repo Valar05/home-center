@@ -235,13 +235,19 @@ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         else:
             owner = owner_match.group(1)
 
+        base_blob = base.group(1)
+        if SHA1_RE.fullmatch(base_blob) is None:
+            raise ArtifactAdmissionError(
+                "patch base owner blob must be 40 lowercase hexadecimal characters"
+            )
+
         state_admission = admit_owner_surgery_state(state.group(1))
 
         return Surgery(
             path=path.as_posix(),
             artifact_kind="patch",
             owner=owner,
-            base_blob=base.group(1).lower(),
+            base_blob=base_blob,
             state=state_admission.state,
             promotion_candidate=state_admission.promotion_candidate,
         ), None
@@ -293,7 +299,7 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         if not isinstance(owner, str) or not owner:
             raise ValueError("owner must be a non-empty string")
 
-        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob").lower()
+        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob")
         if SHA1_RE.fullmatch(base_blob) is None:
             raise ValueError("base owner blob must be 40 lowercase hexadecimal characters")
 
