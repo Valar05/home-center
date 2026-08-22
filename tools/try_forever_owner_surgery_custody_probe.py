@@ -6,12 +6,15 @@ surgery into owner wiring. It exposes patch-order hazards when several unapplied
 target the same exact owner blob and binds that evidence to an authenticated current-owner blob
 when one is supplied.
 
-v7 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+v10 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
 family. The named ``patches`` root is admitted and revalidated through the existing portable
-no-follow root-identity organ before/after bounded non-recursive traversal. Directory-entry work,
-matching-candidate collection, and each admitted finite ordinary artifact remain independently
-bounded. Root redirectors, persistent root drift, or unavailable root identity withhold the whole
-promotion inventory. This is persistent-drift evidence, not an atomic filesystem binding claim.
+no-follow root-identity organ around bounded non-recursive traversal, then revalidated again after
+all admitted artifact observations before any surgery/collision/stale/unverified authority is
+emitted. Directory-entry work, matching-candidate collection, and each admitted finite ordinary
+artifact remain independently bounded. Promotion readiness is admitted by exact canonical state,
+never by a ``PROPOSED`` substring or by regex/whitespace normalization. Root redirectors,
+persistent root drift, unavailable identity, or invalid state evidence fail closed. This is
+persistent-drift evidence, not an atomic filesystem binding claim.
 """
 
 from __future__ import annotations
@@ -34,6 +37,7 @@ from try_forever_skill_root_identity import (
     capture_directory_root_identity,
     revalidate_directory_root_identity,
 )
+from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 
 PATCH_ROOT = Path("patches")
@@ -46,7 +50,7 @@ MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
-STATE_RE = re.compile(r"^#\s*(?:STATUS|State)\s*:\s*([^\n]+?)\s*$", re.I | re.M)
+STATE_RE = re.compile(r"^#\s*(?:STATUS|State)\s*: ([^\r\n]*)$", re.I | re.M)
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 DELTA_BASE_KEYS = ("baseBlob", "ownerBaseBlob", "baseOwnerBlob")
 DELTA_STATE_KEYS = ("state", "status")
@@ -74,10 +78,7 @@ class ArtifactAdmissionError(ValueError):
 
 
 def _promotion_candidate(state: str) -> bool:
-    upper = state.upper()
-    if any(token in upper for token in ("REJECTED", "SUPERSEDED", "APPLIED_SOURCE")):
-        return False
-    return "PROPOSED" in upper
+    return admit_owner_surgery_state(state).promotion_candidate
 
 
 def _artifact_kind_for_name(name: str) -> str | None:
@@ -234,17 +235,15 @@ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         else:
             owner = owner_match.group(1)
 
-        state_text = state.group(1).strip()
-        if not state_text:
-            raise ArtifactAdmissionError("patch state/status must not be blank")
+        state_admission = admit_owner_surgery_state(state.group(1))
 
         return Surgery(
             path=path.as_posix(),
             artifact_kind="patch",
             owner=owner,
             base_blob=base.group(1).lower(),
-            state=state_text,
-            promotion_candidate=_promotion_candidate(state_text),
+            state=state_admission.state,
+            promotion_candidate=state_admission.promotion_candidate,
         ), None
     except (ArtifactAdmissionError, OSError, UnicodeError, ValueError) as exc:
         return None, _error(path, "patch", exc)
@@ -298,17 +297,17 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         if SHA1_RE.fullmatch(base_blob) is None:
             raise ValueError("base owner blob must be 40 lowercase hexadecimal characters")
 
-        state_text = _consistent_delta_string(payload, DELTA_STATE_KEYS, "state/status").strip()
-        if not state_text:
-            raise ValueError("state/status must not be blank")
+        state_admission = admit_owner_surgery_state(
+            _consistent_delta_string(payload, DELTA_STATE_KEYS, "state/status")
+        )
 
         return Surgery(
             path=path.as_posix(),
             artifact_kind="delta_json",
             owner=owner,
             base_blob=base_blob,
-            state=state_text,
-            promotion_candidate=_promotion_candidate(state_text),
+            state=state_admission.state,
+            promotion_candidate=state_admission.promotion_candidate,
         ), None
     except (ArtifactAdmissionError, OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         return None, _error(path, "delta_json", exc)
@@ -337,11 +336,21 @@ def classify(
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
 
-    candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
-        root,
-        max_candidates=max_candidates,
-        max_entries=max_entries,
-    )
+    try:
+        authority_root_before = capture_directory_root_identity(root)
+    except OSError as exc:
+        authority_root_before = None
+        candidates = []
+        inventory_error = _error(root, "artifact_root", exc)
+        candidates_observed = 0
+        entries_observed = 0
+    else:
+        candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
+            root,
+            max_candidates=max_candidates,
+            max_entries=max_entries,
+        )
+
     if inventory_error is not None:
         discovery_errors.append(inventory_error)
     else:
@@ -356,6 +365,22 @@ def classify(
                 surgeries.append(surgery)
             if error is not None:
                 discovery_errors.append(error)
+
+        assert authority_root_before is not None
+        try:
+            authority_root_after = capture_directory_root_identity(root)
+        except OSError as exc:
+            surgeries.clear()
+            discovery_errors.append(_error(root, "artifact_root", exc))
+        else:
+            authority_verdict = revalidate_directory_root_identity(
+                authority_root_before,
+                authority_root_after,
+                subject=PATCH_ROOT_SUBJECT,
+            )
+            if authority_verdict.status != "STABLE":
+                surgeries.clear()
+                discovery_errors.append(_root_error(root, authority_verdict.reason))
 
     surgeries.sort(key=lambda item: (item.owner, item.base_blob, item.path))
     discovery_errors.sort(key=lambda item: (item.path, item.artifact_kind))
@@ -402,7 +427,7 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v7",
+        "schema": "try-forever-owner-surgery-custody.v10",
         "artifactKindsScanned": ["patch", "delta_json"],
         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
         "artifactCandidateBudget": max_candidates,
@@ -421,6 +446,10 @@ def classify(
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
             "artifactRootIdentityRevalidation": True,
+            "artifactRootFinalRevalidation": True,
+            "exactOwnerSurgeryStateAdmission": True,
+            "nonNormalizingPatchStateHeader": True,
+            "substringPromotionAuthority": False,
             "artifactRootAtomicBinding": False,
             "boundedArtifactDirectoryScan": True,
             "boundedArtifactCandidateSet": True,
