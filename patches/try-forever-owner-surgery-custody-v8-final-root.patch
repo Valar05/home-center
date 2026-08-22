@@ -1,0 +1,102 @@
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: a3a11139faf426ddeae90c035708d4a3e0e1e36f
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# PURPOSE: v8 final root custody gate after artifact observations; zero authority on late persistent root drift.
+# BOUNDARY: does not claim atomic binding, between-observation swap-and-restore immunity, or identity-reuse immunity.
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@ -6,12 +6,14 @@
+ target the same exact owner blob and binds that evidence to an authenticated current-owner blob
+ when one is supplied.
+ 
+-v7 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
++v8 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+ family. The named ``patches`` root is admitted and revalidated through the existing portable
+-no-follow root-identity organ before/after bounded non-recursive traversal. Directory-entry work,
+-matching-candidate collection, and each admitted finite ordinary artifact remain independently
+-bounded. Root redirectors, persistent root drift, or unavailable root identity withhold the whole
+-promotion inventory. This is persistent-drift evidence, not an atomic filesystem binding claim.
++no-follow root-identity organ around bounded non-recursive traversal, then revalidated again after
++all admitted artifact observations before any surgery/collision/stale/unverified authority is
++emitted. Directory-entry work, matching-candidate collection, and each admitted finite ordinary
++artifact remain independently bounded. Root redirectors, persistent root drift, or unavailable root
++identity withhold the whole promotion inventory. This is persistent-drift evidence, not an atomic
++filesystem binding claim.
+ """
+ 
+ from __future__ import annotations
+@@ -337,11 +339,25 @@
+     surgeries: list[Surgery] = []
+     discovery_errors: list[DiscoveryError] = []
+ 
+-    candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
+-        root,
+-        max_candidates=max_candidates,
+-        max_entries=max_entries,
+-    )
++    # v8 binds the same named root across the complete authority-producing operation, not only
++    # across directory traversal. _discover_artifact_candidates() still performs its own
++    # before/after traversal bracket; this outer observation is retained until every candidate
++    # artifact has been observed and parsed.
++    try:
++        authority_root_before = capture_directory_root_identity(root)
++    except OSError as exc:
++        authority_root_before = None
++        candidates = []
++        inventory_error = _error(root, "artifact_root", exc)
++        candidates_observed = 0
++        entries_observed = 0
++    else:
++        candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
++            root,
++            max_candidates=max_candidates,
++            max_entries=max_entries,
++        )
++
+     if inventory_error is not None:
+         discovery_errors.append(inventory_error)
+     else:
+@@ -357,6 +373,26 @@
+             if error is not None:
+                 discovery_errors.append(error)
+ 
++        # A persistent root replacement after the post-scan revalidation but before/during
++        # artifact reads must invalidate every surgery record observed from that inventory.
++        # This remains a pathname-level persistent-drift bracket: complete swap-and-restore
++        # between observations and filesystem identity reuse are still explicitly unclosed.
++        assert authority_root_before is not None
++        try:
++            authority_root_after = capture_directory_root_identity(root)
++        except OSError as exc:
++            surgeries.clear()
++            discovery_errors.append(_error(root, "artifact_root", exc))
++        else:
++            authority_verdict = revalidate_directory_root_identity(
++                authority_root_before,
++                authority_root_after,
++                subject=PATCH_ROOT_SUBJECT,
++            )
++            if authority_verdict.status != "STABLE":
++                surgeries.clear()
++                discovery_errors.append(_root_error(root, authority_verdict.reason))
++
+     surgeries.sort(key=lambda item: (item.owner, item.base_blob, item.path))
+     discovery_errors.sort(key=lambda item: (item.path, item.artifact_kind))
+ 
+@@ -402,7 +438,7 @@
+         collision_sets.append(payload)
+ 
+     return {
+-        "schema": "try-forever-owner-surgery-custody.v7",
++        "schema": "try-forever-owner-surgery-custody.v8",
+         "artifactKindsScanned": ["patch", "delta_json"],
+         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
+         "artifactCandidateBudget": max_candidates,
+@@ -421,6 +457,7 @@
+             "patchArtifactInspection": True,
+             "deltaArtifactInspection": True,
+             "artifactRootIdentityRevalidation": True,
++            "artifactRootFinalRevalidation": True,
+             "artifactRootAtomicBinding": False,
+             "boundedArtifactDirectoryScan": True,
+             "boundedArtifactCandidateSet": True,
