@@ -52,10 +52,10 @@ Stable-structure in-place content refresh is **not a third required owner proof*
 
 For the current minSdk 26 source contract, eventual owner implementation must use Android APIs available to that runtime. `AccessibilityNodeInfo.CollectionInfo.obtain(...)`, `CollectionItemInfo.obtain(...)`, and single-selection mode are API-21-compatible source shapes. Android now deprecates the pooling `obtain(...)` APIs in API 33 in favor of constructors added later; that deprecation is **not** permission to raise the runtime floor or add version-branch churn to a minSdk-26 owner. Prefer the oldest correct runtime-compatible shape until the build/runtime contract changes deliberately. Deprecation status does not prove runtime TalkBack behavior either.
 
-## Broad-doctrine convergence scar
-`skills/heartbeat-skill-lights/SKILL.md` still contains older prose permitting `aria-pressed` for this persistent one-of-many light set even though the current specimen and specialized doctrine use radio semantics. That broad sentence is stale and must not outrank this skill or `persistent-selection-semantics`.
+## Broad-doctrine convergence
+The stale broad heartbeat sentence permitting `aria-pressed` for this persistent one-of-many light set was removed through the audited Home Center GitHub lane at commit `01038f86ee131257b0eb68acf3e59e585d779891`; resulting `skills/heartbeat-skill-lights/SKILL.md` blob: `6287c7660a00a45b07bc00675af353f2a7ac6e0e`.
 
-Current status: **REVISE_REQUIRED / BROAD DOCTRINE NOT YET CONVERGED**. An exact base-blob-locked correction plus regression should remove the stale permission rather than leaving two accessibility contracts in the same repository.
+The exact correction provenance remains at `patches/try-forever-heartbeat-selection-doctrine-convergence.patch` with status **APPLIED_SOURCE**. The source regression at `tools/test_heartbeat_selection_doctrine_convergence.py` pins broad doctrine + specialized doctrine + current DOM specimen to the same radio-style contract. That regression is repository source only until an authorized execution lane runs it.
 
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
@@ -71,17 +71,18 @@ A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not
 
 ## Current PR #329 truth — 2026-08-21 22:02 CT
 - persistent-selection reusable doctrine: **YES**;
+- broad heartbeat persistent-selection doctrine: **CONVERGED / APPLIED_SOURCE**;
+- doctrine convergence regression source: **YES / UNEXECUTED**;
 - corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
 - `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES**;
 - Android framework horizontal geometry review: **ROWS=N / COLUMNS=1 RETAINED**;
 - deterministic JUnit source: **YES / UNEXECUTED**;
 - direct-owner source probe: **v2 / SOURCE YES / UNEXECUTED**;
 - hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
-- exact base-blob-locked owner surgery: **YES / PROPOSED_NOT_APPLIED**;
+- exact base-blob-locked native owner surgery: **YES / PROPOSED_NOT_APPLIED**;
 - authenticated owner base blob for that surgery: `c5de1411a6b68087ae17aff83c032af754587150`;
 - current native owner selected-state lifecycle: **YES / SOURCE**;
 - native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
-- broad heartbeat doctrine radio/toggle wording: **STALE / REVISE_REQUIRED**;
 - TESTED / runtime UI / runtime TalkBack / deployed / phone delivered / accepted: **NO**.
 
 ## P0 / phone firewall
