@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Regression source for exact authority blobs in owner-surgery custody.
 
-Artifact base-owner blob evidence is now source-wired exact. A separate RED boundary remains for
-authenticated current-owner input: authority evidence must not be made valid by trim/lowercase
-normalization. Source existence is not execution or TESTED evidence.
+Artifact base-owner blob evidence and authenticated current-owner blob input are now source-wired
+exact. Authority evidence must not be made valid by trim/lowercase normalization in either CLI or
+programmatic custody input. Source existence is not execution or TESTED evidence.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ import pytest
 
 from try_forever_owner_surgery_custody_probe import (
     _parse_owner_blob,
+    classify,
     inspect_delta,
     inspect_patch,
 )
@@ -91,11 +92,31 @@ def test_delta_uppercase_base_blob_is_rejected_not_normalized(tmp_path: Path):
     assert "lowercase" in error.boundary
 
 
-def test_authenticated_current_owner_uppercase_blob_is_rejected_not_normalized():
+def test_authenticated_current_owner_lowercase_cli_blob_is_admitted_exactly():
+    assert _parse_owner_blob([f"{OWNER}={LOWER}"]) == {OWNER: LOWER}
+
+
+def test_authenticated_current_owner_uppercase_cli_blob_is_rejected_not_normalized():
     with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
         _parse_owner_blob([f"{OWNER}={UPPER}"])
 
 
-def test_authenticated_current_owner_padded_blob_is_rejected_not_trimmed():
+def test_authenticated_current_owner_padded_cli_blob_is_rejected_not_trimmed():
     with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
         _parse_owner_blob([f"{OWNER}= {LOWER} "])
+
+
+def test_authenticated_current_owner_lowercase_programmatic_blob_is_preserved(tmp_path: Path):
+    report = classify(tmp_path, current_owner_blobs={OWNER: LOWER})
+    assert report["currentOwnerBlobs"] == {OWNER: LOWER}
+    assert report["capability"]["exactCurrentOwnerBlobAdmission"] is True
+
+
+def test_authenticated_current_owner_uppercase_programmatic_blob_is_rejected_not_normalized(tmp_path: Path):
+    with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
+        classify(tmp_path, current_owner_blobs={OWNER: UPPER})
+
+
+def test_authenticated_current_owner_padded_programmatic_blob_is_rejected_not_trimmed(tmp_path: Path):
+    with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
+        classify(tmp_path, current_owner_blobs={OWNER: f" {LOWER} "})
