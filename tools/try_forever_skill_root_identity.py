@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Cross-platform root-topology identity policy for TRY FOREVER skill discovery.
+"""Portable no-follow directory-root identity policy for TRY FOREVER custody.
 
-This is a helper for the existing ``try_forever_skill_provenance_probe`` only.
-It is not a second probe and owns no renderer, scheduler, phone surface, P0 lane,
-or deployment path.
+This remains one reusable source organ. The original skills-root wrappers are preserved for
+``try_forever_skill_provenance_probe`` while other non-P0 evidence owners may compose the same
+no-follow identity/revalidation primitive instead of growing parallel root-custody logic.
 
-The policy intentionally does not claim an atomic cross-platform no-follow open.
-Python exposes ``os.scandir(fd)`` only on Unix, so portable source can instead
-capture the no-follow root identity before work and revalidate it before any
-per-file authority is granted. That detects observable persistent replacement
-or type drift when the two observations expose a different identity/redirector,
-while identity reuse and a swap-and-restore race entirely between observations
-remain explicit unclosed boundaries.
+The policy intentionally does not claim an atomic cross-platform no-follow directory open.
+Portable source can capture root identity before work and revalidate it afterwards. That detects
+observable persistent replacement/type/redirector drift. Identity reuse and a complete
+swap-and-restore race between observations remain explicit unclosed boundaries.
 """
 
 from __future__ import annotations
@@ -24,7 +21,11 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class SkillRootIdentity:
-    """One no-follow observation of the repository ``skills`` root."""
+    """One no-follow observation of a directory-root candidate.
+
+    The historical type name is retained for source compatibility. The identity payload itself is
+    generic and may be reused by other bounded TRY FOREVER directory owners.
+    """
 
     device: int
     inode: int
@@ -70,10 +71,10 @@ def redirector_kind_from_stat(observed: os.stat_result) -> str:
     return ""
 
 
-def capture_skill_root_identity(skills_root: Path) -> SkillRootIdentity:
-    """Capture one no-follow identity observation without resolving redirectors."""
+def capture_directory_root_identity(root: Path) -> SkillRootIdentity:
+    """Capture one no-follow directory-root identity without resolving redirectors."""
 
-    observed = os.stat(skills_root, follow_symlinks=False)
+    observed = os.stat(root, follow_symlinks=False)
     return SkillRootIdentity(
         device=int(observed.st_dev),
         inode=int(observed.st_ino),
@@ -84,47 +85,72 @@ def capture_skill_root_identity(skills_root: Path) -> SkillRootIdentity:
     )
 
 
-def revalidate_skill_root_identity(
+def revalidate_directory_root_identity(
     before: SkillRootIdentity,
     after: SkillRootIdentity,
+    *,
+    subject: str,
 ) -> SkillRootRevalidationVerdict:
-    """Fail closed unless both observations bind the same ordinary directory."""
+    """Fail closed unless both observations bind the same ordinary directory.
+
+    This is persistent-drift evidence, not an atomic handle-binding claim.
+    """
 
     if before.redirector_kind:
         return SkillRootRevalidationVerdict(
             status="REDIRECTOR_BLOCKED",
-            reason=f"skills root is a {before.redirector_kind}; repository-owned topology is required",
+            reason=f"{subject} is a {before.redirector_kind}; ordinary owned topology is required",
         )
     if after.redirector_kind:
         return SkillRootRevalidationVerdict(
             status="ROOT_CHANGED",
-            reason=f"skills root became a {after.redirector_kind} while discovery was in progress",
+            reason=f"{subject} became a {after.redirector_kind} while bounded work was in progress",
         )
     if not before.is_directory or not after.is_directory:
         return SkillRootRevalidationVerdict(
             status="ROOT_CHANGED",
-            reason="skills root was not the same ordinary directory before and after discovery",
+            reason=f"{subject} was not the same ordinary directory before and after bounded work",
         )
     if not before.has_stable_token or not after.has_stable_token:
         return SkillRootRevalidationVerdict(
             status="IDENTITY_UNAVAILABLE",
-            reason="skills root inode/file-index identity is unavailable; portable revalidation cannot certify one directory object",
+            reason=(
+                f"{subject} inode/file-index identity is unavailable; portable revalidation "
+                "cannot certify one directory object"
+            ),
         )
     if (before.device, before.inode) != (after.device, after.inode):
         return SkillRootRevalidationVerdict(
             status="ROOT_CHANGED",
-            reason="skills root device/inode identity changed while discovery was in progress",
+            reason=f"{subject} device/inode identity changed while bounded work was in progress",
         )
     return SkillRootRevalidationVerdict(
         status="STABLE",
-        reason="the same no-follow skills-root device/inode identity bracketed candidate enumeration",
+        reason=f"the same no-follow {subject} device/inode identity bracketed bounded work",
     )
+
+
+def capture_skill_root_identity(skills_root: Path) -> SkillRootIdentity:
+    """Compatibility wrapper for the repository ``skills`` root."""
+
+    return capture_directory_root_identity(skills_root)
+
+
+def revalidate_skill_root_identity(
+    before: SkillRootIdentity,
+    after: SkillRootIdentity,
+) -> SkillRootRevalidationVerdict:
+    """Compatibility wrapper preserving skills-root behavior and evidence wording."""
+
+    return revalidate_directory_root_identity(before, after, subject="skills root")
 
 
 __all__ = [
     "SkillRootIdentity",
     "SkillRootRevalidationVerdict",
+    "capture_directory_root_identity",
     "capture_skill_root_identity",
     "redirector_kind_from_stat",
+    "revalidate_directory_root_identity",
     "revalidate_skill_root_identity",
 ]
