@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner boundary for exact surgery-state admission plus v10 final-root custody.
+"""Source regression for exact surgery-state admission plus v10 final-root custody.
 
-This source is intentionally red against canonical probe v7 until the corrected v10 surgery is
-actually applied and authenticated. v9 is rejected because current textual STATE_RE normalization
-can erase whitespace before exact state admission. Source existence is not owner wiring or TESTED.
+Canonical custody owner v10 is now source-wired. This fixture pins the authenticated source shape;
+its existence is not regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+The stronger descriptor-bound atomicity wound remains deliberately outside this contract.
 """
 
 from pathlib import Path
