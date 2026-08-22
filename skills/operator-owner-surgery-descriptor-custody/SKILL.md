@@ -10,6 +10,8 @@ This skill owns one source/evidence distinction. It does **not** own a second cu
 
 `ENUMERATED NAME + CAPTURED NO-FOLLOW OBJECT IDENTITY != ATOMIC CANDIDATE-NAME BINDING`.
 
+`STRONGER CUSTODY BACKEND != PERMISSION TO DROP EXISTING OWNER EVIDENCE FIELDS`.
+
 A root opened once with `O_DIRECTORY|O_NOFOLLOW` and then used through descriptor-relative scan/open/stat cannot be silently redirected by replacing the **root pathname after the descriptor is held**. That is materially stronger than a pre/post pathname bracket.
 
 A candidate whose no-follow identity is captured during held-root enumeration can also reject **persistent replacement between enumeration and the later authority-facing stat/open/read**. It still does not prove:
@@ -42,16 +44,17 @@ It:
 3. opens a **fresh `.` directory handle relative to the held root for each inventory scan**, so repeated scans do not inherit directory-stream position from an earlier enumeration while remaining anchored to the same held root;
 4. enumerates candidate names through that fresh descriptor-relative handle with independent entry/candidate budgets;
 5. captures each matching candidate's no-follow device/inode/size/mtime identity during that held-root enumeration and retains its file mode;
-6. rejects traversal syntax before descriptor-relative file operations;
-7. no-follow stats the candidate relative to the held directory and, when an enumerated candidate is supplied, requires the pre-open identity to equal the enumerated identity;
-8. opens that same basename relative to the held directory with `O_NOFOLLOW` and `O_NONBLOCK` where available;
-9. requires pre-stat/open-fd identity agreement;
-10. reads complete content inside a hard max+1 byte throat;
-11. requires post-read descriptor stability;
-12. requires the still-held directory name to identify the same regular-file object after the read;
-13. decodes strict UTF-8 and returns exact SHA-256 evidence.
+6. retains **total directory entries observed, including unrelated entries**, alongside the candidate count so a future canonical-owner composition can preserve v10's `artifactDirectoryEntriesObserved` and `artifactCandidatesObserved` evidence rather than quietly weakening the receipt;
+7. rejects traversal syntax before descriptor-relative file operations;
+8. no-follow stats the candidate relative to the held directory and, when an enumerated candidate is supplied, requires the pre-open identity to equal the enumerated identity;
+9. opens that same basename relative to the held directory with `O_NOFOLLOW` and `O_NONBLOCK` where available;
+10. requires pre-stat/open-fd identity agreement;
+11. reads complete content inside a hard max+1 byte throat;
+12. requires post-read descriptor stability;
+13. requires the still-held directory name to identify the same regular-file object after the read;
+14. decodes strict UTF-8 and returns exact SHA-256 evidence.
 
-`candidate_names(...)` remains as a compatibility projection; `candidate_entries(...)` is the stronger identity-bearing source surface.
+`candidate_inventory(...)` is the full evidence-bearing source surface. `candidate_entries(...)` and `candidate_names(...)` remain compatibility projections.
 
 The root descriptor is the authority anchor for the operation. The source does not re-resolve the root pathname for candidate work.
 
@@ -63,6 +66,9 @@ The 08:57 source returned only candidate names. That meant a persistent replacem
 
 This narrows the wound; it does **not** close swap-and-restore or identity-reuse atomicity.
 
+### Review scar: stronger backend must preserve evidence metrics
+A first owner-composition review found the descriptor helper had candidate identities but not the total directory-entry count exposed by canonical v10. The helper now returns a `DescriptorCandidateInventory` with both `entries_observed` and candidate identities/count. Descriptor owner integration remains NO until the canonical owner can consume this without changing its published evidence semantics or portable fallback.
+
 ## Regression source
 `tools/test_try_forever_posix_directory_handle_custody.py` — **UNEXECUTED**.
 
@@ -70,6 +76,7 @@ It now includes:
 - held root survives named root replacement;
 - candidate enumeration remains on the held original directory after root-path replacement;
 - repeated candidate scans return the same deterministic inventory rather than inheriting old stream position;
+- inventory evidence counts unrelated directory entries separately from matching candidates;
 - enumerated candidate identity survives into the bounded read;
 - persistent candidate replacement after enumeration is rejected before authority-facing read;
 - descriptor-relative symlink artifact rejection;
@@ -84,6 +91,7 @@ Canonical owner-surgery custody remains `tools/try_forever_owner_surgery_custody
 Descriptor-bound custody is currently:
 - supporting implementation **YES**;
 - authenticated GitHub source readback **YES**;
+- bounded inventory metrics compatible with v10 evidence fields **YES / SUPPORTING SOURCE**;
 - enumeration→read candidate identity handoff **YES / SUPPORTING SOURCE**;
 - regression source **YES / UNEXECUTED**;
 - canonical v10 owner consumption **NO**;
@@ -92,7 +100,7 @@ Descriptor-bound custody is currently:
 - TESTED **NO**;
 - runtime/deployed/delivered/accepted **NO**.
 
-Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback and must re-enter exact owner custody/review before mutation.
+Do not replace v10 merely because this POSIX source exists. Any future owner composition must preserve the portable fallback, `artifactDirectoryEntriesObserved`, `artifactCandidatesObserved`, error semantics, and exact owner custody/review before mutation.
 
 ## Current inventory companion
 `tools/test_try_forever_owner_surgery_current_inventory.py` independently targets whether the actual current `patches/` inventory is fully admissible under v10's stricter exact textual state grammar. It is **REGRESSION SOURCE / UNEXECUTED** and must not be reported as a successful inventory audit until it has an authorized execution receipt.
@@ -103,4 +111,4 @@ This skill consumes no Phone Hands ticket, primary-phone command, recovery queue
 ## Capability membrane
 `requested → supporting source → authenticated source readback → regression source → regression executed → canonical owner composition → authenticated owner readback → TESTED → runtime → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 10:02 CT: supporting source **YES** · authenticated GitHub source readback **YES** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · regressions **SOURCE / UNEXECUTED** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Current state at 2026-08-22 10:02 CT: supporting source **YES** · authenticated GitHub source readback **YES** · bounded inventory evidence metrics **YES / SUPPORTING SOURCE** · enumeration→read candidate identity **YES / SUPPORTING SOURCE** · regressions **SOURCE / UNEXECUTED** · canonical owner integration **NO** · atomic root binding **NO** · atomic candidate binding **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
