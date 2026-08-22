@@ -20,6 +20,10 @@ This skill owns backend-selection doctrine only. It does **not** own a second cu
 
 `EVIDENCE COMPLETE = FALSE + NONEMPTY PROMOTION AUTHORITY GROUPS = REJECTED COMPOSITION`.
 
+`UNVERIFIED OWNER AUTHORITY + AUTHENTICATED CUSTODY FOR SOME OTHER OWNER != OWNER EVIDENCE`.
+
+`AUTHORITY GROUP SHAPE != AUTHORITY GROUP CUSTODY`; collision/stale groups must bind to the exact authenticated current-owner blob for their owner, while an unverified group must have no authenticated current-owner blob for that owner.
+
 `EXHAUSTIVE EVIDENCE != AUTHENTICATED CURRENT-OWNER CUSTODY`.
 
 `SUPPORTING SOURCE != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED`.
@@ -41,10 +45,13 @@ It requires:
 - non-negative integer directory-entry and candidate counts, with candidates ≤ entries;
 - list-shaped `discoveryErrors` and boolean `evidenceComplete` that agree exactly;
 - exact lowercase 40-hex values for every supplied `currentOwnerBlobs` entry;
-- list-shaped `collisionSets`, `staleBaseGroups`, and `unverifiedBaseGroups`;
+- mapping-shaped `collisionSets`, `staleBaseGroups`, and `unverifiedBaseGroups` entries with exact canonical status/base/owner fields;
+- collision groups to use a base equal to their authenticated current-owner blob;
+- stale groups to use a base different from, but a `currentOwnerBlob` equal to, their authenticated current-owner blob;
+- unverified groups to have no authenticated current-owner blob and no `currentOwnerBlob` claim;
 - incomplete exhaustive custody to carry **zero** promotion-authority groups.
 
-The output separates `exhaustiveEvidenceAdmitted` from `ownerEvidenceAdmitted`. A complete scan without authenticated current-owner custody is not upgraded into owner evidence merely because no artifact failed.
+The output separates `exhaustiveEvidenceAdmitted` from `ownerEvidenceAdmitted`. A complete scan without authenticated current-owner custody is not upgraded into owner evidence merely because no artifact failed. Likewise, authenticated custody for one owner does not upgrade another owner's `UNVERIFIED_BASE_GROUP`; owner evidence remains false while any unverified-owner authority survives.
 
 Diagnostic `surgeries` may remain present when custody is incomplete. Diagnostic source inspection is not promotion authority.
 
@@ -73,10 +80,15 @@ That shape is rejected by the result-admission throat and pinned by `tools/test_
 
 Owner repair state: **CORRECTED_PROPOSED_NOT_APPLIED**. Do not call the wound closed until authenticated owner readback shows the repair.
 
+### Current composition wound: owner evidence can be overclaimed across owners
+Before the 18:00 source repair, the backend result gate computed `ownerEvidenceAdmitted` from only `evidenceComplete` plus whether *any* `currentOwnerBlobs` entry existed. That let authenticated custody for owner A coexist with an `UNVERIFIED_BASE_GROUP` for owner B while still returning owner evidence admitted.
+
+The supporting source now validates authority-group custody relationships and keeps `ownerEvidenceAdmitted=false` while any unverified-owner authority remains. `tools/test_try_forever_owner_surgery_backend_policy.py` pins both valid collision/stale groups and cross-owner/unverified hostile cases. Regression source remains **UNEXECUTED**.
+
 The older broad custody regression contains historical v7 expectations and must not be treated as current v10 proof merely because it exists. `tools/test_try_forever_owner_surgery_v10_contract.py` remains the focused current-v10 source fixture and is **UNEXECUTED**.
 
 ## Cross-pollination
-The descriptor backend became strong enough that the next risk was not another syscall wound; it was **composition evidence**. Without explicit selection and result gates, future owner composition could silently downgrade after a stronger-backend failure, drop work/error/current-owner evidence, or carry partial promotion groups out of an incomplete exhaustive scan. All three are evidence laundering.
+The descriptor backend became strong enough that the next risk was not another syscall wound; it was **composition evidence**. Without explicit selection and result gates, future owner composition could silently downgrade after a stronger-backend failure, drop work/error/current-owner evidence, carry partial promotion groups out of an incomplete exhaustive scan, or use authenticated custody for one owner to launder another owner's unverified authority. All are evidence laundering.
 
 ## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
@@ -84,4 +96,4 @@ This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery qu
 ## Capability membrane
 `requested → supporting source → authenticated source readback → regression source → regression executed → canonical owner composition → authenticated owner readback → TESTED → runtime → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 17:01 CT: backend-selection/result-admission supporting source **YES** · authenticated readback **YES** · regressions **YES / UNEXECUTED** · zero-partial-authority RED owner regression **YES / UNEXECUTED** · exact owner repair **YES / NOT APPLIED** · canonical owner backend selection **NO** · descriptor owner integration **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
+Current state at 2026-08-22 18:00 CT: backend-selection/result-admission supporting source **YES** · authenticated readback **YES** · cross-owner authority-group validation **YES / SUPPORTING SOURCE** · regressions **YES / UNEXECUTED** · zero-partial-authority RED owner regression **YES / UNEXECUTED** · exact owner repair **YES / NOT APPLIED** · canonical owner backend selection **NO** · descriptor owner integration **NO** · TESTED/runtime/deployed/phone/delivered/accepted **NO**.
