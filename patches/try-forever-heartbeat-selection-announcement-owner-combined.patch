@@ -1,0 +1,152 @@
+# TRY FOREVER heartbeat selection + automatic-announcement owner surgery
+# STATUS: CANONICAL_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: c5de1411a6b68087ae17aff83c032af754587150
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+#
+# Why combined:
+# The native-selection collection surgery and the heartbeat material-transition live-region
+# surgery were independently base-locked to the same owner blob. Applying either one first would
+# stale the other's base custody. This artifact is the canonical combined source surgery for those
+# two consequences. The standalone artifacts remain historical/superseded provenance only.
+#
+# Scope:
+# - compose HeartbeatSelectionAccessibilityPolicy into the existing heartbeat collection lifecycle;
+# - migrate ONLY HEARTBEAT_MATERIAL_TRANSITION from announceForAccessibility to one-shot POLITE
+#   live-region value-change semantics;
+# - do not migrate Spotify/detail/Adam repeatable receipts;
+# - do not request keyboard/accessibility focus;
+# - do not create another renderer/controller/owner;
+# - no phone/P0 work.
+#
+# Capability: supporting surgery source only. OWNER_WIRED=NO, TESTED=NO, RUNTIME=NO.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@ heartbeat summary construction
+         heartbeatSummary = textView(12f, true);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+@@ persisted WAITING
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                         persistedDecision,
+                         heartbeatFrame)) {
+@@ persisted SKIP_UNCHANGED
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                 return;
+@@ announcement gate
+         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                 heartbeatAnnouncementIdentity,
+                 next,
+                 muted,
+                 overlayVisible,
+                 heartbeatSurfaceVisible);
++        int heartbeatLiveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
++                false,
++                announce,
++                muted);
++        heartbeatSummary.setAccessibilityLiveRegion(heartbeatLiveRegionMode);
+@@ announcement consequence
+-        if (announce) {
+-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
++        if (heartbeatLiveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
++            heartbeatSummary.post(() -> heartbeatSummary.setAccessibilityLiveRegion(
++                    View.ACCESSIBILITY_LIVE_REGION_NONE));
+         }
+@@ rebuild collection lifecycle
+     private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
+         if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
+         heartbeatLights.removeAllViews();
+ 
+         for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+             heartbeatLights.addView(createHeartbeatLight(control));
+         }
++        applyHeartbeatSelectionAccessibility(model);
+         applyHeartbeatModelChrome(model);
+         heartbeatLights.requestLayout();
+         heartbeatLights.post(this::clampAndPersistPosition);
+     }
+@@ in-place collection synchronization
+         for (int index = 0; index < model.controls.size(); index++) {
+             Button light = (Button) heartbeatLights.getChildAt(index);
+             applyHeartbeatLight(light, model.controls.get(index));
+         }
++        applyHeartbeatSelectionAccessibility(model);
+         applyHeartbeatModelChrome(model);
+         heartbeatLights.requestLayout();
+         heartbeatLights.post(this::clampAndPersistPosition);
+         return true;
+@@ selection collection helper
+     private void applyHeartbeatLight(
+             Button light,
+             HeartbeatOverlayViewModel.LightControl control) {
+@@
+         });
+     }
++
++    private void applyHeartbeatSelectionAccessibility(HeartbeatOverlayViewModel.Model model) {
++        if (heartbeatLights == null || model == null) return;
++        HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
++                HeartbeatSelectionAccessibilityPolicy.fromModel(model, heartbeatSelectedId);
++
++        heartbeatLights.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
++                        decision.rowCount,
++                        decision.columnCount,
++                        false,
++                        decision.singleSelection
++                                ? AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE
++                                : AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE));
++            }
++        });
++
++        for (HeartbeatSelectionAccessibilityPolicy.ItemDecision item : decision.items) {
++            View child = heartbeatChildById(item.id);
++            if (child == null) continue;
++            final HeartbeatSelectionAccessibilityPolicy.ItemDecision itemDecision = item;
++            child.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++                @Override
++                public void onInitializeAccessibilityNodeInfo(
++                        View host,
++                        AccessibilityNodeInfo info) {
++                    super.onInitializeAccessibilityNodeInfo(host, info);
++                    info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
++                            itemDecision.rowIndex,
++                            1,
++                            itemDecision.columnIndex,
++                            1,
++                            false,
++                            itemDecision.selected));
++                }
++            });
++        }
++    }
+@@ selection refresh lifecycle
+     private void refreshHeartbeatSelection() {
+         if (heartbeatLights == null) return;
+         for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+             View child = heartbeatLights.getChildAt(index);
+             Object tag = child.getTag();
+             child.setSelected(tag != null
+                     && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+         }
++        applyHeartbeatSelectionAccessibility(currentHeartbeatModel());
+     }
+@@ pre-contact clear
+         heartbeatRenderIdentity = "";
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
