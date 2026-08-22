@@ -1,0 +1,25 @@
+{
+  "schema": "try-forever-venice-receipt.v1",
+  "pulse": "2026-08-22T06:02:00-05:00",
+  "reviewedSourceHead": "e4d296e90ddeba545d54de7740c28abe78e810da",
+  "planGate": "PLAN_ALLOWED",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_V9_REGRESSION_EXECUTION_ATOMIC_BINDING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "The state-authority repair is materially different from the finished v7 root bracket and removes substring-based promotion authority in supporting source.",
+    "Converging exact state admission with the already-prepared final-root gate into one v9 surgery avoids same-owner patch larvae; v8 is correctly superseded.",
+    "The directory-handle capability classifier is useful only as a source capability gate; it must not be described as atomic binding or owner integration.",
+    "Touchable source art is allowed because it makes the new authority distinctions inspectable and explicitly disclaims runtime/phone proof.",
+    "TESTED remains NO because exact-head regression execution and runtime evidence are absent."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdictUsed": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}
