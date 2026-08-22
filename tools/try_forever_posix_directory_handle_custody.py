@@ -124,9 +124,20 @@ class HeldDirectoryCustody:
             raise PosixDirectoryHandleCustodyUnavailable(capability.boundary)
 
         self.path = Path(path)
-        self.fd = os.open(os.fspath(self.path), _directory_open_flags())
         try:
-            opened = os.fstat(self.fd)
+            self.fd = os.open(os.fspath(self.path), _directory_open_flags())
+        except OSError:
+            self.fd = -1
+            raise PosixDirectoryHandleCustodyUnavailable(
+                "held directory open failed before descriptor custody could be established"
+            ) from None
+        try:
+            try:
+                opened = os.fstat(self.fd)
+            except OSError:
+                raise PosixDirectoryHandleCustodyUnavailable(
+                    "held directory descriptor identity read failed"
+                ) from None
             if not stat.S_ISDIR(opened.st_mode):
                 raise PosixDirectoryHandleCustodyUnavailable(
                     "held descriptor does not refer to an ordinary directory"
@@ -137,7 +148,10 @@ class HeldDirectoryCustody:
                 )
             self.root_identity = _identity_from_stat(opened)
         except Exception:
-            os.close(self.fd)
+            try:
+                os.close(self.fd)
+            except OSError:
+                pass
             self.fd = -1
             raise
 
@@ -174,41 +188,59 @@ class HeldDirectoryCustody:
         `entries_observed` deliberately counts unrelated entries too. A future canonical-owner
         composition can therefore preserve v10's artifactDirectoryEntriesObserved evidence rather
         than replacing it with candidate count and quietly weakening the receipt.
+
+        Authority-facing scan-handle open, enumeration, and candidate stat failures stay inside the
+        custody error domain. A failed inventory returns no partial candidate authority.
         """
 
         if max_entries < 0 or max_candidates < 0:
             raise ValueError("custody budgets must be non-negative")
         entries_seen = 0
         candidates: list[DescriptorCandidate] = []
-        scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
         try:
-            with os.scandir(scan_fd) as entries:
-                for entry in entries:
-                    entries_seen += 1
-                    if entries_seen > max_entries:
-                        raise DescriptorArtifactCustodyError(
-                            f"held-directory scan exceeds {max_entries} entry budget"
+            scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
+        except OSError:
+            raise DescriptorArtifactCustodyError(
+                "held-directory scan handle open failed"
+            ) from None
+        try:
+            try:
+                with os.scandir(scan_fd) as entries:
+                    for entry in entries:
+                        entries_seen += 1
+                        if entries_seen > max_entries:
+                            raise DescriptorArtifactCustodyError(
+                                f"held-directory scan exceeds {max_entries} entry budget"
+                            )
+                        name = _require_simple_name(entry.name)
+                        if not is_candidate(name):
+                            continue
+                        try:
+                            observed = entry.stat(follow_symlinks=False)
+                        except OSError:
+                            raise DescriptorArtifactCustodyError(
+                                "candidate identity stat failed during held-directory enumeration"
+                            ) from None
+                        identity = _identity_from_stat(observed)
+                        if identity.inode == 0:
+                            raise DescriptorArtifactCustodyError(
+                                "enumerated candidate exposes no stable inode identity"
+                            )
+                        candidates.append(
+                            DescriptorCandidate(
+                                name=name,
+                                identity=identity,
+                                mode=int(observed.st_mode),
+                            )
                         )
-                    name = _require_simple_name(entry.name)
-                    if not is_candidate(name):
-                        continue
-                    observed = entry.stat(follow_symlinks=False)
-                    identity = _identity_from_stat(observed)
-                    if identity.inode == 0:
-                        raise DescriptorArtifactCustodyError(
-                            "enumerated candidate exposes no stable inode identity"
-                        )
-                    candidates.append(
-                        DescriptorCandidate(
-                            name=name,
-                            identity=identity,
-                            mode=int(observed.st_mode),
-                        )
-                    )
-                    if len(candidates) > max_candidates:
-                        raise DescriptorArtifactCustodyError(
-                            f"held-directory candidate set exceeds {max_candidates} budget"
-                        )
+                        if len(candidates) > max_candidates:
+                            raise DescriptorArtifactCustodyError(
+                                f"held-directory candidate set exceeds {max_candidates} budget"
+                            )
+            except OSError:
+                raise DescriptorArtifactCustodyError(
+                    "held-directory enumeration I/O failed"
+                ) from None
         finally:
             os.close(scan_fd)
         candidates.sort(key=lambda item: item.name)
