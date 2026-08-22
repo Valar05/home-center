@@ -1,0 +1,98 @@
+# TRY FOREVER heartbeat native selection collection — owner surgery
+# STATUS: PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: c5de1411a6b68087ae17aff83c032af754587150
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+#
+# Intent: compose the existing HeartbeatSelectionAccessibilityPolicy into the existing
+# OperatorOverlayService lifecycle. Collection semantics are applied after row construction,
+# after in-place content refresh, and after persistent selection changes. They are not a
+# per-light construction side effect and do not request keyboard/accessibility focus.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
+         if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
+         heartbeatLights.removeAllViews();
+ 
+         for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+             heartbeatLights.addView(createHeartbeatLight(control));
+         }
++        applyHeartbeatSelectionAccessibility(model);
+         applyHeartbeatModelChrome(model);
+         heartbeatLights.requestLayout();
+         heartbeatLights.post(this::clampAndPersistPosition);
+     }
+@@
+         for (int index = 0; index < model.controls.size(); index++) {
+             Button light = (Button) heartbeatLights.getChildAt(index);
+             applyHeartbeatLight(light, model.controls.get(index));
+         }
++        applyHeartbeatSelectionAccessibility(model);
+         applyHeartbeatModelChrome(model);
+         heartbeatLights.requestLayout();
+         heartbeatLights.post(this::clampAndPersistPosition);
+         return true;
+     }
+@@
+     private void applyHeartbeatLight(
+             Button light,
+             HeartbeatOverlayViewModel.LightControl control) {
+@@
+         });
+     }
++
++    private void applyHeartbeatSelectionAccessibility(HeartbeatOverlayViewModel.Model model) {
++        if (heartbeatLights == null || model == null) return;
++        HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
++                HeartbeatSelectionAccessibilityPolicy.fromModel(model, heartbeatSelectedId);
++
++        heartbeatLights.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
++                        decision.rowCount,
++                        decision.columnCount,
++                        false,
++                        decision.singleSelection
++                                ? AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE
++                                : AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE));
++            }
++        });
++
++        for (HeartbeatSelectionAccessibilityPolicy.ItemDecision item : decision.items) {
++            View child = heartbeatChildById(item.id);
++            if (child == null) continue;
++            final HeartbeatSelectionAccessibilityPolicy.ItemDecision itemDecision = item;
++            child.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++                @Override
++                public void onInitializeAccessibilityNodeInfo(
++                        View host,
++                        AccessibilityNodeInfo info) {
++                    super.onInitializeAccessibilityNodeInfo(host, info);
++                    info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
++                            itemDecision.rowIndex,
++                            1,
++                            itemDecision.columnIndex,
++                            1,
++                            false,
++                            itemDecision.selected));
++                }
++            });
++        }
++    }
+@@
+     private void refreshHeartbeatSelection() {
+         if (heartbeatLights == null) return;
+         for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+             View child = heartbeatLights.getChildAt(index);
+             Object tag = child.getTag();
+             child.setSelected(tag != null
+                     && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+         }
++        applyHeartbeatSelectionAccessibility(currentHeartbeatModel());
+     }
