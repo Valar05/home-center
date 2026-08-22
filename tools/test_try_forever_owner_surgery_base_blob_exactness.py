@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Regression source for exact base-owner blob evidence in owner-surgery custody.
+"""Regression source for exact authority blobs in owner-surgery custody.
 
-The base-owner blob is authority evidence, not display text. Uppercase or otherwise normalization-
-dependent hexadecimal must not be lowercased into authority. Source existence is not execution or
-TESTED evidence.
+Artifact base-owner blob evidence is now source-wired exact. A separate RED boundary remains for
+authenticated current-owner input: authority evidence must not be made valid by trim/lowercase
+normalization. Source existence is not execution or TESTED evidence.
 """
 
 from __future__ import annotations
@@ -11,7 +11,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from try_forever_owner_surgery_custody_probe import inspect_delta, inspect_patch
+import pytest
+
+from try_forever_owner_surgery_custody_probe import (
+    _parse_owner_blob,
+    inspect_delta,
+    inspect_patch,
+)
 
 
 OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
@@ -83,3 +89,13 @@ def test_delta_uppercase_base_blob_is_rejected_not_normalized(tmp_path: Path):
     assert surgery is None
     assert error is not None
     assert "lowercase" in error.boundary
+
+
+def test_authenticated_current_owner_uppercase_blob_is_rejected_not_normalized():
+    with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
+        _parse_owner_blob([f"{OWNER}={UPPER}"])
+
+
+def test_authenticated_current_owner_padded_blob_is_rejected_not_trimmed():
+    with pytest.raises(ValueError, match="40-lowercase-hex-blob"):
+        _parse_owner_blob([f"{OWNER}= {LOWER} "])
