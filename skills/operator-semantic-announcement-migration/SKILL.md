@@ -19,11 +19,12 @@ Use this skill when a native Android owner still emits explicit announcements, e
 9. **Legacy calls may be removed only after the exact consequence contract is reviewed and the existing native owner carries the replacement.** Policy/helper/fixture/patch existence alone is not owner wiring.
 10. **Polite live regions are one-shot authority.** Reset live-region mode after the intended semantic mutation and on early-return/recovery paths so speech authority cannot leak into later bookkeeping.
 11. **Review-ready surgery must be locked to current owner custody.** A patch intended for promotion must name the authenticated current owner blob; rejected historical archaeology must stay rejected and need not be continuously rebased to look apply-ready.
-12. **No neighboring accessibility controller.** `OperatorOverlayService` remains the sole native owner.
-13. **No phone/P0 side effects.** Repository/source accessibility work stays outside the canonical P0 physical chain.
-14. Preserve capability states: `requested → policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
+12. **Same-owner review-ready surgeries must converge before promotion.** Two independent patches locked to the same exact owner blob must not remain separately applicable when applying either would stale the other's custody. Preserve the standalone artifacts as superseded provenance and promote only the canonical combined surgery.
+13. **No neighboring accessibility controller.** `OperatorOverlayService` remains the sole native owner.
+14. **No phone/P0 side effects.** Repository/source accessibility work stays outside the canonical P0 physical chain.
+15. Preserve capability states: `requested → policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-## Current consequence contract — 2026-08-21 0811
+## Current consequence contract
 
 `AccessibilityAnnouncementSemanticPolicy` exposes semantic class, **owner migration readiness**, and a typed source-review blocker:
 
@@ -36,30 +37,35 @@ The three repeatable explicit-event consequences fail closed until their owner e
 
 ## Canonical owner-surgery state
 
-- Authenticated current owner blob observed at plan time: `c5de1411a6b68087ae17aff83c032af754587150`.
-- `patches/try-forever-heartbeat-material-transition-live-region-owner.patch` remains the only currently review-ready announcement migration surgery. It is **CORRECTED_PROPOSED_NOT_APPLIED** and was re-locked at 0811 to that current owner blob after unrelated owner accessibility surgery changed custody.
-- `patches/try-forever-semantic-announcement-owner-v2.patch` is **REJECTED_SUPERSEDED__DO_NOT_APPLY** historical provenance. Rejected archaeology must remain unmistakably rejected; it is not required to chase the current owner blob.
-- `tools/test_try_forever_semantic_announcement_owner_boundary.py` is the RED owner-boundary source: heartbeat migration expected; Spotify/detail/Adam legacy calls retained.
-- `tools/test_try_forever_semantic_announcement_inventory.py` is the source inventory guard: exactly four known legacy consequence calls, no fifth silent consequence, current narrow patch removes only heartbeat, rejected broad patch stays historical, and every unready consequence has a named blocker.
-- `AccessibilityAnnouncementSemanticPolicyTest` pins the readiness/blocker relation. Regression source is not executed test evidence.
+- Authenticated current owner blob observed for this surgery family: `c5de1411a6b68087ae17aff83c032af754587150`.
+- The heartbeat material-transition migration and heartbeat native-selection collection repair are both review-ready source changes against that same exact owner blob. Applying either standalone would stale the other's custody.
+- `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` is therefore the canonical **CANONICAL_PROPOSED_NOT_APPLIED** surgery for these two consequences.
+- `patches/try-forever-heartbeat-material-transition-live-region-owner.patch` is retained as **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE** historical provenance.
+- `patches/try-forever-heartbeat-native-selection-collection-owner.patch` is likewise **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE**.
+- `patches/try-forever-semantic-announcement-owner-v2.patch` remains **REJECTED_SUPERSEDED__DO_NOT_APPLY** historical provenance; rejected archaeology must remain unmistakably rejected.
+- `tools/test_try_forever_heartbeat_owner_patch_convergence.py` pins the canonical combined scope and proves supporting patch topology only; it is not owner wiring or TESTED evidence.
+- `tools/test_try_forever_semantic_announcement_owner_boundary.py` remains the RED owner-boundary source: heartbeat migration expected; Spotify/detail/Adam legacy calls retained.
+- `tools/test_try_forever_semantic_announcement_inventory.py` remains the source inventory guard: exactly four known legacy consequence calls, no fifth silent consequence, and every unready consequence has a named blocker.
 
-## Current PR #329 source truth — 2026-08-21 0811
+## Current PR #329 source truth — 2026-08-21 22:59 CT
 
-- durable pre-mutation plan gate: **YES** (`receipts/heartbeat-skill-lights/2026-08-21-0811-plan.json`);
+- durable pre-mutation plan/Judgment-Jar gate: **YES** (`operator-evidence/try-forever-heartbeat-20260821T2259-plan.md`);
 - She-Raw pre-execution consultation: **FAULT / account connection HTTP 400**, no substitute reviewer;
 - policy source with typed migration blockers: **YES / IMPLEMENTED_SOURCE**;
 - policy regression source: **YES / UNEXECUTED**;
-- owner-inventory regression source: **YES / UNEXECUTED**, corrected so rejected archaeology is not falsely required to track current owner custody;
+- owner-inventory regression source: **YES / UNEXECUTED**;
 - broad four-consequence owner surgery: **REJECTED_SUPERSEDED__DO_NOT_APPLY**;
-- corrected heartbeat-only owner surgery: **CORRECTED_PROPOSED_NOT_APPLIED / CURRENT_OWNER_BLOB_LOCKED**;
-- authenticated existing owner at plan time still contains all four legacy calls: **OWNER_WIRED NO**;
-- Command Center Codex agents/jobs/sessions/workers: **PERMANENTLY RETIRED** in current Home Center capability surface; no worker queue is a valid substitute lane;
-- large owner mutation was not reconstructed through an adjacent mechanism merely to manufacture a receipt: **BOUNDARY PRESERVED**;
+- canonical combined selection + heartbeat-transition owner surgery: **CANONICAL_PROPOSED_NOT_APPLIED / CURRENT_OWNER_BLOB_LOCKED**;
+- standalone heartbeat transition surgery: **SUPERSEDED / DO_NOT_APPLY_ALONE**;
+- standalone native-selection surgery: **SUPERSEDED / DO_NOT_APPLY_ALONE**;
+- owner-patch convergence regression source: **YES / UNEXECUTED**;
+- authenticated existing owner still contains heartbeat legacy announcement and lacks native collection/item helper: **OWNER_WIRED NO**;
 - TESTED / runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO unless fresh exact-head evidence proves otherwise**.
 
 ## Cross-skill composition
 
 - `heartbeat-refresh-deduplication` owns the automatic material-transition/mute/visibility history gate. Announcement migration changes semantic delivery mechanism, not that identity.
+- `heartbeat-native-selection-collection` owns persistent one-of-many collection/item semantics and now shares the canonical combined owner surgery.
 - `dynamic-textview-semantic-value` keeps changing TextView text as the semantic value rather than replacing it with stale generic descriptions.
 - `operator-repeatable-accessibility-event-semantics` owns the unresolved repeatable explicit-event contracts, the typed blocker consequences, and the no-fake-freshness law.
 - `operator-accessibility-owner-boundary` supplies lexical/direct-owner source evidence; it is not Android control-flow or TalkBack runtime proof.
@@ -79,8 +85,9 @@ Before migrating one consequence:
 - Are startup/background/poll paths silent unless independently authorized?
 - Does the change preserve mute, focus, selection, viewport contact, and recovery laws?
 - Does the existing native owner carry the replacement?
+- If another review-ready patch targets the same exact owner blob, have the surgeries been converged before either is promoted?
 - If a patch is review-ready, is its base blob the authenticated current owner blob?
-- Is rejected patch archaeology still clearly historical rather than continuously rebased into an apply-shaped artifact?
+- Is rejected/superseded patch archaeology still clearly historical rather than continuously rebased into an apply-shaped artifact?
 - Does the owner inventory still account for every legacy call with no unexpected fifth consequence?
 - Is regression execution separate from regression-source existence?
 
