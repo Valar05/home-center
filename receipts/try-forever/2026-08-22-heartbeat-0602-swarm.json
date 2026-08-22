@@ -1,0 +1,77 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "pulse": "2026-08-22T06:02:00-05:00",
+  "reviewedSourceHead": "e4d296e90ddeba545d54de7740c28abe78e810da",
+  "frontsAdvanced": [
+    "exact owner-surgery state admission supporting source",
+    "hostile state normalization/substring regression source",
+    "RED v9 owner-boundary regression source",
+    "v8 final-root patch superseded by one converged v9 root+state owner surgery",
+    "POSIX directory-handle atomicity capability gate plus regression source",
+    "owner-surgery custody skill convergence",
+    "touchable non-raster state/atomicity source organism",
+    "fresh workflow and capability membrane readback",
+    "She-Raw authoritative attempt plus Regnet/Venice durable review"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: moved from finished v7 bracket into substring promotion authority and platform atomicity capability; no CI retry.",
+    "Canon Auto-Select": "ACTIVE: reused operator-owner-surgery-custody, root identity, finite artifact, and existing GitHub lane.",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity.",
+    "Originality Tax": "ACTIVE: superseded v8 rather than adding a same-base patch sibling; v9 deliberately converges compatible owner changes.",
+    "Hunger": "ACTIVE: consumed stale v8-only doctrine and substring state authority.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: separated canonical state evidence, promotion readiness, POSIX primitive availability, and atomicity proof.",
+    "Operator Campaign": "ACTIVE: one existing custody owner; v9 remains proposed until safe application/readback.",
+    "Harroway operator discipline": "ACTIVE: GitHub source lane only; exact capability states preserved.",
+    "She-Raw adversarial motivation": "FAULT: account connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "ACTIVE: source slice may yield; owner v9/test/runtime/campaign continue.",
+    "Regnet QA": "ACTIVE: bounded source/readback pass; regressions unexecuted; TESTED no.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: source organism is keyboard/touch inspectable; runtime accessibility unclaimed.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero consumption/mutation.",
+    "deterministic routing": "ACTIVE: only exact admitted states can enter promotion groups.",
+    "evidence/capability-state discipline": "ACTIVE: v7 owner, v9 proposal, supporting capability, regressions, TESTED/runtime/deployment all separated.",
+    "recovery/checkpointing/idempotence": "ACTIVE: late root drift clears authority; unknown state cannot become promotion authority.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: new source-only warm wall for state/atomicity custody.",
+    "warm walls": "ACTIVE: ROOT -> SCAN -> FINITE FILE -> EXACT STATE -> FINAL ROOT is touch-inspectable.",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion contract changed.",
+    "contact preservation": "ACTIVE: fail-closed state/root wounds preserve provenance without preserving stale promotion authority."
+  },
+  "execution": {
+    "workflowsAtPriorExecutionBearingHead": {
+      "head": "4550021354a810dabab4cd835529fa46895e4e74",
+      "Operator Overlay Android": {"runId": 32569447773, "jobId": 97022711714, "status": "completed", "conclusion": "failure", "steps": 0, "logFetch": "404 BlobNotFound"},
+      "Home Center CI": {"runId": 32569447836, "status": "completed", "conclusion": "failure"},
+      "Build Android": {"runId": 32569447765, "status": "completed", "conclusion": "failure"}
+    },
+    "workflowsAtReviewedSourceHead": [],
+    "tested": false
+  },
+  "crossPollination": "v7 custody review exposed substring promotion authority; fixing that against the same owner/base forced convergence with the already-prepared final-root repair, superseding v8 instead of adding patch soup. The remaining atomicity wound then triggered a platform-capability gate: Python can expose fd/dir_fd primitives on some POSIX surfaces, but primitive availability is not atomicity proof. Both distinctions flowed into hostile fixtures, custody doctrine, a touchable warm wall, and Regnet/Venice evidence while P0 stayed untouched.",
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "canonicalProbeVersion": "v7",
+    "exactStatePolicySource": true,
+    "v9PatchPrepared": true,
+    "v9PatchApplied": false,
+    "v8Superseded": true,
+    "directoryHandleCapabilitySource": true,
+    "atomicRootBinding": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
