@@ -1,8 +1,9 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: SUPERSEDED_BY_V9__DO_NOT_APPLY
 # BASE OWNER BLOB: a3a11139faf426ddeae90c035708d4a3e0e1e36f
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
-# PURPOSE: v8 final root custody gate after artifact observations; zero authority on late persistent root drift.
-# BOUNDARY: does not claim atomic binding, between-observation swap-and-restore immunity, or identity-reuse immunity.
+# PURPOSE: historical v8 final root custody gate after artifact observations; zero authority on late persistent root drift.
+# SUPERSEDED BY: patches/try-forever-owner-surgery-custody-v9-root-state.patch
+# BOUNDARY: historical source provenance only; do not apply independently. Does not claim atomic binding, between-observation swap-and-restore immunity, or identity-reuse immunity.
 --- a/tools/try_forever_owner_surgery_custody_probe.py
 +++ b/tools/try_forever_owner_surgery_custody_probe.py
 @@ -6,12 +6,14 @@
