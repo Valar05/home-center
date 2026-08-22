@@ -1,0 +1,67 @@
+{
+  "heartbeat": "2026-08-22T14:02:57-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "mission": "Advance materially independent descriptor-custody source fronts without touching P0/phone execution or creating duplicate architecture.",
+  "authenticated_start": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "head": "be78db264c9070687cb9a0d93b91d730cc545cad",
+    "next_wound": "candidate_inventory leaks raw os.open/os.scandir/DirEntry.stat failures"
+  },
+  "fronts": [
+    {
+      "name": "descriptor_inventory_io_containment",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py::HeldDirectoryCustody.candidate_inventory",
+      "intent": "Convert scan-handle open, directory enumeration, and candidate stat OSError channels into bounded DescriptorArtifactCustodyError without changing successful inventory semantics."
+    },
+    {
+      "name": "descriptor_root_open_io_containment",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py::HeldDirectoryCustody.__init__",
+      "intent": "Convert root open/fstat OSError channels into bounded PosixDirectoryHandleCustodyUnavailable without weakening the capability gate or claiming atomicity."
+    },
+    {
+      "name": "hostile_regression_source",
+      "owner": "tools/test_try_forever_posix_directory_handle_custody.py",
+      "intent": "Pin root-open failure, scan-handle open failure, scandir failure, and DirEntry.stat failure as typed source contracts. Regression existence is not TESTED."
+    },
+    {
+      "name": "descriptor_skill_convergence",
+      "owner": "skills/operator-owner-surgery-descriptor-custody/SKILL.md",
+      "intent": "Record the two new typed I/O boundaries while preserving descriptor owner integration NO and atomicity NO."
+    },
+    {
+      "name": "warm_wall_mutation",
+      "owner": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "intent": "Mutate the existing source-only custody organism in place to expose ROOT I/O and INVENTORY I/O failure gates; no raster, autoplay, runtime/TalkBack/phone claim, or Christmas motion."
+    }
+  ],
+  "required_lights": {
+    "Failure Is The Shovel": "lit: move from artifact I/O containment to the preserved independent inventory/root I/O channels",
+    "Canon Auto-Select": "lit: descriptor custody + mutation/evidence doctrine selected from repository truth",
+    "Autocorrect Judgment Jar": "dark: no material token ambiguity",
+    "Originality Tax": "lit: do not retry CI or widen artifact-observation repair; use distinct failure channels",
+    "Hunger": "lit: source, tests, skill, and existing wall must converge",
+    "Ever-Polished Interpreter / Eat Everything": "lit: review adjacent root constructor and inventory cleanup for uncaught authority-facing I/O",
+    "Operator Campaign": "lit: preserve existing HeldDirectoryCustody and canonical v10 owner",
+    "Harroway operator discipline": "lit: exact source/test/readback states; no substitute lane",
+    "She-Raw adversarial motivation": "faulted: authoritative ambient call returned account-connection HTTP 400",
+    "Venice Judgment Jars": "lit: pre-mutation bounded plan gate required",
+    "Regnet QA": "lit: code-first bounded source review; regression source != executed tests",
+    "accessibility/TalkBack and touch semantics": "lit through existing Warm Wall source only; runtime claim forbidden",
+    "Phone Runtime / Phone Hands recovery": "dark/firewalled: P0 owner retains shared surface",
+    "deterministic routing": "lit: typed phase-level errors, no raw OS exception authority",
+    "evidence/capability-state discipline": "lit: requested/source/readback/regression/test/runtime/deployed/delivered remain separate",
+    "recovery/checkpointing/idempotence": "lit: failure returns no partial inventory/observation authority",
+    "strange non-raster vector/DOM/native UI art": "lit: mutate existing DOM/inline-SVG source organism",
+    "warm walls": "lit: mutate existing custody wall in place",
+    "Christmas-light scene graph": "dark: no runtime transition/motion law changes",
+    "contact preservation": "lit: typed failure must not manufacture partial custody authority"
+  },
+  "firewall": {
+    "phone_p0_consumption": 0,
+    "phone_p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "p0_findings": []
+  },
+  "pre_mutation_gate": "PLAN_READY_FOR_VENICE"
+}
