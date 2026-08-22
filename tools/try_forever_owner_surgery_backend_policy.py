@@ -30,6 +30,11 @@ OWNER_AUTHORITY_FIELDS = (
     "staleBaseGroups",
     "unverifiedBaseGroups",
 )
+AUTHORITY_STATUS_BY_FIELD = {
+    "collisionSets": "CURRENT_BASE_COLLISION_SET",
+    "staleBaseGroups": "STALE_BASE_GROUP",
+    "unverifiedBaseGroups": "UNVERIFIED_BASE_GROUP",
+}
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
@@ -130,6 +135,73 @@ def _admit_current_owner_blobs(result: Mapping[str, object]) -> dict[str, str]:
     return admitted
 
 
+def _admit_authority_groups(
+    result: Mapping[str, object],
+    current_owner_blobs: Mapping[str, str],
+) -> dict[str, int]:
+    """Validate authority-group shape and its relationship to authenticated owner custody.
+
+    Canonical v10 group names carry three different meanings. Collision and stale groups only make
+    sense when the named owner has authenticated current-blob evidence, while an unverified group
+    means precisely that current-owner custody is absent for that owner. A future backend may not
+    attach an unrelated authenticated owner blob to the result and thereby make another owner's
+    unverified authority look authenticated.
+    """
+
+    counts: dict[str, int] = {}
+    for field in OWNER_AUTHORITY_FIELDS:
+        groups = result.get(field)
+        if not isinstance(groups, list):
+            raise ValueError(f"{field} must be one list")
+        counts[field] = len(groups)
+
+        expected_status = AUTHORITY_STATUS_BY_FIELD[field]
+        for group in groups:
+            if not isinstance(group, Mapping):
+                raise ValueError(f"{field} entries must be mappings")
+
+            if group.get("status") != expected_status:
+                raise ValueError(f"{field} entry has an invalid status")
+
+            owner = group.get("owner")
+            if not isinstance(owner, str) or not owner:
+                raise ValueError(f"{field} entry owner must be one non-empty string")
+
+            base_blob = group.get("baseBlob")
+            if not isinstance(base_blob, str) or SHA1_RE.fullmatch(base_blob) is None:
+                raise ValueError(f"{field} entry baseBlob must be 40 lowercase hexadecimal")
+
+            promotion_candidates = group.get("promotionCandidates")
+            if not isinstance(promotion_candidates, list):
+                raise ValueError(f"{field} entry promotionCandidates must be one list")
+
+            current_blob = current_owner_blobs.get(owner)
+            if field == "unverifiedBaseGroups":
+                if current_blob is not None:
+                    raise ValueError(
+                        "unverifiedBaseGroups owner must not have authenticated current-owner custody"
+                    )
+                if "currentOwnerBlob" in group:
+                    raise ValueError(
+                        "unverifiedBaseGroups entry must not claim a currentOwnerBlob"
+                    )
+                continue
+
+            if current_blob is None:
+                raise ValueError(f"{field} owner is missing authenticated current-owner custody")
+
+            group_current_blob = group.get("currentOwnerBlob")
+            if group_current_blob != current_blob:
+                raise ValueError(f"{field} currentOwnerBlob must match currentOwnerBlobs evidence")
+
+            if field == "collisionSets" and base_blob != current_blob:
+                raise ValueError("collisionSets baseBlob must equal authenticated current owner blob")
+            if field == "staleBaseGroups" and base_blob == current_blob:
+                raise ValueError("staleBaseGroups baseBlob must differ from authenticated current owner blob")
+
+    return counts
+
+
 def admit_selected_backend_result(
     selection: OwnerSurgeryBackendSelection,
     result: Mapping[str, object],
@@ -139,8 +211,9 @@ def admit_selected_backend_result(
     This is deliberately a *result* gate, not a backend implementation. It prevents a future owner
     composition from dropping published work/error/current-owner evidence, reporting impossible
     candidate/entry counts, silently switching backend identity, claiming portable fallback after a
-    stronger backend was selected, or carrying promotion authority out of an incomplete exhaustive
-    custody result.
+    stronger backend was selected, carrying promotion authority out of an incomplete exhaustive
+    custody result, or using authenticated custody for one owner to upgrade another owner's
+    unverified promotion group.
 
     Canonical v10 currently exposes the three promotion-authority groups named by
     ``OWNER_AUTHORITY_FIELDS``. When ``evidenceComplete`` is false those groups must be empty before
@@ -174,13 +247,7 @@ def admit_selected_backend_result(
         raise ValueError("evidenceComplete must agree with discoveryErrors emptiness")
 
     current_owner_blobs = _admit_current_owner_blobs(result)
-
-    authority_counts: dict[str, int] = {}
-    for field in OWNER_AUTHORITY_FIELDS:
-        value = result.get(field)
-        if not isinstance(value, list):
-            raise ValueError(f"{field} must be one list")
-        authority_counts[field] = len(value)
+    authority_counts = _admit_authority_groups(result, current_owner_blobs)
 
     if not evidence_complete and any(authority_counts.values()):
         raise ValueError(
@@ -188,6 +255,13 @@ def admit_selected_backend_result(
         )
 
     current_owner_custody = bool(current_owner_blobs)
+    unverified_owner_authority = authority_counts["unverifiedBaseGroups"] > 0
+    owner_evidence_admitted = (
+        evidence_complete
+        and current_owner_custody
+        and not unverified_owner_authority
+    )
+
     return {
         "backend": selection.backend,
         "status": "EVIDENCE_ADMITTED",
@@ -199,7 +273,7 @@ def admit_selected_backend_result(
         "authorityGroupCounts": authority_counts,
         "portableFallbackAttempted": False,
         "exhaustiveEvidenceAdmitted": evidence_complete,
-        "ownerEvidenceAdmitted": evidence_complete and current_owner_custody,
+        "ownerEvidenceAdmitted": owner_evidence_admitted,
     }
 
 
