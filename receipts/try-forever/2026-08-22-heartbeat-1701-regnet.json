@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "localCheckpoint": "2026-08-22T17:01:33-05:00",
+  "reviewedSourceHead": "4fe4614de490dd307ad386bae1783ef7d3ec02a8",
+  "scope": "non-P0 owner-surgery backend selection, evidence admission, and exhaustive promotion authority",
+  "sourceReview": {
+    "filesChangedFromPriorCheckpoint": 8,
+    "backendSelectionSource": "PASS_BOUNDED_SUPPORTING_SOURCE",
+    "backendResultAdmission": "PASS_BOUNDED_SUPPORTING_SOURCE",
+    "backendRegressionSource": "PASS_SOURCE_UNEXECUTED",
+    "zeroPartialAuthorityRegression": "RED_SOURCE_UNEXECUTED",
+    "zeroPartialAuthorityOwnerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "warmWall": "PASS_SOURCE_ONLY",
+    "newSkill": "operator-owner-surgery-exhaustive-authority"
+  },
+  "materialFinding": {
+    "status": "REVISE_REQUIRED_OWNER",
+    "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+    "ownerBlob": "f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "wound": "Canonical v10 can emit collisionSets/staleBaseGroups/unverifiedBaseGroups from healthy sibling surgeries while evidenceComplete=false because another matching artifact produced discoveryErrors.",
+    "requiredConsequence": "Preserve healthy surgeries as diagnostic provenance but emit zero promotion-authority groups whenever exhaustive custody is incomplete.",
+    "repair": "patches/try-forever-owner-surgery-zero-partial-authority.patch",
+    "repairApplied": false
+  },
+  "codeFirstCorrection": {
+    "found": true,
+    "detail": "Backend result admission initially treated evidenceComplete as sufficient owner evidence and did not require discoveryErrors/currentOwnerBlobs. The source was corrected to preserve both fields, require evidenceComplete/discoveryErrors consistency, validate exact current-owner blobs, and separate exhaustiveEvidenceAdmitted from ownerEvidenceAdmitted."
+  },
+  "executionEvidence": {
+    "operatorRun": 32601646797,
+    "operatorJob": 97100714047,
+    "operatorConclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404_BlobNotFound",
+    "homeCenterCiRun": 32601646784,
+    "buildAndroidRun": 32601646790,
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "reviewers": {
+    "sheRaw": "ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "regnetVerdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerRepairApplied": false,
+    "backendSelectionOwnerIntegration": false,
+    "descriptorOwnerIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneDelivered": false,
+    "accepted": false
+  }
+}
