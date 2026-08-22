@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "reviewedSourceHead": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "acceptedBoundedClaims": [
+    "authenticated current-owner blob exactness is SOURCE_WIRED in the canonical v10 custody owner",
+    "CLI and programmatic current-owner evidence share exact lowercase-SHA fail-closed admission",
+    "hostile regression source exists for artifact, CLI, and programmatic exactness",
+    "base-identity skill doctrine and existing non-raster Warm Wall are converged to authenticated source truth",
+    "descriptor custody was reviewed as distinct supporting source and remains intentionally uncomposed"
+  ],
+  "withheldClaims": [
+    "regression execution",
+    "TESTED",
+    "descriptor canonical-owner integration",
+    "universal atomic filesystem binding",
+    "runtime UI/TalkBack",
+    "deployment/callability/execution/delivery/acceptance"
+  ],
+  "executionEvidence": {
+    "sourceHead": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+    "operatorOverlayAndroid": "completed/failure",
+    "homeCenterCI": "completed/failure",
+    "buildAndroid": "completed/failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
