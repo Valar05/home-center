@@ -6,13 +6,39 @@ SOURCE ONLY. This file has not been observed executing in an authorized test lan
 
 from try_forever_owner_surgery_backend_policy import (
     DESCRIPTOR_BACKEND,
+    OWNER_AUTHORITY_FIELDS,
     PORTABLE_BACKEND,
     PORTABLE_UNAVAILABLE,
     REQUIRED_OWNER_EVIDENCE_FIELDS,
     SUPPORTED_POSIX,
+    admit_selected_backend_result,
     classify_selected_backend_failure,
     select_owner_surgery_backend,
 )
+
+
+def complete_result(**overrides):
+    result = {
+        "backend": DESCRIPTOR_BACKEND,
+        "artifactDirectoryEntriesObserved": 7,
+        "artifactCandidatesObserved": 3,
+        "evidenceComplete": True,
+        "collisionSets": [],
+        "staleBaseGroups": [],
+        "unverifiedBaseGroups": [],
+        "portableFallbackAttempted": False,
+    }
+    result.update(overrides)
+    return result
+
+
+def expect_rejected(descriptor, result, needle: str) -> None:
+    try:
+        admit_selected_backend_result(descriptor, result)
+    except ValueError as exc:
+        assert needle in str(exc), (needle, str(exc))
+    else:
+        raise AssertionError(f"unsafe backend result earned evidence authority: {result!r}")
 
 
 def main() -> int:
@@ -25,6 +51,83 @@ def main() -> int:
     assert descriptor.required_owner_evidence_fields == (
         "artifactDirectoryEntriesObserved",
         "artifactCandidatesObserved",
+    )
+    assert OWNER_AUTHORITY_FIELDS == (
+        "collisionSets",
+        "staleBaseGroups",
+        "unverifiedBaseGroups",
+    )
+
+    admitted = admit_selected_backend_result(descriptor, complete_result())
+    assert admitted == {
+        "backend": DESCRIPTOR_BACKEND,
+        "status": "EVIDENCE_ADMITTED",
+        "artifactDirectoryEntriesObserved": 7,
+        "artifactCandidatesObserved": 3,
+        "evidenceComplete": True,
+        "authorityGroupCounts": {
+            "collisionSets": 0,
+            "staleBaseGroups": 0,
+            "unverifiedBaseGroups": 0,
+        },
+        "portableFallbackAttempted": False,
+        "ownerEvidenceAdmitted": True,
+    }
+
+    incomplete = admit_selected_backend_result(
+        descriptor,
+        complete_result(evidenceComplete=False),
+    )
+    assert incomplete["ownerEvidenceAdmitted"] is False
+    assert incomplete["evidenceComplete"] is False
+
+    # Diagnostic surgeries may remain present after a wounded exhaustive scan; they are not promotion authority.
+    incomplete_with_diagnostics = complete_result(evidenceComplete=False)
+    incomplete_with_diagnostics["surgeries"] = [{"path": "diagnostic-only.patch"}]
+    assert admit_selected_backend_result(
+        descriptor,
+        incomplete_with_diagnostics,
+    )["ownerEvidenceAdmitted"] is False
+
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[{"owner": "x"}], evidenceComplete=False),
+        "partial promotion authority",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(artifactCandidatesObserved=8),
+        "cannot exceed",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(artifactCandidatesObserved=True),
+        "non-negative integer",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(artifactDirectoryEntriesObserved=-1),
+        "non-negative integer",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(evidenceComplete="yes"),
+        "evidenceComplete",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(staleBaseGroups=None),
+        "staleBaseGroups",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(backend=PORTABLE_BACKEND),
+        "identity",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(portableFallbackAttempted=True),
+        "fallback",
     )
 
     wound = classify_selected_backend_failure(
@@ -45,6 +148,11 @@ def main() -> int:
     assert portable.portable_is_primary is True
     assert portable.fallback_after_backend_failure is False
     assert portable.required_owner_evidence_fields == REQUIRED_OWNER_EVIDENCE_FIELDS
+
+    portable_result = complete_result(backend=PORTABLE_BACKEND)
+    admitted_portable = admit_selected_backend_result(portable, portable_result)
+    assert admitted_portable["backend"] == PORTABLE_BACKEND
+    assert admitted_portable["ownerEvidenceAdmitted"] is True
 
     for unsupported in ("", "SUPPORTED", "UNKNOWN", "supported_posix_primitives"):
         try:
