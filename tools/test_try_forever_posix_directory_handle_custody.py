@@ -111,6 +111,39 @@ def test_candidate_inventory_preserves_total_directory_entry_evidence(tmp_path: 
         )
 
 
+def test_unrelated_directory_entry_max_plus_one_rejects_inventory(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    (root / "try-forever-a.patch").write_text("a", encoding="utf-8")
+    (root / "unrelated-a.txt").write_text("x", encoding="utf-8")
+    (root / "unrelated-b.txt").write_text("y", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        with pytest.raises(DescriptorArtifactCustodyError, match="exceeds 2 entry budget"):
+            held.candidate_inventory(
+                is_candidate=_candidate_filter,
+                max_entries=2,
+                max_candidates=8,
+            )
+
+
+def test_candidate_max_plus_one_rejects_inventory_without_partial_return(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    (root / "try-forever-a.patch").write_text("a", encoding="utf-8")
+    (root / "try-forever-b.patch").write_text("b", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        with pytest.raises(DescriptorArtifactCustodyError, match="exceeds 1 budget"):
+            held.candidate_inventory(
+                is_candidate=_candidate_filter,
+                max_entries=8,
+                max_candidates=1,
+            )
+
+
 def test_candidate_identity_captured_during_enumeration_survives_into_read(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
