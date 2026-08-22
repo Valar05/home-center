@@ -56,7 +56,6 @@ def main() -> int:
         "private void refreshAdamSendAvailability() {\n"
         "  AdamSendAvailabilityAccessibilityPolicy.Decision d = AdamSendAvailabilityAccessibilityPolicy.decisionFor(mode, value);\n"
         "  adamSendButton.setEnabled(d.enabled);\n"
-        "  adamSendButton.setContentDescription(d.actionDescription);\n"
         "}\n"
         "private void submitAdamRequest() { }"
     )
@@ -83,7 +82,6 @@ def main() -> int:
         "private void refreshAdamSendAvailability() {\n"
         "  AdamSendAvailabilityAccessibilityPolicy.Decision d = AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, adamInput.getText());\n"
         "  adamSendButton.setEnabled(d.enabled);\n"
-        "  adamSendButton.setContentDescription(d.actionDescription);\n"
         "}\n"
         "private void submitAdamRequest() { }"
     )
@@ -91,7 +89,9 @@ def main() -> int:
     assert result["adamSendAvailability"]["status"] == "PARTIAL_UNSAFE"
     assert "edit callback" in result["adamSendAvailability"]["reason"]
 
-    adam_wired = wrap(
+    # Availability must not require a duplicate semantic action writer. Exact current-mode
+    # action wording is a separate AdamSendActionAccessibilityPolicy owner seam.
+    adam_wired_without_action_rewrite = wrap(
         "private void refreshUi() { }\n"
         "private void applyHeartbeatCollapsedOwnerAccessibility() { }\n"
         "private void createOverlay() {\n"
@@ -105,15 +105,14 @@ def main() -> int:
         "private void refreshAdamSendAvailability() {\n"
         "  AdamSendAvailabilityAccessibilityPolicy.Decision d = AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, adamInput.getText());\n"
         "  adamSendButton.setEnabled(d.enabled);\n"
-        "  adamSendButton.setContentDescription(d.actionDescription);\n"
         "}\n"
         "private void submitAdamRequest() { }"
     )
-    result = classify(adam_wired)
+    result = classify(adam_wired_without_action_rewrite)
     assert result["adamSendAvailability"]["status"] == "SOURCE_WIRED"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-operational-contact-owner-probe.v2"
+    assert result["schema"] == "try-forever-operational-contact-owner-probe.v3"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
