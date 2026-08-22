@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "reviewedSourceHead": "884ee2ffa0c14d9cd3107368795ef40469c6ff2b",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CURRENT_OWNER_IDENTITY_DESCRIPTOR_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "acceptedBoundedClaims": [
+    "artifact base-owner identity exactness is SOURCE_WIRED with authenticated owner readback",
+    "current inventory exact-base regression source exists and is UNEXECUTED",
+    "descriptor inventory budget hostile regressions exist and are UNEXECUTED",
+    "custody Warm Wall is current source art and not runtime proof"
+  ],
+  "withheldClaims": [
+    "authenticated current-owner input exactness owner wiring",
+    "descriptor custody canonical-owner integration",
+    "regression execution",
+    "TESTED",
+    "runtime UI/TalkBack",
+    "deployment/callability/execution/delivery/acceptance"
+  ],
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
