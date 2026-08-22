@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "sourceHead": "268f172ee63b3f8428800ba5b5f1a2895ba85231",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_READBACK__REGRESSION_UNEXECUTED__ATOMIC_BINDING_UNPROVEN__TESTED_NO",
+  "review": {
+    "wound": "owner-surgery custody v6 bounded work after opening patches/ but did not bind the named patches root against redirector topology or persistent replacement",
+    "organReuse": "the existing try_forever_skill_root_identity.py organ was generalized with subject-aware directory-root capture/revalidation while preserving skill-root compatibility wrappers; no second root-custody implementation was created",
+    "ownerCustody": "owner-surgery custody v7 captures a no-follow patches-root identity before traversal, rejects redirector/unavailable/non-directory roots, revalidates persistent identity after traversal, and withholds the whole candidate inventory on root wounds",
+    "partialAuthority": "root, traversal, or candidate failure emits zero surgery/collision/stale/unverified promotion authority; per-artifact wounds continue to make evidenceComplete false",
+    "regression": "hostile source fixtures pin root symlink rejection and persistent root replacement with zero partial authority while preserving existing 32K directory, 2048 candidate, and 1 MiB artifact throats",
+    "artAndDoctrine": "operator-owner-surgery-custody skill and existing DOM custody wall now expose the root throat before traversal/candidate/file custody",
+    "boundary": "pre/post pathname identity is persistent-drift evidence, not an atomic directory-handle binding; swap-and-restore wholly between observations and identity reuse remain open"
+  },
+  "sourceBlobs": {
+    "rootIdentityOrgan": "a62607507dc1dac7e2e9e079cd9746df9b6a3a11",
+    "ownerSurgeryCustodyV7": "a3a11139faf426ddeae90c035708d4a3e0e1e36f",
+    "hostileRegression": "5e7343efa1b490fc221126cfc939781d8a6a07d4",
+    "custodySkill": "9aefcd96d56d10b200d3c3f3911bd7b6a539ca52",
+    "rootIdentitySkill": "5254e0258774eed81bdaf1256393fba6fd683352",
+    "sourceWall": "f0b8fec02ac62f1bd4e90b8a426dfcf6b3a39f56"
+  },
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "rootIdentityRevalidationSource": true,
+    "rootAtomicBinding": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "ownerMutation": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false,
+    "phoneOrP0Consumed": false
+  }
+}
