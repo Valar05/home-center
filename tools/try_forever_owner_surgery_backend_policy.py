@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+import re
 
 
 SUPPORTED_POSIX = "SUPPORTED_POSIX_PRIMITIVES"
@@ -21,12 +22,15 @@ DESCRIPTOR_BACKEND = "HELD_DIRECTORY_DESCRIPTOR"
 REQUIRED_OWNER_EVIDENCE_FIELDS = (
     "artifactDirectoryEntriesObserved",
     "artifactCandidatesObserved",
+    "discoveryErrors",
+    "currentOwnerBlobs",
 )
 OWNER_AUTHORITY_FIELDS = (
     "collisionSets",
     "staleBaseGroups",
     "unverifiedBaseGroups",
 )
+SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 @dataclass(frozen=True)
@@ -111,6 +115,21 @@ def _nonnegative_int(result: Mapping[str, object], field: str) -> int:
     return value
 
 
+def _admit_current_owner_blobs(result: Mapping[str, object]) -> dict[str, str]:
+    raw = result.get("currentOwnerBlobs")
+    if not isinstance(raw, Mapping):
+        raise ValueError("currentOwnerBlobs must be one mapping")
+
+    admitted: dict[str, str] = {}
+    for owner, blob in raw.items():
+        if not isinstance(owner, str) or not owner:
+            raise ValueError("currentOwnerBlobs keys must be non-empty owner strings")
+        if not isinstance(blob, str) or SHA1_RE.fullmatch(blob) is None:
+            raise ValueError("currentOwnerBlobs values must be 40 lowercase hexadecimal blobs")
+        admitted[owner] = blob
+    return admitted
+
+
 def admit_selected_backend_result(
     selection: OwnerSurgeryBackendSelection,
     result: Mapping[str, object],
@@ -118,9 +137,10 @@ def admit_selected_backend_result(
     """Admit one future backend result without weakening the canonical v10 evidence membrane.
 
     This is deliberately a *result* gate, not a backend implementation. It prevents a future owner
-    composition from dropping the two published work metrics, reporting impossible candidate/entry
-    counts, silently switching backend identity, claiming portable fallback after a stronger backend
-    was selected, or carrying promotion authority out of an incomplete exhaustive-custody result.
+    composition from dropping published work/error/current-owner evidence, reporting impossible
+    candidate/entry counts, silently switching backend identity, claiming portable fallback after a
+    stronger backend was selected, or carrying promotion authority out of an incomplete exhaustive
+    custody result.
 
     Canonical v10 currently exposes the three promotion-authority groups named by
     ``OWNER_AUTHORITY_FIELDS``. When ``evidenceComplete`` is false those groups must be empty before
@@ -143,9 +163,17 @@ def admit_selected_backend_result(
     if candidates_observed > entries_observed:
         raise ValueError("artifactCandidatesObserved cannot exceed artifactDirectoryEntriesObserved")
 
+    discovery_errors = result.get("discoveryErrors")
+    if not isinstance(discovery_errors, list):
+        raise ValueError("discoveryErrors must be one list")
+
     evidence_complete = result.get("evidenceComplete")
     if not isinstance(evidence_complete, bool):
         raise ValueError("evidenceComplete must be one boolean")
+    if evidence_complete != (len(discovery_errors) == 0):
+        raise ValueError("evidenceComplete must agree with discoveryErrors emptiness")
+
+    current_owner_blobs = _admit_current_owner_blobs(result)
 
     authority_counts: dict[str, int] = {}
     for field in OWNER_AUTHORITY_FIELDS:
@@ -159,15 +187,19 @@ def admit_selected_backend_result(
             "incomplete exhaustive custody must not carry partial promotion authority groups"
         )
 
+    current_owner_custody = bool(current_owner_blobs)
     return {
         "backend": selection.backend,
         "status": "EVIDENCE_ADMITTED",
         "artifactDirectoryEntriesObserved": entries_observed,
         "artifactCandidatesObserved": candidates_observed,
+        "discoveryErrorCount": len(discovery_errors),
         "evidenceComplete": evidence_complete,
+        "currentOwnerCustodyProvided": current_owner_custody,
         "authorityGroupCounts": authority_counts,
         "portableFallbackAttempted": False,
-        "ownerEvidenceAdmitted": evidence_complete,
+        "exhaustiveEvidenceAdmitted": evidence_complete,
+        "ownerEvidenceAdmitted": evidence_complete and current_owner_custody,
     }
 
 
