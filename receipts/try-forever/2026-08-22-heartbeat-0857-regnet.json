@@ -1,18 +1,18 @@
 {
   "schema": "try-forever-regnet-receipt.v1",
   "checkpoint": "2026-08-22T08:57:00-05:00",
-  "reviewedSourceHead": "3b364bd1b743f7b4778559e690f16cca7120df89",
+  "reviewedSourceHead": "24e26125f2474e833a3173068b97be5686dca0d0",
   "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK_ONLY",
   "fronts": [
     {
       "name": "descriptor capability gate",
       "state": "IMPLEMENTED_SOURCE",
-      "finding": "The prior capability gate was insufficient for descriptor-relative name custody because it did not require stat(..., dir_fd=..., follow_symlinks=False). The gate and its regression source now require both stat capabilities."
+      "finding": "The prior capability gate was insufficient for descriptor-relative name custody because it did not require stat(..., dir_fd=..., follow_symlinks=False). The gate and regression source now require both stat capabilities."
     },
     {
       "name": "held-directory descriptor custody",
       "state": "IMPLEMENTED_SUPPORTING_SOURCE__REGRESSION_UNEXECUTED",
-      "finding": "A held O_DIRECTORY|O_NOFOLLOW root descriptor now anchors bounded descriptor-relative enumeration/open/stat source work. This materially strengthens root custody after the descriptor is acquired, but does not prove universal filesystem atomicity, candidate swap-and-restore immunity, identity-reuse immunity, or canonical v10 owner integration."
+      "finding": "A held O_DIRECTORY|O_NOFOLLOW root descriptor now anchors bounded descriptor-relative enumeration/open/stat source work. Code-first review caught a directory-stream-position wound in the first draft, so each inventory scan now opens a fresh '.' directory handle relative to the held authority root. This strengthens root custody after descriptor acquisition without proving universal filesystem atomicity, candidate swap-and-restore immunity, identity-reuse immunity, or canonical v10 owner integration."
     },
     {
       "name": "current inventory exact grammar",
@@ -22,21 +22,24 @@
     {
       "name": "warm wall / skill harvest",
       "state": "IMPLEMENTED_SOURCE",
-      "finding": "The existing custody wall now distinguishes portable v10 pathname revalidation from descriptor-bound supporting source, and a dedicated descriptor-custody skill preserves the exact capability membrane."
+      "finding": "The existing custody wall now distinguishes portable v10 pathname revalidation from descriptor-bound supporting source, and a dedicated descriptor-custody skill preserves the exact capability membrane and the scan-position correction scar."
     }
   ],
   "reviewScars": [
+    "Passing the held authority descriptor directly to repeated scandir calls was rejected; each bounded scan now gets a fresh descriptor-relative directory handle so inventory results do not depend on prior stream position.",
     "Descriptor-bound root custody is stronger than pathname pre/post revalidation but does not make candidate-name content observations atomic.",
     "The new POSIX source is unexecuted; platform/API behavior remains source-level until an authorized test receipt exists.",
     "Canonical try_forever_owner_surgery_custody_probe.py v10 was not mutated or promoted to descriptor-bound custody in this slice."
   ],
   "executionTruth": {
-    "workflowHead": "3b364bd1b743f7b4778559e690f16cca7120df89",
-    "operatorOverlayRun": 32577557975,
-    "operatorOverlayJob": 97041990204,
-    "operatorOverlayConclusion": "failure",
-    "operatorOverlaySteps": 0,
-    "operatorOverlayLogs": "404 BlobNotFound",
+    "workflowHead": "24e26125f2474e833a3173068b97be5686dca0d0",
+    "operatorOverlayRun": 32577754037,
+    "operatorOverlayStatus": "queued",
+    "operatorOverlayConclusion": null,
+    "homeCenterCiRun": 32577754038,
+    "homeCenterCiStatus": "queued",
+    "buildAndroidRun": 32577754083,
+    "buildAndroidStatus": "queued",
     "tested": false,
     "causeEstablished": false,
     "manualRetryFired": false
