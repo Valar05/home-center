@@ -1,16 +1,19 @@
 # TRY FOREVER owner surgery provenance
 # Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 # Base blob: c5de1411a6b68087ae17aff83c032af754587150
-# State: CORRECTED_PROPOSED_NOT_APPLIED
-# Scope: heartbeat automatic material transition only; existing OperatorOverlayService.
-# Re-locked 2026-08-21 0811 against authenticated current owner readback after later,
-# unrelated accessibility owner surgeries changed the blob identity.
+# State: SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE
+# Superseded by: patches/try-forever-heartbeat-selection-announcement-owner-combined.patch
+# Historical scope: heartbeat automatic material transition only; existing OperatorOverlayService.
+#
 # The earlier proposal left the summary POLITE after the one material transition until some
-# later owner mutation changed it. This corrected surgery resets the live-region mode on the
+# later owner mutation changed it. This corrected source reset the live-region mode on the
 # next main-loop turn and on every early-return/recovery path, so authority is one-shot.
 # Explicit Spotify/detail/Adam source designs exist, but their typed MigrationBlockers remain
-# non-NONE. Their legacy receipts therefore remain separate and untouched by this surgery.
-# No second accessibility controller. No phone/P0 action.
+# non-NONE. Their legacy receipts therefore remain separate and untouched.
+#
+# This source is retained as provenance only. It shares the exact same owner/base blob with the
+# heartbeat native-selection collection surgery; independent application would stale the sibling
+# surgery. Use the canonical combined surgery instead.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
