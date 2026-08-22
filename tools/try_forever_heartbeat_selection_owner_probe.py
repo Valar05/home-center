@@ -34,11 +34,13 @@ def classify_native_selection(source: str) -> SeamVerdict:
         "heartbeatLights.setAccessibilityDelegate(" in apply_collection
         and "AccessibilityNodeInfo.CollectionInfo.obtain(" in apply_collection
         and "AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE" in apply_collection
+        and "rowCount" in apply_collection
+        and "columnCount" in apply_collection
     )
     item_context = (
         "AccessibilityNodeInfo.CollectionItemInfo.obtain(" in apply_collection
-        and "positionInSet" in apply_collection
-        and "setSize" in apply_collection
+        and "rowIndex" in apply_collection
+        and "columnIndex" in apply_collection
         and "selected" in apply_collection
     )
     owner_call = "applyHeartbeatSelectionAccessibility(" in apply_light
@@ -46,7 +48,7 @@ def classify_native_selection(source: str) -> SeamVerdict:
     if all((native_selected_state, policy_projection, collection_context, item_context, owner_call)):
         return SeamVerdict(
             "SOURCE_WIRED",
-            "existing heartbeat owner exposes persistent native selected state plus single-selection collection and stable per-light set-position semantics",
+            "existing heartbeat owner exposes persistent native selected state plus single-selection collection and row-oriented per-light item semantics",
             policy,
         )
     if native_selected_state or policy in owner or "CollectionInfo.obtain(" in owner:
@@ -56,9 +58,9 @@ def classify_native_selection(source: str) -> SeamVerdict:
         if not policy_projection:
             missing.append("selection collection policy projection")
         if not collection_context:
-            missing.append("single-selection collection context")
+            missing.append("single-selection row/column collection context")
         if not item_context:
-            missing.append("per-light position-in-set context")
+            missing.append("per-light row/item selection context")
         if not owner_call:
             missing.append("direct heartbeat-light owner consumption")
         return SeamVerdict(
@@ -68,7 +70,7 @@ def classify_native_selection(source: str) -> SeamVerdict:
         )
     return SeamVerdict(
         "LEGACY_OWNER",
-        "heartbeat controls expose no persistent selected-state or collection/set-position semantics",
+        "heartbeat controls expose no persistent selected-state or collection/item semantics",
         policy,
     )
 
