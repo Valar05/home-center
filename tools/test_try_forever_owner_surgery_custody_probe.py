@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import try_forever_owner_surgery_custody_probe as custody
 from try_forever_owner_surgery_custody_probe import (
     MAX_ARTIFACT_BYTES,
     MAX_CUSTODY_ARTIFACTS,
@@ -72,7 +73,7 @@ def main() -> int:
             delta("APPLIED_SOURCE", "applied-delta"), encoding="utf-8")
 
         result = classify(root, {OWNER: BASE})
-        assert result["schema"] == "try-forever-owner-surgery-custody.v6"
+        assert result["schema"] == "try-forever-owner-surgery-custody.v7"
         assert result["artifactKindsScanned"] == ["patch", "delta_json"]
         assert result["artifactReadBudgetBytes"] == MAX_ARTIFACT_BYTES
         assert result["artifactCandidateBudget"] == MAX_CUSTODY_ARTIFACTS
@@ -138,6 +139,8 @@ def main() -> int:
         assert capability["sourceInspection"] is True
         assert capability["patchArtifactInspection"] is True
         assert capability["deltaArtifactInspection"] is True
+        assert capability["artifactRootIdentityRevalidation"] is True
+        assert capability["artifactRootAtomicBinding"] is False
         assert capability["boundedArtifactDirectoryScan"] is True
         assert capability["boundedArtifactCandidateSet"] is True
         assert capability["boundedArtifactRead"] is True
@@ -148,6 +151,79 @@ def main() -> int:
         assert capability["regressionExecuted"] is False
         assert capability["tested"] is False
         assert capability["phoneDelivered"] is False
+
+    # Redirector root topology must fail before directory traversal and return zero partial authority.
+    with TemporaryDirectory() as tmp:
+        base_root = Path(tmp)
+        target = base_root / "real-patches"
+        target.mkdir()
+        (target / "try-forever-a.patch").write_text(
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+        link = base_root / "patches-link"
+        try:
+            link.symlink_to(target, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            pass
+        else:
+            result = classify(link, {OWNER: BASE})
+            assert result["surgeries"] == []
+            assert result["collisionSets"] == []
+            assert result["staleBaseGroups"] == []
+            assert result["unverifiedBaseGroups"] == []
+            assert result["artifactDirectoryEntriesObserved"] == 0
+            assert result["artifactCandidatesObserved"] == 0
+            assert result["evidenceComplete"] is False
+            assert len(result["discoveryErrors"]) == 1
+            error = result["discoveryErrors"][0]
+            assert error["artifact_kind"] == "artifact_root"
+            assert "symlink" in error["boundary"]
+
+    # A persistent root replacement after traversal invalidates the whole observed candidate inventory.
+    with TemporaryDirectory() as tmp:
+        base_root = Path(tmp)
+        root = base_root / "patches"
+        root.mkdir()
+        (root / "try-forever-a.patch").write_text(
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+        replacement = base_root / "replacement"
+        replacement.mkdir()
+        displaced = base_root / "patches-old"
+
+        real_scandir = custody.os.scandir
+
+        class ReplaceAfterScan:
+            def __init__(self, path):
+                self._context = real_scandir(path)
+
+            def __enter__(self):
+                return self._context.__enter__()
+
+            def __exit__(self, exc_type, exc, traceback):
+                result = self._context.__exit__(exc_type, exc, traceback)
+                root.rename(displaced)
+                replacement.rename(root)
+                return result
+
+        custody.os.scandir = ReplaceAfterScan
+        try:
+            result = classify(root, {OWNER: BASE})
+        finally:
+            custody.os.scandir = real_scandir
+
+        assert result["surgeries"] == []
+        assert result["collisionSets"] == []
+        assert result["staleBaseGroups"] == []
+        assert result["unverifiedBaseGroups"] == []
+        assert result["artifactDirectoryEntriesObserved"] == 1
+        assert result["artifactCandidatesObserved"] == 1
+        assert result["evidenceComplete"] is False
+        assert len(result["discoveryErrors"]) == 1
+        error = result["discoveryErrors"][0]
+        assert error["artifact_kind"] == "artifact_root"
+        assert (
+            "device/inode identity changed" in error["boundary"]
+            or "identity is unavailable" in error["boundary"]
+        )
 
     # Candidate-set max+1 must fail the whole inventory closed before any partial promotion authority.
     with TemporaryDirectory() as tmp:
@@ -266,7 +342,7 @@ def main() -> int:
         assert len(result["discoveryErrors"]) == 1
         assert "duplicate JSON member" in result["discoveryErrors"][0]["boundary"]
 
-    print("TRY FOREVER owner surgery custody regression source: bounded traversal + finite artifacts classified")
+    print("TRY FOREVER owner surgery custody regression source: root + traversal + finite artifacts classified")
     return 0
 
 
