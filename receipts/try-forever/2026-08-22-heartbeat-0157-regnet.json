@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-22T01:57:00-05:00",
+  "reviewedSourceHead": "082ab2aed80e4714a3e49168f6cc8fddc85bfe7e",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "patchCustodyCompleteness": "PASS_SOURCE",
+    "artifactReadBudget": "PASS_SOURCE",
+    "hostileRegression": "SOURCE_UNEXECUTED",
+    "durableSkill": "PASS_SOURCE",
+    "touchableSourceOrganism": "PASS_SOURCE"
+  },
+  "review": [
+    "Every matching try-forever patch/delta now either admits a surgery or emits a bounded discovery error.",
+    "Patch and delta reads share one 1 MiB + sentinel pre-parse throat with strict UTF-8.",
+    "Prefix content never earns surgery authority.",
+    "Existing collision/stale/unverified semantics remain source-preserved.",
+    "No owner mutation, runtime, phone/P0, or duplicate architecture occurred."
+  ],
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneDelivered": false,
+    "accepted": false
+  }
+}
