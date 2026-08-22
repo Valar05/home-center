@@ -6,10 +6,12 @@ surgery into owner wiring. It exposes patch-order hazards when several unapplied
 target the same exact owner blob and binds that evidence to an authenticated current-owner blob
 when one is supplied.
 
-v4 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+v5 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
 family. Every matching artifact must either become an admitted surgery record or a bounded
-``discoveryError``. Malformed/unreadable/over-budget evidence therefore cannot silently disappear
-or crash an allegedly exhaustive inventory.
+``discoveryError``. Candidate enumeration is bounded before parsing, and artifact content reuses
+the existing hardened finite regular-file observation organ so redirectors/special files or
+replacement drift cannot silently become surgery authority or turn custody inspection into an
+unbounded wait.
 """
 
 from __future__ import annotations
@@ -21,11 +23,23 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
+from try_forever_generated_index_artifact_observation import (
+    GeneratedIndexArtifactChangedError,
+    GeneratedIndexArtifactResourceLimitError,
+    GeneratedIndexArtifactTopologyError,
+    observe_generated_index_artifact,
+)
+
 
 PATCH_ROOT = Path("patches")
 DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 DELTA_SCHEMA = "try-forever-owner-delta.v1"
 MAX_ARTIFACT_BYTES = 1_048_576
+MAX_CUSTODY_ARTIFACTS = 2_048
+ARTIFACT_PATTERNS = (
+    ("try-forever-*.patch", "patch"),
+    ("try-forever-*.delta.json", "delta_json"),
+)
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
@@ -64,22 +78,39 @@ def _promotion_candidate(state: str) -> bool:
 
 
 def _read_bounded_utf8(path: Path) -> str:
-    try:
-        with path.open("rb") as handle:
-            payload = handle.read(MAX_ARTIFACT_BYTES + 1)
-    except OSError as exc:
-        raise ArtifactAdmissionError(f"artifact read failed: {type(exc).__name__}: {exc}") from exc
+    """Reuse the existing finite regular-artifact organ for owner-surgery evidence.
 
-    if len(payload) > MAX_ARTIFACT_BYTES:
+    The generated-index helper owns no generated-index verdict; its reusable consequence here is
+    finite ordinary-file custody: no-follow/topology admission, stable path↔descriptor identity,
+    bounded complete EOF, strict UTF-8, and post-read replacement/drift rejection.
+    """
+
+    try:
+        observation = observe_generated_index_artifact(
+            path,
+            max_bytes=MAX_ARTIFACT_BYTES,
+        )
+    except GeneratedIndexArtifactResourceLimitError as exc:
         raise ArtifactAdmissionError(
             f"artifact exceeds {MAX_ARTIFACT_BYTES} byte custody budget"
-        )
-    try:
-        return payload.decode("utf-8", errors="strict")
+        ) from exc
+    except GeneratedIndexArtifactTopologyError as exc:
+        raise ArtifactAdmissionError(
+            f"artifact is not one ordinary finite regular-file object: {exc}"
+        ) from exc
+    except GeneratedIndexArtifactChangedError as exc:
+        raise ArtifactAdmissionError(
+            f"artifact changed during bounded custody observation: {exc}"
+        ) from exc
     except UnicodeDecodeError as exc:
         raise ArtifactAdmissionError(
             f"artifact is not strict UTF-8 at byte {exc.start}"
         ) from exc
+    except OSError as exc:
+        raise ArtifactAdmissionError(
+            f"artifact observation failed: {type(exc).__name__}: {exc}"
+        ) from exc
+    return observation.utf8_text
 
 
 def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
@@ -91,6 +122,40 @@ def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
             f"{type(exc).__name__}: {exc}"
         ),
     )
+
+
+def _discover_artifact_candidates(
+    root: Path,
+    *,
+    max_candidates: int,
+) -> tuple[list[tuple[Path, str]], DiscoveryError | None, int]:
+    """Collect only a bounded patch+delta candidate set before any artifact parsing.
+
+    Max+1 withholds the entire promotion inventory; the first N paths are not treated as a complete
+    set. ``max_candidates`` may be lowered by regression callers but may not exceed the canonical
+    production budget.
+    """
+
+    if max_candidates < 0 or max_candidates > MAX_CUSTODY_ARTIFACTS:
+        raise ValueError(
+            f"owner surgery candidate budget must be between 0 and {MAX_CUSTODY_ARTIFACTS}"
+        )
+
+    candidates: list[tuple[Path, str]] = []
+    try:
+        for pattern, artifact_kind in ARTIFACT_PATTERNS:
+            for path in root.glob(pattern):
+                candidates.append((path, artifact_kind))
+                if len(candidates) > max_candidates:
+                    exc = ArtifactAdmissionError(
+                        f"owner surgery candidate set exceeds {max_candidates} artifact custody budget"
+                    )
+                    return [], _error(root, "artifact_inventory", exc), len(candidates)
+    except OSError as exc:
+        return [], _error(root, "artifact_inventory", exc), len(candidates)
+
+    candidates.sort(key=lambda item: (item[0].as_posix(), item[1]))
+    return candidates, None, len(candidates)
 
 
 def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
@@ -205,6 +270,8 @@ def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str
 def classify(
     root: Path = PATCH_ROOT,
     current_owner_blobs: dict[str, str] | None = None,
+    *,
+    max_candidates: int = MAX_CUSTODY_ARTIFACTS,
 ) -> dict[str, object]:
     current_owner_blobs = {
         owner: blob.lower()
@@ -213,22 +280,27 @@ def classify(
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
 
-    for path in sorted(root.glob("try-forever-*.patch")):
-        surgery, error = inspect_patch(path)
-        if surgery is not None:
-            surgeries.append(surgery)
-        if error is not None:
-            discovery_errors.append(error)
-
-    for path in sorted(root.glob("try-forever-*.delta.json")):
-        surgery, error = inspect_delta(path)
-        if surgery is not None:
-            surgeries.append(surgery)
-        if error is not None:
-            discovery_errors.append(error)
+    candidates, inventory_error, candidates_observed = _discover_artifact_candidates(
+        root,
+        max_candidates=max_candidates,
+    )
+    if inventory_error is not None:
+        discovery_errors.append(inventory_error)
+    else:
+        for path, artifact_kind in candidates:
+            if artifact_kind == "patch":
+                surgery, error = inspect_patch(path)
+            elif artifact_kind == "delta_json":
+                surgery, error = inspect_delta(path)
+            else:
+                raise AssertionError(f"unknown owner surgery artifact kind: {artifact_kind}")
+            if surgery is not None:
+                surgeries.append(surgery)
+            if error is not None:
+                discovery_errors.append(error)
 
     surgeries.sort(key=lambda item: (item.owner, item.base_blob, item.path))
-    discovery_errors.sort(key=lambda item: item.path)
+    discovery_errors.sort(key=lambda item: (item.path, item.artifact_kind))
 
     active_groups: dict[tuple[str, str], list[Surgery]] = {}
     for surgery in surgeries:
@@ -272,9 +344,11 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v4",
+        "schema": "try-forever-owner-surgery-custody.v5",
         "artifactKindsScanned": ["patch", "delta_json"],
         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
+        "artifactCandidateBudget": max_candidates,
+        "artifactCandidatesObserved": candidates_observed,
         "surgeries": [asdict(item) for item in surgeries],
         "discoveryErrors": [asdict(item) for item in discovery_errors],
         "evidenceComplete": not discovery_errors,
@@ -286,7 +360,9 @@ def classify(
             "sourceInspection": True,
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
+            "boundedArtifactCandidateSet": True,
             "boundedArtifactRead": True,
+            "finiteRegularArtifactCustody": True,
             "currentOwnerCustodyProvided": bool(current_owner_blobs),
             "patchApplied": False,
             "ownerWired": False,
