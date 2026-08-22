@@ -6,9 +6,10 @@ surgery into owner wiring. It exposes patch-order hazards when several unapplied
 target the same exact owner blob and binds that evidence to an authenticated current-owner blob
 when one is supplied.
 
-v3 treats both textual ``*.patch`` surgeries and structured ``*.delta.json`` owner deltas as the
-same custody family. A recognized delta that cannot be interpreted safely is reported as a bounded
-discovery error so an incomplete artifact scan cannot masquerade as exhaustive promotion evidence.
+v4 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+family. Every matching artifact must either become an admitted surgery record or a bounded
+``discoveryError``. Malformed/unreadable/over-budget evidence therefore cannot silently disappear
+or crash an allegedly exhaustive inventory.
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ from typing import Iterable
 PATCH_ROOT = Path("patches")
 DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 DELTA_SCHEMA = "try-forever-owner-delta.v1"
+MAX_ARTIFACT_BYTES = 1_048_576
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
@@ -50,6 +52,10 @@ class DiscoveryError:
     boundary: str
 
 
+class ArtifactAdmissionError(ValueError):
+    """Recognized surgery evidence could not be safely admitted."""
+
+
 def _promotion_candidate(state: str) -> bool:
     upper = state.upper()
     if any(token in upper for token in ("REJECTED", "SUPERSEDED", "APPLIED_SOURCE")):
@@ -57,28 +63,70 @@ def _promotion_candidate(state: str) -> bool:
     return "PROPOSED" in upper
 
 
-def inspect_patch(path: Path) -> Surgery | None:
-    text = path.read_text(encoding="utf-8")
-    base = BASE_RE.search(text)
-    state = STATE_RE.search(text)
-    if base is None or state is None:
-        return None
-    owner_match = OWNER_RE.search(text)
-    if owner_match is None:
-        if "OperatorOverlayService.java" not in text:
-            return None
-        owner = DEFAULT_OWNER
-    else:
-        owner = owner_match.group(1)
-    state_text = state.group(1).strip()
-    return Surgery(
+def _read_bounded_utf8(path: Path) -> str:
+    try:
+        with path.open("rb") as handle:
+            payload = handle.read(MAX_ARTIFACT_BYTES + 1)
+    except OSError as exc:
+        raise ArtifactAdmissionError(f"artifact read failed: {type(exc).__name__}: {exc}") from exc
+
+    if len(payload) > MAX_ARTIFACT_BYTES:
+        raise ArtifactAdmissionError(
+            f"artifact exceeds {MAX_ARTIFACT_BYTES} byte custody budget"
+        )
+    try:
+        return payload.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise ArtifactAdmissionError(
+            f"artifact is not strict UTF-8 at byte {exc.start}"
+        ) from exc
+
+
+def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
+    return DiscoveryError(
         path=path.as_posix(),
-        artifact_kind="patch",
-        owner=owner,
-        base_blob=base.group(1).lower(),
-        state=state_text,
-        promotion_candidate=_promotion_candidate(state_text),
+        artifact_kind=artifact_kind,
+        boundary=(
+            f"Owner surgery artifact excluded from custody authority: "
+            f"{type(exc).__name__}: {exc}"
+        ),
     )
+
+
+def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+    try:
+        text = _read_bounded_utf8(path)
+        base = BASE_RE.search(text)
+        state = STATE_RE.search(text)
+        if base is None:
+            raise ArtifactAdmissionError("patch is missing an exact base-owner blob header")
+        if state is None:
+            raise ArtifactAdmissionError("patch is missing a state/status header")
+
+        owner_match = OWNER_RE.search(text)
+        if owner_match is None:
+            if "OperatorOverlayService.java" not in text:
+                raise ArtifactAdmissionError(
+                    "patch is missing owner metadata and does not name the default owner"
+                )
+            owner = DEFAULT_OWNER
+        else:
+            owner = owner_match.group(1)
+
+        state_text = state.group(1).strip()
+        if not state_text:
+            raise ArtifactAdmissionError("patch state/status must not be blank")
+
+        return Surgery(
+            path=path.as_posix(),
+            artifact_kind="patch",
+            owner=owner,
+            base_blob=base.group(1).lower(),
+            state=state_text,
+            promotion_candidate=_promotion_candidate(state_text),
+        ), None
+    except (ArtifactAdmissionError, OSError, UnicodeError, ValueError) as exc:
+        return None, _error(path, "patch", exc)
 
 
 def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -111,7 +159,7 @@ def _consistent_delta_string(
 def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
     try:
         payload = json.loads(
-            path.read_text(encoding="utf-8"),
+            _read_bounded_utf8(path),
             object_pairs_hook=_reject_duplicate_json_members,
             parse_constant=lambda value: (_ for _ in ()).throw(
                 ValueError(f"non-standard JSON constant: {value}")),
@@ -141,12 +189,8 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
             state=state_text,
             promotion_candidate=_promotion_candidate(state_text),
         ), None
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
-        return None, DiscoveryError(
-            path=path.as_posix(),
-            artifact_kind="delta_json",
-            boundary=f"Owner delta excluded from custody authority: {type(exc).__name__}: {exc}",
-        )
+    except (ArtifactAdmissionError, OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return None, _error(path, "delta_json", exc)
 
 
 def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str) -> dict[str, object]:
@@ -170,9 +214,11 @@ def classify(
     discovery_errors: list[DiscoveryError] = []
 
     for path in sorted(root.glob("try-forever-*.patch")):
-        surgery = inspect_patch(path)
+        surgery, error = inspect_patch(path)
         if surgery is not None:
             surgeries.append(surgery)
+        if error is not None:
+            discovery_errors.append(error)
 
     for path in sorted(root.glob("try-forever-*.delta.json")):
         surgery, error = inspect_delta(path)
@@ -226,8 +272,9 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v3",
+        "schema": "try-forever-owner-surgery-custody.v4",
         "artifactKindsScanned": ["patch", "delta_json"],
+        "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
         "surgeries": [asdict(item) for item in surgeries],
         "discoveryErrors": [asdict(item) for item in discovery_errors],
         "evidenceComplete": not discovery_errors,
@@ -239,6 +286,7 @@ def classify(
             "sourceInspection": True,
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
+            "boundedArtifactRead": True,
             "currentOwnerCustodyProvided": bool(current_owner_blobs),
             "patchApplied": False,
             "ownerWired": False,
