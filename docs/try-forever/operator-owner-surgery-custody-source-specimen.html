@@ -23,23 +23,24 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Custody owner:</strong> tools/try_forever_owner_surgery_custody_probe.py<br><strong>Base-identity owner blob:</strong> d5c22feac7b3f71045cc139e120b2ae45a3b1c37<br><strong>Base-identity applied commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Current custody-owner blob:</strong> f3457f82f5ea135e303c6ca7b93491511a471dd7<br><strong>Current-owner exactness applied commit:</strong> bbc13531816eb48353d01c201b2ef4e8d3715563<br><strong>Earlier artifact-base exactness commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state and exact base identity. POSIX held-descriptor custody is a stronger supporting backend that has not been composed into the canonical owner.</desc>
-  <path d="M60 75 H720"/>
-  <circle cx="70" cy="75" r="24"/><text x="48" y="80">ROOT</text>
-  <circle cx="210" cy="75" r="24"/><text x="192" y="80">SCAN</text>
-  <circle cx="350" cy="75" r="24"/><text x="334" y="80">FILE</text>
-  <circle cx="490" cy="75" r="24"/><text x="469" y="80">STATE</text>
-  <circle cx="630" cy="75" r="24"/><text x="604" y="80">BASE ID</text>
-  <rect x="672" y="31" width="96" height="88"/><text x="689" y="60">HELD FD</text><text x="688" y="83">SOURCE</text><text x="688" y="106">ONLY</text>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody is a stronger supporting backend that has not been composed into the canonical owner.</desc>
+  <path d="M45 75 H730"/>
+  <circle cx="60" cy="75" r="22"/><text x="39" y="80">ROOT</text>
+  <circle cx="180" cy="75" r="22"/><text x="162" y="80">SCAN</text>
+  <circle cx="300" cy="75" r="22"/><text x="284" y="80">FILE</text>
+  <circle cx="420" cy="75" r="22"/><text x="399" y="80">STATE</text>
+  <circle cx="540" cy="75" r="22"/><text x="514" y="80">BASE ID</text>
+  <circle cx="660" cy="75" r="22"/><text x="624" y="80">CURRENT</text>
+  <rect x="704" y="31" width="70" height="88"/><text x="716" y="60">HELD</text><text x="722" y="83">FD</text><text x="712" y="106">SOURCE</text>
 </svg>
 
 <details open>
-  <summary><span class="token">BASE</span> Exact base-owner identity — SOURCE WIRED</summary>
+  <summary><span class="token">BASE</span> Exact artifact base-owner identity — SOURCE WIRED</summary>
   <div>
     <p>Patch/delta base-owner SHA text is authority evidence, not display text. Uppercase or normalization-dependent evidence is rejected instead of lowercased into authority.</p>
     <p><strong>Applied source:</strong> textual patch evidence preserves the captured token and validates exact lowercase SHA; structured delta evidence is validated before any case transformation.</p>
@@ -47,10 +48,20 @@
   </div>
 </details>
 
+<details open>
+  <summary><span class="token">NOW</span> Exact authenticated current-owner identity — SOURCE WIRED</summary>
+  <div>
+    <p>The authority token used to decide CURRENT versus STALE custody is no longer repaired by lowercase or whitespace normalization.</p>
+    <p><strong>CLI:</strong> the blob after <code>OWNER=</code> must already be exactly 40 lowercase hexadecimal characters. <strong>Programmatic:</strong> <code>classify(..., current_owner_blobs=...)</code> applies the same fail-closed admission before comparison.</p>
+    <p>Owner-key structural trimming remains unchanged; this surgery intentionally touched blob authority only.</p>
+    <p><strong>Owner source:</strong> blob <code>f3457f82f5ea135e303c6ca7b93491511a471dd7</code>. <strong>Regression source:</strong> lowercase acceptance plus uppercase/padded rejection for CLI and programmatic inputs; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
+
 <details>
   <summary><span class="token">v10</span> Portable canonical owner</summary>
   <div>
-    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, and now exact base identity.</p>
+    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, exact artifact base identity, and exact authenticated current-owner blob admission.</p>
     <p><strong>Still not atomic:</strong> pathname revalidation does not eliminate swap-and-restore or filesystem identity reuse.</p>
   </div>
 </details>
@@ -59,7 +70,7 @@
   <summary><span class="token">32K</span> Directory-entry throat</summary>
   <div>
     <p>Unrelated entries count. The portable owner and held-descriptor supporting source both treat total directory-entry work separately from matching candidate count.</p>
-    <p><strong>Descriptor hostile source added:</strong> unrelated-entry max+1 must reject the entire inventory rather than return partial authority.</p>
+    <p><strong>Descriptor hostile source:</strong> unrelated-entry max+1 must reject the entire inventory rather than return partial authority.</p>
   </div>
 </details>
 
@@ -67,7 +78,7 @@
   <summary><span class="token">2048</span> Candidate throat</summary>
   <div>
     <p>Matching patch/delta candidates have an independent budget. Candidate max+1 must reject the inventory instead of blessing the first N candidates.</p>
-    <p>This budget rule is now pinned in descriptor regression source and remains <strong>UNEXECUTED</strong>.</p>
+    <p>This budget rule is pinned in descriptor regression source and remains <strong>UNEXECUTED</strong>.</p>
   </div>
 </details>
 
@@ -76,14 +87,14 @@
   <div>
     <p>On POSIX runtimes with the required descriptor primitives, supporting source can hold the root directory, scan through fresh descriptor-relative handles, carry enumeration-time candidate identity into pre-open checks, and read candidates through no-follow descriptor-relative operations.</p>
     <p>It preserves total-entry and candidate-count evidence. It detects persistent root/candidate replacement more strongly than pathname-only custody.</p>
-    <p><strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
+    <p><strong>Cross-review this pulse:</strong> no fresh safe canonical-owner composition was established. <strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact base identity:</strong> SOURCE_WIRED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Exact-owner regression:</strong> SOURCE / UNEXECUTED. <strong>Current-inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
