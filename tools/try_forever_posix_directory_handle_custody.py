@@ -61,6 +61,21 @@ class DescriptorCandidate:
 
 
 @dataclass(frozen=True)
+class DescriptorCandidateInventory:
+    """One bounded held-root inventory with both candidate identities and scan-work evidence."""
+
+    candidates: tuple[DescriptorCandidate, ...]
+    entries_observed: int
+
+    @property
+    def candidates_observed(self) -> int:
+        return len(self.candidates)
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class DescriptorArtifactObservation:
     name: str
     utf8_text: str
@@ -137,14 +152,14 @@ class HeldDirectoryCustody:
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
-    def candidate_entries(
+    def candidate_inventory(
         self,
         *,
         is_candidate: Callable[[str], bool],
         max_entries: int,
         max_candidates: int,
-    ) -> tuple[DescriptorCandidate, ...]:
-        """Enumerate bounded candidate names and capture their no-follow identity in the same pass.
+    ) -> DescriptorCandidateInventory:
+        """Enumerate bounded candidates and retain both identities and total scan-work evidence.
 
         A new `open(".", dir_fd=self.fd)` is intentional. Directory descriptors can carry stream
         position; reusing the authority descriptor directly for repeated scans can make later scans
@@ -155,6 +170,10 @@ class HeldDirectoryCustody:
         atomic. It does, however, let the later authority-facing open reject persistent replacement
         that occurred after enumeration instead of silently treating the replacement as the object
         that was enumerated.
+
+        `entries_observed` deliberately counts unrelated entries too. A future canonical-owner
+        composition can therefore preserve v10's artifactDirectoryEntriesObserved evidence rather
+        than replacing it with candidate count and quietly weakening the receipt.
         """
 
         if max_entries < 0 or max_candidates < 0:
@@ -193,7 +212,25 @@ class HeldDirectoryCustody:
         finally:
             os.close(scan_fd)
         candidates.sort(key=lambda item: item.name)
-        return tuple(candidates)
+        return DescriptorCandidateInventory(
+            candidates=tuple(candidates),
+            entries_observed=entries_seen,
+        )
+
+    def candidate_entries(
+        self,
+        *,
+        is_candidate: Callable[[str], bool],
+        max_entries: int,
+        max_candidates: int,
+    ) -> tuple[DescriptorCandidate, ...]:
+        """Compatibility projection over `candidate_inventory`; identity evidence remains available."""
+
+        return self.candidate_inventory(
+            is_candidate=is_candidate,
+            max_entries=max_entries,
+            max_candidates=max_candidates,
+        ).candidates
 
     def candidate_names(
         self,
@@ -202,15 +239,15 @@ class HeldDirectoryCustody:
         max_entries: int,
         max_candidates: int,
     ) -> tuple[str, ...]:
-        """Compatibility projection over `candidate_entries`; identity evidence remains available."""
+        """Compatibility projection over `candidate_inventory`; full evidence remains available."""
 
         return tuple(
             item.name
-            for item in self.candidate_entries(
+            for item in self.candidate_inventory(
                 is_candidate=is_candidate,
                 max_entries=max_entries,
                 max_candidates=max_candidates,
-            )
+            ).candidates
         )
 
     def observe_utf8_regular_file(
