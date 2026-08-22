@@ -81,7 +81,7 @@ Symlink/reparse/special-file topology, path/object drift, malformed UTF-8, or ma
 ### 4. Final root authority gate
 Root custody must bracket the authority-producing artifact observations, not only directory traversal. If the named root persistently changes after post-scan revalidation but before/during artifact reads, every surgery/collision/stale/unverified authority from that inventory must be cleared before emission.
 
-The prepared v10 surgery carries this final root gate. It remains a persistent-drift improvement, not atomic binding.
+The implemented v10 owner carries this final root gate. It remains a persistent-drift improvement, not atomic binding.
 
 ## Exact owner-surgery state admission
 Promotion authority must never come from substring matching or normalization. Supporting source authority is `tools/try_forever_owner_surgery_state_policy.py`.
@@ -108,25 +108,30 @@ Textual patch provenance requires exact base-owner metadata, a single structural
 
 Structured owner deltas may use historical compatible exact aliases for base blob (`baseBlob`, `ownerBaseBlob`, `baseOwnerBlob`) and state (`state`, `status`). Multiple supported aliases must agree exactly. Duplicate JSON members, conflicting aliases, unsupported schema, malformed JSON, invalid owner/base/state, malformed UTF-8, over-budget input, non-ordinary topology, or artifact drift fail closed.
 
-## Current implementation / prepared promotion
-`tools/try_forever_owner_surgery_custody_probe.py` **v7** remains the implemented owner-surgery custody probe. It already provides:
+## Current implementation / applied promotion
+`tools/try_forever_owner_surgery_custody_probe.py` **v10** is now the implemented owner-surgery custody probe. Authenticated source mutation used exact base blob `a3a11139faf426ddeae90c035708d4a3e0e1e36f`; applied owner commit `0b4fc24113650741b50f4d57c29cb3c7eb6612d3`; resulting owner blob `fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f`.
+
+v10 provides:
 - no-follow `patches/` root admission around bounded non-recursive traversal;
 - separate 32,768 directory-entry and 2,048 candidate budgets;
 - finite ordinary patch/delta artifact custody;
+- final root identity revalidation after authority-producing artifact observations;
+- exact fail-closed surgery-state admission through `try_forever_owner_surgery_state_policy.py`;
+- a non-normalizing textual state-header grammar so regex parsing cannot erase whitespace before exact state admission;
 - current/stale/unverified grouping against authenticated current-owner blobs;
-- zero partial authority on root/traversal/candidate failure.
+- zero partial authority on root/traversal/candidate/artifact/state failure.
 
 Current outputs include `CURRENT_BASE_COLLISION_SET`, `STALE_BASE_GROUP`, `UNVERIFIED_BASE_GROUP`, bounded `discoveryErrors`, and `evidenceComplete`.
 
-### Prepared v10 root + exact-state surgery — 2026-08-22 06:59 CT
-`patches/try-forever-owner-surgery-custody-v10-root-state-exact.patch` is the canonical prepared owner surgery against probe blob `a3a11139faf426ddeae90c035708d4a3e0e1e36f`.
+### Applied v10 root + exact-state surgery — 2026-08-22 08:02 CT
+`patches/try-forever-owner-surgery-custody-v10-root-state-exact.patch` is applied-source provenance for the transition from owner blob `a3a11139faf426ddeae90c035708d4a3e0e1e36f` to `fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f`.
 
-It deliberately converges three compatible authority repairs against the same owner/base:
+It converged three compatible authority repairs against the same owner/base:
 1. final post-artifact root revalidation before emitting promotion authority;
 2. exact fail-closed surgery-state admission through `try_forever_owner_surgery_state_policy.py`;
 3. a non-normalizing textual state-header grammar so regex parsing cannot erase whitespace before exact state admission.
 
-State: **CORRECTED_PROPOSED_NOT_APPLIED**.
+State: **APPLIED_SOURCE**. Regression execution, TESTED, runtime behavior, deployment, phone delivery, and acceptance remain separate and unproven.
 
 Historical rejected/superseded provenance:
 - `patches/try-forever-owner-surgery-custody-v9-root-state.patch` is **REJECTED_NORMALIZATION_WOUND__SUPERSEDED_BY_V10** because its exact-state policy sat behind a whitespace-normalizing `STATE_RE`;
@@ -168,7 +173,7 @@ Regression source: `tools/test_try_forever_directory_handle_binding_capability.p
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Mutation-lane truth
-The prepared v10 patch is not implementation. v9 is explicitly rejected; do not apply it. Do not reconstruct the large owner from partial/truncated readback merely to manufacture an owner-mutation receipt. Do not enqueue duplicate offline-worker sludge. Apply only through an authorized safe existing-owner mutation body that yields authenticated owner readback.
+v10 was applied through the authorized GitHub existing-owner mutation lane with exact base-blob custody and authenticated resulting owner readback. Do not reapply it. v9 is explicitly rejected and v8 superseded; neither may be promoted. Any later owner surgery must rebind to fresh authenticated v10 owner blob evidence. Do not reconstruct owners from partial/truncated readback, enqueue duplicate offline-worker sludge, or substitute a phone/P0 lane.
 
 ## P0 / phone firewall
 This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, P0 coordination, or duplicate native owner. P0 receipts are read-only evidence here.
@@ -176,4 +181,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 06:59 CT: canonical probe v7 **IMPLEMENTED SOURCE**; exact state policy **IMPLEMENTED SUPPORTING SOURCE**; v10 final-root + exact-header/state owner surgery **PREPARED / NOT APPLIED**; v9 **REJECTED/SUPERSEDED**; v8 **SUPERSEDED**; root/pathname persistent-drift revalidation **SOURCE**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; owner mutation from this slice **NO**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
+Current state at 2026-08-22 08:02 CT: canonical probe v10 **IMPLEMENTED SOURCE / SOURCE_WIRED**; authenticated owner commit `0b4fc24113650741b50f4d57c29cb3c7eb6612d3`, blob `fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f`; exact state policy **IMPLEMENTED SUPPORTING SOURCE / CONSUMED BY OWNER**; v10 patch **APPLIED_SOURCE**; v9 **REJECTED/SUPERSEDED**; v8 **SUPERSEDED**; final root persistent-drift revalidation **SOURCE_WIRED**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; current-inventory behavior under the stricter textual state grammar **UNEXECUTED**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
