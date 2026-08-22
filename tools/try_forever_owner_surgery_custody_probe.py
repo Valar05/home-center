@@ -6,11 +6,12 @@ surgery into owner wiring. It exposes patch-order hazards when several unapplied
 target the same exact owner blob and binds that evidence to an authenticated current-owner blob
 when one is supplied.
 
-v6 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
-family. Directory traversal and matching-candidate collection are independently bounded before
-parsing. Every admitted artifact reuses the existing hardened finite regular-file observation organ
-so redirectors/special files or replacement drift cannot silently become surgery authority or turn
-custody inspection into an unbounded wait.
+v7 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
+family. The named ``patches`` root is admitted and revalidated through the existing portable
+no-follow root-identity organ before/after bounded non-recursive traversal. Directory-entry work,
+matching-candidate collection, and each admitted finite ordinary artifact remain independently
+bounded. Root redirectors, persistent root drift, or unavailable root identity withhold the whole
+promotion inventory. This is persistent-drift evidence, not an atomic filesystem binding claim.
 """
 
 from __future__ import annotations
@@ -29,9 +30,14 @@ from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
 )
+from try_forever_skill_root_identity import (
+    capture_directory_root_identity,
+    revalidate_directory_root_identity,
+)
 
 
 PATCH_ROOT = Path("patches")
+PATCH_ROOT_SUBJECT = "owner surgery patches root"
 DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 DELTA_SCHEMA = "try-forever-owner-delta.v1"
 MAX_ARTIFACT_BYTES = 1_048_576
@@ -85,12 +91,7 @@ def _artifact_kind_for_name(name: str) -> str | None:
 
 
 def _read_bounded_utf8(path: Path) -> str:
-    """Reuse the existing finite regular-artifact organ for owner-surgery evidence.
-
-    The generated-index helper owns no generated-index verdict; its reusable consequence here is
-    finite ordinary-file custody: no-follow/topology admission, stable path↔descriptor identity,
-    bounded complete EOF, strict UTF-8, and post-read replacement/drift rejection.
-    """
+    """Reuse the existing finite regular-artifact organ for owner-surgery evidence."""
 
     try:
         observation = observe_generated_index_artifact(
@@ -131,18 +132,23 @@ def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
     )
 
 
+def _root_error(root: Path, boundary: str) -> DiscoveryError:
+    return _error(root, "artifact_root", ArtifactAdmissionError(boundary))
+
+
 def _discover_artifact_candidates(
     root: Path,
     *,
     max_candidates: int,
     max_entries: int,
 ) -> tuple[list[tuple[Path, str]], DiscoveryError | None, int, int]:
-    """Bound directory work and candidate storage before any artifact parsing.
+    """Bind root identity, then bound directory work and candidate storage before parsing.
 
-    Every directory entry counts against ``max_entries`` even when it is unrelated to TRY FOREVER.
+    Every directory entry counts against ``max_entries`` even when unrelated to TRY FOREVER.
     Every matching patch/delta counts against ``max_candidates``. Max+1 on either throat withholds
-    the entire promotion inventory; the first N paths are never treated as a complete authority set.
-    Regression callers may lower either budget but cannot raise the canonical production ceilings.
+    the entire promotion inventory. Root topology/identity is observed before and after traversal;
+    persistent redirector/replacement drift or unavailable identity also withholds the whole
+    inventory. The bracket deliberately does not claim swap-and-restore or identity-reuse immunity.
     """
 
     if max_candidates < 0 or max_candidates > MAX_CUSTODY_ARTIFACTS:
@@ -153,6 +159,19 @@ def _discover_artifact_candidates(
         raise ValueError(
             f"owner surgery directory-entry budget must be between 0 and {MAX_CUSTODY_DIRECTORY_ENTRIES}"
         )
+
+    try:
+        root_before = capture_directory_root_identity(root)
+    except OSError as exc:
+        return [], _error(root, "artifact_root", exc), 0, 0
+
+    initial_root = revalidate_directory_root_identity(
+        root_before,
+        root_before,
+        subject=PATCH_ROOT_SUBJECT,
+    )
+    if initial_root.status != "STABLE":
+        return [], _root_error(root, initial_root.reason), 0, 0
 
     candidates: list[tuple[Path, str]] = []
     entries_observed = 0
@@ -177,6 +196,19 @@ def _discover_artifact_candidates(
                     return [], _error(root, "artifact_inventory", exc), len(candidates), entries_observed
     except OSError as exc:
         return [], _error(root, "artifact_inventory", exc), len(candidates), entries_observed
+
+    try:
+        root_after = capture_directory_root_identity(root)
+    except OSError as exc:
+        return [], _error(root, "artifact_root", exc), len(candidates), entries_observed
+
+    final_root = revalidate_directory_root_identity(
+        root_before,
+        root_after,
+        subject=PATCH_ROOT_SUBJECT,
+    )
+    if final_root.status != "STABLE":
+        return [], _root_error(root, final_root.reason), len(candidates), entries_observed
 
     candidates.sort(key=lambda item: (item[0].as_posix(), item[1]))
     return candidates, None, len(candidates), entries_observed
@@ -370,7 +402,7 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v6",
+        "schema": "try-forever-owner-surgery-custody.v7",
         "artifactKindsScanned": ["patch", "delta_json"],
         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
         "artifactCandidateBudget": max_candidates,
@@ -388,6 +420,8 @@ def classify(
             "sourceInspection": True,
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
+            "artifactRootIdentityRevalidation": True,
+            "artifactRootAtomicBinding": False,
             "boundedArtifactDirectoryScan": True,
             "boundedArtifactCandidateSet": True,
             "boundedArtifactRead": True,
