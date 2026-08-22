@@ -25,6 +25,10 @@ def _require_posix_descriptor_surface() -> None:
         pytest.skip("held-directory descriptor primitives unavailable on this runtime")
 
 
+def _candidate_filter(name: str) -> bool:
+    return name.startswith("try-forever-") and name.endswith(".patch")
+
+
 def test_held_root_descriptor_survives_named_root_replacement(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
@@ -59,7 +63,7 @@ def test_candidate_enumeration_stays_on_held_root_after_path_replacement(tmp_pat
         (root / "try-forever-b.patch").write_text("b", encoding="utf-8")
 
         names = held.candidate_names(
-            is_candidate=lambda name: name.startswith("try-forever-") and name.endswith(".patch"),
+            is_candidate=_candidate_filter,
             max_entries=32,
             max_candidates=8,
         )
@@ -75,7 +79,7 @@ def test_repeated_candidate_scans_get_fresh_directory_position(tmp_path: Path):
 
     with HeldDirectoryCustody(root) as held:
         kwargs = dict(
-            is_candidate=lambda name: name.startswith("try-forever-") and name.endswith(".patch"),
+            is_candidate=_candidate_filter,
             max_entries=32,
             max_candidates=8,
         )
@@ -83,6 +87,57 @@ def test_repeated_candidate_scans_get_fresh_directory_position(tmp_path: Path):
         second = held.candidate_names(**kwargs)
         assert first == ("try-forever-a.patch", "try-forever-b.patch")
         assert second == first
+
+
+def test_candidate_identity_captured_during_enumeration_survives_into_read(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    path = root / "try-forever-a.patch"
+    path.write_text("original", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        candidates = held.candidate_entries(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )
+        assert len(candidates) == 1
+        observed = held.observe_utf8_regular_file(
+            candidates[0].name,
+            max_bytes=1024,
+            expected_candidate=candidates[0],
+        )
+        assert observed.identity == candidates[0].identity
+        assert observed.utf8_text == "original"
+
+
+def test_persistent_candidate_replacement_after_enumeration_is_rejected_before_read(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    path = root / "try-forever-a.patch"
+    path.write_text("original", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        candidate = held.candidate_entries(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )[0]
+        old = root / "old.patch"
+        path.rename(old)
+        path.write_text("replacement", encoding="utf-8")
+
+        with pytest.raises(
+            DescriptorArtifactCustodyError,
+            match="changed after held-root enumeration",
+        ):
+            held.observe_utf8_regular_file(
+                candidate.name,
+                max_bytes=1024,
+                expected_candidate=candidate,
+            )
 
 
 def test_symlink_artifact_is_rejected_relative_to_held_root(tmp_path: Path):
@@ -94,8 +149,17 @@ def test_symlink_artifact_is_rejected_relative_to_held_root(tmp_path: Path):
     (root / "try-forever-alias.patch").symlink_to(target.name)
 
     with HeldDirectoryCustody(root) as held:
-        with pytest.raises(DescriptorArtifactCustodyError, match="ordinary regular file"):
-            held.observe_utf8_regular_file("try-forever-alias.patch", max_bytes=1024)
+        candidate = held.candidate_entries(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )[0]
+        with pytest.raises(DescriptorArtifactCustodyError, match="enumerated candidate is not"):
+            held.observe_utf8_regular_file(
+                candidate.name,
+                max_bytes=1024,
+                expected_candidate=candidate,
+            )
 
 
 def test_max_plus_one_byte_is_rejected_without_prefix_authority(tmp_path: Path):
