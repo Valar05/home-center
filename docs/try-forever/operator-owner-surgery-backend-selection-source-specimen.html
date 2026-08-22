@@ -28,7 +28,7 @@
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend selection and evidence admission custody path</title>
-    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. A separate evidence throat preserves directory and candidate work counts and rejects partial promotion authority from incomplete custody.</desc>
+    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. A separate evidence throat preserves work counts, error evidence, and authenticated owner evidence while rejecting partial promotion authority from incomplete custody.</desc>
     <path d="M30 90 H210 M290 90 H440 M520 90 H670 M750 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
     <circle cx="250" cy="90" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="440" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -49,11 +49,11 @@
     </label>
     <label>
       <input type="radio" name="backend" value="descriptor">
-      <span><span class="token">● HELD FD SELECTED</span><br>Required POSIX descriptor primitives admitted; future owner composition may select held-directory custody while preserving v10 evidence fields.</span>
+      <span><span class="token">● HELD FD SELECTED</span><br>Required POSIX descriptor primitives admitted; future owner composition may select held-directory custody while preserving the full v10 evidence envelope.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="evidence">
-      <span><span class="token">◇ EVIDENCE THROAT</span><br>Directory entries and matching candidates remain separate counts; candidates cannot exceed entries; incomplete custody cannot carry promotion-authority groups.</span>
+      <span><span class="token">◇ EVIDENCE THROAT</span><br>Counts, discovery errors, and authenticated current-owner blobs remain separate evidence. Incomplete custody cannot carry promotion-authority groups.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="wound">
@@ -61,14 +61,14 @@
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">PORTABLE PRIMARY\nPlatform fallback is a platform choice, not an after-failure escape hatch.\nEvidence fields preserved: artifactDirectoryEntriesObserved, artifactCandidatesObserved.</div>
+  <div id="detail" role="status" aria-live="polite">PORTABLE PRIMARY\nPlatform fallback is a platform choice, not an after-failure escape hatch.\nPreserve work counts, discoveryErrors, and currentOwnerBlobs.</div>
 
   <script>
     const detail = document.getElementById('detail');
     const copy = {
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
-      descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve canonical evidence metrics and exact state/base/current-owner admission. Canonical owner consumption is still NO.',
-      evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must be boolean. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
+      descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact state/base/current-owner admission. Canonical owner consumption is still NO.',
+      evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must exactly agree with discoveryErrors emptiness. Complete exhaustive evidence without authenticated current-owner custody is not owner evidence. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
       wound: 'DESCRIPTOR WOUND → FAIL CLOSED\nNo retry through weaker pathname custody in the same classification attempt. Owner evidence admitted: NO.'
     };
     for (const radio of document.querySelectorAll('input[name=backend]')) {
