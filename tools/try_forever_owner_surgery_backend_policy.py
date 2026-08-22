@@ -9,8 +9,8 @@ silently weakening evidence after a stronger backend has already been admitted.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Mapping
 
 
 SUPPORTED_POSIX = "SUPPORTED_POSIX_PRIMITIVES"
