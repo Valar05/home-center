@@ -1,0 +1,77 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "checkpoint": "2026-08-22T08:57:00-05:00",
+  "reviewedSourceHead": "24e26125f2474e833a3173068b97be5686dca0d0",
+  "lights": [
+    {"skill":"Failure Is The Shovel","state":"ACTIVE","consequence":"Moved beyond pathname-only root custody into descriptor-bound supporting source and a real current-inventory regression instead of retrying failed CI."},
+    {"skill":"Canon Auto-Select","state":"ACTIVE","consequence":"Reused the existing root-identity and finite-artifact custody organs; harvested one descriptor-custody skill only because it changes promotion evidence."},
+    {"skill":"Autocorrect Judgment Jar","state":"DARK","consequence":"No material ambiguity required resolution."},
+    {"skill":"Originality Tax","state":"ACTIVE","consequence":"Did not create a second custody owner or retry CI. Code-first review rejected direct reuse of the authority fd for repeated scandir passes and changed the design to fresh descriptor-relative scan handles."},
+    {"skill":"Hunger / Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Tightened primitive admission, descriptor source, hostile regressions, skill doctrine, and the existing Warm Wall until they share one capability membrane."},
+    {"skill":"Operator Campaign / Harroway","state":"ACTIVE","consequence":"Worked only on PR #329 through the authorized GitHub lane, preserved the canonical v10 owner, and pinned positive source claims to an exact reviewed head."},
+    {"skill":"She-Raw adversarial motivation","state":"FAULTED","consequence":"Authoritative pre-execution consultation returned account-connection HTTP 400; no substitute verdict was invented."},
+    {"skill":"Venice Judgment Jars","state":"ACTIVE","consequence":"Allowed this bounded source slice to yield while regression execution, owner composition, atomic binding, TESTED, runtime, and campaign remain open."},
+    {"skill":"Regnet QA","state":"ACTIVE","consequence":"Passed bounded supporting source/readback only and preserved the scan-position, candidate-atomicity, and unexecuted-regression scars."},
+    {"skill":"Accessibility / TalkBack / touch semantics","state":"ACTIVE_SOURCE_ONLY","consequence":"Mutated the existing non-raster custody wall with keyboard/touch-inspectable held-FD and current-inventory states; runtime TalkBack remains NO."},
+    {"skill":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Consumption 0; mutation 0. No gated phone or P0 surface was touched."},
+    {"skill":"Deterministic routing","state":"ACTIVE","consequence":"Descriptor-relative stat/open/name recheck anchor candidate work to one held root; current inventory classification remains exact/fail-closed."},
+    {"skill":"Evidence / capability-state discipline","state":"ACTIVE","consequence":"Supporting source, regression source, owner integration, TESTED, runtime, deployment, delivery, and acceptance remain separate."},
+    {"skill":"Recovery / checkpointing / idempotence","state":"ACTIVE","consequence":"Fresh scan descriptors prevent prior directory-stream position from contaminating later inventory passes; authority failures remain fail-closed."},
+    {"skill":"Contact preservation","state":"ACTIVE_SOURCE_CONSTRAINT","consequence":"The canonical v10 owner remains untouched; descriptor work strengthens custody without erasing the portable fallback or promoting partial authority."},
+    {"skill":"Strange non-raster vector/DOM/native UI art / Warm Walls","state":"ACTIVE","consequence":"Existing Warm Wall mutated in place: ROOT→SCAN→FINITE FILE→HEADER→EXACT STATE→FINAL ROOT→HELD FD→NAME RECHECK."},
+    {"skill":"Christmas-light scene graph","state":"DARK","consequence":"No runtime transition topology changed; no decorative blinking was earned."}
+  ],
+  "frontsAdvanced": [
+    "descriptor capability admission",
+    "held-directory descriptor custody source",
+    "descriptor hostile regression source",
+    "current patches inventory exact-grammar regression source",
+    "descriptor custody repository skill",
+    "existing Warm Wall mutation",
+    "Regnet/Venice review and execution-state evidence"
+  ],
+  "crossPollination": [
+    "The v10 atomicity scar made the existing POSIX capability classifier material.",
+    "Capability review exposed missing descriptor-relative no-follow stat prerequisites.",
+    "Held-root source review exposed directory stream position as hidden state, forcing fresh descriptor-relative scan handles.",
+    "The 08:02 current-inventory wound became an executable repository-level regression instead of another prose reminder.",
+    "The Warm Wall now shows portable persistent-drift custody and descriptor-bound supporting source as different capability states."
+  ],
+  "executionTruth": {
+    "exactReviewedSourceHead": "24e26125f2474e833a3173068b97be5686dca0d0",
+    "operatorOverlayRun": 32577754037,
+    "operatorOverlayStatus": "queued",
+    "homeCenterCiRun": 32577754038,
+    "homeCenterCiStatus": "queued",
+    "buildAndroidRun": 32577754083,
+    "buildAndroidStatus": "queued",
+    "regressionExecuted": false,
+    "tested": false,
+    "manualRetryFired": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedSourceReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "canonicalV10OwnerSourceWired": true,
+    "descriptorCustodyCanonicalOwnerIntegrated": false,
+    "atomicRootBinding": false,
+    "atomicCandidateBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
