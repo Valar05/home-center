@@ -195,6 +195,31 @@ def test_persistent_candidate_replacement_after_enumeration_is_rejected_before_r
             )
 
 
+def test_disappearing_candidate_after_enumeration_is_typed_custody_rejection(tmp_path: Path):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+    path = root / "try-forever-a.patch"
+    path.write_text("original", encoding="utf-8")
+
+    with HeldDirectoryCustody(root) as held:
+        candidate = held.candidate_entries(
+            is_candidate=_candidate_filter,
+            max_entries=32,
+            max_candidates=8,
+        )[0]
+        path.unlink()
+        with pytest.raises(
+            DescriptorArtifactCustodyError,
+            match="unavailable during pre-open descriptor-relative stat",
+        ):
+            held.observe_utf8_regular_file(
+                candidate.name,
+                max_bytes=1024,
+                expected_candidate=candidate,
+            )
+
+
 def test_symlink_artifact_is_rejected_relative_to_held_root(tmp_path: Path):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
