@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-swarm.v1",
+  "heartbeat": "2026-08-22T06:59:00-05:00",
+  "reviewedSourceHead": "8314c384e370b3f9922e9aad59d1b3db4b57d065",
+  "fronts": [
+    {"name":"state evidence exactness","state":"ADVANCED","change":"new hostile textual STATUS whitespace/tab regression source"},
+    {"name":"owner surgery convergence","state":"ADVANCED","change":"v9 rejected; corrected v10 final-root + non-normalizing exact-state surgery prepared against exact v7 owner blob"},
+    {"name":"owner boundary evidence","state":"ADVANCED","change":"RED owner fixture now requires v10 schema, final root gate, and non-normalizing STATE_RE"},
+    {"name":"durable skill harvest","state":"ADVANCED","change":"operator-owner-surgery-custody doctrine converged on v10 and records v9 normalization wound"},
+    {"name":"warm wall accessibility","state":"ADVANCED","change":"existing DOM source organism mutated in place to expose HEADER -> EXACT STATE -> FINAL ROOT custody chain"},
+    {"name":"review/evidence","state":"ADVANCED","change":"pre-mutation plan, She-Raw fault receipt, Regnet and Venice bounded reviews, authenticated GitHub readback"}
+  ],
+  "dark": [
+    "Autocorrect Judgment Jar: no material ambiguity",
+    "Christmas motion: no runtime transition law changed",
+    "Phone Runtime / Phone Hands / P0: firewalled and untouched"
+  ],
+  "capability": {
+    "requested": true,
+    "supportingSourceImplemented": true,
+    "authenticatedReadback": true,
+    "canonicalOwnerProbe": "v7_SOURCE",
+    "v10OwnerSurgery": "PREPARED_NOT_APPLIED",
+    "v9OwnerSurgery": "REJECTED_SUPERSEDED",
+    "regressionSource": "YES_UNEXECUTED",
+    "atomicRootBinding": false,
+    "ownerMutation": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneConsumption": 0,
+  "p0PhoneMutation": 0,
+  "duplicateArchitecture": 0,
+  "newP0Finding": null
+}
