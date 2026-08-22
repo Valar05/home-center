@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-plan-receipt.v1",
+  "commission": "Advance independent non-P0 TRY FOREVER source work without touching Phone Hands/P0.",
+  "reviewedBranchHead": "bde41cc03a29ebe770a96d10817b27c4afbfcc20",
+  "fronts": [
+    {
+      "front": "descriptor-utf8-error-boundary",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py",
+      "evidence": "strict UTF-8 decode currently occurs directly inside DescriptorArtifactObservation construction and can leak UnicodeDecodeError outside the typed DescriptorArtifactCustodyError surface",
+      "plannedChange": "wrap strict decode failure as bounded DescriptorArtifactCustodyError while preserving exact byte count/SHA and all descriptor/path identity gates",
+      "capabilityBoundary": "supporting source only; descriptor canonical-owner integration remains NO; atomicity claims remain NO"
+    },
+    {
+      "front": "hostile-regression-source",
+      "plannedChange": "add malformed UTF-8 fixture requiring typed fail-closed rejection and no observation authority"
+    },
+    {
+      "front": "skill-and-warm-wall-convergence",
+      "plannedChange": "update existing descriptor-custody skill and existing custody source specimen in place only if the semantic wound changes their evidence topology"
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "review": {
+    "sheRaw": "attempted pre-execution; account connection HTTP 400; no substitute verdict",
+    "regnet": "pending code-first review after source mutation",
+    "venice": "separate same-worker plan gate follows"
+  }
+}
