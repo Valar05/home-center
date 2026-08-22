@@ -3,8 +3,12 @@
 
 This does not apply patches, execute Android, touch the phone/P0 chain, or promote a proposed
 surgery into owner wiring. It exposes patch-order hazards when several unapplied source surgeries
-target the same exact owner blob and can optionally bind that evidence to an authenticated
-current-owner blob supplied by the caller.
+target the same exact owner blob and binds that evidence to an authenticated current-owner blob
+when one is supplied.
+
+v3 treats both textual ``*.patch`` surgeries and structured ``*.delta.json`` owner deltas as the
+same custody family. A recognized delta that cannot be interpreted safely is reported as a bounded
+discovery error so an incomplete artifact scan cannot masquerade as exhaustive promotion evidence.
 """
 
 from __future__ import annotations
@@ -19,20 +23,31 @@ from typing import Iterable
 
 PATCH_ROOT = Path("patches")
 DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
+DELTA_SCHEMA = "try-forever-owner-delta.v1"
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
-OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+OperatorOverlayService\.java)\s*$", re.I | re.M)
+OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
 STATE_RE = re.compile(r"^#\s*(?:STATUS|State)\s*:\s*([^\n]+?)\s*$", re.I | re.M)
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
+DELTA_BASE_KEYS = ("baseBlob", "ownerBaseBlob", "baseOwnerBlob")
+DELTA_STATE_KEYS = ("state", "status")
 
 
 @dataclass(frozen=True)
 class Surgery:
     path: str
+    artifact_kind: str
     owner: str
     base_blob: str
     state: str
     promotion_candidate: bool
+
+
+@dataclass(frozen=True)
+class DiscoveryError:
+    path: str
+    artifact_kind: str
+    boundary: str
 
 
 def _promotion_candidate(state: str) -> bool:
@@ -44,22 +59,94 @@ def _promotion_candidate(state: str) -> bool:
 
 def inspect_patch(path: Path) -> Surgery | None:
     text = path.read_text(encoding="utf-8")
-    if "OperatorOverlayService.java" not in text:
-        return None
     base = BASE_RE.search(text)
     state = STATE_RE.search(text)
     if base is None or state is None:
         return None
     owner_match = OWNER_RE.search(text)
-    owner = owner_match.group(1) if owner_match else DEFAULT_OWNER
+    if owner_match is None:
+        if "OperatorOverlayService.java" not in text:
+            return None
+        owner = DEFAULT_OWNER
+    else:
+        owner = owner_match.group(1)
     state_text = state.group(1).strip()
     return Surgery(
         path=path.as_posix(),
+        artifact_kind="patch",
         owner=owner,
         base_blob=base.group(1).lower(),
         state=state_text,
         promotion_candidate=_promotion_candidate(state_text),
     )
+
+
+def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON member: {key}")
+        result[key] = value
+    return result
+
+
+def _consistent_delta_string(
+    payload: dict[str, object],
+    keys: tuple[str, ...],
+    field_name: str,
+) -> str:
+    present = [(key, payload[key]) for key in keys if key in payload]
+    if not present:
+        raise ValueError(f"missing {field_name}")
+    values: list[str] = []
+    for key, raw in present:
+        if not isinstance(raw, str) or not raw:
+            raise ValueError(f"{key} must be a non-empty string")
+        values.append(raw)
+    if len(set(values)) != 1:
+        raise ValueError(f"conflicting {field_name} aliases")
+    return values[0]
+
+
+def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+    try:
+        payload = json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=_reject_duplicate_json_members,
+            parse_constant=lambda value: (_ for _ in ()).throw(
+                ValueError(f"non-standard JSON constant: {value}")),
+        )
+        if not isinstance(payload, dict):
+            raise ValueError("owner delta root must be an object")
+        if payload.get("schema") != DELTA_SCHEMA:
+            raise ValueError(f"unsupported owner delta schema: {payload.get('schema')!r}")
+
+        owner = payload.get("owner")
+        if not isinstance(owner, str) or not owner:
+            raise ValueError("owner must be a non-empty string")
+
+        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob").lower()
+        if SHA1_RE.fullmatch(base_blob) is None:
+            raise ValueError("base owner blob must be 40 lowercase hexadecimal characters")
+
+        state_text = _consistent_delta_string(payload, DELTA_STATE_KEYS, "state/status").strip()
+        if not state_text:
+            raise ValueError("state/status must not be blank")
+
+        return Surgery(
+            path=path.as_posix(),
+            artifact_kind="delta_json",
+            owner=owner,
+            base_blob=base_blob,
+            state=state_text,
+            promotion_candidate=_promotion_candidate(state_text),
+        ), None
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return None, DiscoveryError(
+            path=path.as_posix(),
+            artifact_kind="delta_json",
+            boundary=f"Owner delta excluded from custody authority: {type(exc).__name__}: {exc}",
+        )
 
 
 def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str) -> dict[str, object]:
@@ -80,10 +167,22 @@ def classify(
         for owner, blob in (current_owner_blobs or {}).items()
     }
     surgeries: list[Surgery] = []
+    discovery_errors: list[DiscoveryError] = []
+
     for path in sorted(root.glob("try-forever-*.patch")):
         surgery = inspect_patch(path)
         if surgery is not None:
             surgeries.append(surgery)
+
+    for path in sorted(root.glob("try-forever-*.delta.json")):
+        surgery, error = inspect_delta(path)
+        if surgery is not None:
+            surgeries.append(surgery)
+        if error is not None:
+            discovery_errors.append(error)
+
+    surgeries.sort(key=lambda item: (item.owner, item.base_blob, item.path))
+    discovery_errors.sort(key=lambda item: item.path)
 
     active_groups: dict[tuple[str, str], list[Surgery]] = {}
     for surgery in surgeries:
@@ -127,14 +226,19 @@ def classify(
         collision_sets.append(payload)
 
     return {
-        "schema": "try-forever-owner-surgery-custody.v2",
+        "schema": "try-forever-owner-surgery-custody.v3",
+        "artifactKindsScanned": ["patch", "delta_json"],
         "surgeries": [asdict(item) for item in surgeries],
+        "discoveryErrors": [asdict(item) for item in discovery_errors],
+        "evidenceComplete": not discovery_errors,
         "currentOwnerBlobs": current_owner_blobs,
         "collisionSets": collision_sets,
         "staleBaseGroups": stale_base_groups,
         "unverifiedBaseGroups": unverified_base_groups,
         "capability": {
             "sourceInspection": True,
+            "patchArtifactInspection": True,
+            "deltaArtifactInspection": True,
             "currentOwnerCustodyProvided": bool(current_owner_blobs),
             "patchApplied": False,
             "ownerWired": False,
