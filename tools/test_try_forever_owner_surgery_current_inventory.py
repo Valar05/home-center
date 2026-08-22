@@ -9,6 +9,7 @@ is available. Source existence is not execution or TESTED evidence.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from try_forever_owner_surgery_custody_probe import classify
@@ -16,6 +17,7 @@ from try_forever_owner_surgery_custody_probe import classify
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PATCH_ROOT = REPO_ROOT / "patches"
+LOWER_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 def test_current_try_forever_surgery_inventory_is_fully_admissible_under_v10():
@@ -28,6 +30,19 @@ def test_current_try_forever_surgery_inventory_is_fully_admissible_under_v10():
     assert report["artifactCandidatesObserved"] > 0
     assert report["artifactDirectoryEntriesObserved"] >= report["artifactCandidatesObserved"]
     assert len(report["surgeries"]) == report["artifactCandidatesObserved"]
+
+
+def test_current_inventory_base_owner_identity_is_already_exact_lowercase_evidence():
+    report = classify(PATCH_ROOT, current_owner_blobs={})
+    assert report["evidenceComplete"], json.dumps(
+        report["discoveryErrors"],
+        sort_keys=True,
+        indent=2,
+    )
+    assert report["surgeries"]
+    for surgery in report["surgeries"]:
+        base_blob = surgery["base_blob"]
+        assert LOWER_SHA1_RE.fullmatch(base_blob), surgery
 
 
 def test_historical_v8_v9_owner_custody_artifacts_do_not_reenter_promotion_authority():
