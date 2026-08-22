@@ -1,0 +1,83 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "reviewedSourceHead": "884ee2ffa0c14d9cd3107368795ef40469c6ff2b",
+  "lights": {
+    "FailureIsTheShovel": "LIT: changed owner evidence path instead of retrying dead CI",
+    "CanonAutoSelect": "LIT: owner-surgery base identity + descriptor custody skills materially governed work",
+    "AutocorrectJudgmentJar": "DARK: no material token ambiguity",
+    "OriginalityTax": "LIT: applied exact owner surgery; then split newly discovered current-owner input wound into RED supporting source instead of silently widening the first surgery",
+    "HungerEatEverything": "LIT: patch provenance, skills, regressions, inventory contract, and existing Warm Wall converged on new source truth",
+    "OperatorCampaignHarroway": "LIT: sole custody owner preserved; no neighboring controller/probe/P0 owner",
+    "SheRaw": "FAULT: authoritative ambient call returned account-connection HTTP 400; no substitute",
+    "Venice": "LIT: bounded source slice may yield; owner/test/runtime campaign continues",
+    "Regnet": "LIT: source/readback PASS; current-owner input REVISE_REQUIRED; regressions UNEXECUTED; TESTED NO",
+    "AccessibilityTouch": "LIT: existing non-raster custody Warm Wall refreshed in place and remains keyboard/touch inspectable source only",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED: consumption 0 mutation 0",
+    "DeterministicRoutingEvidence": "LIT: exact artifact tokens reject normalization; current-owner input normalization separately exposed",
+    "RecoveryCheckpointIdempotence": "LIT: descriptor max+1 inventory throats now explicitly reject partial authority",
+    "ChristmasLightSceneGraph": "DARK: no runtime transition consequence earned motion",
+    "ContactPreservation": "LIT: descriptor overflow/replacement semantics preserve zero partial authority rather than first-N promotion"
+  },
+  "frontsAdvanced": [
+    {
+      "front": "artifact base-owner identity",
+      "change": "canonical v10 owner now rejects uppercase/normalization-dependent patch and delta base evidence",
+      "state": "SOURCE_WIRED",
+      "appliedCommit": "2ba4254f8e9b736fe47dbe0f5192fe270397359a",
+      "ownerBlob": "d5c22feac7b3f71045cc139e120b2ae45a3b1c37"
+    },
+    {
+      "front": "authenticated current-owner identity",
+      "change": "new RED regression proves uppercase/padded current-owner CLI evidence must not be normalized into authority",
+      "state": "SUPPORTING_SOURCE_RED_OWNER_UNWIRED"
+    },
+    {
+      "front": "current surgery inventory",
+      "change": "repository-level regression now requires every admitted surgery base_blob to already be exact lowercase SHA evidence",
+      "state": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "front": "descriptor custody budgets",
+      "change": "hostile regressions now pin unrelated-entry and matching-candidate max+1 as whole-inventory rejection",
+      "state": "REGRESSION_SOURCE_UNEXECUTED_OWNER_UNWIRED"
+    },
+    {
+      "front": "custody Warm Wall",
+      "change": "stale v7/v8 specimen replaced in place with current v10/base-ID/descriptor-supporting-source truth",
+      "state": "SOURCE_ONLY_RUNTIME_UNPROVEN"
+    }
+  ],
+  "crossPollination": "exact artifact identity exposed the independent authenticated-current-owner normalization channel; descriptor evidence-metric work exposed missing hostile max+1 inventory fixtures; both source truths forced skill/provenance/Warm-Wall convergence without touching P0",
+  "execution": {
+    "reviewedHead": "884ee2ffa0c14d9cd3107368795ef40469c6ff2b",
+    "buildAndroid": {"run": 32583808859, "conclusion": "failure"},
+    "homeCenterCI": {"run": 32583808856, "conclusion": "failure"},
+    "operatorOverlay": {"run": 32583808857, "job": 97057031450, "conclusion": "failure", "stepsExposed": 0, "logs": "404 BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "artifactBaseIdentityOwnerWired": true,
+    "currentOwnerIdentityOwnerWired": false,
+    "descriptorOwnerIntegrated": false,
+    "regressionsExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
