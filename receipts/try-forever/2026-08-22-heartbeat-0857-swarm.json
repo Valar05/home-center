@@ -28,7 +28,7 @@
     "current patches inventory exact-grammar regression source",
     "descriptor custody repository skill",
     "existing Warm Wall mutation",
-    "Regnet/Venice review and execution-state evidence"
+    "Regnet/Venice review and exact execution-state evidence"
   ],
   "crossPollination": [
     "The v10 atomicity scar made the existing POSIX capability classifier material.",
@@ -40,13 +40,17 @@
   "executionTruth": {
     "exactReviewedSourceHead": "24e26125f2474e833a3173068b97be5686dca0d0",
     "operatorOverlayRun": 32577754037,
-    "operatorOverlayStatus": "queued",
+    "operatorOverlayJob": 97042484596,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "operatorOverlayLogs": "404 BlobNotFound",
     "homeCenterCiRun": 32577754038,
-    "homeCenterCiStatus": "queued",
+    "homeCenterCiConclusion": "failure",
     "buildAndroidRun": 32577754083,
-    "buildAndroidStatus": "queued",
+    "buildAndroidConclusion": "failure",
     "regressionExecuted": false,
     "tested": false,
+    "causeEstablished": false,
     "manualRetryFired": false
   },
   "capabilityMembrane": {
