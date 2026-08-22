@@ -42,6 +42,11 @@ A direct-owner source probe should require all of the following before `SOURCE_W
 
 Comments, patch files, policy existence, or calls only inside heartbeat model mutation paths do not count as owner wiring.
 
+## Patch ownership
+The collapsed operational-contact owner surgery owns **only this temporal accessibility seam**. Adam Send availability belongs to the existing Adam mode/input accessibility surgery because both Adam changes share the same native Send field, TextWatcher, and mode owner.
+
+Do not keep two unapplied patches competing to add the same Adam field/callback. Patch overlap is not parallelism; it is regression soup waiting for a commit order.
+
 ## Cross-pollination
 This wound exists because two correct local optimizations intersect:
 
@@ -50,13 +55,16 @@ This wound exists because two correct local optimizations intersect:
 
 Together they can freeze HC operational semantics unless owner-status refresh remains independent. Preserve both optimizations; separate their clocks.
 
-## Current PR #329 truth — 2026-08-21 1703
+Patch review also exposed a second ownership law: independent concerns may share one native owner, but their prepared surgeries must not overlap unrelated fields or callbacks. Collapsed operational refresh remains isolated from Adam Send availability.
+
+## Current PR #329 truth — 2026-08-21 19:01 CT
 - three-argument collapsed projection: **IMPLEMENTED SOURCE YES**;
 - owner-status sub-budget: **IMPLEMENTED SOURCE YES**;
-- deterministic operational-contact owner probe: **SOURCE YES / UNEXECUTED**;
-- exact combined sole-owner surgery: **PROPOSED_NOT_APPLIED**;
-- current authenticated owner blob at plan time: `c5de1411a6b68087ae17aff83c032af754587150`;
+- deterministic operational-contact owner probe: **SOURCE YES / v3 / UNEXECUTED**;
+- exact collapsed-only owner surgery: `patches/try-forever-operational-contact-owner.patch` — **CORRECTED_PROPOSED_NOT_APPLIED**;
+- current authenticated owner blob at review time: `c5de1411a6b68087ae17aff83c032af754587150`;
 - collapsed operational-refresh owner wiring: **NO / PARTIAL_UNSAFE**;
+- Adam Send availability ownership in this patch: **NO / MOVED TO ADAM OWNER SURGERY**;
 - regression executed: **NO**;
 - Android runtime / TalkBack / deployment / phone delivery / acceptance: **NO**.
 
@@ -64,4 +72,4 @@ Together they can freeze HC operational semantics unless owner-status refresh re
 This skill owns no Phone Hands ticket, phone execution, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.
 
 ## Done for one pulse
-Light this skill only when the temporal coupling between owner operational state and heartbeat dedupe materially changes. Once the owner consumes the refresh law and evidence is updated, keep it dark unless fresh evidence reopens it.
+Light this skill only when the temporal coupling between owner operational state and heartbeat dedupe materially changes, or when the surgery/evidence boundary itself materially changes. Once the owner consumes the refresh law and evidence is updated, keep it dark unless fresh evidence reopens it.
