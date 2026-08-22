@@ -23,6 +23,8 @@ class DirectoryHandleBindingCapability:
     os_name: str
     scandir_accepts_fd: bool
     open_accepts_dir_fd: bool
+    stat_accepts_dir_fd: bool
+    stat_accepts_follow_symlinks: bool
     has_o_directory: bool
     has_o_nofollow: bool
     boundary: str
@@ -36,6 +38,8 @@ def classify_directory_handle_binding_capability(
     os_name: str,
     scandir_accepts_fd: bool,
     open_accepts_dir_fd: bool,
+    stat_accepts_dir_fd: bool,
+    stat_accepts_follow_symlinks: bool,
     has_o_directory: bool,
     has_o_nofollow: bool,
 ) -> DirectoryHandleBindingCapability:
@@ -43,6 +47,8 @@ def classify_directory_handle_binding_capability(
         os_name == "posix",
         scandir_accepts_fd,
         open_accepts_dir_fd,
+        stat_accepts_dir_fd,
+        stat_accepts_follow_symlinks,
         has_o_directory,
         has_o_nofollow,
     )
@@ -52,12 +58,15 @@ def classify_directory_handle_binding_capability(
             os_name=os_name,
             scandir_accepts_fd=scandir_accepts_fd,
             open_accepts_dir_fd=open_accepts_dir_fd,
+            stat_accepts_dir_fd=stat_accepts_dir_fd,
+            stat_accepts_follow_symlinks=stat_accepts_follow_symlinks,
             has_o_directory=has_o_directory,
             has_o_nofollow=has_o_nofollow,
             boundary=(
                 "The runtime exposes the primitives needed for a held-directory-descriptor source "
-                "implementation. This does not prove filesystem atomicity, artifact custody, tests, "
-                "owner integration, runtime behavior, deployment, or delivery."
+                "implementation, including no-follow descriptor-relative name revalidation. This "
+                "does not prove filesystem atomicity, artifact custody, tests, owner integration, "
+                "runtime behavior, deployment, or delivery."
             ),
         )
 
@@ -66,6 +75,8 @@ def classify_directory_handle_binding_capability(
         os_name=os_name,
         scandir_accepts_fd=scandir_accepts_fd,
         open_accepts_dir_fd=open_accepts_dir_fd,
+        stat_accepts_dir_fd=stat_accepts_dir_fd,
+        stat_accepts_follow_symlinks=stat_accepts_follow_symlinks,
         has_o_directory=has_o_directory,
         has_o_nofollow=has_o_nofollow,
         boundary=(
@@ -81,6 +92,8 @@ def current_directory_handle_binding_capability() -> DirectoryHandleBindingCapab
         os_name=os.name,
         scandir_accepts_fd=os.scandir in getattr(os, "supports_fd", set()),
         open_accepts_dir_fd=os.open in getattr(os, "supports_dir_fd", set()),
+        stat_accepts_dir_fd=os.stat in getattr(os, "supports_dir_fd", set()),
+        stat_accepts_follow_symlinks=os.stat in getattr(os, "supports_follow_symlinks", set()),
         has_o_directory=hasattr(os, "O_DIRECTORY"),
         has_o_nofollow=hasattr(os, "O_NOFOLLOW"),
     )
