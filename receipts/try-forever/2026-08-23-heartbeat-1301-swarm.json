@@ -10,95 +10,31 @@
     "intendedPaths": 6,
     "unexpectedPaths": 0
   },
-  "fronts": [
-    {
-      "name": "receipt_self_integrity",
-      "advanced": true,
-      "result": "SUPPORTING_SOURCE",
-      "artifact": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
-      "blob": "3ace959eee97ef2c4c13fd4dec76e7c67558fe28",
-      "change": "Recompute artifact-set, metric, and exact-content comparison truth; validate strict temporal receipt identity/proof/capability membrane; delegate display to the existing projector."
-    },
-    {
-      "name": "hostile_self_integrity_regression",
-      "advanced": true,
-      "result": "SOURCE_UNEXECUTED",
-      "artifact": "tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py",
-      "blob": "0211bad80fbfedd24a6486cc7b0c83ac6c0f6887",
-      "change": "Attack lying comparison booleans, metric/content drift, counterfeit context, carried-result mismatch, capability promotion, proof/status mismatch, and stale temporal evidence on wounds."
-    },
-    {
-      "name": "projection_regression_repair",
-      "advanced": true,
-      "result": "SOURCE_UNEXECUTED",
-      "artifact": "tools/test_try_forever_owner_surgery_shadow_receipt_projection.py",
-      "blob": "46cd79fffeeb149e42a836ce3e10330b36aac909",
-      "change": "Repair stale DESCRIPTOR_WOUND false/false/false fixture to null/null/null and current SHADOW_DIVERGED wording."
-    },
-    {
-      "name": "doctrine_convergence",
-      "advanced": true,
-      "result": "SOURCE",
-      "artifact": "skills/operator-owner-surgery-shadow-receipt-integrity/SKILL.md",
-      "blob": "6310805e9cb4ae0ccb95665cfa62dd72459e3663",
-      "change": "Record tri-state and temporal receipt-context owners as SOURCE_WIRED; self-integrity remains supporting source; preserve TESTED/runtime/authority membrane."
-    },
-    {
-      "name": "warm_wall_receipt_topology",
-      "advanced": true,
-      "result": "SOURCE_ONLY",
-      "artifact": "docs/try-forever/operator-owner-surgery-descriptor-shadow-source-specimen.html",
-      "blob": "79a94b6b6f4e9b81bfc00b23b6dddf8146b59b51",
-      "change": "Mutate the existing non-raster touch organism in place with RECEIPT SELF-AUDIT and recompute-before-display semantics."
-    },
-    {
-      "name": "review_and_capability_membrane",
-      "advanced": true,
-      "result": "PASS_BOUNDED_SOURCE_ONLY",
-      "change": "Regnet repaired the first self-integrity capability membrane; Venice permits this source slice to yield while owner consumption/regression execution/test/runtime/campaign continue."
-    }
-  ],
-  "skillLights": {
-    "Failure Is The Shovel": "LIT__stale receipt/test/doctrine truth became concrete source repairs",
-    "Canon Auto-Select": "LIT__reused descriptor-shadow/temporal/projector organs and one existing receipt skill",
-    "Autocorrect Judgment Jar": "DARK__no material token ambiguity",
-    "Originality Tax": "LIT__no second projector or descriptor authority; self-integrity delegates existing display",
-    "Hunger": "LIT__receipt booleans must pay rent by agreeing with raw evidence",
-    "Ever-Polished Interpreter / Eat Everything": "LIT__stale fixture/doctrine and first-draft membrane contradiction were consumed and corrected",
-    "Operator Campaign": "LIT__all mutation stayed on PR329 branch through audited GitHub lane",
-    "Harroway operator discipline": "LIT__source/test/runtime/authority states remained separate",
-    "She-Raw adversarial motivation": "FAULT__authoritative call attempted; account connection HTTP 400; no substitute reviewer",
-    "Venice Judgment Jars": "LIT__bounded same-worker completion gate; source slice may yield, campaign continues",
-    "Regnet QA": "LIT__found stale regression and incomplete temporal capability membrane",
-    "accessibility/TalkBack and touch semantics": "LIT__raw boundary remains hidden; bounded temporal status/proof added; existing keyboard/touch Warm Wall mutated in place",
-    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED__consumption 0 mutation 0",
-    "deterministic routing": "LIT__comparison truth recomputed from exact artifact maps and work counters",
-    "evidence/capability-state discipline": "LIT__supporting source yes; owner consumption no; regression unexecuted; TESTED/runtime/deployed/delivered no",
-    "recovery/checkpointing/idempotence": "LIT__wound/unavailable receipts reject stale temporal evidence rather than carrying old proof forward",
-    "strange non-raster vector/DOM/native UI art": "LIT__existing descriptor-shadow DOM/SVG Warm Wall mutated in place",
-    "warm walls": "LIT__receipt self-audit is touch-inspectable source state",
-    "Christmas-light scene graph": "DARK__no runtime transition/motion law changed",
-    "contact preservation": "LIT__raw shadow evidence remains untouched while the display receipt fails closed on contradictions",
-    "operator-owner-surgery-shadow-receipt-integrity": "LIT__repository skill materially converged"
-  },
-  "crossPollination": [
-    "Tri-state and temporal owner wiring made the operator receipt itself suspicious: a receipt could still repeat claimed booleans without recomputing its own evidence.",
-    "Recomputing raw artifact/work truth exposed the need to bind temporal receipt identity and capability states, and Regnet caught the first draft stopping too early.",
-    "That correction propagated through hostile fixtures, durable skill doctrine, and the existing touchable Warm Wall without creating a second projector or authority."
+  "materialFronts": [
+    "receipt comparison self-integrity supporting source",
+    "hostile self-integrity regression source",
+    "stale projection regression repair",
+    "shadow-receipt skill doctrine convergence",
+    "existing non-raster Warm Wall mutation",
+    "Regnet and Venice capability review"
   ],
   "review": {
-    "regnet": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__RECEIPT_SELF_INTEGRITY_SUPPORTING_SOURCE__PROJECTION_FIXTURE_REPAIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
-    "venice": "SOURCE_SLICE_STOP_ALLOWED__SELF_INTEGRITY_OWNER_CONSUMPTION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "regnet": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__OWNER_CONSUMPTION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
     "sheRaw": "ACCOUNT_CONNECTION_HTTP_400"
   },
   "executionTruth": {
-    "workflowRunsObservedOnReviewedSourceHead": 0,
+    "runs": [
+      {"name": "Operator Overlay Android", "id": 32657058179, "conclusion": "failure", "jobId": 97237354419, "stepsExposed": 0, "logs": "404_BlobNotFound"},
+      {"name": "Build Android", "id": 32657058176, "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 32657058170, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
     "regressionExecuted": false,
-    "tested": false,
-    "manualRetry": false
+    "tested": false
   },
   "capabilityMembrane": {
-    "requested": true,
     "implementedSource": true,
     "authenticatedReadback": true,
     "descriptorShadowTriStateOwnerWired": true,
