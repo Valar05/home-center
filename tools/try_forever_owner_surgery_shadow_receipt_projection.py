@@ -10,6 +10,8 @@ keeps the raw shadow result untouched and creates a bounded display receipt inst
 - raw failure-boundary prose is not echoed; the receipt carries a deterministic digest plus a
   status-specific summary;
 - comparison fields remain exact booleans-or-none rather than truthiness-normalized text;
+- completed comparison work metrics are exposed and checked against the claimed metrics result so
+  ``metricsMatch`` is auditable rather than a free-floating boolean;
 - comparison failure is distinct from comparison unavailability: SHADOW_DIVERGED requires actual
   boolean comparison evidence, while wound/unavailable states require null comparisons;
 - no authority, TESTED, runtime, deployment, phone, or acceptance state is promoted.
@@ -43,6 +45,7 @@ STATUS_SUMMARY = {
     "DESCRIPTOR_WOUND": "Descriptor custody failed before a complete comparison could be established.",
 }
 
+COMPLETED_STATUSES = {"SHADOW_MATCH", "SHADOW_DIVERGED"}
 COMPARISON_UNAVAILABLE_STATUSES = {
     "CANONICAL_SCHEMA_WOUND",
     "CANONICAL_WOUND",
@@ -135,6 +138,69 @@ def _validate_comparison_semantics(
     raise ValueError("shadow status is not one admitted comparison-semantics state")
 
 
+def _comparison_work_projection(
+    result: Mapping[str, object],
+    *,
+    status: str,
+    metrics_match: bool | None,
+) -> dict[str, object] | None:
+    """Expose the exact bounded work counters only when a comparison completed.
+
+    A completed ``metricsMatch`` claim must agree with the counters it describes. Wound/unavailable
+    receipts intentionally return ``None`` here: a non-comparison state must not make partial work
+    counters look like completed comparison evidence.
+    """
+
+    if status not in COMPLETED_STATUSES:
+        return None
+
+    canonical_entries = _nonnegative_int(
+        result.get("canonicalArtifactDirectoryEntriesObserved"),
+        field="canonicalArtifactDirectoryEntriesObserved",
+    )
+    canonical_candidates = _nonnegative_int(
+        result.get("canonicalArtifactCandidatesObserved"),
+        field="canonicalArtifactCandidatesObserved",
+    )
+    descriptor_entries = _nonnegative_int(
+        result.get("descriptorArtifactDirectoryEntriesObserved"),
+        field="descriptorArtifactDirectoryEntriesObserved",
+    )
+    descriptor_candidates = _nonnegative_int(
+        result.get("descriptorArtifactCandidatesObserved"),
+        field="descriptorArtifactCandidatesObserved",
+    )
+
+    if canonical_candidates > canonical_entries:
+        raise ValueError(
+            "canonical artifact candidate count cannot exceed directory-entry count"
+        )
+    if descriptor_candidates > descriptor_entries:
+        raise ValueError(
+            "descriptor artifact candidate count cannot exceed directory-entry count"
+        )
+
+    actual_metrics_match = (
+        canonical_entries == descriptor_entries
+        and canonical_candidates == descriptor_candidates
+    )
+    if metrics_match is not actual_metrics_match:
+        raise ValueError(
+            "metricsMatch contradicts the exact compared work counters"
+        )
+
+    return {
+        "canonical": {
+            "directoryEntriesObserved": canonical_entries,
+            "candidatesObserved": canonical_candidates,
+        },
+        "descriptor": {
+            "directoryEntriesObserved": descriptor_entries,
+            "candidatesObserved": descriptor_candidates,
+        },
+    }
+
+
 def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dict[str, object]:
     """Create one bounded display receipt without changing the raw shadow evidence."""
 
@@ -190,6 +256,11 @@ def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dic
         metrics_match,
         content_identity_match,
     )
+    comparison_work = _comparison_work_projection(
+        result,
+        status=status,
+        metrics_match=metrics_match,
+    )
 
     return {
         "schema": RECEIPT_SCHEMA,
@@ -209,6 +280,7 @@ def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dic
         "artifactSetMatch": artifact_set_match,
         "metricsMatch": metrics_match,
         "contentIdentityMatch": content_identity_match,
+        "comparisonWork": comparison_work,
         "authorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
