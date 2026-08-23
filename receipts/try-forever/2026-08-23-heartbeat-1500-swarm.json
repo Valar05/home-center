@@ -1,0 +1,93 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-23T15:00:00-05:00",
+  "reviewedSourceHead": "62df8d2b85f7bdf39e94facecfe56fb215787323",
+  "fronts": [
+    {
+      "name": "operator receipt owner composition",
+      "state": "SOURCE_WIRED",
+      "changed": "new bounded operator command composes existing raw descriptor shadow -> self-integrity -> existing projector"
+    },
+    {
+      "name": "hostile owner-boundary regression",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "pins contradictory raw-evidence rejection, stale-temporal-wound rejection, boundary non-leakage, and capability denial"
+    },
+    {
+      "name": "Regnet correction",
+      "state": "APPLIED_SOURCE_CORRECTION",
+      "changed": "removed misleading run-level phone/P0 consumption and raw-preservation claims from the command receipt; replaced them with owned capability facts"
+    },
+    {
+      "name": "skill convergence",
+      "state": "SOURCE",
+      "changed": "operator-owner-surgery-shadow-receipt and operator-owner-surgery-shadow-receipt-integrity now record operator command self-integrity consumption as SOURCE_WIRED"
+    },
+    {
+      "name": "touchable non-raster art",
+      "state": "SOURCE",
+      "changed": "existing descriptor-shadow Warm Wall now exposes raw -> self-audit -> temporal context -> sole projector -> operator receipt and the source/test/runtime membrane"
+    },
+    {
+      "name": "governance and evidence",
+      "state": "DURABLE",
+      "changed": "pre-mutation plan, Venice plan gate, Regnet review, Venice completion, exact diff custody, and exact-head workflow evidence"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: moved the explicit open gate from self-integrity supporting source to an actual bounded operator command",
+    "Canon Auto-Select": "LIT: selected existing shadow receipt/integrity skills from repository state",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity",
+    "Originality Tax": "LIT: corrected capability wording instead of repeating historical run-level overclaim shapes",
+    "Hunger": "LIT: ate stale doctrine/art state after source wiring changed",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: raw evidence, temporal context, self-audit, projector, skills, art, and receipts were converged",
+    "Operator Campaign": "LIT: operator receipt got a concrete source delivery surface",
+    "Harroway operator discipline": "LIT: source/runtime/test/phone states remained separate",
+    "She-Raw adversarial motivation": "FAULT: authoritative connector account connection HTTP 400; no substitute",
+    "Venice Judgment Jars": "LIT: PLAN_ALLOWED before mutation and bounded source-slice completion gate",
+    "Regnet QA": "LIT: caught and corrected overbroad capability wording before completion",
+    "accessibility/TalkBack and touch semantics": "LIT: bounded operator prose, raw-boundary non-leakage, true/false/null semantics, touchable radio wall",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation",
+    "deterministic routing": "LIT: one raw owner, one self-integrity gate, one projector, one operator command",
+    "evidence/capability-state discipline": "LIT: regression unexecuted; TESTED/runtime/deployed/delivered remain NO",
+    "recovery/checkpointing/idempotence": "LIT: wound states cannot retain stale temporal proof",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing descriptor-shadow DOM/inline-SVG organism mutated in place",
+    "warm walls": "LIT: receipt membrane made touch-inspectable",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion law changed",
+    "contact preservation": "LIT: raw machine evidence remains separate and legitimate wound diagnostic contact is not erased"
+  },
+  "crossPollination": "impossible-work self-integrity -> open owner-consumption gate -> thin operator command -> Regnet capability-wording correction -> skill/doctrine convergence -> touchable raw/self-audit/display membrane",
+  "executionTruth": {
+    "workflowHead": "62df8d2b85f7bdf39e94facecfe56fb215787323",
+    "homeCenterCi": {"run": 32663496827, "conclusion": "failure"},
+    "buildAndroid": {"run": 32663496826, "conclusion": "failure"},
+    "operatorOverlay": {"run": 32663496849, "job": 97253131540, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "operatorReceiptSelfIntegritySourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthorityIntegration": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
