@@ -3,13 +3,15 @@
 
 This supporting organ does not create a second descriptor authority or receipt projector. It
 recomputes the comparison claims already carried by descriptor-shadow v3, validates the exact
-completed-comparison context, checks the already-wired temporal receipt context, and then delegates
-operator display to ``project_shadow_receipt``.
+completed-comparison context, validates wound/unavailable status against the canonical/capability
+context that can actually produce that status, checks the already-wired temporal receipt context,
+and then delegates operator display to ``project_shadow_receipt``.
 
 The purpose is narrow: a display receipt must not say MATCH merely because three booleans say so when
-the artifact evidence, work metrics, or temporal receipt contradict those booleans. Raw evidence is
-left untouched. Promotion authority, TESTED, runtime, deployment, phone delivery, and acceptance are
-never granted here.
+the artifact evidence, work metrics, or temporal receipt contradict those booleans. Likewise, a
+wound label must not be accepted when its canonical/capability context describes a different state.
+Raw evidence is left untouched. Promotion authority, TESTED, runtime, deployment, phone delivery,
+and acceptance are never granted here.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_owner_surgery_backend_policy import PORTABLE_UNAVAILABLE
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     CANONICAL_SCHEMA,
     SCHEMA as SHADOW_SCHEMA,
@@ -26,7 +29,7 @@ from try_forever_owner_surgery_descriptor_shadow_audit import (
 from try_forever_owner_surgery_shadow_receipt_projection import project_shadow_receipt
 
 
-SCHEMA = "try-forever-owner-surgery-shadow-receipt-self-integrity.v1"
+SCHEMA = "try-forever-owner-surgery-shadow-receipt-self-integrity.v2"
 PORTABLE_AUTHORITY_BACKEND = "PORTABLE_PATHNAME_REVALIDATION"
 TEMPORAL_BINDING_SCHEMA = "try-forever-owner-surgery-shadow-temporal-binding.v1"
 TEMPORAL_RECEIPT_INTEGRITY_SCHEMA = (
@@ -80,7 +83,15 @@ def _artifact_map(items: object, *, field: str) -> dict[str, tuple[int, str]]:
     return observed
 
 
+def _require_portable_authority_backend(result: Mapping[str, object]) -> None:
+    if result.get("canonicalAuthorityBackend") != PORTABLE_AUTHORITY_BACKEND:
+        raise ShadowReceiptSelfIntegrityError(
+            "descriptor shadow receipt requires canonical portable authority backend context"
+        )
+
+
 def _require_completed_context(result: Mapping[str, object]) -> None:
+    _require_portable_authority_backend(result)
     if result.get("canonicalAuthoritySchema") != CANONICAL_SCHEMA:
         raise ShadowReceiptSelfIntegrityError(
             "completed comparison requires exact canonical custody v10 context"
@@ -89,14 +100,85 @@ def _require_completed_context(result: Mapping[str, object]) -> None:
         raise ShadowReceiptSelfIntegrityError(
             "completed comparison requires canonical evidenceComplete=true"
         )
-    if result.get("canonicalAuthorityBackend") != PORTABLE_AUTHORITY_BACKEND:
-        raise ShadowReceiptSelfIntegrityError(
-            "completed comparison requires canonical portable authority backend context"
-        )
     if result.get("descriptorCapabilityStatus") != SUPPORTED:
         raise ShadowReceiptSelfIntegrityError(
             "completed comparison requires exact supported descriptor capability context"
         )
+
+
+def _require_wound_context(result: Mapping[str, object], status: str) -> None:
+    """Require wound labels to agree with the context that can actually produce them.
+
+    Comparison booleans already fail closed in the display projector. This gate protects an earlier
+    semantic boundary: a wound/unavailable status must not be paired with a healthy or unrelated
+    canonical/capability context and then accepted merely because no comparison completed.
+    """
+
+    _require_portable_authority_backend(result)
+    canonical_schema = result.get("canonicalAuthoritySchema")
+    canonical_complete = result.get("canonicalEvidenceComplete")
+    capability = result.get("descriptorCapabilityStatus")
+
+    if status == "CANONICAL_SCHEMA_WOUND":
+        if canonical_schema == CANONICAL_SCHEMA:
+            raise ShadowReceiptSelfIntegrityError(
+                "CANONICAL_SCHEMA_WOUND requires a non-v10 canonical schema"
+            )
+        if canonical_complete is not None or capability is not None:
+            raise ShadowReceiptSelfIntegrityError(
+                "CANONICAL_SCHEMA_WOUND must stop before canonical completeness/capability admission"
+            )
+        return
+
+    if canonical_schema != CANONICAL_SCHEMA:
+        raise ShadowReceiptSelfIntegrityError(
+            f"{status} requires exact canonical custody v10 context"
+        )
+
+    if status == "CANONICAL_WOUND":
+        if canonical_complete is not False:
+            raise ShadowReceiptSelfIntegrityError(
+                "CANONICAL_WOUND requires canonical evidenceComplete=false"
+            )
+        if capability is not None:
+            raise ShadowReceiptSelfIntegrityError(
+                "CANONICAL_WOUND must stop before descriptor capability admission"
+            )
+        return
+
+    if canonical_complete is not True:
+        raise ShadowReceiptSelfIntegrityError(
+            f"{status} requires canonical evidenceComplete=true"
+        )
+
+    if status == "DESCRIPTOR_UNAVAILABLE":
+        if capability != PORTABLE_UNAVAILABLE:
+            raise ShadowReceiptSelfIntegrityError(
+                "DESCRIPTOR_UNAVAILABLE requires exact portable-unavailable descriptor capability"
+            )
+        return
+
+    if status == "CAPABILITY_WOUND":
+        if (
+            not isinstance(capability, str)
+            or not capability
+            or capability in {SUPPORTED, PORTABLE_UNAVAILABLE}
+        ):
+            raise ShadowReceiptSelfIntegrityError(
+                "CAPABILITY_WOUND requires one non-admitted descriptor capability state"
+            )
+        return
+
+    if status in {"PORTABLE_SHADOW_WOUND", "DESCRIPTOR_WOUND"}:
+        if capability != SUPPORTED:
+            raise ShadowReceiptSelfIntegrityError(
+                f"{status} requires exact supported descriptor capability context"
+            )
+        return
+
+    raise ShadowReceiptSelfIntegrityError(
+        f"wound status is not one admitted self-integrity state: {status!r}"
+    )
 
 
 def _recompute_completed_comparisons(
@@ -252,6 +334,8 @@ def project_shadow_receipt_with_self_integrity(
         )
 
     status = result.get("status")
+    if not isinstance(status, str) or not status:
+        raise ShadowReceiptSelfIntegrityError("shadow status must be one non-empty string")
     completed = status in COMPLETED_STATUSES
     temporal_projection: dict[str, object] = {
         "temporalStatus": None,
@@ -265,15 +349,18 @@ def project_shadow_receipt_with_self_integrity(
         _recompute_completed_comparisons(result)
         temporal_projection = _temporal_receipt_projection(result)
         comparison_recomputed = True
-    elif "temporalContentBinding" in result or "temporalBindingProven" in result:
-        raise ShadowReceiptSelfIntegrityError(
-            "non-comparison wound/unavailable receipt must not carry temporal binding evidence"
-        )
+    else:
+        _require_wound_context(result, status)
+        if "temporalContentBinding" in result or "temporalBindingProven" in result:
+            raise ShadowReceiptSelfIntegrityError(
+                "non-comparison wound/unavailable receipt must not carry temporal binding evidence"
+            )
 
     receipt = project_shadow_receipt(repo_root, result)
     return {
         **receipt,
         "receiptSelfIntegritySchema": SCHEMA,
         "comparisonEvidenceRecomputed": comparison_recomputed,
+        "woundContextValidated": not completed,
         **temporal_projection,
     }
