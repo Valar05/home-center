@@ -12,6 +12,8 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 `SHADOW DIVERGENCE != PERMISSION TO PICK THE RESULT WE LIKE BETTER`.
 
+`UNKNOWN CAPABILITY TEXT != DESCRIPTOR UNAVAILABLE`.
+
 `SHADOW DESCRIPTOR WOUND != SELECTED-DESCRIPTOR FAILURE + PORTABLE FALLBACK` because the descriptor shadow never held promotion authority in the first place.
 
 `DESCRIPTOR SUPPORTING SOURCE != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
@@ -21,12 +23,15 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 It:
 - asks the canonical portable v10 `classify(...)` path for the authority result first;
+- requires canonical `evidenceComplete` to remain an actual boolean rather than truthiness-normalizing malformed evidence;
 - checks current descriptor capability without changing the canonical backend;
+- treats only exact `PORTABLE_ATOMIC_BINDING_UNAVAILABLE` as ordinary descriptor unavailability;
+- treats unknown/corrupt capability text as `CAPABILITY_WOUND` rather than repairing it into a harmless platform state;
 - when supported, reuses `HeldDirectoryCustody` and its existing entry/candidate/read budgets;
 - carries enumeration-time candidate identity into descriptor-relative observation;
 - independently records exact artifact byte count and SHA-256 evidence;
 - compares descriptor candidate paths and inventory metrics against canonical portable evidence;
-- returns `SHADOW_MATCH`, `SHADOW_DIVERGED`, `DESCRIPTOR_UNAVAILABLE`, or `DESCRIPTOR_WOUND`;
+- returns `SHADOW_MATCH`, `SHADOW_DIVERGED`, `DESCRIPTOR_UNAVAILABLE`, `CAPABILITY_WOUND`, or `DESCRIPTOR_WOUND`;
 - never emits collision/stale/unverified promotion groups;
 - never emits `ownerEvidenceAdmitted=true`;
 - always reports `descriptorAuthorityAdmitted=false` and `ownerMutation=false`.
@@ -42,9 +47,11 @@ It pins:
 - shadow match with matching path set and inventory metrics;
 - path-set divergence;
 - independent metric divergence;
-- descriptor-unavailable behavior without a fake downgrade story;
+- exact descriptor-unavailable behavior without a fake downgrade story;
+- unknown/corrupt capability text failing as `CAPABILITY_WOUND`;
 - typed descriptor wound with zero authority;
 - canonical `evidenceComplete=false` remaining canonical truth even when descriptor staging exists;
+- malformed non-boolean canonical `evidenceComplete` being rejected rather than normalized;
 - no promotion-authority fields leaking out of the shadow result.
 
 Do not call these tests passed until an authorized execution lane produces a receipt.
@@ -53,11 +60,12 @@ Do not call these tests passed until an authorized execution lane produces a rec
 `tools/try_forever_owner_surgery_backend_policy.py` remains the future composition gate. Its no-downgrade law applies **after the canonical owner actually selects the stronger descriptor backend for an authority classification attempt**.
 
 The shadow audit deliberately happens earlier. Therefore:
-- descriptor unavailable → canonical portable owner remains the independent authority path;
+- exact descriptor unavailable → canonical portable owner remains the independent authority path;
+- unknown capability state → shadow capability wound; do not normalize it;
 - descriptor shadow wound → shadow evidence fails, canonical portable result is unaffected;
 - future descriptor-selected owner wound → fail closed; no weaker retry in the same classification attempt.
 
-Those are three different states and must not be collapsed.
+Those states must not be collapsed.
 
 ## Current owner truth
 Canonical owner: `tools/try_forever_owner_surgery_custody_probe.py` schema v10.
