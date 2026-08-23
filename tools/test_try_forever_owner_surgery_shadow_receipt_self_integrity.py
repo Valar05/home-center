@@ -6,6 +6,7 @@ SOURCE ONLY. This fixture has not been observed executing in an authorized regre
 
 from pathlib import Path
 
+from try_forever_owner_surgery_backend_policy import PORTABLE_UNAVAILABLE
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     CANONICAL_SCHEMA,
     SCHEMA as SHADOW_SCHEMA,
@@ -75,6 +76,22 @@ def raw_match(**overrides):
     return result
 
 
+def raw_wound(status: str, **overrides):
+    result = raw_match(
+        status=status,
+        descriptorArtifacts=[],
+        descriptorArtifactDirectoryEntriesObserved=None,
+        descriptorArtifactCandidatesObserved=None,
+        artifactSetMatch=None,
+        metricsMatch=None,
+        contentIdentityMatch=None,
+    )
+    result.pop("temporalContentBinding")
+    result.pop("temporalBindingProven")
+    result.update(overrides)
+    return result
+
+
 def expect_rejected(result, needle: str) -> None:
     try:
         project_shadow_receipt_with_self_integrity(ROOT, result)
@@ -88,6 +105,7 @@ def main() -> int:
     receipt = project_shadow_receipt_with_self_integrity(ROOT, raw_match())
     assert receipt["status"] == "SHADOW_MATCH"
     assert receipt["comparisonEvidenceRecomputed"] is True
+    assert receipt["woundContextValidated"] is False
     assert receipt["temporalStatus"] == "TEMPORAL_CONTENT_BOUND"
     assert receipt["temporalBindingProven"] is True
     assert receipt["temporalReceiptContextAdmitted"] is True
@@ -204,35 +222,88 @@ def main() -> int:
     )
     diverged_receipt = project_shadow_receipt_with_self_integrity(ROOT, diverged)
     assert diverged_receipt["status"] == "SHADOW_DIVERGED"
+    assert diverged_receipt["woundContextValidated"] is False
     assert diverged_receipt["temporalBindingProven"] is False
     assert diverged_receipt["temporalStatus"] == "SHADOW_COMPARISON_NOT_ADMITTED"
 
     # Wound/unavailable states may carry null comparison truth but no stale temporal proof.
     # DESCRIPTOR_WOUND legitimately retains already-observed portable evidence, so completed-only
     # cardinality checks must not erase that diagnostic contact.
-    wounded = raw_match(
-        status="DESCRIPTOR_WOUND",
+    wounded = raw_wound(
+        "DESCRIPTOR_WOUND",
         canonicalArtifactDirectoryEntriesObserved=2,
         canonicalArtifactCandidatesObserved=1,
         descriptorCapabilityStatus=SUPPORTED,
         portableShadowArtifacts=[artifact()],
-        descriptorArtifacts=[],
-        descriptorArtifactDirectoryEntriesObserved=None,
-        descriptorArtifactCandidatesObserved=None,
-        artifactSetMatch=None,
-        metricsMatch=None,
-        contentIdentityMatch=None,
     )
-    wounded.pop("temporalContentBinding")
-    wounded.pop("temporalBindingProven")
     wounded_receipt = project_shadow_receipt_with_self_integrity(ROOT, wounded)
     assert wounded_receipt["status"] == "DESCRIPTOR_WOUND"
     assert wounded_receipt["comparisonEvidenceRecomputed"] is False
+    assert wounded_receipt["woundContextValidated"] is True
     assert wounded_receipt["temporalReceiptContextAdmitted"] is False
 
     stale_temporal_wound = dict(wounded)
     stale_temporal_wound["temporalContentBinding"] = diverged_temporal
     expect_rejected(stale_temporal_wound, "must not carry temporal binding evidence")
+
+    # Wound labels themselves are authority claims about where the pipeline stopped. Their context
+    # must agree; null comparison fields alone are not sufficient self-integrity.
+    expect_rejected(
+        raw_wound("DESCRIPTOR_UNAVAILABLE", descriptorCapabilityStatus=SUPPORTED),
+        "portable-unavailable descriptor capability",
+    )
+    unavailable = raw_wound(
+        "DESCRIPTOR_UNAVAILABLE",
+        descriptorCapabilityStatus=PORTABLE_UNAVAILABLE,
+        portableShadowArtifacts=[],
+    )
+    assert project_shadow_receipt_with_self_integrity(ROOT, unavailable)["woundContextValidated"] is True
+
+    expect_rejected(
+        raw_wound("CANONICAL_WOUND", canonicalEvidenceComplete=True, descriptorCapabilityStatus=None),
+        "evidenceComplete=false",
+    )
+    canonical_wound = raw_wound(
+        "CANONICAL_WOUND",
+        canonicalEvidenceComplete=False,
+        descriptorCapabilityStatus=None,
+        portableShadowArtifacts=[],
+    )
+    assert project_shadow_receipt_with_self_integrity(ROOT, canonical_wound)["woundContextValidated"] is True
+
+    expect_rejected(
+        raw_wound("PORTABLE_SHADOW_WOUND", descriptorCapabilityStatus=PORTABLE_UNAVAILABLE),
+        "supported descriptor capability",
+    )
+    expect_rejected(
+        raw_wound("CAPABILITY_WOUND", descriptorCapabilityStatus=SUPPORTED),
+        "non-admitted descriptor capability state",
+    )
+    capability_wound = raw_wound(
+        "CAPABILITY_WOUND",
+        descriptorCapabilityStatus="UNKNOWN_PLATFORM_STATE",
+        portableShadowArtifacts=[],
+    )
+    assert project_shadow_receipt_with_self_integrity(ROOT, capability_wound)["woundContextValidated"] is True
+
+    schema_wound = raw_wound(
+        "CANONICAL_SCHEMA_WOUND",
+        canonicalAuthoritySchema="try-forever-owner-surgery-custody.v9",
+        canonicalEvidenceComplete=None,
+        descriptorCapabilityStatus=None,
+        portableShadowArtifacts=[],
+    )
+    assert project_shadow_receipt_with_self_integrity(ROOT, schema_wound)["woundContextValidated"] is True
+    expect_rejected(
+        raw_wound(
+            "CANONICAL_SCHEMA_WOUND",
+            canonicalAuthoritySchema=CANONICAL_SCHEMA,
+            canonicalEvidenceComplete=None,
+            descriptorCapabilityStatus=None,
+            portableShadowArtifacts=[],
+        ),
+        "requires a non-v10 canonical schema",
+    )
 
     return 0
 
