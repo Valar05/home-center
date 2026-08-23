@@ -1,0 +1,44 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-23T10:57:00-05:00",
+  "reviewerKind": "same_worker_judgment_jar",
+  "reviewedSourceHead": "4d25c8b37a97c9a78cfe26ab934fdb12e6090091",
+  "missionFidelity": {
+    "nonP0ScopePreserved": true,
+    "existingAuthorityOwnersPreserved": true,
+    "duplicateArchitecture": 0,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "sourceVsTestVsRuntimeMembranePreserved": true
+  },
+  "judgment": {
+    "comparisonTriState": "PASS_SOURCE",
+    "temporalReceiptIntegrity": "PASS_SUPPORTING_SOURCE",
+    "descriptorWoundOwner": "CONTINUE_REQUIRED_RED_BOUNDARY",
+    "regressionExecution": "CONTINUE_REQUIRED_UNEXECUTED",
+    "tested": "NO",
+    "runtime": "NO",
+    "deploymentDeliveryAcceptance": "NO"
+  },
+  "codeFirstScars": [
+    "Completed SHADOW_DIVERGED also claims descriptor comparison context, so the first match-only capability gate was insufficient and was corrected.",
+    "Descriptor custody failure before comparison is not measured divergence; current shadow v3 still emits false/false/false and remains a deliberate RED upstream wound."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteInvented": false
+  },
+  "execution": {
+    "exactSourceHead": "4d25c8b37a97c9a78cfe26ab934fdb12e6090091",
+    "automaticRuns": [
+      {"name": "Operator Overlay Android", "id": 32650688448, "conclusion": "failure", "job": 97221690506, "stepsExposed": 0, "logs": "404_BlobNotFound"},
+      {"name": "Home Center CI", "id": 32650688472, "conclusion": "failure"},
+      {"name": "Build Android", "id": 32650688456, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__UPSTREAM_DESCRIPTOR_WOUND_TEMPORAL_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
