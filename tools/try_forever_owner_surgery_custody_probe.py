@@ -403,10 +403,11 @@ def classify(
     discovery_errors.sort(key=lambda item: (item.path, item.artifact_kind))
 
     active_groups: dict[tuple[str, str], list[Surgery]] = {}
-    for surgery in surgeries:
-        if not surgery.promotion_candidate:
-            continue
-        active_groups.setdefault((surgery.owner, surgery.base_blob), []).append(surgery)
+    if not discovery_errors:
+        for surgery in surgeries:
+            if not surgery.promotion_candidate:
+                continue
+            active_groups.setdefault((surgery.owner, surgery.base_blob), []).append(surgery)
 
     collision_sets: list[dict[str, object]] = []
     stale_base_groups: list[dict[str, object]] = []
