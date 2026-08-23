@@ -25,6 +25,14 @@ It does not own patch promotion, canonical v10 custody, descriptor backend selec
 
 `CLAIMED MATCH != RECOMPUTED ARTIFACT / METRIC MATCH`.
 
+`CANDIDATE COUNT <= DIRECTORY-ENTRY COUNT`.
+
+`COMPLETED PORTABLE ARTIFACT COUNT = CANONICAL CANDIDATE COUNT`.
+
+`COMPLETED DESCRIPTOR ARTIFACT COUNT = DESCRIPTOR CANDIDATE COUNT`.
+
+`EQUAL IMPOSSIBLE COUNTERS != VALID METRIC EVIDENCE`.
+
 `CANONICAL RESULT SHA MATCH != SHADOW RECEIPT CONTEXT ADMITTED`.
 
 `COMPLETED SHADOW COMPARISON CONTEXT = EXACT CANONICAL V10 SCHEMA + EXACT EVIDENCE-COMPLETE BOOLEAN + CANONICAL PORTABLE AUTHORITY BACKEND + EXACT SUPPORTED DESCRIPTOR CAPABILITY`.
@@ -47,20 +55,24 @@ The upstream descriptor-shadow v3 owner now follows that tri-state contract: des
 
 `tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` is the strict temporal receipt-context gate already consumed by the descriptor-shadow owner after completed comparison. It requires exact canonical v10 schema/completeness/backend/capability context before delegating to the existing temporal-binding policy. Only `SHADOW_MATCH` can later earn temporal proof.
 
-`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` is new **supporting source**. It does not replace the existing display projector. Before delegating to it, this gate:
+`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` is **supporting source**. It does not replace the existing display projector. Before delegating to it, this gate:
 - recomputes artifact-set and exact content-identity truth from the raw portable/descriptor artifact evidence;
 - recomputes work-metric truth from canonical and descriptor directory/candidate counters;
+- rejects impossible work evidence where candidate count exceeds directory-entry count;
+- requires completed portable/descriptor artifact-list cardinality to equal each side's own observed candidate count;
 - rejects completed comparison booleans that contradict those recomputed values;
 - requires the exact completed-comparison context already used by the temporal gate;
 - requires the nested temporal receipt to carry exact receipt-integrity schema, exact canonical result identity, no authority/owner/test promotion, and proof-status consistency;
 - rejects stale temporal evidence on wound/unavailable states.
+
+The candidate/artifact cardinality rules apply only after comparison completed. A legitimate `DESCRIPTOR_WOUND` may retain already-observed portable artifacts while descriptor metrics/comparisons remain unavailable; that diagnostic contact must not be erased by completed-comparison invariants.
 
 Its returned operator receipt adds only bounded semantic fields: self-integrity schema, whether comparison evidence was recomputed, temporal status, temporal proof boolean, and temporal receipt-context admission. Raw failure prose remains outside routine display.
 
 ## Regression source
 `tools/test_try_forever_owner_surgery_shadow_receipt_projection.py` is **SOURCE / UNEXECUTED**. Its stale wound fixture was repaired: wound/unavailable comparison fields are null, not false. Its SHADOW_DIVERGED error expectation now matches the current projector contract.
 
-`tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py` is **SOURCE / UNEXECUTED**. It attacks lying path/content/metric booleans, counterfeit completed-comparison context, temporal receipt-integrity mismatch, proof/status disagreement, valid divergence, and stale temporal evidence on wounds.
+`tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py` is **SOURCE / UNEXECUTED**. It attacks lying path/content/metric booleans, impossible candidate>directory counters, completed artifact-list/candidate-count drift, counterfeit completed-comparison context, temporal receipt-integrity mismatch, proof/status disagreement, valid divergence, and stale temporal evidence on wounds. It also preserves the legitimate `DESCRIPTOR_WOUND` shape where portable evidence survived before descriptor comparison failed.
 
 `tools/test_try_forever_owner_surgery_shadow_receipt_comparison_semantics.py`, `tools/test_try_forever_owner_surgery_shadow_temporal_receipt_integrity.py`, and the descriptor-shadow owner boundary regressions remain source-only until an authorized execution receipt exists.
 
@@ -71,6 +83,7 @@ Do not call any regression passed merely because source exists.
 - temporal receipt-context owner composition: **YES / SOURCE_WIRED**;
 - operator display projector: **YES / SOURCE**;
 - receipt self-integrity gate: **YES / SUPPORTING SOURCE**;
+- impossible-metric/cardinality self-integrity: **YES / SUPPORTING SOURCE**;
 - hostile regression source: **YES / UNEXECUTED**;
 - Android/TalkBack runtime consumption of these operator receipts: **NO**;
 - canonical descriptor authority/backend integration: **NO**;
@@ -78,7 +91,7 @@ Do not call any regression passed merely because source exists.
 - deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Accessibility / touch
-Operator-facing receipts must not describe a failed comparison as a negative measurement. If comparison did not complete, expose the wound/status and leave comparison fields unavailable. A visible receipt must also not repeat a raw SHADOW_MATCH claim when its own artifact lists, work counters, or temporal receipt contradict it.
+Operator-facing receipts must not describe a failed comparison as a negative measurement. If comparison did not complete, expose the wound/status and leave comparison fields unavailable. A visible receipt must also not repeat a raw SHADOW_MATCH claim when its own artifact lists, work counters, or temporal receipt contradict it. Equal-looking metrics do not become operator truth when the counters are structurally impossible or when the artifact evidence does not account for the candidates supposedly observed.
 
 ## P0 / phone firewall
 Consume no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 evidence remains read-only.
