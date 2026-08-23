@@ -2,15 +2,17 @@
 """Source-only integrity gate for future owner-surgery backend results.
 
 This organ does not replace ``admit_selected_backend_result`` and does not own promotion authority.
-It closes two supporting-source evidence gaps before the existing backend result-admission policy is
+It closes supporting-source evidence gaps before the existing backend result-admission policy is
 called:
 
 1. the result must identify the exact canonical owner-surgery custody schema it claims to preserve;
-2. every promotion-group member must already exist as exact admitted surgery evidence in the
-   result's ``surgeries`` inventory.
+2. every admitted Surgery must carry canonical same-observation byte-count/SHA-256 evidence; and
+3. every promotion-group member must already exist as that exact Surgery evidence in the result's
+   ``surgeries`` inventory, including content identity.
 
-A group may not mint a phantom surgery merely because its member mapping looks plausible. Exact
-schema + exact surgery inventory are custody prerequisites, not TESTED/runtime/deployment proof.
+A group may not mint a phantom surgery or drift its content witness merely because the older
+metadata fields look plausible. Exact schema + exact surgery inventory are custody prerequisites,
+not TESTED/runtime/deployment proof.
 """
 
 from __future__ import annotations
@@ -29,6 +31,7 @@ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 CANONICAL_CUSTODY_SCHEMA = "try-forever-owner-surgery-custody.v10"
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -39,6 +42,8 @@ class SurgeryIdentity:
     base_blob: str
     state: str
     promotion_candidate: bool
+    artifact_byte_count: int
+    artifact_sha256: str
 
 
 def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
@@ -82,6 +87,22 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
             f"{context} promotion_candidate must agree with exact admitted surgery state"
         )
 
+    artifact_byte_count = record.get("artifact_byte_count")
+    if (
+        isinstance(artifact_byte_count, bool)
+        or not isinstance(artifact_byte_count, int)
+        or artifact_byte_count < 0
+    ):
+        raise ValueError(
+            f"{context} artifact_byte_count must be one non-negative integer"
+        )
+
+    artifact_sha256 = record.get("artifact_sha256")
+    if not isinstance(artifact_sha256, str) or SHA256_RE.fullmatch(artifact_sha256) is None:
+        raise ValueError(
+            f"{context} artifact_sha256 must be 64 lowercase hexadecimal"
+        )
+
     return SurgeryIdentity(
         path=path,
         artifact_kind=artifact_kind,
@@ -89,11 +110,13 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
         base_blob=base_blob,
         state=state_admission.state,
         promotion_candidate=promotion_candidate,
+        artifact_byte_count=artifact_byte_count,
+        artifact_sha256=artifact_sha256,
     )
 
 
 def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, object]:
-    """Validate schema custody and promotion-group membership without granting authority."""
+    """Validate schema custody and exact promotion-group membership without granting authority."""
 
     if not isinstance(result, Mapping):
         raise ValueError("backend result must be one mapping")
@@ -157,6 +180,7 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
         "surgeriesAdmitted": len(surgeries),
         "authorityGroupMembersAdmitted": group_member_count,
         "phantomPromotionMembers": 0,
+        "contentEvidenceDriftMembers": 0,
         "authorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
@@ -182,4 +206,5 @@ def admit_backend_result_with_inventory_custody(
         "surgeriesAdmitted": integrity["surgeriesAdmitted"],
         "authorityGroupMembersAdmitted": integrity["authorityGroupMembersAdmitted"],
         "phantomPromotionMembers": 0,
+        "contentEvidenceDriftMembers": 0,
     }
