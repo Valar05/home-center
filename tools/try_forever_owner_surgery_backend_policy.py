@@ -143,13 +143,13 @@ def _admit_promotion_candidate(
     field: str,
     owner: str,
     base_blob: str,
-) -> None:
+) -> tuple[str, str]:
     """Bind every authority-group member back to the group identity it supposedly proves.
 
     Canonical v10 emits ``dataclasses.asdict(Surgery)`` records. A future backend/result adapter may
-    not replace that evidence with hollow list entries, cross-owner/base records, or records whose
-    exact surgery state is not promotion-ready. Group-level custody is only as strong as every
-    member that creates the group.
+    not replace that evidence with hollow list entries, duplicated artifacts, cross-owner/base
+    records, or records whose exact surgery state is not promotion-ready. Group-level custody is
+    only as strong as every member that creates the group.
     """
 
     if not isinstance(candidate, Mapping):
@@ -181,6 +181,8 @@ def _admit_promotion_candidate(
     if candidate.get("promotion_candidate") is not True:
         raise ValueError(f"{field} promotion candidate must explicitly carry promotion_candidate=true")
 
+    return artifact_kind, path
+
 
 def _admit_authority_groups(
     result: Mapping[str, object],
@@ -195,11 +197,13 @@ def _admit_authority_groups(
     unverified authority look authenticated.
 
     The group shell is not sufficient evidence. Every ``promotionCandidates`` member must be an
-    admitted canonical Surgery-shaped record for the same owner/base, and collision groups require
-    at least two such members while stale/unverified groups require at least one.
+    admitted canonical Surgery-shaped record for the same owner/base. Duplicate group identities or
+    duplicate member artifacts cannot manufacture cardinality. Collision groups require at least two
+    distinct admitted members while stale/unverified groups require at least one.
     """
 
     counts: dict[str, int] = {}
+    seen_groups: set[tuple[str, str]] = set()
     for field in OWNER_AUTHORITY_FIELDS:
         groups = result.get(field)
         if not isinstance(groups, list):
@@ -222,6 +226,11 @@ def _admit_authority_groups(
             if not isinstance(base_blob, str) or SHA1_RE.fullmatch(base_blob) is None:
                 raise ValueError(f"{field} entry baseBlob must be 40 lowercase hexadecimal")
 
+            group_identity = (owner, base_blob)
+            if group_identity in seen_groups:
+                raise ValueError("authority group owner/base identity must be unique")
+            seen_groups.add(group_identity)
+
             promotion_candidates = group.get("promotionCandidates")
             if not isinstance(promotion_candidates, list):
                 raise ValueError(f"{field} entry promotionCandidates must be one list")
@@ -230,13 +239,18 @@ def _admit_authority_groups(
                 raise ValueError(
                     f"{field} promotionCandidates must contain at least {minimum_members} admitted member(s)"
                 )
+
+            member_identities: set[tuple[str, str]] = set()
             for candidate in promotion_candidates:
-                _admit_promotion_candidate(
+                member_identity = _admit_promotion_candidate(
                     candidate,
                     field=field,
                     owner=owner,
                     base_blob=base_blob,
                 )
+                if member_identity in member_identities:
+                    raise ValueError(f"{field} promotion candidate artifact identity must be unique")
+                member_identities.add(member_identity)
 
             current_blob = current_owner_blobs.get(owner)
             if field == "unverifiedBaseGroups":
