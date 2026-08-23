@@ -1,0 +1,45 @@
+{
+  "schema": "venice-judgment.v1",
+  "heartbeat": "2026-08-23T13:01:16-05:00",
+  "project": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "956e23fb482b11184c2fd048ffce09ae52e1d7bb",
+  "reviewMode": "SAME_WORKER_BOUNDED_JUDGMENT_JAR",
+  "externalReviewerClaimed": false,
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__SELF_INTEGRITY_OWNER_CONSUMPTION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The source slice creates no second descriptor authority or receipt projector; the new self-integrity gate recomputes evidence and delegates display to the existing projector.",
+    "The stale projection regression and stale shadow-receipt doctrine were corrected instead of papered over.",
+    "Review found and repaired an incomplete temporal capability membrane in the first self-integrity draft.",
+    "The existing Warm Wall was mutated in place only because operator receipt topology materially changed; it remains source-only and non-raster.",
+    "No authorized regression execution or runtime observation exists for this exact source head."
+  ],
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "receiptSelfIntegritySupportingSource": true,
+    "receiptSelfIntegrityOwnerConsumption": false,
+    "regressionsExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthorityIntegration": false,
+    "backendComposition": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
