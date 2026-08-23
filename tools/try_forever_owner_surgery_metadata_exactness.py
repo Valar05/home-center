@@ -2,14 +2,15 @@
 """Supporting exact-metadata contract for owner-surgery custody.
 
 This module owns no surgery classification, promotion authority, patch execution, overlay controller,
-phone lane, or P0 work. It exists to close two source-evidence ambiguities before the canonical v10
-custody owner adopts them:
+phone lane, or P0 work. It closes two source-evidence ambiguities before the canonical v10 custody
+owner groups or promotes surgery artifacts:
 
 1. authenticated owner identity is exact machine evidence, not text to repair with ``strip()``;
 2. textual patch base/state/owner headers are cardinality-one evidence, never first-match evidence.
 
-The canonical owner remains ``try_forever_owner_surgery_custody_probe.py``. Until that owner consumes
-this contract, these rules are SUPPORTING SOURCE only.
+The canonical owner remains ``try_forever_owner_surgery_custody_probe.py`` and now consumes this
+contract. That is source wiring only, not regression execution, TESTED, runtime, deployment,
+delivery, or acceptance.
 """
 
 from __future__ import annotations
@@ -145,7 +146,7 @@ def source_receipt() -> dict[str, object]:
         "malformedDuplicateHeadersCounted": True,
         "headerRecognitionLineLocal": True,
         "crlfFramingPreserved": True,
-        "canonicalOwnerConsumption": False,
+        "canonicalOwnerConsumption": True,
         "regressionExecuted": False,
         "tested": False,
         "runtimeUi": False,
