@@ -23,12 +23,12 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Prepared surgery is not owner wiring. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · □ OWNER KEY EXACT SUPPORTING SOURCE / OWNER RED · □ PATCH HEADER CARDINALITY SUPPORTING SOURCE / OWNER RED · ◇ METADATA OWNER SURGERY PREPARED / NOT APPLIED · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> supporting source only; canonical v10 consumption remains NO.<br><strong>Prepared owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, status <strong>CORRECTED_PROPOSED_NOT_APPLIED</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · □ OWNER KEY EXACT SUPPORTING SOURCE / OWNER RED · □ PATCH HEADER CARDINALITY SUPPORTING SOURCE / OWNER RED · □ DEFAULT OWNER DIFF BINDING SUPPORTING SOURCE / OWNER RED · ◇ METADATA+FALLBACK OWNER SURGERY PREPARED / NOT APPLIED · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> supporting source only; canonical v10 consumption remains NO.<br><strong>Implicit default-owner binding:</strong> supporting source only; arbitrary basename mention remains a canonical-owner wound.<br><strong>Prepared owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, status <strong>CORRECTED_PROPOSED_NOT_APPLIED</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, and exact authenticated current-owner blob identity. Supporting gates expose owner-key normalization and duplicate textual patch-header ambiguity. One prepared existing-owner surgery composes those gates but is not applied.</desc>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, and exact authenticated current-owner blob identity. Supporting gates expose owner-key normalization, duplicate textual patch-header ambiguity, and unsafe implicit-default-owner inference. One prepared existing-owner surgery composes those gates but is not applied.</desc>
   <path d="M20 75 H755"/>
   <circle cx="45" cy="75" r="21"/><text x="28" y="80">ROOT</text>
   <circle cx="130" cy="75" r="21"/><text x="112" y="80">SCAN</text>
@@ -56,14 +56,22 @@
     <p>A patch with two base headers, two state/status headers, or two explicit owner headers is ambiguous authority evidence even when the duplicate values happen to agree.</p>
     <p><strong>Supporting source:</strong> exactly one base-owner blob header, exactly one state/status header, and at most one explicit owner header. Exact base/state admission reuses existing contracts.</p>
     <p><strong>Current owner wound:</strong> canonical v10 still uses first-match <code>BASE_RE.search</code>, <code>STATE_RE.search</code>, and <code>OWNER_RE.search</code>.</p>
-    <p><strong>Default owner fallback:</strong> remains a separate existing-owner rule when no explicit owner header exists.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">OWN</span> Implicit default owner — exact diff binding supporting source / owner RED</summary>
+  <div>
+    <p><strong>Arbitrary basename mention is not owner authority.</strong> The canonical owner currently treats any textual <code>OperatorOverlayService.java</code> mention as enough to fall back to the default owner when <code># OWNER:</code> is absent.</p>
+    <p><strong>Supporting source:</strong> fallback requires exactly one <code>diff --git</code> header and exact <code>a/&lt;DEFAULT_OWNER&gt; b/&lt;DEFAULT_OWNER&gt;</code> ownership. Case drift, multi-file fallback, duplicate diff headers, path normalization, and basename matching fail closed.</p>
+    <p><strong>Cross-pollination:</strong> this fallback composes into the same prepared metadata owner surgery; it does not create a second custody owner or a competing patch.</p>
   </div>
 </details>
 
 <details open>
   <summary><span class="token">◇</span> Prepared exact owner surgery — source only</summary>
   <div>
-    <p>The prepared patch composes <code>admit_patch_metadata(...)</code> and <code>admit_owner_identity(...)</code> into the existing v10 owner. It removes first-match patch metadata authority and CLI owner trimming without creating a second custody owner.</p>
+    <p>The prepared patch composes <code>admit_patch_metadata(...)</code>, <code>admit_owner_identity(...)</code>, and <code>admit_default_owner_from_patch(...)</code> into the existing v10 owner. It removes first-match metadata authority, owner-key trimming, and arbitrary-basename fallback without creating a second custody owner.</p>
     <p><strong>Base custody:</strong> exact owner blob <code>523d8005212745738106733e91be6dd625caf767</code>.</p>
     <p><strong>Status:</strong> <code>CORRECTED_PROPOSED_NOT_APPLIED</code>. Patch provenance does not count as implementation. The current owner remains RED until authenticated readback changes.</p>
   </div>
@@ -100,7 +108,7 @@
   <summary><span class="token">BASE</span> Exact artifact base-owner blob identity — SOURCE WIRED</summary>
   <div>
     <p>Patch/delta base-owner SHA text is authority evidence, not display text. Uppercase or normalization-dependent evidence is rejected instead of lowercased into authority.</p>
-    <p>This completed blob channel stays separate from the new owner-key and duplicate-header channels.</p>
+    <p>This completed blob channel stays separate from the new owner-key, duplicate-header, and fallback-owner channels.</p>
   </div>
 </details>
 
@@ -108,7 +116,7 @@
   <summary><span class="token">NOW</span> Exact authenticated current-owner blob identity — SOURCE WIRED</summary>
   <div>
     <p>The blob authority token used to decide CURRENT versus STALE custody is not repaired by lowercase or whitespace normalization.</p>
-    <p><strong>Important split:</strong> exact blob text is already wired; exact owner-key text is the new RED owner boundary above.</p>
+    <p><strong>Important split:</strong> exact blob text is already wired; exact owner-key text and implicit fallback ownership are RED owner boundaries above.</p>
   </div>
 </details>
 
@@ -151,7 +159,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Patch-header cardinality:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Prepared metadata owner surgery:</strong> YES / NOT APPLIED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Metadata regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Patch-header cardinality:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Implicit default-owner diff binding:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Prepared metadata+fallback owner surgery:</strong> YES / NOT APPLIED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Metadata/fallback regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
