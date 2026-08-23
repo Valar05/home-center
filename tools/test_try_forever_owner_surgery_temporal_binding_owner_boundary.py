@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Intentionally RED source boundary for canonical-result ↔ artifact-content temporal binding.
 
-The current canonical v10 owner does not yet retain same-observation artifact byte/SHA witnesses in
-its Surgery records, and descriptor shadow v3 does not yet consume the temporal-binding contract.
-This fixture prevents supporting policy existence from being reported as owner integration.
+The current canonical v10 owner does not yet retain or emit same-observation artifact byte/SHA
+witnesses, and descriptor shadow v3 does not yet consume the temporal-binding contract. This
+fixture prevents supporting policy existence from being reported as owner integration.
 
 SOURCE ONLY. Expected to remain RED until one deliberate existing-owner composition is reviewed.
 """
@@ -42,6 +42,17 @@ def function_names(tree: ast.AST, function_name: str) -> set[str]:
     raise AssertionError(f"missing function {function_name}")
 
 
+def function_string_constants(tree: ast.AST, function_name: str) -> set[str]:
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+            return {
+                item.value
+                for item in ast.walk(node)
+                if isinstance(item, ast.Constant) and isinstance(item.value, str)
+            }
+    raise AssertionError(f"missing function {function_name}")
+
+
 def main() -> int:
     owner_tree = ast.parse(OWNER_PATH.read_text(encoding="utf-8"))
     shadow_tree = ast.parse(SHADOW_PATH.read_text(encoding="utf-8"))
@@ -56,12 +67,18 @@ def main() -> int:
         "produced the admitted surgery record"
     )
 
+    classify_strings = function_string_constants(owner_tree, "classify")
+    assert "artifactContentWitnesses" in classify_strings, (
+        "RED: canonical classify result must emit a dedicated same-observation artifactContentWitnesses "
+        "surface rather than leaving retained content identity trapped inside internal records"
+    )
+
     temporal_imports = imported_names(
         shadow_tree,
         "try_forever_owner_surgery_shadow_temporal_binding",
     )
     assert "evaluate_temporal_content_binding" in temporal_imports, (
-        "RED: descriptor shadow must consume the temporal binding contract before it can report a "
+        "RED: descriptor shadow must import the temporal binding contract before it can report a "
         "positive exact-content result"
     )
     audit_names = function_names(shadow_tree, "audit_descriptor_shadow")
