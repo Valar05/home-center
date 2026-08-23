@@ -14,8 +14,11 @@ emitted. Directory-entry work, matching-candidate collection, and each admitted 
 artifact remain independently bounded. Promotion readiness is admitted by exact canonical state,
 never by a ``PROPOSED`` substring or by regex/whitespace normalization. Authenticated current-owner
 blob custody is also exact: normalization-dependent blob text cannot be repaired into authority.
-Root redirectors, persistent root drift, unavailable identity, or invalid state/evidence fail
-closed. This is persistent-drift evidence, not an atomic filesystem binding claim.
+Each admitted Surgery now retains byte-count/SHA-256 identity from the same bounded artifact
+observation that produced its semantic record, and the canonical result emits those identities as
+``artifactContentWitnesses``. Root redirectors, persistent root drift, unavailable identity, or
+invalid state/evidence fail closed. This is persistent-drift evidence, not an atomic filesystem
+binding claim.
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ from typing import Iterable
 
 from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactChangedError,
+    GeneratedIndexArtifactObservation,
     GeneratedIndexArtifactResourceLimitError,
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
@@ -65,6 +69,8 @@ class Surgery:
     base_blob: str
     state: str
     promotion_candidate: bool
+    artifact_byte_count: int
+    artifact_sha256: str
 
 
 @dataclass(frozen=True)
@@ -92,11 +98,11 @@ def _artifact_kind_for_name(name: str) -> str | None:
     return None
 
 
-def _read_bounded_utf8(path: Path) -> str:
-    """Reuse the existing finite regular-artifact organ for owner-surgery evidence."""
+def _observe_bounded_utf8(path: Path) -> GeneratedIndexArtifactObservation:
+    """Reuse the existing finite regular-artifact organ and retain exact observation identity."""
 
     try:
-        observation = observe_generated_index_artifact(
+        return observe_generated_index_artifact(
             path,
             max_bytes=MAX_ARTIFACT_BYTES,
         )
@@ -120,7 +126,12 @@ def _read_bounded_utf8(path: Path) -> str:
         raise ArtifactAdmissionError(
             f"artifact observation failed: {type(exc).__name__}: {exc}"
         ) from exc
-    return observation.utf8_text
+
+
+def _read_bounded_utf8(path: Path) -> str:
+    """Compatibility text projection from the exact finite artifact observation."""
+
+    return _observe_bounded_utf8(path).utf8_text
 
 
 def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
@@ -218,7 +229,8 @@ def _discover_artifact_candidates(
 
 def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
     try:
-        text = _read_bounded_utf8(path)
+        observation = _observe_bounded_utf8(path)
+        text = observation.utf8_text
         base = BASE_RE.search(text)
         state = STATE_RE.search(text)
         if base is None:
@@ -251,6 +263,8 @@ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
             base_blob=base_blob,
             state=state_admission.state,
             promotion_candidate=state_admission.promotion_candidate,
+            artifact_byte_count=observation.size_bytes,
+            artifact_sha256=observation.sha256,
         ), None
     except (ArtifactAdmissionError, OSError, UnicodeError, ValueError) as exc:
         return None, _error(path, "patch", exc)
@@ -285,8 +299,9 @@ def _consistent_delta_string(
 
 def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
     try:
+        observation = _observe_bounded_utf8(path)
         payload = json.loads(
-            _read_bounded_utf8(path),
+            observation.utf8_text,
             object_pairs_hook=_reject_duplicate_json_members,
             parse_constant=lambda value: (_ for _ in ()).throw(
                 ValueError(f"non-standard JSON constant: {value}")),
@@ -315,6 +330,8 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
             base_blob=base_blob,
             state=state_admission.state,
             promotion_candidate=state_admission.promotion_candidate,
+            artifact_byte_count=observation.size_bytes,
+            artifact_sha256=observation.sha256,
         ), None
     except (ArtifactAdmissionError, OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         return None, _error(path, "delta_json", exc)
@@ -453,6 +470,14 @@ def classify(
         "artifactDirectoryEntryBudget": max_entries,
         "artifactDirectoryEntriesObserved": entries_observed,
         "surgeries": [asdict(item) for item in surgeries],
+        "artifactContentWitnesses": [
+            {
+                "path": item.path,
+                "byteCount": item.artifact_byte_count,
+                "sha256": item.artifact_sha256,
+            }
+            for item in surgeries
+        ],
         "discoveryErrors": [asdict(item) for item in discovery_errors],
         "evidenceComplete": not discovery_errors,
         "currentOwnerBlobs": current_owner_blobs,
@@ -465,6 +490,7 @@ def classify(
             "deltaArtifactInspection": True,
             "artifactRootIdentityRevalidation": True,
             "artifactRootFinalRevalidation": True,
+            "sameObservationArtifactContentWitnesses": True,
             "exactOwnerSurgeryStateAdmission": True,
             "nonNormalizingPatchStateHeader": True,
             "exactCurrentOwnerBlobAdmission": True,
