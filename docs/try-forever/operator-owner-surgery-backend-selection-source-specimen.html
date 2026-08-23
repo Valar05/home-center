@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT EVIDENCE THROAT: SOURCE · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE / OWNER CONSUMPTION RED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT EVIDENCE THROAT: SOURCE · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: OWNER SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend selection and evidence admission custody path</title>
-    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. Evidence admission preserves work counts and errors, binds authority to the exact owner, requires every promotion member to prove the same owner and base without duplicate cardinality, and now has a source-only canonical witness-parity throat before future authority admission.</desc>
+    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. Evidence admission preserves work counts and errors, binds authority to the exact owner, requires every promotion member to prove the same owner and base without duplicate cardinality, and now requires canonical Surgery-to-artifact witness parity before existing backend authority admission.</desc>
     <path d="M30 90 H190 M270 90 H390 M470 90 H590 M670 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
     <circle cx="230" cy="90" r="36" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="390" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -53,7 +53,7 @@
     </label>
     <label>
       <input type="radio" name="backend" value="exhaustive">
-      <span><span class="token">● INCOMPLETE CUSTODY → ZERO AUTHORITY</span><br>Canonical v10 source now preserves diagnostic surgeries but emits no collision/stale/unverified promotion groups whenever discoveryErrors is non-empty.</span>
+      <span><span class="token">● INCOMPLETE CUSTODY → ZERO AUTHORITY</span><br>Canonical v10 source preserves diagnostic surgeries but emits no collision/stale/unverified promotion groups whenever discoveryErrors is non-empty.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="evidence">
@@ -69,7 +69,7 @@
     </label>
     <label>
       <input type="radio" name="backend" value="witness">
-      <span><span class="token">× SURGERY ≠ CONTRADICTORY WITNESS</span><br>Canonical artifactContentWitnesses must equal the Surgery path/byte-count/SHA-256 set. The parity gate is source-ready; the existing backend admission wrapper does not consume it yet.</span>
+      <span><span class="token">● WITNESS PARITY OWNER WIRED</span><br>The existing backend result-integrity wrapper now requires artifactContentWitnesses to equal the Surgery path/byte-count/SHA-256 set before authority admission.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="wound">
@@ -88,7 +88,7 @@
       evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must exactly agree with discoveryErrors emptiness. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
       coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. UNVERIFIED means that owner has no authenticated current-owner blob. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
       members: 'MEMBER INTEGRITY GATE\nA group shell is not authority. Each member must carry the same owner/base, canonical artifact kind/path, exact promotion-ready state, and literal promotion_candidate=true. Collision needs two distinct artifacts; duplicate members or duplicate owner/base groups fail closed.',
-      witness: 'WITNESS PARITY GATE\nEvery canonical Surgery path must have exactly one artifactContentWitness with identical byteCount and SHA-256. Later descriptor-shadow agreement does not retroactively repair an earlier contradictory canonical admission. Supporting source: YES. Existing backend admission wrapper consumption: NO / RED.',
+      witness: 'WITNESS PARITY OWNER WIRED\nEvery canonical Surgery path must have exactly one artifactContentWitness with identical byteCount and SHA-256 before the existing backend authority admission policy is called. Later descriptor-shadow agreement does not retroactively repair an earlier contradiction. Source wiring: YES. Regression execution: NO. Tested: NO.',
       wound: 'DESCRIPTOR WOUND → FAIL CLOSED\nNo retry through weaker pathname custody in the same classification attempt. Owner evidence admitted: NO.'
     };
     for (const radio of document.querySelectorAll('input[name=backend]')) {
