@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner-boundary regression for backend witness-parity consumption.
+"""Source regression for backend witness-parity owner consumption.
 
-SOURCE ONLY / INTENTIONALLY RED against the current branch. The existing
-``admit_backend_result_with_inventory_custody`` wrapper validates canonical Surgery/group custody
-but does not yet require ``artifactContentWitnesses`` parity before delegating to authority admission.
-
-When that exact existing wrapper consumes the parity gate, this fixture may turn green. Do not
-create a second backend authority owner to satisfy it.
+SOURCE ONLY / UNEXECUTED. The existing ``admit_backend_result_with_inventory_custody`` wrapper now
+requires exact ``artifactContentWitnesses`` parity before delegating to authority admission. This
+fixture pins that source contract without calling it TESTED or creating a second backend owner.
 """
 
 from copy import deepcopy
@@ -37,7 +34,7 @@ def surgery(path: str, byte_count: int, sha: str):
     }
 
 
-def result_with_drifted_witness():
+def complete_result():
     first = surgery("patches/a.patch", 10, "a" * 64)
     second = surgery("patches/b.patch", 20, "b" * 64)
     return {
@@ -47,8 +44,7 @@ def result_with_drifted_witness():
         "artifactCandidatesObserved": 2,
         "surgeries": [first, second],
         "artifactContentWitnesses": [
-            # Deliberately conflicts with the exact Surgery content evidence.
-            {"path": first["path"], "byteCount": 10, "sha256": "d" * 64},
+            {"path": first["path"], "byteCount": 10, "sha256": "a" * 64},
             {"path": second["path"], "byteCount": 20, "sha256": "b" * 64},
         ],
         "discoveryErrors": [],
@@ -69,14 +65,40 @@ def result_with_drifted_witness():
     }
 
 
-def test_existing_backend_admission_must_reject_witness_content_drift():
+def expect_owner_rejected(result) -> None:
     selection = select_owner_surgery_backend(SUPPORTED_POSIX)
-    wounded = result_with_drifted_witness()
     try:
-        admitted = admit_backend_result_with_inventory_custody(selection, deepcopy(wounded))
+        admitted = admit_backend_result_with_inventory_custody(selection, deepcopy(result))
     except ValueError:
         return
     raise AssertionError(
-        "RED: existing backend result-integrity/admission wrapper admitted drifted "
+        "existing backend result-integrity/admission wrapper admitted contradictory "
         f"artifactContentWitnesses: {admitted!r}"
     )
+
+
+def test_existing_backend_admission_requires_exact_witness_parity():
+    selection = select_owner_surgery_backend(SUPPORTED_POSIX)
+    canonical = complete_result()
+    admitted = admit_backend_result_with_inventory_custody(selection, deepcopy(canonical))
+    assert admitted["witnessParity"] is True
+    assert admitted["witnessParityOwnerWired"] is True
+    assert admitted["artifactContentWitnessesAdmitted"] == 2
+
+    drifted_sha = complete_result()
+    drifted_sha["artifactContentWitnesses"][0]["sha256"] = "d" * 64
+    expect_owner_rejected(drifted_sha)
+
+    drifted_count = complete_result()
+    drifted_count["artifactContentWitnesses"][0]["byteCount"] = 11
+    expect_owner_rejected(drifted_count)
+
+    missing = complete_result()
+    missing["artifactContentWitnesses"] = missing["artifactContentWitnesses"][1:]
+    expect_owner_rejected(missing)
+
+    phantom = complete_result()
+    phantom["artifactContentWitnesses"].append(
+        {"path": "patches/phantom.patch", "byteCount": 1, "sha256": "e" * 64}
+    )
+    expect_owner_rejected(phantom)
