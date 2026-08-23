@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "timestampCt": "2026-08-23T00:01:20-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "bf6045c66a1c4688d819dc3dd1db3614f533d306",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS_ONLY",
+  "sourceReadback": "PASS",
+  "regressionExecution": "NO",
+  "tested": false,
+  "ownerIntegration": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "phoneDelivered": false,
+  "reviewScars": [
+    "Initial backend inventory gate treated (artifact_kind,path) as uniqueness; review required unique path identity plus exact path-kind suffix agreement.",
+    "Initial shadow display projection passed comparison fields through untyped; review required exact boolean-or-null admission and SHADOW_MATCH/SHADOW_DIVERGED consistency.",
+    "Initial shadow relative-path display depended on process cwd through abspath; review routed canonical relative shadow identities through the repository-relative projector.",
+    "Host-specific fixture prose was replaced with generic operator-host evidence before completion."
+  ],
+  "boundedPasses": [
+    "Exact canonical custody schema is required before backend-result inventory evidence is admitted.",
+    "Every promotion-group member must exist exactly in the admitted surgeries inventory.",
+    "Surgery path identity is unique and artifact kind agrees with .patch/.delta.json path shape.",
+    "Promotion-candidate truth agrees with the existing exact state policy.",
+    "Shadow display receipts do not echo raw failure-boundary prose and use existing safe path projection.",
+    "External host paths are not fingerprinted in display receipts.",
+    "Touchable non-raster source specimen preserves SOURCE ONLY / TESTED NO / runtime NO scarring."
+  ],
+  "openBoundaries": [
+    "The existing admit_selected_backend_result(...) policy does not yet consume the new schema/inventory integrity gate.",
+    "Canonical descriptor owner integration remains NO.",
+    "New regression sources are unexecuted.",
+    "Descriptor shadow exact-content observations occur after canonical classification; canonical-result fingerprint binds the result payload, not necessarily the artifact bytes that produced that result. Temporal result-to-artifact binding remains an independent future wound.",
+    "Filesystem atomicity remains unproven."
+  ],
+  "duplicateArchitecture": "PASS_ZERO_NEW_AUTHORITY_OWNERS",
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}
