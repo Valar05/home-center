@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""RED owner-boundary regression for descriptor-shadow wound comparison semantics.
+"""Owner-boundary regression source for descriptor-shadow wound comparison semantics.
 
-SOURCE ONLY / UNEXECUTED. Current descriptor-shadow v3 reports false/false/false when held-directory
-custody fails before comparison completes. This fixture requires the owner to report null comparison
-fields instead: failure-to-compare is not measured divergence.
+SOURCE / UNEXECUTED. Descriptor-shadow v3 now requires null comparison fields when held-directory
+custody fails before comparison completes: failure-to-compare is not measured divergence.
 """
 
 from types import SimpleNamespace
