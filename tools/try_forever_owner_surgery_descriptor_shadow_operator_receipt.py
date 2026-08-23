@@ -8,12 +8,16 @@ the existing bounded display projector.
 
 Raw machine evidence remains a separate callable source record. This command does not rewrite it
 into authority, TESTED, runtime, deployment, phone delivery, or acceptance, and it owns no P0 or
-primary-phone mutation surface.
+primary-phone mutation surface. ``operatorReceiptSha256`` identifies the complete bounded operator
+payload emitted by this source command; it is not canonical artifact identity, promotion authority,
+TESTED evidence, runtime identity, or filesystem atomicity.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
+from collections.abc import Mapping
 from pathlib import Path
 
 from try_forever_owner_surgery_descriptor_shadow_audit import audit_descriptor_shadow
@@ -25,6 +29,19 @@ from try_forever_owner_surgery_shadow_receipt_self_integrity import (
 SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v1"
 
 
+def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
+    """Return deterministic identity for the bounded operator payload, excluding its own digest."""
+
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def build_descriptor_shadow_operator_receipt(
     repo_root: Path = Path("."),
     **audit_kwargs,
@@ -33,7 +50,7 @@ def build_descriptor_shadow_operator_receipt(
 
     raw_result = audit_descriptor_shadow(**audit_kwargs)
     receipt = project_shadow_receipt_with_self_integrity(repo_root, raw_result)
-    return {
+    payload: dict[str, object] = {
         **receipt,
         "operatorReceiptSchema": SCHEMA,
         "rawMachineEvidenceRemainsSeparate": True,
@@ -41,6 +58,10 @@ def build_descriptor_shadow_operator_receipt(
         "secondReceiptProjectorCreated": False,
         "secondDescriptorAuthorityCreated": False,
         "phoneP0MutationAuthority": False,
+    }
+    return {
+        **payload,
+        "operatorReceiptSha256": _operator_receipt_sha256(payload),
     }
 
 
