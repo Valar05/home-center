@@ -134,6 +134,27 @@ def main() -> int:
         "exact receipt-integrity schema",
     )
 
+    wrong_carried_result = temporal()
+    wrong_carried_result["shadowCanonicalResultSha256"] = "2" * 64
+    expect_rejected(
+        raw_match(temporalContentBinding=wrong_carried_result),
+        "shadowCanonicalResultSha256 must match",
+    )
+
+    promoted_runtime = temporal()
+    promoted_runtime["runtimeTalkBack"] = True
+    expect_rejected(
+        raw_match(temporalContentBinding=promoted_runtime),
+        "runtimeTalkBack=false",
+    )
+
+    promoted_regression = temporal()
+    promoted_regression["regressionExecuted"] = True
+    expect_rejected(
+        raw_match(temporalContentBinding=promoted_regression),
+        "regressionExecuted=false",
+    )
+
     mismatched_proof = temporal(status="TEMPORAL_CONTENT_DIVERGED", proven=True)
     expect_rejected(
         raw_match(temporalContentBinding=mismatched_proof),
