@@ -41,13 +41,35 @@ def complete_result(**overrides):
     return result
 
 
+def candidate(
+    *,
+    owner=OWNER,
+    base_blob=BASE,
+    state="CORRECTED_PROPOSED_NOT_APPLIED",
+    artifact_kind="patch",
+    path="patches/try-forever-a.patch",
+    promotion_candidate=True,
+):
+    return {
+        "path": path,
+        "artifact_kind": artifact_kind,
+        "owner": owner,
+        "base_blob": base_blob,
+        "state": state,
+        "promotion_candidate": promotion_candidate,
+    }
+
+
 def collision_group(**overrides):
     group = {
         "owner": OWNER,
         "baseBlob": BASE,
         "status": "CURRENT_BASE_COLLISION_SET",
         "currentOwnerBlob": BASE,
-        "promotionCandidates": [],
+        "promotionCandidates": [
+            candidate(path="patches/try-forever-a.patch"),
+            candidate(path="patches/try-forever-b.patch", artifact_kind="delta_json"),
+        ],
     }
     group.update(overrides)
     return group
@@ -59,7 +81,9 @@ def stale_group(**overrides):
         "baseBlob": STALE_BASE,
         "status": "STALE_BASE_GROUP",
         "currentOwnerBlob": BASE,
-        "promotionCandidates": [],
+        "promotionCandidates": [
+            candidate(base_blob=STALE_BASE, path="patches/try-forever-stale.patch"),
+        ],
     }
     group.update(overrides)
     return group
@@ -70,7 +94,13 @@ def unverified_group(**overrides):
         "owner": OTHER_OWNER,
         "baseBlob": OTHER_BASE,
         "status": "UNVERIFIED_BASE_GROUP",
-        "promotionCandidates": [],
+        "promotionCandidates": [
+            candidate(
+                owner=OTHER_OWNER,
+                base_blob=OTHER_BASE,
+                path="patches/try-forever-unverified.patch",
+            ),
+        ],
     }
     group.update(overrides)
     return group
@@ -250,7 +280,7 @@ def main() -> int:
     expect_rejected(
         descriptor,
         complete_result(collisionSets=[collision_group(owner=OTHER_OWNER)]),
-        "missing authenticated current-owner custody",
+        "promotion candidate owner must match group owner",
     )
     expect_rejected(
         descriptor,
@@ -259,12 +289,25 @@ def main() -> int:
     )
     expect_rejected(
         descriptor,
-        complete_result(collisionSets=[collision_group(baseBlob=STALE_BASE)]),
+        complete_result(
+            collisionSets=[collision_group(
+                baseBlob=STALE_BASE,
+                promotionCandidates=[
+                    candidate(base_blob=STALE_BASE, path="patches/try-forever-a.patch"),
+                    candidate(base_blob=STALE_BASE, path="patches/try-forever-b.patch"),
+                ],
+            )],
+        ),
         "must equal authenticated current owner blob",
     )
     expect_rejected(
         descriptor,
-        complete_result(staleBaseGroups=[stale_group(baseBlob=BASE)]),
+        complete_result(
+            staleBaseGroups=[stale_group(
+                baseBlob=BASE,
+                promotionCandidates=[candidate(base_blob=BASE)],
+            )],
+        ),
         "must differ from authenticated current owner blob",
     )
     expect_rejected(
@@ -284,6 +327,76 @@ def main() -> int:
         descriptor,
         complete_result(collisionSets=["not-a-group"]),
         "entries must be mappings",
+    )
+
+    # Group shell != authority: every promotion member must be canonical and bound to the group.
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[])]),
+        "at least 2",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(staleBaseGroups=[stale_group(promotionCandidates=[])]),
+        "at least 1",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(unverifiedBaseGroups=[unverified_group(promotionCandidates=[])]),
+        "at least 1",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=["not-a-member", candidate()])]),
+        "promotionCandidates entries must be mappings",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(owner=OTHER_OWNER),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "owner must match group owner",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(base_blob=STALE_BASE),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "base_blob must match group baseBlob",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(artifact_kind="binary"),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "artifact_kind is unsupported",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(path=""),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "path must be one non-empty string",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(state="APPLIED_SOURCE", promotion_candidate=False),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "state is not promotion-ready",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(collisionSets=[collision_group(promotionCandidates=[
+            candidate(promotion_candidate=False),
+            candidate(path="patches/try-forever-b.patch"),
+        ])]),
+        "promotion_candidate=true",
     )
 
     wound = classify_selected_backend_failure(
