@@ -20,9 +20,17 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 `SHADOW MATCH = PATH SET + WORK METRICS + EXACT COMPARED CONTENT IDENTITY`.
 
+`FALSE COMPARISON = COMPLETED DIVERGENCE; NULL COMPARISON = COMPARISON NOT COMPLETED`.
+
+`SHADOW_DIVERGED REQUIRES COMPLETED BOOLEAN COMPARISONS; A CUSTODY WOUND IS NOT A NEGATIVE MEASUREMENT`.
+
 `SHADOW MATCH != TEMPORAL CONTENT BINDING`.
 
 `TEMPORAL CONTENT BINDING REQUIRES SAME-OBSERVATION CANONICAL CONTENT WITNESSES + ADMITTED SHADOW MATCH`.
+
+`MATCHING CANONICAL RESULT SHA != COMPLETE SHADOW RECEIPT CONTEXT`.
+
+`COMPLETED SHADOW COMPARISON CONTEXT = EXACT V10 SCHEMA + EXACT CANONICAL COMPLETENESS + CANONICAL PORTABLE AUTHORITY BACKEND + EXACT SUPPORTED DESCRIPTOR CAPABILITY`.
 
 `TEMPORAL CONTENT BINDING != PROMOTION AUTHORITY`.
 
@@ -68,6 +76,27 @@ A shadow match means the pathname staging observer and held-directory staging ob
 
 A temporal-content proof is stricter. It additionally requires the canonical result to carry same-observation artifact-content witnesses for the exact canonical surgery set and requires the later portable/descriptor reads to equal those witnesses. A `SHADOW_MATCH` without those canonical witnesses must remain temporally unproven.
 
+### Current tri-state wound
+Current descriptor-shadow v3 still emits `artifactSetMatch=false`, `metricsMatch=false`, and `contentIdentityMatch=false` when `HeldDirectoryCustody` fails before comparison completes. That shape overstates knowledge: no completed comparison measured divergence.
+
+`tools/try_forever_owner_surgery_shadow_receipt_projection.py` now fails closed on that legacy wound shape. Its operator-facing contract is:
+- `SHADOW_MATCH` => `(true, true, true)`;
+- `SHADOW_DIVERGED` => three completed booleans with at least one `false`;
+- wound/unavailable states => `(null, null, null)`.
+
+Therefore the upstream descriptor-shadow owner correction is **NO / RED** at this checkpoint. Do not call the wound fixed merely because the receipt projector refuses to misreport it.
+
+### Temporal receipt-context integrity
+`tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` is supporting source only. It strengthens the boundary before the existing temporal policy without creating authority.
+
+For completed comparison states (`SHADOW_MATCH` or `SHADOW_DIVERGED`) it requires:
+- exact canonical custody schema v10 carried by the shadow;
+- exact equality of carried `canonicalEvidenceComplete` and the canonical boolean;
+- canonical authority backend `PORTABLE_PATHNAME_REVALIDATION`;
+- exact descriptor capability `SUPPORTED_POSIX_PRIMITIVES`.
+
+Only after those receipt-context gates does it delegate to `evaluate_temporal_content_binding(...)`. A matching `canonicalResultSha256` alone is necessary evidence association, not sufficient receipt-context proof.
+
 A shadow divergence is useful precisely because canonical authority remains unchanged. Stop, explain the disagreement, and repair evidence semantics before owner composition.
 
 ## Regression source
@@ -96,7 +125,13 @@ It pins the actual `audit_descriptor_shadow(...)` composition across both states
 - exact path/metric/content `SHADOW_MATCH` with missing canonical same-observation witnesses remains `CANONICAL_CONTENT_WITNESS_MISSING` and `temporalBindingProven=false`;
 - the same shadow match with exact canonical same-observation witnesses becomes `TEMPORAL_CONTENT_BOUND` while still keeping `authorityAdmitted=false`, `descriptorAuthorityAdmitted=false`, `ownerMutation=false`, and `tested=false`.
 
-Do not call either regression passed until an authorized execution lane produces a receipt.
+`tools/test_try_forever_owner_surgery_shadow_receipt_comparison_semantics.py` is **REGRESSION SOURCE / UNEXECUTED**. It pins completed divergence versus comparison-unavailable semantics at the operator receipt boundary and rejects the current legacy `DESCRIPTOR_WOUND -> false/false/false` shape.
+
+`tools/test_try_forever_owner_surgery_descriptor_shadow_wound_owner_boundary.py` is an intentionally **RED OWNER-BOUNDARY REGRESSION / UNEXECUTED**. It requires the descriptor-shadow owner itself to return null comparison fields when held-directory custody fails before comparison.
+
+`tools/test_try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` is **REGRESSION SOURCE / UNEXECUTED**. It attacks counterfeit carried canonical schema, canonical completeness, authority backend, and descriptor capability context for completed comparison states.
+
+Do not call any regression passed until an authorized execution lane produces a receipt.
 
 ## Relationship to backend selection
 `tools/try_forever_owner_surgery_backend_policy.py` remains the future composition gate. Its no-downgrade law applies **after the canonical owner actually selects the stronger descriptor backend for an authority classification attempt**.
@@ -107,7 +142,7 @@ The shadow audit deliberately happens earlier. Therefore:
 - exact descriptor unavailable → canonical portable owner remains the independent authority path;
 - unknown capability state → shadow capability wound; do not normalize it;
 - portable staging observation wound → shadow comparison stops; canonical authority is unchanged;
-- descriptor shadow wound → shadow evidence fails, canonical portable result is unaffected;
+- descriptor shadow wound → shadow evidence fails and comparison fields should be unavailable, not false; canonical portable result is unaffected;
 - future descriptor-selected owner wound → fail closed; no weaker retry in the same classification attempt.
 
 Those states must not be collapsed.
@@ -124,6 +159,9 @@ At this checkpoint:
 - canonical-result receipt fingerprint: **SUPPORTING SOURCE**;
 - exact content parity inside the shadow: **SUPPORTING SOURCE**;
 - temporal binding composition inside the shadow: **SUPPORTING SOURCE**;
+- receipt comparison tri-state gate: **SOURCE_WIRED**;
+- temporal receipt-context integrity: **SUPPORTING SOURCE**;
+- descriptor wound upstream tri-state correction: **NO / RED**;
 - descriptor shadow regressions: **SOURCE / UNEXECUTED**;
 - canonical backend-selection consumption: **NO**;
 - canonical descriptor owner integration: **NO**;
@@ -138,6 +176,8 @@ Do not create a descriptor promotion owner beside canonical v10. The shadow may 
 A source specimen may make canonical-vs-shadow state visible and touch-inspectable, but source art must say SOURCE ONLY and must not imply Android runtime, TalkBack runtime, phone delivery, or acceptance.
 
 Dynamic detail is an interaction result, not the persistent description of the entire radio group. Keep group instructions stable and let one atomic polite status surface announce the selected state; do not make every radio focus inherit the current detail paragraph.
+
+Operator-facing semantics must distinguish **measured divergence** from **comparison unavailable**. Do not speak or display `false` merely because custody failed before a comparison existed.
 
 ## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
