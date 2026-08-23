@@ -83,10 +83,11 @@ def main() -> int:
         assert receipt["receiptSelfIntegritySchema"].endswith(".v1")
         assert receipt["comparisonEvidenceRecomputed"] is True
         assert receipt["temporalReceiptContextAdmitted"] is True
-        assert receipt["rawMachineEvidencePreserved"] is True
+        assert receipt["rawMachineEvidenceRemainsSeparate"] is True
+        assert receipt["rawMachineEvidenceIncluded"] is False
         assert receipt["secondReceiptProjectorCreated"] is False
         assert receipt["secondDescriptorAuthorityCreated"] is False
-        assert receipt["phoneP0Consumed"] is False
+        assert receipt["phoneP0MutationAuthority"] is False
         assert raw["boundary"] not in str(receipt)
         assert receipt["authorityAdmitted"] is False
         assert receipt["tested"] is False
