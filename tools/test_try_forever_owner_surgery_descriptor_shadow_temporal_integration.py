@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused regression source for descriptor-shadow -> temporal-binding composition.
+"""Focused regression source for descriptor-shadow -> strict temporal-binding composition.
 
 SOURCE ONLY. No authorized execution receipt exists for this file.
 """
@@ -7,6 +7,9 @@ SOURCE ONLY. No authorized execution receipt exists for this file.
 from types import SimpleNamespace
 
 import try_forever_owner_surgery_descriptor_shadow_audit as shadow
+from try_forever_owner_surgery_shadow_temporal_receipt_integrity import (
+    SCHEMA as TEMPORAL_RECEIPT_SCHEMA,
+)
 from try_forever_posix_directory_handle_custody import (
     DescriptorCandidate,
     DescriptorCandidateInventory,
@@ -110,16 +113,24 @@ def run_with(canonical_result: dict[str, object]) -> dict[str, object]:
         shadow.observe_generated_index_artifact = old_observer
 
 
+def assert_receipt_integrity(result: dict[str, object]) -> None:
+    temporal = result["temporalContentBinding"]
+    assert isinstance(temporal, dict)
+    assert temporal["receiptIntegritySchema"] == TEMPORAL_RECEIPT_SCHEMA
+    assert temporal["shadowReceiptContextAdmitted"] is True
+
+
 def main() -> int:
     # A shadow byte/path/metric match is not itself temporal proof when the canonical result lacks
-    # same-observation content witnesses.
+    # same-observation content witnesses. The owner must still route through receipt-integrity first.
     legacy = run_with(canonical(include_witness=False))
     assert legacy["status"] == "SHADOW_MATCH"
     assert legacy["temporalBindingProven"] is False
     assert legacy["temporalContentBinding"]["status"] == "CANONICAL_CONTENT_WITNESS_MISSING"
+    assert_receipt_integrity(legacy)
 
-    # With exact canonical same-observation witnesses, the actual shadow audit composes into the
-    # temporal policy and proves the later portable/descriptor reads match those canonical bytes.
+    # With exact canonical same-observation witnesses, the actual shadow audit composes through the
+    # strict receipt gate and then proves later portable/descriptor reads match canonical bytes.
     bound = run_with(canonical(include_witness=True))
     assert bound["status"] == "SHADOW_MATCH"
     assert bound["artifactSetMatch"] is True
@@ -131,6 +142,7 @@ def main() -> int:
     assert bound["descriptorAuthorityAdmitted"] is False
     assert bound["ownerMutation"] is False
     assert bound["tested"] is False
+    assert_receipt_integrity(bound)
     return 0
 
 
