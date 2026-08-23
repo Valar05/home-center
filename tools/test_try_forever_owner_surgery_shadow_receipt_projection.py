@@ -120,7 +120,8 @@ def main() -> int:
     assert projected.startswith("<repo-path>...#")
     assert long_name not in projected
 
-    # Raw exception/control prose never becomes routine display text.
+    # Raw exception/control prose never becomes routine display text. A wound means comparison did
+    # not complete, so the three comparison fields must remain null rather than counterfeit false.
     hostile_boundary = "decoder failed\nsecret path /home/operator/x \u202e"
     wounded = project_shadow_receipt(
         ROOT,
@@ -129,9 +130,9 @@ def main() -> int:
             boundary=hostile_boundary,
             portableShadowArtifacts=[],
             descriptorArtifacts=[],
-            artifactSetMatch=False,
-            metricsMatch=False,
-            contentIdentityMatch=False,
+            artifactSetMatch=None,
+            metricsMatch=None,
+            contentIdentityMatch=None,
         ),
     )
     assert hostile_boundary not in str(wounded)
@@ -160,7 +161,7 @@ def main() -> int:
     expect_rejected(shadow_result(artifactSetMatch=False), "all three exact comparison booleans true")
     expect_rejected(
         shadow_result(status="SHADOW_DIVERGED"),
-        "requires at least one comparison not true",
+        "requires at least one completed comparison false",
     )
 
     return 0
