@@ -160,7 +160,6 @@ def audit_descriptor_shadow(
         max_entries=max_entries,
     )
     canonical_evidence_complete = _canonical_evidence_complete(portable)
-    capability = current_directory_handle_binding_capability()
     base: dict[str, object] = {
         "schema": SCHEMA,
         "canonicalAuthorityBackend": "PORTABLE_PATHNAME_REVALIDATION",
@@ -171,7 +170,7 @@ def audit_descriptor_shadow(
         "canonicalArtifactCandidatesObserved": portable.get(
             "artifactCandidatesObserved"
         ),
-        "descriptorCapabilityStatus": capability.status,
+        "descriptorCapabilityStatus": None,
         "descriptorAuthorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
@@ -187,7 +186,7 @@ def audit_descriptor_shadow(
             "status": "CANONICAL_WOUND",
             "boundary": (
                 "Canonical portable custody is incomplete; descriptor shadow staging stops before "
-                "comparison so a wounded authority result cannot be decorated as SHADOW_MATCH."
+                "capability or artifact comparison so a wounded authority result cannot be decorated as SHADOW_MATCH."
             ),
             "portableShadowArtifacts": [],
             "descriptorArtifacts": [],
@@ -197,6 +196,9 @@ def audit_descriptor_shadow(
             "metricsMatch": None,
             "contentIdentityMatch": None,
         }
+
+    capability = current_directory_handle_binding_capability()
+    base["descriptorCapabilityStatus"] = capability.status
 
     if capability.status == PORTABLE_UNAVAILABLE:
         return {
