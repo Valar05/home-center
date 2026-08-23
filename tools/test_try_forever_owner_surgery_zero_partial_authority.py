@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""RED source regression for exhaustive owner-surgery promotion authority.
+"""Source regression for exhaustive owner-surgery promotion authority.
 
-The canonical v10 probe already marks a wounded inventory with ``evidenceComplete=false``. This
-fixture pins the stronger doctrine already documented for owner-surgery custody: a matching artifact
-that cannot be safely admitted may leave healthy surgery records as diagnostics, but it must not
-leave CURRENT_BASE_COLLISION_SET, STALE_BASE_GROUP, or UNVERIFIED_BASE_GROUP promotion authority.
+Canonical v10 now marks a wounded inventory with ``evidenceComplete=false`` and suppresses every
+promotion-authority group while preserving safely parsed sibling surgeries as diagnostics. This
+fixture locks that source contract for current, stale, and unverified owner custody.
 
 SOURCE ONLY. This regression has not been observed executing in an authorized test lane.
 """
