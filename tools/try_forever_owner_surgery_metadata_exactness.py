@@ -25,17 +25,18 @@ SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 # Header-name recognition is intentionally separate from value admission. A malformed second header
 # still counts as duplicate authority evidence and cannot disappear merely because its value would
 # fail later validation. Horizontal whitespace is line-local; ``\s`` is deliberately avoided here
-# because it can consume newlines and blur authority records across lines.
+# because it can consume newlines and blur authority records across lines. A terminal CR is framing
+# for a CRLF line, not part of the authority value.
 BASE_HEADER_RE = re.compile(
-    r"^#[ \t]*(?:BASE OWNER BLOB|Base owner blob|Base blob)[ \t]*:[ \t]*(.*?)[ \t]*$",
+    r"^#[ \t]*(?:BASE OWNER BLOB|Base owner blob|Base blob)[ \t]*:[ \t]*(.*?)[ \t]*(?:\r)?$",
     re.I | re.M,
 )
 OWNER_HEADER_RE = re.compile(
-    r"^#[ \t]*(?:OWNER|Target|Base path)[ \t]*:[ \t]*(.*?)[ \t]*$",
+    r"^#[ \t]*(?:OWNER|Target|Base path)[ \t]*:[ \t]*(.*?)[ \t]*(?:\r)?$",
     re.I | re.M,
 )
 STATE_HEADER_RE = re.compile(
-    r"^#[ \t]*(?:STATUS|State)[ \t]*:[ \t]*(.*?)[ \t]*$",
+    r"^#[ \t]*(?:STATUS|State)[ \t]*:[ \t]*(.*?)[ \t]*(?:\r)?$",
     re.I | re.M,
 )
 
@@ -128,6 +129,7 @@ def source_receipt() -> dict[str, object]:
         "patchHeaderCardinalityExact": True,
         "malformedDuplicateHeadersCounted": True,
         "headerRecognitionLineLocal": True,
+        "crlfFramingPreserved": True,
         "canonicalOwnerConsumption": False,
         "regressionExecuted": False,
         "tested": False,
