@@ -36,8 +36,10 @@ It composes the existing supporting organs into the existing owner only:
 
 Patch state is **`CORRECTED_PROPOSED_NOT_APPLIED`**. It is prepared source, not implementation.
 
-## Code-first review scar
+## Code-first review scars
 The first supporting parser counted only value-valid regex matches. That was insufficient: a second malformed authority header could disappear from the duplicate count, and broad whitespace regexes risked line-crossing semantics. The corrected source counts recognized header labels first and validates the single admitted value afterward.
+
+The first prepared owner patch also tried to remove the legacy regex declarations with over-escaped unified-diff context. That patch shape was unsafe to promote. The corrected patch leaves the declarations harmlessly present and removes their authority from `inspect_patch(...)` itself, which is the behavior the RED owner boundary actually requires.
 
 ## Regression source
 - `tools/test_try_forever_owner_surgery_metadata_exactness.py` — supporting policy fixtures, including malformed duplicate labels and cross-line header attack, **UNEXECUTED**.
