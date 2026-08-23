@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "checkpoint": "2026-08-22T19:00:00-05:00",
+  "reviewedSourceHead": "0365e034e65989ffdfcba894882e758e10742965",
+  "reviewMode": "SAME_WORKER_BOUNDED_JUDGMENT_JAR",
+  "externalWorker": {
+    "workerId": "windows-venice-nerve-01",
+    "online": false,
+    "queueDepth": 2,
+    "externalVerdictFabricated": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_ZERO_PARTIAL_OWNER_REPAIR_BACKEND_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowedClaims": [
+    "supporting backend member-integrity source exists with authenticated GitHub readback",
+    "hostile regression source exists and is unexecuted",
+    "authority-coverage and backend-selection doctrine are converged",
+    "existing non-raster Warm Wall is mutated in place"
+  ],
+  "withheldClaims": [
+    "canonical zero-partial-authority repair applied",
+    "canonical owner consumes backend selection",
+    "descriptor backend integrated into canonical owner",
+    "regressions executed",
+    "TESTED",
+    "runtime UI or TalkBack",
+    "deployment, phone callability/execution, delivery, acceptance"
+  ],
+  "reviewNotes": [
+    "Code-first review caught duplicate member/group evidence as a cardinality counterfeit and required a corrective source pass before completion.",
+    "Canonical owner mutation is not routed around the offline patch-capable body; exact prepared repair remains durable and unapplied.",
+    "Phone/P0 firewall and duplicate-architecture law remain intact."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
