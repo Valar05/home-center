@@ -2,7 +2,8 @@
 """Intentionally RED owner boundary for exact owner-surgery metadata.
 
 SOURCE ONLY / UNEXECUTED. The canonical v10 custody owner currently first-matches textual patch
-headers and structurally trims CLI owner keys. This regression must stay RED until the existing owner
+headers, structurally trims CLI owner keys, and does not route structured-delta owner identity
+through the same exact owner-key admission. This regression must stay RED until the existing owner
 consumes ``admit_patch_metadata`` and ``admit_owner_identity`` without creating a second custody
 owner.
 """
@@ -18,23 +19,35 @@ def owner_source() -> str:
     return OWNER.read_text(encoding="utf-8")
 
 
+def method_body(source: str, name: str, next_name: str) -> str:
+    start = source.index(f"def {name}")
+    end = source.index(f"\ndef {next_name}", start)
+    return source[start:end]
+
+
 def test_canonical_owner_consumes_exact_patch_header_contract():
     source = owner_source()
-    assert "admit_patch_metadata" in source
-    assert "BASE_RE.search(text)" not in source
-    assert "STATE_RE.search(text)" not in source
-    assert "OWNER_RE.search(text)" not in source
+    patch_body = method_body(source, "inspect_patch", "_reject_duplicate_json_members")
+    assert "admit_patch_metadata" in patch_body
+    assert "BASE_RE.search(text)" not in patch_body
+    assert "STATE_RE.search(text)" not in patch_body
+    assert "OWNER_RE.search(text)" not in patch_body
+
+
+def test_structured_delta_owner_uses_same_exact_owner_identity_gate():
+    source = owner_source()
+    delta_body = method_body(source, "inspect_delta", "_group_payload")
+    assert "admit_owner_identity" in delta_body
 
 
 def test_cli_current_owner_identity_is_not_trim_repaired():
     source = owner_source()
-    assert "admit_owner_identity" in source
-    assert "owner = owner.strip()" not in source
+    parse_body = method_body(source, "_parse_owner_blob", "main")
+    assert "admit_owner_identity" in parse_body
+    assert "owner = owner.strip()" not in parse_body
 
 
 def test_programmatic_current_owner_map_uses_same_exact_owner_identity_gate():
     source = owner_source()
-    start = source.index("def _admit_current_owner_blobs")
-    end = source.index("\ndef classify", start)
-    body = source[start:end]
+    body = method_body(source, "_admit_current_owner_blobs", "classify")
     assert "admit_owner_identity" in body
