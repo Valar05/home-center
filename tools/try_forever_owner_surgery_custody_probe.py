@@ -42,6 +42,11 @@ from try_forever_skill_root_identity import (
     capture_directory_root_identity,
     revalidate_directory_root_identity,
 )
+from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
+from try_forever_owner_surgery_metadata_exactness import (
+    admit_owner_identity,
+    admit_patch_metadata,
+)
 from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 
@@ -231,38 +236,23 @@ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
     try:
         observation = _observe_bounded_utf8(path)
         text = observation.utf8_text
-        base = BASE_RE.search(text)
-        state = STATE_RE.search(text)
-        if base is None:
-            raise ArtifactAdmissionError("patch is missing an exact base-owner blob header")
-        if state is None:
-            raise ArtifactAdmissionError("patch is missing a state/status header")
+        metadata = admit_patch_metadata(text)
 
-        owner_match = OWNER_RE.search(text)
-        if owner_match is None:
-            if "OperatorOverlayService.java" not in text:
-                raise ArtifactAdmissionError(
-                    "patch is missing owner metadata and does not name the default owner"
-                )
-            owner = DEFAULT_OWNER
+        if metadata.explicit_owner is None:
+            owner = admit_default_owner_from_patch(
+                text,
+                default_owner=DEFAULT_OWNER,
+            ).owner
         else:
-            owner = owner_match.group(1)
-
-        base_blob = base.group(1)
-        if SHA1_RE.fullmatch(base_blob) is None:
-            raise ArtifactAdmissionError(
-                "patch base owner blob must be 40 lowercase hexadecimal characters"
-            )
-
-        state_admission = admit_owner_surgery_state(state.group(1))
+            owner = metadata.explicit_owner
 
         return Surgery(
             path=path.as_posix(),
             artifact_kind="patch",
             owner=owner,
-            base_blob=base_blob,
-            state=state_admission.state,
-            promotion_candidate=state_admission.promotion_candidate,
+            base_blob=metadata.base_blob,
+            state=metadata.state,
+            promotion_candidate=metadata.promotion_candidate,
             artifact_byte_count=observation.size_bytes,
             artifact_sha256=observation.sha256,
         ), None
@@ -311,9 +301,7 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         if payload.get("schema") != DELTA_SCHEMA:
             raise ValueError(f"unsupported owner delta schema: {payload.get('schema')!r}")
 
-        owner = payload.get("owner")
-        if not isinstance(owner, str) or not owner:
-            raise ValueError("owner must be a non-empty string")
+        owner = admit_owner_identity(payload.get("owner"), field="delta owner")
 
         base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob")
         if SHA1_RE.fullmatch(base_blob) is None:
@@ -351,11 +339,10 @@ def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
 
     result: dict[str, str] = {}
     for owner, blob in (values or {}).items():
-        if not isinstance(owner, str) or not owner:
-            raise ValueError("current owner custody requires a non-empty owner identity")
+        admitted_owner = admit_owner_identity(owner, field="current owner")
         if not isinstance(blob, str) or SHA1_RE.fullmatch(blob) is None:
             raise ValueError("current owner custody requires a 40-lowercase-hex-blob")
-        result[owner] = blob
+        result[admitted_owner] = blob
     return result
 
 
@@ -516,8 +503,10 @@ def _parse_owner_blob(values: Iterable[str]) -> dict[str, str]:
     result: dict[str, str] = {}
     for raw in values:
         owner, separator, blob = raw.partition("=")
-        owner = owner.strip()
-        if not separator or not owner or SHA1_RE.fullmatch(blob) is None:
+        if not separator:
+            raise ValueError("--current-owner must be OWNER=40-lowercase-hex-blob")
+        owner = admit_owner_identity(owner, field="--current-owner owner")
+        if SHA1_RE.fullmatch(blob) is None:
             raise ValueError("--current-owner must be OWNER=40-lowercase-hex-blob")
         if owner in result and result[owner] != blob:
             raise ValueError(f"conflicting current owner blob for {owner}")
