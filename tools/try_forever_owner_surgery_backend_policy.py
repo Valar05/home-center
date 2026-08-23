@@ -13,6 +13,8 @@ from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 import re
 
+from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
+
 
 SUPPORTED_POSIX = "SUPPORTED_POSIX_PRIMITIVES"
 PORTABLE_UNAVAILABLE = "PORTABLE_ATOMIC_BINDING_UNAVAILABLE"
@@ -135,6 +137,51 @@ def _admit_current_owner_blobs(result: Mapping[str, object]) -> dict[str, str]:
     return admitted
 
 
+def _admit_promotion_candidate(
+    candidate: object,
+    *,
+    field: str,
+    owner: str,
+    base_blob: str,
+) -> None:
+    """Bind every authority-group member back to the group identity it supposedly proves.
+
+    Canonical v10 emits ``dataclasses.asdict(Surgery)`` records. A future backend/result adapter may
+    not replace that evidence with hollow list entries, cross-owner/base records, or records whose
+    exact surgery state is not promotion-ready. Group-level custody is only as strong as every
+    member that creates the group.
+    """
+
+    if not isinstance(candidate, Mapping):
+        raise ValueError(f"{field} promotionCandidates entries must be mappings")
+
+    if candidate.get("owner") != owner:
+        raise ValueError(f"{field} promotion candidate owner must match group owner")
+    if candidate.get("base_blob") != base_blob:
+        raise ValueError(f"{field} promotion candidate base_blob must match group baseBlob")
+
+    path = candidate.get("path")
+    if not isinstance(path, str) or not path:
+        raise ValueError(f"{field} promotion candidate path must be one non-empty string")
+
+    artifact_kind = candidate.get("artifact_kind")
+    if artifact_kind not in {"patch", "delta_json"}:
+        raise ValueError(f"{field} promotion candidate artifact_kind is unsupported")
+
+    state = candidate.get("state")
+    if not isinstance(state, str) or not state:
+        raise ValueError(f"{field} promotion candidate state must be one non-empty string")
+    try:
+        state_admission = admit_owner_surgery_state(state)
+    except ValueError as exc:
+        raise ValueError(f"{field} promotion candidate state is not admitted") from exc
+    if not state_admission.promotion_candidate:
+        raise ValueError(f"{field} promotion candidate state is not promotion-ready")
+
+    if candidate.get("promotion_candidate") is not True:
+        raise ValueError(f"{field} promotion candidate must explicitly carry promotion_candidate=true")
+
+
 def _admit_authority_groups(
     result: Mapping[str, object],
     current_owner_blobs: Mapping[str, str],
@@ -146,6 +193,10 @@ def _admit_authority_groups(
     means precisely that current-owner custody is absent for that owner. A future backend may not
     attach an unrelated authenticated owner blob to the result and thereby make another owner's
     unverified authority look authenticated.
+
+    The group shell is not sufficient evidence. Every ``promotionCandidates`` member must be an
+    admitted canonical Surgery-shaped record for the same owner/base, and collision groups require
+    at least two such members while stale/unverified groups require at least one.
     """
 
     counts: dict[str, int] = {}
@@ -174,6 +225,18 @@ def _admit_authority_groups(
             promotion_candidates = group.get("promotionCandidates")
             if not isinstance(promotion_candidates, list):
                 raise ValueError(f"{field} entry promotionCandidates must be one list")
+            minimum_members = 2 if field == "collisionSets" else 1
+            if len(promotion_candidates) < minimum_members:
+                raise ValueError(
+                    f"{field} promotionCandidates must contain at least {minimum_members} admitted member(s)"
+                )
+            for candidate in promotion_candidates:
+                _admit_promotion_candidate(
+                    candidate,
+                    field=field,
+                    owner=owner,
+                    base_blob=base_blob,
+                )
 
             current_blob = current_owner_blobs.get(owner)
             if field == "unverifiedBaseGroups":
