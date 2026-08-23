@@ -6,7 +6,8 @@ proves that it targets exactly the canonical default owner. An arbitrary textual
 ``OperatorOverlayService.java`` is not ownership evidence.
 
 This module owns no patch execution, grouping authority, phone lane, P0 work, or second custody
-probe. Until the canonical owner consumes this contract, it is SUPPORTING SOURCE only.
+probe. The canonical custody owner now consumes this contract; that is source wiring only, not
+regression execution, TESTED, runtime, deployment, delivery, or acceptance.
 """
 
 from __future__ import annotations
@@ -82,7 +83,7 @@ def source_receipt() -> dict[str, object]:
         "exactSingleDiffHeaderRequired": True,
         "multiFileFallbackRejected": True,
         "normalizationDependentPathAuthority": False,
-        "canonicalOwnerConsumption": False,
+        "canonicalOwnerConsumption": True,
         "regressionExecuted": False,
         "tested": False,
         "runtimeUi": False,
