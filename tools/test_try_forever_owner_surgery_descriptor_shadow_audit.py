@@ -142,13 +142,18 @@ def restore(old):
 
 
 def main() -> int:
-    # Matching staging evidence now requires paths, work metrics, and exact byte/SHA identity.
-    old = with_fakes(portable=portable_result())
+    # Matching staging evidence requires the exact v10 contract plus paths, metrics, and bytes.
+    canonical = portable_result()
+    old = with_fakes(portable=canonical)
     try:
         result = shadow.audit_descriptor_shadow()
     finally:
         restore(old)
-    assert result["schema"] == "try-forever-owner-surgery-descriptor-shadow.v2"
+    assert result["schema"] == "try-forever-owner-surgery-descriptor-shadow.v3"
+    assert result["canonicalAuthoritySchema"] == shadow.CANONICAL_SCHEMA
+    assert result["canonicalResultSha256"] == shadow._canonical_result_sha256(canonical)
+    assert len(result["canonicalResultSha256"]) == 64
+    assert set(result["canonicalResultSha256"]) <= set("0123456789abcdef")
     assert result["status"] == "SHADOW_MATCH"
     assert result["artifactSetMatch"] is True
     assert result["metricsMatch"] is True
@@ -168,6 +173,30 @@ def main() -> int:
     assert result["tested"] is False
     assert "collisionSets" not in result
     assert "ownerEvidenceAdmitted" not in result
+
+    # Result identity is deterministic across mapping insertion order and sensitive to real evidence.
+    reordered = dict(reversed(list(canonical.items())))
+    assert shadow._canonical_result_sha256(reordered) == shadow._canonical_result_sha256(canonical)
+    changed = portable_result()
+    changed["currentOwnerBlobs"] = {OWNER: "2" * 40}
+    assert shadow._canonical_result_sha256(changed) != shadow._canonical_result_sha256(canonical)
+
+    # Schema drift is a wound before capability or artifact staging; v3 does not reinterpret it.
+    wrong_schema = portable_result()
+    wrong_schema["schema"] = "try-forever-owner-surgery-custody.v11"
+    old = with_fakes(portable=wrong_schema)
+    try:
+        schema_wound = shadow.audit_descriptor_shadow()
+        assert FakePortableObserver.paths == []
+    finally:
+        restore(old)
+    assert schema_wound["status"] == "CANONICAL_SCHEMA_WOUND"
+    assert schema_wound["canonicalAuthoritySchema"] == "try-forever-owner-surgery-custody.v11"
+    assert schema_wound["canonicalResultSha256"] is None
+    assert schema_wound["canonicalEvidenceComplete"] is None
+    assert schema_wound["portableShadowArtifacts"] == []
+    assert schema_wound["descriptorArtifacts"] == []
+    assert schema_wound["descriptorAuthorityAdmitted"] is False
 
     # A descriptor/canonical path-set disagreement remains visible and blocks a match.
     old = with_fakes(portable=portable_result(paths=("patches/try-forever-other.patch",)))
@@ -276,6 +305,7 @@ def main() -> int:
     finally:
         restore(old)
     assert incomplete_shadow["canonicalEvidenceComplete"] is False
+    assert incomplete_shadow["canonicalResultSha256"] == shadow._canonical_result_sha256(incomplete)
     assert incomplete_shadow["status"] == "CANONICAL_WOUND"
     assert incomplete_shadow["portableShadowArtifacts"] == []
     assert incomplete_shadow["descriptorArtifacts"] == []
