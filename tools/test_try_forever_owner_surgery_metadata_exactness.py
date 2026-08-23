@@ -74,6 +74,29 @@ def test_identical_duplicate_headers_are_still_ambiguous():
     )
 
 
+def test_malformed_duplicate_header_label_cannot_disappear_from_cardinality():
+    expect_rejected(
+        lambda: admit_patch_metadata(canonical_patch("# BASE OWNER BLOB: definitely-not-a-sha\n")),
+        "observed 2",
+    )
+    expect_rejected(
+        lambda: admit_patch_metadata(canonical_patch("# STATE: \n")),
+        "observed 2",
+    )
+    expect_rejected(
+        lambda: admit_patch_metadata(canonical_patch("# OWNER: owner with internal space\n")),
+        "at most one explicit owner header",
+    )
+
+
+def test_header_recognition_is_line_local_not_cross_line_whitespace():
+    text = (
+        f"# BASE OWNER BLOB:\n{BASE}\n"
+        "# STATUS: APPLIED_SOURCE\n"
+    )
+    expect_rejected(lambda: admit_patch_metadata(text), "base-owner blob")
+
+
 def test_patch_without_explicit_owner_can_remain_source_for_existing_default_owner_fallback():
     text = f"# BASE OWNER BLOB: {BASE}\n# STATUS: APPLIED_SOURCE\n"
     admitted = admit_patch_metadata(text)
