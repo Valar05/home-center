@@ -1,0 +1,68 @@
+{
+  "schema": "regnet-try-forever-heartbeat-review.v1",
+  "timestampLocal": "2026-08-23T12:00:40-05:00",
+  "reviewedSourceHead": "781a51c9bbccfb7060af7e052f24d6741829e9c7",
+  "sourceDiffFrom": "bd6b26b5a602ecdc272387b647bb7a09b2b060ad",
+  "sourceDiff": {
+    "commits": 6,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0,
+    "paths": [
+      "docs/try-forever/operator-owner-surgery-descriptor-shadow-source-specimen.html",
+      "receipts/try-forever/2026-08-23-heartbeat-1200-plan.json",
+      "skills/operator-owner-surgery-descriptor-shadow-audit/SKILL.md",
+      "tools/test_try_forever_owner_surgery_descriptor_shadow_temporal_integration.py",
+      "tools/test_try_forever_owner_surgery_descriptor_shadow_wound_owner_boundary.py",
+      "tools/try_forever_owner_surgery_descriptor_shadow_audit.py"
+    ]
+  },
+  "claims": {
+    "descriptorWoundTriStateOwnerSourceWired": true,
+    "descriptorWoundComparisonUnavailableIsNull": true,
+    "temporalReceiptIntegrityOwnerSourceWired": true,
+    "canonicalV10AuthorityMutated": false,
+    "descriptorAuthorityAdmitted": false,
+    "backendSelectionMutated": false,
+    "androidRuntimeOwnerMutated": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "authenticatedReadback": {
+    "ownerBlob": "92e916f8d64168990a221ca9d5469699ef6273b8",
+    "woundRegressionBlob": "4822a76f633b95d4027fb283010904cff50d5311",
+    "temporalIntegrationRegressionBlob": "8db63adbc250a0a8200b1963b34e670647c1722f",
+    "descriptorShadowSkillBlob": "7a359a5eaaca1fa1f62b993642108f56f1777e70",
+    "warmWallBlob": "c7d4bc244411c0c5e48fcf7d010951d8d88d9bef"
+  },
+  "executionTruth": {
+    "head": "781a51c9bbccfb7060af7e052f24d6741829e9c7",
+    "homeCenterCi": {"runId": 32653728879, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32653729144, "jobId": 97229152474, "conclusion": "failure", "stepLevelCauseEstablished": false},
+    "buildAndroid": {"runId": 32653728884, "conclusion": "failure"},
+    "manualRetry": false,
+    "testedPromotion": false
+  },
+  "reviewer": {
+    "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__DESCRIPTOR_WOUND_TRI_STATE_SOURCE_WIRED__TEMPORAL_RECEIPT_OWNER_SOURCE_WIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "notes": [
+      "A descriptor custody wound before comparison now reports null comparison fields rather than invented divergence.",
+      "Completed comparisons now pass the existing strict temporal receipt-context gate before temporal binding.",
+      "Regression source exists but has no authorized execution receipt; TESTED remains NO.",
+      "Canonical v10 authority and descriptor promotion authority were not changed."
+    ]
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
