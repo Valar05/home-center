@@ -1,9 +1,11 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: f3457f82f5ea135e303c6ca7b93491511a471dd7
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
-# WOUND: evidenceComplete=false can still emit promotion authority groups from healthy sibling artifacts.
+# APPLIED COMMIT: cbf97613bacecc72fa58fcbc0a5676553c9bb5ef
+# RESULT OWNER BLOB: 4d73331281902b91781dc50d271333053d17d502
+# WOUND: evidenceComplete=false could still emit promotion authority groups from healthy sibling artifacts.
 # INTENT: preserve diagnostic surgeries, but zero collision/stale/unverified promotion authority whenever exhaustive custody is incomplete.
-# CAPABILITY: PROPOSED_NOT_APPLIED; source patch is not owner wiring, test evidence, runtime, deployment, phone delivery, or acceptance.
+# CAPABILITY: APPLIED_SOURCE; authenticated owner readback proves source wiring only. Regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain unproven.
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
