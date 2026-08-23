@@ -2,13 +2,14 @@
 """Fail-closed receipt-context gate for descriptor-shadow temporal binding.
 
 This supporting source does not create promotion authority and does not replace the existing temporal
-binding policy. It verifies that a SHADOW_MATCH carries the exact canonical context that the real
-shadow owner is expected to preserve before delegating to ``evaluate_temporal_content_binding``.
+binding policy. It verifies that a completed shadow comparison carries the exact canonical context
+that the real shadow owner is expected to preserve before delegating to
+``evaluate_temporal_content_binding``.
 
 A matching canonical-result SHA is necessary but not sufficient. A counterfeit or partially copied
-shadow receipt must not earn temporal proof merely by repeating the right result digest and three
-``True`` comparison booleans while disagreeing about canonical schema, canonical completeness,
-canonical authority backend, or descriptor capability state.
+shadow receipt must not earn temporal proof—or even claim a completed comparison context—merely by
+repeating the right result digest and comparison booleans while disagreeing about canonical schema,
+canonical completeness, canonical authority backend, or descriptor capability state.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ from try_forever_owner_surgery_shadow_temporal_binding import (
 
 SCHEMA = "try-forever-owner-surgery-shadow-temporal-receipt-integrity.v1"
 PORTABLE_AUTHORITY_BACKEND = "PORTABLE_PATHNAME_REVALIDATION"
+COMPLETED_COMPARISON_STATUSES = {"SHADOW_MATCH", "SHADOW_DIVERGED"}
 
 
 class ShadowTemporalReceiptIntegrityError(ValueError):
@@ -39,10 +41,11 @@ def evaluate_temporal_content_binding_with_receipt_integrity(
 ) -> dict[str, object]:
     """Validate receipt context, then delegate to the existing temporal-binding policy.
 
-    Only ``SHADOW_MATCH`` can earn temporal proof. For that state, the shadow receipt must carry the
-    exact v10 canonical schema, the exact canonical evidenceComplete boolean, the canonical portable
-    authority backend, and the exact supported descriptor capability state. Other states still
-    delegate to the existing temporal policy without being normalized into a match.
+    Only ``SHADOW_MATCH`` can earn temporal proof. Both ``SHADOW_MATCH`` and ``SHADOW_DIVERGED``
+    claim that descriptor comparison actually completed, so both require exact v10 canonical
+    completeness, the canonical portable authority backend, and exact supported descriptor
+    capability evidence. Wound/unavailable states remain non-comparison states and delegate without
+    being normalized into a completed comparison.
     """
 
     if not isinstance(canonical_result, Mapping):
@@ -82,14 +85,14 @@ def evaluate_temporal_content_binding_with_receipt_integrity(
         )
 
     status = shadow_result.get("status")
-    if status == "SHADOW_MATCH":
+    if status in COMPLETED_COMPARISON_STATUSES:
         if canonical_complete is not True:
             raise ShadowTemporalReceiptIntegrityError(
-                "SHADOW_MATCH cannot accompany incomplete canonical custody"
+                f"{status} cannot accompany incomplete canonical custody"
             )
         if shadow_result.get("descriptorCapabilityStatus") != SUPPORTED:
             raise ShadowTemporalReceiptIntegrityError(
-                "SHADOW_MATCH requires exact supported descriptor capability evidence"
+                f"{status} requires exact supported descriptor capability evidence"
             )
 
     temporal = evaluate_temporal_content_binding(canonical_result, shadow_result)
