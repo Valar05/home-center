@@ -23,32 +23,38 @@
 </head>
 <body>
 <main>
-  <h1>WARM WALL / DESCRIPTOR SHADOW AUDIT v2</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL PORTABLE AUTHORITY: YES · CANONICAL WOUND STOPS SHADOW: YES · PORTABLE CONTENT STAGING: SOURCE · DESCRIPTOR CONTENT STAGING: SOURCE · EXACT CONTENT PARITY: SOURCE · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <h1>WARM WALL / DESCRIPTOR SHADOW AUDIT v3</h1>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL V10 SCHEMA GATE: SOURCE · CANONICAL RESULT SHA-256 RECEIPT: SOURCE · CANONICAL WOUND STOPS SHADOW: YES · PORTABLE CONTENT STAGING: SOURCE · DESCRIPTOR CONTENT STAGING: SOURCE · EXACT CONTENT PARITY: SOURCE · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 210" role="img" aria-labelledby="title desc">
-    <title id="title">Canonical authority with exact-content descriptor shadow</title>
-    <desc id="desc">Canonical portable v10 custody remains the authority path. If canonical evidence is wounded, shadow staging stops. Otherwise a portable finite-file staging observer and held-directory descriptor staging observer compare path set, work metrics, byte count, and SHA-256. No shadow result creates promotion authority.</desc>
-    <path d="M35 105 H180 M260 105 H375" fill="none" stroke="currentColor" stroke-width="5"/>
-    <path d="M455 105 H570 M650 105 H820" fill="none" stroke="currentColor" stroke-width="5"/>
-    <path d="M415 145 C460 195 590 195 610 145" fill="none" stroke="currentColor" stroke-width="5"/>
-    <circle cx="220" cy="105" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="375" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="570" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="820" y="65" width="65" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="30" y="82" fill="currentColor">PATCHES/</text>
-    <text x="168" y="164" fill="currentColor">CANONICAL</text>
-    <text x="360" y="48" fill="currentColor">PORTABLE BYTES</text>
-    <text x="555" y="48" fill="currentColor">HELD-FD BYTES</text>
-    <text x="800" y="48" fill="currentColor">COMPARE</text>
-    <text x="765" y="182" fill="currentColor">NO PROMOTION</text>
+    <title id="title">Canonical v10 receipt with exact-content descriptor shadow</title>
+    <desc id="desc">Canonical portable v10 custody remains the authority path. The shadow first requires exact v10 schema and fingerprints the exact canonical result. If canonical evidence is wounded, shadow staging stops. Otherwise portable finite-file staging and held-directory descriptor staging compare path set, work metrics, byte count, and SHA-256. No shadow result creates promotion authority.</desc>
+    <path d="M25 105 H145 M225 105 H340 M420 105 H535 M615 105 H790" fill="none" stroke="currentColor" stroke-width="5"/>
+    <circle cx="185" cy="105" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="340" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="535" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="790" y="65" width="90" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="25" y="82" fill="currentColor">V10 RESULT</text>
+    <text x="143" y="164" fill="currentColor">SHA RECEIPT</text>
+    <text x="325" y="48" fill="currentColor">PORTABLE BYTES</text>
+    <text x="520" y="48" fill="currentColor">HELD-FD BYTES</text>
+    <text x="775" y="48" fill="currentColor">COMPARE</text>
+    <text x="756" y="182" fill="currentColor">NO PROMOTION</text>
   </svg>
 
-  <fieldset aria-describedby="detail">
+  <fieldset>
     <legend>Inspect one shadow state</legend>
     <label>
       <input type="radio" name="shadow" value="authority" checked>
       <span><span class="token">● CANONICAL AUTHORITY</span><br>Portable v10 remains the sole promotion-authority producer. Shadow staging can compare evidence, never promote it.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="schema">
+      <span><span class="token">× CANONICAL SCHEMA WOUND</span><br>Anything other than exact custody schema v10 stops the shadow before capability or artifact staging.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="receipt">
+      <span><span class="token">◇ CANONICAL RESULT ID</span><br>The shadow receipt carries SHA-256 of deterministic canonical-result JSON so later evidence can identify which authority result it accompanied.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="canonical-wound">
@@ -56,7 +62,7 @@
     </label>
     <label>
       <input type="radio" name="shadow" value="match">
-      <span><span class="token">◇ SHADOW MATCH</span><br>Path set, work metrics, byte counts, and SHA-256 identities all agree between portable staging and held-directory staging.</span>
+      <span><span class="token">◇ SHADOW MATCH</span><br>Path set, work metrics, byte counts, and SHA-256 identities all agree between portable staging and held-directory staging for the bound canonical result.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="content">
@@ -84,14 +90,16 @@
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">CANONICAL AUTHORITY\nOne authority producer. Descriptor custody may compare evidence, never promote it.</div>
+  <div id="detail" role="status" aria-live="polite" aria-atomic="true">CANONICAL AUTHORITY\nOne authority producer. Descriptor custody may compare evidence, never promote it.</div>
 
   <script>
     const detail = document.getElementById('detail');
     const copy = {
       authority: 'CANONICAL AUTHORITY\nPortable v10 remains the only authority producer. Shadow staging cannot emit collision/stale/unverified authority groups.',
+      schema: 'CANONICAL SCHEMA WOUND\nExact v10 schema is required before shadow capability or artifact staging. Future or malformed authority payloads are not reinterpreted under old assumptions.',
+      receipt: 'CANONICAL RESULT ID\nThe receipt SHA binds this shadow report to one deterministic canonical result payload. It is evidence association, not canonical artifact identity and not filesystem atomicity.',
       'canonical-wound': 'CANONICAL WOUND\nStop before descriptor capability or artifact staging. Canonical evidenceComplete=false is not a canvas on which to paint SHADOW MATCH.',
-      match: 'SHADOW MATCH\nPortable staging and held-directory staging agree on path set, entry/candidate metrics, byte count, and SHA-256. This narrows integration risk but proves neither owner integration nor TESTED/runtime/deployment/delivery.',
+      match: 'SHADOW MATCH\nPortable staging and held-directory staging agree on path set, entry/candidate metrics, byte count, and SHA-256 for the bound canonical result. This proves neither owner integration nor TESTED/runtime/deployment/delivery.',
       content: 'CONTENT DIVERGED\nSame filenames and counters are insufficient. Exact per-path byteCount/SHA identity differs, so the shadow must diverge.',
       'portable-wound': 'PORTABLE SHADOW WOUND\nThe existing finite-file pathname observer could not establish exact staging identity. Canonical authority is unchanged; descriptor comparison does not continue.',
       diverged: 'INVENTORY DIVERGED\nStop before owner composition. Preserve both evidence records and repair the semantic mismatch rather than selecting a preferred answer.',
