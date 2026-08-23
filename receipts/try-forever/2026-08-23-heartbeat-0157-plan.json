@@ -1,0 +1,59 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-23T01:57:00-05:00",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER source/evidence fronts without consuming the phone/P0 execution surface or creating neighboring owners.",
+  "sourceHeadBefore": "154d9ed759d67599c0e0b3ec21c938b74d26cbb4",
+  "fronts": [
+    {
+      "name": "canonical-same-observation-artifact-witness",
+      "intent": "Make canonical owner-surgery custody retain and emit byte-count/SHA-256 witnesses from the exact bounded artifact observations that produced Surgery records.",
+      "ownerMutation": true
+    },
+    {
+      "name": "descriptor-shadow-temporal-consumption",
+      "intent": "Make the existing descriptor shadow consume the existing temporal-binding policy before reporting its positive exact-content result, without granting authority.",
+      "ownerMutation": true
+    },
+    {
+      "name": "hostile-regression-and-doctrine-convergence",
+      "intent": "Turn the prior RED owner boundary into an implemented-source contract and update focused regression/doctrine surfaces without calling them executed tests.",
+      "ownerMutation": false
+    },
+    {
+      "name": "touchable-temporal-warm-wall",
+      "intent": "Mutate the existing temporal non-raster source specimen to distinguish canonical witness, later-read match, temporal bound/diverged, and runtime membrane states.",
+      "ownerMutation": false
+    },
+    {
+      "name": "review-and-execution-truth",
+      "intent": "Attempt authoritative She-Raw once, perform bounded Regnet/Venice review, inspect fresh PR/workflow evidence, and preserve exact capability states.",
+      "ownerMutation": false
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "forbidden": [
+      "Phone Hands",
+      "primary-phone execution",
+      "P0 recovery mutation",
+      "Nightcore",
+      "Pocket TTS",
+      "Chromium control",
+      "Context Organs",
+      "physical acceptance"
+    ]
+  },
+  "plannedCapabilityStates": {
+    "supportingSource": "MAY_ADVANCE",
+    "canonicalOwnerIntegration": "MAY_ADVANCE_SOURCE_ONLY",
+    "descriptorShadowIntegration": "MAY_ADVANCE_SOURCE_ONLY",
+    "regressionSource": "MAY_ADVANCE_UNEXECUTED",
+    "tested": "NO",
+    "runtime": "NO",
+    "deployed": "NO",
+    "phoneDelivered": "NO",
+    "accepted": "NO"
+  }
+}
