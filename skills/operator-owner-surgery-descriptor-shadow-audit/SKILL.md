@@ -14,6 +14,8 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 `SHADOW RECEIPT BINDS TO EXACT CANONICAL RESULT SHA256`.
 
+`REJECTED CANONICAL SCHEMA STILL GETS A RESULT FINGERPRINT; FINGERPRINTING != SCHEMA ADMISSION`.
+
 `CANONICAL RESULT FINGERPRINT != CANONICAL ARTIFACT IDENTITY != ATOMIC FILESYSTEM BINDING`.
 
 `SHADOW MATCH = PATH SET + WORK METRICS + EXACT COMPARED CONTENT IDENTITY`.
@@ -33,10 +35,10 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 It:
 - asks canonical portable v10 `classify(...)` for the authority result first;
+- deterministically serializes that returned canonical result and carries its SHA-256 as `canonicalResultSha256` so every bounded shadow or schema-wound receipt identifies the exact canonical payload it accompanied;
 - requires the canonical result schema to be exactly `try-forever-owner-surgery-custody.v10` before any descriptor capability or artifact staging;
-- returns `CANONICAL_SCHEMA_WOUND` on schema drift rather than reinterpreting a future or malformed authority payload under v10 assumptions;
-- deterministically serializes the admitted canonical result and carries its SHA-256 as `canonicalResultSha256` so the shadow receipt is bound to the exact canonical result payload it accompanied;
-- treats that result fingerprint as evidence association only: it is not a canonical artifact-content identity and it does not prove atomic filesystem binding;
+- returns `CANONICAL_SCHEMA_WOUND` on schema drift rather than reinterpreting a future or malformed authority payload under v10 assumptions, while retaining the rejected payload fingerprint for diagnostic identity;
+- treats that result fingerprint as evidence association only: it is not schema admission, canonical artifact-content identity, or proof of atomic filesystem binding;
 - requires canonical `evidenceComplete` to be an actual boolean rather than truthiness-normalizing malformed evidence;
 - if canonical evidence is incomplete, returns `CANONICAL_WOUND` **before descriptor capability or artifact staging** so wounded authority cannot be decorated as a shadow match;
 - checks current descriptor capability without changing the canonical backend only after canonical schema/evidence admission;
@@ -66,7 +68,7 @@ It pins:
 - shadow v3 match with exact v10 canonical schema;
 - deterministic canonical-result fingerprinting independent of mapping insertion order;
 - fingerprint sensitivity to material canonical evidence changes;
-- wrong/future canonical schema becoming `CANONICAL_SCHEMA_WOUND` before artifact staging;
+- wrong/future canonical schema becoming `CANONICAL_SCHEMA_WOUND` before artifact staging while retaining the exact rejected-result fingerprint;
 - matching path set, inventory metrics, and exact byte/SHA identity;
 - independent path-set divergence;
 - independent metric divergence;
@@ -85,7 +87,7 @@ Do not call these tests passed until an authorized execution lane produces a rec
 `tools/try_forever_owner_surgery_backend_policy.py` remains the future composition gate. Its no-downgrade law applies **after the canonical owner actually selects the stronger descriptor backend for an authority classification attempt**.
 
 The shadow audit deliberately happens earlier. Therefore:
-- canonical schema drift → `CANONICAL_SCHEMA_WOUND`; descriptor staging does not begin;
+- canonical schema drift → `CANONICAL_SCHEMA_WOUND`; receipt identity survives, descriptor staging does not begin;
 - canonical evidence incomplete → `CANONICAL_WOUND`; descriptor staging does not begin;
 - exact descriptor unavailable → canonical portable owner remains the independent authority path;
 - unknown capability state → shadow capability wound; do not normalize it;
