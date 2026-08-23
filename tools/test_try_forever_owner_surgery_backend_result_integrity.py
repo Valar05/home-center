@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression source for backend-result schema + surgery-membership custody.
+"""Regression source for backend-result schema + exact surgery-membership custody.
 
 SOURCE ONLY. This file has not been observed executing in an authorized test lane.
 """
@@ -18,6 +18,8 @@ from try_forever_owner_surgery_backend_result_integrity import (
 
 OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
 BASE = "c5de1411a6b68087ae17aff83c032af754587150"
+SHA_A = "a" * 64
+SHA_B = "b" * 64
 
 
 def surgery(
@@ -26,6 +28,8 @@ def surgery(
     artifact_kind: str = "patch",
     state: str = "CORRECTED_PROPOSED_NOT_APPLIED",
     promotion_candidate: bool = True,
+    byte_count: int = 10,
+    sha256: str = SHA_A,
 ):
     return {
         "path": path,
@@ -34,6 +38,8 @@ def surgery(
         "base_blob": BASE,
         "state": state,
         "promotion_candidate": promotion_candidate,
+        "artifact_byte_count": byte_count,
+        "artifact_sha256": sha256,
     }
 
 
@@ -52,11 +58,15 @@ def complete_result():
     second = surgery(
         "patches/try-forever-b.delta.json",
         artifact_kind="delta_json",
+        byte_count=20,
+        sha256=SHA_B,
     )
     diagnostic = surgery(
         "patches/try-forever-applied.patch",
         state="APPLIED_SOURCE",
         promotion_candidate=False,
+        byte_count=30,
+        sha256="c" * 64,
     )
     return {
         "schema": CANONICAL_CUSTODY_SCHEMA,
@@ -64,6 +74,10 @@ def complete_result():
         "artifactDirectoryEntriesObserved": 9,
         "artifactCandidatesObserved": 3,
         "surgeries": [first, second, diagnostic],
+        "artifactContentWitnesses": [
+            {"path": item["path"], "byteCount": item["artifact_byte_count"], "sha256": item["artifact_sha256"]}
+            for item in [first, second, diagnostic]
+        ],
         "discoveryErrors": [],
         "evidenceComplete": True,
         "currentOwnerBlobs": {OWNER: BASE},
@@ -91,6 +105,7 @@ def main() -> int:
     assert integrity["surgeriesAdmitted"] == 3
     assert integrity["authorityGroupMembersAdmitted"] == 2
     assert integrity["phantomPromotionMembers"] == 0
+    assert integrity["contentEvidenceDriftMembers"] == 0
     assert integrity["authorityAdmitted"] is False
     assert integrity["tested"] is False
 
@@ -99,6 +114,7 @@ def main() -> int:
     assert admitted["ownerEvidenceAdmitted"] is True
     assert admitted["surgeriesAdmitted"] == 3
     assert admitted["authorityGroupMembersAdmitted"] == 2
+    assert admitted["contentEvidenceDriftMembers"] == 0
 
     wrong_schema = complete_result()
     wrong_schema["schema"] = "try-forever-owner-surgery-custody.v11"
@@ -135,6 +151,18 @@ def main() -> int:
     )
     expect_rejected(state_lie, "must agree with exact admitted surgery state")
 
+    missing_content = complete_result()
+    missing_content["surgeries"][0] = {
+        key: value
+        for key, value in missing_content["surgeries"][0].items()
+        if key not in {"artifact_byte_count", "artifact_sha256"}
+    }
+    expect_rejected(missing_content, "artifact_byte_count")
+
+    malformed_sha = complete_result()
+    malformed_sha["surgeries"][0]["artifact_sha256"] = "A" * 64
+    expect_rejected(malformed_sha, "artifact_sha256 must be 64 lowercase hexadecimal")
+
     phantom = complete_result()
     phantom_member = surgery("patches/try-forever-phantom.patch")
     phantom["collisionSets"] = [
@@ -153,6 +181,15 @@ def main() -> int:
     ]
     expect_rejected(changed_state, "must exist exactly in surgeries inventory")
 
+    # Same metadata with drifted content evidence is not the exact canonical Surgery member.
+    changed_content = complete_result()
+    changed_content_member = dict(changed_content["surgeries"][0])
+    changed_content_member["artifact_sha256"] = "d" * 64
+    changed_content["collisionSets"] = [
+        collision_group(changed_content_member, changed_content["surgeries"][1])
+    ]
+    expect_rejected(changed_content, "must exist exactly in surgeries inventory")
+
     malformed_member = complete_result()
     malformed_member["collisionSets"] = [
         collision_group(
@@ -169,6 +206,8 @@ def main() -> int:
             "patches/try-forever-applied.patch",
             state="APPLIED_SOURCE",
             promotion_candidate=False,
+            byte_count=30,
+            sha256="c" * 64,
         )
     ]
     audit = audit_backend_result_inventory(diagnostic_only)
