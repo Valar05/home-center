@@ -9,7 +9,9 @@ repository state.
 
 A descriptor wound here does not trigger portable fallback because no descriptor authority was ever
 admitted. Likewise a shadow match does not mean canonical-owner descriptor integration, TESTED,
-runtime, deployment, phone delivery, or acceptance.
+runtime, deployment, phone delivery, or acceptance. When normal shadow comparison completes, the
+existing temporal-binding policy is also evaluated so exact later-read agreement can be separated
+from proof that those bytes produced the canonical result.
 """
 
 from __future__ import annotations
@@ -173,7 +175,8 @@ def audit_descriptor_shadow(
     The canonical result is always produced first and remains the only authority result. The shadow
     may report MATCH, DIVERGED, CANONICAL_SCHEMA_WOUND, CANONICAL_WOUND, PORTABLE_SHADOW_WOUND,
     UNAVAILABLE, CAPABILITY_WOUND, or DESCRIPTOR_WOUND, but never collision/stale/unverified
-    promotion groups and never ownerEvidenceAdmitted=true.
+    promotion groups and never ownerEvidenceAdmitted=true. A completed comparison also carries the
+    non-authoritative temporal-binding result for the same canonical payload.
     """
 
     portable = classify(
@@ -353,13 +356,13 @@ def audit_descriptor_shadow(
         else "SHADOW_DIVERGED"
     )
 
-    return {
+    result = {
         **base,
         "status": status,
         "boundary": (
             "Descriptor custody independently matched portable shadow inventory and exact content "
-            "identity for the canonical-result fingerprint carried by this receipt; this remains "
-            "staging evidence only, not owner integration, atomic binding, or promotion authority."
+            "identity for the canonical-result fingerprint carried by this receipt; temporal binding "
+            "is reported separately and grants no promotion authority or filesystem atomicity."
             if status == "SHADOW_MATCH"
             else "Descriptor shadow differs from portable staging evidence; stop before owner integration."
         ),
@@ -370,6 +373,18 @@ def audit_descriptor_shadow(
         "contentIdentityMatch": content_identity_match,
         "portableShadowArtifacts": portable_shadow_artifacts,
         "descriptorArtifacts": observations,
+    }
+
+    # Local import avoids a module-import cycle: the temporal policy imports this module's stable
+    # schema/result-identity helpers, while this owner path consumes that policy only after this
+    # module is fully initialized and the shadow comparison result exists.
+    from try_forever_owner_surgery_shadow_temporal_binding import evaluate_temporal_content_binding
+
+    temporal_binding = evaluate_temporal_content_binding(portable, result)
+    return {
+        **result,
+        "temporalContentBinding": temporal_binding,
+        "temporalBindingProven": temporal_binding.get("temporalBindingProven") is True,
     }
 
 
