@@ -112,6 +112,38 @@ def main() -> int:
         "comparison booleans contradict",
     )
 
+    # Equal counters are not self-validating if either candidate count exceeds its directory work.
+    expect_rejected(
+        raw_match(
+            canonicalArtifactDirectoryEntriesObserved=1,
+            canonicalArtifactCandidatesObserved=2,
+        ),
+        "canonical artifact candidate count cannot exceed directory-entry count",
+    )
+    expect_rejected(
+        raw_match(
+            descriptorArtifactDirectoryEntriesObserved=1,
+            descriptorArtifactCandidatesObserved=2,
+        ),
+        "descriptor artifact candidate count cannot exceed directory-entry count",
+    )
+
+    # Completed comparison artifact evidence must account for every observed candidate on its side.
+    expect_rejected(
+        raw_match(
+            canonicalArtifactDirectoryEntriesObserved=2,
+            canonicalArtifactCandidatesObserved=2,
+        ),
+        "portable artifact evidence cardinality must equal canonical candidate count",
+    )
+    expect_rejected(
+        raw_match(
+            descriptorArtifactDirectoryEntriesObserved=2,
+            descriptorArtifactCandidatesObserved=2,
+        ),
+        "descriptor artifact evidence cardinality must equal descriptor candidate count",
+    )
+
     # Completed comparisons require the exact canonical/backend/capability context.
     expect_rejected(
         raw_match(canonicalAuthorityBackend="HELD_DIRECTORY_DESCRIPTOR"),
@@ -176,6 +208,8 @@ def main() -> int:
     assert diverged_receipt["temporalStatus"] == "SHADOW_COMPARISON_NOT_ADMITTED"
 
     # Wound/unavailable states may carry null comparison truth but no stale temporal proof.
+    # DESCRIPTOR_WOUND legitimately retains already-observed portable evidence, so completed-only
+    # cardinality checks must not erase that diagnostic contact.
     wounded = raw_match(
         status="DESCRIPTOR_WOUND",
         canonicalArtifactDirectoryEntriesObserved=2,
