@@ -22,13 +22,13 @@
 </head>
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
-<p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · □ OWNER KEY EXACT SUPPORTING SOURCE / OWNER RED · □ PATCH HEADER CARDINALITY SUPPORTING SOURCE / OWNER RED · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> supporting source only; canonical v10 consumption remains NO.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
+<p>One custody owner. Exact evidence first. Prepared surgery is not owner wiring. Stronger descriptor custody is supporting source, not a second authority.</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · □ OWNER KEY EXACT SUPPORTING SOURCE / OWNER RED · □ PATCH HEADER CARDINALITY SUPPORTING SOURCE / OWNER RED · ◇ METADATA OWNER SURGERY PREPARED / NOT APPLIED · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> supporting source only; canonical v10 consumption remains NO.<br><strong>Prepared owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, status <strong>CORRECTED_PROPOSED_NOT_APPLIED</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, and exact authenticated current-owner blob identity. New supporting gates expose owner-key normalization and duplicate textual patch-header ambiguity before authority.</desc>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, and exact authenticated current-owner blob identity. Supporting gates expose owner-key normalization and duplicate textual patch-header ambiguity. One prepared existing-owner surgery composes those gates but is not applied.</desc>
   <path d="M20 75 H755"/>
   <circle cx="45" cy="75" r="21"/><text x="28" y="80">ROOT</text>
   <circle cx="130" cy="75" r="21"/><text x="112" y="80">SCAN</text>
@@ -37,7 +37,7 @@
   <circle cx="390" cy="75" r="21"/><text x="369" y="80">BASE</text>
   <rect x="455" y="44" width="82" height="62"/><text x="466" y="70">OWNER</text><text x="474" y="91">KEY</text>
   <rect x="550" y="44" width="82" height="62"/><text x="560" y="70">PATCH</text><text x="558" y="91">HEADERS</text>
-  <rect x="645" y="31" width="92" height="88"/><text x="662" y="60">HELD FD</text><text x="659" y="83">SUPPORT</text><text x="666" y="106">SOURCE</text>
+  <rect x="645" y="31" width="92" height="88"/><text x="657" y="57">SURGERY</text><text x="655" y="80">PREPARED</text><text x="662" y="103">NOT RUN</text>
 </svg>
 
 <details open>
@@ -57,6 +57,15 @@
     <p><strong>Supporting source:</strong> exactly one base-owner blob header, exactly one state/status header, and at most one explicit owner header. Exact base/state admission reuses existing contracts.</p>
     <p><strong>Current owner wound:</strong> canonical v10 still uses first-match <code>BASE_RE.search</code>, <code>STATE_RE.search</code>, and <code>OWNER_RE.search</code>.</p>
     <p><strong>Default owner fallback:</strong> remains a separate existing-owner rule when no explicit owner header exists.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">◇</span> Prepared exact owner surgery — source only</summary>
+  <div>
+    <p>The prepared patch composes <code>admit_patch_metadata(...)</code> and <code>admit_owner_identity(...)</code> into the existing v10 owner. It removes first-match patch metadata authority and CLI owner trimming without creating a second custody owner.</p>
+    <p><strong>Base custody:</strong> exact owner blob <code>523d8005212745738106733e91be6dd625caf767</code>.</p>
+    <p><strong>Status:</strong> <code>CORRECTED_PROPOSED_NOT_APPLIED</code>. Patch provenance does not count as implementation. The current owner remains RED until authenticated readback changes.</p>
   </div>
 </details>
 
@@ -142,7 +151,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Patch-header cardinality:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Metadata regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Patch-header cardinality:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Prepared metadata owner surgery:</strong> YES / NOT APPLIED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Metadata regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
