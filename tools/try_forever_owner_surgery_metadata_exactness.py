@@ -69,15 +69,29 @@ def admit_owner_identity(value: object, *, field: str = "owner") -> str:
     return value
 
 
+def _first_two_matches(pattern: re.Pattern[str], text: str) -> tuple[re.Match[str] | None, re.Match[str] | None]:
+    """Observe only enough matching headers to decide cardinality-one authority.
+
+    Canonical custody already gives this policy bounded artifact text. This additional throat avoids
+    materializing an adversarial list of every matching header when the only useful distinction is
+    zero, one, or at least two.
+    """
+
+    matches = pattern.finditer(text)
+    first = next(matches, None)
+    second = next(matches, None)
+    return first, second
+
+
 def _one_header_value(pattern: re.Pattern[str], text: str, *, field: str) -> str:
-    matches = list(pattern.finditer(text))
-    if not matches:
+    first, second = _first_two_matches(pattern, text)
+    if first is None:
         raise OwnerSurgeryMetadataError(f"patch is missing {field}")
-    if len(matches) != 1:
+    if second is not None:
         raise OwnerSurgeryMetadataError(
-            f"patch must contain exactly one {field}; observed {len(matches)}"
+            f"patch must contain exactly one {field}; observed 2 or more"
         )
-    return matches[0].group(1)
+    return first.group(1)
 
 
 def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
@@ -96,10 +110,10 @@ def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
         text,
         field="state/status header",
     )
-    owner_headers = list(OWNER_HEADER_RE.finditer(text))
-    if len(owner_headers) > 1:
+    owner_first, owner_second = _first_two_matches(OWNER_HEADER_RE, text)
+    if owner_second is not None:
         raise OwnerSurgeryMetadataError(
-            f"patch must contain at most one explicit owner header; observed {len(owner_headers)}"
+            "patch must contain at most one explicit owner header; observed 2 or more"
         )
 
     if SHA1_RE.fullmatch(base_blob) is None:
@@ -109,8 +123,8 @@ def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
 
     state_admission = admit_owner_surgery_state(state_text)
     explicit_owner = (
-        admit_owner_identity(owner_headers[0].group(1), field="patch owner")
-        if owner_headers
+        admit_owner_identity(owner_first.group(1), field="patch owner")
+        if owner_first is not None
         else None
     )
 
@@ -127,6 +141,7 @@ def source_receipt() -> dict[str, object]:
         "schema": SCHEMA,
         "ownerIdentityExact": True,
         "patchHeaderCardinalityExact": True,
+        "headerCardinalityScanBounded": True,
         "malformedDuplicateHeadersCounted": True,
         "headerRecognitionLineLocal": True,
         "crlfFramingPreserved": True,
