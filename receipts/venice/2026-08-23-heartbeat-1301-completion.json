@@ -17,8 +17,19 @@
     "The stale projection regression and stale shadow-receipt doctrine were corrected instead of papered over.",
     "Review found and repaired an incomplete temporal capability membrane in the first self-integrity draft.",
     "The existing Warm Wall was mutated in place only because operator receipt topology materially changed; it remains source-only and non-raster.",
-    "No authorized regression execution or runtime observation exists for this exact source head."
+    "Automatic workflows on the exact source head concluded failure, but Operator exposes zero steps and its logs return 404 BlobNotFound; this establishes no regression execution or step-level cause."
   ],
+  "executionEvidence": {
+    "operatorOverlayRunId": 32657058179,
+    "operatorOverlayJobId": 97237354419,
+    "operatorStepsExposed": 0,
+    "operatorLogs": "404_BlobNotFound",
+    "buildAndroidRunId": 32657058176,
+    "homeCenterCiRunId": 32657058170,
+    "allConclusions": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false
+  },
   "capabilityMembrane": {
     "implementedSource": true,
     "authenticatedReadback": true,
