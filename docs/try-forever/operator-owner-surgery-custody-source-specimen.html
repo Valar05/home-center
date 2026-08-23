@@ -23,22 +23,42 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Stronger descriptor custody is supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE ID EXACTNESS SOURCE WIRED · ● CURRENT OWNER ID EXACTNESS SOURCE WIRED · ● ROOT I/O TYPED SUPPORTING SOURCE · ● INVENTORY I/O TYPED SUPPORTING SOURCE · ● ARTIFACT I/O + UTF-8 TYPED SUPPORTING SOURCE · ● CLEANUP CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Current custody-owner blob:</strong> f3457f82f5ea135e303c6ca7b93491511a471dd7<br><strong>Current-owner exactness applied commit:</strong> bbc13531816eb48353d01c201b2ef4e8d3715563<br><strong>Earlier artifact-base exactness commit:</strong> 2ba4254f8e9b736fe47dbe0f5192fe270397359a<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 consumption remains NO.</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · □ OWNER KEY EXACT SUPPORTING SOURCE / OWNER RED · □ PATCH HEADER CARDINALITY SUPPORTING SOURCE / OWNER RED · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> supporting source only; canonical v10 consumption remains NO.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base identity, and exact authenticated current-owner identity. POSIX held-descriptor custody adds typed root setup, inventory, artifact I/O, UTF-8, and cleanup-close failure gates without canonical-owner integration.</desc>
-  <path d="M35 75 H735"/>
-  <circle cx="55" cy="75" r="22"/><text x="35" y="80">ROOT</text>
-  <circle cx="155" cy="75" r="22"/><text x="136" y="80">SCAN</text>
-  <circle cx="255" cy="75" r="22"/><text x="239" y="80">FILE</text>
-  <circle cx="355" cy="75" r="22"/><text x="334" y="80">STATE</text>
-  <circle cx="455" cy="75" r="22"/><text x="429" y="80">BASE ID</text>
-  <circle cx="565" cy="75" r="22"/><text x="530" y="80">CURRENT</text>
-  <rect x="625" y="31" width="70" height="88"/><text x="637" y="60">HELD</text><text x="643" y="83">FD</text><text x="633" y="106">SOURCE</text>
-  <rect x="705" y="31" width="70" height="88"/><text x="711" y="60">CLOSE</text><text x="715" y="83">TYPED</text><text x="713" y="106">SOURCE</text>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, and exact authenticated current-owner blob identity. New supporting gates expose owner-key normalization and duplicate textual patch-header ambiguity before authority.</desc>
+  <path d="M20 75 H755"/>
+  <circle cx="45" cy="75" r="21"/><text x="28" y="80">ROOT</text>
+  <circle cx="130" cy="75" r="21"/><text x="112" y="80">SCAN</text>
+  <circle cx="215" cy="75" r="21"/><text x="199" y="80">FILE</text>
+  <circle cx="300" cy="75" r="21"/><text x="278" y="80">STATE</text>
+  <circle cx="390" cy="75" r="21"/><text x="369" y="80">BASE</text>
+  <rect x="455" y="44" width="82" height="62"/><text x="466" y="70">OWNER</text><text x="474" y="91">KEY</text>
+  <rect x="550" y="44" width="82" height="62"/><text x="560" y="70">PATCH</text><text x="558" y="91">HEADERS</text>
+  <rect x="645" y="31" width="92" height="88"/><text x="662" y="60">HELD FD</text><text x="659" y="83">SUPPORT</text><text x="666" y="106">SOURCE</text>
 </svg>
+
+<details open>
+  <summary><span class="token">KEY</span> Authenticated owner key — exact supporting source / owner RED</summary>
+  <div>
+    <p>Owner identity is a machine key. A CLI owner spelled with leading or trailing whitespace must not gain authenticated custody because a parser helpfully calls <code>strip()</code>.</p>
+    <p><strong>Supporting source:</strong> <code>admit_owner_identity(...)</code> preserves internal spaces but rejects leading/trailing-whitespace repair.</p>
+    <p><strong>Current owner wound:</strong> canonical v10 CLI parsing still structurally trims owner text, and programmatic current-owner admission does not yet consume the same exact gate.</p>
+    <p><strong>Regression source:</strong> supporting fixtures + intentionally RED canonical-owner boundary; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">HDR</span> Textual patch headers — cardinality exact supporting source / owner RED</summary>
+  <div>
+    <p>A patch with two base headers, two state/status headers, or two explicit owner headers is ambiguous authority evidence even when the duplicate values happen to agree.</p>
+    <p><strong>Supporting source:</strong> exactly one base-owner blob header, exactly one state/status header, and at most one explicit owner header. Exact base/state admission reuses existing contracts.</p>
+    <p><strong>Current owner wound:</strong> canonical v10 still uses first-match <code>BASE_RE.search</code>, <code>STATE_RE.search</code>, and <code>OWNER_RE.search</code>.</p>
+    <p><strong>Default owner fallback:</strong> remains a separate existing-owner rule when no explicit owner header exists.</p>
+  </div>
+</details>
 
 <details open>
   <summary><span class="token">ROOT</span> Root setup I/O — typed supporting source</summary>
@@ -61,79 +81,60 @@
 <details open>
   <summary><span class="token">CLOSE</span> Cleanup failure ownership — typed supporting source</summary>
   <div>
-    <p>Root, scan, and artifact descriptor cleanup now has one explicit rule: a close failure is a custody wound only when cleanup is the primary failure.</p>
-    <p><strong>Primary cleanup failure:</strong> bounded <code>DescriptorCustodyCleanupError</code>, never raw <code>OSError</code>. <strong>Earlier body/inventory/artifact failure:</strong> that earlier wound remains primary and cleanup failure cannot replace it.</p>
+    <p>Root, scan, and artifact descriptor cleanup has one explicit rule: a close failure is a custody wound only when cleanup is the primary failure.</p>
+    <p><strong>Primary cleanup failure:</strong> bounded <code>DescriptorCustodyCleanupError</code>. <strong>Earlier body/inventory/artifact failure:</strong> that earlier wound remains primary and cleanup failure cannot replace it.</p>
     <p>Explicit held-root close retires the descriptor number before the syscall so a failed close does not invite a retry against a number the kernel may already have recycled.</p>
-    <p><strong>Regression source:</strong> root, scan, and artifact close failures in both primary and secondary positions; <strong>UNEXECUTED</strong>.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">BASE</span> Exact artifact base-owner identity — SOURCE WIRED</summary>
+  <summary><span class="token">BASE</span> Exact artifact base-owner blob identity — SOURCE WIRED</summary>
   <div>
     <p>Patch/delta base-owner SHA text is authority evidence, not display text. Uppercase or normalization-dependent evidence is rejected instead of lowercased into authority.</p>
-    <p><strong>Applied source:</strong> textual patch evidence preserves the captured token and validates exact lowercase SHA; structured delta evidence is validated before any case transformation.</p>
-    <p><strong>Regression source:</strong> lowercase admission and uppercase rejection exist for both patch and delta forms. They remain <strong>UNEXECUTED</strong>.</p>
+    <p>This completed blob channel stays separate from the new owner-key and duplicate-header channels.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">NOW</span> Exact authenticated current-owner identity — SOURCE WIRED</summary>
+  <summary><span class="token">NOW</span> Exact authenticated current-owner blob identity — SOURCE WIRED</summary>
   <div>
-    <p>The authority token used to decide CURRENT versus STALE custody is no longer repaired by lowercase or whitespace normalization.</p>
-    <p><strong>CLI:</strong> the blob after <code>OWNER=</code> must already be exactly 40 lowercase hexadecimal characters. <strong>Programmatic:</strong> <code>classify(..., current_owner_blobs=...)</code> applies the same fail-closed admission before comparison.</p>
-    <p>Owner-key structural trimming remains unchanged; this surgery intentionally touched blob authority only.</p>
-    <p><strong>Owner source:</strong> blob <code>f3457f82f5ea135e303c6ca7b93491511a471dd7</code>. <strong>Regression source:</strong> lowercase acceptance plus uppercase/padded rejection for CLI and programmatic inputs; <strong>UNEXECUTED</strong>.</p>
+    <p>The blob authority token used to decide CURRENT versus STALE custody is not repaired by lowercase or whitespace normalization.</p>
+    <p><strong>Important split:</strong> exact blob text is already wired; exact owner-key text is the new RED owner boundary above.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">v10</span> Portable canonical owner</summary>
   <div>
-    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, exact artifact base identity, and exact authenticated current-owner blob admission.</p>
+    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, artifact-content witnesses, exact artifact base blob identity, and exact current-owner blob admission.</p>
     <p><strong>Still not atomic:</strong> pathname revalidation does not eliminate swap-and-restore or filesystem identity reuse.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">32K</span> Directory-entry throat</summary>
-  <div>
-    <p>Unrelated entries count. The portable owner and held-descriptor supporting source both treat total directory-entry work separately from matching candidate count.</p>
-    <p><strong>Descriptor hostile source:</strong> unrelated-entry max+1 must reject the entire inventory rather than return partial authority.</p>
-  </div>
+  <div><p>Unrelated entries count against the bounded directory scan. Total entry work stays separate from matching candidate count.</p></div>
 </details>
 
 <details>
   <summary><span class="token">2048</span> Candidate throat</summary>
-  <div>
-    <p>Matching patch/delta candidates have an independent budget. Candidate max+1 must reject the inventory instead of blessing the first N candidates.</p>
-    <p>This budget rule is pinned in descriptor regression source and remains <strong>UNEXECUTED</strong>.</p>
-  </div>
+  <div><p>Matching patch/delta candidates have an independent budget. Candidate max+1 rejects the inventory instead of blessing first-N partial authority.</p></div>
 </details>
 
 <details open>
   <summary><span class="token">I/O</span> Artifact filesystem failure containment — supporting source</summary>
-  <div>
-    <p>A candidate disappearing after enumeration, failing descriptor-relative open, failing descriptor read/fstat, or failing the post-read named-path recheck stays inside the custody error domain.</p>
-    <p>Raw OS exception text is not promoted into authority evidence. The source produces bounded phase-level <code>DescriptorArtifactCustodyError</code> wounds and returns no admitted observation.</p>
-    <p><strong>Regression source:</strong> candidate disappearance after enumeration must produce typed pre-open custody rejection; <strong>UNEXECUTED</strong>.</p>
-  </div>
+  <div><p>Candidate disappearance, descriptor-relative open/read/fstat failure, or post-read named-path drift stays inside bounded custody errors and returns no admitted observation.</p></div>
 </details>
 
 <details open>
   <summary><span class="token">UTF8</span> Strict text admission — supporting source</summary>
-  <div>
-    <p>Malformed UTF-8 does not become replacement text, partial authority, or a raw decoder exception escaping the custody surface.</p>
-    <p>The held-descriptor source keeps strict decoding and converts decode failure to bounded <code>DescriptorArtifactCustodyError</code>. Exact byte/SHA evidence is computed from the observed bytes but no <code>DescriptorArtifactObservation</code> is returned when text admission fails.</p>
-    <p><strong>Regression source:</strong> malformed UTF-8 must produce the typed custody rejection after the existing root/candidate/file identity gates; <strong>UNEXECUTED</strong>.</p>
-  </div>
+  <div><p>Malformed UTF-8 does not become replacement text, partial authority, or an escaping raw decoder error.</p></div>
 </details>
 
 <details>
   <summary><span class="token">FD</span> Held-directory backend — supporting source</summary>
   <div>
     <p>On POSIX runtimes with the required descriptor primitives, supporting source can hold the root directory, scan through fresh descriptor-relative handles, carry enumeration-time candidate identity into pre-open checks, and read candidates through no-follow descriptor-relative operations.</p>
-    <p>It preserves total-entry and candidate-count evidence. It detects persistent root/candidate replacement more strongly than pathname-only custody.</p>
     <p><strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
   </div>
 </details>
@@ -141,7 +142,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact base identity:</strong> SOURCE_WIRED. <strong>Exact authenticated current-owner identity:</strong> SOURCE_WIRED. <strong>Descriptor root setup I/O:</strong> SUPPORTING SOURCE. <strong>Descriptor inventory I/O:</strong> SUPPORTING SOURCE. <strong>Descriptor artifact I/O + strict UTF-8:</strong> SUPPORTING SOURCE. <strong>Descriptor cleanup close:</strong> SUPPORTING SOURCE. <strong>Focused root/inventory regression:</strong> SOURCE / UNEXECUTED. <strong>Focused cleanup regression:</strong> SOURCE / UNEXECUTED. <strong>Descriptor backend:</strong> SUPPORTING SOURCE. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Patch-header cardinality:</strong> SUPPORTING SOURCE / OWNER RED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Metadata regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
