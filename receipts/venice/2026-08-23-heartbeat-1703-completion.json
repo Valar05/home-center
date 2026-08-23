@@ -13,11 +13,26 @@
   ],
   "openBoundaries": [
     "Regression sources are unexecuted.",
-    "Exact-head workflows are queued and do not establish TESTED state.",
+    "Exact-head workflows completed failure; Operator job exposed zero steps and log readback returned 404 BlobNotFound, so no usable step-level cause is established and TESTED remains NO.",
     "Runtime UI and runtime TalkBack are unobserved.",
     "Canonical descriptor authority integration remains outside this source slice.",
     "Deployment, callability, execution, delivery, and acceptance remain NO."
   ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {
+      "runId": 32669758988,
+      "jobId": 97268645421,
+      "status": "completed",
+      "conclusion": "failure",
+      "exposedSteps": 0,
+      "logReadback": "404 BlobNotFound"
+    },
+    "buildAndroid": {"runId": 32669758996, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32669758994, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
   "reviewerFaults": [
     "Authoritative She-Raw consultation failed account connection with HTTP 400; no substitute verdict was fabricated."
   ]
