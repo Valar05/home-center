@@ -130,6 +130,24 @@ def _recompute_completed_comparisons(
         result.get("descriptorArtifactCandidatesObserved"),
         field="descriptorArtifactCandidatesObserved",
     )
+
+    if canonical_candidates > canonical_entries:
+        raise ShadowReceiptSelfIntegrityError(
+            "canonical artifact candidate count cannot exceed directory-entry count"
+        )
+    if descriptor_candidates > descriptor_entries:
+        raise ShadowReceiptSelfIntegrityError(
+            "descriptor artifact candidate count cannot exceed directory-entry count"
+        )
+    if len(portable) != canonical_candidates:
+        raise ShadowReceiptSelfIntegrityError(
+            "portable artifact evidence cardinality must equal canonical candidate count"
+        )
+    if len(descriptor) != descriptor_candidates:
+        raise ShadowReceiptSelfIntegrityError(
+            "descriptor artifact evidence cardinality must equal descriptor candidate count"
+        )
+
     metrics_match = (
         canonical_entries == descriptor_entries
         and canonical_candidates == descriptor_candidates
