@@ -33,8 +33,8 @@ def shadow_result(**overrides):
         "status": "SHADOW_MATCH",
         "canonicalResultSha256": CANONICAL_SHA,
         "boundary": boundary,
-        "portableShadowArtifacts": [artifact("/repo/patches/try-forever-a.patch")],
-        "descriptorArtifacts": [artifact("/repo/patches/try-forever-a.patch")],
+        "portableShadowArtifacts": [artifact("patches/try-forever-a.patch")],
+        "descriptorArtifacts": [artifact("patches/try-forever-a.patch")],
         "artifactSetMatch": True,
         "metricsMatch": True,
         "contentIdentityMatch": True,
@@ -75,8 +75,16 @@ def main() -> int:
     assert receipt["authorityAdmitted"] is False
     assert receipt["tested"] is False
 
+    # Canonical relative shadow paths remain repository-scoped without depending on process cwd.
+    relative = project_shadow_receipt(
+        Path("/some/other/repo-root"),
+        shadow_result(),
+    )
+    assert relative["portableArtifacts"][0]["path"] == "patches/try-forever-a.patch"
+    assert relative["portableArtifacts"][0]["pathScope"] == "REPOSITORY"
+
     # Repository control/layout evidence is revealed, not emitted raw.
-    separated_path = "/repo/patches/a\u2028b.patch"
+    separated_path = "patches/a\u2028b.patch"
     separated = project_shadow_receipt(
         ROOT,
         shadow_result(
@@ -100,7 +108,7 @@ def main() -> int:
 
     # Long repository paths collapse to whole-identity evidence rather than a grapheme-cut prefix.
     long_name = "swan-" * 80 + ".patch"
-    long_path = f"/repo/patches/{long_name}"
+    long_path = f"patches/{long_name}"
     collapsed = project_shadow_receipt(
         ROOT,
         shadow_result(
@@ -139,11 +147,11 @@ def main() -> int:
     expect_rejected(shadow_result(descriptorAuthorityAdmitted=True), "never carry descriptor authority")
     expect_rejected(shadow_result(ownerMutation=True), "never claim owner mutation")
     expect_rejected(
-        shadow_result(portableShadowArtifacts=[artifact("/repo/a.patch", byte_count=True)]),
+        shadow_result(portableShadowArtifacts=[artifact("patches/a.patch", byte_count=True)]),
         "non-negative integer",
     )
     expect_rejected(
-        shadow_result(portableShadowArtifacts=[artifact("/repo/a.patch", sha256="B" * 64)]),
+        shadow_result(portableShadowArtifacts=[artifact("patches/a.patch", sha256="B" * 64)]),
         "64 lowercase hexadecimal",
     )
     expect_rejected(shadow_result(artifactSetMatch="true"), "boolean or null")
