@@ -1,0 +1,19 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "reviewType": "same-worker Judgment Jar plan review",
+  "decision": "PLAN_ALLOWED",
+  "reasons": [
+    "The two source wounds are independent but compose through existing receipt owners; no second projector or descriptor authority is proposed.",
+    "P0 and primary-phone surfaces remain explicitly untouched.",
+    "Raw machine evidence will remain separate; a digest may bind the operator receipt to it without exposing raw boundary prose.",
+    "Wound-context validation improves fail-closed semantics and does not reinterpret completed-comparison authority.",
+    "Regression source, source implementation, TESTED, runtime, deployed, delivered, and accepted states remain distinct."
+  ],
+  "hardStops": [
+    "Do not mutate P0 recovery/phone queues or execution surfaces.",
+    "Do not create a second shadow receipt projector or descriptor authority.",
+    "Do not call regression source TESTED unless an authorized execution lane actually runs it.",
+    "Do not include raw machine evidence in the operator-facing receipt."
+  ]
+}
