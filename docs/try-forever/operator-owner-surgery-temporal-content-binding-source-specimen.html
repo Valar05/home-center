@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / TEMPORAL CONTENT BINDING</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL RESULT ID: YES · CANONICAL SAME-OBSERVATION CONTENT WITNESS: NO · TEMPORAL POLICY: SOURCE · RED OWNER BOUNDARY: SOURCE / UNEXECUTED · TEMPORAL BINDING PROVEN: NO · AUTHORITY: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL RESULT ID: YES · SAME-OBSERVATION CONTENT WITNESS: SOURCE_WIRED · DESCRIPTOR TEMPORAL POLICY: SOURCE_WIRED · TEMPORAL EXECUTION PROOF: NO · AUTHORITY: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 920 220" role="img" aria-labelledby="title desc">
-    <title id="title">Canonical result identity separated from artifact content timeline</title>
-    <desc id="desc">Canonical v10 produces a result. The result SHA identifies that payload, but current v10 does not carry exact content witnesses from the artifact reads that produced it. Later portable and descriptor reads can agree without proving they are the bytes that produced the canonical result. A future same-observation witness closes that evidence chain without granting authority.</desc>
+    <title id="title">Canonical artifact witness joined to later descriptor shadow evidence</title>
+    <desc id="desc">Canonical v10 now carries exact byte count and SHA witnesses from the same bounded artifact observations that produced Surgery records. Later portable and descriptor reads remain separate observations. The descriptor shadow now consumes the temporal binding policy, which can report bound or diverged evidence without granting promotion authority.</desc>
     <path d="M25 110 H155 M235 110 H360 M440 110 H565 M645 110 H815" fill="none" stroke="currentColor" stroke-width="5"/>
     <circle cx="195" cy="110" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="360" y="70" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -36,32 +36,32 @@
     <rect x="815" y="70" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <text x="24" y="86" fill="currentColor">V10 RESULT</text>
     <text x="151" y="168" fill="currentColor">RESULT SHA</text>
-    <text x="330" y="52" fill="currentColor">CANONICAL BYTES?</text>
+    <text x="330" y="52" fill="currentColor">V10 WITNESS</text>
     <text x="536" y="52" fill="currentColor">LATER READS</text>
     <text x="788" y="52" fill="currentColor">BIND</text>
-    <text x="330" y="190" fill="currentColor">CURRENT GAP</text>
+    <text x="330" y="190" fill="currentColor">SOURCE WIRED</text>
   </svg>
 
   <fieldset>
     <legend>Inspect one evidence state</legend>
-    <label><input type="radio" name="state" value="result" checked><span><span class="token">◇ RESULT ID BOUND</span><br>canonicalResultSha256 identifies the exact canonical JSON result payload. It does not identify the bytes that were read to produce it.</span></label>
-    <label><input type="radio" name="state" value="missing"><span><span class="token">× CANONICAL CONTENT WITNESS MISSING</span><br>Current v10 carries no same-observation artifactContentWitnesses. Later-read agreement cannot close the timeline.</span></label>
-    <label><input type="radio" name="state" value="later"><span><span class="token">□ LATER READS AGREE</span><br>Portable and held-directory staging may agree on path, byte count, and SHA. Useful shadow evidence, but still later in time.</span></label>
-    <label><input type="radio" name="state" value="bound"><span><span class="token">● TEMPORAL CONTENT BOUND</span><br>Future state only: canonical same-observation witnesses and both later staging mechanisms agree exactly. Still no promotion authority or filesystem-atomicity claim.</span></label>
-    <label><input type="radio" name="state" value="diverged"><span><span class="token">× TEMPORAL CONTENT DIVERGED</span><br>Canonical witnesses and later staging differ. Stop before owner composition; preserve the wound rather than picking the prettier copy.</span></label>
-    <label><input type="radio" name="state" value="owner"><span><span class="token">× OWNER BOUNDARY RED</span><br>Canonical Surgery does not yet retain same-observation byte/SHA identity and descriptor shadow does not yet consume the temporal policy.</span></label>
+    <label><input type="radio" name="state" value="result" checked><span><span class="token">◇ RESULT ID BOUND</span><br>canonicalResultSha256 identifies the exact canonical JSON result payload. It is still distinct from artifact-content identity.</span></label>
+    <label><input type="radio" name="state" value="witness"><span><span class="token">● CANONICAL WITNESS SOURCE WIRED</span><br>Each admitted Surgery retains byte count and SHA from the exact bounded artifact observation that produced it, and v10 emits artifactContentWitnesses.</span></label>
+    <label><input type="radio" name="state" value="later"><span><span class="token">□ LATER READS AGREE</span><br>Portable and held-directory staging may agree on path, byte count, and SHA. They remain later observations, not canonical evidence by themselves.</span></label>
+    <label><input type="radio" name="state" value="bound"><span><span class="token">● TEMPORAL BINDING PATH SOURCE WIRED</span><br>The descriptor shadow now consumes the temporal policy. Exact witness + portable + descriptor identity can report TEMPORAL_CONTENT_BOUND, still without promotion authority or atomicity claims.</span></label>
+    <label><input type="radio" name="state" value="diverged"><span><span class="token">× TEMPORAL CONTENT DIVERGED</span><br>Canonical witnesses and later staging differ. Preserve all evidence surfaces and stop before authority promotion.</span></label>
+    <label><input type="radio" name="state" value="tested"><span><span class="token">□ EXECUTION UNPROVEN</span><br>Source wiring and regression source exist. TESTED, runtime UI, runtime TalkBack, deployment, phone delivery, and acceptance remain NO.</span></label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite" aria-atomic="true">RESULT ID BOUND\nThe receipt identifies which canonical result it accompanied, not which artifact bytes produced that result.</div>
+  <div id="detail" role="status" aria-live="polite" aria-atomic="true">RESULT ID BOUND\nThe receipt identifies which canonical result it accompanied; canonical content witnesses are a separate exact evidence surface.</div>
   <script>
     const detail = document.getElementById('detail');
     const copy = {
-      result: 'RESULT ID BOUND\nExact canonical result payload identity. Artifact-content timeline remains a separate contract.',
-      missing: 'CANONICAL CONTENT WITNESS MISSING\nCurrent canonical v10 cannot prove temporal content binding because same-observation artifact witnesses are absent.',
-      later: 'LATER READS AGREE\nPortable and descriptor staging agreement is useful non-authoritative evidence, but it occurs after canonical classification.',
-      bound: 'TEMPORAL CONTENT BOUND\nFuture only: canonical witnesses plus both later staging mechanisms match exactly. Authority remains NO; atomic filesystem binding remains unclaimed.',
-      diverged: 'TEMPORAL CONTENT DIVERGED\nStop before owner composition. Preserve canonical result identity and all three content evidence surfaces.',
-      owner: 'OWNER BOUNDARY RED\nSupporting policy exists. Canonical same-observation witness emission and shadow-policy consumption remain NO.'
+      result: 'RESULT ID BOUND\nExact canonical result payload identity. Artifact-content identity remains a separate contract.',
+      witness: 'CANONICAL WITNESS SOURCE WIRED\nCanonical v10 now emits same-observation path, byteCount, and SHA evidence from admitted Surgery observations.',
+      later: 'LATER READS AGREE\nPortable and descriptor staging agreement remains non-authoritative later evidence.',
+      bound: 'TEMPORAL BINDING PATH SOURCE WIRED\nThe existing descriptor shadow consumes the temporal policy. A bound result still grants no promotion authority or filesystem atomicity.',
+      diverged: 'TEMPORAL CONTENT DIVERGED\nStop before authority promotion. Preserve canonical result identity and all three content evidence surfaces.',
+      tested: 'EXECUTION UNPROVEN\nSource wiring is authenticated in GitHub. Regression execution, TESTED, runtime UI/TalkBack, deployment, delivery, and acceptance remain NO.'
     };
     for (const radio of document.querySelectorAll('input[name=state]')) {
       radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
