@@ -337,9 +337,9 @@ def audit_descriptor_shadow(
             "descriptorArtifacts": [],
             "descriptorArtifactDirectoryEntriesObserved": None,
             "descriptorArtifactCandidatesObserved": None,
-            "artifactSetMatch": False,
-            "metricsMatch": False,
-            "contentIdentityMatch": False,
+            "artifactSetMatch": None,
+            "metricsMatch": None,
+            "contentIdentityMatch": None,
         }
 
     metrics_match = (
@@ -375,12 +375,14 @@ def audit_descriptor_shadow(
         "descriptorArtifacts": observations,
     }
 
-    # Local import avoids a module-import cycle: the temporal policy imports this module's stable
-    # schema/result-identity helpers, while this owner path consumes that policy only after this
+    # Local import avoids a module-import cycle: the receipt-integrity policy imports this module's
+    # stable schema/context constants, while this owner path consumes that policy only after this
     # module is fully initialized and the shadow comparison result exists.
-    from try_forever_owner_surgery_shadow_temporal_binding import evaluate_temporal_content_binding
+    from try_forever_owner_surgery_shadow_temporal_receipt_integrity import (
+        evaluate_temporal_content_binding_with_receipt_integrity,
+    )
 
-    temporal_binding = evaluate_temporal_content_binding(portable, result)
+    temporal_binding = evaluate_temporal_content_binding_with_receipt_integrity(portable, result)
     return {
         **result,
         "temporalContentBinding": temporal_binding,
