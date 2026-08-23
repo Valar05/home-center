@@ -65,7 +65,9 @@ It:
 - independently records descriptor artifact byte count and SHA-256 evidence;
 - compares descriptor candidate paths, inventory metrics, and exact per-path byte-count/SHA identity against portable staging evidence;
 - returns `SHADOW_MATCH`, `SHADOW_DIVERGED`, `CANONICAL_SCHEMA_WOUND`, `CANONICAL_WOUND`, `PORTABLE_SHADOW_WOUND`, `DESCRIPTOR_UNAVAILABLE`, `CAPABILITY_WOUND`, or `DESCRIPTOR_WOUND`;
-- on a completed comparison, composes the existing temporal-binding policy and reports `temporalContentBinding` plus `temporalBindingProven` separately from `SHADOW_MATCH`;
+- on a descriptor custody wound **before comparison**, returns `artifactSetMatch=null`, `metricsMatch=null`, and `contentIdentityMatch=null`; comparison unavailable is no longer encoded as measured divergence;
+- on a completed comparison, routes through `evaluate_temporal_content_binding_with_receipt_integrity(...)` before the existing temporal-binding policy, so canonical schema/completeness/backend/capability context is admitted before temporal proof is evaluated;
+- reports `temporalContentBinding` plus `temporalBindingProven` separately from `SHADOW_MATCH`;
 - never emits collision/stale/unverified promotion groups;
 - never emits `ownerEvidenceAdmitted=true`;
 - always reports `descriptorAuthorityAdmitted=false` and `ownerMutation=false`.
@@ -76,18 +78,16 @@ A shadow match means the pathname staging observer and held-directory staging ob
 
 A temporal-content proof is stricter. It additionally requires the canonical result to carry same-observation artifact-content witnesses for the exact canonical surgery set and requires the later portable/descriptor reads to equal those witnesses. A `SHADOW_MATCH` without those canonical witnesses must remain temporally unproven.
 
-### Current tri-state wound
-Current descriptor-shadow v3 still emits `artifactSetMatch=false`, `metricsMatch=false`, and `contentIdentityMatch=false` when `HeldDirectoryCustody` fails before comparison completes. That shape overstates knowledge: no completed comparison measured divergence.
-
-`tools/try_forever_owner_surgery_shadow_receipt_projection.py` now fails closed on that legacy wound shape. Its operator-facing contract is:
+### Comparison tri-state — source wired
+The descriptor-shadow owner now carries the same tri-state semantics already enforced by the operator receipt projector:
 - `SHADOW_MATCH` => `(true, true, true)`;
 - `SHADOW_DIVERGED` => three completed booleans with at least one `false`;
-- wound/unavailable states => `(null, null, null)`.
+- wound/unavailable states => `(null, null, null)` when comparison did not complete.
 
-Therefore the upstream descriptor-shadow owner correction is **NO / RED** at this checkpoint. Do not call the wound fixed merely because the receipt projector refuses to misreport it.
+A descriptor custody wound cannot be spoken or displayed as divergence merely because the comparison failed before producing measurements.
 
-### Temporal receipt-context integrity
-`tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` is supporting source only. It strengthens the boundary before the existing temporal policy without creating authority.
+### Temporal receipt-context integrity — source wired
+`tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` remains a separate supporting policy but is now consumed by the descriptor-shadow owner after a completed comparison.
 
 For completed comparison states (`SHADOW_MATCH` or `SHADOW_DIVERGED`) it requires:
 - exact canonical custody schema v10 carried by the shadow;
@@ -123,11 +123,12 @@ It pins:
 
 It pins the actual `audit_descriptor_shadow(...)` composition across both states:
 - exact path/metric/content `SHADOW_MATCH` with missing canonical same-observation witnesses remains `CANONICAL_CONTENT_WITNESS_MISSING` and `temporalBindingProven=false`;
-- the same shadow match with exact canonical same-observation witnesses becomes `TEMPORAL_CONTENT_BOUND` while still keeping `authorityAdmitted=false`, `descriptorAuthorityAdmitted=false`, `ownerMutation=false`, and `tested=false`.
+- the same shadow match with exact canonical same-observation witnesses becomes `TEMPORAL_CONTENT_BOUND` while still keeping `authorityAdmitted=false`, `descriptorAuthorityAdmitted=false`, `ownerMutation=false`, and `tested=false`;
+- both paths carry the strict temporal receipt-integrity schema and `shadowReceiptContextAdmitted=true`, proving the owner reached the receipt-context gate before temporal evaluation.
 
-`tools/test_try_forever_owner_surgery_shadow_receipt_comparison_semantics.py` is **REGRESSION SOURCE / UNEXECUTED**. It pins completed divergence versus comparison-unavailable semantics at the operator receipt boundary and rejects the current legacy `DESCRIPTOR_WOUND -> false/false/false` shape.
+`tools/test_try_forever_owner_surgery_shadow_receipt_comparison_semantics.py` is **REGRESSION SOURCE / UNEXECUTED**. It pins completed divergence versus comparison-unavailable semantics at the operator receipt boundary.
 
-`tools/test_try_forever_owner_surgery_descriptor_shadow_wound_owner_boundary.py` is an intentionally **RED OWNER-BOUNDARY REGRESSION / UNEXECUTED**. It requires the descriptor-shadow owner itself to return null comparison fields when held-directory custody fails before comparison.
+`tools/test_try_forever_owner_surgery_descriptor_shadow_wound_owner_boundary.py` is **REGRESSION SOURCE / UNEXECUTED**. It now matches the source-wired owner contract and requires null comparison fields when held-directory custody fails before comparison.
 
 `tools/test_try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` is **REGRESSION SOURCE / UNEXECUTED**. It attacks counterfeit carried canonical schema, canonical completeness, authority backend, and descriptor capability context for completed comparison states.
 
@@ -142,7 +143,7 @@ The shadow audit deliberately happens earlier. Therefore:
 - exact descriptor unavailable → canonical portable owner remains the independent authority path;
 - unknown capability state → shadow capability wound; do not normalize it;
 - portable staging observation wound → shadow comparison stops; canonical authority is unchanged;
-- descriptor shadow wound → shadow evidence fails and comparison fields should be unavailable, not false; canonical portable result is unaffected;
+- descriptor shadow wound → shadow evidence fails and comparison fields are unavailable/null, not false; canonical portable result is unaffected;
 - future descriptor-selected owner wound → fail closed; no weaker retry in the same classification attempt.
 
 Those states must not be collapsed.
@@ -160,8 +161,8 @@ At this checkpoint:
 - exact content parity inside the shadow: **SUPPORTING SOURCE**;
 - temporal binding composition inside the shadow: **SUPPORTING SOURCE**;
 - receipt comparison tri-state gate: **SOURCE_WIRED**;
-- temporal receipt-context integrity: **SUPPORTING SOURCE**;
-- descriptor wound upstream tri-state correction: **NO / RED**;
+- descriptor wound upstream tri-state correction: **SOURCE_WIRED**;
+- temporal receipt-context integrity owner consumption: **SOURCE_WIRED**;
 - descriptor shadow regressions: **SOURCE / UNEXECUTED**;
 - canonical backend-selection consumption: **NO**;
 - canonical descriptor owner integration: **NO**;
