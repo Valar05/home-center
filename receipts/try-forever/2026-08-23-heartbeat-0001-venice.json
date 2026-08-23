@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "timestampCt": "2026-08-23T00:01:20-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "bf6045c66a1c4688d819dc3dd1db3614f533d306",
+  "reviewMode": "same-worker bounded Judgment Jar",
+  "externalVeniceVerdict": null,
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__INTEGRITY_GATE_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The pulse materially advanced multiple non-P0 source fronts without touching the phone/P0 chain.",
+    "Backend result schema/inventory custody closes a real phantom-authority evidence gap while delegating actual authority to the existing policy.",
+    "Shadow receipt projection separates raw machine evidence from safe operator display without changing canonical authority.",
+    "Code-first review corrected four defects before completion rather than green-painting them.",
+    "The new source organism is touchable, non-raster, reduced-motion friendly, and explicitly not runtime proof."
+  ],
+  "mustRemainOpen": [
+    "Existing backend result-admission policy integration of the new integrity gate.",
+    "Canonical descriptor backend/owner integration.",
+    "Regression execution and TESTED state.",
+    "Runtime UI/TalkBack, deployment, phone callability/execution, delivery, acceptance.",
+    "Temporal binding between canonical classification and the later artifact bytes compared by the descriptor shadow."
+  ],
+  "mergeAuthority": false,
+  "runtimeAuthority": false,
+  "phoneAuthority": false,
+  "campaignComplete": false,
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}
