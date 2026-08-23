@@ -17,45 +17,58 @@
     label:focus-within { outline: 3px solid currentColor; outline-offset: 3px; }
     .token { font-weight: 900; }
     #detail { min-height: 8rem; white-space: pre-wrap; }
-    svg { display: block; width: 100%; max-height: 190px; margin: 1rem 0; }
+    svg { display: block; width: 100%; max-height: 210px; margin: 1rem 0; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>WARM WALL / DESCRIPTOR SHADOW AUDIT</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL PORTABLE AUTHORITY: YES · DESCRIPTOR SHADOW: SOURCE · CAPABILITY AMBIGUITY: FAIL CLOSED · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <h1>WARM WALL / DESCRIPTOR SHADOW AUDIT v2</h1>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL PORTABLE AUTHORITY: YES · CANONICAL WOUND STOPS SHADOW: YES · PORTABLE CONTENT STAGING: SOURCE · DESCRIPTOR CONTENT STAGING: SOURCE · EXACT CONTENT PARITY: SOURCE · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
-  <svg viewBox="0 0 900 190" role="img" aria-labelledby="title desc">
-    <title id="title">Canonical authority with non-authoritative descriptor shadow</title>
-    <desc id="desc">Canonical portable v10 custody remains the authority path. A separate held-directory descriptor source observes the same bounded inventory and artifacts, then compares evidence. Match, divergence, exact unavailability, unknown capability, and descriptor wounds never create a second promotion authority.</desc>
-    <path d="M40 95 H210 M290 95 H430" fill="none" stroke="currentColor" stroke-width="5"/>
-    <path d="M290 95 C360 95 350 160 500 160 H710" fill="none" stroke="currentColor" stroke-width="5"/>
-    <path d="M510 95 H710" fill="none" stroke="currentColor" stroke-width="5"/>
-    <circle cx="250" cy="95" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="430" y="50" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="710" y="50" width="150" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="35" y="72" fill="currentColor">PATCHES/</text>
-    <text x="198" y="158" fill="currentColor">PORTABLE</text>
-    <text x="418" y="34" fill="currentColor">AUTHORITY</text>
-    <text x="494" y="183" fill="currentColor">DESCRIPTOR SHADOW</text>
-    <text x="730" y="84" fill="currentColor">COMPARE</text>
-    <text x="727" y="118" fill="currentColor">NO PROMOTION</text>
+  <svg viewBox="0 0 900 210" role="img" aria-labelledby="title desc">
+    <title id="title">Canonical authority with exact-content descriptor shadow</title>
+    <desc id="desc">Canonical portable v10 custody remains the authority path. If canonical evidence is wounded, shadow staging stops. Otherwise a portable finite-file staging observer and held-directory descriptor staging observer compare path set, work metrics, byte count, and SHA-256. No shadow result creates promotion authority.</desc>
+    <path d="M35 105 H180 M260 105 H375" fill="none" stroke="currentColor" stroke-width="5"/>
+    <path d="M455 105 H570 M650 105 H820" fill="none" stroke="currentColor" stroke-width="5"/>
+    <path d="M415 145 C460 195 590 195 610 145" fill="none" stroke="currentColor" stroke-width="5"/>
+    <circle cx="220" cy="105" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="375" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="570" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="820" y="65" width="65" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="30" y="82" fill="currentColor">PATCHES/</text>
+    <text x="168" y="164" fill="currentColor">CANONICAL</text>
+    <text x="360" y="48" fill="currentColor">PORTABLE BYTES</text>
+    <text x="555" y="48" fill="currentColor">HELD-FD BYTES</text>
+    <text x="800" y="48" fill="currentColor">COMPARE</text>
+    <text x="765" y="182" fill="currentColor">NO PROMOTION</text>
   </svg>
 
   <fieldset aria-describedby="detail">
     <legend>Inspect one shadow state</legend>
     <label>
       <input type="radio" name="shadow" value="authority" checked>
-      <span><span class="token">● CANONICAL AUTHORITY</span><br>Portable v10 remains the sole promotion-authority producer while shadow staging runs beside it.</span>
+      <span><span class="token">● CANONICAL AUTHORITY</span><br>Portable v10 remains the sole promotion-authority producer. Shadow staging can compare evidence, never promote it.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="canonical-wound">
+      <span><span class="token">× CANONICAL WOUND</span><br>Canonical evidence is incomplete. Shadow capability and artifact staging do not begin; a wounded authority result cannot be decorated as a match.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="match">
-      <span><span class="token">◇ SHADOW MATCH</span><br>Held-directory custody independently agrees on candidate paths and inventory metrics. Useful staging evidence; owner integration still NO.</span>
+      <span><span class="token">◇ SHADOW MATCH</span><br>Path set, work metrics, byte counts, and SHA-256 identities all agree between portable staging and held-directory staging.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="content">
+      <span><span class="token">× CONTENT DIVERGED</span><br>Filenames and counters can agree while exact bytes differ. That is SHADOW_DIVERGED, never a match.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="portable-wound">
+      <span><span class="token">× PORTABLE SHADOW WOUND</span><br>The finite pathname staging observer cannot establish exact bytes. Stop shadow comparison without changing canonical authority.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="diverged">
-      <span><span class="token">× SHADOW DIVERGED</span><br>Descriptor evidence disagrees with canonical portable evidence. Stop and investigate; do not choose whichever result looks nicer.</span>
+      <span><span class="token">× INVENTORY DIVERGED</span><br>Candidate paths or work metrics disagree. Stop and investigate; do not choose whichever result looks nicer.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="unavailable">
@@ -67,7 +80,7 @@
     </label>
     <label>
       <input type="radio" name="shadow" value="wound">
-      <span><span class="token">× DESCRIPTOR WOUND</span><br>The shadow failed its own custody gate. Descriptor authority remains NO; canonical authority is unchanged.</span>
+      <span><span class="token">× DESCRIPTOR WOUND</span><br>The held-directory shadow failed its own custody gate. Descriptor authority remains NO; canonical authority is unchanged.</span>
     </label>
   </fieldset>
 
@@ -77,8 +90,11 @@
     const detail = document.getElementById('detail');
     const copy = {
       authority: 'CANONICAL AUTHORITY\nPortable v10 remains the only authority producer. Shadow staging cannot emit collision/stale/unverified authority groups.',
-      match: 'SHADOW MATCH\nPath set and work metrics agree. This narrows integration risk but does not prove canonical descriptor integration, TESTED, runtime, deployment, delivery, or acceptance.',
-      diverged: 'SHADOW DIVERGED\nStop before owner composition. Preserve both evidence records and repair the semantic mismatch rather than selecting a preferred answer.',
+      'canonical-wound': 'CANONICAL WOUND\nStop before descriptor capability or artifact staging. Canonical evidenceComplete=false is not a canvas on which to paint SHADOW MATCH.',
+      match: 'SHADOW MATCH\nPortable staging and held-directory staging agree on path set, entry/candidate metrics, byte count, and SHA-256. This narrows integration risk but proves neither owner integration nor TESTED/runtime/deployment/delivery.',
+      content: 'CONTENT DIVERGED\nSame filenames and counters are insufficient. Exact per-path byteCount/SHA identity differs, so the shadow must diverge.',
+      'portable-wound': 'PORTABLE SHADOW WOUND\nThe existing finite-file pathname observer could not establish exact staging identity. Canonical authority is unchanged; descriptor comparison does not continue.',
+      diverged: 'INVENTORY DIVERGED\nStop before owner composition. Preserve both evidence records and repair the semantic mismatch rather than selecting a preferred answer.',
       unavailable: 'DESCRIPTOR UNAVAILABLE\nExact platform-unavailable state. Portable authority was never a fallback from descriptor failure because descriptor authority was never selected.',
       capability: 'CAPABILITY WOUND\nUnknown capability text is evidence corruption, not a harmless unsupported-platform alias. No descriptor staging authority and no normalization.',
       wound: 'DESCRIPTOR WOUND\nTyped descriptor custody failure. No promotion authority. No phone/P0 action. No retry through an invented neighboring owner.'
