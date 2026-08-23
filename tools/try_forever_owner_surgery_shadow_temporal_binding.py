@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """Fail-closed temporal content binding for the owner-surgery descriptor shadow.
 
-Current descriptor-shadow v3 fingerprints the canonical v10 result, then observes portable and
-held-directory artifact bytes *after* canonical ``classify()`` has returned. Matching later reads
-therefore prove staging agreement, not that those are the same bytes that produced the canonical
-result. This supporting source names that missing evidence instead of letting SHADOW_MATCH imply a
-stronger temporal claim.
+Canonical owner-surgery custody v10 now emits same-observation artifact content witnesses from the
+bounded reads that produced admitted Surgery records. Descriptor-shadow v3 still observes portable
+and held-directory bytes later. Matching later reads therefore become temporal evidence only when
+those exact later identities agree with the canonical same-observation witnesses for the exact
+canonical Surgery path set.
 
-A future canonical-owner integration may emit ``artifactContentWitnesses`` from the exact bounded
-artifact observations that produced its Surgery records. Only then may this policy bind the
-canonical result to later portable/descriptor observations. This module grants no promotion
-authority and mutates no owner.
+This policy grants no promotion authority and mutates no owner. A zero-artifact inventory is not
+reported as a vacuous proven content binding: there is no artifact content to bind.
 """
 
 from __future__ import annotations
@@ -110,10 +108,9 @@ def evaluate_temporal_content_binding(
 ) -> dict[str, object]:
     """Bind canonical-result identity to later artifact observations, or fail closed.
 
-    ``TEMPORAL_CONTENT_BOUND`` is possible only when canonical v10 itself carries exact
-    same-observation artifact witnesses and an admitted SHADOW_MATCH carries exact true comparison
-    booleans for the same artifact set. Current canonical v10 does not emit that witness field, so
-    today's honest result is ``CANONICAL_CONTENT_WITNESS_MISSING``.
+    ``TEMPORAL_CONTENT_BOUND`` is possible only when canonical v10 carries exact same-observation
+    artifact witnesses for at least one admitted Surgery and an admitted SHADOW_MATCH carries exact
+    true comparison booleans for the same artifact set.
     """
 
     if not isinstance(canonical_result, Mapping):
@@ -184,6 +181,16 @@ def evaluate_temporal_content_binding(
     if set(canonical_witnesses) != canonical_paths:
         raise TemporalBindingEvidenceError(
             "canonical artifactContentWitnesses path set must equal canonical surgeries path set"
+        )
+    if not canonical_paths:
+        return _unbound(
+            status="NO_CANONICAL_ARTIFACT_CONTENT",
+            expected_result_sha256=expected_result_sha256,
+            carried_result_sha256=carried_result_sha256,
+            boundary=(
+                "Canonical custody contains no admitted Surgery artifact content; an empty witness/staging set "
+                "must not be reported as a proven temporal content binding."
+            ),
         )
 
     portable = _artifact_identity_map(
