@@ -1,0 +1,109 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "timestampCt": "2026-08-23T00:01:20-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "bf6045c66a1c4688d819dc3dd1db3614f533d306",
+  "startingHead": "2e7d378aa7f7acba8fd628ad6d6493cd90f0ba4c",
+  "frontsAdvanced": [
+    {
+      "front": "backend-result-schema-custody",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "artifact": "tools/try_forever_owner_surgery_backend_result_integrity.py"
+    },
+    {
+      "front": "promotion-member-inventory-custody",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "artifact": "tools/try_forever_owner_surgery_backend_result_integrity.py"
+    },
+    {
+      "front": "backend-result-hostile-regressions",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "artifact": "tools/test_try_forever_owner_surgery_backend_result_integrity.py"
+    },
+    {
+      "front": "shadow-safe-display-receipt",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "artifact": "tools/try_forever_owner_surgery_shadow_receipt_projection.py"
+    },
+    {
+      "front": "shadow-display-hostile-regressions",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "artifact": "tools/test_try_forever_owner_surgery_shadow_receipt_projection.py"
+    },
+    {
+      "front": "durable-skill-harvest",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifacts": [
+        "skills/operator-owner-surgery-result-inventory-custody/SKILL.md",
+        "skills/operator-owner-surgery-shadow-receipt/SKILL.md"
+      ]
+    },
+    {
+      "front": "touchable-non-raster-evidence-throat",
+      "state": "IMPLEMENTED_SOURCE_ONLY_ART",
+      "artifact": "docs/try-forever/operator-owner-surgery-evidence-custody-throat-source-specimen.html"
+    },
+    {
+      "front": "governance-and-review",
+      "state": "DURABLE_RECEIPTS",
+      "artifacts": [
+        "receipts/try-forever/2026-08-23-heartbeat-0001-plan.json",
+        "receipts/try-forever/2026-08-23-heartbeat-0001-regnet.json",
+        "receipts/try-forever/2026-08-23-heartbeat-0001-venice.json"
+      ]
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: moved from descriptor shadow parity to backend-result evidence integrity and safe shadow receipt semantics.",
+    "Canon Auto-Select": "LIT: harvested two repository skills from discovered source wounds.",
+    "Autocorrect Judgment Jar": "DARK: no material STT/autocorrect ambiguity affected this pulse.",
+    "Originality Tax": "LIT: four review defects triggered materially different corrections instead of cosmetic retries.",
+    "Hunger": "LIT: source truth propagated into regressions, skills, art, and durable receipts.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: schema, inventory, path-kind, display-path, raw-boundary, and comparison-truth channels were reconciled.",
+    "Operator Campaign": "LIT: existing canonical v10 and backend policy remain owners; new source delegates rather than replacing them.",
+    "Harroway operator discipline": "LIT: exact remote readback and capability membrane preserved; no local proof.",
+    "She-Raw adversarial motivation": "FAULT: attempted; account connection HTTP 400; no substitute verdict.",
+    "Venice Judgment Jars": "LIT: bounded source-slice gate recorded; campaign remains active.",
+    "Regnet QA": "LIT: code-first review found and corrected four source/fixture defects.",
+    "accessibility/TalkBack and touch semantics": "LIT: raw exception prose is not echoed; safe path display and touchable native disclosure source organism added.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: consumption 0, mutation 0.",
+    "deterministic routing": "LIT: schema and exact inventory membership now gate future backend admission.",
+    "evidence/capability-state discipline": "LIT: supporting source, owner integration, regression execution, TESTED, runtime, deployment, phone, delivery, and acceptance remain separate.",
+    "recovery/checkpointing/idempotence": "LIT: phantom/stale evidence is rejected before authority delegation; raw shadow evidence remains unchanged by display projection.",
+    "strange non-raster vector/DOM/native UI art": "LIT: evidence custody throat source specimen added.",
+    "warm walls": "LIT: schema/inventory/member/display/membrane made touch-inspectable.",
+    "Christmas-light scene graph": "DARK: no runtime transition law changed; no decorative blink added.",
+    "contact preservation": "LIT: display projection preserves raw evidence identity rather than rewriting authority records."
+  },
+  "crossPollination": [
+    "Descriptor shadow work made future backend result admission suspicious: group-member shape alone did not prove membership in canonical surgeries.",
+    "That evidence-integrity review exposed artifact path-kind aliasing and forced path-unique custody.",
+    "Safe shadow display review exposed truthiness laundering and process-cwd-dependent relative path projection; both were corrected.",
+    "Existing provenance path projection became the reusable accessibility organ for shadow receipts without becoming authority."
+  ],
+  "nextWound": "Descriptor shadow exact-content observations occur after canonical classify(); canonicalResultSha256 binds the result payload but does not prove those later observed bytes are the exact bytes that produced the canonical result. Temporal canonical-result-to-artifact-content binding remains NO.",
+  "capability": {
+    "requested": true,
+    "supportingSourceImplemented": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "existingBackendAdmissionConsumesIntegrityGate": false,
+    "canonicalDescriptorOwnerIntegrated": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__INTEGRITY_GATE_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
