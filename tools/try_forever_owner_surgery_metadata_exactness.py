@@ -22,16 +22,20 @@ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 SCHEMA = "try-forever-owner-surgery-metadata-exactness.v1"
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
-BASE_RE = re.compile(
-    r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$",
+# Header-name recognition is intentionally separate from value admission. A malformed second header
+# still counts as duplicate authority evidence and cannot disappear merely because its value would
+# fail later validation. Horizontal whitespace is line-local; ``\s`` is deliberately avoided here
+# because it can consume newlines and blur authority records across lines.
+BASE_HEADER_RE = re.compile(
+    r"^#[ \t]*(?:BASE OWNER BLOB|Base owner blob|Base blob)[ \t]*:[ \t]*(.*?)[ \t]*$",
     re.I | re.M,
 )
-OWNER_RE = re.compile(
-    r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$",
+OWNER_HEADER_RE = re.compile(
+    r"^#[ \t]*(?:OWNER|Target|Base path)[ \t]*:[ \t]*(.*?)[ \t]*$",
     re.I | re.M,
 )
-STATE_RE = re.compile(
-    r"^#\s*(?:STATUS|State)\s*: ([^\r\n]*)$",
+STATE_HEADER_RE = re.compile(
+    r"^#[ \t]*(?:STATUS|State)[ \t]*:[ \t]*(.*?)[ \t]*$",
     re.I | re.M,
 )
 
@@ -64,7 +68,7 @@ def admit_owner_identity(value: object, *, field: str = "owner") -> str:
     return value
 
 
-def _one_match(pattern: re.Pattern[str], text: str, *, field: str) -> re.Match[str]:
+def _one_header_value(pattern: re.Pattern[str], text: str, *, field: str) -> str:
     matches = list(pattern.finditer(text))
     if not matches:
         raise OwnerSurgeryMetadataError(f"patch is missing {field}")
@@ -72,7 +76,7 @@ def _one_match(pattern: re.Pattern[str], text: str, *, field: str) -> re.Match[s
         raise OwnerSurgeryMetadataError(
             f"patch must contain exactly one {field}; observed {len(matches)}"
         )
-    return matches[0]
+    return matches[0].group(1)
 
 
 def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
@@ -81,23 +85,32 @@ def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
     if not isinstance(text, str):
         raise OwnerSurgeryMetadataError("patch text must be one string")
 
-    base = _one_match(BASE_RE, text, field="base-owner blob header")
-    state = _one_match(STATE_RE, text, field="state/status header")
-    owners = list(OWNER_RE.finditer(text))
-    if len(owners) > 1:
+    base_blob = _one_header_value(
+        BASE_HEADER_RE,
+        text,
+        field="base-owner blob header",
+    )
+    state_text = _one_header_value(
+        STATE_HEADER_RE,
+        text,
+        field="state/status header",
+    )
+    owner_headers = list(OWNER_HEADER_RE.finditer(text))
+    if len(owner_headers) > 1:
         raise OwnerSurgeryMetadataError(
-            f"patch must contain at most one explicit owner header; observed {len(owners)}"
+            f"patch must contain at most one explicit owner header; observed {len(owner_headers)}"
         )
 
-    base_blob = base.group(1)
     if SHA1_RE.fullmatch(base_blob) is None:
         raise OwnerSurgeryMetadataError(
             "patch base-owner blob must already be 40 lowercase hexadecimal characters"
         )
 
-    state_admission = admit_owner_surgery_state(state.group(1))
+    state_admission = admit_owner_surgery_state(state_text)
     explicit_owner = (
-        admit_owner_identity(owners[0].group(1), field="patch owner") if owners else None
+        admit_owner_identity(owner_headers[0].group(1), field="patch owner")
+        if owner_headers
+        else None
     )
 
     return PatchMetadataAdmission(
@@ -113,6 +126,8 @@ def source_receipt() -> dict[str, object]:
         "schema": SCHEMA,
         "ownerIdentityExact": True,
         "patchHeaderCardinalityExact": True,
+        "malformedDuplicateHeadersCounted": True,
+        "headerRecognitionLineLocal": True,
         "canonicalOwnerConsumption": False,
         "regressionExecuted": False,
         "tested": False,
