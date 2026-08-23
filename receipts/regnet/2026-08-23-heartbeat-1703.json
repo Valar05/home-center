@@ -1,0 +1,73 @@
+{
+  "schema": "regnet-review.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "reviewedSourceHead": "fd858cac5293fa9b3b000f8a0a15ff3b366e2183",
+  "baseCheckpoint": "36c9c8ed3a13e7bd40b9d5c6c77fd345a67ac24d",
+  "verdict": "PASS_BOUNDED_SOURCE__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceDiff": {
+    "aheadBy": 11,
+    "changedPaths": 10,
+    "unexpectedPaths": 0,
+    "intendedFronts": [
+      "wound-context self-integrity v2",
+      "raw-machine-evidence digest binding and operator receipt v3",
+      "hostile regression source",
+      "two doctrine surfaces",
+      "existing descriptor-shadow Warm Wall",
+      "plan and Venice plan receipts"
+    ]
+  },
+  "codeFirstFindings": [
+    {
+      "finding": "The first wound-context implementation accepted CANONICAL_SCHEMA_WOUND with missing canonicalAuthoritySchema because None is merely non-v10.",
+      "action": "Corrected before completion: schema-wound context now requires one explicit non-empty schema identity distinct from v10; focused hostile regression source added.",
+      "status": "CORRECTED_SOURCE"
+    },
+    {
+      "finding": "Existing operator receipt identity did not bind fields present only in raw machine evidence and omitted from bounded display.",
+      "action": "Added rawMachineEvidenceSha256, kept raw payload separate, and advanced operator receipt schema v2 to v3.",
+      "status": "CORRECTED_SOURCE"
+    },
+    {
+      "finding": "Non-comparison wound labels previously relied on null comparison fields without validating canonical/capability context.",
+      "action": "Self-integrity v2 now validates status-specific canonical schema/completeness and descriptor capability context before projection.",
+      "status": "CORRECTED_SOURCE"
+    }
+  ],
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "woundContextIntegritySourceWired": true,
+    "rawMachineEvidenceBindingSourceWired": true,
+    "operatorReceiptSchemaV3SourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthorityIntegration": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "executionTruth": {
+    "workflowHead": "fd858cac5293fa9b3b000f8a0a15ff3b366e2183",
+    "operatorOverlayAndroid": {"runId": 32669758988, "status": "queued", "conclusion": null},
+    "buildAndroid": {"runId": 32669758996, "status": "queued", "conclusion": null},
+    "homeCenterCI": {"runId": 32669758994, "status": "queued", "conclusion": null},
+    "manualRetry": false,
+    "tested": false
+  },
+  "reviewerState": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400__NO_SUBSTITUTE",
+    "venicePlan": "PLAN_ALLOWED"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
