@@ -120,6 +120,10 @@ def _require_wound_context(result: Mapping[str, object], status: str) -> None:
     capability = result.get("descriptorCapabilityStatus")
 
     if status == "CANONICAL_SCHEMA_WOUND":
+        if not isinstance(canonical_schema, str) or not canonical_schema:
+            raise ShadowReceiptSelfIntegrityError(
+                "CANONICAL_SCHEMA_WOUND requires one explicit non-empty canonical schema identity"
+            )
         if canonical_schema == CANONICAL_SCHEMA:
             raise ShadowReceiptSelfIntegrityError(
                 "CANONICAL_SCHEMA_WOUND requires a non-v10 canonical schema"
