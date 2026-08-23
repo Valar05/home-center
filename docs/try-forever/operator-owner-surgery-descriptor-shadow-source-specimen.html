@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / DESCRIPTOR SHADOW AUDIT v3</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL V10 SCHEMA GATE: SOURCE · CANONICAL RESULT SHA-256 RECEIPT: SOURCE · CANONICAL WOUND STOPS SHADOW: YES · PORTABLE CONTENT STAGING: SOURCE · DESCRIPTOR CONTENT STAGING: SOURCE · EXACT CONTENT PARITY: SOURCE · COMPARISON TRI-STATE OWNER: SOURCE WIRED · TEMPORAL RECEIPT-CONTEXT OWNER: SOURCE WIRED · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CANONICAL V10 SCHEMA GATE: SOURCE · CANONICAL RESULT SHA-256 RECEIPT: SOURCE · CANONICAL WOUND STOPS SHADOW: YES · PORTABLE CONTENT STAGING: SOURCE · DESCRIPTOR CONTENT STAGING: SOURCE · EXACT CONTENT PARITY: SOURCE · COMPARISON TRI-STATE OWNER: SOURCE WIRED · TEMPORAL RECEIPT-CONTEXT OWNER: SOURCE WIRED · RECEIPT SELF-AUDIT: SUPPORTING SOURCE · DESCRIPTOR AUTHORITY: NO · CANONICAL OWNER DESCRIPTOR INTEGRATION: NO · REGRESSION EXECUTION: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 210" role="img" aria-labelledby="title desc">
-    <title id="title">Canonical v10 receipt with exact-content descriptor shadow</title>
-    <desc id="desc">Canonical portable v10 custody remains the authority path. The shadow first requires exact v10 schema and fingerprints the exact canonical result. If canonical evidence is wounded, shadow staging stops. Otherwise portable finite-file staging and held-directory descriptor staging compare path set, work metrics, byte count, and SHA-256. A failed comparison is distinct from a comparison that never completed. Completed comparisons pass a strict receipt-context gate before temporal binding. No shadow result creates promotion authority.</desc>
+    <title id="title">Canonical v10 receipt with exact-content descriptor shadow and self-audit</title>
+    <desc id="desc">Canonical portable v10 custody remains the authority path. The shadow first requires exact v10 schema and fingerprints the exact canonical result. If canonical evidence is wounded, shadow staging stops. Otherwise portable finite-file staging and held-directory descriptor staging compare path set, work metrics, byte count, and SHA-256. A failed comparison is distinct from a comparison that never completed. Completed comparisons pass a strict receipt-context gate before temporal binding. A supporting receipt self-audit recomputes comparison truth from the raw artifact lists and counters before operator display. No shadow result creates promotion authority.</desc>
     <path d="M25 105 H145 M225 105 H340 M420 105 H535 M615 105 H790" fill="none" stroke="currentColor" stroke-width="5"/>
     <circle cx="185" cy="105" r="38" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="340" y="65" width="80" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -39,7 +39,7 @@
     <text x="325" y="48" fill="currentColor">PORTABLE BYTES</text>
     <text x="520" y="48" fill="currentColor">HELD-FD BYTES</text>
     <text x="775" y="48" fill="currentColor">COMPARE</text>
-    <text x="744" y="182" fill="currentColor">FALSE ≠ UNKNOWN</text>
+    <text x="718" y="182" fill="currentColor">RECOMPUTE BEFORE DISPLAY</text>
   </svg>
 
   <fieldset>
@@ -58,7 +58,11 @@
     </label>
     <label>
       <input type="radio" name="shadow" value="receipt-context">
-      <span><span class="token">● TEMPORAL RECEIPT CONTEXT / OWNER WIRED</span><br>A matching result digest alone is insufficient. Completed comparisons now pass exact v10 schema, canonical completeness, portable-authority-backend, and descriptor-capability context before temporal proof.</span>
+      <span><span class="token">● TEMPORAL RECEIPT CONTEXT / OWNER WIRED</span><br>A matching result digest alone is insufficient. Completed comparisons pass exact v10 schema, canonical completeness, portable-authority-backend, and descriptor-capability context before temporal proof.</span>
+    </label>
+    <label>
+      <input type="radio" name="shadow" value="self-audit">
+      <span><span class="token">◇ RECEIPT SELF-AUDIT / SUPPORTING SOURCE</span><br>Before operator display, recompute path-set, work-metric, and exact-content truth from the raw evidence; reject a receipt whose booleans or temporal proof contradict its own evidence.</span>
     </label>
     <label>
       <input type="radio" name="shadow" value="canonical-wound">
@@ -90,7 +94,7 @@
     </label>
     <label>
       <input type="radio" name="shadow" value="wound">
-      <span><span class="token">● DESCRIPTOR WOUND / COMPARISON UNKNOWN / OWNER WIRED</span><br>The held-directory shadow failed its own custody gate before a complete comparison. The owner now emits null/null/null comparison fields instead of false divergence.</span>
+      <span><span class="token">● DESCRIPTOR WOUND / COMPARISON UNKNOWN / OWNER WIRED</span><br>The held-directory shadow failed its own custody gate before a complete comparison. The owner emits null/null/null comparison fields instead of false divergence.</span>
     </label>
   </fieldset>
 
@@ -103,6 +107,7 @@
       schema: 'CANONICAL SCHEMA WOUND\nExact v10 schema is required before shadow capability or artifact staging. Future or malformed authority payloads are not reinterpreted under old assumptions.',
       receipt: 'CANONICAL RESULT ID\nThe receipt SHA binds this shadow report to one deterministic canonical result payload. It is evidence association, not canonical artifact identity and not filesystem atomicity.',
       'receipt-context': 'TEMPORAL RECEIPT CONTEXT / OWNER WIRED\nCompleted comparisons route through the strict receipt-context gate before the temporal-binding policy. Exact canonical schema, evidenceComplete, authority backend, and supported descriptor capability must agree.',
+      'self-audit': 'RECEIPT SELF-AUDIT / SUPPORTING SOURCE\nRecompute artifact-set, work-metric, and exact-content comparison truth from raw shadow evidence. Then verify temporal receipt identity, proof state, and capability membrane. Delegate display to the existing projector; create no second authority or renderer.',
       'canonical-wound': 'CANONICAL WOUND\nStop before descriptor capability or artifact staging. Comparison fields are unavailable because comparison never began.',
       match: 'SHADOW MATCH\nPortable staging and held-directory staging agree on path set, entry/candidate metrics, byte count, and SHA-256 for the bound canonical result. This proves neither owner integration nor TESTED/runtime/deployment/delivery.',
       content: 'CONTENT DIVERGED\nA completed comparison measured exact per-path byteCount/SHA disagreement. False means divergence because the comparison actually happened.',
@@ -110,7 +115,7 @@
       diverged: 'INVENTORY DIVERGED\nComparison completed and found a path/metric difference. Preserve both evidence records and repair the mismatch rather than selecting a preferred answer.',
       unavailable: 'DESCRIPTOR UNAVAILABLE\nExact platform-unavailable state. No descriptor comparison occurred, so comparison fields remain unavailable.',
       capability: 'CAPABILITY WOUND\nUnknown capability text is evidence corruption, not a harmless unsupported-platform alias and not a negative comparison.',
-      wound: 'DESCRIPTOR WOUND / COMPARISON UNKNOWN / OWNER WIRED\nTyped descriptor custody failure before complete comparison now produces null comparison fields. Canonical authority remains unchanged; no divergence is invented.'
+      wound: 'DESCRIPTOR WOUND / COMPARISON UNKNOWN / OWNER WIRED\nTyped descriptor custody failure before complete comparison produces null comparison fields. Canonical authority remains unchanged; no divergence is invented.'
     };
     for (const radio of document.querySelectorAll('input[name=shadow]')) {
       radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
