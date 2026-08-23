@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-23T13:01:16-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "mission": "Advance multiple independent non-phone fronts without changing canonical P0 recovery ownership.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "fronts": [
+    {
+      "name": "shadow_receipt_self_verification",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+      "intent": "Recompute path/content comparison truth from the artifact evidence and reject display receipts whose booleans contradict their own evidence. Preserve raw evidence and authority membrane."
+    },
+    {
+      "name": "temporal_binding_operator_receipt",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+      "intent": "Expose bounded temporal-binding status/proof and receipt-integrity state without raw boundary prose or authority promotion."
+    },
+    {
+      "name": "regression_source_repair",
+      "owner": "tools/test_try_forever_owner_surgery_shadow_receipt_projection.py",
+      "intent": "Repair stale wound/divergence fixtures and add hostile self-consistency/temporal receipt fixtures. Regression remains UNEXECUTED."
+    },
+    {
+      "name": "skill_and_touch_convergence",
+      "owners": [
+        "skills/operator-owner-surgery-shadow-receipt/SKILL.md",
+        "docs/try-forever/operator-owner-surgery-descriptor-shadow-source-specimen.html"
+      ],
+      "intent": "Update durable receipt doctrine and the existing non-raster touch organism only if the receipt topology materially changes."
+    }
+  ],
+  "nonGoals": [
+    "No canonical descriptor authority integration",
+    "No backend selector mutation",
+    "No Phone Hands or primary-phone execution",
+    "No P0 recovery mutation",
+    "No TESTED/runtime/deployed/delivered/accepted promotion"
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_MUTATION_ONLY__TEST_RUNTIME_P0_BLOCKED"
+}
