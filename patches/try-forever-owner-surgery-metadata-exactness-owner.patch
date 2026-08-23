@@ -1,9 +1,9 @@
 # BASE OWNER BLOB: 523d8005212745738106733e91be6dd625caf767
 # STATUS: CORRECTED_PROPOSED_NOT_APPLIED
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
-# PURPOSE: Compose the existing exact metadata policy into the existing canonical v10 custody owner.
+# PURPOSE: Compose exact metadata admission and exact implicit-default-owner binding into the existing canonical v10 custody owner.
 # CAPABILITY: PATCH SOURCE ONLY. This file does not prove application, execution, testing, runtime, delivery, or acceptance.
-# REVIEW SCAR: The first draft tried to remove regex declarations with over-escaped patch context. This corrected draft leaves those harmless declarations in place and removes their authority only from the owner methods.
+# REVIEW SCAR: The first draft tried to remove regex declarations with over-escaped patch context. This corrected draft leaves those harmless declarations in place, removes their authority only from owner methods, and refuses arbitrary basename mention as implicit owner evidence.
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
@@ -13,6 +13,7 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
      capture_directory_root_identity,
      revalidate_directory_root_identity,
  )
++from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
 +from try_forever_owner_surgery_metadata_exactness import (
 +    admit_owner_identity,
 +    admit_patch_metadata,
@@ -32,14 +33,18 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
 -
 -        owner_match = OWNER_RE.search(text)
 -        if owner_match is None:
+-            if "OperatorOverlayService.java" not in text:
+-                raise ArtifactAdmissionError(
+-                    "patch is missing owner metadata and does not name the default owner"
+-                )
+-            owner = DEFAULT_OWNER
 +        metadata = admit_patch_metadata(text)
 +
 +        if metadata.explicit_owner is None:
-             if "OperatorOverlayService.java" not in text:
-                 raise ArtifactAdmissionError(
-                     "patch is missing owner metadata and does not name the default owner"
-                 )
-             owner = DEFAULT_OWNER
++            owner = admit_default_owner_from_patch(
++                text,
++                default_owner=DEFAULT_OWNER,
++            ).owner
          else:
 -            owner = owner_match.group(1)
 -
