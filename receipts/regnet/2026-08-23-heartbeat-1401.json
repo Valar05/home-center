@@ -1,0 +1,69 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-23T14:01:46-05:00",
+  "reviewedSourceHead": "4064784b070b5f98e2c448451ef8e78673924b65",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__IMPOSSIBLE_WORK_EVIDENCE_REJECTED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "severity": "fixed",
+      "finding": "Completed shadow receipts could previously carry equal but structurally impossible work counters, such as candidates exceeding directory entries, and still recompute metricsMatch=true."
+    },
+    {
+      "severity": "fixed",
+      "finding": "Completed shadow receipts could previously carry artifact-list cardinality that did not account for the candidate count on that side."
+    },
+    {
+      "severity": "preserved",
+      "finding": "DESCRIPTOR_WOUND legitimately may retain portable artifact evidence while descriptor metrics/comparison fields are unavailable; completed-comparison cardinality rules do not erase that diagnostic contact."
+    },
+    {
+      "severity": "boundary",
+      "finding": "Receipt self-integrity remains supporting source and is not yet established as consumed by an Android/runtime operator receipt surface."
+    }
+  ],
+  "sourceReadback": {
+    "selfIntegrityBlob": "05b6e22a7d197f2e76b127c2c79efb8d8bda01e4",
+    "regressionBlob": "0e9ceedd66ad1c3f3d3c8be7d2dbcf96a9e9b190",
+    "skillBlob": "884bdab031f5905d06ebcbc5302767d916656f82"
+  },
+  "diffCustody": {
+    "base": "32ee599fba2329d9af4f946c101029b565bd2b50",
+    "head": "4064784b070b5f98e2c448451ef8e78673924b65",
+    "commits": 5,
+    "paths": 5,
+    "unexpectedPaths": 0
+  },
+  "execution": {
+    "operatorOverlayRun": 32660168178,
+    "operatorOverlayJob": 97244991867,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlayStepsExposed": 0,
+    "operatorOverlayLogs": "404_BlobNotFound",
+    "buildAndroidRun": 32660168158,
+    "homeCenterCiRun": 32660168157,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "capability": {
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
