@@ -45,9 +45,17 @@
     "The two source repairs changed the inspectable receipt topology, which justified doctrine and Warm Wall convergence without touching runtime/P0."
   ],
   "executionTruth": {
-    "operatorOverlayAndroid": {"runId": 32669758988, "status": "queued", "conclusion": null},
-    "buildAndroid": {"runId": 32669758996, "status": "queued", "conclusion": null},
-    "homeCenterCI": {"runId": 32669758994, "status": "queued", "conclusion": null},
+    "operatorOverlayAndroid": {
+      "runId": 32669758988,
+      "jobId": 97268645421,
+      "status": "completed",
+      "conclusion": "failure",
+      "exposedSteps": 0,
+      "logReadback": "404 BlobNotFound"
+    },
+    "buildAndroid": {"runId": 32669758996, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32669758994, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
     "manualRetry": false,
     "regressionExecuted": false,
     "tested": false
