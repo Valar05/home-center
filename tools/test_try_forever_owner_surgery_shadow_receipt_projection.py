@@ -35,6 +35,10 @@ def shadow_result(**overrides):
         "boundary": boundary,
         "portableShadowArtifacts": [artifact("patches/try-forever-a.patch")],
         "descriptorArtifacts": [artifact("patches/try-forever-a.patch")],
+        "canonicalArtifactDirectoryEntriesObserved": 2,
+        "canonicalArtifactCandidatesObserved": 1,
+        "descriptorArtifactDirectoryEntriesObserved": 2,
+        "descriptorArtifactCandidatesObserved": 1,
         "artifactSetMatch": True,
         "metricsMatch": True,
         "contentIdentityMatch": True,
@@ -71,6 +75,10 @@ def main() -> int:
     assert receipt["boundarySha256"] == hashlib.sha256(
         raw["boundary"].encode("utf-8")
     ).hexdigest()
+    assert receipt["comparisonWork"] == {
+        "canonical": {"directoryEntriesObserved": 2, "candidatesObserved": 1},
+        "descriptor": {"directoryEntriesObserved": 2, "candidatesObserved": 1},
+    }
     assert raw["boundary"] not in str(receipt)
     assert receipt["authorityAdmitted"] is False
     assert receipt["tested"] is False
@@ -120,8 +128,32 @@ def main() -> int:
     assert projected.startswith("<repo-path>...#")
     assert long_name not in projected
 
+    # A metricsMatch claim must remain auditable against the exact counts that produced it.
+    divergent_work = project_shadow_receipt(
+        ROOT,
+        shadow_result(
+            status="SHADOW_DIVERGED",
+            descriptorArtifactDirectoryEntriesObserved=3,
+            metricsMatch=False,
+        ),
+    )
+    assert divergent_work["metricsMatch"] is False
+    assert divergent_work["comparisonWork"]["canonical"]["directoryEntriesObserved"] == 2
+    assert divergent_work["comparisonWork"]["descriptor"]["directoryEntriesObserved"] == 3
+    expect_rejected(
+        shadow_result(descriptorArtifactDirectoryEntriesObserved=3),
+        "metricsMatch contradicts the exact compared work counters",
+    )
+    expect_rejected(
+        shadow_result(
+            canonicalArtifactDirectoryEntriesObserved=1,
+            canonicalArtifactCandidatesObserved=2,
+        ),
+        "candidate count cannot exceed directory-entry count",
+    )
+
     # Raw exception/control prose never becomes routine display text. A wound means comparison did
-    # not complete, so the three comparison fields must remain null rather than counterfeit false.
+    # not complete, so comparison booleans and completed work must remain unavailable.
     hostile_boundary = "decoder failed\nsecret path /home/operator/x \u202e"
     wounded = project_shadow_receipt(
         ROOT,
@@ -130,6 +162,8 @@ def main() -> int:
             boundary=hostile_boundary,
             portableShadowArtifacts=[],
             descriptorArtifacts=[],
+            descriptorArtifactDirectoryEntriesObserved=None,
+            descriptorArtifactCandidatesObserved=None,
             artifactSetMatch=None,
             metricsMatch=None,
             contentIdentityMatch=None,
@@ -140,6 +174,7 @@ def main() -> int:
     assert wounded["boundarySha256"] == hashlib.sha256(
         hostile_boundary.encode("utf-8")
     ).hexdigest()
+    assert wounded["comparisonWork"] is None
 
     wrong_schema = shadow_result(schema="try-forever-owner-surgery-descriptor-shadow.v4")
     expect_rejected(wrong_schema, "exact descriptor-shadow v3")
