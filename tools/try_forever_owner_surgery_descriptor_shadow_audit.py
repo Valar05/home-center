@@ -20,6 +20,7 @@ from typing import Mapping
 from try_forever_directory_handle_binding_capability import (
     current_directory_handle_binding_capability,
 )
+from try_forever_owner_surgery_backend_policy import PORTABLE_UNAVAILABLE
 from try_forever_owner_surgery_custody_probe import (
     MAX_ARTIFACT_BYTES,
     MAX_CUSTODY_ARTIFACTS,
@@ -62,6 +63,15 @@ def _artifact_paths_from_portable(result: Mapping[str, object]) -> tuple[str, ..
     return tuple(sorted(paths))
 
 
+def _canonical_evidence_complete(result: Mapping[str, object]) -> bool:
+    """Preserve the canonical boolean contract instead of truthiness-normalizing it."""
+
+    value = result.get("evidenceComplete")
+    if not isinstance(value, bool):
+        raise ValueError("canonical evidenceComplete must be one boolean")
+    return value
+
+
 def audit_descriptor_shadow(
     root: Path = PATCH_ROOT,
     current_owner_blobs: dict[str, str] | None = None,
@@ -73,8 +83,8 @@ def audit_descriptor_shadow(
     """Run a descriptor custody shadow beside canonical portable v10 authority.
 
     The canonical result is always produced first and remains the only authority result. The shadow
-    may report MATCH, DIVERGED, UNAVAILABLE, or WOUND, but never collision/stale/unverified promotion
-    groups and never ownerEvidenceAdmitted=true.
+    may report MATCH, DIVERGED, UNAVAILABLE, CAPABILITY_WOUND, or DESCRIPTOR_WOUND, but never
+    collision/stale/unverified promotion groups and never ownerEvidenceAdmitted=true.
     """
 
     portable = classify(
@@ -83,11 +93,12 @@ def audit_descriptor_shadow(
         max_candidates=max_candidates,
         max_entries=max_entries,
     )
+    canonical_evidence_complete = _canonical_evidence_complete(portable)
     capability = current_directory_handle_binding_capability()
     base: dict[str, object] = {
         "schema": SCHEMA,
         "canonicalAuthorityBackend": "PORTABLE_PATHNAME_REVALIDATION",
-        "canonicalEvidenceComplete": bool(portable.get("evidenceComplete")),
+        "canonicalEvidenceComplete": canonical_evidence_complete,
         "canonicalArtifactDirectoryEntriesObserved": portable.get(
             "artifactDirectoryEntriesObserved"
         ),
@@ -104,11 +115,25 @@ def audit_descriptor_shadow(
         "phoneDelivered": False,
     }
 
-    if capability.status != SUPPORTED:
+    if capability.status == PORTABLE_UNAVAILABLE:
         return {
             **base,
             "status": "DESCRIPTOR_UNAVAILABLE",
             "boundary": capability.boundary,
+            "descriptorArtifactDirectoryEntriesObserved": None,
+            "descriptorArtifactCandidatesObserved": None,
+            "artifactSetMatch": None,
+            "metricsMatch": None,
+        }
+
+    if capability.status != SUPPORTED:
+        return {
+            **base,
+            "status": "CAPABILITY_WOUND",
+            "boundary": (
+                "Descriptor shadow capability status is not one admitted platform state; "
+                f"refusing to normalize {capability.status!r} into descriptor unavailability."
+            ),
             "descriptorArtifactDirectoryEntriesObserved": None,
             "descriptorArtifactCandidatesObserved": None,
             "artifactSetMatch": None,
