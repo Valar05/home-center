@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Intentionally RED owner boundary for exact owner-surgery metadata and fallback ownership.
+"""Source boundary for exact owner-surgery metadata and fallback ownership.
 
-SOURCE ONLY / UNEXECUTED. The canonical v10 custody owner currently first-matches textual patch
-headers, structurally trims CLI owner keys, does not route structured-delta owner identity through
-the same exact owner-key admission, and infers the implicit default owner from an arbitrary basename
-mention. This regression must stay RED until the existing owner consumes the exact contracts without
-creating a second custody owner.
+SOURCE ONLY / UNEXECUTED. The canonical v10 custody owner is now expected to consume exact textual
+patch metadata, exact owner identity, and exact implicit default-owner diff binding. These assertions
+lock the SOURCE_WIRED shape; they are not executed test evidence, runtime proof, deployment, delivery,
+or acceptance.
 """
 
 from pathlib import Path
