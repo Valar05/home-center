@@ -1,9 +1,11 @@
 # BASE OWNER BLOB: 523d8005212745738106733e91be6dd625caf767
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# APPLIED COMMIT: 2e94d752012234d7025f6271f262d27ed3a97f6c
+# RESULT OWNER BLOB: a96d572698dfdbc3800410446f27e77908938e4b
 # PURPOSE: Compose exact metadata admission and exact implicit-default-owner binding into the existing canonical v10 custody owner.
-# CAPABILITY: PATCH SOURCE ONLY. This file does not prove application, execution, testing, runtime, delivery, or acceptance.
-# REVIEW SCAR: The first draft tried to remove regex declarations with over-escaped patch context. This corrected draft leaves those harmless declarations in place, removes their authority only from owner methods, and refuses arbitrary basename mention as implicit owner evidence.
+# CAPABILITY: APPLIED SOURCE ONLY. This file and its applied commit/readback do not prove regression execution, TESTED, runtime, delivery, or acceptance.
+# REVIEW SCAR: The first draft tried to remove regex declarations with over-escaped patch context. This corrected draft left those harmless declarations in place and removed their authority only from owner methods.
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
