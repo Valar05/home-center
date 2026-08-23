@@ -183,11 +183,12 @@ def audit_descriptor_shadow(
         max_entries=max_entries,
     )
     canonical_schema = portable.get("schema")
+    canonical_result_sha256 = _canonical_result_sha256(portable)
     base: dict[str, object] = {
         "schema": SCHEMA,
         "canonicalAuthorityBackend": "PORTABLE_PATHNAME_REVALIDATION",
         "canonicalAuthoritySchema": canonical_schema,
-        "canonicalResultSha256": None,
+        "canonicalResultSha256": canonical_result_sha256,
         "canonicalEvidenceComplete": None,
         "canonicalArtifactDirectoryEntriesObserved": portable.get(
             "artifactDirectoryEntriesObserved"
@@ -222,7 +223,6 @@ def audit_descriptor_shadow(
             "contentIdentityMatch": None,
         }
 
-    base["canonicalResultSha256"] = _canonical_result_sha256(portable)
     canonical_evidence_complete = _canonical_evidence_complete(portable)
     base["canonicalEvidenceComplete"] = canonical_evidence_complete
 
