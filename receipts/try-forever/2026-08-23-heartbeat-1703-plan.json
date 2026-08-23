@@ -1,0 +1,64 @@
+{
+  "schema": "try-forever-plan.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "scope": "non-P0 descriptor-shadow operator-receipt integrity",
+  "missionBoundary": {
+    "phoneP0Mutation": false,
+    "duplicateArchitecture": false,
+    "canonicalOwnersPreserved": true,
+    "sourceDoesNotImplyTestedRuntimeDelivered": true
+  },
+  "fronts": [
+    {
+      "id": "wound-context-integrity",
+      "action": "Extend the existing shadow-receipt self-integrity gate so wound/unavailable statuses must agree with canonical schema, canonical completeness, and descriptor capability context.",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py"
+    },
+    {
+      "id": "raw-evidence-binding",
+      "action": "Bind the bounded operator receipt to the exact deterministic raw shadow evidence by SHA-256 without embedding raw evidence; bump the operator receipt schema.",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py"
+    },
+    {
+      "id": "hostile-regressions",
+      "action": "Add source fixtures for status/context contradiction and raw-only evidence drift; leave regression execution state NO unless an authorized runner actually executes them.",
+      "owner": "existing tools/test_try_forever_owner_surgery_* receipt fixtures"
+    },
+    {
+      "id": "doctrine-art-convergence",
+      "action": "Update the existing shadow-receipt-integrity skill and existing descriptor-shadow Warm Wall only if the source changes materially alter the inspectable receipt topology.",
+      "owner": "existing skill and source organism"
+    },
+    {
+      "id": "review-evidence",
+      "action": "Perform Regnet-style code-first review, preserve She-Raw connector fault if present, inspect exact-head workflow evidence without retrying failed infrastructure, and keep TESTED/runtime/delivery states separate.",
+      "owner": "PR #329 durable receipts"
+    }
+  ],
+  "skillLightsConsidered": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "warm walls",
+      "contact preservation"
+    ],
+    "darkUnlessMaterial": [
+      "Autocorrect Judgment Jar",
+      "Phone Runtime / Phone Hands recovery",
+      "Christmas-light scene graph"
+    ]
+  },
+  "gate": "PLAN_ALLOWED"
+}
