@@ -1,0 +1,26 @@
+{
+  "schema": "venice-review.v1",
+  "checkpoint": "2026-08-23T06:00:00-05:00",
+  "reviewedSourceHead": "b610cbaaedafaacda67614bfc13c274d28759a6e",
+  "pr": 329,
+  "planGate": "PLAN_ALLOWED__NON_P0_SOURCE_ONLY__OWNER_SURGERY_MUST_REMAIN_UNAPPLIED_UNTIL_AUTHENTICATED_OWNER_MUTATION",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_METADATA_INTEGRATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "The source slice materially advances owner-metadata exactness without changing owner architecture or using P0/phone surfaces.",
+    "The prepared surgery is useful only as PROPOSED_NOT_APPLIED evidence; current owner readback remains RED, so owner implementation cannot be claimed.",
+    "The corrected patch-context scar is preserved rather than rewritten as foresight.",
+    "Failed automatic workflows do not establish a step-level source failure; TESTED remains NO.",
+    "The larger recurring campaign continues on materially different non-P0 wounds."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
