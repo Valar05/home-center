@@ -5,53 +5,14 @@
   "reviewedSourceHead": "bf6045c66a1c4688d819dc3dd1db3614f533d306",
   "startingHead": "2e7d378aa7f7acba8fd628ad6d6493cd90f0ba4c",
   "frontsAdvanced": [
-    {
-      "front": "backend-result-schema-custody",
-      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
-      "artifact": "tools/try_forever_owner_surgery_backend_result_integrity.py"
-    },
-    {
-      "front": "promotion-member-inventory-custody",
-      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
-      "artifact": "tools/try_forever_owner_surgery_backend_result_integrity.py"
-    },
-    {
-      "front": "backend-result-hostile-regressions",
-      "state": "REGRESSION_SOURCE_UNEXECUTED",
-      "artifact": "tools/test_try_forever_owner_surgery_backend_result_integrity.py"
-    },
-    {
-      "front": "shadow-safe-display-receipt",
-      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
-      "artifact": "tools/try_forever_owner_surgery_shadow_receipt_projection.py"
-    },
-    {
-      "front": "shadow-display-hostile-regressions",
-      "state": "REGRESSION_SOURCE_UNEXECUTED",
-      "artifact": "tools/test_try_forever_owner_surgery_shadow_receipt_projection.py"
-    },
-    {
-      "front": "durable-skill-harvest",
-      "state": "IMPLEMENTED_SOURCE",
-      "artifacts": [
-        "skills/operator-owner-surgery-result-inventory-custody/SKILL.md",
-        "skills/operator-owner-surgery-shadow-receipt/SKILL.md"
-      ]
-    },
-    {
-      "front": "touchable-non-raster-evidence-throat",
-      "state": "IMPLEMENTED_SOURCE_ONLY_ART",
-      "artifact": "docs/try-forever/operator-owner-surgery-evidence-custody-throat-source-specimen.html"
-    },
-    {
-      "front": "governance-and-review",
-      "state": "DURABLE_RECEIPTS",
-      "artifacts": [
-        "receipts/try-forever/2026-08-23-heartbeat-0001-plan.json",
-        "receipts/try-forever/2026-08-23-heartbeat-0001-regnet.json",
-        "receipts/try-forever/2026-08-23-heartbeat-0001-venice.json"
-      ]
-    }
+    {"front":"backend-result-schema-custody","state":"IMPLEMENTED_SUPPORTING_SOURCE","artifact":"tools/try_forever_owner_surgery_backend_result_integrity.py"},
+    {"front":"promotion-member-inventory-custody","state":"IMPLEMENTED_SUPPORTING_SOURCE","artifact":"tools/try_forever_owner_surgery_backend_result_integrity.py"},
+    {"front":"backend-result-hostile-regressions","state":"REGRESSION_SOURCE_UNEXECUTED","artifact":"tools/test_try_forever_owner_surgery_backend_result_integrity.py"},
+    {"front":"shadow-safe-display-receipt","state":"IMPLEMENTED_SUPPORTING_SOURCE","artifact":"tools/try_forever_owner_surgery_shadow_receipt_projection.py"},
+    {"front":"shadow-display-hostile-regressions","state":"REGRESSION_SOURCE_UNEXECUTED","artifact":"tools/test_try_forever_owner_surgery_shadow_receipt_projection.py"},
+    {"front":"durable-skill-harvest","state":"IMPLEMENTED_SOURCE","artifacts":["skills/operator-owner-surgery-result-inventory-custody/SKILL.md","skills/operator-owner-surgery-shadow-receipt/SKILL.md"]},
+    {"front":"touchable-non-raster-evidence-throat","state":"IMPLEMENTED_SOURCE_ONLY_ART","artifact":"docs/try-forever/operator-owner-surgery-evidence-custody-throat-source-specimen.html"},
+    {"front":"governance-and-review","state":"DURABLE_RECEIPTS","artifacts":["receipts/try-forever/2026-08-23-heartbeat-0001-plan.json","receipts/try-forever/2026-08-23-heartbeat-0001-regnet.json","receipts/try-forever/2026-08-23-heartbeat-0001-venice.json"]}
   ],
   "skillLights": {
     "Failure Is The Shovel": "LIT: moved from descriptor shadow parity to backend-result evidence integrity and safe shadow receipt semantics.",
@@ -75,12 +36,31 @@
     "Christmas-light scene graph": "DARK: no runtime transition law changed; no decorative blink added.",
     "contact preservation": "LIT: display projection preserves raw evidence identity rather than rewriting authority records."
   },
+  "reviewScars": [
+    "Inventory uniqueness was corrected from (artifact_kind,path) to exact path identity with path-kind suffix agreement.",
+    "Shadow comparison fields were corrected from pass-through values to exact boolean-or-null evidence with status consistency.",
+    "Canonical repository-relative shadow path display was corrected to be independent of process cwd.",
+    "Host-specific fixture identity was removed before completion."
+  ],
   "crossPollination": [
     "Descriptor shadow work made future backend result admission suspicious: group-member shape alone did not prove membership in canonical surgeries.",
     "That evidence-integrity review exposed artifact path-kind aliasing and forced path-unique custody.",
     "Safe shadow display review exposed truthiness laundering and process-cwd-dependent relative path projection; both were corrected.",
     "Existing provenance path projection became the reusable accessibility organ for shadow receipts without becoming authority."
   ],
+  "executionTruth": {
+    "sourceHead": "bf6045c66a1c4688d819dc3dd1db3614f533d306",
+    "operatorOverlayRun": 32619695622,
+    "operatorOverlayJob": 97145858796,
+    "operatorOverlayConclusion": "failure",
+    "homeCenterCiRun": 32619695655,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32619695648,
+    "buildAndroidConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
   "nextWound": "Descriptor shadow exact-content observations occur after canonical classify(); canonicalResultSha256 binds the result payload but does not prove those later observed bytes are the exact bytes that produced the canonical result. Temporal canonical-result-to-artifact-content binding remains NO.",
   "capability": {
     "requested": true,
@@ -99,11 +79,6 @@
     "delivered": false,
     "accepted": false
   },
-  "firewall": {
-    "phoneP0Consumption": 0,
-    "phoneP0Mutation": 0,
-    "duplicateArchitecture": 0,
-    "newP0Finding": null
-  },
+  "firewall": {"phoneP0Consumption":0,"phoneP0Mutation":0,"duplicateArchitecture":0,"newP0Finding":null},
   "gate": "SOURCE_SLICE_STOP_ALLOWED__INTEGRITY_GATE_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
 }
