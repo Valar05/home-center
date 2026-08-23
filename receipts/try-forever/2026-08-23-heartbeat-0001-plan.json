@@ -1,0 +1,47 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampCt": "2026-08-23T00:01:20-05:00",
+  "pr": 329,
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "startingHead": "2e7d378aa7f7acba8fd628ad6d6493cd90f0ba4c",
+  "mission": "Advance a broad non-P0 swarm through existing Home Center/GitHub owners only.",
+  "fronts": [
+    {
+      "name": "backend-result-schema-custody",
+      "owner": "tools/try_forever_owner_surgery_backend_policy.py",
+      "intent": "Require the admitted backend result to identify the canonical custody schema before authority evidence is interpreted."
+    },
+    {
+      "name": "authority-group-membership-custody",
+      "owner": "tools/try_forever_owner_surgery_backend_policy.py",
+      "intent": "Require every authority-group promotion member to be present in the admitted surgeries inventory; reject phantom promotion evidence."
+    },
+    {
+      "name": "hostile-regression-source",
+      "owner": "tools/test_try_forever_owner_surgery_backend_policy.py",
+      "intent": "Pin schema drift, phantom group members, malformed surgeries, duplicate surgery identity, and group-to-inventory membership. Regression execution remains separate."
+    },
+    {
+      "name": "durable-skill-convergence",
+      "owner": "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "intent": "Make schema custody and surgery-inventory membership part of durable backend-admission doctrine."
+    },
+    {
+      "name": "touchable-warm-wall",
+      "owner": "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "intent": "Expose schema and phantom-member gates as non-raster, keyboard/touch-inspectable SOURCE ONLY states without claiming runtime delivery."
+    }
+  ],
+  "requiredReviews": {
+    "sheRaw": "attempted pre-execution; account connection HTTP 400; no substitute verdict",
+    "regnet": "code-first bounded source review after mutation",
+    "venice": "same-worker bounded completion gate; no merge/runtime promotion"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Findings": []
+  },
+  "capabilityBoundary": "Repository/source artifacts may advance; regression execution, TESTED, runtime UI/TalkBack, deployment, phone callability/execution, delivery, and acceptance remain separate gates."
+}
