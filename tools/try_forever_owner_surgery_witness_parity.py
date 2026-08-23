@@ -18,7 +18,9 @@ from try_forever_owner_surgery_backend_result_integrity import (
 )
 
 
-SCHEMA = "try-forever-owner-surgery-witness-parity.v2"
+# The focused review receipt keeps its existing public schema. Ownership moved inward, but the
+# review contract did not need a breaking revision.
+SCHEMA = "try-forever-owner-surgery-witness-parity.v1"
 CanonicalWitnessParityError = BackendWitnessParityError
 
 
