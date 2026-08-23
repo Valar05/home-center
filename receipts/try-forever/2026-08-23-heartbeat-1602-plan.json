@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localCheckpoint": "2026-08-23T16:02:00-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER source fronts without consuming the gated phone/P0 chain or creating duplicate authorities.",
+  "observedOwner": {
+    "operatorReceipt": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+    "selfIntegrity": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+    "soleProjector": "tools/try_forever_owner_surgery_shadow_receipt_projection.py"
+  },
+  "fronts": [
+    {
+      "id": "comparison-metric-transparency",
+      "reason": "The operator receipt can say metricsMatch=true while omitting the bounded directory-entry/candidate counts that were compared.",
+      "authorizedMutation": "Strengthen the existing sole projector and its existing hostile source fixture; no second projector."
+    },
+    {
+      "id": "operator-receipt-identity",
+      "reason": "The operator receipt has canonical-result and boundary fingerprints but no deterministic identity for the complete bounded operator payload itself.",
+      "authorizedMutation": "Add deterministic source-only receipt fingerprinting in the existing operator command; no authority/test/runtime promotion."
+    },
+    {
+      "id": "accessibility-warm-wall",
+      "reason": "Make the new bounded metric and receipt-identity consequences touch-inspectable in the existing descriptor-shadow Warm Wall.",
+      "authorizedMutation": "Mutate the existing DOM/inline-SVG source organism only; no runtime/TalkBack claim and no decorative motion."
+    },
+    {
+      "id": "doctrine-and-review",
+      "reason": "Keep durable skill doctrine, Regnet, Venice, and PR capability states aligned with authenticated source truth.",
+      "authorizedMutation": "Update existing skill/receipts/PR command surface; TESTED/runtime/deployed/delivered remain separate."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0EvidenceMode": "READ_ONLY"
+  },
+  "sheRaw": "PRE_EXECUTION_ATTEMPTED__ACCOUNT_CONNECTION_HTTP_400",
+  "gate": "PLAN_READY__P0_FIREWALL_BINDING"
+}
