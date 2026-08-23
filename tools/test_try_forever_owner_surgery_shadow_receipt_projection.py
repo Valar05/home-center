@@ -121,7 +121,7 @@ def main() -> int:
     assert long_name not in projected
 
     # Raw exception/control prose never becomes routine display text.
-    hostile_boundary = "decoder failed\nsecret path /home/drew/x \u202e"
+    hostile_boundary = "decoder failed\nsecret path /home/operator/x \u202e"
     wounded = project_shadow_receipt(
         ROOT,
         shadow_result(
@@ -135,7 +135,7 @@ def main() -> int:
         ),
     )
     assert hostile_boundary not in str(wounded)
-    assert "/home/drew" not in str(wounded)
+    assert "/home/operator" not in str(wounded)
     assert wounded["boundarySha256"] == hashlib.sha256(
         hostile_boundary.encode("utf-8")
     ).hexdigest()
