@@ -88,6 +88,17 @@ def recompute_operator_receipt_sha256(receipt: dict[str, object]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def recompute_raw_machine_evidence_sha256(raw: dict[str, object]) -> str:
+    encoded = json.dumps(
+        raw,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def main() -> int:
     original = owner.audit_descriptor_shadow
     try:
@@ -95,11 +106,14 @@ def main() -> int:
         owner.audit_descriptor_shadow = lambda **kwargs: raw
         receipt = owner.build_descriptor_shadow_operator_receipt(ROOT)
         assert receipt["operatorReceiptSchema"] == owner.SCHEMA
-        assert receipt["receiptSelfIntegritySchema"].endswith(".v1")
+        assert receipt["receiptSelfIntegritySchema"].endswith(".v2")
         assert receipt["comparisonEvidenceRecomputed"] is True
+        assert receipt["woundContextValidated"] is False
         assert receipt["temporalReceiptContextAdmitted"] is True
         assert receipt["rawMachineEvidenceRemainsSeparate"] is True
         assert receipt["rawMachineEvidenceIncluded"] is False
+        assert receipt["rawMachineEvidenceBound"] is True
+        assert receipt["rawMachineEvidenceSha256"] == recompute_raw_machine_evidence_sha256(raw)
         assert receipt["secondReceiptProjectorCreated"] is False
         assert receipt["secondDescriptorAuthorityCreated"] is False
         assert receipt["phoneP0MutationAuthority"] is False
@@ -127,6 +141,20 @@ def main() -> int:
         assert fingerprint == recompute_operator_receipt_sha256(receipt)
         second = owner.build_descriptor_shadow_operator_receipt(ROOT)
         assert second["operatorReceiptSha256"] == fingerprint
+        assert second["rawMachineEvidenceSha256"] == receipt["rawMachineEvidenceSha256"]
+
+        # Machine-only raw evidence that the display projector does not expose must still change the
+        # raw-evidence binding and therefore the complete operator receipt identity.
+        raw_only_drift = raw_match()
+        raw_only_drift["diagnosticMachineOnly"] = "new raw evidence not operator prose"
+        owner.audit_descriptor_shadow = lambda **kwargs: raw_only_drift
+        raw_only_receipt = owner.build_descriptor_shadow_operator_receipt(ROOT)
+        assert raw_only_receipt["status"] == receipt["status"]
+        assert raw_only_receipt["summary"] == receipt["summary"]
+        assert raw_only_receipt["comparisonWork"] == receipt["comparisonWork"]
+        assert raw_only_receipt["rawMachineEvidenceSha256"] != receipt["rawMachineEvidenceSha256"]
+        assert raw_only_receipt["operatorReceiptSha256"] != fingerprint
+        assert raw_only_drift["diagnosticMachineOnly"] not in str(raw_only_receipt)
 
         # Materially different but still-valid compared work changes the bounded receipt identity.
         different_work = raw_match()
@@ -176,7 +204,9 @@ def main() -> int:
         owner.audit_descriptor_shadow = lambda **kwargs: wound_without_stale_proof
         wound_receipt = owner.build_descriptor_shadow_operator_receipt(ROOT)
         assert wound_receipt["comparisonWork"] is None
+        assert wound_receipt["woundContextValidated"] is True
         assert wound_receipt["temporalReceiptContextAdmitted"] is False
+        assert wound_receipt["rawMachineEvidenceBound"] is True
 
         # No stale temporal proof may survive a wound/unavailable raw result.
         wounded = raw_match()
