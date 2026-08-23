@@ -20,7 +20,10 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
-from try_forever_provenance_report_path import project_report_path
+from try_forever_provenance_report_path import (
+    project_report_path,
+    project_repository_relative_report_path,
+)
 
 
 SHADOW_SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
@@ -53,6 +56,22 @@ def _optional_bool(value: object, *, field: str) -> bool | None:
     return value
 
 
+def _project_shadow_path(repo_root: Path, path_text: str):
+    """Project canonical shadow path text without depending on process cwd.
+
+    Canonical v10/shadow source normally serializes repository-relative paths such as
+    ``patches/try-forever-a.patch``. Feeding that text through ``Path.abspath`` would make display
+    semantics depend on the caller's working directory. Relative shadow identities therefore use
+    the repository-relative projector directly; absolute source paths retain the normal repository
+    containment/external-host projection.
+    """
+
+    path = Path(path_text)
+    if not path.is_absolute():
+        return project_repository_relative_report_path(path.as_posix())
+    return project_report_path(repo_root, path)
+
+
 def _artifact_projection(repo_root: Path, item: object, *, field: str) -> dict[str, object]:
     if not isinstance(item, Mapping):
         raise ValueError(f"{field} entries must be mappings")
@@ -64,7 +83,7 @@ def _artifact_projection(repo_root: Path, item: object, *, field: str) -> dict[s
     if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
         raise ValueError(f"{field} sha256 must be 64 lowercase hexadecimal")
 
-    projected = project_report_path(repo_root, Path(path_text))
+    projected = _project_shadow_path(repo_root, path_text)
     return {
         "path": projected.display_path,
         "pathScope": projected.scope,
