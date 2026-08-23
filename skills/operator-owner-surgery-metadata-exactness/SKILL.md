@@ -14,7 +14,7 @@ This skill owns no patch executor, custody authority, overlay controller, phone 
 - Identical duplicate authority headers are still ambiguous evidence.
 - A malformed second authority header still counts as duplicate evidence; validation failure cannot make its label disappear from cardinality.
 - Header recognition is line-local. Broad `\s` must not consume a newline and accidentally fuse two authority records.
-- Supporting policy existence is not canonical-owner wiring, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+- Supporting policy or prepared surgery existence is not canonical-owner wiring, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
 
 ## Supporting source
 `tools/try_forever_owner_surgery_metadata_exactness.py` provides:
@@ -25,12 +25,24 @@ This skill owns no patch executor, custody authority, overlay controller, phone 
 
 The policy deliberately allows an absent explicit owner header so the canonical owner's existing default-owner fallback can remain a separate rule.
 
+## Prepared existing-owner surgery
+`patches/try-forever-owner-surgery-metadata-exactness-owner.patch` is one exact surgery against the authenticated canonical-owner blob `523d8005212745738106733e91be6dd625caf767`.
+
+It composes the existing supporting organs into the existing owner only:
+- `inspect_patch(...)` delegates base/state/explicit-owner admission to `admit_patch_metadata(...)` and removes first-match authority;
+- structured delta owner identity delegates to `admit_owner_identity(...)`;
+- programmatic current-owner map keys delegate to `admit_owner_identity(...)`;
+- CLI `--current-owner OWNER=BLOB` removes `owner.strip()` and admits the exact owner key instead.
+
+Patch state is **`CORRECTED_PROPOSED_NOT_APPLIED`**. It is prepared source, not implementation.
+
 ## Code-first review scar
 The first supporting parser counted only value-valid regex matches. That was insufficient: a second malformed authority header could disappear from the duplicate count, and broad whitespace regexes risked line-crossing semantics. The corrected source counts recognized header labels first and validates the single admitted value afterward.
 
 ## Regression source
 - `tools/test_try_forever_owner_surgery_metadata_exactness.py` — supporting policy fixtures, including malformed duplicate labels and cross-line header attack, **UNEXECUTED**.
 - `tools/test_try_forever_owner_surgery_metadata_owner_boundary.py` — intentionally RED existing-owner boundary, **UNEXECUTED**.
+- `tools/test_try_forever_owner_surgery_metadata_owner_patch.py` — proves exact Git-blob lock, patch contents, and that prepared provenance does not launder the current owner into SOURCE_WIRED, **UNEXECUTED**.
 
 The RED boundary requires the existing `try_forever_owner_surgery_custody_probe.py` to consume both exact gates and retire CLI `owner.strip()` plus first-match `BASE_RE/STATE_RE/OWNER_RE.search(...)` authority.
 
@@ -40,7 +52,7 @@ Canonical v10 owner wiring for this metadata-exactness slice: **NO / RED**.
 The previously completed blob-identity surgery remains valid and separate: blob text itself is already exact SOURCE_WIRED. This skill advances the **owner key** and **textual patch header cardinality** channels without reopening blob normalization.
 
 ## Capability membrane
-Supporting implementation **YES** · authenticated repository readback **YES** · supporting regression source **YES / UNEXECUTED** · existing-owner metadata integration **NO** · TESTED **NO** · runtime UI/TalkBack **NO** · deployed/phone/delivered/accepted **NO**.
+Supporting implementation **YES** · authenticated repository readback **YES** · exact owner surgery **YES / CORRECTED_PROPOSED_NOT_APPLIED** · supporting regression source **YES / UNEXECUTED** · existing-owner metadata integration **NO** · TESTED **NO** · runtime UI/TalkBack **NO** · deployed/phone/delivered/accepted **NO**.
 
 ## P0 / phone firewall
 Consumes no Phone Hands, primary-phone execution, recovery queue/relay, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.
