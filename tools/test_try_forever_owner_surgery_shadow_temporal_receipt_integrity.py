@@ -124,6 +124,26 @@ def main() -> int:
     assert result["temporalBindingProven"] is False
     assert result["shadowReceiptContextAdmitted"] is True
 
+    counterfeit_divergence = deepcopy(diverged)
+    counterfeit_divergence["descriptorCapabilityStatus"] = "supported_posix_primitives"
+    expect_rejected(
+        canonical_result,
+        counterfeit_divergence,
+        "supported descriptor capability",
+    )
+
+    incomplete_divergence_canonical = canonical()
+    incomplete_divergence_canonical["evidenceComplete"] = False
+    incomplete_divergence = shadow(incomplete_divergence_canonical)
+    incomplete_divergence["status"] = "SHADOW_DIVERGED"
+    incomplete_divergence["canonicalEvidenceComplete"] = False
+    incomplete_divergence["contentIdentityMatch"] = False
+    expect_rejected(
+        incomplete_divergence_canonical,
+        incomplete_divergence,
+        "cannot accompany incomplete canonical custody",
+    )
+
     return 0
 
 
