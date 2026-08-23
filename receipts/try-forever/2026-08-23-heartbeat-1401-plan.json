@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-23T14:01:46-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "mission": "Harden the existing descriptor-shadow operator receipt self-integrity boundary without creating a second receipt projector or descriptor authority.",
+  "plannedFronts": [
+    {
+      "front": "receipt_metric_cardinality_integrity",
+      "action": "Reject impossible candidate>directory counters and completed-comparison artifact lists whose cardinality disagrees with their own candidate counters before operator projection.",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py"
+    },
+    {
+      "front": "hostile_regression_source",
+      "action": "Add source-only fixtures for impossible metrics and candidate/artifact cardinality drift while preserving legitimate DESCRIPTOR_WOUND portable evidence.",
+      "owner": "tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py"
+    },
+    {
+      "front": "durable_skill_convergence",
+      "action": "Update operator-owner-surgery-shadow-receipt-integrity doctrine with the new fail-closed work-evidence law and unchanged capability membrane.",
+      "owner": "skills/operator-owner-surgery-shadow-receipt-integrity/SKILL.md"
+    },
+    {
+      "front": "review_and_evidence",
+      "action": "Perform code-first Regnet review, authenticated GitHub readback, and preserve source/test/runtime/phone capability separation. Do not manually retry unchanged failed CI merely to create activity."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null
+  },
+  "explicitNonGoals": [
+    "No Phone Hands or primary-phone execution.",
+    "No P0 recovery-chain mutation.",
+    "No second descriptor authority, receipt projector, overlay controller, or recovery daemon.",
+    "No TESTED/runtime/deployed/delivered claims from source existence."
+  ]
+}
