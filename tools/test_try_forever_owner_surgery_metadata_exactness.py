@@ -9,6 +9,7 @@ from try_forever_owner_surgery_metadata_exactness import (
     OwnerSurgeryMetadataError,
     admit_owner_identity,
     admit_patch_metadata,
+    source_receipt,
 )
 
 
@@ -72,6 +73,15 @@ def test_identical_duplicate_headers_are_still_ambiguous():
         lambda: admit_patch_metadata(canonical_patch("# STATUS: CORRECTED_PROPOSED_NOT_APPLIED\n")),
         "observed 2",
     )
+
+
+def test_duplicate_cardinality_scan_stops_after_second_match_semantically():
+    many_duplicate_states = "# STATUS: CORRECTED_PROPOSED_NOT_APPLIED\n" * 10_000
+    expect_rejected(
+        lambda: admit_patch_metadata(canonical_patch(many_duplicate_states)),
+        "observed 2",
+    )
+    assert source_receipt()["headerCardinalityScanBounded"] is True
 
 
 def test_malformed_duplicate_header_label_cannot_disappear_from_cardinality():
