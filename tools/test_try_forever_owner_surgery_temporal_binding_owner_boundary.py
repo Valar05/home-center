@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Intentionally RED source boundary for canonical-result ↔ artifact-content temporal binding.
+"""Source-wiring regression for canonical-result ↔ artifact-content temporal binding.
 
-The current canonical v10 owner does not yet retain or emit same-observation artifact byte/SHA
-witnesses, and descriptor shadow v3 does not yet consume the temporal-binding contract. This
-fixture prevents supporting policy existence from being reported as owner integration.
-
-SOURCE ONLY. Expected to remain RED until one deliberate existing-owner composition is reviewed.
+Canonical v10 must retain and emit same-observation artifact byte/SHA witnesses, and descriptor
+shadow v3 must consume the temporal-binding contract before reporting positive exact-content
+staging. This remains source evidence only; execution, runtime, and delivery are separate states.
 """
 
 import ast
@@ -59,11 +57,11 @@ def main() -> int:
 
     fields = dataclass_fields(owner_tree, "Surgery")
     assert "artifact_byte_count" in fields, (
-        "RED: canonical v10 Surgery must retain byte count from the exact bounded observation that "
+        "canonical v10 Surgery must retain byte count from the exact bounded observation that "
         "produced the admitted surgery record"
     )
     assert "artifact_sha256" in fields, (
-        "RED: canonical v10 Surgery must retain SHA-256 from the exact bounded observation that "
+        "canonical v10 Surgery must retain SHA-256 from the exact bounded observation that "
         "produced the admitted surgery record"
     )
 
@@ -73,7 +71,7 @@ def main() -> int:
         "artifactContentWitnesses" in classify_strings
         or "WITNESS_FIELD" in classify_names
     ), (
-        "RED: canonical classify result must emit a dedicated same-observation artifactContentWitnesses "
+        "canonical classify result must emit a dedicated same-observation artifactContentWitnesses "
         "surface rather than leaving retained content identity trapped inside internal records"
     )
 
@@ -82,13 +80,16 @@ def main() -> int:
         "try_forever_owner_surgery_shadow_temporal_binding",
     )
     assert "evaluate_temporal_content_binding" in temporal_imports, (
-        "RED: descriptor shadow must import the temporal binding contract before it can report a "
+        "descriptor shadow must import the temporal binding contract before it can report a "
         "positive exact-content result"
     )
     audit_names = function_names(shadow_tree, "audit_descriptor_shadow")
+    audit_strings = function_string_constants(shadow_tree, "audit_descriptor_shadow")
     assert "evaluate_temporal_content_binding" in audit_names, (
-        "RED: importing temporal policy is not enough; the shadow owner path must use it"
+        "importing temporal policy is not enough; the shadow owner path must use it"
     )
+    assert "temporalContentBinding" in audit_strings
+    assert "temporalBindingProven" in audit_strings
 
     return 0
 
