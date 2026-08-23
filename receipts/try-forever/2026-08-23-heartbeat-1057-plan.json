@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-23T10:57:00-05:00",
+  "mission": "Advance non-P0 descriptor-shadow evidence semantics and temporal receipt integrity without touching canonical promotion authority, Android runtime owners, phone/P0, or deployment.",
+  "fronts": [
+    {
+      "name": "descriptor-wound-tristate-semantics",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+      "action": "Make descriptor observation failure report comparison unavailable rather than false divergence; add focused hostile regression source.",
+      "mutation": "supporting source + regression source"
+    },
+    {
+      "name": "temporal-shadow-receipt-integrity",
+      "owner": "tools/try_forever_owner_surgery_shadow_temporal_binding.py",
+      "action": "Require shadow-carried canonical schema/evidence/capability fields to agree with the exact canonical result and admitted descriptor capability before temporal binding can use SHADOW_MATCH; add focused hostile regression source.",
+      "mutation": "supporting source + regression source"
+    },
+    {
+      "name": "descriptor-shadow-doctrine-and-art-convergence",
+      "owner": "skills/operator-owner-surgery-descriptor-shadow-audit/SKILL.md",
+      "action": "Converge durable doctrine and mutate the existing descriptor-shadow DOM specimen only if the new wound-vs-divergence state is materially operator-visible.",
+      "mutation": "skill doctrine + existing art only if justified"
+    },
+    {
+      "name": "evidence-capability-review",
+      "action": "Preserve source/readback/regression/test/runtime/deployment/delivery/acceptance distinctions and publish a compact remote receipt plus PR checkpoint.",
+      "mutation": "receipt + PR metadata only"
+    }
+  ],
+  "constraints": {
+    "canonicalOwnerMutation": false,
+    "descriptorAuthorityMutation": false,
+    "androidRuntimeOwnerMutation": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "sheRawAttempted": true,
+    "sheRawResult": "ACCOUNT_CONNECTION_HTTP_400",
+    "autocorrect": "DARK_NO_MATERIAL_AMBIGUITY"
+  },
+  "gate": "PLAN_ALLOWED"
+}
