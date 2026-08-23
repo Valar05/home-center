@@ -61,6 +61,49 @@ def _artifact_identity_map(items: object, *, field: str) -> dict[str, tuple[int,
     return result
 
 
+def _canonical_surgery_paths(canonical_result: Mapping[str, object]) -> set[str]:
+    surgeries = canonical_result.get("surgeries")
+    if not isinstance(surgeries, list):
+        raise TemporalBindingEvidenceError("canonical surgeries must be one list")
+    paths: set[str] = set()
+    for index, item in enumerate(surgeries):
+        if not isinstance(item, Mapping):
+            raise TemporalBindingEvidenceError(f"canonical surgeries[{index}] must be one mapping")
+        path = item.get("path")
+        if not isinstance(path, str) or not path:
+            raise TemporalBindingEvidenceError(
+                f"canonical surgeries[{index}].path must be one non-empty string"
+            )
+        if path in paths:
+            raise TemporalBindingEvidenceError(f"canonical surgery path identity must be unique: {path}")
+        paths.add(path)
+    return paths
+
+
+def _unbound(
+    *,
+    status: str,
+    expected_result_sha256: str,
+    carried_result_sha256: object,
+    boundary: str,
+) -> dict[str, object]:
+    return {
+        "schema": SCHEMA,
+        "status": status,
+        "canonicalResultSha256": expected_result_sha256,
+        "shadowCanonicalResultSha256": carried_result_sha256,
+        "temporalBindingProven": False,
+        "authorityAdmitted": False,
+        "ownerMutation": False,
+        "regressionExecuted": False,
+        "tested": False,
+        "runtimeUi": False,
+        "runtimeTalkBack": False,
+        "phoneDelivered": False,
+        "boundary": boundary,
+    }
+
+
 def evaluate_temporal_content_binding(
     canonical_result: Mapping[str, object],
     shadow_result: Mapping[str, object],
@@ -68,9 +111,9 @@ def evaluate_temporal_content_binding(
     """Bind canonical-result identity to later artifact observations, or fail closed.
 
     ``TEMPORAL_CONTENT_BOUND`` is possible only when canonical v10 itself carries exact
-    same-observation artifact witnesses and both later staging mechanisms match those witnesses.
-    Current canonical v10 does not yet emit that field, so today's honest result is
-    ``CANONICAL_CONTENT_WITNESS_MISSING``.
+    same-observation artifact witnesses and an admitted SHADOW_MATCH carries exact true comparison
+    booleans for the same artifact set. Current canonical v10 does not emit that witness field, so
+    today's honest result is ``CANONICAL_CONTENT_WITNESS_MISSING``.
     """
 
     if not isinstance(canonical_result, Mapping):
@@ -85,44 +128,64 @@ def evaluate_temporal_content_binding(
     expected_result_sha256 = _canonical_result_sha256(canonical_result)
     carried_result_sha256 = shadow_result.get("canonicalResultSha256")
     if carried_result_sha256 != expected_result_sha256:
-        return {
-            "schema": SCHEMA,
-            "status": "CANONICAL_RESULT_ID_MISMATCH",
-            "canonicalResultSha256": expected_result_sha256,
-            "shadowCanonicalResultSha256": carried_result_sha256,
-            "temporalBindingProven": False,
-            "authorityAdmitted": False,
-            "ownerMutation": False,
-            "regressionExecuted": False,
-            "tested": False,
-            "runtimeUi": False,
-            "runtimeTalkBack": False,
-            "phoneDelivered": False,
-            "boundary": "Shadow evidence is not bound to the exact canonical result payload supplied for review.",
-        }
+        return _unbound(
+            status="CANONICAL_RESULT_ID_MISMATCH",
+            expected_result_sha256=expected_result_sha256,
+            carried_result_sha256=carried_result_sha256,
+            boundary="Shadow evidence is not bound to the exact canonical result payload supplied for review.",
+        )
+
+    canonical_evidence_complete = canonical_result.get("evidenceComplete")
+    if not isinstance(canonical_evidence_complete, bool):
+        raise TemporalBindingEvidenceError("canonical evidenceComplete must be one boolean")
+    if not canonical_evidence_complete:
+        return _unbound(
+            status="CANONICAL_WOUND",
+            expected_result_sha256=expected_result_sha256,
+            carried_result_sha256=carried_result_sha256,
+            boundary="Canonical custody is incomplete; temporal content binding cannot be admitted.",
+        )
+
+    if shadow_result.get("descriptorAuthorityAdmitted") is not False:
+        raise TemporalBindingEvidenceError("temporal policy accepts only non-authoritative descriptor shadow evidence")
+    if shadow_result.get("ownerMutation") is not False:
+        raise TemporalBindingEvidenceError("temporal policy accepts only shadow evidence with ownerMutation=false")
+
+    shadow_status = shadow_result.get("status")
+    comparisons = (
+        shadow_result.get("artifactSetMatch"),
+        shadow_result.get("metricsMatch"),
+        shadow_result.get("contentIdentityMatch"),
+    )
+    if shadow_status != "SHADOW_MATCH" or comparisons != (True, True, True):
+        return _unbound(
+            status="SHADOW_COMPARISON_NOT_ADMITTED",
+            expected_result_sha256=expected_result_sha256,
+            carried_result_sha256=carried_result_sha256,
+            boundary=(
+                "Temporal binding requires an exact SHADOW_MATCH with path-set, work-metric, and content-identity comparisons all true."
+            ),
+        )
 
     raw_witnesses = canonical_result.get(WITNESS_FIELD)
     if raw_witnesses is None:
-        return {
-            "schema": SCHEMA,
-            "status": "CANONICAL_CONTENT_WITNESS_MISSING",
-            "canonicalResultSha256": expected_result_sha256,
-            "shadowCanonicalResultSha256": carried_result_sha256,
-            "temporalBindingProven": False,
-            "authorityAdmitted": False,
-            "ownerMutation": False,
-            "regressionExecuted": False,
-            "tested": False,
-            "runtimeUi": False,
-            "runtimeTalkBack": False,
-            "phoneDelivered": False,
-            "boundary": (
+        return _unbound(
+            status="CANONICAL_CONTENT_WITNESS_MISSING",
+            expected_result_sha256=expected_result_sha256,
+            carried_result_sha256=carried_result_sha256,
+            boundary=(
                 "Canonical v10 does not carry same-observation artifactContentWitnesses; later portable/descriptor "
                 "content agreement cannot prove which bytes produced the canonical result."
             ),
-        }
+        )
 
     canonical_witnesses = _artifact_identity_map(raw_witnesses, field=WITNESS_FIELD)
+    canonical_paths = _canonical_surgery_paths(canonical_result)
+    if set(canonical_witnesses) != canonical_paths:
+        raise TemporalBindingEvidenceError(
+            "canonical artifactContentWitnesses path set must equal canonical surgeries path set"
+        )
+
     portable = _artifact_identity_map(
         shadow_result.get("portableShadowArtifacts"),
         field="portableShadowArtifacts",
