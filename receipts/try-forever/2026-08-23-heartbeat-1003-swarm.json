@@ -1,0 +1,105 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "heartbeat": "2026-08-23T10:03:00-05:00",
+  "reviewedSourceHead": "13fb0903eb8a221a580ee709c227747f73a2d111",
+  "planCommit": "8e475e59de066610ce76aad20bc116a5d2467955",
+  "fronts": [
+    {
+      "name": "descriptor-shadow-temporal-integration",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "tools/test_try_forever_owner_surgery_descriptor_shadow_temporal_integration.py",
+      "blob": "60fbd600f717c587774949bd4f41c14d1a70b509",
+      "changed": "The actual descriptor-shadow audit now has focused regression source proving SHADOW_MATCH without canonical same-observation witnesses remains temporally unproven, while exact canonical witnesses plus exact later portable/descriptor reads may produce TEMPORAL_CONTENT_BOUND with zero authority.",
+      "regressionExecuted": false
+    },
+    {
+      "name": "descriptor-shadow-doctrine-convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "skills/operator-owner-surgery-descriptor-shadow-audit/SKILL.md",
+      "blob": "9d473c788bb4475689d9596203d89e15098209ef",
+      "changed": "Durable doctrine now separates SHADOW_MATCH from temporal binding, records the focused integration fixture, and keeps temporal proof non-authoritative."
+    },
+    {
+      "name": "exact-diff-custody",
+      "state": "AUTHENTICATED_READBACK",
+      "changed": "Plan-to-source compare contains exactly two intended paths: the new focused regression source and the existing descriptor-shadow skill doctrine. Canonical owner, descriptor shadow implementation, backend selector, phone/P0, and runtime owner were not mutated."
+    },
+    {
+      "name": "execution-truth",
+      "state": "TESTED_NO",
+      "workflows": [
+        {"name": "Build Android", "run": 32647936906, "conclusion": "failure"},
+        {"name": "Operator Overlay Android", "run": 32647936898, "job": 97214987428, "conclusion": "failure", "stepsExposed": false},
+        {"name": "Home Center CI", "run": 32647936937, "conclusion": "failure"}
+      ],
+      "boundary": "Automatic workflows failed on the exact reviewed source head. The Operator job exposes no steps, so no step-level cause is established and no manual retry was fired."
+    },
+    {
+      "name": "she-raw",
+      "state": "FAULT",
+      "boundary": "Authoritative ambient consultation attempted once; account connection returned HTTP 400. No substitute reviewer was invented."
+    }
+  ],
+  "regnet": {
+    "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+    "notes": [
+      "Focused integration source exercises the actual shadow audit composition rather than only the temporal policy in isolation.",
+      "The two fixture cases preserve the key membrane: SHADOW_MATCH alone is insufficient; TEMPORAL_CONTENT_BOUND remains non-authoritative.",
+      "No source claim is promoted to regression execution, TESTED, runtime, deployment, delivery, or acceptance."
+    ]
+  },
+  "venice": {
+    "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_CANONICAL_BACKEND_COMPOSITION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "notes": "Bounded same-worker Judgment Jar review only; no external-worker verdict fabricated."
+  },
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "contact preservation"
+    ],
+    "dark": {
+      "Autocorrect Judgment Jar": "No material ambiguity required resolution.",
+      "accessibility/TalkBack and touch semantics": "No operator-visible or accessibility topology changed; remained a non-regression constraint.",
+      "strange non-raster vector/DOM/native UI art": "No operator-visible topology changed, so art mutation would be decorative heartbeat theater.",
+      "warm walls": "No new touchable state topology justified mutation.",
+      "Christmas-light scene graph": "No runtime transition law changed; no motion earned.",
+      "Phone Runtime / Phone Hands recovery": "P0/phone firewall remained binding and untouched."
+    }
+  },
+  "crossPollination": "Temporal-binding policy existed separately from descriptor-shadow regression coverage; code-first review exposed that the actual audit composition had no focused fixture proving both the missing-witness and bound-witness states. That gap became a focused regression, which forced descriptor-shadow doctrine to distinguish SHADOW_MATCH from TEMPORAL_CONTENT_BOUND explicitly. Execution truth then kept the entire source slice behind the TESTED/runtime membrane.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "canonicalOwnerMutation": false,
+    "descriptorAuthorityMutation": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
