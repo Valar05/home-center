@@ -52,6 +52,11 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
     artifact_kind = record.get("artifact_kind")
     if artifact_kind not in {"patch", "delta_json"}:
         raise ValueError(f"{context} artifact_kind is unsupported")
+    expected_suffix = ".patch" if artifact_kind == "patch" else ".delta.json"
+    if not path.endswith(expected_suffix):
+        raise ValueError(
+            f"{context} artifact_kind must agree with the exact artifact path suffix"
+        )
 
     owner = record.get("owner")
     if not isinstance(owner, str) or not owner:
@@ -104,16 +109,15 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
         raise ValueError("surgeries must be one list")
 
     surgeries: list[SurgeryIdentity] = []
-    by_artifact: dict[tuple[str, str], SurgeryIdentity] = {}
+    by_path: dict[str, SurgeryIdentity] = {}
     exact_members: set[SurgeryIdentity] = set()
     for index, record in enumerate(raw_surgeries):
         admitted = _admit_surgery(record, context=f"surgeries[{index}]")
-        artifact_identity = (admitted.artifact_kind, admitted.path)
-        if artifact_identity in by_artifact:
+        if admitted.path in by_path:
             raise ValueError(
-                "surgeries artifact identity must be unique across the admitted inventory"
+                "surgeries path identity must be unique across the admitted inventory"
             )
-        by_artifact[artifact_identity] = admitted
+        by_path[admitted.path] = admitted
         surgeries.append(admitted)
         exact_members.add(admitted)
 
