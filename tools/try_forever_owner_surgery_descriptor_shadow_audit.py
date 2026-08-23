@@ -14,6 +14,8 @@ runtime, deployment, phone delivery, or acceptance.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Mapping
 
@@ -43,7 +45,8 @@ from try_forever_posix_directory_handle_custody import (
 )
 
 
-SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v2"
+SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
+CANONICAL_SCHEMA = "try-forever-owner-surgery-custody.v10"
 SUPPORTED = "SUPPORTED_POSIX_PRIMITIVES"
 
 
@@ -80,6 +83,26 @@ def _canonical_evidence_complete(result: Mapping[str, object]) -> bool:
     if not isinstance(value, bool):
         raise ValueError("canonical evidenceComplete must be one boolean")
     return value
+
+
+def _canonical_result_sha256(result: Mapping[str, object]) -> str:
+    """Bind the shadow receipt to the exact canonical result it accompanied.
+
+    This fingerprint is evidence identity for the canonical result payload, not filesystem
+    atomicity and not a replacement for canonical artifact-content custody.
+    """
+
+    try:
+        encoded = json.dumps(
+            result,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"canonical result is not deterministic JSON evidence: {exc}") from exc
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _portable_shadow_artifacts(
@@ -148,9 +171,9 @@ def audit_descriptor_shadow(
     """Run a descriptor custody shadow beside canonical portable v10 authority.
 
     The canonical result is always produced first and remains the only authority result. The shadow
-    may report MATCH, DIVERGED, CANONICAL_WOUND, PORTABLE_SHADOW_WOUND, UNAVAILABLE,
-    CAPABILITY_WOUND, or DESCRIPTOR_WOUND, but never collision/stale/unverified promotion groups
-    and never ownerEvidenceAdmitted=true.
+    may report MATCH, DIVERGED, CANONICAL_SCHEMA_WOUND, CANONICAL_WOUND, PORTABLE_SHADOW_WOUND,
+    UNAVAILABLE, CAPABILITY_WOUND, or DESCRIPTOR_WOUND, but never collision/stale/unverified
+    promotion groups and never ownerEvidenceAdmitted=true.
     """
 
     portable = classify(
@@ -159,11 +182,13 @@ def audit_descriptor_shadow(
         max_candidates=max_candidates,
         max_entries=max_entries,
     )
-    canonical_evidence_complete = _canonical_evidence_complete(portable)
+    canonical_schema = portable.get("schema")
     base: dict[str, object] = {
         "schema": SCHEMA,
         "canonicalAuthorityBackend": "PORTABLE_PATHNAME_REVALIDATION",
-        "canonicalEvidenceComplete": canonical_evidence_complete,
+        "canonicalAuthoritySchema": canonical_schema,
+        "canonicalResultSha256": None,
+        "canonicalEvidenceComplete": None,
         "canonicalArtifactDirectoryEntriesObserved": portable.get(
             "artifactDirectoryEntriesObserved"
         ),
@@ -179,6 +204,27 @@ def audit_descriptor_shadow(
         "runtimeTalkBack": False,
         "phoneDelivered": False,
     }
+
+    if canonical_schema != CANONICAL_SCHEMA:
+        return {
+            **base,
+            "status": "CANONICAL_SCHEMA_WOUND",
+            "boundary": (
+                "Descriptor shadow v3 is defined only beside canonical owner-surgery custody v10; "
+                f"refusing to reinterpret schema {canonical_schema!r}."
+            ),
+            "portableShadowArtifacts": [],
+            "descriptorArtifacts": [],
+            "descriptorArtifactDirectoryEntriesObserved": None,
+            "descriptorArtifactCandidatesObserved": None,
+            "artifactSetMatch": None,
+            "metricsMatch": None,
+            "contentIdentityMatch": None,
+        }
+
+    base["canonicalResultSha256"] = _canonical_result_sha256(portable)
+    canonical_evidence_complete = _canonical_evidence_complete(portable)
+    base["canonicalEvidenceComplete"] = canonical_evidence_complete
 
     if not canonical_evidence_complete:
         return {
@@ -312,7 +358,8 @@ def audit_descriptor_shadow(
         "status": status,
         "boundary": (
             "Descriptor custody independently matched portable shadow inventory and exact content "
-            "identity; this remains staging evidence only, not owner integration or promotion authority."
+            "identity for the canonical-result fingerprint carried by this receipt; this remains "
+            "staging evidence only, not owner integration, atomic binding, or promotion authority."
             if status == "SHADOW_MATCH"
             else "Descriptor shadow differs from portable staging evidence; stop before owner integration."
         ),
@@ -327,6 +374,4 @@ def audit_descriptor_shadow(
 
 
 if __name__ == "__main__":
-    import json
-
     print(json.dumps(audit_descriptor_shadow(), indent=2, sort_keys=True))
