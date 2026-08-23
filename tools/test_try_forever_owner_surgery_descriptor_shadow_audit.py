@@ -146,7 +146,7 @@ def main() -> int:
     # not a selected-descriptor failure followed by a downgrade.
     old = with_fakes(
         portable=portable_result(),
-        capability="PORTABLE_ATOMIC_BINDING_UNAVAILABLE",
+        capability=shadow.PORTABLE_UNAVAILABLE,
     )
     try:
         unavailable = shadow.audit_descriptor_shadow()
@@ -155,6 +155,18 @@ def main() -> int:
     assert unavailable["status"] == "DESCRIPTOR_UNAVAILABLE"
     assert unavailable["descriptorAuthorityAdmitted"] is False
     assert unavailable["artifactSetMatch"] is None
+
+    # Unknown/corrupt capability text must not be normalized into ordinary descriptor unavailability.
+    for invalid_capability in ("", "SUPPORTED", "supported_posix_primitives", "UNKNOWN"):
+        old = with_fakes(portable=portable_result(), capability=invalid_capability)
+        try:
+            capability_wound = shadow.audit_descriptor_shadow()
+        finally:
+            restore(old)
+        assert capability_wound["status"] == "CAPABILITY_WOUND"
+        assert repr(invalid_capability) in capability_wound["boundary"]
+        assert capability_wound["descriptorAuthorityAdmitted"] is False
+        assert capability_wound["artifactSetMatch"] is None
 
     # A descriptor wound remains a shadow wound and cannot change canonical authority semantics.
     class WoundedHeld(FakeHeld):
@@ -186,6 +198,20 @@ def main() -> int:
         restore(old)
     assert incomplete_shadow["canonicalEvidenceComplete"] is False
     assert incomplete_shadow["descriptorAuthorityAdmitted"] is False
+
+    # The shadow may not truthiness-normalize malformed canonical evidence into a boolean claim.
+    malformed = portable_result()
+    malformed["evidenceComplete"] = "false"
+    old = with_fakes(portable=malformed)
+    try:
+        try:
+            shadow.audit_descriptor_shadow()
+        except ValueError as exc:
+            assert "canonical evidenceComplete must be one boolean" in str(exc)
+        else:
+            raise AssertionError("malformed canonical evidence earned a shadow result")
+    finally:
+        restore(old)
 
     return 0
 
