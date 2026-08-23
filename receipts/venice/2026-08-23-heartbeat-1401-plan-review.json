@@ -1,0 +1,20 @@
+{
+  "schema": "try-forever-venice-plan-review.v1",
+  "heartbeat": "2026-08-23T14:01:46-05:00",
+  "verdict": "PLAN_ALLOWED",
+  "basis": [
+    "The planned repair strengthens the existing receipt self-integrity organ rather than creating a neighboring authority or projector.",
+    "The work is non-P0, repository-only, and preserves the phone/P0 firewall.",
+    "The proposed metric/cardinality checks are operator-evidence integrity, not runtime/deployment claims.",
+    "Legitimate DESCRIPTOR_WOUND receipts may retain portable artifacts; the plan must not incorrectly require all wound artifact arrays to be empty.",
+    "Regression source must remain UNEXECUTED until an authorized execution receipt exists."
+  ],
+  "constraints": {
+    "existingOwnerOnly": true,
+    "duplicateArchitectureAllowed": false,
+    "phoneP0ConsumptionAllowed": false,
+    "testedPromotionAllowed": false,
+    "runtimePromotionAllowed": false
+  },
+  "gate": "PLAN_ALLOWED__SOURCE_MUTATION_MAY_PROCEED"
+}
