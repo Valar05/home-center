@@ -174,18 +174,25 @@ def _temporal_receipt_projection(
         raise ShadowReceiptSelfIntegrityError(
             "temporalContentBinding canonicalResultSha256 must match the shadow result"
         )
-    if temporal.get("authorityAdmitted") is not False:
+    if temporal.get("shadowCanonicalResultSha256") != canonical_sha:
         raise ShadowReceiptSelfIntegrityError(
-            "temporalContentBinding must not carry promotion authority"
+            "temporalContentBinding shadowCanonicalResultSha256 must match the shadow result"
         )
-    if temporal.get("ownerMutation") is not False:
-        raise ShadowReceiptSelfIntegrityError(
-            "temporalContentBinding must not claim owner mutation"
-        )
-    if temporal.get("tested") is not False:
-        raise ShadowReceiptSelfIntegrityError(
-            "temporalContentBinding must not claim TESTED"
-        )
+
+    denied_boolean_fields = (
+        "authorityAdmitted",
+        "ownerMutation",
+        "regressionExecuted",
+        "tested",
+        "runtimeUi",
+        "runtimeTalkBack",
+        "phoneDelivered",
+    )
+    for field in denied_boolean_fields:
+        if temporal.get(field) is not False:
+            raise ShadowReceiptSelfIntegrityError(
+                f"temporalContentBinding must carry {field}=false"
+            )
 
     status = temporal.get("status")
     if not isinstance(status, str) or not status:
