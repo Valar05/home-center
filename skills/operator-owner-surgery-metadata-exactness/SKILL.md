@@ -17,9 +17,9 @@ This skill owns no patch executor, custody authority, overlay controller, phone 
 - Identical duplicate authority headers are still ambiguous evidence.
 - A malformed second authority header still counts as duplicate evidence; validation failure cannot make its label disappear from cardinality.
 - Header recognition is line-local. Broad `\s` must not consume a newline and accidentally fuse two authority records.
-- Supporting policy or prepared surgery existence is not canonical-owner wiring, regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+- Source wiring is not regression execution, TESTED, runtime, deployment, delivery, or acceptance.
 
-## Supporting source
+## Source organs
 `tools/try_forever_owner_surgery_metadata_exactness.py` provides:
 - `admit_owner_identity(...)`: exact non-empty owner identity with no leading/trailing-whitespace repair;
 - `admit_patch_metadata(...)`: exactly one recognized base-owner blob header, exactly one recognized state/status header, at most one explicit owner header, exact lowercase base SHA, and delegation to the existing exact state policy;
@@ -32,46 +32,36 @@ This skill owns no patch executor, custody authority, overlay controller, phone 
 - exact `a/<DEFAULT_OWNER> b/<DEFAULT_OWNER>` payload;
 - no case folding, basename matching, path normalization, multi-file fallback, or duplicate diff-header authority.
 
-The reusable fallback doctrine also lives at `skills/operator-owner-surgery-default-owner-binding/SKILL.md`.
-
-## Prepared existing-owner surgery
-`patches/try-forever-owner-surgery-metadata-exactness-owner.patch` is one exact surgery against the authenticated canonical-owner blob `523d8005212745738106733e91be6dd625caf767`.
-
-It composes the existing supporting organs into the existing owner only:
-- `inspect_patch(...)` delegates base/state/explicit-owner admission to `admit_patch_metadata(...)` and removes first-match authority;
-- when explicit owner metadata is absent, `inspect_patch(...)` delegates default-owner admission to `admit_default_owner_from_patch(...)` instead of arbitrary basename substring search;
+## Existing-owner integration
+Canonical owner `tools/try_forever_owner_surgery_custody_probe.py` now consumes both organs:
+- `inspect_patch(...)` delegates base/state/explicit-owner admission to `admit_patch_metadata(...)` and no longer uses first-match metadata authority;
+- missing explicit owner delegates to `admit_default_owner_from_patch(...)` instead of arbitrary basename substring search;
 - structured delta owner identity delegates to `admit_owner_identity(...)`;
-- programmatic current-owner map keys delegate to `admit_owner_identity(...)`;
-- CLI `--current-owner OWNER=BLOB` removes `owner.strip()` and admits the exact owner key instead.
+- programmatic current-owner keys delegate to `admit_owner_identity(...)`;
+- CLI `--current-owner OWNER=BLOB` no longer calls `owner.strip()` and admits the exact owner key.
 
-Patch state is **`CORRECTED_PROPOSED_NOT_APPLIED`**. It is prepared source, not implementation.
+Integration commit: `2e94d752012234d7025f6271f262d27ed3a97f6c`.
+Authenticated resulting owner blob: `a96d572698dfdbc3800410446f27e77908938e4b`.
+
+`patches/try-forever-owner-surgery-metadata-exactness-owner.patch` is retained as **APPLIED_SOURCE** provenance for the base-blob-locked surgery, not as a promotion candidate.
 
 ## Code-first review scars
 The first supporting parser counted only value-valid regex matches. That was insufficient: a second malformed authority header could disappear from the duplicate count, and broad whitespace regexes risked line-crossing semantics. The corrected source counts recognized header labels first and validates the single admitted value afterward.
 
 A later resource audit found that exact-cardinality admission still materialized every matching `re.Match` object even though authority only needs to distinguish zero, one, and at least two. The supporting policy now stops after the second match while the enclosing canonical owner retains its finite 1 MiB artifact observation.
 
-The first prepared owner patch also tried to remove the legacy regex declarations with over-escaped unified-diff context. That patch shape was unsafe to promote. The corrected patch leaves the declarations harmlessly present and removes their authority from `inspect_patch(...)` itself, which is the behavior the RED owner boundary requires.
+The first prepared owner patch tried to remove the legacy regex declarations with over-escaped unified-diff context. The applied surgery left those declarations harmlessly present and removed their authority from `inspect_patch(...)` itself.
 
-The default-owner review then found a distinct authority leak: the canonical owner treats any textual `OperatorOverlayService.java` mention as sufficient fallback evidence when `# OWNER:` is absent. The corrected prepared surgery composes exact single-file diff ownership instead of spawning a competing patch or custody owner.
+The default-owner review then found a distinct authority leak: the canonical owner treated any textual `OperatorOverlayService.java` mention as sufficient fallback evidence when `# OWNER:` was absent. The applied surgery now requires exact single-file diff ownership.
 
 ## Regression source
 - `tools/test_try_forever_owner_surgery_metadata_exactness.py` — supporting policy fixtures, including malformed duplicate labels, cross-line header attack, and adversarial many-duplicate cardinality source, **UNEXECUTED**.
 - `tools/test_try_forever_owner_surgery_default_owner_binding.py` — supporting exact fallback-owner fixtures, **UNEXECUTED**.
-- `tools/test_try_forever_owner_surgery_metadata_owner_boundary.py` — intentionally RED existing-owner boundary, now including fallback-owner binding, **UNEXECUTED**.
-- `tools/test_try_forever_owner_surgery_metadata_owner_patch.py` — proves exact Git-blob lock, combined patch contents, and that prepared provenance does not launder the current owner into SOURCE_WIRED, **UNEXECUTED**.
-
-The RED boundary requires the existing `try_forever_owner_surgery_custody_probe.py` to consume all exact gates and retire CLI `owner.strip()`, first-match `BASE_RE/STATE_RE/OWNER_RE.search(...)` authority, and arbitrary-basename default-owner inference.
-
-## Current owner truth
-Canonical v10 owner wiring for this combined metadata/default-owner slice: **NO / RED**.
-
-Authenticated owner readback remains blob `523d8005212745738106733e91be6dd625caf767`. The historical Command Center worker surface is retired; no duplicate worker route is authorized. The audited GitHub mutation surface requires full-file replacement, so a prepared patch is not reported as applied merely because it exists.
-
-The previously completed blob-identity surgery remains valid and separate: blob text itself is already exact SOURCE_WIRED. This skill advances the **owner key**, **textual patch header cardinality**, and **implicit default-owner binding** channels without reopening blob normalization.
+- `tools/test_try_forever_owner_surgery_metadata_owner_boundary.py` — existing-owner source boundary, now expected to match SOURCE_WIRED shape but still **UNEXECUTED**.
+- `tools/test_try_forever_owner_surgery_metadata_owner_patch.py` — applied-source provenance/readback boundary, **UNEXECUTED**.
 
 ## Capability membrane
-Supporting implementation **YES** · authenticated repository readback **YES** · bounded cardinality scan **YES / SOURCE** · exact fallback-owner policy **YES / SOURCE** · exact combined owner surgery **YES / CORRECTED_PROPOSED_NOT_APPLIED** · supporting regression source **YES / UNEXECUTED** · existing-owner integration **NO** · TESTED **NO** · runtime UI/TalkBack **NO** · deployed/phone/delivered/accepted **NO**.
+Implementation **YES / SOURCE_WIRED** · authenticated repository readback **YES** · bounded cardinality scan **YES / SOURCE** · exact fallback-owner policy **YES / SOURCE** · applied owner surgery **YES / APPLIED_SOURCE** · regression source **YES / UNEXECUTED** · existing-owner integration **YES / SOURCE** · TESTED **NO** · runtime UI/TalkBack **NO** · deployed/phone/delivered/accepted **NO**.
 
 ## P0 / phone firewall
 Consumes no Phone Hands, primary-phone execution, recovery queue/relay, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.
