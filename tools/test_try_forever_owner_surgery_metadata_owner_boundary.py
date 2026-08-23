@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Intentionally RED owner boundary for exact owner-surgery metadata.
+"""Intentionally RED owner boundary for exact owner-surgery metadata and fallback ownership.
 
 SOURCE ONLY / UNEXECUTED. The canonical v10 custody owner currently first-matches textual patch
-headers, structurally trims CLI owner keys, and does not route structured-delta owner identity
-through the same exact owner-key admission. This regression must stay RED until the existing owner
-consumes ``admit_patch_metadata`` and ``admit_owner_identity`` without creating a second custody
-owner.
+headers, structurally trims CLI owner keys, does not route structured-delta owner identity through
+the same exact owner-key admission, and infers the implicit default owner from an arbitrary basename
+mention. This regression must stay RED until the existing owner consumes the exact contracts without
+creating a second custody owner.
 """
 
 from pathlib import Path
@@ -32,6 +32,13 @@ def test_canonical_owner_consumes_exact_patch_header_contract():
     assert "BASE_RE.search(text)" not in patch_body
     assert "STATE_RE.search(text)" not in patch_body
     assert "OWNER_RE.search(text)" not in patch_body
+
+
+def test_implicit_default_owner_uses_exact_diff_binding_not_basename_substring():
+    source = owner_source()
+    patch_body = method_body(source, "inspect_patch", "_reject_duplicate_json_members")
+    assert "admit_default_owner_from_patch" in patch_body
+    assert '"OperatorOverlayService.java" not in text' not in patch_body
 
 
 def test_structured_delta_owner_uses_same_exact_owner_identity_gate():
