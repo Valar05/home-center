@@ -31,7 +31,7 @@ from try_forever_provenance_report_path import (
 
 
 SHADOW_SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
-RECEIPT_SCHEMA = "try-forever-owner-surgery-descriptor-shadow-receipt.v1"
+RECEIPT_SCHEMA = "try-forever-owner-surgery-descriptor-shadow-receipt.v2"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 STATUS_SUMMARY = {
