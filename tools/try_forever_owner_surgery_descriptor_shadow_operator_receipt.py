@@ -26,7 +26,7 @@ from try_forever_owner_surgery_shadow_receipt_self_integrity import (
 )
 
 
-SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v1"
+SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v2"
 
 
 def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
