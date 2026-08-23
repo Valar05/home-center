@@ -20,6 +20,12 @@ This skill owns one evidence-staging distinction. It does not own patch promotio
 
 `SHADOW MATCH = PATH SET + WORK METRICS + EXACT COMPARED CONTENT IDENTITY`.
 
+`SHADOW MATCH != TEMPORAL CONTENT BINDING`.
+
+`TEMPORAL CONTENT BINDING REQUIRES SAME-OBSERVATION CANONICAL CONTENT WITNESSES + ADMITTED SHADOW MATCH`.
+
+`TEMPORAL CONTENT BINDING != PROMOTION AUTHORITY`.
+
 `SHADOW MATCH != CANONICAL OWNER DESCRIPTOR INTEGRATION`.
 
 `SHADOW DIVERGENCE != PERMISSION TO PICK THE RESULT WE LIKE BETTER`.
@@ -51,6 +57,7 @@ It:
 - independently records descriptor artifact byte count and SHA-256 evidence;
 - compares descriptor candidate paths, inventory metrics, and exact per-path byte-count/SHA identity against portable staging evidence;
 - returns `SHADOW_MATCH`, `SHADOW_DIVERGED`, `CANONICAL_SCHEMA_WOUND`, `CANONICAL_WOUND`, `PORTABLE_SHADOW_WOUND`, `DESCRIPTOR_UNAVAILABLE`, `CAPABILITY_WOUND`, or `DESCRIPTOR_WOUND`;
+- on a completed comparison, composes the existing temporal-binding policy and reports `temporalContentBinding` plus `temporalBindingProven` separately from `SHADOW_MATCH`;
 - never emits collision/stale/unverified promotion groups;
 - never emits `ownerEvidenceAdmitted=true`;
 - always reports `descriptorAuthorityAdmitted=false` and `ownerMutation=false`.
@@ -58,6 +65,8 @@ It:
 The portable exact-content staging observation is deliberately **not** a reinterpretation of canonical v10 authority. It exists only so `SHADOW_MATCH` cannot mean “same filenames, maybe different bytes.” Canonical semantic authority remains what canonical v10 produced.
 
 A shadow match means the pathname staging observer and held-directory staging observer agree on the compared artifact set, work metrics, and exact content identity for the canonical-result fingerprint carried by that receipt. It is **staging evidence**, not permission to wire or promote the descriptor backend.
+
+A temporal-content proof is stricter. It additionally requires the canonical result to carry same-observation artifact-content witnesses for the exact canonical surgery set and requires the later portable/descriptor reads to equal those witnesses. A `SHADOW_MATCH` without those canonical witnesses must remain temporally unproven.
 
 A shadow divergence is useful precisely because canonical authority remains unchanged. Stop, explain the disagreement, and repair evidence semantics before owner composition.
 
@@ -81,7 +90,13 @@ It pins:
 - malformed non-boolean canonical `evidenceComplete` being rejected rather than normalized;
 - no promotion-authority fields leaking out of the shadow result.
 
-Do not call these tests passed until an authorized execution lane produces a receipt.
+`tools/test_try_forever_owner_surgery_descriptor_shadow_temporal_integration.py` is a focused **REGRESSION SOURCE / UNEXECUTED** integration fixture.
+
+It pins the actual `audit_descriptor_shadow(...)` composition across both states:
+- exact path/metric/content `SHADOW_MATCH` with missing canonical same-observation witnesses remains `CANONICAL_CONTENT_WITNESS_MISSING` and `temporalBindingProven=false`;
+- the same shadow match with exact canonical same-observation witnesses becomes `TEMPORAL_CONTENT_BOUND` while still keeping `authorityAdmitted=false`, `descriptorAuthorityAdmitted=false`, `ownerMutation=false`, and `tested=false`.
+
+Do not call either regression passed until an authorized execution lane produces a receipt.
 
 ## Relationship to backend selection
 `tools/try_forever_owner_surgery_backend_policy.py` remains the future composition gate. Its no-downgrade law applies **after the canonical owner actually selects the stronger descriptor backend for an authority classification attempt**.
@@ -108,7 +123,8 @@ At this checkpoint:
 - canonical schema gate: **SUPPORTING SOURCE**;
 - canonical-result receipt fingerprint: **SUPPORTING SOURCE**;
 - exact content parity inside the shadow: **SUPPORTING SOURCE**;
-- descriptor shadow regression: **SOURCE / UNEXECUTED**;
+- temporal binding composition inside the shadow: **SUPPORTING SOURCE**;
+- descriptor shadow regressions: **SOURCE / UNEXECUTED**;
 - canonical backend-selection consumption: **NO**;
 - canonical descriptor owner integration: **NO**;
 - TESTED: **NO**;
