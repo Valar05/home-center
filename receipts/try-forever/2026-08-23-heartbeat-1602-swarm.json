@@ -1,0 +1,95 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "localCheckpoint": "2026-08-23T16:02:00-05:00",
+  "sourceHead": "7ec93c22b8be130c28f49a007c2c1281ce78e9f5",
+  "baseCheckpoint": "0a3bdd1599d9268f579ac39c71acd6ca26fb123b",
+  "frontsAdvanced": [
+    {
+      "front": "comparison-work-auditability",
+      "state": "SOURCE_WIRED",
+      "change": "Completed SHADOW_MATCH/SHADOW_DIVERGED receipts expose exact canonical/descriptor directory-entry and candidate counts, and the sole projector verifies metricsMatch against those values. Wounds expose comparisonWork=null."
+    },
+    {
+      "front": "bounded-operator-receipt-identity",
+      "state": "SOURCE_WIRED",
+      "change": "The complete bounded operator payload receives deterministic operatorReceiptSha256 identity excluding the digest itself. It is explicitly not canonical artifact identity, authority, TESTED, runtime identity, or atomicity."
+    },
+    {
+      "front": "hostile-regression-source",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "Existing operator and direct-projector fixtures now pin visible work counts, metric contradiction rejection, deterministic receipt identity, material-evidence fingerprint change, wound null-work semantics, and stale-temporal-proof rejection."
+    },
+    {
+      "front": "receipt-schema-discipline",
+      "state": "SOURCE_WIRED",
+      "change": "Materially widened projector and operator receipt contracts were versioned to v2 instead of silently changing v1."
+    },
+    {
+      "front": "doctrine-convergence",
+      "state": "SOURCE",
+      "change": "operator-owner-surgery-shadow-receipt-integrity now records auditable metrics and bounded receipt identity while preserving source/test/runtime/deployment distinctions."
+    },
+    {
+      "front": "warm-wall",
+      "state": "SOURCE_ONLY",
+      "change": "Existing descriptor-shadow DOM/inline-SVG organism now makes WORK METRICS and OPERATOR RECEIPT ID touch/keyboard-inspectable; no raster, autoplay, or Christmas blink."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT__boolean-without-values wound became auditable source evidence",
+    "Canon Auto-Select": "LIT__existing receipt-integrity skill/owners selected; no decorative new skill",
+    "Autocorrect Judgment Jar": "DARK__no material ambiguity",
+    "Originality Tax": "LIT__direct projector fixture added after first operator fixture proved the wrong layer",
+    "Hunger": "LIT__source, regression, doctrine, and Warm Wall all had to converge",
+    "Ever-Polished Interpreter / Eat Everything": "LIT__schema contracts advanced to v2 rather than widening v1 silently",
+    "Operator Campaign": "LIT__existing raw audit -> self-integrity -> sole projector -> operator command preserved",
+    "Harroway operator discipline": "LIT__remote GitHub source/readback only; no substitute execution lane",
+    "She-Raw adversarial motivation": "FAULT__account connection HTTP 400 after one authoritative attempt",
+    "Venice Judgment Jars": "LIT__PLAN_ALLOWED before mutation and bounded STOP_ALLOWED after Regnet",
+    "Regnet QA": "LIT__caught direct-projector coverage gap and schema-versioning issue",
+    "accessibility/TalkBack and touch semantics": "LIT__operator can inspect counts and identity; existing touchable wall mutated in place",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED__P0 owns shared surface",
+    "deterministic routing": "LIT__deterministic JSON/SHA receipt identity and exact source chain",
+    "evidence/capability-state discipline": "LIT__SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED",
+    "recovery/checkpointing/idempotence": "LIT__stable identical bounded payload identity; material evidence changes identity",
+    "strange non-raster vector/DOM/native UI art": "LIT__existing DOM/inline-SVG Warm Wall mutated",
+    "warm walls": "LIT__two new inspectable source states",
+    "Christmas-light scene graph": "DARK__no transition/motion law changed",
+    "contact preservation": "LIT__wounds retain legitimate diagnostic contact but never completed comparisonWork"
+  },
+  "crossPollination": "Receipt self-integrity made metricsMatch suspicious as operator evidence; exposing the counts made the emitted contract materially different; schema discipline forced v2; receipt checkpointing then supplied deterministic bounded operator identity; code-first review showed the first hostile fixture exercised self-integrity rather than the sole projector, so the direct projector fixture was repaired; doctrine and Warm Wall inherited the same capability truth.",
+  "executionTruth": {
+    "homeCenterCi": {"run": 32666626001, "conclusion": "failure"},
+    "buildAndroid": {"run": 32666625999, "conclusion": "failure"},
+    "operatorOverlay": {"run": 32666626000, "job": 97260909498, "conclusion": "failure", "stepsExposed": 0, "logs": "404 BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "completedWorkMetrics": "SOURCE_WIRED",
+    "operatorReceiptFingerprint": "SOURCE_WIRED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
