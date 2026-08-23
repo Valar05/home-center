@@ -9,6 +9,7 @@ keeps the raw shadow result untouched and creates a bounded display receipt inst
 - artifact paths use the existing portable provenance path projector;
 - raw failure-boundary prose is not echoed; the receipt carries a deterministic digest plus a
   status-specific summary;
+- comparison fields remain exact booleans-or-none rather than truthiness-normalized text;
 - no authority, TESTED, runtime, deployment, phone, or acceptance state is promoted.
 """
 
@@ -41,6 +42,14 @@ STATUS_SUMMARY = {
 def _nonnegative_int(value: object, *, field: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise ValueError(f"{field} must be one non-negative integer")
+    return value
+
+
+def _optional_bool(value: object, *, field: str) -> bool | None:
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        raise ValueError(f"{field} must be one boolean or null")
     return value
 
 
@@ -100,6 +109,31 @@ def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dic
         boundary.encode("utf-8", errors="surrogatepass")
     ).hexdigest()
 
+    artifact_set_match = _optional_bool(
+        result.get("artifactSetMatch"),
+        field="artifactSetMatch",
+    )
+    metrics_match = _optional_bool(
+        result.get("metricsMatch"),
+        field="metricsMatch",
+    )
+    content_identity_match = _optional_bool(
+        result.get("contentIdentityMatch"),
+        field="contentIdentityMatch",
+    )
+
+    if status == "SHADOW_MATCH" and (
+        artifact_set_match is not True
+        or metrics_match is not True
+        or content_identity_match is not True
+    ):
+        raise ValueError("SHADOW_MATCH requires all three exact comparison booleans true")
+    if status == "SHADOW_DIVERGED" and all(
+        value is True
+        for value in (artifact_set_match, metrics_match, content_identity_match)
+    ):
+        raise ValueError("SHADOW_DIVERGED requires at least one comparison not true")
+
     return {
         "schema": RECEIPT_SCHEMA,
         "sourceSchema": SHADOW_SCHEMA,
@@ -115,9 +149,9 @@ def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dic
             _artifact_projection(repo_root, item, field="descriptorArtifacts")
             for item in descriptor
         ],
-        "artifactSetMatch": result.get("artifactSetMatch"),
-        "metricsMatch": result.get("metricsMatch"),
-        "contentIdentityMatch": result.get("contentIdentityMatch"),
+        "artifactSetMatch": artifact_set_match,
+        "metricsMatch": metrics_match,
+        "contentIdentityMatch": content_identity_match,
         "authorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
