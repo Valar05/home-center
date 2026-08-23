@@ -97,6 +97,18 @@ def test_header_recognition_is_line_local_not_cross_line_whitespace():
     expect_rejected(lambda: admit_patch_metadata(text), "base-owner blob")
 
 
+def test_crlf_is_line_framing_not_part_of_authority_value():
+    text = (
+        f"# BASE OWNER BLOB: {BASE}\r\n"
+        "# STATUS: APPLIED_SOURCE\r\n"
+        "# OWNER: owner with internal space\r\n"
+    )
+    admitted = admit_patch_metadata(text)
+    assert admitted.base_blob == BASE
+    assert admitted.state == "APPLIED_SOURCE"
+    assert admitted.explicit_owner == "owner with internal space"
+
+
 def test_patch_without_explicit_owner_can_remain_source_for_existing_default_owner_fallback():
     text = f"# BASE OWNER BLOB: {BASE}\n# STATUS: APPLIED_SOURCE\n"
     admitted = admit_patch_metadata(text)
