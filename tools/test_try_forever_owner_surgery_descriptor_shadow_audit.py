@@ -181,7 +181,8 @@ def main() -> int:
     changed["currentOwnerBlobs"] = {OWNER: "2" * 40}
     assert shadow._canonical_result_sha256(changed) != shadow._canonical_result_sha256(canonical)
 
-    # Schema drift is a wound before capability or artifact staging; v3 does not reinterpret it.
+    # Schema drift is a wound before capability or artifact staging, but the rejected payload is
+    # still fingerprinted so the wound receipt identifies the exact canonical result it rejected.
     wrong_schema = portable_result()
     wrong_schema["schema"] = "try-forever-owner-surgery-custody.v11"
     old = with_fakes(portable=wrong_schema)
@@ -192,7 +193,7 @@ def main() -> int:
         restore(old)
     assert schema_wound["status"] == "CANONICAL_SCHEMA_WOUND"
     assert schema_wound["canonicalAuthoritySchema"] == "try-forever-owner-surgery-custody.v11"
-    assert schema_wound["canonicalResultSha256"] is None
+    assert schema_wound["canonicalResultSha256"] == shadow._canonical_result_sha256(wrong_schema)
     assert schema_wound["canonicalEvidenceComplete"] is None
     assert schema_wound["portableShadowArtifacts"] == []
     assert schema_wound["descriptorArtifacts"] == []
