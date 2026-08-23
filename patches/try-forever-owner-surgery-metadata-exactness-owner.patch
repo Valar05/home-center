@@ -3,6 +3,7 @@
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # PURPOSE: Compose the existing exact metadata policy into the existing canonical v10 custody owner.
 # CAPABILITY: PATCH SOURCE ONLY. This file does not prove application, execution, testing, runtime, delivery, or acceptance.
+# REVIEW SCAR: The first draft tried to remove regex declarations with over-escaped patch context. This corrected draft leaves those harmless declarations in place and removes their authority only from the owner methods.
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
@@ -17,11 +18,6 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
 +    admit_patch_metadata,
 +)
  from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
-@@
--BASE_RE = re.compile(r"^#\\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\\s*:\\s*([0-9a-f]{40})\\s*$", re.I | re.M)
--OWNER_RE = re.compile(r"^#\\s*(?:OWNER|Target|Base path)\\s*:\\s*(\\S+)\\s*$", re.I | re.M)
--STATE_RE = re.compile(r"^#\\s*(?:STATUS|State)\\s*: ([^\\r\\n]*)$", re.I | re.M)
- SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 @@
  def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
      try:
