@@ -44,17 +44,21 @@ def _sha256(value: object, *, context: str) -> str:
 
 
 def _surgery_content_map(result: Mapping[str, object]) -> dict[str, tuple[int, str]]:
-    # Reuse the existing result-integrity gate for canonical surgery/path/kind/state/member custody
-    # instead of creating a second backend authority parser here.
-    audit_backend_result_inventory(result)
-
     surgeries = result.get("surgeries")
-    assert isinstance(surgeries, list)  # established by audit_backend_result_inventory
+    # Shape/path/kind/state/member custody is established once by audit_backend_result_inventory
+    # before this helper is called. Keep this function focused on the content identity projection.
+    if not isinstance(surgeries, list):
+        raise CanonicalWitnessParityError("surgeries must be one list")
+
     expected: dict[str, tuple[int, str]] = {}
     for index, item in enumerate(surgeries):
-        assert isinstance(item, Mapping)
+        if not isinstance(item, Mapping):
+            raise CanonicalWitnessParityError(f"surgeries[{index}] must be one mapping")
         path = item.get("path")
-        assert isinstance(path, str) and path
+        if not isinstance(path, str) or not path:
+            raise CanonicalWitnessParityError(
+                f"surgeries[{index}].path must be one non-empty string"
+            )
         if path in expected:
             raise CanonicalWitnessParityError(
                 f"surgeries path identity must be unique: {path}"
@@ -106,7 +110,12 @@ def _witness_content_map(result: Mapping[str, object]) -> dict[str, tuple[int, s
 
 
 def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, object]:
-    """Require one exact witness for every canonical Surgery content identity."""
+    """Require one exact witness for every canonical Surgery content identity.
+
+    The existing inventory/group integrity audit runs exactly once here. A future integration may
+    replace its direct call to ``audit_backend_result_inventory`` with this stronger superset and
+    then delegate to the unchanged authority-admission policy; it does not need to audit twice.
+    """
 
     if not isinstance(result, Mapping):
         raise CanonicalWitnessParityError("canonical result must be one mapping")
@@ -115,6 +124,7 @@ def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, ob
             "witness parity requires exact canonical owner-surgery custody v10"
         )
 
+    integrity = audit_backend_result_inventory(result)
     expected = _surgery_content_map(result)
     observed = _witness_content_map(result)
 
@@ -137,6 +147,8 @@ def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, ob
     return {
         "schema": SCHEMA,
         "canonicalCustodySchema": CANONICAL_CUSTODY_SCHEMA,
+        "surgeriesAdmitted": integrity["surgeriesAdmitted"],
+        "authorityGroupMembersAdmitted": integrity["authorityGroupMembersAdmitted"],
         "surgeryContentIdentities": len(expected),
         "artifactContentWitnesses": len(observed),
         "witnessParity": True,
@@ -148,8 +160,8 @@ def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, ob
         "runtimeTalkBack": False,
         "phoneDelivered": False,
         "boundary": (
-            "Canonical Surgery content evidence and artifactContentWitnesses agree exactly. "
-            "This is a supporting evidence gate only; backend authority admission remains owned "
-            "by the existing result-admission policy."
+            "Canonical inventory/group custody plus Surgery↔artifactContentWitness parity are admitted "
+            "as supporting evidence. Backend authority admission remains owned by the existing "
+            "result-admission policy."
         ),
     }
