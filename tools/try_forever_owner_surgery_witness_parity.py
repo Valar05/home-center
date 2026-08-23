@@ -31,6 +31,9 @@ def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, ob
         "schema": SCHEMA,
         "backendWitnessIntegritySchema": integrity["schema"],
         "canonicalCustodySchema": CANONICAL_CUSTODY_SCHEMA,
+        # Preserve the focused review-receipt vocabulary used by the existing witness regressions.
+        "surgeryContentIdentities": integrity["surgeriesAdmitted"],
+        "artifactContentWitnesses": integrity["artifactContentWitnessesAdmitted"],
         "authorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
