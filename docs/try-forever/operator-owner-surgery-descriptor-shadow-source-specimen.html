@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / DESCRIPTOR SHADOW OPERATOR RECEIPT</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW: SOURCE · TEMPORAL RECEIPT CONTEXT: SOURCE WIRED · RECEIPT SELF-INTEGRITY: SUPPORTING SOURCE · OPERATOR RECEIPT COMMAND CONSUMES SELF-INTEGRITY: SOURCE WIRED · SOLE DISPLAY PROJECTOR: SOURCE · DESCRIPTOR AUTHORITY: NO · REGRESSIONS EXECUTED: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW: SOURCE · TEMPORAL RECEIPT CONTEXT: SOURCE WIRED · RECEIPT SELF-INTEGRITY: SUPPORTING SOURCE · COMPLETED WORK METRICS: SOURCE WIRED · OPERATOR RECEIPT ID: SOURCE WIRED · OPERATOR RECEIPT COMMAND CONSUMES SELF-INTEGRITY: SOURCE WIRED · SOLE DISPLAY PROJECTOR: SOURCE · DESCRIPTOR AUTHORITY: NO · REGRESSIONS EXECUTED: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 940 230" role="img" aria-labelledby="title desc">
-    <title id="title">Raw descriptor shadow passes self-integrity before bounded operator display</title>
-    <desc id="desc">The raw descriptor shadow remains machine evidence. The operator command routes it through the existing self-integrity gate, which recomputes completed comparison truth and validates temporal receipt context before delegating to the existing bounded display projector. A wound never becomes false comparison evidence, and no receipt creates descriptor authority or phone capability.</desc>
+    <title id="title">Raw descriptor shadow passes self-integrity before an auditable bounded operator receipt</title>
+    <desc id="desc">The raw descriptor shadow remains machine evidence. The operator command routes it through the existing self-integrity gate, which recomputes completed comparison truth and validates temporal receipt context before delegating to the existing bounded display projector. Completed work counts remain visible, and the bounded operator payload gets its own deterministic receipt identity. A wound never becomes false comparison evidence, and no receipt creates descriptor authority or phone capability.</desc>
     <path d="M25 115 H155 M245 115 H370 M460 115 H590 M680 115 H835" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="155" y="75" width="90" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="370" y="75" width="90" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -39,10 +39,10 @@
     <text x="354" y="55" fill="currentColor">TEMPORAL CONTEXT</text>
     <text x="575" y="55" fill="currentColor">SOLE PROJECTOR</text>
     <text x="805" y="55" fill="currentColor">OPERATOR</text>
-    <text x="172" y="188" fill="currentColor">recompute</text>
-    <text x="392" y="188" fill="currentColor">bind</text>
-    <text x="607" y="188" fill="currentColor">bound</text>
-    <text x="837" y="188" fill="currentColor">no authority</text>
+    <text x="164" y="188" fill="currentColor">recompute</text>
+    <text x="390" y="188" fill="currentColor">bind</text>
+    <text x="602" y="188" fill="currentColor">counts visible</text>
+    <text x="820" y="188" fill="currentColor">receipt id</text>
   </svg>
 
   <fieldset>
@@ -50,11 +50,13 @@
     <label><input type="radio" name="shadow" value="raw" checked><span><span class="token">● RAW MACHINE EVIDENCE</span><br>The descriptor-shadow audit remains separately callable and is not rewritten into operator prose.</span></label>
     <label><input type="radio" name="shadow" value="owner"><span><span class="token">● OPERATOR RECEIPT OWNER / SOURCE WIRED</span><br>The operator command always routes raw shadow evidence through self-integrity before the existing display projector.</span></label>
     <label><input type="radio" name="shadow" value="self"><span><span class="token">◇ SELF-INTEGRITY</span><br>Completed path-set, work-metric, and exact-content truth are recomputed from raw evidence. Impossible counters and cardinality drift fail closed.</span></label>
+    <label><input type="radio" name="shadow" value="work"><span><span class="token">● WORK METRICS / AUDITABLE</span><br>A completed metricsMatch carries the exact canonical and descriptor directory-entry and candidate counts that were compared. Wounds carry no completed comparison-work receipt.</span></label>
     <label><input type="radio" name="shadow" value="temporal"><span><span class="token">◇ TEMPORAL RECEIPT CONTEXT</span><br>Completed comparisons must carry exact canonical-result identity, strict receipt-integrity context, and no authority/test/runtime promotion.</span></label>
     <label><input type="radio" name="shadow" value="match"><span><span class="token">● SHADOW MATCH</span><br>Only a completed comparison whose raw evidence recomputes to true/true/true may display MATCH.</span></label>
     <label><input type="radio" name="shadow" value="diverged"><span><span class="token">× SHADOW DIVERGED</span><br>False means a completed measured disagreement. It is not a generic failure token.</span></label>
-    <label><input type="radio" name="shadow" value="wound"><span><span class="token">□ WOUND / COMPARISON UNAVAILABLE</span><br>A pre-comparison wound keeps comparison fields null and may not retain stale temporal proof.</span></label>
+    <label><input type="radio" name="shadow" value="wound"><span><span class="token">□ WOUND / COMPARISON UNAVAILABLE</span><br>A pre-comparison wound keeps comparison fields null, comparisonWork null, and may not retain stale temporal proof.</span></label>
     <label><input type="radio" name="shadow" value="display"><span><span class="token">◇ BOUNDED DISPLAY</span><br>Repository paths are safely projected, host paths collapse, raw failure prose becomes a digest plus fixed semantic meaning.</span></label>
+    <label><input type="radio" name="shadow" value="identity"><span><span class="token">● OPERATOR RECEIPT ID</span><br>operatorReceiptSha256 fingerprints the complete bounded operator payload, excluding itself. It is checkpoint identity, not artifact identity, authority, TESTED, runtime, or atomicity.</span></label>
     <label><input type="radio" name="shadow" value="membrane"><span><span class="token">□ CAPABILITY MEMBRANE</span><br>Source wired does not mean regressions executed, TESTED, runtime TalkBack, descriptor authority, phone delivery, deployment, delivery, or acceptance.</span></label>
   </fieldset>
 
@@ -66,12 +68,14 @@
       raw: 'RAW MACHINE EVIDENCE\nPreserve exact machine evidence. Do not make raw exception/path prose the routine operator surface.',
       owner: 'OPERATOR RECEIPT OWNER / SOURCE WIRED\nThe thin operator command composes raw audit → self-integrity → existing bounded projector. It creates neither a second projector nor a second descriptor authority.',
       self: 'SELF-INTEGRITY\nRecompute completed comparison truth from artifact lists and counters. Candidate count may not exceed directory entries; completed artifact cardinality must account for observed candidates.',
+      work: 'WORK METRICS / AUDITABLE\nCompleted comparison receipts show both exact directory-entry counts and candidate counts. metricsMatch must agree with those values. Wounds do not counterfeit partial work as completed comparison evidence.',
       temporal: 'TEMPORAL RECEIPT CONTEXT\nExact canonical v10, evidenceComplete=true, portable authority backend, supported descriptor capability, exact result identity, and no promoted capability are required before temporal proof is carried.',
-      match: 'SHADOW MATCH\nCompleted comparison, recomputed raw evidence true/true/true, strict receipt context admitted. Still no promotion authority or TESTED/runtime claim.',
+      match: 'SHADOW MATCH\nCompleted comparison, recomputed raw evidence true/true/true, auditable work counts, strict receipt context admitted. Still no promotion authority or TESTED/runtime claim.',
       diverged: 'SHADOW DIVERGED\nComparison completed and measured at least one false dimension. Preserve the evidence; do not convert measured divergence into generic wound text.',
-      wound: 'WOUND / COMPARISON UNAVAILABLE\nNo complete comparison means null comparison fields. Stale temporal proof is rejected. Portable diagnostic contact may survive where legitimately observed.',
+      wound: 'WOUND / COMPARISON UNAVAILABLE\nNo complete comparison means null comparison fields and null comparisonWork. Stale temporal proof is rejected. Portable diagnostic contact may survive where legitimately observed.',
       display: 'BOUNDED DISPLAY\nUse the existing projector only. Reveal safe repository evidence, hide host topology, digest raw boundary prose, and preserve true/false/null semantics.',
-      membrane: 'CAPABILITY MEMBRANE\nOperator receipt SOURCE_WIRED. Regressions UNEXECUTED. TESTED NO. Runtime TalkBack NO. Descriptor authority NO. Phone/P0 untouched. Deployed/delivered/accepted NO.'
+      identity: 'OPERATOR RECEIPT ID\nThe deterministic SHA-256 covers the complete bounded operator payload except the digest field itself. Material receipt evidence changes its identity. It grants no authority or runtime capability.',
+      membrane: 'CAPABILITY MEMBRANE\nOperator receipt SOURCE_WIRED. Work metrics SOURCE_WIRED. Receipt identity SOURCE_WIRED. Regressions UNEXECUTED. TESTED NO. Runtime TalkBack NO. Descriptor authority NO. Phone/P0 untouched. Deployed/delivered/accepted NO.'
     };
     for (const radio of document.querySelectorAll('input[name=shadow]')) {
       radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
