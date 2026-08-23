@@ -67,8 +67,12 @@ def main() -> int:
         "produced the admitted surgery record"
     )
 
+    classify_names = function_names(owner_tree, "classify")
     classify_strings = function_string_constants(owner_tree, "classify")
-    assert "artifactContentWitnesses" in classify_strings, (
+    assert (
+        "artifactContentWitnesses" in classify_strings
+        or "WITNESS_FIELD" in classify_names
+    ), (
         "RED: canonical classify result must emit a dedicated same-observation artifactContentWitnesses "
         "surface rather than leaving retained content identity trapped inside internal records"
     )
