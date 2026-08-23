@@ -1,0 +1,24 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "reviewType": "same-worker Judgment Jar completion review",
+  "reviewedSourceHead": "fd858cac5293fa9b3b000f8a0a15ff3b366e2183",
+  "decision": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "passes": [
+    "Existing descriptor-shadow owners were strengthened; no second projector or descriptor authority was created.",
+    "Raw evidence remains separate from operator prose while the operator receipt now binds exact raw machine evidence by SHA-256.",
+    "Wound/unavailable statuses now fail closed when canonical/capability context does not match the claimed pipeline stop.",
+    "Accessibility source organism exposes the new receipt topology using native radio semantics, keyboard access, non-color state, and reduced-motion behavior.",
+    "P0 and primary-phone surfaces were not consumed or mutated."
+  ],
+  "openBoundaries": [
+    "Regression sources are unexecuted.",
+    "Exact-head workflows are queued and do not establish TESTED state.",
+    "Runtime UI and runtime TalkBack are unobserved.",
+    "Canonical descriptor authority integration remains outside this source slice.",
+    "Deployment, callability, execution, delivery, and acceptance remain NO."
+  ],
+  "reviewerFaults": [
+    "Authoritative She-Raw consultation failed account connection with HTTP 400; no substitute verdict was fabricated."
+  ]
+}
