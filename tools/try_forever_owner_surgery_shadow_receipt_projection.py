@@ -10,6 +10,8 @@ keeps the raw shadow result untouched and creates a bounded display receipt inst
 - raw failure-boundary prose is not echoed; the receipt carries a deterministic digest plus a
   status-specific summary;
 - comparison fields remain exact booleans-or-none rather than truthiness-normalized text;
+- comparison failure is distinct from comparison unavailability: SHADOW_DIVERGED requires actual
+  boolean comparison evidence, while wound/unavailable states require null comparisons;
 - no authority, TESTED, runtime, deployment, phone, or acceptance state is promoted.
 """
 
@@ -32,13 +34,22 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 STATUS_SUMMARY = {
     "SHADOW_MATCH": "Descriptor and portable staging agree on compared paths, metrics, and exact content identity.",
-    "SHADOW_DIVERGED": "Descriptor and portable staging disagree; stop before owner integration.",
+    "SHADOW_DIVERGED": "Descriptor and portable staging completed and disagree; stop before owner integration.",
     "CANONICAL_SCHEMA_WOUND": "Canonical custody schema is not the exact shadow-compatible v10 contract.",
     "CANONICAL_WOUND": "Canonical custody is incomplete; shadow staging is not allowed to decorate it as healthy.",
     "PORTABLE_SHADOW_WOUND": "Portable exact-content staging failed before descriptor comparison.",
     "DESCRIPTOR_UNAVAILABLE": "Descriptor primitives are unavailable; canonical portable authority remains unchanged.",
     "CAPABILITY_WOUND": "Descriptor capability evidence is not one admitted platform state.",
-    "DESCRIPTOR_WOUND": "Descriptor custody failed inside the non-authoritative shadow.",
+    "DESCRIPTOR_WOUND": "Descriptor custody failed before a complete comparison could be established.",
+}
+
+COMPARISON_UNAVAILABLE_STATUSES = {
+    "CANONICAL_SCHEMA_WOUND",
+    "CANONICAL_WOUND",
+    "PORTABLE_SHADOW_WOUND",
+    "DESCRIPTOR_UNAVAILABLE",
+    "CAPABILITY_WOUND",
+    "DESCRIPTOR_WOUND",
 }
 
 
@@ -92,6 +103,38 @@ def _artifact_projection(repo_root: Path, item: object, *, field: str) -> dict[s
     }
 
 
+def _validate_comparison_semantics(
+    status: str,
+    artifact_set_match: bool | None,
+    metrics_match: bool | None,
+    content_identity_match: bool | None,
+) -> None:
+    comparisons = (artifact_set_match, metrics_match, content_identity_match)
+
+    if status == "SHADOW_MATCH":
+        if comparisons != (True, True, True):
+            raise ValueError("SHADOW_MATCH requires all three exact comparison booleans true")
+        return
+
+    if status == "SHADOW_DIVERGED":
+        if any(value is None for value in comparisons):
+            raise ValueError(
+                "SHADOW_DIVERGED requires completed boolean comparisons; null means comparison unavailable"
+            )
+        if all(value is True for value in comparisons):
+            raise ValueError("SHADOW_DIVERGED requires at least one completed comparison false")
+        return
+
+    if status in COMPARISON_UNAVAILABLE_STATUSES:
+        if comparisons != (None, None, None):
+            raise ValueError(
+                f"{status} requires null comparison fields because comparison was not completed"
+            )
+        return
+
+    raise ValueError("shadow status is not one admitted comparison-semantics state")
+
+
 def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dict[str, object]:
     """Create one bounded display receipt without changing the raw shadow evidence."""
 
@@ -141,17 +184,12 @@ def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dic
         field="contentIdentityMatch",
     )
 
-    if status == "SHADOW_MATCH" and (
-        artifact_set_match is not True
-        or metrics_match is not True
-        or content_identity_match is not True
-    ):
-        raise ValueError("SHADOW_MATCH requires all three exact comparison booleans true")
-    if status == "SHADOW_DIVERGED" and all(
-        value is True
-        for value in (artifact_set_match, metrics_match, content_identity_match)
-    ):
-        raise ValueError("SHADOW_DIVERGED requires at least one comparison not true")
+    _validate_comparison_semantics(
+        status,
+        artifact_set_match,
+        metrics_match,
+        content_identity_match,
+    )
 
     return {
         "schema": RECEIPT_SCHEMA,
