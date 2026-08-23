@@ -6,8 +6,9 @@ projector. ``audit_descriptor_shadow`` remains the raw machine-evidence producer
 always routes that raw result through the existing self-integrity gate, which in turn delegates to
 the existing bounded display projector.
 
-Raw evidence is never rewritten into authority, TESTED, runtime, deployment, phone delivery, or
-acceptance. P0 and primary-phone surfaces are outside this command.
+Raw machine evidence remains a separate callable source record. This command does not rewrite it
+into authority, TESTED, runtime, deployment, phone delivery, or acceptance, and it owns no P0 or
+primary-phone mutation surface.
 """
 
 from __future__ import annotations
@@ -35,10 +36,11 @@ def build_descriptor_shadow_operator_receipt(
     return {
         **receipt,
         "operatorReceiptSchema": SCHEMA,
-        "rawMachineEvidencePreserved": True,
+        "rawMachineEvidenceRemainsSeparate": True,
+        "rawMachineEvidenceIncluded": False,
         "secondReceiptProjectorCreated": False,
         "secondDescriptorAuthorityCreated": False,
-        "phoneP0Consumed": False,
+        "phoneP0MutationAuthority": False,
     }
 
 
