@@ -118,7 +118,14 @@ def main() -> int:
         surgery("patches/try-forever-a.patch"),
     ]
     duplicate["collisionSets"] = []
-    expect_rejected(duplicate, "artifact identity must be unique")
+    expect_rejected(duplicate, "path identity must be unique")
+
+    kind_mismatch = complete_result()
+    kind_mismatch["surgeries"][0] = surgery(
+        "patches/try-forever-a.patch",
+        artifact_kind="delta_json",
+    )
+    expect_rejected(kind_mismatch, "artifact_kind must agree with the exact artifact path suffix")
 
     state_lie = complete_result()
     state_lie["surgeries"][0] = surgery(
