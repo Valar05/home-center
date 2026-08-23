@@ -6,13 +6,15 @@ It closes supporting-source evidence gaps before the existing backend result-adm
 called:
 
 1. the result must identify the exact canonical owner-surgery custody schema it claims to preserve;
-2. every admitted Surgery must carry canonical same-observation byte-count/SHA-256 evidence; and
+2. every admitted Surgery must carry canonical same-observation byte-count/SHA-256 evidence;
 3. every promotion-group member must already exist as that exact Surgery evidence in the result's
-   ``surgeries`` inventory, including content identity.
+   ``surgeries`` inventory, including content identity; and
+4. ``artifactContentWitnesses`` must equal the canonical Surgery path/byte-count/SHA-256 set before
+   the existing authority-admission policy may see the result.
 
-A group may not mint a phantom surgery or drift its content witness merely because the older
-metadata fields look plausible. Exact schema + exact surgery inventory are custody prerequisites,
-not TESTED/runtime/deployment proof.
+Witness parity is part of this existing backend-result integrity owner. It is not a second backend
+authority owner, and later descriptor-shadow agreement cannot repair a contradictory canonical
+result after it has crossed this boundary.
 """
 
 from __future__ import annotations
@@ -30,8 +32,15 @@ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 
 CANONICAL_CUSTODY_SCHEMA = "try-forever-owner-surgery-custody.v10"
+INVENTORY_INTEGRITY_SCHEMA = "try-forever-owner-surgery-backend-result-integrity.v1"
+WITNESS_INTEGRITY_SCHEMA = "try-forever-owner-surgery-backend-result-witness-integrity.v1"
+WITNESS_FIELD = "artifactContentWitnesses"
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+class BackendWitnessParityError(ValueError):
+    """Canonical Surgery content evidence and artifact witnesses disagree or are malformed."""
 
 
 @dataclass(frozen=True)
@@ -175,7 +184,7 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
                 group_member_count += 1
 
     return {
-        "schema": "try-forever-owner-surgery-backend-result-integrity.v1",
+        "schema": INVENTORY_INTEGRITY_SCHEMA,
         "canonicalCustodySchema": schema,
         "surgeriesAdmitted": len(surgeries),
         "authorityGroupMembersAdmitted": group_member_count,
@@ -191,20 +200,136 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
     }
 
 
+def _canonical_surgery_content_map(
+    result: Mapping[str, object],
+) -> dict[str, tuple[int, str]]:
+    """Project exact Surgery content evidence after inventory custody has already passed."""
+
+    surgeries = result.get("surgeries")
+    if not isinstance(surgeries, list):
+        raise BackendWitnessParityError("surgeries must be one list")
+
+    expected: dict[str, tuple[int, str]] = {}
+    for index, item in enumerate(surgeries):
+        if not isinstance(item, Mapping):
+            raise BackendWitnessParityError(f"surgeries[{index}] must be one mapping")
+        path = item.get("path")
+        byte_count = item.get("artifact_byte_count")
+        sha256 = item.get("artifact_sha256")
+        # audit_backend_result_inventory has already admitted all three fields. Keep these checks
+        # local so this projection still fails closed if it is ever misused independently.
+        if not isinstance(path, str) or not path:
+            raise BackendWitnessParityError(
+                f"surgeries[{index}].path must be one non-empty string"
+            )
+        if path in expected:
+            raise BackendWitnessParityError(
+                f"surgeries path identity must be unique: {path}"
+            )
+        if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 0:
+            raise BackendWitnessParityError(
+                f"surgeries[{index}].artifact_byte_count must be one non-negative integer"
+            )
+        if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+            raise BackendWitnessParityError(
+                f"surgeries[{index}].artifact_sha256 must be 64 lowercase hexadecimal"
+            )
+        expected[path] = (byte_count, sha256)
+    return expected
+
+
+def _artifact_witness_content_map(
+    result: Mapping[str, object],
+) -> dict[str, tuple[int, str]]:
+    witnesses = result.get(WITNESS_FIELD)
+    if not isinstance(witnesses, list):
+        raise BackendWitnessParityError(f"{WITNESS_FIELD} must be one list")
+
+    observed: dict[str, tuple[int, str]] = {}
+    for index, item in enumerate(witnesses):
+        if not isinstance(item, Mapping):
+            raise BackendWitnessParityError(
+                f"{WITNESS_FIELD}[{index}] must be one mapping"
+            )
+        path = item.get("path")
+        byte_count = item.get("byteCount")
+        sha256 = item.get("sha256")
+        if not isinstance(path, str) or not path:
+            raise BackendWitnessParityError(
+                f"{WITNESS_FIELD}[{index}].path must be one non-empty string"
+            )
+        if path in observed:
+            raise BackendWitnessParityError(
+                f"{WITNESS_FIELD} path identity must be unique: {path}"
+            )
+        if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 0:
+            raise BackendWitnessParityError(
+                f"{WITNESS_FIELD}[{index}].byteCount must be one non-negative integer"
+            )
+        if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+            raise BackendWitnessParityError(
+                f"{WITNESS_FIELD}[{index}].sha256 must be 64 lowercase hexadecimal"
+            )
+        observed[path] = (byte_count, sha256)
+    return observed
+
+
+def audit_backend_result_witness_parity(result: Mapping[str, object]) -> dict[str, object]:
+    """Audit canonical inventory once, then require exact Surgery↔artifact witness parity."""
+
+    if not isinstance(result, Mapping):
+        raise BackendWitnessParityError("backend result must be one mapping")
+
+    # This is the single canonical inventory/group audit for the stronger gate. Do not call the
+    # inventory audit again in admit_backend_result_with_inventory_custody.
+    integrity = audit_backend_result_inventory(result)
+    expected = _canonical_surgery_content_map(result)
+    observed = _artifact_witness_content_map(result)
+
+    expected_paths = set(expected)
+    observed_paths = set(observed)
+    if expected_paths != observed_paths:
+        missing = sorted(expected_paths - observed_paths)
+        phantom = sorted(observed_paths - expected_paths)
+        raise BackendWitnessParityError(
+            f"{WITNESS_FIELD} path set must equal surgeries path set; "
+            f"missing={missing!r} phantom={phantom!r}"
+        )
+
+    drifted = sorted(path for path in expected if expected[path] != observed[path])
+    if drifted:
+        raise BackendWitnessParityError(
+            f"{WITNESS_FIELD} content identity must equal Surgery content evidence: {drifted!r}"
+        )
+
+    return {
+        **integrity,
+        "schema": WITNESS_INTEGRITY_SCHEMA,
+        "inventoryIntegritySchema": integrity["schema"],
+        "artifactContentWitnessesAdmitted": len(observed),
+        "witnessParity": True,
+        "witnessParityOwnerWired": True,
+    }
+
+
 def admit_backend_result_with_inventory_custody(
     selection: OwnerSurgeryBackendSelection,
     result: Mapping[str, object],
 ) -> dict[str, object]:
-    """Audit inventory custody, then delegate authority admission to the existing policy."""
+    """Require inventory+witness custody, then delegate authority admission to the existing policy."""
 
-    integrity = audit_backend_result_inventory(result)
+    integrity = audit_backend_result_witness_parity(result)
     admitted = admit_selected_backend_result(selection, result)
     return {
         **admitted,
         "integritySchema": integrity["schema"],
+        "inventoryIntegritySchema": integrity["inventoryIntegritySchema"],
         "canonicalCustodySchema": integrity["canonicalCustodySchema"],
         "surgeriesAdmitted": integrity["surgeriesAdmitted"],
         "authorityGroupMembersAdmitted": integrity["authorityGroupMembersAdmitted"],
+        "artifactContentWitnessesAdmitted": integrity["artifactContentWitnessesAdmitted"],
+        "witnessParity": True,
+        "witnessParityOwnerWired": True,
         "phantomPromotionMembers": 0,
         "contentEvidenceDriftMembers": 0,
     }
