@@ -16,19 +16,24 @@ PATH = "patches/try-forever-a.patch"
 SHA = "a" * 64
 
 
-def canonical(*, witnesses=None, evidence_complete=True):
-    result = {
-        "schema": "try-forever-owner-surgery-custody.v10",
-        "artifactDirectoryEntriesObserved": 1,
-        "artifactCandidatesObserved": 1,
-        "surgeries": [{
+def canonical(*, witnesses=None, evidence_complete=True, include_surgery=True):
+    surgeries = []
+    if include_surgery:
+        surgeries.append({
             "path": PATH,
             "artifact_kind": "patch",
             "owner": OWNER,
             "base_blob": "1" * 40,
             "state": "CORRECTED_PROPOSED_NOT_APPLIED",
             "promotion_candidate": True,
-        }],
+            "artifact_byte_count": 10,
+            "artifact_sha256": SHA,
+        })
+    result = {
+        "schema": "try-forever-owner-surgery-custody.v10",
+        "artifactDirectoryEntriesObserved": 1 if include_surgery else 0,
+        "artifactCandidatesObserved": 1 if include_surgery else 0,
+        "surgeries": surgeries,
         "discoveryErrors": [] if evidence_complete else [{"path": PATH, "boundary": "wound"}],
         "evidenceComplete": evidence_complete,
         "currentOwnerBlobs": {OWNER: "1" * 40},
@@ -48,7 +53,13 @@ def shadow(
     descriptor_sha=SHA,
     status="SHADOW_MATCH",
     comparisons=(True, True, True),
+    include_artifact=True,
 ):
+    portable = []
+    descriptor = []
+    if include_artifact:
+        portable.append({"path": PATH, "byteCount": 10, "sha256": portable_sha})
+        descriptor.append({"path": PATH, "byteCount": 10, "sha256": descriptor_sha})
     return {
         "schema": "try-forever-owner-surgery-descriptor-shadow.v3",
         "status": status,
@@ -58,25 +69,36 @@ def shadow(
         "artifactSetMatch": comparisons[0],
         "metricsMatch": comparisons[1],
         "contentIdentityMatch": comparisons[2],
-        "portableShadowArtifacts": [{"path": PATH, "byteCount": 10, "sha256": portable_sha}],
-        "descriptorArtifacts": [{"path": PATH, "byteCount": 10, "sha256": descriptor_sha}],
+        "portableShadowArtifacts": portable,
+        "descriptorArtifacts": descriptor,
     }
 
 
 def main() -> int:
-    # Current canonical v10 lacks same-observation content witnesses. Matching later reads must not
-    # be promoted into a temporal claim merely because both staging backends happen to agree now.
-    current = canonical()
-    missing = evaluate_temporal_content_binding(current, shadow(current))
+    # Missing witness remains a distinct fail-closed state even though canonical v10 source now
+    # emits witnesses on its normal owner path. This fixture protects malformed/legacy input review.
+    legacy_missing = canonical()
+    missing = evaluate_temporal_content_binding(legacy_missing, shadow(legacy_missing))
     assert missing["status"] == "CANONICAL_CONTENT_WITNESS_MISSING"
     assert missing["temporalBindingProven"] is False
     assert missing["authorityAdmitted"] is False
     assert missing["tested"] is False
 
+    # An empty canonical inventory must not earn a vacuous temporal proof just because all three
+    # identity maps are empty and therefore equal.
+    empty = canonical(witnesses=[], include_surgery=False)
+    empty_result = evaluate_temporal_content_binding(
+        empty,
+        shadow(empty, include_artifact=False),
+    )
+    assert empty_result["status"] == "NO_CANONICAL_ARTIFACT_CONTENT"
+    assert empty_result["temporalBindingProven"] is False
+    assert empty_result["authorityAdmitted"] is False
+
     # Receipt identity must bind to the exact canonical payload under review.
-    mismatched_shadow = shadow(current)
+    mismatched_shadow = shadow(legacy_missing)
     mismatched_shadow["canonicalResultSha256"] = "b" * 64
-    mismatch = evaluate_temporal_content_binding(current, mismatched_shadow)
+    mismatch = evaluate_temporal_content_binding(legacy_missing, mismatched_shadow)
     assert mismatch["status"] == "CANONICAL_RESULT_ID_MISMATCH"
     assert mismatch["temporalBindingProven"] is False
 
