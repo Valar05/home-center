@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "timestamp": "2026-08-24T15:09:00-05:00",
+  "reviewMode": "same-worker-judgment-jar",
+  "reviewedSourceHead": "f5965ad48e92a122a740cb2dcd1986ce52ce1d41",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SNAPSHOT_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The source slice materially advances evidence custody without touching the P0/phone chain.",
+    "The source organism is touchable and non-raster but does not claim deployment or runtime TalkBack proof.",
+    "The owner boundary is explicit and remains red/unwired; patch existence is not implementation.",
+    "Regressions exist but have not executed, so TESTED remains NO.",
+    "The campaign continues because existing-owner snapshot consumption is still missing."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}
