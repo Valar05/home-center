@@ -1,0 +1,57 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localCheckpoint": "2026-08-23T23:58:45-05:00",
+  "campaign": "TRY FOREVER",
+  "pr": 329,
+  "scope": "non-P0 supporting/source work through the existing GitHub owners only",
+  "missionBoundary": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitectureAllowed": false,
+    "mergeAllowed": false,
+    "manualCiRetryAllowed": false
+  },
+  "fronts": [
+    {
+      "id": "canonical-result-fingerprint-owner",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+      "expectedBaseBlob": "92e916f8d64168990a221ca9d5469699ef6273b8",
+      "preparedPatch": "patches/try-forever-descriptor-shadow-canonical-result-fingerprint-owner.patch",
+      "intent": "compose the existing surrogate-safe canonical result fingerprint helper into the existing descriptor-shadow owner without changing authority semantics"
+    },
+    {
+      "id": "temporal-status-exactness-owner",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+      "expectedBaseBlob": "bd25082da9c7644fd48301a43e91ac53bc389b9d",
+      "preparedPatch": "patches/try-forever-shadow-temporal-status-integrity-owner.patch",
+      "intent": "compose the existing exact temporal-status admission policy into the existing self-integrity owner"
+    },
+    {
+      "id": "provenance-convergence",
+      "intent": "after authenticated owner readback, update only stale patch/skill/receipt truth; do not claim TESTED/runtime/deployed/delivered"
+    },
+    {
+      "id": "execution-evidence",
+      "intent": "observe automatic workflow evidence on the reviewed source head; do not rerun failed jobs manually"
+    }
+  ],
+  "preExecutionEvidence": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "fingerprintOwnerBaseVerified": true,
+    "temporalOwnerBaseVerified": true
+  },
+  "capabilityBefore": {
+    "supportingSource": true,
+    "fingerprintOwnerWired": false,
+    "temporalStatusOwnerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
