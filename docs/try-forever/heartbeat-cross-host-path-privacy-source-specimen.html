@@ -15,6 +15,8 @@
 <div class="choices" role="radiogroup" aria-label="Cross-host path evidence states">
 <label class="choice"><input type="radio" name="state" value="relative" checked><span><strong>REPOSITORY</strong><br><span class="token">patches/C:\literal-name.patch</span></span></label>
 <label class="choice"><input type="radio" name="state" value="drive"><span><strong>EXTERNAL</strong><br><span class="token">C:\Users\alice\private\receipt.json</span></span></label>
+<label class="choice"><input type="radio" name="state" value="driveRelative"><span><strong>EXTERNAL</strong><br><span class="token">C:private\receipt.json</span></span></label>
+<label class="choice"><input type="radio" name="state" value="rooted"><span><strong>EXTERNAL</strong><br><span class="token">\Users\alice\private\receipt.json</span></span></label>
 <label class="choice"><input type="radio" name="state" value="unc"><span><strong>EXTERNAL</strong><br><span class="token">\\server\share\private\receipt.json</span></span></label>
 <label class="choice"><input type="radio" name="state" value="owner"><span><strong>OWNER WOUND</strong><br>Descriptor-shadow projector still uses host-local absolute-path detection.</span></label>
 </div>
@@ -22,9 +24,11 @@
 <script>
 const text={
 relative:'Already-authorized repository-relative identity stays repository evidence. Windows-looking characters alone do not make it external.',
-drive:'A serialized Windows drive path reviewed on POSIX must not leak through the repository-relative display channel. Display becomes the constant <external-path> marker.',
+drive:'A serialized Windows absolute drive path reviewed on another OS is foreign host topology. Display becomes the constant <external-path> marker.',
+driveRelative:'Drive-qualified relative syntax still depends on Windows drive context. At the unresolved serialized-path boundary it fails closed as external.',
+rooted:'Rooted Windows syntax carries host root context even without a drive letter. It fails closed as external until repository-relative authority is established elsewhere.',
 unc:'A serialized UNC path is foreign host topology and receives the same constant non-fingerprinting external marker.',
-owner:'Supporting source and hostile regression exist. The existing descriptor-shadow projector has not yet consumed project_serialized_report_path(), so owner wiring remains NO.'
+owner:'Supporting source and hostile regressions exist. The existing descriptor-shadow projector has not yet consumed project_serialized_report_path(), so owner wiring remains NO.'
 };
 const detail=document.getElementById('detail');
 function render(){const picked=document.querySelector('input[name="state"]:checked');detail.textContent=text[picked.value];}
