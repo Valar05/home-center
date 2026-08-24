@@ -19,6 +19,11 @@ EXPECTED = {
     "summary": "bounded truth",
     "artifactSetMatch": True,
 }
+FINAL_FIELDS = (
+    "operatorReceiptSchema",
+    "rawMachineEvidenceSha256",
+    "operatorReceiptSha256",
+)
 
 
 def expect_reject(callable_, fragment: str) -> None:
@@ -50,13 +55,58 @@ def main() -> int:
         admitted = policy.require_operator_receipt_projection_derivation(ROOT, receipt, RAW)
         assert admitted["projectionFieldsVerified"] == len(EXPECTED)
         assert admitted["projectionDerivedFromRaw"] is True
+        assert admitted["receiptFieldsetClosed"] is False
         assert admitted["rawMachineEvidenceEmbedded"] is False
         assert admitted["authorityAdmitted"] is False
         assert admitted["tested"] is False
         assert admitted["delivered"] is False
 
-        # A counterfeit can keep final-envelope-looking fields and the same raw digest while lying
-        # about bounded operator meaning. Derivation custody must reject the lie itself.
+        # Default supporting mode still owns only upstream derivation; final-owner fields may coexist.
+        extended = {**receipt, "futureFinalOwnerField": "not-owned-here"}
+        assert policy.require_operator_receipt_projection_derivation(ROOT, extended, RAW)[
+            "receiptFieldsetClosed"
+        ] is False
+
+        # Final-owner mode closes the complete field namespace. A counterfeit cannot append an
+        # undeclared field, re-sign its outer digest, and pass derivation as a subset check.
+        exact = policy.require_operator_receipt_projection_derivation(
+            ROOT,
+            receipt,
+            RAW,
+            allowed_extra_fields=FINAL_FIELDS,
+        )
+        assert exact["receiptFieldsetClosed"] is True
+        expect_reject(
+            lambda: policy.require_operator_receipt_projection_derivation(
+                ROOT,
+                {**receipt, "futureCapabilityProof": "counterfeit"},
+                RAW,
+                allowed_extra_fields=FINAL_FIELDS,
+            ),
+            "undeclared field(s): futureCapabilityProof",
+        )
+        missing_final = dict(receipt)
+        missing_final.pop("operatorReceiptSha256")
+        expect_reject(
+            lambda: policy.require_operator_receipt_projection_derivation(
+                ROOT,
+                missing_final,
+                RAW,
+                allowed_extra_fields=FINAL_FIELDS,
+            ),
+            "missing declared field(s): operatorReceiptSha256",
+        )
+        expect_reject(
+            lambda: policy.require_operator_receipt_projection_derivation(
+                ROOT,
+                receipt,
+                RAW,
+                allowed_extra_fields=("operatorReceiptSchema", "operatorReceiptSchema"),
+            ),
+            "field names must be unique",
+        )
+
+        # Existing value-derivation wounds remain independently enforced.
         expect_reject(
             lambda: policy.require_operator_receipt_projection_derivation(
                 ROOT,
@@ -80,13 +130,6 @@ def main() -> int:
             lambda: policy.require_operator_receipt_projection_derivation(ROOT, missing, RAW),
             "missing derived upstream field artifactSetMatch",
         )
-
-        # Final-owner fields are outside this supporting gate; their presence does not become a
-        # second finalizer or a reason to weaken exact upstream derivation checks.
-        extended = {**receipt, "futureFinalOwnerField": "not-owned-here"}
-        assert policy.require_operator_receipt_projection_derivation(ROOT, extended, RAW)[
-            "projectionDerivedFromRaw"
-        ] is True
 
         expect_reject(
             lambda: policy.require_operator_receipt_projection_derivation(
