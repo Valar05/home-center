@@ -8,7 +8,7 @@
     "The repair composes the existing raw audit, self-integrity, projector, and final receipt owner; no neighboring receipt owner or descriptor authority exists.",
     "Authenticated Home Center GitHub-admin readback proves derivation custody is SOURCE_WIRED in the existing v4 final owner.",
     "The owner-boundary regression and supporting hostile regression remain source-only and unexecuted, so TESTED/runtime/deployment/delivery remain NO.",
-    "The touchable non-raster organism was converged after owner wiring and still refuses runtime TalkBack or phone/P0 claims."
+    "Exact-head automatic workflows completed failure with zero exposed Operator steps and unavailable logs; no step-level cause is established and no manual retry was fired."
   ],
   "reviewerState": {
     "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
@@ -19,8 +19,13 @@
     "exactSourceHead": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
     "homeCenterCiRun": 32738207097,
     "operatorOverlayRun": 32738207375,
+    "operatorOverlayJob": 97466077851,
     "buildAndroidRun": 32738207393,
-    "stateAtCheckpoint": "queued",
+    "status": "completed",
+    "conclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
     "tested": false,
     "manualRetry": false
   },
