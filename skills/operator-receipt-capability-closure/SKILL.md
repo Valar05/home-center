@@ -18,18 +18,22 @@ This skill does not create descriptor authority, runtime capability, deployment,
 
 `PROJECTOR SCHEMA + RAW SOURCE SCHEMA + SELF-INTEGRITY SCHEMA = EXACT COMPOSITION CUSTODY`.
 
+`BUILD-TIME COMPOSITION CUSTODY != PERMISSION TO SKIP THE SAME CUSTODY DURING LATER RECEIPT REVERIFICATION`.
+
 `FALSE-SHAPED CAPABILITY STATE CANNOT REPAIR A WRONG OR MISSING UPSTREAM SOURCE CONTRACT`.
 
 `OPERATOR RECEIPT SHA BINDS THE COMPLETE BOUNDED CAPABILITY ENVELOPE`.
 
-`MATCHING OPERATOR RECEIPT SHA != PERMISSION TO LAUNDER FINAL CAPABILITY OR RAW-EVIDENCE BINDING STATE`.
+`MATCHING OPERATOR RECEIPT SHA != PERMISSION TO LAUNDER FINAL CAPABILITY, UPSTREAM CONTRACT, OR RAW-EVIDENCE BINDING STATE`.
 
 `RAW-ONLY MACHINE EVIDENCE DRIFT MUST CHANGE RAW EVIDENCE IDENTITY AND THEREFORE FINAL OPERATOR RECEIPT IDENTITY`.
+
+`INTERNALLY VALID RECEIPT IDENTITY != PROOF THAT A LATER SUPPLIED RAW MACHINE-EVIDENCE MAPPING IS THE SAME RAW EVIDENCE`.
 
 `SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
 
 ## Existing owners
-`tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` remains the sole bounded operator receipt command and now also owns the narrow v4 receipt-identity verifier.
+`tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` remains the sole bounded operator receipt command and owns the narrow v4 receipt reverification helpers.
 
 `tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` remains the self-integrity owner.
 
@@ -46,6 +50,8 @@ Before final capability closure, the existing v4 operator command requires:
 - `receiptSelfIntegritySchema == try-forever-owner-surgery-shadow-receipt-self-integrity.v2` from the self-integrity owner.
 
 Those values are imported from the existing owning modules rather than duplicated as free-standing literals. Missing or drifting contract identity rejects before final capability closure. A mapping cannot preserve conservative false fields while changing the upstream source contract and still become a valid v4 operator receipt.
+
+As of the 08:04 hardening, `verify_operator_receipt_identity(...)` rechecks those exact upstream contract identities too. A caller cannot change one of the three upstream schema fields, recompute a self-consistent final digest, and use digest equality to launder the drift during later reverification.
 
 This is composition custody, not a new schema owner. Operator receipt v4 output shape did not change and therefore does not get a cosmetic version bump.
 
@@ -75,15 +81,25 @@ If any later field is present upstream it must already be exact false. The v4 fi
 ## Final receipt identity custody
 `verify_operator_receipt_identity(...)` lives in the existing final owner. It:
 - requires exact operator receipt schema v4;
+- rechecks exact projector receipt / raw shadow / self-integrity upstream source contracts;
 - rechecks final raw-evidence separation/binding flags and architecture/phone denials;
 - requires canonical lowercase SHA-256 raw-machine evidence identity;
 - requires every final capability state to remain explicit exact false;
 - recomputes `operatorReceiptSha256` over the complete bounded payload after removing only the digest field itself;
 - rejects a stale or counterfeit digest rather than repairing it.
 
-Digest equality is not a capability gate. A caller that rewrites `tested=true` or `rawMachineEvidenceBound=false` and recomputes a matching digest still fails the final semantic membrane before digest equality can legitimize the counterfeit.
+Digest equality is not a capability or contract gate. A caller that rewrites `tested=true`, `rawMachineEvidenceBound=false`, or any upstream source-contract identity and then recomputes a matching digest still fails the semantic/custody membrane before digest equality can legitimize the counterfeit.
 
-Raw machine evidence remains separate from bounded display. If raw evidence changes while bounded projection intentionally stays the same, `rawMachineEvidenceSha256` changes and that change is itself inside the final operator receipt digest.
+## Raw machine-evidence linkage reverification
+`verify_operator_receipt_against_raw_evidence(...)` lives in the same final owner. It first requires the complete v4 receipt identity/custody contract, then recomputes the deterministic raw machine-evidence SHA-256 from an explicitly supplied raw mapping and compares it to `rawMachineEvidenceSha256`.
+
+This makes a useful distinction explicit:
+- a receipt can remain internally identity-valid after the raw machine-evidence source has changed;
+- that old receipt must fail if somebody later tries to bind it to the changed raw evidence.
+
+The helper does not embed raw machine evidence in the operator receipt and does not grant descriptor authority, TESTED state, runtime capability, deployment, callability, execution, delivery, or acceptance.
+
+The normal build path now invokes this stronger same-owner reverification before returning the final receipt.
 
 ## Operator-owned namespace custody
 The final command owns these fields and upstream bounded projection may not pre-populate them:
@@ -99,11 +115,12 @@ Reject namespace collisions before dictionary merge. Final dictionary ordering i
 ## Source wiring
 Operator receipt schema v4 remains **YES / SOURCE_WIRED**; the output shape did not need a schema bump.
 
-Authenticated branch readback after the 07:24 identity hardening:
-- operator receipt owner blob: `c763848052e5a289dbc255ea9b31a2d798ff2dd0`;
-- self-integrity owner blob: `8bbed4e2e2d12fe9292d94bd400e2e0f3905b085`;
-- bounded projector blob: `4cc65f162f600e70a9771d7cf3edac94e45f5344`;
-- raw-capability membrane blob: `24cfb9eea54b7295903e5dca248c7ed394b5d237`.
+Authenticated branch readback after the 08:04 receipt reverification hardening:
+- operator receipt owner blob: `d73851b0ba42b9e2eef091aee4b2b9a388d1e0cb`;
+- identity/raw-linkage regression blob: `01c26cd4b9fbd6e154b0baa71166232b433296dc`;
+- self-integrity owner remains the existing owner;
+- bounded projector remains the existing sole display owner;
+- raw descriptor-shadow audit remains the existing raw evidence owner.
 
 ## Regression source
 Two focused source regressions exist and are **UNEXECUTED**:
@@ -120,21 +137,25 @@ Two focused source regressions exist and are **UNEXECUTED**:
 `tools/test_try_forever_descriptor_shadow_operator_receipt_identity.py`
 - identical raw evidence yields stable raw/final receipt identity;
 - raw-only evidence drift changes `rawMachineEvidenceSha256` and `operatorReceiptSha256` while bounded projection remains unchanged;
+- an internally valid earlier receipt fails raw-evidence reverification against later changed raw evidence;
 - stale-digest bounded-payload tampering rejects;
 - a recomputed matching digest cannot launder `tested=true` or `rawMachineEvidenceBound=false`;
-- wrong schema and normalization-dependent digest spelling reject.
+- a recomputed matching digest cannot launder projector/raw/self-integrity contract drift;
+- wrong final schema and normalization-dependent digest spelling reject.
 
-Identity regression blob: `c702be818065db09dc8de9952f9cceb960028877`.
+Identity/raw-linkage regression blob: `01c26cd4b9fbd6e154b0baa71166232b433296dc`.
 
 Do not call either source TESTED merely because it exists.
 
-## Current capability truth — 2026-08-24 07:24 CT
+## Current capability truth — 2026-08-24 08:04 CT
 - operator receipt v4 source wiring: **YES / SOURCE_WIRED**;
-- exact upstream composition-schema custody: **YES / SOURCE_WIRED**;
+- exact upstream composition-schema custody during build: **YES / SOURCE_WIRED**;
+- exact upstream composition-schema custody during later identity reverification: **YES / SOURCE_WIRED**;
 - complete core + later capability closure: **YES / SOURCE_WIRED**;
 - final operator-owned namespace collision gate: **YES / SOURCE_WIRED**;
 - final receipt identity verifier: **YES / SOURCE_WIRED**;
-- raw-evidence-to-final-receipt digest chain: **YES / SOURCE_WIRED**;
+- raw-evidence-to-final-receipt digest chain during build: **YES / SOURCE_WIRED**;
+- independent receipt↔supplied-raw-evidence reverification: **YES / SOURCE_WIRED**;
 - authenticated repository readback: **YES**;
 - regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
@@ -143,7 +164,7 @@ Do not call either source TESTED merely because it exists.
 - deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Accessibility / evidence consequence
-Operator-facing state becomes less ambiguous without adding routine speech. A later renderer can distinguish explicit false from absent/unknown, and it cannot receive a final receipt whose upstream schema chain drifted, whose operator-owned metadata silently overwrote contradictory source fields, or whose self-consistent digest launders forbidden capability state.
+Operator-facing state becomes less ambiguous without adding routine speech. A later evidence reviewer cannot accept a self-consistent final digest whose upstream contract identity drifted, nor can it bind an old internally valid receipt to different later raw machine evidence merely because both artifacts remain individually well-formed.
 
 ## P0 / phone firewall
 Consume no Phone Hands ticket, primary-phone command, P0 recovery chain, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 evidence remains read-only.
