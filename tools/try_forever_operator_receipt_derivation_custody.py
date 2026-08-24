@@ -42,9 +42,10 @@ def require_operator_receipt_projection_derivation(
     By default this supporting gate owns only the upstream bounded projection fields returned by the
     existing self-integrity/projector chain. Final operator-owned fields may coexist in ``receipt``.
     When the final owner supplies ``allowed_extra_fields``, the complete receipt field namespace must
-    equal ``derived projection fields + allowed final fields`` exactly. This prevents a counterfeit
-    from adding an undeclared field, re-signing the final receipt digest, and passing derivation as a
-    mere subset check.
+    equal ``derived projection fields + allowed final fields`` exactly. The final-owner allowlist must
+    also be disjoint from derived projection fields so one namespace cannot claim ownership of the
+    other's fields. This prevents a counterfeit from adding an undeclared field, re-signing the final
+    receipt digest, and passing derivation as a mere subset check.
     """
 
     if not isinstance(receipt, Mapping):
@@ -82,6 +83,12 @@ def require_operator_receipt_projection_derivation(
             )
         if len(set(allowed_extra_fields)) != len(allowed_extra_fields):
             raise OperatorReceiptDerivationError("allowed final receipt field names must be unique")
+
+        overlap = sorted(set(expected) & set(allowed_extra_fields))
+        if overlap:
+            raise OperatorReceiptDerivationError(
+                "derived and final-owner field namespaces must be disjoint: " + ", ".join(overlap)
+            )
 
         allowed_fields = set(expected) | set(allowed_extra_fields)
         actual_fields = set(receipt)
