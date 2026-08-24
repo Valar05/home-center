@@ -1,0 +1,76 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-23T23:01:00-05:00",
+  "reviewedSourceHead": "998c89d5affb9e4984e71fe4b9f6bab352ecd97f",
+  "frontsAdvanced": [
+    "surrogate-safe canonical-result fingerprint supporting policy",
+    "hostile deterministic fingerprint regression source",
+    "RED descriptor-shadow owner-boundary regression",
+    "base-locked existing-owner surgery provenance",
+    "new durable canonical-result fingerprint skill",
+    "touchable non-raster canonical-result evidence throat",
+    "Regnet code-first review and exact-head execution evidence",
+    "Venice plan/completion governance"
+  ],
+  "lights": {
+    "Failure Is The Shovel": {"state": "ACTIVE", "change": "Moved from the completed raw-capability membrane to a different descriptor-shadow receipt-identity wound."},
+    "Canon Auto-Select": {"state": "ACTIVE", "change": "Harvested operator-owner-surgery-canonical-result-fingerprint from the repository evidence shape."},
+    "Autocorrect Judgment Jar": {"state": "DARK", "why": "No material token ambiguity affected this slice."},
+    "Originality Tax": {"state": "ACTIVE", "change": "Preserved valid-Unicode fingerprint identity instead of replacing the algorithm wholesale with an ASCII-escaped digest."},
+    "Hunger": {"state": "ACTIVE", "change": "Advanced policy, regression, owner boundary, owner surgery provenance, skill, art, and receipts rather than one isolated file."},
+    "Ever-Polished Interpreter / Eat Everything": {"state": "ACTIVE", "change": "Separated Python-string receipt identity from original filesystem-byte identity and kept authority claims outside the helper."},
+    "Operator Campaign": {"state": "ACTIVE", "change": "Prepared one surgery against the existing descriptor-shadow owner; no neighboring owner was created."},
+    "Harroway operator discipline": {"state": "ACTIVE", "change": "Kept supporting source, owner integration, regression execution, TESTED, runtime, deployment, delivery, and acceptance distinct."},
+    "She-Raw adversarial motivation": {"state": "FAULT", "why": "Authoritative ambient attempt returned account-connection HTTP 400; no substitute reviewer."},
+    "Venice Judgment Jars": {"state": "ACTIVE", "change": "PLAN_ALLOWED existed before mutation; completion yields only this source slice."},
+    "Regnet QA": {"state": "ACTIVE", "change": "Code-first review passed bounded source/readback and kept owner/test states red/unknown."},
+    "accessibility/TalkBack and touch semantics": {"state": "ACTIVE", "change": "Added a keyboard/touchable non-raster evidence throat with explicit SOURCE ONLY/runtime scars."},
+    "Phone Runtime / Phone Hands recovery": {"state": "DARK_FIREWALLED", "why": "P0/phone surface is reserved; consumption=0 mutation=0."},
+    "deterministic routing": {"state": "ACTIVE", "change": "Fingerprint is insertion-order stable and material-evidence sensitive."},
+    "evidence/capability-state discipline": {"state": "ACTIVE", "change": "Fingerprint is receipt association only, never artifact authority or TESTED/runtime evidence."},
+    "recovery/checkpointing/idempotence": {"state": "ACTIVE", "change": "Ordinary valid-Unicode fingerprints retain the existing identity while hostile surrogate evidence gains deterministic identity."},
+    "strange non-raster vector/DOM/native UI art": {"state": "ACTIVE", "change": "Added canonical-result-fingerprint-source-specimen.html using DOM + inline SVG only."},
+    "warm walls": {"state": "ACTIVE", "change": "Evidence throat makes stable Unicode, hostile surrogate, owner-unwired, and authority-forbidden states touchable."},
+    "Christmas-light scene graph": {"state": "DARK", "why": "Receipt-identity plumbing changed no runtime transition law and earned no decorative blink."},
+    "contact preservation": {"state": "ACTIVE", "change": "The repair intentionally preserves all existing valid-Unicode fingerprint identities."}
+  },
+  "crossPollination": [
+    "Raw machine-evidence hashing already used a surrogate-safe representation, making the descriptor shadow's direct UTF-8 canonical fingerprint path suspicious.",
+    "Contact-preservation discipline rejected an algorithm rewrite that would churn ordinary Unicode fingerprints; surrogatepass closes only the hostile encoding hole.",
+    "The RED owner boundary shaped one existing-owner surgery while duplicate-architecture law prevented a second shadow/projector authority.",
+    "Accessibility/touch discipline turned the evidence distinction into a source-only interactive throat without claiming Android/TalkBack runtime."
+  ],
+  "executionTruth": {
+    "homeCenterCi": {"run": 32688847207, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32688847185, "job": 97318741699, "conclusion": "failure", "stepsExposed": 0},
+    "buildAndroid": {"run": 32688847223, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerPatchPrepared": true,
+    "ownerIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
