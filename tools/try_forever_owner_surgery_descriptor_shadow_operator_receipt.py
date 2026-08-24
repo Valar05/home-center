@@ -6,6 +6,11 @@ projector. ``audit_descriptor_shadow`` remains the raw machine-evidence producer
 always routes that raw result through the existing self-integrity gate, which in turn delegates to
 the existing bounded display projector.
 
+The repository root is one custody input, not merely a display hint: this command binds the raw
+descriptor audit to ``repo_root / PATCH_ROOT`` and uses the same ``repo_root`` for bounded path
+projection. Callers may tune bounded audit budgets/current-owner evidence through ``audit_kwargs``
+but may not override ``root`` independently and create an audit-root/display-root split.
+
 Raw machine evidence remains a separate callable source record. The operator receipt carries only a
 deterministic SHA-256 binding to that exact raw payload; it does not embed the raw machine evidence
 or raw boundary prose. ``operatorReceiptSha256`` identifies the complete bounded operator payload
@@ -20,6 +25,7 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_owner_surgery_custody_probe import PATCH_ROOT
 from try_forever_owner_surgery_descriptor_shadow_audit import audit_descriptor_shadow
 from try_forever_owner_surgery_shadow_receipt_self_integrity import (
     project_shadow_receipt_with_self_integrity,
@@ -64,9 +70,18 @@ def build_descriptor_shadow_operator_receipt(
     repo_root: Path = Path("."),
     **audit_kwargs,
 ) -> dict[str, object]:
-    """Produce one self-audited operator receipt from the existing raw shadow owner."""
+    """Produce one self-audited operator receipt from the existing raw shadow owner.
 
-    raw_result = audit_descriptor_shadow(**audit_kwargs)
+    ``repo_root`` owns both the raw audit root and the display-projection root. Accepting a second
+    caller-supplied ``root`` would allow machine evidence from one repository/path tree to be
+    projected as though it came from another, so that split fails closed.
+    """
+
+    if "root" in audit_kwargs:
+        raise ValueError("descriptor-shadow operator receipt root is owned by repo_root")
+
+    audit_root = repo_root / PATCH_ROOT
+    raw_result = audit_descriptor_shadow(root=audit_root, **audit_kwargs)
     raw_machine_evidence_sha256 = _raw_machine_evidence_sha256(raw_result)
     receipt = project_shadow_receipt_with_self_integrity(repo_root, raw_result)
     payload: dict[str, object] = {
