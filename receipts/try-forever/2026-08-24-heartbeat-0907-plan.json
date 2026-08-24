@@ -1,0 +1,45 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-24T09:07:33-05:00",
+  "scope": "non-P0 TRY FOREVER heartbeat",
+  "owner": "Valar05/home-center PR #329",
+  "startingHead": "d0b1f785b154d9f972756569f30c631020e75284",
+  "fronts": [
+    {
+      "id": "operator-receipt-derivation-custody",
+      "intent": "Prove the bounded final receipt was actually derived from the supplied raw descriptor-shadow evidence, not merely self-consistent and digest-linked.",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "duplicateArchitecture": false
+    },
+    {
+      "id": "hostile-regression",
+      "intent": "Attack a re-signed counterfeit bounded projection that preserves the correct raw evidence digest.",
+      "statusTarget": "SOURCE / UNEXECUTED"
+    },
+    {
+      "id": "skill-doctrine",
+      "intent": "Harvest the derivation-custody law without promoting source to TESTED/runtime/deployed/delivered."
+    },
+    {
+      "id": "descriptor-shadow-warm-wall",
+      "intent": "Repair stale v3 receipt art and make RAW -> SELF-AUDIT -> DERIVATION -> FINAL v4 inspectable in the existing non-raster organism."
+    },
+    {
+      "id": "execution-truth",
+      "intent": "Read exact-head workflow state after source work; do not retry failed jobs or invent a cause."
+    }
+  ],
+  "requiredConstraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "manualWorkflowRetry": false,
+    "mergeOrRebase": false,
+    "testedPromotionWithoutExecution": false
+  },
+  "review": {
+    "sheRaw": "attempted separately; connector fault must remain a fault if unavailable",
+    "regnet": "code-first hostile review after mutation",
+    "venice": "bounded source slice only; owner/test/runtime membrane remains binding"
+  }
+}
