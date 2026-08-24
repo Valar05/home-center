@@ -29,16 +29,22 @@ It performs no trim, case folding, aliasing, or truthiness normalization.
 ## Regression source
 `tools/test_try_forever_shadow_temporal_status_contract.py` is **SOURCE / UNEXECUTED** and attacks unknown, normalization-dependent, wrong-family, wrong-type, and surrogate-bearing status evidence.
 
-`tools/test_try_forever_shadow_temporal_status_owner_boundary.py` is **RED / UNEXECUTED**. It proves the current receipt self-integrity owner can still accept an unknown non-empty temporal status when the proof boolean is false. Owner integration remains **NO** until authenticated source consumes the exact status contract.
+`tools/test_try_forever_shadow_temporal_status_owner_boundary.py` remains **SOURCE / UNEXECUTED**. Its previously RED owner-wiring expectation is now satisfied by authenticated source, but the fixture has not executed and therefore grants no TESTED state.
 
 ## Existing owner
-`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` remains the sole receipt self-integrity owner. Future repair must compose this policy into `_temporal_receipt_projection(...)`; do not create a second temporal receipt validator or projector.
+`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` remains the sole receipt self-integrity owner and now consumes `admit_temporal_status(...)` inside `_temporal_receipt_projection(...)`.
+
+Authenticated source wiring:
+- base owner blob before surgery: `bd25082da9c7644fd48301a43e91ac53bc389b9d`;
+- owner surgery commit: `1a2aaa95d8e19946769d4a63166638d62e76cbec`;
+- resulting owner blob: `8bbed4e2e2d12fe9292d94bd400e2e0f3905b085`;
+- prepared patch provenance: `patches/try-forever-shadow-temporal-status-integrity-owner.patch` = **APPLIED_SOURCE**.
 
 ## Capability membrane
 - supporting policy: **YES / SOURCE**;
 - pure regression: **YES / UNEXECUTED**;
-- owner-boundary regression: **YES / RED / UNEXECUTED**;
-- existing-owner consumption: **NO**;
+- owner-boundary regression: **YES / UNEXECUTED**;
+- existing-owner consumption: **YES / SOURCE_WIRED**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
 - deployed/callable/executed/delivered/accepted: **NO**.
