@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Source boundary for existing-owner receipt derivation and field-set custody.
 
-SOURCE ONLY. Current expected state: derivation SOURCE_WIRED; exact final field-set owner wiring RED;
-regression execution unobserved.
+SOURCE ONLY. Current expected source state: projection derivation SOURCE_WIRED; exact final field-set
+owner wiring SOURCE_WIRED; regression execution unobserved.
 """
 
 import ast
@@ -15,6 +15,10 @@ OWNER = Path(__file__).with_name(
 EXPECTED_HELPER = "verify_operator_receipt_derivation_against_raw_evidence"
 EXPECTED_POLICY_CALL = "require_operator_receipt_projection_derivation"
 EXPECTED_FIELDSET_KEYWORD = "allowed_extra_fields"
+EXPECTED_FIELD_FAMILIES = (
+    "OPERATOR_OWNED_RECEIPT_FIELDS",
+    "FINAL_DENIED_CAPABILITY_FIELDS",
+)
 
 
 def direct_calls(function: ast.FunctionDef) -> list[ast.Call]:
@@ -50,6 +54,24 @@ def call_name(call: ast.Call) -> str | None:
     return None
 
 
+def exact_allowed_field_families(call: ast.Call) -> tuple[str, ...] | None:
+    """Return the exact starred field-family names supplied to allowed_extra_fields."""
+
+    keyword = next(
+        (item for item in call.keywords if item.arg == EXPECTED_FIELDSET_KEYWORD),
+        None,
+    )
+    if keyword is None or not isinstance(keyword.value, ast.Tuple):
+        return None
+
+    names: list[str] = []
+    for element in keyword.value.elts:
+        if not isinstance(element, ast.Starred) or not isinstance(element.value, ast.Name):
+            return None
+        names.append(element.value.id)
+    return tuple(names)
+
+
 def main() -> int:
     tree = ast.parse(OWNER.read_text(encoding="utf-8"), filename=str(OWNER))
     functions = {
@@ -68,11 +90,9 @@ def main() -> int:
     assert len(policy_calls) == 1, (
         "derivation helper must consume the supporting projection-derivation policy exactly once"
     )
-    assert any(
-        keyword.arg == EXPECTED_FIELDSET_KEYWORD for keyword in policy_calls[0].keywords
-    ), (
-        "RED: final v4 owner must close the exact receipt field namespace by supplying "
-        "allowed_extra_fields to derivation custody"
+    assert exact_allowed_field_families(policy_calls[0]) == EXPECTED_FIELD_FAMILIES, (
+        "final v4 owner must close the exact receipt field namespace with the actual operator-owned "
+        "+ final denied-capability field families; a keyword-shaped empty/wrong allowlist is partial unsafe"
     )
 
     build = functions.get("build_descriptor_shadow_operator_receipt")
