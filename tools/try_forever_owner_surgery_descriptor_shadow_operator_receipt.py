@@ -32,6 +32,11 @@ Operator-owned receipt metadata is a separate namespace boundary. Upstream bound
 not pre-populate the final command's receipt schema, raw-evidence linkage, architecture declarations,
 phone/P0 authority declaration, or final receipt digest and then rely on final dictionary ordering
 to overwrite the contradiction.
+
+The receipt owner also exposes one narrow identity verifier for its own v4 envelope. Verification
+recomputes ``operatorReceiptSha256`` over the complete bounded payload after removing only the digest
+field itself. This is receipt-integrity evidence only: a valid digest does not grant authority,
+TESTED state, runtime capability, deployment, callability, execution, delivery, or acceptance.
 """
 
 from __future__ import annotations
@@ -114,6 +119,38 @@ def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
     return _deterministic_json_sha256(payload, ensure_ascii=False)
 
 
+def _is_canonical_sha256(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
+    """Verify the deterministic identity of one bounded v4 operator receipt.
+
+    This verifies receipt integrity only. It does not independently establish the truth of the raw
+    machine evidence, grant descriptor authority, or advance TESTED/runtime/deployment/delivery state.
+    """
+
+    if not isinstance(receipt, Mapping):
+        raise ValueError("operator receipt must be one mapping")
+    if receipt.get("operatorReceiptSchema") != SCHEMA:
+        raise ValueError("operator receipt identity verification requires exact v4 schema")
+
+    claimed = receipt.get("operatorReceiptSha256")
+    if not _is_canonical_sha256(claimed):
+        raise ValueError("operatorReceiptSha256 must be 64 lowercase hexadecimal")
+
+    payload = dict(receipt)
+    payload.pop("operatorReceiptSha256", None)
+    expected = _operator_receipt_sha256(payload)
+    if claimed != expected:
+        raise ValueError("operatorReceiptSha256 does not match the bounded operator payload")
+    return True
+
+
 def _require_upstream_receipt_contract(receipt: Mapping[str, object]) -> None:
     """Bind finalization to the exact existing raw/projector/self-integrity source contracts."""
 
@@ -187,10 +224,12 @@ def build_descriptor_shadow_operator_receipt(
         "phoneP0MutationAuthority": False,
         **{field: False for field in FINAL_DENIED_CAPABILITY_FIELDS},
     }
-    return {
+    final_receipt = {
         **payload,
         "operatorReceiptSha256": _operator_receipt_sha256(payload),
     }
+    verify_operator_receipt_identity(final_receipt)
+    return final_receipt
 
 
 if __name__ == "__main__":
