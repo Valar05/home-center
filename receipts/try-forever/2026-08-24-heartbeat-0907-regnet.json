@@ -1,53 +1,51 @@
 {
   "schema": "try-forever-regnet-review.v1",
   "checkpoint": "2026-08-24T09:07:33-05:00",
-  "reviewedSourceHead": "0bbd8c3844f78471914545a1f967f2d87f41348f",
-  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "reviewedSourceHead": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_AUTHENTICATED_OWNER_WIRING__REGRESSIONS_UNEXECUTED__TESTED_NO",
   "materialFindings": [
     {
       "id": "receipt-derivation-gap",
-      "state": "SUPPORTED_SOURCE",
-      "finding": "Final receipt identity plus raw-evidence SHA linkage do not prove bounded status/summary/comparison fields were derived from that supplied raw evidence. Supporting policy now recomputes the existing self-integrity/projector output and requires exact upstream-field parity."
+      "state": "SOURCE_WIRED",
+      "finding": "Final receipt identity plus raw-evidence SHA linkage did not prove bounded status/summary/comparison fields were derived from that raw evidence. The existing v4 final owner now requires fresh self-integrity/projector derivation parity from the supplied raw mapping before return."
     },
     {
-      "id": "owner-boundary",
-      "state": "RED_UNEXECUTED",
-      "finding": "Existing v4 final receipt owner does not yet expose or consume a derivation-custody reverification helper in its normal build path."
+      "id": "owner-wiring",
+      "state": "PASS_SOURCE",
+      "finding": "Authenticated Home Center GitHub-admin surgery changed only the existing final receipt owner: commit 492db0348caab7307098ff2e487fae300943044b, resulting blob b1da64ae3d50c26dd415d73e6000fb5ddda51183. No second owner/projector/descriptor authority was created."
     },
     {
       "id": "evidence-fixture-correction",
       "state": "CORRECTED_SOURCE",
-      "finding": "The first RED owner-boundary fixture used ast.walk and did not truly prune nested function bodies. It was replaced with direct-body AST visitation so nested-function counterfeit calls cannot satisfy owner evidence."
+      "finding": "The first owner-boundary fixture used ast.walk and did not truly prune nested function bodies. It was replaced with direct-body AST visitation before owner promotion; the fixture now pins the source-wired shape and remains unexecuted."
     },
     {
-      "id": "duplicate-architecture",
+      "id": "capability-membrane",
       "state": "PASS",
-      "finding": "No second final receipt owner, bounded projector, descriptor authority, overlay controller, recovery daemon, or phone path was created."
+      "finding": "Owner SOURCE_WIRED is not regression execution, TESTED state, runtime TalkBack, deployment, callability, execution, delivery, or acceptance."
     }
   ],
   "sourceCustody": {
     "base": "d0b1f785b154d9f972756569f30c631020e75284",
-    "head": "0bbd8c3844f78471914545a1f967f2d87f41348f",
-    "commits": 8,
-    "intendedPaths": 7,
+    "head": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+    "commits": 15,
+    "intendedPaths": 11,
     "unexpectedPaths": 0
   },
   "executionTruth": {
-    "operatorOverlayRun": 32737538560,
-    "operatorOverlayJob": 97463868745,
-    "status": "completed",
-    "conclusion": "failure",
-    "exposedSteps": 0,
-    "logs": "404 BlobNotFound",
-    "stepLevelCauseEstablished": false,
+    "homeCenterCiRun": 32738207097,
+    "operatorOverlayRun": 32738207375,
+    "buildAndroidRun": 32738207393,
+    "statusAtCheckpoint": "queued",
+    "conclusionAtCheckpoint": null,
     "manualRetry": false,
     "regressionExecuted": false,
     "tested": false
   },
   "capabilityMembrane": {
     "supportingSource": true,
-    "authenticatedReadback": true,
-    "ownerDerivationIntegration": false,
+    "ownerDerivationIntegration": true,
+    "authenticatedOwnerReadback": true,
     "regressionSource": true,
     "regressionExecuted": false,
     "tested": false,
