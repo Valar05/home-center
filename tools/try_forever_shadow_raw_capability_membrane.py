@@ -7,8 +7,11 @@ a runtime surface, a phone lane, or P0 authority.
 
 A bounded operator projector must not sanitize a contradictory raw capability claim by simply
 emitting its own constant ``False`` value. Raw evidence that claims authority, mutation, regression
-execution, TESTED, runtime UI/TalkBack, or phone delivery is a contradictory source payload and must
-fail closed before operator projection.
+execution, TESTED, runtime UI/TalkBack, deployment, callability, execution, delivery, acceptance,
+or phone delivery is a contradictory source payload and must fail closed before operator projection.
+
+The generic ``callable`` / ``executed`` fields describe the commissioned descriptor-shadow result
+capability, not whether this Python source function can be invoked in a source environment.
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 
-SCHEMA = "try-forever-shadow-raw-capability-membrane.v1"
+SCHEMA = "try-forever-shadow-raw-capability-membrane.v2"
 DENIED_FALSE_FIELDS = (
     "descriptorAuthorityAdmitted",
     "ownerMutation",
@@ -24,6 +27,11 @@ DENIED_FALSE_FIELDS = (
     "tested",
     "runtimeUi",
     "runtimeTalkBack",
+    "deployed",
+    "callable",
+    "executed",
+    "delivered",
+    "accepted",
     "phoneDelivered",
 )
 
@@ -56,11 +64,5 @@ def require_raw_shadow_capability_membrane(result: Mapping[str, object]) -> dict
     return {
         "schema": SCHEMA,
         "rawCapabilityMembraneValidated": True,
-        "descriptorAuthorityAdmitted": False,
-        "ownerMutation": False,
-        "regressionExecuted": False,
-        "tested": False,
-        "runtimeUi": False,
-        "runtimeTalkBack": False,
-        "phoneDelivered": False,
+        **{field: False for field in DENIED_FALSE_FIELDS},
     }
