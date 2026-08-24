@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-"""Hostile source fixture for raw descriptor-shadow capability-state integrity.
+"""Hostile source fixture for raw descriptor-shadow source/capability integrity.
 
 SOURCE ONLY. This regression has not been observed executing in an authorized lane.
 """
 
 from try_forever_shadow_raw_capability_membrane import (
     OPTIONAL_DENIED_FALSE_FIELDS,
+    RAW_SHADOW_SCHEMA,
     REQUIRED_DENIED_FALSE_FIELDS,
     require_raw_shadow_capability_membrane,
 )
 
 
 def valid_raw() -> dict[str, object]:
-    return {field: False for field in REQUIRED_DENIED_FALSE_FIELDS}
+    return {
+        "schema": RAW_SHADOW_SCHEMA,
+        **{field: False for field in REQUIRED_DENIED_FALSE_FIELDS},
+    }
 
 
 def expect_rejected(payload: dict[str, object], needle: str) -> None:
@@ -26,10 +30,27 @@ def expect_rejected(payload: dict[str, object], needle: str) -> None:
 
 def main() -> int:
     admitted = require_raw_shadow_capability_membrane(valid_raw())
+    assert admitted["rawSourceSchema"] == RAW_SHADOW_SCHEMA
     assert admitted["rawCapabilityMembraneValidated"] is True
     for field in REQUIRED_DENIED_FALSE_FIELDS:
         assert admitted[field] is False
     assert admitted["optionalCapabilityFieldsChecked"] == []
+
+    # False-shaped capability fields are not descriptor-shadow evidence without exact source identity.
+    for poisoned_schema in (
+        None,
+        "",
+        "try-forever-owner-surgery-descriptor-shadow.v2",
+        " try-forever-owner-surgery-descriptor-shadow.v3",
+        "TRY-FOREVER-OWNER-SURGERY-DESCRIPTOR-SHADOW.V3",
+        3,
+    ):
+        poisoned = valid_raw()
+        if poisoned_schema is None:
+            poisoned.pop("schema")
+        else:
+            poisoned["schema"] = poisoned_schema
+        expect_rejected(poisoned, "exact descriptor-shadow v3 source schema")
 
     # Every descriptor-shadow v3 core capability is explicit. Missing is unknown, not false.
     for field in REQUIRED_DENIED_FALSE_FIELDS:
