@@ -1,0 +1,48 @@
+{
+  "schema": "venice-judgment-jar-completion.v1",
+  "localCheckpoint": "2026-08-23T23:58:45-05:00",
+  "reviewer": "same_worker_judgment_jar",
+  "authoritativeExternalVeniceClaimed": false,
+  "pr": 329,
+  "reviewedSourceHead": "8b309a19f2f2a743f8dad7ac5e7c15c87d872a7a",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "acceptedBoundedClaims": [
+    "descriptor-shadow canonical-result fingerprint owner is SOURCE_WIRED through the existing owner",
+    "receipt self-integrity temporal status admission is SOURCE_WIRED through the existing owner",
+    "both applied patch artifacts and both repository skills are synchronized to authenticated source truth",
+    "owner-boundary regression sources are preserved and marked UNEXECUTED",
+    "phone/P0 consumption and mutation are zero"
+  ],
+  "withheldClaims": [
+    "regression execution",
+    "TESTED",
+    "runtime UI",
+    "runtime TalkBack",
+    "deployment",
+    "callability",
+    "execution",
+    "delivery",
+    "acceptance",
+    "campaign completion"
+  ],
+  "executionBoundary": {
+    "automaticRunsObserved": true,
+    "operatorRunId": 32692585265,
+    "operatorJobId": 97328799988,
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404_BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
