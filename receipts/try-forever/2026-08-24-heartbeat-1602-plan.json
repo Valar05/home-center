@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localTime": "2026-08-24T16:02:17-05:00",
+  "mission": "Promote the existing one-observation receipt snapshot-custody organ into the existing final-v4 operator receipt owner without creating a second owner/projector/descriptor authority or touching the phone/P0 chain.",
+  "authority": {
+    "repository": "Valar05/home-center",
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "pr": 329,
+    "observedPrHeadBeforeMutation": "222423ce370b0f32db52b75e041052b082d176b1",
+    "ownerPath": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+    "ownerBlobBeforeMutation": "34eee8e633356b012d773712ad14179b77baa3c2",
+    "preparedPatchPath": "patches/try-forever-operator-receipt-snapshot-custody-owner.patch",
+    "preparedPatchBlob": "db336cfff337c9a34a98eaf186b6c163982e6eed"
+  },
+  "fronts": [
+    "existing-owner source wiring",
+    "owner-boundary regression convergence",
+    "patch provenance convergence",
+    "repository skill convergence",
+    "touchable non-raster Warm Wall convergence",
+    "Regnet/Venice/evidence receipt",
+    "exact-head workflow evidence"
+  ],
+  "constraints": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "noSecondReceiptOwner": true,
+    "noSecondProjector": true,
+    "noSecondDescriptorAuthority": true,
+    "sourceIsNotTested": true,
+    "sourceIsNotRuntime": true,
+    "sourceIsNotDelivered": true
+  },
+  "review": {
+    "sheRaw": "attempted pre-execution; connector account connection returned HTTP 400; no substitute verdict",
+    "venicePlanGate": "PLAN_ALLOWED_FOR_BOUNDED_EXISTING_OWNER_SOURCE_SLICE",
+    "regnetPrecondition": "owner blob and prepared patch base match exactly; update must remain one-owner and fail capability promotion"
+  }
+}
