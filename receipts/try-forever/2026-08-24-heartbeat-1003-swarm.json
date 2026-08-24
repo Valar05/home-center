@@ -1,0 +1,67 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-24T10:03:00-05:00",
+  "reviewedSourceHead": "43b2cf2296e7b678ac5bf5e5c625cdb6c373ef10",
+  "frontsAdvanced": [
+    "derivation supporting policy exact-fieldset mode",
+    "hostile fieldset regression source",
+    "RED final-owner boundary evidence",
+    "base-locked existing-owner patch provenance",
+    "durable derivation-custody skill convergence",
+    "touchable non-raster derivation Warm Wall mutation",
+    "Regnet bounded review",
+    "Venice bounded completion gate",
+    "fresh exact-head workflow evidence"
+  ],
+  "crossPollination": "Receipt derivation custody made subset-vs-exact namespace suspicious. Final digest custody proved an undeclared field could be re-signed rather than rejected. The existing derivation organ gained opt-in exact fieldset closure; hostile fixtures and owner evidence then forced a precise existing-owner patch while capability truth kept that patch unapplied.",
+  "skillLights": {
+    "FailureIsTheShovel": "ACTIVE",
+    "CanonAutoSelect": "ACTIVE",
+    "OriginalityTax": "ACTIVE",
+    "HungerEatEverything": "ACTIVE",
+    "OperatorCampaignHarroway": "ACTIVE",
+    "RegnetQA": "ACTIVE",
+    "VeniceJudgment": "ACTIVE",
+    "AccessibilityTouch": "ACTIVE_SOURCE_ART",
+    "DeterministicRoutingEvidence": "ACTIVE",
+    "RecoveryIdempotenceContactPreservation": "ACTIVE_CONSTRAINT",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "AutocorrectJudgmentJar": "DARK_NO_AMBIGUITY",
+    "ChristmasMotion": "DARK_NO_RUNTIME_TRANSITION",
+    "PhoneRuntimePhoneHandsP0": "DARK_FIREWALLED"
+  },
+  "workflowEvidence": {
+    "OperatorOverlayAndroid": {"run": 32743991048, "conclusion": "failure"},
+    "BuildAndroid": {"run": 32743990606, "conclusion": "failure"},
+    "HomeCenterCI": {"run": 32743991676, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "projectionDerivationOwnerWired": true,
+    "exactFieldsetSupportingSource": true,
+    "exactFieldsetOwnerWired": false,
+    "ownerPatchPrepared": true,
+    "ownerPatchApplied": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_FIELDSET_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
