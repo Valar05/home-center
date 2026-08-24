@@ -94,7 +94,7 @@ def main() -> int:
         try:
             owner.verify_operator_receipt_identity(raw_binding_laundered)
         except ValueError as exc:
-            assert "rawMachineEvidenceBound=false" in str(exc)
+            assert "requires exact final rawMachineEvidenceBound=true" in str(exc)
         else:
             raise AssertionError("self-consistent digest laundered raw evidence binding")
 
