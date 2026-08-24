@@ -21,13 +21,22 @@ REQUIRED_FUNCTIONS = {
 
 
 def direct_calls(function: ast.FunctionDef) -> list[ast.Call]:
+    """Collect calls owned by this direct function body, excluding nested functions/lambdas."""
+
     calls: list[ast.Call] = []
+
+    def visit(node: ast.AST) -> None:
+        if node is not function and isinstance(
+            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)
+        ):
+            return
+        if isinstance(node, ast.Call):
+            calls.append(node)
+        for child in ast.iter_child_nodes(node):
+            visit(child)
+
     for statement in function.body:
-        for node in ast.walk(statement):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)) and node is not function:
-                continue
-            if isinstance(node, ast.Call):
-                calls.append(node)
+        visit(statement)
     return calls
 
 
