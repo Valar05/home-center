@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-24T18:03:50-05:00",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts through the existing GitHub/Home Center repository lane without consuming phone/P0 execution surfaces.",
+  "firewall": {
+    "p0ReadOnly": true,
+    "phoneExecutionConsumed": false,
+    "phoneP0MutationAuthority": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "fronts": [
+    {
+      "id": "portable-cross-platform-path-display",
+      "owner": "tools/try_forever_provenance_report_path.py",
+      "intent": "Prevent operator-facing path projection from treating foreign-platform absolute path syntax as repository-relative text when evidence is reviewed on a different host OS.",
+      "acceptance": [
+        "Windows drive and UNC absolute path text cannot enter the repository-relative display channel on POSIX hosts.",
+        "POSIX absolute path text cannot enter the repository-relative display channel.",
+        "Repository-relative Windows-looking filenames that are not absolute remain representable only through the already-authorized repository-relative API.",
+        "External paths retain the constant <external-path> marker with no host-topology hash oracle."
+      ]
+    },
+    {
+      "id": "receipt-path-projection-owner-regression",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+      "intent": "Pin the descriptor-shadow operator projector to the hardened portable path semantics without creating a second projector.",
+      "acceptance": [
+        "Foreign-platform absolute artifact path strings project EXTERNAL rather than REPOSITORY.",
+        "Canonical repository-relative artifact paths remain unchanged.",
+        "Raw evidence remains separate and no authority/test/runtime capability is promoted."
+      ]
+    },
+    {
+      "id": "snapshot-custody-adversarial-review",
+      "owner": "tools/try_forever_operator_receipt_snapshot_custody.py",
+      "intent": "Review the existing one-observation snapshot organ for a separate concrete integrity/resource wound; mutate only if a proven defect is established.",
+      "acceptance": [
+        "No decorative mutation if review finds no concrete defect.",
+        "Any repair preserves exact JSON shape, finite budgets, detached caller-owned evidence, and the capability membrane."
+      ]
+    },
+    {
+      "id": "doctrine-and-touchable-source",
+      "owner": "existing skills and existing non-raster source organism",
+      "intent": "Converge durable skill doctrine and one existing touchable source artifact only when the source topology materially changes; no deployed/runtime claim."
+    },
+    {
+      "id": "review-and-receipt",
+      "owner": "Regnet/Venice same-worker bounded review",
+      "intent": "Perform code-first source review, preserve She-Raw connector fault as a fault, and publish exact requested/implemented/tested/runtime/deployed/delivered/accepted states."
+    }
+  ],
+  "requiredSkillConsideration": {
+    "Failure Is The Shovel": "lit",
+    "Canon Auto-Select": "lit",
+    "Autocorrect Judgment Jar": "considered_dark_no_ambiguity",
+    "Originality Tax": "lit",
+    "Hunger": "lit",
+    "Ever-Polished Interpreter / Eat Everything": "lit",
+    "Operator Campaign": "lit",
+    "Harroway operator discipline": "lit",
+    "She-Raw adversarial motivation": "faulted_account_connection_400",
+    "Venice Judgment Jars": "lit_same_worker_bounded",
+    "Regnet QA": "lit",
+    "accessibility/TalkBack and touch semantics": "lit_as_display_safety_constraint",
+    "Phone Runtime / Phone Hands recovery": "considered_dark_firewalled",
+    "deterministic routing": "lit",
+    "evidence/capability-state discipline": "lit",
+    "recovery/checkpointing/idempotence": "lit_as_fail_closed_evidence_constraint",
+    "strange non-raster vector/DOM/native UI art": "conditional_on_material_topology_change",
+    "warm walls": "conditional_on_material_topology_change",
+    "Christmas-light scene graph": "considered_dark_unless_transition_semantics_change",
+    "contact preservation": "lit_as_evidence_identity_constraint"
+  },
+  "capabilityMembraneBeforeMutation": {
+    "requested": true,
+    "implementedThisRun": false,
+    "testedThisRun": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
