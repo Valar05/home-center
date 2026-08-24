@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-24T02:11:11-05:00",
+  "commission": "Advance independent non-P0 TRY FOREVER fronts with broad materially active skill lights.",
+  "firewall": {
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "authenticatedStart": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "head": "2563dbd561f3b5ed1c9143302e8604614efb211b"
+  },
+  "fronts": [
+    "descriptor-shadow receipt evidence integrity and hostile regression",
+    "canonical skill/doctrine convergence without runtime promotion",
+    "accessible non-raster operator evidence surface only if topology materially changes",
+    "execution/capability evidence refresh"
+  ],
+  "constraints": [
+    "compose existing owners only",
+    "no Phone Hands or primary-phone execution",
+    "no P0 recovery mutations",
+    "source and regression artifacts are not TESTED/runtime/deployed evidence",
+    "She-Raw failure is preserved, not impersonated"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "gate": "PLAN_ALLOWED__NON_P0_SOURCE_AND_EVIDENCE_ONLY"
+}
