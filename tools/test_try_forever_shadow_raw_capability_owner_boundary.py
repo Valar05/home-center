@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner-boundary source for raw descriptor-shadow capability integrity.
+"""Owner-boundary regression source for raw descriptor-shadow capability integrity.
 
-SOURCE ONLY. This intentionally fails against the current self-integrity owner until that owner
-consumes ``require_raw_shadow_capability_membrane`` before bounded projection.
+SOURCE ONLY. The existing self-integrity owner is now source-wired to
+``require_raw_shadow_capability_membrane`` before bounded projection. This fixture pins that source
+contract; it has not been observed executing in an authorized test lane.
 """
 
 from pathlib import Path
@@ -81,12 +82,11 @@ def expect_owner_rejected(field: str) -> None:
         assert f"{field}=false" in str(exc), str(exc)
     else:
         raise AssertionError(
-            f"current self-integrity owner sanitized contradictory raw capability {field}=true"
+            f"self-integrity owner sanitized contradictory raw capability {field}=true"
         )
 
 
 def main() -> int:
-    # Baseline source shape remains admissible.
     receipt = project_shadow_receipt_with_self_integrity(ROOT, raw_match())
     assert receipt["tested"] is False
     assert receipt["runtimeTalkBack"] is False
