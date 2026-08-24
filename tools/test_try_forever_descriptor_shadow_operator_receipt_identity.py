@@ -32,6 +32,12 @@ def bounded_projection(repo_root, raw):
     }
 
 
+def resign(receipt):
+    payload = dict(receipt)
+    payload.pop("operatorReceiptSha256", None)
+    return {**payload, "operatorReceiptSha256": owner._operator_receipt_sha256(payload)}
+
+
 def main() -> int:
     original_audit = owner.audit_descriptor_shadow
     original_projection = owner.project_shadow_receipt_with_self_integrity
@@ -73,6 +79,24 @@ def main() -> int:
             assert "does not match" in str(exc)
         else:
             raise AssertionError("operator receipt identity accepted tampered bounded payload")
+
+        # A matching digest is not permission to launder capability or final-command invariants.
+        # Re-sign the counterfeit payload to prove the verifier checks semantics before equality.
+        capability_laundered = resign({**drifted, "tested": True})
+        try:
+            owner.verify_operator_receipt_identity(capability_laundered)
+        except ValueError as exc:
+            assert "cannot carry final tested capability" in str(exc)
+        else:
+            raise AssertionError("self-consistent digest laundered TESTED capability")
+
+        raw_binding_laundered = resign({**drifted, "rawMachineEvidenceBound": False})
+        try:
+            owner.verify_operator_receipt_identity(raw_binding_laundered)
+        except ValueError as exc:
+            assert "rawMachineEvidenceBound=false" in str(exc)
+        else:
+            raise AssertionError("self-consistent digest laundered raw evidence binding")
 
         # Schema and digest spelling are exact evidence too; normalization is not identity repair.
         wrong_schema = dict(drifted)
