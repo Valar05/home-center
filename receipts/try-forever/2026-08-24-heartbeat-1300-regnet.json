@@ -1,0 +1,30 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "timeLocal": "2026-08-24T13:08:00-05:00",
+  "reviewedSourceHead": "571097c7f02747c631b7b71f6ccae4a6da0af283",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Fresh wound is real: exact final-fieldset custody is wired in derivation verification, but identity/raw-linkage-only reverification still lacks an independent exact namespace gate.",
+    "Supporting policy closes the exact current self-integrity + operator-owned + denied-capability union without creating a second receipt owner/projector.",
+    "First hostile regression draft omitted required raw capability-false fields and would fail before reaching its target; repaired before review completion.",
+    "First owner-boundary AST collector could count calls inside nested functions because ast.walk continues below a skipped FunctionDef node; replaced with a visitor that refuses nested function/lambda descent and a counterfeit nested-call fixture.",
+    "Existing final owner remains authenticated blob 952a7de0e7f14b130264df7e5573fc8cd54a3928 and does not consume the new identity-level fieldset gate.",
+    "Prepared owner surgery is base-blob locked and remains PROPOSED_NOT_APPLIED."
+  ],
+  "executionTruth": {
+    "operatorOverlayRun": 32760588939,
+    "operatorOverlayJob": 97538220293,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "homeCenterCiRun": 32760588954,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32760589009,
+    "buildAndroidConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0Phone": {"consumption":0,"mutation":0,"duplicateArchitecture":0,"newP0Finding":null}
+}
