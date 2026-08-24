@@ -35,8 +35,9 @@ to overwrite the contradiction.
 
 The receipt owner also exposes one narrow identity verifier for its own v4 envelope. Verification
 recomputes ``operatorReceiptSha256`` over the complete bounded payload after removing only the digest
-field itself. This is receipt-integrity evidence only: a valid digest does not grant authority,
-TESTED state, runtime capability, deployment, callability, execution, delivery, or acceptance.
+field itself, and rechecks the final capability/evidence closure before trusting a matching digest.
+This is receipt-integrity evidence only: a valid digest does not grant authority, TESTED state,
+runtime capability, deployment, callability, execution, delivery, or acceptance.
 """
 
 from __future__ import annotations
@@ -127,8 +128,34 @@ def _is_canonical_sha256(value: object) -> bool:
     )
 
 
+def _require_final_receipt_contract(receipt: Mapping[str, object]) -> None:
+    """Recheck the final v4 membrane independently of digest equality."""
+
+    expected_operator_fields = {
+        "rawMachineEvidenceRemainsSeparate": True,
+        "rawMachineEvidenceIncluded": False,
+        "rawMachineEvidenceBound": True,
+        "secondReceiptProjectorCreated": False,
+        "secondDescriptorAuthorityCreated": False,
+        "phoneP0MutationAuthority": False,
+    }
+    for field, expected in expected_operator_fields.items():
+        if receipt.get(field) is not expected:
+            raise ValueError(f"operator receipt requires exact final {field}={str(expected).lower()}")
+
+    raw_machine_sha = receipt.get("rawMachineEvidenceSha256")
+    if not _is_canonical_sha256(raw_machine_sha):
+        raise ValueError("rawMachineEvidenceSha256 must be 64 lowercase hexadecimal")
+
+    for field in FINAL_DENIED_CAPABILITY_FIELDS:
+        if field not in receipt:
+            raise ValueError(f"operator receipt must carry explicit final {field}=false")
+        if receipt.get(field) is not False:
+            raise ValueError(f"operator receipt cannot carry final {field} capability")
+
+
 def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
-    """Verify the deterministic identity of one bounded v4 operator receipt.
+    """Verify deterministic identity and final membrane for one bounded v4 operator receipt.
 
     This verifies receipt integrity only. It does not independently establish the truth of the raw
     machine evidence, grant descriptor authority, or advance TESTED/runtime/deployment/delivery state.
@@ -138,6 +165,8 @@ def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
         raise ValueError("operator receipt must be one mapping")
     if receipt.get("operatorReceiptSchema") != SCHEMA:
         raise ValueError("operator receipt identity verification requires exact v4 schema")
+
+    _require_final_receipt_contract(receipt)
 
     claimed = receipt.get("operatorReceiptSha256")
     if not _is_canonical_sha256(claimed):
