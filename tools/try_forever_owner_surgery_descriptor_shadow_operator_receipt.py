@@ -36,9 +36,10 @@ to overwrite the contradiction.
 The receipt owner exposes narrow reverification helpers for its own v4 envelope. Identity
 reverification rechecks the exact upstream composition contracts plus the final capability/evidence
 closure before trusting a matching ``operatorReceiptSha256``. Raw-evidence reverification additionally
-binds an explicitly supplied raw machine-evidence mapping back to ``rawMachineEvidenceSha256``.
-Both helpers are evidence-integrity checks only: they do not grant authority, TESTED state, runtime
-capability, deployment, callability, execution, delivery, or acceptance.
+requires the supplied raw mapping to carry the exact descriptor-shadow source schema and binds that
+mapping back to ``rawMachineEvidenceSha256``. Both helpers are evidence-integrity checks only: they do
+not grant authority, TESTED state, runtime capability, deployment, callability, execution, delivery,
+or acceptance.
 """
 
 from __future__ import annotations
@@ -204,11 +205,16 @@ def verify_operator_receipt_against_raw_evidence(
     """Verify one bounded v4 receipt against explicitly supplied raw machine evidence.
 
     The receipt remains a bounded display/capability envelope and the raw result remains separate.
-    This helper verifies their deterministic SHA-256 linkage only after the receipt's own upstream,
-    semantic, capability, and digest custody passes. It does not grant authority or execution state.
+    This helper verifies the raw source contract and deterministic SHA-256 linkage only after the
+    receipt's own upstream, semantic, capability, and digest custody passes. It does not grant
+    authority or execution state.
     """
 
     verify_operator_receipt_identity(receipt)
+    if not isinstance(raw_result, Mapping) or raw_result.get("schema") != RAW_SHADOW_SCHEMA:
+        raise ValueError(
+            "raw machine evidence reverification requires exact descriptor-shadow source schema"
+        )
     expected_raw_sha256 = _raw_machine_evidence_sha256(raw_result)
     if receipt.get("rawMachineEvidenceSha256") != expected_raw_sha256:
         raise ValueError("rawMachineEvidenceSha256 does not match the supplied raw machine evidence")
