@@ -24,15 +24,17 @@ Keep receipt verification bound to one caller-input observation. A verifier must
 
 - Supporting source: `tools/try_forever_operator_receipt_snapshot_custody.py` — **IMPLEMENTED SOURCE**.
 - Hostile regression: `tools/test_try_forever_operator_receipt_snapshot_custody.py` — **SOURCE / UNEXECUTED**.
-- Existing-owner boundary: `tools/test_try_forever_operator_receipt_snapshot_custody_owner_boundary.py` — **RED / UNEXECUTED** until owner consumption exists.
-- Prepared existing-owner surgery: `patches/try-forever-operator-receipt-snapshot-custody-owner.patch` — **CORRECTED_PROPOSED_NOT_APPLIED**, locked to owner blob `34eee8e633356b012d773712ad14179b77baa3c2`.
-- Existing owner consumption: **NO**.
+- Existing-owner boundary: `tools/test_try_forever_operator_receipt_snapshot_custody_owner_boundary.py` — **SOURCE_WIRED / UNEXECUTED**.
+- Existing owner: `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **SOURCE_WIRED** at authenticated blob `82af7cc572d2a95624fb549c387946068483c7e3`.
+- Applied owner surgery: `patches/try-forever-operator-receipt-snapshot-custody-owner.patch` — **APPLIED_SOURCE**, base blob `34eee8e633356b012d773712ad14179b77baa3c2`, owner commit `312b6443a016804ab90d42dc1a34ff67b46579f2`.
+- Existing owner consumption: **YES / SOURCE_WIRED**.
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 - Phone/P0 mutation authority: **NO**.
 
-## Review scar
+## Review scars
 
-The first owner-boundary AST walker still descended into nested functions after merely skipping the nested function node itself. That evidence bug was corrected with an explicit recursive visitor that stops descent at nested function/lambda boundaries before the checkpoint.
+- The first owner-boundary AST walker descended into nested functions after merely skipping the nested function node itself. That evidence bug was corrected with an explicit recursive visitor that stops descent at nested function/lambda boundaries.
+- Source wiring is not regression execution. The direct owner methods now consume snapshot custody, but the hostile regression suite remains unexecuted in authenticated CI evidence.
 
 ## Duplicate-architecture rule
 
