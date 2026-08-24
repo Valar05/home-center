@@ -1,6 +1,8 @@
 # OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
 # BASE_BLOB: b1da64ae3d50c26dd415d73e6000fb5ddda51183
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
+# APPLIED_COMMIT: 2c7685cf9e5e2a8315c0da827bd1c7a9a6ea848d
+# RESULT_BLOB: 952a7de0e7f14b130264df7e5573fc8cd54a3928
 # PURPOSE: close final v4 receipt field namespace after exact raw/projection derivation
 
 diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
