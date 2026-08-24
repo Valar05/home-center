@@ -1,0 +1,69 @@
+{
+  "schema": "regnet-qa-receipt.v1",
+  "localCheckpoint": "2026-08-23T23:58:45-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "8b309a19f2f2a743f8dad7ac5e7c15c87d872a7a",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceReview": {
+    "canonicalFingerprintOwner": {
+      "sourceWired": true,
+      "baseBlob": "92e916f8d64168990a221ca9d5469699ef6273b8",
+      "ownerCommit": "f57e556e6025f93b6b3b01ec9cedac95868b28e7",
+      "resultBlob": "44bc3af31e645f33abf542139995c3707ef8e210",
+      "patchState": "APPLIED_SOURCE"
+    },
+    "temporalStatusOwner": {
+      "sourceWired": true,
+      "baseBlob": "bd25082da9c7644fd48301a43e91ac53bc389b9d",
+      "ownerCommit": "1a2aaa95d8e19946769d4a63166638d62e76cbec",
+      "resultBlob": "8bbed4e2e2d12fe9292d94bd400e2e0f3905b085",
+      "patchState": "APPLIED_SOURCE"
+    },
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sourceSlice": {
+    "base": "8829eb8badb93384706eed33e13dc95baf6c4a88",
+    "head": "8b309a19f2f2a743f8dad7ac5e7c15c87d872a7a",
+    "commits": 10,
+    "paths": 10,
+    "unexpectedPaths": 0
+  },
+  "executionEvidence": {
+    "homeCenterCi": {"runId": 32692585277, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32692585265, "jobId": 97328799988, "status": "completed", "conclusion": "failure", "exposedSteps": 0, "logs": "404_BlobNotFound"},
+    "buildAndroid": {"runId": 32692585309, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "reviewerState": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false,
+    "venicePlanGate": "PLAN_ALLOWED__SOURCE_OWNER_INTEGRATION_ONLY"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "fingerprintOwnerSourceWired": true,
+    "temporalStatusOwnerSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
