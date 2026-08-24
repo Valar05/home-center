@@ -6,12 +6,13 @@ This supporting organ validates capability-state fields already emitted by the e
 a runtime surface, a phone lane, or P0 authority.
 
 A bounded operator projector must not sanitize a contradictory raw capability claim by simply
-emitting its own constant ``False`` value. Raw evidence that claims authority, mutation, regression
-execution, TESTED, runtime UI/TalkBack, deployment, callability, execution, delivery, acceptance,
-or phone delivery is a contradictory source payload and must fail closed before operator projection.
+emitting its own constant ``False`` value. The existing descriptor-shadow v3 contract carries an
+explicit core denied-capability set. If later raw evidence also carries deployment/callability/
+execution/delivery/acceptance fields, those optional capability claims must already be exact false;
+this gate does not silently widen v3 by requiring fields its owner does not emit.
 
-The generic ``callable`` / ``executed`` fields describe the commissioned descriptor-shadow result
-capability, not whether this Python source function can be invoked in a source environment.
+The generic optional ``callable`` / ``executed`` fields describe the commissioned descriptor-shadow
+result capability, not whether this Python source function can be invoked in a source environment.
 """
 
 from __future__ import annotations
@@ -20,19 +21,21 @@ from collections.abc import Mapping
 
 
 SCHEMA = "try-forever-shadow-raw-capability-membrane.v2"
-DENIED_FALSE_FIELDS = (
+REQUIRED_DENIED_FALSE_FIELDS = (
     "descriptorAuthorityAdmitted",
     "ownerMutation",
     "regressionExecuted",
     "tested",
     "runtimeUi",
     "runtimeTalkBack",
+    "phoneDelivered",
+)
+OPTIONAL_DENIED_FALSE_FIELDS = (
     "deployed",
     "callable",
     "executed",
     "delivered",
     "accepted",
-    "phoneDelivered",
 )
 
 
@@ -41,17 +44,17 @@ class ShadowRawCapabilityMembraneError(ValueError):
 
 
 def require_raw_shadow_capability_membrane(result: Mapping[str, object]) -> dict[str, object]:
-    """Require every known raw capability state to be present and exactly ``False``.
+    """Require the v3 core membrane and reject any later positive capability claims.
 
-    Missing fields are rejected as unknown rather than treated as false. Truthiness is never used.
-    The returned object is a source-only audit receipt for composition by the existing receipt
-    self-integrity owner; it grants no capability.
+    Missing v3 core fields are rejected as unknown rather than treated as false. Optional later
+    capability fields do not become mandatory merely because this supporting membrane knows how to
+    reject them; when present, however, they must be exact false. Truthiness is never used.
     """
 
     if not isinstance(result, Mapping):
         raise ShadowRawCapabilityMembraneError("raw descriptor-shadow evidence must be one mapping")
 
-    for field in DENIED_FALSE_FIELDS:
+    for field in REQUIRED_DENIED_FALSE_FIELDS:
         if field not in result:
             raise ShadowRawCapabilityMembraneError(
                 f"raw descriptor-shadow evidence must carry explicit {field}=false"
@@ -61,8 +64,17 @@ def require_raw_shadow_capability_membrane(result: Mapping[str, object]) -> dict
                 f"raw descriptor-shadow evidence must carry {field}=false"
             )
 
+    for field in OPTIONAL_DENIED_FALSE_FIELDS:
+        if field in result and result.get(field) is not False:
+            raise ShadowRawCapabilityMembraneError(
+                f"raw descriptor-shadow optional capability {field} must be false when present"
+            )
+
     return {
         "schema": SCHEMA,
         "rawCapabilityMembraneValidated": True,
-        **{field: False for field in DENIED_FALSE_FIELDS},
+        **{field: False for field in REQUIRED_DENIED_FALSE_FIELDS},
+        "optionalCapabilityFieldsChecked": [
+            field for field in OPTIONAL_DENIED_FALSE_FIELDS if field in result
+        ],
     }
