@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Raw Capability Membrane — Warm Wall</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; background: #111; color: #f5f5f5; }
+    main { max-width: 58rem; margin: auto; padding: 1rem; }
+    h1 { font-size: 1.45rem; }
+    .scar, #detail { border: 1px solid currentColor; padding: .9rem; }
+    fieldset { border: 0; padding: 0; margin: 1rem 0; }
+    legend { font-weight: 800; }
+    label { display: grid; grid-template-columns: 3rem 1fr; gap: .75rem; align-items: center; min-height: 56px; padding: .65rem; margin: .7rem 0; border: 1px solid currentColor; cursor: pointer; }
+    input[type=radio] { inline-size: 26px; block-size: 26px; margin: auto; }
+    label:focus-within { outline: 3px solid currentColor; outline-offset: 3px; }
+    .token { font-weight: 900; }
+    #detail { min-height: 8rem; white-space: pre-wrap; }
+    svg { display: block; width: 100%; max-height: 220px; margin: 1rem 0; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / RAW CAPABILITY MEMBRANE</h1>
+  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW: MACHINE EVIDENCE · CAPABILITY MEMBRANE POLICY: SOURCE · SELF-INTEGRITY OWNER: UNWIRED · RED OWNER BOUNDARY: SOURCE / UNEXECUTED · RED OPERATOR BOUNDARY: SOURCE / UNEXECUTED · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+
+  <svg viewBox="0 0 900 220" role="img" aria-labelledby="cap-title cap-desc">
+    <title id="cap-title">Raw capability evidence must pass an exact false-only membrane before bounded display</title>
+    <desc id="cap-desc">Raw machine evidence enters a capability membrane. Exact false capability state may continue to self-integrity and bounded projection. Raw authority, testing, runtime, or phone-delivery overclaims stop before projection instead of being sanitized.</desc>
+    <path d="M30 110 H260 M390 110 H590 M720 110 H860" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="260" y="65" width="130" height="90" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="590" y="65" width="130" height="90" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="20" y="85" fill="currentColor">RAW</text>
+    <text x="275" y="55" fill="currentColor">MEMBRANE</text>
+    <text x="600" y="55" fill="currentColor">SELF-AUDIT</text>
+    <text x="805" y="85" fill="currentColor">DISPLAY</text>
+    <text x="272" y="185" fill="currentColor">exact false only</text>
+    <text x="595" y="185" fill="currentColor">owner gap</text>
+  </svg>
+
+  <fieldset>
+    <legend>Inspect one raw capability state</legend>
+    <label><input type="radio" name="cap" value="clean" checked><span><span class="token">● CLEAN RAW</span><br>Every denied capability field is present and exactly boolean false. Policy may admit this source shape; testing/runtime are still not granted.</span></label>
+    <label><input type="radio" name="cap" value="tested"><span><span class="token">× RAW TESTED OVERCLAIM</span><br><code>tested=true</code> is contradictory raw machine evidence. It must stop before display; the projector is not allowed to repaint it false.</span></label>
+    <label><input type="radio" name="cap" value="runtime"><span><span class="token">× RAW RUNTIME OVERCLAIM</span><br><code>runtimeUi=true</code> or <code>runtimeTalkBack=true</code> cannot be sanitized into a source-only receipt.</span></label>
+    <label><input type="radio" name="cap" value="phone"><span><span class="token">× RAW PHONE OVERCLAIM</span><br><code>phoneDelivered=true</code> fails closed. The TRY FOREVER source lane has no phone/P0 delivery authority.</span></label>
+    <label><input type="radio" name="cap" value="missing"><span><span class="token">× MISSING ≠ FALSE</span><br>An absent capability field is unknown evidence, not permission to assume false.</span></label>
+    <label><input type="radio" name="cap" value="owner"><span><span class="token">□ OWNER GAP</span><br>The supporting membrane and RED boundaries exist, but the current self-integrity owner does not yet consume the membrane. Prepared owner surgery is NOT APPLIED.</span></label>
+    <label><input type="radio" name="cap" value="membrane"><span><span class="token">◇ CAPABILITY MEMBRANE</span><br>Supporting source may validate raw capability state. Regression execution, TESTED, runtime UI/TalkBack, deployment, delivery, acceptance, and descriptor authority remain separate NO states.</span></label>
+  </fieldset>
+
+  <div id="detail" role="status" aria-live="polite" aria-atomic="true">CLEAN RAW\nExact false-only source shape. No capability is promoted by admission.</div>
+  <script>
+    const detail = document.getElementById('detail');
+    const copy = {
+      clean: 'CLEAN RAW\nEvery denied field is explicitly boolean false. Supporting policy admission grants no testing, runtime, descriptor authority, or phone capability.',
+      tested: 'RAW TESTED OVERCLAIM\ntested=true must be rejected before projection. A bounded receipt that prints tested=false is not a repair for contradictory source evidence.',
+      runtime: 'RAW RUNTIME OVERCLAIM\nruntimeUi/runtimeTalkBack=true is an integrity wound. Source-only display cannot launder it.',
+      phone: 'RAW PHONE OVERCLAIM\nphoneDelivered=true is rejected. The P0/phone firewall remains untouched and authoritative.',
+      missing: 'MISSING != FALSE\nUnknown capability state is not false. Every denied field must be explicit.',
+      owner: 'OWNER GAP\nPolicy + hostile fixtures + exact owner surgery provenance exist. Existing self-integrity owner consumption remains NO; regressions are unexecuted.',
+      membrane: 'CAPABILITY MEMBRANE\nSOURCE policy YES. Owner wiring NO. Regression source YES / UNEXECUTED. TESTED NO. Runtime TalkBack NO. Descriptor authority NO. Phone/P0 untouched.'
+    };
+    for (const radio of document.querySelectorAll('input[name=cap]')) {
+      radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
+    }
+  </script>
+</main>
+</body>
+</html>
