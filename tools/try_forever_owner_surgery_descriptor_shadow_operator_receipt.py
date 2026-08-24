@@ -57,6 +57,9 @@ from try_forever_operator_receipt_derivation_custody import (
 from try_forever_operator_receipt_identity_fieldset import (
     require_exact_final_receipt_fieldset,
 )
+from try_forever_operator_receipt_snapshot_custody import (
+    snapshot_verification_inputs,
+)
 from try_forever_owner_surgery_custody_probe import PATCH_ROOT
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     SCHEMA as RAW_SHADOW_SCHEMA,
@@ -177,8 +180,8 @@ def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
     machine evidence, grant descriptor authority, or advance TESTED/runtime/deployment/delivery state.
     """
 
-    if not isinstance(receipt, Mapping):
-        raise ValueError("operator receipt must be one mapping")
+    snapshot = snapshot_verification_inputs(receipt)
+    receipt = snapshot["receipt"]
     if receipt.get("operatorReceiptSchema") != SCHEMA:
         raise ValueError("operator receipt identity verification requires exact v4 schema")
 
@@ -224,8 +227,11 @@ def verify_operator_receipt_against_raw_evidence(
     authority or execution state.
     """
 
+    snapshot = snapshot_verification_inputs(receipt, raw_result)
+    receipt = snapshot["receipt"]
+    raw_result = snapshot["rawMachineEvidence"]
     verify_operator_receipt_identity(receipt)
-    if not isinstance(raw_result, Mapping) or raw_result.get("schema") != RAW_SHADOW_SCHEMA:
+    if raw_result.get("schema") != RAW_SHADOW_SCHEMA:
         raise ValueError(
             "raw machine evidence reverification requires exact descriptor-shadow source schema"
         )
@@ -248,6 +254,9 @@ def verify_operator_receipt_derivation_against_raw_evidence(
     linkage membrane passes. This remains evidence custody only.
     """
 
+    snapshot = snapshot_verification_inputs(receipt, raw_result)
+    receipt = snapshot["receipt"]
+    raw_result = snapshot["rawMachineEvidence"]
     verify_operator_receipt_against_raw_evidence(receipt, raw_result)
     require_operator_receipt_projection_derivation(
         repo_root,
