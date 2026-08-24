@@ -28,9 +28,9 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
 
     ``dict(value)`` intentionally snapshots the top-level mapping once before semantic checks. The
     JSON round-trip then detaches nested list/mapping structure from caller-owned mutable objects and
-    rejects non-finite/non-JSON values rather than allowing later verification stages to observe a
-    different object graph. ``ensure_ascii=True`` keeps hostile surrogate-shaped strings bounded and
-    representable during snapshotting without changing their decoded string identity.
+    rejects non-finite/non-JSON/over-nested values rather than allowing later verification stages to
+    observe a different object graph. ``ensure_ascii=True`` keeps hostile surrogate-shaped strings
+    bounded and representable during snapshotting without changing their decoded string identity.
     """
 
     if not isinstance(value, Mapping):
@@ -44,7 +44,7 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
             separators=(",", ":"),
         )
         snapshot = json.loads(encoded)
-    except (TypeError, ValueError, OverflowError) as exc:
+    except (TypeError, ValueError, OverflowError, RecursionError) as exc:
         raise OperatorReceiptSnapshotCustodyError(
             f"{field} must be one finite JSON-shaped mapping"
         ) from exc
