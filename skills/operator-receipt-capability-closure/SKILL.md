@@ -30,6 +30,8 @@ This skill does not create descriptor authority, runtime capability, deployment,
 
 `INTERNALLY VALID RECEIPT IDENTITY != PROOF THAT A LATER SUPPLIED RAW MACHINE-EVIDENCE MAPPING IS THE SAME RAW EVIDENCE`.
 
+`HASHABLE RAW MAPPING != DESCRIPTOR-SHADOW RAW EVIDENCE WITHOUT EXACT RAW SOURCE SCHEMA`.
+
 `SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
 
 ## Existing owners
@@ -91,11 +93,11 @@ If any later field is present upstream it must already be exact false. The v4 fi
 Digest equality is not a capability or contract gate. A caller that rewrites `tested=true`, `rawMachineEvidenceBound=false`, or any upstream source-contract identity and then recomputes a matching digest still fails the semantic/custody membrane before digest equality can legitimize the counterfeit.
 
 ## Raw machine-evidence linkage reverification
-`verify_operator_receipt_against_raw_evidence(...)` lives in the same final owner. It first requires the complete v4 receipt identity/custody contract, then recomputes the deterministic raw machine-evidence SHA-256 from an explicitly supplied raw mapping and compares it to `rawMachineEvidenceSha256`.
+`verify_operator_receipt_against_raw_evidence(...)` lives in the same final owner. It first requires the complete v4 receipt identity/custody contract, then requires the supplied raw mapping itself to carry exact `try-forever-owner-surgery-descriptor-shadow.v3` source identity, recomputes the deterministic raw machine-evidence SHA-256, and compares it to `rawMachineEvidenceSha256`.
 
-This makes a useful distinction explicit:
-- a receipt can remain internally identity-valid after the raw machine-evidence source has changed;
-- that old receipt must fail if somebody later tries to bind it to the changed raw evidence.
+This makes two useful distinctions explicit:
+- a receipt can remain internally identity-valid after the raw machine-evidence source has changed, but that old receipt must fail if somebody later tries to bind it to the changed raw evidence;
+- a mapping being hashable and digest-matching is not permission to call it descriptor-shadow raw evidence if its own source contract is wrong.
 
 The helper does not embed raw machine evidence in the operator receipt and does not grant descriptor authority, TESTED state, runtime capability, deployment, callability, execution, delivery, or acceptance.
 
@@ -115,9 +117,9 @@ Reject namespace collisions before dictionary merge. Final dictionary ordering i
 ## Source wiring
 Operator receipt schema v4 remains **YES / SOURCE_WIRED**; the output shape did not need a schema bump.
 
-Authenticated branch readback after the 08:04 receipt reverification hardening:
-- operator receipt owner blob: `d73851b0ba42b9e2eef091aee4b2b9a388d1e0cb`;
-- identity/raw-linkage regression blob: `01c26cd4b9fbd6e154b0baa71166232b433296dc`;
+Authenticated branch readback after the 08:04 receipt reverification review:
+- operator receipt owner blob: `a4f20c8d5c0e8a6c33664b0ed74550d3f5d2e78a`;
+- identity/raw-linkage regression blob: `62ab34b12fcd45d12a88d6245989f2f4677be38a`;
 - self-integrity owner remains the existing owner;
 - bounded projector remains the existing sole display owner;
 - raw descriptor-shadow audit remains the existing raw evidence owner.
@@ -138,12 +140,13 @@ Two focused source regressions exist and are **UNEXECUTED**:
 - identical raw evidence yields stable raw/final receipt identity;
 - raw-only evidence drift changes `rawMachineEvidenceSha256` and `operatorReceiptSha256` while bounded projection remains unchanged;
 - an internally valid earlier receipt fails raw-evidence reverification against later changed raw evidence;
+- raw-evidence reverification rejects a supplied mapping whose raw descriptor-shadow source schema is wrong;
 - stale-digest bounded-payload tampering rejects;
 - a recomputed matching digest cannot launder `tested=true` or `rawMachineEvidenceBound=false`;
 - a recomputed matching digest cannot launder projector/raw/self-integrity contract drift;
 - wrong final schema and normalization-dependent digest spelling reject.
 
-Identity/raw-linkage regression blob: `01c26cd4b9fbd6e154b0baa71166232b433296dc`.
+Identity/raw-linkage regression blob: `62ab34b12fcd45d12a88d6245989f2f4677be38a`.
 
 Do not call either source TESTED merely because it exists.
 
@@ -156,6 +159,7 @@ Do not call either source TESTED merely because it exists.
 - final receipt identity verifier: **YES / SOURCE_WIRED**;
 - raw-evidence-to-final-receipt digest chain during build: **YES / SOURCE_WIRED**;
 - independent receipt↔supplied-raw-evidence reverification: **YES / SOURCE_WIRED**;
+- exact supplied raw source-schema admission during reverification: **YES / SOURCE_WIRED**;
 - authenticated repository readback: **YES**;
 - regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
@@ -164,7 +168,7 @@ Do not call either source TESTED merely because it exists.
 - deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Accessibility / evidence consequence
-Operator-facing state becomes less ambiguous without adding routine speech. A later evidence reviewer cannot accept a self-consistent final digest whose upstream contract identity drifted, nor can it bind an old internally valid receipt to different later raw machine evidence merely because both artifacts remain individually well-formed.
+Operator-facing state becomes less ambiguous without adding routine speech. A later evidence reviewer cannot accept a self-consistent final digest whose upstream contract identity drifted, cannot bind an old internally valid receipt to different later raw machine evidence, and cannot treat a different raw source contract as descriptor-shadow evidence merely because its digest is well-formed.
 
 ## P0 / phone firewall
 Consume no Phone Hands ticket, primary-phone command, P0 recovery chain, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 evidence remains read-only.
