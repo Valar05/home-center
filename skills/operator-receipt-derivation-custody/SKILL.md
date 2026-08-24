@@ -16,7 +16,7 @@ This skill creates no second receipt owner, projector, descriptor authority, run
 
 `DERIVATION CUSTODY MUST NOT EMBED RAW MACHINE EVIDENCE OR CREATE A SECOND PROJECTOR`.
 
-`SUPPORTING SOURCE != OWNER WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
+`SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
 
 ## Existing owners
 - `tools/try_forever_owner_surgery_descriptor_shadow_audit.py` remains the raw descriptor-shadow source owner.
@@ -29,6 +29,17 @@ This skill creates no second receipt owner, projector, descriptor authority, run
 
 The policy returns a bounded source receipt with every capability state false. It grants no authority or runtime state.
 
+## Existing-owner source wiring
+The final v4 receipt owner now exposes `verify_operator_receipt_derivation_against_raw_evidence(repo_root, receipt, raw_result)`.
+
+That helper first requires the existing v4 receipt identity + raw-evidence linkage membrane, then consumes `require_operator_receipt_projection_derivation(...)`. The normal `build_descriptor_shadow_operator_receipt(...)` path calls this stronger helper before return.
+
+Authenticated Home Center GitHub-admin surgery:
+- owner commit: `492db0348caab7307098ff2e487fae300943044b`;
+- resulting owner blob: `b1da64ae3d50c26dd415d73e6000fb5ddda51183`.
+
+This is existing-owner SOURCE_WIRED evidence only. It is not regression execution, TESTED state, runtime behavior, deployment, phone callability, delivery, or acceptance.
+
 ## Regression source
 `tools/test_try_forever_operator_receipt_derivation_custody.py` is SOURCE / UNEXECUTED. It proves the supporting gate rejects:
 - counterfeit summary text;
@@ -37,13 +48,16 @@ The policy returns a bounded source receipt with every capability state false. I
 - wrong raw source schema;
 while leaving unrelated final-owner fields outside its ownership.
 
-`tools/test_try_forever_operator_receipt_derivation_owner_boundary.py` is intentionally RED / UNEXECUTED. It requires the existing final owner to gain a derivation reverification helper that consumes this policy and requires the normal build path to use that helper before returning a final receipt.
+`tools/test_try_forever_operator_receipt_derivation_owner_boundary.py` is SOURCE / UNEXECUTED. It now pins the source-wired owner shape: the existing final owner must retain the derivation reverification helper, that helper must directly consume the supporting derivation policy, and the normal build path must directly invoke the helper before return.
+
+Code-first review repaired the first owner fixture before checkpoint: its initial `ast.walk` call did not truly prune nested function bodies. The final source uses direct-body AST visitation so nested-function counterfeit calls cannot satisfy owner evidence.
 
 ## Current capability truth — 2026-08-24 09:07 CT
 - supporting derivation policy: **YES / SOURCE**;
+- final owner derivation-custody consumption: **YES / SOURCE_WIRED**;
+- authenticated owner readback: **YES**;
 - hostile supporting regression: **YES / UNEXECUTED**;
-- RED existing-owner boundary: **YES / UNEXECUTED**;
-- final owner derivation-custody consumption: **NO**;
+- owner-boundary regression: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
