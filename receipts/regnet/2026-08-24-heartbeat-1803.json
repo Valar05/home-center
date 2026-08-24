@@ -1,0 +1,79 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestampLocal": "2026-08-24T18:03:50-05:00",
+  "reviewedSourceHead": "d482c6072889bcb575e29f727049c10b65686f76",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "crossHostSerializedPathPolicy": {
+      "state": "PASS_SOURCE_READBACK",
+      "owner": "tools/try_forever_provenance_report_path.py",
+      "blob": "b30add2b26511921817a97d42972a92dd24545ab",
+      "review": [
+        "Serialized evidence no longer uses only the reviewer host's Path.is_absolute() as scope authority.",
+        "POSIX absolute, Windows absolute, UNC, rooted, and drive-qualified serialized path syntax fails closed to constant EXTERNAL display unless repository-relative authority was already established through the explicit relative channel.",
+        "External host paths remain non-fingerprinted <external-path>; canonical authority/I/O identity is unchanged."
+      ]
+    },
+    "foreignRootingRegression": {
+      "state": "PASS_REGRESSION_SOURCE_UNEXECUTED",
+      "paths": [
+        "tools/test_try_forever_provenance_report_path.py",
+        "tools/test_try_forever_serialized_report_path_foreign_rooting.py"
+      ]
+    },
+    "descriptorShadowOwnerBoundary": {
+      "state": "REVISE_REQUIRED_OWNER_UNWIRED",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+      "ownerBlob": "4cc65f162f600e70a9771d7cf3edac94e45f5344",
+      "regression": "tools/test_try_forever_descriptor_shadow_serialized_path_owner_boundary.py",
+      "preparedSurgery": "docs/try-forever/descriptor-shadow-cross-host-path-display.patch",
+      "preparedSurgeryState": "PROPOSED_NOT_APPLIED",
+      "boundary": "The existing descriptor-shadow projector still selects repository-vs-external display using host-local Path.is_absolute(); it has not consumed project_serialized_report_path()."
+    },
+    "snapshotCustodyAdversarialReview": {
+      "state": "DARK_NO_CONCRETE_DEFECT",
+      "owner": "tools/try_forever_operator_receipt_snapshot_custody.py",
+      "ownerBlob": "85c78ed8140ed36bb87a4e0dbd20da1533a7f793",
+      "boundary": "Review found no separate source defect worth mutating this pulse. Existing one-observation mapping detachment, exact JSON-shape admission, depth/node/text/encoded-byte budgets, and capability membrane remain intact. No churn was manufactured."
+    },
+    "touchableSource": {
+      "state": "PASS_SOURCE_ONLY",
+      "path": "docs/try-forever/heartbeat-cross-host-path-privacy-source-specimen.html",
+      "blob": "12565e976c08952c608671c11dc0de33606eaae7",
+      "review": "Radio/keyboard/touch semantics expose repository, absolute-drive, drive-relative, rooted, UNC, and owner-wound states; runtime TalkBack/deployment/phone delivery are explicitly unclaimed."
+    },
+    "doctrine": {
+      "state": "PASS_CONVERGED_SOURCE",
+      "path": "skills/heartbeat-portable-provenance-report-paths/SKILL.md",
+      "blob": "916e8d09b7d2ca51af2995a88962d154bbe7ebb1"
+    }
+  },
+  "delta": {
+    "baseHead": "c0428e1b8199f3aa8ef897009ea6ad672088c6fe",
+    "sourceHead": "d482c6072889bcb575e29f727049c10b65686f76",
+    "commits": 12,
+    "paths": 9,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32788220205,
+    "operatorOverlayJob": 97624410385,
+    "operatorOverlayStatus": "completed/failure/0_steps",
+    "homeCenterCiRun": 32788220279,
+    "buildAndroidRun": 32788220204,
+    "logs": "empty/no usable step-level evidence",
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "reviewerTruth": {
+    "sheRaw": "account_connection_http_400",
+    "syntheticSheRaw": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
