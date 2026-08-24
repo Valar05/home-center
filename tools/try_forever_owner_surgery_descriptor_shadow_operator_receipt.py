@@ -240,7 +240,15 @@ def verify_operator_receipt_derivation_against_raw_evidence(
     """
 
     verify_operator_receipt_against_raw_evidence(receipt, raw_result)
-    require_operator_receipt_projection_derivation(repo_root, receipt, raw_result)
+    require_operator_receipt_projection_derivation(
+        repo_root,
+        receipt,
+        raw_result,
+        allowed_extra_fields=(
+            *OPERATOR_OWNED_RECEIPT_FIELDS,
+            *FINAL_DENIED_CAPABILITY_FIELDS,
+        ),
+    )
     return True
 
 
