@@ -54,6 +54,9 @@ from pathlib import Path
 from try_forever_operator_receipt_derivation_custody import (
     require_operator_receipt_projection_derivation,
 )
+from try_forever_operator_receipt_identity_fieldset import (
+    require_exact_final_receipt_fieldset,
+)
 from try_forever_owner_surgery_custody_probe import PATCH_ROOT
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     SCHEMA as RAW_SHADOW_SCHEMA,
@@ -137,6 +140,12 @@ def _is_canonical_sha256(value: object) -> bool:
 
 def _require_final_receipt_contract(receipt: Mapping[str, object]) -> None:
     """Recheck the final v4 membrane independently of digest equality."""
+
+    require_exact_final_receipt_fieldset(
+        receipt,
+        operator_owned_fields=OPERATOR_OWNED_RECEIPT_FIELDS,
+        denied_capability_fields=FINAL_DENIED_CAPABILITY_FIELDS,
+    )
 
     expected_operator_fields = {
         "rawMachineEvidenceRemainsSeparate": True,
