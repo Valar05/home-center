@@ -1,0 +1,39 @@
+{
+  "schema": "regnet-try-forever-review.v1",
+  "localTime": "2026-08-24T16:02:17-05:00",
+  "reviewedSourceHead": "7f2ecd7f286f888b4e8a0a105d175e01286e528e",
+  "scope": "one-observation operator receipt snapshot custody existing-owner promotion",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Existing final-v4 receipt owner imports snapshot custody and each of identity/raw-linkage/derivation verification establishes snapshot custody as its first direct call.",
+    "Prepared patch base blob 34eee8e633356b012d773712ad14179b77baa3c2 matched the authenticated pre-mutation owner and is now APPLIED_SOURCE.",
+    "Authenticated resulting owner blob is 82af7cc572d2a95624fb549c387946068483c7e3.",
+    "Owner-boundary regression remains source-only and now also pins snapshot-before-other-direct-call ordering.",
+    "No second receipt owner, projector, descriptor authority, phone execution path, or P0 coordinator was created."
+  ],
+  "evidenceDelta": {
+    "baseHead": "222423ce370b0f32db52b75e041052b082d176b1",
+    "reviewedHead": "7f2ecd7f286f888b4e8a0a105d175e01286e528e",
+    "commits": 7,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "workflowRunsObservedOnReviewedHead": 0,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
