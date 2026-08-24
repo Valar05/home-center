@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""RED source boundary for existing-owner receipt derivation custody.
+"""Source boundary for existing-owner receipt derivation custody.
 
-SOURCE ONLY. Current expected state: RED / owner integration not yet implemented.
+SOURCE ONLY. Current expected state: SOURCE_WIRED / regression execution unobserved.
 """
 
 import ast
@@ -53,16 +53,16 @@ def main() -> int:
 
     helper = functions.get(EXPECTED_HELPER)
     assert isinstance(helper, ast.FunctionDef), (
-        "RED: existing final receipt owner still lacks the derivation-custody reverification helper"
+        "existing final receipt owner must retain the derivation-custody reverification helper"
     )
     assert EXPECTED_POLICY_CALL in direct_call_names(helper), (
-        "RED: derivation helper must consume the supporting projection-derivation policy directly"
+        "derivation helper must consume the supporting projection-derivation policy directly"
     )
 
     build = functions.get("build_descriptor_shadow_operator_receipt")
     assert isinstance(build, ast.FunctionDef)
     assert EXPECTED_HELPER in direct_call_names(build), (
-        "RED: normal build path must run derivation custody directly before returning the final receipt"
+        "normal build path must retain direct derivation custody before returning the final receipt"
     )
     return 0
 
