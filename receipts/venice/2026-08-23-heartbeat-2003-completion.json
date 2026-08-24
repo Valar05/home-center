@@ -1,0 +1,16 @@
+{
+  "schema": "venice-judgment-completion-review.v1",
+  "checkpoint": "2026-08-23T20:03:54-05:00",
+  "reviewedSourceHead": "1864ef93f03d3d0f7e12541625c1f72fc4987899",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The new wound-evidence phase gate composes the existing self-integrity owner and sole projector rather than creating adjacent architecture.",
+    "Legitimate DESCRIPTOR_WOUND portable contact survives; early-stage wounds cannot claim later artifacts or descriptor work.",
+    "Hostile regression source and operator-command consumption source are durable but unexecuted, so TESTED remains NO.",
+    "The existing Warm Wall changed because the operator evidence topology materially changed; Christmas motion remains dark.",
+    "The P0/phone firewall remained untouched."
+  ],
+  "sheRaw": {"attempted": true, "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400", "substituteReviewer": false},
+  "executionTruth": {"automaticWorkflowsFailed": true, "stepLevelCauseEstablished": false, "manualRetry": false, "tested": false},
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
