@@ -1,0 +1,20 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "reviewMode": "same-worker-judgment-jar",
+  "result": "PLAN_ALLOWED",
+  "scope": "bounded non-P0 snapshot-custody source hardening",
+  "required": [
+    "preserve existing final-v4 receipt owner",
+    "do not create second receipt owner/projector/descriptor authority",
+    "fail closed on resource and exact-JSON wounds",
+    "do not promote source to TESTED/runtime/deployed/delivered",
+    "keep phone/P0 consumption and mutation at zero"
+  ],
+  "forbidden": [
+    "phone execution",
+    "P0 recovery mutation",
+    "manual CI retry",
+    "duplicate architecture",
+    "synthetic She-Raw verdict"
+  ]
+}
