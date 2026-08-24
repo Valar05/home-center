@@ -1,0 +1,26 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "timestampLocal": "2026-08-24T18:03:50-05:00",
+  "mode": "same-worker bounded Judgment Jar review",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "non-P0 TRY FOREVER repository/source work only",
+  "grounds": [
+    "The plan preserves the existing provenance path projector and descriptor-shadow receipt projector as owners; it does not create a neighboring controller/projector.",
+    "The first two fronts address a concrete operator-evidence/privacy portability risk and can be verified by source/readback plus hostile regression source without phone/runtime execution.",
+    "The snapshot-custody front is review-first and must stay dark if no concrete defect is established.",
+    "Phone/P0 execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain explicitly firewalled.",
+    "Any source artifact remains SOURCE/UNEXECUTED unless exact execution evidence proves otherwise."
+  ],
+  "constraints": {
+    "noPhoneP0Mutation": true,
+    "noDuplicateArchitecture": true,
+    "noRuntimeClaimFromSource": true,
+    "noDecorativeSkillLights": true,
+    "noDecorativeArtMutation": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstituteUsed": false
+  }
+}
