@@ -24,6 +24,7 @@ from typing import Mapping
 from try_forever_directory_handle_binding_capability import (
     current_directory_handle_binding_capability,
 )
+from try_forever_canonical_result_fingerprint import canonical_result_sha256
 from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactChangedError,
     GeneratedIndexArtifactResourceLimitError,
@@ -93,18 +94,7 @@ def _canonical_result_sha256(result: Mapping[str, object]) -> str:
     This fingerprint is evidence identity for the canonical result payload, not filesystem
     atomicity and not a replacement for canonical artifact-content custody.
     """
-
-    try:
-        encoded = json.dumps(
-            result,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-            allow_nan=False,
-        ).encode("utf-8")
-    except (TypeError, ValueError) as exc:
-        raise ValueError(f"canonical result is not deterministic JSON evidence: {exc}") from exc
-    return hashlib.sha256(encoded).hexdigest()
+    return canonical_result_sha256(result)
 
 
 def _portable_shadow_artifacts(
@@ -186,12 +176,12 @@ def audit_descriptor_shadow(
         max_entries=max_entries,
     )
     canonical_schema = portable.get("schema")
-    canonical_result_sha256 = _canonical_result_sha256(portable)
+    canonical_result_sha256_value = _canonical_result_sha256(portable)
     base: dict[str, object] = {
         "schema": SCHEMA,
         "canonicalAuthorityBackend": "PORTABLE_PATHNAME_REVALIDATION",
         "canonicalAuthoritySchema": canonical_schema,
-        "canonicalResultSha256": canonical_result_sha256,
+        "canonicalResultSha256": canonical_result_sha256_value,
         "canonicalEvidenceComplete": None,
         "canonicalArtifactDirectoryEntriesObserved": portable.get(
             "artifactDirectoryEntriesObserved"
