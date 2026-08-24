@@ -1,0 +1,15 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "checkpoint": "2026-08-24T08:04:00-05:00",
+  "reviewedSourceHead": "8964c22b66ac8982df7c8817bcaf4796e25dca08",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowSourceSliceYield": true,
+  "allowMerge": false,
+  "allowNativeOwnerPromotion": false,
+  "allowTestedPromotion": false,
+  "allowRuntimePromotion": false,
+  "reason": "The existing final descriptor-shadow operator receipt owner now reverifies exact upstream composition contracts during later receipt identity checks and can independently rebind a bounded receipt to explicitly supplied raw descriptor-shadow evidence without creating another owner. Review corrected the first raw-linkage design to require the raw mapping's own exact source schema. Regression source remains unexecuted; the neighboring native heartbeat selection/material-transition surgery remains review-ready/not-applied against the unchanged authenticated OperatorOverlayService base.",
+  "sheRaw": "faulted: account connection HTTP 400; no substitute verdict",
+  "phoneP0Firewall": "untouched",
+  "duplicateArchitecture": "none"
+}
