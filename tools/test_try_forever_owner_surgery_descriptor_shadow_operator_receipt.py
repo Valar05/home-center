@@ -188,7 +188,8 @@ def main() -> int:
         else:
             raise AssertionError("operator receipt command displayed contradictory raw evidence")
 
-        # A legitimate wound has no completed comparison-work receipt and no temporal proof.
+        # A legitimate descriptor wound preserves already-observed portable evidence but has no
+        # completed descriptor work and no temporal proof.
         wound_without_stale_proof = raw_match()
         wound_without_stale_proof.update({
             "status": "DESCRIPTOR_WOUND",
@@ -207,6 +208,34 @@ def main() -> int:
         assert wound_receipt["woundContextValidated"] is True
         assert wound_receipt["temporalReceiptContextAdmitted"] is False
         assert wound_receipt["rawMachineEvidenceBound"] is True
+        assert wound_receipt["portableArtifacts"]
+        assert wound_receipt["descriptorArtifacts"] == []
+
+        # The operator command must consume the new wound-phase gate, not merely null comparison
+        # booleans. Descriptor evidence/counters from a stage that never completed are counterfeit.
+        counterfeit_descriptor_phase = dict(wound_without_stale_proof)
+        counterfeit_descriptor_phase["descriptorArtifactCandidatesObserved"] = 1
+        owner.audit_descriptor_shadow = lambda **kwargs: counterfeit_descriptor_phase
+        try:
+            owner.build_descriptor_shadow_operator_receipt(ROOT)
+        except ValueError as exc:
+            assert "must not carry completed descriptor work counters" in str(exc)
+        else:
+            raise AssertionError("operator receipt command admitted descriptor work after descriptor wound")
+
+        early_wound_with_portable_evidence = dict(wound_without_stale_proof)
+        early_wound_with_portable_evidence.update({
+            "status": "CANONICAL_WOUND",
+            "canonicalEvidenceComplete": False,
+            "descriptorCapabilityStatus": None,
+        })
+        owner.audit_descriptor_shadow = lambda **kwargs: early_wound_with_portable_evidence
+        try:
+            owner.build_descriptor_shadow_operator_receipt(ROOT)
+        except ValueError as exc:
+            assert "must not carry portable artifact evidence from a later phase" in str(exc)
+        else:
+            raise AssertionError("operator receipt command admitted portable evidence after canonical wound")
 
         # No stale temporal proof may survive a wound/unavailable raw result.
         wounded = raw_match()
