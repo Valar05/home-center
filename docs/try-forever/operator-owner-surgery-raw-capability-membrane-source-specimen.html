@@ -7,7 +7,7 @@
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; }
     body { margin: 0; min-height: 100vh; background: #111; color: #f5f5f5; }
-    main { max-width: 58rem; margin: auto; padding: 1rem; }
+    main { max-width: 62rem; margin: auto; padding: 1rem; }
     h1 { font-size: 1.45rem; }
     .scar, #detail { border: 1px solid currentColor; padding: .9rem; }
     fieldset { border: 0; padding: 0; margin: 1rem 0; }
@@ -17,59 +17,54 @@
     label:focus-within { outline: 3px solid currentColor; outline-offset: 3px; }
     .token { font-weight: 900; }
     #detail { min-height: 8rem; white-space: pre-wrap; }
-    svg { display: block; width: 100%; max-height: 220px; margin: 1rem 0; }
+    svg { display: block; width: 100%; max-height: 230px; margin: 1rem 0; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
   </style>
 </head>
 <body>
 <main>
   <h1>WARM WALL / RAW + FINAL CAPABILITY MEMBRANES</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW v3: MACHINE EVIDENCE · RAW MEMBRANE v3: EXACT SCHEMA + CAPABILITY GATE · SELF-INTEGRITY OWNER: SOURCE WIRED · OPERATOR RECEIPT v4: FINAL CAPABILITY CLOSURE SOURCE WIRED · REGRESSIONS: SOURCE / UNEXECUTED · TESTED: NO · RUNTIME TALKBACK: NO · DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW v3 · RAW MEMBRANE v3 · SELF-INTEGRITY OWNER SOURCE WIRED · OPERATOR RECEIPT v4 FULL CORE+LATER CLOSURE SOURCE WIRED · FINAL OPERATOR NAMESPACE CUSTODY SOURCE WIRED · REGRESSIONS SOURCE/UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED NO · PHONE/P0 UNTOUCHED · CHRISTMAS BLINK NO</p>
 
-  <svg viewBox="0 0 900 220" role="img" aria-labelledby="cap-title cap-desc">
-    <title id="cap-title">Raw descriptor-shadow source identity and capability state pass two fail-closed evidence gates</title>
-    <desc id="cap-desc">Raw machine evidence first passes exact descriptor-shadow v3 source identity and capability denial. Existing self-integrity then projects bounded evidence. The final operator receipt explicitly closes deployed, callable, executed, delivered, and accepted to false without sanitizing an upstream overclaim.</desc>
-    <path d="M25 110 H185 M305 110 H425 M545 110 H665 M785 110 H875" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="185" y="65" width="120" height="90" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="425" y="65" width="120" height="90" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="665" y="65" width="120" height="90" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="20" y="85" fill="currentColor">RAW v3</text>
-    <text x="192" y="55" fill="currentColor">SCHEMA + CAPS</text>
-    <text x="435" y="55" fill="currentColor">SELF-AUDIT</text>
-    <text x="675" y="55" fill="currentColor">FINAL v4</text>
-    <text x="815" y="85" fill="currentColor">RECEIPT</text>
-    <text x="190" y="185" fill="currentColor">exact source</text>
-    <text x="430" y="185" fill="currentColor">owner wired</text>
-    <text x="670" y="185" fill="currentColor">explicit NO</text>
+  <svg viewBox="0 0 980 230" role="img" aria-labelledby="cap-title cap-desc">
+    <title id="cap-title">Raw descriptor-shadow evidence passes source, self-integrity, full capability, and final namespace gates</title>
+    <desc id="cap-desc">Raw v3 evidence first passes exact source and capability denial. Existing self-integrity produces bounded evidence. Final receipt v4 requires the entire core membrane already false, closes later capability states to explicit false, and rejects upstream collision with fields owned by the final operator command.</desc>
+    <path d="M20 115 H140 M270 115 H390 M520 115 H640 M770 115 H900" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="140" y="65" width="130" height="100" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="390" y="65" width="130" height="100" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="640" y="65" width="130" height="100" rx="14" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="18" y="88" fill="currentColor">RAW v3</text>
+    <text x="148" y="54" fill="currentColor">SCHEMA + CAPS</text>
+    <text x="402" y="54" fill="currentColor">SELF-AUDIT</text>
+    <text x="651" y="54" fill="currentColor">FINAL v4</text>
+    <text x="820" y="88" fill="currentColor">RECEIPT</text>
+    <text x="145" y="194" fill="currentColor">exact source</text>
+    <text x="395" y="194" fill="currentColor">bounded owner</text>
+    <text x="645" y="194" fill="currentColor">core+later NO</text>
+    <text x="802" y="194" fill="currentColor">namespace held</text>
   </svg>
 
   <fieldset>
     <legend>Inspect one evidence state</legend>
-    <label><input type="radio" name="cap" value="clean" checked><span><span class="token">● CLEAN RAW</span><br>Exact descriptor-shadow v3 source identity plus every required denied capability field exactly false. Admission grants no test/runtime/delivery capability.</span></label>
-    <label><input type="radio" name="cap" value="schema"><span><span class="token">× WRONG RAW SCHEMA</span><br>False-shaped fields are not enough. Missing, older, uppercase, padded, or otherwise wrong source schema stops at the raw membrane before capability admission.</span></label>
-    <label><input type="radio" name="cap" value="authority"><span><span class="token">× RAW AUTHORITY / MUTATION OVERCLAIM</span><br><code>descriptorAuthorityAdmitted=true</code> or <code>ownerMutation=true</code> fails at the existing self-integrity owner before the bounded projector can repaint it.</span></label>
-    <label><input type="radio" name="cap" value="tested"><span><span class="token">× RAW TESTED OVERCLAIM</span><br><code>tested=true</code> is contradictory raw machine evidence. It must stop before display; the projector is not allowed to repaint it false.</span></label>
-    <label><input type="radio" name="cap" value="runtime"><span><span class="token">× RAW RUNTIME OVERCLAIM</span><br><code>runtimeUi=true</code> or <code>runtimeTalkBack=true</code> cannot be sanitized into a source-only receipt.</span></label>
-    <label><input type="radio" name="cap" value="phone"><span><span class="token">× RAW PHONE OVERCLAIM</span><br><code>phoneDelivered=true</code> fails closed. The TRY FOREVER source lane has no phone/P0 delivery authority.</span></label>
-    <label><input type="radio" name="cap" value="missing"><span><span class="token">× REQUIRED MISSING ≠ FALSE</span><br>An absent required raw-v3 capability field is unknown evidence, not permission to assume false.</span></label>
-    <label><input type="radio" name="cap" value="later"><span><span class="token">● FINAL RECEIPT CLOSURE</span><br>Operator receipt v4 explicitly carries <code>deployed/callable/executed/delivered/accepted=false</code>. If any such field arrives upstream non-false, the final receipt rejects it instead of sanitizing it.</span></label>
-    <label><input type="radio" name="cap" value="owner"><span><span class="token">● EXISTING OWNERS SOURCE WIRED</span><br>The existing self-integrity owner consumes the raw membrane, and the existing operator receipt closes later capability states. Regressions remain source-only and unexecuted.</span></label>
+    <label><input type="radio" name="cap" value="clean" checked><span><span class="token">● CLEAN RAW</span><br>Exact descriptor-shadow v3 source identity plus every required raw denied capability field exactly false. Admission grants no test/runtime/delivery capability.</span></label>
+    <label><input type="radio" name="cap" value="schema"><span><span class="token">× WRONG RAW SCHEMA</span><br>False-shaped fields are not enough. Wrong source identity stops before capability admission.</span></label>
+    <label><input type="radio" name="cap" value="core"><span><span class="token">× FINAL CORE MISSING / POSITIVE</span><br>The final operator command requires authority, mutation, regression, TESTED, runtime, and phone core fields to already exist as exact false. Missing is unknown, not false.</span></label>
+    <label><input type="radio" name="cap" value="later"><span><span class="token">● FINAL LATER CLOSURE</span><br>Operator receipt v4 explicitly carries deployed/callable/executed/delivered/accepted=false. Any upstream non-false later claim fails instead of being repainted.</span></label>
+    <label><input type="radio" name="cap" value="namespace"><span><span class="token">× FINAL NAMESPACE COLLISION</span><br>Upstream bounded projection may not pre-populate the final receipt schema, raw-evidence digest/linkage, architecture declarations, phone/P0 authority field, or final receipt digest and rely on dictionary overwrite.</span></label>
+    <label><input type="radio" name="cap" value="owner"><span><span class="token">● EXISTING OWNERS SOURCE WIRED</span><br>The existing self-integrity owner remains the bounded evidence gate; the existing operator receipt now closes the full capability membrane and owns its final metadata namespace.</span></label>
     <label><input type="radio" name="cap" value="membrane"><span><span class="token">◇ CAPABILITY MEMBRANE</span><br>Source wiring is real. Regression execution, TESTED, runtime UI/TalkBack, deployment, callability, execution, delivery, acceptance, descriptor authority, and phone/P0 remain separate NO states.</span></label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite" aria-atomic="true">CLEAN RAW\nExact v3 source identity plus exact false-only core capability shape. No capability is promoted by admission.</div>
+  <div id="detail" role="status" aria-live="polite" aria-atomic="true">CLEAN RAW\nExact v3 source identity plus exact false-only raw capability shape. No capability is promoted by admission.</div>
   <script>
     const detail = document.getElementById('detail');
     const copy = {
       clean: 'CLEAN RAW\nExact descriptor-shadow v3 source identity plus every required denied field explicitly false. Owner source admission grants no testing, runtime, descriptor authority, or phone capability.',
-      schema: 'WRONG RAW SCHEMA\nA mapping with conservative-looking fields is still rejected unless its raw source schema is exactly descriptor-shadow v3. Source identity is evidence, not decoration.',
-      authority: 'RAW AUTHORITY / MUTATION OVERCLAIM\ndescriptorAuthorityAdmitted=true or ownerMutation=true fails before projection. The bounded display cannot sanitize contradictory authority.',
-      tested: 'RAW TESTED OVERCLAIM\ntested=true must be rejected before projection. A bounded receipt that prints tested=false is not a repair for contradictory source evidence.',
-      runtime: 'RAW RUNTIME OVERCLAIM\nruntimeUi/runtimeTalkBack=true is an integrity wound. Source-only display cannot launder it.',
-      phone: 'RAW PHONE OVERCLAIM\nphoneDelivered=true is rejected. The P0/phone firewall remains untouched and authoritative.',
-      missing: 'REQUIRED MISSING != FALSE\nUnknown required raw-v3 capability state is not false. Every core denied field must be explicit.',
-      later: 'FINAL RECEIPT CLOSURE\nOperator receipt v4 emits deployed/callable/executed/delivered/accepted as explicit false. Upstream non-false claims fail closed instead of being repainted.',
-      owner: 'EXISTING OWNERS SOURCE WIRED\nRaw membrane is consumed before bounded projection; operator receipt v4 closes the later capability envelope. Regressions remain unexecuted; TESTED/runtime remain NO.',
+      schema: 'WRONG RAW SCHEMA\nConservative-looking capability fields cannot compensate for wrong source identity.',
+      core: 'FINAL CORE MISSING / POSITIVE\nThe final operator receipt will not invent a missing false or sanitize a positive core claim. Core evidence must already be explicit and exact false.',
+      later: 'FINAL LATER CLOSURE\nOperator receipt v4 emits deployed/callable/executed/delivered/accepted as explicit false. Upstream non-false later claims fail closed.',
+      namespace: 'FINAL NAMESPACE COLLISION\nThe final operator command owns its schema, raw-evidence linkage/digest, architecture declarations, phone/P0 authority declaration, and final digest. Upstream projection cannot counterfeit then hide those fields through overwrite order.',
+      owner: 'EXISTING OWNERS SOURCE WIRED\nSelf-integrity remains the bounded projector gate. Final receipt v4 now verifies core state, closes later state, and rejects operator-owned namespace collisions. Regressions remain unexecuted.',
       membrane: 'CAPABILITY MEMBRANE\nSOURCE wiring YES. Regression source YES / UNEXECUTED. TESTED NO. Runtime TalkBack NO. Deployed/callable/executed/delivered/accepted NO. Descriptor authority NO. Phone/P0 untouched.'
     };
     for (const radio of document.querySelectorAll('input[name=cap]')) {
