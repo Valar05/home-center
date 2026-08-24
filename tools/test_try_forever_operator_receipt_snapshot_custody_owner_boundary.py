@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""RED / UNEXECUTED owner boundary for one-observation final-receipt verification custody.
+"""SOURCE_WIRED / UNEXECUTED owner boundary for one-observation receipt verification custody.
 
-The final v4 receipt owner currently accepts arbitrary Mapping instances and validates/hash-links them
-across multiple reads. Promotion is complete only when identity, raw-linkage, and derivation
-verification snapshot caller-owned receipt/raw mappings once before semantic/digest work.
+The final v4 receipt owner is now source-wired to snapshot caller-owned receipt/raw mappings before
+semantic, digest, raw-linkage, and derivation verification. This fixture proves direct owner-method
+consumption only; it is not regression execution, TESTED evidence, runtime proof, deployment,
+delivery, acceptance, or phone/P0 authority.
 """
 
 import ast
