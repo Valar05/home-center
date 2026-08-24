@@ -33,11 +33,12 @@ not pre-populate the final command's receipt schema, raw-evidence linkage, archi
 phone/P0 authority declaration, or final receipt digest and then rely on final dictionary ordering
 to overwrite the contradiction.
 
-The receipt owner also exposes one narrow identity verifier for its own v4 envelope. Verification
-recomputes ``operatorReceiptSha256`` over the complete bounded payload after removing only the digest
-field itself, and rechecks the final capability/evidence closure before trusting a matching digest.
-This is receipt-integrity evidence only: a valid digest does not grant authority, TESTED state,
-runtime capability, deployment, callability, execution, delivery, or acceptance.
+The receipt owner exposes narrow reverification helpers for its own v4 envelope. Identity
+reverification rechecks the exact upstream composition contracts plus the final capability/evidence
+closure before trusting a matching ``operatorReceiptSha256``. Raw-evidence reverification additionally
+binds an explicitly supplied raw machine-evidence mapping back to ``rawMachineEvidenceSha256``.
+Both helpers are evidence-integrity checks only: they do not grant authority, TESTED state, runtime
+capability, deployment, callability, execution, delivery, or acceptance.
 """
 
 from __future__ import annotations
@@ -155,7 +156,7 @@ def _require_final_receipt_contract(receipt: Mapping[str, object]) -> None:
 
 
 def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
-    """Verify deterministic identity and final membrane for one bounded v4 operator receipt.
+    """Verify deterministic identity and semantic custody for one bounded v4 operator receipt.
 
     This verifies receipt integrity only. It does not independently establish the truth of the raw
     machine evidence, grant descriptor authority, or advance TESTED/runtime/deployment/delivery state.
@@ -166,6 +167,7 @@ def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
     if receipt.get("operatorReceiptSchema") != SCHEMA:
         raise ValueError("operator receipt identity verification requires exact v4 schema")
 
+    _require_upstream_receipt_contract(receipt)
     _require_final_receipt_contract(receipt)
 
     claimed = receipt.get("operatorReceiptSha256")
@@ -193,6 +195,24 @@ def _require_upstream_receipt_contract(receipt: Mapping[str, object]) -> None:
             raise ValueError(
                 f"bounded descriptor-shadow receipt requires exact upstream {field}={value!r}"
             )
+
+
+def verify_operator_receipt_against_raw_evidence(
+    receipt: Mapping[str, object],
+    raw_result: Mapping[str, object],
+) -> bool:
+    """Verify one bounded v4 receipt against explicitly supplied raw machine evidence.
+
+    The receipt remains a bounded display/capability envelope and the raw result remains separate.
+    This helper verifies their deterministic SHA-256 linkage only after the receipt's own upstream,
+    semantic, capability, and digest custody passes. It does not grant authority or execution state.
+    """
+
+    verify_operator_receipt_identity(receipt)
+    expected_raw_sha256 = _raw_machine_evidence_sha256(raw_result)
+    if receipt.get("rawMachineEvidenceSha256") != expected_raw_sha256:
+        raise ValueError("rawMachineEvidenceSha256 does not match the supplied raw machine evidence")
+    return True
 
 
 def _require_final_capability_closure(receipt: Mapping[str, object]) -> None:
@@ -257,7 +277,7 @@ def build_descriptor_shadow_operator_receipt(
         **payload,
         "operatorReceiptSha256": _operator_receipt_sha256(payload),
     }
-    verify_operator_receipt_identity(final_receipt)
+    verify_operator_receipt_against_raw_evidence(final_receipt, raw_result)
     return final_receipt
 
 
