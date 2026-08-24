@@ -1,0 +1,26 @@
+# OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+# BASE_BLOB: b1da64ae3d50c26dd415d73e6000fb5ddda51183
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# PURPOSE: close final v4 receipt field namespace after exact raw/projection derivation
+
+diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+--- a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
++++ b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+@@
+ def verify_operator_receipt_derivation_against_raw_evidence(
+     repo_root: Path,
+     receipt: Mapping[str, object],
+     raw_result: Mapping[str, object],
+ ) -> bool:
+@@
+-    require_operator_receipt_projection_derivation(repo_root, receipt, raw_result)
++    require_operator_receipt_projection_derivation(
++        repo_root,
++        receipt,
++        raw_result,
++        allowed_extra_fields=(
++            *OPERATOR_OWNED_RECEIPT_FIELDS,
++            *FINAL_DENIED_CAPABILITY_FIELDS,
++        ),
++    )
+     return True
