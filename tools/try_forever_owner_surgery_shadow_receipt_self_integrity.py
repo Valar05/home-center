@@ -51,6 +51,14 @@ def _nonnegative_int(value: object, *, field: str) -> int:
     return value
 
 
+def _canonical_sha256(value: object, *, field: str) -> str:
+    if not isinstance(value, str) or SHA256_RE.fullmatch(value) is None:
+        raise ShadowReceiptSelfIntegrityError(
+            f"{field} must be 64 lowercase hexadecimal"
+        )
+    return value
+
+
 def _artifact_map(items: object, *, field: str) -> dict[str, tuple[int, str]]:
     if not isinstance(items, list):
         raise ShadowReceiptSelfIntegrityError(f"{field} must be one list")
@@ -273,7 +281,10 @@ def _temporal_receipt_projection(
         raise ShadowReceiptSelfIntegrityError(
             "temporalContentBinding must carry shadowReceiptContextAdmitted=true"
         )
-    canonical_sha = result.get("canonicalResultSha256")
+    canonical_sha = _canonical_sha256(
+        result.get("canonicalResultSha256"),
+        field="canonicalResultSha256",
+    )
     if temporal.get("canonicalResultSha256") != canonical_sha:
         raise ShadowReceiptSelfIntegrityError(
             "temporalContentBinding canonicalResultSha256 must match the shadow result"
