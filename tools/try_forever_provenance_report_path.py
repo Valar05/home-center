@@ -163,14 +163,19 @@ def project_serialized_report_path(
     """Project serialized path evidence without making host OS syntax an authority oracle.
 
     Serialized evidence can be reviewed on a different operating system than the one that produced
-    it. ``Path(path_text).is_absolute()`` alone is therefore insufficient: a Windows drive/UNC path
-    is not absolute to POSIX ``Path``, while a POSIX-rooted path is foreign syntax on Windows.
+    it. ``Path(path_text).is_absolute()`` alone is therefore insufficient: Windows drive, UNC,
+    drive-relative, and rooted path syntax is not interpreted consistently by POSIX ``Path``, while
+    POSIX-rooted text is foreign syntax on Windows.
 
     Current-host absolute paths still use ``project_report_path`` so an absolute path genuinely
-    inside the current repository can remain repository-relative. A path that is absolute only under
-    another platform's lexical rules is treated as external and receives the same constant privacy
+    inside the current repository can remain repository-relative. Path text that carries foreign
+    platform rooting or drive context is treated as external and receives the same constant privacy
     marker. All other text is accepted only through the already-authorized repository-relative
     channel; this function performs no filesystem lookup and grants no path authority.
+
+    A caller that has *already* established repository-relative authority for an unusual legal name
+    such as ``C:literal`` must use ``project_repository_relative_report_path`` instead. This boundary
+    is intentionally conservative because serialized drive/root context is host-dependent evidence.
     """
 
     _validate_budget(max_chars)
@@ -181,7 +186,13 @@ def project_serialized_report_path(
     if current.is_absolute():
         return project_report_path(repo_root, current, max_chars=max_chars)
 
-    if PurePosixPath(path_text).is_absolute() or PureWindowsPath(path_text).is_absolute():
+    windows = PureWindowsPath(path_text)
+    if (
+        PurePosixPath(path_text).is_absolute()
+        or windows.is_absolute()
+        or bool(windows.drive)
+        or bool(windows.root)
+    ):
         return ReportPathProjection(display_path="<external-path>", scope="EXTERNAL")
 
     return project_repository_relative_report_path(path_text, max_chars=max_chars)
