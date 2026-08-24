@@ -65,7 +65,19 @@
     "Capability membrane -> Warm Wall changed owner state while keeping regression/test/runtime/phone states dark."
   ],
   "executionTruth": {
-    "workflowRunsObservedOnReviewedSourceHead": 0,
+    "workflowRunsObservedOnReviewedSourceHead": 3,
+    "homeCenterCi": {"runId": 32777792761, "status": "completed", "conclusion": "failure"},
+    "buildAndroid": {"runId": 32777792692, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {
+      "runId": 32777792647,
+      "jobId": 97592760772,
+      "status": "completed",
+      "conclusion": "failure",
+      "stepsObserved": 0,
+      "jobLogs": "404 BlobNotFound"
+    },
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
     "regressionExecuted": false,
     "tested": false,
     "runtimeUi": false,
