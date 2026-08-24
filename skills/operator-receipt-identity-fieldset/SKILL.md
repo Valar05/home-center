@@ -22,6 +22,7 @@ This skill composes the existing final receipt owner, self-integrity owner, boun
 - `tools/try_forever_operator_receipt_identity_fieldset.py` defines the exact current self-integrity receipt vocabulary and the fail-closed final-union gate.
 - `tools/test_try_forever_operator_receipt_identity_fieldset.py` is SOURCE / UNEXECUTED and binds that vocabulary to the real existing self-integrity output while attacking undeclared, missing, and duplicate-declaration cases.
 - `tools/test_try_forever_operator_receipt_identity_fieldset_owner_boundary.py` is SOURCE / UNEXECUTED and requires direct existing-owner fieldset consumption; comments, strings, or nested-function counterfeits cannot satisfy the owner boundary.
+- `tools/test_try_forever_operator_receipt_identity_fieldset_owner_behavior.py` is SOURCE / UNEXECUTED and attacks the real identity/raw-linkage verifier with a re-signed hitchhiker field, so source-shape wiring and behavioral acceptance remain separate regression fronts.
 
 ## Existing-owner implementation
 `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` now imports `require_exact_final_receipt_fieldset(...)` and calls it directly from `_require_final_receipt_contract(...)` before deterministic digest trust.
@@ -40,7 +41,8 @@ Current owner consumption: **YES / SOURCE_WIRED**.
 - owner identity/raw-linkage fieldset consumption: **YES / SOURCE_WIRED**;
 - authenticated owner readback: **YES**;
 - supporting regression: **YES / UNEXECUTED**;
-- owner-boundary regression: **YES / UNEXECUTED**;
+- owner source-shape regression: **YES / UNEXECUTED**;
+- owner behavioral hitchhiker regression: **YES / UNEXECUTED**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
 - deployed/callable/executed/delivered/accepted: **NO**.
