@@ -36,24 +36,28 @@ It pins:
 - deterministic surrogate-bearing evidence;
 - rejection of non-finite numeric evidence.
 
-`tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` is **RED OWNER BOUNDARY / UNEXECUTED**.
-
-It requires the existing `try_forever_owner_surgery_descriptor_shadow_audit.py` fingerprint path to produce the shared policy result for surrogate-bearing canonical evidence. Until authenticated owner source consumes the shared policy, owner wiring is **NO**.
+`tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` remains **REGRESSION SOURCE / UNEXECUTED**. Its owner-wiring expectation is now satisfied by authenticated source, but the fixture has not executed and therefore grants no TESTED state.
 
 ## Owner truth
 Current owner: `tools/try_forever_owner_surgery_descriptor_shadow_audit.py`, schema `try-forever-owner-surgery-descriptor-shadow.v3`.
 
+Authenticated source wiring:
+- base owner blob before surgery: `92e916f8d64168990a221ca9d5469699ef6273b8`;
+- owner surgery commit: `f57e556e6025f93b6b3b01ec9cedac95868b28e7`;
+- resulting owner blob: `44bc3af31e645f33abf542139995c3707ef8e210`;
+- prepared patch provenance: `patches/try-forever-descriptor-shadow-canonical-result-fingerprint-owner.patch` = **APPLIED_SOURCE**.
+
 At this checkpoint:
 - supporting fingerprint policy: **YES / SOURCE**;
+- descriptor-shadow owner consumption: **YES / SOURCE_WIRED**;
 - hostile regression source: **YES / UNEXECUTED**;
-- owner-boundary regression: **YES / RED / UNEXECUTED**;
-- descriptor-shadow owner consumption: **NO**;
+- owner-boundary regression source: **YES / UNEXECUTED**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
 - deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Duplicate-architecture law
-Do not create a second descriptor shadow or second receipt projector. Future promotion must compose this policy into the existing `_canonical_result_sha256(...)` path or replace that local helper with the shared organ through an authenticated existing-owner mutation.
+Do not create a second descriptor shadow or second receipt projector. The existing descriptor-shadow owner consumes the shared canonical-result fingerprint policy; future work must preserve that ownership.
 
 ## P0 / phone firewall
 Consumes no Phone Hands, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.
