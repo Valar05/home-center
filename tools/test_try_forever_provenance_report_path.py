@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from try_forever_provenance_report_path import (
     project_report_path,
     project_repository_relative_report_path,
+    project_serialized_report_path,
 )
 
 
@@ -32,6 +33,37 @@ class ProvenanceReportPathTest(unittest.TestCase):
         projection = project_repository_relative_report_path("skills/swan/SKILL.md")
         self.assertEqual("skills/swan/SKILL.md", projection.display_path)
         self.assertEqual("REPOSITORY", projection.scope)
+
+    def test_serialized_foreign_windows_absolute_paths_never_become_repository_display(self) -> None:
+        drive = project_serialized_report_path(
+            Path("/srv/home-center"),
+            r"C:\Users\alice\private\receipt.json",
+        )
+        unc = project_serialized_report_path(
+            Path("/srv/home-center"),
+            r"\\server\share\private\receipt.json",
+        )
+        for projection in (drive, unc):
+            self.assertEqual("EXTERNAL", projection.scope)
+            self.assertEqual("<external-path>", projection.display_path)
+            self.assertNotIn("alice", projection.display_path)
+            self.assertNotIn("server", projection.display_path)
+
+    def test_serialized_repository_relative_path_that_contains_windows_like_text_stays_relative(self) -> None:
+        projection = project_serialized_report_path(
+            Path("/srv/home-center"),
+            r"patches/C:\literal-name.patch",
+        )
+        self.assertEqual("REPOSITORY", projection.scope)
+        self.assertEqual(r"patches/C:\\literal-name.patch", projection.display_path)
+
+    def test_serialized_posix_absolute_external_path_stays_private(self) -> None:
+        projection = project_serialized_report_path(
+            Path("/srv/home-center"),
+            "/home/alice/private/receipt.json",
+        )
+        self.assertEqual("EXTERNAL", projection.scope)
+        self.assertEqual("<external-path>", projection.display_path)
 
     def test_repository_relative_record_path_reveals_controls_and_escapes_literal_markers(self) -> None:
         projected_control = project_repository_relative_report_path(
