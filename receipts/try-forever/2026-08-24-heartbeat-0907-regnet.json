@@ -1,0 +1,68 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-24T09:07:33-05:00",
+  "reviewedSourceHead": "0bbd8c3844f78471914545a1f967f2d87f41348f",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "materialFindings": [
+    {
+      "id": "receipt-derivation-gap",
+      "state": "SUPPORTED_SOURCE",
+      "finding": "Final receipt identity plus raw-evidence SHA linkage do not prove bounded status/summary/comparison fields were derived from that supplied raw evidence. Supporting policy now recomputes the existing self-integrity/projector output and requires exact upstream-field parity."
+    },
+    {
+      "id": "owner-boundary",
+      "state": "RED_UNEXECUTED",
+      "finding": "Existing v4 final receipt owner does not yet expose or consume a derivation-custody reverification helper in its normal build path."
+    },
+    {
+      "id": "evidence-fixture-correction",
+      "state": "CORRECTED_SOURCE",
+      "finding": "The first RED owner-boundary fixture used ast.walk and did not truly prune nested function bodies. It was replaced with direct-body AST visitation so nested-function counterfeit calls cannot satisfy owner evidence."
+    },
+    {
+      "id": "duplicate-architecture",
+      "state": "PASS",
+      "finding": "No second final receipt owner, bounded projector, descriptor authority, overlay controller, recovery daemon, or phone path was created."
+    }
+  ],
+  "sourceCustody": {
+    "base": "d0b1f785b154d9f972756569f30c631020e75284",
+    "head": "0bbd8c3844f78471914545a1f967f2d87f41348f",
+    "commits": 8,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32737538560,
+    "operatorOverlayJob": 97463868745,
+    "status": "completed",
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "logs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "ownerDerivationIntegration": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
