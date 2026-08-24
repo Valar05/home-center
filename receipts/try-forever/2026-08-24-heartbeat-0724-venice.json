@@ -1,0 +1,15 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "checkpoint": "2026-08-24T07:24:00-05:00",
+  "reviewedSourceHead": "992732a39d87ae5a3e50936f7b03d520a59802ac",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowSourceSliceYield": true,
+  "allowMerge": false,
+  "allowNativeOwnerPromotion": false,
+  "allowTestedPromotion": false,
+  "allowRuntimePromotion": false,
+  "reason": "The existing final descriptor-shadow operator receipt owner now verifies deterministic receipt identity and rechecks the final semantic/capability membrane before trusting a matching digest. Hostile source proves raw-only machine-evidence drift changes both raw and final receipt identities and that a self-consistently re-signed capability counterfeit still fails closed. Regression execution remains unavailable; the neighboring native heartbeat surgery is still review-ready/not-applied against an unchanged authenticated owner blob.",
+  "sheRaw": "faulted: account connection HTTP 400; no substitute verdict",
+  "phoneP0Firewall": "untouched",
+  "duplicateArchitecture": "none"
+}
