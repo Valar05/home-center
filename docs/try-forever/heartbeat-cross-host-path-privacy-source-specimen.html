@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall — Cross-host path privacy</title>
+<style>
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#15130f;color:#f4efe4}body{margin:0;padding:24px;min-height:100vh}.wall{max-width:760px;margin:auto;border:2px solid currentColor;border-radius:24px;padding:20px;background:linear-gradient(180deg,#2b261d,#17140f)}h1{margin-top:0;font-size:1.5rem}.scar{font-family:ui-monospace,monospace;border:1px dashed currentColor;border-radius:12px;padding:12px;margin:12px 0}.choices{display:grid;gap:10px}.choice{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;min-height:56px;padding:10px 12px;border:1px solid currentColor;border-radius:14px;cursor:pointer}.choice:focus-within{outline:3px solid currentColor;outline-offset:3px}.choice input{width:22px;height:22px}.token{font-family:ui-monospace,monospace}.detail{margin-top:18px;min-height:88px;border-top:1px solid currentColor;padding-top:14px}.dim{opacity:.78}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}</style>
+</head>
+<body>
+<main class="wall">
+<h1>Warm Wall / Cross-host Path Privacy</h1>
+<p class="dim">SOURCE ONLY · descriptor-shadow owner UNWIRED · regressions UNEXECUTED · TESTED NO · runtime TalkBack NO · phone/P0 untouched</p>
+<div class="scar">reviewer-host syntax ≠ repository authority</div>
+<div class="choices" role="radiogroup" aria-label="Cross-host path evidence states">
+<label class="choice"><input type="radio" name="state" value="relative" checked><span><strong>REPOSITORY</strong><br><span class="token">patches/C:\literal-name.patch</span></span></label>
+<label class="choice"><input type="radio" name="state" value="drive"><span><strong>EXTERNAL</strong><br><span class="token">C:\Users\alice\private\receipt.json</span></span></label>
+<label class="choice"><input type="radio" name="state" value="unc"><span><strong>EXTERNAL</strong><br><span class="token">\\server\share\private\receipt.json</span></span></label>
+<label class="choice"><input type="radio" name="state" value="owner"><span><strong>OWNER WOUND</strong><br>Descriptor-shadow projector still uses host-local absolute-path detection.</span></label>
+</div>
+<section class="detail" id="detail" aria-live="polite" aria-atomic="true"></section>
+<script>
+const text={
+relative:'Already-authorized repository-relative identity stays repository evidence. Windows-looking characters alone do not make it external.',
+drive:'A serialized Windows drive path reviewed on POSIX must not leak through the repository-relative display channel. Display becomes the constant <external-path> marker.',
+unc:'A serialized UNC path is foreign host topology and receives the same constant non-fingerprinting external marker.',
+owner:'Supporting source and hostile regression exist. The existing descriptor-shadow projector has not yet consumed project_serialized_report_path(), so owner wiring remains NO.'
+};
+const detail=document.getElementById('detail');
+function render(){const picked=document.querySelector('input[name="state"]:checked');detail.textContent=text[picked.value];}
+document.querySelectorAll('input[name="state"]').forEach((input,index,all)=>{input.addEventListener('change',render);input.addEventListener('keydown',event=>{let next=null;if(event.key==='ArrowDown'||event.key==='ArrowRight')next=(index+1)%all.length;if(event.key==='ArrowUp'||event.key==='ArrowLeft')next=(index-1+all.length)%all.length;if(event.key==='Home')next=0;if(event.key==='End')next=all.length-1;if(next!==null){event.preventDefault();all[next].checked=true;all[next].focus();render();}})});render();
+</script>
+</main>
+</body>
+</html>
