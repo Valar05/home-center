@@ -16,6 +16,11 @@ deterministic SHA-256 binding to that exact raw payload; it does not embed the r
 or raw boundary prose. ``operatorReceiptSha256`` identifies the complete bounded operator payload
 emitted by this source command; neither digest is canonical artifact identity, promotion authority,
 TESTED evidence, runtime identity, filesystem atomicity, phone delivery, or acceptance.
+
+The bounded operator receipt also closes the later capability-state membrane explicitly. Deployed,
+callable, executed, delivered, and accepted describe the commissioned descriptor-shadow result, not
+whether this Python source function is invokable. They are always emitted as exact false here, and a
+contradictory upstream receipt carrying any of them as non-false is rejected rather than sanitized.
 """
 
 from __future__ import annotations
@@ -30,9 +35,11 @@ from try_forever_owner_surgery_descriptor_shadow_audit import audit_descriptor_s
 from try_forever_owner_surgery_shadow_receipt_self_integrity import (
     project_shadow_receipt_with_self_integrity,
 )
+from try_forever_shadow_raw_capability_membrane import OPTIONAL_DENIED_FALSE_FIELDS
 
 
-SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v3"
+SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v4"
+FINAL_DENIED_CAPABILITY_FIELDS = OPTIONAL_DENIED_FALSE_FIELDS
 
 
 def _deterministic_json_sha256(payload: Mapping[str, object], *, ensure_ascii: bool) -> str:
@@ -66,6 +73,21 @@ def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
     return _deterministic_json_sha256(payload, ensure_ascii=False)
 
 
+def _require_final_capability_closure(receipt: Mapping[str, object]) -> None:
+    """Reject an upstream later-capability overclaim before adding explicit receipt closure.
+
+    Absence is allowed at the bounded projector layer because these fields are additive to the raw
+    descriptor-shadow v3 contract. Once this operator command emits its v4 envelope, however, all
+    five later capability states become explicit exact-false receipt fields.
+    """
+
+    for field in FINAL_DENIED_CAPABILITY_FIELDS:
+        if field in receipt and receipt.get(field) is not False:
+            raise ValueError(
+                f"bounded descriptor-shadow receipt cannot sanitize upstream {field} capability"
+            )
+
+
 def build_descriptor_shadow_operator_receipt(
     repo_root: Path = Path("."),
     **audit_kwargs,
@@ -84,6 +106,7 @@ def build_descriptor_shadow_operator_receipt(
     raw_result = audit_descriptor_shadow(root=audit_root, **audit_kwargs)
     raw_machine_evidence_sha256 = _raw_machine_evidence_sha256(raw_result)
     receipt = project_shadow_receipt_with_self_integrity(repo_root, raw_result)
+    _require_final_capability_closure(receipt)
     payload: dict[str, object] = {
         **receipt,
         "operatorReceiptSchema": SCHEMA,
@@ -94,6 +117,7 @@ def build_descriptor_shadow_operator_receipt(
         "secondReceiptProjectorCreated": False,
         "secondDescriptorAuthorityCreated": False,
         "phoneP0MutationAuthority": False,
+        **{field: False for field in FINAL_DENIED_CAPABILITY_FIELDS},
     }
     return {
         **payload,
