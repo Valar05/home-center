@@ -50,7 +50,7 @@ def expect_reject(callable_, fragment):
 def main() -> int:
     original_audit = owner.audit_descriptor_shadow
     original_projection = owner.project_shadow_receipt_with_self_integrity
-    raw_state = {"schema": "raw-machine-evidence", "status": "RAW", "counter": 1}
+    raw_state = {"schema": owner.RAW_SHADOW_SCHEMA, "status": "RAW", "counter": 1}
 
     def fake_audit(**kwargs):
         assert kwargs["root"] == ROOT / owner.PATCH_ROOT
@@ -86,6 +86,15 @@ def main() -> int:
         expect_reject(
             lambda: owner.verify_operator_receipt_against_raw_evidence(first, raw_state),
             "does not match the supplied raw machine evidence",
+        )
+
+        # Supplied raw evidence must itself remain one exact descriptor-shadow source record. A
+        # self-consistent raw digest does not turn a different source contract into descriptor-shadow
+        # evidence merely because the bytes are hashable.
+        wrong_raw_schema = {**raw_state, "schema": f"{owner.RAW_SHADOW_SCHEMA}.counterfeit"}
+        expect_reject(
+            lambda: owner.verify_operator_receipt_against_raw_evidence(drifted, wrong_raw_schema),
+            "requires exact descriptor-shadow source schema",
         )
 
         # Final bounded-payload drift with a stale digest must fail verification. The verifier is
