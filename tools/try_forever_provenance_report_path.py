@@ -14,7 +14,7 @@ import hashlib
 import os
 import unicodedata
 from dataclasses import dataclass
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 MAX_REPORT_PATH_CHARS = 256
 MIN_REPORT_PATH_CHARS = 32
@@ -152,3 +152,36 @@ def project_report_path(
     if relative in ("", "."):
         relative = "."
     return project_repository_relative_report_path(relative, max_chars=max_chars)
+
+
+def project_serialized_report_path(
+    repo_root: Path,
+    path_text: str,
+    *,
+    max_chars: int = MAX_REPORT_PATH_CHARS,
+) -> ReportPathProjection:
+    """Project serialized path evidence without making host OS syntax an authority oracle.
+
+    Serialized evidence can be reviewed on a different operating system than the one that produced
+    it. ``Path(path_text).is_absolute()`` alone is therefore insufficient: a Windows drive/UNC path
+    is not absolute to POSIX ``Path``, while a POSIX-rooted path is foreign syntax on Windows.
+
+    Current-host absolute paths still use ``project_report_path`` so an absolute path genuinely
+    inside the current repository can remain repository-relative. A path that is absolute only under
+    another platform's lexical rules is treated as external and receives the same constant privacy
+    marker. All other text is accepted only through the already-authorized repository-relative
+    channel; this function performs no filesystem lookup and grants no path authority.
+    """
+
+    _validate_budget(max_chars)
+    if not isinstance(path_text, str) or not path_text:
+        raise ValueError("serialized report path must be one non-empty string")
+
+    current = Path(path_text)
+    if current.is_absolute():
+        return project_report_path(repo_root, current, max_chars=max_chars)
+
+    if PurePosixPath(path_text).is_absolute() or PureWindowsPath(path_text).is_absolute():
+        return ReportPathProjection(display_path="<external-path>", scope="EXTERNAL")
+
+    return project_repository_relative_report_path(path_text, max_chars=max_chars)
