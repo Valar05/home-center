@@ -23,6 +23,11 @@ callability/execution/delivery/acceptance fields remain additive upstream, but i
 already be exact false. The final command therefore never manufactures a false-looking receipt by
 repairing a missing/positive core claim or overwriting a contradictory later claim.
 
+The final command also binds itself to the exact existing upstream composition contracts it consumes:
+the sole bounded projector receipt schema, the raw descriptor-shadow source schema, and the
+self-integrity schema. A future or counterfeit upstream mapping cannot retain false-shaped capability
+fields while silently drifting one of those source contracts and still become a v4 operator receipt.
+
 Operator-owned receipt metadata is a separate namespace boundary. Upstream bounded projection must
 not pre-populate the final command's receipt schema, raw-evidence linkage, architecture declarations,
 phone/P0 authority declaration, or final receipt digest and then rely on final dictionary ordering
@@ -37,8 +42,15 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from try_forever_owner_surgery_custody_probe import PATCH_ROOT
-from try_forever_owner_surgery_descriptor_shadow_audit import audit_descriptor_shadow
+from try_forever_owner_surgery_descriptor_shadow_audit import (
+    SCHEMA as RAW_SHADOW_SCHEMA,
+    audit_descriptor_shadow,
+)
+from try_forever_owner_surgery_shadow_receipt_projection import (
+    RECEIPT_SCHEMA as PROJECTOR_RECEIPT_SCHEMA,
+)
 from try_forever_owner_surgery_shadow_receipt_self_integrity import (
+    SCHEMA as SELF_INTEGRITY_SCHEMA,
     project_shadow_receipt_with_self_integrity,
 )
 from try_forever_shadow_raw_capability_membrane import OPTIONAL_DENIED_FALSE_FIELDS
@@ -102,6 +114,21 @@ def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
     return _deterministic_json_sha256(payload, ensure_ascii=False)
 
 
+def _require_upstream_receipt_contract(receipt: Mapping[str, object]) -> None:
+    """Bind finalization to the exact existing raw/projector/self-integrity source contracts."""
+
+    expected = {
+        "schema": PROJECTOR_RECEIPT_SCHEMA,
+        "sourceSchema": RAW_SHADOW_SCHEMA,
+        "receiptSelfIntegritySchema": SELF_INTEGRITY_SCHEMA,
+    }
+    for field, value in expected.items():
+        if receipt.get(field) != value:
+            raise ValueError(
+                f"bounded descriptor-shadow receipt requires exact upstream {field}={value!r}"
+            )
+
+
 def _require_final_capability_closure(receipt: Mapping[str, object]) -> None:
     """Reject missing/contradictory capability state and final-command namespace collisions."""
 
@@ -146,6 +173,7 @@ def build_descriptor_shadow_operator_receipt(
     raw_result = audit_descriptor_shadow(root=audit_root, **audit_kwargs)
     raw_machine_evidence_sha256 = _raw_machine_evidence_sha256(raw_result)
     receipt = project_shadow_receipt_with_self_integrity(repo_root, raw_result)
+    _require_upstream_receipt_contract(receipt)
     _require_final_capability_closure(receipt)
     payload: dict[str, object] = {
         **receipt,
