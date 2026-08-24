@@ -1,0 +1,105 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-24T08:04:00-05:00",
+  "reviewedSourceHead": "8964c22b66ac8982df7c8817bcaf4796e25dca08",
+  "sourceDelta": {
+    "base": "1aa2b61e2bb69bd194154b6d8c497d429f705a37",
+    "commits": 8,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "name": "later receipt upstream-contract reverification",
+      "state": "SOURCE_WIRED",
+      "change": "verify_operator_receipt_identity now rechecks exact projector/raw/self-integrity contracts before digest trust"
+    },
+    {
+      "name": "receipt to supplied raw-evidence linkage",
+      "state": "SOURCE_WIRED",
+      "change": "same existing final owner now verifies explicit raw descriptor-shadow evidence against rawMachineEvidenceSha256"
+    },
+    {
+      "name": "raw source-contract admission correction",
+      "state": "SOURCE_WIRED",
+      "change": "code-first review tightened the raw linkage helper so hashable wrong-schema mappings fail closed"
+    },
+    {
+      "name": "hostile receipt identity regression",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "covers re-signed upstream schema drift, changed raw evidence, wrong raw schema, capability laundering, stale digest, and exact digest spelling"
+    },
+    {
+      "name": "operator receipt doctrine convergence",
+      "state": "SOURCE_WIRED",
+      "change": "existing skill now records build-time versus later reverification custody and raw-record contract/linkage distinctions"
+    },
+    {
+      "name": "native heartbeat owner boundary",
+      "state": "READ_ONLY_REAUTHENTICATED",
+      "change": "OperatorOverlayService remains blob c5de1411a6b68087ae17aff83c032af754587150; combined selection/material-transition surgery remains blob 2711576ae045b561ceae663184f705beb4c6d468 and is not applied"
+    },
+    {
+      "name": "execution truth",
+      "state": "TESTED_NO",
+      "change": "exact source head automatic workflows completed failure; Operator job has zero exposed steps and BlobNotFound logs, so no step-level cause is claimed"
+    }
+  ],
+  "skillLights": {
+    "failureIsTheShovel": "ACTIVE: build-time contract custody made later verifier custody suspicious",
+    "canonAutoSelect": "ACTIVE: reused existing final receipt owner, regression, and capability skill",
+    "autocorrectJudgmentJar": "DARK: no material token ambiguity",
+    "originalityTax": "ACTIVE: first raw-linkage design was corrected rather than accepted after review found missing raw source-schema admission",
+    "hunger": "ACTIVE: stale skill doctrine was forced to converge with authenticated owner/test blobs",
+    "everPolishedInterpreterEatEverything": "ACTIVE: self-consistent digest, upstream contract, and raw-evidence contract are now separate proof obligations",
+    "operatorCampaign": "ACTIVE: existing owners only; native owner remained read-only",
+    "harroway": "ACTIVE: exact source/readback/test/runtime boundaries preserved",
+    "sheRaw": "FAULT: authoritative attempt returned account-connection HTTP 400; no substitute verdict",
+    "venice": "ACTIVE: PLAN_ALLOWED before mutation; bounded completion gate recorded",
+    "regnet": "ACTIVE: code-first correction and bounded source-only PASS",
+    "accessibilityTalkBackTouch": "ACTIVE_CONSTRAINT: evidence remains bounded/non-routine-speech; no user-facing topology mutation",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED: consumption 0, mutation 0",
+    "deterministicRouting": "ACTIVE: raw evidence, bounded receipt, and exact source contracts have independent deterministic identities",
+    "evidenceCapabilityState": "ACTIVE: SOURCE_WIRED remains separate from regression execution, TESTED, runtime, deployed, callable, executed, delivered, accepted",
+    "recoveryCheckpointingIdempotence": "ACTIVE: internally valid old receipt can be distinguished from later changed raw evidence without rewriting either artifact",
+    "strangeNonRasterArt": "DARK: no operator-facing topology changed",
+    "warmWalls": "DARK: no new touch topology justified art churn",
+    "christmasLightSceneGraph": "DARK: evidence-only custody change earns no motion",
+    "contactPreservation": "ACTIVE: old internally valid receipt remains valid as itself but cannot be rebound to different later raw evidence"
+  },
+  "crossPollination": "Build-time upstream composition custody made the later identity verifier suspicious. Hardening that verifier exposed a second distinction: internal receipt identity is not raw-evidence linkage. Adding linkage then exposed a third distinction during Regnet review: a hashable mapping is not descriptor-shadow raw evidence without the exact raw source schema. Those three proof obligations converged inside the existing owner and skill while the native owner and P0/phone surfaces stayed untouched.",
+  "executionTruth": {
+    "operatorOverlayRun": 32731539003,
+    "operatorOverlayJob": 97444641147,
+    "operatorOverlaySteps": 0,
+    "operatorOverlayLogs": "404 BlobNotFound",
+    "homeCenterCiRun": 32731539046,
+    "buildAndroidRun": 32731539105,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "upstreamContractReverificationSourceWired": true,
+    "rawEvidenceReverificationSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "nativeOwnerPromotion": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
