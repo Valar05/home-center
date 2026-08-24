@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner-boundary regression for descriptor-shadow temporal status exactness.
+"""Owner-boundary regression for descriptor-shadow temporal status exactness.
 
-SOURCE ONLY. The exact status policy exists, but the existing receipt self-integrity owner has not yet
-been observed consuming it. This fixture must stay RED until authenticated owner source rejects an
-unknown temporal status before bounded operator projection.
+SOURCE ONLY / UNEXECUTED. Authenticated owner source now consumes the exact temporal-status policy.
+This fixture preserves the boundary by requiring an unknown temporal status to fail before bounded
+operator projection. Source wiring is not regression execution or TESTED evidence.
 """
 
 from pathlib import Path
