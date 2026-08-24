@@ -8,6 +8,8 @@ machine-evidence mapping?
 
 Raw machine evidence remains separate. Final operator-envelope identity, raw-evidence SHA linkage,
 capability closure, deployment, runtime, phone delivery, and acceptance remain owned elsewhere.
+When the final owner supplies ``allowed_extra_fields``, this gate also closes the field namespace:
+exact derivation is then exact fields, not merely an expected-field subset inside a re-signed envelope.
 """
 
 from __future__ import annotations
@@ -32,12 +34,17 @@ def require_operator_receipt_projection_derivation(
     repo_root: Path,
     receipt: Mapping[str, object],
     raw_result: Mapping[str, object],
+    *,
+    allowed_extra_fields: tuple[str, ...] | None = None,
 ) -> dict[str, object]:
     """Recompute the existing bounded upstream projection and require exact field parity.
 
-    This gate intentionally owns only the upstream bounded projection fields returned by the existing
-    self-integrity/projector chain. Final operator-owned fields may coexist in ``receipt`` but are not
-    created, rewritten, or promoted here.
+    By default this supporting gate owns only the upstream bounded projection fields returned by the
+    existing self-integrity/projector chain. Final operator-owned fields may coexist in ``receipt``.
+    When the final owner supplies ``allowed_extra_fields``, the complete receipt field namespace must
+    equal ``derived projection fields + allowed final fields`` exactly. This prevents a counterfeit
+    from adding an undeclared field, re-signing the final receipt digest, and passing derivation as a
+    mere subset check.
     """
 
     if not isinstance(receipt, Mapping):
@@ -52,6 +59,10 @@ def require_operator_receipt_projection_derivation(
         raise OperatorReceiptDerivationError(
             "existing self-integrity/projector chain must return one non-empty mapping"
         )
+    if any(not isinstance(field, str) for field in expected):
+        raise OperatorReceiptDerivationError("derived projection field names must be strings")
+    if any(not isinstance(field, str) for field in receipt):
+        raise OperatorReceiptDerivationError("operator receipt field names must be strings")
 
     for field, expected_value in expected.items():
         if field not in receipt:
@@ -63,10 +74,33 @@ def require_operator_receipt_projection_derivation(
                 f"operator receipt upstream field {field} does not derive from supplied raw evidence"
             )
 
+    fieldset_closed = allowed_extra_fields is not None
+    if fieldset_closed:
+        if any(not isinstance(field, str) or not field for field in allowed_extra_fields):
+            raise OperatorReceiptDerivationError(
+                "allowed final receipt field names must be non-empty strings"
+            )
+        if len(set(allowed_extra_fields)) != len(allowed_extra_fields):
+            raise OperatorReceiptDerivationError("allowed final receipt field names must be unique")
+
+        allowed_fields = set(expected) | set(allowed_extra_fields)
+        actual_fields = set(receipt)
+        unexpected = sorted(actual_fields - allowed_fields)
+        missing = sorted(allowed_fields - actual_fields)
+        if unexpected:
+            raise OperatorReceiptDerivationError(
+                "operator receipt carries undeclared field(s): " + ", ".join(unexpected)
+            )
+        if missing:
+            raise OperatorReceiptDerivationError(
+                "operator receipt is missing declared field(s): " + ", ".join(missing)
+            )
+
     return {
         "schema": SCHEMA,
         "projectionFieldsVerified": len(expected),
         "projectionDerivedFromRaw": True,
+        "receiptFieldsetClosed": fieldset_closed,
         "rawMachineEvidenceEmbedded": False,
         "secondReceiptProjectorCreated": False,
         "secondDescriptorAuthorityCreated": False,
