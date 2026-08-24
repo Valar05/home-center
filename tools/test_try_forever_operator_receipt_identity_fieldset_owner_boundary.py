@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED SOURCE/UNEXECUTED owner boundary for final-v4 identity field-set custody.
+"""SOURCE / UNEXECUTED owner boundary for final-v4 identity field-set custody.
 
-This fixture is intentionally red until the existing final receipt owner consumes the supporting
-fieldset gate inside its ordinary final-receipt contract, before digest trust. It proves source shape
-only; it is not runtime or TESTED evidence.
+The existing final receipt owner is now source-wired to consume the supporting fieldset gate inside
+its ordinary final-receipt contract, before digest trust. This fixture proves that source shape only;
+it is not runtime or TESTED evidence.
 """
 
 import ast
@@ -57,9 +57,9 @@ def main() -> int:
     final_contract = direct_function(tree, "_require_final_receipt_contract")
     calls = direct_calls(final_contract)
 
-    assert imports_gate, "RED: final receipt owner has not imported exact identity fieldset custody"
+    assert imports_gate, "final receipt owner must import exact identity fieldset custody"
     assert "require_exact_final_receipt_fieldset" in calls, (
-        "RED: final receipt contract does not close the exact field namespace before identity trust"
+        "final receipt contract must close the exact field namespace before identity trust"
     )
 
     identity = direct_function(tree, "verify_operator_receipt_identity")
