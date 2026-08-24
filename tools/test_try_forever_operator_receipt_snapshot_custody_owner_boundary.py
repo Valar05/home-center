@@ -3,8 +3,8 @@
 
 The final v4 receipt owner is now source-wired to snapshot caller-owned receipt/raw mappings before
 semantic, digest, raw-linkage, and derivation verification. This fixture proves direct owner-method
-consumption only; it is not regression execution, TESTED evidence, runtime proof, deployment,
-delivery, acceptance, or phone/P0 authority.
+consumption and ordering only; it is not regression execution, TESTED evidence, runtime proof,
+deployment, delivery, acceptance, or phone/P0 authority.
 """
 
 import ast
@@ -68,6 +68,9 @@ def main() -> int:
             if call_name(call) in {"snapshot_json_mapping", "snapshot_verification_inputs"}
         ]
         assert snapshots, f"{name} does not establish one-observation snapshot custody"
+        assert calls and calls[0] is snapshots[0], (
+            f"{name} performs another direct call before snapshot custody"
+        )
 
         referenced_inputs = {
             argument.id
