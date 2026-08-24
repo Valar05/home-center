@@ -1,0 +1,13 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "heartbeat": "2026-08-23T23:01:00-05:00",
+  "subject": "descriptor-shadow temporal status exactness",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "The correction is a receipt-integrity gate over an existing temporal policy state vocabulary, not a new temporal owner.",
+    "Unknown temporal status text is a distinct evidence defect from canonical-result fingerprint custody and can advance independently.",
+    "Hostile regression plus a RED owner boundary preserve source versus owner-wired versus TESTED truth.",
+    "P0/phone and duplicate-architecture firewalls remain unchanged."
+  ],
+  "hardGate": "do not promote unknown status rejection into TESTED or runtime capability without execution evidence"
+}
