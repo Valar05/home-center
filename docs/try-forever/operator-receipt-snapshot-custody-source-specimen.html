@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Receipt Snapshot Custody — Source Specimen</title>
+<style>
+:root{font-family:system-ui,sans-serif;background:#181818;color:#f4f1e8}body{margin:0;padding:24px;max-width:880px}h1{font-size:1.35rem}.scar{border:2px solid currentColor;padding:14px;margin:16px 0}.states{display:grid;gap:10px}.state{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center;min-height:56px;padding:8px 12px;border:1px solid currentColor;border-radius:10px;cursor:pointer}.state:focus-within{outline:3px solid currentColor;outline-offset:3px}.state input{width:24px;height:24px}.detail{min-height:120px;border-left:4px solid currentColor;padding:12px 16px;margin-top:18px;white-space:pre-wrap}.flow{font-family:ui-monospace,monospace;overflow:auto;padding:12px 0}small{display:block;line-height:1.45}</style>
+</head>
+<body>
+<h1>WARM WALL / ONE OBSERVATION</h1>
+<div class="scar"><strong>SOURCE ONLY</strong><small>OWNER UNWIRED · REGRESSION UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</small></div>
+<div class="flow" aria-label="receipt verification custody flow">CALLER MAPPING → SNAPSHOT → SEMANTIC GATE → DIGEST → RAW LINKAGE → DERIVATION</div>
+<div class="states" role="radiogroup" aria-label="Snapshot custody states">
+<label class="state"><input type="radio" name="state" value="split" checked><span><strong>× SPLIT VIEW</strong><br>Semantic get() says false; signed storage says true.</span></label>
+<label class="state"><input type="radio" name="state" value="snapshot"><span><strong>● SNAPSHOT HELD</strong><br>One plain JSON-shaped observation owns later verification.</span></label>
+<label class="state"><input type="radio" name="state" value="raw"><span><strong>◇ RAW DETACHED</strong><br>Nested raw evidence cannot mutate after linkage and before derivation.</span></label>
+<label class="state"><input type="radio" name="state" value="owner"><span><strong>□ OWNER GAP</strong><br>Existing final-v4 owner does not consume snapshot custody yet.</span></label>
+</div>
+<div id="detail" class="detail" role="status" aria-live="polite"></div>
+<script>
+const copy={
+ split:'WOUND\nA stateful Mapping can present one value to semantic checks and another to the payload later materialized for hashing.',
+ snapshot:'SOURCE CONTRACT\nCapture once. Validate, hash, link, and derive only from the captured object graph.',
+ raw:'CONTACT PRESERVATION\nNested lists/mappings are detached. Later caller mutation cannot rewrite the evidence after SHA linkage.',
+ owner:'CAPABILITY MEMBRANE\nSupporting source + hostile regression + exact owner surgery exist. Existing owner consumption remains NO.'
+};
+const radios=[...document.querySelectorAll('input[name=state]')];
+function show(){const r=radios.find(x=>x.checked);document.getElementById('detail').textContent=copy[r.value];}
+radios.forEach((r,i)=>{r.addEventListener('change',show);r.addEventListener('keydown',e=>{let n=null;if(e.key==='ArrowDown'||e.key==='ArrowRight')n=(i+1)%radios.length;if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=(i+radios.length-1)%radios.length;if(e.key==='Home')n=0;if(e.key==='End')n=radios.length-1;if(n!==null){e.preventDefault();radios[n].checked=true;radios[n].focus();show();}})});show();
+</script>
+</body>
+</html>
