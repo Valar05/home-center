@@ -28,6 +28,9 @@ from try_forever_owner_surgery_descriptor_shadow_audit import (
     SUPPORTED,
 )
 from try_forever_owner_surgery_shadow_receipt_projection import project_shadow_receipt
+from try_forever_shadow_raw_capability_membrane import (
+    require_raw_shadow_capability_membrane,
+)
 
 
 SCHEMA = "try-forever-owner-surgery-shadow-receipt-self-integrity.v2"
@@ -411,6 +414,10 @@ def project_shadow_receipt_with_self_integrity(
         raise ShadowReceiptSelfIntegrityError(
             "self-integrity requires exact descriptor-shadow v3 source"
         )
+
+    # Raw capability contradictions must fail closed before the bounded projector can replace them
+    # with conservative false output fields. Projection is not capability repair.
+    require_raw_shadow_capability_membrane(result)
 
     status = result.get("status")
     if not isinstance(status, str) or not status:
