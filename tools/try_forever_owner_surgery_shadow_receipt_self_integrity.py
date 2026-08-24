@@ -4,14 +4,15 @@
 This supporting organ does not create a second descriptor authority or receipt projector. It
 recomputes the comparison claims already carried by descriptor-shadow v3, validates the exact
 completed-comparison context, validates wound/unavailable status against the canonical/capability
-context that can actually produce that status, checks the already-wired temporal receipt context,
-and then delegates operator display to ``project_shadow_receipt``.
+context and evidence phase that can actually produce that status, checks the already-wired temporal
+receipt context, and then delegates operator display to ``project_shadow_receipt``.
 
 The purpose is narrow: a display receipt must not say MATCH merely because three booleans say so when
 the artifact evidence, work metrics, or temporal receipt contradict those booleans. Likewise, a
-wound label must not be accepted when its canonical/capability context describes a different state.
-Raw evidence is left untouched. Promotion authority, TESTED, runtime, deployment, phone delivery,
-and acceptance are never granted here.
+wound label must not be accepted when its canonical/capability context or artifact/counter phase
+describes work that could not have completed before that wound. Raw evidence is left untouched.
+Promotion authority, TESTED, runtime, deployment, phone delivery, and acceptance are never granted
+here.
 """
 
 from __future__ import annotations
@@ -193,6 +194,69 @@ def _require_wound_context(result: Mapping[str, object], status: str) -> None:
     )
 
 
+def _validate_wound_evidence_phase(result: Mapping[str, object], status: str) -> None:
+    """Require pre-comparison evidence to match the pipeline phase where the wound occurred.
+
+    ``None`` comparison booleans prove only that a comparison did not complete; they do not prove
+    that artifact/counter evidence came from a stage that was actually reached. Early wounds must
+    not carry later artifact observations. ``DESCRIPTOR_WOUND`` is intentionally different: portable
+    staging completed before descriptor custody failed, so already-observed portable artifacts are
+    preserved as diagnostic contact while descriptor evidence/counters remain unavailable.
+    """
+
+    portable = result.get("portableShadowArtifacts")
+    descriptor = result.get("descriptorArtifacts")
+    if not isinstance(portable, list) or not isinstance(descriptor, list):
+        raise ShadowReceiptSelfIntegrityError(
+            "wound artifact evidence must remain list-shaped"
+        )
+
+    descriptor_entries = result.get("descriptorArtifactDirectoryEntriesObserved")
+    descriptor_candidates = result.get("descriptorArtifactCandidatesObserved")
+    if descriptor_entries is not None or descriptor_candidates is not None:
+        raise ShadowReceiptSelfIntegrityError(
+            f"{status} must not carry completed descriptor work counters"
+        )
+
+    no_artifact_phase = {
+        "CANONICAL_SCHEMA_WOUND",
+        "CANONICAL_WOUND",
+        "DESCRIPTOR_UNAVAILABLE",
+        "CAPABILITY_WOUND",
+        "PORTABLE_SHADOW_WOUND",
+    }
+    if status in no_artifact_phase:
+        if portable:
+            raise ShadowReceiptSelfIntegrityError(
+                f"{status} must not carry portable artifact evidence from a later phase"
+            )
+        if descriptor:
+            raise ShadowReceiptSelfIntegrityError(
+                f"{status} must not carry descriptor artifact evidence from a later phase"
+            )
+        return
+
+    if status == "DESCRIPTOR_WOUND":
+        if descriptor:
+            raise ShadowReceiptSelfIntegrityError(
+                "DESCRIPTOR_WOUND must not carry descriptor artifact evidence from an incomplete descriptor stage"
+            )
+        portable_map = _artifact_map(portable, field="portableShadowArtifacts")
+        canonical_candidates = _nonnegative_int(
+            result.get("canonicalArtifactCandidatesObserved"),
+            field="canonicalArtifactCandidatesObserved",
+        )
+        if len(portable_map) != canonical_candidates:
+            raise ShadowReceiptSelfIntegrityError(
+                "DESCRIPTOR_WOUND portable artifact evidence cardinality must equal canonical candidate count"
+            )
+        return
+
+    raise ShadowReceiptSelfIntegrityError(
+        f"wound evidence phase is not defined for status: {status!r}"
+    )
+
+
 def _recompute_completed_comparisons(
     result: Mapping[str, object],
 ) -> tuple[bool, bool, bool]:
@@ -366,6 +430,7 @@ def project_shadow_receipt_with_self_integrity(
         comparison_recomputed = True
     else:
         _require_wound_context(result, status)
+        _validate_wound_evidence_phase(result, status)
         if "temporalContentBinding" in result or "temporalBindingProven" in result:
             raise ShadowReceiptSelfIntegrityError(
                 "non-comparison wound/unavailable receipt must not carry temporal binding evidence"
