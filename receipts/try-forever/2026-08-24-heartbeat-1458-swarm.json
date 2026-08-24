@@ -1,0 +1,111 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "timestamp": "2026-08-24T15:10:00-05:00",
+  "reviewedSourceHead": "f5965ad48e92a122a740cb2dcd1986ce52ce1d41",
+  "planCommit": "39b12fb4f743953d7e40f43a13460d6ef213172b",
+  "sourceDelta": {
+    "commitsAfterPlan": 9,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_operator_receipt_snapshot_custody.py",
+      "tools/test_try_forever_operator_receipt_snapshot_custody.py",
+      "tools/test_try_forever_operator_receipt_snapshot_custody_owner_boundary.py",
+      "patches/try-forever-operator-receipt-snapshot-custody-owner.patch",
+      "skills/operator-receipt-snapshot-custody/SKILL.md",
+      "docs/try-forever/operator-receipt-snapshot-custody-source-specimen.html"
+    ]
+  },
+  "fronts": [
+    {
+      "id": "receipt-one-observation-custody",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Stateful Mapping semantic view can no longer be treated as equivalent to a stable signed view by the supporting organ; one plain JSON-shaped snapshot detaches nested caller-owned structure."
+    },
+    {
+      "id": "hostile-regression",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "Added stateful get() spoof, nested mutation, surrogate, non-finite/non-JSON, and deterministic recursion-containment fixtures."
+    },
+    {
+      "id": "owner-boundary",
+      "state": "RED_UNEXECUTED",
+      "changed": "Direct owner evidence now requires identity, raw-linkage, and derivation verifiers to consume snapshot custody. The first AST walker was corrected so nested functions/lambdas cannot counterfeit owner wiring."
+    },
+    {
+      "id": "owner-surgery",
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "changed": "Preserved one exact surgery against authenticated existing-owner blob 34eee8e633356b012d773712ad14179b77baa3c2; no second receipt owner/projector/descriptor authority."
+    },
+    {
+      "id": "durable-skill",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Harvested operator-receipt-snapshot-custody doctrine including one-observation, nested-detachment, recursion containment, duplicate-architecture, and capability-membrane laws."
+    },
+    {
+      "id": "touchable-source-organism",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Added non-raster keyboard/radio Warm Wall showing SPLIT VIEW → SNAPSHOT HELD → RAW DETACHED → OWNER GAP, explicitly source-only."
+    },
+    {
+      "id": "review-evidence",
+      "state": "DURABLE",
+      "changed": "Regnet and Venice receipts preserve owner-unwired/test-unexecuted truth; She-Raw authoritative attempt faulted HTTP 400 without synthetic replacement."
+    }
+  ],
+  "workflowEvidence": {
+    "sourceHead": "f5965ad48e92a122a740cb2dcd1986ce52ce1d41",
+    "homeCenterCi": {"runId": 32772137991, "status": "completed", "conclusion": "failure"},
+    "buildAndroid": {"runId": 32772138111, "status": "completed", "conclusion": "failure"},
+    "operatorOverlay": {"runId": 32772138110, "jobId": 97574689585, "status": "completed", "conclusion": "failure", "steps": 0, "logs": "404 BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "lights": {
+    "failureIsTheShovel": "LIT: moved from completed fieldset work to verifier observation custody",
+    "canonAutoSelect": "LIT: selected receipt-integrity, hostile-regression, skill, touch, and review fronts",
+    "autocorrectJudgmentJar": "DARK: no material token ambiguity",
+    "originalityTax": "LIT: corrected nested-AST counterfeit and recursion escape instead of repeating first designs",
+    "hungerEatEverything": "LIT: propagated source truth into regression, skill, patch, art, and reviews",
+    "operatorCampaign": "LIT: preserved the sole final-v4 receipt owner",
+    "harroway": "LIT: exact owner/readback/capability membrane maintained",
+    "sheRaw": "FAULT: authoritative account connection HTTP 400",
+    "venice": "LIT: bounded same-worker completion judgment; campaign continues",
+    "regnet": "LIT: supporting source pass, owner revision required, regressions unexecuted",
+    "accessibilityTalkBackTouch": "LIT: source organism uses radio/keyboard/large-target semantics; runtime TalkBack unclaimed",
+    "phoneRuntimePhoneHandsRecovery": "FIREWALLED_DARK: no P0/phone surface consumed",
+    "deterministicRouting": "LIT: one caller observation must feed later verification",
+    "evidenceCapabilityDiscipline": "LIT: prepared patch != owner wiring; regression source != TESTED",
+    "recoveryCheckpointIdempotence": "LIT: later caller mutation cannot rewrite the captured verification evidence",
+    "vectorDomNativeArt": "LIT: non-raster source specimen",
+    "warmWalls": "LIT: touchable snapshot-custody wall",
+    "christmasLightSceneGraph": "DARK: no transition/motion contract changed",
+    "contactPreservation": "LIT: exact evidence is held without normalization/replacement"
+  },
+  "crossPollination": "Final fieldset custody made the verifier's repeated Mapping reads suspicious; stateful-Mapping regression exposed semantic-view versus signed-view drift; nested raw mutation extended the law to derivation; code-first review exposed nested AST counterfeit evidence and recursion escape; those scars propagated into the skill, exact owner surgery, and touchable Warm Wall while the P0 firewall stayed closed.",
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerSnapshotWiring": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SNAPSHOT_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
