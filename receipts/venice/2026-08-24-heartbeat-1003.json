@@ -1,0 +1,14 @@
+{
+  "schema": "venice-judgment-receipt.v1",
+  "heartbeat": "2026-08-24T10:03:00-05:00",
+  "reviewedSourceHead": "43b2cf2296e7b678ac5bf5e5c625cdb6c373ef10",
+  "reviewMode": "same-worker-judgment-jar",
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_FIELDSET_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "A distinct evidence wound was proven from authenticated owner source rather than inferred from policy prose.",
+    "Multiple non-P0 fronts advanced: supporting policy, hostile fixtures, RED owner boundary, exact patch provenance, skill doctrine, and touchable source art.",
+    "The actual final receipt owner is unchanged, so exact-fieldset owner wiring remains NO.",
+    "Phone/P0 and duplicate-architecture firewalls remained closed."
+  ]
+}
