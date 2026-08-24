@@ -31,6 +31,7 @@ from try_forever_owner_surgery_shadow_receipt_projection import project_shadow_r
 from try_forever_shadow_raw_capability_membrane import (
     require_raw_shadow_capability_membrane,
 )
+from try_forever_shadow_temporal_status_contract import admit_temporal_status
 
 
 SCHEMA = "try-forever-owner-surgery-shadow-receipt-self-integrity.v2"
@@ -376,11 +377,7 @@ def _temporal_receipt_projection(
                 f"temporalContentBinding must carry {field}=false"
             )
 
-    status = temporal.get("status")
-    if not isinstance(status, str) or not status:
-        raise ShadowReceiptSelfIntegrityError(
-            "temporalContentBinding status must be one non-empty string"
-        )
+    status = admit_temporal_status(temporal.get("status"))
     proven = temporal.get("temporalBindingProven")
     if not isinstance(proven, bool):
         raise ShadowReceiptSelfIntegrityError(
