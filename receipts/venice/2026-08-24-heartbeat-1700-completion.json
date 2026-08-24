@@ -1,0 +1,14 @@
+{
+  "schema": "venice-judgment-jar-completion.v1",
+  "reviewMode": "same-worker-judgment-jar",
+  "reviewedSourceHead": "fb79bd5cf0664c323aa9548211c94f503e6d5464",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "summary": "The bounded source slice materially improves exact JSON evidence and resource custody through the existing final-v4 owner path. The source/art/doctrine changes may yield; regression execution, TESTED, runtime, deployment, delivery and acceptance remain open.",
+  "constraintsHeld": {
+    "duplicateArchitecture": false,
+    "phoneP0Touched": false,
+    "manualWorkflowRetry": false,
+    "sourcePromotedToTested": false,
+    "syntheticSheRaw": false
+  }
+}
