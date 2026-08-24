@@ -1,0 +1,48 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "timestamp": "2026-08-24T15:08:00-05:00",
+  "reviewedSourceHead": "f5965ad48e92a122a740cb2dcd1986ce52ce1d41",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "boundedClaimsPassed": [
+    "One-observation JSON snapshot custody exists as supporting source.",
+    "Snapshot custody detaches nested caller-owned structure and retains hostile surrogate-shaped evidence without replacement.",
+    "Non-finite/non-JSON/recursion failures stay inside the typed custody boundary.",
+    "Hostile regression source exists for stateful Mapping, nested mutation, hostile Unicode, non-finite values, and recursion containment.",
+    "Existing-owner RED boundary uses direct-function AST evidence and excludes nested function/lambda counterfeits.",
+    "Exact existing-owner surgery is preserved against authenticated owner blob 34eee8e633356b012d773712ad14179b77baa3c2.",
+    "Touchable non-raster source organism exists and declares owner/test/runtime/phone boundaries."
+  ],
+  "reviewScars": [
+    "The first owner-boundary AST walker used ast.walk and did not truly stop descent into nested functions; corrected before review completion.",
+    "Code-first review added RecursionError containment so over-nested JSON snapshot work cannot escape the typed custody boundary."
+  ],
+  "ownerBoundary": {
+    "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+    "authenticatedBlob": "34eee8e633356b012d773712ad14179b77baa3c2",
+    "snapshotCustodyConsumed": false,
+    "preparedSurgery": "patches/try-forever-operator-receipt-snapshot-custody-owner.patch",
+    "preparedSurgeryState": "CORRECTED_PROPOSED_NOT_APPLIED"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
