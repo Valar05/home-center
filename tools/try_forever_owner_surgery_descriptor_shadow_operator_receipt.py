@@ -37,9 +37,11 @@ The receipt owner exposes narrow reverification helpers for its own v4 envelope.
 reverification rechecks the exact upstream composition contracts plus the final capability/evidence
 closure before trusting a matching ``operatorReceiptSha256``. Raw-evidence reverification additionally
 requires the supplied raw mapping to carry the exact descriptor-shadow source schema and binds that
-mapping back to ``rawMachineEvidenceSha256``. Both helpers are evidence-integrity checks only: they do
-not grant authority, TESTED state, runtime capability, deployment, callability, execution, delivery,
-or acceptance.
+mapping back to ``rawMachineEvidenceSha256``. Projection-derivation reverification additionally
+recomputes the existing self-integrity/projector output from that same raw mapping and requires every
+bounded upstream field to match exactly. These helpers are evidence-integrity checks only: they do not
+grant authority, TESTED state, runtime capability, deployment, callability, execution, delivery, or
+acceptance.
 """
 
 from __future__ import annotations
@@ -49,6 +51,9 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_operator_receipt_derivation_custody import (
+    require_operator_receipt_projection_derivation,
+)
 from try_forever_owner_surgery_custody_probe import PATCH_ROOT
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     SCHEMA as RAW_SHADOW_SCHEMA,
@@ -221,6 +226,24 @@ def verify_operator_receipt_against_raw_evidence(
     return True
 
 
+def verify_operator_receipt_derivation_against_raw_evidence(
+    repo_root: Path,
+    receipt: Mapping[str, object],
+    raw_result: Mapping[str, object],
+) -> bool:
+    """Verify raw linkage and exact bounded-projection derivation for one v4 receipt.
+
+    A receipt can be internally self-consistent and carry the correct raw evidence digest while still
+    lying about a bounded upstream summary/status field if that field was never recomputed from the
+    supplied raw evidence. Reuse the existing derivation policy after the ordinary v4 identity/raw
+    linkage membrane passes. This remains evidence custody only.
+    """
+
+    verify_operator_receipt_against_raw_evidence(receipt, raw_result)
+    require_operator_receipt_projection_derivation(repo_root, receipt, raw_result)
+    return True
+
+
 def _require_final_capability_closure(receipt: Mapping[str, object]) -> None:
     """Reject missing/contradictory capability state and final-command namespace collisions."""
 
@@ -283,7 +306,11 @@ def build_descriptor_shadow_operator_receipt(
         **payload,
         "operatorReceiptSha256": _operator_receipt_sha256(payload),
     }
-    verify_operator_receipt_against_raw_evidence(final_receipt, raw_result)
+    verify_operator_receipt_derivation_against_raw_evidence(
+        repo_root,
+        final_receipt,
+        raw_result,
+    )
     return final_receipt
 
 
