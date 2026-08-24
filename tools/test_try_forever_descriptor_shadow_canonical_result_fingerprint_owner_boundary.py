@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""RED owner-boundary regression for descriptor-shadow canonical-result fingerprint custody.
+"""Owner-boundary regression for descriptor-shadow canonical-result fingerprint custody.
 
-SOURCE ONLY. The supporting fingerprint policy is implemented, but the existing descriptor-shadow
-owner has not yet been observed consuming it. This fixture must stay RED until owner integration is
-authenticated; policy existence is not owner wiring.
+SOURCE ONLY / UNEXECUTED. Authenticated descriptor-shadow owner source now consumes the shared
+surrogate-safe fingerprint policy. This fixture preserves that source boundary without promoting it
+to regression execution, TESTED, runtime, deployment, or delivery.
 """
 
 import try_forever_owner_surgery_descriptor_shadow_audit as shadow
@@ -36,8 +36,6 @@ def main() -> int:
     }
 
     expected = canonical_result_sha256(hostile)
-    # Owner integration acceptance boundary: the descriptor-shadow owner must use the shared
-    # surrogate-safe policy, preserving ordinary-Unicode identities and surviving hostile surrogates.
     actual = shadow._canonical_result_sha256(hostile)
     assert actual == expected
     return 0
