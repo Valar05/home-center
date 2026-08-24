@@ -1,9 +1,11 @@
 # TRY FOREVER — descriptor-shadow raw capability membrane owner wiring
 # OWNER: tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
 # BASE OWNER BLOB: ae76c2d7db2b71cd1b1c2518e62625bf5483538d
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
+# APPLIED COMMIT: 2acfa301f849889f73bcd50f69af9be217b57374
+# RESULT OWNER BLOB: bd25082da9c7644fd48301a43e91ac53bc389b9d
 # PURPOSE: contradictory raw capability claims must fail closed before bounded projection can sanitize them.
-# CAPABILITY: SUPPORTING_POLICY_YES__RED_OWNER_BOUNDARIES_YES__OWNER_WIRING_NO__REGRESSION_UNEXECUTED__TESTED_NO__RUNTIME_NO__PHONE_P0_UNTOUCHED
+# CAPABILITY: SUPPORTING_POLICY_YES__OWNER_SOURCE_WIRED_YES__REGRESSION_UNEXECUTED__TESTED_NO__RUNTIME_NO__PHONE_P0_UNTOUCHED
 
 --- a/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
 +++ b/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
@@ -23,8 +25,8 @@
              "self-integrity requires exact descriptor-shadow v3 source"
          )
 +
-+    # Fail closed on contradictory raw capability evidence before the bounded projector can emit
-+    # its own constant false capability fields. Display normalization is not capability repair.
++    # Raw capability contradictions must fail closed before the bounded projector can replace them
++    # with conservative false output fields. Projection is not capability repair.
 +    require_raw_shadow_capability_membrane(result)
  
      status = result.get("status")
