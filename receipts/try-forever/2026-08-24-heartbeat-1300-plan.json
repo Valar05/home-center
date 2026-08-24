@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-plan-receipt.v1",
+  "timeLocal": "2026-08-24T13:00:00-05:00",
+  "pr": 329,
+  "startingHead": "7bcd0387486876729766a1b3d335c5d4bf491d4d",
+  "mission": "Close the exact-final-fieldset gap in final v4 receipt identity/raw-linkage reverification using existing receipt owners only.",
+  "fronts": [
+    "projector field-name authority",
+    "self-integrity field-name authority",
+    "final v4 identity fieldset verification",
+    "hostile regression source",
+    "operator-receipt derivation skill convergence",
+    "existing non-raster Warm Wall convergence",
+    "Regnet/Venice bounded review and evidence receipt"
+  ],
+  "constraints": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateReceiptOwner": false,
+    "duplicateProjector": false,
+    "regressionExecutionClaim": false,
+    "runtimeClaim": false,
+    "deploymentClaim": false
+  },
+  "freshWound": "verify_operator_receipt_identity and verify_operator_receipt_against_raw_evidence can trust a re-signed undeclared field because exact namespace custody currently runs only in derivation verification with raw evidence.",
+  "sheRaw": "FAULT__account connection HTTP 400; no synthetic substitute",
+  "venicePlanGate": "PLAN_ALLOWED__existing-owner exact-namespace reverification only; source/test/runtime membranes remain separate"
+}
