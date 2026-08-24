@@ -1,0 +1,47 @@
+{
+  "schema": "regnet-review.v1",
+  "timestampLocal": "2026-08-23T22:01:25-05:00",
+  "reviewedSourceHead": "8de4dec8f84c2e1a70f20772d23d07944ded717c",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceClaims": {
+    "rawCapabilityPolicy": "YES_SUPPORTING_SOURCE",
+    "selfIntegrityOwnerConsumesMembrane": "YES_SOURCE_WIRED",
+    "ownerPromotionCommit": "2acfa301f849889f73bcd50f69af9be217b57374",
+    "resultOwnerBlob": "bd25082da9c7644fd48301a43e91ac53bc389b9d",
+    "patchProvenance": "APPLIED_SOURCE",
+    "ownerBoundaryRegression": "SOURCE_UNEXECUTED",
+    "operatorBoundaryRegression": "SOURCE_UNEXECUTED",
+    "operatorBoundaryCoverage": [
+      "descriptorAuthorityAdmitted",
+      "ownerMutation",
+      "regressionExecuted",
+      "tested",
+      "runtimeUi",
+      "runtimeTalkBack",
+      "phoneDelivered"
+    ],
+    "warmWall": "SOURCE_UPDATED_TO_OWNER_WIRED_TRUTH"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "notes": "Source promotion is real and read back. Regression files were strengthened/converged but have not executed. No source claim may cross into TESTED or runtime."
+}
