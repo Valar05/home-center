@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Operator Receipt Derivation Custody</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif}body{margin:0;background:#111;color:#f5f5f5}main{max-width:58rem;margin:auto;padding:1rem}fieldset{border:0;padding:0}.scar,#detail,label{border:1px solid currentColor}label{display:grid;grid-template-columns:3rem 1fr;gap:.8rem;align-items:center;min-height:56px;padding:.7rem;margin:.7rem 0;cursor:pointer}input{inline-size:26px;block-size:26px}label:focus-within{outline:3px solid currentColor;outline-offset:3px}.scar,#detail{padding:.9rem}#detail{min-height:7rem;white-space:pre-wrap}svg{width:100%;max-height:220px} @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body><main>
+<h1>WARM WALL / OPERATOR RECEIPT DERIVATION CUSTODY</h1>
+<p class="scar"><strong>SOURCE ONLY.</strong> RAW SHA LINKAGE: SOURCE_WIRED · FINAL v4 IDENTITY: SOURCE_WIRED · PROJECTION DERIVATION POLICY: SOURCE · FINAL OWNER CONSUMPTION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+<svg viewBox="0 0 900 190" role="img" aria-labelledby="t d"><title id="t">Raw evidence passes through the existing self-integrity and projector chain before final receipt identity</title><desc id="d">Digest linkage and final identity are necessary but do not prove the bounded status and summary were derived from the supplied raw evidence. The supporting derivation gate recomputes the existing bounded projection and compares it exactly. Final owner consumption is still absent.</desc><path d="M30 95H850" stroke="currentColor" stroke-width="5"/><text x="30" y="65" fill="currentColor">RAW</text><text x="180" y="65" fill="currentColor">SELF-AUDIT</text><text x="390" y="65" fill="currentColor">PROJECT</text><text x="570" y="65" fill="currentColor">DERIVE?</text><text x="745" y="65" fill="currentColor">FINAL v4</text><circle cx="55" cy="95" r="18" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="250" cy="95" r="18" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="435" cy="95" r="18" fill="none" stroke="currentColor" stroke-width="5"/><rect x="595" y="75" width="55" height="40" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="800" cy="95" r="18" fill="none" stroke="currentColor" stroke-width="5"/></svg>
+<fieldset><legend>Inspect one custody state</legend>
+<label><input type="radio" name="state" value="linked" checked><span><strong>● RAW DIGEST LINKED</strong><br>The final receipt can prove which raw payload digest it references.</span></label>
+<label><input type="radio" name="state" value="counterfeit"><span><strong>× SELF-CONSISTENT COUNTERFEIT</strong><br>A re-signed receipt can still lie about bounded summary/status while carrying the correct raw digest unless derivation is checked.</span></label>
+<label><input type="radio" name="state" value="derive"><span><strong>◇ DERIVATION POLICY / SOURCE</strong><br>Recompute the existing self-integrity/projector output from the supplied raw mapping and require exact upstream-field parity.</span></label>
+<label><input type="radio" name="state" value="owner"><span><strong>□ FINAL OWNER CONSUMPTION / NO</strong><br>The existing v4 final owner does not yet consume this derivation gate. RED owner-boundary source preserves that wound.</span></label>
+<label><input type="radio" name="state" value="membrane"><span><strong>□ CAPABILITY MEMBRANE</strong><br>Source is not regression execution, TESTED, runtime TalkBack, deployment, callability, delivery, acceptance, or phone/P0 authority.</span></label>
+</fieldset>
+<div id="detail" role="status" aria-live="polite" aria-atomic="true">RAW DIGEST LINKED\nNecessary evidence linkage, but not full proof of bounded projection derivation.</div>
+<script>
+const detail=document.getElementById('detail');const copy={linked:'RAW DIGEST LINKED\nNecessary evidence linkage, but not full proof of bounded projection derivation.',counterfeit:'SELF-CONSISTENT COUNTERFEIT\nCorrect raw digest + recomputed final digest can still coexist with counterfeit bounded meaning if derivation is never recomputed.',derive:'DERIVATION POLICY / SOURCE\nReuse the existing self-integrity and sole projector. Compare every derived upstream field exactly. Do not embed raw evidence.',owner:'FINAL OWNER CONSUMPTION / NO\nSupporting source exists. The current final receipt owner has not yet wired a derivation reverification helper into its normal build path.',membrane:'CAPABILITY MEMBRANE\nSupporting source YES. Regressions UNEXECUTED. Owner wiring NO. TESTED/runtime/deployed/callable/executed/delivered/accepted NO. Phone/P0 untouched.'};for(const radio of document.querySelectorAll('input[name=state]'))radio.addEventListener('change',()=>{if(radio.checked)detail.textContent=copy[radio.value]});
+</script>
+</main></body></html>
