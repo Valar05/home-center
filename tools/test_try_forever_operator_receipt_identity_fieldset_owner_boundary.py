@@ -21,15 +21,32 @@ def direct_function(tree: ast.Module, name: str) -> ast.FunctionDef:
     return matches[0]
 
 
+class DirectCallVisitor(ast.NodeVisitor):
+    """Collect calls owned by one function body without nested-function counterfeit evidence."""
+
+    def __init__(self):
+        self.names: set[str] = set()
+
+    def visit_Call(self, node: ast.Call):
+        if isinstance(node.func, ast.Name):
+            self.names.add(node.func.id)
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        return
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        return
+
+    def visit_Lambda(self, node: ast.Lambda):
+        return
+
+
 def direct_calls(function: ast.FunctionDef) -> set[str]:
-    names = set()
+    visitor = DirectCallVisitor()
     for statement in function.body:
-        for node in ast.walk(statement):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)) and node is not function:
-                continue
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-                names.add(node.func.id)
-    return names
+        visitor.visit(statement)
+    return visitor.names
 
 
 def main() -> int:
@@ -48,6 +65,17 @@ def main() -> int:
     identity = direct_function(tree, "verify_operator_receipt_identity")
     identity_calls = direct_calls(identity)
     assert "_require_final_receipt_contract" in identity_calls
+
+    # Counterfeit wiring hidden in a nested function must not satisfy the direct owner contract.
+    counterfeit = ast.parse(
+        "def owner():\n"
+        "    def decoy():\n"
+        "        require_exact_final_receipt_fieldset({})\n"
+        "    return True\n"
+    )
+    assert "require_exact_final_receipt_fieldset" not in direct_calls(
+        direct_function(counterfeit, "owner")
+    )
 
     return 0
 
