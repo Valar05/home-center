@@ -16,17 +16,30 @@ EXPECTED_POLICY_CALL = "require_operator_receipt_projection_derivation"
 
 
 def direct_call_names(function: ast.FunctionDef) -> set[str]:
+    """Collect calls owned by this function while ignoring nested function bodies."""
+
     names: set[str] = set()
-    for node in ast.walk(function):
-        if isinstance(node, ast.FunctionDef) and node is not function:
-            continue
-        if not isinstance(node, ast.Call):
-            continue
-        target = node.func
-        if isinstance(target, ast.Name):
-            names.add(target.id)
-        elif isinstance(target, ast.Attribute):
-            names.add(target.attr)
+
+    class DirectVisitor(ast.NodeVisitor):
+        def visit_FunctionDef(self, node):
+            if node is function:
+                for statement in node.body:
+                    self.visit(statement)
+
+        def visit_AsyncFunctionDef(self, node):
+            if node is function:
+                for statement in node.body:
+                    self.visit(statement)
+
+        def visit_Call(self, node):
+            target = node.func
+            if isinstance(target, ast.Name):
+                names.add(target.id)
+            elif isinstance(target, ast.Attribute):
+                names.add(target.attr)
+            self.generic_visit(node)
+
+    DirectVisitor().visit(function)
     return names
 
 
@@ -43,13 +56,13 @@ def main() -> int:
         "RED: existing final receipt owner still lacks the derivation-custody reverification helper"
     )
     assert EXPECTED_POLICY_CALL in direct_call_names(helper), (
-        "RED: derivation helper must consume the supporting projection-derivation policy"
+        "RED: derivation helper must consume the supporting projection-derivation policy directly"
     )
 
     build = functions.get("build_descriptor_shadow_operator_receipt")
     assert isinstance(build, ast.FunctionDef)
     assert EXPECTED_HELPER in direct_call_names(build), (
-        "RED: normal build path must run derivation custody before returning the final receipt"
+        "RED: normal build path must run derivation custody directly before returning the final receipt"
     )
     return 0
 
