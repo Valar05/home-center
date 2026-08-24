@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""RED operator-command boundary for raw descriptor-shadow capability overclaims.
+"""Operator-command regression source for raw descriptor-shadow capability overclaims.
 
-SOURCE ONLY. The existing operator receipt command must eventually reject contradictory raw
-capability evidence through the existing self-integrity owner before returning a bounded receipt.
-This fixture is self-contained so regression ordering/import-path behavior cannot become evidence.
+SOURCE ONLY. The actual bounded operator receipt command must reject every contradictory raw
+capability field through the existing self-integrity owner before returning a bounded receipt. This
+fixture is self-contained so regression ordering/import-path behavior cannot become evidence. It has
+not been observed executing in an authorized test lane.
 """
 
 from pathlib import Path
@@ -76,7 +77,12 @@ def raw_match() -> dict[str, object]:
 def main() -> int:
     original = owner.audit_descriptor_shadow
     try:
+        # Exercise every denied top-level raw capability through the real bounded command surface.
+        # Authority/mutation matter here just as much as TESTED/runtime/phone claims; a projector
+        # emitting conservative false values must not sanitize any of them.
         for field in (
+            "descriptorAuthorityAdmitted",
+            "ownerMutation",
             "regressionExecuted",
             "tested",
             "runtimeUi",
