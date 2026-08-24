@@ -1,0 +1,21 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "timeLocal": "2026-08-24T11:32:00-05:00",
+  "reviewedSourceHead": "0eef4eead2779e85a2158aac89a72d417b752e02",
+  "planGate": "PLAN_ALLOWED_FOR_BOUNDED_SOURCE_OWNER_SURGERY_AND_EVIDENCE_HARDENING",
+  "correctiveGate": "REPLAN_ALLOWED__PRESERVE_EXISTING_REASSERTED_CAPABILITY_OWNERSHIP",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "Owner source wiring materially advanced and has authenticated readback.",
+    "The temporary disjointness mistake was discovered by code-first review, replaced under Originality Tax, and not preserved as doctrine.",
+    "The final field-set contract is exact union plus upstream value parity and final exact-false capability closure; undeclared hitchhiker fields remain rejected.",
+    "Regression source remains unexecuted and current workflow failures do not establish a step-level cause, so TESTED remains NO.",
+    "No phone/P0 or duplicate-architecture surface was consumed."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capabilityMembrane": "SOURCE_WIRED_YES__REGRESSION_EXECUTION_NO__TESTED_NO__RUNTIME_NO__DEPLOYED_NO__CALLABLE_NO__EXECUTED_NO__DELIVERED_NO__ACCEPTED_NO"
+}
