@@ -1,34 +1,38 @@
 {
   "schema": "regnet-source-review.v1",
   "heartbeat": "2026-08-23T23:01:00-05:00",
-  "subject": "canonical-result fingerprint custody",
-  "reviewedSourceHead": "998c89d5affb9e4984e71fe4b9f6bab352ecd97f",
-  "verdict": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_UNWIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "subject": "canonical-result fingerprint custody + temporal status exactness",
+  "reviewedSourceHead": "de63cb02f50155f60b9b2142e9bb163d8430e20b",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__TWO_OWNER_SEAMS_UNWIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
   "sourceReview": {
-    "supportingPolicy": "PASS",
+    "canonicalFingerprintPolicy": "PASS",
     "validUnicodeFingerprintStability": "PASS",
     "surrogateBearingEvidenceDeterminism": "PASS_SOURCE_CONTRACT",
-    "nonFiniteEvidenceFailClosed": "PASS_SOURCE_CONTRACT",
-    "ownerBoundary": "RED_BY_DESIGN",
-    "ownerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
-    "duplicateArchitecture": "PASS_ZERO_NEW_AUTHORITY_OR_PROJECTOR",
+    "temporalStatusAdmissionPolicy": "PASS",
+    "unknownTemporalStatusFailClosed": "PASS_SOURCE_CONTRACT",
+    "fingerprintOwnerBoundary": "RED_BY_DESIGN",
+    "temporalStatusOwnerBoundary": "RED_BY_DESIGN",
+    "fingerprintOwnerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "temporalStatusOwnerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "duplicateArchitecture": "PASS_ZERO_NEW_AUTHORITY_PROJECTOR_OR_TEMPORAL_OWNER",
     "phoneP0Firewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION"
   },
   "codeFirstNotes": [
-    "The supporting policy preserves the current fingerprint for ordinary valid Unicode by retaining ensure_ascii=false and changing only the UTF-8 error handler to surrogatepass.",
-    "The owner-boundary regression is intentionally RED because the existing descriptor-shadow owner still uses its local direct UTF-8 encoder.",
-    "The prepared owner surgery targets authenticated descriptor-shadow owner blob 92e916f8d64168990a221ca9d5469699ef6273b8 and delegates only the fingerprint helper; it does not alter authority or shadow comparison semantics.",
-    "The helper's surrogate-safe encoding is receipt identity for the Python string payload, not recovery of original filesystem bytes and not filesystem atomicity."
+    "The fingerprint policy preserves the current fingerprint for ordinary valid Unicode and closes only the surrogate encoding hole.",
+    "The descriptor-shadow fingerprint owner remains unwired; the RED owner fixture must fail until authenticated source consumes the shared helper.",
+    "Receipt self-integrity currently admits any non-empty temporal status when temporalBindingProven=false; exact status admission is therefore a distinct evidence defect.",
+    "The temporal status policy owns the current finite state vocabulary and performs no normalization. The self-integrity owner remains unwired and its RED owner fixture preserves that boundary.",
+    "Neither prepared owner surgery changes canonical promotion authority, descriptor authority, temporal authority, TESTED, runtime, deployment, delivery, or acceptance."
   ],
   "executionTruth": {
-    "homeCenterCi": {"run": 32688847207, "status": "completed", "conclusion": "failure"},
-    "operatorOverlayAndroid": {"run": 32688847185, "job": 97318741699, "status": "completed", "conclusion": "failure", "stepsExposed": 0},
-    "buildAndroid": {"run": 32688847223, "status": "completed", "conclusion": "failure"},
+    "homeCenterCi": {"run": 32689033504, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32689033498, "job": 97319239011, "status": "completed", "conclusion": "failure", "stepsExposed": 0},
+    "buildAndroid": {"run": 32689033556, "status": "completed", "conclusion": "failure"},
     "stepLevelCauseEstablished": false,
     "manualRetryFired": false,
     "regressionExecuted": false,
     "tested": false
   },
   "sheRaw": {"attempted": true, "result": "ACCOUNT_CONNECTION_HTTP_400", "substituteReviewer": false},
-  "requiredNextState": "OWNER_INTEGRATION_REMAINS_SEPARATE_FROM_SOURCE_AND_TESTED"
+  "requiredNextState": "OWNER_INTEGRATION_REMAINS_SEPARATE_FROM_SUPPORTING_SOURCE_AND_TESTED"
 }
