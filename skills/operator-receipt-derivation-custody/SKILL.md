@@ -1,7 +1,7 @@
 # Operator Receipt Derivation Custody
 
 ## Purpose
-Prove that the bounded upstream fields inside the final descriptor-shadow operator receipt were actually derived from the supplied raw descriptor-shadow evidence through the existing self-integrity/projector chain, without allowing undeclared final fields to hitchhike inside a re-signed v4 envelope.
+Prove that the bounded upstream fields inside the final descriptor-shadow operator receipt were actually derived from the supplied raw descriptor-shadow evidence through the existing self-integrity/projector chain, while preventing undeclared final fields or ambiguous namespace ownership from hitchhiking inside a re-signed v4 envelope.
 
 This skill creates no second receipt owner, projector, descriptor authority, runtime controller, phone path, or P0 organ.
 
@@ -14,9 +14,11 @@ This skill creates no second receipt owner, projector, descriptor authority, run
 
 `A RE-SIGNED UNKNOWN FIELD != AN ADMITTED RECEIPT FIELD`.
 
+`DERIVED PROJECTION NAMESPACE ∩ FINAL-OWNER NAMESPACE MUST BE EMPTY`.
+
 `DERIVATION CUSTODY = RECOMPUTE EXISTING SELF-INTEGRITY/PROJECTOR OUTPUT FROM THE SUPPLIED RAW MAPPING + REQUIRE EXACT UPSTREAM FIELD PARITY`.
 
-`FINAL FIELDSET CUSTODY = DERIVED PROJECTION FIELDS + EXPLICIT FINAL-OWNER FIELD ALLOWLIST, EXACTLY`.
+`FINAL FIELDSET CUSTODY = DERIVED PROJECTION FIELDS + EXPLICIT DISJOINT FINAL-OWNER FIELD ALLOWLIST, EXACTLY`.
 
 `SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
 
@@ -29,38 +31,46 @@ This skill creates no second receipt owner, projector, descriptor authority, run
 ## Supporting source
 `tools/try_forever_operator_receipt_derivation_custody.py` reuses the existing self-integrity/projector chain and requires exact parity for every field that chain derives.
 
-Default supporting mode still leaves final-owner fields outside this policy's ownership. A new explicit `allowed_extra_fields` mode closes the complete receipt field namespace and rejects undeclared or missing final fields. The policy also rejects non-string field names and duplicate/empty final-field declarations.
+Default supporting mode still leaves final-owner fields outside this policy's ownership. Explicit `allowed_extra_fields` mode closes the complete receipt field namespace and rejects undeclared or missing final fields. It also rejects non-string/empty field names, duplicate final-field declarations, and overlap between derived projection fields and the final-owner allowlist.
 
 This is supporting source only. It grants no authority, regression execution, TESTED state, runtime state, deployment, phone delivery, or acceptance.
 
 ## Existing-owner source wiring
-The final v4 owner already exposes `verify_operator_receipt_derivation_against_raw_evidence(repo_root, receipt, raw_result)` and calls it in the normal build path. Authenticated current owner blob before this heartbeat's proposed fieldset surgery: `b1da64ae3d50c26dd415d73e6000fb5ddda51183`.
+Authenticated owner surgery commit: `2c7685cf9e5e2a8315c0da827bd1c7a9a6ea848d`.
+Authenticated resulting owner blob: `952a7de0e7f14b130264df7e5573fc8cd54a3928`.
 
-That owner currently calls `require_operator_receipt_projection_derivation(...)` without the new exact-fieldset allowlist. Therefore:
+The final v4 owner now calls `require_operator_receipt_projection_derivation(...)` with the actual final-owner field families:
+- `OPERATOR_OWNED_RECEIPT_FIELDS`;
+- `FINAL_DENIED_CAPABILITY_FIELDS`.
+
+Therefore:
 - projection derivation owner wiring: **YES / SOURCE_WIRED**;
-- final exact-fieldset owner wiring: **NO / RED**.
+- final exact-fieldset owner wiring: **YES / SOURCE_WIRED**;
+- final namespace disjointness: **YES / SUPPORTING SOURCE**, consumed by the owner because its current allowlist is disjoint.
 
-Exact base-locked owner surgery is preserved at `patches/try-forever-operator-receipt-fieldset-custody-owner.patch` with status `CORRECTED_PROPOSED_NOT_APPLIED`. Patch existence is not implementation.
+Applied provenance is preserved at `patches/try-forever-operator-receipt-fieldset-custody-owner.patch`, status `APPLIED_SOURCE`.
 
 ## Regression source
-`tools/test_try_forever_operator_receipt_derivation_custody.py` is SOURCE / UNEXECUTED. It now pins both modes:
+`tools/test_try_forever_operator_receipt_derivation_custody.py` is SOURCE / UNEXECUTED. It pins:
 - default supporting mode permits unrelated final-owner fields because it does not own them;
-- exact final-owner mode rejects an undeclared re-signed field;
-- exact final-owner mode rejects a missing declared field;
+- exact final-owner mode rejects undeclared re-signed fields;
+- exact final-owner mode rejects missing declared fields;
 - duplicate final-field declarations fail closed;
+- derived/final namespace overlap fails closed;
 - existing counterfeit summary/status/missing-derived-field/wrong-schema wounds remain rejected.
 
-`tools/test_try_forever_operator_receipt_derivation_owner_boundary.py` is SOURCE / UNEXECUTED and intentionally RED against the current owner. It requires the existing final-owner derivation helper to pass `allowed_extra_fields` directly into the existing derivation policy; nested-function counterfeit calls remain excluded by direct-body AST evidence.
+`tools/test_try_forever_operator_receipt_derivation_owner_boundary.py` is SOURCE / UNEXECUTED and now requires more than a keyword-shaped call. Direct owner evidence must supply the exact starred field families `OPERATOR_OWNED_RECEIPT_FIELDS` and `FINAL_DENIED_CAPABILITY_FIELDS`; empty/wrong allowlists are `PARTIAL_UNSAFE` source evidence.
 
-## Current capability truth — 2026-08-24 10:03 CT
+## Current capability truth — 2026-08-24 11:19 CT
 - supporting derivation policy: **YES / SOURCE**;
 - exact-fieldset supporting mode: **YES / SOURCE**;
+- namespace-disjointness supporting rule: **YES / SOURCE**;
 - final owner projection-derivation consumption: **YES / SOURCE_WIRED**;
-- final owner exact-fieldset consumption: **NO / RED**;
+- final owner exact-fieldset consumption: **YES / SOURCE_WIRED**;
 - authenticated owner readback: **YES**;
 - hostile supporting regression: **YES / UNEXECUTED**;
 - owner-boundary regression: **YES / UNEXECUTED**;
-- exact owner surgery: **YES / CORRECTED_PROPOSED_NOT_APPLIED**;
+- applied owner surgery provenance: **YES / APPLIED_SOURCE**;
 - regression execution: **NO**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
