@@ -1,6 +1,9 @@
 # OWNER: tools/try_forever_owner_surgery_descriptor_shadow_audit.py
 # BASE_BLOB: 92e916f8d64168990a221ca9d5469699ef6273b8
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
+# APPLIED_COMMIT: f57e556e6025f93b6b3b01ec9cedac95868b28e7
+# RESULT_BLOB: 44bc3af31e645f33abf542139995c3707ef8e210
+# NOTE: Applied through the existing owner on the PR branch. The implementation uses a local variable name deconfliction for canonicalResultSha256 while preserving the prepared surgery semantics.
 # PURPOSE: compose the existing descriptor-shadow owner with the shared surrogate-safe canonical-result fingerprint policy without changing valid-Unicode fingerprints or authority semantics.
 
 diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_audit.py b/tools/try_forever_owner_surgery_descriptor_shadow_audit.py
