@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Source boundary for existing-owner receipt derivation custody.
+"""Source boundary for existing-owner receipt derivation and field-set custody.
 
-SOURCE ONLY. Current expected state: SOURCE_WIRED / regression execution unobserved.
+SOURCE ONLY. Current expected state: derivation SOURCE_WIRED; exact final field-set owner wiring RED;
+regression execution unobserved.
 """
 
 import ast
@@ -13,12 +14,13 @@ OWNER = Path(__file__).with_name(
 )
 EXPECTED_HELPER = "verify_operator_receipt_derivation_against_raw_evidence"
 EXPECTED_POLICY_CALL = "require_operator_receipt_projection_derivation"
+EXPECTED_FIELDSET_KEYWORD = "allowed_extra_fields"
 
 
-def direct_call_names(function: ast.FunctionDef) -> set[str]:
+def direct_calls(function: ast.FunctionDef) -> list[ast.Call]:
     """Collect calls owned by this function while ignoring nested function bodies."""
 
-    names: set[str] = set()
+    calls: list[ast.Call] = []
 
     class DirectVisitor(ast.NodeVisitor):
         def visit_FunctionDef(self, node):
@@ -32,15 +34,20 @@ def direct_call_names(function: ast.FunctionDef) -> set[str]:
                     self.visit(statement)
 
         def visit_Call(self, node):
-            target = node.func
-            if isinstance(target, ast.Name):
-                names.add(target.id)
-            elif isinstance(target, ast.Attribute):
-                names.add(target.attr)
+            calls.append(node)
             self.generic_visit(node)
 
     DirectVisitor().visit(function)
-    return names
+    return calls
+
+
+def call_name(call: ast.Call) -> str | None:
+    target = call.func
+    if isinstance(target, ast.Name):
+        return target.id
+    if isinstance(target, ast.Attribute):
+        return target.attr
+    return None
 
 
 def main() -> int:
@@ -55,13 +62,22 @@ def main() -> int:
     assert isinstance(helper, ast.FunctionDef), (
         "existing final receipt owner must retain the derivation-custody reverification helper"
     )
-    assert EXPECTED_POLICY_CALL in direct_call_names(helper), (
-        "derivation helper must consume the supporting projection-derivation policy directly"
+    policy_calls = [
+        call for call in direct_calls(helper) if call_name(call) == EXPECTED_POLICY_CALL
+    ]
+    assert len(policy_calls) == 1, (
+        "derivation helper must consume the supporting projection-derivation policy exactly once"
+    )
+    assert any(
+        keyword.arg == EXPECTED_FIELDSET_KEYWORD for keyword in policy_calls[0].keywords
+    ), (
+        "RED: final v4 owner must close the exact receipt field namespace by supplying "
+        "allowed_extra_fields to derivation custody"
     )
 
     build = functions.get("build_descriptor_shadow_operator_receipt")
     assert isinstance(build, ast.FunctionDef)
-    assert EXPECTED_HELPER in direct_call_names(build), (
+    assert any(call_name(call) == EXPECTED_HELPER for call in direct_calls(build)), (
         "normal build path must retain direct derivation custody before returning the final receipt"
     )
     return 0
