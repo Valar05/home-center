@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Result Fingerprint — Source Specimen</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark light; }
+  body { margin: 0; padding: 1rem; }
+  main { max-width: 48rem; margin: auto; }
+  fieldset { border: 2px solid currentColor; border-radius: 1rem; padding: 1rem; }
+  legend { font-weight: 800; padding: .25rem .5rem; }
+  label { display: grid; grid-template-columns: 3rem 1fr; gap: .75rem; align-items: center; min-height: 56px; padding: .5rem; border: 1px solid currentColor; border-radius: .75rem; margin: .5rem 0; cursor: pointer; }
+  input { width: 1.5rem; height: 1.5rem; }
+  .token { font-size: 1.4rem; text-align: center; }
+  .scar { border: 2px dashed currentColor; border-radius: .75rem; padding: .75rem; margin-top: 1rem; }
+  .diagram { width: 100%; height: auto; margin: 1rem 0; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Canonical Result Fingerprint</h1>
+<p>Evidence identity is not artifact identity, promotion authority, testing, runtime, or delivery.</p>
+<svg class="diagram" viewBox="0 0 760 160" role="img" aria-labelledby="diagTitle diagDesc">
+  <title id="diagTitle">Canonical result fingerprint evidence throat</title>
+  <desc id="diagDesc">Canonical result enters stable JSON serialization, then surrogate-safe UTF-8 evidence encoding, then SHA-256 receipt identity. Authority remains outside this throat.</desc>
+  <rect x="10" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="290" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="570" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <path d="M190 80H290M470 80H570" fill="none" stroke="currentColor" stroke-width="3"/>
+  <text x="100" y="76" text-anchor="middle" fill="currentColor">CANONICAL</text>
+  <text x="100" y="98" text-anchor="middle" fill="currentColor">RESULT</text>
+  <text x="380" y="76" text-anchor="middle" fill="currentColor">SURROGATE-SAFE</text>
+  <text x="380" y="98" text-anchor="middle" fill="currentColor">EVIDENCE ENCODING</text>
+  <text x="660" y="76" text-anchor="middle" fill="currentColor">SHA-256</text>
+  <text x="660" y="98" text-anchor="middle" fill="currentColor">RECEIPT ID</text>
+</svg>
+<fieldset>
+<legend>Evidence states</legend>
+<label><input type="radio" name="state" checked><span class="token" aria-hidden="true">●</span><span><strong>Valid Unicode stable</strong><br>Existing valid-Unicode fingerprint values do not churn.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">◇</span><span><strong>Surrogate-bearing source bounded</strong><br>Hostile source text gets deterministic receipt identity instead of an encoding crash.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">□</span><span><strong>Owner unwired</strong><br>The shared policy exists; descriptor-shadow owner consumption is not yet authenticated.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">×</span><span><strong>Authority forbidden</strong><br>This fingerprint never grants artifact authority, TESTED, runtime, phone delivery, or acceptance.</span></label>
+</fieldset>
+<div class="scar"><strong>SOURCE ONLY</strong> · owner integration NO · regression execution NO · TESTED NO · runtime TalkBack NO · phone/P0 untouched · no Christmas blink.</div>
+</main>
+</body>
+</html>
