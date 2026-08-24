@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""SOURCE / UNEXECUTED regression for one-observation receipt snapshot custody."""
-
-from unittest.mock import patch
+"""SOURCE / UNEXECUTED regression for bounded one-observation receipt snapshot custody."""
 
 from try_forever_operator_receipt_snapshot_custody import (
+    MAX_SNAPSHOT_NODES,
+    MAX_SNAPSHOT_STRING_CODEPOINTS,
     OperatorReceiptSnapshotCustodyError,
+    SCHEMA,
     snapshot_json_mapping,
     snapshot_verification_inputs,
 )
@@ -19,11 +20,19 @@ class FalseGetDict(dict):
         return super().get(key, default)
 
 
+class DuplicateItemsMapping(dict):
+    """Hostile Mapping whose items() stream repeats one field despite dict-shaped storage."""
+
+    def items(self):
+        yield "schema", "receipt"
+        yield "schema", "counterfeit"
+
+
 def expect_reject(call, fragment: str) -> None:
     try:
         call()
     except OperatorReceiptSnapshotCustodyError as exc:
-        assert fragment in str(exc)
+        assert fragment in str(exc), str(exc)
     else:
         raise AssertionError("hostile snapshot input was admitted")
 
@@ -55,25 +64,65 @@ def main() -> int:
     )
     assert surrogate["summary"] == "x\ud800y"
 
-    # Non-finite, non-JSON, and over-nested encoder failures stay inside the typed custody boundary.
+    # Exact JSON shape is enforced at every nesting level. Python JSON conveniences must not rewrite
+    # evidence identity by stringifying keys or converting tuples into arrays.
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"nested": {1: "integer key"}},
+            field="operator receipt",
+        ),
+        "field names must be non-empty strings",
+    )
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"nested": {"": "empty key"}},
+            field="operator receipt",
+        ),
+        "field names must be non-empty strings",
+    )
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"items": ("tuple", "is not JSON")},
+            field="operator receipt",
+        ),
+        "exact JSON",
+    )
+    expect_reject(
+        lambda: snapshot_json_mapping(DuplicateItemsMapping(), field="operator receipt"),
+        "duplicate mapping field",
+    )
+
+    # Resource pressure must fail before later semantic/hash/linkage work. These fixtures are large
+    # enough to cross the declared budgets but remain bounded enough to run as ordinary regressions.
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"text": "x" * (MAX_SNAPSHOT_STRING_CODEPOINTS + 1)},
+            field="operator receipt",
+        ),
+        "snapshot text budget",
+    )
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"items": list(range(MAX_SNAPSHOT_NODES + 1))},
+            field="operator receipt",
+        ),
+        "snapshot node budget",
+    )
+
+    # Non-finite and non-JSON values stay inside the typed custody boundary.
     expect_reject(
         lambda: snapshot_json_mapping({"value": float("nan")}, field="operator receipt"),
-        "finite JSON-shaped",
+        "finite JSON numbers",
     )
     expect_reject(
         lambda: snapshot_json_mapping({"value": object()}, field="operator receipt"),
-        "finite JSON-shaped",
+        "exact JSON",
     )
-    with patch(
-        "try_forever_operator_receipt_snapshot_custody.json.dumps",
-        side_effect=RecursionError("hostile nesting"),
-    ):
-        expect_reject(
-            lambda: snapshot_json_mapping({"value": []}, field="operator receipt"),
-            "finite JSON-shaped",
-        )
 
+    assert captured["schema"] == SCHEMA
     assert captured["oneObservationSnapshot"] is True
+    assert captured["boundedSnapshot"] is True
+    assert captured["exactJsonShape"] is True
     for field in (
         "authorityAdmitted",
         "ownerMutation",
