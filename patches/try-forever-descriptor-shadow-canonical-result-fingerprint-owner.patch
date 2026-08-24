@@ -1,0 +1,34 @@
+# OWNER: tools/try_forever_owner_surgery_descriptor_shadow_audit.py
+# BASE_BLOB: 92e916f8d64168990a221ca9d5469699ef6273b8
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# PURPOSE: compose the existing descriptor-shadow owner with the shared surrogate-safe canonical-result fingerprint policy without changing valid-Unicode fingerprints or authority semantics.
+
+diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_audit.py b/tools/try_forever_owner_surgery_descriptor_shadow_audit.py
+--- a/tools/try_forever_owner_surgery_descriptor_shadow_audit.py
++++ b/tools/try_forever_owner_surgery_descriptor_shadow_audit.py
+@@
+ from try_forever_directory_handle_binding_capability import (
+     current_directory_handle_binding_capability,
+ )
++from try_forever_canonical_result_fingerprint import canonical_result_sha256
+ from try_forever_generated_index_artifact_observation import (
+@@
+ def _canonical_result_sha256(result: Mapping[str, object]) -> str:
+     """Bind the shadow receipt to the exact canonical result it accompanied.
+ 
+     This fingerprint is evidence identity for the canonical result payload, not filesystem
+     atomicity and not a replacement for canonical artifact-content custody.
+     """
+-
+-    try:
+-        encoded = json.dumps(
+-            result,
+-            sort_keys=True,
+-            separators=(",", ":"),
+-            ensure_ascii=False,
+-            allow_nan=False,
+-        ).encode("utf-8")
+-    except (TypeError, ValueError) as exc:
+-        raise ValueError(f"canonical result is not deterministic JSON evidence: {exc}") from exc
+-    return hashlib.sha256(encoded).hexdigest()
++    return canonical_result_sha256(result)
