@@ -24,7 +24,9 @@ def main() -> int:
         assert repo_root == ROOT
         assert raw["status"] == "TEST"
         return {
-            "schema": "bounded-test-receipt",
+            "schema": owner.PROJECTOR_RECEIPT_SCHEMA,
+            "sourceSchema": owner.RAW_SHADOW_SCHEMA,
+            "receiptSelfIntegritySchema": owner.SELF_INTEGRITY_SCHEMA,
             "authorityAdmitted": False,
             "ownerMutation": False,
             "regressionExecuted": False,
@@ -44,6 +46,45 @@ def main() -> int:
         for field in owner.FINAL_DENIED_CAPABILITY_FIELDS:
             assert field in receipt
             assert receipt[field] is False
+
+        # Final v4 is a composition owner, not permission to consume a drifting upstream contract.
+        # Wrong or missing projector/raw/self-integrity schema evidence must fail before capability
+        # closure can turn a false-shaped mapping into a final operator receipt.
+        expected_contracts = {
+            "schema": owner.PROJECTOR_RECEIPT_SCHEMA,
+            "sourceSchema": owner.RAW_SHADOW_SCHEMA,
+            "receiptSelfIntegritySchema": owner.SELF_INTEGRITY_SCHEMA,
+        }
+        for field, expected in expected_contracts.items():
+            def missing_contract_projection(repo_root, raw, field=field):
+                value = clean_projection(repo_root, raw)
+                del value[field]
+                return value
+
+            owner.project_shadow_receipt_with_self_integrity = missing_contract_projection
+            try:
+                owner.build_descriptor_shadow_operator_receipt(ROOT)
+            except ValueError as exc:
+                assert field in str(exc)
+                assert "requires exact upstream" in str(exc)
+            else:
+                raise AssertionError(f"operator receipt accepted missing upstream contract {field}")
+
+            def wrong_contract_projection(repo_root, raw, field=field, expected=expected):
+                value = clean_projection(repo_root, raw)
+                value[field] = f"{expected}.counterfeit"
+                return value
+
+            owner.project_shadow_receipt_with_self_integrity = wrong_contract_projection
+            try:
+                owner.build_descriptor_shadow_operator_receipt(ROOT)
+            except ValueError as exc:
+                assert field in str(exc)
+                assert "requires exact upstream" in str(exc)
+            else:
+                raise AssertionError(f"operator receipt accepted drifting upstream contract {field}")
+
+        owner.project_shadow_receipt_with_self_integrity = clean_projection
 
         # Core bounded-receipt capability state is not additive. Every core denial must already be
         # present as exact false before finalization; the operator command may not invent missing
