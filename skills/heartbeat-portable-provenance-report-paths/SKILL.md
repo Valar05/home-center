@@ -18,11 +18,21 @@ Filesystem `Path` values and exact repository-relative record identities remain 
 - repository-local paths → bounded repository-relative POSIX display text;
 - external paths → constant `<external-path>` with `scope=EXTERNAL`; never preserve a host-path hash oracle;
 - already-authorized record identities use `project_repository_relative_report_path(...)`, which performs no filesystem lookup and rejects absolute/parent-traversal misuse;
+- serialized path evidence that may be reviewed on a different host OS uses `project_serialized_report_path(...)`: current-host absolute paths retain normal repository-containment projection, foreign-platform absolute syntax (for example a Windows drive/UNC path on POSIX) is externalized, and ordinary repository-relative identities stay on the already-authorized relative channel;
+- **reviewer-host path syntax is never repository authority**: `Path.is_absolute()` from only the current OS is insufficient for serialized evidence;
 - literal backslash is escaped before evidence-marker insertion;
 - Unicode `Cc`, `Cf`, `Cs`, `Zl`, and `Zp` characters are revealed as explicit `\\u{XXXX}` evidence units rather than emitted raw;
 - in particular, U+2028 LINE SEPARATOR and U+2029 PARAGRAPH SEPARATOR are legitimate source text but must not silently fracture operator-facing path evidence;
 - over-budget repository-local display collapses from the **exact already-authorized repository-relative identity** to `<repo-path>...#<digest>` rather than exposing an arbitrary partial human-text/grapheme prefix;
 - display projection never changes canonical path identity, Git authority, generated-index trust, runtime capability, deployment, or delivery state.
+
+## Cross-host serialized-evidence scar
+
+Serialized machine evidence can outlive or leave the operating system that produced it. A Windows absolute path string is not absolute to POSIX `Path`, and POSIX-rooted text is foreign syntax to Windows. Treating the reviewer host's path parser as the only scope detector can leak foreign host topology through a repository-relative display channel.
+
+The source-level repair lives in `project_serialized_report_path(...)`. The descriptor-shadow operator projector still owns its own path projection call site and must explicitly consume this helper before that owner seam is called source-wired. The current exact owner surgery is preserved at `docs/try-forever/descriptor-shadow-cross-host-path-display.patch`; its existence is **PROPOSED_NOT_APPLIED**, not implementation.
+
+Do not solve this by banning Windows-looking characters from the already-authorized repository-relative API. A repository-relative identity such as `patches/C:\\literal-name.patch` is still repository evidence; the cross-host detector belongs only at the serialized-path boundary where absolute-vs-relative scope has not already been established.
 
 ## Existing-owner report contract
 
@@ -59,26 +69,32 @@ Pin all of these independently:
 
 1. repository root is `.` and external paths are the constant non-fingerprinting marker;
 2. repository-relative record paths cannot launder absolute/parent-traversal host topology;
-3. Cc/Cf/Cs/Zl/Zp evidence characters are not emitted raw;
-4. literal marker-looking text cannot alias an actual projected character;
-5. U+2028/U+2029 are explicitly revealed in in-budget path evidence;
-6. over-budget repository paths collapse from exact identity without partial combining/ZWJ/layout-control text;
-7. distinct repository-local over-budget identities retain distinct repository-local digests;
-8. exact internal `SkillRecord` / `DiscoveryError` identities survive display serialization unchanged;
-9. discovery-error pre-boundary collapse and final serialization remain compatible;
-10. regression source is not TESTED evidence until an authorized runner actually executes it.
+3. serialized foreign-platform absolute paths cannot become repository display merely because the reviewer host's `Path` parser calls them relative;
+4. repository-relative identities containing Windows-looking characters remain repository evidence after their relative scope is already established;
+5. Cc/Cf/Cs/Zl/Zp evidence characters are not emitted raw;
+6. literal marker-looking text cannot alias an actual projected character;
+7. U+2028/U+2029 are explicitly revealed in in-budget path evidence;
+8. over-budget repository paths collapse from exact identity without partial combining/ZWJ/layout-control text;
+9. distinct repository-local over-budget identities retain distinct repository-local digests;
+10. exact internal `SkillRecord` / `DiscoveryError` identities survive display serialization unchanged;
+11. discovery-error pre-boundary collapse and final serialization remain compatible;
+12. descriptor-shadow operator projection has an explicit owner-boundary regression and remains RED/UNWIRED until it consumes the serialized-path helper;
+13. regression source is not TESTED evidence until an authorized runner actually executes it.
 
 ## Current capability state
 
 - absolute/external projection policy: **YES / SOURCE_WIRED**
 - repository-relative record projection: **YES / SOURCE_WIRED**
+- cross-host serialized path projection: **YES / SUPPORTING_SOURCE**
+- descriptor-shadow serialized-path owner consumption: **NO / RED / PROPOSED_NOT_APPLIED**
 - Cc/Cf/Cs/Zl/Zp explicit path evidence: **YES / SOURCE_WIRED**
 - over-budget whole-identity collapse: **YES / SOURCE_WIRED**
 - discovery-error pre-boundary collapse: **YES / SOURCE_WIRED**
-- current path-policy blob: **3e064b115c8759de7e0d76ae457f8461c9a3c810**
+- current path-policy blob after cross-host hardening: **9e595d90ec2e6873d5eeccf9c38ea352ef1ae027**
 - current owner schema: **try-forever-skill-provenance.v6**
-- authenticated owner blob at the reviewed 1000 source base: **60e85d95c484cee0ca5f637ac3d5763fd20d21cf**
+- descriptor-shadow owner base blob for prepared surgery: **4cc65f162f600e70a9771d7cf3edac94e45f5344**
 - hostile path regression source: **YES / UNEXECUTED**
+- descriptor-shadow cross-host owner-boundary regression source: **YES / UNEXECUTED**
 - layout-separator regression source: **YES / UNEXECUTED**
 - TESTED: **NO**
 - runtime UI/TalkBack: **NO**
