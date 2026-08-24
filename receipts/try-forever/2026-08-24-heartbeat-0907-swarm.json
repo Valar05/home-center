@@ -1,0 +1,143 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpoint": "2026-08-24T09:07:33-05:00",
+  "reviewedSourceHead": "0bbd8c3844f78471914545a1f967f2d87f41348f",
+  "startingHead": "d0b1f785b154d9f972756569f30c631020e75284",
+  "frontsAdvanced": [
+    "operator receipt projection-derivation custody supporting source",
+    "hostile derivation regression source",
+    "RED existing-owner derivation boundary",
+    "direct-owner AST evidence correction",
+    "durable derivation-custody repository skill",
+    "touchable non-raster derivation Warm Wall",
+    "exact-head workflow evidence",
+    "Regnet/Venice durable review receipts"
+  ],
+  "skillLights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "LIT",
+      "changed": "Converted the gap raw-SHA-linkage != bounded-projection-derivation into supporting policy, hostile regression, and an exact RED owner boundary."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "LIT",
+      "changed": "Harvested operator-receipt-derivation-custody as a real repository skill because the wound generalized beyond one fixture."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No material token ambiguity required interpretation."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "LIT",
+      "changed": "Reused the existing self-integrity/projector chain instead of creating a second projector; replaced the first permissive AST owner proof with direct-scope evidence."
+    },
+    {
+      "name": "Hunger / Eat Everything",
+      "state": "LIT",
+      "changed": "Propagated the new wound through source policy, two regression fronts, repository skill, touchable art, and durable reviews rather than leaving a one-file patch."
+    },
+    {
+      "name": "Ever-Polished Interpreter",
+      "state": "LIT",
+      "changed": "Separated receipt identity, raw-evidence linkage, and projection derivation into distinct proof obligations."
+    },
+    {
+      "name": "Operator Campaign / Harroway",
+      "state": "LIT",
+      "changed": "Kept tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py as the sole final owner; owner derivation integration remains NO/RED rather than being invented."
+    },
+    {
+      "name": "She-Raw",
+      "state": "FAULT",
+      "changed": "Authoritative consultation attempted; account connection returned HTTP 400. No synthetic reviewer substituted."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "LIT",
+      "changed": "Pre-mutation PLAN_ALLOWED and bounded completion gate preserve owner/test/runtime/campaign continuation."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "LIT",
+      "changed": "Caught nested-function false-positive risk in the initial RED owner fixture and forced direct-body AST evidence."
+    },
+    {
+      "name": "Accessibility / TalkBack / touch semantics",
+      "state": "LIT",
+      "changed": "Added one keyboard/touch-operable DOM+inline-SVG derivation throat with native radio semantics and reduced-motion behavior; no runtime TalkBack claim."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "changed": "Consumption 0; mutation 0; no queue/relay/recovery/physical acceptance work."
+    },
+    {
+      "name": "Deterministic routing / evidence-capability discipline",
+      "state": "LIT",
+      "changed": "Exact raw source schema, exact recomputed upstream field parity, exact source/readback/test/runtime membrane, and exact-head workflow evidence."
+    },
+    {
+      "name": "Recovery / checkpointing / idempotence / contact preservation",
+      "state": "LIT",
+      "changed": "An earlier receipt can remain internally identity-valid while separately failing derivation custody; no proof obligation overwrites another."
+    },
+    {
+      "name": "Strange non-raster art / Warm Walls",
+      "state": "LIT",
+      "changed": "Added a source-only derivation custody wall showing RAW -> SELF-AUDIT -> PROJECT -> DERIVE? -> FINAL v4 without deployment cosplay."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "DARK",
+      "changed": "No runtime transition topology changed; evidence plumbing earned no decorative motion."
+    }
+  ],
+  "regnetCorrection": "Initial RED owner-boundary direct-call helper used ast.walk, which does not prune nested FunctionDef bodies. Replaced with a custom direct-body AST visitor before checkpoint.",
+  "sourceCustody": {
+    "base": "d0b1f785b154d9f972756569f30c631020e75284",
+    "head": "0bbd8c3844f78471914545a1f967f2d87f41348f",
+    "commits": 8,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "homeCenterCiRun": 32737538543,
+    "operatorOverlayRun": 32737538560,
+    "operatorOverlayJob": 97463868745,
+    "buildAndroidRun": 32737539438,
+    "allConclusions": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedRemoteReadback": true,
+    "derivationPolicy": "SOURCE",
+    "ownerDerivationIntegration": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "nextExactCut": "In the existing final v4 receipt owner only, add verify_operator_receipt_derivation_against_raw_evidence(repo_root, receipt, raw_result) that consumes the supporting derivation policy, and require the normal build path to call it before return. Do not create a second owner/projector or use phone/P0."
+}
