@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """SOURCE / UNEXECUTED regression for one-observation receipt snapshot custody."""
 
+from unittest.mock import patch
+
 from try_forever_operator_receipt_snapshot_custody import (
     OperatorReceiptSnapshotCustodyError,
     snapshot_json_mapping,
@@ -53,7 +55,7 @@ def main() -> int:
     )
     assert surrogate["summary"] == "x\ud800y"
 
-    # Non-finite or non-JSON evidence cannot cross the snapshot membrane.
+    # Non-finite, non-JSON, and over-nested encoder failures stay inside the typed custody boundary.
     expect_reject(
         lambda: snapshot_json_mapping({"value": float("nan")}, field="operator receipt"),
         "finite JSON-shaped",
@@ -62,6 +64,14 @@ def main() -> int:
         lambda: snapshot_json_mapping({"value": object()}, field="operator receipt"),
         "finite JSON-shaped",
     )
+    with patch(
+        "try_forever_operator_receipt_snapshot_custody.json.dumps",
+        side_effect=RecursionError("hostile nesting"),
+    ):
+        expect_reject(
+            lambda: snapshot_json_mapping({"value": []}, field="operator receipt"),
+            "finite JSON-shaped",
+        )
 
     assert captured["oneObservationSnapshot"] is True
     for field in (
