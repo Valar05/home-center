@@ -32,6 +32,10 @@ No second receipt owner, projector, descriptor authority, overlay controller, re
 ## Source wiring
 Operator receipt schema v4 is **YES / SOURCE_WIRED**.
 
+Authenticated branch readback:
+- owner source blob: `105f05c1cb6d1c02a4430d86dabf0bdac3eade34`;
+- raw-capability membrane source blob after schema-authority convergence: `24cfb9eea54b7295903e5dca248c7ed394b5d237`.
+
 The v4 command:
 - accepts absence of later capability fields from the lower bounded projector because they are additive to raw descriptor-shadow v3;
 - rejects any later capability field that is present upstream and not exact false;
@@ -52,7 +56,7 @@ Do not call this TESTED merely because source exists.
 ## Current capability truth
 - operator receipt v4 source wiring: **YES / SOURCE_WIRED**;
 - complete later capability closure: **YES / SOURCE_WIRED**;
-- authenticated repository readback: **YES** once the branch source is re-read;
+- authenticated repository readback: **YES**;
 - regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED: **NO**;
