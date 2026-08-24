@@ -17,10 +17,16 @@ or raw boundary prose. ``operatorReceiptSha256`` identifies the complete bounded
 emitted by this source command; neither digest is canonical artifact identity, promotion authority,
 TESTED evidence, runtime identity, filesystem atomicity, phone delivery, or acceptance.
 
-The bounded operator receipt also closes the later capability-state membrane explicitly. Deployed,
-callable, executed, delivered, and accepted describe the commissioned descriptor-shadow result, not
-whether this Python source function is invokable. They are always emitted as exact false here, and a
-contradictory upstream receipt carrying any of them as non-false is rejected rather than sanitized.
+The final operator envelope closes the whole commissioned capability membrane explicitly. Core
+bounded-receipt fields must already exist as exact false before finalization; later deployment/
+callability/execution/delivery/acceptance fields remain additive upstream, but if present they must
+already be exact false. The final command therefore never manufactures a false-looking receipt by
+repairing a missing/positive core claim or overwriting a contradictory later claim.
+
+Operator-owned receipt metadata is a separate namespace boundary. Upstream bounded projection must
+not pre-populate the final command's receipt schema, raw-evidence linkage, architecture declarations,
+phone/P0 authority declaration, or final receipt digest and then rely on final dictionary ordering
+to overwrite the contradiction.
 """
 
 from __future__ import annotations
@@ -39,7 +45,30 @@ from try_forever_shadow_raw_capability_membrane import OPTIONAL_DENIED_FALSE_FIE
 
 
 SCHEMA = "try-forever-owner-surgery-descriptor-shadow-operator-receipt.v4"
-FINAL_DENIED_CAPABILITY_FIELDS = OPTIONAL_DENIED_FALSE_FIELDS
+CORE_DENIED_CAPABILITY_FIELDS = (
+    "authorityAdmitted",
+    "ownerMutation",
+    "regressionExecuted",
+    "tested",
+    "runtimeUi",
+    "runtimeTalkBack",
+    "phoneDelivered",
+)
+FINAL_DENIED_CAPABILITY_FIELDS = (
+    *CORE_DENIED_CAPABILITY_FIELDS,
+    *OPTIONAL_DENIED_FALSE_FIELDS,
+)
+OPERATOR_OWNED_RECEIPT_FIELDS = (
+    "operatorReceiptSchema",
+    "rawMachineEvidenceRemainsSeparate",
+    "rawMachineEvidenceIncluded",
+    "rawMachineEvidenceBound",
+    "rawMachineEvidenceSha256",
+    "secondReceiptProjectorCreated",
+    "secondDescriptorAuthorityCreated",
+    "phoneP0MutationAuthority",
+    "operatorReceiptSha256",
+)
 
 
 def _deterministic_json_sha256(payload: Mapping[str, object], *, ensure_ascii: bool) -> str:
@@ -74,14 +103,25 @@ def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
 
 
 def _require_final_capability_closure(receipt: Mapping[str, object]) -> None:
-    """Reject an upstream later-capability overclaim before adding explicit receipt closure.
+    """Reject missing/contradictory capability state and final-command namespace collisions."""
 
-    Absence is allowed at the bounded projector layer because these fields are additive to the raw
-    descriptor-shadow v3 contract. Once this operator command emits its v4 envelope, however, all
-    five later capability states become explicit exact-false receipt fields.
-    """
+    for field in OPERATOR_OWNED_RECEIPT_FIELDS:
+        if field in receipt:
+            raise ValueError(
+                f"bounded descriptor-shadow receipt cannot pre-populate operator-owned field {field}"
+            )
 
-    for field in FINAL_DENIED_CAPABILITY_FIELDS:
+    for field in CORE_DENIED_CAPABILITY_FIELDS:
+        if field not in receipt:
+            raise ValueError(
+                f"bounded descriptor-shadow receipt must carry explicit upstream {field}=false"
+            )
+        if receipt.get(field) is not False:
+            raise ValueError(
+                f"bounded descriptor-shadow receipt cannot sanitize upstream {field} capability"
+            )
+
+    for field in OPTIONAL_DENIED_FALSE_FIELDS:
         if field in receipt and receipt.get(field) is not False:
             raise ValueError(
                 f"bounded descriptor-shadow receipt cannot sanitize upstream {field} capability"
