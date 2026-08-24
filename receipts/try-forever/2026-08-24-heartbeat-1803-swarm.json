@@ -1,0 +1,172 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestampLocal": "2026-08-24T18:03:50-05:00",
+  "reviewedSourceHead": "d482c6072889bcb575e29f727049c10b65686f76",
+  "baseCheckpointHead": "c0428e1b8199f3aa8ef897009ea6ad672088c6fe",
+  "delta": {
+    "commits": 12,
+    "intendedPaths": 9,
+    "unexpectedPaths": 0
+  },
+  "frontsAdvanced": [
+    {
+      "front": "cross-host serialized path display privacy",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "changed": "Added project_serialized_report_path() so foreign-platform drive/root/UNC/drive-relative serialized path syntax cannot leak through repository-relative operator display when reviewed on another host OS.",
+      "sourceBlob": "b30add2b26511921817a97d42972a92dd24545ab"
+    },
+    {
+      "front": "hostile path regression",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "changed": "Added current-host/foreign-host path privacy fixtures, including drive-relative, rooted, UNC, device-like, POSIX absolute, and already-authorized repository-relative Windows-looking names."
+    },
+    {
+      "front": "descriptor-shadow owner boundary",
+      "state": "RED_OWNER_UNWIRED",
+      "changed": "Added explicit owner-boundary regression and base-blob-locked source surgery; current owner still uses host-local Path.is_absolute() and has not consumed the new helper.",
+      "ownerBlob": "4cc65f162f600e70a9771d7cf3edac94e45f5344",
+      "surgeryState": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "front": "portable path doctrine",
+      "state": "CONVERGED_SOURCE",
+      "changed": "Durable skill now separates unresolved serialized-path scope from already-authorized repository-relative identities and records drive/root/UNC privacy law.",
+      "skillBlob": "916e8d09b7d2ca51af2995a88962d154bbe7ebb1"
+    },
+    {
+      "front": "touchable non-raster Warm Wall",
+      "state": "SOURCE_ONLY",
+      "changed": "Added radio/keyboard/touch states for repository relative, Windows absolute, drive-relative, rooted, UNC, and owner-wound evidence; runtime TalkBack/deployment/phone remain unclaimed.",
+      "artBlob": "12565e976c08952c608671c11dc0de33606eaae7"
+    },
+    {
+      "front": "snapshot-custody adversarial review",
+      "state": "DARK_NO_CONCRETE_DEFECT",
+      "changed": "No mutation. Existing one-observation mapping detachment, exact JSON shape, finite budgets, and capability membrane remain materially adequate for this pulse."
+    },
+    {
+      "front": "Regnet/Venice review",
+      "state": "DURABLE",
+      "changed": "Regnet passes bounded supporting source/readback while keeping descriptor-shadow owner REVISE_REQUIRED and regressions UNEXECUTED; Venice allows source-slice yield only."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": {
+      "state": "LIT",
+      "contribution": "Moved from host-local path parsing to cross-host serialized evidence custody."
+    },
+    "Canon Auto-Select": {
+      "state": "LIT",
+      "contribution": "Reused heartbeat-portable-provenance-report-paths and existing descriptor-shadow projector ownership instead of creating a new serializer/controller."
+    },
+    "Autocorrect Judgment Jar": {
+      "state": "DARK",
+      "reason": "No material token/STT ambiguity affected this source slice."
+    },
+    "Originality Tax": {
+      "state": "LIT",
+      "contribution": "Code-first review rejected the first absolute-only design and replaced it with drive/root/UNC/drive-relative host-context handling."
+    },
+    "Hunger": {
+      "state": "LIT",
+      "contribution": "Forced source, hostile fixtures, doctrine, owner boundary, art, and durable receipts to converge instead of stopping at a helper."
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "state": "LIT",
+      "contribution": "Preserved the distinction between unresolved serialized-path scope and already-authorized weird repository-relative names; no overbroad ban."
+    },
+    "Operator Campaign": {
+      "state": "LIT",
+      "contribution": "Kept the existing descriptor-shadow projector as owner and preserved an exact unapplied surgery rather than inventing a neighboring projector."
+    },
+    "Harroway operator discipline": {
+      "state": "LIT",
+      "contribution": "Authenticated owner blob and source/test/runtime states remained separate."
+    },
+    "She-Raw adversarial motivation": {
+      "state": "FAULT",
+      "reason": "Authoritative call returned account-connection HTTP 400; no synthetic substitute."
+    },
+    "Venice Judgment Jars": {
+      "state": "LIT",
+      "contribution": "Pre-mutation PLAN_ALLOWED and bounded completion gate are durable."
+    },
+    "Regnet QA": {
+      "state": "LIT",
+      "contribution": "Owner remains REVISE_REQUIRED; regression source remains unexecuted; first repair was broken and corrected."
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "state": "LIT",
+      "contribution": "Prevented foreign host path text from becoming unsafe operator/TalkBack display and produced a keyboard/radio/touch source wall."
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "state": "DARK_FIREWALLED",
+      "reason": "P0 owns the gated phone execution/recovery chain."
+    },
+    "deterministic routing": {
+      "state": "LIT",
+      "contribution": "Serialized-path display uses explicit POSIX/Windows lexical checks and constant external projection."
+    },
+    "evidence/capability-state discipline": {
+      "state": "LIT",
+      "contribution": "Supporting source, owner wiring, regression execution, TESTED, runtime, deployment, callability, execution, delivery, and acceptance remain distinct."
+    },
+    "recovery/checkpointing/idempotence": {
+      "state": "LIT",
+      "contribution": "Fail-closed external projection preserves constant privacy semantics without rewriting authority identity."
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "state": "LIT",
+      "contribution": "Material evidence topology change earned one source-only DOM Warm Wall."
+    },
+    "warm walls": {
+      "state": "LIT",
+      "contribution": "Cross-host path states are touch-inspectable."
+    },
+    "Christmas-light scene graph": {
+      "state": "DARK",
+      "reason": "No runtime transition/motion law changed; decorative blinking would be theater."
+    },
+    "contact preservation": {
+      "state": "LIT",
+      "contribution": "External paths collapse to one constant marker while already-authorized repository-relative unusual names retain exact repository identity."
+    }
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32788220205,
+    "operatorOverlayJob": 97624410385,
+    "operatorOverlay": "completed/failure/0_steps",
+    "homeCenterCiRun": 32788220279,
+    "homeCenterCi": "completed/failure",
+    "buildAndroidRun": 32788220204,
+    "buildAndroid": "completed/failure",
+    "logs": "empty/no usable step-level evidence",
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "crossHostSerializedPathPolicy": "SOURCE",
+    "descriptorShadowOwnerWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_SHADOW_OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
