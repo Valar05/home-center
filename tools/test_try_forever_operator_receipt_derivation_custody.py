@@ -106,6 +106,18 @@ def main() -> int:
             "field names must be unique",
         )
 
+        # Final-owner and derived namespaces are separate owners. Re-declaring an upstream field as
+        # a final-owner field is ambiguous authority even though value parity would still catch drift.
+        expect_reject(
+            lambda: policy.require_operator_receipt_projection_derivation(
+                ROOT,
+                receipt,
+                RAW,
+                allowed_extra_fields=(*FINAL_FIELDS, "status"),
+            ),
+            "field namespaces must be disjoint: status",
+        )
+
         # Existing value-derivation wounds remain independently enforced.
         expect_reject(
             lambda: policy.require_operator_receipt_projection_derivation(
