@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "timeLocal": "2026-08-24T11:31:00-05:00",
+  "reviewedSourceHead": "0eef4eead2779e85a2158aac89a72d417b752e02",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "materialFindings": [
+    "The final v4 operator receipt owner now directly supplies OPERATOR_OWNED_RECEIPT_FIELDS + FINAL_DENIED_CAPABILITY_FIELDS to the existing derivation-custody policy.",
+    "Owner-boundary source evidence now requires those actual field families instead of merely checking that an allowed_extra_fields keyword exists.",
+    "Code-first review caught a self-inflicted overconstraint: the bounded projector already derives several exact-false capability fields that the final envelope intentionally reasserts. A temporary broad namespace-disjointness rule would reject the valid owner.",
+    "Corrective replan removed that bad rule and restored exact-union semantics while preserving value parity, exact total field-set closure, and strict owner-family evidence.",
+    "Applied patch provenance, durable skill doctrine, and the existing non-raster Warm Wall now match authenticated source truth."
+  ],
+  "capability": {
+    "supportingDerivationSource": true,
+    "ownerProjectionDerivationWired": true,
+    "ownerExactFieldsetWired": true,
+    "authenticatedOwnerReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "executionEvidence": {
+    "operatorOverlayRun": 32751132803,
+    "operatorOverlayConclusion": "failure",
+    "homeCenterCiRun": 32751133071,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32751132762,
+    "buildAndroidConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRaw": false
+  },
+  "p0Phone": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
