@@ -20,9 +20,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from try_forever_owner_surgery_descriptor_shadow_audit import SCHEMA as RAW_SHADOW_SCHEMA
+
 
 SCHEMA = "try-forever-shadow-raw-capability-membrane.v3"
-RAW_SHADOW_SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
 REQUIRED_DENIED_FALSE_FIELDS = (
     "descriptorAuthorityAdmitted",
     "ownerMutation",
