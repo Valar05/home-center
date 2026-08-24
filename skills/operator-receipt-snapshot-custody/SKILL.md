@@ -16,7 +16,7 @@ Keep receipt verification bound to one caller-input observation. A verifier must
 - **SEMANTIC VIEW != SIGNED VIEW** is a custody wound.
 - **RAW LINKAGE VIEW != DERIVATION VIEW** is a custody wound.
 - Nested caller-owned lists/mappings must be detached as part of the snapshot; a shallow top-level copy is insufficient.
-- Non-finite or non-JSON-shaped evidence is rejected rather than normalized into a signed receipt.
+- Non-finite, non-JSON-shaped, or recursion/over-nesting failures are contained as one typed snapshot-custody wound rather than escaping the verifier.
 - Hostile surrogate-shaped strings may remain exact evidence; snapshot custody must not turn them into an encoding crash or replacement text.
 - Snapshotting grants no authority, TESTED/runtime state, deployment, callability, execution, delivery, acceptance, phone, or P0 mutation right.
 
@@ -29,6 +29,10 @@ Keep receipt verification bound to one caller-input observation. A verifier must
 - Existing owner consumption: **NO**.
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 - Phone/P0 mutation authority: **NO**.
+
+## Review scar
+
+The first owner-boundary AST walker still descended into nested functions after merely skipping the nested function node itself. That evidence bug was corrected with an explicit recursive visitor that stops descent at nested function/lambda boundaries before the checkpoint.
 
 ## Duplicate-architecture rule
 
