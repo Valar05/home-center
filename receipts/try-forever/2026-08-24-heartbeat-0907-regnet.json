@@ -35,9 +35,13 @@
   "executionTruth": {
     "homeCenterCiRun": 32738207097,
     "operatorOverlayRun": 32738207375,
+    "operatorOverlayJob": 97466077851,
     "buildAndroidRun": 32738207393,
-    "statusAtCheckpoint": "queued",
-    "conclusionAtCheckpoint": null,
+    "status": "completed",
+    "conclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
     "manualRetry": false,
     "regressionExecuted": false,
     "tested": false
