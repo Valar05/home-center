@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / DESCRIPTOR SHADOW OPERATOR RECEIPT</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW: SOURCE · RAW EVIDENCE SHA BINDING: SOURCE WIRED · RECEIPT SELF-INTEGRITY v2: SOURCE WIRED · CANONICAL RESULT SHA EXACTNESS: SOURCE WIRED · WOUND CONTEXT: SOURCE WIRED · TEMPORAL RECEIPT CONTEXT: SOURCE WIRED · WORK METRICS: SOURCE WIRED · OPERATOR RECEIPT v3 ID: SOURCE WIRED · SOLE DISPLAY PROJECTOR: SOURCE · DESCRIPTOR AUTHORITY: NO · REGRESSIONS EXECUTED: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> RAW SHADOW: SOURCE · RAW EVIDENCE SHA BINDING: SOURCE WIRED · RECEIPT SELF-INTEGRITY v2: SOURCE WIRED · CANONICAL RESULT SHA EXACTNESS: SOURCE WIRED · WOUND CONTEXT: SOURCE WIRED · WOUND EVIDENCE PHASE: SOURCE WIRED · TEMPORAL RECEIPT CONTEXT: SOURCE WIRED · WORK METRICS: SOURCE WIRED · OPERATOR RECEIPT v3 ID: SOURCE WIRED · SOLE DISPLAY PROJECTOR: SOURCE · DESCRIPTOR AUTHORITY: NO · REGRESSIONS EXECUTED: NO · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 980 230" role="img" aria-labelledby="title desc">
-    <title id="title">Raw descriptor shadow is bound, self-audited, then projected into a bounded operator receipt</title>
-    <desc id="desc">The raw descriptor shadow stays separate machine evidence. A deterministic raw-evidence digest binds the operator receipt to that exact payload without speaking it. Self-integrity recomputes completed comparison truth, validates the canonical result SHA identity itself, and validates wound context before the existing bounded display projector. No receipt creates descriptor authority, testing, runtime, or phone capability.</desc>
+    <title id="title">Raw descriptor shadow is bound, self-audited, phase-checked, then projected into a bounded operator receipt</title>
+    <desc id="desc">The raw descriptor shadow stays separate machine evidence. A deterministic raw-evidence digest binds the operator receipt to that exact payload without speaking it. Self-integrity recomputes completed comparison truth, validates the canonical result SHA identity itself, validates wound context, and verifies that wound artifact and counter evidence comes only from pipeline phases that actually completed. No receipt creates descriptor authority, testing, runtime, or phone capability.</desc>
     <path d="M20 115 H120 M210 115 H315 M405 115 H510 M600 115 H705 M795 115 H935" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="120" y="75" width="90" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="315" y="75" width="90" height="80" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -43,7 +43,7 @@
     <text x="900" y="55" fill="currentColor">RECEIPT</text>
     <text x="126" y="188" fill="currentColor">bind only</text>
     <text x="320" y="188" fill="currentColor">recompute</text>
-    <text x="510" y="188" fill="currentColor">identity + context</text>
+    <text x="510" y="188" fill="currentColor">context + phase</text>
     <text x="708" y="188" fill="currentColor">bounded display</text>
     <text x="888" y="188" fill="currentColor">v3 id</text>
   </svg>
@@ -55,11 +55,12 @@
     <label><input type="radio" name="shadow" value="self"><span><span class="token">● SELF-INTEGRITY v2</span><br>Completed path-set, work-metric, and exact-content truth are recomputed from raw evidence. Impossible counters and cardinality drift fail closed.</span></label>
     <label><input type="radio" name="shadow" value="canonicalid"><span><span class="token">● CANONICAL RESULT ID / EXACT</span><br>canonicalResultSha256 must itself be exactly 64 lowercase hexadecimal characters. Repeating the same malformed value in nested receipts does not admit identity.</span></label>
     <label><input type="radio" name="shadow" value="woundctx"><span><span class="token">● WOUND CONTEXT / VALIDATED</span><br>A wound label must agree with canonical schema/completeness and descriptor capability. Null comparison fields alone are not enough.</span></label>
+    <label><input type="radio" name="shadow" value="woundphase"><span><span class="token">● WOUND EVIDENCE PHASE / VALIDATED</span><br>Early wounds cannot carry portable/descriptor observations from stages they never reached. A real DESCRIPTOR_WOUND may preserve portable contact, but descriptor artifacts/counters remain unavailable.</span></label>
     <label><input type="radio" name="shadow" value="work"><span><span class="token">● WORK METRICS / AUDITABLE</span><br>A completed metricsMatch carries the exact canonical and descriptor directory-entry and candidate counts that were compared.</span></label>
     <label><input type="radio" name="shadow" value="temporal"><span><span class="token">◇ TEMPORAL RECEIPT CONTEXT</span><br>Completed comparisons must carry exact canonical-result identity, strict receipt-integrity context, and no authority/test/runtime promotion.</span></label>
     <label><input type="radio" name="shadow" value="match"><span><span class="token">● SHADOW MATCH</span><br>Only a completed comparison whose raw evidence recomputes to true/true/true may display MATCH.</span></label>
     <label><input type="radio" name="shadow" value="diverged"><span><span class="token">× SHADOW DIVERGED</span><br>False means a completed measured disagreement. It is not a generic failure token.</span></label>
-    <label><input type="radio" name="shadow" value="wound"><span><span class="token">□ WOUND / COMPARISON UNAVAILABLE</span><br>A pre-comparison wound keeps comparison fields null and may not retain stale temporal proof; its context must also validate.</span></label>
+    <label><input type="radio" name="shadow" value="wound"><span><span class="token">□ WOUND / COMPARISON UNAVAILABLE</span><br>A pre-comparison wound keeps comparison fields null and may not retain stale temporal proof; its context and evidence phase must both validate.</span></label>
     <label><input type="radio" name="shadow" value="display"><span><span class="token">◇ BOUNDED DISPLAY</span><br>Repository paths are safely projected, host paths collapse, raw failure prose becomes a digest plus fixed semantic meaning.</span></label>
     <label><input type="radio" name="shadow" value="identity"><span><span class="token">● OPERATOR RECEIPT v3 ID</span><br>operatorReceiptSha256 fingerprints the complete bounded operator payload, including the raw-evidence binding, excluding itself.</span></label>
     <label><input type="radio" name="shadow" value="membrane"><span><span class="token">□ CAPABILITY MEMBRANE</span><br>Source wired does not mean regressions executed, TESTED, runtime TalkBack, descriptor authority, phone delivery, deployment, delivery, or acceptance.</span></label>
@@ -73,16 +74,17 @@
       raw: 'RAW MACHINE EVIDENCE\nPreserve exact machine evidence. Do not make raw exception/path prose the routine operator surface.',
       rawid: 'RAW EVIDENCE ID / SOURCE WIRED\nHash exact deterministic raw shadow evidence without embedding it. Raw-only machine-evidence drift changes this binding and therefore the complete operator receipt identity.',
       self: 'SELF-INTEGRITY v2\nRecompute completed comparison truth from artifact lists and counters. Candidate count may not exceed directory entries; completed artifact cardinality must account for observed candidates.',
-      canonicalid: 'CANONICAL RESULT ID / EXACT\nThe completed receipt now validates canonicalResultSha256 as exact lowercase 64-hex identity before nested temporal equality is considered. Missing, uppercase, padded, short, long, or non-string values fail closed.',
+      canonicalid: 'CANONICAL RESULT ID / EXACT\nThe completed receipt validates canonicalResultSha256 as exact lowercase 64-hex identity before nested temporal equality is considered. Missing, uppercase, padded, short, long, or non-string values fail closed.',
       woundctx: 'WOUND CONTEXT / VALIDATED\nCANONICAL_SCHEMA_WOUND stops before completeness/capability. CANONICAL_WOUND requires evidenceComplete=false. DESCRIPTOR_UNAVAILABLE requires exact unavailable capability. Portable/descriptor wounds require supported descriptor capability.',
+      woundphase: 'WOUND EVIDENCE PHASE / VALIDATED\nNull comparisons only mean comparison did not complete. Early wounds must carry no later portable/descriptor observations. DESCRIPTOR_WOUND may retain the exact already-observed portable artifact set, whose cardinality must still match canonical candidates; descriptor evidence and counters remain unavailable.',
       work: 'WORK METRICS / AUDITABLE\nCompleted comparison receipts show exact directory-entry and candidate counts. metricsMatch must agree. Wounds do not counterfeit partial work as completed evidence.',
       temporal: 'TEMPORAL RECEIPT CONTEXT\nExact canonical v10, evidenceComplete=true, portable authority backend, supported descriptor capability, exact admitted result identity, and no promoted capability are required before temporal proof is carried.',
       match: 'SHADOW MATCH\nCompleted comparison, recomputed raw evidence true/true/true, auditable work counts, strict receipt context admitted. Still no promotion authority or TESTED/runtime claim.',
       diverged: 'SHADOW DIVERGED\nComparison completed and measured at least one false dimension. Preserve the evidence; do not convert measured divergence into generic wound text.',
-      wound: 'WOUND / COMPARISON UNAVAILABLE\nNo complete comparison means null comparison fields and null comparisonWork. Stale temporal proof is rejected, and wound context must match where the pipeline actually stopped.',
+      wound: 'WOUND / COMPARISON UNAVAILABLE\nNo complete comparison means null comparison fields and null comparisonWork. Stale temporal proof is rejected, wound context must match where the pipeline stopped, and phase evidence may not claim stages that never completed.',
       display: 'BOUNDED DISPLAY\nUse the existing projector only. Reveal safe repository evidence, hide host topology, digest raw boundary prose, and preserve true/false/null semantics.',
       identity: 'OPERATOR RECEIPT v3 ID\nThe deterministic SHA-256 covers the complete bounded operator payload except the digest field itself, including rawMachineEvidenceSha256. It grants no authority or runtime capability.',
-      membrane: 'CAPABILITY MEMBRANE\nSelf-integrity v2 SOURCE_WIRED. Canonical result identity SOURCE_WIRED. Raw evidence binding SOURCE_WIRED. Operator receipt v3 SOURCE_WIRED. Regressions UNEXECUTED. TESTED NO. Runtime TalkBack NO. Descriptor authority NO. Phone/P0 untouched. Deployed/delivered/accepted NO.'
+      membrane: 'CAPABILITY MEMBRANE\nSelf-integrity v2 SOURCE_WIRED. Canonical result identity SOURCE_WIRED. Wound evidence phase SOURCE_WIRED. Raw evidence binding SOURCE_WIRED. Operator receipt v3 SOURCE_WIRED. Regressions UNEXECUTED. TESTED NO. Runtime TalkBack NO. Descriptor authority NO. Phone/P0 untouched. Deployed/delivered/accepted NO.'
     };
     for (const radio of document.querySelectorAll('input[name=shadow]')) {
       radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
