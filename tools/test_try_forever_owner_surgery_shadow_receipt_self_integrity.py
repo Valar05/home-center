@@ -242,6 +242,62 @@ def main() -> int:
     assert wounded_receipt["woundContextValidated"] is True
     assert wounded_receipt["temporalReceiptContextAdmitted"] is False
 
+    # Null comparison fields are not enough: pre-comparison evidence must match the phase where the
+    # wound occurred. Early wounds cannot smuggle later artifacts/counters into operator display.
+    expect_rejected(
+        raw_wound(
+            "CANONICAL_WOUND",
+            canonicalEvidenceComplete=False,
+            descriptorCapabilityStatus=None,
+            portableShadowArtifacts=[artifact()],
+        ),
+        "must not carry portable artifact evidence from a later phase",
+    )
+    expect_rejected(
+        raw_wound(
+            "DESCRIPTOR_UNAVAILABLE",
+            descriptorCapabilityStatus=PORTABLE_UNAVAILABLE,
+            portableShadowArtifacts=[],
+            descriptorArtifacts=[artifact()],
+        ),
+        "must not carry descriptor artifact evidence from a later phase",
+    )
+    expect_rejected(
+        raw_wound(
+            "PORTABLE_SHADOW_WOUND",
+            descriptorCapabilityStatus=SUPPORTED,
+            portableShadowArtifacts=[artifact()],
+        ),
+        "must not carry portable artifact evidence from a later phase",
+    )
+    expect_rejected(
+        raw_wound(
+            "DESCRIPTOR_WOUND",
+            descriptorCapabilityStatus=SUPPORTED,
+            portableShadowArtifacts=[artifact()],
+            descriptorArtifactDirectoryEntriesObserved=1,
+        ),
+        "must not carry completed descriptor work counters",
+    )
+    expect_rejected(
+        raw_wound(
+            "DESCRIPTOR_WOUND",
+            descriptorCapabilityStatus=SUPPORTED,
+            portableShadowArtifacts=[artifact()],
+            descriptorArtifacts=[artifact()],
+        ),
+        "must not carry descriptor artifact evidence from an incomplete descriptor stage",
+    )
+    expect_rejected(
+        raw_wound(
+            "DESCRIPTOR_WOUND",
+            canonicalArtifactCandidatesObserved=2,
+            descriptorCapabilityStatus=SUPPORTED,
+            portableShadowArtifacts=[artifact()],
+        ),
+        "portable artifact evidence cardinality must equal canonical candidate count",
+    )
+
     stale_temporal_wound = dict(wounded)
     stale_temporal_wound["temporalContentBinding"] = diverged_temporal
     expect_rejected(stale_temporal_wound, "must not carry temporal binding evidence")
@@ -275,6 +331,13 @@ def main() -> int:
         raw_wound("PORTABLE_SHADOW_WOUND", descriptorCapabilityStatus=PORTABLE_UNAVAILABLE),
         "supported descriptor capability",
     )
+    portable_wound = raw_wound(
+        "PORTABLE_SHADOW_WOUND",
+        descriptorCapabilityStatus=SUPPORTED,
+        portableShadowArtifacts=[],
+    )
+    assert project_shadow_receipt_with_self_integrity(ROOT, portable_wound)["woundContextValidated"] is True
+
     expect_rejected(
         raw_wound("CAPABILITY_WOUND", descriptorCapabilityStatus=SUPPORTED),
         "non-admitted descriptor capability state",
