@@ -16,14 +16,16 @@ failures; no stale prior HEAD/cleanliness evidence is returned.
 
 Porcelain output is captured as bytes rather than host-locale text. Authority only
 needs the ASCII ``branch.oid`` header plus whether any non-header record exists;
-path bytes are therefore never decoded merely to decide clean/dirty state. This
-prevents a hostile or non-decodable filename from crashing the evidence path.
+path bytes are therefore never decoded merely to decide clean/dirty state. The OID
+payload is admitted exactly as emitted after the protocol prefix: whitespace or
+case normalization is not allowed to repair malformed authority evidence.
 
 Inherited Git repository-redirection variables are removed before the subprocess
 runs. ``cwd`` alone does not defeat ``GIT_DIR`` / ``GIT_WORK_TREE`` / alternate
-index/common-dir overrides, and command-scope ``GIT_CONFIG_*`` injection can also
-rewrite repository behavior. Authority must observe the repository named by the
-caller rather than whichever repository/config the parent process injected.
+index/common-dir overrides, and inherited config-file / command-scope config
+injection can also rewrite repository behavior. Authority must observe the
+repository named by the caller rather than whichever repository/config the parent
+process injected.
 
 Authority-facing Git subprocesses also force ``GIT_NO_REPLACE_OBJECTS=1``. Git
 replacement refs are a useful porcelain/debugging feature, but provenance must
@@ -55,6 +57,9 @@ _GIT_REPOSITORY_REDIRECT_ENV = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_NAMESPACE",
     "GIT_SHALLOW_FILE",
+    "GIT_CONFIG_GLOBAL",
+    "GIT_CONFIG_SYSTEM",
+    "GIT_CONFIG_NOSYSTEM",
     "GIT_CONFIG_COUNT",
     "GIT_CONFIG_PARAMETERS",
 )
@@ -118,7 +123,7 @@ def parse_porcelain_v2_branch_status(
                     head="",
                     dirty=None,
                 )
-            raw_oid = line[len(_BRANCH_OID_PREFIX) :].strip()
+            raw_oid = line[len(_BRANCH_OID_PREFIX) :]
             try:
                 oid = raw_oid.decode("ascii", errors="strict")
             except UnicodeDecodeError:
@@ -131,7 +136,7 @@ def parse_porcelain_v2_branch_status(
             if not _is_git_object_id(oid):
                 return RepositoryEmissionObservation(
                     status="UNAVAILABLE",
-                    reason="single-command git status did not report a canonical branch.oid",
+                    reason="single-command git status did not report an exact canonical branch.oid",
                     head="",
                     dirty=None,
                 )
@@ -152,8 +157,9 @@ def parse_porcelain_v2_branch_status(
         status="OBSERVED",
         reason=(
             "HEAD and worktree cleanliness were derived from one unambiguous git "
-            "status --porcelain=v2 --branch process with submodule ignores disabled, "
-            "inherited repository/config redirection removed, and replacement objects disabled"
+            "status --porcelain=v2 --branch process with exact branch.oid admission, "
+            "submodule ignores disabled, inherited repository/config redirection removed, "
+            "and replacement objects disabled"
         ),
         head=head,
         dirty=dirty,
