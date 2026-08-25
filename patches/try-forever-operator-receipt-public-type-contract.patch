@@ -1,6 +1,8 @@
 # OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
 # BASE_BLOB: 2920ae28ea56a9840cf7ca05a57ff9231469cb04
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
+# APPLIED_COMMIT: 04767647bcfc9ef29b6b867d5db7c7e6e8dbc66f
+# RESULT_BLOB: 42cd1fceccfae861e9e5edd129b145b15969d401
 # PURPOSE: make public reverification type capability match exact built-in-dict runtime admission
 
 diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
