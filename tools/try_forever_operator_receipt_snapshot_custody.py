@@ -8,8 +8,10 @@ or change identity because Python's JSON encoder helpfully normalizes a non-JSON
 This organ therefore performs one bounded recursive observation into plain ``dict``/``list`` JSON
 values. Every mapping level requires non-empty string keys; tuples, non-string keys, non-finite
 numbers, cycles/over-depth trees, and resource-over-budget evidence fail closed before later receipt
-verification. A final deterministic JSON serialization checks the detached observation against an
-encoded-byte ceiling without re-reading caller-owned objects.
+verification. Integer evidence also has a pre-serialization magnitude throat, so one otherwise-valid
+JSON scalar cannot force disproportionate decimal conversion work before the encoded-byte ceiling is
+checked. A final deterministic JSON serialization checks the detached observation against an encoded-
+byte ceiling without re-reading caller-owned objects.
 
 The snapshot is evidence custody only. It creates no receipt owner/projector, grants no authority,
 TESTED/runtime/deployment/callability/execution/delivery/acceptance state, and has no phone/P0
@@ -28,6 +30,10 @@ MAX_SNAPSHOT_DEPTH = 64
 MAX_SNAPSHOT_NODES = 50_000
 MAX_SNAPSHOT_STRING_CODEPOINTS = 1_048_576
 MAX_SNAPSHOT_ENCODED_BYTES = 8 * 1024 * 1024
+# 14,284 binary bits are sufficient for at most 4,300 decimal digits. This mirrors CPython's
+# default large-int string-conversion safety order of magnitude without relying on process-global
+# ``sys.set_int_max_str_digits`` state, and keeps the bound enforceable before decimal serialization.
+MAX_SNAPSHOT_INTEGER_BITS = 14_284
 
 
 class OperatorReceiptSnapshotCustodyError(ValueError):
@@ -68,7 +74,14 @@ def _snapshot_json_value(
 
     budget.consume_node(field=field)
 
-    if value is None or type(value) is bool or type(value) is int:
+    if value is None or type(value) is bool:
+        return value
+
+    if type(value) is int:
+        if value.bit_length() > MAX_SNAPSHOT_INTEGER_BITS:
+            raise OperatorReceiptSnapshotCustodyError(
+                f"{field} exceeds snapshot integer-magnitude budget {MAX_SNAPSHOT_INTEGER_BITS} bits"
+            )
         return value
 
     if type(value) is float:
