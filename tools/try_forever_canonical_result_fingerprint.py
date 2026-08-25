@@ -7,6 +7,12 @@ remain deterministic even when JSON-shaped source evidence contains a Python sur
 promotion authority, TESTED, runtime, deployment, phone delivery, filesystem atomicity, or
 acceptance.
 
+Canonical fingerprint custody starts from one exact built-in ``dict``. A caller-owned ``Mapping`` or
+``dict`` subclass is not canonical JSON-object evidence here: custom container methods could execute
+caller code or expose a different view during serialization. Existing authoritative consumers already
+supply detached plain dictionaries, so rejecting container subclasses closes an evidence-work channel
+without changing ordinary canonical-result identity.
+
 For ordinary Unicode text the encoding is intentionally identical to the current descriptor-shadow
 fingerprint: sorted compact JSON, ``ensure_ascii=False``, encoded as UTF-8. ``surrogatepass`` changes
 only the otherwise-unencodable surrogate case, so valid-Unicode fingerprints do not churn merely to
@@ -39,8 +45,10 @@ def canonical_result_sha256(result: Mapping[str, object]) -> str:
     never be used as promotion authority or proof of filesystem atomicity.
     """
 
-    if not isinstance(result, Mapping):
-        raise CanonicalResultFingerprintError("canonical result must be one mapping")
+    if type(result) is not dict:
+        raise CanonicalResultFingerprintError(
+            "canonical result must be one exact built-in dict observation"
+        )
 
     try:
         text = json.dumps(
