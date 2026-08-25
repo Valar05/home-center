@@ -110,10 +110,14 @@ def main() -> int:
         "snapshot node budget",
     )
 
-    # Large integer conversion is a resource boundary too. Exact JSON integer shape does not permit
-    # one scalar to consume disproportionate decimal-conversion work before the encoded-byte check.
-    max_int = (1 << MAX_SNAPSHOT_INTEGER_BITS) - 1
-    assert snapshot_json_mapping({"value": max_int}, field="operator receipt")["value"] == max_int
+    # Large integer conversion is a resource boundary too. A moderate large integer remains ordinary
+    # JSON evidence; max+1 bit magnitude must reject before decimal serialization. Do not require the
+    # source ceiling itself to serialize successfully because Python can impose a stricter process-wide
+    # integer-to-string policy, which is an independent fail-closed boundary.
+    ordinary_large_int = (1 << 2_048) - 1
+    assert snapshot_json_mapping(
+        {"value": ordinary_large_int}, field="operator receipt"
+    )["value"] == ordinary_large_int
     expect_reject(
         lambda: snapshot_json_mapping(
             {"value": 1 << MAX_SNAPSHOT_INTEGER_BITS},
