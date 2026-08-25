@@ -31,7 +31,7 @@ Filesystem `Path` values and exact repository-relative record identities remain 
 
 Serialized machine evidence can outlive or leave the operating system that produced it. A Windows drive/UNC/rooted/drive-relative path string is not interpreted consistently by POSIX `Path`, while POSIX-rooted text is foreign syntax to Windows. Treating the reviewer host's path parser as the only scope detector can leak foreign host topology through a repository-relative display channel.
 
-The source-level repair lives in `project_serialized_report_path(...)`. The descriptor-shadow operator projector still owns its own path projection call site and must explicitly consume this helper before that owner seam is called source-wired. The current exact owner surgery is preserved at `docs/try-forever/descriptor-shadow-cross-host-path-display.patch`; its existence is **PROPOSED_NOT_APPLIED**, not implementation.
+The source-level repair lives in `project_serialized_report_path(...)`. The descriptor-shadow operator projector now **explicitly consumes that existing helper**; authenticated owner readback after commit `cad8d728efa14d8a20b229d1902896e9267d0e02` is blob `10b88a9583274d498524b3082e252886be4335af`. Applied provenance remains at `docs/try-forever/descriptor-shadow-cross-host-path-display.patch` with state **APPLIED_SOURCE**. This is source wiring only; regression execution, TESTED, runtime UI/TalkBack, deployment, delivery, and acceptance remain separate.
 
 Do not solve this by banning Windows-looking characters from the already-authorized repository-relative API. A repository-relative identity such as `patches/C:\\literal-name.patch` or even `C:literal-name.patch` after explicit relative authority is already established is still repository evidence. The cross-host detector belongs only at the serialized-path boundary where absolute-vs-relative scope has not already been established.
 
@@ -79,21 +79,23 @@ Pin all of these independently:
 9. distinct repository-local over-budget identities retain distinct repository-local digests;
 10. exact internal `SkillRecord` / `DiscoveryError` identities survive display serialization unchanged;
 11. discovery-error pre-boundary collapse and final serialization remain compatible;
-12. descriptor-shadow operator projection has an explicit owner-boundary regression and remains RED/UNWIRED until it consumes the serialized-path helper;
+12. descriptor-shadow operator projection must consume `project_serialized_report_path(...)`; the owner-boundary source now covers Windows drive, UNC, drive-relative, rooted, POSIX absolute, and already-authorized repository-relative Windows-looking identities;
 13. regression source is not TESTED evidence until an authorized runner actually executes it.
 
 ## Current capability state
 
 - absolute/external projection policy: **YES / SOURCE_WIRED**
 - repository-relative record projection: **YES / SOURCE_WIRED**
-- cross-host serialized path projection: **YES / SUPPORTING_SOURCE**
-- descriptor-shadow serialized-path owner consumption: **NO / RED / PROPOSED_NOT_APPLIED**
+- cross-host serialized path projection policy: **YES / SOURCE**
+- descriptor-shadow serialized-path owner consumption: **YES / SOURCE_WIRED**
 - Cc/Cf/Cs/Zl/Zp explicit path evidence: **YES / SOURCE_WIRED**
 - over-budget whole-identity collapse: **YES / SOURCE_WIRED**
 - discovery-error pre-boundary collapse: **YES / SOURCE_WIRED**
 - current path-policy blob after corrective cross-host hardening: **b30add2b26511921817a97d42972a92dd24545ab**
 - current owner schema: **try-forever-skill-provenance.v6**
-- descriptor-shadow owner base blob for prepared surgery: **4cc65f162f600e70a9771d7cf3edac94e45f5344**
+- descriptor-shadow owner base blob before applied surgery: **4cc65f162f600e70a9771d7cf3edac94e45f5344**
+- descriptor-shadow owner applied commit: **cad8d728efa14d8a20b229d1902896e9267d0e02**
+- descriptor-shadow owner result blob: **10b88a9583274d498524b3082e252886be4335af**
 - hostile path regression source: **YES / UNEXECUTED**
 - foreign-rooting regression source: **YES / UNEXECUTED**
 - descriptor-shadow cross-host owner-boundary regression source: **YES / UNEXECUTED**
