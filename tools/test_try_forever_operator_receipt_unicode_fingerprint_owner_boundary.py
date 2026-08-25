@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""RED source boundary for final-v4 operator receipt surrogate-safe digest ownership.
+"""Source boundary for final-v4 operator receipt surrogate-safe digest ownership.
 
-SOURCE ONLY. This fixture has not executed in an authorized lane.
+SOURCE ONLY. The owner is now SOURCE_WIRED by authenticated readback, but this fixture has not
+executed in an authorized lane and therefore is not TESTED evidence.
 
 The existing final receipt owner must compose the existing canonical-result fingerprint organ inside
 ``_operator_receipt_sha256``. Merely importing the helper elsewhere, mentioning it in a comment, or
