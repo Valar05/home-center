@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-observation bounded JSON snapshot custody for operator receipt verification.
 
-Verification code must not validate one view of a stateful ``Mapping`` and later hash/derive from a
+Verification code must not validate one view of caller-owned evidence and later hash/derive from a
 second view of that same object. It also must not let caller-owned evidence consume unbounded memory
 or change identity because Python's JSON encoder helpfully normalizes a non-JSON shape.
 
@@ -29,7 +29,6 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Mapping
 
 from try_forever_operator_receipt_snapshot_admission_policy import (
     SnapshotAdmissionPolicyError,
@@ -184,15 +183,16 @@ def _snapshot_json_value(
     )
 
 
-def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[str, object]:
-    """Capture one stable bounded plain-dict observation of an exact JSON-shaped mapping.
+def snapshot_json_mapping(value: dict[str, object], *, field: str) -> dict[str, object]:
+    """Capture one stable bounded plain-dict observation of an exact JSON-shaped object.
 
-    Caller-owned mappings and nested structures are read exactly once by this function. The returned
-    tree contains only plain dict/list containers and JSON scalars. The deterministic serialization
-    below reads only that detached tree; it never revisits the caller-owned mapping. ``field`` is
-    diagnostic context only and is admitted through a bounded source gate, then projected into a
-    bounded ASCII-safe form before any error can use it; canonical caller evidence is never rewritten
-    for diagnostic convenience.
+    The public type contract intentionally matches runtime admission: this entrypoint accepts an exact
+    built-in ``dict``, not arbitrary ``Mapping`` implementations. Nested structures are read exactly
+    once by this function. The returned tree contains only plain dict/list containers and JSON
+    scalars. The deterministic serialization below reads only that detached tree; it never revisits
+    the caller-owned object. ``field`` is diagnostic context only and is admitted through a bounded
+    source gate, then projected into a bounded ASCII-safe form before any error can use it; canonical
+    caller evidence is never rewritten for diagnostic convenience.
     """
 
     try:
@@ -246,10 +246,14 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
 
 
 def snapshot_verification_inputs(
-    receipt: Mapping[str, object],
-    raw_result: Mapping[str, object] | None = None,
+    receipt: dict[str, object],
+    raw_result: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    """Return stable verification inputs and an explicit capability membrane."""
+    """Return stable verification inputs and an explicit capability membrane.
+
+    Both public inputs advertise the same exact built-in-dict boundary already enforced by
+    ``snapshot_json_mapping``; unsupported arbitrary ``Mapping`` capability is not exposed in typing.
+    """
 
     receipt_snapshot = snapshot_json_mapping(receipt, field="operator receipt")
     raw_snapshot = (
