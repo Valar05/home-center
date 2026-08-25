@@ -11,6 +11,11 @@ For ordinary Unicode text the encoding is intentionally identical to the current
 fingerprint: sorted compact JSON, ``ensure_ascii=False``, encoded as UTF-8. ``surrogatepass`` changes
 only the otherwise-unencodable surrogate case, so valid-Unicode fingerprints do not churn merely to
 close the hostile-path wound.
+
+Hostile recursive/deep evidence must also stay inside this organ's typed failure boundary. Python's
+JSON encoder can raise ``RecursionError`` or ``OverflowError`` for pathological container/number
+shapes; those are evidence-admission failures here, not process-level exceptions that may escape the
+receipt chain.
 """
 
 from __future__ import annotations
@@ -46,7 +51,7 @@ def canonical_result_sha256(result: Mapping[str, object]) -> str:
             allow_nan=False,
         )
         encoded = text.encode("utf-8", errors="surrogatepass")
-    except (TypeError, ValueError, UnicodeError) as exc:
+    except (TypeError, ValueError, UnicodeError, OverflowError, RecursionError) as exc:
         raise CanonicalResultFingerprintError(
             f"canonical result is not deterministic JSON evidence: {exc}"
         ) from exc
