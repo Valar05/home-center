@@ -1,0 +1,192 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-25T02:00:00-05:00",
+  "pr": 329,
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "previousPublicationHead": "db35f42afe9541f88dbd8856678dabc31b5f6b88",
+  "reviewedSourceHead": "19972d3f14a10a1503cf622c06ddecf9221aeefa",
+  "sourceDelta": {
+    "commits": 4,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0,
+    "paths": [
+      "receipts/try-forever/2026-08-25-heartbeat-0200-plan.json",
+      "skills/operator-receipt-snapshot-custody/SKILL.md",
+      "tools/test_try_forever_operator_receipt_snapshot_custody.py",
+      "tools/try_forever_operator_receipt_snapshot_custody.py"
+    ]
+  },
+  "sourceEvidence": {
+    "snapshotCustodyBlob": "cfbc9b1f4f954a4907ee5b2f23ca2a805f0e5a41",
+    "hostileRegressionBlob": "381845194f6d56d0292e49b565f20af02ae8dbde",
+    "snapshotCustodySkillBlob": "809f6091ae5aa8b1a886763087eb09ebbb6e5617",
+    "planCommit": "8bbca68baa18d2174f9c81f05d1f5f610de9d25e"
+  },
+  "materialFronts": [
+    {
+      "front": "snapshot diagnostic custody",
+      "state": "SOURCE_WIRED",
+      "change": "Exact Mapping keys remain canonical evidence while recursive diagnostic field paths and duplicate-key prose use bounded ASCII-safe projection. Newline, bidi, lone-surrogate, giant-key, and deep-path text cannot be emitted raw as operator/log diagnostics."
+    },
+    {
+      "front": "hostile diagnostic regression",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "Regression source pins exact hostile-key preservation, escaped diagnostic controls, bounded deep paths, whole-identity collapse, caller diagnostic-context projection, and duplicate-key diagnostic safety."
+    },
+    {
+      "front": "snapshot custody doctrine convergence",
+      "state": "SOURCE",
+      "change": "Existing operator-receipt-snapshot-custody skill now separates canonical evidence from diagnostic prose and records diagnostic segment/path ceilings without promoting source wiring into testing or runtime."
+    },
+    {
+      "front": "exact-head execution truth",
+      "state": "READBACK_ONLY",
+      "change": "All automatic workflows on the exact reviewed source head concluded failure. Operator job exposed zero steps; no authenticated step-level cause was established and no retry was fired."
+    },
+    {
+      "front": "Regnet and Venice review",
+      "state": "BOUNDED_SOURCE_PASS",
+      "change": "Code-first review permits source/readback claims only. Regression execution, TESTED, runtime, deployment, delivery, and acceptance stay closed."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": {
+      "state": "LIT",
+      "contribution": "Moved from already-reviewed integer/fingerprint throats to the distinct raw-diagnostic evidence channel."
+    },
+    "Canon Auto-Select": {
+      "state": "LIT",
+      "contribution": "Selected existing operator-receipt-snapshot-custody as the repository-native owner; no new receipt validator/projector was created."
+    },
+    "Autocorrect Judgment Jar": {
+      "state": "DARK",
+      "reason": "No material speech-token ambiguity affected this source slice."
+    },
+    "Originality Tax": {
+      "state": "LIT",
+      "contribution": "Changed evidence path instead of repeating workflow retries or creating another validator."
+    },
+    "Hunger / Ever-Polished Interpreter / Eat Everything": {
+      "state": "LIT",
+      "contribution": "Forced source, hostile fixtures, and durable skill doctrine to converge on one exact-evidence/diagnostic-projection contract."
+    },
+    "Operator Campaign / Harroway": {
+      "state": "LIT",
+      "contribution": "Kept work on PR #329 through audited GitHub writes and preserved the existing final-v4 receipt owner."
+    },
+    "She-Raw adversarial motivation": {
+      "state": "FAULT",
+      "reason": "Authoritative ambient attempt returned account-connection HTTP 400; no synthetic substitute was used."
+    },
+    "Venice Judgment Jars": {
+      "state": "LIT",
+      "contribution": "PLAN_ALLOWED for the bounded non-P0 source slice; completion gate keeps regression/test/runtime/campaign work open."
+    },
+    "Regnet QA": {
+      "state": "LIT",
+      "contribution": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO"
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "state": "LIT",
+      "contribution": "Prevented hostile control/bidi/surrogate key text from becoming raw future operator/log/spoken diagnostic prose while preserving exact canonical evidence."
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "state": "DARK_FIREWALLED",
+      "reason": "P0/phone execution surface not consumed or mutated."
+    },
+    "deterministic routing": {
+      "state": "LIT",
+      "contribution": "Diagnostic collapse uses deterministic SHA-256 identity; canonical accepted key identity remains unchanged."
+    },
+    "evidence/capability-state discipline": {
+      "state": "LIT",
+      "contribution": "SOURCE_WIRED is not TESTED; exact workflow failure is not a source-failure diagnosis."
+    },
+    "recovery/checkpointing/idempotence": {
+      "state": "LIT",
+      "contribution": "Preserved canonical snapshot identity and existing final-receipt ownership while changing only diagnostic projections."
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "state": "DARK",
+      "reason": "No user-facing topology changed; art mutation would be decorative heartbeat theater."
+    },
+    "warm walls": {
+      "state": "DARK",
+      "reason": "Existing source topology did not need a new touchable state for this diagnostic-only repair."
+    },
+    "Christmas-light scene graph": {
+      "state": "DARK",
+      "reason": "No runtime transition law changed; no motion/blink consequence was earned."
+    },
+    "contact preservation": {
+      "state": "LIT",
+      "contribution": "Exact canonical Mapping keys and accepted evidence remain untouched while only diagnostic text is transformed."
+    }
+  },
+  "crossPollination": "Snapshot resource custody made error-path work suspicious. Accessibility/evidence truth then exposed exact mapping keys leaking into diagnostic paths and duplicate-key prose. Contact preservation forced a split: canonical evidence stays exact while only diagnostics become escaped/bounded. Hostile fixtures and repository skill doctrine inherited the same law. Exact-head workflow failure keeps SOURCE_WIRED behind TESTED/runtime.",
+  "executionTruth": {
+    "head": "19972d3f14a10a1503cf622c06ddecf9221aeefa",
+    "runs": [
+      {
+        "name": "Build Android",
+        "runId": 32820650438,
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "Home Center CI",
+        "runId": 32820650506,
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "Operator Overlay Android",
+        "runId": 32820650509,
+        "jobId": 97717808304,
+        "status": "completed",
+        "conclusion": "failure",
+        "exposedSteps": 0
+      }
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "review": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "regnet": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "phoneHands": "UNTOUCHED",
+    "primaryPhone": "UNTOUCHED",
+    "recoveryChain": "UNTOUCHED",
+    "nightcore": "UNTOUCHED",
+    "pocketTts": "UNTOUCHED",
+    "chromium": "UNTOUCHED",
+    "contextOrgans": "UNTOUCHED",
+    "physicalAcceptance": "UNTOUCHED"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "diagnosticCustodySourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
