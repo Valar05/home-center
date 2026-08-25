@@ -16,6 +16,12 @@ The raw descriptor-shadow result remains machine evidence. The operator receipt 
 
 `NULL COMPARISONS != PERMISSION TO CARRY EVIDENCE FROM A PIPELINE PHASE THAT NEVER COMPLETED`.
 
+`CALLER-OWNED MAPPING != ONE STABLE EVIDENCE OBSERVATION`.
+
+`SELF-INTEGRITY / DISPLAY PROJECTION MUST SNAPSHOT EXACT JSON BEFORE ANY SEMANTIC READ`.
+
+`EXACT BUILT-IN DICT + BOUNDED DETACHED JSON SNAPSHOT = ADMITTED CONTAINER SHAPE; CUSTOM MAPPING / DICT SUBCLASS = REJECT BEFORE CALLBACKS`.
+
 `CANONICAL_SCHEMA_WOUND / CANONICAL_WOUND / DESCRIPTOR_UNAVAILABLE / CAPABILITY_WOUND / PORTABLE_SHADOW_WOUND = NO PORTABLE OR DESCRIPTOR ARTIFACT EVIDENCE + NO DESCRIPTOR WORK COUNTERS`.
 
 `DESCRIPTOR_WOUND = PORTABLE DIAGNOSTIC CONTACT MAY SURVIVE + DESCRIPTOR ARTIFACTS/COUNTERS MUST REMAIN UNAVAILABLE`.
@@ -73,18 +79,20 @@ The raw descriptor-shadow result remains machine evidence. The operator receipt 
 ## Existing organs
 `tools/try_forever_owner_surgery_descriptor_shadow_audit.py` remains the raw non-authoritative descriptor-shadow evidence producer.
 
+`tools/try_forever_operator_receipt_snapshot_custody.py` remains the bounded one-observation exact-JSON custody organ. It requires an exact built-in dict, recursively detaches exact JSON values under finite depth/node/text/integer/encoded-byte budgets, and rejects custom Mapping/dict-subclass callback surfaces before traversal.
+
 `tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` remains the strict temporal receipt-context gate already consumed by completed shadow comparisons.
 
-`tools/try_forever_owner_surgery_shadow_receipt_projection.py` remains the sole bounded display projector. It owns path privacy, boundary-digest projection, comparison true/false/null display semantics, and exposes the exact bounded work counters for completed comparisons while verifying the `metricsMatch` claim against those counters.
+`tools/try_forever_owner_surgery_shadow_receipt_projection.py` remains the sole bounded display projector. It now consumes the existing snapshot-custody organ **before any display semantic read**, then owns path privacy, boundary-digest projection, comparison true/false/null display semantics, and the exact bounded work counters for completed comparisons while verifying `metricsMatch` against those counters.
 
-`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` is self-integrity schema v2. It recomputes completed comparison truth from raw artifact lists/counters, validates exact completed-comparison and temporal receipt context, validates the canonical result identity itself before accepting nested equality, validates wound/unavailable status against the canonical/capability context that can actually produce it, validates the status-specific pre-comparison evidence phase, preserves legitimate DESCRIPTOR_WOUND portable contact, and delegates display to the existing projector.
+`tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` is self-integrity schema v2. It now consumes the same snapshot-custody organ **before raw capability, status, artifact, metric, or temporal semantic reads**; then it recomputes completed comparison truth, validates completed/wound context and canonical result identity, preserves legitimate DESCRIPTOR_WOUND portable contact, and delegates display to the existing projector.
 
 ## Operator receipt owner command
 `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` remains **SOURCE_WIRED** as the bounded operator command surface and is operator receipt schema v3.
 
 It composes the existing organs in one direction:
 
-`raw descriptor shadow -> raw evidence SHA binding -> receipt self-integrity -> existing bounded display projector -> operator receipt`.
+`raw descriptor shadow -> raw evidence SHA binding -> exact snapshot self-integrity -> exact snapshot bounded display projector -> operator receipt`.
 
 The raw audit remains separately callable for machine evidence. The operator receipt carries `rawMachineEvidenceSha256` so the bounded receipt is cryptographically linked to the exact deterministic raw shadow payload without embedding raw machine evidence or raw boundary prose. The complete bounded operator payload then receives deterministic `operatorReceiptSha256` identity after projection. Both digests are evidence/checkpoint identity only; neither grants authority, execution, testing, runtime, deployment, delivery, acceptance, or filesystem atomicity.
 
@@ -95,6 +103,8 @@ The command does not reinterpret or mutate the raw result, does not emit promoti
 
 `tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py` remains **SOURCE / UNEXECUTED** and attacks lying comparison booleans, impossible counters, completed cardinality drift, counterfeit completed context, counterfeit wound/capability context, counterfeit wound-phase artifact/counter evidence, stale temporal proof, and legitimate DESCRIPTOR_WOUND portable-contact preservation.
 
+`tools/test_try_forever_shadow_receipt_exact_snapshot_boundary.py` is **SOURCE / UNEXECUTED**. It requires ordinary exact-dict behavior to remain admitted while root custom Mapping and nested dict-subclass evidence are rejected by both existing owners before caller callbacks execute.
+
 `tools/test_try_forever_shadow_canonical_result_identity.py` is **SOURCE / UNEXECUTED** and attacks missing, non-string, short, long, uppercase, leading-space, and trailing-space canonical result identities while repeating each counterfeit through the nested temporal receipt to prove equality alone cannot admit malformed identity.
 
 `tools/test_try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` remains **SOURCE / UNEXECUTED**. It pins actual operator-command consumption of self-integrity, exact completed work-metric visibility, raw-evidence SHA linkage, raw-only machine-evidence drift changing receipt identity without raw disclosure, deterministic bounded operator receipt identity, raw-boundary non-leakage, no authority/runtime promotion, rejection of contradictory raw evidence, and rejection of stale temporal proof on wounds.
@@ -103,6 +113,8 @@ Do not call any regression passed merely because source exists.
 
 ## Current capability truth
 - descriptor-shadow comparison tri-state owner: **YES / SOURCE_WIRED**;
+- display projector one-observation exact-JSON snapshot custody: **YES / SOURCE_WIRED**;
+- receipt self-integrity one-observation exact-JSON snapshot custody: **YES / SOURCE_WIRED**;
 - temporal receipt-context owner: **YES / SOURCE_WIRED**;
 - receipt self-integrity gate v2: **YES / SOURCE_WIRED**;
 - canonical result SHA exact-identity admission: **YES / SOURCE_WIRED**;
@@ -112,7 +124,7 @@ Do not call any regression passed merely because source exists.
 - operator receipt command consumes self-integrity: **YES / SOURCE_WIRED**;
 - raw machine-evidence SHA binding: **YES / SOURCE_WIRED**;
 - deterministic bounded operator receipt identity: **YES / SOURCE_WIRED**;
-- sole display projector: **YES / SOURCE**;
+- sole display projector: **YES / SOURCE_WIRED**;
 - hostile regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED: **NO**;
@@ -121,7 +133,7 @@ Do not call any regression passed merely because source exists.
 - deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Accessibility / touch
-Operator display must expose failed comparison as unavailable rather than counterfeit negative measurement, never echo raw failure prose, never let impossible work counters or incomplete artifact lists manufacture MATCH, never leave a completed `metricsMatch` claim without its exact bounded compared counts, never accept a malformed canonical result identity merely because nested receipts repeat it, never accept a wound label paired with unrelated healthy context, never accept early-wound receipts carrying later-phase artifacts/counters, preserve only the portable diagnostic contact that a real DESCRIPTOR_WOUND can have already observed, and never retain temporal proof on a wound.
+Operator display must reject caller-owned split-view/callback Mapping evidence before it can influence routine operator/TalkBack text; expose failed comparison as unavailable rather than counterfeit negative measurement; never echo raw failure prose; never let impossible work counters or incomplete artifact lists manufacture MATCH; never leave a completed `metricsMatch` claim without its exact bounded compared counts; never accept a malformed canonical result identity merely because nested receipts repeat it; never accept a wound label paired with unrelated healthy context; never accept early-wound receipts carrying later-phase artifacts/counters; preserve only the portable diagnostic contact that a real DESCRIPTOR_WOUND can have already observed; and never retain temporal proof on a wound.
 
 The operator receipt command is a source delivery surface only. Its raw-evidence fingerprint binds exact machine evidence without speaking it; its operator fingerprint identifies the bounded receipt. Neither is Android/TalkBack runtime proof.
 
