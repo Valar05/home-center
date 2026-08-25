@@ -7,21 +7,19 @@ remain deterministic even when JSON-shaped source evidence contains a Python sur
 promotion authority, TESTED, runtime, deployment, phone delivery, filesystem atomicity, or
 acceptance.
 
-Canonical fingerprint custody starts from one exact built-in ``dict``. A caller-owned ``Mapping`` or
-``dict`` subclass is not canonical JSON-object evidence here: custom container methods could execute
-caller code or expose a different view during serialization. Existing authoritative consumers already
-supply detached plain dictionaries, so rejecting container subclasses closes an evidence-work channel
-without changing ordinary canonical-result identity.
+Canonical fingerprint custody now reuses the existing one-observation bounded JSON snapshot organ.
+The root and every nested object/list/scalar must already be exact JSON-shaped Python evidence before
+serialization: tuples, dict subclasses, non-string keys, non-finite numbers, and other Python shapes
+cannot be normalized by ``json.dumps`` into an identity they did not originally possess. The snapshot
+organ also supplies the finite depth/node/text/integer/encoded-size throat before fingerprint work.
 
-For ordinary Unicode text the encoding is intentionally identical to the current descriptor-shadow
-fingerprint: sorted compact JSON, ``ensure_ascii=False``, encoded as UTF-8. ``surrogatepass`` changes
-only the otherwise-unencodable surrogate case, so valid-Unicode fingerprints do not churn merely to
-close the hostile-path wound.
+For ordinary exact JSON with valid Unicode, fingerprint bytes are intentionally unchanged: sorted
+compact JSON, ``ensure_ascii=False``, encoded as UTF-8. ``surrogatepass`` changes only the otherwise
+unencodable surrogate case, so valid-Unicode fingerprints do not churn merely to close hostile-path
+wounds.
 
-Hostile recursive/deep evidence must also stay inside this organ's typed failure boundary. Python's
-JSON encoder can raise ``RecursionError`` or ``OverflowError`` for pathological container/number
-shapes; those are evidence-admission failures here, not process-level exceptions that may escape the
-receipt chain.
+Hostile recursive/deep evidence and JSON encoder failures stay inside this organ's typed failure
+boundary. This module owns no second snapshot, receipt owner, projector, phone surface, or P0 lane.
 """
 
 from __future__ import annotations
@@ -30,12 +28,17 @@ import hashlib
 import json
 from collections.abc import Mapping
 
+from try_forever_operator_receipt_snapshot_custody import (
+    OperatorReceiptSnapshotCustodyError,
+    snapshot_json_mapping,
+)
+
 
 SCHEMA = "try-forever-canonical-result-fingerprint.v1"
 
 
 class CanonicalResultFingerprintError(ValueError):
-    """Canonical result cannot be represented as deterministic JSON-shaped evidence."""
+    """Canonical result cannot be represented as deterministic exact JSON-shaped evidence."""
 
 
 def canonical_result_sha256(result: Mapping[str, object]) -> str:
@@ -45,23 +48,23 @@ def canonical_result_sha256(result: Mapping[str, object]) -> str:
     never be used as promotion authority or proof of filesystem atomicity.
     """
 
-    if type(result) is not dict:
-        raise CanonicalResultFingerprintError(
-            "canonical result must be one exact built-in dict observation"
-        )
-
     try:
+        snapshot = snapshot_json_mapping(result, field="canonical result")
         text = json.dumps(
-            result,
+            snapshot,
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=False,
             allow_nan=False,
         )
         encoded = text.encode("utf-8", errors="surrogatepass")
+    except OperatorReceiptSnapshotCustodyError as exc:
+        raise CanonicalResultFingerprintError(
+            "canonical result failed exact bounded JSON snapshot custody"
+        ) from exc
     except (TypeError, ValueError, UnicodeError, OverflowError, RecursionError) as exc:
         raise CanonicalResultFingerprintError(
-            f"canonical result is not deterministic JSON evidence: {exc}"
+            "canonical result is not deterministic JSON evidence"
         ) from exc
 
     return hashlib.sha256(encoded).hexdigest()
