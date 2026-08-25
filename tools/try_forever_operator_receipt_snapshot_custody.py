@@ -6,17 +6,18 @@ second view of that same object. It also must not let caller-owned evidence cons
 or change identity because Python's JSON encoder helpfully normalizes a non-JSON shape.
 
 This organ therefore performs one bounded recursive observation into plain ``dict``/``list`` JSON
-values. Every mapping level requires non-empty string keys; tuples, non-string keys, non-finite
-numbers, cycles/over-depth trees, and resource-over-budget evidence fail closed before later receipt
-verification. Integer evidence also has a pre-serialization magnitude throat, so one otherwise-valid
-JSON scalar cannot force disproportionate decimal conversion work before the encoded-byte ceiling is
-checked. A final deterministic JSON serialization checks the detached observation against an encoded-
-byte ceiling without re-reading caller-owned objects.
+values. Every object level requires the exact built-in ``dict`` container before traversal; tuples,
+non-string keys, non-finite numbers, cycles/over-depth trees, and resource-over-budget evidence fail
+closed before later receipt verification. Integer evidence also has a pre-serialization magnitude
+throat, so one otherwise-valid JSON scalar cannot force disproportionate decimal conversion work
+before the encoded-byte ceiling is checked. A final deterministic JSON serialization checks the
+detached observation against an encoded-byte ceiling without re-reading caller-owned objects.
 
 Exact evidence and diagnostic prose are deliberately separate. Mapping keys remain byte-for-byte
 semantic evidence in the detached snapshot, but error paths/projected field names are ASCII-safe and
 bounded so hostile newline/bidi/surrogate text or very deep names cannot become an operator/log
-injection or an independent diagnostic resource throat.
+injection or an independent diagnostic resource throat. Caller-supplied root diagnostic context is
+admitted through its own small source ceiling before JSON escaping/projection work begins.
 
 The snapshot is evidence custody only. It creates no receipt owner/projector, grants no authority,
 TESTED/runtime/deployment/callability/execution/delivery/acceptance state, and has no phone/P0
@@ -29,6 +30,12 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping
+
+from try_forever_operator_receipt_snapshot_admission_policy import (
+    SnapshotAdmissionPolicyError,
+    admit_diagnostic_context,
+    is_exact_json_object,
+)
 
 
 SCHEMA = "try-forever-operator-receipt-snapshot-custody.v2"
@@ -150,7 +157,7 @@ def _snapshot_json_value(
             for index, item in enumerate(value)
         ]
 
-    if isinstance(value, Mapping):
+    if is_exact_json_object(value):
         snapshot: dict[str, object] = {}
         for key, item in value.items():
             if type(key) is not str or not key:
@@ -183,13 +190,20 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
     Caller-owned mappings and nested structures are read exactly once by this function. The returned
     tree contains only plain dict/list containers and JSON scalars. The deterministic serialization
     below reads only that detached tree; it never revisits the caller-owned mapping. ``field`` is
-    diagnostic context only and is projected into a bounded ASCII-safe form before any error can use
-    it; canonical caller evidence is never rewritten for diagnostic convenience.
+    diagnostic context only and is admitted through a bounded source gate, then projected into a
+    bounded ASCII-safe form before any error can use it; canonical caller evidence is never rewritten
+    for diagnostic convenience.
     """
 
-    diagnostic_field = _diagnostic_root(field)
-    if not isinstance(value, Mapping):
-        raise OperatorReceiptSnapshotCustodyError(f"{diagnostic_field} must be one mapping")
+    try:
+        admitted_field = admit_diagnostic_context(field)
+    except SnapshotAdmissionPolicyError as exc:
+        raise OperatorReceiptSnapshotCustodyError(
+            "diagnostic context rejected by bounded source admission"
+        ) from exc
+    diagnostic_field = _diagnostic_root(admitted_field)
+    if not is_exact_json_object(value):
+        raise OperatorReceiptSnapshotCustodyError(f"{diagnostic_field} must be one exact built-in dict")
 
     budget = _SnapshotBudget()
     try:
