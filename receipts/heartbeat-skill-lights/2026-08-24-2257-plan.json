@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-24T22:57:43-05:00",
+  "pr": 329,
+  "currentHead": "87b5c219069e47f1a6eaaeb71cb96bbabf1faa4c",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts while preserving exact capability state and existing owners.",
+  "selectedFronts": [
+    "Promote the already-reviewed final-v4 receipt Unicode fingerprint surgery into the existing receipt owner only if the authenticated base blob is still exact.",
+    "After authenticated owner readback, converge the direct-owner regression, patch provenance, and durable fingerprint-custody skill without promoting regression execution or TESTED state.",
+    "Re-read exact-head workflow evidence and preserve source/test/runtime/deployment/callability/delivery/acceptance separation.",
+    "Run bounded Regnet/Venice review and preserve She-Raw connector failure as a reviewer fault rather than inventing critique."
+  ],
+  "constraints": {
+    "p0PhoneFirewall": true,
+    "phoneSurfaceConsumption": 0,
+    "duplicateArchitectureAllowed": false,
+    "localScratchAsProofAllowed": false,
+    "ownerMutationRequiresExactBaseBlob": "82af7cc572d2a95624fb549c387946068483c7e3",
+    "regressionSourceIsTestEvidence": false
+  },
+  "venicePlanGate": "PLAN_ALLOWED",
+  "veniceReason": "The mutation reuses one existing fingerprint organ in one existing receipt owner, is base-blob locked, is non-phone/non-P0, and has an existing hostile direct-owner regression. Supporting doctrine/receipts may converge only after authenticated post-mutation readback.",
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_SUBSTITUTE"
+}
