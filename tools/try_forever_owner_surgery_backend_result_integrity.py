@@ -5,24 +5,30 @@ This organ does not replace ``admit_selected_backend_result`` and does not own p
 It closes supporting-source evidence gaps before the existing backend result-admission policy is
 called:
 
-1. the result must identify the exact canonical owner-surgery custody schema it claims to preserve;
-2. every admitted Surgery must carry canonical same-observation byte-count/SHA-256 evidence;
-3. every promotion-group member must already exist as that exact Surgery evidence in the result's
+1. every public result entrypoint first captures one bounded exact-JSON snapshot, so caller-owned
+   Mapping/scalar subclasses cannot execute callbacks during integrity reads;
+2. the result must identify the exact canonical owner-surgery custody schema it claims to preserve;
+3. every admitted Surgery must carry canonical same-observation byte-count/SHA-256 evidence;
+4. every promotion-group member must already exist as that exact Surgery evidence in the result's
    ``surgeries`` inventory, including content identity; and
-4. ``artifactContentWitnesses`` must equal the canonical Surgery path/byte-count/SHA-256 set before
-   the existing authority-admission policy may see the result.
+5. ``artifactContentWitnesses`` must equal the canonical Surgery path/byte-count/SHA-256 set before
+   the existing authority-admission policy may see the detached result.
 
 Witness parity is part of this existing backend-result integrity owner. It is not a second backend
 authority owner, and later descriptor-shadow agreement cannot repair a contradictory canonical
-result after it has crossed this boundary.
+result after it has crossed this boundary. Snapshot custody is delegated to the existing operator
+receipt exact-JSON organ; this module does not mint a neighboring validator.
 """
 
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
 from dataclasses import dataclass
 
+from try_forever_operator_receipt_snapshot_custody import (
+    OperatorReceiptSnapshotCustodyError,
+    snapshot_json_mapping,
+)
 from try_forever_owner_surgery_backend_policy import (
     OWNER_AUTHORITY_FIELDS,
     OwnerSurgeryBackendSelection,
@@ -55,12 +61,23 @@ class SurgeryIdentity:
     artifact_sha256: str
 
 
+def _snapshot_backend_result(result: dict[str, object], *, context: str) -> dict[str, object]:
+    """Detach one exact bounded JSON observation before any semantic result reads."""
+
+    try:
+        return snapshot_json_mapping(result, field=context)
+    except OperatorReceiptSnapshotCustodyError as exc:
+        raise ValueError(
+            f"{context} must be one bounded exact JSON object before backend integrity reads"
+        ) from exc
+
+
 def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
-    if not isinstance(record, Mapping):
-        raise ValueError(f"{context} must be one surgery mapping")
+    if type(record) is not dict:
+        raise ValueError(f"{context} must be one exact surgery object")
 
     path = record.get("path")
-    if not isinstance(path, str) or not path:
+    if type(path) is not str or not path:
         raise ValueError(f"{context} path must be one non-empty string")
 
     artifact_kind = record.get("artifact_kind")
@@ -73,15 +90,15 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
         )
 
     owner = record.get("owner")
-    if not isinstance(owner, str) or not owner:
+    if type(owner) is not str or not owner:
         raise ValueError(f"{context} owner must be one non-empty string")
 
     base_blob = record.get("base_blob")
-    if not isinstance(base_blob, str) or SHA1_RE.fullmatch(base_blob) is None:
+    if type(base_blob) is not str or SHA1_RE.fullmatch(base_blob) is None:
         raise ValueError(f"{context} base_blob must be 40 lowercase hexadecimal")
 
     state = record.get("state")
-    if not isinstance(state, str) or not state:
+    if type(state) is not str or not state:
         raise ValueError(f"{context} state must be one non-empty string")
     try:
         state_admission = admit_owner_surgery_state(state)
@@ -89,7 +106,7 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
         raise ValueError(f"{context} state is not admitted") from exc
 
     promotion_candidate = record.get("promotion_candidate")
-    if not isinstance(promotion_candidate, bool):
+    if type(promotion_candidate) is not bool:
         raise ValueError(f"{context} promotion_candidate must be one boolean")
     if promotion_candidate != state_admission.promotion_candidate:
         raise ValueError(
@@ -97,17 +114,13 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
         )
 
     artifact_byte_count = record.get("artifact_byte_count")
-    if (
-        isinstance(artifact_byte_count, bool)
-        or not isinstance(artifact_byte_count, int)
-        or artifact_byte_count < 0
-    ):
+    if type(artifact_byte_count) is not int or artifact_byte_count < 0:
         raise ValueError(
             f"{context} artifact_byte_count must be one non-negative integer"
         )
 
     artifact_sha256 = record.get("artifact_sha256")
-    if not isinstance(artifact_sha256, str) or SHA256_RE.fullmatch(artifact_sha256) is None:
+    if type(artifact_sha256) is not str or SHA256_RE.fullmatch(artifact_sha256) is None:
         raise ValueError(
             f"{context} artifact_sha256 must be 64 lowercase hexadecimal"
         )
@@ -124,11 +137,8 @@ def _admit_surgery(record: object, *, context: str) -> SurgeryIdentity:
     )
 
 
-def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, object]:
-    """Validate schema custody and exact promotion-group membership without granting authority."""
-
-    if not isinstance(result, Mapping):
-        raise ValueError("backend result must be one mapping")
+def _audit_backend_result_inventory_snapshot(result: dict[str, object]) -> dict[str, object]:
+    """Audit one already-detached exact JSON result without revisiting caller-owned evidence."""
 
     schema = result.get("schema")
     if schema != CANONICAL_CUSTODY_SCHEMA:
@@ -137,7 +147,7 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
         )
 
     raw_surgeries = result.get("surgeries")
-    if not isinstance(raw_surgeries, list):
+    if type(raw_surgeries) is not list:
         raise ValueError("surgeries must be one list")
 
     surgeries: list[SurgeryIdentity] = []
@@ -156,13 +166,13 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
     group_member_count = 0
     for field in OWNER_AUTHORITY_FIELDS:
         groups = result.get(field)
-        if not isinstance(groups, list):
+        if type(groups) is not list:
             raise ValueError(f"{field} must be one list")
         for group_index, group in enumerate(groups):
-            if not isinstance(group, Mapping):
-                raise ValueError(f"{field}[{group_index}] must be one mapping")
+            if type(group) is not dict:
+                raise ValueError(f"{field}[{group_index}] must be one exact object")
             members = group.get("promotionCandidates")
-            if not isinstance(members, list):
+            if type(members) is not list:
                 raise ValueError(
                     f"{field}[{group_index}] promotionCandidates must be one list"
                 )
@@ -190,6 +200,7 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
         "authorityGroupMembersAdmitted": group_member_count,
         "phantomPromotionMembers": 0,
         "contentEvidenceDriftMembers": 0,
+        "callerEvidenceSnapshotted": True,
         "authorityAdmitted": False,
         "ownerMutation": False,
         "regressionExecuted": False,
@@ -200,25 +211,30 @@ def audit_backend_result_inventory(result: Mapping[str, object]) -> dict[str, ob
     }
 
 
+def audit_backend_result_inventory(result: dict[str, object]) -> dict[str, object]:
+    """Snapshot once, then validate schema custody and exact promotion-group membership."""
+
+    snapshot = _snapshot_backend_result(result, context="backend result inventory")
+    return _audit_backend_result_inventory_snapshot(snapshot)
+
+
 def _canonical_surgery_content_map(
-    result: Mapping[str, object],
+    result: dict[str, object],
 ) -> dict[str, tuple[int, str]]:
-    """Project exact Surgery content evidence after inventory custody has already passed."""
+    """Project exact Surgery content evidence from an already-detached result."""
 
     surgeries = result.get("surgeries")
-    if not isinstance(surgeries, list):
+    if type(surgeries) is not list:
         raise BackendWitnessParityError("surgeries must be one list")
 
     expected: dict[str, tuple[int, str]] = {}
     for index, item in enumerate(surgeries):
-        if not isinstance(item, Mapping):
-            raise BackendWitnessParityError(f"surgeries[{index}] must be one mapping")
+        if type(item) is not dict:
+            raise BackendWitnessParityError(f"surgeries[{index}] must be one exact object")
         path = item.get("path")
         byte_count = item.get("artifact_byte_count")
         sha256 = item.get("artifact_sha256")
-        # audit_backend_result_inventory has already admitted all three fields. Keep these checks
-        # local so this projection still fails closed if it is ever misused independently.
-        if not isinstance(path, str) or not path:
+        if type(path) is not str or not path:
             raise BackendWitnessParityError(
                 f"surgeries[{index}].path must be one non-empty string"
             )
@@ -226,11 +242,11 @@ def _canonical_surgery_content_map(
             raise BackendWitnessParityError(
                 f"surgeries path identity must be unique: {path}"
             )
-        if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 0:
+        if type(byte_count) is not int or byte_count < 0:
             raise BackendWitnessParityError(
                 f"surgeries[{index}].artifact_byte_count must be one non-negative integer"
             )
-        if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+        if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
             raise BackendWitnessParityError(
                 f"surgeries[{index}].artifact_sha256 must be 64 lowercase hexadecimal"
             )
@@ -239,22 +255,22 @@ def _canonical_surgery_content_map(
 
 
 def _artifact_witness_content_map(
-    result: Mapping[str, object],
+    result: dict[str, object],
 ) -> dict[str, tuple[int, str]]:
     witnesses = result.get(WITNESS_FIELD)
-    if not isinstance(witnesses, list):
+    if type(witnesses) is not list:
         raise BackendWitnessParityError(f"{WITNESS_FIELD} must be one list")
 
     observed: dict[str, tuple[int, str]] = {}
     for index, item in enumerate(witnesses):
-        if not isinstance(item, Mapping):
+        if type(item) is not dict:
             raise BackendWitnessParityError(
-                f"{WITNESS_FIELD}[{index}] must be one mapping"
+                f"{WITNESS_FIELD}[{index}] must be one exact object"
             )
         path = item.get("path")
         byte_count = item.get("byteCount")
         sha256 = item.get("sha256")
-        if not isinstance(path, str) or not path:
+        if type(path) is not str or not path:
             raise BackendWitnessParityError(
                 f"{WITNESS_FIELD}[{index}].path must be one non-empty string"
             )
@@ -262,11 +278,11 @@ def _artifact_witness_content_map(
             raise BackendWitnessParityError(
                 f"{WITNESS_FIELD} path identity must be unique: {path}"
             )
-        if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 0:
+        if type(byte_count) is not int or byte_count < 0:
             raise BackendWitnessParityError(
                 f"{WITNESS_FIELD}[{index}].byteCount must be one non-negative integer"
             )
-        if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+        if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
             raise BackendWitnessParityError(
                 f"{WITNESS_FIELD}[{index}].sha256 must be 64 lowercase hexadecimal"
             )
@@ -274,15 +290,12 @@ def _artifact_witness_content_map(
     return observed
 
 
-def audit_backend_result_witness_parity(result: Mapping[str, object]) -> dict[str, object]:
-    """Audit canonical inventory once, then require exact Surgery↔artifact witness parity."""
+def _audit_backend_result_witness_parity_snapshot(
+    result: dict[str, object],
+) -> dict[str, object]:
+    """Require inventory + witness parity over one already-detached result."""
 
-    if not isinstance(result, Mapping):
-        raise BackendWitnessParityError("backend result must be one mapping")
-
-    # This is the single canonical inventory/group audit for the stronger gate. Do not call the
-    # inventory audit again in admit_backend_result_with_inventory_custody.
-    integrity = audit_backend_result_inventory(result)
+    integrity = _audit_backend_result_inventory_snapshot(result)
     expected = _canonical_surgery_content_map(result)
     observed = _artifact_witness_content_map(result)
 
@@ -312,14 +325,30 @@ def audit_backend_result_witness_parity(result: Mapping[str, object]) -> dict[st
     }
 
 
+def audit_backend_result_witness_parity(result: dict[str, object]) -> dict[str, object]:
+    """Snapshot caller evidence once, then require exact Surgery↔artifact witness parity."""
+
+    snapshot = _snapshot_backend_result(result, context="backend result witness parity")
+    try:
+        return _audit_backend_result_witness_parity_snapshot(snapshot)
+    except BackendWitnessParityError:
+        raise
+    except ValueError as exc:
+        raise BackendWitnessParityError(str(exc)) from exc
+
+
 def admit_backend_result_with_inventory_custody(
     selection: OwnerSurgeryBackendSelection,
-    result: Mapping[str, object],
+    result: dict[str, object],
 ) -> dict[str, object]:
-    """Require inventory+witness custody, then delegate authority admission to the existing policy."""
+    """Snapshot once, require integrity, then delegate detached evidence to existing authority policy."""
 
-    integrity = audit_backend_result_witness_parity(result)
-    admitted = admit_selected_backend_result(selection, result)
+    snapshot = _snapshot_backend_result(result, context="backend result authority admission")
+    integrity = _audit_backend_result_witness_parity_snapshot(snapshot)
+    # The existing backend policy receives only our detached plain JSON tree. Its broader direct
+    # public Mapping contract remains a separate supporting-source boundary; this composition no
+    # longer exposes caller-owned Mapping callbacks to that policy.
+    admitted = admit_selected_backend_result(selection, snapshot)
     return {
         **admitted,
         "integritySchema": integrity["schema"],
@@ -328,6 +357,7 @@ def admit_backend_result_with_inventory_custody(
         "surgeriesAdmitted": integrity["surgeriesAdmitted"],
         "authorityGroupMembersAdmitted": integrity["authorityGroupMembersAdmitted"],
         "artifactContentWitnessesAdmitted": integrity["artifactContentWitnessesAdmitted"],
+        "callerEvidenceSnapshotted": True,
         "witnessParity": True,
         "witnessParityOwnerWired": True,
         "phantomPromotionMembers": 0,
