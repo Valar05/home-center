@@ -24,6 +24,10 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_operator_receipt_snapshot_custody import (
+    ReceiptSnapshotError,
+    snapshot_json_mapping,
+)
 from try_forever_provenance_report_path import project_serialized_report_path
 
 
@@ -188,11 +192,17 @@ def _comparison_work_projection(
     }
 
 
-def project_shadow_receipt(repo_root: Path, result: Mapping[str, object]) -> dict[str, object]:
-    """Create one bounded display receipt without changing the raw shadow evidence."""
+def project_shadow_receipt(repo_root: Path, result: dict[str, object]) -> dict[str, object]:
+    """Create one bounded display receipt from one detached exact-JSON observation."""
 
-    if not isinstance(result, Mapping):
-        raise ValueError("shadow result must be one mapping")
+    try:
+        result = snapshot_json_mapping(
+            result,
+            context="descriptor shadow receipt projection input",
+        )
+    except ReceiptSnapshotError as exc:
+        raise ValueError(f"descriptor shadow receipt snapshot rejected: {exc}") from exc
+
     if result.get("schema") != SHADOW_SCHEMA:
         raise ValueError("shadow receipt projection requires exact descriptor-shadow v3 source")
 
