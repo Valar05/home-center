@@ -5,14 +5,19 @@ This module does not inspect the repository, apply patches, execute Android, tou
 replace the canonical v10 custody owner. It defines how a future composition may choose between the
 portable pathname-revalidation backend and the stronger POSIX held-directory backend without
 silently weakening evidence after a stronger backend has already been admitted.
+
+Direct machine inputs cross exact admission before semantic reads. Capability/failure controls are
+exact built-in strings, selection records are exact and internally canonical, and backend results
+reuse the repository's existing bounded one-observation exact-JSON snapshot organ. This is custody
+composition, not a second validator or owner.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 import re
 
+from try_forever_operator_receipt_snapshot_custody import snapshot_json_mapping
 from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 
@@ -55,15 +60,10 @@ class OwnerSurgeryBackendSelection:
 
 
 def select_owner_surgery_backend(capability_status: str) -> OwnerSurgeryBackendSelection:
-    """Select one backend from admitted platform capability.
+    """Select one backend from one exact admitted platform-capability token."""
 
-    Unsupported descriptor primitives do not mean failure: the canonical portable v10 pathname
-    bracket remains the primary backend. When the runtime *does* admit the required POSIX
-    primitives, a future canonical-owner composition may select held-descriptor custody. Once that
-    stronger backend is selected for a classification attempt, descriptor setup/inventory/artifact
-    failure must fail the attempt closed; it may not retry through the weaker pathname backend and
-    call the result equivalent evidence.
-    """
+    if type(capability_status) is not str:
+        raise ValueError("capability status must be one exact built-in string")
 
     if capability_status == SUPPORTED_POSIX:
         return OwnerSurgeryBackendSelection(
@@ -98,16 +98,48 @@ def select_owner_surgery_backend(capability_status: str) -> OwnerSurgeryBackendS
     raise ValueError(f"unsupported directory-handle capability status: {capability_status!r}")
 
 
+def _require_exact_selection(
+    selection: OwnerSurgeryBackendSelection,
+) -> OwnerSurgeryBackendSelection:
+    """Admit only one exact, internally canonical backend-selection record."""
+
+    if type(selection) is not OwnerSurgeryBackendSelection:
+        raise ValueError("selection must be one exact OwnerSurgeryBackendSelection")
+
+    if type(selection.backend) is not str:
+        raise ValueError("selection backend must be one exact built-in string")
+    if type(selection.capability_status) is not str:
+        raise ValueError("selection capability status must be one exact built-in string")
+    if type(selection.descriptor_selected) is not bool:
+        raise ValueError("selection descriptor_selected must be one exact boolean")
+    if type(selection.portable_is_primary) is not bool:
+        raise ValueError("selection portable_is_primary must be one exact boolean")
+    if type(selection.fallback_after_backend_failure) is not bool:
+        raise ValueError("selection fallback_after_backend_failure must be one exact boolean")
+    if type(selection.required_owner_evidence_fields) is not tuple or any(
+        type(field) is not str for field in selection.required_owner_evidence_fields
+    ):
+        raise ValueError("selection required_owner_evidence_fields must be one exact string tuple")
+    if type(selection.boundary) is not str or not selection.boundary:
+        raise ValueError("selection boundary must be one non-empty exact built-in string")
+
+    expected = select_owner_surgery_backend(selection.capability_status)
+    if selection != expected:
+        raise ValueError("selection must match the canonical backend decision for its capability")
+    return selection
+
+
 def classify_selected_backend_failure(
     selection: OwnerSurgeryBackendSelection,
     failure_boundary: str,
 ) -> dict[str, object]:
     """Project a backend failure without inventing a weaker retry path."""
 
-    if not isinstance(failure_boundary, str) or not failure_boundary:
-        raise ValueError("failure boundary must be one non-empty string")
+    admitted_selection = _require_exact_selection(selection)
+    if type(failure_boundary) is not str or not failure_boundary:
+        raise ValueError("failure boundary must be one non-empty exact built-in string")
     return {
-        "backend": selection.backend,
+        "backend": admitted_selection.backend,
         "status": "FAIL_CLOSED",
         "boundary": failure_boundary,
         "portableFallbackAttempted": False,
@@ -115,23 +147,23 @@ def classify_selected_backend_failure(
     }
 
 
-def _nonnegative_int(result: Mapping[str, object], field: str) -> int:
+def _nonnegative_int(result: dict[str, object], field: str) -> int:
     value = result.get(field)
-    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+    if type(value) is not int or value < 0:
         raise ValueError(f"{field} must be one non-negative integer")
     return value
 
 
-def _admit_current_owner_blobs(result: Mapping[str, object]) -> dict[str, str]:
+def _admit_current_owner_blobs(result: dict[str, object]) -> dict[str, str]:
     raw = result.get("currentOwnerBlobs")
-    if not isinstance(raw, Mapping):
+    if type(raw) is not dict:
         raise ValueError("currentOwnerBlobs must be one mapping")
 
     admitted: dict[str, str] = {}
     for owner, blob in raw.items():
-        if not isinstance(owner, str) or not owner:
+        if type(owner) is not str or not owner:
             raise ValueError("currentOwnerBlobs keys must be non-empty owner strings")
-        if not isinstance(blob, str) or SHA1_RE.fullmatch(blob) is None:
+        if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
             raise ValueError("currentOwnerBlobs values must be 40 lowercase hexadecimal blobs")
         admitted[owner] = blob
     return admitted
@@ -144,15 +176,9 @@ def _admit_promotion_candidate(
     owner: str,
     base_blob: str,
 ) -> tuple[str, str]:
-    """Bind every authority-group member back to the group identity it supposedly proves.
+    """Bind every authority-group member back to the group identity it supposedly proves."""
 
-    Canonical v10 emits ``dataclasses.asdict(Surgery)`` records. A future backend/result adapter may
-    not replace that evidence with hollow list entries, duplicated artifacts, cross-owner/base
-    records, or records whose exact surgery state is not promotion-ready. Group-level custody is
-    only as strong as every member that creates the group.
-    """
-
-    if not isinstance(candidate, Mapping):
+    if type(candidate) is not dict:
         raise ValueError(f"{field} promotionCandidates entries must be mappings")
 
     if candidate.get("owner") != owner:
@@ -161,7 +187,7 @@ def _admit_promotion_candidate(
         raise ValueError(f"{field} promotion candidate base_blob must match group baseBlob")
 
     path = candidate.get("path")
-    if not isinstance(path, str) or not path:
+    if type(path) is not str or not path:
         raise ValueError(f"{field} promotion candidate path must be one non-empty string")
 
     artifact_kind = candidate.get("artifact_kind")
@@ -169,7 +195,7 @@ def _admit_promotion_candidate(
         raise ValueError(f"{field} promotion candidate artifact_kind is unsupported")
 
     state = candidate.get("state")
-    if not isinstance(state, str) or not state:
+    if type(state) is not str or not state:
         raise ValueError(f"{field} promotion candidate state must be one non-empty string")
     try:
         state_admission = admit_owner_surgery_state(state)
@@ -185,45 +211,33 @@ def _admit_promotion_candidate(
 
 
 def _admit_authority_groups(
-    result: Mapping[str, object],
-    current_owner_blobs: Mapping[str, str],
+    result: dict[str, object],
+    current_owner_blobs: dict[str, str],
 ) -> dict[str, int]:
-    """Validate authority-group shape and its relationship to authenticated owner custody.
-
-    Canonical v10 group names carry three different meanings. Collision and stale groups only make
-    sense when the named owner has authenticated current-blob evidence, while an unverified group
-    means precisely that current-owner custody is absent for that owner. A future backend may not
-    attach an unrelated authenticated owner blob to the result and thereby make another owner's
-    unverified authority look authenticated.
-
-    The group shell is not sufficient evidence. Every ``promotionCandidates`` member must be an
-    admitted canonical Surgery-shaped record for the same owner/base. Duplicate group identities or
-    duplicate member artifacts cannot manufacture cardinality. Collision groups require at least two
-    distinct admitted members while stale/unverified groups require at least one.
-    """
+    """Validate authority-group shape and authenticated owner/member relationships."""
 
     counts: dict[str, int] = {}
     seen_groups: set[tuple[str, str]] = set()
     for field in OWNER_AUTHORITY_FIELDS:
         groups = result.get(field)
-        if not isinstance(groups, list):
+        if type(groups) is not list:
             raise ValueError(f"{field} must be one list")
         counts[field] = len(groups)
 
         expected_status = AUTHORITY_STATUS_BY_FIELD[field]
         for group in groups:
-            if not isinstance(group, Mapping):
+            if type(group) is not dict:
                 raise ValueError(f"{field} entries must be mappings")
 
             if group.get("status") != expected_status:
                 raise ValueError(f"{field} entry has an invalid status")
 
             owner = group.get("owner")
-            if not isinstance(owner, str) or not owner:
+            if type(owner) is not str or not owner:
                 raise ValueError(f"{field} entry owner must be one non-empty string")
 
             base_blob = group.get("baseBlob")
-            if not isinstance(base_blob, str) or SHA1_RE.fullmatch(base_blob) is None:
+            if type(base_blob) is not str or SHA1_RE.fullmatch(base_blob) is None:
                 raise ValueError(f"{field} entry baseBlob must be 40 lowercase hexadecimal")
 
             group_identity = (owner, base_blob)
@@ -232,7 +246,7 @@ def _admit_authority_groups(
             seen_groups.add(group_identity)
 
             promotion_candidates = group.get("promotionCandidates")
-            if not isinstance(promotion_candidates, list):
+            if type(promotion_candidates) is not list:
                 raise ValueError(f"{field} entry promotionCandidates must be one list")
             minimum_members = 2 if field == "collisionSets" else 1
             if len(promotion_candidates) < minimum_members:
@@ -281,50 +295,43 @@ def _admit_authority_groups(
 
 def admit_selected_backend_result(
     selection: OwnerSurgeryBackendSelection,
-    result: Mapping[str, object],
+    result: dict[str, object],
 ) -> dict[str, object]:
-    """Admit one future backend result without weakening the canonical v10 evidence membrane.
+    """Admit one future backend result without weakening canonical v10 evidence custody.
 
-    This is deliberately a *result* gate, not a backend implementation. It prevents a future owner
-    composition from dropping published work/error/current-owner evidence, reporting impossible
-    candidate/entry counts, silently switching backend identity, claiming portable fallback after a
-    stronger backend was selected, carrying promotion authority out of an incomplete exhaustive
-    custody result, or using authenticated custody for one owner to upgrade another owner's
-    unverified promotion group.
-
-    Canonical v10 currently exposes the three promotion-authority groups named by
-    ``OWNER_AUTHORITY_FIELDS``. When ``evidenceComplete`` is false those groups must be empty before
-    this composition gate will admit the result. Diagnostic ``surgeries`` may remain present; source
-    inspection evidence is not itself promotion authority.
+    The public result type matches runtime admission: one exact built-in ``dict`` containing exact
+    JSON-shaped evidence. The existing bounded snapshot organ observes it once before any semantic
+    read, so caller-owned Mapping/scalar subclasses cannot execute inside this policy or present one
+    view for validation and another for authority. All checks below consume only the detached tree.
     """
 
-    if not isinstance(result, Mapping):
-        raise ValueError("backend result must be one mapping")
+    admitted_selection = _require_exact_selection(selection)
+    result_snapshot = snapshot_json_mapping(result, field="backend result")
 
-    backend = result.get("backend", selection.backend)
-    if backend != selection.backend:
+    backend = result_snapshot.get("backend", admitted_selection.backend)
+    if backend != admitted_selection.backend:
         raise ValueError("backend result identity does not match selected backend")
 
-    if result.get("portableFallbackAttempted", False) is not False:
+    if result_snapshot.get("portableFallbackAttempted", False) is not False:
         raise ValueError("selected backend result must not claim a weaker fallback attempt")
 
-    entries_observed = _nonnegative_int(result, "artifactDirectoryEntriesObserved")
-    candidates_observed = _nonnegative_int(result, "artifactCandidatesObserved")
+    entries_observed = _nonnegative_int(result_snapshot, "artifactDirectoryEntriesObserved")
+    candidates_observed = _nonnegative_int(result_snapshot, "artifactCandidatesObserved")
     if candidates_observed > entries_observed:
         raise ValueError("artifactCandidatesObserved cannot exceed artifactDirectoryEntriesObserved")
 
-    discovery_errors = result.get("discoveryErrors")
-    if not isinstance(discovery_errors, list):
+    discovery_errors = result_snapshot.get("discoveryErrors")
+    if type(discovery_errors) is not list:
         raise ValueError("discoveryErrors must be one list")
 
-    evidence_complete = result.get("evidenceComplete")
-    if not isinstance(evidence_complete, bool):
+    evidence_complete = result_snapshot.get("evidenceComplete")
+    if type(evidence_complete) is not bool:
         raise ValueError("evidenceComplete must be one boolean")
     if evidence_complete != (len(discovery_errors) == 0):
         raise ValueError("evidenceComplete must agree with discoveryErrors emptiness")
 
-    current_owner_blobs = _admit_current_owner_blobs(result)
-    authority_counts = _admit_authority_groups(result, current_owner_blobs)
+    current_owner_blobs = _admit_current_owner_blobs(result_snapshot)
+    authority_counts = _admit_authority_groups(result_snapshot, current_owner_blobs)
 
     if not evidence_complete and any(authority_counts.values()):
         raise ValueError(
@@ -340,7 +347,7 @@ def admit_selected_backend_result(
     )
 
     return {
-        "backend": selection.backend,
+        "backend": admitted_selection.backend,
         "status": "EVIDENCE_ADMITTED",
         "artifactDirectoryEntriesObserved": entries_observed,
         "artifactCandidatesObserved": candidates_observed,
