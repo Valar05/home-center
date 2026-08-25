@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "reviewedSourceHead": "8134c6fde60f3bb36ecfaa8e68551aad30b171e5",
+  "planGate": "PLAN_ALLOWED__NON_P0_SOURCE_FRONTS_ONLY",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "Canonical fingerprint failure containment is a bounded source improvement and reuses the existing shared identity organ.",
+    "Snapshot integer resource admission is materially useful because the existing 8 MiB encoded ceiling occurs after decimal conversion work; the bit-length gate moves resource rejection earlier without creating another receipt owner.",
+    "The first integer regression overclaimed source-ceiling serializer acceptance and was corrected before completion.",
+    "Warm Wall mutation is justified by a new touchable resource-state topology; Christmas motion remains dark.",
+    "Source/readback is admitted. Regression execution, TESTED, runtime, deployment, callability, execution, delivery, and acceptance remain unproven."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
