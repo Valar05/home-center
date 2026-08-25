@@ -37,12 +37,15 @@ def test_sha256_repository_object_id_is_also_canonical():
     assert observed.dirty is False
 
 
-def test_branch_oid_whitespace_or_case_must_not_be_normalized_into_authority():
+def test_branch_oid_whitespace_case_or_non_lf_separator_must_not_be_normalized_into_authority():
     hostile = (
         f"# branch.oid {HEAD} \n",
         f"# branch.oid  {HEAD}\n",
         f"# branch.oid {HEAD}\t\n",
         f"# branch.oid {HEAD.upper()}\n",
+        f"# branch.oid {HEAD}\r\n",
+        f"# branch.oid {HEAD}\v\n",
+        f"# branch.oid {HEAD}\f\n",
     )
     for payload in hostile:
         observed = parse_porcelain_v2_branch_status(payload)
