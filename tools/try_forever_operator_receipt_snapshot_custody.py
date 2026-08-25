@@ -13,6 +13,11 @@ JSON scalar cannot force disproportionate decimal conversion work before the enc
 checked. A final deterministic JSON serialization checks the detached observation against an encoded-
 byte ceiling without re-reading caller-owned objects.
 
+Exact evidence and diagnostic prose are deliberately separate. Mapping keys remain byte-for-byte
+semantic evidence in the detached snapshot, but error paths/projected field names are ASCII-safe and
+bounded so hostile newline/bidi/surrogate text or very deep names cannot become an operator/log
+injection or an independent diagnostic resource throat.
+
 The snapshot is evidence custody only. It creates no receipt owner/projector, grants no authority,
 TESTED/runtime/deployment/callability/execution/delivery/acceptance state, and has no phone/P0
 mutation authority.
@@ -20,6 +25,7 @@ mutation authority.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from collections.abc import Mapping
@@ -34,10 +40,48 @@ MAX_SNAPSHOT_ENCODED_BYTES = 8 * 1024 * 1024
 # default large-int string-conversion safety order of magnitude without relying on process-global
 # ``sys.set_int_max_str_digits`` state, and keeps the bound enforceable before decimal serialization.
 MAX_SNAPSHOT_INTEGER_BITS = 14_284
+MAX_DIAGNOSTIC_SEGMENT_CHARS = 96
+MAX_DIAGNOSTIC_PATH_CHARS = 256
+_DIAGNOSTIC_DIGEST_CHARS = 16
 
 
 class OperatorReceiptSnapshotCustodyError(ValueError):
     """A verification input could not be captured as one bounded exact JSON-shaped mapping."""
+
+
+def _diagnostic_digest(value: str) -> str:
+    """Return a short deterministic identity for diagnostic text without normalizing the source."""
+
+    return hashlib.sha256(value.encode("utf-8", errors="surrogatepass")).hexdigest()[
+        :_DIAGNOSTIC_DIGEST_CHARS
+    ]
+
+
+def _diagnostic_segment(value: str) -> str:
+    """Project one exact source string into bounded ASCII-only diagnostic evidence."""
+
+    escaped = json.dumps(value, ensure_ascii=True, separators=(",", ":"))[1:-1]
+    if len(escaped) <= MAX_DIAGNOSTIC_SEGMENT_CHARS:
+        return escaped
+    return f"<text>...#{_diagnostic_digest(value)}"
+
+
+def _bounded_diagnostic_path(value: str) -> str:
+    if len(value) <= MAX_DIAGNOSTIC_PATH_CHARS:
+        return value
+    return f"<path>...#{_diagnostic_digest(value)}"
+
+
+def _diagnostic_root(field: str) -> str:
+    return _bounded_diagnostic_path(_diagnostic_segment(field))
+
+
+def _diagnostic_child_field(field: str, key: str) -> str:
+    return _bounded_diagnostic_path(f"{field}.{_diagnostic_segment(key)}")
+
+
+def _diagnostic_index_field(field: str, index: int) -> str:
+    return _bounded_diagnostic_path(f"{field}[{index}]")
 
 
 class _SnapshotBudget:
@@ -99,7 +143,7 @@ def _snapshot_json_value(
         return [
             _snapshot_json_value(
                 item,
-                field=f"{field}[{index}]",
+                field=_diagnostic_index_field(field, index),
                 depth=depth + 1,
                 budget=budget,
             )
@@ -116,11 +160,11 @@ def _snapshot_json_value(
             budget.consume_text(key, field=field)
             if key in snapshot:
                 raise OperatorReceiptSnapshotCustodyError(
-                    f"{field} contains duplicate mapping field {key!r}"
+                    f"{field} contains duplicate mapping field [{_diagnostic_segment(key)}]"
                 )
             snapshot[key] = _snapshot_json_value(
                 item,
-                field=f"{field}.{key}",
+                field=_diagnostic_child_field(field, key),
                 depth=depth + 1,
                 budget=budget,
             )
@@ -138,24 +182,34 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
 
     Caller-owned mappings and nested structures are read exactly once by this function. The returned
     tree contains only plain dict/list containers and JSON scalars. The deterministic serialization
-    below reads only that detached tree; it never revisits the caller-owned mapping.
+    below reads only that detached tree; it never revisits the caller-owned mapping. ``field`` is
+    diagnostic context only and is projected into a bounded ASCII-safe form before any error can use
+    it; canonical caller evidence is never rewritten for diagnostic convenience.
     """
 
+    diagnostic_field = _diagnostic_root(field)
     if not isinstance(value, Mapping):
-        raise OperatorReceiptSnapshotCustodyError(f"{field} must be one mapping")
+        raise OperatorReceiptSnapshotCustodyError(f"{diagnostic_field} must be one mapping")
 
     budget = _SnapshotBudget()
     try:
-        snapshot = _snapshot_json_value(value, field=field, depth=0, budget=budget)
+        snapshot = _snapshot_json_value(
+            value,
+            field=diagnostic_field,
+            depth=0,
+            budget=budget,
+        )
     except OperatorReceiptSnapshotCustodyError:
         raise
     except Exception as exc:
         raise OperatorReceiptSnapshotCustodyError(
-            f"{field} could not be observed as one stable JSON-shaped mapping"
+            f"{diagnostic_field} could not be observed as one stable JSON-shaped mapping"
         ) from exc
 
     if type(snapshot) is not dict:
-        raise OperatorReceiptSnapshotCustodyError(f"{field} snapshot must remain one object")
+        raise OperatorReceiptSnapshotCustodyError(
+            f"{diagnostic_field} snapshot must remain one object"
+        )
 
     try:
         encoded = json.dumps(
@@ -167,12 +221,12 @@ def snapshot_json_mapping(value: Mapping[str, object], *, field: str) -> dict[st
         )
     except (TypeError, ValueError, OverflowError, RecursionError) as exc:
         raise OperatorReceiptSnapshotCustodyError(
-            f"{field} must be one finite JSON-shaped mapping"
+            f"{diagnostic_field} must be one finite JSON-shaped mapping"
         ) from exc
 
     if len(encoded) > MAX_SNAPSHOT_ENCODED_BYTES:
         raise OperatorReceiptSnapshotCustodyError(
-            f"{field} exceeds snapshot encoded-byte budget {MAX_SNAPSHOT_ENCODED_BYTES}"
+            f"{diagnostic_field} exceeds snapshot encoded-byte budget {MAX_SNAPSHOT_ENCODED_BYTES}"
         )
     return snapshot
 
