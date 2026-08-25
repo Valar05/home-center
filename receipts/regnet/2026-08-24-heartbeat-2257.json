@@ -1,0 +1,44 @@
+{
+  "schema": "regnet-review.v1",
+  "timestampLocal": "2026-08-24T22:57:43-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "6cf63a4cdb375eb634d840902778d5e5831859fa",
+  "ownerPath": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+  "ownerPreBlob": "82af7cc572d2a95624fb549c387946068483c7e3",
+  "ownerAppliedCommit": "0ece6702d812d5ec6fea1b924526365fb385673e",
+  "ownerPostBlob": "2920ae28ea56a9840cf7ca05a57ff9231469cb04",
+  "checks": {
+    "existingOwnerDirectlyConsumesCanonicalResultSha256": true,
+    "secondReceiptOwnerCreated": false,
+    "secondDigestAuthorityCreated": false,
+    "patchProvenanceAppliedSource": true,
+    "skillDoctrineConverged": true,
+    "hostileRegressionSourcePresent": true,
+    "directOwnerRegressionSourcePresent": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "workflowEvidence": {
+    "buildAndroidRun": 32807428501,
+    "homeCenterCiRun": 32807428500,
+    "operatorOverlayRun": 32807428506,
+    "operatorJob": 97680151782,
+    "operatorStepsExposed": 0,
+    "operatorConclusion": "failure",
+    "operatorLogs": "404_BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK_ONLY__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "notes": [
+    "Valid-Unicode receipt identity is preserved because the shared fingerprint uses the same sorted compact ensure_ascii=false JSON bytes for ordinary Unicode; surrogatepass changes only otherwise-unencodable surrogate evidence.",
+    "The raw-machine-evidence digest intentionally remains on its separate ensure_ascii=true path and was not conflated with final-v4 receipt identity.",
+    "Source wiring is not test/runtime/deployment/delivery evidence."
+  ]
+}
