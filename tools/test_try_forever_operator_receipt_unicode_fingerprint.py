@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """Hostile source fixture for final-v4 operator receipt Unicode fingerprint custody.
 
-SOURCE ONLY. This regression has not been observed executing in an authorized lane.
+SOURCE ONLY. The existing final-v4 receipt owner is now SOURCE_WIRED to the shared fingerprint organ,
+but this regression has not been observed executing in an authorized lane and therefore is not
+TESTED evidence.
 
-The existing canonical-result fingerprint organ already preserves ordinary valid-Unicode digest
-identity while making surrogate-bearing JSON-shaped evidence deterministic through UTF-8
-``surrogatepass``. The final operator receipt digest currently uses the same JSON serialization shape
-but ordinary UTF-8 encoding, so a hostile allowed-field string containing a Python surrogate can
-escape as an encoding failure instead of receiving deterministic evidence identity.
+The existing canonical-result fingerprint organ preserves ordinary valid-Unicode digest identity
+while making surrogate-bearing JSON-shaped evidence deterministic through UTF-8 ``surrogatepass``.
+The final operator receipt owner now delegates to that same organ, so this fixture locks valid-Unicode
+parity, deterministic surrogate evidence, material-drift sensitivity, and non-finite rejection.
 
-This fixture requires composition of the existing fingerprint organ; it does not authorize a second
-digest implementation, receipt owner, projector, authority path, TESTED state, runtime capability,
-phone delivery, or acceptance.
+This fixture requires continued composition of the existing fingerprint organ; it does not authorize
+a second digest implementation, receipt owner, projector, authority path, TESTED state, runtime
+capability, phone delivery, or acceptance.
 """
 
 import hashlib
