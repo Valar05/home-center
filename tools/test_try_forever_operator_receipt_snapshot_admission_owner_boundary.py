@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RED / UNEXECUTED owner boundary for bounded exact-container snapshot admission.
+"""SOURCE-WIRED / UNEXECUTED owner boundary for bounded exact-container snapshot admission.
 
-This fixture must remain RED until the existing snapshot-custody organ *uses* the supporting
-admission policy as a control-flow gate. Marker-shaped calls are insufficient: a no-op policy call,
-wrong-polarity gate, or legacy ``Mapping`` traversal must stay RED. This proves source ownership only;
-it is never TESTED/runtime/deployment evidence.
+The existing snapshot-custody organ now uses the supporting admission policy as a real control-flow
+gate. Marker-shaped calls remain insufficient: a no-op policy call, wrong-polarity gate, or legacy
+``Mapping`` traversal must fail this fixture. This proves source ownership only; it is never
+TESTED/runtime/deployment evidence.
 """
 
 import ast
@@ -156,7 +156,7 @@ def main() -> int:
     )
 
     # Diagnostic admission must produce the exact value later handed to the JSON-escaping projector.
-    # A no-op call followed by _diagnostic_root(field) must remain RED.
+    # A no-op call followed by _diagnostic_root(field) must remain a source-evidence failure.
     binding = diagnostic_admission_binding(root)
     assert binding is not None, "root diagnostic context lacks bound pre-projection admission"
     admitted_name, admitted_line = binding
