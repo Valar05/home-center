@@ -1,0 +1,26 @@
+# OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+# BASE_BLOB: 2920ae28ea56a9840cf7ca05a57ff9231469cb04
+# STATUS: PROPOSED_NOT_APPLIED
+# PURPOSE: make public reverification type capability match exact built-in-dict runtime admission
+
+diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+--- a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
++++ b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+@@
+-def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
++def verify_operator_receipt_identity(receipt: dict[str, object]) -> bool:
+@@
+ def verify_operator_receipt_against_raw_evidence(
+-    receipt: Mapping[str, object],
+-    raw_result: Mapping[str, object],
++    receipt: dict[str, object],
++    raw_result: dict[str, object],
+ ) -> bool:
+@@
+ def verify_operator_receipt_derivation_against_raw_evidence(
+     repo_root: Path,
+-    receipt: Mapping[str, object],
+-    raw_result: Mapping[str, object],
++    receipt: dict[str, object],
++    raw_result: dict[str, object],
+ ) -> bool:
