@@ -51,7 +51,7 @@ It pins:
 - rejection of root and nested `dict` subclasses before overridden callbacks can execute;
 - rejection of tuple→array and integer-key→string-key normalization.
 
-`tools/test_try_forever_exact_json_public_type_contract.py` is **REGRESSION SOURCE / INTENTIONALLY RED / UNEXECUTED**. It proves this fingerprint entrypoint now advertises the exact built-in-dict boundary and preserves a separate wound: the underlying snapshot-custody public signatures still advertise `Mapping` even though runtime admission rejects it.
+`tools/test_try_forever_exact_json_public_type_contract.py` is **REGRESSION SOURCE / UNEXECUTED**. It pins public `dict[str, object]` typing across the canonical fingerprint and snapshot-custody entrypoints so developer-facing capability matches runtime exact-container admission.
 
 `tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` remains **REGRESSION SOURCE / UNEXECUTED**. Source inspection shows the descriptor-shadow owner consumes the shared organ; fixture execution is still a separate capability state.
 
@@ -64,12 +64,12 @@ The shared organ has two current source consumers in this branch:
 Current capability truth:
 - fingerprint organ implementation: **YES / SOURCE**;
 - public fingerprint type contract matches exact built-in dict admission: **YES / SOURCE_WIRED**;
+- snapshot public type contract matches exact built-in dict admission: **YES / SOURCE_WIRED**;
 - recursive exact-JSON fingerprint admission: **YES / SOURCE**;
 - bounded snapshot reuse: **YES / SOURCE**;
 - descriptor-shadow owner consumption: **YES / SOURCE_WIRED**;
 - final-v4 operator-receipt owner consumption: **YES / SOURCE_WIRED**;
 - hostile regression source: **YES / UNEXECUTED**;
-- snapshot public-signature convergence: **NO / RED**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
 - deployed/callable/executed/delivered/accepted: **NO**.
