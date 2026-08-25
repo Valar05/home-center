@@ -1,0 +1,35 @@
+{
+  "schema": "regnet-qa-receipt.v1",
+  "timestampLocal": "2026-08-25T14:03:00-05:00",
+  "reviewedSourceHead": "2710626a8137b530447f129fc6f6a50a537217b6",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+  "scope": "Temporal binding and temporal receipt-integrity exact-container convergence only.",
+  "sourceReadback": {
+    "temporalBindingBlob": "f00e20b931cad4e4b0aaf77445ad5c3f053d5640",
+    "temporalReceiptIntegrityBlob": "d325ac35318dbc1a43df0515465a71e829923602",
+    "exactContainerRegressionBlob": "d56ba1e573f7dbe4c616e754e71a8871f23424bb",
+    "boundedContainerSkillBlob": "4529cdaeac59165c5ce838229f174f0027401953",
+    "temporalSkillBlob": "88b6b9172a38b2252e0959dc6dff881a1d50c6ba",
+    "warmWallBlob": "76e663ea330f02b83d75f2c55042cb145d4b518d"
+  },
+  "findings": [
+    "Both public temporal entrypoints now advertise exact built-in dict evidence and call the existing bounded exact-JSON snapshot organ before semantic reads.",
+    "Internal temporal artifact/surgery maps consume detached exact dict/list shapes rather than arbitrary caller Mapping capability.",
+    "The descriptor-shadow owner already supplies internally constructed plain dicts, so current ordinary owner semantics/output schemas are intentionally preserved.",
+    "Temporal receipt integrity re-snapshots the already-detached dict when delegating to the temporal policy. This is redundant bounded defensive custody, not a second owner and not an authority change.",
+    "The existing exact-container regression now attacks root Mapping callbacks, nested dict-subclass callbacks, and public type drift for both temporal entrypoints.",
+    "Regression source exists but has not executed; source/readback cannot advance TESTED/runtime/deployment/delivery states."
+  ],
+  "unexpectedArchitecture": false,
+  "phoneP0Consumption": 0,
+  "phoneP0Mutation": 0,
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "callable": false,
+  "executed": false,
+  "delivered": false,
+  "accepted": false
+}
