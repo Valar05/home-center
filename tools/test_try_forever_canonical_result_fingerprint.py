@@ -40,6 +40,24 @@ def main() -> int:
     changed["evidenceComplete"] = False
     assert canonical_result_sha256(changed) != canonical_result_sha256(ordinary)
 
+    # The fingerprint boundary owns one detached exact JSON object. A dict subclass is still
+    # caller-owned Python behavior, even if it looks JSON-shaped, and must be rejected before any
+    # overridden mapping callback can participate in evidence work.
+    callback_touched = {"value": False}
+
+    class HostileDict(dict):
+        def items(self):
+            callback_touched["value"] = True
+            raise AssertionError("caller-owned dict callback executed")
+
+    try:
+        canonical_result_sha256(HostileDict(ordinary))
+    except CanonicalResultFingerprintError:
+        pass
+    else:
+        raise AssertionError("dict-subclass evidence earned a canonical result fingerprint")
+    assert callback_touched["value"] is False
+
     # A POSIX surrogateescape-shaped path is still deterministic evidence rather than an encoding
     # crash. The surrogate is evidence text here; this does not grant filesystem or promotion authority.
     hostile = {
