@@ -1,0 +1,55 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-25T06:58:55-05:00",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "startingHead": "5a948cd8af81fd53b7950ecd8e9a445f41fba7c3",
+  "mission": "Advance independent non-P0 TRY FOREVER source fronts without touching the gated phone/P0 chain or creating duplicate architecture.",
+  "fronts": [
+    {
+      "id": "owner-identity-exact-python-scalar",
+      "target": "tools/try_forever_owner_surgery_metadata_exactness.py",
+      "intent": "Reject Python str subclasses before any caller-owned strip/callback can participate in owner-identity evidence admission; preserve exact built-in string identity."
+    },
+    {
+      "id": "canonical-fingerprint-recursive-json-custody",
+      "target": "tools/try_forever_canonical_result_fingerprint.py",
+      "intent": "Reuse the existing one-observation exact JSON snapshot organ so nested tuple/dict-subclass/non-JSON normalization cannot collapse distinct Python evidence into the same canonical fingerprint. Preserve ordinary valid-Unicode fingerprint bytes."
+    },
+    {
+      "id": "fingerprint-doctrine-and-art-convergence",
+      "targets": [
+        "skills/operator-owner-surgery-canonical-result-fingerprint/SKILL.md",
+        "docs/try-forever/canonical-result-fingerprint-source-specimen.html"
+      ],
+      "intent": "Converge durable doctrine and touchable non-raster art to current owner truth; remove stale final-v4 owner-gap claims."
+    },
+    {
+      "id": "review-and-evidence",
+      "intent": "Perform code-first Regnet review, preserve She-Raw connector fault if repeated, inspect exact-head workflow evidence without retrying, and publish a compact durable swarm receipt/PR checkpoint."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "forbidden": [
+      "Phone Hands execution",
+      "P0 recovery mutation",
+      "Nightcore/Pocket TTS/Chromium/Context Organs",
+      "neighboring overlay/provenance/receipt owners",
+      "manual workflow retry"
+    ]
+  },
+  "capabilityMembrane": {
+    "sourceChangesMayAdvance": true,
+    "regressionExecution": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
