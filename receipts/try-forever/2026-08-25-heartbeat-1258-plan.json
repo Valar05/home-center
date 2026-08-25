@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-25T12:58:23-05:00",
+  "scope": "non-P0 TRY FOREVER",
+  "mission": "Advance multiple independent source/evidence fronts without phone/P0 consumption.",
+  "authorizedFronts": [
+    "apply exact final-v4 public type contract repair to existing descriptor-shadow operator receipt owner",
+    "converge regression/provenance/skill truth after authenticated owner readback",
+    "inspect current receipt stack for one materially different evidence wound and either advance it or preserve an exact boundary",
+    "fresh She-Raw/Regnet/Venice/evidence membrane review"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "noPhoneHands": true,
+    "noP0RecoveryMutation": true
+  },
+  "capabilityRule": "requested != source != regression-executed != tested != runtime != deployed != callable != executed != delivered != accepted",
+  "preMutationEvidence": {
+    "pr": 329,
+    "head": "cb7f7c1fddab479d21af509694853613da37040a",
+    "ownerBlob": "2920ae28ea56a9840cf7ca05a57ff9231469cb04",
+    "publicTypeRegressionBlob": "388a240b5c5acb83ffbf7b73587c812ff7de77f6",
+    "ownerPatchBlob": "06af0301116666a8ab48a4e55513a5a65eb4cfa1",
+    "ownerWiring": "NO / RED"
+  },
+  "review": {
+    "sheRaw": "attempted pre-execution; connector HTTP 400 account-connection fault",
+    "venicePlan": "PLAN_ALLOWED for this bounded existing-owner source repair; no phone/P0 or duplicate architecture",
+    "regnetPlan": "require exact blob custody, post-write readback, stale-doctrine convergence, and TESTED remains NO unless execution evidence exists"
+  }
+}
