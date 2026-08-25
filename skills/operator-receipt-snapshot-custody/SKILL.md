@@ -20,6 +20,7 @@ Keep receipt verification bound to one caller-input observation **and one bounde
 - **PYTHON JSON CONVENIENCE != EXACT JSON EVIDENCE**: tuples and non-string mapping keys are rejected rather than normalized.
 - **NESTED KEY NORMALIZATION != IDENTITY PRESERVATION**: non-empty string-key admission applies at every mapping level, not only the root.
 - **EXACT JSON INTEGER SHAPE != UNBOUNDED DECIMAL CONVERSION RIGHT**: one integer scalar must fit the declared pre-serialization magnitude throat.
+- **SOURCE CEILING != GUARANTEED SERIALIZER ACCEPTANCE**: a stricter process-global integer conversion policy may still reject evidence and remains a valid independent fail-closed boundary.
 - **UNBOUNDED SNAPSHOT WORK != VERIFICATION**: over-depth, over-node, over-text, over-integer-magnitude, or over-encoded-byte evidence fails before semantic/hash/linkage work.
 - Duplicate fields emitted by a hostile Mapping implementation fail closed instead of becoming first/last-wins evidence.
 - Nested caller-owned lists/mappings must be detached as part of the snapshot; a shallow top-level copy is insufficient.
@@ -34,15 +35,15 @@ Current source constants in `tools/try_forever_operator_receipt_snapshot_custody
 - depth: 64;
 - nodes: 50,000;
 - total string code points: 1,048,576;
-- integer magnitude: 14,284 binary bits (conservative ceiling for at most 4,300 decimal digits);
+- integer magnitude: 14,284 binary bits (conservative source ceiling for at most 4,300 decimal digits);
 - detached deterministic JSON serialization: 8 MiB.
 
-The integer throat is checked with `int.bit_length()` before decimal JSON serialization, so it does not rely on process-global `sys.set_int_max_str_digits` state. These are source resource ceilings, not runtime throughput claims.
+The integer throat is checked with `int.bit_length()` before decimal JSON serialization, so it does not rely on process-global `sys.set_int_max_str_digits` state. A stricter process policy may reject smaller values later; that is fail-closed, not a source guarantee violation. These are source resource ceilings, not runtime throughput claims.
 
 ## Current repository state
 
 - Supporting source: `tools/try_forever_operator_receipt_snapshot_custody.py` — **IMPLEMENTED SOURCE / v2**.
-- Hostile regression: `tools/test_try_forever_operator_receipt_snapshot_custody.py` — **SOURCE / UNEXECUTED**; it pins exact-max acceptance and max+1 integer-magnitude rejection in addition to the existing stateful/nested/resource wounds.
+- Hostile regression: `tools/test_try_forever_operator_receipt_snapshot_custody.py` — **SOURCE / UNEXECUTED**; it pins ordinary large-integer acceptance and over-ceiling rejection without assuming the process-wide integer conversion limit equals the source ceiling.
 - Existing-owner boundary: `tools/test_try_forever_operator_receipt_snapshot_custody_owner_boundary.py` — **SOURCE_WIRED / UNEXECUTED**.
 - Existing owner: `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **SOURCE_WIRED**; it already consumes `snapshot_verification_inputs(...)`, so the strengthened integer/resource contract is on the existing owner path without creating another receipt owner.
 - Existing owner consumption: **YES / SOURCE_WIRED**.
@@ -54,6 +55,7 @@ The integer throat is checked with `int.bit_length()` before decimal JSON serial
 - The first owner-boundary AST walker descended into nested functions after merely skipping the nested function node itself. That evidence bug was corrected with an explicit recursive visitor that stops descent at nested function/lambda boundaries.
 - The original snapshot helper used `dict(value)` plus a JSON round-trip. That detached nested structure, but it let JSON normalize tuples and non-string nested keys and had no pre-serialization resource throat. v2 replaces that shape with one bounded recursive observation into exact JSON values.
 - The encoded-byte ceiling alone is too late to bound giant integer decimal-conversion work. Integer magnitude is now admitted before serialization using a deterministic bit-length ceiling.
+- The first integer regression incorrectly assumed the source ceiling itself must serialize under every process-wide integer conversion policy. Review corrected it: the source ceiling prevents larger inputs, while a stricter runtime policy may still fail closed sooner.
 - Source wiring is not regression execution. The direct owner methods consume snapshot custody, but the hostile regression suite remains unexecuted in authenticated CI evidence.
 
 ## Duplicate-architecture rule
