@@ -1,0 +1,177 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpoint": "2026-08-25T05:58:00-05:00",
+  "previousPublicationHead": "2c012b07fa1b3900c1ca4e9f4ff2b470b997a3a7",
+  "reviewedSourceHead": "639137848f39eb4457fb5b6cad139169aa187777",
+  "sourceDelta": {
+    "commits": 10,
+    "intendedPaths": 8,
+    "unexpectedPaths": 0,
+    "paths": [
+      "receipts/try-forever/2026-08-25-heartbeat-0558-plan.json",
+      "tools/try_forever_repository_emission_observation.py",
+      "tools/test_try_forever_repository_emission_observation.py",
+      "tools/try_forever_canonical_result_fingerprint.py",
+      "tools/test_try_forever_canonical_result_fingerprint.py",
+      "skills/operator-owner-surgery-canonical-result-fingerprint/SKILL.md",
+      "skills/heartbeat-report-emission-snapshot/SKILL.md",
+      "docs/try-forever/heartbeat-provenance-certification-source-specimen.html"
+    ]
+  },
+  "fronts": [
+    {
+      "id": "repository-oid-exactness",
+      "state": "IMPLEMENTED_SOURCE",
+      "owner": "tools/try_forever_repository_emission_observation.py",
+      "blob": "c88674aeda7d1b2d38ed277f4718e9cd421d128c",
+      "changed": [
+        "branch.oid is admitted exactly after the porcelain prefix; whitespace, case, CR, VT, FF, and non-LF separator repair cannot create authority",
+        "inherited GIT_CONFIG_GLOBAL, GIT_CONFIG_SYSTEM, and GIT_CONFIG_NOSYSTEM selectors join the existing repository/config redirect deny-list",
+        "the parser uses LF-only record framing instead of bytes.splitlines"
+      ],
+      "regression": {
+        "path": "tools/test_try_forever_repository_emission_observation.py",
+        "blob": "46097e178759f5b53873706669f96da8c70f74a1",
+        "state": "REGRESSION_SOURCE_UNEXECUTED"
+      }
+    },
+    {
+      "id": "canonical-fingerprint-container-admission",
+      "state": "IMPLEMENTED_SOURCE",
+      "owner": "tools/try_forever_canonical_result_fingerprint.py",
+      "blob": "54f49beccf5459bd088ae916faee033b46e74cbb",
+      "changed": [
+        "canonical fingerprint admission now requires one exact built-in dict at the owner boundary",
+        "caller-owned Mapping or dict-subclass callbacks cannot participate in fingerprint evidence work",
+        "ordinary valid-Unicode serialization and surrogate-safe evidence identity remain unchanged"
+      ],
+      "regression": {
+        "path": "tools/test_try_forever_canonical_result_fingerprint.py",
+        "blob": "59b7b170d7a221f101908229843c1845e28fd3fe",
+        "state": "REGRESSION_SOURCE_UNEXECUTED"
+      }
+    },
+    {
+      "id": "report-emission-doctrine-convergence",
+      "state": "DURABLE_DOCTRINE",
+      "path": "skills/heartbeat-report-emission-snapshot/SKILL.md",
+      "blob": "008bbcfec12d7e1280f15ced4496b79a09c77cb4",
+      "changed": [
+        "stale v5 and split-initial-snapshot claims removed",
+        "current v6 owner truth records the same bounded one-process repository observer before discovery, after discovery, and at final emission",
+        "exact OID and inherited Git environment/config redirect boundaries are durable"
+      ]
+    },
+    {
+      "id": "canonical-fingerprint-skill-convergence",
+      "state": "DURABLE_DOCTRINE",
+      "path": "skills/operator-owner-surgery-canonical-result-fingerprint/SKILL.md",
+      "blob": "886122cc75807df9906626ff942da10a8f10f1e3",
+      "changed": [
+        "exact built-in dict observation is now a first-class evidence law",
+        "two current consumers remain SOURCE_WIRED while regression execution remains NO"
+      ]
+    },
+    {
+      "id": "provenance-warm-wall",
+      "state": "SOURCE_ONLY_ACCESSIBLE_ART",
+      "path": "docs/try-forever/heartbeat-provenance-certification-source-specimen.html",
+      "blob": "a9268e71aa6a2021061c63953c524da889827b1c",
+      "changed": [
+        "existing DOM/SVG organism mutated in place to OWNER v6 truth",
+        "touchable radio states expose snapshot, exact OID, Git environment, tracked skill, content-to-HEAD, generated-index, atomicity, and capability membrane",
+        "48px targets, keyboard focus, non-color signals, reduced motion, no raster, no autoplay or decorative blink"
+      ]
+    }
+  ],
+  "codeFirstReview": {
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY",
+    "corrections": [
+      "first exact-OID repair used bytes.splitlines, which could treat VT/FF as record separators and amputate hostile suffix evidence; replaced with LF-only framing and hostile fixtures",
+      "canonical fingerprint container admission was kept at the existing shared organ; no second fingerprint implementation or owner was created"
+    ],
+    "tested": false
+  },
+  "reviewers": {
+    "sheRaw": {
+      "state": "FAULT",
+      "boundary": "authoritative pre-execution consultation failed: account connection HTTP 400; no substitute critique invented"
+    },
+    "venice": {
+      "state": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+      "scope": "bounded same-worker Judgment Jar review only; no external-worker verdict invented"
+    }
+  },
+  "executionEvidence": {
+    "head": "639137848f39eb4457fb5b6cad139169aa187777",
+    "homeCenterCi": {"run": 32840808700, "conclusion": "failure"},
+    "buildAndroid": {"run": 32840808694, "conclusion": "failure"},
+    "operatorOverlayAndroid": {
+      "run": 32840808695,
+      "job": 97779654439,
+      "conclusion": "failure",
+      "steps": 0,
+      "logs": "404 BlobNotFound"
+    },
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: exact-OID normalization wound and stale doctrine converted into source repairs",
+    "Canon Auto-Select": "LIT: current direct-tree owners and relevant skills selected; stale generated-index authority not used",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguity required interpretation",
+    "Originality Tax": "LIT: splitlines repair was rejected and replaced with a materially different LF-only evidence path",
+    "Hunger": "LIT: source changes forced skill and Warm Wall truth convergence",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: stale v5/split-snapshot doctrine removed; evidence surfaces synchronized",
+    "Operator Campaign": "LIT: sole existing repository/provenance owners preserved",
+    "Harroway operator discipline": "LIT: authenticated GitHub source/readback only; no local accomplishment proof",
+    "She-Raw adversarial motivation": "FAULT: account connection HTTP 400",
+    "Venice Judgment Jars": "LIT: bounded source-slice gate; no fabricated external verdict",
+    "Regnet QA": "LIT: code-first review found and corrected the VT/FF splitlines laundering defect",
+    "accessibility/TalkBack and touch semantics": "LIT: existing Warm Wall remains keyboard/touch/non-color/reduced-motion source; runtime TalkBack unclaimed",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation",
+    "deterministic routing": "LIT: exact branch OID and exact built-in dict admission fail closed",
+    "evidence/capability-state discipline": "LIT: SOURCE and REGRESSION_SOURCE kept behind TESTED/runtime/deployed/delivered",
+    "recovery/checkpointing/idempotence": "LIT: stale or malformed authority evidence cannot donate repaired identity",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing provenance Warm Wall mutated in place",
+    "warm walls": "LIT: same accessible source organism carries current custody state",
+    "Christmas-light scene graph": "DARK: evidence plumbing earned no motion or decorative blink",
+    "contact preservation": "LIT: exact valid identities are preserved; hostile evidence is rejected rather than normalized"
+  },
+  "crossPollination": [
+    "stale report-emission doctrine forced current-owner archaeology, exposing exact OID normalization as a live evidence channel",
+    "Regnet review of exact OID admission exposed bytes.splitlines as a hidden control-separator repair path",
+    "snapshot exact-container doctrine made the neighboring canonical fingerprint Mapping admission suspicious, producing the second independent source hardening front",
+    "authenticated owner truth forced doctrine and the existing accessible Warm Wall to stop telling the prior checkpoint story"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "phoneHands": false,
+    "primaryPhone": false,
+    "recoveryChain": false,
+    "nightcore": false,
+    "pocketTts": false,
+    "chromium": false,
+    "contextOrgans": false,
+    "physicalAcceptance": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
