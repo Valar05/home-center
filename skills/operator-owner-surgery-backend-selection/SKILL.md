@@ -24,7 +24,9 @@ This skill owns backend-selection and result-admission doctrine only. It does **
 
 `CALLER MAPPING != DETACHED BACKEND EVIDENCE`.
 
-`SAFE INTEGRITY COMPOSITION != SAFE DIRECT POLICY ENTRYPOINT`.
+`DIRECT POLICY MACHINE INPUT != EXTENSIBLE PYTHON CALLBACK SURFACE`.
+
+`PUBLIC TYPE CAPABILITY MUST NOT EXCEED RUNTIME ADMISSION`.
 
 `SUPPORTING SOURCE != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
@@ -33,18 +35,23 @@ This skill owns backend-selection and result-admission doctrine only. It does **
 
 - `SUPPORTED_POSIX_PRIMITIVES` selects `HELD_DIRECTORY_DESCRIPTOR` for a **future canonical-owner composition**.
 - `PORTABLE_ATOMIC_BINDING_UNAVAILABLE` keeps `PORTABLE_PATHNAME_REVALIDATION` as the canonical portable backend.
+- Capability tokens are exact built-in strings before equality dispatch; string subclasses are not an admitted control protocol.
+- Failure-boundary text is an exact non-empty built-in string before truthiness/projection.
+- Selection records are exact `OwnerSurgeryBackendSelection` values whose fields must match the canonical decision for their admitted capability; subclass or forged callback-bearing records fail closed.
 - Unknown capability text fails closed.
 - Once a canonical classification attempt actually selects held-descriptor custody, descriptor setup/inventory/artifact/cleanup failure terminates that attempt. Do not retry the same evidence through portable custody and call the weaker result equivalent.
 
-### Remaining direct-policy exact-input wound
-The direct policy entrypoints still accept broad Python `Mapping` / `str`-compatible inputs before exact machine-input admission. A caller-owned mapping or string subclass can therefore run custom behavior before the direct policy has detached or rejected it.
+### Direct-policy exact-input custody
+The direct result-admission throat now reuses the existing bounded one-observation `snapshot_json_mapping(...)` organ **before any semantic result read**. The public result annotation is `dict[str, object]`, matching runtime exact built-in-dict admission instead of advertising arbitrary `Mapping` capability.
 
-`tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` is a deliberate **RED / SOURCE / UNEXECUTED** fixture for that remaining boundary. Do not green-paint the direct policy merely because the safer integrity composition now passes it a detached plain tree.
+Root and nested Mapping/dict subclasses, scalar subclasses, tuples, non-string keys, non-finite numbers, and other Python-only shapes therefore fail before caller-owned callback behavior can participate in policy evidence. The detached plain tree is the only result object consumed by semantic admission.
+
+`tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` is **CONVERGENCE SOURCE / UNEXECUTED**. It pins public type convergence, root and nested callback rejection, exact capability/failure strings, exact selection-record custody, ordinary result parity, and ordinary fail-closed projection. Its source presence is not test execution evidence.
 
 ## Result-admission throat
 `admit_selected_backend_result(...)` is the source-only gate between backend work and owner authority.
 
-Semantically it requires:
+After exact machine-input custody it requires:
 - selected backend identity and no weaker-fallback claim;
 - non-negative integer directory-entry/candidate counts with candidates ≤ entries;
 - `discoveryErrors` and `evidenceComplete` to agree;
@@ -54,14 +61,12 @@ Semantically it requires:
 - distinct members and distinct owner/base groups so duplicate evidence cannot manufacture cardinality;
 - incomplete exhaustive custody to carry **zero** promotion-authority groups.
 
-The direct function's Python input custody is **not yet exact**. That is distinct from these semantic checks.
-
 The gate reports exhaustive evidence separately from owner evidence. A complete scan without authenticated current-owner custody is not owner evidence. Authenticated custody for one owner does not upgrade another owner's unverified group.
 
 Diagnostic surgeries may remain after a wounded scan. Diagnostic source inspection is not promotion authority.
 
 ## Backend-result integrity composition
-`tools/try_forever_owner_surgery_backend_result_integrity.py` now crosses the existing bounded one-observation exact-JSON snapshot organ at every public result entrypoint **before any semantic result read**.
+`tools/try_forever_owner_surgery_backend_result_integrity.py` crosses the same existing bounded one-observation exact-JSON snapshot organ at every public result entrypoint **before any semantic result read**.
 
 That source-level composition requires:
 - one exact built-in `dict` root;
@@ -70,7 +75,7 @@ That source-level composition requires:
 - all inventory and witness checks to run only against the detached plain tree;
 - the existing backend result-admission policy to receive that detached tree, not the caller-owned object.
 
-This is reuse of `try_forever_operator_receipt_snapshot_custody.py`, not a new validator owner. `tools/test_try_forever_owner_surgery_backend_result_snapshot_boundary.py` pins ordinary parity plus hostile root mapping, nested mapping, and scalar-subclass rejection. It is **SOURCE / UNEXECUTED**.
+This is reuse of `try_forever_operator_receipt_snapshot_custody.py`, not a new validator owner. The integrity wrapper remains a useful separate composition because it owns witness/inventory checks; direct backend policy now independently has exact input custody rather than relying on callers to sanitize for it.
 
 ## Current canonical owner truth
 Canonical custody remains `tools/try_forever_owner_surgery_custody_probe.py` schema v10.
@@ -85,7 +90,7 @@ Current capability state:
 - portable v10 canonical owner: **SOURCE_WIRED**;
 - zero-partial-authority owner behavior: **SOURCE_WIRED**;
 - backend-selection policy semantic checks: **SUPPORTING SOURCE**;
-- backend direct exact-input custody: **RED / NOT WIRED**;
+- backend direct exact-input custody: **SOURCE_WIRED**;
 - backend result-integrity exact-JSON snapshot composition: **SOURCE_WIRED**;
 - backend witness parity: **SOURCE_WIRED**;
 - POSIX descriptor custody: **SUPPORTING SOURCE**;
@@ -113,7 +118,7 @@ A future **selected descriptor authority** failure is different: that must fail 
 ## Review / regression surfaces
 Relevant source-only regression surfaces include:
 - `tools/test_try_forever_owner_surgery_backend_policy.py`;
-- `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` **RED**;
+- `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` **CONVERGENCE SOURCE / UNEXECUTED**;
 - `tools/test_try_forever_owner_surgery_backend_result_integrity.py`;
 - `tools/test_try_forever_owner_surgery_backend_result_snapshot_boundary.py`;
 - `tools/test_try_forever_owner_surgery_authority_member_integrity.py`;
@@ -123,11 +128,14 @@ Relevant source-only regression surfaces include:
 
 Their existence is not execution evidence.
 
+## Cross-skill composition
+`operator-receipt-bounded-container-admission` and `operator-receipt-snapshot-custody` supply the already-owned exact-container/bounded-snapshot laws used here. Backend selection does not fork those organs; it consumes them at its own public machine-evidence throat.
+
 ## Duplicate-architecture law
 Do not create a descriptor promotion owner beside canonical v10. Future integration must compose the existing canonical owner, backend-selection/result-admission policy, result-integrity wrapper, and descriptor custody organ. The descriptor shadow is allowed only because it cannot emit promotion authority.
 
 ## Accessibility / touch
-The existing backend-selection source specimen may expose the snapshot throat and direct-policy RED boundary with keyboard/touch-native controls, non-color semantics, and reduced-motion behavior. Source art must explicitly remain SOURCE ONLY and may not claim Android runtime, TalkBack runtime, phone delivery, or acceptance.
+The existing backend-selection source specimen may expose the exact direct-policy throat and remaining canonical-owner boundary with keyboard/touch-native controls, non-color semantics, and reduced-motion behavior. Source art must explicitly remain SOURCE ONLY and may not claim Android runtime, TalkBack runtime, phone delivery, or acceptance.
 
 ## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
