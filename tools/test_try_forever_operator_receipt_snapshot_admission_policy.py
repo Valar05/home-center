@@ -64,8 +64,8 @@ def main() -> int:
     assert capabilities["schema"] == SCHEMA
     assert capabilities["exactBuiltinObjectAdmission"] is True
     assert capabilities["boundedDiagnosticContextAdmission"] is True
+    assert capabilities["ownerWired"] is True
     for field in (
-        "ownerWired",
         "regressionExecuted",
         "tested",
         "runtimeUi",
