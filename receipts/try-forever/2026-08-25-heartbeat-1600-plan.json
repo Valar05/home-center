@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-25T16:00:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "eded8e6cba468e9091fb1ab353f7acc4ab2f3835",
+  "commission": "Advance a broad non-P0 Harroway heartbeat through existing owners only; preserve the phone/P0 firewall, duplicate-architecture ban, accessibility constraints, and capability-state membrane.",
+  "evidencedWounds": [
+    {
+      "front": "backend-result evidence custody",
+      "owner": "tools/try_forever_owner_surgery_backend_result_integrity.py",
+      "finding": "Public backend-result integrity entrypoints accept arbitrary Mapping and call mapping methods before an exact detached JSON observation. Nested Mapping/scalar subclasses can therefore execute caller-owned callbacks inside supporting evidence custody.",
+      "plannedRepair": "Reuse the existing bounded exact-JSON snapshot organ at the public throat, then audit only the detached plain tree. Do not create a second snapshot/validator owner."
+    },
+    {
+      "front": "backend-selection scalar custody",
+      "owner": "tools/try_forever_owner_surgery_backend_policy.py",
+      "finding": "Backend selection and failure projection accept broad str/selection objects, while result admission accepts arbitrary Mapping. These are machine-evidence/control inputs and can execute subclass behavior before exact admission.",
+      "plannedRepair": "Require exact built-in control strings, exact selection objects, and reuse bounded exact-JSON snapshot custody for backend results before semantic reads."
+    },
+    {
+      "front": "regression + doctrine + accessible source specimen",
+      "owner": "existing tests/skill/Warm Wall",
+      "finding": "Current regressions and doctrine do not pin callback-free rejection at these backend throats.",
+      "plannedRepair": "Extend existing source-only fixtures, converge existing backend-selection skill, and mutate the existing backend-selection Warm Wall only if the source topology changes materially."
+    }
+  ],
+  "explicitExclusions": [
+    "Phone Hands",
+    "primary-phone execution",
+    "Home Center P0 recovery",
+    "Nightcore",
+    "Pocket TTS",
+    "Chromium",
+    "Context Organs",
+    "physical acceptance",
+    "manual workflow retry",
+    "neighboring overlay/controller/validator architecture"
+  ],
+  "evidencePolicy": "SOURCE_WIRED is not REGRESSION_EXECUTED, TESTED, runtime, deployed, callable, executed, delivered, or accepted.",
+  "sheRawAttempt": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "status": "PLAN_ALLOWED_NON_P0_SOURCE_SLICE"
+}
