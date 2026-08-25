@@ -1,0 +1,39 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "timestampLocal": "2026-08-25T15:00:00-05:00",
+  "boundedClaim": "The canonical owner-surgery custody probe now rejects callback-capable current-owner map containers before items() and admits current-owner blob tokens only as exact built-in lowercase-hex strings.",
+  "stateClaimed": "SOURCE_WIRED",
+  "acceptance": [
+    "current_owner_blobs=None and exact plain dict remain supported",
+    "dict subclasses are rejected before items() callback execution",
+    "blob str subclasses and case/length/whitespace drift fail closed",
+    "existing owner identity admission remains delegated to admit_owner_identity",
+    "no phone/P0 or duplicate architecture is consumed",
+    "regression source is not represented as executed or TESTED"
+  ],
+  "evidence": {
+    "reviewedSourceHead": "fdd7944e85d6644bc02b29db12ffb11fe6dac644",
+    "custodySourceBlob": "e3810d1afb3a8afe458219d81e2826eafcb6ab33",
+    "regressionPath": "tools/test_try_forever_owner_surgery_current_owner_blob_admission.py",
+    "skillPath": "skills/operator-owner-surgery-custody/SKILL.md",
+    "warmWallPath": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+    "sourceDelta": "5 commits / 5 intended paths / 0 unexpected paths from prior publication head"
+  },
+  "attacks": [
+    "scope substitution: none; existing canonical custody owner mutated in place",
+    "failure path: caller dict subclass items() callback is blocked by exact type gate",
+    "scalar broadening: blob str subclass is rejected",
+    "normalization: uppercase/length/whitespace drift remains rejected",
+    "capability collapse: regression is SOURCE/UNEXECUTED; TESTED/runtime/deployed/delivered/accepted remain NO",
+    "P0 crossover: none"
+  ],
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "delivered": false,
+  "accepted": false,
+  "note": "Regnet does not grant STOP_ALLOWED; Venice remains a separate gate."
+}
