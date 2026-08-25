@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-plan.v1",
+  "heartbeat": "2026-08-25T02:00:00-05:00",
+  "mission": "Harden operator-receipt snapshot diagnostic custody without changing exact canonical evidence or creating a second receipt owner/projector.",
+  "authorizedFronts": [
+    "snapshot diagnostic projection source",
+    "hostile regression source",
+    "operator-receipt-snapshot-custody doctrine convergence",
+    "code-first Regnet review",
+    "exact-head execution readback"
+  ],
+  "constraints": {
+    "exactEvidenceUnchanged": true,
+    "diagnosticTextMustBeBoundedAndSafe": true,
+    "duplicateArchitecture": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "testedMayAdvanceWithoutExecutionEvidence": false
+  },
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "venicePlan": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE",
+  "capabilityAtPlan": {
+    "requested": true,
+    "implementedSource": false,
+    "regressionSource": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
