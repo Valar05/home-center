@@ -30,9 +30,11 @@ Current source surfaces:
 - `tools/try_forever_operator_receipt_identity_fieldset.py` — **EXACT-CONTAINER SOURCE_WIRED**.
 - `tools/try_forever_owner_surgery_shadow_receipt_projection.py` — **EXACT-CONTAINER SOURCE_WIRED**.
 - `tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` — **EXACT-CONTAINER SOURCE_WIRED**.
+- `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **FINAL-v4 PUBLIC TYPE CONTRACT SOURCE_WIRED** at blob `42cd1fceccfae861e9e5edd129b145b15969d401`.
 - `tools/test_try_forever_operator_receipt_exact_container_surfaces.py` — **SOURCE / UNEXECUTED**.
 - `tools/test_try_forever_shadow_receipt_exact_snapshot_boundary.py` — **SOURCE / UNEXECUTED**.
-- `tools/test_try_forever_operator_receipt_public_type_contract.py` — **RED SOURCE / UNEXECUTED** for the remaining final-owner public type contract.
+- `tools/test_try_forever_operator_receipt_public_type_contract.py` — **CONVERGENCE SOURCE / UNEXECUTED**.
+- `patches/try-forever-operator-receipt-public-type-contract.patch` — **APPLIED_SOURCE** by commit `04767647bcfc9ef29b6b867d5db7c7e6e8dbc66f`.
 
 ## Current source truth
 
@@ -44,16 +46,9 @@ The snapshot-custody owner:
 
 The derivation and identity-fieldset surfaces advertise and admit exact built-in `dict` receipt/raw inputs and exact tuple field vocabularies before traversal.
 
-The descriptor-shadow display projector and self-integrity owner now advertise exact built-in `dict` input and each consumes the existing bounded snapshot-custody organ before semantic reads. Their runtime and public type contracts are converged at source.
+The descriptor-shadow display projector and self-integrity owner advertise exact built-in `dict` input and consume the bounded snapshot-custody organ before semantic reads.
 
-### Remaining exact public-contract wound
-
-`tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` is final operator receipt schema **v4**, but its public reverification helpers still advertise `Mapping[str, object]` for receipt/raw evidence even though `snapshot_verification_inputs(...)` admits exact built-in `dict` only. Runtime rejection is already fail-closed; the public type capability is broader than runtime admission.
-
-Current promotion evidence:
-- RED regression: `tools/test_try_forever_operator_receipt_public_type_contract.py` — **SOURCE / UNEXECUTED**;
-- exact base-blob-locked surgery: `patches/try-forever-operator-receipt-public-type-contract.patch` — **PROPOSED_NOT_APPLIED** against owner blob `2920ae28ea56a9840cf7ca05a57ff9231469cb04`;
-- existing final owner mutation: **NO**.
+The final v4 operator receipt reverification APIs now advertise the same exact built-in `dict` receipt/raw inputs already required by `snapshot_verification_inputs(...)`. Runtime rejection and public type capability therefore converge at source for the whole known receipt stack.
 
 So:
 - supporting admission policy: **YES / SOURCE**;
@@ -62,14 +57,14 @@ So:
 - fieldset exact-container custody: **YES / SOURCE_WIRED**;
 - projector exact-container custody: **YES / SOURCE_WIRED**;
 - self-integrity exact-container custody: **YES / SOURCE_WIRED**;
-- final-v4 public type-contract convergence: **NO / RED**;
-- hostile regression source: **YES / UNEXECUTED**;
-- whole receipt stack exact-container convergence: **NO / PARTIAL**;
+- final-v4 public type-contract convergence: **YES / SOURCE_WIRED**;
+- whole known receipt stack exact-container convergence: **YES / SOURCE**;
+- hostile/convergence regression source: **YES / UNEXECUTED**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Review scars
 
-Earlier snapshot hardening bounded values produced *after* Mapping iteration, which did not bound arbitrary Python work executed by Mapping itself. Admission moved ahead of traversal. The 2026-08-25 09:00 review found the same smell in derivation and final-fieldset custody and repaired those surfaces. The 11:00 review repaired the display projector and self-integrity owner. The 12:01 review found the final-v4 reverification API still **advertises** broader Mapping capability even though runtime already rejects it; that final public contract remains intentionally RED rather than being silently green-painted.
+Earlier snapshot hardening bounded values produced *after* Mapping iteration, which did not bound arbitrary Python work executed by Mapping itself. Admission moved ahead of traversal. The 2026-08-25 09:00 review found the same smell in derivation and final-fieldset custody and repaired those surfaces. The 11:00 review repaired the display projector and self-integrity owner. The 12:01 review found the final-v4 reverification API still advertised broader Mapping capability even though runtime already rejected it. The 12:58 repair applied the existing base-locked owner surgery and authenticated result blob `42cd1fceccfae861e9e5edd129b145b15969d401`; source convergence is now complete for this known public type-contract seam, while regression execution and TESTED remain separate.
 
 ## P0 / phone firewall
 
