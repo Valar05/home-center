@@ -1,0 +1,19 @@
+{
+  "schema": "try-forever-venice-plan-review.v1",
+  "heartbeat": "2026-08-25T12:01:34-05:00",
+  "reviewMode": "same-worker-judgment-jar",
+  "verdict": "PLAN_ALLOWED",
+  "scope": [
+    "final v4 public type contract parity",
+    "receipt doctrine convergence",
+    "exact-head execution evidence"
+  ],
+  "constraints": [
+    "no phone/P0 consumption or mutation",
+    "no duplicate receipt/projector/controller architecture",
+    "supporting source and patch provenance do not imply owner wiring",
+    "regression source does not imply TESTED",
+    "do not mutate operator-facing art unless topology materially changes"
+  ],
+  "externalVeniceWorkerVerdict": null
+}
