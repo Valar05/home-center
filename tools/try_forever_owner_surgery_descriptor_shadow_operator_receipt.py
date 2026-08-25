@@ -180,7 +180,7 @@ def _require_final_receipt_contract(receipt: Mapping[str, object]) -> None:
             raise ValueError(f"operator receipt cannot carry final {field} capability")
 
 
-def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
+def verify_operator_receipt_identity(receipt: dict[str, object]) -> bool:
     """Verify deterministic identity and semantic custody for one bounded v4 operator receipt.
 
     This verifies receipt integrity only. It does not independently establish the truth of the raw
@@ -223,8 +223,8 @@ def _require_upstream_receipt_contract(receipt: Mapping[str, object]) -> None:
 
 
 def verify_operator_receipt_against_raw_evidence(
-    receipt: Mapping[str, object],
-    raw_result: Mapping[str, object],
+    receipt: dict[str, object],
+    raw_result: dict[str, object],
 ) -> bool:
     """Verify one bounded v4 receipt against explicitly supplied raw machine evidence.
 
@@ -250,8 +250,8 @@ def verify_operator_receipt_against_raw_evidence(
 
 def verify_operator_receipt_derivation_against_raw_evidence(
     repo_root: Path,
-    receipt: Mapping[str, object],
-    raw_result: Mapping[str, object],
+    receipt: dict[str, object],
+    raw_result: dict[str, object],
 ) -> bool:
     """Verify raw linkage and exact bounded-projection derivation for one v4 receipt.
 
