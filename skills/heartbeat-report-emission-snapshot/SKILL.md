@@ -1,73 +1,79 @@
 # Heartbeat Report-Emission Snapshot Revalidation
 
 ## Purpose
+Keep repository-skill authority bound to one coherent, bounded repository observation before discovery, after discovery, and again at final emission. Generated-index currentness may survive only when its exact artifact custody also survives.
 
-A clean repository snapshot observed around direct skill discovery can become stale while generated-index inspection and report assembly are still running. Authority must not escape without one final custody check.
+## Core laws
+`ONE GIT STATUS PROCESS != ATOMIC REPOSITORY SNAPSHOT`.
 
-## Contract
+`EXACT branch.oid EVIDENCE != TRIMMED / CASE-NORMALIZED OID`.
 
-- The existing owner remains `tools/try_forever_skill_provenance_probe.py`.
-- Late revalidation is **preservation-only**: it may preserve earlier authoritative certification but may never manufacture authority from a matching HEAD string.
-- Prior certification authority must be literal boolean `True`.
-- Missing/changed final HEAD, unknown cleanliness, or a newly dirty checkout fail closed.
-- The late observation comes from one bounded `git status --porcelain=v2 --branch --untracked-files=normal --ignore-submodules=none` process, not separate `rev-parse` + `status` calls.
-- Porcelain output stays bytes; only the canonical ASCII `branch.oid` is decoded. Non-header records mark dirtiness without decoding filenames.
-- Exactly one canonical branch object ID is required. Ambiguous/malformed headers fail closed.
-- The process has a finite deadline; timeout becomes `UNAVAILABLE` and cannot donate stale evidence.
-- The observer removes inherited Git repository-redirection environment (`GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow overrides) and command-scope config injection (`GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_KEY_*`, `GIT_CONFIG_VALUE_*`) while preserving ordinary process environment such as `PATH`. `cwd=repo_root` alone is not sufficient evidence that Git observed the requested repository under the requested repository configuration.
-- This narrows observation drift and parent-process injection but **does not prove atomic repository binding**.
-- Failed final repository custody zeroes emitted repository-skill authority.
-- A prior generated-index `VERIFIED_CURRENT` is also withheld when final repository custody or exact late artifact custody fails.
-- No new authority-facing generated-index read is performed after the declared final repository observation.
-- Strict mode treats failed final-emission authority as failure.
+`INHERITED GIT REPOSITORY OR CONFIG REDIRECT != REQUESTED REPOSITORY CUSTODY`.
 
-## Existing-owner v5 composition
+`LATE REVALIDATION IS PRESERVATION-ONLY`.
 
-Schema `try-forever-skill-provenance.v5` invokes exact generated-index late artifact revalidation only for prior positive currentness, then invokes `observe_repository_emission(repo_root)` as the final repository custody observation before pure report assembly. `compose_provenance_emission(...)` receives the earlier literal repository certification state, certified HEAD, exact initial generated-index inspection SHA, optional late artifact SHA, and final repository observation.
+`SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
-The emitted report separates:
+## Existing observation organ
+`tools/try_forever_repository_emission_observation.py` remains the shared repository observation primitive.
 
-- initial `repositorySnapshot`;
-- authority at certification;
-- final `reportEmissionRepository` status/reason/authority;
-- final observed HEAD/dirty state;
-- exact initial/late generated-index artifact identities;
-- emitted skill records, which are zeroed when late repository authority is lost.
+It uses one bounded:
 
-This is source wiring, not runtime execution or tested evidence.
+`git status --porcelain=v2 --branch --untracked-files=normal --ignore-submodules=none`
 
-## Cross-pollinated initial-snapshot wound
+process to obtain both HEAD and cleanliness. Porcelain output remains bytes; only `branch.oid` is decoded as strict ASCII.
 
-The final-emission observer is stronger than the owner's current **initial** snapshot plumbing. `main()` still builds the pre/post-discovery certification snapshot from separate `git_head()` and `git_dirty()` subprocesses. Those calls lack the final observer's one-process coherence, byte-safe porcelain handling, submodule-ignore override, finite deadline, and repository/config-redirection environment isolation.
+Current source also requires the OID payload to be exact canonical lowercase SHA-1/SHA-256 text as emitted after the protocol prefix. Whitespace or case normalization cannot repair malformed authority evidence.
 
-The existing final-emission organ should be reused for the two initial bracket observations as well. This is a composition improvement, not permission to rename it atomic. A dedicated RED owner-boundary regression and exact proposed owner delta preserve that cut.
+The subprocess environment removes inherited repository/config authority redirects including:
+- `GIT_DIR`, `GIT_WORK_TREE`, `GIT_COMMON_DIR`, index/object/namespace/shallow overrides;
+- `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_CONFIG_NOSYSTEM`;
+- command-scope `GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_KEY_*`, `GIT_CONFIG_VALUE_*`.
 
-## Hostile fixtures
+It also forces `GIT_NO_REPLACE_OBJECTS=1` while retaining benign process environment such as `PATH`.
 
-Pure fixtures cover prior-authority preservation, changed/unavailable final custody, duplicate/malformed OIDs, timeout, submodules, byte-hostile paths, exact generated-index artifact A→B change, negative-state late-I/O suppression, and inherited Git repository/config redirection. Owner-level source fixtures cover stable survival, late HEAD change zeroing skill authority, generated-index currentness withholding, strict-mode failure, and portable v5 report projection.
+Timeout or observation failure becomes `UNAVAILABLE`; stale prior HEAD/cleanliness evidence is never donated.
 
-`tools/test_try_forever_repository_emission_observation.py` now explicitly poisons `GIT_DIR`, `GIT_WORK_TREE`, common-dir/index/object/namespace/shallow environment plus `GIT_CONFIG_COUNT`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_KEY_*`, and `GIT_CONFIG_VALUE_*`; it preserves a benign `PATH` and requires every repository/config redirect to be absent from the Git subprocess environment. This is **REGRESSION_SOURCE / UNEXECUTED**.
+## Current sole-owner composition
+Authenticated current-tree source in `tools/try_forever_skill_provenance_probe.py` emits schema `try-forever-skill-provenance.v6` and already consumes this same observation organ:
 
-The initial-snapshot owner boundary `tools/test_try_forever_provenance_initial_snapshot_owner_boundary.py` requires the existing bounded one-process observer before discovery, after discovery, and again at final emission; it is **REGRESSION_SOURCE / UNEXECUTED**.
+1. before direct skill discovery;
+2. after direct skill discovery;
+3. again after generated-index revalidation as the final report-emission repository custody observation.
+
+The pre/post discovery observations feed `assess_repository_snapshot(...)`; only `STABLE_CLEAN` can certify repository-skill authority. The final observation feeds `compose_provenance_emission(...)`; late failure can withhold previously certified repository authority but cannot manufacture new authority.
+
+Generated-index `VERIFIED_CURRENT` survives only when the initial finite artifact observation and conditional late artifact observation retain the exact same inspection SHA under stable final repository custody.
+
+## Regression source
+`tools/test_try_forever_repository_emission_observation.py` is **REGRESSION SOURCE / UNEXECUTED**.
+
+It now pins:
+- canonical SHA-1 and SHA-256 branch OIDs;
+- rejection of uppercase, leading/trailing-space, and tab-suffixed OID evidence;
+- duplicate/malformed OID fail-closed behavior;
+- byte-hostile filenames marking the tree dirty without path decoding;
+- dirty submodule visibility;
+- bounded subprocess timeout;
+- repository/object/index/config environment isolation, including inherited global/system config-file selectors;
+- replacement-object suppression;
+- benign `PATH` preservation.
+
+The owner-level initial-snapshot fixtures remain source evidence only; no authorized runner execution receipt exists in this branch checkpoint.
 
 ## Current capability truth
-
-- pure final-emission revalidation policy: **YES / SOURCE**
-- one-process bounded final repository observation primitive: **YES / SOURCE**
-- repository/config-redirection environment isolation in that primitive: **YES / SOURCE**
-- repository-observation regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- existing provenance owner consumes late repository observation: **YES / SOURCE_WIRED**
-- existing owner composes final repository + generated-index artifact custody into emitted authority: **YES / SOURCE_WIRED**
-- owner schema: **try-forever-skill-provenance.v5**
-- authenticated owner blob before initial-snapshot surgery: **e1d10fb4c917813bc89780486c79a5e2d2bc4bea**
-- initial pre/post discovery use of the same one-process observer: **NO**
-- initial-snapshot owner delta: `patches/try-forever-provenance-initial-snapshot-observation.patch` **YES / PROPOSED_NOT_APPLIED**
-- initial-snapshot regression source: **YES / REGRESSION_SOURCE / UNEXECUTED**
-- atomic repository binding: **NO**
-- tested: **NO**
-- runtime UI / TalkBack: **NO**
-- deployed / callable / executed / delivered / accepted: **NO**
+- one-process bounded repository observation: **YES / SOURCE**;
+- exact branch OID admission: **YES / SOURCE**;
+- inherited Git repository/config environment isolation: **YES / SOURCE**;
+- provenance owner pre-discovery observation: **YES / SOURCE_WIRED**;
+- provenance owner post-discovery observation: **YES / SOURCE_WIRED**;
+- provenance owner final-emission observation: **YES / SOURCE_WIRED**;
+- provenance owner schema: **try-forever-skill-provenance.v6**;
+- regression source: **YES / UNEXECUTED**;
+- atomic repository binding: **NO**;
+- TESTED: **NO**;
+- runtime UI / TalkBack: **NO**;
+- deployed / callable / executed / delivered / accepted: **NO**.
 
 ## Ownership / firewall
-
 No second provenance probe, watcher, repository daemon, scheduler, Phone Hands lane, or P0 owner may be created. Reuse the existing repository-observation organ and sole provenance owner. Phone/P0 consumption and mutation remain zero.
