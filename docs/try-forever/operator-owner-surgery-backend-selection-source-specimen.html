@@ -24,27 +24,33 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: SOURCE WIRED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CAPABILITY EXACT-INPUT GATE: SOURCE WIRED · BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: SOURCE WIRED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · DESCRIPTOR SEMANTIC RESULT PRODUCER: NO · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend result custody and selection source path</title>
-    <desc id="diagram-desc">Caller evidence crosses exact control admission and the existing bounded exact JSON snapshot before backend-policy semantic reads. Witness and authority checks still remain supporting source, and canonical owner integration is not claimed.</desc>
-    <path d="M30 90 H170 M250 90 H370 M450 90 H570 M650 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="170" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="370" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="570" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="25" y="70" fill="currentColor">CALLER</text>
-    <text x="155" y="30" fill="currentColor">EXACT GATE</text>
-    <text x="365" y="30" fill="currentColor">SNAPSHOT</text>
-    <text x="565" y="30" fill="currentColor">POLICY</text>
-    <text x="705" y="70" fill="currentColor">AUTHORITY</text>
-    <text x="705" y="108" fill="currentColor">OR STOP</text>
+    <desc id="diagram-desc">Machine capability evidence crosses an exact scalar gate. Caller backend evidence crosses exact control admission and the existing bounded exact JSON snapshot before policy reads. Descriptor bytes still lack a canonical-owner semantic producer, so owner integration remains stopped.</desc>
+    <path d="M20 90 H125 M205 90 H315 M395 90 H505 M585 90 H695 M775 90 H880" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="125" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="315" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="505" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="695" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="15" y="70" fill="currentColor">PLATFORM</text>
+    <text x="105" y="30" fill="currentColor">EXACT SCALAR</text>
+    <text x="300" y="30" fill="currentColor">SELECT</text>
+    <text x="490" y="30" fill="currentColor">SNAPSHOT</text>
+    <text x="675" y="30" fill="currentColor">SEMANTICS</text>
+    <text x="795" y="70" fill="currentColor">AUTHORITY</text>
+    <text x="795" y="108" fill="currentColor">OR STOP</text>
   </svg>
 
   <fieldset aria-describedby="detail">
     <legend>Inspect one source state</legend>
     <label>
-      <input type="radio" name="backend" value="directwired" checked>
+      <input type="radio" name="backend" value="capability" checked>
+      <span><span class="token">● CAPABILITY EXACT INPUT</span><br>OS identity is an exact built-in string and primitive flags are exact booleans before equality/truthiness classification; callback-capable Python objects are not platform evidence.</span>
+    </label>
+    <label>
+      <input type="radio" name="backend" value="directwired">
       <span><span class="token">● DIRECT POLICY EXACT INPUT</span><br>Capability/failure controls and selection records are exact before dispatch; backend results reuse the bounded one-observation exact JSON snapshot before semantic reads.</span>
     </label>
     <label>
@@ -57,7 +63,11 @@
     </label>
     <label>
       <input type="radio" name="backend" value="descriptor">
-      <span><span class="token">● HELD FD SELECTED</span><br>Required POSIX descriptor primitives admitted; future owner composition may select held-directory custody while preserving the full v10 evidence envelope.</span>
+      <span><span class="token">● HELD FD SOURCE</span><br>Required POSIX primitives admitted; held-directory custody can observe exact bytes and identity, but source existence alone does not give the canonical owner parsed Surgery authority.</span>
+    </label>
+    <label>
+      <input type="radio" name="backend" value="producer">
+      <span><span class="token">× DESCRIPTOR SEMANTIC PRODUCER MISSING</span><br>Canonical v10 currently parses patch/delta semantics from its portable observation. Selecting held-descriptor custody and then calling portable classify would be a forbidden weaker fallback.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="exhaustive">
@@ -77,19 +87,21 @@
     </label>
     <label>
       <input type="radio" name="backend" value="wound">
-      <span><span class="token">× DESCRIPTOR WOUND → FAIL CLOSED</span><br>Once the stronger backend is selected, setup/inventory/artifact/cleanup failure does not earn a silent downgrade to portable custody.</span>
+      <span><span class="token">× DESCRIPTOR WOUND → FAIL CLOSED</span><br>Once the stronger backend is selected by a future canonical owner, setup/inventory/artifact/cleanup failure does not earn a silent downgrade to portable custody.</span>
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">DIRECT POLICY EXACT INPUT\nExact built-in control strings and canonical selection records are required before dispatch.\nBackend result evidence crosses the existing bounded exact-JSON snapshot before semantic reads.\nCanonical owner backend integration remains NO; regressions remain UNEXECUTED.</div>
+  <div id="detail" role="status" aria-live="polite">CAPABILITY EXACT INPUT\nExact built-in scalar controls are admitted before platform classification.\nHostile callback-bearing inputs are regression source only and remain UNEXECUTED.\nCanonical owner backend integration remains NO.</div>
 
   <script>
     const detail = document.getElementById('detail');
     const copy = {
+      capability: 'CAPABILITY EXACT INPUT\nOS identity must be an exact built-in string. Every primitive-presence flag must be an exact built-in boolean. Caller __eq__ / __bool__ callbacks do not become machine capability evidence. Source wired: YES. Regression execution: NO.',
       directwired: 'DIRECT POLICY EXACT INPUT\nCapability and failure controls require exact built-in strings. Selection records must be exact and match their canonical capability decision. Backend results are exact built-in dict evidence captured through the existing bounded snapshot organ before semantic reads. Source wired: YES. Regression execution: NO.',
       snapshot: 'EXACT JSON SNAPSHOT\nThe existing receipt snapshot organ is reused. Root must be exact dict; nested containers/scalars must be exact JSON under bounded depth/node/text/encoded-byte budgets. Caller callbacks do not become evidence. Source wired: YES. Tested: NO.',
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
-      descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact group/member evidence. Canonical owner consumption is still NO.',
+      descriptor: 'HELD FD SOURCE\nStronger source organ can hold the root and observe descriptor-relative candidate bytes. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact group/member evidence. Canonical owner consumption is still NO.',
+      producer: 'DESCRIPTOR SEMANTIC PRODUCER MISSING\nThe existing canonical owner owns patch/delta parsing and group construction, but it currently receives bytes through the portable path. The shadow only compares evidence. Future composition must make that same owner parse the exact bytes observed through the selected descriptor backend; selecting descriptor and then calling portable classify would violate the no-weaker-fallback law.',
       exhaustive: 'INCOMPLETE CUSTODY → ZERO AUTHORITY\nCanonical v10 source is wired. Healthy surgeries may survive as diagnostics, but discoveryErrors force collisionSets, staleBaseGroups, and unverifiedBaseGroups to remain empty. Regression execution is still NO.',
       coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
       members: 'MEMBER INTEGRITY GATE\nA group shell is not authority. Each member must carry the same owner/base, canonical artifact kind/path, exact promotion-ready state, and literal promotion_candidate=true.',
