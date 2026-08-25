@@ -1,0 +1,125 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpoint": "2026-08-25T03:00:00-05:00",
+  "reviewedSourceHead": "c7c1cb2bad429458ab6d33e71f1b743401a42da8",
+  "previousPublicationHead": "dcbf33038647b276a323a7ec42c803ea2407672e",
+  "sourceDelta": {
+    "commits": 7,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "id": "bounded-container-admission",
+      "state": "SUPPORTING_SOURCE",
+      "change": "Added exact built-in dict admission policy so arbitrary Mapping/dict-subclass callbacks cannot be treated as bounded JSON-object observation.",
+      "source": "tools/try_forever_operator_receipt_snapshot_admission_policy.py",
+      "blob": "31367842e7c06582c5c4e6565dbd9d0e164674d8"
+    },
+    {
+      "id": "diagnostic-context-throat",
+      "state": "SUPPORTING_SOURCE",
+      "change": "Added a 4096-code-point exact diagnostic-context source ceiling before later JSON escaping/projection; canonical receipt evidence is unchanged.",
+      "source": "tools/try_forever_operator_receipt_snapshot_admission_policy.py",
+      "blob": "31367842e7c06582c5c4e6565dbd9d0e164674d8"
+    },
+    {
+      "id": "hostile-policy-regression",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "Pins exact dict admission without invoking hostile Mapping callbacks plus diagnostic-context exactness and source ceiling.",
+      "source": "tools/test_try_forever_operator_receipt_snapshot_admission_policy.py",
+      "blob": "0f147451bd4d0d29a2f129db61ebf75224db10c1"
+    },
+    {
+      "id": "owner-evidence-boundary",
+      "state": "RED_UNEXECUTED",
+      "change": "Pins real control-flow ownership, not marker calls: positive nested object gate, negative root fail-closed gate, no legacy Mapping authority, and admitted diagnostic context must be the value consumed by the projector.",
+      "source": "tools/test_try_forever_operator_receipt_snapshot_admission_owner_boundary.py",
+      "blob": "474829d8ab34059edb99bb38c08a1f5675038ff2",
+      "reviewScars": [
+        "First fixture could be fooled by a no-op policy call.",
+        "Second review found branch polarity itself was not proven; wrong-polarity gates are now rejected."
+      ]
+    },
+    {
+      "id": "skill-harvest",
+      "state": "SOURCE",
+      "change": "Harvested operator-receipt-bounded-container-admission; bounded Python container admission and bounded diagnostic context are now durable laws without creating a second receipt owner.",
+      "source": "skills/operator-receipt-bounded-container-admission/SKILL.md",
+      "blob": "a8f39c5525c97e57602379bd5e4a41fa5731d933"
+    }
+  ],
+  "currentOwnerBoundary": {
+    "source": "tools/try_forever_operator_receipt_snapshot_custody.py",
+    "blob": "cfbc9b1f4f954a4907ee5b2f23ca2a805f0e5a41",
+    "ownerWired": false,
+    "state": "RED",
+    "evidence": [
+      "Root still uses isinstance(value, Mapping).",
+      "Nested object traversal still uses isinstance(value, Mapping) and value.items().",
+      "Caller-supplied root diagnostic context still reaches _diagnostic_root before a separate source-ceiling admission."
+    ],
+    "promotionCut": "Compose the existing snapshot organ only; migrate the historical stateful-dict-subclass regression expectations in the same owner promotion."
+  },
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: moved from bounded output values to the earlier unbounded Python container callback boundary.",
+    "Canon Auto-Select": "LIT: selected snapshot/resource/evidence organs from current source rather than a fixed favorite set.",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity.",
+    "Originality Tax": "LIT: owner evidence fixture was materially redesigned twice after counterfeit/no-polarity review failures.",
+    "Hunger": "LIT: added policy + hostile regression + owner RED boundary + durable skill, not a prose-only checkpoint.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: separated canonical JSON evidence, Python container behavior, and diagnostic context resource authority.",
+    "Operator Campaign": "LIT: preserved the existing final receipt/snapshot owners; no neighboring verifier/controller.",
+    "Harroway operator discipline": "LIT: source/readback/RED owner/test/runtime states remain separate.",
+    "She-Raw adversarial motivation": "FAULT: authoritative attempt returned account-connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "LIT: bounded same-worker source slice may yield; owner wiring/regression execution/test/runtime/campaign continue.",
+    "Regnet QA": "LIT: supporting-source/readback PASS; owner REVISE_REQUIRED; regressions UNEXECUTED; TESTED NO.",
+    "accessibility/TalkBack and touch semantics": "LIT AS CONSTRAINT: diagnostic prose cannot become an unbounded/raw hostile text channel; no runtime TalkBack claim.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: consumption 0; mutation 0.",
+    "deterministic routing": "LIT: exact branch/base/blob evidence and fail-closed owner boundary.",
+    "evidence/capability-state discipline": "LIT: supporting source YES; owner wiring NO; regression execution NO; TESTED/runtime/deployed/delivered NO.",
+    "recovery/checkpointing/idempotence": "LIT: prior accepted snapshot/key-diagnostic behavior remains untouched; new owner promotion has an exact bounded cut.",
+    "strange non-raster vector/DOM/native UI art": "DARK: no operator-facing topology changed; art mutation would be decorative heartbeat tax.",
+    "warm walls": "DARK: no new touch topology justified mutation.",
+    "Christmas-light scene graph": "DARK: no runtime transition consequence changed.",
+    "contact preservation": "LIT: canonical receipt keys/values remain exact; only unsupported Python container shape and diagnostic context admission are new boundaries."
+  },
+  "executionTruth": {
+    "head": "c7c1cb2bad429458ab6d33e71f1b743401a42da8",
+    "workflows": [
+      {"name": "Home Center CI", "runId": 32825501257, "conclusion": "failure"},
+      {"name": "Build Android", "runId": 32825501193, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32825501190, "jobId": 97732459643, "conclusion": "failure", "stepCount": 0}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "review": {
+    "regnet": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "crossPollination": "Earlier value/key budgets made the word bounded suspicious at the Python container boundary. That exposed arbitrary Mapping callback work before budgets, which in turn exposed caller-supplied diagnostic context as a second pre-projection resource channel. Regnet then attacked the owner-evidence fixture itself: marker calls were insufficient, and a second pass showed branch polarity also had to be proven. The result is supporting source, hostile fixtures, a durable skill, and an exact RED existing-owner cut without touching P0.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "ownerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
