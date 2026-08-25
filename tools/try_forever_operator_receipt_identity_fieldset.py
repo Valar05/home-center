@@ -6,14 +6,15 @@ derivation from supplied raw evidence. Identity-only and raw-linkage-only reveri
 surfaces, however: a caller can otherwise add an undeclared field, recompute the deterministic final
 digest, and retain a mathematically self-consistent receipt until the deeper derivation verifier runs.
 
-This supporting organ owns only the exact current self-integrity receipt field vocabulary. It does not
-create a second receipt owner/projector, does not derive values, and grants no authority, TESTED,
-runtime, deployment, callability, execution, delivery, acceptance, phone, or P0 state.
+This supporting organ owns only the exact current self-integrity receipt field vocabulary. Its public
+boundary admits one exact built-in ``dict`` receipt plus exact tuple field families before iteration;
+arbitrary Mapping/Iterable implementations are not bounded evidence and cannot execute caller-owned
+callbacks inside field-set custody. It does not create a second receipt owner/projector, does not
+derive values, and grants no authority, TESTED, runtime, deployment, callability, execution,
+delivery, acceptance, phone, or P0 state.
 """
 
 from __future__ import annotations
-
-from collections.abc import Iterable, Mapping
 
 
 SCHEMA = "try-forever-operator-receipt-identity-fieldset.v1"
@@ -56,35 +57,42 @@ class OperatorReceiptIdentityFieldsetError(ValueError):
     """The final receipt field namespace is not the exact admitted v4 union."""
 
 
-def _field_family(values: Iterable[str], *, field: str) -> frozenset[str]:
-    items = tuple(values)
-    if any(not isinstance(item, str) or not item for item in items):
+def _field_family(values: tuple[str, ...], *, field: str) -> frozenset[str]:
+    if type(values) is not tuple:
         raise OperatorReceiptIdentityFieldsetError(
-            f"{field} field names must be non-empty strings"
+            f"{field} fields must be one exact tuple"
         )
-    if len(set(items)) != len(items):
+    if any(type(item) is not str or not item for item in values):
+        raise OperatorReceiptIdentityFieldsetError(
+            f"{field} field names must be non-empty exact strings"
+        )
+    if len(set(values)) != len(values):
         raise OperatorReceiptIdentityFieldsetError(f"{field} field names must be unique")
-    return frozenset(items)
+    return frozenset(values)
 
 
 def require_exact_final_receipt_fieldset(
-    receipt: Mapping[str, object],
+    receipt: dict[str, object],
     *,
-    operator_owned_fields: Iterable[str],
-    denied_capability_fields: Iterable[str],
+    operator_owned_fields: tuple[str, ...],
+    denied_capability_fields: tuple[str, ...],
 ) -> dict[str, object]:
     """Require one final receipt to carry exactly the admitted v4 field namespace.
 
     Intentional exact-false capability reassertion is allowed because the contract is a set union,
     not a disjoint namespace. The final owner still owns value/capability semantics separately.
+    Exact built-in containers are required before traversal so field-set verification cannot execute
+    caller-owned Mapping/Iterable callbacks ahead of the receipt evidence boundary.
     """
 
-    if not isinstance(receipt, Mapping):
-        raise OperatorReceiptIdentityFieldsetError("operator receipt must be one mapping")
-    actual_names = tuple(receipt.keys())
-    if any(not isinstance(name, str) or not name for name in actual_names):
+    if type(receipt) is not dict:
         raise OperatorReceiptIdentityFieldsetError(
-            "operator receipt field names must be non-empty strings"
+            "operator receipt must be one exact built-in dict"
+        )
+    actual_names = tuple(receipt.keys())
+    if any(type(name) is not str or not name for name in actual_names):
+        raise OperatorReceiptIdentityFieldsetError(
+            "operator receipt field names must be non-empty exact strings"
         )
 
     operator_fields = _field_family(operator_owned_fields, field="operator-owned")
