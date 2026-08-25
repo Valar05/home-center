@@ -9,6 +9,11 @@ pretending every platform supports it?
 `SUPPORTED_POSIX_PRIMITIVES` is not itself an atomicity proof. Filesystem semantics, descriptor-
 relative artifact reads, replacement/identity-reuse behavior, execution tests, and owner integration
 remain separate gates.
+
+Capability classification is a machine-evidence boundary, not an extensible Python callback
+surface. Every public control input is admitted as its exact built-in scalar type before equality or
+truthiness can participate in selection. A caller-owned ``str`` subclass or truthy object therefore
+cannot execute code while manufacturing platform capability evidence.
 """
 
 from __future__ import annotations
@@ -33,6 +38,32 @@ class DirectoryHandleBindingCapability:
         return asdict(self)
 
 
+def _require_exact_capability_inputs(
+    *,
+    os_name: str,
+    scandir_accepts_fd: bool,
+    open_accepts_dir_fd: bool,
+    stat_accepts_dir_fd: bool,
+    stat_accepts_follow_symlinks: bool,
+    has_o_directory: bool,
+    has_o_nofollow: bool,
+) -> None:
+    if type(os_name) is not str:
+        raise ValueError("os_name must be one exact built-in string")
+
+    boolean_inputs = {
+        "scandir_accepts_fd": scandir_accepts_fd,
+        "open_accepts_dir_fd": open_accepts_dir_fd,
+        "stat_accepts_dir_fd": stat_accepts_dir_fd,
+        "stat_accepts_follow_symlinks": stat_accepts_follow_symlinks,
+        "has_o_directory": has_o_directory,
+        "has_o_nofollow": has_o_nofollow,
+    }
+    for field, value in boolean_inputs.items():
+        if type(value) is not bool:
+            raise ValueError(f"{field} must be one exact built-in boolean")
+
+
 def classify_directory_handle_binding_capability(
     *,
     os_name: str,
@@ -43,6 +74,16 @@ def classify_directory_handle_binding_capability(
     has_o_directory: bool,
     has_o_nofollow: bool,
 ) -> DirectoryHandleBindingCapability:
+    _require_exact_capability_inputs(
+        os_name=os_name,
+        scandir_accepts_fd=scandir_accepts_fd,
+        open_accepts_dir_fd=open_accepts_dir_fd,
+        stat_accepts_dir_fd=stat_accepts_dir_fd,
+        stat_accepts_follow_symlinks=stat_accepts_follow_symlinks,
+        has_o_directory=has_o_directory,
+        has_o_nofollow=has_o_nofollow,
+    )
+
     required = (
         os_name == "posix",
         scandir_accepts_fd,
