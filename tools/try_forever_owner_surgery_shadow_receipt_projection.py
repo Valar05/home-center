@@ -25,7 +25,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from try_forever_operator_receipt_snapshot_custody import (
-    ReceiptSnapshotError,
+    OperatorReceiptSnapshotCustodyError,
     snapshot_json_mapping,
 )
 from try_forever_provenance_report_path import project_serialized_report_path
@@ -198,9 +198,9 @@ def project_shadow_receipt(repo_root: Path, result: dict[str, object]) -> dict[s
     try:
         result = snapshot_json_mapping(
             result,
-            context="descriptor shadow receipt projection input",
+            field="descriptor shadow receipt projection input",
         )
-    except ReceiptSnapshotError as exc:
+    except OperatorReceiptSnapshotCustodyError as exc:
         raise ValueError(f"descriptor shadow receipt snapshot rejected: {exc}") from exc
 
     if result.get("schema") != SHADOW_SCHEMA:
