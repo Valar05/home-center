@@ -1,0 +1,86 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "heartbeat": "2026-08-25T12:01:34-05:00",
+  "previousCheckpointHead": "ca6ea71c315a735a087ab475532b148e5bb48875",
+  "reviewedSourceHead": "98b517078dbfeac01c031dc208a77e7c24229d02",
+  "sourceDelta": {
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "patches/try-forever-operator-receipt-public-type-contract.patch",
+      "receipts/try-forever/2026-08-25-heartbeat-1201-plan.json",
+      "receipts/venice/2026-08-25-heartbeat-1201-plan-review.json",
+      "skills/operator-receipt-bounded-container-admission/SKILL.md",
+      "tools/test_try_forever_operator_receipt_public_type_contract.py"
+    ]
+  },
+  "lights": [
+    {"skill":"Failure Is The Shovel","state":"ACTIVE","changed":"Moved from already-wired projector/self-integrity to the remaining final-v4 public type-contract wound."},
+    {"skill":"Originality Tax","state":"ACTIVE","changed":"Did not repeat exact-snapshot hardening or manually retry zero-step CI; produced a different RED contract boundary."},
+    {"skill":"Canon Auto-Select","state":"ACTIVE","changed":"Selected the existing bounded-container admission skill rather than minting a decorative new skill."},
+    {"skill":"Hunger / Eat Everything","state":"ACTIVE","changed":"Converged stale projector/self-integrity doctrine to current source truth and isolated the final-v4 wound."},
+    {"skill":"Ever-Polished Interpreter","state":"ACTIVE","changed":"Separated runtime admission from advertised public type capability and refused Mapping-shaped overclaim."},
+    {"skill":"Operator Campaign / Harroway","state":"ACTIVE","changed":"Kept the existing final receipt owner authoritative; owner surgery is base-blob locked and unapplied."},
+    {"skill":"Regnet QA","state":"ACTIVE","changed":"PASS supporting source/readback; owner promotion REVISE_REQUIRED; regression UNEXECUTED; TESTED NO."},
+    {"skill":"Venice Judgment Jar","state":"ACTIVE","changed":"Pre-mutation PLAN_ALLOWED and bounded completion gate persisted; no external worker verdict fabricated."},
+    {"skill":"She-Raw adversarial motivation","state":"FAULT","changed":"Authoritative ambient attempt returned account-connection HTTP 400; no synthetic substitute."},
+    {"skill":"Accessibility/TalkBack","state":"ACTIVE_CONSTRAINT","changed":"Exact-container/public-contract parity prevents unsupported callback-bearing evidence capability from entering future operator/TalkBack paths."},
+    {"skill":"deterministic routing","state":"ACTIVE","changed":"Authenticated exact owner blob 2920ae28... anchors the prepared surgery; exact-head workflow evidence is pinned separately."},
+    {"skill":"evidence/capability-state discipline","state":"ACTIVE","changed":"SOURCE, OWNER_WIRED, REGRESSION_EXECUTED, TESTED, runtime, deployed, callable, executed, delivered, accepted remain separate."},
+    {"skill":"recovery/checkpointing/idempotence","state":"ACTIVE","changed":"No manual workflow retry; prior source identity preserved while receipt state advances."},
+    {"skill":"Warm Walls / strange non-raster art","state":"DARK","changed":"No operator-visible topology changed; art mutation would be decorative theater."},
+    {"skill":"Christmas-light scene graph","state":"DARK","changed":"No runtime transition law changed; no motion earned."},
+    {"skill":"Autocorrect Judgment Jar","state":"DARK","changed":"No material ambiguity required resolution."},
+    {"skill":"Phone Runtime / Phone Hands / P0","state":"FIREWALLED","changed":"Consumption 0, mutation 0, duplicate architecture 0, new P0 finding none."}
+  ],
+  "fronts": [
+    {
+      "id":"final-v4-public-type-contract",
+      "result":"RED supporting source",
+      "regressionBlob":"388a240b5c5acb83ffbf7b73587c812ff7de77f6",
+      "patchBlob":"06af0301116666a8ab48a4e55513a5a65eb4cfa1",
+      "ownerBaseBlob":"2920ae28ea56a9840cf7ca05a57ff9231469cb04",
+      "ownerWired":false
+    },
+    {
+      "id":"bounded-container-doctrine-convergence",
+      "result":"SOURCE_WIRED surfaces corrected; final owner remains PARTIAL",
+      "skillBlob":"d0f3a74d9bcfb8cb66f1200ba954b34ca8466fa7"
+    },
+    {
+      "id":"stale-shadow-receipt-integrity-doctrine",
+      "result":"NEXT_WOUND",
+      "boundary":"Skill still names operator receipt schema v3 while authenticated final owner source is v4; not silently rewritten in this pulse."
+    },
+    {
+      "id":"exact-head-execution-evidence",
+      "result":"TESTED_NO",
+      "homeCenterCi":32876132843,
+      "buildAndroid":32876132835,
+      "operatorOverlay":32876132823,
+      "operatorJob":97894336335,
+      "operatorSteps":0,
+      "causeEstablished":false,
+      "manualRetry":false
+    }
+  ],
+  "crossPollination":"The 11:00 exact-snapshot repairs made the remaining public Mapping annotations visible as capability overclaim. That source review simultaneously exposed stale bounded-container doctrine and a separate schema-v3 doctrine fossil. Exact-head workflow evidence then kept all repository progress behind TESTED/runtime boundaries.",
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "finalOwnerPublicTypeWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate":"SOURCE_SLICE_STOP_ALLOWED__OWNER_TYPE_WIRING_DOCTRINE_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
