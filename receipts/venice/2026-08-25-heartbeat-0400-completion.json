@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "heartbeat": "2026-08-25-0400",
+  "reviewMode": "same-worker-judgment-jar",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "requested existing-owner seam moved from supporting policy to authenticated SOURCE_WIRED state",
+    "code-first review found and repaired stale regressions that still depended on dict-subclass traversal",
+    "accessibility/touch source specimen was mutated in place rather than replaced by neighboring architecture",
+    "She-Raw authoritative attempt faulted at account connection and was not impersonated",
+    "non-phone execution worker is offline with queue depth 4, so no duplicate work request was created",
+    "automatic exact-head workflows failed with zero Operator steps; no step-level cause was invented"
+  ],
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "ownerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
