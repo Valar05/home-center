@@ -7,7 +7,10 @@ SOURCE ONLY. This file has not been observed executing in an authorized test lan
 import hashlib
 import json
 
-from try_forever_canonical_result_fingerprint import canonical_result_sha256
+from try_forever_canonical_result_fingerprint import (
+    CanonicalResultFingerprintError,
+    canonical_result_sha256,
+)
 
 
 def legacy_valid_unicode_sha256(payload):
@@ -53,10 +56,26 @@ def main() -> int:
     # Non-standard numeric evidence remains rejected rather than normalized into an identity.
     try:
         canonical_result_sha256({"value": float("nan")})
-    except ValueError:
+    except CanonicalResultFingerprintError:
         pass
     else:
         raise AssertionError("non-finite canonical evidence earned a result fingerprint")
+
+    # Deep hostile evidence must fail inside the fingerprint organ instead of leaking a raw
+    # RecursionError through the receipt-verification chain. The exact depth is intentionally far
+    # beyond the normal Python JSON recursion boundary while construction itself remains iterative.
+    deep = []
+    cursor = deep
+    for _ in range(2_048):
+        child = []
+        cursor.append(child)
+        cursor = child
+    try:
+        canonical_result_sha256({"deep": deep})
+    except CanonicalResultFingerprintError:
+        pass
+    else:
+        raise AssertionError("deep recursive evidence escaped the typed fingerprint boundary")
 
     return 0
 
