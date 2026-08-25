@@ -17,8 +17,9 @@ failures; no stale prior HEAD/cleanliness evidence is returned.
 Porcelain output is captured as bytes rather than host-locale text. Authority only
 needs the ASCII ``branch.oid`` header plus whether any non-header record exists;
 path bytes are therefore never decoded merely to decide clean/dirty state. The OID
-payload is admitted exactly as emitted after the protocol prefix: whitespace or
-case normalization is not allowed to repair malformed authority evidence.
+payload is admitted exactly as emitted between the protocol prefix and LF record
+delimiter: whitespace, case, CR, vertical-tab, form-feed, or other line-separator
+normalization is not allowed to repair malformed authority evidence.
 
 Inherited Git repository-redirection variables are removed before the subprocess
 runs. ``cwd`` alone does not defeat ``GIT_DIR`` / ``GIT_WORK_TREE`` / alternate
@@ -112,8 +113,10 @@ def parse_porcelain_v2_branch_status(
     dirty = False
     oid_headers = 0
 
-    for raw_line in raw_output.splitlines():
-        line = raw_line.rstrip(b"\r\n")
+    # Git porcelain records are LF-delimited. Do not use bytes.splitlines(): it also treats VT/FF
+    # and other separators as line boundaries, which could silently amputate a hostile suffix from
+    # branch.oid evidence before exact identity admission.
+    for line in raw_output.split(b"\n"):
         if line.startswith(_BRANCH_OID_PREFIX):
             oid_headers += 1
             if oid_headers != 1:
