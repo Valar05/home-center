@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RED / UNEXECUTED owner boundary for cross-host descriptor-shadow path display privacy."""
+"""SOURCE-WIRED / UNEXECUTED boundary for cross-host descriptor-shadow path display privacy."""
 
 from pathlib import Path
 
@@ -38,23 +38,23 @@ def _result(path: str) -> dict[str, object]:
     }
 
 
+def _assert_external(path: str, *forbidden: str) -> None:
+    receipt = project_shadow_receipt(ROOT, _result(path))
+    projected = receipt["portableArtifacts"][0]
+    assert projected["pathScope"] == "EXTERNAL", projected
+    assert projected["path"] == "<external-path>", projected
+    for text in forbidden:
+        assert text not in str(receipt), (text, receipt)
+
+
 def main() -> int:
-    # A Windows absolute path is foreign host topology when this serialized receipt is reviewed on
-    # POSIX. Host-OS ``Path.is_absolute`` alone must not launder it into repository display text.
-    windows_drive = project_shadow_receipt(
-        ROOT,
-        _result(r"C:\Users\alice\private\try-forever-a.patch"),
-    )
-    windows_unc = project_shadow_receipt(
-        ROOT,
-        _result(r"\\server\share\private\try-forever-a.patch"),
-    )
-    for receipt in (windows_drive, windows_unc):
-        projected = receipt["portableArtifacts"][0]
-        assert projected["pathScope"] == "EXTERNAL", projected
-        assert projected["path"] == "<external-path>", projected
-        assert "alice" not in str(receipt)
-        assert "server" not in str(receipt)
+    # Serialized host context must be judged cross-platform rather than by the reviewer host's
+    # Path.is_absolute() semantics alone.
+    _assert_external(r"C:\Users\alice\private\try-forever-a.patch", "alice")
+    _assert_external(r"\\server\share\private\try-forever-a.patch", "server")
+    _assert_external(r"C:private\try-forever-a.patch", "private")
+    _assert_external(r"\rooted\private\try-forever-a.patch", "private")
+    _assert_external("/tmp/private/try-forever-a.patch", "private")
 
     # A canonical repository-relative identity may contain Windows-looking characters after a real
     # repository prefix. It remains repository evidence and keeps collision-safe backslash display.
