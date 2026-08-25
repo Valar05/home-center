@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Canonical Result Fingerprint — Source Specimen</title>
+<title>Canonical Result Fingerprint — Exact JSON Source Specimen</title>
 <style>
   :root { font-family: system-ui, sans-serif; color-scheme: dark light; }
   body { margin: 0; padding: 1rem; }
-  main { max-width: 48rem; margin: auto; }
+  main { max-width: 52rem; margin: auto; }
   fieldset { border: 2px solid currentColor; border-radius: 1rem; padding: 1rem; }
   legend { font-weight: 800; padding: .25rem .5rem; }
   label { display: grid; grid-template-columns: 3rem 1fr; gap: .75rem; align-items: center; min-height: 56px; padding: .5rem; border: 1px solid currentColor; border-radius: .75rem; margin: .5rem 0; cursor: pointer; }
@@ -21,30 +21,35 @@
 <body>
 <main>
 <h1>Canonical Result Fingerprint</h1>
-<p>One shared evidence-identity law now protects canonical descriptor-shadow fingerprints; final v4 operator-receipt reuse is prepared but not applied.</p>
-<svg class="diagram" viewBox="0 0 760 160" role="img" aria-labelledby="diagTitle diagDesc">
-  <title id="diagTitle">Shared surrogate-safe evidence fingerprint throat</title>
-  <desc id="diagDesc">Canonical or bounded evidence enters stable JSON serialization, then surrogate-safe UTF-8 evidence encoding, then SHA-256 receipt identity. Authority remains outside this throat.</desc>
-  <rect x="10" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
-  <rect x="290" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
-  <rect x="570" y="45" width="180" height="70" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
-  <path d="M190 80H290M470 80H570" fill="none" stroke="currentColor" stroke-width="3"/>
-  <text x="100" y="76" text-anchor="middle" fill="currentColor">JSON-SHAPED</text>
-  <text x="100" y="98" text-anchor="middle" fill="currentColor">EVIDENCE</text>
-  <text x="380" y="76" text-anchor="middle" fill="currentColor">SURROGATE-SAFE</text>
-  <text x="380" y="98" text-anchor="middle" fill="currentColor">EVIDENCE ENCODING</text>
-  <text x="660" y="76" text-anchor="middle" fill="currentColor">SHA-256</text>
-  <text x="660" y="98" text-anchor="middle" fill="currentColor">RECEIPT ID</text>
+<p>The shared evidence identity now passes through one exact, bounded JSON snapshot before hashing. Both current receipt consumers are source-wired; execution and runtime remain unproven.</p>
+<svg class="diagram" viewBox="0 0 960 170" role="img" aria-labelledby="diagTitle diagDesc">
+  <title id="diagTitle">Exact JSON snapshot and surrogate-safe fingerprint throat</title>
+  <desc id="diagDesc">Exact JSON-shaped evidence enters the existing bounded snapshot, then stable JSON serialization, surrogate-safe UTF-8 evidence encoding, and SHA-256 receipt identity. Python-only container normalization and authority remain outside this throat.</desc>
+  <rect x="10" y="45" width="190" height="74" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="260" y="45" width="190" height="74" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="510" y="45" width="190" height="74" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="760" y="45" width="190" height="74" rx="16" fill="none" stroke="currentColor" stroke-width="3"/>
+  <path d="M200 82H260M450 82H510M700 82H760" fill="none" stroke="currentColor" stroke-width="3"/>
+  <text x="105" y="76" text-anchor="middle" fill="currentColor">EXACT JSON</text>
+  <text x="105" y="98" text-anchor="middle" fill="currentColor">SOURCE SHAPE</text>
+  <text x="355" y="76" text-anchor="middle" fill="currentColor">BOUNDED</text>
+  <text x="355" y="98" text-anchor="middle" fill="currentColor">SNAPSHOT</text>
+  <text x="605" y="76" text-anchor="middle" fill="currentColor">SURROGATE-SAFE</text>
+  <text x="605" y="98" text-anchor="middle" fill="currentColor">UTF-8 EVIDENCE</text>
+  <text x="855" y="76" text-anchor="middle" fill="currentColor">SHA-256</text>
+  <text x="855" y="98" text-anchor="middle" fill="currentColor">RECEIPT ID</text>
 </svg>
 <fieldset>
 <legend>Evidence states</legend>
-<label><input type="radio" name="state" checked><span class="token" aria-hidden="true">●</span><span><strong>Valid Unicode stable</strong><br>Existing valid-Unicode fingerprint values do not churn.</span></label>
+<label><input type="radio" name="state" checked><span class="token" aria-hidden="true">●</span><span><strong>Exact JSON admitted</strong><br>Built-in dict/list/scalar evidence survives without Python-shape normalization.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">×</span><span><strong>Python normalization blocked</strong><br>Tuple→array, integer-key→string-key, and nested dict-subclass evidence fail closed before hashing.</span></label>
 <label><input type="radio" name="state"><span class="token" aria-hidden="true">◇</span><span><strong>Surrogate-bearing source bounded</strong><br>Hostile source text gets deterministic evidence identity instead of an encoding crash.</span></label>
-<label><input type="radio" name="state"><span class="token" aria-hidden="true">●</span><span><strong>Descriptor shadow owner wired</strong><br>The existing descriptor-shadow owner already consumes the shared fingerprint organ.</span></label>
-<label><input type="radio" name="state"><span class="token" aria-hidden="true">□</span><span><strong>Final v4 receipt owner gap</strong><br>The exact reuse surgery is prepared against authenticated owner blob 82af7cc5… but remains unapplied.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">●</span><span><strong>Descriptor shadow owner wired</strong><br>The existing descriptor-shadow owner consumes the shared fingerprint organ.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">●</span><span><strong>Final v4 receipt owner wired</strong><br>The existing final receipt owner reuses the same fingerprint organ; the old owner-gap scar is retired.</span></label>
+<label><input type="radio" name="state"><span class="token" aria-hidden="true">□</span><span><strong>Regression execution unknown</strong><br>Source fixtures exist, but TESTED/runtime/deployment/delivery remain outside this receipt.</span></label>
 <label><input type="radio" name="state"><span class="token" aria-hidden="true">×</span><span><strong>Authority forbidden</strong><br>Evidence fingerprinting never grants artifact authority, TESTED, runtime, phone delivery, or acceptance.</span></label>
 </fieldset>
-<div class="scar"><strong>SOURCE ONLY</strong> · descriptor-shadow owner wired · final-v4 reuse prepared/not applied · regression execution NO · TESTED NO · runtime TalkBack NO · phone/P0 untouched · no Christmas blink.</div>
+<div class="scar"><strong>SOURCE ONLY</strong> · recursive exact-JSON snapshot wired · descriptor-shadow owner wired · final-v4 owner wired · regression execution NO · TESTED NO · runtime TalkBack NO · phone/P0 untouched · no Christmas blink.</div>
 </main>
 </body>
 </html>
