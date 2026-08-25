@@ -9,10 +9,11 @@
 </head>
 <body>
 <h1>WARM WALL / ONE BOUNDED OBSERVATION</h1>
-<div class="scar"><strong>SOURCE OWNER WIRED · SNAPSHOT v2</strong><small>EXACT JSON SHAPE · INTEGER THROAT · RESOURCE THROAT · REGRESSION UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</small></div>
-<div class="flow" aria-label="receipt verification custody flow">CALLER MAPPING → EXACT JSON GATE → INTEGER THROAT → RESOURCE THROAT → SNAPSHOT → SEMANTIC GATE → DIGEST → RAW LINKAGE → DERIVATION</div>
+<div class="scar"><strong>SOURCE OWNER WIRED · SNAPSHOT v2 · EXACT BUILT-IN OBJECT ADMISSION</strong><small>CALLER CODE BLOCKED BEFORE items() · DIAGNOSTIC CONTEXT BOUNDED BEFORE PROJECTION · REGRESSION UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</small></div>
+<div class="flow" aria-label="receipt verification custody flow">CALLER OBJECT → EXACT BUILT-IN DICT GATE → DIAGNOSTIC CONTEXT GATE → INTEGER THROAT → RESOURCE THROAT → SNAPSHOT → SEMANTIC GATE → DIGEST → RAW LINKAGE → DERIVATION</div>
 <div class="states" role="radiogroup" aria-label="Snapshot custody states">
-<label class="state"><input type="radio" name="state" value="split" checked><span><strong>× SPLIT VIEW</strong><br>Semantic get() says false; signed storage says true.</span></label>
+<label class="state"><input type="radio" name="state" value="mapping" checked><span><strong>× CALLER MAPPING BLOCKED</strong><br>Custom Mapping / dict subclass cannot execute items() before budgets.</span></label>
+<label class="state"><input type="radio" name="state" value="diagnostic"><span><strong>□ DIAGNOSTIC CONTEXT THROAT</strong><br>Root error context is bounded before JSON escaping/projection; canonical receipt evidence is untouched.</span></label>
 <label class="state"><input type="radio" name="state" value="exact"><span><strong>□ EXACT JSON</strong><br>Tuple/non-string nested-key normalization is rejected, not repaired.</span></label>
 <label class="state"><input type="radio" name="state" value="integer"><span><strong>□ INTEGER THROAT</strong><br>Exact JSON integer shape still has a pre-serialization magnitude ceiling.</span></label>
 <label class="state"><input type="radio" name="state" value="budget"><span><strong>□ RESOURCE THROAT</strong><br>Depth, nodes, text, and detached encoded bytes are bounded before verification.</span></label>
@@ -23,13 +24,14 @@
 <div id="detail" class="detail" role="status" aria-live="polite"></div>
 <script>
 const copy={
- split:'WOUND\nA stateful Mapping can present one value to semantic checks and another to the payload later materialized for hashing.',
- exact:'EXACTNESS\nPython JSON conveniences are not evidence law. Nested integer keys, tuples, empty field names, and duplicate hostile Mapping fields fail closed instead of being normalized.',
+ mapping:'BOUNDARY\nExact built-in dict admission happens before traversal. Mapping subclasses and custom Mapping objects are rejected by type identity without invoking caller-owned items().',
+ diagnostic:'DIAGNOSTIC CUSTODY\nCaller-supplied root context crosses a 4096-code-point source ceiling before JSON escaping/projection. The accepted context remains exact; only diagnostic prose is projected.',
+ exact:'EXACTNESS\nPython JSON conveniences are not evidence law. Nested integer keys, tuples, empty field names, and hostile container subclasses fail closed instead of being normalized.',
  integer:'INTEGER CUSTODY\n14,284 binary bits is the source ceiling before decimal JSON conversion. Values inside that source throat still remain subject to any stricter process serializer policy; max+1 fails before serializer work. This is a resource boundary, not a runtime throughput claim.',
  budget:'RESOURCE CUSTODY\n64 depth · 50,000 nodes · 1,048,576 total string code points · 8 MiB detached JSON ceiling. Exceeding the throat stops before semantic/hash/linkage work.',
  snapshot:'SOURCE CONTRACT\nCapture once into plain dict/list JSON values. Validate, hash, link, and derive only from the captured object graph.',
- raw:'CONTACT PRESERVATION\nNested lists/mappings are detached. Later caller mutation cannot rewrite the evidence after SHA linkage.',
- owner:'CAPABILITY MEMBRANE\nExisting final-v4 owner consumes snapshot custody in source. Regression execution, TESTED, runtime TalkBack, deployment, delivery, and acceptance remain NO.'
+ raw:'CONTACT PRESERVATION\nNested lists/dicts are detached. Later caller mutation cannot rewrite the evidence after SHA linkage.',
+ owner:'CAPABILITY MEMBRANE\nExisting final-v4 owner consumes snapshot custody and exact-container admission in source. Regression execution, TESTED, runtime TalkBack, deployment, delivery, and acceptance remain NO.'
 };
 const radios=[...document.querySelectorAll('input[name=state]')];
 function show(){const r=radios.find(x=>x.checked);document.getElementById('detail').textContent=copy[r.value];}
