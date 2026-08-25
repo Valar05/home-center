@@ -13,12 +13,14 @@ all admitted artifact observations before any surgery/collision/stale/unverified
 emitted. Directory-entry work, matching-candidate collection, and each admitted finite ordinary
 artifact remain independently bounded. Promotion readiness is admitted by exact canonical state,
 never by a ``PROPOSED`` substring or by regex/whitespace normalization. Authenticated current-owner
-blob custody is also exact: normalization-dependent blob text cannot be repaired into authority.
-Each admitted Surgery now retains byte-count/SHA-256 identity from the same bounded artifact
-observation that produced its semantic record, and the canonical result emits those identities as
-``artifactContentWitnesses``. Root redirectors, persistent root drift, unavailable identity, or
-invalid state/evidence fail closed. This is persistent-drift evidence, not an atomic filesystem
-binding claim.
+blob custody is also exact: the caller container must be one built-in ``dict`` before ``items()`` can
+run, and each blob token must be one built-in ``str`` already matching lowercase SHA-1 syntax.
+Normalization-dependent text and callback-capable container/scalar subclasses cannot be repaired
+into authority. Each admitted Surgery now retains byte-count/SHA-256 identity from the same bounded
+artifact observation that produced its semantic record, and the canonical result emits those
+identities as ``artifactContentWitnesses``. Root redirectors, persistent root drift, unavailable
+identity, or invalid state/evidence fail closed. This is persistent-drift evidence, not an atomic
+filesystem binding claim.
 """
 
 from __future__ import annotations
@@ -335,13 +337,22 @@ def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str
 
 
 def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
-    """Admit authenticated current-owner blob evidence without normalization or repair."""
+    """Admit authenticated current-owner evidence before any caller-owned container callback."""
+
+    if values is None:
+        return {}
+    if type(values) is not dict:
+        raise ValueError("current owner custody requires one exact built-in dict")
 
     result: dict[str, str] = {}
-    for owner, blob in (values or {}).items():
+    for owner, blob in values.items():
         admitted_owner = admit_owner_identity(owner, field="current owner")
-        if not isinstance(blob, str) or SHA1_RE.fullmatch(blob) is None:
-            raise ValueError("current owner custody requires a 40-lowercase-hex-blob")
+        if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
+            raise ValueError(
+                "current owner custody requires exact built-in 40-lowercase-hex blob strings"
+            )
+        if admitted_owner in result:
+            raise ValueError(f"duplicate admitted current owner identity: {admitted_owner}")
         result[admitted_owner] = blob
     return result
 
@@ -480,6 +491,7 @@ def classify(
             "sameObservationArtifactContentWitnesses": True,
             "exactOwnerSurgeryStateAdmission": True,
             "nonNormalizingPatchStateHeader": True,
+            "exactCurrentOwnerMapAdmission": True,
             "exactCurrentOwnerBlobAdmission": True,
             "substringPromotionAuthority": False,
             "artifactRootAtomicBinding": False,
