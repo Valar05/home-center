@@ -2,6 +2,7 @@
 """SOURCE / UNEXECUTED regression for bounded one-observation receipt snapshot custody."""
 
 from try_forever_operator_receipt_snapshot_custody import (
+    MAX_SNAPSHOT_INTEGER_BITS,
     MAX_SNAPSHOT_NODES,
     MAX_SNAPSHOT_STRING_CODEPOINTS,
     OperatorReceiptSnapshotCustodyError,
@@ -107,6 +108,18 @@ def main() -> int:
             field="operator receipt",
         ),
         "snapshot node budget",
+    )
+
+    # Large integer conversion is a resource boundary too. Exact JSON integer shape does not permit
+    # one scalar to consume disproportionate decimal-conversion work before the encoded-byte check.
+    max_int = (1 << MAX_SNAPSHOT_INTEGER_BITS) - 1
+    assert snapshot_json_mapping({"value": max_int}, field="operator receipt")["value"] == max_int
+    expect_reject(
+        lambda: snapshot_json_mapping(
+            {"value": 1 << MAX_SNAPSHOT_INTEGER_BITS},
+            field="operator receipt",
+        ),
+        "snapshot integer-magnitude budget",
     )
 
     # Non-finite and non-JSON values stay inside the typed custody boundary.
