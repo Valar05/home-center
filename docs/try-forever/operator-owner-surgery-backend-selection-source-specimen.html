@@ -24,27 +24,35 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT EVIDENCE THROAT: SOURCE · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: OWNER SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: RED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
-    <title id="diagram-title">Backend selection and evidence admission custody path</title>
-    <desc id="diagram-desc">Platform capability chooses portable or held descriptor custody. A selected descriptor wound fails closed. Evidence admission preserves work counts and errors, binds authority to the exact owner, requires every promotion member to prove the same owner and base without duplicate cardinality, and now requires canonical Surgery-to-artifact witness parity before existing backend authority admission.</desc>
-    <path d="M30 90 H190 M270 90 H390 M470 90 H590 M670 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
-    <circle cx="230" cy="90" r="36" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="390" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <rect x="590" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
-    <text x="25" y="70" fill="currentColor">CAPABILITY</text>
-    <text x="190" y="150" fill="currentColor">SELECT</text>
-    <text x="385" y="30" fill="currentColor">BACKEND</text>
-    <text x="575" y="30" fill="currentColor">EVIDENCE</text>
-    <text x="710" y="70" fill="currentColor">WITNESS</text>
-    <text x="710" y="108" fill="currentColor">OR STOP</text>
+    <title id="diagram-title">Backend result custody and selection source path</title>
+    <desc id="diagram-desc">Caller evidence first crosses the existing bounded exact JSON snapshot throat before backend result integrity reads. Witness parity then precedes existing backend authority admission. Direct calls to the backend policy still have a separate red exact-input boundary.</desc>
+    <path d="M30 90 H170 M250 90 H370 M450 90 H570 M650 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="170" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="370" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="570" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="25" y="70" fill="currentColor">CALLER</text>
+    <text x="155" y="30" fill="currentColor">SNAPSHOT</text>
+    <text x="365" y="30" fill="currentColor">INTEGRITY</text>
+    <text x="565" y="30" fill="currentColor">POLICY</text>
+    <text x="705" y="70" fill="currentColor">AUTHORITY</text>
+    <text x="705" y="108" fill="currentColor">OR STOP</text>
   </svg>
 
   <fieldset aria-describedby="detail">
     <legend>Inspect one source state</legend>
     <label>
-      <input type="radio" name="backend" value="portable" checked>
+      <input type="radio" name="backend" value="snapshot" checked>
+      <span><span class="token">● EXACT JSON SNAPSHOT</span><br>Backend-result integrity entrypoints reuse the existing bounded one-observation snapshot organ before any semantic result read.</span>
+    </label>
+    <label>
+      <input type="radio" name="backend" value="directred">
+      <span><span class="token">× DIRECT POLICY RED</span><br>The direct backend-policy entrypoint still admits broad Mapping/string-compatible inputs before exact machine-input custody. Safer composition does not erase this wound.</span>
+    </label>
+    <label>
+      <input type="radio" name="backend" value="portable">
       <span><span class="token">□ PORTABLE PRIMARY</span><br>Descriptor primitives unavailable; canonical v10 pathname revalidation remains the primary backend.</span>
     </label>
     <label>
@@ -56,10 +64,6 @@
       <span><span class="token">● INCOMPLETE CUSTODY → ZERO AUTHORITY</span><br>Canonical v10 source preserves diagnostic surgeries but emits no collision/stale/unverified promotion groups whenever discoveryErrors is non-empty.</span>
     </label>
     <label>
-      <input type="radio" name="backend" value="evidence">
-      <span><span class="token">◇ EVIDENCE THROAT</span><br>Counts, discovery errors, and authenticated current-owner blobs remain separate evidence. Incomplete custody cannot carry promotion-authority groups.</span>
-    </label>
-    <label>
       <input type="radio" name="backend" value="coverage">
       <span><span class="token">× OWNER A ≠ OWNER B AUTHORITY</span><br>Authenticated custody for one owner cannot upgrade another owner's unverified promotion group into owner evidence.</span>
     </label>
@@ -69,7 +73,7 @@
     </label>
     <label>
       <input type="radio" name="backend" value="witness">
-      <span><span class="token">● WITNESS PARITY OWNER WIRED</span><br>The existing backend result-integrity wrapper now requires artifactContentWitnesses to equal the Surgery path/byte-count/SHA-256 set before authority admission.</span>
+      <span><span class="token">● WITNESS PARITY SOURCE WIRED</span><br>ArtifactContentWitnesses must equal the Surgery path/byte-count/SHA-256 set before authority admission receives the detached result.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="wound">
@@ -77,18 +81,19 @@
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">PORTABLE PRIMARY\nPlatform fallback is a platform choice, not an after-failure escape hatch.\nPreserve work counts, discoveryErrors, currentOwnerBlobs, member evidence, and canonical witness identity.</div>
+  <div id="detail" role="status" aria-live="polite">EXACT JSON SNAPSHOT\nCaller Mapping/scalar subclasses are rejected before callbacks.\nIntegrity and witness reads run on one detached bounded plain tree.\nDirect policy exact-input custody remains RED.</div>
 
   <script>
     const detail = document.getElementById('detail');
     const copy = {
+      snapshot: 'EXACT JSON SNAPSHOT\nThe existing receipt snapshot organ is reused. Root must be exact dict; nested containers/scalars must be exact JSON under bounded depth/node/text/encoded-byte budgets. Caller callbacks do not become evidence. Source wired: YES. Regression execution: NO.',
+      directred: 'DIRECT POLICY RED\nadmit_selected_backend_result and backend selection still expose broader direct Python input contracts. The integrity composition now protects its own callers by passing a detached tree, but direct callers remain a separate source wound. RED fixture exists; unexecuted.',
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
       descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact group/member evidence. Canonical owner consumption is still NO.',
       exhaustive: 'INCOMPLETE CUSTODY → ZERO AUTHORITY\nCanonical v10 source is wired. Healthy surgeries may survive as diagnostics, but discoveryErrors force collisionSets, staleBaseGroups, and unverifiedBaseGroups to remain empty. Regression execution is still NO.',
-      evidence: 'EVIDENCE THROAT\nentries >= candidates >= 0. evidenceComplete must exactly agree with discoveryErrors emptiness. If exhaustive custody is incomplete, collision/stale/unverified promotion groups must be empty. Healthy surgery records may remain diagnostic evidence.',
-      coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. UNVERIFIED means that owner has no authenticated current-owner blob. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
-      members: 'MEMBER INTEGRITY GATE\nA group shell is not authority. Each member must carry the same owner/base, canonical artifact kind/path, exact promotion-ready state, and literal promotion_candidate=true. Collision needs two distinct artifacts; duplicate members or duplicate owner/base groups fail closed.',
-      witness: 'WITNESS PARITY OWNER WIRED\nEvery canonical Surgery path must have exactly one artifactContentWitness with identical byteCount and SHA-256 before the existing backend authority admission policy is called. Later descriptor-shadow agreement does not retroactively repair an earlier contradiction. Source wiring: YES. Regression execution: NO. Tested: NO.',
+      coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
+      members: 'MEMBER INTEGRITY GATE\nA group shell is not authority. Each member must carry the same owner/base, canonical artifact kind/path, exact promotion-ready state, and literal promotion_candidate=true.',
+      witness: 'WITNESS PARITY SOURCE WIRED\nEvery canonical Surgery path must have exactly one artifactContentWitness with identical byteCount and SHA-256 before the detached result reaches existing backend authority admission. Source wiring: YES. Regression execution: NO. Tested: NO.',
       wound: 'DESCRIPTOR WOUND → FAIL CLOSED\nNo retry through weaker pathname custody in the same classification attempt. Owner evidence admitted: NO.'
     };
     for (const radio of document.querySelectorAll('input[name=backend]')) {
