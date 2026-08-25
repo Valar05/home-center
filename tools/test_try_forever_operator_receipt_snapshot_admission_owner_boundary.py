@@ -2,9 +2,9 @@
 """RED / UNEXECUTED owner boundary for bounded exact-container snapshot admission.
 
 This fixture must remain RED until the existing snapshot-custody organ *uses* the supporting
-admission policy as a control-flow gate. Marker-shaped calls are insufficient: a no-op policy call
-followed by legacy ``Mapping`` traversal must stay RED. This proves source ownership only; it is never
-TESTED/runtime/deployment evidence.
+admission policy as a control-flow gate. Marker-shaped calls are insufficient: a no-op policy call,
+wrong-polarity gate, or legacy ``Mapping`` traversal must stay RED. This proves source ownership only;
+it is never TESTED/runtime/deployment evidence.
 """
 
 import ast
@@ -44,11 +44,19 @@ def call_uses_name(call: ast.Call, function_name: str, argument_name: str) -> bo
     )
 
 
-def test_contains_call(test: ast.AST, function_name: str, argument_name: str) -> bool:
-    return any(
-        isinstance(node, ast.Call)
-        and call_uses_name(node, function_name, argument_name)
-        for node in ast.walk(test)
+def is_positive_policy_test(test: ast.AST, function_name: str, argument_name: str) -> bool:
+    return (
+        isinstance(test, ast.Call)
+        and call_uses_name(test, function_name, argument_name)
+    )
+
+
+def is_negative_policy_test(test: ast.AST, function_name: str, argument_name: str) -> bool:
+    return (
+        isinstance(test, ast.UnaryOp)
+        and isinstance(test.op, ast.Not)
+        and isinstance(test.operand, ast.Call)
+        and call_uses_name(test.operand, function_name, argument_name)
     )
 
 
@@ -120,19 +128,25 @@ def main() -> int:
     recursive = functions["_snapshot_json_value"]
     root = functions["snapshot_json_mapping"]
 
-    # Nested object admission must own a real return-producing branch, not a marker-shaped call.
+    # Nested object admission must use the positive exact-object gate to own the return-producing
+    # object traversal. A negated/wrong-polarity marker is not equivalent evidence.
     assert branch_contains(
         recursive,
-        predicate=lambda test: test_contains_call(test, "is_exact_json_object", "value"),
+        predicate=lambda test: is_positive_policy_test(
+            test, "is_exact_json_object", "value"
+        ),
         consequence=lambda node: isinstance(node, ast.Return),
-    ), "nested snapshot admission policy is not a return-producing control-flow gate"
+    ), "nested snapshot admission policy is not the positive return-producing control-flow gate"
 
-    # Root admission must own a fail-closed branch. A no-op policy call does not count.
+    # Root admission must use the negative exact-object gate to fail closed. A positive gate that
+    # raises on valid objects must not satisfy source evidence merely because the right call exists.
     assert branch_contains(
         root,
-        predicate=lambda test: test_contains_call(test, "is_exact_json_object", "value"),
+        predicate=lambda test: is_negative_policy_test(
+            test, "is_exact_json_object", "value"
+        ),
         consequence=lambda node: isinstance(node, ast.Raise),
-    ), "root snapshot admission policy is not a fail-closed control-flow gate"
+    ), "root snapshot admission policy is not the negative fail-closed control-flow gate"
 
     assert not has_legacy_mapping_gate(recursive), (
         "nested snapshot path still retains legacy isinstance(value, Mapping) authority"
