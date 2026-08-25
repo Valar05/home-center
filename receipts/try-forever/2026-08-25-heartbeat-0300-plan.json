@@ -1,0 +1,52 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-25T03:00:00-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER source work without touching the gated phone/P0 chain.",
+  "venicePlanGate": "PLAN_ALLOWED",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "reviewedBaseHead": "dcbf33038647b276a323a7ec42c803ea2407672e",
+  "fronts": [
+    {
+      "id": "snapshot-container-admission",
+      "why": "The current bounded snapshot accepts arbitrary Mapping/dict-subclass iteration, so caller-owned Python code can execute or stall before declared node/text budgets can bound work.",
+      "authorizedAction": "Add supporting exact-container admission, hostile source fixtures, and a base-locked existing-organ patch proposal. Do not create a second receipt owner."
+    },
+    {
+      "id": "diagnostic-context-admission",
+      "why": "The public snapshot helper projects caller-supplied diagnostic root text only after JSON escaping it; root diagnostic context therefore lacks an explicit pre-projection source ceiling even though diagnostics claim bounded work.",
+      "authorizedAction": "Add a small source-level diagnostic-context throat and hostile fixture; preserve canonical receipt evidence unchanged."
+    },
+    {
+      "id": "doctrine-convergence",
+      "why": "Snapshot custody doctrine must distinguish exact JSON evidence from arbitrary Python Mapping behavior and keep owner integration/test/runtime states separate.",
+      "authorizedAction": "Update the existing snapshot-custody skill only after source/readback; do not mint a decorative duplicate skill."
+    },
+    {
+      "id": "evidence-review",
+      "why": "Source progress must be pinned to authenticated GitHub readback and current-head workflow evidence without retries or cause invention.",
+      "authorizedAction": "Regnet code-first review, bounded Venice completion, compact durable receipt and PR checkpoint."
+    }
+  ],
+  "firewall": {
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "capabilityIntent": {
+    "supportingSource": true,
+    "ownerWiring": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
