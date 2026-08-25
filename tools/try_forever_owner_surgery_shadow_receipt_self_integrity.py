@@ -21,6 +21,10 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_operator_receipt_snapshot_custody import (
+    OperatorReceiptSnapshotCustodyError,
+    snapshot_json_mapping,
+)
 from try_forever_owner_surgery_backend_policy import PORTABLE_UNAVAILABLE
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     CANONICAL_SCHEMA,
@@ -401,12 +405,20 @@ def _temporal_receipt_projection(
 
 def project_shadow_receipt_with_self_integrity(
     repo_root: Path,
-    result: Mapping[str, object],
+    result: dict[str, object],
 ) -> dict[str, object]:
-    """Self-audit raw comparison/context evidence, then delegate to the existing projector."""
+    """Self-audit one detached exact-JSON observation, then delegate to the existing projector."""
 
-    if not isinstance(result, Mapping):
-        raise ShadowReceiptSelfIntegrityError("shadow result must be one mapping")
+    try:
+        result = snapshot_json_mapping(
+            result,
+            field="descriptor shadow self-integrity input",
+        )
+    except OperatorReceiptSnapshotCustodyError as exc:
+        raise ShadowReceiptSelfIntegrityError(
+            f"descriptor shadow self-integrity snapshot rejected: {exc}"
+        ) from exc
+
     if result.get("schema") != SHADOW_SCHEMA:
         raise ShadowReceiptSelfIntegrityError(
             "self-integrity requires exact descriptor-shadow v3 source"
