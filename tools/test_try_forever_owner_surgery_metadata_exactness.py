@@ -6,6 +6,7 @@ custody owner SOURCE_WIRED until an authorized regression lane actually executes
 """
 
 from try_forever_owner_surgery_metadata_exactness import (
+    MAX_OWNER_IDENTITY_CODEPOINTS,
     OwnerSurgeryMetadataError,
     admit_owner_identity,
     admit_patch_metadata,
@@ -32,6 +33,35 @@ def test_owner_identity_is_exact_not_trim_repaired():
     expect_rejected(lambda: admit_owner_identity(" " + owner), "leading/trailing")
     expect_rejected(lambda: admit_owner_identity(owner + "\t"), "leading/trailing")
     expect_rejected(lambda: admit_owner_identity(""), "non-empty")
+
+
+def test_owner_identity_rejects_string_subclass_before_callback():
+    callback_touched = {"value": False}
+
+    class HostileOwner(str):
+        def strip(self, *args, **kwargs):
+            callback_touched["value"] = True
+            raise AssertionError("caller-owned strip callback executed")
+
+    expect_rejected(
+        lambda: admit_owner_identity(HostileOwner("tools/owner.py")),
+        "exact built-in string",
+    )
+    assert callback_touched["value"] is False
+
+
+def test_owner_identity_has_pre_group_resource_ceiling():
+    assert admit_owner_identity("o" * MAX_OWNER_IDENTITY_CODEPOINTS) == (
+        "o" * MAX_OWNER_IDENTITY_CODEPOINTS
+    )
+    expect_rejected(
+        lambda: admit_owner_identity("o" * (MAX_OWNER_IDENTITY_CODEPOINTS + 1)),
+        "source ceiling",
+    )
+    receipt = source_receipt()
+    assert receipt["exactBuiltinOwnerStringAdmission"] is True
+    assert receipt["boundedOwnerIdentityAdmission"] is True
+    assert receipt["ownerIdentityCodepointCeiling"] == MAX_OWNER_IDENTITY_CODEPOINTS
 
 
 def canonical_patch(extra: str = "") -> str:
@@ -61,6 +91,16 @@ def test_patch_metadata_requires_one_base_one_state_and_at_most_one_owner():
     expect_rejected(
         lambda: admit_patch_metadata(canonical_patch("# Target: tools/other-owner.py\n")),
         "at most one explicit owner header",
+    )
+
+
+def test_patch_metadata_rejects_string_subclass_before_regex_work():
+    class HostilePatch(str):
+        pass
+
+    expect_rejected(
+        lambda: admit_patch_metadata(HostilePatch(canonical_patch())),
+        "exact built-in string",
     )
 
 
