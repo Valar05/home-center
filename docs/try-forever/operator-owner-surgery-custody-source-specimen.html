@@ -23,22 +23,31 @@
 <body>
 <h1>OWNER SURGERY CUSTODY</h1>
 <p>One custody owner. Exact evidence first. Applied source is not TESTED or runtime proof. Stronger descriptor custody remains supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT SOURCE WIRED · ● OWNER KEY EXACT SOURCE WIRED · ● PATCH HEADER CARDINALITY SOURCE WIRED · ● DEFAULT OWNER DIFF BINDING SOURCE WIRED · ● METADATA+FALLBACK SURGERY APPLIED SOURCE · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Owner-key/header exactness:</strong> SOURCE_WIRED in canonical v10.<br><strong>Implicit default-owner binding:</strong> SOURCE_WIRED; arbitrary basename mention no longer earns fallback authority.<br><strong>Applied owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, result blob <code>a96d572698dfdbc3800410446f27e77908938e4b</code>, status <strong>APPLIED_SOURCE</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
+<div class="scar">● v10 OWNER SOURCE WIRED · ● CURRENT OWNER MAP EXACT-DICT SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT-STRING SOURCE WIRED · ● OWNER KEY EXACT SOURCE WIRED · ● PATCH HEADER CARDINALITY SOURCE WIRED · ● DEFAULT OWNER DIFF BINDING SOURCE WIRED · ● METADATA+FALLBACK SURGERY APPLIED SOURCE · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
+<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Current-owner map gate:</strong> exact built-in <code>dict</code> before <code>items()</code>; exact built-in lowercase-hex blob strings.<br><strong>Owner-key/header exactness:</strong> SOURCE_WIRED in canonical v10.<br><strong>Implicit default-owner binding:</strong> SOURCE_WIRED; arbitrary basename mention no longer earns fallback authority.<br><strong>Applied owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, result blob <code>a96d572698dfdbc3800410446f27e77908938e4b</code>, status <strong>APPLIED_SOURCE</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
 
 <svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, exact authenticated current-owner blob identity, exact owner-key/header admission, and exact implicit default-owner diff binding. The metadata/default-owner surgery is applied source. Descriptor custody remains supporting source only.</desc>
+  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, an exact built-in current-owner map gate, exact authenticated current-owner blob identity, exact owner-key/header admission, and exact implicit default-owner diff binding. The metadata/default-owner surgery is applied source. Descriptor custody remains supporting source only.</desc>
   <path d="M20 75 H755"/>
   <circle cx="45" cy="75" r="21"/><text x="28" y="80">ROOT</text>
   <circle cx="130" cy="75" r="21"/><text x="112" y="80">SCAN</text>
   <circle cx="215" cy="75" r="21"/><text x="199" y="80">FILE</text>
   <circle cx="300" cy="75" r="21"/><text x="278" y="80">STATE</text>
   <circle cx="390" cy="75" r="21"/><text x="369" y="80">BASE</text>
-  <rect x="455" y="44" width="82" height="62"/><text x="466" y="70">OWNER</text><text x="474" y="91">KEY</text>
-  <rect x="550" y="44" width="82" height="62"/><text x="560" y="70">PATCH</text><text x="558" y="91">HEADERS</text>
+  <rect x="455" y="44" width="82" height="62"/><text x="473" y="70">MAP</text><text x="466" y="91">GATE</text>
+  <rect x="550" y="44" width="82" height="62"/><text x="560" y="70">OWNER</text><text x="572" y="91">KEY</text>
   <rect x="645" y="31" width="92" height="88"/><text x="657" y="57">SURGERY</text><text x="660" y="80">APPLIED</text><text x="660" y="103">SOURCE</text>
 </svg>
+
+<details open>
+  <summary><span class="token">MAP</span> Authenticated current-owner map — SOURCE WIRED</summary>
+  <div>
+    <p>The current-owner evidence container is admitted before traversal. Caller-owned <code>dict</code> subclasses cannot run an overridden <code>items()</code> callback inside custody admission.</p>
+    <p>Blob tokens are exact built-in strings already matching forty lowercase hexadecimal characters; case, whitespace, length drift, and string subclasses fail closed instead of being repaired into authority.</p>
+    <p><strong>Regression source:</strong> <code>test_try_forever_owner_surgery_current_owner_blob_admission.py</code>; <strong>UNEXECUTED</strong>.</p>
+  </div>
+</details>
 
 <details open>
   <summary><span class="token">KEY</span> Authenticated owner key — SOURCE WIRED</summary>
@@ -115,15 +124,15 @@
 <details open>
   <summary><span class="token">NOW</span> Exact authenticated current-owner blob identity — SOURCE WIRED</summary>
   <div>
-    <p>The blob authority token used to decide CURRENT versus STALE custody is not repaired by lowercase or whitespace normalization.</p>
-    <p><strong>Current split:</strong> exact blob, owner-key, header cardinality, and implicit fallback ownership are all SOURCE_WIRED; regression execution is still separate.</p>
+    <p>The blob authority token used to decide CURRENT versus STALE custody is not repaired by lowercase or whitespace normalization and is not accepted through a caller-owned string subclass.</p>
+    <p><strong>Current split:</strong> exact map container, blob scalar, owner-key, header cardinality, and implicit fallback ownership are all SOURCE_WIRED; regression execution is still separate.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">v10</span> Portable canonical owner</summary>
   <div>
-    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, artifact-content witnesses, exact artifact base blob identity, exact current-owner blob admission, exact owner-key/header metadata, and exact implicit default-owner binding.</p>
+    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, artifact-content witnesses, exact artifact base blob identity, exact current-owner map/blob admission, exact owner-key/header metadata, and exact implicit default-owner binding.</p>
     <p><strong>Still not atomic:</strong> pathname revalidation does not eliminate swap-and-restore or filesystem identity reuse.</p>
   </div>
 </details>
@@ -159,7 +168,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SOURCE_WIRED. <strong>Patch-header cardinality:</strong> SOURCE_WIRED. <strong>Implicit default-owner diff binding:</strong> SOURCE_WIRED. <strong>Metadata+fallback surgery:</strong> APPLIED_SOURCE. <strong>Metadata/fallback regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact current-owner map/blob admission:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SOURCE_WIRED. <strong>Patch-header cardinality:</strong> SOURCE_WIRED. <strong>Implicit default-owner diff binding:</strong> SOURCE_WIRED. <strong>Metadata+fallback surgery:</strong> APPLIED_SOURCE. <strong>Current-owner map regression:</strong> SOURCE / UNEXECUTED. <strong>Metadata/fallback regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
