@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Keep receipt verification bound to one caller-input observation **and one bounded exact JSON shape**. A verifier must not validate semantic/capability fields from one view of a stateful `Mapping`, later hash/derive from a second view, or let Python JSON conveniences normalize caller evidence before verification.
+Keep receipt verification bound to one caller-input observation **and one bounded exact JSON shape**. A verifier must not validate semantic/capability fields from one view of caller-owned evidence, later hash/derive from a second view, or let Python JSON conveniences normalize caller evidence before verification.
 
 Exact evidence and error/report prose are separate contracts. Caller keys remain exact JSON identity inside the detached snapshot, while diagnostic field paths are bounded ASCII-safe projections. Hostile line breaks, bidi/control/surrogate text, or giant/deep names must not become raw operator/log text or a second unbounded resource throat.
 
@@ -53,12 +53,12 @@ The integer throat is checked with `int.bit_length()` before decimal JSON serial
 
 ## Current repository state
 
-- Supporting source: `tools/try_forever_operator_receipt_snapshot_custody.py` — **IMPLEMENTED SOURCE / v2**; exact built-in-object admission, exact evidence, resource throats, and bounded diagnostic projection are source-wired in the same organ.
-- Public runtime admission is exact built-in `dict`, but `snapshot_json_mapping(...)` and `snapshot_verification_inputs(...)` still advertise `Mapping` in their public annotations — **RED SOURCE CONTRACT WOUND**.
+- Supporting source: `tools/try_forever_operator_receipt_snapshot_custody.py` — **IMPLEMENTED SOURCE / v2**; exact built-in-object admission, exact evidence, resource throats, bounded diagnostic projection, and public `dict[str, object]` typing are source-wired in the same organ.
+- Public type contract now matches runtime exact built-in `dict` admission for `snapshot_json_mapping(...)` and `snapshot_verification_inputs(...)` — **SOURCE_WIRED**.
 - Hostile regression: `tools/test_try_forever_operator_receipt_snapshot_custody.py` — **SOURCE / UNEXECUTED**; it pins callback-free rejection of `dict` subclasses/custom `Mapping`, ordinary large-integer acceptance, over-ceiling rejection, exact hostile-key preservation, escaped control/bidi/surrogate diagnostics, whole-identity collapse, and bounded deep paths.
-- Public type-contract regression: `tools/test_try_forever_exact_json_public_type_contract.py` — **SOURCE / INTENTIONALLY RED / UNEXECUTED** until snapshot public annotations match the already-enforced runtime contract.
+- Public type-contract regression: `tools/test_try_forever_exact_json_public_type_contract.py` — **SOURCE / UNEXECUTED**; it pins exact built-in-dict typing across snapshot custody and canonical fingerprint entrypoints.
 - Existing-owner boundary: `tools/test_try_forever_operator_receipt_snapshot_custody_owner_boundary.py` — **SOURCE_WIRED / UNEXECUTED**.
-- Existing owner: `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **SOURCE_WIRED**; it already consumes `snapshot_verification_inputs(...)`, so the strengthened resource/diagnostic contract is on the existing owner path without creating another receipt owner.
+- Existing owner: `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **SOURCE_WIRED**; it already consumes `snapshot_verification_inputs(...)`, so the strengthened resource/diagnostic/public-contract behavior stays on the existing owner path without creating another receipt owner.
 - Existing owner consumption: **YES / SOURCE_WIRED**.
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 - Phone/P0 mutation authority: **NO**.
@@ -71,7 +71,7 @@ The integer throat is checked with `int.bit_length()` before decimal JSON serial
 - The first integer regression incorrectly assumed the source ceiling itself must serialize under every process-wide integer conversion policy. Review corrected it: the source ceiling prevents larger inputs, while a stricter runtime policy may still fail closed sooner.
 - Diagnostic review found a separate evidence channel after the resource work: exact mapping keys were being concatenated directly into recursive `field` prose, so hostile line breaks/bidi/surrogates or deep names could contaminate logs and expand diagnostics independently of canonical evidence. The source now keeps the exact key in the snapshot while bounding/escaping only the diagnostic projection.
 - After exact built-in `dict` admission became source-wired, older doctrine about hostile `Mapping` implementations emitting duplicate fields became stale. That wording was retired instead of preserving a fictional traversal channel; duplicate JSON member custody belongs upstream of Python object materialization.
-- The 08:00 public-contract audit found a developer-facing mismatch: runtime exact-container custody is stricter than the current public `Mapping` annotations. The canonical fingerprint entrypoint was narrowed immediately; the larger snapshot owner remains a separate RED source-contract seam rather than being silently reconstructed from partial context.
+- The 08:00 public-contract audit found runtime exact-container custody stricter than its developer-facing `Mapping` annotations. Fingerprint and snapshot public signatures are now narrowed to the exact built-in-dict contract without changing runtime acceptance semantics.
 - Source wiring is not regression execution. The direct owner methods consume snapshot custody, but the hostile regression suite remains unexecuted in authenticated CI evidence.
 
 ## Duplicate-architecture rule
