@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""RED source regression for final descriptor-shadow receipt public container contracts.
+"""Source convergence regression for final descriptor-shadow receipt public container contracts.
 
-SOURCE ONLY / UNEXECUTED. Runtime snapshot custody already rejects arbitrary Mapping callbacks, so
-public verification APIs must not advertise a broader Mapping capability than the exact built-in dict
-boundary they consume. Projector/self-integrity are included as convergence controls.
+SOURCE ONLY / UNEXECUTED. Runtime snapshot custody rejects arbitrary Mapping callbacks, and the public
+verification APIs now advertise the same exact built-in dict capability. Projector/self-integrity are
+included as convergence controls. Regression source is not TESTED evidence until an authorized runner
+executes it.
 """
 
 from __future__ import annotations
