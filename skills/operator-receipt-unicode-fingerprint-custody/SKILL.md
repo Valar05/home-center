@@ -12,6 +12,8 @@ This skill owns evidence-identity composition only. It does **not** grant artifa
 
 `RECEIPT SHA-256 != ARTIFACT IDENTITY != PROMOTION AUTHORITY != TESTED != RUNTIME`.
 
+`HELPER IMPORT ELSEWHERE != DIRECT FINAL-RECEIPT OWNER WIRING`.
+
 `SUPPORTING PATCH != OWNER WIRED != REGRESSION EXECUTED`.
 
 ## Existing organ to reuse
@@ -30,20 +32,21 @@ Therefore:
 - shared canonical-result fingerprint organ: **YES / SOURCE_WIRED in descriptor shadow**;
 - final-v4 operator receipt reuse: **NO / RED**;
 - exact owner surgery: `patches/try-forever-operator-receipt-unicode-fingerprint-owner.patch` = **CORRECTED_PROPOSED_NOT_APPLIED**;
-- focused regression: `tools/test_try_forever_operator_receipt_unicode_fingerprint.py` = **SOURCE / UNEXECUTED**;
+- hostile behavior regression: `tools/test_try_forever_operator_receipt_unicode_fingerprint.py` = **SOURCE / UNEXECUTED**;
+- direct-owner boundary regression: `tools/test_try_forever_operator_receipt_unicode_fingerprint_owner_boundary.py` = **RED SOURCE / UNEXECUTED**;
 - TESTED/runtime/deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Acceptance
-A future owner promotion may advance only when authenticated readback proves the existing final owner delegates `_operator_receipt_sha256(...)` to the shared fingerprint organ (or an exactly equivalent existing-organ composition) while preserving ordinary valid-Unicode digest identity.
+A future owner promotion may advance only when authenticated readback proves the existing final owner directly delegates `_operator_receipt_sha256(...)` to the shared fingerprint organ (or an exactly equivalent existing-organ composition) while preserving ordinary valid-Unicode digest identity.
 
-The hostile regression must pin:
+The hostile behavior regression must pin:
 - ordinary Unicode parity with the pre-repair final-receipt algorithm;
 - insertion-order independence;
 - deterministic surrogate-bearing evidence;
 - material evidence drift changes digest;
 - non-finite numeric evidence fails closed.
 
-Regression source is not TESTED evidence merely because it exists.
+The direct-owner regression must reject a helper import or mention that is not consumed in the direct `_operator_receipt_sha256(...)` owner body. Regression source is not TESTED evidence merely because it exists.
 
 ## Accessibility / contact consequence
 This is evidence robustness, not a new spoken surface. Preserve existing operator-facing projection and valid-Unicode receipt identity; do not churn ordinary receipt IDs or add routine speech.
