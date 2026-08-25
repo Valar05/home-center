@@ -10,15 +10,16 @@
 <body>
 <main class="wall">
 <h1>Warm Wall / Cross-host Path Privacy</h1>
-<p class="dim">SOURCE ONLY · descriptor-shadow owner UNWIRED · regressions UNEXECUTED · TESTED NO · runtime TalkBack NO · phone/P0 untouched</p>
-<div class="scar">reviewer-host syntax ≠ repository authority</div>
+<p class="dim">SOURCE OWNER WIRED · regressions UNEXECUTED · TESTED NO · runtime TalkBack NO · phone/P0 untouched</p>
+<div class="scar">reviewer-host syntax ≠ repository authority · owner now consumes one shared serialized-path projector</div>
 <div class="choices" role="radiogroup" aria-label="Cross-host path evidence states">
 <label class="choice"><input type="radio" name="state" value="relative" checked><span><strong>REPOSITORY</strong><br><span class="token">patches/C:\literal-name.patch</span></span></label>
 <label class="choice"><input type="radio" name="state" value="drive"><span><strong>EXTERNAL</strong><br><span class="token">C:\Users\alice\private\receipt.json</span></span></label>
 <label class="choice"><input type="radio" name="state" value="driveRelative"><span><strong>EXTERNAL</strong><br><span class="token">C:private\receipt.json</span></span></label>
 <label class="choice"><input type="radio" name="state" value="rooted"><span><strong>EXTERNAL</strong><br><span class="token">\Users\alice\private\receipt.json</span></span></label>
 <label class="choice"><input type="radio" name="state" value="unc"><span><strong>EXTERNAL</strong><br><span class="token">\\server\share\private\receipt.json</span></span></label>
-<label class="choice"><input type="radio" name="state" value="owner"><span><strong>OWNER WOUND</strong><br>Descriptor-shadow projector still uses host-local absolute-path detection.</span></label>
+<label class="choice"><input type="radio" name="state" value="posix"><span><strong>EXTERNAL</strong><br><span class="token">/tmp/private/receipt.json</span></span></label>
+<label class="choice"><input type="radio" name="state" value="owner"><span><strong>OWNER SOURCE WIRED</strong><br>Descriptor-shadow projector consumes the existing cross-host serialized-path policy.</span></label>
 </div>
 <section class="detail" id="detail" aria-live="polite" aria-atomic="true"></section>
 <script>
@@ -28,7 +29,8 @@ drive:'A serialized Windows absolute drive path reviewed on another OS is foreig
 driveRelative:'Drive-qualified relative syntax still depends on Windows drive context. At the unresolved serialized-path boundary it fails closed as external.',
 rooted:'Rooted Windows syntax carries host root context even without a drive letter. It fails closed as external until repository-relative authority is established elsewhere.',
 unc:'A serialized UNC path is foreign host topology and receives the same constant non-fingerprinting external marker.',
-owner:'Supporting source and hostile regressions exist. The existing descriptor-shadow projector has not yet consumed project_serialized_report_path(), so owner wiring remains NO.'
+posix:'A serialized POSIX absolute path is host topology unless current-host repository containment is established by the owning projector.',
+owner:'Authenticated owner readback shows project_serialized_report_path() is now the single display policy used by the descriptor-shadow projector. This is SOURCE wiring only; regression execution, TESTED, runtime TalkBack, deployment, delivery, and acceptance remain NO.'
 };
 const detail=document.getElementById('detail');
 function render(){const picked=document.querySelector('input[name="state"]:checked');detail.textContent=text[picked.value];}
