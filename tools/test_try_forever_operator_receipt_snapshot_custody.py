@@ -2,6 +2,7 @@
 """SOURCE / UNEXECUTED regression for bounded one-observation receipt snapshot custody."""
 
 from try_forever_operator_receipt_snapshot_custody import (
+    MAX_DIAGNOSTIC_PATH_CHARS,
     MAX_SNAPSHOT_INTEGER_BITS,
     MAX_SNAPSHOT_NODES,
     MAX_SNAPSHOT_STRING_CODEPOINTS,
@@ -29,13 +30,34 @@ class DuplicateItemsMapping(dict):
         yield "schema", "counterfeit"
 
 
-def expect_reject(call, fragment: str) -> None:
+class HostileDuplicateItemsMapping(dict):
+    """Duplicate exact key whose source spelling must not become raw diagnostic prose."""
+
+    KEY = "duplicate\n\u202e\ud800"
+
+    def items(self):
+        yield self.KEY, "first"
+        yield self.KEY, "second"
+
+
+def rejection_message(call) -> str:
     try:
         call()
     except OperatorReceiptSnapshotCustodyError as exc:
-        assert fragment in str(exc), str(exc)
-    else:
-        raise AssertionError("hostile snapshot input was admitted")
+        return str(exc)
+    raise AssertionError("hostile snapshot input was admitted")
+
+
+def expect_reject(call, fragment: str) -> None:
+    message = rejection_message(call)
+    assert fragment in message, message
+
+
+def assert_safe_diagnostic(message: str) -> None:
+    assert "\n" not in message, repr(message)
+    assert "\u202e" not in message, repr(message)
+    assert "\ud800" not in message, repr(message)
+    assert len(message) <= MAX_DIAGNOSTIC_PATH_CHARS + 192, len(message)
 
 
 def main() -> int:
@@ -64,6 +86,69 @@ def main() -> int:
         field="operator receipt",
     )
     assert surrogate["summary"] == "x\ud800y"
+
+    # Evidence keys remain exact too, but diagnostic paths must reveal hostile layout/direction text
+    # safely rather than injecting it literally into an exception/log surface.
+    hostile_key = "line\n\u202e\ud800"
+    exact_key_snapshot = snapshot_json_mapping(
+        {hostile_key: "exact evidence"},
+        field="operator receipt",
+    )
+    assert list(exact_key_snapshot) == [hostile_key]
+    diagnostic = rejection_message(
+        lambda: snapshot_json_mapping(
+            {hostile_key: float("nan")},
+            field="operator receipt",
+        )
+    )
+    assert_safe_diagnostic(diagnostic)
+    assert "\\n" in diagnostic
+    assert "\\u202e" in diagnostic
+    assert "\\ud800" in diagnostic.lower()
+
+    # Very long/deep key paths are diagnostic evidence, not a second unbounded resource channel.
+    deep_hostile: object = object()
+    for index in range(48):
+        deep_hostile = {f"segment-{index}-" + ("x" * 72): deep_hostile}
+    deep_message = rejection_message(
+        lambda: snapshot_json_mapping(deep_hostile, field="operator receipt")
+    )
+    assert "<path>...#" in deep_message, deep_message
+    assert_safe_diagnostic(deep_message)
+
+    # Caller-supplied diagnostic context receives the same bounded projection; it is never authority.
+    hostile_field = "root\n\u202e\ud800" + ("z" * 512)
+    root_message = rejection_message(
+        lambda: snapshot_json_mapping({"value": object()}, field=hostile_field)
+    )
+    assert "<text>...#" in root_message, root_message
+    assert_safe_diagnostic(root_message)
+
+    # Duplicate-key diagnostics must not echo the exact hostile source spelling raw. The exact key is
+    # still what drives duplicate detection; only the error projection is escaped/bounded.
+    duplicate_message = rejection_message(
+        lambda: snapshot_json_mapping(
+            HostileDuplicateItemsMapping(),
+            field="operator receipt",
+        )
+    )
+    assert "duplicate mapping field" in duplicate_message
+    assert_safe_diagnostic(duplicate_message)
+    assert "\\n" in duplicate_message
+    assert "\\u202e" in duplicate_message
+    assert "\\ud800" in duplicate_message.lower()
+
+    # A single oversized source key should collapse as a whole diagnostic identity rather than emit an
+    # arbitrary partial prefix, while a legal value still keeps the full exact key in the snapshot.
+    long_key = ("very-long-key-" * 48) + "\n"
+    long_snapshot = snapshot_json_mapping({long_key: "kept"}, field="operator receipt")
+    assert list(long_snapshot) == [long_key]
+    long_message = rejection_message(
+        lambda: snapshot_json_mapping({long_key: float("inf")}, field="operator receipt")
+    )
+    assert "<text>...#" in long_message, long_message
+    assert "very-long-key-very-long-key" not in long_message
+    assert_safe_diagnostic(long_message)
 
     # Exact JSON shape is enforced at every nesting level. Python JSON conveniences must not rewrite
     # evidence identity by stringifying keys or converting tuples into arrays.
