@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Regression source for single-command report-emission repository observation."""
+"""Regression source for single-command report-emission repository observation.
+
+SOURCE ONLY. This file has not been observed executing in an authorized test lane.
+"""
 
 import subprocess
 
@@ -32,6 +35,20 @@ def test_sha256_repository_object_id_is_also_canonical():
     assert observed.status == "OBSERVED"
     assert observed.head == HEAD_SHA256
     assert observed.dirty is False
+
+
+def test_branch_oid_whitespace_or_case_must_not_be_normalized_into_authority():
+    hostile = (
+        f"# branch.oid {HEAD} \n",
+        f"# branch.oid  {HEAD}\n",
+        f"# branch.oid {HEAD}\t\n",
+        f"# branch.oid {HEAD.upper()}\n",
+    )
+    for payload in hostile:
+        observed = parse_porcelain_v2_branch_status(payload)
+        assert observed.status == "UNAVAILABLE"
+        assert observed.head == ""
+        assert observed.dirty is None
 
 
 def test_tracked_change_marks_same_observation_dirty():
@@ -167,6 +184,9 @@ def test_repository_redirect_environment_cannot_select_a_different_repo(monkeypa
         "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/tmp/alternate-objects",
         "GIT_NAMESPACE": "wrong-namespace",
         "GIT_SHALLOW_FILE": "/tmp/not-the-requested-repo/shallow",
+        "GIT_CONFIG_GLOBAL": "/tmp/not-the-requested-repo/global.gitconfig",
+        "GIT_CONFIG_SYSTEM": "/tmp/not-the-requested-repo/system.gitconfig",
+        "GIT_CONFIG_NOSYSTEM": "0",
         "GIT_CONFIG_COUNT": "1",
         "GIT_CONFIG_KEY_0": "core.worktree",
         "GIT_CONFIG_VALUE_0": "/tmp/not-the-requested-repo",
