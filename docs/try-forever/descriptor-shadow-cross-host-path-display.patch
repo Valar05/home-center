@@ -1,6 +1,8 @@
-# SOURCE PROVENANCE ONLY — PROPOSED_NOT_APPLIED
+# SOURCE PROVENANCE ONLY — APPLIED_SOURCE
 # OWNER: tools/try_forever_owner_surgery_shadow_receipt_projection.py
 # BASE OWNER BLOB: 4cc65f162f600e70a9771d7cf3edac94e45f5344
+# APPLIED COMMIT: cad8d728efa14d8a20b229d1902896e9267d0e02
+# RESULT OWNER BLOB: 10b88a9583274d498524b3082e252886be4335af
 # PURPOSE: consume the existing cross-host serialized report-path projector; do not create a second projector.
 
 diff --git a/tools/try_forever_owner_surgery_shadow_receipt_projection.py b/tools/try_forever_owner_surgery_shadow_receipt_projection.py
