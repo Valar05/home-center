@@ -1,0 +1,64 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localTime": "2026-08-24T22:00:00-05:00",
+  "commission": "Advance a broad non-P0 TRY FOREVER swarm without touching the P0/primary-phone chain.",
+  "sourceCheckpoint": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "head": "5faaec4f314ff233a3cb4bb3943db5e42c83f13a",
+    "finalReceiptOwnerPath": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+    "finalReceiptOwnerBlob": "82af7cc572d2a95624fb549c387946068483c7e3",
+    "sharedFingerprintPath": "tools/try_forever_canonical_result_fingerprint.py",
+    "sharedFingerprintBlob": "9f230a78c68ffffa6eb46269a678f6237f910363"
+  },
+  "activeFronts": [
+    {
+      "front": "final operator receipt Unicode fingerprint custody",
+      "action": "Cross-pollinate the existing surrogate-safe deterministic JSON evidence identity into the final v4 operator receipt digest path without changing valid-Unicode digest identity or creating a second receipt owner.",
+      "acceptance": "Ordinary valid-Unicode receipt digests remain byte-for-byte compatible; surrogate-bearing allowed-field evidence receives deterministic identity instead of escaping as an encoding crash; authority/test/runtime state does not advance."
+    },
+    {
+      "front": "hostile final-receipt digest regression",
+      "action": "Add a focused source fixture for valid-Unicode parity, surrogate determinism, material drift, and non-finite rejection. Keep it RED/UNEXECUTED until the existing final owner consumes the repair."
+    },
+    {
+      "front": "canonical-fingerprint doctrine/art convergence",
+      "action": "Repair the stale canonical-result fingerprint Warm Wall that still says descriptor-shadow owner unwired, and extend doctrine to distinguish descriptor-shadow owner wiring from the new final-receipt owner seam."
+    },
+    {
+      "front": "evidence and capability membrane",
+      "action": "Create Regnet/Venice/swarm receipts, refresh exact-head workflow evidence, and keep requested/source/owner-wired/regression-executed/tested/runtime/deployed/callable/executed/delivered/accepted distinct."
+    }
+  ],
+  "review": {
+    "sheRawAttempt": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "originalityTax": "Reuse the existing canonical-result fingerprint organ; do not create another deterministic JSON digest implementation or receipt owner.",
+    "regnetIntent": "Source/readback only until regression execution exists.",
+    "veniceIntent": "Plan review before mutation; completion review after authenticated readback."
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null,
+    "forbidden": [
+      "Phone Hands / primary-phone execution",
+      "P0 recovery coordination",
+      "Nightcore/Pocket TTS/Chromium/Context Organs",
+      "neighboring receipt owner/projector/digest authority"
+    ]
+  },
+  "capabilityBefore": {
+    "sharedSurrogateSafeFingerprint": "YES_SOURCE_WIRED_IN_DESCRIPTOR_SHADOW",
+    "finalOperatorReceiptSurrogateSafeDigest": "NO_RED",
+    "regressionSource": "NO_FOCUSED_FIXTURE",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
