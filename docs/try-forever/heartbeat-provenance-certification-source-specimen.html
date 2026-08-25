@@ -36,11 +36,11 @@
 <body>
 <main>
   <h1>Provenance Certification Warm Wall</h1>
-  <p class="scar">OWNER v5 · INITIAL SNAPSHOT OWNER WIRED · TRACKED SKILL AUTHORITY WIRED · PRE-I/O SKILL IDENTITY WIRED · DISCOVERY-ERROR WHOLE-IDENTITY COLLAPSE WIRED · FINAL RECORD-PATH PROJECTOR WIRED · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+  <p class="scar">OWNER v6 · PRE/POST/FINAL ONE-PROCESS SNAPSHOT SOURCE_WIRED · EXACT OID SOURCE_WIRED · GIT ENV REDIRECT BLOCKED · TRACKED + CONTENT↔HEAD SOURCE_WIRED · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
 
   <svg viewBox="0 0 1320 190" role="img" aria-labelledby="wall-title wall-desc">
     <title id="wall-title">Warm wall from repository observation through final provenance emission</title>
-    <desc id="wall-desc">The sole provenance owner is schema v5. One-process repository observation brackets discovery, tracked skill admission precedes content authority, candidate identity is revalidated before title and hash work, generated-index custody is finite and no-follow, over-budget discovery-error paths collapse to whole-identity digest markers, final portable report serialization is collision-safe, and testing/runtime/phone delivery remain unproven.</desc>
+    <desc id="wall-desc">The sole provenance owner is schema v6. One-process repository observations bracket discovery and final emission, branch object identity is admitted exactly without whitespace or case repair, inherited repository and config redirection are removed, tracked skill and content-to-HEAD custody remain source wired, and testing runtime and phone delivery remain unproven.</desc>
     <path d="M25 95 H1295" fill="none" stroke="currentColor" stroke-width="6"/>
     <rect x="5" y="55" width="135" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="150" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -50,14 +50,14 @@
     <rect x="770" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="925" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="1080" y="55" width="215" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
-    <text x="72" y="88" text-anchor="middle">SNAPSHOT</text><text x="72" y="112" text-anchor="middle">owner wired</text>
-    <text x="222" y="88" text-anchor="middle">TRACKED</text><text x="222" y="112" text-anchor="middle">owner wired</text>
-    <text x="377" y="88" text-anchor="middle">PRE-I/O ID</text><text x="377" y="112" text-anchor="middle">owner wired</text>
-    <text x="532" y="88" text-anchor="middle">INDEX FILE</text><text x="532" y="112" text-anchor="middle">owner wired</text>
-    <text x="687" y="88" text-anchor="middle">INSPECT SHA</text><text x="687" y="112" text-anchor="middle">carried</text>
-    <text x="842" y="88" text-anchor="middle">LATE FILE</text><text x="842" y="112" text-anchor="middle">conditional</text>
-    <text x="997" y="88" text-anchor="middle">LATE REPO</text><text x="997" y="112" text-anchor="middle">env isolated</text>
-    <text x="1187" y="88" text-anchor="middle">REPORT v5</text><text x="1187" y="112" text-anchor="middle">whole identity</text>
+    <text x="72" y="88" text-anchor="middle">SNAPSHOT</text><text x="72" y="112" text-anchor="middle">3 observations</text>
+    <text x="222" y="88" text-anchor="middle">OID</text><text x="222" y="112" text-anchor="middle">exact</text>
+    <text x="377" y="88" text-anchor="middle">GIT ENV</text><text x="377" y="112" text-anchor="middle">isolated</text>
+    <text x="532" y="88" text-anchor="middle">TRACKED</text><text x="532" y="112" text-anchor="middle">owner wired</text>
+    <text x="687" y="88" text-anchor="middle">CONTENT↔HEAD</text><text x="687" y="112" text-anchor="middle">owner wired</text>
+    <text x="842" y="88" text-anchor="middle">INDEX FILE</text><text x="842" y="112" text-anchor="middle">finite</text>
+    <text x="997" y="88" text-anchor="middle">LATE REPO</text><text x="997" y="112" text-anchor="middle">preserve only</text>
+    <text x="1187" y="88" text-anchor="middle">REPORT v6</text><text x="1187" y="112" text-anchor="middle">source only</text>
   </svg>
 
   <fieldset>
@@ -65,44 +65,44 @@
 
     <div class="choice">
       <input type="radio" name="state" id="snapshot" checked aria-describedby="snapshot-detail">
-      <label for="snapshot"><span class="token" aria-hidden="true">●</span><span>Initial repository snapshot uses one-process observations</span></label>
-      <p class="detail" id="snapshot-detail"><strong>Existing owner source-wired.</strong> The same bounded one-process repository observation organ runs before discovery, after discovery, and at final emission. Expected-head binding derives from the certified snapshot. This narrows evidence races but does not claim an atomic repository snapshot.</p>
+      <label for="snapshot"><span class="token" aria-hidden="true">●</span><span>One-process repository observations own pre, post, and final custody</span></label>
+      <p class="detail" id="snapshot-detail"><strong>Existing owner source-wired.</strong> The same bounded repository observation runs before discovery, after discovery, and at final emission. Matching observations narrow evidence drift but do not claim an atomic filesystem snapshot.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="oid" aria-describedby="oid-detail">
+      <label for="oid"><span class="token" aria-hidden="true">●</span><span>Branch OID must already be exact canonical evidence</span></label>
+      <p class="detail" id="oid-detail"><strong>Implemented source; regression unexecuted.</strong> Lowercase SHA-1/SHA-256 is admitted exactly after the porcelain protocol prefix. Leading/trailing whitespace, tab suffixes, uppercase, malformed, or duplicate OID headers fail closed rather than being normalized into authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="git-env" aria-describedby="git-env-detail">
+      <label for="git-env"><span class="token" aria-hidden="true">●</span><span>Inherited repository and config redirection is blocked</span></label>
+      <p class="detail" id="git-env-detail"><strong>Implemented source; regression unexecuted.</strong> The Git subprocess removes repository/index/object redirects, global/system config-file selectors, command-scope config injection, and replacement-object redirection while preserving benign environment such as PATH.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="tracked" aria-describedby="tracked-detail">
       <label for="tracked"><span class="token" aria-hidden="true">●</span><span>Filesystem candidates must also be Git-tracked</span></label>
-      <p class="detail" id="tracked-detail"><strong>Existing owner source-wired.</strong> Bounded literal tracked-path observation and the exact tracked-set gate run before per-file title/hash authority. An unavailable observation or any untracked candidate fails the whole repository-skill authority set closed.</p>
+      <p class="detail" id="tracked-detail"><strong>Existing owner source-wired.</strong> Bounded literal tracked-path observation and the exact tracked-set gate run before per-file authority. Any untracked candidate fails the repository-skill authority set closed.</p>
     </div>
 
     <div class="choice">
-      <input type="radio" name="state" id="preio" aria-describedby="preio-detail">
-      <label for="preio"><span class="token" aria-hidden="true">●</span><span>Skill file revalidated before content I/O</span></label>
-      <p class="detail" id="preio-detail"><strong>Owner source-wired.</strong> A candidate admitted during traversal is observed again immediately before title/hash authority work. Persistent redirector/type/device/inode/size/mtime drift is rejected before content readers run. Atomic file-handle binding remains unclaimed.</p>
+      <input type="radio" name="state" id="head-content" aria-describedby="head-content-detail">
+      <label for="head-content"><span class="token" aria-hidden="true">●</span><span>Observed SKILL.md content must match the raw HEAD blob</span></label>
+      <p class="detail" id="head-content-detail"><strong>Existing owner source-wired.</strong> One bounded skill-content observation carries title, SHA, and Git blob identity; bounded raw-HEAD observation must match before a SkillRecord earns repository authority. Atomic file-handle binding remains unclaimed.</p>
     </div>
 
     <div class="choice">
-      <input type="radio" name="state" id="paths" aria-describedby="paths-detail">
-      <label for="paths"><span class="token" aria-hidden="true">●</span><span>Discovery-error path uses whole-identity collapse</span></label>
-      <p class="detail" id="paths-detail"><strong>Existing owner source-wired.</strong> In-budget diagnostic identity remains exact until serialization. An over-budget diagnostic becomes <code>&lt;repo-path&gt;...#&lt;digest&gt;</code> from the exact original repository-relative identity, so no raw prefix can bisect combining or emoji/ZWJ text before the collision-safe final projector.</p>
-    </div>
-
-    <div class="choice">
-      <input type="radio" name="state" id="path-regression" aria-describedby="path-regression-detail">
-      <label for="path-regression"><span class="token" aria-hidden="true">◇</span><span>Error-path hostile regression source expanded</span></label>
-      <p class="detail" id="path-regression-detail"><strong>Source, not test evidence.</strong> The regression pins combining-sequence collapse, exact-identity digest distinction, in-budget control-text projection, and an explicit emoji-ZWJ over-budget case. No authorized runner has executed it.</p>
-    </div>
-
-    <div class="choice">
-      <input type="radio" name="state" id="git-env" aria-describedby="git-env-detail">
-      <label for="git-env"><span class="token" aria-hidden="true">●</span><span>Late Git observation rejects inherited repository/config redirects</span></label>
-      <p class="detail" id="git-env-detail"><strong>Implemented source, regression unexecuted.</strong> The one-process repository observer removes repository/index/object redirects and command-scope configuration injection before Git runs while retaining benign process environment. This does not claim atomic repository binding.</p>
+      <input type="radio" name="state" id="index" aria-describedby="index-detail">
+      <label for="index"><span class="token" aria-hidden="true">●</span><span>Generated-index currentness is preservation-only</span></label>
+      <p class="detail" id="index-detail"><strong>Existing owner source-wired.</strong> Generated-index currentness survives only when exact initial and late artifact identities agree under stable final repository custody. The index remains a discovery aid, never repository-skill authority.</p>
     </div>
 
     <div class="choice">
       <input type="radio" name="state" id="atomicity" aria-describedby="atomicity-detail">
       <label for="atomicity"><span class="token" aria-hidden="true">□</span><span>Atomicity still open</span></label>
-      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> One-process Git observations and file/path identity gates detect many persistent changes but do not prove away every swap-and-restore, identity reuse, or mutation after the final observation.</p>
+      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> One-process Git observations and file/path identity gates detect many persistent changes but do not prove away every swap-and-restore or identity-reuse race.</p>
     </div>
 
     <div class="choice">
