@@ -2,10 +2,11 @@
 """Supporting admission policy for bounded operator-receipt snapshot custody.
 
 The existing snapshot organ claims bounded exact-JSON custody, but arbitrary Python ``Mapping``
-implementations can execute caller-owned code from ``items()`` before node/text budgets can constrain
-that work. Exact JSON object evidence therefore admits only the built-in ``dict`` container. This is
-container admission only; the existing snapshot organ remains the owner of recursive JSON shape,
-resource budgets, detachment, diagnostics, and capability state.
+implementations can execute caller-owned Python code from ``items()`` before node/text budgets can
+constrain that work. Exact JSON object evidence therefore admits only the built-in ``dict`` container.
+The existing snapshot owner now consumes this gate for root and nested objects; this module still owns
+container admission only, while snapshot custody owns recursive JSON shape, resource budgets,
+detachment, diagnostics, and capability state.
 
 Diagnostic root context is evidence about an error surface, not canonical receipt identity. It gets a
 small pre-projection source ceiling so JSON escaping itself cannot become an unbounded diagnostic
@@ -44,13 +45,13 @@ def admit_diagnostic_context(value: object) -> str:
 
 
 def source_capabilities() -> dict[str, object]:
-    """Report only capability owned by this supporting policy."""
+    """Report only capability owned by this policy and its current source integration."""
 
     return {
         "schema": SCHEMA,
         "exactBuiltinObjectAdmission": True,
         "boundedDiagnosticContextAdmission": True,
-        "ownerWired": False,
+        "ownerWired": True,
         "regressionExecuted": False,
         "tested": False,
         "runtimeUi": False,
