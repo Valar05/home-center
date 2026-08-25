@@ -1,0 +1,47 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedSourceHead": "8134c6fde60f3bb36ecfaa8e68551aad30b171e5",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "canonicalFingerprint": {
+      "source": "PASS",
+      "change": "RecursionError/OverflowError are contained inside CanonicalResultFingerprintError without changing valid-Unicode fingerprint identity.",
+      "regression": "SOURCE_UNEXECUTED"
+    },
+    "snapshotIntegerThroat": {
+      "source": "PASS_AFTER_CORRECTION",
+      "change": "Integer bit magnitude is bounded before decimal JSON conversion; existing final-v4 receipt owner already consumes snapshot custody.",
+      "regression": "SOURCE_UNEXECUTED",
+      "reviewScar": "First fixture incorrectly required the source ceiling itself to serialize under every process-global integer conversion policy. Corrected to moderate-large acceptance plus source max+1 rejection."
+    },
+    "warmWall": {
+      "source": "PASS_AFTER_CORRECTION",
+      "change": "Existing snapshot-custody DOM organism exposes the integer throat and explicitly says a stricter serializer policy may fail closed sooner."
+    },
+    "diagnosticProjectionFront": {
+      "state": "DARK",
+      "reason": "Planned hostile-diagnostic projection work was not advanced; no concrete owner-safe implementation was needed to complete the two stronger independent fronts."
+    }
+  },
+  "evidenceDelta": {
+    "base": "5503cd6389f5bb46e77395af383bded562038b90",
+    "head": "8134c6fde60f3bb36ecfaa8e68551aad30b171e5",
+    "commits": 11,
+    "paths": 8,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "buildAndroid": {"run": 32811898675, "status": "completed", "conclusion": "failure"},
+    "homeCenterCi": {"run": 32811898660, "status": "completed", "conclusion": "failure"},
+    "operatorOverlay": {"run": 32811898655, "job": 97692675675, "status": "completed", "conclusion": "failure", "stepsExposed": 0, "logs": "404_BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
