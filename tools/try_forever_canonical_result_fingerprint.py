@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
 
 from try_forever_operator_receipt_snapshot_custody import (
     OperatorReceiptSnapshotCustodyError,
@@ -41,9 +40,11 @@ class CanonicalResultFingerprintError(ValueError):
     """Canonical result cannot be represented as deterministic exact JSON-shaped evidence."""
 
 
-def canonical_result_sha256(result: Mapping[str, object]) -> str:
-    """Return deterministic SHA-256 identity for one canonical result payload.
+def canonical_result_sha256(result: dict[str, object]) -> str:
+    """Return deterministic SHA-256 identity for one exact built-in-dict result payload.
 
+    The public type contract intentionally matches the runtime admission contract owned by
+    ``snapshot_json_mapping``: arbitrary ``Mapping`` implementations are not accepted evidence.
     This hash is receipt/evidence association only. It is not canonical artifact identity and must
     never be used as promotion authority or proof of filesystem atomicity.
     """
