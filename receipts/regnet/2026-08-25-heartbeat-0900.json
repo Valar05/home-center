@@ -1,0 +1,56 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-25T09:00:00-05:00",
+  "commission": "TRY FOREVER non-P0 exact-container receipt surfaces",
+  "reviewedSourceHead": "9142d4ab262370168fea3a2430b3d97e568e1bbf",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY",
+  "sourceReadback": {
+    "derivationCustodyBlob": "6343c4e836ea6ea43cd79f591d1cc7cc13555ff2",
+    "identityFieldsetBlob": "5f810495b794dfad818cf5312c128005b04cb567",
+    "hostileRegressionBlob": "9e5d432679400ec055f9ad9f5e2e646d8c538d36",
+    "boundedContainerSkillBlob": "17d6199a4fcf7ec053118cfa9dd5b5a86a607396"
+  },
+  "findings": [
+    "receipt derivation now snapshots exact built-in-dict receipt/raw inputs before semantic reads",
+    "receipt derivation admits allowed final fields only as one exact tuple of exact strings before iteration",
+    "final fieldset custody rejects arbitrary Mapping and iterable-family callbacks before traversal",
+    "hostile regression source pins callback-free rejection and exact public type contracts",
+    "whole receipt-stack exact-container convergence remains PARTIAL because neighboring self-integrity/final verifier surfaces still expose Mapping contracts"
+  ],
+  "changeCustody": {
+    "base": "1031efdfe848ee4f43a4a3c21db70a5eed40afb4",
+    "head": "9142d4ab262370168fea3a2430b3d97e568e1bbf",
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0
+  },
+  "executionEvidence": {
+    "homeCenterCi": {"runId": 32857499207, "conclusion": "failure"},
+    "operatorOverlay": {"runId": 32857499125, "jobId": 97832961839, "conclusion": "failure", "steps": 0, "logs": "404 BlobNotFound"},
+    "buildAndroid": {"runId": 32857499244, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReviewUsed": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "wholeReceiptStackExactContainer": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false,
+    "phoneP0MutationAuthority": false
+  },
+  "directive": "Allow bounded source/readback claims only. Keep whole-stack convergence, regression execution, TESTED, runtime, deployment, delivery, acceptance, phone, and P0 states closed."
+}
