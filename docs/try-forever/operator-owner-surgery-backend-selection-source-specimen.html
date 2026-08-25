@@ -24,18 +24,18 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: RED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: SOURCE WIRED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend result custody and selection source path</title>
-    <desc id="diagram-desc">Caller evidence first crosses the existing bounded exact JSON snapshot throat before backend result integrity reads. Witness parity then precedes existing backend authority admission. Direct calls to the backend policy still have a separate red exact-input boundary.</desc>
+    <desc id="diagram-desc">Caller evidence crosses exact control admission and the existing bounded exact JSON snapshot before backend-policy semantic reads. Witness and authority checks still remain supporting source, and canonical owner integration is not claimed.</desc>
     <path d="M30 90 H170 M250 90 H370 M450 90 H570 M650 90 H870" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="170" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="370" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="570" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <text x="25" y="70" fill="currentColor">CALLER</text>
-    <text x="155" y="30" fill="currentColor">SNAPSHOT</text>
-    <text x="365" y="30" fill="currentColor">INTEGRITY</text>
+    <text x="155" y="30" fill="currentColor">EXACT GATE</text>
+    <text x="365" y="30" fill="currentColor">SNAPSHOT</text>
     <text x="565" y="30" fill="currentColor">POLICY</text>
     <text x="705" y="70" fill="currentColor">AUTHORITY</text>
     <text x="705" y="108" fill="currentColor">OR STOP</text>
@@ -44,12 +44,12 @@
   <fieldset aria-describedby="detail">
     <legend>Inspect one source state</legend>
     <label>
-      <input type="radio" name="backend" value="snapshot" checked>
-      <span><span class="token">● EXACT JSON SNAPSHOT</span><br>Backend-result integrity entrypoints reuse the existing bounded one-observation snapshot organ before any semantic result read.</span>
+      <input type="radio" name="backend" value="directwired" checked>
+      <span><span class="token">● DIRECT POLICY EXACT INPUT</span><br>Capability/failure controls and selection records are exact before dispatch; backend results reuse the bounded one-observation exact JSON snapshot before semantic reads.</span>
     </label>
     <label>
-      <input type="radio" name="backend" value="directred">
-      <span><span class="token">× DIRECT POLICY RED</span><br>The direct backend-policy entrypoint still admits broad Mapping/string-compatible inputs before exact machine-input custody. Safer composition does not erase this wound.</span>
+      <input type="radio" name="backend" value="snapshot">
+      <span><span class="token">● EXACT JSON SNAPSHOT</span><br>Root and nested caller-owned Python Mapping/scalar subclasses cannot execute inside backend-result authority checks.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="portable">
@@ -81,13 +81,13 @@
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">EXACT JSON SNAPSHOT\nCaller Mapping/scalar subclasses are rejected before callbacks.\nIntegrity and witness reads run on one detached bounded plain tree.\nDirect policy exact-input custody remains RED.</div>
+  <div id="detail" role="status" aria-live="polite">DIRECT POLICY EXACT INPUT\nExact built-in control strings and canonical selection records are required before dispatch.\nBackend result evidence crosses the existing bounded exact-JSON snapshot before semantic reads.\nCanonical owner backend integration remains NO; regressions remain UNEXECUTED.</div>
 
   <script>
     const detail = document.getElementById('detail');
     const copy = {
-      snapshot: 'EXACT JSON SNAPSHOT\nThe existing receipt snapshot organ is reused. Root must be exact dict; nested containers/scalars must be exact JSON under bounded depth/node/text/encoded-byte budgets. Caller callbacks do not become evidence. Source wired: YES. Regression execution: NO.',
-      directred: 'DIRECT POLICY RED\nadmit_selected_backend_result and backend selection still expose broader direct Python input contracts. The integrity composition now protects its own callers by passing a detached tree, but direct callers remain a separate source wound. RED fixture exists; unexecuted.',
+      directwired: 'DIRECT POLICY EXACT INPUT\nCapability and failure controls require exact built-in strings. Selection records must be exact and match their canonical capability decision. Backend results are exact built-in dict evidence captured through the existing bounded snapshot organ before semantic reads. Source wired: YES. Regression execution: NO.',
+      snapshot: 'EXACT JSON SNAPSHOT\nThe existing receipt snapshot organ is reused. Root must be exact dict; nested containers/scalars must be exact JSON under bounded depth/node/text/encoded-byte budgets. Caller callbacks do not become evidence. Source wired: YES. Tested: NO.',
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
       descriptor: 'HELD FD SELECTED\nStronger source backend selected. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact group/member evidence. Canonical owner consumption is still NO.',
       exhaustive: 'INCOMPLETE CUSTODY → ZERO AUTHORITY\nCanonical v10 source is wired. Healthy surgeries may survive as diagnostics, but discoveryErrors force collisionSets, staleBaseGroups, and unverifiedBaseGroups to remain empty. Regression execution is still NO.',
