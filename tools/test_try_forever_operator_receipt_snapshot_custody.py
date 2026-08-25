@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """SOURCE / UNEXECUTED regression for bounded one-observation receipt snapshot custody."""
 
+from collections.abc import Mapping
+
+from try_forever_operator_receipt_snapshot_admission_policy import (
+    MAX_DIAGNOSTIC_CONTEXT_CODEPOINTS,
+)
 from try_forever_operator_receipt_snapshot_custody import (
     MAX_DIAGNOSTIC_PATH_CHARS,
     MAX_SNAPSHOT_INTEGER_BITS,
@@ -14,30 +19,28 @@ from try_forever_operator_receipt_snapshot_custody import (
 
 
 class FalseGetDict(dict):
-    """Underlying capability is true while semantic ``get`` tries to present false."""
+    """Dict subclass whose semantic methods disagree with stored evidence."""
 
     def get(self, key, default=None):
         if key == "tested":
             return False
         return super().get(key, default)
 
-
-class DuplicateItemsMapping(dict):
-    """Hostile Mapping whose items() stream repeats one field despite dict-shaped storage."""
-
     def items(self):
-        yield "schema", "receipt"
-        yield "schema", "counterfeit"
+        raise AssertionError("dict-subclass items() callback executed")
 
 
-class HostileDuplicateItemsMapping(dict):
-    """Duplicate exact key whose source spelling must not become raw diagnostic prose."""
+class MappingOnly(Mapping):
+    """Custom Mapping whose traversal must never be invoked by exact-object admission."""
 
-    KEY = "duplicate\n\u202e\ud800"
+    def __getitem__(self, key):
+        raise AssertionError("custom Mapping __getitem__ executed")
 
-    def items(self):
-        yield self.KEY, "first"
-        yield self.KEY, "second"
+    def __iter__(self):
+        raise AssertionError("custom Mapping __iter__ executed")
+
+    def __len__(self):
+        raise AssertionError("custom Mapping __len__ executed")
 
 
 def rejection_message(call) -> str:
@@ -61,15 +64,20 @@ def assert_safe_diagnostic(message: str) -> None:
 
 
 def main() -> int:
-    # A verifier that repeatedly consults the caller-owned Mapping can validate ``tested=false`` and
-    # later sign the underlying ``tested=true`` payload. Snapshot custody must capture one view.
+    # Caller-owned Mapping behavior is rejected before traversal. A dict subclass can no longer show
+    # semantic checks one view and later expose a different payload to the snapshot.
     hostile = FalseGetDict({"schema": "receipt", "tested": True, "summary": "stable"})
     assert hostile.get("tested") is False
-    snapshot = snapshot_json_mapping(hostile, field="operator receipt")
-    assert type(snapshot) is dict
-    assert snapshot["tested"] is True
+    expect_reject(
+        lambda: snapshot_json_mapping(hostile, field="operator receipt"),
+        "exact built-in dict",
+    )
+    expect_reject(
+        lambda: snapshot_json_mapping(MappingOnly(), field="operator receipt"),
+        "exact built-in dict",
+    )
 
-    # Nested caller-owned structure must be detached as part of the same snapshot.
+    # Plain dict/list source remains detached as one snapshot observation.
     nested = {"status": "before", "items": [{"value": 1}]}
     raw = {"schema": "raw", "nested": nested}
     captured = snapshot_verification_inputs({"schema": "receipt"}, raw)
@@ -116,27 +124,20 @@ def main() -> int:
     assert "<path>...#" in deep_message, deep_message
     assert_safe_diagnostic(deep_message)
 
-    # Caller-supplied diagnostic context receives the same bounded projection; it is never authority.
+    # Caller-supplied diagnostic context is bounded before escaping/projection and is never authority.
     hostile_field = "root\n\u202e\ud800" + ("z" * 512)
     root_message = rejection_message(
         lambda: snapshot_json_mapping({"value": object()}, field=hostile_field)
     )
     assert "<text>...#" in root_message, root_message
     assert_safe_diagnostic(root_message)
-
-    # Duplicate-key diagnostics must not echo the exact hostile source spelling raw. The exact key is
-    # still what drives duplicate detection; only the error projection is escaped/bounded.
-    duplicate_message = rejection_message(
+    expect_reject(
         lambda: snapshot_json_mapping(
-            HostileDuplicateItemsMapping(),
-            field="operator receipt",
-        )
+            {"schema": "receipt"},
+            field="x" * (MAX_DIAGNOSTIC_CONTEXT_CODEPOINTS + 1),
+        ),
+        "diagnostic context rejected by bounded source admission",
     )
-    assert "duplicate mapping field" in duplicate_message
-    assert_safe_diagnostic(duplicate_message)
-    assert "\\n" in duplicate_message
-    assert "\\u202e" in duplicate_message
-    assert "\\ud800" in duplicate_message.lower()
 
     # A single oversized source key should collapse as a whole diagnostic identity rather than emit an
     # arbitrary partial prefix, while a legal value still keeps the full exact key in the snapshot.
@@ -174,8 +175,11 @@ def main() -> int:
         "exact JSON",
     )
     expect_reject(
-        lambda: snapshot_json_mapping(DuplicateItemsMapping(), field="operator receipt"),
-        "duplicate mapping field",
+        lambda: snapshot_json_mapping(
+            {"nested": FalseGetDict({"schema": "counterfeit"})},
+            field="operator receipt",
+        ),
+        "exact JSON",
     )
 
     # Resource pressure must fail before later semantic/hash/linkage work. These fixtures are large
