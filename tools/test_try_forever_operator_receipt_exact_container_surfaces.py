@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Regression source for exact-container receipt evidence boundaries.
 
-SOURCE ONLY / UNEXECUTED. This fixture proves the two repaired supporting surfaces reject caller-owned
-Mapping/tuple-subclass callbacks before evidence traversal. It does not establish TESTED, runtime,
-deployment, delivery, acceptance, phone, or P0 capability.
+SOURCE ONLY / UNEXECUTED. This fixture proves repaired receipt/temporal surfaces reject caller-owned
+Mapping/dict-subclass/tuple-subclass callbacks before evidence traversal. It does not establish
+TESTED, runtime, deployment, delivery, acceptance, phone, or P0 capability.
 """
 
 from __future__ import annotations
@@ -20,6 +20,14 @@ from try_forever_operator_receipt_derivation_custody import (
 from try_forever_operator_receipt_identity_fieldset import (
     OperatorReceiptIdentityFieldsetError,
     require_exact_final_receipt_fieldset,
+)
+from try_forever_owner_surgery_shadow_temporal_binding import (
+    TemporalBindingEvidenceError,
+    evaluate_temporal_content_binding,
+)
+from try_forever_owner_surgery_shadow_temporal_receipt_integrity import (
+    ShadowTemporalReceiptIntegrityError,
+    evaluate_temporal_content_binding_with_receipt_integrity,
 )
 
 
@@ -53,6 +61,18 @@ class CallbackMapping(Mapping[str, object]):
     def keys(self):
         self.callbacks += 1
         raise AssertionError("caller mapping callback executed")
+
+
+class CallbackDict(dict):
+    callbacks = 0
+
+    def get(self, key, default=None):
+        type(self).callbacks += 1
+        raise AssertionError("caller dict-subclass callback executed")
+
+    def items(self):
+        type(self).callbacks += 1
+        raise AssertionError("caller dict-subclass callback executed")
 
 
 class CallbackTuple(tuple):
@@ -105,6 +125,62 @@ class ExactContainerReceiptSurfaceTest(unittest.TestCase):
             )
         self.assertEqual(CallbackTuple.callbacks, 0)
 
+    def test_temporal_binding_rejects_root_mapping_before_callbacks(self) -> None:
+        hostile = CallbackMapping()
+        with self.assertRaises(TemporalBindingEvidenceError):
+            evaluate_temporal_content_binding(
+                hostile,  # type: ignore[arg-type]
+                {},
+            )
+        self.assertEqual(hostile.callbacks, 0)
+
+    def test_temporal_receipt_integrity_rejects_root_mapping_before_callbacks(self) -> None:
+        hostile = CallbackMapping()
+        with self.assertRaises(ShadowTemporalReceiptIntegrityError):
+            evaluate_temporal_content_binding_with_receipt_integrity(
+                {},
+                hostile,  # type: ignore[arg-type]
+            )
+        self.assertEqual(hostile.callbacks, 0)
+
+    def test_temporal_binding_rejects_nested_dict_subclass_before_callbacks(self) -> None:
+        CallbackDict.callbacks = 0
+        hostile_nested = CallbackDict({"path": "patches/example.patch"})
+        with self.assertRaises(TemporalBindingEvidenceError):
+            evaluate_temporal_content_binding(
+                {
+                    "schema": "try-forever-owner-surgery-custody.v10",
+                    "nestedHostile": hostile_nested,
+                },
+                {},
+            )
+        self.assertEqual(CallbackDict.callbacks, 0)
+
+    def test_temporal_receipt_integrity_rejects_nested_dict_subclass_before_callbacks(self) -> None:
+        CallbackDict.callbacks = 0
+        hostile_nested = CallbackDict({"status": "SHADOW_MATCH"})
+        with self.assertRaises(ShadowTemporalReceiptIntegrityError):
+            evaluate_temporal_content_binding_with_receipt_integrity(
+                {},
+                {
+                    "schema": "try-forever-owner-surgery-descriptor-shadow.v3",
+                    "nestedHostile": hostile_nested,
+                },
+            )
+        self.assertEqual(CallbackDict.callbacks, 0)
+
+    def test_plain_temporal_dict_reaches_semantic_schema_gate(self) -> None:
+        with self.assertRaisesRegex(
+            TemporalBindingEvidenceError,
+            "exact canonical custody v10",
+        ):
+            evaluate_temporal_content_binding({}, {})
+        with self.assertRaisesRegex(
+            ShadowTemporalReceiptIntegrityError,
+            "exact canonical owner-surgery custody v10",
+        ):
+            evaluate_temporal_content_binding_with_receipt_integrity({}, {})
+
     def test_public_repaired_surfaces_advertise_exact_containers(self) -> None:
         expectations = {
             "tools/try_forever_operator_receipt_derivation_custody.py": {
@@ -119,6 +195,18 @@ class ExactContainerReceiptSurfaceTest(unittest.TestCase):
                     "receipt": "dict[str, object]",
                     "operator_owned_fields": "tuple[str, ...]",
                     "denied_capability_fields": "tuple[str, ...]",
+                }
+            },
+            "tools/try_forever_owner_surgery_shadow_temporal_binding.py": {
+                "evaluate_temporal_content_binding": {
+                    "canonical_result": "dict[str, object]",
+                    "shadow_result": "dict[str, object]",
+                }
+            },
+            "tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py": {
+                "evaluate_temporal_content_binding_with_receipt_integrity": {
+                    "canonical_result": "dict[str, object]",
+                    "shadow_result": "dict[str, object]",
                 }
             },
         }
