@@ -24,10 +24,7 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
-from try_forever_provenance_report_path import (
-    project_report_path,
-    project_repository_relative_report_path,
-)
+from try_forever_provenance_report_path import project_serialized_report_path
 
 
 SHADOW_SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
@@ -71,19 +68,9 @@ def _optional_bool(value: object, *, field: str) -> bool | None:
 
 
 def _project_shadow_path(repo_root: Path, path_text: str):
-    """Project canonical shadow path text without depending on process cwd.
+    """Project serialized shadow paths without making reviewer-host syntax authoritative."""
 
-    Canonical v10/shadow source normally serializes repository-relative paths such as
-    ``patches/try-forever-a.patch``. Feeding that text through ``Path.abspath`` would make display
-    semantics depend on the caller's working directory. Relative shadow identities therefore use
-    the repository-relative projector directly; absolute source paths retain the normal repository
-    containment/external-host projection.
-    """
-
-    path = Path(path_text)
-    if not path.is_absolute():
-        return project_repository_relative_report_path(path.as_posix())
-    return project_report_path(repo_root, path)
+    return project_serialized_report_path(repo_root, path_text)
 
 
 def _artifact_projection(repo_root: Path, item: object, *, field: str) -> dict[str, object]:
