@@ -7,6 +7,12 @@ and held-directory bytes later. Matching later reads therefore become temporal e
 those exact later identities agree with the canonical same-observation witnesses for the exact
 canonical Surgery path set.
 
+Caller-owned canonical/shadow evidence crosses the repository's existing one-observation bounded
+exact-JSON snapshot organ before this policy reads schema, identity, witnesses, status, comparisons,
+or artifact evidence. The public contract therefore advertises exact built-in ``dict`` inputs rather
+than arbitrary ``Mapping`` capability. This closes split-view/callback evidence without creating a
+second snapshot or temporal owner.
+
 This policy grants no promotion authority and mutates no owner. A zero-artifact inventory is not
 reported as a vacuous proven content binding: there is no artifact content to bind.
 """
@@ -14,8 +20,11 @@ reported as a vacuous proven content binding: there is no artifact content to bi
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
 
+from try_forever_operator_receipt_snapshot_custody import (
+    OperatorReceiptSnapshotCustodyError,
+    snapshot_json_mapping,
+)
 from try_forever_owner_surgery_descriptor_shadow_audit import (
     CANONICAL_SCHEMA,
     SCHEMA as SHADOW_SCHEMA,
@@ -33,25 +42,25 @@ class TemporalBindingEvidenceError(ValueError):
 
 
 def _artifact_identity_map(items: object, *, field: str) -> dict[str, tuple[int, str]]:
-    if not isinstance(items, list):
+    if type(items) is not list:
         raise TemporalBindingEvidenceError(f"{field} must be one list")
 
     result: dict[str, tuple[int, str]] = {}
     for index, item in enumerate(items):
-        if not isinstance(item, Mapping):
-            raise TemporalBindingEvidenceError(f"{field}[{index}] must be one mapping")
+        if type(item) is not dict:
+            raise TemporalBindingEvidenceError(f"{field}[{index}] must be one exact dict")
         path = item.get("path")
-        if not isinstance(path, str) or not path:
+        if type(path) is not str or not path:
             raise TemporalBindingEvidenceError(f"{field}[{index}].path must be one non-empty string")
         if path in result:
             raise TemporalBindingEvidenceError(f"{field} path identity must be unique: {path}")
         byte_count = item.get("byteCount")
-        if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 0:
+        if type(byte_count) is not int or byte_count < 0:
             raise TemporalBindingEvidenceError(
                 f"{field}[{index}].byteCount must be one non-negative integer"
             )
         sha256 = item.get("sha256")
-        if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+        if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
             raise TemporalBindingEvidenceError(
                 f"{field}[{index}].sha256 must be 64 lowercase hexadecimal"
             )
@@ -59,16 +68,18 @@ def _artifact_identity_map(items: object, *, field: str) -> dict[str, tuple[int,
     return result
 
 
-def _canonical_surgery_paths(canonical_result: Mapping[str, object]) -> set[str]:
+def _canonical_surgery_paths(canonical_result: dict[str, object]) -> set[str]:
     surgeries = canonical_result.get("surgeries")
-    if not isinstance(surgeries, list):
+    if type(surgeries) is not list:
         raise TemporalBindingEvidenceError("canonical surgeries must be one list")
     paths: set[str] = set()
     for index, item in enumerate(surgeries):
-        if not isinstance(item, Mapping):
-            raise TemporalBindingEvidenceError(f"canonical surgeries[{index}] must be one mapping")
+        if type(item) is not dict:
+            raise TemporalBindingEvidenceError(
+                f"canonical surgeries[{index}] must be one exact dict"
+            )
         path = item.get("path")
-        if not isinstance(path, str) or not path:
+        if type(path) is not str or not path:
             raise TemporalBindingEvidenceError(
                 f"canonical surgeries[{index}].path must be one non-empty string"
             )
@@ -103,20 +114,31 @@ def _unbound(
 
 
 def evaluate_temporal_content_binding(
-    canonical_result: Mapping[str, object],
-    shadow_result: Mapping[str, object],
+    canonical_result: dict[str, object],
+    shadow_result: dict[str, object],
 ) -> dict[str, object]:
     """Bind canonical-result identity to later artifact observations, or fail closed.
 
-    ``TEMPORAL_CONTENT_BOUND`` is possible only when canonical v10 carries exact same-observation
-    artifact witnesses for at least one admitted Surgery and an admitted SHADOW_MATCH carries exact
-    true comparison booleans for the same artifact set.
+    Both caller-owned inputs are snapshotted before any semantic read. ``TEMPORAL_CONTENT_BOUND`` is
+    possible only when canonical v10 carries exact same-observation artifact witnesses for at least
+    one admitted Surgery and an admitted SHADOW_MATCH carries exact true comparison booleans for the
+    same artifact set.
     """
 
-    if not isinstance(canonical_result, Mapping):
-        raise TemporalBindingEvidenceError("canonical_result must be one mapping")
-    if not isinstance(shadow_result, Mapping):
-        raise TemporalBindingEvidenceError("shadow_result must be one mapping")
+    try:
+        canonical_result = snapshot_json_mapping(
+            canonical_result,
+            field="canonical temporal-binding evidence",
+        )
+        shadow_result = snapshot_json_mapping(
+            shadow_result,
+            field="descriptor temporal-binding evidence",
+        )
+    except OperatorReceiptSnapshotCustodyError as exc:
+        raise TemporalBindingEvidenceError(
+            "temporal binding requires bounded exact built-in-dict evidence"
+        ) from exc
+
     if canonical_result.get("schema") != CANONICAL_SCHEMA:
         raise TemporalBindingEvidenceError("temporal binding requires exact canonical custody v10")
     if shadow_result.get("schema") != SHADOW_SCHEMA:
@@ -133,7 +155,7 @@ def evaluate_temporal_content_binding(
         )
 
     canonical_evidence_complete = canonical_result.get("evidenceComplete")
-    if not isinstance(canonical_evidence_complete, bool):
+    if type(canonical_evidence_complete) is not bool:
         raise TemporalBindingEvidenceError("canonical evidenceComplete must be one boolean")
     if not canonical_evidence_complete:
         return _unbound(
@@ -144,9 +166,13 @@ def evaluate_temporal_content_binding(
         )
 
     if shadow_result.get("descriptorAuthorityAdmitted") is not False:
-        raise TemporalBindingEvidenceError("temporal policy accepts only non-authoritative descriptor shadow evidence")
+        raise TemporalBindingEvidenceError(
+            "temporal policy accepts only non-authoritative descriptor shadow evidence"
+        )
     if shadow_result.get("ownerMutation") is not False:
-        raise TemporalBindingEvidenceError("temporal policy accepts only shadow evidence with ownerMutation=false")
+        raise TemporalBindingEvidenceError(
+            "temporal policy accepts only shadow evidence with ownerMutation=false"
+        )
 
     shadow_status = shadow_result.get("status")
     comparisons = (
