@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-25-0503",
+  "mission": "Advance multiple independent non-P0 fronts without phone/P0 consumption or duplicate architecture.",
+  "fronts": [
+    {
+      "id": "snapshot-doctrine-convergence",
+      "owner": "skills/operator-receipt-snapshot-custody/SKILL.md",
+      "intent": "Remove stale hostile-Mapping duplicate-field doctrine that became false when exact built-in dict admission was source-wired; preserve exact evidence and capability membrane."
+    },
+    {
+      "id": "skill-provenance-warm-wall-convergence",
+      "owner": "docs/try-forever/heartbeat-skill-provenance-source-specimen.html",
+      "intent": "Converge the existing accessible non-raster specimen with authenticated current-tree doctrine: HEAD content binding owner gate is already SOURCE_WIRED, while generated discovery index evidence remains stale/untrusted."
+    },
+    {
+      "id": "skill-discovery-freshness",
+      "owner": "existing repository provenance organs",
+      "intent": "Use direct current-tree GitHub evidence for skill selection; treat stale/dirty Droobiedoo discovery index as discovery-only and non-authoritative."
+    },
+    {
+      "id": "execution-and-review-boundaries",
+      "owner": "existing Home Center / She-Raw / Venice surfaces",
+      "intent": "Refresh non-phone worker, reviewer, and exact-head workflow evidence without retries, duplicate queueing, or phone/P0 mutation."
+    }
+  ],
+  "firewall": {
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "capabilityRule": "Source/readback evidence must not be promoted into regression execution, TESTED, runtime, deployment, callability, execution, delivery, or acceptance."
+}
