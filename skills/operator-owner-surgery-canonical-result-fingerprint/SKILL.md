@@ -8,25 +8,27 @@ This skill owns evidence identity only. It does **not** own canonical promotion 
 ## Core laws
 `CANONICAL RESULT FINGERPRINT != CANONICAL ARTIFACT IDENTITY != PROMOTION AUTHORITY`.
 
+`EXACT BUILT-IN DICT OBSERVATION != ARBITRARY PYTHON MAPPING / DICT SUBCLASS`.
+
 `VALID-UNICODE FINGERPRINT STABILITY != PERMISSION TO CRASH ON SURROGATE-BEARING SOURCE EVIDENCE`.
 
 `HOSTILE RECURSION / OVERFLOW != PERMISSION TO ESCAPE THE TYPED FINGERPRINT BOUNDARY`.
-
-`SURROGATE-SAFE RECEIPT IDENTITY != FILESYSTEM ATOMICITY`.
 
 `SOURCE_WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
 ## Supporting source
 `tools/try_forever_canonical_result_fingerprint.py` is **IMPLEMENTED SOURCE**.
 
-It uses the existing descriptor-shadow canonical serialization shape:
+Admission now begins with one exact built-in `dict`. Custom `Mapping` / `dict` subclasses are rejected before JSON serialization so caller-owned container callbacks cannot participate in fingerprint evidence work. Existing authoritative consumers already pass detached plain dictionaries, so this closes the hostile container channel without changing ordinary result identity.
+
+Serialization remains:
 - sorted JSON object keys;
 - compact separators;
 - `ensure_ascii=false`;
 - `allow_nan=false`;
 - UTF-8 encoding with `surrogatepass` only for otherwise-unencodable surrogate evidence.
 
-Ordinary valid-Unicode payloads therefore retain the existing fingerprint value. The organ now also contains JSON encoder `RecursionError` / `OverflowError` inside `CanonicalResultFingerprintError` rather than leaking process-level exceptions through receipt verification.
+Ordinary valid-Unicode payloads therefore retain the existing fingerprint value. JSON encoder `RecursionError` / `OverflowError` remain contained inside `CanonicalResultFingerprintError`.
 
 ## Regression source
 `tools/test_try_forever_canonical_result_fingerprint.py` is **REGRESSION SOURCE / UNEXECUTED**.
@@ -37,18 +39,20 @@ It pins:
 - exact parity with the legacy fingerprint for valid Unicode;
 - deterministic surrogate-bearing evidence;
 - rejection of non-finite numeric evidence;
-- typed rejection of deeply recursive hostile evidence.
+- typed rejection of deeply recursive hostile evidence;
+- rejection of a hostile `dict` subclass **before** its overridden `items()` callback can execute.
 
-`tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` remains **REGRESSION SOURCE / UNEXECUTED**. Its descriptor-shadow owner-wiring expectation is satisfied by authenticated source, but the fixture has not executed and therefore grants no TESTED state.
+`tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` remains **REGRESSION SOURCE / UNEXECUTED**. Source inspection shows the descriptor-shadow owner consumes the shared organ; fixture execution is still a separate capability state.
 
-## Owner truth
-The shared organ currently has two authenticated consumers in this TRY FOREVER branch:
+## Current owner truth
+The shared organ has two current source consumers in this branch:
 
-1. `tools/try_forever_owner_surgery_descriptor_shadow_audit.py`, schema `try-forever-owner-surgery-descriptor-shadow.v3` — **SOURCE_WIRED** since owner surgery `f57e556e6025f93b6b3b01ec9cedac95868b28e7` (result blob `44bc3af31e645f33abf542139995c3707ef8e210`).
-2. `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py`, schema `try-forever-owner-surgery-descriptor-shadow-operator-receipt.v4` — **SOURCE_WIRED** for final bounded operator-receipt identity through `_operator_receipt_sha256(...)` (authenticated owner blob before this heartbeat: `2920ae28ea56a9840cf7ca05a57ff9231469cb04`).
+1. `tools/try_forever_owner_surgery_descriptor_shadow_audit.py`, schema `try-forever-owner-surgery-descriptor-shadow.v3` — **SOURCE_WIRED**.
+2. `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py`, schema `try-forever-owner-surgery-descriptor-shadow-operator-receipt.v4` — **SOURCE_WIRED** through `_operator_receipt_sha256(...)`.
 
-At this checkpoint:
+Current capability truth:
 - fingerprint organ implementation: **YES / SOURCE**;
+- exact built-in-dict fingerprint admission: **YES / SOURCE**;
 - descriptor-shadow owner consumption: **YES / SOURCE_WIRED**;
 - final-v4 operator-receipt owner consumption: **YES / SOURCE_WIRED**;
 - hostile regression source: **YES / UNEXECUTED**;
