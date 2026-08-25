@@ -10,6 +10,8 @@ This skill owns evidence identity only. It does **not** own canonical promotion 
 
 `EXACT ROOT DICT != EXACT RECURSIVE JSON SHAPE`.
 
+`PUBLIC MAPPING TYPE != EXACT BUILT-IN DICT CONTRACT`.
+
 `PYTHON TUPLE / NON-STRING KEY / DICT SUBCLASS != JSON EVIDENCE AFTER NORMALIZATION`.
 
 `VALID-UNICODE FINGERPRINT STABILITY != PERMISSION TO CRASH ON SURROGATE-BEARING SOURCE EVIDENCE`.
@@ -19,7 +21,8 @@ This skill owns evidence identity only. It does **not** own canonical promotion 
 ## Supporting source
 `tools/try_forever_canonical_result_fingerprint.py` is **IMPLEMENTED SOURCE**.
 
-Fingerprint admission now reuses the existing one-observation `snapshot_json_mapping(...)` organ before hashing. That means every nested value must already be exact JSON-shaped Python evidence:
+Fingerprint admission reuses the existing one-observation `snapshot_json_mapping(...)` organ before hashing. That means every nested value must already be exact JSON-shaped Python evidence:
+- the public `canonical_result_sha256(...)` parameter is typed as `dict[str, object]`, matching the runtime exact-built-in-dict admission contract instead of advertising unsupported arbitrary `Mapping` capability;
 - objects are exact built-in `dict` containers with non-empty string keys;
 - arrays are exact built-in `list` containers;
 - scalars are exact JSON null/boolean/int/finite-float/string shapes;
@@ -33,7 +36,7 @@ Serialization after that detached snapshot remains:
 - `allow_nan=false`;
 - UTF-8 encoding with `surrogatepass` only for otherwise-unencodable surrogate evidence.
 
-Ordinary exact JSON with valid Unicode therefore retains the existing fingerprint value. The fix narrows hostile/non-JSON shapes without churning valid receipt identity.
+Ordinary exact JSON with valid Unicode therefore retains the existing fingerprint value. The public type correction narrows developer-facing capability without changing accepted runtime values or fingerprint bytes.
 
 ## Regression source
 `tools/test_try_forever_canonical_result_fingerprint.py` is **REGRESSION SOURCE / UNEXECUTED**.
@@ -48,6 +51,8 @@ It pins:
 - rejection of root and nested `dict` subclasses before overridden callbacks can execute;
 - rejection of tuple→array and integer-key→string-key normalization.
 
+`tools/test_try_forever_exact_json_public_type_contract.py` is **REGRESSION SOURCE / INTENTIONALLY RED / UNEXECUTED**. It proves this fingerprint entrypoint now advertises the exact built-in-dict boundary and preserves a separate wound: the underlying snapshot-custody public signatures still advertise `Mapping` even though runtime admission rejects it.
+
 `tools/test_try_forever_descriptor_shadow_canonical_result_fingerprint_owner_boundary.py` remains **REGRESSION SOURCE / UNEXECUTED**. Source inspection shows the descriptor-shadow owner consumes the shared organ; fixture execution is still a separate capability state.
 
 ## Current owner truth
@@ -58,11 +63,13 @@ The shared organ has two current source consumers in this branch:
 
 Current capability truth:
 - fingerprint organ implementation: **YES / SOURCE**;
+- public fingerprint type contract matches exact built-in dict admission: **YES / SOURCE_WIRED**;
 - recursive exact-JSON fingerprint admission: **YES / SOURCE**;
 - bounded snapshot reuse: **YES / SOURCE**;
 - descriptor-shadow owner consumption: **YES / SOURCE_WIRED**;
 - final-v4 operator-receipt owner consumption: **YES / SOURCE_WIRED**;
 - hostile regression source: **YES / UNEXECUTED**;
+- snapshot public-signature convergence: **NO / RED**;
 - TESTED: **NO**;
 - runtime UI/TalkBack: **NO**;
 - deployed/callable/executed/delivered/accepted: **NO**.
