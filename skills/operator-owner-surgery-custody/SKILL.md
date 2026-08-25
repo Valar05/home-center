@@ -12,6 +12,10 @@ This skill owns **promotion topology and evidence custody**, not another overlay
 
 `NO AUTHENTICATED CURRENT OWNER BLOB = UNVERIFIED_BASE_GROUP`.
 
+`AUTHENTICATED OWNER-BLOB MAP != ARBITRARY PYTHON MAPPING`.
+
+`CALLER-OWNED CONTAINER CALLBACK BEFORE CUSTODY ADMISSION = EVIDENCE WOUND`.
+
 `MATCHING OWNER-SURGERY ARTIFACT THAT CANNOT BE SAFELY ADMITTED = EVIDENCE INCOMPLETE`.
 
 `PATCHES ROOT REDIRECTOR / PERSISTENT IDENTITY DRIFT / IDENTITY UNAVAILABLE = ZERO PARTIAL PROMOTION AUTHORITY`.
@@ -83,6 +87,16 @@ Root custody must bracket the authority-producing artifact observations, not onl
 
 The implemented v10 owner carries this final root gate. It remains a persistent-drift improvement, not atomic binding.
 
+### 5. Authenticated current-owner map admission
+The programmatic current-owner map is itself machine evidence. The canonical v10 probe must admit the container **before** invoking `items()`:
+- `None` means no authenticated current-owner evidence and becomes one plain empty dict;
+- otherwise the input must be the exact built-in `dict`, not a `dict` subclass or arbitrary `Mapping`;
+- owner keys pass through the existing exact bounded `admit_owner_identity(...)` gate;
+- blob tokens must be exact built-in `str` values already matching 40 lowercase hexadecimal characters;
+- no `strip()`, lowercase repair, mapping callback, or scalar subclass earns authority.
+
+This is source custody, not a claim that the provenance of the supplied blob values is authenticated by this function. The caller still owns acquisition/authentication of those identities.
+
 ## Exact owner-surgery state admission
 Promotion authority must never come from substring matching or normalization. Supporting source authority is `tools/try_forever_owner_surgery_state_policy.py`.
 
@@ -118,7 +132,8 @@ v10 provides:
 - final root identity revalidation after authority-producing artifact observations;
 - exact fail-closed surgery-state admission through `try_forever_owner_surgery_state_policy.py`;
 - a non-normalizing textual state-header grammar so regex parsing cannot erase whitespace before exact state admission;
-- current/stale/unverified grouping against authenticated current-owner blobs;
+- exact built-in-dict admission of authenticated current-owner evidence before `items()` plus exact built-in blob strings;
+- current/stale/unverified grouping against admitted authenticated current-owner blobs;
 - zero partial authority on root/traversal/candidate/artifact/state failure.
 
 Current outputs include `CURRENT_BASE_COLLISION_SET`, `STALE_BASE_GROUP`, `UNVERIFIED_BASE_GROUP`, bounded `discoveryErrors`, and `evidenceComplete`.
@@ -141,7 +156,8 @@ Hostile source fixtures:
 - `tools/test_try_forever_owner_surgery_final_root_revalidation.py` — late persistent root replacement;
 - `tools/test_try_forever_owner_surgery_state_policy.py` — substring/normalization/type attacks;
 - `tools/test_try_forever_owner_surgery_patch_state_exactness.py` — regex/header normalization attacks;
-- `tools/test_try_forever_owner_surgery_state_owner_boundary.py` — v10 owner integration boundary.
+- `tools/test_try_forever_owner_surgery_state_owner_boundary.py` — v10 owner integration boundary;
+- `tools/test_try_forever_owner_surgery_current_owner_blob_admission.py` — callback-capable dict subclass, blob-string subclass, case/length/whitespace attacks against authenticated current-owner evidence.
 
 All are **REGRESSION SOURCE / UNEXECUTED**.
 
@@ -160,6 +176,7 @@ Regression source: `tools/test_try_forever_directory_handle_binding_capability.p
 - Preserve the existing owner. Do not create a neighboring controller or probe to avoid surgery conflicts.
 - Every review-ready surgery names one owner path and exact base blob.
 - Before calling a surgery current-base-ready, bind source inspection to fresh authenticated current-owner blob evidence.
+- Admit the authenticated current-owner map before iteration; caller-owned mapping callbacks never execute inside custody admission.
 - Rejected, superseded, unknown-state, and already-applied artifacts are provenance, not promotion candidates.
 - A stale-base or unverified-base candidate may remain useful design provenance, but is **not** promotion-ready.
 - Any root/traversal/candidate/artifact/state admission error makes exhaustive custody unproven.
@@ -173,7 +190,7 @@ Regression source: `tools/test_try_forever_directory_handle_binding_capability.p
 - Owner source wiring does not equal regression execution, TESTED, runtime UI, TalkBack, deployment, phone delivery, or acceptance.
 
 ## Mutation-lane truth
-v10 was applied through the authorized GitHub existing-owner mutation lane with exact base-blob custody and authenticated resulting owner readback. Do not reapply it. v9 is explicitly rejected and v8 superseded; neither may be promoted. Any later owner surgery must rebind to fresh authenticated v10 owner blob evidence. Do not reconstruct owners from partial/truncated readback, enqueue duplicate offline-worker sludge, or substitute a phone/P0 lane.
+v10 was applied through the authorized GitHub existing-owner mutation lane with exact base-blob custody and authenticated resulting owner readback. Do not reapply it. v9 is explicitly rejected and v8 superseded; neither may be promoted. Any later owner surgery must rebind to fresh authenticated v10 owner blob evidence. The 2026-08-25 current-owner-container hardening mutated the canonical probe in place through GitHub at commit `76e3c97493e5f4a32b25942462c0e1b317882472`, resulting blob `e3810d1afb3a8afe458219d81e2826eafcb6ab33`; it is SOURCE_WIRED and its hostile regression remains UNEXECUTED. Do not reconstruct owners from partial/truncated readback, enqueue duplicate offline-worker sludge, or substitute a phone/P0 lane.
 
 ## P0 / phone firewall
 This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, P0 coordination, or duplicate native owner. P0 receipts are read-only evidence here.
@@ -181,4 +198,4 @@ This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Ni
 ## Capability membrane
 `requested → source policy/probe → authenticated readback → regression source → regression executed → promotion plan → owner mutation → authenticated owner readback → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-Current state at 2026-08-22 08:02 CT: canonical probe v10 **IMPLEMENTED SOURCE / SOURCE_WIRED**; authenticated owner commit `0b4fc24113650741b50f4d57c29cb3c7eb6612d3`, blob `fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f`; exact state policy **IMPLEMENTED SUPPORTING SOURCE / CONSUMED BY OWNER**; v10 patch **APPLIED_SOURCE**; v9 **REJECTED/SUPERSEDED**; v8 **SUPERSEDED**; final root persistent-drift revalidation **SOURCE_WIRED**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; current-inventory behavior under the stricter textual state grammar **UNEXECUTED**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
+Current state at 2026-08-25 15:00 CT: canonical probe v10 **IMPLEMENTED SOURCE / SOURCE_WIRED**; authenticated current-owner map exact-container admission **SOURCE_WIRED** at commit `76e3c97493e5f4a32b25942462c0e1b317882472`, blob `e3810d1afb3a8afe458219d81e2826eafcb6ab33`; exact current-owner blob scalar admission **SOURCE_WIRED**; exact state policy **IMPLEMENTED SUPPORTING SOURCE / CONSUMED BY OWNER**; v10 root/state patch **APPLIED_SOURCE**; v9 **REJECTED/SUPERSEDED**; v8 **SUPERSEDED**; final root persistent-drift revalidation **SOURCE_WIRED**; atomic root binding **NO**; atomic primitive capability classifier **SUPPORTING SOURCE / UNEXECUTED**; hostile regressions **SOURCE / UNEXECUTED**; TESTED/runtime/phone/deployed/delivered/accepted **NO**.
