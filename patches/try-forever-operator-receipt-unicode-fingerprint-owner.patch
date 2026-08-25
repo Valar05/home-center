@@ -1,0 +1,31 @@
+# TRY FOREVER — final operator receipt surrogate-safe deterministic fingerprint custody
+# OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+# BASE OWNER BLOB: 82af7cc572d2a95624fb549c387946068483c7e3
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# PURPOSE: reuse the existing surrogate-safe deterministic JSON evidence fingerprint for final operator receipt identity without changing valid-Unicode digest identity.
+# CAPABILITY: SHARED_FINGERPRINT_SOURCE_YES__OWNER_WIRING_NO_RED__REGRESSION_SOURCE_YES_UNEXECUTED__TESTED_NO__RUNTIME_NO__PHONE_P0_UNTOUCHED
+
+--- a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
++++ b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+@@
+ from collections.abc import Mapping
+ from pathlib import Path
+ 
++from try_forever_canonical_result_fingerprint import canonical_result_sha256
+ from try_forever_operator_receipt_derivation_custody import (
+     require_operator_receipt_projection_derivation,
+ )
+@@
+ def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
+-    """Return deterministic identity for the bounded operator payload, excluding its own digest."""
+-
+-    return _deterministic_json_sha256(payload, ensure_ascii=False)
++    """Return surrogate-safe deterministic identity for the bounded operator payload.
++
++    Reuse the existing evidence-identity organ. Its sorted compact ``ensure_ascii=false`` JSON
++    serialization is byte-identical to the previous final-receipt algorithm for ordinary valid
++    Unicode, while UTF-8 ``surrogatepass`` closes the otherwise-unencodable hostile-surrogate case.
++    This remains receipt identity only, never artifact authority or TESTED/runtime capability.
++    """
++
++    return canonical_result_sha256(payload)
