@@ -51,6 +51,7 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
+from try_forever_canonical_result_fingerprint import canonical_result_sha256
 from try_forever_operator_receipt_derivation_custody import (
     require_operator_receipt_projection_derivation,
 )
@@ -128,9 +129,15 @@ def _raw_machine_evidence_sha256(raw_result: Mapping[str, object]) -> str:
 
 
 def _operator_receipt_sha256(payload: Mapping[str, object]) -> str:
-    """Return deterministic identity for the bounded operator payload, excluding its own digest."""
+    """Return surrogate-safe deterministic identity for the bounded operator payload.
 
-    return _deterministic_json_sha256(payload, ensure_ascii=False)
+    Reuse the existing evidence-identity organ. Its sorted compact ``ensure_ascii=false`` JSON
+    serialization is byte-identical to the previous final-receipt algorithm for ordinary valid
+    Unicode, while UTF-8 ``surrogatepass`` closes the otherwise-unencodable hostile-surrogate case.
+    This remains receipt identity only, never artifact authority or TESTED/runtime capability.
+    """
+
+    return canonical_result_sha256(payload)
 
 
 def _is_canonical_sha256(value: object) -> bool:
