@@ -1,0 +1,30 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "timestampLocal": "2026-08-25T16:00:00-05:00",
+  "reviewer": "current-authorized-chatgpt-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "repository": "Valar05/home-center",
+  "reviewedSourceHead": "2050bf161a0b778ef3505bbb7189938c466ca840",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "STOP_ALLOWED_FOR_SNAPSHOT_REPAIR_ONLY",
+  "jar": "observable evidence outranks confidence; exact caller evidence must be admitted before callbacks; safe composition does not erase an unsafe direct entrypoint; source/test/runtime/delivery states remain distinct",
+  "finding": "The existing backend-result integrity owner now reuses bounded exact-JSON snapshot custody before semantic reads, hostile regression source pins callback-free rejection, and the existing accessible Warm Wall/doctrine expose the remaining direct backend-policy wound instead of claiming whole-stack convergence.",
+  "note": "STOP_ALLOWED applies only to the bounded backend-result snapshot repair. The direct backend-policy exact-input boundary remains RED/REVISE_REQUIRED. Regression execution, TESTED, runtime, deployment, delivery, acceptance, and the recurring TRY FOREVER campaign remain continue-required.",
+  "capabilityMembrane": {
+    "backendResultSnapshotSourceWired": true,
+    "directBackendPolicyExactInputSourceWired": false,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_POLICY_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
