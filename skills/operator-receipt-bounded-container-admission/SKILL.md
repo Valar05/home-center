@@ -13,6 +13,7 @@ This skill also separates canonical receipt evidence from diagnostic root contex
 - **ARBITRARY ITERABLE FAMILY != BOUNDED FIELD VOCABULARY**.
 - **LIST IS ALREADY EXACT; OBJECT ADMISSION MUST BE EQUALLY EXACT**.
 - **PUBLIC TYPE CAPABILITY MUST NOT EXCEED RUNTIME ADMISSION**.
+- **TEMPORAL EVIDENCE IS RECEIPT EVIDENCE; IT DOES NOT GET A MAPPING EXCEPTION**.
 - **DIAGNOSTIC CONTEXT != CANONICAL RECEIPT IDENTITY**.
 - **UNBOUNDED DIAGNOSTIC INPUT != BOUNDED DIAGNOSTIC PROJECTION**.
 - Reject unsupported container shape; do not normalize it into authority.
@@ -21,7 +22,7 @@ This skill also separates canonical receipt evidence from diagnostic root contex
 
 ## Existing organs
 
-Compose the existing snapshot/receipt organs. Do not create another receipt owner, snapshot owner, projector, verifier daemon, or phone execution lane.
+Compose the existing snapshot/receipt organs. Do not create another receipt owner, snapshot owner, projector, temporal owner, verifier daemon, or phone execution lane.
 
 Current source surfaces:
 - `tools/try_forever_operator_receipt_snapshot_admission_policy.py` — **IMPLEMENTED SOURCE**.
@@ -30,8 +31,10 @@ Current source surfaces:
 - `tools/try_forever_operator_receipt_identity_fieldset.py` — **EXACT-CONTAINER SOURCE_WIRED**.
 - `tools/try_forever_owner_surgery_shadow_receipt_projection.py` — **EXACT-CONTAINER SOURCE_WIRED**.
 - `tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py` — **EXACT-CONTAINER SOURCE_WIRED**.
-- `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **FINAL-v4 PUBLIC TYPE CONTRACT SOURCE_WIRED** at blob `42cd1fceccfae861e9e5edd129b145b15969d401`.
-- `tools/test_try_forever_operator_receipt_exact_container_surfaces.py` — **SOURCE / UNEXECUTED**.
+- `tools/try_forever_owner_surgery_shadow_temporal_binding.py` — **EXACT-CONTAINER SOURCE_WIRED**.
+- `tools/try_forever_owner_surgery_shadow_temporal_receipt_integrity.py` — **EXACT-CONTAINER SOURCE_WIRED**.
+- `tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py` — **FINAL-v4 PUBLIC TYPE CONTRACT SOURCE_WIRED** at authenticated owner blob `42cd1fceccfae861e9e5edd129b145b15969d401`.
+- `tools/test_try_forever_operator_receipt_exact_container_surfaces.py` — **CONVERGENCE SOURCE / UNEXECUTED**; now includes derivation, fieldset, temporal binding, and temporal receipt-integrity callback/type boundaries.
 - `tools/test_try_forever_shadow_receipt_exact_snapshot_boundary.py` — **SOURCE / UNEXECUTED**.
 - `tools/test_try_forever_operator_receipt_public_type_contract.py` — **CONVERGENCE SOURCE / UNEXECUTED**.
 - `patches/try-forever-operator-receipt-public-type-contract.patch` — **APPLIED_SOURCE** by commit `04767647bcfc9ef29b6b867d5db7c7e6e8dbc66f`.
@@ -48,7 +51,9 @@ The derivation and identity-fieldset surfaces advertise and admit exact built-in
 
 The descriptor-shadow display projector and self-integrity owner advertise exact built-in `dict` input and consume the bounded snapshot-custody organ before semantic reads.
 
-The final v4 operator receipt reverification APIs now advertise the same exact built-in `dict` receipt/raw inputs already required by `snapshot_verification_inputs(...)`. Runtime rejection and public type capability therefore converge at source for the whole known receipt stack.
+The temporal-binding policy and its receipt-integrity context gate now advertise exact built-in `dict` canonical/shadow evidence and snapshot both caller-owned inputs before schema, identity, witness, comparison, backend, status, or capability reads. They reuse the existing snapshot-custody organ; no second temporal/snapshot owner was created.
+
+The final v4 operator receipt reverification APIs advertise the same exact built-in `dict` receipt/raw inputs already required by `snapshot_verification_inputs(...)`. Runtime rejection and public type capability therefore converge at source across the known receipt and temporal chain.
 
 So:
 - supporting admission policy: **YES / SOURCE**;
@@ -57,14 +62,18 @@ So:
 - fieldset exact-container custody: **YES / SOURCE_WIRED**;
 - projector exact-container custody: **YES / SOURCE_WIRED**;
 - self-integrity exact-container custody: **YES / SOURCE_WIRED**;
+- temporal-binding exact-container custody: **YES / SOURCE_WIRED**;
+- temporal receipt-integrity exact-container custody: **YES / SOURCE_WIRED**;
 - final-v4 public type-contract convergence: **YES / SOURCE_WIRED**;
-- whole known receipt stack exact-container convergence: **YES / SOURCE**;
+- known receipt/temporal exact-container convergence: **YES / SOURCE**;
 - hostile/convergence regression source: **YES / UNEXECUTED**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 
 ## Review scars
 
-Earlier snapshot hardening bounded values produced *after* Mapping iteration, which did not bound arbitrary Python work executed by Mapping itself. Admission moved ahead of traversal. The 2026-08-25 09:00 review found the same smell in derivation and final-fieldset custody and repaired those surfaces. The 11:00 review repaired the display projector and self-integrity owner. The 12:01 review found the final-v4 reverification API still advertised broader Mapping capability even though runtime already rejected it. The 12:58 repair applied the existing base-locked owner surgery and authenticated result blob `42cd1fceccfae861e9e5edd129b145b15969d401`; source convergence is now complete for this known public type-contract seam, while regression execution and TESTED remain separate.
+Earlier snapshot hardening bounded values produced *after* Mapping iteration, which did not bound arbitrary Python work executed by Mapping itself. Admission moved ahead of traversal. The 2026-08-25 09:00 review found the same smell in derivation and final-fieldset custody and repaired those surfaces. The 11:00 review repaired the display projector and self-integrity owner. The 12:01 review found the final-v4 reverification API still advertised broader Mapping capability even though runtime already rejected it. The 12:58 repair applied that existing owner surgery and authenticated result blob `42cd1fceccfae861e9e5edd129b145b15969d401`.
+
+The 14:03 review then found the phrase **whole known receipt stack convergence** was still too broad: both temporal public surfaces retained arbitrary `Mapping` contracts and read caller-owned evidence before a snapshot. That contradiction was repaired by composing the existing snapshot-custody organ into both temporal entrypoints and extending the existing hostile exact-container regression. Regression execution remains separate; source convergence does not advance TESTED.
 
 ## P0 / phone firewall
 
