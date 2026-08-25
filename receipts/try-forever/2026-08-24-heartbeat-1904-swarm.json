@@ -1,0 +1,128 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestampLocal": "2026-08-24T19:12:10-05:00",
+  "pr": 329,
+  "previousCheckpointHead": "5038b4dc5d74f6968a6a21e20fe116883fd1a7a0",
+  "reviewedSourceHead": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+  "frontsAdvanced": [
+    {
+      "front": "descriptor-shadow cross-host owner wiring",
+      "before": "NO_RED",
+      "after": "YES_SOURCE_WIRED",
+      "change": "Existing owner now delegates serialized path display to project_serialized_report_path().",
+      "ownerBaseBlob": "4cc65f162f600e70a9771d7cf3edac94e45f5344",
+      "ownerCommit": "cad8d728efa14d8a20b229d1902896e9267d0e02",
+      "ownerResultBlob": "10b88a9583274d498524b3082e252886be4335af"
+    },
+    {
+      "front": "hostile owner-boundary regression",
+      "before": "RED_SOURCE_UNEXECUTED",
+      "after": "SOURCE_WIRED_BOUNDARY_UNEXECUTED",
+      "change": "Coverage now includes drive absolute, UNC, drive-relative, rooted, POSIX absolute, and repository-relative Windows-looking control.",
+      "blob": "c6ad65c36bc1433d6193cfe77f8d45574d141f02"
+    },
+    {
+      "front": "patch provenance",
+      "before": "PROPOSED_NOT_APPLIED",
+      "after": "APPLIED_SOURCE",
+      "change": "Patch provenance now records exact applied commit and result blob.",
+      "blob": "5481e8921d03a8afb93b4e0e06d16d9d6288dad9"
+    },
+    {
+      "front": "portable path doctrine",
+      "before": "OWNER_UNWIRED",
+      "after": "OWNER_SOURCE_WIRED",
+      "change": "Capability state and regression doctrine now match authenticated owner readback.",
+      "blob": "246ec716ca54ea6f44788e34ad357f5999068b44"
+    },
+    {
+      "front": "Warm Wall source organism",
+      "before": "OWNER_WOUND",
+      "after": "OWNER_SOURCE_WIRED",
+      "change": "Existing DOM organism now exposes repository/external cross-host states and source/runtime membrane without raster or autoplay.",
+      "blob": "ef4840f47e35f77c640fcf46b1337c2363a3338e"
+    },
+    {
+      "front": "Regnet execution membrane",
+      "after": "PASS_SOURCE_READBACK_ONLY",
+      "change": "Exact-head workflow failures were recorded without inventing a step-level cause or promoting regression source to TESTED."
+    },
+    {
+      "front": "Venice bounded review",
+      "after": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+      "change": "Source seam may yield; broader campaign and execution states remain open."
+    }
+  ],
+  "crossPollination": [
+    "Cross-host path policy already existed; owner-boundary evidence made the duplicate host-local path decision visible.",
+    "Originality Tax forced composition of the existing projector rather than a second serializer.",
+    "Authenticated owner mutation made old RED patch/regression/skill/art wording false; Hunger/Eat Everything forced all durable surfaces to converge.",
+    "Accessibility/contact preservation kept authorized repository-relative Windows-looking names intact while external host topology collapsed to one privacy-safe marker.",
+    "Regnet and exact-head workflow evidence kept SOURCE_WIRED behind regression execution, TESTED, runtime, deployment, delivery, and acceptance."
+  ],
+  "skillLights": [
+    {"name": "Failure Is The Shovel", "state": "LIT", "effect": "closed the prior owner-unwired seam with an authorized source mutation"},
+    {"name": "Canon Auto-Select", "state": "LIT", "effect": "selected the existing portable-path skill and projector"},
+    {"name": "Autocorrect Judgment Jar", "state": "DARK", "effect": "no material ambiguity"},
+    {"name": "Originality Tax", "state": "LIT", "effect": "forbade a second path serializer/projector"},
+    {"name": "Hunger", "state": "LIT", "effect": "forced durable state convergence after owner mutation"},
+    {"name": "Ever-Polished Interpreter / Eat Everything", "state": "LIT", "effect": "removed stale RED/PROPOSED claims"},
+    {"name": "Operator Campaign", "state": "LIT", "effect": "performed real GitHub source mutation through the existing owner lane"},
+    {"name": "Harroway operator discipline", "state": "LIT", "effect": "used exact base blob, readback, and capability membrane"},
+    {"name": "She-Raw adversarial motivation", "state": "FAULT", "effect": "account connection HTTP 400; no synthetic substitute"},
+    {"name": "Venice Judgment Jars", "state": "LIT", "effect": "PLAN_ALLOWED before mutation and bounded completion review"},
+    {"name": "Regnet QA", "state": "LIT", "effect": "source/readback PASS only; regression execution and TESTED denied"},
+    {"name": "accessibility/TalkBack and touch semantics", "state": "LIT", "effect": "non-leaking display semantics and keyboard/touch Warm Wall retained"},
+    {"name": "Phone Runtime / Phone Hands recovery", "state": "DARK_FIREWALLED", "effect": "zero consumption/mutation"},
+    {"name": "deterministic routing", "state": "LIT", "effect": "serialized host context deterministically externalizes through one policy"},
+    {"name": "evidence/capability-state discipline", "state": "LIT", "effect": "source/test/runtime/deployment/delivery states remain separate"},
+    {"name": "recovery/checkpointing/idempotence", "state": "LIT", "effect": "previous publication head and exact owner blob used as checkpoints"},
+    {"name": "strange non-raster vector/DOM/native UI art", "state": "LIT", "effect": "existing source organism mutated in place"},
+    {"name": "warm walls", "state": "LIT", "effect": "cross-host privacy membrane is touch-inspectable"},
+    {"name": "Christmas-light scene graph", "state": "DARK", "effect": "no runtime motion/transition law changed"},
+    {"name": "contact preservation", "state": "LIT", "effect": "authorized repository-relative Windows-looking identities remain repository evidence"}
+  ],
+  "evidenceDelta": {
+    "base": "5038b4dc5d74f6968a6a21e20fe116883fd1a7a0",
+    "head": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+    "commits": 7,
+    "paths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "head": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+    "operatorRun": 32792443078,
+    "operatorJob": 97636578503,
+    "operatorSteps": 0,
+    "operatorConclusion": "failure",
+    "homeCenterCiRun": 32792443069,
+    "buildAndroidRun": 32792443137,
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "descriptorShadowCrossHostOwnerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
