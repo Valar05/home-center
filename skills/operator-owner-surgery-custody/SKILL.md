@@ -10,6 +10,8 @@ It does **not** own another patch executor, classifier, overlay controller, reco
 - `ARTIFACT BASE != AUTHENTICATED CURRENT OWNER BLOB = STALE_BASE_GROUP`.
 - `NO AUTHENTICATED CURRENT OWNER BLOB = UNVERIFIED_BASE_GROUP`.
 - `AUTHENTICATED OWNER-BLOB MAP != ARBITRARY PYTHON MAPPING`.
+- `REPEATED CLI OWNER-BLOB EVIDENCE != ARBITRARY PYTHON ITERABLE OR EXTENSIBLE STRING`.
+- `OMITTED CUSTODY != EXPLICITLY SUPPLIED EMPTY CUSTODY`, even when both admit to the same empty evidence map.
 - `CALLER-OWNED CONTAINER OR SCALAR CALLBACK BEFORE CUSTODY ADMISSION = EVIDENCE WOUND`.
 - `UNBOUNDED DIRECTORY / ARTIFACT / SEMANTIC INPUT != EXHAUSTIVE CUSTODY`.
 - `PREFIX CONTENT NEVER EARNS SURGERY AUTHORITY`.
@@ -50,8 +52,12 @@ Each admitted patch/delta uses the existing finite ordinary-file observation org
 - strict UTF-8;
 - post-read stability checks.
 
-### Authenticated current-owner map
-`None` becomes one plain empty dict. Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
+### Authenticated current-owner map and CLI evidence
+`None` still admits to one plain empty dict for promotion semantics, but canonical v10 preserves whether custody was omitted or explicitly supplied before that normalization. `currentOwnerCustodyProvided` therefore reports **presence**, not map truthiness; an explicit empty map remains distinct from omitted custody without inventing any owner blob.
+
+Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
+
+Repeated `--current-owner` programmatic evidence is admitted before parsing too: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside the custody boundary.
 
 ### Surgery state
 Promotion-ready state is exact, bounded, canonical machine evidence. Only the explicit current allow-list may enter promotion-candidate groups. Regex/header recognition may not erase whitespace or normalize the state before policy admission.
@@ -67,7 +73,7 @@ The canonical owner now consumes `tools/try_forever_owner_surgery_semantic_parse
 Semantic rejection prose is not canonical evidence. Hostile duplicate JSON member names and unsupported schema strings are projected through bounded ASCII-safe diagnostic text rather than echoed raw; long diagnostic source collapses to a deterministic short digest marker before escaping.
 
 ## Evidence preservation
-Canonical outputs keep directory/candidate counts, artifact content witnesses, discovery errors, authenticated current-owner blobs, collision sets, stale-base groups, unverified-base groups, and zero partial promotion authority after any custody wound.
+Canonical outputs keep directory/candidate counts, artifact content witnesses, discovery errors, authenticated current-owner blobs, explicit current-owner-custody presence, collision sets, stale-base groups, unverified-base groups, and zero partial promotion authority after any custody wound.
 
 A descriptor shadow remains supporting/non-authoritative. It cannot promote authority or rewrite canonical results.
 
@@ -79,7 +85,7 @@ Do not infer a mega-patch merely because a collision set exists. If one surgery 
 Historical patch files remain provenance only. Current authenticated source readback outranks dated capability summaries embedded in older patch prose or receipts.
 
 ## Regression source
-Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
+Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated CLI owner/blob admission, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
 All remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
@@ -96,6 +102,8 @@ Repository/source accessibility fixtures and Warm Walls are source artifacts onl
 - no weaker portable retry after descriptor wound: **SOURCE_WIRED**;
 - direct descriptor exact-root + path-encoding containment: **SOURCE_WIRED**;
 - authenticated current-owner exact-container/scalar admission: **SOURCE_WIRED**;
+- exact bounded repeated current-owner CLI admission: **SOURCE_WIRED**;
+- omitted-vs-explicit current-owner custody presence truth: **SOURCE_WIRED**;
 - exact surgery-state admission: **SOURCE_WIRED**;
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content/path/kind/SHA resource custody: **SOURCE_WIRED**;
