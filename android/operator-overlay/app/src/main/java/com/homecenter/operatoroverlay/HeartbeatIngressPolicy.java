@@ -123,10 +123,12 @@ public final class HeartbeatIngressPolicy {
      * <p>The projection also has an independent source-work throat. At most
      * {@link #MAX_BOUNDARY_SOURCE_CODE_UNITS} caller-owned UTF-16 code units are
      * inspected, and projection stops as soon as the returned code-point budget is
-     * full. This keeps hostile all-control/all-whitespace exception text from
-     * forcing unbounded normalization work merely because its final projection is
-     * short. The raw exception object/cause remains untouched and carries no
-     * semantic authority.</p>
+     * full. A surrogate pair is combined only when both code units are inside that
+     * source window; a high surrogate on the final admitted code unit becomes
+     * U+FFFD without peeking through the throat. This keeps hostile all-control or
+     * all-whitespace exception text from forcing unbounded normalization work merely
+     * because its final projection is short. The raw exception object/cause remains
+     * untouched and carries no semantic authority.</p>
      */
     static String cleanBoundary(String value) {
         if (value == null || value.isEmpty()) return "";
@@ -136,12 +138,22 @@ public final class HeartbeatIngressPolicy {
         int normalizedCodePoints = 0;
         int sourceLimit = Math.min(value.length(), MAX_BOUNDARY_SOURCE_CODE_UNITS);
         for (int offset = 0; offset < sourceLimit;) {
-            int codePoint = value.codePointAt(offset);
-            offset += Character.charCount(codePoint);
-
-            if (codePoint >= Character.MIN_SURROGATE
-                    && codePoint <= Character.MAX_SURROGATE) {
+            char first = value.charAt(offset);
+            int codePoint;
+            if (Character.isHighSurrogate(first)) {
+                if (offset + 1 < sourceLimit && Character.isLowSurrogate(value.charAt(offset + 1))) {
+                    codePoint = Character.toCodePoint(first, value.charAt(offset + 1));
+                    offset += 2;
+                } else {
+                    codePoint = 0xfffd;
+                    offset += 1;
+                }
+            } else if (Character.isLowSurrogate(first)) {
                 codePoint = 0xfffd;
+                offset += 1;
+            } else {
+                codePoint = first;
+                offset += 1;
             }
 
             if (Character.isISOControl(codePoint)
