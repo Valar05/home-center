@@ -36,6 +36,7 @@ def complete_result(**overrides):
         "staleBaseGroups": [],
         "unverifiedBaseGroups": [],
         "portableFallbackAttempted": False,
+        "capability": {"currentOwnerCustodyProvided": True},
     }
     result.update(overrides)
     return result
@@ -127,6 +128,7 @@ def main() -> int:
         "artifactCandidatesObserved",
         "discoveryErrors",
         "currentOwnerBlobs",
+        "capability",
     )
     assert OWNER_AUTHORITY_FIELDS == (
         "collisionSets",
@@ -200,13 +202,25 @@ def main() -> int:
         incomplete_with_diagnostics,
     )["ownerEvidenceAdmitted"] is False
 
-    no_owner = admit_selected_backend_result(
+    # Presence is evidence independent of map truthiness: explicit empty custody stays provided.
+    explicit_empty_owner_custody = admit_selected_backend_result(
         descriptor,
         complete_result(currentOwnerBlobs={}),
     )
-    assert no_owner["exhaustiveEvidenceAdmitted"] is True
-    assert no_owner["currentOwnerCustodyProvided"] is False
-    assert no_owner["ownerEvidenceAdmitted"] is False
+    assert explicit_empty_owner_custody["exhaustiveEvidenceAdmitted"] is True
+    assert explicit_empty_owner_custody["currentOwnerCustodyProvided"] is True
+    assert explicit_empty_owner_custody["ownerEvidenceAdmitted"] is False
+
+    omitted_owner_custody = admit_selected_backend_result(
+        descriptor,
+        complete_result(
+            currentOwnerBlobs={},
+            capability={"currentOwnerCustodyProvided": False},
+        ),
+    )
+    assert omitted_owner_custody["exhaustiveEvidenceAdmitted"] is True
+    assert omitted_owner_custody["currentOwnerCustodyProvided"] is False
+    assert omitted_owner_custody["ownerEvidenceAdmitted"] is False
 
     expect_rejected(
         descriptor,
@@ -259,6 +273,24 @@ def main() -> int:
         descriptor,
         complete_result(currentOwnerBlobs={OWNER: BASE.upper()}),
         "40 lowercase hexadecimal",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(capability=None),
+        "capability",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(capability={"currentOwnerCustodyProvided": "yes"}),
+        "currentOwnerCustodyProvided",
+    )
+    expect_rejected(
+        descriptor,
+        complete_result(
+            currentOwnerBlobs={OWNER: BASE},
+            capability={"currentOwnerCustodyProvided": False},
+        ),
+        "cannot carry currentOwnerBlobs",
     )
     expect_rejected(
         descriptor,
