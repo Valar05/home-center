@@ -1,0 +1,64 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T10:02:00-05:00",
+  "reviewedSourceHead": "90695b5c64779e16a7c092f2d81a9f30596ff900",
+  "previousPublicationHead": "6969a231aa6069793569861e06155e5713eb84b7",
+  "fronts": [
+    {
+      "name": "legacy broad custody regression",
+      "state": "CONVERGED_SOURCE_UNEXECUTED",
+      "change": "v7/ownerWired=false/portable-only assumptions replaced by current v10 backend-conditional source contract"
+    },
+    {
+      "name": "descriptor failure evidence parity",
+      "state": "RED_SOURCE_UNEXECUTED",
+      "change": "focused regression now requires preserved observed-work counts and identified artifact path/kind while zero promotion authority remains fail-closed"
+    },
+    {
+      "name": "backend custody Warm Wall",
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "change": "existing touch/keyboard/native-radio specimen exposes failure-evidence parity RED and contact preservation PARTIAL; runtime TalkBack remains NO"
+    },
+    {
+      "name": "operator-owner-surgery-custody skill",
+      "state": "CONVERGED_SOURCE",
+      "change": "durable law now separates zero authority from observed-work evidence and records the current RED descriptor failure boundary"
+    }
+  ],
+  "crossPollination": "Legacy v7 convergence forced backend-conditional review; that review exposed descriptor success-path evidence language masking failure-path count/artifact-identity loss; Regnet turned the discrepancy into a focused RED boundary; Hunger then forced the existing skill and accessible Warm Wall to expose the same capability truth.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "regnetVerdict": "PASS_BOUNDED_SOURCE__LEGACY_V10_CONVERGED__DESCRIPTOR_FAILURE_EVIDENCE_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_FAILURE_EVIDENCE_OWNER_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "execution": {
+    "exactReviewedHeadWorkflowRunsObserved": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "legacyBroadFixtureConverged": true,
+    "descriptorFailureEvidenceParityImplemented": false,
+    "descriptorFailureEvidenceParityRedSource": true,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
