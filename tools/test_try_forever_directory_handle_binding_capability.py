@@ -3,10 +3,12 @@
 
 SOURCE ONLY / UNEXECUTED. Besides ordinary capability classification, this fixture pins the public
 machine-input boundary: caller-owned string subclasses and truthy Python objects must be rejected
-before equality/truthiness callbacks can participate in platform evidence.
+before equality/truthiness callbacks can participate in platform evidence, and exact OS-name text
+must cross a finite source ceiling before comparison.
 """
 
 from try_forever_directory_handle_binding_capability import (
+    MAX_OS_NAME_CODEPOINTS,
     classify_directory_handle_binding_capability,
 )
 
@@ -83,6 +85,24 @@ def test_os_name_subclass_is_rejected_before_equality_callback():
     HostileString.callback_count = 0
     _expect_rejected_without_callback(os_name=HostileString("posix"))
     assert HostileString.callback_count == 0
+
+
+def test_os_name_source_ceiling_precedes_capability_comparison():
+    exact_max = "x" * MAX_OS_NAME_CODEPOINTS
+    verdict = classify_directory_handle_binding_capability(
+        **_ordinary_inputs(os_name=exact_max)
+    )
+    assert verdict.status == "PORTABLE_ATOMIC_BINDING_UNAVAILABLE"
+    assert verdict.os_name == exact_max
+
+    try:
+        classify_directory_handle_binding_capability(
+            **_ordinary_inputs(os_name="x" * (MAX_OS_NAME_CODEPOINTS + 1))
+        )
+    except ValueError as exc:
+        assert "source ceiling" in str(exc)
+    else:
+        raise AssertionError("overlong OS-name token crossed capability admission")
 
 
 def test_truthy_objects_are_rejected_before_bool_callback():
