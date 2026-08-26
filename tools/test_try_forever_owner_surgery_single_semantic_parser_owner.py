@@ -19,6 +19,11 @@ DEAD_LOCAL_PARSER_SYMBOLS = (
     "STATE_RE",
     "DELTA_BASE_KEYS",
     "DELTA_STATE_KEYS",
+    "DELTA_SCHEMA",
+    "DEFAULT_OWNER",
+    "admit_default_owner_from_patch",
+    "admit_patch_metadata",
+    "admit_owner_surgery_state",
 )
 
 
