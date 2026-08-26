@@ -7,9 +7,10 @@ selection, backend selection, authority grouping, patch application, overlay mut
 or P0 work.
 
 Canonical v10 consumes this producer after its own bounded artifact observation for both the portable
-and held-directory descriptor backends. Direct callers are also kept behind the same 1 MiB semantic
-observation ceiling before encode/hash work. That is SOURCE_WIRED composition only: regression
-execution, TESTED, runtime, deployment, delivery, and acceptance remain separate capability states.
+and held-directory descriptor backends. Direct callers are also kept behind finite scalar and content
+throats before membership, regex, encode, hash, or diagnostic projection work. That is SOURCE_WIRED
+composition only: regression execution, TESTED, runtime, deployment, delivery, and acceptance remain
+separate capability states.
 """
 
 from __future__ import annotations
@@ -37,6 +38,11 @@ DELTA_STATE_KEYS = ("state", "status")
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 MAX_SEMANTIC_OBSERVATION_BYTES = 1_048_576
+MAX_SEMANTIC_PATH_CODEPOINTS = MAX_SEMANTIC_OBSERVATION_BYTES
+MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS = 16
+MAX_SEMANTIC_SHA256_CODEPOINTS = 64
+MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS = 96
+_DIAGNOSTIC_DIGEST_CHARS = 16
 
 
 class OwnerSurgerySemanticError(ValueError):
@@ -58,11 +64,38 @@ class OwnerSurgerySemanticRecord:
         return asdict(self)
 
 
+def _diagnostic_digest(value: str) -> str:
+    """Fingerprint exact diagnostic source text without normalizing canonical evidence."""
+
+    return hashlib.sha256(value.encode("utf-8", errors="surrogatepass")).hexdigest()[
+        :_DIAGNOSTIC_DIGEST_CHARS
+    ]
+
+
+def _project_diagnostic_text(value: str) -> str:
+    """Project one exact source string into bounded ASCII-only diagnostic evidence.
+
+    Long input collapses before JSON escaping so a bounded semantic observation cannot expand into a
+    many-megabyte rejection string. Short input is escaped with ``ensure_ascii=True`` so newline,
+    bidi controls, lone surrogates, and other layout hazards never enter operator/log prose raw.
+    Canonical source evidence is not rewritten or fed back into semantic admission.
+    """
+
+    if len(value) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
+        return f"<text>...#{_diagnostic_digest(value)}"
+    escaped = json.dumps(value, ensure_ascii=True, separators=(",", ":"))[1:-1]
+    if len(escaped) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
+        return f"<text>...#{_diagnostic_digest(value)}"
+    return escaped
+
+
 def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
     result: dict[str, object] = {}
     for key, value in pairs:
         if key in result:
-            raise OwnerSurgerySemanticError(f"duplicate JSON member: {key}")
+            raise OwnerSurgerySemanticError(
+                f"duplicate JSON member [{_project_diagnostic_text(key)}]"
+            )
         result[key] = value
     return result
 
@@ -98,13 +131,35 @@ def _admit_exact_observation(
 
     if type(path) is not str or not path:
         raise OwnerSurgerySemanticError("path must be one non-empty exact built-in string")
-    if type(artifact_kind) is not str or artifact_kind not in {"patch", "delta_json"}:
+    if len(path) > MAX_SEMANTIC_PATH_CODEPOINTS:
+        raise OwnerSurgerySemanticError(
+            "path exceeds semantic source ceiling "
+            f"{MAX_SEMANTIC_PATH_CODEPOINTS} code points"
+        )
+
+    if type(artifact_kind) is not str:
+        raise OwnerSurgerySemanticError("artifact_kind must be one exact built-in string")
+    if len(artifact_kind) > MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS:
+        raise OwnerSurgerySemanticError(
+            "artifact_kind exceeds semantic source ceiling "
+            f"{MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS} code points"
+        )
+    if artifact_kind not in {"patch", "delta_json"}:
         raise OwnerSurgerySemanticError("artifact_kind must be exact 'patch' or 'delta_json'")
+
     if type(utf8_text) is not str:
         raise OwnerSurgerySemanticError("utf8_text must be one exact built-in string")
     if type(byte_count) is not int or byte_count < 0:
         raise OwnerSurgerySemanticError("byte_count must be one non-negative exact built-in integer")
-    if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
+
+    if type(sha256) is not str:
+        raise OwnerSurgerySemanticError("sha256 must be one exact built-in string")
+    if len(sha256) != MAX_SEMANTIC_SHA256_CODEPOINTS:
+        raise OwnerSurgerySemanticError(
+            "sha256 must be exactly "
+            f"{MAX_SEMANTIC_SHA256_CODEPOINTS} lowercase hexadecimal characters"
+        )
+    if SHA256_RE.fullmatch(sha256) is None:
         raise OwnerSurgerySemanticError("sha256 must be one exact lowercase SHA-256 string")
 
     # Canonical v10 already supplies content from a 1 MiB bounded artifact observation. Keep this
@@ -185,8 +240,16 @@ def _parse_delta(
 
     if type(payload) is not dict:
         raise OwnerSurgerySemanticError("owner delta root must be one exact JSON object")
-    if payload.get("schema") != DELTA_SCHEMA:
-        raise OwnerSurgerySemanticError(f"unsupported owner delta schema: {payload.get('schema')!r}")
+
+    schema = payload.get("schema")
+    if type(schema) is not str:
+        raise OwnerSurgerySemanticError(
+            f"unsupported owner delta schema type: {type(schema).__name__}"
+        )
+    if schema != DELTA_SCHEMA:
+        raise OwnerSurgerySemanticError(
+            f"unsupported owner delta schema [{_project_diagnostic_text(schema)}]"
+        )
 
     owner = admit_owner_identity(payload.get("owner"), field="delta owner")
     base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob")
@@ -244,7 +307,9 @@ def parse_owner_surgery_observation(
     except OwnerSurgerySemanticError:
         raise
     except (UnicodeError, ValueError) as exc:
-        raise OwnerSurgerySemanticError(f"semantic admission failed: {type(exc).__name__}: {exc}") from exc
+        raise OwnerSurgerySemanticError(
+            f"semantic admission failed inside typed dependency: {type(exc).__name__}"
+        ) from exc
 
 
 def source_receipt() -> dict[str, object]:
@@ -255,6 +320,11 @@ def source_receipt() -> dict[str, object]:
         "boundedObservationAdmission": True,
         "observationByteCeiling": MAX_SEMANTIC_OBSERVATION_BYTES,
         "preEncodeCodepointCeiling": MAX_SEMANTIC_OBSERVATION_BYTES,
+        "pathCodepointCeiling": MAX_SEMANTIC_PATH_CODEPOINTS,
+        "artifactKindCodepointCeiling": MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS,
+        "sha256CodepointLength": MAX_SEMANTIC_SHA256_CODEPOINTS,
+        "boundedAsciiDiagnosticProjection": True,
+        "diagnosticSegmentCharCeiling": MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
         "patchSemanticProduction": True,
