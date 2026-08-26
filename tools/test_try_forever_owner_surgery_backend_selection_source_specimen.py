@@ -16,7 +16,7 @@ def main() -> int:
 
     # Native interaction and touch geometry stay first-class rather than simulated div controls.
     assert '<fieldset aria-describedby="detail">' in html
-    assert html.count('input type="radio" name="backend"') >= 11
+    assert html.count('input type="radio" name="backend"') >= 13
     assert "min-height: 56px" in html
     assert "label:focus-within" in html
 
@@ -27,11 +27,22 @@ def main() -> int:
     assert '<title id="diagram-title">' in html
     assert '<desc id="diagram-desc">' in html
 
-    # The current machine-control source throat is inspectable without claiming runtime behavior.
+    # Machine-control and semantic source throats are inspectable without claiming runtime behavior.
     assert "BOUNDED CONTROL THROATS: SOURCE_WIRED" in html
     assert 'value="bounded-controls"' in html
     assert "finite source ceilings" in html
     assert "Accepted text is preserved exactly" in html
+    assert "SEMANTIC RESOURCE THROATS: SOURCE_WIRED" in html
+    assert 'value="semantic-throats"' in html
+    assert "Content remains capped at one MiB" in html
+    assert "SHA length is checked before regex" in html
+
+    # Exact source evidence and human-facing rejection prose remain separate ownership classes.
+    assert "SEMANTIC DIAGNOSTIC PROJECTION: SOURCE_WIRED" in html
+    assert 'value="diagnostics"' in html
+    assert "DIAGNOSTIC PROJECTION ≠ EVIDENCE" in html
+    assert "bounded ASCII-safe projection" in html
+    assert "projected prose never feeds authority" in html
 
     # Reduced-motion and no-casino constraints remain explicit source laws.
     assert "prefers-reduced-motion: reduce" in html
