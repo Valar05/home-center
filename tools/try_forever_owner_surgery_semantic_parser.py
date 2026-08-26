@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Pure semantic producer for already-custodied TRY FOREVER owner-surgery bytes.
 
-This module closes one source gap between stronger descriptor custody and canonical v10 grouping: it
-can turn one exact, already-observed UTF-8 artifact plus its byte/SHA witness into the same semantic
-fields used by canonical ``Surgery`` records. It performs no filesystem lookup, root selection,
-backend selection, authority grouping, patch application, overlay mutation, phone work, or P0 work.
+This module turns one exact, already-observed UTF-8 artifact plus its byte/SHA witness into the same
+semantic fields used by canonical ``Surgery`` records. It performs no filesystem lookup, root
+selection, backend selection, authority grouping, patch application, overlay mutation, phone work,
+or P0 work.
 
-The canonical v10 owner does not consume this producer yet. Therefore this is SUPPORTING SOURCE,
-not canonical owner composition, regression execution, TESTED, runtime, deployment, delivery, or
-acceptance.
+Canonical v10 now consumes this producer after its own bounded artifact observation for both patch
+and delta semantics. That is SOURCE_WIRED composition only: regression execution, TESTED, descriptor
+backend composition, runtime, deployment, delivery, and acceptance remain separate capability
+states.
 """
 
 from __future__ import annotations
@@ -234,7 +235,7 @@ def source_receipt() -> dict[str, object]:
         "strictUtf8EncodeFailureTyped": True,
         "patchSemanticProduction": True,
         "deltaSemanticProduction": True,
-        "canonicalOwnerConsumption": False,
+        "canonicalOwnerConsumption": True,
         "descriptorBackendConsumption": False,
         "regressionExecuted": False,
         "tested": False,
