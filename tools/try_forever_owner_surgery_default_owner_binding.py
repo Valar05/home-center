@@ -8,6 +8,9 @@ proves that it targets exactly the canonical default owner. An arbitrary textual
 This module owns no patch execution, grouping authority, phone lane, P0 work, or second custody
 probe. The canonical custody owner now consumes this contract; that is source wiring only, not
 regression execution, TESTED, runtime, deployment, delivery, or acceptance.
+
+Patch text and the default-owner identity are machine evidence, not extensible Python callback
+surfaces. Both public inputs must be exact built-in strings before regex or formatting/equality work.
 """
 
 from __future__ import annotations
@@ -45,13 +48,16 @@ def admit_default_owner_from_patch(
 
     The finite artifact reader in the canonical custody owner is the enclosing byte/resource throat.
     This policy observes only zero/one/at-least-two ``diff --git`` headers. It performs no trimming,
-    case folding, path normalization, basename matching, or arbitrary substring search.
+    case folding, path normalization, basename matching, arbitrary substring search, or callback-
+    capable string coercion.
     """
 
-    if not isinstance(text, str):
-        raise DefaultOwnerBindingError("patch text must be one string")
-    if not isinstance(default_owner, str) or not default_owner:
-        raise DefaultOwnerBindingError("default owner must be one non-empty exact repository path")
+    if type(text) is not str:
+        raise DefaultOwnerBindingError("patch text must be one exact built-in string")
+    if type(default_owner) is not str or not default_owner:
+        raise DefaultOwnerBindingError(
+            "default owner must be one non-empty exact built-in repository-path string"
+        )
 
     first, second = _first_two_diff_headers(text)
     if first is None:
@@ -80,6 +86,8 @@ def source_receipt() -> dict[str, object]:
     return {
         "schema": SCHEMA,
         "arbitraryOwnerSubstringAuthority": False,
+        "exactBuiltinPatchTextAdmission": True,
+        "exactBuiltinDefaultOwnerAdmission": True,
         "exactSingleDiffHeaderRequired": True,
         "multiFileFallbackRejected": True,
         "normalizationDependentPathAuthority": False,
