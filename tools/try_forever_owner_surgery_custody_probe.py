@@ -26,7 +26,6 @@ import os
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
 
 from try_forever_directory_handle_binding_capability import (
     current_directory_handle_binding_capability,
@@ -70,6 +69,9 @@ MAX_ARTIFACT_BYTES = 1_048_576
 MAX_CUSTODY_ARTIFACTS = 2_048
 MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
 MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS = MAX_OWNER_IDENTITY_CODEPOINTS + 1 + 40
+MAX_PROGRAMMATIC_ARGV_ITEMS = 4_096
+MAX_PROGRAMMATIC_ARG_CODEPOINTS = MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
+MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
@@ -593,6 +595,11 @@ def classify(
             "exactCurrentOwnerCliListAdmission": True,
             "boundedCurrentOwnerCliAssignmentAdmission": True,
             "currentOwnerCliAssignmentCodepointCeiling": MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
+            "exactProgrammaticArgvAdmission": True,
+            "boundedProgrammaticArgvAdmission": True,
+            "programmaticArgvItemCeiling": MAX_PROGRAMMATIC_ARGV_ITEMS,
+            "programmaticArgCodepointCeiling": MAX_PROGRAMMATIC_ARG_CODEPOINTS,
+            "programmaticArgvTotalCodepointCeiling": MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS,
             "currentOwnerCustodyPresencePreserved": True,
             "exactClassificationRootAdmission": True,
             "exactClassificationBudgetAdmission": True,
@@ -641,7 +648,37 @@ def _parse_owner_blob(values: list[str]) -> dict[str, str]:
     return _admit_current_owner_blobs(result)
 
 
-def main(argv: Iterable[str] | None = None) -> int:
+def _admit_programmatic_argv(argv: list[str]) -> list[str]:
+    """Detach one finite exact argv vector before argparse may traverse caller evidence."""
+
+    if type(argv) is not list:
+        raise ValueError("programmatic argv requires one exact built-in list")
+    if len(argv) > MAX_PROGRAMMATIC_ARGV_ITEMS:
+        raise ValueError(
+            "programmatic argv exceeds source item ceiling "
+            f"{MAX_PROGRAMMATIC_ARGV_ITEMS}"
+        )
+
+    total_codepoints = 0
+    for raw in argv:
+        if type(raw) is not str:
+            raise ValueError("programmatic argv members must be exact built-in strings")
+        if len(raw) > MAX_PROGRAMMATIC_ARG_CODEPOINTS:
+            raise ValueError(
+                "programmatic argv member exceeds source ceiling "
+                f"{MAX_PROGRAMMATIC_ARG_CODEPOINTS} code points"
+            )
+        total_codepoints += len(raw)
+        if total_codepoints > MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS:
+            raise ValueError(
+                "programmatic argv exceeds total source ceiling "
+                f"{MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS} code points"
+            )
+
+    return argv.copy()
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--patch-root", default=str(PATCH_ROOT))
     parser.add_argument(
@@ -651,7 +688,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         metavar="OWNER=BLOB",
         help="Authenticated current owner blob; repeat for multiple owners.",
     )
-    args = parser.parse_args(list(argv) if argv is not None else None)
+    args = parser.parse_args(_admit_programmatic_argv(argv) if argv is not None else None)
 
     try:
         current_owner_blobs = _parse_owner_blob(args.current_owner)
