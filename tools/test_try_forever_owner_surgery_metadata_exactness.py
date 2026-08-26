@@ -6,6 +6,7 @@ custody owner SOURCE_WIRED until an authorized regression lane actually executes
 """
 
 from try_forever_owner_surgery_metadata_exactness import (
+    MAX_DIAGNOSTIC_FIELD_CODEPOINTS,
     MAX_OWNER_IDENTITY_CODEPOINTS,
     OwnerSurgeryMetadataError,
     admit_owner_identity,
@@ -62,6 +63,41 @@ def test_owner_identity_has_pre_group_resource_ceiling():
     assert receipt["exactBuiltinOwnerStringAdmission"] is True
     assert receipt["boundedOwnerIdentityAdmission"] is True
     assert receipt["ownerIdentityCodepointCeiling"] == MAX_OWNER_IDENTITY_CODEPOINTS
+
+
+def test_diagnostic_field_is_exact_and_bounded_before_error_formatting():
+    callbacks = {"str": False, "format": False}
+
+    class HostileField(str):
+        def __str__(self):
+            callbacks["str"] = True
+            raise AssertionError("caller-owned __str__ callback executed")
+
+        def __format__(self, spec):
+            callbacks["format"] = True
+            raise AssertionError("caller-owned __format__ callback executed")
+
+    expect_rejected(
+        lambda: admit_owner_identity("tools/owner.py", field=HostileField("hostile")),
+        "diagnostic field context",
+    )
+    assert callbacks == {"str": False, "format": False}
+
+    assert admit_owner_identity("tools/owner.py", field="f" * MAX_DIAGNOSTIC_FIELD_CODEPOINTS) == (
+        "tools/owner.py"
+    )
+    expect_rejected(
+        lambda: admit_owner_identity(
+            "tools/owner.py",
+            field="f" * (MAX_DIAGNOSTIC_FIELD_CODEPOINTS + 1),
+        ),
+        "diagnostic field context exceeds source ceiling",
+    )
+
+    receipt = source_receipt()
+    assert receipt["diagnosticFieldExact"] is True
+    assert receipt["boundedDiagnosticFieldAdmission"] is True
+    assert receipt["diagnosticFieldCodepointCeiling"] == MAX_DIAGNOSTIC_FIELD_CODEPOINTS
 
 
 def canonical_patch(extra: str = "") -> str:
