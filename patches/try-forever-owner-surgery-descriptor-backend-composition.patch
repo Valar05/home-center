@@ -1,10 +1,12 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05
+# RESULT OWNER BLOB: ebc1a0a13658612e0e16d54f534e78e11ad9d74a
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # PURPOSE: Compose the existing canonical v10 owner with the already-owned backend selector and HeldDirectoryCustody without adding sidecar authority or silent weaker fallback.
-# CAPABILITY: PROPOSED SOURCE ONLY; canonical descriptor consumption remains NO until exact owner mutation + authenticated readback. Regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain NO.
+# CAPABILITY: APPLIED SOURCE with authenticated owner readback; canonical descriptor consumption is SOURCE_WIRED. Regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain NO.
 # CONTACT PRESERVATION: Preserve artifactDirectoryEntriesObserved, artifactCandidatesObserved, discoveryErrors, currentOwnerBlobs, collisionSets, staleBaseGroups, unverifiedBaseGroups, artifactContentWitnesses, portable primary behavior when descriptor primitives are unavailable, and zero partial authority on discovery wounds.
 # RECOVERY LAW: Once HELD_DIRECTORY_DESCRIPTOR is selected, descriptor setup/inventory/read/cleanup failure fails that classification attempt closed; do not reroute through portable pathname custody.
+# FOLLOW-UP HARDENING: canonical classify now admits the exact platform Path and exact built-in integer budgets before backend dispatch or portable comparisons.
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
@@ -98,6 +100,13 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
  def classify(
 @@
  ) -> dict[str, object]:
++    root = _admit_classification_root(root)
++    max_candidates = _admit_classification_budget(
++        max_candidates, field="max_candidates", maximum=MAX_CUSTODY_ARTIFACTS
++    )
++    max_entries = _admit_classification_budget(
++        max_entries, field="max_entries", maximum=MAX_CUSTODY_DIRECTORY_ENTRIES
++    )
      current_owner_blobs = _admit_current_owner_blobs(current_owner_blobs)
 -    surgeries: list[Surgery] = []
 -    discovery_errors: list[DiscoveryError] = []
