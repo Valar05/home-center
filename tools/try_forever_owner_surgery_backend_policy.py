@@ -191,7 +191,7 @@ def _admit_promotion_candidate(
         raise ValueError(f"{field} promotion candidate path must be one non-empty string")
 
     artifact_kind = candidate.get("artifact_kind")
-    if artifact_kind not in {"patch", "delta_json"}:
+    if type(artifact_kind) is not str or artifact_kind not in {"patch", "delta_json"}:
         raise ValueError(f"{field} promotion candidate artifact_kind is unsupported")
 
     state = candidate.get("state")
