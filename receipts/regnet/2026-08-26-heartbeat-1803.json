@@ -1,0 +1,88 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "51afc82ab897ea27ddc6ab2a2db8b59b7ad7e25a",
+  "verdict": "PASS_BOUNDED_SOURCE__PERSISTED_POLL_DEDUP_SOURCE_WORK_SOURCE_WIRED__DIRECT_STRING_PREENCODE_REVISE_REQUIRED__ENVELOPE_PREPARSE_REVISE_REQUIRED__SEMANTIC_PARSER_CLEANUP_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "persistedPollDedupSourceWork": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedPollPolicy.java",
+      "ownerBlob": "42421e9d74b1c3637408311e7e8d5ee90878c593",
+      "payloadBase64CeilingDerivedFromCanonicalByteBudget": true,
+      "shaMetadataCodeUnitCeiling": 4096,
+      "oversizedEvidenceAction": "PROJECT_NOT_SKIP_UNCHANGED",
+      "contactPreservation": "exact oversized evidence is not normalized/truncated and remains on the existing verification/fail-closed contact path",
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedPollSourceResourceThroatTest.java",
+      "regressionBlob": "fa5c3928e07202e12a797d82825dcf68c5a98935",
+      "regressionExecuted": false
+    },
+    "persistedStringPreencodeResourceThroat": {
+      "state": "REVISE_REQUIRED_PROPOSED_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java",
+      "ownerBlob": "f4e4b602cfe91717cef02fab0394ea99558353d2",
+      "proposal": "patches/try-forever-heartbeat-persisted-string-preencode-resource-throat.patch",
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java",
+      "wound": "direct String compatibility adapter can perform unbounded UTF-8 encoding before the existing decoded-byte ceiling",
+      "regressionExecuted": false
+    },
+    "envelopePreparseResourceThroat": {
+      "state": "REVISE_REQUIRED_PROPOSED_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+      "ownerBlob": "9cdd14517f2538296952618173bf47474374477b",
+      "proposal": "patches/try-forever-heartbeat-envelope-preparse-resource-throat.patch",
+      "proposedSourceCodeUnitCeiling": 32768,
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopePreparseResourceThroatTest.java",
+      "regressionExecuted": false
+    },
+    "singleSemanticParserOwnership": {
+      "state": "REVISE_REQUIRED_CORRECTED_PROPOSED_NOT_APPLIED",
+      "canonicalOwner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "canonicalOwnerBlob": "f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d",
+      "activeSemanticOwner": "tools/try_forever_owner_surgery_semantic_parser.py",
+      "cleanupPatch": "patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch",
+      "regression": "tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py",
+      "wound": "shared semantic delegation is active but dormant local parser imports/constants/helpers remain",
+      "regressionExecuted": false
+    },
+    "accessibilityReview": {
+      "state": "REVIEWED_NO_MUTATION_REQUIRED",
+      "path": "docs/try-forever/heartbeat-ingress-separation-source-specimen.html",
+      "nativeControls": true,
+      "touchRowsAtLeast56Px": true,
+      "visibleFocus": true,
+      "nonColorLiveStatus": true,
+      "inlineSvgSemantics": true,
+      "reducedMotion": true,
+      "infiniteBlink": false,
+      "runtimeTalkBack": false,
+      "reason": "machine-evidence resource topology changed; operator interaction topology did not, so duplicate UI/art mutation was refused"
+    }
+  },
+  "skillActivation": [
+    "heartbeat-persisted-poll-contact",
+    "heartbeat-predecode-resource-budget",
+    "heartbeat-source-bound-parity",
+    "semantic-text-safety"
+  ],
+  "executionTruth": {
+    "head": "51afc82ab897ea27ddc6ab2a2db8b59b7ad7e25a",
+    "pullRequestWorkflowRunsObserved": 0,
+    "commitStatusesObserved": 0,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "authoritativeSurfaceResult": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
