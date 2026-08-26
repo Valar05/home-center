@@ -10,7 +10,6 @@ The fixture is intentionally SOURCE / UNEXECUTED and must not be reported as TES
 """
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import pytest
 
