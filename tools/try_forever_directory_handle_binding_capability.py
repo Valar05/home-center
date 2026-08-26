@@ -12,14 +12,19 @@ remain separate gates.
 
 Capability classification is a machine-evidence boundary, not an extensible Python callback
 surface. Every public control input is admitted as its exact built-in scalar type before equality or
-truthiness can participate in selection. A caller-owned ``str`` subclass or truthy object therefore
-cannot execute code while manufacturing platform capability evidence.
+truthiness can participate in selection. The OS-name token also crosses a small source ceiling before
+comparison, so exact-but-unbounded caller text cannot become capability-classification work. A
+caller-owned ``str`` subclass or truthy object therefore cannot execute code while manufacturing
+platform capability evidence.
 """
 
 from __future__ import annotations
 
 import os
 from dataclasses import asdict, dataclass
+
+
+MAX_OS_NAME_CODEPOINTS = 64
 
 
 @dataclass(frozen=True)
@@ -50,6 +55,8 @@ def _require_exact_capability_inputs(
 ) -> None:
     if type(os_name) is not str:
         raise ValueError("os_name must be one exact built-in string")
+    if len(os_name) > MAX_OS_NAME_CODEPOINTS:
+        raise ValueError(f"os_name exceeds source ceiling {MAX_OS_NAME_CODEPOINTS} code points")
 
     boolean_inputs = {
         "scandir_accepts_fd": scandir_accepts_fd,
