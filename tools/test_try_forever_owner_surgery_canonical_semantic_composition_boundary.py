@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RED SOURCE-ONLY boundary for canonical v10 → exact-observation semantic producer composition.
+"""SOURCE-ONLY convergence fixture for canonical v10 → exact-observation semantic producer composition.
 
-This fixture is intentionally expected to remain RED until the existing canonical custody owner is
-mutated in place. It forbids sidecar authority: both canonical patch and delta inspection functions
-must call the already-owned pure ``parse_owner_surgery_observation`` producer after their bounded
-artifact observation. Presence of this file is not regression execution or TESTED evidence.
+The existing canonical custody owner must observe each artifact once, then delegate patch/delta
+semantics to the already-owned pure ``parse_owner_surgery_observation`` producer. The fixture also
+rejects split semantic parsing inside either canonical inspection function. Presence of this file is
+not regression execution or TESTED evidence.
 """
 
 import ast
@@ -35,6 +35,17 @@ def main() -> int:
         calls = _called_names(function)
         assert "_observe_bounded_utf8" in calls
         assert "parse_owner_surgery_observation" in calls
+
+        segment = ast.get_source_segment(source, function)
+        assert segment is not None
+        assert segment.index("_observe_bounded_utf8") < segment.index(
+            "parse_owner_surgery_observation"
+        )
+        assert "admit_patch_metadata(" not in segment
+        assert "admit_default_owner_from_patch(" not in segment
+        assert "json.loads(" not in segment
+        assert "semantic.artifact_sha256" in segment
+        assert "semantic.artifact_byte_count" in segment
     return 0
 
 
