@@ -105,11 +105,17 @@ def _same_identity(left: DescriptorIdentity, right: DescriptorIdentity) -> bool:
 
 
 def _require_simple_name(name: str) -> str:
-    if not isinstance(name, str) or not name or name in {".", ".."}:
+    if type(name) is not str or not name or name in {".", ".."}:
         raise DescriptorArtifactCustodyError("candidate name must be one non-empty basename")
     if "\x00" in name or "/" in name or (os.altsep and os.altsep in name):
         raise DescriptorArtifactCustodyError("candidate name must not contain path traversal syntax")
     return name
+
+
+def _require_non_negative_budget(value: int, *, field: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(f"{field} must be one non-negative exact built-in integer")
+    return value
 
 
 def _directory_open_flags() -> int:
@@ -233,8 +239,8 @@ class HeldDirectoryCustody:
         Cleanup-close failure is typed when it is the only failure and cannot mask an earlier inventory wound.
         """
 
-        if max_entries < 0 or max_candidates < 0:
-            raise ValueError("custody budgets must be non-negative")
+        max_entries = _require_non_negative_budget(max_entries, field="max_entries")
+        max_candidates = _require_non_negative_budget(max_candidates, field="max_candidates")
         entries_seen = 0
         candidates: list[DescriptorCandidate] = []
         try:
@@ -360,9 +366,12 @@ class HeldDirectoryCustody:
         """
 
         name = _require_simple_name(name)
-        if max_bytes < 0:
-            raise ValueError("artifact byte budget must be non-negative")
+        max_bytes = _require_non_negative_budget(max_bytes, field="max_bytes")
         if expected_candidate is not None:
+            if type(expected_candidate) is not DescriptorCandidate:
+                raise DescriptorArtifactCustodyError(
+                    "expected_candidate must be one exact DescriptorCandidate"
+                )
             if expected_candidate.name != name:
                 raise DescriptorArtifactCustodyError(
                     "expected candidate identity belongs to a different basename"
