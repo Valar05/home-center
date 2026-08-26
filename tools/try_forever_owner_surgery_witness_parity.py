@@ -5,11 +5,13 @@ The stronger parity invariant is now owned by the existing backend-result integr
 authority admission cannot bypass it. This module remains as the narrow supporting/review surface
 used by witness-focused regressions and doctrine; it delegates to that owner gate instead of
 creating a second inventory parser or circular authority dependency.
+
+The public facade deliberately advertises the same exact built-in ``dict`` contract enforced by the
+downstream integrity owner. A broader ``Mapping`` annotation would promise callback-capable inputs
+that the real owner rejects before semantic reads.
 """
 
 from __future__ import annotations
-
-from collections.abc import Mapping
 
 from try_forever_owner_surgery_backend_result_integrity import (
     BackendWitnessParityError,
@@ -24,7 +26,7 @@ SCHEMA = "try-forever-owner-surgery-witness-parity.v1"
 CanonicalWitnessParityError = BackendWitnessParityError
 
 
-def audit_canonical_witness_parity(result: Mapping[str, object]) -> dict[str, object]:
+def audit_canonical_witness_parity(result: dict[str, object]) -> dict[str, object]:
     """Expose the existing owner's stronger parity audit as a supporting evidence receipt."""
 
     integrity = audit_backend_result_witness_parity(result)
