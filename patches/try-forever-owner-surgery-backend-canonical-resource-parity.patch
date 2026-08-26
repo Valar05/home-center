@@ -1,0 +1,84 @@
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: c4869396902d4c97380a8686dfa9649315c49096
+# OWNER: tools/try_forever_owner_surgery_backend_policy.py
+# PURPOSE: Prevent backend-result admission from widening canonical v10 owner identity, current-owner map cardinality, authority-group cardinality, or authority-member cardinality.
+# CAPABILITY: NO / PROPOSED_NOT_APPLIED
+# REGRESSION: tools/test_try_forever_owner_surgery_backend_canonical_resource_parity.py (RED SOURCE / UNEXECUTED)
+# P0/PHONE: UNTOUCHED
+
+diff --git a/tools/try_forever_owner_surgery_backend_policy.py b/tools/try_forever_owner_surgery_backend_policy.py
+--- a/tools/try_forever_owner_surgery_backend_policy.py
++++ b/tools/try_forever_owner_surgery_backend_policy.py
+@@
+ from try_forever_operator_receipt_snapshot_custody import snapshot_json_mapping
++from try_forever_owner_surgery_metadata_exactness import admit_owner_identity
+ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
+@@
+ MAX_CAPABILITY_STATUS_CODEPOINTS = 128
+ MAX_FAILURE_BOUNDARY_CODEPOINTS = 4_096
++MAX_CANONICAL_CURRENT_OWNER_ITEMS = 2_048
++MAX_CANONICAL_AUTHORITY_GROUPS = 2_048
++MAX_CANONICAL_AUTHORITY_MEMBERS = 2_048
+@@
+ def _admit_current_owner_blobs(result: dict[str, object]) -> dict[str, str]:
+     raw = result.get("currentOwnerBlobs")
+     if type(raw) is not dict:
+         raise ValueError("currentOwnerBlobs must be one mapping")
++    if len(raw) > MAX_CANONICAL_CURRENT_OWNER_ITEMS:
++        raise ValueError(
++            "currentOwnerBlobs exceeds canonical item ceiling "
++            f"{MAX_CANONICAL_CURRENT_OWNER_ITEMS}"
++        )
+ 
+     admitted: dict[str, str] = {}
+     for owner, blob in raw.items():
+-        if type(owner) is not str or not owner:
+-            raise ValueError("currentOwnerBlobs keys must be non-empty owner strings")
++        admitted_owner = admit_owner_identity(owner, field="backend current owner")
+         if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
+             raise ValueError("currentOwnerBlobs values must be 40 lowercase hexadecimal blobs")
+-        admitted[owner] = blob
++        admitted[admitted_owner] = blob
+     return admitted
+@@
+ def _admit_authority_groups(
+     result: dict[str, object],
+     current_owner_blobs: dict[str, str],
+ ) -> dict[str, int]:
+     """Validate authority-group shape and authenticated owner/member relationships."""
+ 
+     counts: dict[str, int] = {}
+     seen_groups: set[tuple[str, str]] = set()
++    groups_observed = 0
++    members_observed = 0
+     for field in OWNER_AUTHORITY_FIELDS:
+         groups = result.get(field)
+         if type(groups) is not list:
+             raise ValueError(f"{field} must be one list")
+         counts[field] = len(groups)
++        groups_observed += len(groups)
++        if groups_observed > MAX_CANONICAL_AUTHORITY_GROUPS:
++            raise ValueError(
++                "authority groups exceed canonical candidate ceiling "
++                f"{MAX_CANONICAL_AUTHORITY_GROUPS}"
++            )
+@@
+-            owner = group.get("owner")
+-            if type(owner) is not str or not owner:
+-                raise ValueError(f"{field} entry owner must be one non-empty string")
++            owner = admit_owner_identity(group.get("owner"), field=f"{field} owner")
+@@
+             promotion_candidates = group.get("promotionCandidates")
+             if type(promotion_candidates) is not list:
+                 raise ValueError(f"{field} entry promotionCandidates must be one list")
+             minimum_members = 2 if field == "collisionSets" else 1
+             if len(promotion_candidates) < minimum_members:
+@@
+                     f"{field} promotionCandidates must contain at least {minimum_members} admitted member(s)"
+                 )
++            members_observed += len(promotion_candidates)
++            if members_observed > MAX_CANONICAL_AUTHORITY_MEMBERS:
++                raise ValueError(
++                    "authority members exceed canonical candidate ceiling "
++                    f"{MAX_CANONICAL_AUTHORITY_MEMBERS}"
++                )
