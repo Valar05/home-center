@@ -3,11 +3,13 @@
 
 from collections.abc import Mapping
 
+import try_forever_operator_receipt_snapshot_custody as snapshot_custody
 from try_forever_operator_receipt_snapshot_admission_policy import (
     MAX_DIAGNOSTIC_CONTEXT_CODEPOINTS,
 )
 from try_forever_operator_receipt_snapshot_custody import (
     MAX_DIAGNOSTIC_PATH_CHARS,
+    MAX_DIAGNOSTIC_SEGMENT_CHARS,
     MAX_SNAPSHOT_INTEGER_BITS,
     MAX_SNAPSHOT_NODES,
     MAX_SNAPSHOT_STRING_CODEPOINTS,
@@ -150,6 +152,27 @@ def main() -> int:
     assert "<text>...#" in long_message, long_message
     assert "very-long-key-very-long-key" not in long_message
     assert_safe_diagnostic(long_message)
+
+    # The whole-key diagnostic digest must be selected before JSON escaping when source text is
+    # already definitely over the segment ceiling. This prevents a bounded one-megabyte key from
+    # creating a much larger ensure_ascii temporary allocation just to discover it should be a digest.
+    assert len(long_key) > MAX_DIAGNOSTIC_SEGMENT_CHARS
+    original_dumps = snapshot_custody.json.dumps
+
+    def guarded_dumps(value, *args, **kwargs):  # type: ignore[no-untyped-def]
+        if type(value) is str and len(value) > MAX_DIAGNOSTIC_SEGMENT_CHARS:
+            raise AssertionError("long diagnostic source reached JSON escaping before digest collapse")
+        return original_dumps(value, *args, **kwargs)
+
+    snapshot_custody.json.dumps = guarded_dumps
+    try:
+        guarded_message = rejection_message(
+            lambda: snapshot_json_mapping({long_key: float("inf")}, field="operator receipt")
+        )
+    finally:
+        snapshot_custody.json.dumps = original_dumps
+    assert "<text>...#" in guarded_message
+    assert_safe_diagnostic(guarded_message)
 
     # Exact JSON shape is enforced at every nesting level. Python JSON conveniences must not rewrite
     # evidence identity by stringifying keys or converting tuples into arrays.
