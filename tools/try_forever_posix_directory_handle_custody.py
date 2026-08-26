@@ -118,6 +118,16 @@ def _require_non_negative_budget(value: int, *, field: str) -> int:
     return value
 
 
+def _require_directory_root(path: Path | str) -> Path:
+    """Admit one exact root value before Path/os.fspath can execute caller-owned code."""
+
+    if type(path) is str:
+        return Path(path)
+    if type(path) is type(Path(".")):
+        return path
+    raise ValueError("directory root must be one exact built-in string or exact platform Path")
+
+
 def _directory_open_flags() -> int:
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
     if hasattr(os, "O_CLOEXEC"):
@@ -152,11 +162,11 @@ class HeldDirectoryCustody:
     """One held POSIX directory descriptor and bounded descriptor-relative operations."""
 
     def __init__(self, path: Path | str):
+        self.path = _require_directory_root(path)
         capability = current_directory_handle_binding_capability()
         if capability.status != "SUPPORTED_POSIX_PRIMITIVES":
             raise PosixDirectoryHandleCustodyUnavailable(capability.boundary)
 
-        self.path = Path(path)
         try:
             self.fd = os.open(os.fspath(self.path), _directory_open_flags())
         except OSError:
