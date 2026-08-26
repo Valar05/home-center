@@ -3,7 +3,7 @@
 ## Purpose
 Select the strongest **admitted** owner-surgery custody backend without silently weakening evidence after a stronger backend has actually been selected by the canonical owner.
 
-This skill owns backend-selection and result-admission doctrine only. It does **not** own a second custody probe, snapshot validator, patch executor, overlay controller, recovery daemon, phone lane, P0 coordinator, or physical acceptance chain.
+This skill owns backend-selection/result-admission doctrine only. It does **not** own a second custody probe, snapshot validator, patch executor, overlay controller, recovery daemon, phone lane, P0 coordinator, or physical acceptance chain.
 
 ## Core laws
 `PLATFORM CAPABILITY ADMISSION != CANONICAL OWNER INTEGRATION`.
@@ -16,7 +16,7 @@ This skill owns backend-selection and result-admission doctrine only. It does **
 
 `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
 
-`STRONGER BACKEND != PERMISSION TO DROP DIRECTORY/CANDIDATE COUNTS, discoveryErrors, currentOwnerBlobs, OR PROMOTION-MEMBER EVIDENCE`.
+`STRONGER BACKEND != PERMISSION TO DROP DIRECTORY/CANDIDATE COUNTS, discoveryErrors, currentOwnerBlobs, PROMOTION-MEMBER EVIDENCE, OR CONTENT WITNESSES`.
 
 `INCOMPLETE EXHAUSTIVE CUSTODY + PROMOTION AUTHORITY = INVALID EVIDENCE`.
 
@@ -30,14 +30,16 @@ This skill owns backend-selection and result-admission doctrine only. It does **
 
 `PUBLIC TYPE CAPABILITY MUST NOT EXCEED RUNTIME ADMISSION`.
 
-`HELD-DESCRIPTOR BYTES != CANONICAL SURGERY SEMANTICS UNTIL THE EXISTING OWNER PARSES THOSE EXACT BYTES`.
+`HELD-DESCRIPTOR BYTES != CANONICAL SURGERY AUTHORITY UNTIL THE EXISTING OWNER PARSES THOSE EXACT BYTES`.
+
+`PURE SEMANTIC PRODUCER != CANONICAL OWNER COMPOSITION`.
 
 `SUPPORTING SOURCE != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
 ## Selection source
 `tools/try_forever_owner_surgery_backend_policy.py` is supporting source only.
 
-- `SUPPORTED_POSIX_PRIMITIVES` selects `HELD_DIRECTORY_DESCRIPTOR` for a **future canonical-owner composition**.
+- `SUPPORTED_POSIX_PRIMITIVES` selects `HELD_DIRECTORY_DESCRIPTOR` for a future canonical-owner composition.
 - `PORTABLE_ATOMIC_BINDING_UNAVAILABLE` keeps `PORTABLE_PATHNAME_REVALIDATION` as the canonical portable backend.
 - Capability tokens are exact built-in strings before equality dispatch; string subclasses are not an admitted control protocol.
 - Failure-boundary text is an exact non-empty built-in string before truthiness/projection.
@@ -46,124 +48,108 @@ This skill owns backend-selection and result-admission doctrine only. It does **
 - Once a canonical classification attempt actually selects held-descriptor custody, descriptor setup/inventory/artifact/cleanup failure terminates that attempt. Do not retry the same evidence through portable custody and call the weaker result equivalent.
 
 ### Platform-capability exact-input custody
-`tools/try_forever_directory_handle_binding_capability.py` now admits its own public control inputs before equality/truthiness classification:
+`tools/try_forever_directory_handle_binding_capability.py` admits its public control inputs before equality/truthiness classification:
+- `os_name` is one exact built-in `str`;
+- every primitive-presence flag is one exact built-in `bool`;
+- caller-owned `str` subclasses and truthy Python objects are rejected before callbacks can participate in capability evidence.
 
-- `os_name` must be one exact built-in `str`;
-- every primitive-presence flag must be one exact built-in `bool`;
-- caller-owned `str` subclasses and truthy Python objects are rejected before their `__eq__` / `__bool__` callbacks can participate in capability evidence.
-
-`tools/test_try_forever_directory_handle_binding_capability.py` carries hostile callback fixtures for that boundary. The fixture is **SOURCE / UNEXECUTED**; source wiring is not test execution.
+`tools/test_try_forever_directory_handle_binding_capability.py` is **SOURCE / UNEXECUTED**.
 
 ### Direct-policy exact-input custody
-The direct result-admission throat now reuses the existing bounded one-observation `snapshot_json_mapping(...)` organ **before any semantic result read**. The public result annotation is `dict[str, object]`, matching runtime exact built-in-dict admission instead of advertising arbitrary `Mapping` capability.
+The direct result-admission throat reuses the existing bounded one-observation `snapshot_json_mapping(...)` organ **before any semantic result read**. Public result type is `dict[str, object]`, matching exact built-in-dict runtime admission.
 
-Root and nested Mapping/dict subclasses, scalar subclasses, tuples, non-string keys, non-finite numbers, and other Python-only shapes therefore fail before caller-owned callback behavior can participate in policy evidence. The detached plain tree is the only result object consumed by semantic admission.
-
-`tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` is **CONVERGENCE SOURCE / UNEXECUTED**. It pins public type convergence, root and nested callback rejection, exact capability/failure strings, exact selection-record custody, ordinary result parity, and ordinary fail-closed projection. Its source presence is not test execution evidence.
+Root/nested Mapping or scalar subclasses, tuples, non-string keys, non-finite numbers, and other Python-only shapes fail before callback behavior can participate in policy evidence. `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` is **CONVERGENCE SOURCE / UNEXECUTED**.
 
 ## Result-admission throat
-`admit_selected_backend_result(...)` is the source-only gate between backend work and owner authority.
+`admit_selected_backend_result(...)` remains the source-only gate between future backend work and owner authority. It requires selected-backend identity, no weaker fallback, bounded entry/candidate metrics, exact evidenceComplete/discoveryErrors agreement, exact currentOwnerBlobs, exact owner/base/member relationships, distinct authority groups/members, and zero promotion authority whenever exhaustive custody is incomplete.
 
-After exact machine-input custody it requires:
-- selected backend identity and no weaker-fallback claim;
-- non-negative integer directory-entry/candidate counts with candidates ≤ entries;
-- `discoveryErrors` and `evidenceComplete` to agree;
-- lowercase authenticated `currentOwnerBlobs`;
-- collision/stale/unverified groups to obey their owner/base/current-owner meanings;
-- every promotion member to be canonical Surgery-shaped evidence for the same owner/base and exact promotion-ready state;
-- distinct members and distinct owner/base groups so duplicate evidence cannot manufacture cardinality;
-- incomplete exhaustive custody to carry **zero** promotion-authority groups.
-
-The gate reports exhaustive evidence separately from owner evidence. A complete scan without authenticated current-owner custody is not owner evidence. Authenticated custody for one owner does not upgrade another owner's unverified group.
-
-Diagnostic surgeries may remain after a wounded scan. Diagnostic source inspection is not promotion authority.
+Complete scan evidence is separate from authenticated owner evidence. Current custody for one owner cannot upgrade another owner's unverified group.
 
 ## Backend-result integrity composition
-`tools/try_forever_owner_surgery_backend_result_integrity.py` crosses the same existing bounded one-observation exact-JSON snapshot organ at every public result entrypoint **before any semantic result read**.
+`tools/try_forever_owner_surgery_backend_result_integrity.py` crosses the existing bounded one-observation exact-JSON snapshot at every public result entrypoint before semantic reads, then performs inventory/witness checks against the detached tree. This is composition of the existing snapshot organ, not a new validator owner.
 
-That source-level composition requires:
-- one exact built-in `dict` root;
-- recursively exact JSON containers/scalars under the existing snapshot budgets;
-- caller-owned mapping/scalar subclasses rejected before their callbacks can execute;
-- all inventory and witness checks to run only against the detached plain tree;
-- the existing backend result-admission policy to receive that detached tree, not the caller-owned object.
+## Exact-observation semantic production
+`tools/try_forever_owner_surgery_semantic_parser.py` is now **SUPPORTING SOURCE** for the previously missing bytes→semantics seam.
 
-This is reuse of `try_forever_operator_receipt_snapshot_custody.py`, not a new validator owner. The integrity wrapper remains a useful separate composition because it owns witness/inventory checks; direct backend policy now independently has exact input custody rather than relying on callers to sanitize for it.
+It:
+- performs no filesystem lookup or re-read;
+- accepts exact built-in path/kind/text/byte-count/SHA-256 evidence;
+- recomputes UTF-8 byte count and SHA-256 before semantic admission;
+- rejects callback-bearing scalar subclasses before they can become evidence;
+- preserves exact patch metadata/default-owner admission;
+- rejects duplicate/non-standard delta JSON evidence;
+- emits patch/delta semantic fields shaped for conversion into canonical `Surgery` records.
+
+`tools/test_try_forever_owner_surgery_semantic_parser.py` is hostile **SOURCE / UNEXECUTED**. Its existence is not execution evidence.
+
+This closes the absence of a reusable exact-observation semantic producer at **supporting-source** level only. Canonical v10 does **not** import or consume it yet, so canonical backend selection and descriptor owner integration remain **NO**.
+
+### Default-owner scalar convergence
+Code-first parser archaeology exposed a separate live fallback-owner wound: `admit_default_owner_from_patch(...)` accepted `str` subclasses even though its doctrine described exact machine evidence. `tools/try_forever_owner_surgery_default_owner_binding.py` now requires exact built-in patch/default-owner strings before regex/format/equality work. `tools/test_try_forever_owner_surgery_default_owner_exact_input_boundary.py` is **SOURCE / UNEXECUTED**. Ordinary built-in string semantics are preserved.
 
 ## Current canonical owner truth
 Canonical custody remains `tools/try_forever_owner_surgery_custody_probe.py` schema v10.
 
-The previously documented **zero-partial-authority wound is closed at source level**. Current canonical source builds promotion groups only when `discoveryErrors` is empty; healthy surgery records may survive as diagnostics without promotion authority. The applied repair and current PR checkpoint are the authority for that state.
+The zero-partial-authority wound remains closed at source level: promotion groups are built only when `discoveryErrors` is empty; healthy surgery records may survive only as diagnostics after a wound.
 
-Do **not** resurrect the older doctrine that the zero-partial repair is `CORRECTED_PROPOSED_NOT_APPLIED`. That was stale historical state.
-
-Do not treat a hard-coded historical owner blob in this skill as everlasting current custody. Promotion work must refresh authenticated owner readback at execution time.
+Do not treat a hard-coded historical owner blob as everlasting current custody. Promotion work must refresh authenticated owner readback at execution time.
 
 ### Exact canonical-composition boundary
-Code-first owner archaeology establishes a narrower blocker than “policy not wired”:
+Current code-first owner archaeology now establishes:
+- canonical v10 still obtains and parses patch/delta evidence from the portable pathname observation;
+- `HeldDirectoryCustody` can produce held-root exact UTF-8 bytes, identity, directory/candidate counts, and SHA-256 evidence;
+- the new pure semantic producer can parse one exact already-observed artifact without reopening the pathname;
+- `descriptor_shadow_audit` remains explicitly non-authoritative;
+- therefore selecting `HELD_DIRECTORY_DESCRIPTOR` and then calling portable `classify(...)` would still be a silent weaker fallback;
+- and calling the pure semantic producer outside canonical v10 would still be a second authority-shaped path rather than owner composition.
 
-- canonical v10 currently parses patch/delta semantics from the **portable pathname observation** inside the existing owner;
-- `HeldDirectoryCustody` can produce held-root exact UTF-8 bytes, identity, counts, and SHA-256 evidence, but it does not itself parse those bytes into canonical Surgery/group semantics;
-- `descriptor_shadow_audit` compares descriptor observations beside the portable canonical result and is explicitly non-authoritative;
-- therefore selecting `HELD_DIRECTORY_DESCRIPTOR` and then calling portable `classify(...)` would be a silent weaker fallback, not composition;
-- selecting the descriptor backend without an existing-owner semantic producer would also create an authority-shaped result with no canonical parser provenance.
-
-The next valid owner mutation must make the **existing canonical owner** parse and group the exact bytes observed through the selected backend while preserving the v10 envelope and the no-weaker-fallback law. It must not introduce a second canonical custody owner or promote the shadow audit. Until that source exists and receives authenticated owner readback, canonical owner backend composition remains **NO**.
-
-Current capability state:
-- portable v10 canonical owner: **SOURCE_WIRED**;
-- zero-partial-authority owner behavior: **SOURCE_WIRED**;
-- platform capability exact-input custody: **SOURCE_WIRED**;
-- platform capability hostile regression: **SOURCE / UNEXECUTED**;
-- backend-selection policy semantic checks: **SUPPORTING SOURCE**;
-- backend direct exact-input custody: **SOURCE_WIRED**;
-- backend result-integrity exact-JSON snapshot composition: **SOURCE_WIRED**;
-- backend witness parity: **SOURCE_WIRED**;
-- POSIX descriptor custody: **SUPPORTING SOURCE**;
-- descriptor shadow audit: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
-- descriptor semantic result producer inside canonical owner: **NO**;
-- backend/descriptor regressions: **SOURCE / UNEXECUTED**;
-- canonical owner consumes backend-selection policy: **NO**;
-- canonical owner consumes descriptor backend: **NO**;
-- descriptor/root/candidate atomicity: **NO**;
-- TESTED/runtime/deployed/phone/delivered/accepted: **NO**.
+The next valid owner mutation must make the **existing canonical v10 owner** consume backend selection, feed the exact selected-backend observation through the pure semantic producer, convert that record into its existing Surgery/group envelope, preserve all v10 evidence fields/witnesses/zero-partial-authority semantics, and fail closed on selected-descriptor wounds without portable retry. It must not promote the descriptor shadow or introduce a second canonical custody owner.
 
 ## Descriptor shadow staging
-`tools/try_forever_owner_surgery_descriptor_shadow_audit.py` may compare the existing held-directory custody source against canonical portable inventory evidence while canonical v10 remains the sole authority producer.
+`tools/try_forever_owner_surgery_descriptor_shadow_audit.py` remains non-authoritative staging. `SHADOW_MATCH` proves only compared staging evidence agreement; `SHADOW_DIVERGED` stops integration review; `DESCRIPTOR_UNAVAILABLE` means descriptor primitives were never selected for authority; `DESCRIPTOR_WOUND` is a shadow wound and does not rewrite canonical authority.
 
-Shadow states are deliberately different from owner-selected backend states:
-- `SHADOW_MATCH` = independent staging evidence agrees on compared paths/metrics; **not owner integration**;
-- `SHADOW_DIVERGED` = stop and investigate evidence semantics before integration;
-- `DESCRIPTOR_UNAVAILABLE` = descriptor primitives were never selected for authority, so canonical portable custody simply remains authority;
-- `DESCRIPTOR_WOUND` = the non-authoritative shadow failed its own custody gate; canonical authority is unchanged.
-
-A future **selected descriptor authority** failure is different: that must fail closed with no portable retry in the same classification attempt.
-
-## Descriptor source relationship
-`tools/try_forever_posix_directory_handle_custody.py` is the stronger POSIX supporting source. Its existence does not prove universal filesystem atomicity, Windows parity, canonical-owner integration, regression execution, runtime behavior, or delivery.
+A future **selected descriptor authority** failure is different: it must fail closed with no portable retry in that classification attempt.
 
 ## Review / regression surfaces
-Relevant source-only regression surfaces include:
+Relevant source-only surfaces include:
 - `tools/test_try_forever_owner_surgery_backend_policy.py`;
-- `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` **CONVERGENCE SOURCE / UNEXECUTED**;
-- `tools/test_try_forever_directory_handle_binding_capability.py` **SOURCE / UNEXECUTED**;
+- `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py`;
+- `tools/test_try_forever_directory_handle_binding_capability.py`;
 - `tools/test_try_forever_owner_surgery_backend_result_integrity.py`;
 - `tools/test_try_forever_owner_surgery_backend_result_snapshot_boundary.py`;
+- `tools/test_try_forever_owner_surgery_backend_witness_owner_boundary.py`;
 - `tools/test_try_forever_owner_surgery_authority_member_integrity.py`;
 - `tools/test_try_forever_owner_surgery_v10_contract.py`;
 - `tools/test_try_forever_owner_surgery_descriptor_shadow_audit.py`;
-- the descriptor custody I/O, cleanup, budget, and candidate-identity fixtures.
+- `tools/test_try_forever_owner_surgery_semantic_parser.py`;
+- `tools/test_try_forever_owner_surgery_default_owner_exact_input_boundary.py`;
+- descriptor custody I/O, cleanup, budget, and candidate-identity fixtures.
 
-Their existence is not execution evidence.
-
-## Cross-skill composition
-`operator-receipt-bounded-container-admission` and `operator-receipt-snapshot-custody` supply the already-owned exact-container/bounded-snapshot laws used here. Backend selection does not fork those organs; it consumes them at its own public machine-evidence throat.
-
-## Duplicate-architecture law
-Do not create a descriptor promotion owner beside canonical v10. Future integration must compose the existing canonical owner, backend-selection/result-admission policy, result-integrity wrapper, and descriptor custody organ. The descriptor shadow is allowed only because it cannot emit promotion authority.
+Their source presence is not regression execution evidence.
 
 ## Accessibility / touch
-The existing backend-selection source specimen may expose the exact direct-policy throat and remaining canonical-owner boundary with keyboard/touch-native controls, non-color semantics, and reduced-motion behavior. Source art must explicitly remain SOURCE ONLY and may not claim Android runtime, TalkBack runtime, phone delivery, or acceptance.
+The existing backend-selection source specimen exposes the exact scalar gate, snapshot throat, held-descriptor source, pure semantic producer, zero-partial-authority boundary, and remaining canonical-integration stop with keyboard/touch-native controls, non-color semantics, inline SVG, and reduced-motion behavior. It is **SOURCE ONLY**; Android runtime, TalkBack runtime, phone delivery, and acceptance remain unclaimed.
+
+## Current capability state
+- portable v10 canonical owner: **SOURCE_WIRED**;
+- zero-partial-authority behavior: **SOURCE_WIRED**;
+- platform capability exact-input custody: **SOURCE_WIRED**;
+- backend direct exact-input custody: **SOURCE_WIRED**;
+- backend result-integrity exact-JSON snapshot composition: **SOURCE_WIRED**;
+- backend witness parity: **SOURCE_WIRED**;
+- default-owner exact scalar admission: **SOURCE_WIRED**;
+- POSIX descriptor custody: **SUPPORTING SOURCE**;
+- exact-observation semantic producer: **SUPPORTING SOURCE**;
+- descriptor shadow audit: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
+- relevant regressions: **SOURCE / UNEXECUTED**;
+- canonical owner consumes backend-selection policy: **NO**;
+- canonical owner consumes semantic producer: **NO**;
+- canonical owner consumes descriptor backend: **NO**;
+- descriptor/root/candidate universal atomicity: **NO**;
+- TESTED/runtime/deployed/phone/delivered/accepted: **NO**.
+
+## Duplicate-architecture law
+Do not create a descriptor promotion owner beside canonical v10. Future integration must compose the existing canonical owner, backend-selection/result-admission policy, result-integrity wrapper, pure semantic producer, and descriptor custody organ. The shadow stays non-authoritative.
 
 ## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
