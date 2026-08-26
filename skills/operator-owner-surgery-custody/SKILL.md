@@ -52,12 +52,14 @@ Each admitted patch/delta uses the existing finite ordinary-file observation org
 - strict UTF-8;
 - post-read stability checks.
 
-### Authenticated current-owner map and CLI evidence
+### Authenticated current-owner map and repeated-owner parser
 `None` still admits to one plain empty dict for promotion semantics, but canonical v10 preserves whether custody was omitted or explicitly supplied before that normalization. `currentOwnerCustodyProvided` therefore reports **presence**, not map truthiness; an explicit empty map remains distinct from omitted custody without inventing any owner blob.
 
 Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
 
-Repeated `--current-owner` programmatic evidence is admitted before parsing too: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside the custody boundary.
+The existing `_parse_owner_blob(...)` boundary now admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
+
+This does **not** green-paint the outer direct `main(argv)` programmatic entrypoint. Non-`None` `argv` is still typed as arbitrary `Iterable[str]` and is materialized with `list(argv)` before argparse. OS CLI invocation with `argv=None` does not cross that caller-owned iterable surface, but direct programmatic `main(argv)` exact-input custody remains **OPEN**.
 
 ### Surgery state
 Promotion-ready state is exact, bounded, canonical machine evidence. Only the explicit current allow-list may enter promotion-candidate groups. Regex/header recognition may not erase whitespace or normalize the state before policy admission.
@@ -85,7 +87,7 @@ Do not infer a mega-patch merely because a collision set exists. If one surgery 
 Historical patch files remain provenance only. Current authenticated source readback outranks dated capability summaries embedded in older patch prose or receipts.
 
 ## Regression source
-Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated CLI owner/blob admission, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
+Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
 All remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
@@ -102,7 +104,8 @@ Repository/source accessibility fixtures and Warm Walls are source artifacts onl
 - no weaker portable retry after descriptor wound: **SOURCE_WIRED**;
 - direct descriptor exact-root + path-encoding containment: **SOURCE_WIRED**;
 - authenticated current-owner exact-container/scalar admission: **SOURCE_WIRED**;
-- exact bounded repeated current-owner CLI admission: **SOURCE_WIRED**;
+- exact bounded `_parse_owner_blob(...)` repeated-owner admission: **SOURCE_WIRED**;
+- direct programmatic `main(argv)` exact iterable admission: **NO / OPEN**;
 - omitted-vs-explicit current-owner custody presence truth: **SOURCE_WIRED**;
 - exact surgery-state admission: **SOURCE_WIRED**;
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
