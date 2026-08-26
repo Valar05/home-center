@@ -1,0 +1,152 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-26-heartbeat-1300",
+  "commission": "Harroway operator-mode TRY FOREVER non-P0 swarm",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "previousPublicationHead": "2815b99380cab02cec6cc70e311ade9a97407852",
+  "reviewedSourceHead": "f715626d11355a48271b9b945b9e67b037c76856",
+  "changeCustody": {
+    "status": "ahead",
+    "commits": 7,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py",
+      "tools/test_try_forever_owner_surgery_current_owner_presence_truth.py",
+      "tools/test_try_forever_owner_surgery_v10_contract.py",
+      "patches/try-forever-owner-surgery-current-owner-map-resource-custody.patch",
+      "skills/operator-owner-surgery-custody/SKILL.md"
+    ]
+  },
+  "fronts": [
+    {
+      "id": "finite-current-owner-map-custody",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "change": "Exact authenticated current-owner maps now fail closed above 2048 entries or 1048576 aggregate admitted owner+blob code points before complete traversal; exact built-in dict/key/blob admission remains intact.",
+      "ownerCommit": "9de18644b769ef3ad341bae8b72415839deba33f",
+      "regression": "tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py",
+      "regressionState": "CONVERGENCE_SOURCE_UNEXECUTED"
+    },
+    {
+      "id": "finite-repeated-owner-parser-custody",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "change": "Repeated --current-owner evidence now fails closed above 2048 assignments or 1048576 aggregate assignment code points before duplicate-same-owner collapse; the existing 4137-code-point per-assignment throat remains.",
+      "ordinaryContactPreserved": "duplicate same owner + same blob remains admitted",
+      "regression": "tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py",
+      "regressionState": "CONVERGENCE_SOURCE_UNEXECUTED"
+    },
+    {
+      "id": "v10-capability-contract-convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "owner": "tools/test_try_forever_owner_surgery_v10_contract.py",
+      "change": "The focused v10 contract now pins boundedCurrentOwnerMapAdmission, boundedCurrentOwnerCliListAdmission, and all four item/aggregate ceilings so source capability growth cannot silently outrun its contract fixture."
+    },
+    {
+      "id": "cli-current-owner-presence-truth",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "finding": "main() previously parsed absent --current-owner into {}, causing classify() to report currentOwnerCustodyProvided=true even though CLI custody was omitted.",
+      "change": "CLI absence now forwards None; any supplied --current-owner still passes through the existing exact bounded parser. Direct explicit-empty classify({}, ...) semantics remain distinct.",
+      "ownerCommit": "997c63d91de1fe72d50db0bd52c25ddbc033e8a7",
+      "regression": "tools/test_try_forever_owner_surgery_current_owner_presence_truth.py",
+      "regressionState": "SOURCE_UNEXECUTED"
+    },
+    {
+      "id": "custody-doctrine-convergence",
+      "state": "SOURCE_WIRED",
+      "owner": "skills/operator-owner-surgery-custody/SKILL.md",
+      "change": "The existing skill now records finite map and repeated-owner collection/aggregate throats as SOURCE_WIRED, the patch provenance as APPLIED_SOURCE, and keeps regression execution/TESTED/runtime separate."
+    },
+    {
+      "id": "accessible-warm-wall-review",
+      "state": "REVIEWED_NO_MUTATION",
+      "owner": "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "finding": "The existing sole Warm Wall already retains native radio controls, >=56px touch rows, visible focus, role=status live text, SVG title/description semantics, reduced-motion handling, and explicit SOURCE ONLY / runtime TalkBack NO. Current-owner resource and CLI-presence repairs are machine-evidence topology, so a second UI specimen would violate duplicate-architecture discipline."
+    }
+  ],
+  "skills": {
+    "lit": [
+      {"name": "Failure Is The Shovel", "contribution": "Applied the exact previously-RED resource surgery, then used its new presence/resource boundary to expose the independent CLI omission-to-empty evidence leak."},
+      {"name": "Canon Auto-Select", "contribution": "Selected the existing canonical v10 owner, existing resource/presence regressions, existing v10 contract, and existing custody skill; no adjacent authority was created."},
+      {"name": "Originality Tax", "contribution": "Did not stop after applying the queued map fix; advanced the separate CLI presence-truth seam instead of repainting the same resource result."},
+      {"name": "Hunger", "contribution": "Forced owner source, patch provenance, focused regressions, v10 capability contract, and repository doctrine to converge on the same finite-custody truth."},
+      {"name": "Ever-Polished Interpreter / Eat Everything", "contribution": "Attacked max+1 map/list work, aggregate work hidden by duplicate collapse, and the adapter-level omitted-versus-explicit-empty semantic distinction."},
+      {"name": "Operator Campaign", "contribution": "Advanced six intended non-P0 source paths under exact change custody and published Regnet, Venice, and broad swarm receipts."},
+      {"name": "Harroway operator discipline", "contribution": "Mutated the sole canonical owner in place, preserved ordinary duplicate behavior, and kept source mutation separate from TESTED/runtime claims."},
+      {"name": "She-Raw adversarial motivation", "contribution": "Authoritative hostile critique was attempted against callback/resource/presence/fallback/architecture/P0 seams and faulted at account connection HTTP 400; no synthetic substitute was used."},
+      {"name": "Venice Judgment Jars", "contribution": "Bounded judgment permits this source slice to checkpoint only; regression execution, TESTED/runtime, and campaign remain continue-required."},
+      {"name": "Regnet QA", "contribution": "Authenticated diff/readback supports SOURCE_WIRED and SOURCE/UNEXECUTED claims; failed zero-step workflows do not establish regression execution or TESTED."},
+      {"name": "accessibility/TalkBack and touch semantics", "contribution": "Reviewed the sole existing Warm Wall and confirmed its native control, touch-target, focus, live-status, SVG-semantic, and reduced-motion constraints remain intact; runtime TalkBack stays NO and no duplicate UI was added."},
+      {"name": "deterministic routing", "contribution": "Kept canonical v10 as sole classifier and routed absence through None rather than synthesizing explicit-empty evidence."},
+      {"name": "evidence/capability-state discipline", "contribution": "Finite source gates, regression source, failed CI, TESTED, runtime, deployment, delivery, and acceptance remain separate states."},
+      {"name": "recovery/checkpointing/idempotence", "contribution": "Used automatically triggered exact-head workflows as evidence only; no manual retry was fired after zero-step failure and no diagnosis was invented."},
+      {"name": "warm walls", "contribution": "Performed a source readback review of the existing wall and deliberately kept it the sole specimen because machine-input topology changed without new operator interaction."},
+      {"name": "contact preservation", "contribution": "Preserved ordinary duplicate-same-owner semantics and now preserves CLI omitted custody as omitted instead of rewriting it to explicit-empty."},
+      {"name": "operator-owner-surgery-custody", "contribution": "Repository skill doctrine supplied the existing-owner/no-weaker-fallback/capability-membrane constraints and was converged to the applied finite-resource state."}
+    ],
+    "dark": [
+      {"name": "Autocorrect Judgment Jar", "reason": "No material token ambiguity affected owner identity, routing, or evidence interpretation."},
+      {"name": "strange non-raster vector/DOM/native UI art", "reason": "No new operator-facing interaction state justified art mutation; the existing non-raster specimen remains sufficient and source-only."},
+      {"name": "Christmas-light scene graph", "reason": "No runtime motion/transition contract changed; decorative motion would be heartbeat theater."},
+      {"name": "Phone Runtime / Phone Hands recovery", "reason": "Binding P0/phone firewalls prohibit consumption or governance of the shared primary-phone/recovery chain."}
+    ]
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "regnet": {
+    "receipt": "receipts/regnet/2026-08-26-heartbeat-1300.json",
+    "verdict": "PASS_BOUNDED_SOURCE__CURRENT_OWNER_RESOURCES_AND_CLI_PRESENCE_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO"
+  },
+  "venice": {
+    "receipt": "receipts/venice/2026-08-26-heartbeat-1300.json",
+    "verdict": "PASS",
+    "directive": "STOP_ALLOWED",
+    "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "executionTruth": {
+    "reviewedSourceHead": "f715626d11355a48271b9b945b9e67b037c76856",
+    "workflowRuns": {
+      "Build Android": {"id": 32998215703, "conclusion": "failure"},
+      "Home Center CI": {"id": 32998215738, "conclusion": "failure"},
+      "Operator Overlay Android": {"id": 32998215719, "conclusion": "failure", "jobId": 98272891100, "steps": 0, "logs": "404 BlobNotFound"}
+    },
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "currentOwnerMapFiniteResourceOwnerWiring": true,
+    "repeatedOwnerParserFiniteResourceOwnerWiring": true,
+    "cliOmittedCustodyPresencePreserved": true,
+    "currentOwnerResourceRegressionSource": true,
+    "currentOwnerPresenceRegressionSource": true,
+    "v10ContractRegressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "The prior RED finite-resource hypothesis was applied against the exact authenticated owner blob. Converging the resource fixture and v10 contract forced a fresh adapter-level presence review, which exposed that main() still converted CLI absence into explicit-empty custody even though classify() preserved the distinction. Repairing that contact seam then made source/readback/doctrine/accessibility review agree: finite current-owner evidence and omitted-custody truth are SOURCE_WIRED, the existing accessible Warm Wall needs no duplicate specimen, and failed zero-step CI remains outside regression-executed/TESTED/runtime authority."
+}
