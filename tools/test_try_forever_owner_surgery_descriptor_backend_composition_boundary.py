@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""SOURCE-ONLY RED owner-boundary fixture for canonical v10 descriptor-backend composition.
+"""SOURCE-ONLY convergence fixture for canonical v10 descriptor-backend composition.
 
 The existing canonical owner must select exactly one custody backend from exact platform capability,
 consume HeldDirectoryCustody directly when POSIX descriptor primitives are admitted, preserve the
 portable v10 path as the primary backend only when those primitives are unavailable, and never
 silently fall back to portable pathname custody after a selected descriptor backend wounds.
 
-This file is intentionally RED until the existing canonical owner is surgically composed. Its
-presence is not regression execution, TESTED evidence, runtime evidence, or permission to create a
-second authority owner.
+Classification root/budget controls must also cross exact built-in admission before backend dispatch
+or portable comparison work. This file is SOURCE / UNEXECUTED: source convergence is not regression
+execution, TESTED evidence, runtime evidence, or permission to create a second authority owner.
 """
 
 import ast
@@ -48,21 +48,39 @@ def main() -> int:
     classify_source = ast.get_source_segment(source, classify)
     assert classify_source is not None
 
+    # Exact machine controls are admitted before selection or callback-capable comparison work.
+    assert "_admit_classification_root(root)" in classify_source
+    assert classify_source.count("_admit_classification_budget(") == 2
+    root_gate = classify_source.index("_admit_classification_root(root)")
+    candidate_gate = classify_source.index("_admit_classification_budget(")
+    capability_read = classify_source.index("current_directory_handle_binding_capability(")
+    assert root_gate < capability_read
+    assert candidate_gate < capability_read
+
     # One exact selection decides the owner lane before authority is emitted.
-    assert "current_directory_handle_binding_capability(" in classify_source
     assert "select_owner_surgery_backend(" in classify_source
     assert "descriptor_selected" in classify_source
 
-    # Descriptor selection must be consumed by the canonical owner itself, not by a sidecar audit.
-    assert "HeldDirectoryCustody(" in source
-    assert "candidate_inventory(" in source
-    assert "observe_utf8_regular_file(" in source
-    assert "parse_owner_surgery_observation(" in source
+    # Descriptor selection is consumed by the canonical owner itself, not by a sidecar audit.
+    descriptor = functions["_discover_descriptor_surgeries"]
+    descriptor_source = ast.get_source_segment(source, descriptor)
+    assert descriptor_source is not None
+    assert "HeldDirectoryCustody(" in descriptor_source
+    assert "candidate_inventory(" in descriptor_source
+    assert "observe_utf8_regular_file(" in descriptor_source
+    assert "parse_owner_surgery_observation(" in descriptor_source
+    for error_name in (
+        "PosixDirectoryHandleCustodyUnavailable",
+        "DescriptorArtifactCustodyError",
+        "DescriptorCustodyCleanupError",
+    ):
+        assert error_name in descriptor_source
 
-    # Contact preservation: both canonical evidence counters and authority families survive.
+    # Contact preservation: canonical evidence counters, witnesses, and authority families survive.
     for token in (
         '"artifactDirectoryEntriesObserved"',
         '"artifactCandidatesObserved"',
+        '"artifactContentWitnesses"',
         '"discoveryErrors"',
         '"currentOwnerBlobs"',
         '"collisionSets"',
@@ -73,7 +91,8 @@ def main() -> int:
 
     # Recovery/idempotence: descriptor failure is a stop, never a same-attempt weaker retry.
     assert '"portableFallbackAttempted": False' in classify_source
-    assert "fallback_after_backend_failure" not in classify_source or "False" in classify_source
+    assert '"descriptorRootCustody": selection.descriptor_selected' in classify_source
+    assert '"ownerWired": True' in classify_source
 
     return 0
 
