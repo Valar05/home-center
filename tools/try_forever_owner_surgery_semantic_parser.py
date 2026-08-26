@@ -8,9 +8,9 @@ or P0 work.
 
 Canonical v10 consumes this producer after its own bounded artifact observation for both the portable
 and held-directory descriptor backends. Direct callers are also kept behind finite scalar and content
-throats before membership, regex, encode, hash, or diagnostic projection work. That is SOURCE_WIRED
-composition only: regression execution, TESTED, runtime, deployment, delivery, and acceptance remain
-separate capability states.
+throats before membership, regex, encode, hash, JSON semantic parsing, or diagnostic projection work.
+That is SOURCE_WIRED composition only: regression execution, TESTED, runtime, deployment, delivery,
+and acceptance remain separate capability states.
 """
 
 from __future__ import annotations
@@ -235,6 +235,10 @@ def _parse_delta(
                 OwnerSurgerySemanticError(f"non-standard JSON constant: {value}")
             ),
         )
+    except RecursionError as exc:
+        raise OwnerSurgerySemanticError(
+            "owner delta JSON exceeds semantic nesting capacity"
+        ) from exc
     except json.JSONDecodeError as exc:
         raise OwnerSurgerySemanticError(f"malformed owner delta JSON: {exc.msg}") from exc
 
@@ -327,6 +331,7 @@ def source_receipt() -> dict[str, object]:
         "diagnosticSegmentCharCeiling": MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
+        "deepJsonRecursionFailureTyped": True,
         "patchSemanticProduction": True,
         "deltaSemanticProduction": True,
         "canonicalOwnerConsumption": True,
