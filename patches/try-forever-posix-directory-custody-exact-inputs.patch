@@ -1,5 +1,5 @@
 # STATUS: PROPOSED_NOT_APPLIED
-# BASE OWNER BLOB: 77caad4b0d40820adb685b7e778d89cd24b1f049
+# BASE OWNER BLOB: 8e9df28967113610d958d590e05eec969ca91e25
 # OWNER: tools/try_forever_posix_directory_handle_custody.py
 # PURPOSE: Reject callback-capable scalar/candidate inputs before basename, budget, or expected-candidate semantics in the existing held-directory custody organ.
 # CAPABILITY: SOURCE PROPOSAL ONLY; regression execution, TESTED, canonical owner integration, runtime, deployment, phone delivery, and acceptance remain NO.
