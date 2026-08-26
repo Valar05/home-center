@@ -22,6 +22,10 @@ This skill owns descriptor custody doctrine only. It does **not** own a second c
 
 `CLEANUP FAILURE != PERMISSION TO MASK AN EARLIER PRIMARY WOUND`.
 
+`CANONICAL CALLER EXACT ROOT != DIRECT DESCRIPTOR CONSTRUCTOR EXACT ROOT`.
+
+`CALLER os.PathLike CALLBACK != MACHINE ROOT EVIDENCE`.
+
 `SOURCE_WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
 ## Capability admission
@@ -49,11 +53,11 @@ Every machine control is exact before equality/truthiness classification: `os_na
 `candidate_inventory(...)` is the evidence-bearing inventory surface. Compatibility projections do not replace it.
 
 ## Canonical owner relationship
-Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, schema v10. It now **SOURCE_WIRES** descriptor custody directly:
+Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, schema v10. It **SOURCE_WIRES** descriptor custody directly:
 - exact classification root and budget controls are admitted before backend dispatch;
 - exact current platform capability is classified;
 - `select_owner_surgery_backend(...)` selects one backend;
-- on `HELD_DIRECTORY_DESCRIPTOR`, canonical v10 enters `HeldDirectoryCustody` itself;
+- on `HELD_DIRECTORY_DESCRIPTOR`, canonical v10 enters `HeldDirectoryCustody` itself using the already-admitted exact platform Path;
 - it consumes `candidate_inventory(...)` for total entry/candidate evidence;
 - it consumes `observe_utf8_regular_file(...)` for held-root exact bytes/identity/witness evidence;
 - those exact observations are parsed by the already-owned `parse_owner_surgery_observation(...)` semantic producer;
@@ -61,6 +65,13 @@ Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, 
 - promotion authority remains globally suppressed whenever `discoveryErrors` is non-empty.
 
 This closes **canonical owner integration at SOURCE_WIRED level**. It does not prove regression execution or runtime behavior.
+
+## Direct constructor root boundary
+Canonical v10's root gate does not automatically harden every public entrypoint of the descriptor organ. Direct `HeldDirectoryCustody(path)` currently performs `Path(path)` and therefore accepts arbitrary `os.PathLike` values whose caller-owned `__fspath__` may execute before the descriptor root is admitted.
+
+That narrower direct surface remains **RED / NOT OWNER-WIRED**. `patches/try-forever-posix-directory-root-exact-input.patch` is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against descriptor-owner blob `6eee417a…`. It would admit only an exact built-in string or the exact platform `Path` before capability or filesystem semantics. `tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py` is **RED / SOURCE / UNEXECUTED** and requires rejection before hostile `__fspath__` or filesystem open executes.
+
+Do not weaken the true canonical claim because of this direct surface; do not inflate the direct surface because the canonical caller happens to be safe. They are different capability boundaries.
 
 ## Contact preservation
 The descriptor composition preserves the canonical evidence contract:
@@ -77,12 +88,14 @@ The descriptor composition preserves the canonical evidence contract:
 Portable root-identity revalidation remains the canonical primary path only when descriptor primitives are unavailable. Descriptor selection itself emits `portableFallbackAttempted=false`.
 
 ## Exact classification-control custody
-The canonical owner now closes a neighboring pre-dispatch wound as part of the same composition:
+The canonical owner closes the pre-dispatch boundary:
 - root must be one exact platform `Path` object before path callbacks can participate;
 - `max_candidates` and `max_entries` must be exact built-in integers within their declared ceilings before comparison/truthiness;
 - hostile Path/int subclasses therefore cannot run caller code while influencing backend selection or resource budgets.
 
 `tools/test_try_forever_owner_surgery_classification_exact_input_boundary.py` is **SOURCE / UNEXECUTED**.
+
+Inside the descriptor organ, basename strings, integer budgets, and expected `DescriptorCandidate` values already have exact input gates. The direct constructor root remains the one explicit RED exact-input seam above.
 
 ## Review scars retained
 **Scan position is state.** Fresh descriptor-relative scan handles prevent one inventory from inheriting another scan's position.
@@ -103,11 +116,12 @@ Relevant descriptor regressions remain source-only unless separately executed:
 - `tools/test_try_forever_posix_directory_handle_io_failures.py`;
 - `tools/test_try_forever_posix_directory_handle_cleanup_failures.py`;
 - `tools/test_try_forever_posix_directory_handle_exact_input_boundary.py`;
+- `tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py`;
 - `tools/test_try_forever_directory_handle_binding_capability.py`;
 - `tools/test_try_forever_owner_surgery_descriptor_backend_composition_boundary.py`;
 - `tools/test_try_forever_owner_surgery_classification_exact_input_boundary.py`.
 
-The descriptor composition boundary is now **CONVERGENCE SOURCE / UNEXECUTED**, not RED. The focused exact-input fixture is hostile **SOURCE / UNEXECUTED**. Their presence does not make the implementation TESTED.
+The descriptor composition boundary is **CONVERGENCE SOURCE / UNEXECUTED**, not RED. The focused basename/budget/candidate exact-input fixture is hostile **SOURCE / UNEXECUTED**. The direct-constructor root fixture is **RED / SOURCE / UNEXECUTED**. Their presence does not make the implementation TESTED.
 
 ## Atomicity boundary
 Descriptor integration strengthens root/name custody but still does **not** claim:
@@ -125,12 +139,14 @@ Descriptor integration strengthens root/name custody but still does **not** clai
 - bounded inventory metrics: **SOURCE_WIRED**;
 - enumeration→read candidate identity handoff: **SOURCE_WIRED**;
 - typed root/inventory/artifact/cleanup failure containment: **SOURCE_WIRED**;
-- exact descriptor input custody: **SOURCE_WIRED**;
+- exact basename/budget/expected-candidate input custody: **SOURCE_WIRED**;
+- canonical v10 exact classification root/budget admission: **SOURCE_WIRED**;
+- direct `HeldDirectoryCustody(...)` exact root admission: **NO / RED / PROPOSED_NOT_APPLIED**;
 - canonical v10 backend selection: **SOURCE_WIRED**;
 - canonical v10 descriptor consumption: **SOURCE_WIRED**;
-- exact classification root/budget admission: **SOURCE_WIRED**;
 - semantic producer consumption on descriptor bytes: **SOURCE_WIRED**;
 - descriptor composition provenance patch: **APPLIED_SOURCE**;
+- descriptor root exact-input surgery: **PROPOSED_NOT_APPLIED**;
 - descriptor composition and exact-input regressions: **SOURCE / UNEXECUTED**;
 - atomic root binding: **NO universal claim**;
 - atomic candidate binding: **NO universal claim**;
