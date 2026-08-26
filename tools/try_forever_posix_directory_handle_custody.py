@@ -40,6 +40,21 @@ class DescriptorArtifactCustodyError(ValueError):
     """A descriptor-relative candidate could not earn artifact authority."""
 
 
+class DescriptorInventoryCustodyError(DescriptorArtifactCustodyError):
+    """Inventory failed closed while retaining bounded non-authoritative observed-work counts."""
+
+    def __init__(
+        self,
+        boundary: str,
+        *,
+        candidates_observed: int,
+        entries_observed: int,
+    ) -> None:
+        super().__init__(boundary)
+        self.candidates_observed = candidates_observed
+        self.entries_observed = entries_observed
+
+
 class DescriptorCustodyCleanupError(RuntimeError):
     """Descriptor cleanup failed when no earlier custody wound already owned the failure."""
 
@@ -244,34 +259,40 @@ class HeldDirectoryCustody:
         that occurred after enumeration instead of silently treating the replacement as the object
         that was enumerated.
 
-        `entries_observed` deliberately counts unrelated entries too. A future canonical-owner
-        composition can therefore preserve v10's artifactDirectoryEntriesObserved evidence rather
-        than replacing it with candidate count and quietly weakening the receipt.
+        `entries_observed` deliberately counts unrelated entries too. Canonical callers can therefore
+        preserve artifactDirectoryEntriesObserved evidence rather than replacing it with candidate
+        count and quietly weakening the receipt.
 
-        Authority-facing scan-handle open, iterator advance, and candidate stat failures stay inside
-        the custody error domain. Caller-supplied `is_candidate` failures stay caller-owned, even when
-        the caller happens to raise an OSError. A failed inventory returns no partial candidate authority.
-        Cleanup-close failure is typed when it is the only failure and cannot mask an earlier inventory wound.
+        Authority-facing scan-handle open, iterator advance, candidate-name admission, and candidate
+        stat failures stay inside the custody error domain. Caller-supplied `is_candidate` failures
+        stay caller-owned, even when the caller happens to raise an OSError. A failed inventory returns
+        no partial candidate authority, but typed inventory wounds retain bounded observed-work counts
+        so canonical receipts do not erase work that was already observed. Cleanup-close failure is
+        typed when it is the only failure and cannot mask an earlier inventory wound.
         """
 
         max_entries = _require_non_negative_budget(max_entries, field="max_entries")
         max_candidates = _require_non_negative_budget(max_candidates, field="max_candidates")
         entries_seen = 0
         candidates: list[DescriptorCandidate] = []
+
+        def inventory_error(boundary: str) -> DescriptorInventoryCustodyError:
+            return DescriptorInventoryCustodyError(
+                boundary,
+                candidates_observed=len(candidates),
+                entries_observed=entries_seen,
+            )
+
         try:
             scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
         except OSError:
-            raise DescriptorArtifactCustodyError(
-                "held-directory scan handle open failed"
-            ) from None
+            raise inventory_error("held-directory scan handle open failed") from None
         primary_failure = False
         try:
             try:
                 entries_context = os.scandir(scan_fd)
             except OSError:
-                raise DescriptorArtifactCustodyError(
-                    "held-directory enumeration I/O failed"
-                ) from None
+                raise inventory_error("held-directory enumeration I/O failed") from None
             with entries_context as entries:
                 iterator = iter(entries)
                 while True:
@@ -280,27 +301,28 @@ class HeldDirectoryCustody:
                     except StopIteration:
                         break
                     except OSError:
-                        raise DescriptorArtifactCustodyError(
-                            "held-directory enumeration I/O failed"
-                        ) from None
+                        raise inventory_error("held-directory enumeration I/O failed") from None
 
                     entries_seen += 1
                     if entries_seen > max_entries:
-                        raise DescriptorArtifactCustodyError(
+                        raise inventory_error(
                             f"held-directory scan exceeds {max_entries} entry budget"
                         )
-                    name = _require_simple_name(entry.name)
+                    try:
+                        name = _require_simple_name(entry.name)
+                    except DescriptorArtifactCustodyError as exc:
+                        raise inventory_error(str(exc)) from None
                     if not is_candidate(name):
                         continue
                     try:
                         observed = entry.stat(follow_symlinks=False)
                     except OSError:
-                        raise DescriptorArtifactCustodyError(
+                        raise inventory_error(
                             "candidate identity stat failed during held-directory enumeration"
                         ) from None
                     identity = _identity_from_stat(observed)
                     if identity.inode == 0:
-                        raise DescriptorArtifactCustodyError(
+                        raise inventory_error(
                             "enumerated candidate exposes no stable inode identity"
                         )
                     candidates.append(
@@ -311,7 +333,7 @@ class HeldDirectoryCustody:
                         )
                     )
                     if len(candidates) > max_candidates:
-                        raise DescriptorArtifactCustodyError(
+                        raise inventory_error(
                             f"held-directory candidate set exceeds {max_candidates} budget"
                         )
         except BaseException:
