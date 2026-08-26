@@ -13,7 +13,10 @@ from try_forever_owner_surgery_backend_policy import (
     DESCRIPTOR_BACKEND,
     PORTABLE_BACKEND,
 )
-from try_forever_owner_surgery_custody_probe import classify
+from try_forever_owner_surgery_custody_probe import (
+    MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
+    classify,
+)
 
 
 OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
@@ -56,6 +59,9 @@ def main() -> int:
             "nonNormalizingPatchStateHeader",
             "exactCurrentOwnerMapAdmission",
             "exactCurrentOwnerBlobAdmission",
+            "exactCurrentOwnerCliListAdmission",
+            "boundedCurrentOwnerCliAssignmentAdmission",
+            "currentOwnerCustodyPresencePreserved",
             "exactClassificationRootAdmission",
             "exactClassificationBudgetAdmission",
             "boundedArtifactDirectoryScan",
@@ -68,6 +74,9 @@ def main() -> int:
         for field in expected_true:
             assert capability[field] is True, field
 
+        assert capability["currentOwnerCliAssignmentCodepointCeiling"] == (
+            MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
+        )
         assert capability["selectedBackend"] == result["backend"]
         assert capability["portableFallbackAttempted"] is False
         if result["backend"] == DESCRIPTOR_BACKEND:
