@@ -1,0 +1,215 @@
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# PURPOSE: Compose the existing canonical v10 owner with the already-owned backend selector and HeldDirectoryCustody without adding sidecar authority or silent weaker fallback.
+# CAPABILITY: PROPOSED SOURCE ONLY; canonical descriptor consumption remains NO until exact owner mutation + authenticated readback. Regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain NO.
+# CONTACT PRESERVATION: Preserve artifactDirectoryEntriesObserved, artifactCandidatesObserved, discoveryErrors, currentOwnerBlobs, collisionSets, staleBaseGroups, unverifiedBaseGroups, artifactContentWitnesses, portable primary behavior when descriptor primitives are unavailable, and zero partial authority on discovery wounds.
+# RECOVERY LAW: Once HELD_DIRECTORY_DESCRIPTOR is selected, descriptor setup/inventory/read/cleanup failure fails that classification attempt closed; do not reroute through portable pathname custody.
+
+diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
++from try_forever_directory_handle_binding_capability import (
++    current_directory_handle_binding_capability,
++)
++from try_forever_owner_surgery_backend_policy import select_owner_surgery_backend
++from try_forever_posix_directory_handle_custody import (
++    DescriptorArtifactCustodyError,
++    DescriptorCustodyCleanupError,
++    HeldDirectoryCustody,
++    PosixDirectoryHandleCustodyUnavailable,
++)
+@@
+ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+@@
+         return None, _error(path, "delta_json", exc)
++
++
++def _discover_descriptor_surgeries(
++    root: Path,
++    *,
++    max_candidates: int,
++    max_entries: int,
++) -> tuple[list[Surgery], list[DiscoveryError], int, int]:
++    """Consume the held-root backend directly inside the canonical authority owner.
++
++    A descriptor custody wound returns zero surgery authority and never invokes the portable
++    pathname backend in the same classification attempt. Semantic wounds remain diagnostic
++    discovery errors; any discovery error still suppresses all promotion authority downstream.
++    """
++
++    surgeries: list[Surgery] = []
++    discovery_errors: list[DiscoveryError] = []
++    try:
++        with HeldDirectoryCustody(root) as held:
++            inventory = held.candidate_inventory(
++                is_candidate=lambda name: _artifact_kind_for_name(name) is not None,
++                max_entries=max_entries,
++                max_candidates=max_candidates,
++            )
++            for candidate in inventory.candidates:
++                artifact_kind = _artifact_kind_for_name(candidate.name)
++                assert artifact_kind in {"patch", "delta_json"}
++                path = root / candidate.name
++                try:
++                    observation = held.observe_utf8_regular_file(
++                        candidate.name,
++                        max_bytes=MAX_ARTIFACT_BYTES,
++                        expected_candidate=candidate,
++                    )
++                    semantic = parse_owner_surgery_observation(
++                        path=path.as_posix(),
++                        artifact_kind=artifact_kind,
++                        utf8_text=observation.utf8_text,
++                        byte_count=observation.byte_count,
++                        sha256=observation.sha256,
++                    )
++                except OwnerSurgerySemanticError as exc:
++                    discovery_errors.append(_error(path, artifact_kind, exc))
++                    continue
++                surgeries.append(
++                    Surgery(
++                        path=semantic.path,
++                        artifact_kind=semantic.artifact_kind,
++                        owner=semantic.owner,
++                        base_blob=semantic.base_blob,
++                        state=semantic.state,
++                        promotion_candidate=semantic.promotion_candidate,
++                        artifact_byte_count=semantic.artifact_byte_count,
++                        artifact_sha256=semantic.artifact_sha256,
++                    )
++                )
++    except (
++        PosixDirectoryHandleCustodyUnavailable,
++        DescriptorArtifactCustodyError,
++        DescriptorCustodyCleanupError,
++    ) as exc:
++        return [], [_error(root, "descriptor_backend", exc)], 0, 0
++
++    return (
++        surgeries,
++        discovery_errors,
++        inventory.candidates_observed,
++        inventory.entries_observed,
++    )
+@@
+ def classify(
+@@
+ ) -> dict[str, object]:
+     current_owner_blobs = _admit_current_owner_blobs(current_owner_blobs)
+-    surgeries: list[Surgery] = []
+-    discovery_errors: list[DiscoveryError] = []
++    capability = current_directory_handle_binding_capability()
++    selection = select_owner_surgery_backend(capability.status)
++    surgeries: list[Surgery] = []
++    discovery_errors: list[DiscoveryError] = []
+ 
+-    try:
+-        authority_root_before = capture_directory_root_identity(root)
+-    except OSError as exc:
+-        authority_root_before = None
+-        candidates = []
+-        inventory_error = _error(root, "artifact_root", exc)
+-        candidates_observed = 0
+-        entries_observed = 0
+-    else:
+-        candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
++    if selection.descriptor_selected:
++        (
++            surgeries,
++            discovery_errors,
++            candidates_observed,
++            entries_observed,
++        ) = _discover_descriptor_surgeries(
+             root,
+             max_candidates=max_candidates,
+             max_entries=max_entries,
+         )
+-
+-    if inventory_error is not None:
+-        discovery_errors.append(inventory_error)
+     else:
+-        for path, artifact_kind in candidates:
+-            if artifact_kind == "patch":
+-                surgery, error = inspect_patch(path)
+-            elif artifact_kind == "delta_json":
+-                surgery, error = inspect_delta(path)
+-            else:
+-                raise AssertionError(f"unknown owner surgery artifact kind: {artifact_kind}")
+-            if surgery is not None:
+-                surgeries.append(surgery)
+-            if error is not None:
+-                discovery_errors.append(error)
+-
+-        assert authority_root_before is not None
+         try:
+-            authority_root_after = capture_directory_root_identity(root)
++            authority_root_before = capture_directory_root_identity(root)
+         except OSError as exc:
+-            surgeries.clear()
+-            discovery_errors.append(_error(root, "artifact_root", exc))
++            authority_root_before = None
++            candidates = []
++            inventory_error = _error(root, "artifact_root", exc)
++            candidates_observed = 0
++            entries_observed = 0
+         else:
+-            authority_verdict = revalidate_directory_root_identity(
+-                authority_root_before,
+-                authority_root_after,
+-                subject=PATCH_ROOT_SUBJECT,
++            candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
++                root,
++                max_candidates=max_candidates,
++                max_entries=max_entries,
+             )
+-            if authority_verdict.status != "STABLE":
++
++        if inventory_error is not None:
++            discovery_errors.append(inventory_error)
++        else:
++            for path, artifact_kind in candidates:
++                if artifact_kind == "patch":
++                    surgery, error = inspect_patch(path)
++                elif artifact_kind == "delta_json":
++                    surgery, error = inspect_delta(path)
++                else:
++                    raise AssertionError(f"unknown owner surgery artifact kind: {artifact_kind}")
++                if surgery is not None:
++                    surgeries.append(surgery)
++                if error is not None:
++                    discovery_errors.append(error)
++
++            assert authority_root_before is not None
++            try:
++                authority_root_after = capture_directory_root_identity(root)
++            except OSError as exc:
+                 surgeries.clear()
+-                discovery_errors.append(_root_error(root, authority_verdict.reason))
++                discovery_errors.append(_error(root, "artifact_root", exc))
++            else:
++                authority_verdict = revalidate_directory_root_identity(
++                    authority_root_before,
++                    authority_root_after,
++                    subject=PATCH_ROOT_SUBJECT,
++                )
++                if authority_verdict.status != "STABLE":
++                    surgeries.clear()
++                    discovery_errors.append(_root_error(root, authority_verdict.reason))
+@@
+     return {
+         "schema": "try-forever-owner-surgery-custody.v10",
++        "backend": selection.backend,
++        "portableFallbackAttempted": False,
+@@
+         "capability": {
+@@
+-            "artifactRootIdentityRevalidation": True,
+-            "artifactRootFinalRevalidation": True,
++            "artifactRootIdentityRevalidation": selection.portable_is_primary,
++            "artifactRootFinalRevalidation": selection.portable_is_primary,
++            "descriptorRootCustody": selection.descriptor_selected,
++            "selectedBackend": selection.backend,
++            "portableFallbackAttempted": False,
