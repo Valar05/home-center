@@ -1,0 +1,182 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-25T21:02:46-05:00",
+  "previousPublicationHead": "5390bd2df338a4cd770b13298fac1354c9ec1dc6",
+  "sourceReviewHead": "5bee09f2e78a4138d1bd6df7e3412922e9144458",
+  "executionEvidenceHead": "5bee09f2e78a4138d1bd6df7e3412922e9144458",
+  "exactSourceChangeCustody": {
+    "commits": 7,
+    "intendedPaths": 7,
+    "unexpectedPaths": [],
+    "paths": [
+      "patches/try-forever-owner-surgery-canonical-semantic-producer-composition.patch",
+      "patches/try-forever-posix-directory-custody-exact-inputs.patch",
+      "tools/test_try_forever_owner_surgery_canonical_semantic_composition_boundary.py",
+      "tools/test_try_forever_posix_directory_handle_exact_input_boundary.py",
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/try_forever_owner_surgery_semantic_parser.py",
+      "tools/try_forever_posix_directory_handle_custody.py"
+    ]
+  },
+  "skillLights": {
+    "Failure Is The Shovel": {
+      "lit": true,
+      "contribution": "Converted both exact previous RED owner wounds into authenticated in-place owner mutations, then strengthened the former RED fixtures so the successful source state has sharper convergence evidence rather than deleting the scars."
+    },
+    "Canon Auto-Select": {
+      "lit": true,
+      "contribution": "Selected the existing canonical v10 custody owner, existing pure semantic producer, and existing HeldDirectoryCustody organ; no neighboring authority, validator, or descriptor controller was created."
+    },
+    "Originality Tax": {
+      "lit": true,
+      "contribution": "Refused a sidecar semantic authority or parallel descriptor implementation; both fixes land in existing owners and reuse existing evidence shapes."
+    },
+    "Hunger": {
+      "lit": true,
+      "contribution": "Owner mutations forced their patch provenance, semantic producer capability receipt, and hostile boundary fixtures to converge; review also exposed the descriptor-custody skill summary as stale non-authority for a later doctrine-only bite."
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "lit": true,
+      "contribution": "Canonical patch and delta interpretation now share one exact observation-to-semantics producer, while descriptor basenames, budgets, and expected-candidate values fail before callback-capable Python semantics."
+    },
+    "Operator Campaign": {
+      "lit": true,
+      "contribution": "Advanced two independent existing-owner source fronts plus two hostile regression fronts and durable Regnet/Venice evidence on PR #329."
+    },
+    "Harroway operator discipline": {
+      "lit": true,
+      "contribution": "Mutated only base-verified existing owners on the commissioned branch; no merge, rebase, manual workflow retry, P0 action, or substitute delivery lane was used."
+    },
+    "She-Raw adversarial motivation": {
+      "lit": true,
+      "contribution": "Fresh hostile critique was requested against authority splits, callback inputs, weaker fallbacks, and capability lies; the authoritative connector returned account-connection HTTP 400 and no synthetic She-Raw was substituted."
+    },
+    "Venice Judgment Jars": {
+      "lit": true,
+      "contribution": "Allows this bounded source slice to stop while canonical descriptor-backend composition, descriptor doctrine convergence, regression execution, TESTED/runtime, and the campaign remain continue-required."
+    },
+    "Regnet QA": {
+      "lit": true,
+      "contribution": "Promoted both former proposed-owner fronts to SOURCE_WIRED only after authenticated readback, strengthened hostile fixtures, and kept descriptor backend composition and all execution states unpromoted."
+    },
+    "deterministic routing": {
+      "lit": true,
+      "contribution": "Canonical v10 remains sole promotion authority; its bounded observation precedes shared semantic parsing, and descriptor custody remains a supporting backend until canonical composition is real."
+    },
+    "evidence/capability-state discipline": {
+      "lit": true,
+      "contribution": "APPLIED_SOURCE/SOURCE_WIRED, SOURCE_UNEXECUTED, canonical descriptor integration NO, TESTED, runtime, deployed, callable, executed, delivered, and accepted remain distinct."
+    },
+    "recovery/checkpointing/idempotence": {
+      "lit": true,
+      "contribution": "Exact-head automatic workflows were read once; all failed with the Operator job exposing zero steps and logs 404 BlobNotFound. No manual retry or invented source diagnosis was added."
+    },
+    "contact preservation": {
+      "lit": true,
+      "contribution": "Ordinary exact patch/delta semantics, canonical Surgery output shape, descriptor observation shape, and portable fallback remain unchanged; repairs tighten unsupported callback-capable inputs and composition ownership."
+    },
+    "operator-owner-surgery-custody": {
+      "lit": true,
+      "contribution": "Direct repository skill readback constrained the mutation to canonical v10, exact owner/base custody, no sidecar authority, and no promotion-state laundering."
+    },
+    "operator-owner-surgery-descriptor-custody": {
+      "lit": true,
+      "contribution": "Direct repository skill readback constrained the descriptor repair to the existing held-directory organ and preserved the stronger-backend != atomicity != canonical-integration membrane; its dated capability summary is explicitly treated as stale non-authority after the new source wiring."
+    },
+    "Autocorrect Judgment Jar": {
+      "lit": false,
+      "whyDark": "No material token ambiguity affected routing, owner identity, or source authority."
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "lit": false,
+      "whyDark": "No operator-facing UI or interaction semantics changed; accessibility remains a non-regression constraint and runtime TalkBack remains NO."
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "lit": false,
+      "whyDark": "Binding P0/phone firewall; primary-phone execution and recovery surfaces were not consumed."
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "lit": false,
+      "whyDark": "No user-facing topology changed; an art mutation would be unrelated churn."
+    },
+    "warm walls": {
+      "lit": false,
+      "whyDark": "No operator-facing state topology changed; source/capability truth was advanced directly instead of repainting an already explanatory specimen."
+    },
+    "Christmas-light scene graph": {
+      "lit": false,
+      "whyDark": "No runtime motion or transition law changed."
+    }
+  },
+  "fronts": [
+    {
+      "name": "canonical_semantic_producer_composition",
+      "state": "SOURCE_WIRED",
+      "ownerBlobBefore": "e3810d1afb3a8afe458219d81e2826eafcb6ab33",
+      "ownerBlobAfter": "985f95e9018d1fe354b0f3bfcbfbf26ea51dee05",
+      "artifacts": [
+        "tools/try_forever_owner_surgery_custody_probe.py",
+        "tools/try_forever_owner_surgery_semantic_parser.py",
+        "patches/try-forever-owner-surgery-canonical-semantic-producer-composition.patch",
+        "tools/test_try_forever_owner_surgery_canonical_semantic_composition_boundary.py"
+      ]
+    },
+    {
+      "name": "descriptor_exact_input_custody",
+      "state": "SOURCE_WIRED",
+      "ownerBlobBefore": "8e9df28967113610d958d590e05eec969ca91e25",
+      "ownerBlobAfter": "6eee417a736022910989137142811b787e85842e",
+      "artifacts": [
+        "tools/try_forever_posix_directory_handle_custody.py",
+        "patches/try-forever-posix-directory-custody-exact-inputs.patch",
+        "tools/test_try_forever_posix_directory_handle_exact_input_boundary.py"
+      ]
+    },
+    {
+      "name": "canonical_descriptor_backend_composition",
+      "state": "NO",
+      "boundary": "Canonical v10 still uses the portable named-path observer. HeldDirectoryCustody remains stronger supporting source and cannot become authority by being called beside canonical classify()."
+    },
+    {
+      "name": "descriptor_skill_doctrine_convergence",
+      "state": "OPEN_NONAUTHORITY",
+      "boundary": "The existing descriptor-custody skill summary predates the exact-input owner wiring. Authenticated source readback is current authority; doctrine convergence remains useful but cannot promote capability."
+    }
+  ],
+  "crossPollination": "The previous descriptor exact-input proposal supplied the scalar-admission law; applying it to HeldDirectoryCustody sharpened callback-free hostile fixtures. In parallel, the existing exact observation semantic producer was composed into canonical v10 rather than duplicated. That owner mutation forced patch provenance and the producer capability receipt to converge. Regnet then used direct repository skill readback to keep the stronger descriptor backend separate from canonical authority and to preserve doctrine staleness as an explicit non-authoritative boundary instead of laundering it into green status.",
+  "executionEvidence": {
+    "head": "5bee09f2e78a4138d1bd6df7e3412922e9144458",
+    "Home Center CI": {"run": 32921742311, "conclusion": "failure"},
+    "Build Android": {"run": 32921742314, "conclusion": "failure"},
+    "Operator Overlay Android": {"run": 32921742331, "job": 98036504575, "conclusion": "failure", "steps": 0, "logs": "404_BlobNotFound"},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "canonicalSemanticProducerConsumption": "SOURCE_WIRED",
+    "descriptorExactInputOwnerWiring": "SOURCE_WIRED",
+    "canonicalDescriptorBackendComposition": "NO",
+    "descriptorSkillDoctrineConvergence": "OPEN_NONAUTHORITY",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_BACKEND_COMPOSITION_DOCTRINE_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
