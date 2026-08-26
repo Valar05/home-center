@@ -17,6 +17,8 @@ package com.homecenter.operatoroverlay;
 public final class HeartbeatIngressPolicy {
     /** Maximum Unicode code points in a human-facing/loggable ingress boundary. */
     public static final int MAX_BOUNDARY_CODE_POINTS = 320;
+    /** Maximum caller-owned UTF-16 code units inspected while projecting one rejection boundary. */
+    public static final int MAX_BOUNDARY_SOURCE_CODE_UNITS = 4096;
 
     /**
      * Exact failure class for caller-invalid optional heartbeat-light telemetry.
@@ -117,13 +119,23 @@ public final class HeartbeatIngressPolicy {
      * controls collapse to one ordinary space; malformed lone UTF-16 surrogates
      * become U+FFFD; truncation happens by Unicode code point so a valid surrogate
      * pair is never bisected.
+     *
+     * <p>The projection also has an independent source-work throat. At most
+     * {@link #MAX_BOUNDARY_SOURCE_CODE_UNITS} caller-owned UTF-16 code units are
+     * inspected, and projection stops as soon as the returned code-point budget is
+     * full. This keeps hostile all-control/all-whitespace exception text from
+     * forcing unbounded normalization work merely because its final projection is
+     * short. The raw exception object/cause remains untouched and carries no
+     * semantic authority.</p>
      */
     static String cleanBoundary(String value) {
         if (value == null || value.isEmpty()) return "";
 
         StringBuilder normalized = new StringBuilder();
         boolean pendingSpace = false;
-        for (int offset = 0; offset < value.length();) {
+        int normalizedCodePoints = 0;
+        int sourceLimit = Math.min(value.length(), MAX_BOUNDARY_SOURCE_CODE_UNITS);
+        for (int offset = 0; offset < sourceLimit;) {
             int codePoint = value.codePointAt(offset);
             offset += Character.charCount(codePoint);
 
@@ -141,15 +153,16 @@ public final class HeartbeatIngressPolicy {
             }
 
             if (pendingSpace) {
+                if (normalizedCodePoints >= MAX_BOUNDARY_CODE_POINTS) return normalized.toString();
                 normalized.append(' ');
+                normalizedCodePoints++;
                 pendingSpace = false;
+                if (normalizedCodePoints >= MAX_BOUNDARY_CODE_POINTS) return normalized.toString();
             }
             normalized.appendCodePoint(codePoint);
+            normalizedCodePoints++;
+            if (normalizedCodePoints >= MAX_BOUNDARY_CODE_POINTS) return normalized.toString();
         }
-
-        int codePoints = normalized.codePointCount(0, normalized.length());
-        if (codePoints <= MAX_BOUNDARY_CODE_POINTS) return normalized.toString();
-        int end = normalized.offsetByCodePoints(0, MAX_BOUNDARY_CODE_POINTS);
-        return normalized.substring(0, end);
+        return normalized.toString();
     }
 }
