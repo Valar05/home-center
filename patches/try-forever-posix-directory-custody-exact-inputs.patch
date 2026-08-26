@@ -1,0 +1,41 @@
+# STATUS: PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: 77caad4b0d40820adb685b7e778d89cd24b1f049
+# OWNER: tools/try_forever_posix_directory_handle_custody.py
+# PURPOSE: Reject callback-capable scalar/candidate inputs before basename, budget, or expected-candidate semantics in the existing held-directory custody organ.
+# CAPABILITY: SOURCE PROPOSAL ONLY; regression execution, TESTED, canonical owner integration, runtime, deployment, phone delivery, and acceptance remain NO.
+diff --git a/tools/try_forever_posix_directory_handle_custody.py b/tools/try_forever_posix_directory_handle_custody.py
+--- a/tools/try_forever_posix_directory_handle_custody.py
++++ b/tools/try_forever_posix_directory_handle_custody.py
+@@
+ def _require_simple_name(name: str) -> str:
+-    if not isinstance(name, str) or not name or name in {".", ".."}:
++    if type(name) is not str or not name or name in {".", ".."}:
+         raise DescriptorArtifactCustodyError("candidate name must be one non-empty basename")
+@@
+     return name
++
++
++def _require_non_negative_budget(value: int, *, field: str) -> int:
++    if type(value) is not int or value < 0:
++        raise ValueError(f"{field} must be one non-negative exact built-in integer")
++    return value
+@@
+     def candidate_inventory(
+@@
+-        if max_entries < 0 or max_candidates < 0:
+-            raise ValueError("custody budgets must be non-negative")
++        max_entries = _require_non_negative_budget(max_entries, field="max_entries")
++        max_candidates = _require_non_negative_budget(max_candidates, field="max_candidates")
+@@
+     def observe_utf8_regular_file(
+@@
+         name = _require_simple_name(name)
+-        if max_bytes < 0:
+-            raise ValueError("artifact byte budget must be non-negative")
++        max_bytes = _require_non_negative_budget(max_bytes, field="max_bytes")
+         if expected_candidate is not None:
++            if type(expected_candidate) is not DescriptorCandidate:
++                raise DescriptorArtifactCustodyError(
++                    "expected_candidate must be one exact DescriptorCandidate"
++                )
+             if expected_candidate.name != name:
