@@ -16,7 +16,7 @@ def main() -> int:
 
     # Native interaction and touch geometry stay first-class rather than simulated div controls.
     assert '<fieldset aria-describedby="detail">' in html
-    assert html.count('input type="radio" name="backend"') >= 13
+    assert html.count('input type="radio" name="backend"') >= 14
     assert "min-height: 56px" in html
     assert "label:focus-within" in html
 
@@ -36,6 +36,13 @@ def main() -> int:
     assert 'value="semantic-throats"' in html
     assert "Content remains capped at one MiB" in html
     assert "SHA length is checked before regex" in html
+
+    # Bounded bytes are not misreported as proof that semantic JSON decoding cannot exhaust nesting.
+    assert "DEEP-JSON FAILURE CONTAINMENT: SOURCE_WIRED" in html
+    assert 'value="semantic-nesting"' in html
+    assert "DEEP JSON → TYPED STOP" in html
+    assert "Raw RecursionError is converted into OwnerSurgerySemanticError" in html
+    assert "exact evidence is not rewritten" in html.lower()
 
     # Exact source evidence and human-facing rejection prose remain separate ownership classes.
     assert "SEMANTIC DIAGNOSTIC PROJECTION: SOURCE_WIRED" in html
