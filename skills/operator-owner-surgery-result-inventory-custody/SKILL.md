@@ -24,6 +24,8 @@ This skill governs an **existing backend-result integrity boundary**. It does no
 
 `promotion_candidate MUST AGREE WITH EXACT ADMITTED STATE`.
 
+`SUPPORTING FACADE TYPE CONTRACT != BROADER Mapping THAN THE REAL OWNER ADMITS`.
+
 `INVENTORY CUSTODY != WITNESS PARITY != AUTHORITY ADMISSION != TESTED != RUNTIME != DELIVERED`.
 
 ## Existing owner source
@@ -44,7 +46,7 @@ It now requires, in one stronger owner path:
 
 `admit_backend_result_with_inventory_custody(...)` consumes that stronger audit before it delegates to the unchanged `admit_selected_backend_result(...)` authority policy. Canonical inventory/group custody is audited once; parity does not create Backend Admission II or a second parser/authority owner.
 
-`tools/try_forever_owner_surgery_witness_parity.py` remains a supporting/review facade. It delegates to the existing stronger owner gate and preserves focused witness-regression receipt vocabulary; it grants no additional authority.
+`tools/try_forever_owner_surgery_witness_parity.py` remains a supporting/review facade. It delegates to the existing stronger owner gate, advertises the same exact built-in `dict[str, object]` container contract that the downstream owner actually admits, and preserves focused witness-regression receipt vocabulary; it grants no additional authority. A broader `Mapping` annotation is a capability lie because it promises caller-owned callback surfaces the real owner rejects before semantic reads.
 
 The separate descriptor-shadow temporal policy may validate the same canonical witness set later in the evidence timeline, but that later agreement does not repair a canonical result that crossed an earlier backend admission boundary with contradictory witnesses.
 
@@ -52,6 +54,8 @@ The separate descriptor-shadow temporal policy may validate the same canonical w
 `tools/test_try_forever_owner_surgery_backend_result_integrity.py` pins schema drift, missing inventory, duplicate paths, kind/path mismatch, state/promotion contradictions, missing/malformed content evidence, phantom members, changed-state aliases, changed-content aliases, malformed members, and diagnostic non-promotion records.
 
 `tools/test_try_forever_owner_surgery_witness_parity.py` pins missing/phantom/duplicate witnesses plus byte-count, SHA-256, and malformed-content drift through the supporting facade.
+
+`tools/test_try_forever_owner_surgery_witness_parity_public_contract.py` pins that the supporting facade advertises exact built-in `dict` evidence rather than a broader callback-capable `Mapping` contract.
 
 `tools/test_try_forever_owner_surgery_current_witness_inventory.py` is the repository-level v10 witness-parity fixture.
 
@@ -66,6 +70,7 @@ Regression execution = **NO**. TESTED = **NO**.
 - existing canonical witness-parity implementation: **YES / SOURCE_WIRED**;
 - existing backend result-integrity/admission wrapper consumes witness parity: **YES / SOURCE_WIRED**;
 - supporting witness-parity review facade: **YES / SOURCE**;
+- supporting facade exact built-in-dict public contract: **YES / SOURCE**;
 - authenticated repository readback: **YES**;
 - hostile regression source: **YES / UNEXECUTED**;
 - current-inventory witness regression source: **YES / UNEXECUTED**;
