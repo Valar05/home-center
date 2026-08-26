@@ -24,11 +24,11 @@
 <body>
 <main>
   <h1>WARM WALL / OWNER SURGERY BACKEND SELECTION</h1>
-  <p class="scar"><strong>SOURCE ONLY.</strong> CAPABILITY EXACT-INPUT GATE: SOURCE WIRED · BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: SOURCE WIRED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · EXACT-OBSERVATION SEMANTIC PRODUCER: SUPPORTING SOURCE · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+  <p class="scar"><strong>SOURCE ONLY.</strong> CAPABILITY EXACT-INPUT GATE: SOURCE WIRED · BACKEND SELECTION: SOURCE · RESULT SNAPSHOT THROAT: SOURCE WIRED · DIRECT POLICY EXACT-INPUT THROAT: SOURCE WIRED · OWNER-COVERAGE GATE: SOURCE · MEMBER-INTEGRITY GATE: SOURCE · WITNESS-PARITY GATE: SOURCE WIRED · ZERO-PARTIAL-AUTHORITY OWNER: SOURCE WIRED · EXACT-OBSERVATION SEMANTIC PRODUCER: CANONICAL SOURCE_WIRED · CANONICAL OWNER BACKEND SELECTION: NO · DESCRIPTOR OWNER INTEGRATION: NO / PROPOSED_NOT_APPLIED · REGRESSIONS: UNEXECUTED · TESTED: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
 
   <svg viewBox="0 0 900 180" role="img" aria-labelledby="diagram-title diagram-desc">
     <title id="diagram-title">Backend result custody and selection source path</title>
-    <desc id="diagram-desc">Machine capability evidence crosses an exact scalar gate. Caller backend evidence crosses exact control admission and the existing bounded exact JSON snapshot before policy reads. A pure exact-observation semantic producer now exists as supporting source, but canonical v10 does not consume it or the descriptor backend yet.</desc>
+    <desc id="diagram-desc">Machine capability evidence crosses an exact scalar gate. Caller backend evidence crosses exact control admission and the existing bounded exact JSON snapshot before policy reads. Canonical v10 now consumes the exact-observation semantic producer after bounded artifact observation, while descriptor backend selection and held-directory custody remain staged but not owner-wired.</desc>
     <path d="M20 90 H125 M205 90 H315 M395 90 H505 M585 90 H695 M775 90 H880" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="125" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
     <rect x="315" y="45" width="80" height="90" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
@@ -67,7 +67,11 @@
     </label>
     <label>
       <input type="radio" name="backend" value="producer">
-      <span><span class="token">● EXACT-OBSERVATION SEMANTIC PRODUCER</span><br>A pure source organ now binds already-observed exact UTF-8 text to byte-count/SHA-256 witnesses and produces patch/delta semantic fields without any filesystem re-read. Canonical v10 consumption remains NO.</span>
+      <span><span class="token">● EXACT-OBSERVATION SEMANTIC PRODUCER</span><br>Canonical v10 now observes patch/delta content once and delegates semantics to the existing exact-observation producer. Descriptor backend composition remains a separate, unapplied owner surgery.</span>
+    </label>
+    <label>
+      <input type="radio" name="backend" value="composition">
+      <span><span class="token">× DESCRIPTOR OWNER COMPOSITION</span><br>An exact base-blob-locked surgery and RED owner-boundary fixture now define the missing composition. They do not make it owner-wired, executed, or tested.</span>
     </label>
     <label>
       <input type="radio" name="backend" value="exhaustive">
@@ -91,7 +95,7 @@
     </label>
   </fieldset>
 
-  <div id="detail" role="status" aria-live="polite">CAPABILITY EXACT INPUT\nExact built-in scalar controls are admitted before platform classification.\nHostile callback-bearing inputs are regression source only and remain UNEXECUTED.\nCanonical owner backend integration remains NO.</div>
+  <div id="detail" role="status" aria-live="polite">CAPABILITY EXACT INPUT\nExact built-in scalar controls are admitted before platform classification.\nHostile callback-bearing inputs are regression source only and remain UNEXECUTED.\nCanonical descriptor-backend integration remains NO.</div>
 
   <script>
     const detail = document.getElementById('detail');
@@ -101,7 +105,8 @@
       snapshot: 'EXACT JSON SNAPSHOT\nThe existing receipt snapshot organ is reused. Root must be exact dict; nested containers/scalars must be exact JSON under bounded depth/node/text/encoded-byte budgets. Caller callbacks do not become evidence. Source wired: YES. Tested: NO.',
       portable: 'PORTABLE PRIMARY\nDescriptor primitives are unavailable. Keep canonical v10 persistent-drift semantics. This is not descriptor failure recovery.',
       descriptor: 'HELD FD SOURCE\nStronger source organ can hold the root and observe descriptor-relative candidate bytes. Preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, and exact group/member evidence. Canonical owner consumption is still NO.',
-      producer: 'EXACT-OBSERVATION SEMANTIC PRODUCER\nSupporting source now converts one exact already-observed UTF-8 artifact plus matching byte-count/SHA-256 witness into patch/delta semantic fields without reopening the path. This removes the previous missing-parser-organ gap, but canonical v10 has not imported or consumed it and descriptor backend selection is not owner-wired. Supporting source: YES. Regression execution: NO. Tested: NO.',
+      producer: 'EXACT-OBSERVATION SEMANTIC PRODUCER\nCanonical v10 now feeds each bounded exact artifact observation directly into the existing semantic producer and consumes its path/kind/owner/base/state/content-witness semantics. Source wired: YES. Regression execution: NO. Tested: NO. Descriptor backend consumption: NO.',
+      composition: 'DESCRIPTOR OWNER COMPOSITION\nA CORRECTED_PROPOSED_NOT_APPLIED surgery is locked to canonical owner blob 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05. A RED source fixture requires one backend selection, direct HeldDirectoryCustody consumption, preserved evidence fields, and portableFallbackAttempted=false. Owner wiring: NO. Tested: NO.',
       exhaustive: 'INCOMPLETE CUSTODY → ZERO AUTHORITY\nCanonical v10 source is wired. Healthy surgeries may survive as diagnostics, but discoveryErrors force collisionSets, staleBaseGroups, and unverifiedBaseGroups to remain empty. Regression execution is still NO.',
       coverage: 'OWNER COVERAGE GATE\nCollision/stale groups must bind to the exact authenticated current-owner blob for their owner. Current custody for OWNER A cannot launder OWNER B into owner evidence.',
       members: 'MEMBER INTEGRITY GATE\nA group shell is not authority. Each member must carry the same owner/base, canonical artifact kind/path, exact promotion-ready state, and literal promotion_candidate=true.',
