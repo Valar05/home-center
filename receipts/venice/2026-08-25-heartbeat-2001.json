@@ -1,0 +1,27 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-25T20:01:44-05:00",
+  "reviewedSourceHead": "f0cbd4190ece86fbbd69d9673ba1494672636e33",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_SEMANTIC_COMPOSITION_DESCRIPTOR_EXACT_INPUT_OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "whyStopThisSlice": [
+    "Two independent supporting-source defects were actually repaired in existing organs: semantic-parser UTF-8 error containment and witness-parity public container truth.",
+    "Two independent owner boundaries were narrowed to exact, base-bound proposed surgeries with RED source fixtures instead of being falsely promoted: canonical semantic-producer consumption and descriptor exact-input admission.",
+    "No duplicate authority owner, overlay controller, phone lane, recovery daemon, or P0 coordinator was created."
+  ],
+  "continueRequired": [
+    "Apply canonical v10 semantic-producer composition only through the existing owner with fresh base custody.",
+    "Apply held-directory exact-input hardening only through the existing descriptor custody owner with fresh base custody.",
+    "Execute regressions through an authorized non-phone lane before any TESTED claim.",
+    "Preserve the P0 and primary-phone firewalls."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "phoneDelivered": false
+}
