@@ -1,6 +1,8 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER: tools/try_forever_posix_directory_handle_custody.py
 # BASE OWNER BLOB: 6eee417a736022910989137142811b787e85842e
+# APPLIED OWNER BLOB: 1cdccb14f1dc0d587f98aa49f5d4d2b73d60edd1
+# APPLIED COMMIT: 4bf66478dd44721c507e329d8300e2f62619d4d5
 # PURPOSE: Reject caller-owned path-like callbacks before descriptor-root capability or filesystem semantics.
 
 diff --git a/tools/try_forever_posix_directory_handle_custody.py b/tools/try_forever_posix_directory_handle_custody.py
