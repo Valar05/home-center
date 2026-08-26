@@ -1,7 +1,7 @@
 # Heartbeat Pre-Decode Resource Budget
 
 ## Purpose
-Keep corrupt persisted heartbeat declarations from consuming unbounded decode/allocation work before the existing integrity pipeline can reject them.
+Keep corrupt or directly supplied heartbeat text from consuming unbounded repeated comparison, encode, decode, allocation, or parser work before the existing integrity/semantic pipeline can reject it.
 
 The canonical writer caps the UTF-8 payload at `OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES`. Standard padded Base64 can therefore require at most:
 
@@ -9,41 +9,65 @@ The canonical writer caps the UTF-8 payload at `OperatorState.MAX_HEARTBEAT_LIGH
 
 `HeartbeatPersistedSnapshotReader.MAX_PAYLOAD_BASE64_CHARS` derives that ceiling from the existing byte constant. The coherent reader rejects a longer stored declaration before `OperatorOverlayService` calls Android Base64 decode.
 
-## Ownership
-This skill owns a source-level resource bound only. It does not own a decoder, poll loop, cache, renderer, overlay controller, transport, Phone Hands ticket, primary-phone command, P0 recovery action, deployment, or acceptance lane. The sole runtime owner remains the existing `OperatorOverlayService`; the canonical writer remains `OperatorState.updateHeartbeatLights(...)`.
+The same resource law also applies to direct/source-only entrypoints that do not necessarily inherit coherent-reader custody:
 
-Do not create a second decoder or a second heartbeat reader to enforce this rule.
+- `HeartbeatPersistedPollPolicy.Snapshot` now has finite dedup eligibility: Base64 text is bounded by the canonical maximum and SHA metadata by a finite diagnostic/integrity source ceiling before repeated `String.equals` work. Oversized exact evidence is **not** truncated or normalized; it becomes `PROJECT` so the existing verification path can reject it while last-good contact semantics remain available.
+- `HeartbeatPersistedEnvelopeProjection.project(String, ...)` still performs UTF-8 encoding before its existing byte ceiling. A base-blob-locked proposal adds an early Java source-code-unit throat to that compatibility adapter. This boundary is **PROPOSED_NOT_APPLIED / RED SOURCE / UNEXECUTED** until the exact existing owner changes.
+- `HeartbeatEnvelopeParser.parse(String)` still has a distinct staged direct preparse source-work throat. Persisted-byte custody does not automatically protect arbitrary direct parser callers.
+
+## Ownership
+This skill owns source-level resource-bound doctrine only. It does not own a decoder, poll loop, cache, parser twin, renderer, overlay controller, transport, Phone Hands ticket, primary-phone command, P0 recovery action, deployment, or acceptance lane. The sole runtime owner remains the existing `OperatorOverlayService`; the canonical writer remains `OperatorState.updateHeartbeatLights(...)`.
+
+Compose existing organs. Do not create a second decoder, heartbeat reader, poll controller, parser, or projection owner to enforce these rules.
 
 ## Evidence separation
-The pre-decode length ceiling is not Base64 canonicality and is not payload integrity.
+A finite source-work ceiling is not Base64 canonicality, payload integrity, semantic acceptance, or runtime proof.
 
-- declaration length within the ceiling: merely eligible for the existing decode/canonicality/integrity/parser chain;
-- declaration length above the ceiling: coherent-read failure before decode;
+- coherent-reader declaration length within the Base64 ceiling: merely eligible for the existing decode/canonicality/integrity/parser chain;
+- declaration length above the coherent-reader ceiling: storage read failure before owner decode;
+- poll snapshot text within the dedup ceilings: merely eligible to compare with the previous processed observation;
+- poll snapshot text above a dedup ceiling: never `SKIP_UNCHANGED`; route through `PROJECT` without rewriting exact evidence;
+- direct String projection above its proposed source ceiling: should fail before UTF-8 encoding once the proposal is applied;
+- direct parser text above its proposed source ceiling: should fail before trim/JSON traversal once its separate proposal is applied;
 - exact Base64 writer representation: separate `HeartbeatPersistedBase64Canonicality` concern;
 - decoded byte count/SHA/UTF-8/semantic acceptance: existing downstream concerns.
 
 Never report `length <= max` as valid Base64, accepted payload, rendered UI, or runtime delivery.
 
 ## Accessibility and contact preservation
-An oversized declaration is a storage wound, not operator prose. The existing service catches the reader failure at the coherent-read boundary and projects the bounded `STORAGE_READ_FAILURE_BOUNDARY`; raw declaration contents and raw exception text must not be announced through TalkBack.
+An oversized declaration is a storage/evidence wound, not operator prose. Existing fail-closed paths must expose bounded boundaries rather than raw hostile text through TalkBack.
+
+Poll dedup resource rejection must not erase contact or convert hostile evidence into a false equality. Returning `PROJECT` for oversized exact snapshots keeps verification failure distinct from `SKIP_UNCHANGED` and preserves the existing last-good/contact-preservation path.
 
 If last-good heartbeat contact exists, preserve it through the existing fail-closed scene organ and clamp one-shot motion. Before first contact, do not invent `CONTACT HELD`.
 
 ## Regression source
 Pin at least:
 
-- exact canonical maximum declaration length is accepted by the reader;
-- maximum + 1 is rejected before any owner decode;
-- exact SHA metadata text remains byte-for-character unchanged by the reader;
+- exact canonical maximum persisted Base64 declaration length is accepted by the coherent reader;
+- maximum + 1 persisted declaration is rejected before owner decode;
+- exact poll-dedup Base64 ceiling may compare equal while max + 1 cannot become dedup authority;
+- oversized SHA metadata cannot become dedup authority;
+- an oversized previous poll observation cannot make a finite changed observation skip;
+- exact SHA metadata text remains byte-for-character unchanged by the reader/poll snapshot;
+- direct String projection max + 1 fails before encode **after** its proposal is applied, while exact-at-ceiling text still reaches existing byte-integrity semantics;
+- multibyte text exactly at the proposed String code-unit ceiling still reaches and may fail the canonical byte ceiling rather than being falsely accepted;
 - wrong stored types remain read failures rather than fake absence;
 - regression source existence is not TESTED evidence.
 
 ## Capability membrane
 Keep these states distinct:
 
-`requested -> reader bound source -> regression source -> exact GitHub readback -> tested -> runtime decode avoided -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> coherent-reader bound source -> poll-dedup bound source -> direct-string preencode proposal -> direct-parser preparse proposal -> regression source -> exact GitHub readback -> tested -> runtime work avoided -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-Current source state: reader bound **YES**; regression source **YES**; exact GitHub readback **YES**; tested/runtime/deployed/callable/executed/delivered/accepted **NO** until separate evidence exists.
+Current source state:
+
+- coherent reader Base64 bound: **SOURCE_WIRED**;
+- persisted poll dedup source-work bound: **SOURCE_WIRED**;
+- direct persisted String pre-encode throat: **NO / PROPOSED_NOT_APPLIED / RED SOURCE**;
+- direct envelope parser preparse throat: **NO / PROPOSED_NOT_APPLIED / RED SOURCE**;
+- regression source: **YES / UNEXECUTED**;
+- tested/runtime/deployed/callable/executed/delivered/accepted: **NO** until separate evidence exists.
 
 ## P0 firewall
 This skill must never wake, queue, retask, probe, or consume Phone Ingress, Phone Hands, Nightcore, Pocket TTS, Chromium Control, Context Organs, or their physical acceptance chain. A repository-source resource bound is independent of P0 recovery.
