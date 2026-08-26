@@ -1,0 +1,48 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T09:02:00-05:00",
+  "sourceHead": "14213e2fde78f41adc895b5e18ad696b7c68be5b",
+  "scope": "non-P0 owner-surgery custody source",
+  "verdict": "PASS_BOUNDED_SOURCE__PROGRAMMATIC_ARGV_WIRED__LEGACY_FIXTURE_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "review": {
+    "canonicalOwnerMutatedInPlace": true,
+    "programmaticArgvExactListBeforeTraversal": true,
+    "programmaticArgvExactStringsBeforeScalarCallbacks": true,
+    "programmaticArgvItemCeiling": 4096,
+    "programmaticArgCodepointCeiling": 4137,
+    "programmaticArgvTotalCodepointCeiling": 1048576,
+    "programmaticArgvDetachedAfterAdmission": true,
+    "osCliArgvNonePreserved": true,
+    "focusedHostileRegressionSource": true,
+    "v10CapabilityContractUpdated": true,
+    "legacyBroadCustodyFixture": "STALE_NONAUTHORITY__SCHEMA_V7_AND_OWNERWIRED_FALSE_ASSERTIONS_REMAIN",
+    "duplicateArchitecture": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "outcome": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
