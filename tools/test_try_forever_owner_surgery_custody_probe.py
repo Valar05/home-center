@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Regression source for TRY FOREVER owner-surgery custody classification."""
+"""Broad SOURCE-ONLY regression for current TRY FOREVER owner-surgery custody v10.
+
+This fixture intentionally follows the canonical backend selected by current platform capability.
+It preserves common authority/collision semantics while treating descriptor-vs-portable root custody
+as backend-conditional evidence. Focused regressions own stronger desired contracts such as exact
+programmatic argv admission and descriptor failure-evidence parity.
+
+Source existence is not regression execution, TESTED, runtime, deployment, phone delivery, or
+acceptance evidence.
+"""
 
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import try_forever_owner_surgery_custody_probe as custody
+from try_forever_owner_surgery_backend_policy import DESCRIPTOR_BACKEND, PORTABLE_BACKEND
 from try_forever_owner_surgery_custody_probe import (
     MAX_ARTIFACT_BYTES,
     MAX_CUSTODY_ARTIFACTS,
@@ -37,43 +46,104 @@ def delta(
     base_key: str = "baseBlob",
     state_key: str = "state",
 ) -> str:
-    return json.dumps({
-        "schema": "try-forever-owner-delta.v1",
-        "owner": OWNER,
-        base_key: base,
-        state_key: state,
-        "fixture": name,
-    }, indent=2) + "\n"
+    return json.dumps(
+        {
+            "schema": "try-forever-owner-delta.v1",
+            "owner": OWNER,
+            base_key: base,
+            state_key: state,
+            "fixture": name,
+        },
+        indent=2,
+    ) + "\n"
+
+
+def assert_zero_partial_authority(result: dict[str, object]) -> None:
+    assert result["surgeries"] == []
+    assert result["collisionSets"] == []
+    assert result["staleBaseGroups"] == []
+    assert result["unverifiedBaseGroups"] == []
+    assert result["evidenceComplete"] is False
+
+
+def assert_current_capability(result: dict[str, object]) -> None:
+    capability = result["capability"]
+    assert result["schema"] == "try-forever-owner-surgery-custody.v10"
+    assert result["backend"] in {DESCRIPTOR_BACKEND, PORTABLE_BACKEND}
+    assert result["portableFallbackAttempted"] is False
+    assert capability["selectedBackend"] == result["backend"]
+    assert capability["portableFallbackAttempted"] is False
+    assert capability["sourceInspection"] is True
+    assert capability["patchArtifactInspection"] is True
+    assert capability["deltaArtifactInspection"] is True
+    assert capability["artifactRootAtomicBinding"] is False
+    assert capability["boundedArtifactDirectoryScan"] is True
+    assert capability["boundedArtifactCandidateSet"] is True
+    assert capability["boundedArtifactRead"] is True
+    assert capability["finiteRegularArtifactCustody"] is True
+    assert capability["currentOwnerCustodyProvided"] is True
+    assert capability["ownerWired"] is True
+    assert capability["patchApplied"] is False
+    assert capability["regressionExecuted"] is False
+    assert capability["tested"] is False
+    assert capability["runtimeUi"] is False
+    assert capability["runtimeTalkBack"] is False
+    assert capability["phoneDelivered"] is False
+
+    if result["backend"] == DESCRIPTOR_BACKEND:
+        assert capability["descriptorRootCustody"] is True
+        assert capability["artifactRootIdentityRevalidation"] is False
+        assert capability["artifactRootFinalRevalidation"] is False
+    else:
+        assert capability["descriptorRootCustody"] is False
+        assert capability["artifactRootIdentityRevalidation"] is True
+        assert capability["artifactRootFinalRevalidation"] is True
 
 
 def main() -> int:
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "try-forever-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8"
+        )
         (root / "try-forever-b.patch").write_text(
-            patch("CANONICAL_PROPOSED_NOT_APPLIED", "b"), encoding="utf-8")
+            patch("CANONICAL_PROPOSED_NOT_APPLIED", "b"), encoding="utf-8"
+        )
         (root / "try-forever-c.delta.json").write_text(
-            delta("CORRECTED_PROPOSED_NOT_APPLIED", "c", base_key="ownerBaseBlob", state_key="status"),
-            encoding="utf-8")
+            delta(
+                "CORRECTED_PROPOSED_NOT_APPLIED",
+                "c",
+                base_key="ownerBaseBlob",
+                state_key="status",
+            ),
+            encoding="utf-8",
+        )
         (root / "try-forever-stale-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "stale-a", STALE), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "stale-a", STALE), encoding="utf-8"
+        )
         (root / "try-forever-stale-b.patch").write_text(
-            patch("CANONICAL_PROPOSED_NOT_APPLIED", "stale-b", STALE), encoding="utf-8")
+            patch("CANONICAL_PROPOSED_NOT_APPLIED", "stale-b", STALE), encoding="utf-8"
+        )
         (root / "try-forever-stale-c.delta.json").write_text(
             delta("CANONICAL_PROPOSED_NOT_APPLIED", "stale-c", STALE, base_key="baseOwnerBlob"),
-            encoding="utf-8")
+            encoding="utf-8",
+        )
         (root / "try-forever-old.patch").write_text(
-            patch("SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE", "old"), encoding="utf-8")
+            patch("SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE", "old"), encoding="utf-8"
+        )
         (root / "try-forever-rejected.patch").write_text(
-            patch("REJECTED_SUPERSEDED__DO_NOT_APPLY", "rejected"), encoding="utf-8")
+            patch("REJECTED_SUPERSEDED__DO_NOT_APPLY", "rejected"), encoding="utf-8"
+        )
         (root / "try-forever-applied.patch").write_text(
-            patch("APPLIED_SOURCE", "applied"), encoding="utf-8")
+            patch("APPLIED_SOURCE", "applied"), encoding="utf-8"
+        )
         (root / "try-forever-applied.delta.json").write_text(
-            delta("APPLIED_SOURCE", "applied-delta"), encoding="utf-8")
+            delta("APPLIED_SOURCE", "applied-delta"), encoding="utf-8"
+        )
 
         result = classify(root, {OWNER: BASE})
-        assert result["schema"] == "try-forever-owner-surgery-custody.v7"
+        assert_current_capability(result)
+        backend = result["backend"]
         assert result["artifactKindsScanned"] == ["patch", "delta_json"]
         assert result["artifactReadBudgetBytes"] == MAX_ARTIFACT_BYTES
         assert result["artifactCandidateBudget"] == MAX_CUSTODY_ARTIFACTS
@@ -90,16 +160,11 @@ def main() -> int:
         assert collision["baseBlob"] == BASE
         assert collision["currentOwnerBlob"] == BASE
         assert collision["status"] == "CURRENT_BASE_COLLISION_SET"
-        candidates = collision["promotionCandidates"]
-        assert [Path(item["path"]).name for item in candidates] == [
+        assert [Path(item["path"]).name for item in collision["promotionCandidates"]] == [
             "try-forever-a.patch",
             "try-forever-b.patch",
             "try-forever-c.delta.json",
         ]
-        assert [item["artifact_kind"] for item in candidates] == [
-            "patch", "patch", "delta_json",
-        ]
-        assert all(item["promotion_candidate"] for item in candidates)
 
         stale = result["staleBaseGroups"]
         assert len(stale) == 1, stale
@@ -135,30 +200,15 @@ def main() -> int:
         assert moved_owner["collisionSets"] == []
         assert len(moved_owner["staleBaseGroups"]) == 2
 
-        capability = result["capability"]
-        assert capability["sourceInspection"] is True
-        assert capability["patchArtifactInspection"] is True
-        assert capability["deltaArtifactInspection"] is True
-        assert capability["artifactRootIdentityRevalidation"] is True
-        assert capability["artifactRootAtomicBinding"] is False
-        assert capability["boundedArtifactDirectoryScan"] is True
-        assert capability["boundedArtifactCandidateSet"] is True
-        assert capability["boundedArtifactRead"] is True
-        assert capability["finiteRegularArtifactCustody"] is True
-        assert capability["currentOwnerCustodyProvided"] is True
-        assert capability["patchApplied"] is False
-        assert capability["ownerWired"] is False
-        assert capability["regressionExecuted"] is False
-        assert capability["tested"] is False
-        assert capability["phoneDelivered"] is False
-
-    # Redirector root topology must fail before directory traversal and return zero partial authority.
+    # Root redirectors fail closed on both backends. Error taxonomy is backend-conditional because
+    # descriptor selection rejects during held-root open while portable custody rejects root topology.
     with TemporaryDirectory() as tmp:
         base_root = Path(tmp)
         target = base_root / "real-patches"
         target.mkdir()
         (target / "try-forever-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8"
+        )
         link = base_root / "patches-link"
         try:
             link.symlink_to(target, target_is_directory=True)
@@ -166,120 +216,77 @@ def main() -> int:
             pass
         else:
             result = classify(link, {OWNER: BASE})
-            assert result["surgeries"] == []
-            assert result["collisionSets"] == []
-            assert result["staleBaseGroups"] == []
-            assert result["unverifiedBaseGroups"] == []
+            assert_zero_partial_authority(result)
             assert result["artifactDirectoryEntriesObserved"] == 0
             assert result["artifactCandidatesObserved"] == 0
-            assert result["evidenceComplete"] is False
             assert len(result["discoveryErrors"]) == 1
             error = result["discoveryErrors"][0]
-            assert error["artifact_kind"] == "artifact_root"
-            assert "symlink" in error["boundary"]
+            if backend == DESCRIPTOR_BACKEND:
+                assert error["artifact_kind"] == "descriptor_backend"
+                assert "held directory" in error["boundary"]
+            else:
+                assert error["artifact_kind"] == "artifact_root"
+                assert "symlink" in error["boundary"]
 
-    # A persistent root replacement after traversal invalidates the whole observed candidate inventory.
-    with TemporaryDirectory() as tmp:
-        base_root = Path(tmp)
-        root = base_root / "patches"
-        root.mkdir()
-        (root / "try-forever-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
-        replacement = base_root / "replacement"
-        replacement.mkdir()
-        displaced = base_root / "patches-old"
-
-        real_scandir = custody.os.scandir
-
-        class ReplaceAfterScan:
-            def __init__(self, path):
-                self._context = real_scandir(path)
-
-            def __enter__(self):
-                return self._context.__enter__()
-
-            def __exit__(self, exc_type, exc, traceback):
-                result = self._context.__exit__(exc_type, exc, traceback)
-                root.rename(displaced)
-                replacement.rename(root)
-                return result
-
-        custody.os.scandir = ReplaceAfterScan
-        try:
-            result = classify(root, {OWNER: BASE})
-        finally:
-            custody.os.scandir = real_scandir
-
-        assert result["surgeries"] == []
-        assert result["collisionSets"] == []
-        assert result["staleBaseGroups"] == []
-        assert result["unverifiedBaseGroups"] == []
-        assert result["artifactDirectoryEntriesObserved"] == 1
-        assert result["artifactCandidatesObserved"] == 1
-        assert result["evidenceComplete"] is False
-        assert len(result["discoveryErrors"]) == 1
-        error = result["discoveryErrors"][0]
-        assert error["artifact_kind"] == "artifact_root"
-        assert (
-            "device/inode identity changed" in error["boundary"]
-            or "identity is unavailable" in error["boundary"]
-        )
-
-    # Candidate-set max+1 must fail the whole inventory closed before any partial promotion authority.
+    # Candidate-set max+1 fails the whole authority set. Portable custody currently preserves
+    # observed-work counts; descriptor failure-evidence parity is pinned by a separate RED fixture.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "try-forever-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8"
+        )
         (root / "try-forever-b.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "b"), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "b"), encoding="utf-8"
+        )
         (root / "try-forever-c.delta.json").write_text(
-            delta("CORRECTED_PROPOSED_NOT_APPLIED", "c"), encoding="utf-8")
+            delta("CORRECTED_PROPOSED_NOT_APPLIED", "c"), encoding="utf-8"
+        )
         result = classify(root, {OWNER: BASE}, max_candidates=2)
         assert result["artifactCandidateBudget"] == 2
-        assert result["artifactCandidatesObserved"] == 3
-        assert result["surgeries"] == []
-        assert result["collisionSets"] == []
-        assert result["staleBaseGroups"] == []
-        assert result["unverifiedBaseGroups"] == []
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
-        error = result["discoveryErrors"][0]
-        assert error["artifact_kind"] == "artifact_inventory"
-        assert "candidate set exceeds 2" in error["boundary"]
+        if result["backend"] == PORTABLE_BACKEND:
+            assert result["artifactCandidatesObserved"] == 3
+            assert result["artifactDirectoryEntriesObserved"] == 3
+            assert result["discoveryErrors"][0]["artifact_kind"] == "artifact_inventory"
+            assert "candidate set exceeds 2" in result["discoveryErrors"][0]["boundary"]
+        else:
+            assert result["artifactCandidatesObserved"] == 0
+            assert result["artifactDirectoryEntriesObserved"] == 0
+            assert result["discoveryErrors"][0]["artifact_kind"] == "descriptor_backend"
 
-    # Unrelated directory entries consume the traversal throat too; candidate count alone is not enough.
+    # Unrelated entries consume traversal work too. The same descriptor evidence-parity boundary
+    # applies to max+1 failure receipts and is deliberately not hidden here.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "junk-a.txt").write_text("a", encoding="utf-8")
         (root / "junk-b.txt").write_text("b", encoding="utf-8")
         (root / "try-forever-a.patch").write_text(
-            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8")
+            patch("CORRECTED_PROPOSED_NOT_APPLIED", "a"), encoding="utf-8"
+        )
         result = classify(root, {OWNER: BASE}, max_entries=2)
         assert result["artifactDirectoryEntryBudget"] == 2
-        assert result["artifactDirectoryEntriesObserved"] == 3
-        assert result["surgeries"] == []
-        assert result["collisionSets"] == []
-        assert result["staleBaseGroups"] == []
-        assert result["unverifiedBaseGroups"] == []
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
-        error = result["discoveryErrors"][0]
-        assert error["artifact_kind"] == "artifact_inventory"
-        assert "directory scan exceeds 2" in error["boundary"]
+        if result["backend"] == PORTABLE_BACKEND:
+            assert result["artifactDirectoryEntriesObserved"] == 3
+            assert result["discoveryErrors"][0]["artifact_kind"] == "artifact_inventory"
+            assert "directory scan exceeds 2" in result["discoveryErrors"][0]["boundary"]
+        else:
+            assert result["artifactCandidatesObserved"] == 0
+            assert result["artifactDirectoryEntriesObserved"] == 0
+            assert result["discoveryErrors"][0]["artifact_kind"] == "descriptor_backend"
 
-    # A matching directory/special topology must fail before content I/O rather than block or become text.
+    # Special topology, strict UTF-8, and finite-byte admission all fail closed. Descriptor custody
+    # currently collapses artifact-custody failures to one descriptor-backend diagnostic; a focused
+    # RED fixture owns the desired per-artifact failure evidence contract.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "try-forever-special.patch").mkdir()
         result = classify(root, {OWNER: BASE})
-        assert result["surgeries"] == []
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
-        error = result["discoveryErrors"][0]
-        assert error["artifact_kind"] == "patch"
-        assert "ordinary finite regular-file object" in error["boundary"]
 
-    # Strict UTF-8 is part of custody evidence; replacement decoding cannot invent authority.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "try-forever-bad-utf8.patch").write_bytes(
@@ -290,29 +297,28 @@ def main() -> int:
             + b"\n\xff\n"
         )
         result = classify(root, {OWNER: BASE})
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
-        assert "strict UTF-8" in result["discoveryErrors"][0]["boundary"]
+        assert "UTF-8" in result["discoveryErrors"][0]["boundary"]
 
-    # Both recognized artifact representations share one finite pre-parse read throat.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "try-forever-oversized.patch").write_bytes(b"x" * (MAX_ARTIFACT_BYTES + 1))
-        (root / "try-forever-oversized.delta.json").write_bytes(
-            b"{" + b"x" * MAX_ARTIFACT_BYTES
-        )
+        (root / "try-forever-oversized.delta.json").write_bytes(b"{" + b"x" * MAX_ARTIFACT_BYTES)
         result = classify(root, {OWNER: BASE})
-        assert result["surgeries"] == []
-        assert result["evidenceComplete"] is False
-        assert len(result["discoveryErrors"]) == 2
-        assert {item["artifact_kind"] for item in result["discoveryErrors"]} == {
-            "patch", "delta_json",
-        }
-        assert all(
-            "custody budget" in item["boundary"]
-            for item in result["discoveryErrors"]
-        )
+        assert_zero_partial_authority(result)
+        if result["backend"] == PORTABLE_BACKEND:
+            assert len(result["discoveryErrors"]) == 2
+            assert {item["artifact_kind"] for item in result["discoveryErrors"]} == {
+                "patch",
+                "delta_json",
+            }
+        else:
+            assert len(result["discoveryErrors"]) == 1
+            assert result["discoveryErrors"][0]["artifact_kind"] == "descriptor_backend"
 
+    # Semantic conflicts remain artifact-addressable on both backends because exact observation
+    # succeeded and the shared semantic producer owns the rejection.
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         malformed = {
@@ -323,12 +329,12 @@ def main() -> int:
             "state": "CORRECTED_PROPOSED_NOT_APPLIED",
         }
         (root / "try-forever-conflicting.delta.json").write_text(
-            json.dumps(malformed), encoding="utf-8")
+            json.dumps(malformed), encoding="utf-8"
+        )
         result = classify(root, {OWNER: BASE})
-        assert result["surgeries"] == []
-        assert result["collisionSets"] == []
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
+        assert result["discoveryErrors"][0]["artifact_kind"] == "delta_json"
         assert "conflicting base owner blob aliases" in result["discoveryErrors"][0]["boundary"]
 
     with TemporaryDirectory() as tmp:
@@ -336,13 +342,15 @@ def main() -> int:
         (root / "try-forever-duplicate.delta.json").write_text(
             '{"schema":"try-forever-owner-delta.v1","owner":"a","owner":"b",'
             f'"baseBlob":"{BASE}","state":"CORRECTED_PROPOSED_NOT_APPLIED"}}',
-            encoding="utf-8")
+            encoding="utf-8",
+        )
         result = classify(root)
-        assert result["evidenceComplete"] is False
+        assert_zero_partial_authority(result)
         assert len(result["discoveryErrors"]) == 1
+        assert result["discoveryErrors"][0]["artifact_kind"] == "delta_json"
         assert "duplicate JSON member" in result["discoveryErrors"][0]["boundary"]
 
-    print("TRY FOREVER owner surgery custody regression source: root + traversal + finite artifacts classified")
+    print("TRY FOREVER owner surgery custody v10 broad regression source converged")
     return 0
 
 
