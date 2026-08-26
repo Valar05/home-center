@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RED SOURCE-ONLY boundary for descriptor-backend failure-evidence parity.
+"""CONVERGENCE SOURCE-ONLY boundary for descriptor-backend failure-evidence parity.
 
-Canonical v10 already fails descriptor custody wounds closed with zero promotion authority. This
-fixture requires the stronger evidence contract still missing from the descriptor path: work already
-observed before failure must remain visible in the receipt, and a custody failure for one identified
-artifact must retain that artifact's path/kind instead of collapsing to an anonymous backend error.
+Canonical v10 fails descriptor custody wounds closed with zero promotion authority and now preserves
+the bounded evidence that had already been observed before the wound. Inventory failure retains
+observed directory/candidate work counts; a custody failure for one identified artifact retains that
+artifact's path/kind rather than collapsing to an anonymous backend error.
 
 The fixture is intentionally SOURCE / UNEXECUTED and must not be reported as TESTED evidence.
 """
@@ -59,7 +59,6 @@ def test_descriptor_candidate_overflow_preserves_observed_work_counts(tmp_path: 
     result = classify(root, {OWNER: BASE}, max_candidates=1)
     _assert_zero_partial_authority(result)
 
-    # RED on current source: descriptor inventory overflow collapses these observations to zero.
     assert result["artifactDirectoryEntriesObserved"] == 2
     assert result["artifactCandidatesObserved"] == 2
     assert len(result["discoveryErrors"]) == 1
@@ -84,8 +83,6 @@ def test_descriptor_artifact_failure_retains_inventory_and_artifact_identity(tmp
     result = classify(root, {OWNER: BASE})
     _assert_zero_partial_authority(result)
 
-    # RED on current source: a descriptor artifact-custody wound is collapsed to descriptor_backend
-    # with zero observed counts even though held-root inventory already identified this exact file.
     assert result["artifactDirectoryEntriesObserved"] == 1
     assert result["artifactCandidatesObserved"] == 1
     assert len(result["discoveryErrors"]) == 1
