@@ -169,6 +169,11 @@ class HeldDirectoryCustody:
 
         try:
             self.fd = os.open(os.fspath(self.path), _directory_open_flags())
+        except UnicodeError:
+            self.fd = -1
+            raise PosixDirectoryHandleCustodyUnavailable(
+                "held directory path encoding failed before descriptor custody could be established"
+            ) from None
         except OSError:
             self.fd = -1
             raise PosixDirectoryHandleCustodyUnavailable(
