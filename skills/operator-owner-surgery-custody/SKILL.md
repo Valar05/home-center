@@ -11,6 +11,8 @@ It does **not** own another patch executor, classifier, overlay controller, reco
 - `NO AUTHENTICATED CURRENT OWNER BLOB = UNVERIFIED_BASE_GROUP`.
 - `AUTHENTICATED OWNER-BLOB MAP != ARBITRARY PYTHON MAPPING`.
 - `REPEATED CLI OWNER-BLOB EVIDENCE != ARBITRARY PYTHON ITERABLE OR EXTENSIBLE STRING`.
+- `PROGRAMMATIC ARGV != ARBITRARY PYTHON ITERABLE OR EXTENSIBLE STRING`.
+- `EXACT PROGRAMMATIC ARGV != UNBOUNDED PROGRAMMATIC ARGV`.
 - `OMITTED CUSTODY != EXPLICITLY SUPPLIED EMPTY CUSTODY`, even when both admit to the same empty evidence map.
 - `CALLER-OWNED CONTAINER OR SCALAR CALLBACK BEFORE CUSTODY ADMISSION = EVIDENCE WOUND`.
 - `UNBOUNDED DIRECTORY / ARTIFACT / SEMANTIC INPUT != EXHAUSTIVE CUSTODY`.
@@ -57,15 +59,23 @@ Each admitted patch/delta uses the existing finite ordinary-file observation org
 
 Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
 
-The existing `_parse_owner_blob(...)` boundary now admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
+The existing `_parse_owner_blob(...)` boundary admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
 
-This does **not** green-paint the outer direct `main(argv)` programmatic entrypoint. Non-`None` `argv` is still typed as arbitrary `Iterable[str]` and is materialized with `list(argv)` before argparse. OS CLI invocation with `argv=None` does not cross that caller-owned iterable surface, but direct programmatic `main(argv)` exact-input custody remains **OPEN**.
+### Direct programmatic argv
+Non-`None` direct `main(argv)` now crosses `_admit_programmatic_argv(...)` **before argparse traversal**. The caller container must be one exact built-in `list`; every member must be one exact built-in `str`; the vector is detached with a built-in copy only after those gates.
+
+Programmatic argv has independent finite source throats:
+- **4,096 arguments maximum**;
+- **4,137 code points maximum per argument**;
+- **1,048,576 aggregate code points maximum**.
+
+`argv=None` retains ordinary OS CLI semantics and does not traverse a caller-owned Python iterable. Exact-list admission is not license for unbounded argument materialization, and no callback-bearing list/string subclass may enter argparse custody.
 
 ### Surgery state
 Promotion-ready state is exact, bounded, canonical machine evidence. Only the explicit current allow-list may enter promotion-candidate groups. Regex/header recognition may not erase whitespace or normalize the state before policy admission.
 
 ### Semantic producer
-The canonical owner now consumes `tools/try_forever_owner_surgery_semantic_parser.py` on **both portable and descriptor paths**. Direct semantic callers are finite too:
+The canonical owner consumes `tools/try_forever_owner_surgery_semantic_parser.py` on **both portable and descriptor paths**. Direct semantic callers are finite too:
 - exact patch/delta content: 1 MiB semantic observation byte ceiling with pre-encode and post-encode enforcement;
 - exact semantic path: finite source ceiling;
 - exact `artifact_kind`: finite source ceiling before set membership/hash;
@@ -87,9 +97,11 @@ Do not infer a mega-patch merely because a collision set exists. If one surgery 
 Historical patch files remain provenance only. Current authenticated source readback outranks dated capability summaries embedded in older patch prose or receipts.
 
 ## Regression source
-Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
+Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, exact bounded programmatic argv admission before argparse, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
-All remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
+The focused v10 contract pins the programmatic argv capability flags and all three finite ceilings. The older broad `tools/test_try_forever_owner_surgery_custody_probe.py` still contains pre-v10 schema/backend assertions and remains **STALE_NONAUTHORITY / CONVERGENCE OPEN** until repaired rather than being allowed to overrule authenticated canonical source.
+
+All regression artifacts remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
 ## Accessibility / contact preservation
 Exact evidence may be retained even when it is unsafe or too large to echo. Human-facing diagnostic projection must remain separate, bounded, and ASCII-safe. Never rewrite canonical evidence to make an error prettier, and never feed projected diagnostic text back into persistence or authority decisions.
@@ -105,13 +117,14 @@ Repository/source accessibility fixtures and Warm Walls are source artifacts onl
 - direct descriptor exact-root + path-encoding containment: **SOURCE_WIRED**;
 - authenticated current-owner exact-container/scalar admission: **SOURCE_WIRED**;
 - exact bounded `_parse_owner_blob(...)` repeated-owner admission: **SOURCE_WIRED**;
-- direct programmatic `main(argv)` exact iterable admission: **NO / OPEN**;
+- direct programmatic `main(argv)` exact/bounded admission before argparse: **SOURCE_WIRED**;
 - omitted-vs-explicit current-owner custody presence truth: **SOURCE_WIRED**;
 - exact surgery-state admission: **SOURCE_WIRED**;
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content/path/kind/SHA resource custody: **SOURCE_WIRED**;
 - semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
 - descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
+- legacy broad custody regression convergence: **NO / STALE_NONAUTHORITY**;
 - universal filesystem atomicity: **NO**;
 - hostile regressions: **SOURCE / UNEXECUTED**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
