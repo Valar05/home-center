@@ -3,11 +3,15 @@
 
 SOURCE ONLY. This file has not been observed executing in an authorized test lane.
 The backend result policy must not accept owner identities, owner maps, authority-group counts,
-or authority-member counts that canonical v10 itself cannot produce.
+or authority-member counts that canonical v10 itself cannot produce. Aggregate authority-member
+work is bounded across groups, not merely inside each group.
 """
 
 from try_forever_owner_surgery_backend_policy import (
     DESCRIPTOR_BACKEND,
+    MAX_AUTHENTICATED_OWNER_BLOBS,
+    MAX_AUTHORITY_GROUPS,
+    MAX_AUTHORITY_MEMBERS,
     SUPPORTED_POSIX,
     admit_selected_backend_result,
     select_owner_surgery_backend,
@@ -17,15 +21,16 @@ from try_forever_owner_surgery_metadata_exactness import MAX_OWNER_IDENTITY_CODE
 
 
 BLOB = "a" * 40
+OTHER_BLOB = "b" * 40
 STATE = "CORRECTED_PROPOSED_NOT_APPLIED"
 
 
-def candidate(owner: str, path: str) -> dict[str, object]:
+def candidate(owner: str, path: str, *, base_blob: str = BLOB) -> dict[str, object]:
     return {
         "path": path,
         "artifact_kind": "patch",
         "owner": owner,
-        "base_blob": BLOB,
+        "base_blob": base_blob,
         "state": STATE,
         "promotion_candidate": True,
     }
@@ -58,6 +63,10 @@ def expect_rejected(payload: dict[str, object], needle: str) -> None:
 
 
 def main() -> int:
+    assert MAX_AUTHENTICATED_OWNER_BLOBS == MAX_CUSTODY_ARTIFACTS
+    assert MAX_AUTHORITY_GROUPS == MAX_CUSTODY_ARTIFACTS
+    assert MAX_AUTHORITY_MEMBERS == MAX_CUSTODY_ARTIFACTS
+
     selection = select_owner_surgery_backend(SUPPORTED_POSIX)
     ordinary = admit_selected_backend_result(selection, result(owners={"owner": BLOB}))
     assert ordinary["ownerEvidenceAdmitted"] is True
@@ -72,6 +81,17 @@ def main() -> int:
         owners={f"owner-{index}": BLOB for index in range(MAX_CUSTODY_ARTIFACTS + 1)}
     )
     expect_rejected(too_many_owners, "currentOwnerBlobs exceeds canonical item ceiling")
+
+    whitespace_group_owner = result()
+    whitespace_group_owner["unverifiedBaseGroups"] = [
+        {
+            "owner": " owner ",
+            "baseBlob": BLOB,
+            "status": "UNVERIFIED_BASE_GROUP",
+            "promotionCandidates": [candidate(" owner ", "patches/try-forever-owner.patch")],
+        }
+    ]
+    expect_rejected(whitespace_group_owner, "exact owner identity")
 
     too_many_groups = result()
     too_many_groups["unverifiedBaseGroups"] = [
@@ -101,6 +121,32 @@ def main() -> int:
         }
     ]
     expect_rejected(too_many_members, "authority members exceed canonical candidate ceiling")
+
+    aggregate_members = result(owners={"collision-owner": BLOB, "stale-owner": BLOB})
+    aggregate_members["collisionSets"] = [
+        {
+            "owner": "collision-owner",
+            "baseBlob": BLOB,
+            "status": "CURRENT_BASE_COLLISION_SET",
+            "currentOwnerBlob": BLOB,
+            "promotionCandidates": [
+                candidate("collision-owner", f"patches/collision-{index}.patch")
+                for index in range(MAX_CUSTODY_ARTIFACTS)
+            ],
+        }
+    ]
+    aggregate_members["staleBaseGroups"] = [
+        {
+            "owner": "stale-owner",
+            "baseBlob": OTHER_BLOB,
+            "status": "STALE_BASE_GROUP",
+            "currentOwnerBlob": BLOB,
+            "promotionCandidates": [
+                candidate("stale-owner", "patches/stale-extra.patch", base_blob=OTHER_BLOB)
+            ],
+        }
+    ]
+    expect_rejected(aggregate_members, "authority members exceed canonical candidate ceiling")
 
     return 0
 
