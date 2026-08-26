@@ -1,0 +1,19 @@
+{
+  "schema": "venice-judgment-jar-receipt.v1",
+  "checkpoint": "2026-08-26-heartbeat-1400",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "691d19594d38d11a650886c068c73eb90ab81060",
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__BACKEND_PARITY_OWNER_MUTATION_SEMANTIC_FOSSIL_REMOVAL_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "finding": "This bounded source slice advances two independent non-P0 fronts without pretending either owner wound is repaired: backend-result canonical resource/identity parity now has a hostile regression plus exact existing-owner surgery proposal, and canonical semantic-producer composition now has a RED single-owner fixture against dormant local parser fossils. Source readback and exact-head CI truth are durable; owner mutation, regression execution, TESTED/runtime, deployment, delivery, acceptance, and the recurring campaign remain continue-required.",
+  "constraints": {
+    "weakerFallbackAdded": false,
+    "duplicateArchitectureAdded": false,
+    "phoneConsumed": false,
+    "p0Mutated": false,
+    "runtimeTalkBackClaimed": false,
+    "testedClaimed": false
+  }
+}
