@@ -16,8 +16,10 @@ detached observation against an encoded-byte ceiling without re-reading caller-o
 Exact evidence and diagnostic prose are deliberately separate. Mapping keys remain byte-for-byte
 semantic evidence in the detached snapshot, but error paths/projected field names are ASCII-safe and
 bounded so hostile newline/bidi/surrogate text or very deep names cannot become an operator/log
-injection or an independent diagnostic resource throat. Caller-supplied root diagnostic context is
-admitted through its own small source ceiling before JSON escaping/projection work begins.
+injection or an independent diagnostic resource throat. Long diagnostic segments collapse to a
+whole-identity digest before JSON escaping, so bounded source text cannot create a larger escaping
+allocation merely to be rejected. Caller-supplied root diagnostic context is admitted through its own
+small source ceiling before JSON escaping/projection work begins.
 
 The snapshot is evidence custody only. It creates no receipt owner/projector, grants no authority,
 TESTED/runtime/deployment/callability/execution/delivery/acceptance state, and has no phone/P0
@@ -64,8 +66,15 @@ def _diagnostic_digest(value: str) -> str:
 
 
 def _diagnostic_segment(value: str) -> str:
-    """Project one exact source string into bounded ASCII-only diagnostic evidence."""
+    """Project one exact source string into bounded ASCII-only diagnostic evidence.
 
+    Collapse definitely-long source before JSON escaping. This keeps diagnostic projection from
+    multiplying a bounded exact key into a much larger ensure_ascii temporary allocation merely to
+    discover that the final diagnostic must be a digest marker anyway.
+    """
+
+    if len(value) > MAX_DIAGNOSTIC_SEGMENT_CHARS:
+        return f"<text>...#{_diagnostic_digest(value)}"
     escaped = json.dumps(value, ensure_ascii=True, separators=(",", ":"))[1:-1]
     if len(escaped) <= MAX_DIAGNOSTIC_SEGMENT_CHARS:
         return escaped
