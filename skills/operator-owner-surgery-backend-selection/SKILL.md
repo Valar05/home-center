@@ -1,163 +1,102 @@
 # Operator Owner Surgery Backend Selection
 
 ## Purpose
-Select the strongest **admitted** owner-surgery custody backend inside the existing canonical v10 owner without silently weakening evidence, creating sidecar authority, or confusing source wiring with execution/runtime proof.
+Select and admit the strongest available owner-surgery custody backend **inside the existing canonical v10 owner** without silent weaker fallback, callback-shaped machine evidence, sidecar authority, or capability inflation.
 
-This skill owns backend-selection/result-admission doctrine only. It does **not** own a second custody probe, snapshot validator, patch executor, overlay controller, recovery daemon, phone lane, P0 coordinator, or physical acceptance chain.
+This skill owns backend-selection/result-admission doctrine only. It does **not** own another custody probe, semantic owner, overlay controller, recovery daemon, phone lane, P0 coordinator, or physical acceptance chain.
 
 ## Core laws
-`PLATFORM CAPABILITY ADMISSION != TESTED BACKEND BEHAVIOR`.
+- `PLATFORM CAPABILITY ADMISSION != TESTED BACKEND BEHAVIOR`.
+- `CAPABILITY MACHINE INPUT != EXTENSIBLE PYTHON CALLBACK SURFACE`.
+- `EXACT CONTROL TOKEN != UNBOUNDED CONTROL TOKEN`.
+- `EXACT SEMANTIC INPUT != PERMISSION FOR UNBOUNDED MEMBERSHIP / REGEX / ENCODE / HASH WORK`.
+- `EXACT CANONICAL EVIDENCE != RAW DIAGNOSTIC PROSE`.
+- `DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
+- `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
+- `STRONGER BACKEND != PERMISSION TO DROP DIRECTORY/CANDIDATE COUNTS, discoveryErrors, currentOwnerBlobs, PROMOTION-MEMBER EVIDENCE, OR CONTENT WITNESSES`.
+- `OMITTED backend / portableFallbackAttempted != PERMISSION TO RECONSTRUCT AUTHORITY-BEARING CONTROLS`.
+- `JSON-SHAPED VALUE != SEMANTICALLY ADMITTED AUTHORITY SCALAR`.
+- `CALLER PYTHON SUBCLASS != MACHINE EVIDENCE`.
+- `PUBLIC TYPE CAPABILITY MUST NOT EXCEED RUNTIME ADMISSION`.
+- `SOURCE_WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
 
-`CAPABILITY MACHINE INPUT != EXTENSIBLE PYTHON CALLBACK SURFACE`.
-
-`EXACT CONTROL TOKEN != UNBOUNDED CONTROL TOKEN`.
-
-`EXACT FAILURE EVIDENCE != PERMISSION FOR UNBOUNDED MACHINE-OUTPUT PROJECTION`.
-
-`DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
-
-`DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
-
-`DESCRIPTOR SHADOW AUDIT != DESCRIPTOR BACKEND AUTHORITY`.
-
-`STRONGER BACKEND != PERMISSION TO DROP DIRECTORY/CANDIDATE COUNTS, discoveryErrors, currentOwnerBlobs, PROMOTION-MEMBER EVIDENCE, OR CONTENT WITNESSES`.
-
-`OMITTED backend / portableFallbackAttempted != PERMISSION TO RECONSTRUCT AUTHORITY-BEARING CONTROLS FROM THE SELECTION OR DEFAULTS`.
-
-`JSON-SHAPED VALUE != SEMANTICALLY ADMITTED AUTHORITY SCALAR`.
-
-`INCOMPLETE EXHAUSTIVE CUSTODY + PROMOTION AUTHORITY = INVALID EVIDENCE`.
-
-`OWNER A CUSTODY != OWNER B AUTHORITY`.
-
-`GROUP SHELL != MEMBER AUTHORITY`.
-
-`CALLER PYTHON SUBCLASS != MACHINE EVIDENCE`.
-
-`PUBLIC TYPE CAPABILITY MUST NOT EXCEED RUNTIME ADMISSION`.
-
-`HELD-DESCRIPTOR BYTES != CANONICAL SURGERY AUTHORITY UNTIL THE EXISTING OWNER PARSES THOSE EXACT BYTES`.
-
-`SOURCE_WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != CALLABLE != EXECUTED != DELIVERED != ACCEPTED`.
-
-## Current canonical composition
+## Canonical composition
 Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, schema v10.
 
-The canonical owner now performs the backend decision itself:
-1. exact platform-capability evidence is produced by `current_directory_handle_binding_capability()`;
+The canonical owner performs one backend decision itself:
+1. exact platform capability evidence is produced by `current_directory_handle_binding_capability()`;
 2. `select_owner_surgery_backend(...)` selects exactly one backend;
-3. `SUPPORTED_POSIX_PRIMITIVES` selects `HELD_DIRECTORY_DESCRIPTOR`;
-4. `PORTABLE_ATOMIC_BINDING_UNAVAILABLE` keeps `PORTABLE_PATHNAME_REVALIDATION` as the primary canonical path;
-5. once descriptor custody is selected, setup/inventory/artifact/cleanup failure fails that classification attempt closed with `portableFallbackAttempted=false`;
-6. both backends feed already-custodied exact UTF-8 content plus byte/SHA witness into `parse_owner_surgery_observation(...)`;
-7. promotion groups remain suppressed whenever `discoveryErrors` is non-empty.
+3. admitted POSIX descriptor primitives select `HELD_DIRECTORY_DESCRIPTOR`;
+4. unavailable descriptor primitives keep `PORTABLE_PATHNAME_REVALIDATION` primary;
+5. once descriptor custody is selected, setup/inventory/artifact/cleanup failure fails closed with `portableFallbackAttempted=false`;
+6. both backends feed one already-custodied observation into `parse_owner_surgery_observation(...)`;
+7. promotion authority remains suppressed whenever `discoveryErrors` is non-empty.
 
-Canonical descriptor/backend composition is therefore **SOURCE_WIRED**. This is not regression execution or TESTED/runtime proof.
+Canonical backend selection, descriptor consumption, and portable/descriptor semantic-producer consumption are **SOURCE_WIRED**. That is not regression execution or TESTED/runtime proof.
 
-## Exact classification controls
-The canonical `classify(...)` entrypoint now admits before backend dispatch:
-- `root` as one exact platform `Path` object;
-- `max_candidates` as one exact built-in integer inside the declared candidate bound;
-- `max_entries` as one exact built-in integer inside the declared directory-entry bound;
-- `current_owner_blobs` as the existing exact built-in dict/string custody boundary.
+## Exact classification and backend controls
+Canonical `classify(...)` admits root/resource budgets before backend dispatch. The direct descriptor constructor admits only an exact built-in string or exact platform `Path` before capability/path/filesystem semantics, and exact-but-unencodable roots remain inside typed descriptor-custody failure.
 
-This closes the pre-dispatch callback seam where Python `Path`/`int` subclasses could otherwise execute during filesystem conversion or numeric comparison before machine evidence was admitted.
+`tools/try_forever_owner_surgery_backend_policy.py` admits exact control values before equality/truthiness and exact backend-result JSON before semantic reads. Capability-status text is capped at **128 code points**; fail-closed failure-boundary text is capped at **4,096 code points**. `backend` and `portableFallbackAttempted` must be explicitly present in admitted result evidence. Authority-member `artifact_kind` must be an exact built-in string before membership testing.
 
-`tools/test_try_forever_owner_surgery_classification_exact_input_boundary.py` is **SOURCE / UNEXECUTED** hostile regression source.
+## Semantic producer resource custody
+`tools/try_forever_owner_surgery_semantic_parser.py` is consumed by both canonical backends and performs no filesystem read, backend selection, grouping, or promotion.
 
-The descriptor organ's **direct constructor** is now converged too: `HeldDirectoryCustody(...)` admits only an exact built-in string or exact platform `Path` before capability lookup, `Path`/`os.fspath`, or filesystem semantics. Exact-but-unencodable roots are contained in the typed `PosixDirectoryHandleCustodyUnavailable` domain instead of leaking raw Unicode failures. `tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py` and `tools/test_try_forever_posix_directory_handle_io_failures.py` are **CONVERGENCE SOURCE / UNEXECUTED**.
+Direct semantic callers now cross finite source throats **before expensive or authority-facing operations**:
+- patch/delta UTF-8 observation: **1 MiB encoded-byte ceiling**, with claimed-byte and pre-encode code-point rejection before encode/hash plus post-encode multibyte enforcement;
+- semantic path: finite exact-string source ceiling before it can become returned canonical evidence;
+- `artifact_kind`: finite exact-string ceiling **before set membership/hash**;
+- SHA-256 witness: exact built-in string with **length 64 checked before regex**;
+- caller-owned string subclasses are rejected before callback-capable operations.
 
-## Descriptor backend
-`tools/try_forever_posix_directory_handle_custody.py` remains the existing stronger custody organ. The canonical owner consumes its `candidate_inventory(...)` and `observe_utf8_regular_file(...)` surfaces directly rather than calling a sidecar classifier.
+Content byte count and SHA-256 are recomputed before patch/delta semantics. Strict UTF-8 encode failure remains inside `OwnerSurgerySemanticError`.
 
-The descriptor path preserves:
-- `artifactDirectoryEntriesObserved`;
-- `artifactCandidatesObserved`;
-- `artifactContentWitnesses`;
-- `discoveryErrors`;
-- `currentOwnerBlobs`;
-- `collisionSets`;
-- `staleBaseGroups`;
-- `unverifiedBaseGroups`;
-- zero partial promotion authority after any discovery wound.
+## Semantic diagnostic custody
+Machine evidence and rejection prose have different ownership. Exact JSON member/schema text remains canonical input evidence, but duplicate-member and unsupported-schema diagnostics now use **bounded ASCII-safe projection**:
+- long diagnostic source collapses to a deterministic short digest marker **before JSON escaping**, so projection cannot balloon bounded input into multi-megabyte prose;
+- short diagnostic source is ASCII-escaped, preventing raw newline, bidi controls, or lone-surrogate text from entering logs/operator/TalkBack-facing prose;
+- typed dependency failures are wrapped without echoing arbitrary dependency exception text;
+- projected diagnostic text never feeds back into semantic admission or persistence.
 
-Descriptor root custody is stronger than pathname pre/post revalidation but still does **not** prove universal filesystem atomicity, swap-and-restore immunity, inode/file-index reuse immunity, or Windows parity.
+This composes the repository `semantic-text-safety` law: preserve exact evidence, project only the human-facing boundary.
 
-## Portable backend
-Portable v10 remains canonical when descriptor primitives are unavailable. Its persistent-drift root revalidation remains source-wired and its atomicity boundary remains explicit.
+## Evidence preservation
+Both backends preserve canonical directory/candidate counts, content witnesses, discovery errors, authenticated current-owner custody, collision/stale/unverified groups, and zero partial authority after any wound. Descriptor custody is stronger than pathname revalidation but does **not** prove universal filesystem atomicity, swap-and-restore immunity, identity-reuse immunity, or Windows parity.
 
-Do not reinterpret descriptor *unavailability* as a descriptor *failure*. Unavailability selects the portable primary path. A wound after descriptor selection does not.
+## Regression source
+Current source-only hostile fixtures include:
+- backend classification/control/result boundaries;
+- direct descriptor root and I/O failure boundaries;
+- canonical descriptor composition;
+- semantic callback-free exact scalar admission;
+- semantic path/kind/SHA/content resource throats;
+- semantic hostile duplicate-member/schema diagnostic projection.
 
-## Backend policy and result admission
-`tools/try_forever_owner_surgery_backend_policy.py` remains the pure selection/result-admission contract. Direct control inputs are exact built-in values before equality/truthiness; selection records are exact and internally canonical; backend result evidence crosses the existing bounded one-observation exact-JSON snapshot before semantic reads.
+These fixtures remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
-Direct control evidence now has independent finite source throats before semantic or diagnostic projection:
-- capability-status tokens are exact built-in strings capped at **128 code points** before equality or rejected-token formatting;
-- fail-closed failure-boundary text is an exact built-in non-empty string capped at **4,096 code points** before it can enter the returned machine evidence;
-- admitted text is preserved exactly; these throats do not strip, case-fold, sanitize, or reconstruct evidence.
+## Accessibility / Warm Wall
+`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing non-raster source-only Warm Wall. Keep canonical backend selection, bounded controls, semantic resource custody, diagnostic projection, no-weaker-fallback, evidence preservation, native keyboard/touch inspection, visible focus, non-color state, live-status semantics, inline SVG, and reduced-motion behavior inspectable there.
 
-`admit_selected_backend_result(...)` is not a second canonical owner. It remains a source-only result gate for selection identity, no weaker fallback, bounded counters, evidenceComplete/discoveryErrors agreement, exact owner custody, authority member integrity, and zero partial authority. It requires **explicit presence** of both `backend` and `portableFallbackAttempted`; omission fails closed instead of being silently repaired from the selected backend or a default false value.
-
-Authority-member `artifact_kind` is now required to be an exact built-in string before membership testing. A JSON-shaped list/dict can therefore be rejected as typed policy evidence instead of escaping as a raw unhashable `TypeError`. This is failure-domain containment, not broader authority.
-
-`tools/test_try_forever_owner_surgery_backend_required_control_presence.py` and `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` pin these laws as **SOURCE / UNEXECUTED** regression source. The exact-input fixture also pins exact-max preservation and max+1 fail-closed behavior for both control throats; it does not convert source into TESTED evidence.
-
-## Semantic producer
-`tools/try_forever_owner_surgery_semantic_parser.py` is **SOURCE_WIRED into both canonical portable and descriptor observation paths**.
-
-It performs no filesystem read or backend selection. It admits exact path/kind/text/byte-count/SHA-256 evidence, recomputes content witnesses, contains strict UTF-8 failures, preserves exact patch/default-owner semantics, rejects duplicate/non-standard delta JSON, and emits the semantic fields used to construct canonical `Surgery` records.
-
-Its source receipt records `canonicalOwnerConsumption=true` and `descriptorBackendConsumption=true`; all execution/runtime/deployment/delivery states remain false.
-
-## Surgery provenance and regression state
-`patches/try-forever-owner-surgery-descriptor-backend-composition.patch` is **APPLIED_SOURCE**. It is retained as provenance, not as an alternate owner.
-
-`patches/try-forever-posix-directory-root-exact-input.patch` is **APPLIED_SOURCE**. It records the existing descriptor-organ root-admission mutation; it is provenance, not a second descriptor owner.
-
-`tools/test_try_forever_owner_surgery_descriptor_backend_composition_boundary.py` is a **CONVERGENCE SOURCE / UNEXECUTED** owner-boundary fixture. It requires one canonical selection, direct held-directory consumption, semantic-producer reuse, exact classification gates, preserved evidence fields, and literal `portableFallbackAttempted=false`.
-
-`tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py` is **CONVERGENCE SOURCE / UNEXECUTED** for the direct descriptor-constructor root gate.
-
-Other backend/capability/descriptor/semantic regressions remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
-
-## Descriptor shadow
-`tools/try_forever_owner_surgery_descriptor_shadow_audit.py` remains explicitly non-authoritative staging. Shadow agreement cannot promote authority and shadow divergence cannot rewrite canonical results. The canonical owner now has its own descriptor path; the shadow does not become a second backend owner.
-
-## Accessibility / touch
-`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing source-only Warm Wall. It exposes the canonical owner backend decision, exact classification controls, **bounded control throats**, explicit backend-result controls, held descriptor path, semantic producer, fail-closed/no-fallback law, direct descriptor-root exact admission, typed root-encoding containment, and capability membrane through keyboard/touch-native controls, visible focus, non-color state text, inline SVG, and reduced-motion semantics.
-
-`tools/test_try_forever_owner_surgery_backend_selection_source_specimen.py` pins that source structure, including the bounded-control inspection state, as **SOURCE / UNEXECUTED**. Runtime TalkBack, Android runtime behavior, phone delivery, and acceptance remain **NO**.
+Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
 
 ## Current capability state
-- canonical v10 portable backend: **SOURCE_WIRED**;
 - canonical backend selection: **SOURCE_WIRED**;
-- canonical descriptor backend consumption: **SOURCE_WIRED**;
-- exact classification root/budget admission: **SOURCE_WIRED**;
-- platform capability exact-input custody: **SOURCE_WIRED**;
-- direct backend-policy exact-input custody: **SOURCE_WIRED**;
-- bounded capability-status/failure-boundary control throats: **SOURCE_WIRED**;
-- explicit backend/fallback result-control presence: **SOURCE_WIRED**;
-- backend authority-member artifact-kind typed admission: **SOURCE_WIRED**;
-- backend result snapshot/integrity custody: **SOURCE_WIRED**;
-- semantic producer consumption on portable path: **SOURCE_WIRED**;
-- semantic producer consumption on descriptor path: **SOURCE_WIRED**;
-- direct descriptor-constructor exact-root admission: **SOURCE_WIRED**;
-- direct descriptor root path-encoding containment: **SOURCE_WIRED**;
-- descriptor shadow audit: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
-- descriptor composition provenance patch: **APPLIED_SOURCE**;
-- direct descriptor-root provenance patch: **APPLIED_SOURCE**;
-- descriptor composition regression: **SOURCE / UNEXECUTED**;
-- classification exact-input regression: **SOURCE / UNEXECUTED**;
-- backend required-control regression: **SOURCE / UNEXECUTED**;
-- backend exact-input/failure-domain/control-throat regression: **SOURCE / UNEXECUTED**;
-- backend Warm Wall accessibility regression: **SOURCE / UNEXECUTED**;
-- universal root/candidate atomicity: **NO**;
+- canonical descriptor consumption: **SOURCE_WIRED**;
+- portable fallback-after-descriptor-wound: **NO**;
+- direct descriptor exact-root + root-encoding containment: **SOURCE_WIRED**;
+- backend exact-input/result custody: **SOURCE_WIRED**;
+- semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
+- semantic content resource throat: **SOURCE_WIRED**;
+- semantic path/kind/SHA scalar resource throats: **SOURCE_WIRED**;
+- semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
+- descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
+- hostile regressions: **SOURCE / UNEXECUTED**;
+- universal filesystem atomicity: **NO**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
 
-## Duplicate-architecture law
-Do not create a descriptor promotion owner beside canonical v10. Compose the existing owner, selector, descriptor custody organ, snapshot/integrity organs, and semantic producer. The shadow stays non-authoritative.
+## Duplicate-architecture and P0 firewall
+Do not create a descriptor promotion owner, semantic authority sidecar, selector twin, overlay controller, recovery daemon, phone ingress path, or P0 coordinator. Compose the existing v10 owner, selector, descriptor custody organ, snapshot/integrity organs, and semantic producer.
 
-## P0 / phone firewall
 This skill consumes no Phone Hands ticket, primary-phone command, P0 recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. P0 receipts remain read-only evidence.
 
 ## Capability membrane
