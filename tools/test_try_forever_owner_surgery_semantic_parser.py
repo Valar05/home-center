@@ -3,8 +3,8 @@
 
 The fixture is intentionally not execution evidence. It pins patch/delta semantic parity, content-
 witness binding, duplicate-member rejection, callback-free exact scalar admission, bounded direct
-semantic work, and typed strict-UTF-8 failure for the producer consumed by canonical portable and
-descriptor custody paths.
+semantic work, bounded ASCII-safe diagnostics, and typed strict-UTF-8 failure for the producer
+consumed by canonical portable and descriptor custody paths.
 """
 
 import hashlib
@@ -12,7 +12,11 @@ import json
 
 from try_forever_owner_surgery_default_owner_binding import DEFAULT_OWNER
 from try_forever_owner_surgery_semantic_parser import (
+    MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS,
+    MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
     MAX_SEMANTIC_OBSERVATION_BYTES,
+    MAX_SEMANTIC_PATH_CODEPOINTS,
+    MAX_SEMANTIC_SHA256_CODEPOINTS,
     OwnerSurgerySemanticError,
     parse_owner_surgery_observation,
     source_receipt,
@@ -68,12 +72,25 @@ def _must_reject_without_callbacks(**kwargs: object) -> None:
     assert CallbackString.callbacks == 0
 
 
+def _assert_safe_bounded_diagnostic(message: str) -> None:
+    assert "\n" not in message
+    assert "\r" not in message
+    assert "\u202e" not in message.lower()
+    assert "\ud800" not in message
+    assert len(message) <= 192
+
+
 def main() -> int:
     receipt = source_receipt()
     assert receipt["strictUtf8EncodeFailureTyped"] is True
     assert receipt["boundedObservationAdmission"] is True
     assert receipt["observationByteCeiling"] == MAX_SEMANTIC_OBSERVATION_BYTES
     assert receipt["preEncodeCodepointCeiling"] == MAX_SEMANTIC_OBSERVATION_BYTES
+    assert receipt["pathCodepointCeiling"] == MAX_SEMANTIC_PATH_CODEPOINTS
+    assert receipt["artifactKindCodepointCeiling"] == MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS
+    assert receipt["sha256CodepointLength"] == MAX_SEMANTIC_SHA256_CODEPOINTS
+    assert receipt["boundedAsciiDiagnosticProjection"] is True
+    assert receipt["diagnosticSegmentCharCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
     assert receipt["canonicalOwnerConsumption"] is True
     assert receipt["descriptorBackendConsumption"] is True
     assert receipt["regressionExecuted"] is False
@@ -159,6 +176,46 @@ def main() -> int:
     else:
         raise AssertionError("mismatched SHA witness must fail closed")
 
+    # Direct scalar evidence must cross finite source gates before set hashing or regex work.
+    for name, values in (
+        (
+            "path",
+            {
+                "path": "p" * (MAX_SEMANTIC_PATH_CODEPOINTS + 1),
+                "kind": "patch",
+                "text": patch,
+                "byte_count": patch_count,
+                "sha256": patch_sha,
+            },
+        ),
+        (
+            "artifact_kind",
+            {
+                "path": "patches/try-forever-example.patch",
+                "kind": "x" * (MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS + 1),
+                "text": patch,
+                "byte_count": patch_count,
+                "sha256": patch_sha,
+            },
+        ),
+        (
+            "sha256",
+            {
+                "path": "patches/try-forever-example.patch",
+                "kind": "patch",
+                "text": patch,
+                "byte_count": patch_count,
+                "sha256": "a" * (MAX_SEMANTIC_SHA256_CODEPOINTS + 1),
+            },
+        ),
+    ):
+        try:
+            _parse(**values)
+        except OwnerSurgerySemanticError as exc:
+            assert "source ceiling" in str(exc) or "exactly 64" in str(exc)
+        else:
+            raise AssertionError(f"over-budget {name} must fail before semantic work")
+
     # Direct callers cannot turn the pure producer into an unbounded encode/hash surface. The
     # claimed byte witness and a definitely-over-budget code-point string fail before encoding, and
     # multibyte text is checked again after a bounded encode.
@@ -236,6 +293,62 @@ def main() -> int:
         pass
     else:
         raise AssertionError("duplicate delta members must fail closed")
+
+    # Hostile member/schema text remains exact in the JSON evidence but is projected as bounded
+    # ASCII-only diagnostic prose. It must not become newline/bidi/surrogate log or TalkBack poison.
+    hostile_key = "field\n\u202e\ud800" + ("x" * 256)
+    hostile_duplicate = json.dumps(
+        {
+            "schema": "try-forever-owner-delta.v1",
+            "owner": DEFAULT_OWNER,
+            "baseBlob": BASE,
+            "status": "APPLIED_SOURCE",
+        },
+        ensure_ascii=True,
+        separators=(",", ":"),
+    )[:-1] + f',{json.dumps(hostile_key, ensure_ascii=True)}:1,{json.dumps(hostile_key, ensure_ascii=True)}:2}}'
+    hostile_count, hostile_sha = _witness(hostile_duplicate)
+    try:
+        _parse(
+            path="patches/try-forever-hostile-key.delta.json",
+            kind="delta_json",
+            text=hostile_duplicate,
+            byte_count=hostile_count,
+            sha256=hostile_sha,
+        )
+    except OwnerSurgerySemanticError as exc:
+        message = str(exc)
+        _assert_safe_bounded_diagnostic(message)
+        assert "<text>...#" in message
+    else:
+        raise AssertionError("hostile duplicate member must fail inside bounded diagnostic custody")
+
+    hostile_schema = "schema\n\u202e" + ("y" * 256)
+    hostile_schema_delta = json.dumps(
+        {
+            "schema": hostile_schema,
+            "owner": DEFAULT_OWNER,
+            "baseBlob": BASE,
+            "status": "APPLIED_SOURCE",
+        },
+        ensure_ascii=True,
+        separators=(",", ":"),
+    )
+    hostile_schema_count, hostile_schema_sha = _witness(hostile_schema_delta)
+    try:
+        _parse(
+            path="patches/try-forever-hostile-schema.delta.json",
+            kind="delta_json",
+            text=hostile_schema_delta,
+            byte_count=hostile_schema_count,
+            sha256=hostile_schema_sha,
+        )
+    except OwnerSurgerySemanticError as exc:
+        message = str(exc)
+        _assert_safe_bounded_diagnostic(message)
+        assert "<text>...#" in message
+    else:
+        raise AssertionError("hostile schema text must fail inside bounded diagnostic custody")
 
     return 0
 
