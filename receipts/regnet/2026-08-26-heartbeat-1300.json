@@ -1,0 +1,45 @@
+{
+  "schema": "regnet-qa-receipt.v1",
+  "checkpoint": "2026-08-26-heartbeat-1300",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "f715626d11355a48271b9b945b9e67b037c76856",
+  "verdict": "PASS_BOUNDED_SOURCE__CURRENT_OWNER_RESOURCES_AND_CLI_PRESENCE_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Canonical v10 now bounds exact authenticated current-owner maps at 2048 pairs and 1048576 aggregate admitted owner+blob code points before full traversal.",
+    "Repeated --current-owner evidence is independently bounded at 2048 assignments and 1048576 aggregate assignment code points before duplicate-same-owner collapse.",
+    "CLI absence of --current-owner now reaches classify as omitted custody rather than being silently reconstructed as an explicitly supplied empty map.",
+    "Focused resource, presence-truth, and v10 capability regressions are source-only and unexecuted.",
+    "Existing accessible Warm Wall remains the sole source specimen; no operator interaction topology changed and runtime TalkBack remains NO.",
+    "P0/phone execution and recovery ownership were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "workflowRuns": {
+      "Build Android": {"id": 32998215703, "conclusion": "failure"},
+      "Home Center CI": {"id": 32998215738, "conclusion": "failure"},
+      "Operator Overlay Android": {"id": 32998215719, "conclusion": "failure", "jobId": 98272891100, "steps": 0, "logs": "404 BlobNotFound"}
+    },
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
