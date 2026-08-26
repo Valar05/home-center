@@ -2,16 +2,18 @@
 """Supporting exact-metadata contract for owner-surgery custody.
 
 This module owns no surgery classification, promotion authority, patch execution, overlay controller,
-phone lane, or P0 work. It closes four source-evidence ambiguities before the canonical v10 custody
+phone lane, or P0 work. It closes five source-evidence ambiguities before the canonical v10 custody
 owner groups or promotes surgery artifacts:
 
 1. authenticated owner identity is an exact bounded built-in string, not caller-owned Python text and
    not text to repair with ``strip()``;
 2. textual patch base/state/owner headers are cardinality-one evidence, never first-match evidence;
-3. owner identity has a small source ceiling before it can become a report/group key; and
+3. owner identity has a small source ceiling before it can become a report/group key;
 4. caller-supplied diagnostic field context is exact and bounded before it can participate in error
    formatting, so diagnostic prose cannot execute caller callbacks or become an independent resource
-   throat.
+   throat; and
+5. direct patch-metadata callers cross a finite exact-text source ceiling before regex traversal, so
+   helper safety does not depend on canonical v10 being the caller.
 
 The canonical owner remains ``try_forever_owner_surgery_custody_probe.py`` and consumes this contract.
 That is source wiring only, not regression execution, TESTED, runtime, deployment, delivery, or
@@ -30,6 +32,7 @@ SCHEMA = "try-forever-owner-surgery-metadata-exactness.v1"
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 MAX_OWNER_IDENTITY_CODEPOINTS = 4_096
 MAX_DIAGNOSTIC_FIELD_CODEPOINTS = 256
+MAX_PATCH_METADATA_CODEPOINTS = 1_048_576
 # Header-name recognition is intentionally separate from value admission. A malformed second header
 # still counts as duplicate authority evidence and cannot disappear merely because its value would
 # fail later validation. Horizontal whitespace is line-local; ``\s`` is deliberately avoided here
@@ -105,9 +108,9 @@ def admit_owner_identity(value: object, *, field: str = "owner") -> str:
 def _first_two_matches(pattern: re.Pattern[str], text: str) -> tuple[re.Match[str] | None, re.Match[str] | None]:
     """Observe only enough matching headers to decide cardinality-one authority.
 
-    Canonical custody already gives this policy bounded artifact text. This additional throat avoids
-    materializing an adversarial list of every matching header when the only useful distinction is
-    zero, one, or at least two.
+    This supporting policy also has its own direct text ceiling. The canonical custody owner adds an
+    enclosing byte/resource throat, but direct helper safety does not rely on that composition.
+    Authority only needs to distinguish zero, one, or at least two matching labels.
     """
 
     matches = pattern.finditer(text)
@@ -132,6 +135,11 @@ def admit_patch_metadata(text: object) -> PatchMetadataAdmission:
 
     if type(text) is not str:
         raise OwnerSurgeryMetadataError("patch text must be one exact built-in string")
+    if len(text) > MAX_PATCH_METADATA_CODEPOINTS:
+        raise OwnerSurgeryMetadataError(
+            "patch text exceeds metadata source ceiling "
+            f"{MAX_PATCH_METADATA_CODEPOINTS} code points"
+        )
 
     base_blob = _one_header_value(
         BASE_HEADER_RE,
@@ -179,6 +187,8 @@ def source_receipt() -> dict[str, object]:
         "diagnosticFieldExact": True,
         "boundedDiagnosticFieldAdmission": True,
         "diagnosticFieldCodepointCeiling": MAX_DIAGNOSTIC_FIELD_CODEPOINTS,
+        "boundedPatchTextAdmission": True,
+        "patchTextCodepointCeiling": MAX_PATCH_METADATA_CODEPOINTS,
         "patchHeaderCardinalityExact": True,
         "headerCardinalityScanBounded": True,
         "malformedDuplicateHeadersCounted": True,
