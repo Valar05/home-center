@@ -18,6 +18,7 @@ from dataclasses import asdict, dataclass
 import re
 
 from try_forever_operator_receipt_snapshot_custody import snapshot_json_mapping
+from try_forever_owner_surgery_metadata_exactness import admit_owner_identity
 from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 
 
@@ -27,6 +28,9 @@ PORTABLE_BACKEND = "PORTABLE_PATHNAME_REVALIDATION"
 DESCRIPTOR_BACKEND = "HELD_DIRECTORY_DESCRIPTOR"
 MAX_CAPABILITY_STATUS_CODEPOINTS = 128
 MAX_FAILURE_BOUNDARY_CODEPOINTS = 4_096
+MAX_AUTHENTICATED_OWNER_BLOBS = 2_048
+MAX_AUTHORITY_GROUPS = 2_048
+MAX_AUTHORITY_MEMBERS = 2_048
 
 REQUIRED_OWNER_EVIDENCE_FIELDS = (
     "artifactDirectoryEntriesObserved",
@@ -181,14 +185,18 @@ def _admit_current_owner_blobs(result: dict[str, object]) -> dict[str, str]:
     raw = result.get("currentOwnerBlobs")
     if type(raw) is not dict:
         raise ValueError("currentOwnerBlobs must be one mapping")
+    if len(raw) > MAX_AUTHENTICATED_OWNER_BLOBS:
+        raise ValueError(
+            "currentOwnerBlobs exceeds canonical item ceiling "
+            f"{MAX_AUTHENTICATED_OWNER_BLOBS}"
+        )
 
     admitted: dict[str, str] = {}
     for owner, blob in raw.items():
-        if type(owner) is not str or not owner:
-            raise ValueError("currentOwnerBlobs keys must be non-empty owner strings")
+        admitted_owner = admit_owner_identity(owner, field="currentOwnerBlobs owner")
         if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
             raise ValueError("currentOwnerBlobs values must be 40 lowercase hexadecimal blobs")
-        admitted[owner] = blob
+        admitted[admitted_owner] = blob
     return admitted
 
 
@@ -255,10 +263,18 @@ def _admit_authority_groups(
 
     counts: dict[str, int] = {}
     seen_groups: set[tuple[str, str]] = set()
+    total_groups = 0
+    total_members = 0
     for field in OWNER_AUTHORITY_FIELDS:
         groups = result.get(field)
         if type(groups) is not list:
             raise ValueError(f"{field} must be one list")
+        total_groups += len(groups)
+        if total_groups > MAX_AUTHORITY_GROUPS:
+            raise ValueError(
+                "authority groups exceed canonical candidate ceiling "
+                f"{MAX_AUTHORITY_GROUPS}"
+            )
         counts[field] = len(groups)
 
         expected_status = AUTHORITY_STATUS_BY_FIELD[field]
@@ -269,9 +285,7 @@ def _admit_authority_groups(
             if group.get("status") != expected_status:
                 raise ValueError(f"{field} entry has an invalid status")
 
-            owner = group.get("owner")
-            if type(owner) is not str or not owner:
-                raise ValueError(f"{field} entry owner must be one non-empty string")
+            owner = admit_owner_identity(group.get("owner"), field=f"{field} entry owner")
 
             base_blob = group.get("baseBlob")
             if type(base_blob) is not str or SHA1_RE.fullmatch(base_blob) is None:
@@ -285,6 +299,12 @@ def _admit_authority_groups(
             promotion_candidates = group.get("promotionCandidates")
             if type(promotion_candidates) is not list:
                 raise ValueError(f"{field} entry promotionCandidates must be one list")
+            total_members += len(promotion_candidates)
+            if total_members > MAX_AUTHORITY_MEMBERS:
+                raise ValueError(
+                    "authority members exceed canonical candidate ceiling "
+                    f"{MAX_AUTHORITY_MEMBERS}"
+                )
             minimum_members = 2 if field == "collisionSets" else 1
             if len(promotion_candidates) < minimum_members:
                 raise ValueError(
