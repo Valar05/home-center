@@ -7,8 +7,9 @@ selection, backend selection, authority grouping, patch application, overlay mut
 or P0 work.
 
 Canonical v10 consumes this producer after its own bounded artifact observation for both the portable
-and held-directory descriptor backends. That is SOURCE_WIRED composition only: regression execution,
-TESTED, runtime, deployment, delivery, and acceptance remain separate capability states.
+and held-directory descriptor backends. Direct callers are also kept behind the same 1 MiB semantic
+observation ceiling before encode/hash work. That is SOURCE_WIRED composition only: regression
+execution, TESTED, runtime, deployment, delivery, and acceptance remain separate capability states.
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ DELTA_BASE_KEYS = ("baseBlob", "ownerBaseBlob", "baseOwnerBlob")
 DELTA_STATE_KEYS = ("state", "status")
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+MAX_SEMANTIC_OBSERVATION_BYTES = 1_048_576
 
 
 class OwnerSurgerySemanticError(ValueError):
@@ -92,7 +94,7 @@ def _admit_exact_observation(
     byte_count: int,
     sha256: str,
 ) -> bytes:
-    """Bind semantic parsing to one exact already-observed text/content witness."""
+    """Bind semantic parsing to one exact, finite, already-observed text/content witness."""
 
     if type(path) is not str or not path:
         raise OwnerSurgerySemanticError("path must be one non-empty exact built-in string")
@@ -105,12 +107,32 @@ def _admit_exact_observation(
     if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
         raise OwnerSurgerySemanticError("sha256 must be one exact lowercase SHA-256 string")
 
+    # Canonical v10 already supplies content from a 1 MiB bounded artifact observation. Keep this
+    # supporting producer finite for direct callers too, before caller-controlled text can trigger an
+    # unbounded UTF-8 encode/hash. Every valid Unicode code point occupies at least one UTF-8 byte, so
+    # the code-point precheck is a safe early rejection; the post-encode check closes multibyte text.
+    if byte_count > MAX_SEMANTIC_OBSERVATION_BYTES:
+        raise OwnerSurgerySemanticError(
+            "byte_count exceeds semantic observation byte ceiling "
+            f"{MAX_SEMANTIC_OBSERVATION_BYTES}"
+        )
+    if len(utf8_text) > MAX_SEMANTIC_OBSERVATION_BYTES:
+        raise OwnerSurgerySemanticError(
+            "utf8_text exceeds semantic observation pre-encode code-point ceiling "
+            f"{MAX_SEMANTIC_OBSERVATION_BYTES}"
+        )
+
     try:
         encoded = utf8_text.encode("utf-8", errors="strict")
     except UnicodeEncodeError as exc:
         raise OwnerSurgerySemanticError(
             f"utf8_text is not strict UTF-8 encodable at code point index {exc.start}"
         ) from exc
+    if len(encoded) > MAX_SEMANTIC_OBSERVATION_BYTES:
+        raise OwnerSurgerySemanticError(
+            "UTF-8 content exceeds semantic observation byte ceiling "
+            f"{MAX_SEMANTIC_OBSERVATION_BYTES}"
+        )
     if len(encoded) != byte_count:
         raise OwnerSurgerySemanticError("byte_count does not match the admitted UTF-8 content")
     if hashlib.sha256(encoded).hexdigest() != sha256:
@@ -196,7 +218,7 @@ def parse_owner_surgery_observation(
     byte_count: int,
     sha256: str,
 ) -> OwnerSurgerySemanticRecord:
-    """Produce semantics from one exact observation without any filesystem re-read."""
+    """Produce semantics from one exact finite observation without any filesystem re-read."""
 
     _admit_exact_observation(
         path=path,
@@ -230,6 +252,9 @@ def source_receipt() -> dict[str, object]:
         "schema": SCHEMA,
         "filesystemReads": False,
         "exactBuiltinObservationInputs": True,
+        "boundedObservationAdmission": True,
+        "observationByteCeiling": MAX_SEMANTIC_OBSERVATION_BYTES,
+        "preEncodeCodepointCeiling": MAX_SEMANTIC_OBSERVATION_BYTES,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
         "patchSemanticProduction": True,
