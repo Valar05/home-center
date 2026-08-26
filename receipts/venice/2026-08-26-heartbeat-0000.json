@@ -1,0 +1,18 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26T00:00:00-05:00",
+  "reviewedSourceHead": "856f813f0f74349cbc8ae04c0d8fdc54c5972fa6",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_DESCRIPTOR_ROOT_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "existing backend-result policy now fails closed when authority-bearing backend/fallback controls are omitted",
+    "direct descriptor constructor root callback seam is preserved as RED with an exact base-blob-locked existing-owner surgery rather than hidden behind canonical caller safety",
+    "repository doctrine and the existing accessible Warm Wall distinguish SOURCE_WIRED canonical behavior from RED direct-constructor behavior",
+    "exact-head workflows failed and Operator Overlay exposed zero steps, so no test/runtime cause or TESTED claim is available"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "phoneP0Untouched": true
+}
