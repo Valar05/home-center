@@ -22,7 +22,7 @@ def main() -> int:
 
     # State changes remain available to assistive technology without relying on color alone.
     assert 'id="detail" role="status" aria-live="polite"' in html
-    assert "NON-COLOR" not in html.upper() or "non-color" in html.lower()
+    assert "non-color" in html.lower()
     assert 'role="img" aria-labelledby="diagram-title diagram-desc"' in html
     assert '<title id="diagram-title">' in html
     assert '<desc id="diagram-desc">' in html
