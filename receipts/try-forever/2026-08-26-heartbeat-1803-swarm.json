@@ -1,0 +1,123 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "previousPublicationHead": "24ee12b9fe3c38166c35cae54408caa91a5a7e75",
+  "reviewedSourceHead": "51afc82ab897ea27ddc6ab2a2db8b59b7ad7e25a",
+  "sourceDelta": {"commits": 5, "intendedPaths": 5, "unexpectedPaths": 0},
+  "lights": {
+    "failureIsTheShovel": "LIT__FOUND_HOT_POLL_STRING_EQUALITY_SOURCE_WORK_WOUND_AND_SEPARATE_DIRECT_STRING_PREENCODE_WOUND",
+    "canonAutoSelect": "LIT__ACTIVATED_HEARTBEAT_PERSISTED_POLL_CONTACT_PREDECODE_RESOURCE_BUDGET_SOURCE_BOUND_PARITY_AND_SEMANTIC_TEXT_SAFETY",
+    "autocorrectJudgmentJar": "DARK__NO_MATERIAL_TOKEN_AMBIGUITY",
+    "originalityTax": "LIT__MUTATED_EXISTING_POLL_POLICY_AND_STAGED_EXISTING_PROJECTION_OWNER_NO_NEW_POLL_CONTROLLER_DECODER_OR_PARSER",
+    "hungerEatEverything": "LIT__PUSHED_RESOURCE_SKEPTICISM_FROM_READER_TO_POLL_DEDUP_TO_DIRECT_STRING_PROJECTION_AND_REVALIDATED_TWO_PRIOR_OWNER_WOUNDS",
+    "operatorCampaign": "LIT__REMOTE_SOURCE_REGRESSIONS_SKILL_DOCTRINE_JUDGMENT_RECEIPTS_AND_PR_CHECKPOINT_ADVANCED",
+    "harrowayDiscipline": "LIT__EXACT_OWNER_BLOBS_CAPABILITY_MEMBRANE_AND_NO_SIDEWAYS_RUNTIME_SUBSTITUTION_PRESERVED",
+    "sheRaw": "FAULT__AUTHORITATIVE_HOSTILE_CRITIQUE_ATTEMPT_HTTP_400_ACCOUNT_CONNECTION_NO_SYNTHETIC_SUBSTITUTE",
+    "venice": "LIT__BOUNDED_SOURCE_CHECKPOINT_WITH_THREE_OWNER_MUTATIONS_AND_EXECUTION_STILL_CONTINUE_REQUIRED",
+    "regnetQA": "LIT__POLL_RESOURCE_SOURCE_WIRED_THREE_OWNER_WOUNDS_REVISE_REQUIRED_REGRESSIONS_UNEXECUTED",
+    "accessibilityTalkBackTouch": "LIT__EXISTING_56PX_NATIVE_CONTROL_FOCUS_ROLE_STATUS_SVG_REDUCED_MOTION_WARM_WALL_REVIEWED_RUNTIME_TALKBACK_NO",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED__CONSUMPTION_0_MUTATION_0",
+    "deterministicRouting": "LIT__OVERSIZED_POLL_EVIDENCE_ROUTES_TO_EXISTING_PROJECT_VERIFICATION_NOT_SKIP_OR_NEW_PATH",
+    "evidenceCapabilityState": "LIT__SOURCE_WIRED_VS_PROPOSED_VS_REGRESSION_EXECUTED_TESTED_RUNTIME_DELIVERY_SEPARATED",
+    "recoveryCheckpointingIdempotence": "LIT__HOT_POLL_DEDUP_BOUNDED_NO_MANUAL_WORKFLOW_RETRY_EXACT_HEAD_EXECUTION_BOUNDARY_READ",
+    "strangeNonRasterArtWarmWalls": "LIT__EXISTING_NONRASTER_WARM_WALL_REVIEWED_AND_INTENTIONALLY_NOT_DUPLICATED_FOR_MACHINE_ONLY_TOPOLOGY",
+    "christmasLightSceneGraph": "DARK__NO_RUNTIME_SCENE_OR_MOTION_CONTRACT_CHANGE",
+    "contactPreservation": "LIT__OVERSIZED_EXACT_POLL_EVIDENCE_CANNOT_BECOME_FALSE_EQUALITY_AND_REMAINS_ON_EXISTING_FAIL_CLOSED_CONTACT_PATH"
+  },
+  "discoveredSkills": [
+    "heartbeat-persisted-poll-contact",
+    "heartbeat-predecode-resource-budget",
+    "heartbeat-source-bound-parity",
+    "semantic-text-safety"
+  ],
+  "fronts": {
+    "persistedPollDedupSourceWork": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedPollPolicy.java",
+      "ownerBlob": "42421e9d74b1c3637408311e7e8d5ee90878c593",
+      "payloadBase64CeilingDerivedFromCanonicalByteBudget": true,
+      "shaMetadataCodeUnitCeiling": 4096,
+      "oversizedEvidenceAction": "PROJECT_NOT_SKIP_UNCHANGED",
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedPollSourceResourceThroatTest.java",
+      "regressionExecuted": false
+    },
+    "persistedStringPreencodeResource": {
+      "state": "PROPOSED_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java",
+      "ownerBlob": "f4e4b602cfe91717cef02fab0394ea99558353d2",
+      "proposal": "patches/try-forever-heartbeat-persisted-string-preencode-resource-throat.patch",
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java",
+      "regressionExecuted": false
+    },
+    "envelopePreparseResource": {
+      "state": "PROPOSED_NOT_APPLIED",
+      "ownerBlob": "9cdd14517f2538296952618173bf47474374477b",
+      "proposal": "patches/try-forever-heartbeat-envelope-preparse-resource-throat.patch",
+      "regressionExecuted": false
+    },
+    "singleSemanticParserOwnership": {
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d",
+      "proposal": "patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch",
+      "regressionExecuted": false
+    },
+    "resourceBudgetDoctrine": {
+      "state": "CONVERGED_SOURCE",
+      "path": "skills/heartbeat-predecode-resource-budget/SKILL.md",
+      "coherentReaderBound": "SOURCE_WIRED",
+      "pollDedupBound": "SOURCE_WIRED",
+      "directStringPreencode": "PROPOSED_NOT_APPLIED",
+      "directEnvelopePreparse": "PROPOSED_NOT_APPLIED"
+    },
+    "accessibilityWarmWallReview": {
+      "state": "REVIEWED_NO_MUTATION_REQUIRED",
+      "path": "docs/try-forever/heartbeat-ingress-separation-source-specimen.html",
+      "touchTargetPx": 56,
+      "nativeControls": true,
+      "visibleFocus": true,
+      "nonColorLiveStatus": true,
+      "inlineSvg": true,
+      "reducedMotion": true,
+      "infiniteBlink": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "crossPollination": [
+    "coherent-reader predecode custody made the faster poll dedup path suspicious because direct Snapshot inputs can bypass reader-owned source limits",
+    "poll review exposed repeated String.equals work on attacker-sized exact Base64/SHA text; the existing policy now bounds dedup eligibility without truncating evidence",
+    "the same source-work skepticism crossed into HeartbeatPersistedEnvelopeProjection.project(String), where UTF-8 encoding still happens before the byte ceiling, producing a separate exact-owner proposal and RED regression",
+    "owner revalidation confirmed the prior HeartbeatEnvelopeParser preparse and single-semantic-parser cleanup proposals remain exact and unapplied rather than silently drifting into implemented claims",
+    "accessibility review rejected duplicate UI mutation because machine-evidence topology changed but operator interaction topology did not"
+  ],
+  "executionTruth": {
+    "head": "51afc82ab897ea27ddc6ab2a2db8b59b7ad7e25a",
+    "pullRequestWorkflowRunsObserved": 0,
+    "commitStatusesObserved": 0,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
