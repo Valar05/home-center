@@ -16,7 +16,7 @@ def main() -> int:
 
     # Native interaction and touch geometry stay first-class rather than simulated div controls.
     assert '<fieldset aria-describedby="detail">' in html
-    assert html.count('input type="radio" name="backend"') >= 14
+    assert html.count('input type="radio" name="backend"') >= 15
     assert "min-height: 56px" in html
     assert "label:focus-within" in html
 
@@ -50,6 +50,16 @@ def main() -> int:
     assert "DIAGNOSTIC PROJECTION ≠ EVIDENCE" in html
     assert "bounded ASCII-safe projection" in html
     assert "projected prose never feeds authority" in html
+
+    # The wall must expose the descriptor failure-evidence wound instead of presenting success-path
+    # preservation as proof that failure receipts retain observed counts and artifact identity.
+    assert "DESCRIPTOR FAILURE-EVIDENCE PARITY: RED / NO" in html
+    assert 'value="failure-parity"' in html
+    assert "CONTACT PRESERVATION / PARTIAL" in html
+    assert "already-observed counts" in html
+    assert "artifact path/kind" in html
+    assert "Current canonical source: NO" in html
+    assert "Focused regression source: YES / UNEXECUTED" in html
 
     # Reduced-motion and no-casino constraints remain explicit source laws.
     assert "prefers-reduced-motion: reduce" in html
