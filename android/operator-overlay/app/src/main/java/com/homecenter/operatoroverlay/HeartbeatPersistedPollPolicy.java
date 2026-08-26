@@ -19,6 +19,19 @@ public final class HeartbeatPersistedPollPolicy {
     public static final String MISSING_AFTER_CONTACT_BOUNDARY =
             "Stored heartbeat payload contact disappeared after a visible heartbeat.";
 
+    /**
+     * Exact Base64 text ceiling implied by the canonical 32 KiB heartbeat byte budget.
+     * This is a poll/dedup source-work throat, not a replacement for decode/integrity custody.
+     */
+    public static final int MAX_PAYLOAD_B64_CHARS =
+            ((OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES + 2) / 3) * 4;
+
+    /**
+     * Corrupt SHA metadata still needs to reproject into the downstream integrity gate,
+     * but poll dedup must not compare attacker-sized metadata on every observation.
+     */
+    public static final int MAX_SHA_METADATA_CHARS = 4096;
+
     public enum Decision {
         /** No persisted heartbeat has ever produced visible contact yet. */
         WAITING,
@@ -75,15 +88,33 @@ public final class HeartbeatPersistedPollPolicy {
         }
 
         /**
+         * Finite source-work admission for poll dedup. Oversized persisted text remains
+         * exact evidence and is sent onward via PROJECT; it is merely refused as an
+         * input to repeated String equality work in this hot polling path.
+         */
+        public boolean sourceWithinResourceBounds() {
+            return payloadB64.length() <= MAX_PAYLOAD_B64_CHARS
+                    && declaredSha256.length() <= MAX_SHA_METADATA_CHARS;
+        }
+
+        /**
          * Equality of inputs that can change storage verification or semantic
          * projection. Positive timestamp magnitude is intentionally excluded, but
          * canonical missing ({@code 0}) and corrupt negative metadata are distinct
          * classes so a transition from clean absence to corruption cannot be skipped.
          * Integrity metadata is exact: canonical and whitespace-poisoned SHA strings
          * are different projection inputs even if trimming would make them equal.
+         *
+         * <p>Both snapshots must first pass the finite source-work throat. Oversized
+         * evidence is never normalized or truncated into equality; returning false
+         * forces the existing projection/integrity path to inspect and reject it.</p>
          */
         public boolean sameProjectionInputs(Snapshot other) {
-            if (other == null) return false;
+            if (other == null
+                    || !sourceWithinResourceBounds()
+                    || !other.sourceWithinResourceBounds()) {
+                return false;
+            }
             return payloadB64.equals(other.payloadB64)
                     && declaredBytes == other.declaredBytes
                     && declaredSha256.equals(other.declaredSha256)
@@ -168,6 +199,10 @@ public final class HeartbeatPersistedPollPolicy {
             }
             return Decision.PRESERVE_MISSING_CONTACT;
         }
+
+        // Oversized exact evidence is not a dedup candidate. Route it through the
+        // existing projection/integrity boundary rather than repeatedly comparing it.
+        if (!current.sourceWithinResourceBounds()) return Decision.PROJECT;
 
         if (current.sameProjectionInputs(previousProcessed)) {
             return Decision.SKIP_UNCHANGED;
