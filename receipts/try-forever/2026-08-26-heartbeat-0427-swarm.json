@@ -1,0 +1,120 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T04:27:00-05:00",
+  "sourceHead": "1802ae62b76b9adf39042d65ed6d314340eb51cf",
+  "previousPublicationHead": "734bc76f8ed8c41dca9bd796e6e60acf8611dc6e",
+  "changeCustody": {
+    "commits": 3,
+    "intendedPaths": 3,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_semantic_parser.py",
+      "tools/test_try_forever_owner_surgery_semantic_parser.py",
+      "skills/operator-owner-surgery-metadata-exactness/SKILL.md"
+    ]
+  },
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Canon Auto-Select", "Originality Tax", "Deterministic Routing"],
+      "state": "LIT",
+      "change": "moved from the already-bounded canonical artifact observation into the independent direct semantic-producer boundary: byte_count max+1 and definitely-over-budget text now fail before UTF-8 encode/hash, with bounded post-encode multibyte enforcement"
+    },
+    {
+      "skills": ["Regnet QA", "Ever-Polished Interpreter / Eat Everything", "Contact Preservation"],
+      "state": "LIT",
+      "change": "repaired a stale source regression that still asserted canonicalOwnerConsumption=false; the fixture now matches authenticated canonical+descriptor SOURCE_WIRED composition and adds direct resource-throat hostile cases while preserving ordinary patch/delta semantics"
+    },
+    {
+      "skills": ["Hunger", "Operator Campaign", "Harroway operator discipline", "Evidence/capability-state discipline"],
+      "state": "LIT",
+      "change": "converged operator-owner-surgery-metadata-exactness doctrine on the 256-code-point exact diagnostic-context gate, then preserved broader backend/custody skill drift as OPEN_NONAUTHORITY instead of letting stale prose overrule current source"
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "RED_BOUNDARY",
+      "change": "authoritative hostile critique was attempted against resource-throat gaps, stale doctrine, capability inflation, duplicate architecture, accessibility regression, and P0 overlap; account connection returned HTTP 400; no synthetic substitute"
+    },
+    {
+      "skills": ["Venice Judgment Jars", "Recovery/checkpointing/idempotence"],
+      "state": "LIT",
+      "change": "durable Regnet and Venice reviews preserve source/readback/regression/TESTED/runtime distinctions; exact-head automatic workflow failures were observed with no retry and no invented diagnosis"
+    },
+    {
+      "skills": ["Accessibility/TalkBack and touch semantics", "Strange non-raster vector/DOM/native UI art", "Warm Walls", "Christmas-light scene graph"],
+      "state": "DARK",
+      "change": "no operator-facing interaction topology or motion law changed, so source-art churn would be decorative; existing source-only accessibility contracts remain unchanged and runtime TalkBack remains NO"
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar"],
+      "state": "DARK",
+      "change": "no material token ambiguity affected routing, authority, or source identity"
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "FIREWALLED_DARK",
+      "change": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+    }
+  ],
+  "fronts": [
+    {
+      "name": "direct semantic observation resource custody",
+      "state": "SOURCE_WIRED",
+      "detail": "1 MiB byte ceiling; over-ceiling claimed bytes and definitely-over-ceiling code-point text fail before encode/hash; multibyte expansion is checked after bounded encode"
+    },
+    {
+      "name": "semantic regression convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "detail": "canonicalOwnerConsumption=true and descriptorBackendConsumption=true now match authenticated source; new byte/code-point/multibyte resource fixtures remain UNEXECUTED"
+    },
+    {
+      "name": "metadata skill doctrine convergence",
+      "state": "CONVERGED_SOURCE",
+      "detail": "exact non-empty diagnostic field max 256 before formatted error output is now durable doctrine; diagnostic prose remains non-authoritative"
+    },
+    {
+      "name": "broader skill archaeology",
+      "state": "OPEN_NONAUTHORITY_DRIFT",
+      "detail": "backend-selection skill lacks the new direct semantic resource throat and broader custody skill retains dated descriptor-capability prose; authenticated source remains authority"
+    },
+    {
+      "name": "Regnet/Venice evidence synthesis",
+      "state": "DURABLE_SOURCE_REVIEW",
+      "detail": "bounded source slice permitted while broader doctrine convergence, regression execution, TESTED/runtime, and recurring campaign remain continue-required"
+    }
+  ],
+  "crossPollination": "The 04:00 diagnostic-context repair forced skill-doctrine convergence. While checking neighboring authenticated source rather than merely editing prose, the semantic producer exposed a direct encode/hash resource throat and its regression exposed a stale canonicalOwnerConsumption=false fossil. The resource repair and regression convergence then sharpened the remaining doctrine gap to two non-authoritative skill summaries. Regnet/Venice preserve that gap without inflating SOURCE_WIRED into TESTED/runtime.",
+  "executionTruth": {
+    "homeCenterCi": {"runId": 32953749286, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32953749281, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32953749276, "jobId": 98130755152, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "semanticObservationResourceThroat": "SOURCE_WIRED",
+    "semanticRegressionConverged": "SOURCE_UNEXECUTED",
+    "metadataDiagnosticDoctrine": "CONVERGED_SOURCE",
+    "broaderSkillDoctrineConverged": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__BROADER_SKILL_DOCTRINE_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
