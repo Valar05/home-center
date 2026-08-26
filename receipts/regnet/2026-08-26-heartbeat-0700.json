@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T07:00:00-05:00",
+  "scope": "non-P0 Try Forever source review",
+  "reviewedSourceHead": "a905a9053e5101e7f87b72d636833407f47ae08d",
+  "verdict": "PASS_BOUNDED_SOURCE__DIRECT_PATCH_METADATA_THROAT_WIRED__DIRECT_FALLBACK_PATCH_AND_OWNER_THROATS_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "patch metadata helper",
+      "before": "exact built-in patch text could be arbitrarily large for a direct caller before regex traversal; canonical v10 happened to provide an enclosing finite observation",
+      "after": "direct helper rejects patch text above 1048576 code points before regex traversal",
+      "state": "SOURCE_WIRED"
+    },
+    {
+      "front": "default-owner fallback helper",
+      "before": "direct exact patch text could be arbitrarily large before diff-header regex and exact default-owner text could be arbitrarily large before expected-header formatting/equality",
+      "after": "direct patch text is capped at 1048576 code points and fallback-owner identity at 4096 code points before those operations",
+      "state": "SOURCE_WIRED"
+    },
+    {
+      "front": "hostile regression",
+      "after": "new source-only fixture pins ordinary exact parity plus max+1 rejection at all three direct resource throats",
+      "state": "SOURCE_UNEXECUTED"
+    }
+  ],
+  "authorityReview": {
+    "newAuthorityOwner": false,
+    "newParser": false,
+    "newOverlayController": false,
+    "weakerFallbackIntroduced": false,
+    "ordinaryAcceptedPatchSemanticsIntentionallyChanged": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
