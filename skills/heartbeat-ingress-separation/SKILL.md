@@ -34,7 +34,11 @@ The bounded rejection string is a human-facing/loggable projection of the typed 
 - replaces malformed lone UTF-16 surrogate code units with U+FFFD rather than preserving an ill-formed Java string;
 - truncates by Unicode code point, never by raw UTF-16 code unit, so a valid surrogate pair is not split;
 - keeps the final result within `MAX_BOUNDARY_CODE_POINTS`;
+- inspects at most `MAX_BOUNDARY_SOURCE_CODE_UNITS` (4,096) caller-owned UTF-16 code units and stops earlier when the 320-code-point returned projection is full;
+- therefore does not scan an arbitrarily long all-control/all-whitespace failure message merely because its final projection is short;
 - leaves the typed exception object/cause untouched and never promotes the sanitized text into semantic payload state.
+
+`EXACT FAILURE OBJECT != UNBOUNDED DIAGNOSTIC PROJECTION`. The finite source-work throat is projection custody only. It does not validate rejected payload bytes, rewrite the exception object, or authorize any semantic state.
 
 This is accessibility/evidence hygiene, not an execution filter. Command-looking text remains inert text. Sanitizing a boundary does not validate the rejected payload, prove persistence, or overwrite last-good contact. Ordinary visible right-to-left script letters remain text; only invisible `FORMAT` controls are normalized.
 
@@ -45,9 +49,9 @@ The current `OperatorState.heartbeat(...)` uses `SharedPreferences.apply()`. A n
 
 Keep the capability membrane explicit:
 
-`requested -> implemented -> tested -> deployed -> callable -> executed -> delivered -> accepted`
+`requested -> implemented -> regression source -> exact repository readback -> tested -> deployed -> callable -> executed -> delivered -> accepted`
 
-Source ordering and regression source prove only source implementation until the relevant test/runtime evidence exists.
+Source ordering, finite diagnostic projection, and regression source prove only source implementation until the relevant test/runtime evidence exists.
 
 ## Contact preservation
 Caller-invalid optional telemetry must not overwrite the previously stored skill-light payload. This is the ingress-side complement to `HeartbeatSceneGraph`/`HeartbeatPersistedEnvelopeProjection` fail-closed contact preservation after stored bytes exist.
@@ -68,7 +72,7 @@ A source specimen never proves Android rendering, TalkBack runtime behavior, dep
 
 For TalkBack speech projections, keep complete typed source/evidence fields in the semantic model but independently bound long spoken fields by Unicode code point and mark truncation. Accessibility is not permission to discard evidence, and evidence richness is not permission to make one focus action speak several kilobytes.
 
-Human-facing ingress rejection boundaries follow the same Unicode discipline: single-line, code-point bounded, control/format-normalized, and safe against surrogate splitting. This does not make them canonical semantic evidence; it only keeps the review/log surface sane.
+Human-facing ingress rejection boundaries follow the same Unicode discipline: single-line, code-point bounded, control/format-normalized, source-work bounded, and safe against surrogate splitting. This does not make them canonical semantic evidence; it only keeps the review/log surface sane.
 
 ## P0 Fortress firewall
 This skill owns no Phone Hands, queue, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work. Those surfaces remain under their canonical owners. A source-side ingress defect may be repaired without consuming the shared phone surface; physical proof waits for the authorized owner lane.
@@ -78,11 +82,12 @@ Lock at least these cases in pure regression source:
 
 1. blank optional payload -> heartbeat sink invoked;
 2. valid optional payload -> payload sink returns, then heartbeat sink invoked;
-3. dedicated caller-invalid optional payload -> payload rejected, heartbeat sink still invoked, bounded exact rejection reason retained;
+3. dedicated caller-invalid optional payload -> payload rejected, heartbeat sink still invoked, bounded rejection reason retained;
 4. unrelated/generic `IllegalArgumentException` -> failure propagates, heartbeat sink not invoked;
 5. internal/storage payload failure -> failure propagates, heartbeat sink not invoked;
 6. heartbeat-sink failure -> failure propagates and no success result is returned;
 7. expanded TalkBack detail -> long Unicode fields are speech-bounded without changing the exact Candidate data or splitting surrogate pairs;
-8. hostile caller-invalid boundary text -> controls/whitespace/Unicode FORMAT controls normalize to one line, lone surrogate code units are repaired, truncation is code-point safe, the optional payload remains rejected, and heartbeat invocation semantics remain unchanged.
+8. hostile caller-invalid boundary text -> controls/whitespace/Unicode FORMAT controls normalize to one line, lone surrogate code units are repaired, truncation is code-point safe, the optional payload remains rejected, and heartbeat invocation semantics remain unchanged;
+9. a hostile failure message containing 4,096 source code units of collapsible control text followed by a visible suffix -> suffix never enters the projection and the generic typed rejection remains bounded.
 
-Blind CI retries do not count as progress. When deterministic CI cannot start for an unchanged external reason, preserve `TESTED = NO/BLOCKED_UNKNOWN` and advance a materially different authorized front instead.
+These fixtures are regression source until they execute. Blind CI retries do not count as progress. When deterministic CI cannot start for an unchanged external reason, preserve `TESTED = NO/BLOCKED_UNKNOWN` and advance a materially different authorized front instead.
