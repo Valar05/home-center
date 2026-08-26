@@ -1,0 +1,108 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v2",
+  "heartbeat": "2026-08-26T01:00:00-05:00",
+  "reviewedSourceHead": "6ef55af192191a639f3cce6282629b2f3a5c1ee9",
+  "previousPublicationHead": "65adcf2249059bbfae0d9f263d8cf0b47fba499d",
+  "changeCustody": {
+    "commits": 7,
+    "paths": 6,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "name": "direct descriptor-root exact admission",
+      "state": "SOURCE_WIRED",
+      "changed": "existing HeldDirectoryCustody owner now admits only an exact built-in string or exact platform Path before capability lookup, path conversion, or filesystem semantics",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py",
+      "ownerBlob": "223c1657f0363053328caee3f60078f7b015b14a",
+      "regression": "tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py",
+      "regressionExecuted": false
+    },
+    {
+      "name": "descriptor-root encoding error custody",
+      "state": "SOURCE_WIRED",
+      "changed": "exact root strings that fail host path encoding now fail inside PosixDirectoryHandleCustodyUnavailable rather than leaking raw Unicode errors",
+      "regression": "tools/test_try_forever_posix_directory_handle_io_failures.py",
+      "regressionExecuted": false
+    },
+    {
+      "name": "patch and doctrine convergence",
+      "state": "SOURCE_WIRED",
+      "changed": "root exact-input surgery provenance is APPLIED_SOURCE and the existing descriptor-custody skill now records direct-root and root-encoding source truth without universal atomicity inflation"
+    },
+    {
+      "name": "accessible Warm Wall",
+      "state": "SOURCE_ONLY",
+      "changed": "existing non-raster DOM/SVG backend-custody specimen now exposes direct-root SOURCE_WIRED and typed root-encoding failure while retaining native radios, 56px touch rows, focus, role=status and reduced-motion semantics; runtime TalkBack remains NO"
+    },
+    {
+      "name": "Judgment review",
+      "state": "SOURCE_REVIEWED",
+      "changed": "Regnet permits source/readback claims only; Venice permits this bounded source slice to stop while regression execution, TESTED, runtime and campaign continue; She-Raw authoritative attempt failed account connection and was not substituted"
+    },
+    {
+      "name": "exact-head execution truth",
+      "state": "FAILED_NO_TEST_EVIDENCE",
+      "changed": "three automatic workflows failed on the exact reviewed source SHA; Operator Overlay job exposed zero steps; no manual retry or fabricated diagnosis"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: converted the prior direct-root RED wound into existing-owner source wiring, then used the repaired exact-root path to expose a neighboring raw Unicode path-encoding error leak",
+    "Canon Auto-Select": "LIT: reused the existing descriptor owner, hostile fixtures, patch provenance, descriptor skill and existing Warm Wall",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity affected owner identity, routing or evidence",
+    "Originality Tax": "LIT: no neighboring validator, descriptor controller, custody owner or recovery architecture was created",
+    "Hunger": "LIT: after the explicit RED owner repair, continued into the independent root-encoding error domain and doctrine/art convergence",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: owner mutation propagated into hostile fixtures, error containment, provenance, skill doctrine, accessible specimen, Judgment receipts and execution evidence",
+    "Operator Campaign": "LIT: authenticated remote branch mutations, exact compare custody, review receipts and PR checkpoint advanced",
+    "Harroway operator discipline": "LIT: bounded non-P0 existing-owner surgeries only; exact stop boundary preserved",
+    "She-Raw adversarial motivation": "LIT_ATTEMPTED: authoritative connector returned account-connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT: source slice may stop; regression execution, TESTED, runtime and recurring campaign continue-required",
+    "Regnet QA": "LIT: source/readback PASS with regression UNEXECUTED and TESTED NO; no authority or atomicity inflation",
+    "accessibility/TalkBack and touch semantics": "LIT: existing Warm Wall retains native radios, 56px touch rows, visible focus, non-color text, role=status and reduced motion; runtime TalkBack NO",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALL: shared phone and P0 surfaces not consumed or mutated",
+    "deterministic routing": "LIT: root admission precedes capability/path/filesystem semantics; selected descriptor wounds still fail closed without portable retry",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, SOURCE_UNEXECUTED, TESTED, runtime, deployed, callable, executed, delivered and accepted remain separate",
+    "recovery/checkpointing/idempotence": "LIT: exact base provenance preserved; no manual workflow retry; zero-step CI not converted into a source diagnosis",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing DOM/SVG source specimen mutated in place only",
+    "warm walls": "LIT: existing backend-custody Warm Wall converged to current descriptor-root truth",
+    "Christmas-light scene graph": "DARK: no runtime transition or motion law changed",
+    "contact preservation": "LIT: existing canonical evidence families and no-weaker-fallback semantics preserved while root failures become typed/fail-closed"
+  },
+  "crossPollination": "The prior direct-constructor RED seam became an applied existing-owner exact gate. Reviewing that repaired path exposed a second independent failure-domain leak for exact but unencodable root strings. Containing that leak forced root-I/O regression, patch provenance, descriptor doctrine and the accessible Warm Wall to converge. Regnet/Venice then kept those source repairs behind the regression/TESTED/runtime membrane, while exact-head zero-step CI prevented infrastructure failure from being laundered into source diagnosis.",
+  "executionTruth": {
+    "head": "6ef55af192191a639f3cce6282629b2f3a5c1ee9",
+    "workflows": [
+      {"name": "Operator Overlay Android", "runId": 32936740220, "jobId": 98079268573, "conclusion": "failure", "steps": 0},
+      {"name": "Build Android", "runId": 32936740213, "conclusion": "failure"},
+      {"name": "Home Center CI", "runId": 32936740214, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "canonicalDescriptorConsumptionSourceWired": true,
+    "directDescriptorRootOwnerWired": true,
+    "descriptorRootEncodingFailureContained": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
