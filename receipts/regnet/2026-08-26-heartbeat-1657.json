@@ -1,0 +1,74 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "dd9c231a5a32fab79f81b2b66da083be031f8bb3",
+  "verdict": "PASS_BOUNDED_SOURCE__INGRESS_DIAGNOSTIC_SOURCE_WORK_SOURCE_WIRED__SEMANTIC_PARSER_CLEANUP_REVISE_REQUIRED__ENVELOPE_PREPARSE_REVISE_REQUIRED__ACCESSIBILITY_SOURCE_UPDATED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "ingressDiagnosticSourceWork": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatIngressPolicy.java",
+      "sourceCodeUnitCeiling": 4096,
+      "returnedCodePointCeiling": 320,
+      "surrogateWindowPeek": false,
+      "contactPreservation": "caller-invalid optional telemetry preserves prior payload and still invokes independent heartbeat sink",
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatIngressPolicyTest.java",
+      "regressionExecuted": false
+    },
+    "singleSemanticParserOwnership": {
+      "state": "REVISE_REQUIRED_CORRECTED_PROPOSED_NOT_APPLIED",
+      "canonicalOwner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "canonicalOwnerBlob": "f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d",
+      "activeSemanticOwner": "tools/try_forever_owner_surgery_semantic_parser.py",
+      "cleanupPatch": "patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch",
+      "regression": "tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py",
+      "regressionExecuted": false,
+      "wound": "dormant local semantic regex/helpers plus parser-only imports/constants remain after shared semantic delegation"
+    },
+    "envelopePreparseResourceThroat": {
+      "state": "REVISE_REQUIRED_PROPOSED_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+      "ownerBlob": "9cdd14517f2538296952618173bf47474374477b",
+      "proposal": "patches/try-forever-heartbeat-envelope-preparse-resource-throat.patch",
+      "proposedSourceCodeUnitCeiling": 32768,
+      "regression": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopePreparseResourceThroatTest.java",
+      "regressionExecuted": false,
+      "wound": "public parse(String) can traverse arbitrary direct caller text through trim/JSON cursor before an overall source-work ceiling"
+    },
+    "accessibilityWarmWall": {
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "path": "docs/try-forever/heartbeat-ingress-separation-source-specimen.html",
+      "fixture": "tools/test_try_forever_heartbeat_ingress_source_specimen.py",
+      "touchRowsAtLeast56Px": true,
+      "nativeControls": true,
+      "visibleFocus": true,
+      "nonColorLiveStatus": true,
+      "inlineSvgSemantics": true,
+      "reducedMotion": true,
+      "infiniteBlink": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "executionTruth": {
+    "head": "dd9c231a5a32fab79f81b2b66da083be031f8bb3",
+    "homeCenterCI": {"run": 33018581816, "status": "queued", "conclusion": null},
+    "operatorOverlayAndroid": {"run": 33018581886, "status": "queued", "conclusion": null},
+    "buildAndroid": {"run": 33018581966, "status": "completed", "conclusion": "failure", "job": 98343004784, "steps": 0},
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "authoritativeSurfaceResult": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
