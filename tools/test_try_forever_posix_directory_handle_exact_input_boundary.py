@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""RED SOURCE-ONLY boundary for exact caller-input admission in held-directory custody.
+"""SOURCE-ONLY convergence fixture for exact caller-input admission in held-directory custody.
 
-This fixture is expected to remain RED until the existing POSIX custody owner is mutated in place.
-It proves that callback-capable basename and integer-subclass inputs must fail before their Python
-callbacks can participate. Presence of this file is not regression execution or TESTED evidence.
+Callback-capable basename, integer-budget, and expected-candidate subclasses must fail before their
+Python callbacks can participate. Presence of this file is not regression execution or TESTED
+evidence.
 """
 
 from try_forever_posix_directory_handle_custody import (
     DescriptorArtifactCustodyError,
+    DescriptorCandidate,
+    DescriptorIdentity,
+    HeldDirectoryCustody,
+    _require_non_negative_budget,
     _require_simple_name,
 )
 
@@ -44,6 +48,15 @@ class CallbackInt(int):
         return super().__gt__(other)
 
 
+class CallbackCandidate(DescriptorCandidate):
+    callbacks = 0
+
+    def __getattribute__(self, name: str):
+        if name in {"name", "identity", "mode"}:
+            type(self).callbacks += 1
+        return super().__getattribute__(name)
+
+
 def main() -> int:
     CallbackName.callbacks = 0
     try:
@@ -54,17 +67,33 @@ def main() -> int:
         raise AssertionError("candidate basename subclass must fail closed")
     assert CallbackName.callbacks == 0
 
-    source = __import__("inspect").getsource(
-        __import__("try_forever_posix_directory_handle_custody")._require_simple_name
-    )
-    assert "type(name) is not str" in source
+    CallbackInt.callbacks = 0
+    try:
+        _require_non_negative_budget(CallbackInt(1), field="budget")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("integer budget subclass must fail closed")
+    assert CallbackInt.callbacks == 0
 
-    module_source = __import__("inspect").getsource(
-        __import__("try_forever_posix_directory_handle_custody")
+    candidate = CallbackCandidate(
+        name="candidate.patch",
+        identity=DescriptorIdentity(device=1, inode=1, size=1, mtime_ns=1),
+        mode=0,
     )
-    assert "def _require_non_negative_budget" in module_source
-    assert "type(value) is not int" in module_source
-    assert "type(expected_candidate) is not DescriptorCandidate" in module_source
+    CallbackCandidate.callbacks = 0
+    custody = object.__new__(HeldDirectoryCustody)
+    try:
+        custody.observe_utf8_regular_file(
+            "candidate.patch",
+            max_bytes=0,
+            expected_candidate=candidate,
+        )
+    except DescriptorArtifactCustodyError:
+        pass
+    else:
+        raise AssertionError("DescriptorCandidate subclass must fail closed")
+    assert CallbackCandidate.callbacks == 0
     return 0
 
 
