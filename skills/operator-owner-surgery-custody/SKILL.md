@@ -1,7 +1,7 @@
 # Operator Owner Surgery Custody
 
 ## Purpose
-Keep owner-surgery promotion topology and evidence custody exact while preserving the existing canonical v10 owner. This skill prevents stale-base promotion, incomplete inventories, callback-shaped machine evidence, weaker-fallback laundering, and capability-state drift.
+Keep owner-surgery promotion topology and evidence custody exact while preserving the existing canonical v10 owner. This skill prevents stale-base promotion, incomplete inventories, callback-shaped machine evidence, weaker-fallback laundering, failure-evidence loss, and capability-state drift.
 
 It does **not** own another patch executor, classifier, overlay controller, recovery daemon, phone lane, P0 coordinator, or provenance authority.
 
@@ -20,6 +20,8 @@ It does **not** own another patch executor, classifier, overlay controller, reco
 - `POST-SCAN ROOT STABILITY != UNIVERSAL ATOMIC DIRECTORY BINDING`.
 - `STATE CONTAINS "PROPOSED" != PROMOTION READY`.
 - `EXACT CANONICAL EVIDENCE != RAW DIAGNOSTIC PROSE`.
+- `ZERO PARTIAL PROMOTION AUTHORITY != ZERO OBSERVED-WORK EVIDENCE`.
+- `IDENTIFIED ARTIFACT CUSTODY FAILURE != ANONYMOUS BACKEND FAILURE`.
 - `SOURCE_WIRED != REGRESSION EXECUTED != TESTED != RUNTIME != DEPLOYED != DELIVERED != ACCEPTED`.
 
 Applying one current-base surgery changes owner custody and therefore stales sibling base locks. Parallel design is allowed; parallel promotion against the same exact owner/base is not automatically safe.
@@ -46,7 +48,7 @@ The `patches/` root is admitted no-follow and persistently revalidated around bo
 - max+1 at either layer fails exhaustive custody closed.
 
 ### Artifact observation
-Each admitted patch/delta uses the existing finite ordinary-file observation organ:
+Each admitted patch/delta uses one finite ordinary-file observation:
 - ordinary regular-file topology only;
 - no-follow/nonblocking behavior where available;
 - path/open-object witness agreement;
@@ -59,17 +61,17 @@ Each admitted patch/delta uses the existing finite ordinary-file observation org
 
 Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
 
-The existing `_parse_owner_blob(...)` boundary admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** (4,096 owner + separator + 40-byte hex witness) before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
+The existing `_parse_owner_blob(...)` boundary admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
 
 ### Direct programmatic argv
-Non-`None` direct `main(argv)` now crosses `_admit_programmatic_argv(...)` **before argparse traversal**. The caller container must be one exact built-in `list`; every member must be one exact built-in `str`; the vector is detached with a built-in copy only after those gates.
+Non-`None` direct `main(argv)` crosses `_admit_programmatic_argv(...)` **before argparse traversal**. The caller container must be one exact built-in `list`; every member must be one exact built-in `str`; the vector is detached with a built-in copy only after those gates.
 
 Programmatic argv has independent finite source throats:
 - **4,096 arguments maximum**;
 - **4,137 code points maximum per argument**;
 - **1,048,576 aggregate code points maximum**.
 
-`argv=None` retains ordinary OS CLI semantics and does not traverse a caller-owned Python iterable. Exact-list admission is not license for unbounded argument materialization, and no callback-bearing list/string subclass may enter argparse custody.
+`argv=None` retains ordinary OS CLI semantics and does not traverse a caller-owned Python iterable.
 
 ### Surgery state
 Promotion-ready state is exact, bounded, canonical machine evidence. Only the explicit current allow-list may enter promotion-candidate groups. Regex/header recognition may not erase whitespace or normalize the state before policy admission.
@@ -84,8 +86,22 @@ The canonical owner consumes `tools/try_forever_owner_surgery_semantic_parser.py
 
 Semantic rejection prose is not canonical evidence. Hostile duplicate JSON member names and unsupported schema strings are projected through bounded ASCII-safe diagnostic text rather than echoed raw; long diagnostic source collapses to a deterministic short digest marker before escaping.
 
+## Descriptor failure-evidence parity boundary
+Canonical v10 is already safe on the authority dimension: any selected descriptor setup, inventory, artifact-custody, or cleanup wound returns zero promotion authority and never retries through weaker pathname custody.
+
+Authenticated source review exposes a separate **RED evidence-preservation boundary**:
+- descriptor inventory max+1 rejection currently collapses already-observed directory/candidate counts to zero in the canonical receipt;
+- descriptor artifact-custody failure after a successful held-root inventory currently collapses the failing artifact to a generic `descriptor_backend` error and can also discard the already-observed inventory counts;
+- portable failure paths retain more of this non-authoritative observed-work evidence.
+
+This is **not** permission to weaken fail-closed authority. Desired convergence is: zero promotion authority **and** preserved bounded observed-work counts, plus retained path/kind identity when the exact failing artifact was already identified.
+
+`tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py` pins that desired contract as **RED / SOURCE / UNEXECUTED**. Do not report it as implemented or tested until the canonical owner/descriptor organ is actually wired and execution evidence exists.
+
 ## Evidence preservation
 Canonical outputs keep directory/candidate counts, artifact content witnesses, discovery errors, authenticated current-owner blobs, explicit current-owner-custody presence, collision sets, stale-base groups, unverified-base groups, and zero partial promotion authority after any custody wound.
+
+For descriptor success paths, that preservation is SOURCE_WIRED. Descriptor failure-path observed-work/artifact-identity parity is currently **PARTIAL / RED** as described above. Do not let the success-path law green-paint the failure path.
 
 A descriptor shadow remains supporting/non-authoritative. It cannot promote authority or rewrite canonical results.
 
@@ -99,14 +115,16 @@ Historical patch files remain provenance only. Current authenticated source read
 ## Regression source
 Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, exact bounded programmatic argv admission before argparse, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
-The focused v10 contract pins the programmatic argv capability flags and all three finite ceilings. The older broad `tools/test_try_forever_owner_surgery_custody_probe.py` still contains pre-v10 schema/backend assertions and remains **STALE_NONAUTHORITY / CONVERGENCE OPEN** until repaired rather than being allowed to overrule authenticated canonical source.
+The focused v10 contract pins backend-conditional root custody, owner wiring, programmatic argv capability flags, and all finite ceilings. The broad `tools/test_try_forever_owner_surgery_custody_probe.py` is now **CONVERGED TO V10 SOURCE / UNEXECUTED**: schema, `ownerWired`, backend selection, root behavior, and capability membrane follow authenticated current source rather than the old v7 portable-only fossil.
+
+The separate descriptor failure-evidence parity fixture remains **RED / SOURCE / UNEXECUTED** and is the current open owner boundary.
 
 All regression artifacts remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
 ## Accessibility / contact preservation
 Exact evidence may be retained even when it is unsafe or too large to echo. Human-facing diagnostic projection must remain separate, bounded, and ASCII-safe. Never rewrite canonical evidence to make an error prettier, and never feed projected diagnostic text back into persistence or authority decisions.
 
-Repository/source accessibility fixtures and Warm Walls are source artifacts only. Runtime TalkBack, device delivery, and acceptance remain separate and currently **NO**.
+The existing backend-selection Warm Wall must expose descriptor failure-evidence parity as **RED / NO** and contact preservation as **PARTIAL**, while retaining native radio controls, >=56px touch rows, visible focus, non-color live status, inline SVG semantics, and reduced-motion/no-blink behavior. This is repository source only: runtime TalkBack, device delivery, and acceptance remain **NO**.
 
 ## Current capability state
 - canonical v10 owner: **SOURCE_WIRED**;
@@ -123,10 +141,10 @@ Repository/source accessibility fixtures and Warm Walls are source artifacts onl
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content/path/kind/SHA resource custody: **SOURCE_WIRED**;
 - semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
+- broad v10 custody regression convergence: **SOURCE / UNEXECUTED**;
+- descriptor failure observed-count/artifact-identity parity: **NO / RED SOURCE / UNEXECUTED**;
 - descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
-- legacy broad custody regression convergence: **NO / STALE_NONAUTHORITY**;
 - universal filesystem atomicity: **NO**;
-- hostile regressions: **SOURCE / UNEXECUTED**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
 
 ## Duplicate-architecture and P0 firewall
