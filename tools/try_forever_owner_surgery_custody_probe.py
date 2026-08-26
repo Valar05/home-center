@@ -70,6 +70,10 @@ MAX_ARTIFACT_BYTES = 1_048_576
 MAX_CUSTODY_ARTIFACTS = 2_048
 MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
 MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS = MAX_OWNER_IDENTITY_CODEPOINTS + 1 + 40
+MAX_CURRENT_OWNER_MAP_ITEMS = MAX_CUSTODY_ARTIFACTS
+MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
+MAX_CURRENT_OWNER_CLI_ITEMS = MAX_CUSTODY_ARTIFACTS
+MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
 MAX_PROGRAMMATIC_ARGV_ITEMS = 4_096
 MAX_PROGRAMMATIC_ARG_CODEPOINTS = MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
 MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
@@ -425,19 +429,31 @@ def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str
 
 
 def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
-    """Admit authenticated current-owner evidence before any caller-owned container callback."""
+    """Admit one finite authenticated current-owner map before authority-facing traversal."""
 
     if values is None:
         return {}
     if type(values) is not dict:
         raise ValueError("current owner custody requires one exact built-in dict")
+    if len(values) > MAX_CURRENT_OWNER_MAP_ITEMS:
+        raise ValueError(
+            "current owner custody exceeds source ceiling "
+            f"{MAX_CURRENT_OWNER_MAP_ITEMS:,} entries"
+        )
 
     result: dict[str, str] = {}
+    total_codepoints = 0
     for owner, blob in values.items():
         admitted_owner = admit_owner_identity(owner, field="current owner")
-        if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
+        if type(blob) is not str or len(blob) != 40 or SHA1_RE.fullmatch(blob) is None:
             raise ValueError(
                 "current owner custody requires exact built-in 40-lowercase-hex blob strings"
+            )
+        total_codepoints += len(admitted_owner) + len(blob)
+        if total_codepoints > MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS:
+            raise ValueError(
+                "current owner custody aggregate exceeds source ceiling "
+                f"{MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS:,} code points"
             )
         if admitted_owner in result:
             raise ValueError(f"duplicate admitted current owner identity: {admitted_owner}")
@@ -613,7 +629,13 @@ def classify(
             "nonNormalizingPatchStateHeader": True,
             "exactCurrentOwnerMapAdmission": True,
             "exactCurrentOwnerBlobAdmission": True,
+            "boundedCurrentOwnerMapAdmission": True,
+            "currentOwnerMapItemCeiling": MAX_CURRENT_OWNER_MAP_ITEMS,
+            "currentOwnerMapTotalCodepointCeiling": MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS,
             "exactCurrentOwnerCliListAdmission": True,
+            "boundedCurrentOwnerCliListAdmission": True,
+            "currentOwnerCliItemCeiling": MAX_CURRENT_OWNER_CLI_ITEMS,
+            "currentOwnerCliTotalCodepointCeiling": MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS,
             "boundedCurrentOwnerCliAssignmentAdmission": True,
             "currentOwnerCliAssignmentCodepointCeiling": MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
             "exactProgrammaticArgvAdmission": True,
@@ -647,8 +669,14 @@ def _parse_owner_blob(values: list[str]) -> dict[str, str]:
 
     if type(values) is not list:
         raise ValueError("--current-owner custody requires one exact built-in list")
+    if len(values) > MAX_CURRENT_OWNER_CLI_ITEMS:
+        raise ValueError(
+            "--current-owner custody exceeds source ceiling "
+            f"{MAX_CURRENT_OWNER_CLI_ITEMS:,} assignments"
+        )
 
     result: dict[str, str] = {}
+    total_codepoints = 0
     for raw in values:
         if type(raw) is not str:
             raise ValueError("--current-owner assignment must be one exact built-in string")
@@ -656,6 +684,12 @@ def _parse_owner_blob(values: list[str]) -> dict[str, str]:
             raise ValueError(
                 "--current-owner assignment exceeds source ceiling "
                 f"{MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS} code points"
+            )
+        total_codepoints += len(raw)
+        if total_codepoints > MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS:
+            raise ValueError(
+                "--current-owner custody aggregate exceeds source ceiling "
+                f"{MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS:,} code points"
             )
         owner, separator, blob = raw.partition("=")
         if not separator:
