@@ -10,6 +10,10 @@ This skill owns backend-selection/result-admission doctrine only. It does **not*
 
 `CAPABILITY MACHINE INPUT != EXTENSIBLE PYTHON CALLBACK SURFACE`.
 
+`EXACT CONTROL TOKEN != UNBOUNDED CONTROL TOKEN`.
+
+`EXACT FAILURE EVIDENCE != PERMISSION FOR UNBOUNDED MACHINE-OUTPUT PROJECTION`.
+
 `DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
 
 `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
@@ -87,11 +91,16 @@ Do not reinterpret descriptor *unavailability* as a descriptor *failure*. Unavai
 ## Backend policy and result admission
 `tools/try_forever_owner_surgery_backend_policy.py` remains the pure selection/result-admission contract. Direct control inputs are exact built-in values before equality/truthiness; selection records are exact and internally canonical; backend result evidence crosses the existing bounded one-observation exact-JSON snapshot before semantic reads.
 
+Direct control evidence now has independent finite source throats before semantic or diagnostic projection:
+- capability-status tokens are exact built-in strings capped at **128 code points** before equality or rejected-token formatting;
+- fail-closed failure-boundary text is an exact built-in non-empty string capped at **4,096 code points** before it can enter the returned machine evidence;
+- admitted text is preserved exactly; these throats do not strip, case-fold, sanitize, or reconstruct evidence.
+
 `admit_selected_backend_result(...)` is not a second canonical owner. It remains a source-only result gate for selection identity, no weaker fallback, bounded counters, evidenceComplete/discoveryErrors agreement, exact owner custody, authority member integrity, and zero partial authority. It requires **explicit presence** of both `backend` and `portableFallbackAttempted`; omission fails closed instead of being silently repaired from the selected backend or a default false value.
 
 Authority-member `artifact_kind` is now required to be an exact built-in string before membership testing. A JSON-shaped list/dict can therefore be rejected as typed policy evidence instead of escaping as a raw unhashable `TypeError`. This is failure-domain containment, not broader authority.
 
-`tools/test_try_forever_owner_surgery_backend_required_control_presence.py` and `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` pin these laws as **SOURCE / UNEXECUTED** regression source. The exact-input fixture also carries the explicit backend control required by the current policy; it no longer preserves the stale pre-required-control result shape.
+`tools/test_try_forever_owner_surgery_backend_required_control_presence.py` and `tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py` pin these laws as **SOURCE / UNEXECUTED** regression source. The exact-input fixture also pins exact-max preservation and max+1 fail-closed behavior for both control throats; it does not convert source into TESTED evidence.
 
 ## Semantic producer
 `tools/try_forever_owner_surgery_semantic_parser.py` is **SOURCE_WIRED into both canonical portable and descriptor observation paths**.
@@ -115,9 +124,9 @@ Other backend/capability/descriptor/semantic regressions remain **SOURCE / UNEXE
 `tools/try_forever_owner_surgery_descriptor_shadow_audit.py` remains explicitly non-authoritative staging. Shadow agreement cannot promote authority and shadow divergence cannot rewrite canonical results. The canonical owner now has its own descriptor path; the shadow does not become a second backend owner.
 
 ## Accessibility / touch
-`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is an existing source-only Warm Wall. It exposes the canonical owner backend decision, exact classification controls, explicit backend-result controls, held descriptor path, semantic producer, fail-closed/no-fallback law, direct descriptor-root exact admission, typed root-encoding containment, and capability membrane through keyboard/touch-native controls, visible focus, non-color state text, inline SVG, and reduced-motion semantics.
+`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing source-only Warm Wall. It exposes the canonical owner backend decision, exact classification controls, **bounded control throats**, explicit backend-result controls, held descriptor path, semantic producer, fail-closed/no-fallback law, direct descriptor-root exact admission, typed root-encoding containment, and capability membrane through keyboard/touch-native controls, visible focus, non-color state text, inline SVG, and reduced-motion semantics.
 
-Runtime TalkBack, Android runtime behavior, phone delivery, and acceptance remain **NO**.
+`tools/test_try_forever_owner_surgery_backend_selection_source_specimen.py` pins that source structure, including the bounded-control inspection state, as **SOURCE / UNEXECUTED**. Runtime TalkBack, Android runtime behavior, phone delivery, and acceptance remain **NO**.
 
 ## Current capability state
 - canonical v10 portable backend: **SOURCE_WIRED**;
@@ -126,6 +135,7 @@ Runtime TalkBack, Android runtime behavior, phone delivery, and acceptance remai
 - exact classification root/budget admission: **SOURCE_WIRED**;
 - platform capability exact-input custody: **SOURCE_WIRED**;
 - direct backend-policy exact-input custody: **SOURCE_WIRED**;
+- bounded capability-status/failure-boundary control throats: **SOURCE_WIRED**;
 - explicit backend/fallback result-control presence: **SOURCE_WIRED**;
 - backend authority-member artifact-kind typed admission: **SOURCE_WIRED**;
 - backend result snapshot/integrity custody: **SOURCE_WIRED**;
@@ -139,7 +149,8 @@ Runtime TalkBack, Android runtime behavior, phone delivery, and acceptance remai
 - descriptor composition regression: **SOURCE / UNEXECUTED**;
 - classification exact-input regression: **SOURCE / UNEXECUTED**;
 - backend required-control regression: **SOURCE / UNEXECUTED**;
-- backend exact-input/failure-domain regression: **SOURCE / UNEXECUTED**;
+- backend exact-input/failure-domain/control-throat regression: **SOURCE / UNEXECUTED**;
+- backend Warm Wall accessibility regression: **SOURCE / UNEXECUTED**;
 - universal root/candidate atomicity: **NO**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
 
