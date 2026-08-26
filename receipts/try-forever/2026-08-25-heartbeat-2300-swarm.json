@@ -1,0 +1,102 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-25T23:00:00-05:00",
+  "previousPublicationHead": "6e16410a8994d200d0cf4614a869d18abab91d3f",
+  "reviewedSourceHead": "cd4d90d6c274e17bddc0eac85d84c30d288c3e15",
+  "changeCustody": {
+    "commits": 9,
+    "intendedPaths": 9,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "name": "canonical descriptor backend composition",
+      "state": "SOURCE_WIRED",
+      "changed": "existing v10 owner now selects one backend, directly consumes HeldDirectoryCustody on admitted POSIX primitives, keeps portable primary only when descriptor primitives are unavailable, and never same-attempt retries portable after descriptor failure"
+    },
+    {
+      "name": "exact classification input custody",
+      "state": "SOURCE_WIRED",
+      "changed": "root plus candidate/directory budgets are exact built-in machine inputs before backend dispatch, filesystem conversion, comparison, or truthiness"
+    },
+    {
+      "name": "hostile regression and v10 contract convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "new hostile Path/int subclass fixture plus descriptor-composition boundary and backend-conditional v10 contract source"
+    },
+    {
+      "name": "semantic producer capability receipt",
+      "state": "SOURCE_WIRED",
+      "changed": "existing semantic producer now truthfully records descriptorBackendConsumption=true while execution/runtime states remain false"
+    },
+    {
+      "name": "skill doctrine",
+      "state": "CONVERGED_SOURCE",
+      "changed": "existing backend-selection and descriptor-custody skills now record canonical descriptor consumption and exact classification gates without creating a new owner or skill"
+    },
+    {
+      "name": "accessible Warm Wall",
+      "state": "SOURCE_ONLY",
+      "changed": "existing backend-selection specimen now exposes exact controls, canonical select, descriptor/portable branches, semantic convergence, contact preservation, fail-closed law, native radio/touch/focus/status/reduced-motion semantics"
+    }
+  ],
+  "skillLights": {
+    "failureIsTheShovel": "LIT: converted prior PROPOSED_NOT_APPLIED descriptor boundary into authenticated existing-owner source wiring and used stale v10 regression expectations as the next defect",
+    "canonAutoSelect": "LIT: selected existing canonical v10 + existing backend selector + existing HeldDirectoryCustody + existing semantic producer; no sidecar authority",
+    "autocorrectJudgmentJar": "DARK: no material ambiguous token affected owner/lane/evidence identity",
+    "originalityTax": "LIT: did not restage the same patch or create Descriptor Owner II; applied the existing owner surgery and converted RED source to convergence",
+    "hunger": "LIT: source mutation forced semantic receipt, two skills, v10 fixture, patch provenance, and Warm Wall to converge",
+    "everPolishedInterpreterEatEverything": "LIT: found and closed pre-dispatch Path/int callback seams and stale portable-only contract expectations",
+    "operatorCampaign": "LIT: exact previous-publication to reviewed-source custody is 9 commits / 9 intended paths / 0 unexpected paths",
+    "harrowayOperatorDiscipline": "LIT: canonical v10 remains sole promotion authority; no merge/rebase/manual retry/phone/P0 substitution",
+    "sheRaw": "LIT_ATTEMPTED: authoritative consultation requested; account connection returned HTTP 400; no synthetic substitute",
+    "veniceJudgment": "LIT: source slice may stop only while regression execution, TESTED/runtime, and campaign continue",
+    "regnetQA": "LIT: source/readback pass; stale v10 regression repaired; regressions explicitly unexecuted and TESTED NO",
+    "accessibilityTalkBackTouch": "LIT_SOURCE: existing Warm Wall preserves native radios, >=56px rows, visible focus, role=status, non-color state, reduced motion; runtime TalkBack NO",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED: phone consumption 0, phone mutation 0",
+    "deterministicRouting": "LIT: capability -> one canonical selector -> exactly one backend; descriptor wound has no weaker retry",
+    "evidenceCapabilityState": "LIT: SOURCE_WIRED separated from regression executed/TESTED/runtime/deployed/callable/executed/delivered/accepted",
+    "recoveryCheckpointingIdempotence": "LIT: no manual CI retry; exact-head failed runs recorded without inventing step-level cause",
+    "strangeNonRasterArt": "LIT_SOURCE: existing inline-SVG DOM specimen mutated in place; no raster/deployment claim",
+    "warmWalls": "LIT_SOURCE: backend-selection Warm Wall converged to current owner truth",
+    "christmasLightSceneGraph": "DARK: no runtime motion/transition law changed; no decorative blinking",
+    "contactPreservation": "LIT: canonical counters, witnesses, discovery errors, owner custody, and authority families preserved across backend composition"
+  },
+  "crossPollination": "The prior exact semantic-producer composition made the descriptor-selection gap executable rather than conceptual. Applying that composition exposed a pre-dispatch Path/int callback seam and immediately made the portable-only v10 regression false. Those discoveries forced exact control gates, hostile regression source, semantic capability receipt, skill doctrine, and the accessible Warm Wall to converge on the same canonical-owner truth.",
+  "executionTruth": {
+    "head": "cd4d90d6c274e17bddc0eac85d84c30d288c3e15",
+    "homeCenterCi": {"run": 32929094059, "conclusion": "failure"},
+    "buildAndroid": {"run": 32929094123, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32929094053, "job": 98057733330, "conclusion": "failure", "steps": 0},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "canonicalBackendSelectionSourceWired": true,
+    "canonicalDescriptorConsumptionSourceWired": true,
+    "exactClassificationInputSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
