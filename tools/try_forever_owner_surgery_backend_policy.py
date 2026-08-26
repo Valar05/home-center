@@ -33,6 +33,7 @@ REQUIRED_OWNER_EVIDENCE_FIELDS = (
     "artifactCandidatesObserved",
     "discoveryErrors",
     "currentOwnerBlobs",
+    "capability",
 )
 OWNER_AUTHORITY_FIELDS = (
     "collisionSets",
@@ -189,6 +190,20 @@ def _admit_current_owner_blobs(result: dict[str, object]) -> dict[str, str]:
             raise ValueError("currentOwnerBlobs values must be 40 lowercase hexadecimal blobs")
         admitted[owner] = blob
     return admitted
+
+
+def _admit_current_owner_custody_presence(result: dict[str, object]) -> bool:
+    """Preserve omitted-vs-explicit-empty custody truth from canonical v10 capability evidence."""
+
+    capability = result.get("capability")
+    if type(capability) is not dict:
+        raise ValueError("backend result capability must be one mapping")
+    provided = capability.get("currentOwnerCustodyProvided")
+    if type(provided) is not bool:
+        raise ValueError(
+            "backend result capability.currentOwnerCustodyProvided must be one boolean"
+        )
+    return provided
 
 
 def _admit_promotion_candidate(
@@ -357,6 +372,11 @@ def admit_selected_backend_result(
         raise ValueError("evidenceComplete must agree with discoveryErrors emptiness")
 
     current_owner_blobs = _admit_current_owner_blobs(result_snapshot)
+    current_owner_custody_provided = _admit_current_owner_custody_presence(result_snapshot)
+    if not current_owner_custody_provided and current_owner_blobs:
+        raise ValueError(
+            "backend result cannot carry currentOwnerBlobs when canonical custody was omitted"
+        )
     authority_counts = _admit_authority_groups(result_snapshot, current_owner_blobs)
 
     if not evidence_complete and any(authority_counts.values()):
@@ -379,7 +399,7 @@ def admit_selected_backend_result(
         "artifactCandidatesObserved": candidates_observed,
         "discoveryErrorCount": len(discovery_errors),
         "evidenceComplete": evidence_complete,
-        "currentOwnerCustodyProvided": current_owner_custody,
+        "currentOwnerCustodyProvided": current_owner_custody_provided,
         "authorityGroupCounts": authority_counts,
         "portableFallbackAttempted": False,
         "exhaustiveEvidenceAdmitted": evidence_complete,
