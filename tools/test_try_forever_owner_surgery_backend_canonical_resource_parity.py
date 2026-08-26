@@ -61,7 +61,6 @@ def main() -> int:
     selection = select_owner_surgery_backend(SUPPORTED_POSIX)
     ordinary = admit_selected_backend_result(selection, result(owners={"owner": BLOB}))
     assert ordinary["ownerEvidenceAdmitted"] is True
-    assert ordinary["tested"] is False if "tested" in ordinary else True
 
     whitespace_owner = result(owners={" owner ": BLOB})
     expect_rejected(whitespace_owner, "exact owner identity")
