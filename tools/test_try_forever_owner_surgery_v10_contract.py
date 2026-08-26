@@ -15,6 +15,9 @@ from try_forever_owner_surgery_backend_policy import (
 )
 from try_forever_owner_surgery_custody_probe import (
     MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
+    MAX_PROGRAMMATIC_ARGV_ITEMS,
+    MAX_PROGRAMMATIC_ARG_CODEPOINTS,
+    MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS,
     classify,
 )
 
@@ -61,6 +64,8 @@ def main() -> int:
             "exactCurrentOwnerBlobAdmission",
             "exactCurrentOwnerCliListAdmission",
             "boundedCurrentOwnerCliAssignmentAdmission",
+            "exactProgrammaticArgvAdmission",
+            "boundedProgrammaticArgvAdmission",
             "currentOwnerCustodyPresencePreserved",
             "exactClassificationRootAdmission",
             "exactClassificationBudgetAdmission",
@@ -76,6 +81,11 @@ def main() -> int:
 
         assert capability["currentOwnerCliAssignmentCodepointCeiling"] == (
             MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
+        )
+        assert capability["programmaticArgvItemCeiling"] == MAX_PROGRAMMATIC_ARGV_ITEMS
+        assert capability["programmaticArgCodepointCeiling"] == MAX_PROGRAMMATIC_ARG_CODEPOINTS
+        assert capability["programmaticArgvTotalCodepointCeiling"] == (
+            MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS
         )
         assert capability["selectedBackend"] == result["backend"]
         assert capability["portableFallbackAttempted"] is False
