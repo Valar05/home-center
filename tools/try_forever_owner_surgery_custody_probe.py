@@ -7,20 +7,15 @@ target the same exact owner blob and binds that evidence to an authenticated cur
 when one is supplied.
 
 v10 treats textual ``*.patch`` and structured ``*.delta.json`` owner deltas as one finite custody
-family. The named ``patches`` root is admitted and revalidated through the existing portable
-no-follow root-identity organ around bounded non-recursive traversal, then revalidated again after
-all admitted artifact observations before any surgery/collision/stale/unverified authority is
-emitted. Directory-entry work, matching-candidate collection, and each admitted finite ordinary
-artifact remain independently bounded. Promotion readiness is admitted by exact canonical state,
-never by a ``PROPOSED`` substring or by regex/whitespace normalization. Authenticated current-owner
-blob custody is also exact: the caller container must be one built-in ``dict`` before ``items()`` can
-run, and each blob token must be one built-in ``str`` already matching lowercase SHA-1 syntax.
-Normalization-dependent text and callback-capable container/scalar subclasses cannot be repaired
-into authority. Each admitted Surgery now retains byte-count/SHA-256 identity from the same bounded
-artifact observation that produced its semantic record, and the canonical result emits those
-identities as ``artifactContentWitnesses``. Root redirectors, persistent root drift, unavailable
-identity, or invalid state/evidence fail closed. This is persistent-drift evidence, not an atomic
-filesystem binding claim.
+family. The canonical owner selects exactly one custody backend from exact platform-capability
+evidence. When the required POSIX descriptor primitives are admitted it consumes the existing
+held-directory custody organ directly; a descriptor wound fails that classification attempt closed
+without a same-attempt portable retry. When those primitives are unavailable, the existing portable
+pathname/root-revalidation path remains primary. Both paths feed the same exact-observation semantic
+producer, preserve bounded directory/candidate/content evidence, exact current-owner custody, and
+zero partial promotion authority on discovery wounds. Descriptor custody strengthens root/name
+binding but does not claim universal filesystem atomicity. Regression execution, TESTED, runtime,
+deployment, phone delivery, and acceptance remain separate capability states.
 """
 
 from __future__ import annotations
@@ -33,6 +28,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
+from try_forever_directory_handle_binding_capability import (
+    current_directory_handle_binding_capability,
+)
 from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactChangedError,
     GeneratedIndexArtifactObservation,
@@ -40,10 +38,7 @@ from try_forever_generated_index_artifact_observation import (
     GeneratedIndexArtifactTopologyError,
     observe_generated_index_artifact,
 )
-from try_forever_skill_root_identity import (
-    capture_directory_root_identity,
-    revalidate_directory_root_identity,
-)
+from try_forever_owner_surgery_backend_policy import select_owner_surgery_backend
 from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
 from try_forever_owner_surgery_metadata_exactness import (
     admit_owner_identity,
@@ -54,6 +49,16 @@ from try_forever_owner_surgery_semantic_parser import (
     parse_owner_surgery_observation,
 )
 from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
+from try_forever_posix_directory_handle_custody import (
+    DescriptorArtifactCustodyError,
+    DescriptorCustodyCleanupError,
+    HeldDirectoryCustody,
+    PosixDirectoryHandleCustodyUnavailable,
+)
+from try_forever_skill_root_identity import (
+    capture_directory_root_identity,
+    revalidate_directory_root_identity,
+)
 
 
 PATCH_ROOT = Path("patches")
@@ -109,6 +114,24 @@ def _artifact_kind_for_name(name: str) -> str | None:
     return None
 
 
+def _admit_classification_root(root: Path) -> Path:
+    """Admit one exact platform Path before caller-owned path callbacks can participate."""
+
+    if type(root) is not type(PATCH_ROOT):
+        raise ValueError("owner surgery root must be one exact platform Path")
+    return root
+
+
+def _admit_classification_budget(value: int, *, field: str, maximum: int) -> int:
+    """Admit exact integer controls before comparison/truthiness can execute caller code."""
+
+    if type(value) is not int:
+        raise ValueError(f"{field} must be one exact built-in integer")
+    if value < 0 or value > maximum:
+        raise ValueError(f"{field} must be between 0 and {maximum}")
+    return value
+
+
 def _observe_bounded_utf8(path: Path) -> GeneratedIndexArtifactObservation:
     """Reuse the existing finite regular-artifact organ and retain exact observation identity."""
 
@@ -150,7 +173,7 @@ def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
         path=path.as_posix(),
         artifact_kind=artifact_kind,
         boundary=(
-            f"Owner surgery artifact excluded from custody authority: "
+            "Owner surgery artifact excluded from custody authority: "
             f"{type(exc).__name__}: {exc}"
         ),
     )
@@ -166,23 +189,7 @@ def _discover_artifact_candidates(
     max_candidates: int,
     max_entries: int,
 ) -> tuple[list[tuple[Path, str]], DiscoveryError | None, int, int]:
-    """Bind root identity, then bound directory work and candidate storage before parsing.
-
-    Every directory entry counts against ``max_entries`` even when unrelated to TRY FOREVER.
-    Every matching patch/delta counts against ``max_candidates``. Max+1 on either throat withholds
-    the entire promotion inventory. Root topology/identity is observed before and after traversal;
-    persistent redirector/replacement drift or unavailable identity also withholds the whole
-    inventory. The bracket deliberately does not claim swap-and-restore or identity-reuse immunity.
-    """
-
-    if max_candidates < 0 or max_candidates > MAX_CUSTODY_ARTIFACTS:
-        raise ValueError(
-            f"owner surgery candidate budget must be between 0 and {MAX_CUSTODY_ARTIFACTS}"
-        )
-    if max_entries < 0 or max_entries > MAX_CUSTODY_DIRECTORY_ENTRIES:
-        raise ValueError(
-            f"owner surgery directory-entry budget must be between 0 and {MAX_CUSTODY_DIRECTORY_ENTRIES}"
-        )
+    """Portable bounded candidate discovery with persistent root-identity revalidation."""
 
     try:
         root_before = capture_directory_root_identity(root)
@@ -313,6 +320,76 @@ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         return None, _error(path, "delta_json", exc)
 
 
+def _discover_descriptor_surgeries(
+    root: Path,
+    *,
+    max_candidates: int,
+    max_entries: int,
+) -> tuple[list[Surgery], list[DiscoveryError], int, int]:
+    """Consume held-root custody directly inside the canonical owner.
+
+    A descriptor setup, inventory, artifact, or cleanup wound returns zero surgery authority and
+    never invokes portable pathname custody in the same classification attempt. Semantic wounds are
+    diagnostic discovery errors for their individual artifact; downstream zero-partial-authority
+    policy still suppresses every promotion group whenever any discovery error exists.
+    """
+
+    surgeries: list[Surgery] = []
+    discovery_errors: list[DiscoveryError] = []
+    try:
+        with HeldDirectoryCustody(root) as held:
+            inventory = held.candidate_inventory(
+                is_candidate=lambda name: _artifact_kind_for_name(name) is not None,
+                max_entries=max_entries,
+                max_candidates=max_candidates,
+            )
+            for candidate in inventory.candidates:
+                artifact_kind = _artifact_kind_for_name(candidate.name)
+                assert artifact_kind in {"patch", "delta_json"}
+                path = root / candidate.name
+                try:
+                    observation = held.observe_utf8_regular_file(
+                        candidate.name,
+                        max_bytes=MAX_ARTIFACT_BYTES,
+                        expected_candidate=candidate,
+                    )
+                    semantic = parse_owner_surgery_observation(
+                        path=path.as_posix(),
+                        artifact_kind=artifact_kind,
+                        utf8_text=observation.utf8_text,
+                        byte_count=observation.byte_count,
+                        sha256=observation.sha256,
+                    )
+                except OwnerSurgerySemanticError as exc:
+                    discovery_errors.append(_error(path, artifact_kind, exc))
+                    continue
+                surgeries.append(
+                    Surgery(
+                        path=semantic.path,
+                        artifact_kind=semantic.artifact_kind,
+                        owner=semantic.owner,
+                        base_blob=semantic.base_blob,
+                        state=semantic.state,
+                        promotion_candidate=semantic.promotion_candidate,
+                        artifact_byte_count=semantic.artifact_byte_count,
+                        artifact_sha256=semantic.artifact_sha256,
+                    )
+                )
+    except (
+        PosixDirectoryHandleCustodyUnavailable,
+        DescriptorArtifactCustodyError,
+        DescriptorCustodyCleanupError,
+    ) as exc:
+        return [], [_error(root, "descriptor_backend", exc)], 0, 0
+
+    return (
+        surgeries,
+        discovery_errors,
+        inventory.candidates_observed,
+        inventory.entries_observed,
+    )
+
+
 def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str) -> dict[str, object]:
     return {
         "owner": owner,
@@ -350,55 +427,81 @@ def classify(
     max_candidates: int = MAX_CUSTODY_ARTIFACTS,
     max_entries: int = MAX_CUSTODY_DIRECTORY_ENTRIES,
 ) -> dict[str, object]:
+    root = _admit_classification_root(root)
+    max_candidates = _admit_classification_budget(
+        max_candidates,
+        field="max_candidates",
+        maximum=MAX_CUSTODY_ARTIFACTS,
+    )
+    max_entries = _admit_classification_budget(
+        max_entries,
+        field="max_entries",
+        maximum=MAX_CUSTODY_DIRECTORY_ENTRIES,
+    )
     current_owner_blobs = _admit_current_owner_blobs(current_owner_blobs)
+
+    capability = current_directory_handle_binding_capability()
+    selection = select_owner_surgery_backend(capability.status)
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
 
-    try:
-        authority_root_before = capture_directory_root_identity(root)
-    except OSError as exc:
-        authority_root_before = None
-        candidates = []
-        inventory_error = _error(root, "artifact_root", exc)
-        candidates_observed = 0
-        entries_observed = 0
-    else:
-        candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
+    if selection.descriptor_selected:
+        (
+            surgeries,
+            discovery_errors,
+            candidates_observed,
+            entries_observed,
+        ) = _discover_descriptor_surgeries(
             root,
             max_candidates=max_candidates,
             max_entries=max_entries,
         )
-
-    if inventory_error is not None:
-        discovery_errors.append(inventory_error)
     else:
-        for path, artifact_kind in candidates:
-            if artifact_kind == "patch":
-                surgery, error = inspect_patch(path)
-            elif artifact_kind == "delta_json":
-                surgery, error = inspect_delta(path)
-            else:
-                raise AssertionError(f"unknown owner surgery artifact kind: {artifact_kind}")
-            if surgery is not None:
-                surgeries.append(surgery)
-            if error is not None:
-                discovery_errors.append(error)
-
-        assert authority_root_before is not None
         try:
-            authority_root_after = capture_directory_root_identity(root)
+            authority_root_before = capture_directory_root_identity(root)
         except OSError as exc:
-            surgeries.clear()
-            discovery_errors.append(_error(root, "artifact_root", exc))
+            authority_root_before = None
+            candidates = []
+            inventory_error = _error(root, "artifact_root", exc)
+            candidates_observed = 0
+            entries_observed = 0
         else:
-            authority_verdict = revalidate_directory_root_identity(
-                authority_root_before,
-                authority_root_after,
-                subject=PATCH_ROOT_SUBJECT,
+            candidates, inventory_error, candidates_observed, entries_observed = _discover_artifact_candidates(
+                root,
+                max_candidates=max_candidates,
+                max_entries=max_entries,
             )
-            if authority_verdict.status != "STABLE":
+
+        if inventory_error is not None:
+            discovery_errors.append(inventory_error)
+        else:
+            for path, artifact_kind in candidates:
+                if artifact_kind == "patch":
+                    surgery, error = inspect_patch(path)
+                elif artifact_kind == "delta_json":
+                    surgery, error = inspect_delta(path)
+                else:
+                    raise AssertionError(f"unknown owner surgery artifact kind: {artifact_kind}")
+                if surgery is not None:
+                    surgeries.append(surgery)
+                if error is not None:
+                    discovery_errors.append(error)
+
+            assert authority_root_before is not None
+            try:
+                authority_root_after = capture_directory_root_identity(root)
+            except OSError as exc:
                 surgeries.clear()
-                discovery_errors.append(_root_error(root, authority_verdict.reason))
+                discovery_errors.append(_error(root, "artifact_root", exc))
+            else:
+                authority_verdict = revalidate_directory_root_identity(
+                    authority_root_before,
+                    authority_root_after,
+                    subject=PATCH_ROOT_SUBJECT,
+                )
+                if authority_verdict.status != "STABLE":
+                    surgeries.clear()
+                    discovery_errors.append(_root_error(root, authority_verdict.reason))
 
     surgeries.sort(key=lambda item: (item.owner, item.base_blob, item.path))
     discovery_errors.sort(key=lambda item: (item.path, item.artifact_kind))
@@ -447,6 +550,8 @@ def classify(
 
     return {
         "schema": "try-forever-owner-surgery-custody.v10",
+        "backend": selection.backend,
+        "portableFallbackAttempted": False,
         "artifactKindsScanned": ["patch", "delta_json"],
         "artifactReadBudgetBytes": MAX_ARTIFACT_BYTES,
         "artifactCandidateBudget": max_candidates,
@@ -472,13 +577,18 @@ def classify(
             "sourceInspection": True,
             "patchArtifactInspection": True,
             "deltaArtifactInspection": True,
-            "artifactRootIdentityRevalidation": True,
-            "artifactRootFinalRevalidation": True,
+            "artifactRootIdentityRevalidation": selection.portable_is_primary,
+            "artifactRootFinalRevalidation": selection.portable_is_primary,
+            "descriptorRootCustody": selection.descriptor_selected,
+            "selectedBackend": selection.backend,
+            "portableFallbackAttempted": False,
             "sameObservationArtifactContentWitnesses": True,
             "exactOwnerSurgeryStateAdmission": True,
             "nonNormalizingPatchStateHeader": True,
             "exactCurrentOwnerMapAdmission": True,
             "exactCurrentOwnerBlobAdmission": True,
+            "exactClassificationRootAdmission": True,
+            "exactClassificationBudgetAdmission": True,
             "substringPromotionAuthority": False,
             "artifactRootAtomicBinding": False,
             "boundedArtifactDirectoryScan": True,
@@ -487,7 +597,7 @@ def classify(
             "finiteRegularArtifactCustody": True,
             "currentOwnerCustodyProvided": bool(current_owner_blobs),
             "patchApplied": False,
-            "ownerWired": False,
+            "ownerWired": True,
             "regressionExecuted": False,
             "tested": False,
             "runtimeUi": False,
