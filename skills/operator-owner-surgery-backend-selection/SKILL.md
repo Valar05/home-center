@@ -10,6 +10,7 @@ This skill owns backend-selection/result-admission doctrine only. It does **not*
 - `CAPABILITY MACHINE INPUT != EXTENSIBLE PYTHON CALLBACK SURFACE`.
 - `EXACT CONTROL TOKEN != UNBOUNDED CONTROL TOKEN`.
 - `EXACT SEMANTIC INPUT != PERMISSION FOR UNBOUNDED MEMBERSHIP / REGEX / ENCODE / HASH WORK`.
+- `BOUNDED JSON BYTES != BOUNDED JSON NESTING FAILURE DOMAIN`.
 - `EXACT CANONICAL EVIDENCE != RAW DIAGNOSTIC PROSE`.
 - `DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
 - `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
@@ -42,7 +43,7 @@ Canonical `classify(...)` admits root/resource budgets before backend dispatch. 
 ## Semantic producer resource custody
 `tools/try_forever_owner_surgery_semantic_parser.py` is consumed by both canonical backends and performs no filesystem read, backend selection, grouping, or promotion.
 
-Direct semantic callers now cross finite source throats **before expensive or authority-facing operations**:
+Direct semantic callers cross finite source throats **before expensive or authority-facing operations**:
 - patch/delta UTF-8 observation: **1 MiB encoded-byte ceiling**, with claimed-byte and pre-encode code-point rejection before encode/hash plus post-encode multibyte enforcement;
 - semantic path: finite exact-string source ceiling before it can become returned canonical evidence;
 - `artifact_kind`: finite exact-string ceiling **before set membership/hash**;
@@ -51,8 +52,10 @@ Direct semantic callers now cross finite source throats **before expensive or au
 
 Content byte count and SHA-256 are recomputed before patch/delta semantics. Strict UTF-8 encode failure remains inside `OwnerSurgerySemanticError`.
 
+For `delta_json`, bounded bytes are not treated as proof that the decoder cannot exhaust its recursion capacity. Deeply nested but sub-megabyte JSON now converts decoder `RecursionError` into one typed `OwnerSurgerySemanticError` boundary. This is failure-domain containment only; it does not rewrite the exact delta evidence or create a second parser/validator owner.
+
 ## Semantic diagnostic custody
-Machine evidence and rejection prose have different ownership. Exact JSON member/schema text remains canonical input evidence, but duplicate-member and unsupported-schema diagnostics now use **bounded ASCII-safe projection**:
+Machine evidence and rejection prose have different ownership. Exact JSON member/schema text remains canonical input evidence, but duplicate-member and unsupported-schema diagnostics use **bounded ASCII-safe projection**:
 - long diagnostic source collapses to a deterministic short digest marker **before JSON escaping**, so projection cannot balloon bounded input into multi-megabyte prose;
 - short diagnostic source is ASCII-escaped, preventing raw newline, bidi controls, or lone-surrogate text from entering logs/operator/TalkBack-facing prose;
 - typed dependency failures are wrapped without echoing arbitrary dependency exception text;
@@ -70,12 +73,13 @@ Current source-only hostile fixtures include:
 - canonical descriptor composition;
 - semantic callback-free exact scalar admission;
 - semantic path/kind/SHA/content resource throats;
-- semantic hostile duplicate-member/schema diagnostic projection.
+- semantic hostile duplicate-member/schema diagnostic projection;
+- deeply nested sub-megabyte delta JSON that must fail inside typed semantic custody rather than leak raw `RecursionError`.
 
 These fixtures remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
 ## Accessibility / Warm Wall
-`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing non-raster source-only Warm Wall. Keep canonical backend selection, bounded controls, semantic resource custody, diagnostic projection, no-weaker-fallback, evidence preservation, native keyboard/touch inspection, visible focus, non-color state, live-status semantics, inline SVG, and reduced-motion behavior inspectable there.
+`docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing non-raster source-only Warm Wall. Keep canonical backend selection, bounded controls, semantic resource custody, typed deep-JSON failure containment, diagnostic projection, no-weaker-fallback, evidence preservation, native keyboard/touch inspection, visible focus, non-color state, live-status semantics, inline SVG, and reduced-motion behavior inspectable there.
 
 Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
 
@@ -88,6 +92,7 @@ Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, a
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content resource throat: **SOURCE_WIRED**;
 - semantic path/kind/SHA scalar resource throats: **SOURCE_WIRED**;
+- semantic deep-JSON recursion failure containment: **SOURCE_WIRED**;
 - semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
 - descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
 - hostile regressions: **SOURCE / UNEXECUTED**;
