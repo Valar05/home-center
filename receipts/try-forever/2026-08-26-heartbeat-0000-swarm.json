@@ -1,0 +1,99 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v2",
+  "heartbeat": "2026-08-26T00:00:00-05:00",
+  "reviewedSourceHead": "856f813f0f74349cbc8ae04c0d8fdc54c5972fa6",
+  "previousPublicationHead": "335cefa5aef282abbfa7b4023a80f02223c4a7f8",
+  "changeCustody": {
+    "commits": 8,
+    "paths": 8,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "name": "backend-result authority controls",
+      "state": "SOURCE_WIRED",
+      "changed": "admit_selected_backend_result now requires explicit backend identity and explicit portableFallbackAttempted=false after exact JSON snapshot; omitted controls fail closed",
+      "regression": "tools/test_try_forever_owner_surgery_backend_required_control_presence.py",
+      "regressionExecuted": false
+    },
+    {
+      "name": "direct descriptor-root exact admission",
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "changed": "hostile direct-constructor fixture and exact base-blob-locked existing-owner surgery preserve arbitrary os.PathLike __fspath__ callback seam without falsely downgrading canonical v10",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py",
+      "ownerBaseBlob": "6eee417a736022910989137142811b787e85842e",
+      "regression": "tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py",
+      "regressionExecuted": false
+    },
+    {
+      "name": "doctrine convergence",
+      "state": "SOURCE_WIRED",
+      "changed": "backend-selection, descriptor-custody, and result-inventory skills now distinguish canonical descriptor SOURCE_WIRED state, explicit backend-result control custody, and direct descriptor-constructor RED state"
+    },
+    {
+      "name": "accessible Warm Wall",
+      "state": "SOURCE_ONLY",
+      "changed": "existing non-raster DOM/SVG specimen gained native radio/touch states for explicit result controls and direct descriptor-root RED boundary; runtime TalkBack remains NO"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: omitted authority controls and direct descriptor-root callback seam found through source review",
+    "Canon Auto-Select": "LIT: reused existing backend policy, descriptor owner, snapshot organ, skills and Warm Wall",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity affected routing or evidence",
+    "Originality Tax": "LIT: no neighboring validator/controller/owner; exact existing-owner surgery only",
+    "Hunger": "LIT: discovered and converged result-inventory and descriptor-custody skills after policy mutation",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: source repair propagated into regressions, doctrine, accessibility specimen and capability membrane",
+    "Operator Campaign": "LIT: exact remote branch mutation, authenticated source readback, durable review receipts",
+    "Harroway operator discipline": "LIT: bounded non-P0 owner surgeries and exact stop boundary",
+    "She-Raw adversarial motivation": "LIT_ATTEMPTED: authoritative connector returned account-connection HTTP 400; no substitute",
+    "Venice Judgment Jars": "LIT: bounded source slice may stop; direct descriptor root/test/runtime/campaign continue",
+    "Regnet QA": "LIT: supporting source PASS; direct root owner REVISE_REQUIRED; regressions unexecuted",
+    "accessibility/TalkBack and touch semantics": "LIT: source Warm Wall native radios, 56px touch rows, visible focus, role=status, reduced motion; runtime TalkBack NO",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALL: shared phone/P0 surface not consumed",
+    "deterministic routing": "LIT: explicit backend/fallback controls can no longer be inferred when absent",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, RED, UNEXECUTED, TESTED, runtime, deployed, delivered and accepted kept distinct",
+    "recovery/checkpointing/idempotence": "LIT: no manual workflow retry; zero-step CI not converted into a fabricated source diagnosis",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing DOM/SVG source specimen mutated in place",
+    "warm walls": "LIT: existing backend-selection Warm Wall converged",
+    "Christmas-light scene graph": "DARK: no runtime transition law changed",
+    "contact preservation": "LIT: exact backend/fallback evidence is preserved rather than silently synthesized; canonical evidence families unchanged"
+  },
+  "crossPollination": "Backend-result snapshot review exposed missing-control synthesis; fixing it made result-inventory doctrine stale. Exact-input doctrine then widened review to the descriptor organ, where canonical caller safety and direct-constructor safety diverged. That distinction forced a RED owner fixture, exact staged surgery, three skill updates, and accessible Warm Wall convergence without creating sidecar authority.",
+  "executionTruth": {
+    "head": "856f813f0f74349cbc8ae04c0d8fdc54c5972fa6",
+    "workflows": [
+      {"name": "Build Android", "runId": 32932839406, "conclusion": "failure"},
+      {"name": "Home Center CI", "runId": 32932839396, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32932839401, "jobId": 98068240531, "conclusion": "failure", "steps": 0}
+    ],
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "backendRequiredControlsSourceWired": true,
+    "canonicalDescriptorConsumptionSourceWired": true,
+    "directDescriptorRootOwnerWired": false,
+    "directDescriptorRootSurgeryProposedNotApplied": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
