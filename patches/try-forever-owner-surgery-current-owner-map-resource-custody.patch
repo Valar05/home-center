@@ -1,0 +1,58 @@
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: 18e7792ab56dc5088b864ab02bd298747f1c7418
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# PURPOSE: Bound exact authenticated current-owner map cardinality and aggregate machine text before full traversal.
+# CAPABILITY: PROPOSED_NOT_APPLIED
+# REGRESSION: tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py (RED / SOURCE / UNEXECUTED)
+# P0/PHONE: UNTOUCHED
+
+diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ MAX_CUSTODY_ARTIFACTS = 2_048
+ MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
+ MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS = MAX_OWNER_IDENTITY_CODEPOINTS + 1 + 40
++MAX_CURRENT_OWNER_MAP_ITEMS = MAX_CUSTODY_ARTIFACTS
++MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
+ MAX_PROGRAMMATIC_ARGV_ITEMS = 4_096
+@@
+ def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
+-    """Admit authenticated current-owner evidence before any caller-owned container callback."""
++    """Admit one finite authenticated current-owner map before authority-facing traversal."""
+ 
+     if values is None:
+         return {}
+     if type(values) is not dict:
+         raise ValueError("current owner custody requires one exact built-in dict")
++    if len(values) > MAX_CURRENT_OWNER_MAP_ITEMS:
++        raise ValueError(
++            "current owner custody exceeds source ceiling "
++            f"{MAX_CURRENT_OWNER_MAP_ITEMS:,} entries"
++        )
+ 
+     result: dict[str, str] = {}
++    total_codepoints = 0
+     for owner, blob in values.items():
+         admitted_owner = admit_owner_identity(owner, field="current owner")
+-        if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
++        if type(blob) is not str or len(blob) != 40 or SHA1_RE.fullmatch(blob) is None:
+             raise ValueError(
+                 "current owner custody requires exact built-in 40-lowercase-hex blob strings"
+             )
++        total_codepoints += len(admitted_owner) + len(blob)
++        if total_codepoints > MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS:
++            raise ValueError(
++                "current owner custody aggregate exceeds source ceiling "
++                f"{MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS:,} code points"
++            )
+         if admitted_owner in result:
+             raise ValueError(f"duplicate admitted current owner identity: {admitted_owner}")
+         result[admitted_owner] = blob
+@@
+             "exactCurrentOwnerMapAdmission": True,
+             "exactCurrentOwnerBlobAdmission": True,
++            "boundedCurrentOwnerMapAdmission": True,
++            "currentOwnerMapItemCeiling": MAX_CURRENT_OWNER_MAP_ITEMS,
++            "currentOwnerMapTotalCodepointCeiling": MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS,
+             "exactCurrentOwnerCliListAdmission": True,
