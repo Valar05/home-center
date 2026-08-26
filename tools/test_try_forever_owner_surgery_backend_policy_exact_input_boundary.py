@@ -10,6 +10,8 @@ import inspect
 
 from try_forever_owner_surgery_backend_policy import (
     DESCRIPTOR_BACKEND,
+    MAX_CAPABILITY_STATUS_CODEPOINTS,
+    MAX_FAILURE_BOUNDARY_CODEPOINTS,
     REQUIRED_OWNER_EVIDENCE_FIELDS,
     SUPPORTED_POSIX,
     OwnerSurgeryBackendSelection,
@@ -132,6 +134,21 @@ def main() -> int:
         raise AssertionError("backend selection accepted a callback-capable string subclass")
     assert CapabilityString.eq_calls == 0
 
+    # Capability controls have a finite source throat before equality/error projection work.
+    exact_max_capability = "A" * MAX_CAPABILITY_STATUS_CODEPOINTS
+    try:
+        select_owner_surgery_backend(exact_max_capability)
+    except ValueError as exc:
+        assert "unsupported directory-handle capability status" in str(exc)
+    else:
+        raise AssertionError("unknown bounded capability token earned backend authority")
+    try:
+        select_owner_surgery_backend("A" * (MAX_CAPABILITY_STATUS_CODEPOINTS + 1))
+    except ValueError as exc:
+        assert "source ceiling" in str(exc)
+    else:
+        raise AssertionError("overlong capability token crossed backend control custody")
+
     # Failure projection must not ask caller-owned string truthiness before admission.
     FailureBoundaryString.len_calls = 0
     try:
@@ -144,6 +161,19 @@ def main() -> int:
     else:
         raise AssertionError("failure projection accepted a callback-capable boundary string")
     assert FailureBoundaryString.len_calls == 0
+
+    # Failure-boundary evidence remains exact but is bounded before projection into machine output.
+    max_boundary = "B" * MAX_FAILURE_BOUNDARY_CODEPOINTS
+    assert classify_selected_backend_failure(descriptor, max_boundary)["boundary"] == max_boundary
+    try:
+        classify_selected_backend_failure(
+            descriptor,
+            "B" * (MAX_FAILURE_BOUNDARY_CODEPOINTS + 1),
+        )
+    except ValueError as exc:
+        assert "source ceiling" in str(exc)
+    else:
+        raise AssertionError("overlong failure boundary crossed backend failure custody")
 
     # The selection object itself is a machine-control record, not an extensible Python protocol.
     subclass_selection = SelectionSubclass(
