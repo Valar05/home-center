@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-venice.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "dd9c231a5a32fab79f81b2b66da083be031f8bb3",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__SEMANTIC_PARSER_OWNER_CLEANUP_ENVELOPE_PREPARSE_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowCheckpoint": true,
+  "continueRequired": [
+    "apply the exact existing-owner semantic parser fossil cleanup only through authenticated owner mutation",
+    "apply the direct HeartbeatEnvelopeParser preparse resource throat only through the exact existing parser owner",
+    "execute focused regressions through an authorized non-phone execution lane",
+    "establish TESTED evidence",
+    "establish runtime UI/TalkBack evidence only through canonical runtime owners",
+    "continue the recurring non-P0 campaign"
+  ],
+  "mustNotClaim": [
+    "semantic parser cleanup applied",
+    "envelope preparse resource throat implemented",
+    "regression executed",
+    "TESTED",
+    "runtime TalkBack",
+    "deployed",
+    "callable",
+    "executed",
+    "delivered",
+    "accepted"
+  ],
+  "architecture": {
+    "newAuthorityOwner": false,
+    "newParserOwner": false,
+    "newOverlayController": false,
+    "newRecoveryDaemon": false,
+    "phoneOrP0Overlap": false
+  },
+  "phoneP0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "newP0Finding": null
+  }
+}
