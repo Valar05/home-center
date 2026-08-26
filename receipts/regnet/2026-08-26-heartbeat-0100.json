@@ -1,0 +1,46 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-26T01:00:00-05:00",
+  "reviewedSourceHead": "6ef55af192191a639f3cce6282629b2f3a5c1ee9",
+  "verdict": "PASS_SOURCE_READBACK__DIRECT_ROOT_AND_ENCODING_CONVERGED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourceFindings": [
+    {
+      "front": "direct descriptor root exact admission",
+      "state": "SOURCE_WIRED",
+      "finding": "HeldDirectoryCustody now admits only one exact built-in string or exact platform Path before capability lookup, Path/os.fspath conversion, or filesystem semantics; arbitrary os.PathLike and scalar subclasses fail before caller callbacks can vote"
+    },
+    {
+      "front": "descriptor root path-encoding failure containment",
+      "state": "SOURCE_WIRED",
+      "finding": "root os.open path encoding Unicode failures are contained in PosixDirectoryHandleCustodyUnavailable rather than leaking raw Unicode exceptions across the custody boundary"
+    },
+    {
+      "front": "hostile regression source",
+      "state": "SOURCE_UNEXECUTED",
+      "finding": "direct-root convergence fixture blocks hostile PathLike/string-subclass callbacks before capability/open; root I/O fixture covers typed path-encoding failure"
+    },
+    {
+      "front": "descriptor doctrine and accessible Warm Wall",
+      "state": "SOURCE_WIRED",
+      "finding": "existing descriptor skill and existing non-raster DOM/SVG specimen now expose direct-root and path-encoding source truth while keeping runtime TalkBack NO"
+    }
+  ],
+  "authorityReview": {
+    "canonicalV10DescriptorConsumption": "SOURCE_WIRED_UNCHANGED",
+    "newAuthorityOwnerCreated": false,
+    "weakerPortableRetryAfterDescriptorWound": false,
+    "universalFilesystemAtomicityClaim": false
+  },
+  "regressionState": "SOURCE_UNEXECUTED",
+  "tested": false,
+  "runtime": false,
+  "deployed": false,
+  "delivered": false,
+  "accepted": false,
+  "p0Phone": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}
