@@ -1,0 +1,85 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T01:57:00-05:00",
+  "sourceHead": "22b4b03f859a1a59299e88b1398d6f9950775a38",
+  "previousPublicationHead": "d7927b02f1007774ac07a835766955954279455c",
+  "changeCustody": {
+    "commits": 5,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_backend_policy.py",
+      "tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py",
+      "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "tools/test_try_forever_owner_surgery_backend_selection_source_specimen.py"
+    ]
+  },
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Canon Auto-Select", "Originality Tax", "Deterministic Routing"],
+      "state": "LIT",
+      "change": "closed backend authority-member artifact_kind raw-TypeError leakage by exact built-in-string admission in the existing policy owner"
+    },
+    {
+      "skills": ["Regnet QA", "Ever-Polished Interpreter / Eat Everything", "Contact Preservation"],
+      "state": "LIT",
+      "change": "converged stale required-backend regression input and added hostile JSON-shaped artifact_kind failure-domain coverage; regression remains unexecuted"
+    },
+    {
+      "skills": ["Hunger", "Operator Campaign", "Harroway operator discipline", "Evidence/capability-state discipline"],
+      "state": "LIT",
+      "change": "corrected stale backend-selection doctrine to current authenticated descriptor-root SOURCE_WIRED/APPLIED_SOURCE truth without creating neighboring authority"
+    },
+    {
+      "skills": ["Accessibility/TalkBack and touch semantics", "Warm Walls"],
+      "state": "LIT",
+      "change": "added source-only accessibility regression around the existing DOM/SVG Warm Wall: native radio controls, 56px touch geometry, focus, non-color live status, SVG semantics, reduced motion, and explicit runtime TalkBack NO"
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "RED_BOUNDARY",
+      "change": "authoritative consultation attempted; account connection returned HTTP 400; no synthetic substitute"
+    },
+    {
+      "skills": ["Venice Judgment Jars", "Recovery/checkpointing/idempotence"],
+      "state": "LIT",
+      "change": "source slice may stop; regression execution, TESTED, runtime, and campaign remain continue-required; no manual workflow retry"
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar", "Strange non-raster vector/DOM/native UI art", "Christmas-light scene graph"],
+      "state": "DARK",
+      "change": "no material token ambiguity or visual/motion topology change justified mutation"
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "FIREWALLED_DARK",
+      "change": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+    }
+  ],
+  "crossPollination": "Exact JSON snapshot custody made semantic scalar admission suspicious; artifact_kind membership exposed a raw TypeError leak. Fixing it made the hostile regression's stale missing-backend fixture visible, which then exposed stale backend doctrine. Accessibility review converted the already-correct Warm Wall semantics into a durable source regression without claiming runtime TalkBack. Exact-head CI kept all source success behind the TESTED/runtime membrane.",
+  "executionTruth": {
+    "homeCenterCi": {"runId": 32941035810, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32941035825, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32941035860, "jobId": 98091888327, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "backendAuthorityArtifactKindTypedAdmission": "SOURCE_WIRED",
+    "accessibilityWarmWallRegression": "SOURCE_UNEXECUTED",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
