@@ -1,9 +1,11 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: 18e7792ab56dc5088b864ab02bd298747f1c7418
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # PURPOSE: Bound exact authenticated current-owner map and repeated-owner parser cardinality/aggregate machine text before full traversal.
-# CAPABILITY: PROPOSED_NOT_APPLIED
-# REGRESSION: tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py (RED / SOURCE / UNEXECUTED)
+# CAPABILITY: SOURCE_WIRED
+# APPLIED OWNER COMMIT: 9de18644b769ef3ad341bae8b72415839deba33f
+# APPLIED OWNER BLOB: 97f9db5489ed8403cbf2d0acfcc1d7d5fea9dc57
+# REGRESSION: tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py (CONVERGENCE SOURCE / UNEXECUTED)
 # P0/PHONE: UNTOUCHED
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
