@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Focused SOURCE-ONLY regression for the current owner-surgery custody v10 contract.
 
-The canonical owner now selects either held-descriptor custody or the portable primary path from
-exact platform capability. This fixture pins the common evidence membrane plus backend-conditional
-root evidence without pretending its presence is regression execution or TESTED/runtime proof.
+The canonical owner selects either held-descriptor custody or the portable primary path from exact
+platform capability. This fixture pins the common evidence membrane, finite authenticated-owner
+resource throats, and backend-conditional root evidence without pretending its presence is regression
+execution or TESTED/runtime proof.
 """
 
 from pathlib import Path
@@ -15,6 +16,10 @@ from try_forever_owner_surgery_backend_policy import (
 )
 from try_forever_owner_surgery_custody_probe import (
     MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
+    MAX_CURRENT_OWNER_CLI_ITEMS,
+    MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS,
+    MAX_CURRENT_OWNER_MAP_ITEMS,
+    MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS,
     MAX_PROGRAMMATIC_ARGV_ITEMS,
     MAX_PROGRAMMATIC_ARG_CODEPOINTS,
     MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS,
@@ -62,7 +67,9 @@ def main() -> int:
             "nonNormalizingPatchStateHeader",
             "exactCurrentOwnerMapAdmission",
             "exactCurrentOwnerBlobAdmission",
+            "boundedCurrentOwnerMapAdmission",
             "exactCurrentOwnerCliListAdmission",
+            "boundedCurrentOwnerCliListAdmission",
             "boundedCurrentOwnerCliAssignmentAdmission",
             "exactProgrammaticArgvAdmission",
             "boundedProgrammaticArgvAdmission",
@@ -79,6 +86,14 @@ def main() -> int:
         for field in expected_true:
             assert capability[field] is True, field
 
+        assert capability["currentOwnerMapItemCeiling"] == MAX_CURRENT_OWNER_MAP_ITEMS
+        assert capability["currentOwnerMapTotalCodepointCeiling"] == (
+            MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS
+        )
+        assert capability["currentOwnerCliItemCeiling"] == MAX_CURRENT_OWNER_CLI_ITEMS
+        assert capability["currentOwnerCliTotalCodepointCeiling"] == (
+            MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS
+        )
         assert capability["currentOwnerCliAssignmentCodepointCeiling"] == (
             MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
         )
