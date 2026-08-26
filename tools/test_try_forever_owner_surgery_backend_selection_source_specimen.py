@@ -16,7 +16,7 @@ def main() -> int:
 
     # Native interaction and touch geometry stay first-class rather than simulated div controls.
     assert '<fieldset aria-describedby="detail">' in html
-    assert html.count('input type="radio" name="backend"') >= 10
+    assert html.count('input type="radio" name="backend"') >= 11
     assert "min-height: 56px" in html
     assert "label:focus-within" in html
 
@@ -26,6 +26,12 @@ def main() -> int:
     assert 'role="img" aria-labelledby="diagram-title diagram-desc"' in html
     assert '<title id="diagram-title">' in html
     assert '<desc id="diagram-desc">' in html
+
+    # The current machine-control source throat is inspectable without claiming runtime behavior.
+    assert "BOUNDED CONTROL THROATS: SOURCE_WIRED" in html
+    assert 'value="bounded-controls"' in html
+    assert "finite source ceilings" in html
+    assert "Accepted text is preserved exactly" in html
 
     # Reduced-motion and no-casino constraints remain explicit source laws.
     assert "prefers-reduced-motion: reduce" in html
