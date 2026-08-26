@@ -1,7 +1,7 @@
 # STATUS: CORRECTED_PROPOSED_NOT_APPLIED
 # BASE OWNER BLOB: 18e7792ab56dc5088b864ab02bd298747f1c7418
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
-# PURPOSE: Bound exact authenticated current-owner map cardinality and aggregate machine text before full traversal.
+# PURPOSE: Bound exact authenticated current-owner map and repeated-owner parser cardinality/aggregate machine text before full traversal.
 # CAPABILITY: PROPOSED_NOT_APPLIED
 # REGRESSION: tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py (RED / SOURCE / UNEXECUTED)
 # P0/PHONE: UNTOUCHED
@@ -15,6 +15,8 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
  MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS = MAX_OWNER_IDENTITY_CODEPOINTS + 1 + 40
 +MAX_CURRENT_OWNER_MAP_ITEMS = MAX_CUSTODY_ARTIFACTS
 +MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
++MAX_CURRENT_OWNER_CLI_ITEMS = MAX_CUSTODY_ARTIFACTS
++MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
  MAX_PROGRAMMATIC_ARGV_ITEMS = 4_096
 @@
  def _admit_current_owner_blobs(values: dict[str, str] | None) -> dict[str, str]:
@@ -56,3 +58,36 @@ diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_foreve
 +            "currentOwnerMapItemCeiling": MAX_CURRENT_OWNER_MAP_ITEMS,
 +            "currentOwnerMapTotalCodepointCeiling": MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS,
              "exactCurrentOwnerCliListAdmission": True,
++            "boundedCurrentOwnerCliListAdmission": True,
++            "currentOwnerCliItemCeiling": MAX_CURRENT_OWNER_CLI_ITEMS,
++            "currentOwnerCliTotalCodepointCeiling": MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS,
+             "boundedCurrentOwnerCliAssignmentAdmission": True,
+@@
+ def _parse_owner_blob(values: list[str]) -> dict[str, str]:
+     """Admit repeated CLI owner/blob evidence before iterable or scalar callbacks can execute."""
+ 
+     if type(values) is not list:
+         raise ValueError("--current-owner custody requires one exact built-in list")
++    if len(values) > MAX_CURRENT_OWNER_CLI_ITEMS:
++        raise ValueError(
++            "--current-owner custody exceeds source ceiling "
++            f"{MAX_CURRENT_OWNER_CLI_ITEMS:,} assignments"
++        )
+ 
+     result: dict[str, str] = {}
++    total_codepoints = 0
+     for raw in values:
+         if type(raw) is not str:
+             raise ValueError("--current-owner assignment must be one exact built-in string")
+         if len(raw) > MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS:
+             raise ValueError(
+                 "--current-owner assignment exceeds source ceiling "
+                 f"{MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS} code points"
+             )
++        total_codepoints += len(raw)
++        if total_codepoints > MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS:
++            raise ValueError(
++                "--current-owner custody aggregate exceeds source ceiling "
++                f"{MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS:,} code points"
++            )
+         owner, separator, blob = raw.partition("=")
