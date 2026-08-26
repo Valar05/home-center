@@ -87,6 +87,31 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
+    public void callerInvalidBoundaryStopsAtFiniteSourceWorkThroat() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder();
+        for (int index = 0;
+                index < HeartbeatIngressPolicy.MAX_BOUNDARY_SOURCE_CODE_UNITS;
+                index++) {
+            hostile.append('\u0000');
+        }
+        hostile.append("THIS_SUFFIX_MUST_NOT_ENTER_THE_PROJECTION");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals(
+                "Heartbeat skill-light payload was rejected by ingress validation.",
+                result.boundary);
+        assertFalse(result.boundary.contains("THIS_SUFFIX"));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
     public void unrelatedIllegalArgumentExceptionPropagatesWithoutHeartbeat() {
         RecordingSink sink = new RecordingSink();
         sink.argumentFailure = new IllegalArgumentException("internal persistence contract failed");
