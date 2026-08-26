@@ -1,0 +1,108 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-25T22:02:00-05:00",
+  "previousPublicationHead": "9016f04965fe674ae856022be87197fe59cd878b",
+  "reviewedSourceHead": "20eda78df77749b8d1cb20485a1e98c4b0d9a81c",
+  "sourceDelta": {
+    "aheadBy": 4,
+    "behindBy": 0,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/test_try_forever_owner_surgery_descriptor_backend_composition_boundary.py",
+      "patches/try-forever-owner-surgery-descriptor-backend-composition.patch",
+      "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "skills/operator-owner-surgery-backend-selection/SKILL.md"
+    ]
+  },
+  "frontsAdvanced": [
+    {
+      "front": "canonical descriptor-backend composition",
+      "state": "NO__CORRECTED_PROPOSED_NOT_APPLIED",
+      "change": "Added an exact base-blob-locked surgery against canonical owner blob 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05. The surgery composes the existing capability classifier, backend selector, HeldDirectoryCustody, and exact-observation semantic producer inside canonical v10; it forbids same-attempt portable fallback after descriptor selection and preserves canonical evidence families."
+    },
+    {
+      "front": "descriptor owner-boundary regression",
+      "state": "RED__SOURCE__UNEXECUTED",
+      "change": "Added a source-only RED fixture requiring one canonical backend selection, direct held-directory consumption, existing semantic-producer reuse, evidence-field preservation, and portableFallbackAttempted=false."
+    },
+    {
+      "front": "backend-selection doctrine",
+      "state": "SOURCE_WIRED",
+      "change": "Corrected stale doctrine that still said canonical v10 did not consume the semantic producer. It now records semantic-producer SOURCE_WIRED on the portable path while descriptor selection/consumption remain NO."
+    },
+    {
+      "front": "accessible backend-selection Warm Wall",
+      "state": "SOURCE_WIRED_SOURCE_ONLY",
+      "change": "Mutated the existing DOM/SVG specimen in place to show semantic-producer SOURCE_WIRED versus descriptor-owner PROPOSED_NOT_APPLIED, adding an inspectable descriptor-composition state while preserving native radio/touch/focus/live-region/reduced-motion semantics."
+    },
+    {
+      "front": "Regnet and Venice review",
+      "state": "DURABLE_RECEIPTS",
+      "change": "Regnet preserves OWNER_COMPOSITION_REVISE_REQUIRED and TESTED_NO. Venice allows this bounded source slice to stop while canonical descriptor mutation, regression execution, TESTED/runtime, and campaign continue."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": {"lit": true, "contribution": "Used the stale Warm Wall/backend-selection doctrine as the wound; corrected semantic-producer capability truth and converted the remaining descriptor gap into an exact owner surgery."},
+    "Canon Auto-Select": {"lit": true, "contribution": "Selected the existing canonical v10 owner, capability classifier, backend policy, HeldDirectoryCustody, and semantic producer; no adjacent authority path."},
+    "Autocorrect Judgment Jar": {"lit": false, "reason": "No material ambiguous token affected owner identity, routing, evidence, or mutation."},
+    "Originality Tax": {"lit": true, "contribution": "Forbade solving the descriptor gap with another shadow/helper owner after the earlier sidecar-authority boundary was known."},
+    "Hunger": {"lit": true, "contribution": "Forced source, test boundary, doctrine, accessible specimen, Regnet, and Venice surfaces to converge on the same current capability state."},
+    "Ever-Polished Interpreter / Eat Everything": {"lit": true, "contribution": "Read canonical v10, HeldDirectoryCustody, capability, backend policy, descriptor doctrine, backend doctrine, Warm Wall, and prior semantic composition provenance before mutation."},
+    "Operator Campaign": {"lit": true, "contribution": "Published an exact base-owner surgery, RED owner boundary, review receipts, and swarm checkpoint on the active PR branch."},
+    "Harroway operator discipline": {"lit": true, "contribution": "Kept canonical v10 as sole authority owner and separated proposed surgery from applied source."},
+    "She-Raw adversarial motivation": {"lit": true, "contribution": "Authoritative consultation was attempted against authority splits/fallback/capability lies; connector returned account-connection HTTP 400. No synthetic She-Raw substituted."},
+    "Venice Judgment Jars": {"lit": true, "contribution": "Durable judgment permits only this source slice to stop and keeps canonical descriptor mutation/regression/test/runtime/campaign continue-required."},
+    "Regnet QA": {"lit": true, "contribution": "Durable review requires existing-owner composition, zero weaker fallback, evidence-field preservation, no source→TESTED inflation, and runtime TalkBack remains unclaimed."},
+    "accessibility/TalkBack and touch semantics": {"lit": true, "contribution": "Existing Warm Wall retains native radios, 56px touch rows, visible focus, role=status live detail, non-color state text, inline SVG, and reduced-motion; runtime TalkBack stays NO."},
+    "Phone Runtime / Phone Hands recovery": {"lit": false, "reason": "Binding P0/phone firewall. Phone consumption and mutation remain zero."},
+    "deterministic routing": {"lit": true, "contribution": "Proposed canonical routing is exact: supported POSIX primitives → held descriptor; primitives unavailable → portable primary; selected descriptor wound → stop, not portable retry."},
+    "evidence/capability-state discipline": {"lit": true, "contribution": "Kept semantic producer SOURCE_WIRED, descriptor composition PROPOSED_NOT_APPLIED, RED regression UNEXECUTED, and TESTED/runtime/deployment/delivery/acceptance NO."},
+    "recovery/checkpointing/idempotence": {"lit": true, "contribution": "No manual workflow retry; descriptor proposal explicitly forbids retrying weaker custody after descriptor selection; exact source delta is 4 commits/4 intended paths."},
+    "strange non-raster vector/DOM/native UI art": {"lit": true, "contribution": "Mutated the existing inline-SVG/DOM backend-selection specimen rather than creating another specimen family."},
+    "warm walls": {"lit": true, "contribution": "Corrected stale displayed capability truth and added a touch/keyboard inspectable descriptor-composition boundary."},
+    "Christmas-light scene graph": {"lit": false, "reason": "No runtime transition/motion law changed; decorative motion would add no evidence or control value."},
+    "contact preservation": {"lit": true, "contribution": "Staged surgery explicitly preserves directory/candidate counts, discoveryErrors, currentOwnerBlobs, collision/stale/unverified groups, content witnesses, portable-unavailable behavior, and zero partial authority."},
+    "operator-owner-surgery-backend-selection": {"lit": true, "contribution": "Discovered/current skill supplied no-silent-fallback and stronger-backend evidence-preservation laws; its stale semantic-producer state was corrected."},
+    "operator-owner-surgery-descriptor-custody": {"lit": true, "contribution": "Supplied held-root/candidate identity, bounded inventory, typed I/O/cleanup, and non-atomicity constraints; remained supporting source, not authority."},
+    "operator-owner-surgery-custody": {"lit": true, "contribution": "Canonical v10 remains the sole authority target and exact base blob for the proposed surgery."}
+  },
+  "crossPollination": "Current canonical semantic-producer wiring made the stale backend doctrine/Warm Wall visibly false. Correcting those surfaces sharpened the remaining gap to descriptor selection itself. Descriptor-custody laws plus backend no-fallback policy then constrained an exact base-blob-locked canonical surgery and RED fixture. Regnet used that fixture to reject sidecar authority and capability inflation; Venice kept mutation/testing/runtime continue-required.",
+  "executionTruth": {
+    "exactSourceHead": "20eda78df77749b8d1cb20485a1e98c4b0d9a81c",
+    "runs": [
+      {"name": "Build Android", "id": 32925278834, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 32925278800, "jobId": 98046818911, "conclusion": "failure", "steps": 0},
+      {"name": "Home Center CI", "id": 32925278947, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "semanticProducerCanonicalConsumption": "SOURCE_WIRED",
+    "descriptorExactInputCustody": "SOURCE_WIRED_SUPPORTING_ORGAN",
+    "descriptorOwnerComposition": "NO__PROPOSED_NOT_APPLIED",
+    "descriptorOwnerBoundaryFixture": "RED__SOURCE__UNEXECUTED",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_DESCRIPTOR_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
