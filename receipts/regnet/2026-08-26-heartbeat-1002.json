@@ -35,7 +35,11 @@
     "syntheticSubstituteUsed": false
   },
   "executionTruth": {
-    "exactReviewedHeadWorkflowRunsObserved": 0,
+    "exactReviewedHeadWorkflowRunsObserved": 1,
+    "homeCenterCiRun": 32984509121,
+    "homeCenterCiConclusion": "failure",
+    "homeCenterCiJob": 98228580045,
+    "homeCenterCiJobSteps": 0,
     "manualRetryFired": false,
     "regressionExecuted": false,
     "tested": false
