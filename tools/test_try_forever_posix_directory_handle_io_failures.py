@@ -41,6 +41,22 @@ def test_missing_root_is_typed_custody_unavailable(tmp_path: Path):
         HeldDirectoryCustody(tmp_path / "missing-patches")
 
 
+def test_root_path_encoding_failure_is_typed_custody_unavailable(tmp_path: Path, monkeypatch):
+    _require_posix_descriptor_surface()
+    root = tmp_path / "patches"
+    root.mkdir()
+
+    def fail_open(_path, _flags, *args, **kwargs):
+        raise UnicodeEncodeError("utf-8", "\ud800", 0, 1, "surrogate")
+
+    monkeypatch.setattr(os, "open", fail_open)
+    with pytest.raises(
+        PosixDirectoryHandleCustodyUnavailable,
+        match="path encoding failed",
+    ):
+        HeldDirectoryCustody(root)
+
+
 def test_root_fstat_failure_is_typed_custody_unavailable(tmp_path: Path, monkeypatch):
     _require_posix_descriptor_surface()
     root = tmp_path / "patches"
