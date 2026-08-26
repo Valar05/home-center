@@ -51,15 +51,16 @@ def main() -> int:
     assert "bounded ASCII-safe projection" in html
     assert "projected prose never feeds authority" in html
 
-    # The wall must expose the descriptor failure-evidence wound instead of presenting success-path
-    # preservation as proof that failure receipts retain observed counts and artifact identity.
-    assert "DESCRIPTOR FAILURE-EVIDENCE PARITY: RED / NO" in html
+    # Failure evidence is now source-wired without changing the fail-closed authority law.
+    assert "DESCRIPTOR FAILURE-EVIDENCE PARITY: SOURCE_WIRED" in html
     assert 'value="failure-parity"' in html
-    assert "CONTACT PRESERVATION / PARTIAL" in html
-    assert "already-observed counts" in html
+    assert "CONTACT PRESERVATION: SOURCE_WIRED" in html
+    assert "CONTACT PRESERVATION / SOURCE_WIRED" in html
+    assert "bounded observed-work counts" in html
     assert "artifact path/kind" in html
-    assert "Current canonical source: NO" in html
-    assert "Focused regression source: YES / UNEXECUTED" in html
+    assert "No partial surgery authority survives" in html
+    assert "Regression execution: NO" in html
+    assert "TESTED: NO" in html
 
     # Reduced-motion and no-casino constraints remain explicit source laws.
     assert "prefers-reduced-motion: reduce" in html
