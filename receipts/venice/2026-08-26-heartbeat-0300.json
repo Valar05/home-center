@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-venice-source-review.v1",
+  "heartbeat": "2026-08-26T03:00:00-05:00",
+  "sourceHead": "f572fae6820001ac5cdc7d55f9dfec70708cad81",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "Direct state-token custody was repaired in the existing state policy: exact built-in string first, finite source throat second, then normalization/regex/membership semantics.",
+    "Backend capability and failure-boundary controls now have finite source throats while preserving accepted exact text; no sanitizer or second policy owner was introduced.",
+    "The upstream platform capability classifier received the same exact-but-bounded law for os_name rather than relying on the downstream backend selector to absorb arbitrary direct input.",
+    "Hostile fixtures exist for subclass callbacks and max+1 boundaries, but they remain source/unexecuted and therefore cannot authorize TESTED claims.",
+    "The existing Warm Wall was mutated in place and its source regression pins touch, keyboard, live-status, SVG, and reduced-motion semantics; runtime TalkBack remains NO.",
+    "Exact-head automatic workflows failed and the Operator Overlay job exposed zero steps, so no step-level source diagnosis or manual retry is authorized.",
+    "Phone/P0 and duplicate-architecture firewalls remained untouched."
+  ],
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "stateExactBoundedAdmission": "SOURCE_WIRED",
+    "backendBoundedControlThroats": "SOURCE_WIRED",
+    "platformOsNameBoundedAdmission": "SOURCE_WIRED",
+    "accessibilityWarmWall": "SOURCE_WIRED_SOURCE_ONLY",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
