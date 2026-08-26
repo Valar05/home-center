@@ -308,11 +308,15 @@ def admit_selected_backend_result(
     admitted_selection = _require_exact_selection(selection)
     result_snapshot = snapshot_json_mapping(result, field="backend result")
 
-    backend = result_snapshot.get("backend", admitted_selection.backend)
+    if "backend" not in result_snapshot:
+        raise ValueError("backend result must explicitly carry backend identity")
+    backend = result_snapshot["backend"]
     if backend != admitted_selection.backend:
         raise ValueError("backend result identity does not match selected backend")
 
-    if result_snapshot.get("portableFallbackAttempted", False) is not False:
+    if "portableFallbackAttempted" not in result_snapshot:
+        raise ValueError("backend result must explicitly carry portableFallbackAttempted")
+    if result_snapshot["portableFallbackAttempted"] is not False:
         raise ValueError("selected backend result must not claim a weaker fallback attempt")
 
     entries_observed = _nonnegative_int(result_snapshot, "artifactDirectoryEntriesObserved")
