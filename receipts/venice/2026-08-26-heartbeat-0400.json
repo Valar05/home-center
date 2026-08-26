@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-venice-source-review.v1",
+  "heartbeat": "2026-08-26T04:00:00-05:00",
+  "sourceHead": "57a13d186efb48e738f344cec1c82de83b4a43a0",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SKILL_DOCTRINE_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "The metadata exactness organ had a distinct diagnostic-input wound: caller-supplied field context could participate in formatted errors without its own exact bounded admission. The existing organ now gates that context before error formatting rather than creating a second metadata owner.",
+    "Hostile regression source pins callback-free rejection of diagnostic str subclasses and a 256-code-point max+1 boundary, but the fixture remains UNEXECUTED and therefore cannot authorize TESTED claims.",
+    "Skill archaeology found doctrine drift instead of papering over it: metadata doctrine does not yet name the new diagnostic-context law, and the broader custody skill retains dated descriptor-capability prose. Authenticated current source remains authority; doctrine convergence stays continue-required.",
+    "No operator-facing interaction topology changed, so accessibility/TalkBack, Warm Wall, vector art, and Christmas motion correctly received no source churn in this slice. Runtime TalkBack remains NO.",
+    "Exact-head automatic workflows failed and Operator Overlay exposed zero steps. No step-level diagnosis or manual retry is authorized from that evidence.",
+    "Phone/P0 and duplicate-architecture firewalls remained untouched."
+  ],
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "diagnosticContextAdmission": "SOURCE_WIRED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "skillDoctrineConverged": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
