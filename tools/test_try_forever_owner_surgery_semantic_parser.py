@@ -3,8 +3,8 @@
 
 The fixture is intentionally not execution evidence. It pins patch/delta semantic parity, content-
 witness binding, duplicate-member rejection, callback-free exact scalar admission, bounded direct
-semantic work, bounded ASCII-safe diagnostics, and typed strict-UTF-8 failure for the producer
-consumed by canonical portable and descriptor custody paths.
+semantic work, bounded ASCII-safe diagnostics, typed strict-UTF-8 failure, and typed deep-JSON
+recursion failure for the producer consumed by canonical portable and descriptor custody paths.
 """
 
 import hashlib
@@ -83,6 +83,7 @@ def _assert_safe_bounded_diagnostic(message: str) -> None:
 def main() -> int:
     receipt = source_receipt()
     assert receipt["strictUtf8EncodeFailureTyped"] is True
+    assert receipt["deepJsonRecursionFailureTyped"] is True
     assert receipt["boundedObservationAdmission"] is True
     assert receipt["observationByteCeiling"] == MAX_SEMANTIC_OBSERVATION_BYTES
     assert receipt["preEncodeCodepointCeiling"] == MAX_SEMANTIC_OBSERVATION_BYTES
@@ -273,6 +274,27 @@ def main() -> int:
         assert "strict UTF-8 encodable" in str(exc)
     else:
         raise AssertionError("lone surrogate text must fail inside semantic error custody")
+
+    # The observation byte throat alone does not guarantee typed parser failure: deeply nested but
+    # sub-megabyte JSON can exceed CPython's decoder recursion capacity. That failure must remain in
+    # OwnerSurgerySemanticError rather than leaking raw RecursionError across the semantic boundary.
+    deeply_nested_delta = ("[" * 10_000) + "0" + ("]" * 10_000)
+    deep_count, deep_sha = _witness(deeply_nested_delta)
+    assert deep_count < MAX_SEMANTIC_OBSERVATION_BYTES
+    try:
+        _parse(
+            path="patches/try-forever-deep.delta.json",
+            kind="delta_json",
+            text=deeply_nested_delta,
+            byte_count=deep_count,
+            sha256=deep_sha,
+        )
+    except OwnerSurgerySemanticError as exc:
+        assert "semantic nesting capacity" in str(exc)
+    except RecursionError as exc:
+        raise AssertionError("deep bounded JSON must not escape typed semantic failure custody") from exc
+    else:
+        raise AssertionError("deep non-object delta JSON must fail closed")
 
     duplicate_delta = (
         '{"schema":"try-forever-owner-delta.v1",'
