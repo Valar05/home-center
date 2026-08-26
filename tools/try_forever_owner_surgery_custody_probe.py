@@ -52,6 +52,7 @@ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 from try_forever_posix_directory_handle_custody import (
     DescriptorArtifactCustodyError,
     DescriptorCustodyCleanupError,
+    DescriptorInventoryCustodyError,
     HeldDirectoryCustody,
     PosixDirectoryHandleCustodyUnavailable,
 )
@@ -333,13 +334,17 @@ def _discover_descriptor_surgeries(
     """Consume held-root custody directly inside the canonical owner.
 
     A descriptor setup, inventory, artifact, or cleanup wound returns zero surgery authority and
-    never invokes portable pathname custody in the same classification attempt. Semantic wounds are
-    diagnostic discovery errors for their individual artifact; downstream zero-partial-authority
-    policy still suppresses every promotion group whenever any discovery error exists.
+    never invokes portable pathname custody in the same classification attempt. Bounded work counts
+    already observed before an inventory/cleanup wound remain receipt evidence, and an artifact
+    custody wound retains the already-identified artifact path/kind. Semantic wounds remain diagnostic
+    discovery errors for their individual artifact. Downstream zero-partial-authority policy suppresses
+    every promotion group whenever any discovery error exists.
     """
 
     surgeries: list[Surgery] = []
     discovery_errors: list[DiscoveryError] = []
+    candidates_observed = 0
+    entries_observed = 0
     try:
         with HeldDirectoryCustody(root) as held:
             inventory = held.candidate_inventory(
@@ -347,6 +352,8 @@ def _discover_descriptor_surgeries(
                 max_entries=max_entries,
                 max_candidates=max_candidates,
             )
+            candidates_observed = inventory.candidates_observed
+            entries_observed = inventory.entries_observed
             for candidate in inventory.candidates:
                 artifact_kind = _artifact_kind_for_name(candidate.name)
                 assert artifact_kind in {"patch", "delta_json"}
@@ -364,6 +371,13 @@ def _discover_descriptor_surgeries(
                         byte_count=observation.byte_count,
                         sha256=observation.sha256,
                     )
+                except DescriptorArtifactCustodyError as exc:
+                    return (
+                        [],
+                        [_error(path, artifact_kind, exc)],
+                        candidates_observed,
+                        entries_observed,
+                    )
                 except OwnerSurgerySemanticError as exc:
                     discovery_errors.append(_error(path, artifact_kind, exc))
                     continue
@@ -379,19 +393,26 @@ def _discover_descriptor_surgeries(
                         artifact_sha256=semantic.artifact_sha256,
                     )
                 )
+    except DescriptorInventoryCustodyError as exc:
+        return (
+            [],
+            [_error(root, "artifact_inventory", exc)],
+            exc.candidates_observed,
+            exc.entries_observed,
+        )
     except (
         PosixDirectoryHandleCustodyUnavailable,
         DescriptorArtifactCustodyError,
         DescriptorCustodyCleanupError,
     ) as exc:
-        return [], [_error(root, "descriptor_backend", exc)], 0, 0
+        return (
+            [],
+            [_error(root, "descriptor_backend", exc)],
+            candidates_observed,
+            entries_observed,
+        )
 
-    return (
-        surgeries,
-        discovery_errors,
-        inventory.candidates_observed,
-        inventory.entries_observed,
-    )
+    return surgeries, discovery_errors, candidates_observed, entries_observed
 
 
 def _group_payload(owner: str, base_blob: str, group: list[Surgery], status: str) -> dict[str, object]:
