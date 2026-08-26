@@ -10,6 +10,7 @@ It does **not** own another patch executor, classifier, overlay controller, reco
 - `ARTIFACT BASE != AUTHENTICATED CURRENT OWNER BLOB = STALE_BASE_GROUP`.
 - `NO AUTHENTICATED CURRENT OWNER BLOB = UNVERIFIED_BASE_GROUP`.
 - `AUTHENTICATED OWNER-BLOB MAP != ARBITRARY PYTHON MAPPING`.
+- `EXACT AUTHENTICATED OWNER-BLOB MAP != UNBOUNDED AUTHENTICATED OWNER-BLOB MAP`.
 - `REPEATED CLI OWNER-BLOB EVIDENCE != ARBITRARY PYTHON ITERABLE OR EXTENSIBLE STRING`.
 - `PROGRAMMATIC ARGV != ARBITRARY PYTHON ITERABLE OR EXTENSIBLE STRING`.
 - `EXACT PROGRAMMATIC ARGV != UNBOUNDED PROGRAMMATIC ARGV`.
@@ -65,6 +66,8 @@ Each admitted patch/delta uses one finite ordinary-file observation:
 
 Any supplied map must be the exact built-in `dict` before `items()`. Owner keys cross the existing exact bounded owner-identity gate; blob values must be exact built-in lowercase 40-hex strings. No trim/lowercase repair or caller callback earns authority.
 
+Authenticated review exposes a remaining **RED resource boundary** for the direct map: exact built-in container admission does not cap the number of owner/blob pairs or their aggregate exact machine text before the complete map is traversed. `tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py` pins a desired **2,048-entry / 1,048,576-code-point** envelope as RED SOURCE / UNEXECUTED. `patches/try-forever-owner-surgery-current-owner-map-resource-custody.patch` is exact-base-blob-locked **CORRECTED_PROPOSED_NOT_APPLIED** source against canonical v10; the canonical owner does not yet consume those ceilings.
+
 The existing `_parse_owner_blob(...)` boundary admits repeated owner/blob evidence before owner/blob partition: the collection must be the exact built-in `list`, every assignment the exact built-in `str`, and each `OWNER=BLOB` assignment is capped at **4,137 code points** before `partition()`. List subclasses and string subclasses cannot execute iteration/partition callbacks inside that parser boundary.
 
 ### Direct programmatic argv
@@ -99,7 +102,7 @@ Authenticated source now also closes the previously RED evidence-preservation bo
 - descriptor artifact-custody failure after a successful held-root inventory returns immediately with zero surgery authority but retains the complete inventory counts and the already-identified failing artifact path/kind;
 - cleanup/setup failures preserve whatever bounded counts were actually established before the failure without inventing unavailable evidence.
 
-This is **SOURCE_WIRED**, not TESTED. The law is preservation of observed evidence, never permission to continue promotion after a wound.
+This is **SOURCE_WIRED**, not TESTED. The law is preservation of observed evidence, never permission to continue promotion after a wound. `tools/test_try_forever_owner_surgery_descriptor_cleanup_failure_evidence.py` now pins the canonical cleanup branch independently as SOURCE / UNEXECUTED: a primary held-root cleanup wound keeps already-established inventory counts, names no artifact as the failing artifact, returns zero surgery authority, and never attempts portable fallback.
 
 ## Evidence preservation
 Canonical outputs keep directory/candidate counts, artifact content witnesses, discovery errors, authenticated current-owner blobs, explicit current-owner-custody presence, collision sets, stale-base groups, unverified-base groups, and zero partial promotion authority after any custody wound.
@@ -116,14 +119,14 @@ Historical patch files remain provenance only. Current authenticated source read
 ## Regression source
 Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, exact bounded programmatic argv admission before argparse, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
-`tools/test_try_forever_owner_surgery_custody_probe.py` is **CONVERGED TO V10 SOURCE / UNEXECUTED**. `tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py` is now **CONVERGENCE SOURCE / UNEXECUTED**. `tools/test_try_forever_posix_directory_inventory_failure_evidence.py` independently pins the supporting descriptor organ's typed fail-closed count contract as **SOURCE / UNEXECUTED**.
+`tools/test_try_forever_owner_surgery_custody_probe.py` is **CONVERGED TO V10 SOURCE / UNEXECUTED**. `tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py` is **CONVERGENCE SOURCE / UNEXECUTED**. `tools/test_try_forever_posix_directory_inventory_failure_evidence.py` independently pins the supporting descriptor organ's typed fail-closed count contract as **SOURCE / UNEXECUTED**. `tools/test_try_forever_owner_surgery_descriptor_cleanup_failure_evidence.py` independently pins canonical cleanup failure contact preservation as **SOURCE / UNEXECUTED**. `tools/test_try_forever_owner_surgery_current_owner_map_resource_boundary.py` is **RED SOURCE / UNEXECUTED** and owns the open finite-map boundary until the existing canonical owner is actually mutated.
 
 All regression artifacts remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
 ## Accessibility / contact preservation
 Exact evidence may be retained even when it is unsafe or too large to echo. Human-facing diagnostic projection must remain separate, bounded, and ASCII-safe. Never rewrite canonical evidence to make an error prettier, and never feed projected diagnostic text back into persistence or authority decisions.
 
-The existing backend-selection Warm Wall must expose descriptor failure-evidence parity and contact preservation as **SOURCE_WIRED**, while retaining native radio controls, >=56px touch rows, visible focus, non-color live status, inline SVG semantics, and reduced-motion/no-blink behavior. This is repository source only: runtime TalkBack, device delivery, and acceptance remain **NO**.
+The existing backend-selection Warm Wall must expose descriptor failure-evidence parity and contact preservation as **SOURCE_WIRED**, while retaining native radio controls, >=56px touch rows, visible focus, non-color live status, inline SVG semantics, and reduced-motion/no-blink behavior. This is repository source only: runtime TalkBack, device delivery, and acceptance remain **NO**. The current-owner map resource wound is a machine-input boundary and does not justify a second UI specimen; if surfaced later, it must compose into this existing wall rather than creating neighboring art architecture.
 
 ## Current capability state
 - canonical v10 owner: **SOURCE_WIRED**;
@@ -133,6 +136,7 @@ The existing backend-selection Warm Wall must expose descriptor failure-evidence
 - no weaker portable retry after descriptor wound: **SOURCE_WIRED**;
 - direct descriptor exact-root + path-encoding containment: **SOURCE_WIRED**;
 - authenticated current-owner exact-container/scalar admission: **SOURCE_WIRED**;
+- authenticated current-owner finite item/aggregate resource admission: **NO / RED SOURCE / PROPOSED_NOT_APPLIED**;
 - exact bounded `_parse_owner_blob(...)` repeated-owner admission: **SOURCE_WIRED**;
 - direct programmatic `main(argv)` exact/bounded admission before argparse: **SOURCE_WIRED**;
 - omitted-vs-explicit current-owner custody presence truth: **SOURCE_WIRED**;
@@ -142,6 +146,7 @@ The existing backend-selection Warm Wall must expose descriptor failure-evidence
 - semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
 - descriptor inventory failure observed-count preservation: **SOURCE_WIRED**;
 - descriptor identified-artifact failure path/kind preservation: **SOURCE_WIRED**;
+- descriptor cleanup failure observed-count preservation: **SOURCE_WIRED / REGRESSION SOURCE UNEXECUTED**;
 - broad v10 custody regression convergence: **SOURCE / UNEXECUTED**;
 - descriptor failure-evidence parity regression: **CONVERGENCE SOURCE / UNEXECUTED**;
 - descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
