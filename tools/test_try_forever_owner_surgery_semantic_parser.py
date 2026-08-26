@@ -2,8 +2,8 @@
 """SOURCE-ONLY regression for exact-observation owner-surgery semantic production.
 
 The fixture is intentionally not execution evidence. It pins patch/delta semantic parity, content-
-witness binding, duplicate-member rejection, and callback-free exact scalar admission for the pure
-producer that a future canonical descriptor composition may consume.
+witness binding, duplicate-member rejection, callback-free exact scalar admission, and typed strict-
+UTF-8 failure for the pure producer that a future canonical descriptor composition may consume.
 """
 
 import hashlib
@@ -13,6 +13,7 @@ from try_forever_owner_surgery_default_owner_binding import DEFAULT_OWNER
 from try_forever_owner_surgery_semantic_parser import (
     OwnerSurgerySemanticError,
     parse_owner_surgery_observation,
+    source_receipt,
 )
 
 
@@ -66,6 +67,12 @@ def _must_reject_without_callbacks(**kwargs: object) -> None:
 
 
 def main() -> int:
+    receipt = source_receipt()
+    assert receipt["strictUtf8EncodeFailureTyped"] is True
+    assert receipt["canonicalOwnerConsumption"] is False
+    assert receipt["regressionExecuted"] is False
+    assert receipt["tested"] is False
+
     patch = (
         f"# STATUS: APPLIED_SOURCE\n"
         f"# BASE OWNER BLOB: {BASE}\n"
@@ -145,6 +152,20 @@ def main() -> int:
         pass
     else:
         raise AssertionError("mismatched SHA witness must fail closed")
+
+    lone_surrogate = "\ud800"
+    try:
+        _parse(
+            path="patches/try-forever-surrogate.patch",
+            kind="patch",
+            text=lone_surrogate,
+            byte_count=0,
+            sha256=hashlib.sha256(b"").hexdigest(),
+        )
+    except OwnerSurgerySemanticError as exc:
+        assert "strict UTF-8 encodable" in str(exc)
+    else:
+        raise AssertionError("lone surrogate text must fail inside semantic error custody")
 
     duplicate_delta = (
         '{"schema":"try-forever-owner-delta.v1",'
