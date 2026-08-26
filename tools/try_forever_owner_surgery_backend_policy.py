@@ -7,9 +7,9 @@ portable pathname-revalidation backend and the stronger POSIX held-directory bac
 silently weakening evidence after a stronger backend has already been admitted.
 
 Direct machine inputs cross exact admission before semantic reads. Capability/failure controls are
-exact built-in strings, selection records are exact and internally canonical, and backend results
-reuse the repository's existing bounded one-observation exact-JSON snapshot organ. This is custody
-composition, not a second validator or owner.
+exact built-in strings with bounded source throats, selection records are exact and internally
+canonical, and backend results reuse the repository's existing bounded one-observation exact-JSON
+snapshot organ. This is custody composition, not a second validator or owner.
 """
 
 from __future__ import annotations
@@ -25,6 +25,8 @@ SUPPORTED_POSIX = "SUPPORTED_POSIX_PRIMITIVES"
 PORTABLE_UNAVAILABLE = "PORTABLE_ATOMIC_BINDING_UNAVAILABLE"
 PORTABLE_BACKEND = "PORTABLE_PATHNAME_REVALIDATION"
 DESCRIPTOR_BACKEND = "HELD_DIRECTORY_DESCRIPTOR"
+MAX_CAPABILITY_STATUS_CODEPOINTS = 128
+MAX_FAILURE_BOUNDARY_CODEPOINTS = 4_096
 
 REQUIRED_OWNER_EVIDENCE_FIELDS = (
     "artifactDirectoryEntriesObserved",
@@ -64,6 +66,11 @@ def select_owner_surgery_backend(capability_status: str) -> OwnerSurgeryBackendS
 
     if type(capability_status) is not str:
         raise ValueError("capability status must be one exact built-in string")
+    if len(capability_status) > MAX_CAPABILITY_STATUS_CODEPOINTS:
+        raise ValueError(
+            "capability status exceeds source ceiling "
+            f"{MAX_CAPABILITY_STATUS_CODEPOINTS} code points"
+        )
 
     if capability_status == SUPPORTED_POSIX:
         return OwnerSurgeryBackendSelection(
@@ -110,6 +117,11 @@ def _require_exact_selection(
         raise ValueError("selection backend must be one exact built-in string")
     if type(selection.capability_status) is not str:
         raise ValueError("selection capability status must be one exact built-in string")
+    if len(selection.capability_status) > MAX_CAPABILITY_STATUS_CODEPOINTS:
+        raise ValueError(
+            "selection capability status exceeds source ceiling "
+            f"{MAX_CAPABILITY_STATUS_CODEPOINTS} code points"
+        )
     if type(selection.descriptor_selected) is not bool:
         raise ValueError("selection descriptor_selected must be one exact boolean")
     if type(selection.portable_is_primary) is not bool:
@@ -122,6 +134,11 @@ def _require_exact_selection(
         raise ValueError("selection required_owner_evidence_fields must be one exact string tuple")
     if type(selection.boundary) is not str or not selection.boundary:
         raise ValueError("selection boundary must be one non-empty exact built-in string")
+    if len(selection.boundary) > MAX_FAILURE_BOUNDARY_CODEPOINTS:
+        raise ValueError(
+            "selection boundary exceeds source ceiling "
+            f"{MAX_FAILURE_BOUNDARY_CODEPOINTS} code points"
+        )
 
     expected = select_owner_surgery_backend(selection.capability_status)
     if selection != expected:
@@ -133,11 +150,16 @@ def classify_selected_backend_failure(
     selection: OwnerSurgeryBackendSelection,
     failure_boundary: str,
 ) -> dict[str, object]:
-    """Project a backend failure without inventing a weaker retry path."""
+    """Project one exact bounded backend failure without inventing a weaker retry path."""
 
     admitted_selection = _require_exact_selection(selection)
     if type(failure_boundary) is not str or not failure_boundary:
         raise ValueError("failure boundary must be one non-empty exact built-in string")
+    if len(failure_boundary) > MAX_FAILURE_BOUNDARY_CODEPOINTS:
+        raise ValueError(
+            "failure boundary exceeds source ceiling "
+            f"{MAX_FAILURE_BOUNDARY_CODEPOINTS} code points"
+        )
     return {
         "backend": admitted_selection.backend,
         "status": "FAIL_CLOSED",
