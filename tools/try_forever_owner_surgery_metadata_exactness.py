@@ -2,13 +2,16 @@
 """Supporting exact-metadata contract for owner-surgery custody.
 
 This module owns no surgery classification, promotion authority, patch execution, overlay controller,
-phone lane, or P0 work. It closes three source-evidence ambiguities before the canonical v10 custody
+phone lane, or P0 work. It closes four source-evidence ambiguities before the canonical v10 custody
 owner groups or promotes surgery artifacts:
 
 1. authenticated owner identity is an exact bounded built-in string, not caller-owned Python text and
    not text to repair with ``strip()``;
 2. textual patch base/state/owner headers are cardinality-one evidence, never first-match evidence;
-3. owner identity has a small source ceiling before it can become a report/group key.
+3. owner identity has a small source ceiling before it can become a report/group key; and
+4. caller-supplied diagnostic field context is exact and bounded before it can participate in error
+   formatting, so diagnostic prose cannot execute caller callbacks or become an independent resource
+   throat.
 
 The canonical owner remains ``try_forever_owner_surgery_custody_probe.py`` and consumes this contract.
 That is source wiring only, not regression execution, TESTED, runtime, deployment, delivery, or
@@ -26,6 +29,7 @@ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 SCHEMA = "try-forever-owner-surgery-metadata-exactness.v1"
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 MAX_OWNER_IDENTITY_CODEPOINTS = 4_096
+MAX_DIAGNOSTIC_FIELD_CODEPOINTS = 256
 # Header-name recognition is intentionally separate from value admission. A malformed second header
 # still counts as duplicate authority evidence and cannot disappear merely because its value would
 # fail later validation. Horizontal whitespace is line-local; ``\s`` is deliberately avoided here
@@ -57,26 +61,43 @@ class PatchMetadataAdmission:
     explicit_owner: str | None
 
 
+def _admit_diagnostic_field(field: object) -> str:
+    """Admit bounded diagnostic context before error formatting can touch caller-owned text."""
+
+    if type(field) is not str or not field:
+        raise OwnerSurgeryMetadataError(
+            "diagnostic field context must be one non-empty exact built-in string"
+        )
+    if len(field) > MAX_DIAGNOSTIC_FIELD_CODEPOINTS:
+        raise OwnerSurgeryMetadataError(
+            "diagnostic field context exceeds source ceiling "
+            f"{MAX_DIAGNOSTIC_FIELD_CODEPOINTS} code points"
+        )
+    return field
+
+
 def admit_owner_identity(value: object, *, field: str = "owner") -> str:
     """Admit one owner identity without callbacks, trimming, or Unicode normalization.
 
     Owner identity is machine evidence. A ``str`` subclass can override methods such as ``strip`` and
     execute caller-owned Python before evidence admission, so this boundary accepts only the exact
-    built-in ``str`` container. Internal spaces remain legal. Leading/trailing whitespace does not.
+    built-in ``str`` container. Diagnostic ``field`` context is admitted independently before any
+    formatted error can use it. Internal spaces remain legal. Leading/trailing whitespace does not.
     """
 
+    admitted_field = _admit_diagnostic_field(field)
     if type(value) is not str or not value:
         raise OwnerSurgeryMetadataError(
-            f"{field} must be one non-empty exact built-in string"
+            f"{admitted_field} must be one non-empty exact built-in string"
         )
     if len(value) > MAX_OWNER_IDENTITY_CODEPOINTS:
         raise OwnerSurgeryMetadataError(
-            f"{field} exceeds owner-identity source ceiling "
+            f"{admitted_field} exceeds owner-identity source ceiling "
             f"{MAX_OWNER_IDENTITY_CODEPOINTS} code points"
         )
     if value != value.strip():
         raise OwnerSurgeryMetadataError(
-            f"{field} must already be exact owner identity; leading/trailing whitespace is not admitted"
+            f"{admitted_field} must already be exact owner identity; leading/trailing whitespace is not admitted"
         )
     return value
 
@@ -155,6 +176,9 @@ def source_receipt() -> dict[str, object]:
         "exactBuiltinOwnerStringAdmission": True,
         "boundedOwnerIdentityAdmission": True,
         "ownerIdentityCodepointCeiling": MAX_OWNER_IDENTITY_CODEPOINTS,
+        "diagnosticFieldExact": True,
+        "boundedDiagnosticFieldAdmission": True,
+        "diagnosticFieldCodepointCeiling": MAX_DIAGNOSTIC_FIELD_CODEPOINTS,
         "patchHeaderCardinalityExact": True,
         "headerCardinalityScanBounded": True,
         "malformedDuplicateHeadersCounted": True,
