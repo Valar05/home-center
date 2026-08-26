@@ -34,7 +34,9 @@ Current authenticated source has **canonical backend selection SOURCE_WIRED**:
 - descriptor inventory and descriptor-relative exact artifact observations are consumed directly by canonical v10;
 - descriptor failure after selection fails the classification attempt closed and does **not** retry through weaker pathname custody;
 - when descriptor primitives are unavailable, the portable pathname/root-revalidation backend remains primary;
-- both canonical backends consume the same `parse_owner_surgery_observation(...)` semantic producer from the exact already-custodied observation.
+- both canonical backends consume the same `parse_owner_surgery_observation(...)` semantic producer from the exact already-custodied observation;
+- descriptor inventory failure preserves bounded observed-work counts without returning partial candidate authority;
+- descriptor artifact-custody failure after successful inventory preserves that identified artifact path/kind plus the already-observed inventory counts while returning zero surgery authority.
 
 The descriptor backend is stronger custody, not universal atomicity proof. Swap-and-restore immunity, filesystem identity reuse immunity, and universal Windows parity remain unproven.
 
@@ -46,6 +48,8 @@ The `patches/` root is admitted no-follow and persistently revalidated around bo
 - directory entries: **32,768 maximum**;
 - matching patch/delta candidates: **2,048 maximum**;
 - max+1 at either layer fails exhaustive custody closed.
+
+On descriptor inventory failure, the violating max+1 observation may remain as bounded **work evidence** (`entries_observed` / `candidates_observed`) but never as partial candidate authority.
 
 ### Artifact observation
 Each admitted patch/delta uses one finite ordinary-file observation:
@@ -86,24 +90,21 @@ The canonical owner consumes `tools/try_forever_owner_surgery_semantic_parser.py
 
 Semantic rejection prose is not canonical evidence. Hostile duplicate JSON member names and unsupported schema strings are projected through bounded ASCII-safe diagnostic text rather than echoed raw; long diagnostic source collapses to a deterministic short digest marker before escaping.
 
-## Descriptor failure-evidence parity boundary
-Canonical v10 is already safe on the authority dimension: any selected descriptor setup, inventory, artifact-custody, or cleanup wound returns zero promotion authority and never retries through weaker pathname custody.
+## Descriptor failure-evidence parity
+Canonical v10 remains fail-closed on authority: any selected descriptor setup, inventory, artifact-custody, or cleanup wound returns zero promotion authority and never retries through weaker pathname custody.
 
-Authenticated source review exposes a separate **RED evidence-preservation boundary**:
-- descriptor inventory max+1 rejection currently collapses already-observed directory/candidate counts to zero in the canonical receipt;
-- descriptor artifact-custody failure after a successful held-root inventory currently collapses the failing artifact to a generic `descriptor_backend` error and can also discard the already-observed inventory counts;
-- portable failure paths retain more of this non-authoritative observed-work evidence.
+Authenticated source now also closes the previously RED evidence-preservation boundary:
+- `DescriptorInventoryCustodyError` carries only bounded non-authoritative `entries_observed` and `candidates_observed` when inventory fails after work was observed;
+- canonical v10 consumes those counts into the receipt while returning zero surgery authority;
+- descriptor artifact-custody failure after a successful held-root inventory returns immediately with zero surgery authority but retains the complete inventory counts and the already-identified failing artifact path/kind;
+- cleanup/setup failures preserve whatever bounded counts were actually established before the failure without inventing unavailable evidence.
 
-This is **not** permission to weaken fail-closed authority. Desired convergence is: zero promotion authority **and** preserved bounded observed-work counts, plus retained path/kind identity when the exact failing artifact was already identified.
-
-`tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py` pins that desired contract as **RED / SOURCE / UNEXECUTED**. Do not report it as implemented or tested until the canonical owner/descriptor organ is actually wired and execution evidence exists.
+This is **SOURCE_WIRED**, not TESTED. The law is preservation of observed evidence, never permission to continue promotion after a wound.
 
 ## Evidence preservation
 Canonical outputs keep directory/candidate counts, artifact content witnesses, discovery errors, authenticated current-owner blobs, explicit current-owner-custody presence, collision sets, stale-base groups, unverified-base groups, and zero partial promotion authority after any custody wound.
 
-For descriptor success paths, that preservation is SOURCE_WIRED. Descriptor failure-path observed-work/artifact-identity parity is currently **PARTIAL / RED** as described above. Do not let the success-path law green-paint the failure path.
-
-A descriptor shadow remains supporting/non-authoritative. It cannot promote authority or rewrite canonical results.
+Descriptor success and failure paths now preserve bounded observed-work/artifact-identity evidence at **SOURCE_WIRED** level. A descriptor shadow remains supporting/non-authoritative and cannot promote authority or rewrite canonical results.
 
 ## Promotion and provenance discipline
 Textual patch and structured delta artifacts are provenance inputs, not authority merely because they exist. Review-ready surgery must bind one owner path to one exact authenticated current base blob. Rejected, superseded, already-applied, stale-base, malformed, or unverified artifacts do not become promotion candidates.
@@ -115,16 +116,14 @@ Historical patch files remain provenance only. Current authenticated source read
 ## Regression source
 Hostile source fixtures cover root persistence, finite traversal/candidate/artifact custody, exact state admission, current-owner map callbacks, exact bounded repeated owner/blob parser admission, exact bounded programmatic argv admission before argparse, omitted-vs-explicit-empty custody presence truth, descriptor exact-root admission, descriptor I/O failure containment, canonical descriptor composition, semantic scalar/content resource throats, and semantic diagnostic projection.
 
-The focused v10 contract pins backend-conditional root custody, owner wiring, programmatic argv capability flags, and all finite ceilings. The broad `tools/test_try_forever_owner_surgery_custody_probe.py` is now **CONVERGED TO V10 SOURCE / UNEXECUTED**: schema, `ownerWired`, backend selection, root behavior, and capability membrane follow authenticated current source rather than the old v7 portable-only fossil.
-
-The separate descriptor failure-evidence parity fixture remains **RED / SOURCE / UNEXECUTED** and is the current open owner boundary.
+`tools/test_try_forever_owner_surgery_custody_probe.py` is **CONVERGED TO V10 SOURCE / UNEXECUTED**. `tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py` is now **CONVERGENCE SOURCE / UNEXECUTED**. `tools/test_try_forever_posix_directory_inventory_failure_evidence.py` independently pins the supporting descriptor organ's typed fail-closed count contract as **SOURCE / UNEXECUTED**.
 
 All regression artifacts remain **SOURCE / UNEXECUTED** unless an external execution receipt proves otherwise.
 
 ## Accessibility / contact preservation
 Exact evidence may be retained even when it is unsafe or too large to echo. Human-facing diagnostic projection must remain separate, bounded, and ASCII-safe. Never rewrite canonical evidence to make an error prettier, and never feed projected diagnostic text back into persistence or authority decisions.
 
-The existing backend-selection Warm Wall must expose descriptor failure-evidence parity as **RED / NO** and contact preservation as **PARTIAL**, while retaining native radio controls, >=56px touch rows, visible focus, non-color live status, inline SVG semantics, and reduced-motion/no-blink behavior. This is repository source only: runtime TalkBack, device delivery, and acceptance remain **NO**.
+The existing backend-selection Warm Wall must expose descriptor failure-evidence parity and contact preservation as **SOURCE_WIRED**, while retaining native radio controls, >=56px touch rows, visible focus, non-color live status, inline SVG semantics, and reduced-motion/no-blink behavior. This is repository source only: runtime TalkBack, device delivery, and acceptance remain **NO**.
 
 ## Current capability state
 - canonical v10 owner: **SOURCE_WIRED**;
@@ -141,8 +140,10 @@ The existing backend-selection Warm Wall must expose descriptor failure-evidence
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content/path/kind/SHA resource custody: **SOURCE_WIRED**;
 - semantic bounded ASCII-safe diagnostic projection: **SOURCE_WIRED**;
+- descriptor inventory failure observed-count preservation: **SOURCE_WIRED**;
+- descriptor identified-artifact failure path/kind preservation: **SOURCE_WIRED**;
 - broad v10 custody regression convergence: **SOURCE / UNEXECUTED**;
-- descriptor failure observed-count/artifact-identity parity: **NO / RED SOURCE / UNEXECUTED**;
+- descriptor failure-evidence parity regression: **CONVERGENCE SOURCE / UNEXECUTED**;
 - descriptor shadow: **SUPPORTING SOURCE / NON-AUTHORITATIVE**;
 - universal filesystem atomicity: **NO**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
