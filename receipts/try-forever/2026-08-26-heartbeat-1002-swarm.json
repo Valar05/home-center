@@ -34,7 +34,11 @@
   "regnetVerdict": "PASS_BOUNDED_SOURCE__LEGACY_V10_CONVERGED__DESCRIPTOR_FAILURE_EVIDENCE_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
   "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_FAILURE_EVIDENCE_OWNER_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
   "execution": {
-    "exactReviewedHeadWorkflowRunsObserved": 0,
+    "exactReviewedHeadWorkflowRunsObserved": 1,
+    "homeCenterCiRun": 32984509121,
+    "homeCenterCiConclusion": "failure",
+    "homeCenterCiJob": 98228580045,
+    "homeCenterCiJobSteps": 0,
     "manualRetry": false,
     "regressionExecuted": false,
     "tested": false
