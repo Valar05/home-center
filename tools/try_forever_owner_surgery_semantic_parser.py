@@ -6,10 +6,9 @@ semantic fields used by canonical ``Surgery`` records. It performs no filesystem
 selection, backend selection, authority grouping, patch application, overlay mutation, phone work,
 or P0 work.
 
-Canonical v10 now consumes this producer after its own bounded artifact observation for both patch
-and delta semantics. That is SOURCE_WIRED composition only: regression execution, TESTED, descriptor
-backend composition, runtime, deployment, delivery, and acceptance remain separate capability
-states.
+Canonical v10 consumes this producer after its own bounded artifact observation for both the portable
+and held-directory descriptor backends. That is SOURCE_WIRED composition only: regression execution,
+TESTED, runtime, deployment, delivery, and acceptance remain separate capability states.
 """
 
 from __future__ import annotations
@@ -236,7 +235,7 @@ def source_receipt() -> dict[str, object]:
         "patchSemanticProduction": True,
         "deltaSemanticProduction": True,
         "canonicalOwnerConsumption": True,
-        "descriptorBackendConsumption": False,
+        "descriptorBackendConsumption": True,
         "regressionExecuted": False,
         "tested": False,
         "runtimeUi": False,
