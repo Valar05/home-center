@@ -1,8 +1,9 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: e3810d1afb3a8afe458219d81e2826eafcb6ab33
+# APPLIED OWNER BLOB: 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # PURPOSE: Make canonical v10 consume the already-owned exact-observation semantic producer without adding a second authority owner or filesystem reread.
-# CAPABILITY: SOURCE PROPOSAL ONLY; regression execution, TESTED, descriptor backend composition, runtime, deployment, phone delivery, and acceptance remain NO.
+# CAPABILITY: SOURCE_WIRED ONLY; regression execution, TESTED, descriptor backend composition, runtime, deployment, phone delivery, and acceptance remain NO.
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
 +++ b/tools/try_forever_owner_surgery_custody_probe.py
