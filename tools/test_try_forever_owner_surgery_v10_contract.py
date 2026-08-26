@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Focused source regression for the current owner-surgery custody v10 contract.
+"""Focused SOURCE-ONLY regression for the current owner-surgery custody v10 contract.
 
-SOURCE ONLY. This deliberately does not claim the older broad custody fixture is repaired or that any
-regression executed. It pins the current public schema/capability membrane so stale historical
-expectations cannot silently become the evidence surface for future owner composition.
+The canonical owner now selects either held-descriptor custody or the portable primary path from
+exact platform capability. This fixture pins the common evidence membrane plus backend-conditional
+root evidence without pretending its presence is regression execution or TESTED/runtime proof.
 """
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from try_forever_owner_surgery_backend_policy import (
+    DESCRIPTOR_BACKEND,
+    PORTABLE_BACKEND,
+)
 from try_forever_owner_surgery_custody_probe import classify
 
 
@@ -32,6 +36,8 @@ def main() -> int:
 
         result = classify(root, {OWNER: BASE})
         assert result["schema"] == "try-forever-owner-surgery-custody.v10"
+        assert result["backend"] in {DESCRIPTOR_BACKEND, PORTABLE_BACKEND}
+        assert result["portableFallbackAttempted"] is False
         assert result["artifactKindsScanned"] == ["patch", "delta_json"]
         assert result["artifactCandidatesObserved"] == 1
         assert result["artifactDirectoryEntriesObserved"] == 1
@@ -45,25 +51,38 @@ def main() -> int:
             "sourceInspection",
             "patchArtifactInspection",
             "deltaArtifactInspection",
-            "artifactRootIdentityRevalidation",
-            "artifactRootFinalRevalidation",
+            "sameObservationArtifactContentWitnesses",
             "exactOwnerSurgeryStateAdmission",
             "nonNormalizingPatchStateHeader",
+            "exactCurrentOwnerMapAdmission",
             "exactCurrentOwnerBlobAdmission",
+            "exactClassificationRootAdmission",
+            "exactClassificationBudgetAdmission",
             "boundedArtifactDirectoryScan",
             "boundedArtifactCandidateSet",
             "boundedArtifactRead",
             "finiteRegularArtifactCustody",
             "currentOwnerCustodyProvided",
+            "ownerWired",
         )
         for field in expected_true:
             assert capability[field] is True, field
+
+        assert capability["selectedBackend"] == result["backend"]
+        assert capability["portableFallbackAttempted"] is False
+        if result["backend"] == DESCRIPTOR_BACKEND:
+            assert capability["descriptorRootCustody"] is True
+            assert capability["artifactRootIdentityRevalidation"] is False
+            assert capability["artifactRootFinalRevalidation"] is False
+        else:
+            assert capability["descriptorRootCustody"] is False
+            assert capability["artifactRootIdentityRevalidation"] is True
+            assert capability["artifactRootFinalRevalidation"] is True
 
         expected_false = (
             "substringPromotionAuthority",
             "artifactRootAtomicBinding",
             "patchApplied",
-            "ownerWired",
             "regressionExecuted",
             "tested",
             "runtimeUi",
