@@ -1,0 +1,46 @@
+# STATUS: PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: f4e4b602cfe91717cef02fab0394ea99558353d2
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
+# PURPOSE: Bound the direct Java-String compatibility adapter before UTF-8 encoding can process arbitrarily large caller-owned text.
+# PRESERVE: exact original String still reaches semantic validation at/below the source throat; strict byte/SHA/update verification; malformed UTF-16 remains visible to HeartbeatEnvelopeParser; byte-first projectBytes path unchanged; no phone/P0/runtime/deployment claim.
+# REGRESSION: android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java (RED SOURCE / UNEXECUTED)
+# CAPABILITY: PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
+@@
+ public final class HeartbeatPersistedEnvelopeProjection {
+     /** Alias the canonical ingress ceiling rather than repeating its numeric literal. */
+     public static final int MAX_PAYLOAD_BYTES = OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES;
++    /**
++     * Safe early Java source-work ceiling for the compatibility String adapter.
++     * A String longer than the canonical byte ceiling cannot encode to fewer UTF-8
++     * bytes than that ceiling; exact-at-ceiling text still reaches the byte gate.
++     */
++    public static final int MAX_DIRECT_STRING_SOURCE_CODE_UNITS = MAX_PAYLOAD_BYTES;
+@@
+     public static Result project(
+             String payloadJson,
+             long declaredBytes,
+             String declaredSha256,
+             long updatedMs,
+             HeartbeatSceneGraph.Frame lastGood) {
+         if (payloadJson == null || payloadJson.isEmpty()) {
+             return storageReject(
+                     "Stored heartbeat payload is empty.",
+                     lastGood,
+                     0,
+                     "",
+                     updatedMs);
+         }
++        if (payloadJson.length() > MAX_DIRECT_STRING_SOURCE_CODE_UNITS) {
++            return storageReject(
++                    "Stored heartbeat source text exceeds the pre-encode resource ceiling.",
++                    lastGood,
++                    0,
++                    "",
++                    updatedMs);
++        }
+         byte[] utf8 = payloadJson.getBytes(StandardCharsets.UTF_8);
