@@ -112,6 +112,32 @@ public class HeartbeatIngressPolicyTest {
     }
 
     @Test
+    public void sourceWorkThroatNeverPeeksAtLowSurrogateBeyondItsWindow() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder();
+        for (int index = 0;
+                index < HeartbeatIngressPolicy.MAX_BOUNDARY_SOURCE_CODE_UNITS - 1;
+                index++) {
+            hostile.append('\u0000');
+        }
+        hostile.append('\ud83e'); // final admitted source code unit
+        hostile.append('\udda2'); // low surrogate is beyond the source-work throat
+        hostile.append("UNREAD_SUFFIX");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals("Heartbeat skill-light payload rejected: �", result.boundary);
+        assertFalse(result.boundary.contains("🦢"));
+        assertFalse(result.boundary.contains("UNREAD_SUFFIX"));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
     public void unrelatedIllegalArgumentExceptionPropagatesWithoutHeartbeat() {
         RecordingSink sink = new RecordingSink();
         sink.argumentFailure = new IllegalArgumentException("internal persistence contract failed");
