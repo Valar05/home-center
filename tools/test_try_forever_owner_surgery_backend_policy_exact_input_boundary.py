@@ -58,6 +58,7 @@ class SelectionSubclass(OwnerSurgeryBackendSelection):
 
 def ordinary_result():
     return {
+        "backend": DESCRIPTOR_BACKEND,
         "artifactDirectoryEntriesObserved": 0,
         "artifactCandidatesObserved": 0,
         "discoveryErrors": [],
@@ -67,6 +68,17 @@ def ordinary_result():
         "staleBaseGroups": [],
         "unverifiedBaseGroups": [],
         "portableFallbackAttempted": False,
+    }
+
+
+def promotion_candidate(path: str, artifact_kind: object):
+    return {
+        "owner": OWNER,
+        "base_blob": BASE,
+        "path": path,
+        "artifact_kind": artifact_kind,
+        "state": "PROPOSED_NOT_APPLIED",
+        "promotion_candidate": True,
     }
 
 
@@ -96,7 +108,7 @@ def main() -> int:
     )
     assert result_annotation == "dict[str, object]"
 
-    # Ordinary exact evidence preserves the existing semantic result.
+    # Ordinary exact evidence preserves the existing semantic result and carries required controls.
     admitted = admit_selected_backend_result(descriptor, ordinary_result())
     assert admitted["backend"] == DESCRIPTOR_BACKEND
     assert admitted["status"] == "EVIDENCE_ADMITTED"
@@ -168,6 +180,30 @@ def main() -> int:
     else:
         raise AssertionError("direct backend policy accepted a callback-bearing selection field")
     assert CapabilityString.eq_calls == 0
+
+    # JSON-shaped but semantically invalid artifact_kind containers must stay in the typed policy
+    # failure domain; a list must never escape as raw unhashable-TypeError evidence.
+    malformed_kind = ordinary_result()
+    malformed_kind["collisionSets"] = [
+        {
+            "owner": OWNER,
+            "baseBlob": BASE,
+            "status": "CURRENT_BASE_COLLISION_SET",
+            "currentOwnerBlob": BASE,
+            "promotionCandidates": [
+                promotion_candidate("patches/try-forever-a.patch", ["patch"]),
+                promotion_candidate("patches/try-forever-b.patch", "patch"),
+            ],
+        }
+    ]
+    try:
+        admit_selected_backend_result(descriptor, malformed_kind)
+    except ValueError as exc:
+        assert "artifact_kind is unsupported" in str(exc), str(exc)
+    except TypeError as exc:
+        raise AssertionError("backend policy leaked raw unhashable artifact_kind failure") from exc
+    else:
+        raise AssertionError("backend policy accepted a non-string artifact_kind container")
 
     # Ordinary exact failure projection remains behaviorally stable.
     failure = classify_selected_backend_failure(descriptor, "descriptor custody failed")
