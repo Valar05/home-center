@@ -1,0 +1,113 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T04:00:00-05:00",
+  "sourceHead": "57a13d186efb48e738f344cec1c82de83b4a43a0",
+  "previousPublicationHead": "c55694a061a6415a9d7ea49438922dd9e8c7b632",
+  "changeCustody": {
+    "commits": 2,
+    "intendedPaths": 2,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_metadata_exactness.py",
+      "tools/test_try_forever_owner_surgery_metadata_exactness.py"
+    ]
+  },
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Canon Auto-Select", "Originality Tax", "Deterministic Routing"],
+      "state": "LIT",
+      "change": "followed the existing exact-evidence law into a distinct diagnostic-input boundary: admit_owner_identity now admits field context as one exact non-empty built-in string with a 256-code-point source throat before any formatted error can touch it"
+    },
+    {
+      "skills": ["Regnet QA", "Ever-Polished Interpreter / Eat Everything", "Contact Preservation"],
+      "state": "LIT",
+      "change": "added hostile source regression for diagnostic str-subclass __str__/__format__ callbacks and max+1 context while preserving ordinary owner identity and patch metadata semantics; regression remains UNEXECUTED"
+    },
+    {
+      "skills": ["Hunger", "Operator Campaign", "Harroway operator discipline", "Evidence/capability-state discipline"],
+      "state": "LIT",
+      "change": "repository archaeology activated operator-owner-surgery-metadata-exactness and operator-owner-surgery-custody; it found current skill-doctrine drift rather than letting dated summaries overrule authenticated source, so doctrine convergence remains an explicit open boundary"
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "RED_BOUNDARY",
+      "change": "authoritative consultation attempted against callback leakage, unbounded diagnostic input, capability inflation, duplicate architecture, accessibility regression, and P0 overlap; account connection returned HTTP 400; no synthetic substitute"
+    },
+    {
+      "skills": ["Venice Judgment Jars", "Recovery/checkpointing/idempotence"],
+      "state": "LIT",
+      "change": "bounded source slice may stop only with skill-doctrine convergence, regression execution, TESTED, runtime, and campaign continue-required; exact-head automatic workflow failures were observed without retry or invented diagnosis"
+    },
+    {
+      "skills": ["Accessibility/TalkBack and touch semantics", "Strange non-raster vector/DOM/native UI art", "Warm Walls", "Christmas-light scene graph"],
+      "state": "DARK",
+      "change": "no operator-facing interaction topology or motion law changed; source-art churn would be decorative. Existing source-only touch/keyboard/live-status/SVG/reduced-motion contract remains unchanged and runtime TalkBack remains NO"
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar"],
+      "state": "DARK",
+      "change": "no material token ambiguity affected owner identity, routing, or evidence authority"
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "FIREWALLED_DARK",
+      "change": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+    }
+  ],
+  "fronts": [
+    {
+      "name": "metadata diagnostic-context custody",
+      "state": "SOURCE_WIRED",
+      "detail": "exact built-in non-empty diagnostic field, max 256 code points, admitted before error formatting"
+    },
+    {
+      "name": "hostile metadata regression",
+      "state": "SOURCE_UNEXECUTED",
+      "detail": "str-subclass formatting callbacks and diagnostic-field max+1 are durable source; execution remains NO"
+    },
+    {
+      "name": "repository skill archaeology",
+      "state": "STALE_NONAUTHORITY_OPEN",
+      "detail": "metadata skill omits the new diagnostic-context law; broader custody skill contains dated descriptor-capability prose. Current authenticated source outranks both summaries until doctrine convergence"
+    },
+    {
+      "name": "Regnet/Venice evidence synthesis",
+      "state": "DURABLE_SOURCE_REVIEW",
+      "detail": "fresh review receipts preserve source/readback/regression/TESTED/runtime distinctions and the no-phone/no-duplicate-architecture boundary"
+    }
+  ],
+  "crossPollination": "Snapshot diagnostic-projection law made diagnostic context in neighboring metadata custody suspicious. That exposed field text participating in error formatting without exact bounded admission. The repair produced a hostile callback/resource regression, then Hunger compared the changed source against repository skills and found doctrine drift instead of silently treating stale summaries as authority. Regnet/Venice kept that drift open while exact-head zero-step CI kept source success behind TESTED/runtime.",
+  "executionTruth": {
+    "homeCenterCi": {"runId": 32951817847, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32951817885, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32951817904, "jobId": 98124682716, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "metadataDiagnosticContextAdmission": "SOURCE_WIRED",
+    "hostileRegressionSource": "SOURCE_UNEXECUTED",
+    "skillDoctrineConverged": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SKILL_DOCTRINE_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
