@@ -11,6 +11,7 @@ This skill owns backend-selection/result-admission doctrine only. It does **not*
 - `EXACT CONTROL TOKEN != UNBOUNDED CONTROL TOKEN`.
 - `EXACT SEMANTIC INPUT != PERMISSION FOR UNBOUNDED MEMBERSHIP / REGEX / ENCODE / HASH WORK`.
 - `BOUNDED JSON BYTES != BOUNDED JSON NESTING FAILURE DOMAIN`.
+- `BOUNDED EXACT JSON SNAPSHOT != PERMISSION TO ADMIT CANONICAL-IMPOSSIBLE AUTHORITY SHAPES`.
 - `EXACT CANONICAL EVIDENCE != RAW DIAGNOSTIC PROSE`.
 - `DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
 - `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
@@ -44,6 +45,18 @@ Canonical `classify(...)` admits root/resource budgets before backend dispatch. 
 
 Backend result admission now also consumes canonical v10's explicit `capability.currentOwnerCustodyProvided` boolean rather than reconstructing presence from map truthiness. An explicitly supplied empty owner map therefore remains **provided** while still carrying zero owner-blob authority; omitted custody remains **not provided**. A non-empty `currentOwnerBlobs` map paired with `currentOwnerCustodyProvided=false` is contradictory and fails closed. This is **SOURCE_WIRED** and covered by convergence regression source, not TESTED evidence.
 
+## Backend canonical authority parity
+A bounded exact-JSON snapshot is only container custody. Backend-result admission must also reject authority shapes canonical v10 could never emit.
+
+The existing backend policy now composes canonical v10's identity/resource laws directly:
+- each current-owner key and each authority-group owner crosses canonical `admit_owner_identity(...)` semantics rather than a weaker local string check;
+- authenticated `currentOwnerBlobs` is capped at **2,048 entries**;
+- each authority family is capped at **2,048 groups**;
+- each authority group is capped at **2,048 promotion members**;
+- exact lowercase 40-hex owner witnesses and the existing explicit custody-presence evidence remain mandatory.
+
+This parity is **SOURCE_WIRED / APPLIED_SOURCE** in the existing backend policy. `tools/test_try_forever_owner_surgery_backend_canonical_resource_parity.py` is **SOURCE / UNEXECUTED**. Neither state is TESTED/runtime evidence.
+
 ## Semantic producer resource custody
 `tools/try_forever_owner_surgery_semantic_parser.py` is consumed by both canonical backends and performs no filesystem read, backend selection, grouping, or promotion.
 
@@ -75,6 +88,7 @@ Current-owner custody **presence** is separate evidence from current-owner map c
 ## Regression source
 Current source-only hostile fixtures include:
 - backend classification/control/result boundaries;
+- backend canonical owner-identity and map/group/member cardinality parity;
 - current-owner custody presence preservation across non-empty, explicit-empty, omitted, malformed, and contradictory backend results;
 - direct descriptor root and I/O failure boundaries;
 - canonical descriptor composition;
@@ -88,7 +102,7 @@ These fixtures remain **SOURCE / UNEXECUTED** unless an external execution recei
 ## Accessibility / Warm Wall
 `docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing non-raster source-only Warm Wall. Keep canonical backend selection, bounded controls, semantic resource custody, typed deep-JSON failure containment, diagnostic projection, no-weaker-fallback, evidence preservation, native keyboard/touch inspection, visible focus, non-color state, live-status semantics, inline SVG, and reduced-motion behavior inspectable there.
 
-This pulse's current-owner custody-presence repair is machine-evidence plumbing and does not justify a second UI specimen. If presence becomes operator-visible later, compose it into this existing wall rather than creating neighboring art architecture. Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
+This pulse's backend canonical-parity repair is machine-evidence plumbing; if represented visually, compose it into this existing wall rather than creating neighboring art architecture. Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
 
 ## Current capability state
 - canonical backend selection: **SOURCE_WIRED**;
@@ -96,6 +110,7 @@ This pulse's current-owner custody-presence repair is machine-evidence plumbing 
 - portable fallback-after-descriptor-wound: **NO**;
 - direct descriptor exact-root + root-encoding containment: **SOURCE_WIRED**;
 - backend exact-input/result custody: **SOURCE_WIRED**;
+- backend canonical owner/cardinality parity: **SOURCE_WIRED / REGRESSION SOURCE UNEXECUTED**;
 - backend current-owner custody-presence preservation: **SOURCE_WIRED / REGRESSION SOURCE UNEXECUTED**;
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content resource throat: **SOURCE_WIRED**;
