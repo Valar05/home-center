@@ -746,7 +746,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(_admit_programmatic_argv(argv) if argv is not None else None)
 
     try:
-        current_owner_blobs = _parse_owner_blob(args.current_owner)
+        current_owner_blobs = (
+            _parse_owner_blob(args.current_owner)
+            if len(args.current_owner) > 0
+            else None
+        )
     except ValueError as exc:
         parser.error(str(exc))
 
