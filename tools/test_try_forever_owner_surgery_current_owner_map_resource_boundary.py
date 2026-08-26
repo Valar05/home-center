@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""RED SOURCE / UNEXECUTED boundary for finite authenticated current-owner custody.
+"""CONVERGENCE SOURCE / UNEXECUTED boundary for finite authenticated current-owner custody.
 
-Canonical v10 already rejects arbitrary Mapping implementations and hostile owner/blob scalar
-subclasses before caller callbacks can earn authority. The remaining direct-call resource wound has
-two entrances: an exact built-in dict can contain an unbounded number/aggregate size of otherwise
-valid owner/blob pairs, and the repeated-owner CLI parser can traverse an unbounded exact list or
-aggregate assignment text before duplicate-same-owner evidence collapses into that dict.
+Canonical v10 rejects arbitrary Mapping implementations and hostile owner/blob scalar subclasses
+before caller callbacks can earn authority. It now also bounds both exact current-owner evidence
+entrances: direct exact built-in maps have finite cardinality/aggregate machine-text custody, and the
+repeated-owner CLI parser has independent collection/aggregate throats before duplicate-same-owner
+evidence can collapse into a tiny dict.
 
-This fixture pins the desired existing-owner repair only. It does not create a second map/parser
-validator, execute regressions, claim TESTED/runtime behavior, or touch the phone/P0 chain.
+This fixture pins the existing-owner repair only. It does not create a second map/parser validator,
+execute regressions, claim TESTED/runtime behavior, or touch the phone/P0 chain.
 """
 
 import pytest
 
 from try_forever_owner_surgery_custody_probe import (
+    MAX_CURRENT_OWNER_CLI_ITEMS,
+    MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS,
+    MAX_CURRENT_OWNER_MAP_ITEMS,
+    MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS,
     _admit_current_owner_blobs,
     _parse_owner_blob,
 )
@@ -31,6 +35,13 @@ def _long_owner(index: int) -> str:
     return prefix + ("x" * (4_096 - len(prefix)))
 
 
+def test_existing_owner_exposes_the_pinned_finite_resource_throats():
+    assert MAX_CURRENT_OWNER_MAP_ITEMS == EXPECTED_MAP_ITEM_CEILING
+    assert MAX_CURRENT_OWNER_MAP_TOTAL_CODEPOINTS == EXPECTED_MAP_TOTAL_CODEPOINT_CEILING
+    assert MAX_CURRENT_OWNER_CLI_ITEMS == EXPECTED_CLI_ITEM_CEILING
+    assert MAX_CURRENT_OWNER_CLI_TOTAL_CODEPOINTS == EXPECTED_CLI_TOTAL_CODEPOINT_CEILING
+
+
 def test_exact_map_max_plus_one_fails_before_full_pair_traversal():
     values = {f"owner/{index}": BLOB for index in range(EXPECTED_MAP_ITEM_CEILING + 1)}
 
@@ -40,8 +51,8 @@ def test_exact_map_max_plus_one_fails_before_full_pair_traversal():
 
 def test_exact_map_aggregate_owner_blob_text_has_independent_source_ceiling():
     # 257 maximum-length admitted owner identities plus their exact 40-hex witnesses exceed 1 MiB
-    # while remaining far below the item ceiling. Current source traverses this entire map; the
-    # intended owner repair must stop once the aggregate admitted machine text exceeds the throat.
+    # while remaining far below the item ceiling. The existing owner must stop once aggregate
+    # admitted machine text crosses the finite throat.
     values = {_long_owner(index): BLOB for index in range(257)}
     assert len(values) < EXPECTED_MAP_ITEM_CEILING
     assert sum(len(owner) + len(blob) for owner, blob in values.items()) > EXPECTED_MAP_TOTAL_CODEPOINT_CEILING
