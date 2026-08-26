@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "previousPublicationHead": "b347c819c91cc32caf6b9bd81fa99e59fa9ca44d",
+  "reviewedSourceHead": "4acecf5338af5e73874f5826e844e6bf880dd43a",
+  "changeCustody": {
+    "commits": 7,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0
+  },
+  "lights": {
+    "failureIsTheShovel": "backend parity was already applied despite stale PR prose; source truth replaced the stale RED story",
+    "canonAutoSelect": "existing backend policy, shared semantic parser, canonical v10 owner, existing skill, and existing Warm Wall were selected; no neighboring architecture",
+    "originalityTax": "did not restage backend parity; advanced doctrine/accessibility convergence and preserved the separate parser fossil wound",
+    "hungerEatEverything": "fresh skill and owner archaeology found backend doctrine drift plus dormant local parser ownership",
+    "operatorCampaignHarroway": "durable source, reviews, receipts, exact-head execution readback, and PR command-surface convergence",
+    "regnetQA": "bounded-source pass only; semantic parser cleanup remains revise-required",
+    "venice": "checkpoint allowed only with parser cleanup/regression/test/runtime/campaign continue-required",
+    "sheRaw": "authoritative attempt returned HTTP 400 account connection failure; no synthetic substitute",
+    "accessibilityTouchWarmWallVectorDom": "existing non-raster wall updated in place with canonical parity and parser ownership states while preserving native radios, 56px touch rows, focus, live non-color status, SVG semantics, reduced motion, no blink",
+    "deterministicRouting": "active patch/delta semantics remain routed to parse_owner_surgery_observation; dormant local parser helpers are RED cleanup, not authority",
+    "contactPreservation": "backend parity preserves explicit custody presence and canonical evidence while rejecting impossible authority shapes",
+    "executionTruthRecoveryIdempotence": "three exact-head workflow failures observed; operator job has zero steps; no retry and no diagnosis invented",
+    "autocorrect": "DARK_NO_MATERIAL_AMBIGUITY",
+    "christmasLightSceneGraph": "DARK_NO_RUNTIME_MOTION_CONTRACT_CHANGE",
+    "phoneRuntimePhoneHandsP0": "FIREWALLED_ZERO_CONSUMPTION_ZERO_MUTATION"
+  },
+  "fronts": {
+    "backendCanonicalParity": {
+      "implementation": "SOURCE_WIRED_APPLIED_SOURCE",
+      "authenticatedReadback": true,
+      "doctrineConverged": true,
+      "regression": "SOURCE_UNEXECUTED",
+      "tested": false
+    },
+    "singleSemanticParserOwnership": {
+      "activeDelegation": "SOURCE_WIRED",
+      "dormantLocalParserFossils": "RED",
+      "cleanupPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "regression": "RED_SOURCE_UNEXECUTED",
+      "tested": false
+    },
+    "accessibilityWarmWall": {
+      "sourceUpdated": true,
+      "runtimeTalkBack": false,
+      "deployed": false,
+      "delivered": false
+    },
+    "executionTruth": {
+      "operatorOverlayAndroidRun": 33014136510,
+      "operatorOverlayJob": 98327825236,
+      "operatorOverlaySteps": 0,
+      "homeCenterCIRun": 33014136509,
+      "buildAndroidRun": 33014136607,
+      "conclusion": "failure",
+      "manualRetry": false,
+      "stepLevelCause": null,
+      "regressionExecuted": false,
+      "tested": false
+    }
+  },
+  "crossPollination": "fresh backend source disproved stale PR RED state -> backend doctrine had to converge -> authority topology review exposed dormant local parser fossils -> existing Warm Wall was forced to show SOURCE_WIRED backend parity beside RED parser cleanup -> Regnet/Venice and exact-head workflow truth preserve the capability membrane",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SEMANTIC_PARSER_OWNER_CLEANUP_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "membrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUI": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
