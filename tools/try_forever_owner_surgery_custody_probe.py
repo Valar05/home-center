@@ -41,6 +41,7 @@ from try_forever_generated_index_artifact_observation import (
 from try_forever_owner_surgery_backend_policy import select_owner_surgery_backend
 from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
 from try_forever_owner_surgery_metadata_exactness import (
+    MAX_OWNER_IDENTITY_CODEPOINTS,
     admit_owner_identity,
     admit_patch_metadata,
 )
@@ -68,6 +69,7 @@ DELTA_SCHEMA = "try-forever-owner-delta.v1"
 MAX_ARTIFACT_BYTES = 1_048_576
 MAX_CUSTODY_ARTIFACTS = 2_048
 MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
+MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS = MAX_OWNER_IDENTITY_CODEPOINTS + 1 + 40
 
 BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
 OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
@@ -438,6 +440,7 @@ def classify(
         field="max_entries",
         maximum=MAX_CUSTODY_DIRECTORY_ENTRIES,
     )
+    current_owner_custody_provided = current_owner_blobs is not None
     current_owner_blobs = _admit_current_owner_blobs(current_owner_blobs)
 
     capability = current_directory_handle_binding_capability()
@@ -587,6 +590,10 @@ def classify(
             "nonNormalizingPatchStateHeader": True,
             "exactCurrentOwnerMapAdmission": True,
             "exactCurrentOwnerBlobAdmission": True,
+            "exactCurrentOwnerCliListAdmission": True,
+            "boundedCurrentOwnerCliAssignmentAdmission": True,
+            "currentOwnerCliAssignmentCodepointCeiling": MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS,
+            "currentOwnerCustodyPresencePreserved": True,
             "exactClassificationRootAdmission": True,
             "exactClassificationBudgetAdmission": True,
             "substringPromotionAuthority": False,
@@ -595,7 +602,7 @@ def classify(
             "boundedArtifactCandidateSet": True,
             "boundedArtifactRead": True,
             "finiteRegularArtifactCustody": True,
-            "currentOwnerCustodyProvided": bool(current_owner_blobs),
+            "currentOwnerCustodyProvided": current_owner_custody_provided,
             "patchApplied": False,
             "ownerWired": True,
             "regressionExecuted": False,
@@ -607,14 +614,26 @@ def classify(
     }
 
 
-def _parse_owner_blob(values: Iterable[str]) -> dict[str, str]:
+def _parse_owner_blob(values: list[str]) -> dict[str, str]:
+    """Admit repeated CLI owner/blob evidence before iterable or scalar callbacks can execute."""
+
+    if type(values) is not list:
+        raise ValueError("--current-owner custody requires one exact built-in list")
+
     result: dict[str, str] = {}
     for raw in values:
+        if type(raw) is not str:
+            raise ValueError("--current-owner assignment must be one exact built-in string")
+        if len(raw) > MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS:
+            raise ValueError(
+                "--current-owner assignment exceeds source ceiling "
+                f"{MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS} code points"
+            )
         owner, separator, blob = raw.partition("=")
         if not separator:
             raise ValueError("--current-owner must be OWNER=40-lowercase-hex-blob")
         owner = admit_owner_identity(owner, field="--current-owner owner")
-        if SHA1_RE.fullmatch(blob) is None:
+        if type(blob) is not str or SHA1_RE.fullmatch(blob) is None:
             raise ValueError("--current-owner must be OWNER=40-lowercase-hex-blob")
         if owner in result and result[owner] != blob:
             raise ValueError(f"conflicting current owner blob for {owner}")
