@@ -105,7 +105,12 @@ def _admit_exact_observation(
     if type(sha256) is not str or SHA256_RE.fullmatch(sha256) is None:
         raise OwnerSurgerySemanticError("sha256 must be one exact lowercase SHA-256 string")
 
-    encoded = utf8_text.encode("utf-8", errors="strict")
+    try:
+        encoded = utf8_text.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as exc:
+        raise OwnerSurgerySemanticError(
+            f"utf8_text is not strict UTF-8 encodable at code point index {exc.start}"
+        ) from exc
     if len(encoded) != byte_count:
         raise OwnerSurgerySemanticError("byte_count does not match the admitted UTF-8 content")
     if hashlib.sha256(encoded).hexdigest() != sha256:
@@ -226,6 +231,7 @@ def source_receipt() -> dict[str, object]:
         "filesystemReads": False,
         "exactBuiltinObservationInputs": True,
         "contentWitnessRecomputedBeforeSemantics": True,
+        "strictUtf8EncodeFailureTyped": True,
         "patchSemanticProduction": True,
         "deltaSemanticProduction": True,
         "canonicalOwnerConsumption": False,
