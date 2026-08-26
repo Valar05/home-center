@@ -15,6 +15,8 @@ This skill owns backend-selection/result-admission doctrine only. It does **not*
 - `DESCRIPTOR BACKEND SELECTED + DESCRIPTOR CUSTODY FAILURE != PERMISSION TO RETRY THROUGH WEAKER PATHNAME CUSTODY`.
 - `DESCRIPTOR PRIMITIVES UNAVAILABLE != FAILURE OF PORTABLE v10`.
 - `STRONGER BACKEND != PERMISSION TO DROP DIRECTORY/CANDIDATE COUNTS, discoveryErrors, currentOwnerBlobs, PROMOTION-MEMBER EVIDENCE, OR CONTENT WITNESSES`.
+- `OMITTED CURRENT-OWNER CUSTODY != EXPLICITLY SUPPLIED EMPTY CURRENT-OWNER CUSTODY`.
+- `CURRENT-OWNER CUSTODY PRESENCE != bool(currentOwnerBlobs)`.
 - `OMITTED backend / portableFallbackAttempted != PERMISSION TO RECONSTRUCT AUTHORITY-BEARING CONTROLS`.
 - `JSON-SHAPED VALUE != SEMANTICALLY ADMITTED AUTHORITY SCALAR`.
 - `CALLER PYTHON SUBCLASS != MACHINE EVIDENCE`.
@@ -39,6 +41,8 @@ Canonical backend selection, descriptor consumption, and portable/descriptor sem
 Canonical `classify(...)` admits root/resource budgets before backend dispatch. The direct descriptor constructor admits only an exact built-in string or exact platform `Path` before capability/path/filesystem semantics, and exact-but-unencodable roots remain inside typed descriptor-custody failure.
 
 `tools/try_forever_owner_surgery_backend_policy.py` admits exact control values before equality/truthiness and exact backend-result JSON before semantic reads. Capability-status text is capped at **128 code points**; fail-closed failure-boundary text is capped at **4,096 code points**. `backend` and `portableFallbackAttempted` must be explicitly present in admitted result evidence. Authority-member `artifact_kind` must be an exact built-in string before membership testing.
+
+Backend result admission now also consumes canonical v10's explicit `capability.currentOwnerCustodyProvided` boolean rather than reconstructing presence from map truthiness. An explicitly supplied empty owner map therefore remains **provided** while still carrying zero owner-blob authority; omitted custody remains **not provided**. A non-empty `currentOwnerBlobs` map paired with `currentOwnerCustodyProvided=false` is contradictory and fails closed. This is **SOURCE_WIRED** and covered by convergence regression source, not TESTED evidence.
 
 ## Semantic producer resource custody
 `tools/try_forever_owner_surgery_semantic_parser.py` is consumed by both canonical backends and performs no filesystem read, backend selection, grouping, or promotion.
@@ -66,9 +70,12 @@ This composes the repository `semantic-text-safety` law: preserve exact evidence
 ## Evidence preservation
 Both backends preserve canonical directory/candidate counts, content witnesses, discovery errors, authenticated current-owner custody, collision/stale/unverified groups, and zero partial authority after any wound. Descriptor custody is stronger than pathname revalidation but does **not** prove universal filesystem atomicity, swap-and-restore immunity, identity-reuse immunity, or Windows parity.
 
+Current-owner custody **presence** is separate evidence from current-owner map contents. Backend admission must preserve that bit exactly; it must not infer it with `bool(currentOwnerBlobs)` or otherwise collapse explicit-empty into omitted custody.
+
 ## Regression source
 Current source-only hostile fixtures include:
 - backend classification/control/result boundaries;
+- current-owner custody presence preservation across non-empty, explicit-empty, omitted, malformed, and contradictory backend results;
 - direct descriptor root and I/O failure boundaries;
 - canonical descriptor composition;
 - semantic callback-free exact scalar admission;
@@ -81,7 +88,7 @@ These fixtures remain **SOURCE / UNEXECUTED** unless an external execution recei
 ## Accessibility / Warm Wall
 `docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html` is the existing non-raster source-only Warm Wall. Keep canonical backend selection, bounded controls, semantic resource custody, typed deep-JSON failure containment, diagnostic projection, no-weaker-fallback, evidence preservation, native keyboard/touch inspection, visible focus, non-color state, live-status semantics, inline SVG, and reduced-motion behavior inspectable there.
 
-Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
+This pulse's current-owner custody-presence repair is machine-evidence plumbing and does not justify a second UI specimen. If presence becomes operator-visible later, compose it into this existing wall rather than creating neighboring art architecture. Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, and acceptance remain **NO**.
 
 ## Current capability state
 - canonical backend selection: **SOURCE_WIRED**;
@@ -89,6 +96,7 @@ Runtime TalkBack, browser/device runtime behavior, deployment, phone delivery, a
 - portable fallback-after-descriptor-wound: **NO**;
 - direct descriptor exact-root + root-encoding containment: **SOURCE_WIRED**;
 - backend exact-input/result custody: **SOURCE_WIRED**;
+- backend current-owner custody-presence preservation: **SOURCE_WIRED / REGRESSION SOURCE UNEXECUTED**;
 - semantic producer portable + descriptor consumption: **SOURCE_WIRED**;
 - semantic content resource throat: **SOURCE_WIRED**;
 - semantic path/kind/SHA scalar resource throats: **SOURCE_WIRED**;
