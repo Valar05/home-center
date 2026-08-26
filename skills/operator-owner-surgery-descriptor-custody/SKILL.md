@@ -1,7 +1,7 @@
 # Operator Owner Surgery Descriptor Custody
 
 ## Purpose
-Strengthen TRY FOREVER owner-surgery **root and candidate custody** on runtimes that expose the required POSIX descriptor primitives, while preserving the canonical portable v10 owner, exact capability boundaries, and the no-weaker-fallback law.
+Strengthen TRY FOREVER owner-surgery **root and candidate custody** on runtimes that expose the required POSIX descriptor primitives, while preserving canonical v10 authority, exact capability boundaries, contact preservation, and the no-weaker-fallback law.
 
 This skill owns descriptor custody doctrine only. It does **not** own a second custody probe, patch executor, overlay controller, scheduler, recovery daemon, phone lane, P0 coordinator, or physical acceptance chain.
 
@@ -15,6 +15,10 @@ This skill owns descriptor custody doctrine only. It does **not** own a second c
 `DESCRIPTOR PRIMITIVES UNAVAILABLE != DESCRIPTOR WOUND`.
 
 `STRONGER CUSTODY BACKEND != PERMISSION TO DROP EXISTING OWNER EVIDENCE FIELDS`.
+
+`ZERO PARTIAL CANDIDATE AUTHORITY != ZERO OBSERVED-WORK EVIDENCE`.
+
+`IDENTIFIED ARTIFACT CUSTODY FAILURE != ANONYMOUS BACKEND FAILURE`.
 
 `STRICT UTF-8 OR FILESYSTEM I/O FAILURE != RAW EXCEPTION ESCAPING THE CUSTODY DOMAIN`.
 
@@ -45,16 +49,17 @@ Every machine control is exact before equality/truthiness classification: `os_na
 6. counts all entries and matching candidates against independent exact integer budgets;
 7. captures each matching candidate's no-follow identity and mode during enumeration;
 8. rejects traversal syntax before descriptor-relative operations;
-9. revalidates the enumerated identity before open;
+9. revalidates enumerated identity before open;
 10. opens the candidate relative to the held root with `O_NOFOLLOW` and `O_NONBLOCK` where available;
 11. requires pre-stat/open-fd identity agreement;
 12. reads complete bytes through the hard max+1 throat;
 13. requires post-read descriptor and name stability;
 14. admits strict UTF-8 and returns byte count/SHA-256 only with the admitted observation;
 15. contains root/inventory/artifact I/O failures in typed custody domains;
-16. owns cleanup failure without masking an earlier primary wound or retrying a potentially recycled descriptor number.
+16. owns cleanup failure without masking an earlier primary wound or retrying a potentially recycled descriptor number;
+17. carries bounded `entries_observed` / `candidates_observed` on typed inventory failure without returning any partial candidate inventory authority.
 
-`candidate_inventory(...)` is the evidence-bearing inventory surface. Compatibility projections do not replace it.
+`candidate_inventory(...)` is the evidence-bearing inventory surface. Compatibility projections do not replace it. `DescriptorInventoryCustodyError` is evidence metadata only; its counts never become candidate authority.
 
 ## Canonical owner relationship
 Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, schema v10. It **SOURCE_WIRES** descriptor custody directly:
@@ -66,24 +71,23 @@ Canonical authority remains `tools/try_forever_owner_surgery_custody_probe.py`, 
 - it consumes `observe_utf8_regular_file(...)` for held-root exact bytes/identity/witness evidence;
 - those exact observations are parsed by the already-owned `parse_owner_surgery_observation(...)` semantic producer;
 - descriptor setup/inventory/artifact/cleanup wounds produce zero surgery authority for the descriptor attempt and never trigger a portable retry;
+- typed inventory wounds preserve bounded observed counts in the canonical receipt;
+- artifact-custody wounds after successful inventory preserve the already-identified artifact path/kind plus inventory counts while returning zero surgery authority;
 - promotion authority remains globally suppressed whenever `discoveryErrors` is non-empty.
 
-This closes **canonical owner integration at SOURCE_WIRED level**. It does not prove regression execution or runtime behavior.
+This closes canonical descriptor failure-evidence parity at **SOURCE_WIRED** level. It does not prove regression execution or runtime behavior.
 
 ## Direct constructor root boundary
-The descriptor organ now closes the direct constructor boundary too. `HeldDirectoryCustody(path)` calls `_require_directory_root(...)` before capability lookup or any path/filesystem operation. Only one exact built-in string or the exact platform `Path` is admitted. Arbitrary `os.PathLike`, `str` subclasses, and `Path` subclasses are rejected without caller callbacks receiving a vote.
+`HeldDirectoryCustody(path)` calls `_require_directory_root(...)` before capability lookup or any path/filesystem operation. Only one exact built-in string or the exact platform `Path` is admitted. Arbitrary `os.PathLike`, `str` subclasses, and `Path` subclasses are rejected without caller callbacks receiving a vote.
 
-`patches/try-forever-posix-directory-root-exact-input.patch` is **APPLIED_SOURCE**: base descriptor-owner blob `6eee417a…`, application commit `4bf66478…`. `tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py` is **CONVERGENCE SOURCE / UNEXECUTED** and requires rejection before hostile `__fspath__`, capability lookup, or filesystem open executes.
-
-A neighboring exact-string failure path is also contained: root `os.open(...)` path encoding errors are converted to `PosixDirectoryHandleCustodyUnavailable`. `tools/test_try_forever_posix_directory_handle_io_failures.py` contains focused **SOURCE / UNEXECUTED** regression coverage for that error domain.
-
-Do not inflate these source repairs into regression execution, runtime behavior, or universal filesystem atomicity.
+`patches/try-forever-posix-directory-root-exact-input.patch` remains historical **APPLIED_SOURCE** provenance. Direct root and root-encoding regressions remain **SOURCE / UNEXECUTED**.
 
 ## Contact preservation
-The descriptor composition preserves the canonical evidence contract:
+Descriptor composition preserves the canonical evidence contract on success and failure:
 - `artifactDirectoryEntriesObserved`;
 - `artifactCandidatesObserved`;
-- `artifactContentWitnesses`;
+- already-identified failing artifact path/kind;
+- `artifactContentWitnesses` for admitted observations;
 - `discoveryErrors` and `evidenceComplete`;
 - `currentOwnerBlobs`;
 - `collisionSets`;
@@ -91,30 +95,32 @@ The descriptor composition preserves the canonical evidence contract:
 - `unverifiedBaseGroups`;
 - zero partial promotion authority on discovery wounds.
 
-Portable root-identity revalidation remains the canonical primary path only when descriptor primitives are unavailable. Descriptor selection itself emits `portableFallbackAttempted=false`.
+Inventory max+1 counts the observed violating entry/candidate as work evidence but returns no partial inventory. Artifact-custody failure stops descriptor surgery authority immediately while keeping the complete held-root inventory counts already observed before that artifact read.
+
+Portable root-identity revalidation remains primary only when descriptor primitives are unavailable. Descriptor selection itself emits `portableFallbackAttempted=false`.
 
 ## Exact classification-control custody
 The canonical owner closes the pre-dispatch boundary:
-- root must be one exact platform `Path` object before path callbacks can participate;
-- `max_candidates` and `max_entries` must be exact built-in integers within their declared ceilings before comparison/truthiness;
+- root must be one exact platform `Path` before path callbacks can participate;
+- `max_candidates` and `max_entries` must be exact built-in integers within declared ceilings before comparison/truthiness;
 - hostile Path/int subclasses therefore cannot run caller code while influencing backend selection or resource budgets.
 
-`tools/test_try_forever_owner_surgery_classification_exact_input_boundary.py` is **SOURCE / UNEXECUTED**.
-
-Inside the descriptor organ, direct root, basename strings, integer budgets, and expected `DescriptorCandidate` values now all have exact input gates.
+Inside the descriptor organ, direct root, basename strings, integer budgets, and expected `DescriptorCandidate` values all have exact input gates.
 
 ## Review scars retained
 **Scan position is state.** Fresh descriptor-relative scan handles prevent one inventory from inheriting another scan's position.
 
 **Candidate name is not candidate object.** Enumeration identity is carried into the later bounded read; persistent replacement is rejected. Swap-and-restore and identity reuse remain outside the claim.
 
-**Stronger backend must preserve metrics.** Total directory entries remain distinct from matching candidate count.
+**Stronger backend must preserve metrics.** Total directory entries remain distinct from matching candidate count, including fail-closed inventory evidence.
 
-**Budget overflow returns no partial inventory.** Entry/candidate max+1 rejects the inventory.
+**Budget overflow returns no partial inventory.** Entry/candidate max+1 rejects authority while preserving bounded observed-work counts in the typed wound.
+
+**Identified artifact failure stays identified.** Once held-root inventory identified the path/kind, a later descriptor artifact-custody failure is not collapsed to anonymous backend evidence.
 
 **Text/I/O failure remains custody failure.** Malformed UTF-8 and authority-facing filesystem errors are typed and do not leak raw decoder/OS exceptions as evidence.
 
-**Root encoding failure is typed.** Exact root admission does not imply every exact string is encodable by the host filesystem; encoding failure remains a typed custody-unavailable boundary.
+**Root encoding failure is typed.** Exact root admission does not imply every exact string is encodable by the host filesystem.
 
 **Cleanup owns failure only when primary.** Cleanup cannot replace a more informative body/inventory/artifact wound.
 
@@ -125,40 +131,33 @@ Relevant descriptor regressions remain source-only unless separately executed:
 - `tools/test_try_forever_posix_directory_handle_cleanup_failures.py`;
 - `tools/test_try_forever_posix_directory_handle_exact_input_boundary.py`;
 - `tools/test_try_forever_posix_directory_handle_root_exact_input_boundary.py`;
+- `tools/test_try_forever_posix_directory_inventory_failure_evidence.py`;
 - `tools/test_try_forever_directory_handle_binding_capability.py`;
 - `tools/test_try_forever_owner_surgery_descriptor_backend_composition_boundary.py`;
+- `tools/test_try_forever_owner_surgery_descriptor_failure_evidence_parity.py`;
 - `tools/test_try_forever_owner_surgery_classification_exact_input_boundary.py`.
 
-The descriptor composition boundary and direct-constructor root boundary are **CONVERGENCE SOURCE / UNEXECUTED**. The focused basename/budget/candidate exact-input and root I/O fixtures remain hostile **SOURCE / UNEXECUTED**. Their presence does not make the implementation TESTED.
+The descriptor failure-evidence parity fixture is now **CONVERGENCE SOURCE / UNEXECUTED**. The direct inventory failure-evidence fixture pins the supporting organ's typed count contract as **SOURCE / UNEXECUTED**. Their presence does not make the implementation TESTED.
 
 ## Atomicity boundary
-Descriptor integration strengthens root/name custody but still does **not** claim:
-- universal filesystem atomicity;
-- immunity to swap-and-restore between observations;
-- immunity to inode/file-index reuse;
-- Windows descriptor parity;
-- regression execution;
-- runtime Android behavior;
-- deployment, phone delivery, or acceptance.
+Descriptor integration still does **not** claim universal filesystem atomicity, swap-and-restore immunity, inode/file-index reuse immunity, Windows descriptor parity, regression execution, Android runtime behavior, deployment, phone delivery, or acceptance.
 
 ## Current capability state
 - supporting descriptor implementation: **YES / SOURCE_WIRED ORGAN**;
 - authenticated GitHub source readback: **YES**;
-- bounded inventory metrics: **SOURCE_WIRED**;
+- bounded inventory metrics on success: **SOURCE_WIRED**;
+- bounded observed-work metrics on inventory failure: **SOURCE_WIRED**;
 - enumeration→read candidate identity handoff: **SOURCE_WIRED**;
+- identified artifact failure path/kind preservation in canonical v10: **SOURCE_WIRED**;
 - typed root/inventory/artifact/cleanup failure containment: **SOURCE_WIRED**;
 - root path-encoding error containment: **SOURCE_WIRED**;
 - exact direct-root/basename/budget/expected-candidate input custody: **SOURCE_WIRED**;
 - canonical v10 exact classification root/budget admission: **SOURCE_WIRED**;
-- direct `HeldDirectoryCustody(...)` exact root admission: **SOURCE_WIRED**;
-- canonical v10 backend selection: **SOURCE_WIRED**;
-- canonical v10 descriptor consumption: **SOURCE_WIRED**;
+- canonical v10 backend selection + descriptor consumption: **SOURCE_WIRED**;
 - semantic producer consumption on descriptor bytes: **SOURCE_WIRED**;
-- descriptor composition provenance patch: **APPLIED_SOURCE**;
-- descriptor root exact-input surgery: **APPLIED_SOURCE**;
-- descriptor composition and exact-input regressions: **SOURCE / UNEXECUTED**;
-- atomic root binding: **NO universal claim**;
-- atomic candidate binding: **NO universal claim**;
+- descriptor failure-evidence parity: **SOURCE_WIRED**;
+- descriptor failure-evidence regressions: **SOURCE / UNEXECUTED**;
+- universal atomic root/candidate binding: **NO universal claim**;
 - TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted/phone delivered: **NO**.
 
 ## P0 / phone firewall
