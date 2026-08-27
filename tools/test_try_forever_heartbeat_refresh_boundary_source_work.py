@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""RED source regression for interrupted-refresh diagnostic source-work custody.
+"""Source convergence regression for interrupted-refresh diagnostic source-work custody.
 
-SOURCE ONLY / UNEXECUTED. Exact refreshBoundary evidence is intentionally preserved on the
-scene/model, but direct pre-parser rejection can currently make collapsed speech safety-scan
-and render/announcement identity hash arbitrarily large diagnostic text. This fixture pins a
-bounded non-authoritative projection/identity path without rewriting the exact boundary.
+SOURCE ONLY / UNEXECUTED. Exact refreshBoundary evidence stays exact on the scene/model while
+non-authoritative collapsed speech and render/announcement identities stop whole-source work at
+the shared finite diagnostic throat. This fixture is source evidence, never TESTED proof.
 """
 
 from pathlib import Path
@@ -39,7 +38,7 @@ def main() -> int:
     ordered(
         scene,
         speech_gate,
-        "safeBoundedSpeech(\n                    refreshBoundary",
+        "safeBoundedSpeech(\n                                    refreshBoundary",
     )
     assert "Heartbeat refresh boundary exceeds speech source-work ceiling." in scene
     assert "this.refreshBoundary = raw(refreshBoundary);" in scene, (
@@ -63,6 +62,8 @@ def main() -> int:
     assert "frame.refreshBoundary" in refresh, (
         "exact boundary remains present in the accepted frame/model evidence path"
     )
+    assert "digest(\n                \"heartbeat-overlay-render.v2\"" in refresh
+    assert "digest(\n                \"heartbeat-overlay-announcement.v1\"" in refresh
     return 0
 
 
