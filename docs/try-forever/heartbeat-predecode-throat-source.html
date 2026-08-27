@@ -11,7 +11,7 @@
   h1 { margin: 0 0 6px; font-size: clamp(1.4rem, 4vw, 2.4rem); }
   .scar { margin: 0 0 16px; font-weight: 800; letter-spacing: .06em; }
   .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
-  button { min-width: 48px; min-height: 48px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; font: inherit; font-weight: 750; background: transparent; color: inherit; cursor: pointer; }
+  button { min-width: 56px; min-height: 56px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; font: inherit; font-weight: 750; background: transparent; color: inherit; cursor: pointer; }
   button:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
   button[aria-pressed="true"] { background: #f1efe8; color: #17191d; }
   svg { width: 100%; height: auto; display: block; border-radius: 18px; background: #1b1e23; }
@@ -28,28 +28,30 @@
 <body>
 <main>
   <h1>WARM WALL / PRE-DECODE THROAT</h1>
-  <p class="scar">SOURCE OWNER WIRED · RESOURCE THROAT + EXACT BASE64 DECLARATION GATE · RUNTIME UNPROVEN</p>
+  <p class="scar">SOURCE OWNER WIRED · READER + POLL + DIRECT-STRING THROATS · PARSER PREPARSE RED · RUNTIME UNPROVEN</p>
 
-  <div class="controls" role="group" aria-label="Choose a persisted heartbeat declaration case">
+  <div class="controls" role="group" aria-label="Choose a heartbeat resource-boundary case">
     <button type="button" data-case="max" aria-pressed="true">Exact max</button>
-    <button type="button" data-case="overflow" aria-pressed="false">Max + 1</button>
+    <button type="button" data-case="overflow" aria-pressed="false">Base64 + 1</button>
+    <button type="button" data-case="directString" aria-pressed="false">Direct String + 1</button>
+    <button type="button" data-case="parserPreparse" aria-pressed="false">Parser + 1</button>
     <button type="button" data-case="alias" aria-pressed="false">Base64 alias</button>
     <button type="button" data-case="sha" aria-pressed="false">SHA whitespace</button>
   </div>
 
   <svg viewBox="0 0 900 330" role="img" aria-labelledby="diagramTitle diagramDesc">
-    <title id="diagramTitle">Heartbeat persisted declaration resource and canonicality gates</title>
-    <desc id="diagramDesc">A warm-wall pipeline from one coherent SharedPreferences observation through a bounded Base64 declaration throat, the existing decoder, and an exact canonical writer-form comparison before later integrity and semantic projection. Oversized and decoder-tolerated non-canonical declarations fail closed.</desc>
+    <title id="diagramTitle">Heartbeat persisted and direct-source resource gates</title>
+    <desc id="diagramDesc">A warm-wall pipeline from exact heartbeat source text through finite source-work throats into existing integrity and semantic processing. Coherent-reader, poll-dedup, and direct persisted String throats are source wired. The direct envelope parser preparse throat remains proposed and unapplied. Rejection preserves existing last-good contact and does not create runtime or phone claims.</desc>
     <path class="wire" d="M190 165 H330" />
     <path id="gateWire" class="wire" d="M570 165 H710" />
     <rect class="node" x="30" y="105" width="160" height="120" rx="24" />
-    <text class="label" x="110" y="150">ONE MAP</text>
-    <text class="small" x="110" y="180">exact persisted text</text>
+    <text class="label" x="110" y="150">EXACT SOURCE</text>
+    <text class="small" x="110" y="180">persisted or direct</text>
     <text class="small" x="110" y="200">no trim / no repair</text>
 
     <rect class="node" x="330" y="75" width="240" height="180" rx="34" />
-    <text class="label" x="450" y="125">THE THROAT</text>
-    <text class="small" x="450" y="156">length → decode → re-encode</text>
+    <text class="label" x="450" y="125">THE THROATS</text>
+    <text class="small" x="450" y="156">reader / poll / string / parser</text>
     <text id="budgetText" class="label" x="450" y="194">43,692 → PASS</text>
     <text id="motionText" class="small" x="450" y="225">canonical declaration continues</text>
 
@@ -60,7 +62,7 @@
   </svg>
 
   <div id="status" role="status" aria-live="polite">Exact maximum: the coherent reader permits the declaration to continue. Exact writer-form Base64, integrity, parsing, rendering, and delivery remain separate gates.</div>
-  <p class="legend">● Resource bound is pre-decode. □ Decoder acceptance is not declaration acceptance. × Rejection preserves last-good contact and earns no Christmas motion. ◇ Phone/P0 remains untouched.</p>
+  <p class="legend">● Resource bounds are source-work custody, not acceptance. □ Decoder acceptance is not declaration acceptance. × Rejection preserves last-good contact and earns no Christmas motion. ◇ Phone/P0 remains untouched.</p>
 </main>
 <script>
 (() => {
@@ -81,7 +83,19 @@
       budget: '43,693 → BLOCK',
       note: 'decoder receives nothing',
       blocked: true,
-      status: 'Maximum plus one: the coherent reader rejects before the existing owner decodes. The bounded storage-read wound may preserve last-good contact; no Christmas motion is earned.'
+      status: 'Persisted Base64 maximum plus one: the coherent reader rejects before the existing owner decodes. The bounded storage-read wound may preserve last-good contact; no Christmas motion is earned.'
+    },
+    directString: {
+      budget: '32,769 → BLOCK',
+      note: 'UTF-8 encode receives nothing',
+      blocked: true,
+      status: 'Direct persisted String maximum plus one: source owner wiring rejects before UTF-8 encoding. Exact-at-ceiling text still reaches the existing byte-integrity gate; this is SOURCE_WIRED, not TESTED or runtime proof.'
+    },
+    parserPreparse: {
+      budget: '32,769 → RED',
+      note: 'proposal not applied',
+      blocked: true,
+      status: 'Direct envelope parser maximum plus one: a 32,768-code-unit preparse throat is staged as source proposal only. The existing parser owner still lacks that gate, so this state remains RED / PROPOSED_NOT_APPLIED / UNEXECUTED.'
     },
     alias: {
       budget: 'Zg==\\n → BLOCK',
