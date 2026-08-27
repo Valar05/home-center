@@ -1,0 +1,74 @@
+{
+  "schema": "regnet-heartbeat-review.v1",
+  "heartbeat": "2026-08-27T08:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "c1d10d352b292f71f4b4e96186f7b247ba3e9979",
+  "verdict": "PASS_BOUNDED_SOURCE__DIRECT_LOOKUP_SOURCE_WIRED__REFRESH_BOUNDARY_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "directSemanticLookup": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "owners": [
+        {
+          "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java",
+          "baseBlob": "4d49dc7227d9b2bbb7abf0123df5537782176b60",
+          "appliedCommit": "b5c0581ae4d11a30bde804e6b01a9ca84ec2bc54",
+          "resultBlob": "936a29ed0d85c191a1bef52f14407001215b1384"
+        },
+        {
+          "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java",
+          "baseBlob": "a7a80e887dc233a4e242ec50e21523895a605801",
+          "appliedCommit": "1066c33f430390f12172160dc79df5e5409b76a4",
+          "resultBlob": "3b682c2630a62e912ed369117d3ff5505598ae0d"
+        }
+      ],
+      "constraint": "Direct stable-id lookup must cross HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS before trim or Locale.ROOT case-fold; accepted ids remain exact and case-tolerant within the existing ASCII identity contract."
+    },
+    "directLookupRegression": {
+      "state": "SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py"
+    },
+    "refreshBoundarySourceWork": {
+      "state": "RED_SOURCE_CORRECTED_PROPOSED_NOT_APPLIED",
+      "owners": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java",
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java"
+      ],
+      "baseBlobs": [
+        "021f4e6f672002762848b46c6ef42eb4d1d3f0a4",
+        "483257e1d1aca72610dc632a8343a96f0262e0d6"
+      ],
+      "constraint": "Exact refreshBoundary evidence must remain exact while speech scanning and render/announcement identity work become independently bounded before whole-source traversal."
+    }
+  },
+  "sourceDeltaFromPreviousPublication": {
+    "base": "f3fc7868cb77715d54c5a24df477f6d3bc48850a",
+    "head": "c1d10d352b292f71f4b4e96186f7b247ba3e9979",
+    "commits": 6,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Build Android", "id": 33075334625, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33075334356, "conclusion": "failure", "jobId": 98527929603, "steps": 0},
+      {"name": "Home Center CI", "id": 33075334296, "conclusion": "failure"}
+    ],
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
