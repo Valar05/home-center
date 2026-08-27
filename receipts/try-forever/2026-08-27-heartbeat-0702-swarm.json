@@ -1,0 +1,120 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27T07:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "5dd8dd6db4a83a99ce2ffeaf2b1b6567e7aee2f1",
+  "reviewedSourceHead": "d3d4f8337dd22755f274302daad8267d76eda662",
+  "sourceDelta": {
+    "commits": 6,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py",
+      "patches/try-forever-heartbeat-direct-semantic-lookup-source-throat.patch",
+      "tools/test_try_forever_heartbeat_refresh_boundary_source_work.py",
+      "patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch",
+      "skills/heartbeat-source-bound-parity/SKILL.md"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "direct semantic lookup source-work custody",
+      "state": "RED_SOURCE_PROPOSED_NOT_APPLIED",
+      "changed": "source regression and exact existing-owner surgery now require accessibility detail/focus lookup and model control lookup to cross the canonical broad source ceiling before trim/case-fold",
+      "patch": "patches/try-forever-heartbeat-direct-semantic-lookup-source-throat.patch",
+      "ownerBaseBlobs": [
+        "4d49dc7227d9b2bbb7abf0123df5537782176b60",
+        "a7a80e887dc233a4e242ec50e21523895a605801"
+      ]
+    },
+    {
+      "name": "interrupted refresh boundary source-work custody",
+      "state": "RED_SOURCE_CORRECTED_PROPOSED_NOT_APPLIED",
+      "changed": "source regression and exact existing-owner surgery separate exact refreshBoundary evidence from bounded speech semantic scanning and render/announcement identity work",
+      "patch": "patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch",
+      "ownerBaseBlobs": [
+        "021f4e6f672002762848b46c6ef42eb4d1d3f0a4",
+        "483257e1d1aca72610dc632a8343a96f0262e0d6"
+      ]
+    },
+    {
+      "name": "patch topology self-review",
+      "state": "CORRECTED_SOURCE",
+      "changed": "Failure Is The Shovel caught a leading-space second-file diff delimiter in the first refresh-boundary artifact; the same artifact was corrected and marked CORRECTED_PROPOSED_NOT_APPLIED"
+    },
+    {
+      "name": "source-bound parity doctrine",
+      "state": "SOURCE_CONVERGED",
+      "changed": "existing heartbeat-source-bound-parity skill now distinguishes safe canonical producers from arbitrary direct lookup and pre-parser diagnostic callers and preserves exact evidence separately from bounded projection work"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: safe canonical scene ids exposed unsafe direct query work; exact refresh diagnostics exposed unbounded projection/dedup work; self-review caught and corrected malformed patch topology",
+    "Canon Auto-Select": "LIT: reused HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS, HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS, and the existing accessibility/model/scene/refresh owners",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected authority or routing",
+    "Originality Tax": "LIT: no lookup controller, sanitizer, renderer, overlay owner, recovery daemon, phone path, or second source-bound doctrine was created",
+    "Hunger": "LIT: after direct lookup archaeology, a separate interrupted-refresh speech/hash resource path was audited instead of stopping at one wound",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: regression source pins both consumer families and the patch artifact itself was reviewed/corrected before publication",
+    "Operator Campaign": "LIT: all durable writes stayed on PR 329 branch with exact base blobs and remote readback",
+    "Harroway operator discipline": "LIT: owner mutation remains explicitly NO while exact proposed surgeries, regression source, workflow truth, and publication evidence advance",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative connector was attempted and returned account-connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT: bounded source slice may checkpoint; both owner mutations, regression execution, TESTED/runtime, and campaign remain continue-required",
+    "Regnet QA": "LIT: two independent RED boundaries, patch-topology correction, exact owner blobs, and no TESTED inflation",
+    "accessibility/TalkBack and touch semantics": "LIT: stable-id detail/focus lookup is now an explicit RED direct-source work boundary; accepted semantic ids and existing touch/detail semantics are preserved; runtime TalkBack remains NO",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero phone consumption/mutation; P0 scheduler remains sole conductor",
+    "deterministic routing": "LIT: proposed lookup gates reuse the canonical envelope ceiling; proposed diagnostic gates reuse the existing plain-text source-work ceiling",
+    "evidence/capability-state discipline": "LIT: exact refreshBoundary evidence stays exact; diagnostic projection/dedup may be bounded independently; PROPOSED is not SOURCE_WIRED or TESTED",
+    "recovery/checkpointing/idempotence": "LIT: exact-head workflows were observed once; zero-step failure was not retried or diagnosed",
+    "strange non-raster vector/DOM/native UI art": "DARK/REVIEWED: no operator interaction topology changed; creating a second specimen would be duplicate UI theater",
+    "warm walls": "DARK/REVIEWED: existing wall remains the sole specimen; no source state became UI truth this pulse because both new owner repairs remain unapplied",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion law changed; rejected-refresh motion clamp is preserved as a constraint",
+    "contact preservation": "LIT: accepted scene/control identity and exact refreshBoundary evidence are preserved while only direct lookup/diagnostic work is proposed for bounding"
+  },
+  "discoveredSkills": {
+    "heartbeat-source-bound-parity": "LIT and converged: now covers direct semantic lookup and interrupted-refresh diagnostic source-work gaps"
+  },
+  "crossPollination": "The already-wired Candidate/pulse source ceilings made direct stable-id lookup suspicious because the public accessibility/model lookups still trim and case-fold arbitrary caller text. That exposed the first RED seam. The same law then crossed into pre-parser refresh rejection: exact boundary evidence is preserved, but collapsed speech safety-scans and refresh identities can still do unbounded work over it. The existing plain-text work ceiling supplied the non-duplicated diagnostic throat. Self-review then caught a malformed second-file patch delimiter and corrected the artifact before publication. Regnet and Venice keep both actual owner mutations, regression execution, TESTED/runtime, and campaign continuation open.",
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33070895378, "conclusion": "failure", "jobId": 98512556413, "steps": 0, "logs": "404 BlobNotFound"},
+      {"name": "Home Center CI", "id": 33070895354, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33070895367, "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false
+  },
+  "reviews": {
+    "regnet": "receipts/regnet/2026-08-27-heartbeat-0702.json",
+    "regnetCommit": "3b87a8b2f99517cf0b9b510d87147896d4c69b01",
+    "venice": "receipts/venice/2026-08-27-heartbeat-0702.json",
+    "veniceCommit": "46de0bf8bc5081250dcccacc006137f16e46117b",
+    "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_LOOKUP_REFRESH_BOUNDARY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "capability": {
+    "requested": true,
+    "durableSourceArtifacts": true,
+    "authenticatedReadback": true,
+    "directSemanticLookupOwnerWiring": "NO_PROPOSED_NOT_APPLIED",
+    "refreshBoundarySourceWorkOwnerWiring": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "sourceBoundParityDoctrine": "CONVERGED_SOURCE",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
