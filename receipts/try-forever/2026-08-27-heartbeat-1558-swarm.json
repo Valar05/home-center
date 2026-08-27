@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-27-heartbeat-1558",
+  "previousPublicationHead": "33e09962a5ce105be24bd16ff627525659d1cc6f",
+  "reviewedSourceHead": "0b1213cba2be3b4c6aab2435582c495bcc81107b",
+  "sourceDelta": "7 commits / 7 intended paths / 0 unexpected paths",
+  "fronts": {
+    "nativeHorizontalCollectionGeometry": "SOURCE_WIRED: HeartbeatSelectionAccessibilityPolicy corrected from transposed rows=N/columns=1 to rows=1/columns=N; JUnit SOURCE_UNEXECUTED",
+    "selectionDoctrine": "CONVERGED_SOURCE: heartbeat-native-selection-collection + persistent-selection-semantics + repeatable-accessibility-event doctrine corrected against current Android orientation guidance",
+    "ownerSurgeryBoundary": "CANONICAL_PROPOSED_NOT_APPLIED: combined heartbeat selection + material-transition patch remains exact-base-locked to sole OperatorOverlayService blob c5de1411a6b68087ae17aff83c032af754587150; owner wiring NO",
+    "ownerPatchRegression": "SOURCE_UPDATED_UNEXECUTED: patch convergence fixture now requires delegated row/column decisions rather than copied geometry constants",
+    "executionTruth": "exact source head workflows Build Android 33116651670, Home Center CI 33116651645, Operator Overlay Android 33116651662 all failure; Operator job 98672888060 has steps=[]; no manual retry; TESTED_NO"
+  },
+  "skillLights": {
+    "Failure Is The Shovel": "LIT_FALSE_HORIZONTAL_GEOMETRY_DOCTRINE_FOUND_AND_REPAIRED",
+    "Canon Auto-Select": "LIT_EXISTING_SELECTION_POLICY_TESTS_SKILLS_AND_OWNER_PATCH_REUSED",
+    "Originality Tax": "LIT_NO_NEW_ACCESSIBILITY_CONTROLLER_OR_COLLECTION_OWNER",
+    "Hunger": "LIT_POLICY_FIX_FORCED_TEST_DOCTRINE_AND_OWNER_PATCH_FIXTURE_CONVERGENCE",
+    "Ever-Polished Interpreter / Eat Everything": "LIT_EXTERNAL_FRAMEWORK_CHECK_EXPOSED_DOCTRINE_AND_TEST_FOSSIL",
+    "Operator Campaign": "LIT_DURABLE_PR_BRANCH_SOURCE_AND_RECEIPTS",
+    "Harroway operator discipline": "LIT_SOLE_NATIVE_OWNER_PRESERVED_AND_OWNER_WIRING_LEFT_NO",
+    "She-Raw adversarial motivation": "LIT_FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "Venice Judgment Jars": "LIT_SOURCE_SLICE_STOP_OWNER_TEST_RUNTIME_CONTINUE",
+    "Regnet QA": "LIT_SOURCE_PASS_OWNER_REVISE_REGRESSION_UNEXECUTED_TESTED_NO",
+    "accessibility/TalkBack and touch semantics": "LIT_HORIZONTAL_COLLECTION_GEOMETRY_CORRECTED_RUNTIME_TALKBACK_NO",
+    "deterministic routing": "LIT_RENDERED_HORIZONTAL_AXIS_NOW_MAPS_TO_NATIVE_COLUMNS",
+    "evidence/capability-state discipline": "LIT_SUPPORTING_POLICY_YES_OWNER_WIRED_NO_TESTED_NO",
+    "recovery/checkpointing/idempotence": "LIT_NO_RETRY_ON_ZERO_STEP_WORKFLOW_FAILURES",
+    "contact preservation": "LIT_STALE_SELECTION_STILL_DOES_NOT_INVENT_REPLACEMENT_IDENTITY",
+    "Christmas-light scene graph": "LIT_CONSTRAINT_SELECTION_GEOMETRY_DOES_NOT_AUTHORIZE_MOTION",
+    "Autocorrect Judgment Jar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "strange non-raster vector/DOM/native UI art": "DARK_OWNER_UI_NOT_MUTATED_NO_SPECIMEN_THEATER",
+    "warm walls": "DARK_EXISTING_SOURCE_ART_NOT_INVALIDATED_BY_SUPPORTING_POLICY_ONLY_CHANGE",
+    "Phone Runtime / Phone Hands recovery": "DARK_BY_BINDING_FIREWALL"
+  },
+  "crossPollination": "Framework orientation verification broke the repository's transposed horizontal geometry assumption; that forced policy and JUnit correction, then reusable selection doctrine, repeatable-event doctrine, and the existing combined-owner-patch regression converged while keeping the sole native owner explicitly unwired.",
+  "capability": "requested YES; implemented supporting source YES; authenticated readback YES; native horizontal collection geometry SOURCE_WIRED; native owner collection/live-region wiring NO/PROPOSED_NOT_APPLIED; regression source YES/UNEXECUTED; TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted NO",
+  "firewall": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+}
