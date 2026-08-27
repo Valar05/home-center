@@ -13,6 +13,9 @@ public final class HeartbeatCollapsedOwnerAccessibility {
     public static final int MAX_COLLAPSED_OWNER_CODE_POINTS = 320;
     /** Keep operator state concise so it cannot starve heartbeat/contact truth. */
     public static final int MAX_OPERATOR_STATUS_CODE_POINTS = 96;
+    /** Finite direct-source work throat before operator-status trim/projection. */
+    public static final int MAX_OPERATOR_STATUS_SOURCE_CODE_UNITS =
+            HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS;
     public static final String OVERLAY_ACTION_DESCRIPTION =
             "Drag Home Center overlay. Tap to shrink or expand.";
     public static final String COLLAPSED_ACTION_DESCRIPTION =
@@ -49,15 +52,16 @@ public final class HeartbeatCollapsedOwnerAccessibility {
      * compact HC state from accessibility services.</p>
      *
      * <p>The operator-status text is supplied by the existing owner; this projection
-     * does not re-derive control, connectivity, remote-input, mute, or P0 state. It is
-     * independently bounded before composition so an accidental verbose status cannot
-     * consume the aggregate budget and erase heartbeat/contact truth. The heartbeat
-     * portion keeps the surviving action control concise: action + current operator
-     * status + canonical heartbeat summary + compact blocked/fault attention truth +
-     * only the contact/interruption truth needed before explicit expansion. Detailed
-     * light names remain behind the existing expand action. The entire returned
-     * description has one hard aggregate speech budget while exact model and evidence
-     * fields remain unchanged.</p>
+     * does not re-derive control, connectivity, remote-input, mute, phone, queue, or P0
+     * state. Direct callers cross a broad finite source-work throat before trim, then
+     * the status is independently bounded before composition so an accidental verbose
+     * status cannot consume arbitrary preprocessing work or erase heartbeat/contact
+     * truth. The heartbeat portion keeps the surviving action control concise: action
+     * + current operator status + canonical heartbeat summary + compact blocked/fault
+     * attention truth + only the contact/interruption truth needed before explicit
+     * expansion. Detailed light names remain behind the existing expand action. The
+     * entire returned description has one hard aggregate speech budget while exact
+     * model and evidence fields remain unchanged.</p>
      */
     public static String contentDescription(
             boolean collapsed,
@@ -92,8 +96,11 @@ public final class HeartbeatCollapsedOwnerAccessibility {
     }
 
     private static String boundedOperatorStatus(String value) {
+        String finiteSource = HeartbeatPlainTextBudget.boundedWithEllipsis(
+                value,
+                MAX_OPERATOR_STATUS_SOURCE_CODE_UNITS);
         return HeartbeatPlainTextBudget.boundedWithEllipsis(
-                clean(value),
+                clean(finiteSource),
                 MAX_OPERATOR_STATUS_CODE_POINTS);
     }
 
