@@ -3,8 +3,9 @@
 
 SOURCE ONLY / UNEXECUTED. Canonical heartbeat parsing rejects more than MAX_LIGHTS records before
 candidate traversal. Direct HeartbeatSceneGraph.build(...) currently reaches duplicate/material
-list traversal without the equivalent cardinality gate. This fixture pins the existing-owner
-repair and last-good/no-motion rejection boundary without claiming the repair is applied.
+list traversal without a bounded detached candidate snapshot. This fixture pins an existing-owner
+repair that performs one size observation, at most MAX_LIGHTS indexed reads, then only traverses
+the detached snapshot. It does not claim callback-free arbitrary-List admission or test execution.
 """
 
 from pathlib import Path
@@ -31,15 +32,24 @@ def main() -> int:
         "            String pulseId,\n"
         "            List<HeartbeatSkillPolicy.Candidate> candidates,"
     )
-    count_gate = source.index(
-        "candidates.size() > HeartbeatEnvelopeParser.MAX_LIGHTS",
-        build,
+    snapshot_call = source.index("snapshotDirectCandidates(candidates)", build)
+    duplicate_scan = source.index("hasDuplicateMaterialIdentity(boundedCandidates)", build)
+    material_scan = source.index("HeartbeatSkillPolicy.selectMaterialLights(boundedCandidates)", build)
+    display_scan = source.index("HeartbeatSkillPolicy.selectDisplayReadyLights(boundedCandidates)", build)
+    assert snapshot_call < duplicate_scan < material_scan < display_scan
+    assert '"Direct heartbeat scene exceeds "' in source[snapshot_call:duplicate_scan]
+    assert "preserveLastGood(" in source[snapshot_call:duplicate_scan]
+
+    helper = source.index(
+        "private static List<HeartbeatSkillPolicy.Candidate> snapshotDirectCandidates("
     )
-    duplicate_scan = source.index("hasDuplicateMaterialIdentity(candidates)", build)
-    material_scan = source.index("HeartbeatSkillPolicy.selectMaterialLights(candidates)", build)
-    assert count_gate < duplicate_scan < material_scan
-    assert '"Direct heartbeat scene exceeds "' in source[count_gate:duplicate_scan]
-    assert "preserveLastGood(" in source[count_gate:duplicate_scan]
+    helper_end = source.index("private static boolean hasDuplicateMaterialIdentity", helper)
+    helper_source = source[helper:helper_end]
+    assert "int size = candidates.size();" in helper_source
+    assert "candidates.isEmpty()" not in helper_source
+    assert "size > HeartbeatEnvelopeParser.MAX_LIGHTS" in helper_source
+    assert "for (int index = 0; index < size; index++) detached.add(candidates.get(index));" in helper_source
+    assert "Collections.unmodifiableList(detached)" in helper_source
     return 0
 
 
