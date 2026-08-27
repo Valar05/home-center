@@ -20,6 +20,10 @@ import java.util.List;
  * {@link OperatorOverlayService} remains the sole native owner.</p>
  */
 public final class HeartbeatSelectionAccessibilityPolicy {
+    /** Broad direct selected-id source-work throat before repeated equality checks. */
+    public static final int MAX_DIRECT_SELECTED_ID_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+
     public static final class ItemDecision {
         public final String id;
         public final int rowIndex;
@@ -88,6 +92,11 @@ public final class HeartbeatSelectionAccessibilityPolicy {
      * stable one-based position-in-set and zero-based native row index for this frame. Reordering
      * therefore changes positions but not semantic identity. No decision here requests keyboard or
      * accessibility focus.</p>
+     *
+     * <p>The direct selected-id argument is a public source-work boundary of its own. A canonical
+     * scene/model id is already small, but direct callers do not inherit that guarantee. Reject an
+     * oversized query to "no selection" before repeated {@code equalsIgnoreCase} work; do not trim
+     * or synthesize a smaller identity.</p>
      */
     public static CollectionDecision fromModel(
             HeartbeatOverlayViewModel.Model model,
@@ -95,7 +104,7 @@ public final class HeartbeatSelectionAccessibilityPolicy {
         if (model == null || model.controls.isEmpty()) {
             return new CollectionDecision(Collections.emptyList());
         }
-        String selected = selectedId == null ? "" : selectedId;
+        String selected = boundedDirectSelectedId(selectedId);
         int setSize = model.controls.size();
         List<ItemDecision> items = new ArrayList<>(setSize);
         for (int index = 0; index < setSize; index++) {
@@ -107,5 +116,13 @@ public final class HeartbeatSelectionAccessibilityPolicy {
                     !selected.isEmpty() && control.id.equalsIgnoreCase(selected)));
         }
         return new CollectionDecision(items);
+    }
+
+    private static String boundedDirectSelectedId(String selectedId) {
+        if (selectedId == null
+                || selectedId.length() > MAX_DIRECT_SELECTED_ID_SOURCE_CODE_UNITS) {
+            return "";
+        }
+        return selectedId;
     }
 }
