@@ -35,19 +35,16 @@ Therefore `renderIdentity` and `announcementIdentity` are **not** whole-source h
 
 Applied provenance: `patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch`; scene base `021f4e6f672002762848b46c6ef42eb4d1d3f0a4` -> commit `da807bd09b2797b48cd31bf563a155d1d15baf1b` -> blob `4012d09b10b72956a546276175f16504882148eb`; refresh-plan base `483257e1d1aca72610dc632a8343a96f0262e0d6` -> commit `e32217ed58d630126d1056a3a9466113a1089458` -> later owner blob `e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6` after the independent direct-selection repair. Regression source is UNEXECUTED; TESTED remains NO.
 
-## Stable selection, focus, and viewport contact
+## Stable selection, focus, viewport, and previous-identity contact
 Retain selection by semantic light id, never by focus index. Reordering may move focus position without changing which light is selected. If the selected id disappears, clear selection rather than silently selecting another light.
 
-Direct refresh-plan adapters are source boundaries too. `fromFrame(..., selectedControlId)` and `viewportAnchorId(selectedControlId, keyboardFocusedControlId, model)` now cross `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before adapter `trim()` and downstream case-fold lookup. Safe `Model.controlById(...)` did not retroactively bound the adapter work that preceded it. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
+Direct refresh-plan adapters are source boundaries too. `fromFrame(..., selectedControlId)` and `viewportAnchorId(selectedControlId, keyboardFocusedControlId, model)` cross `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before adapter `trim()` and downstream case-fold lookup. Safe `Model.controlById(...)` did not retroactively bound the adapter work that preceded it. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
+
+The public previous-identity decision helpers are also direct source boundaries. `shouldRebuildStructure`, `shouldRefreshContent`/compatibility `shouldRebuild`, and `shouldAnnounce` now route previous structure/render/announcement identity Strings through the same broad direct-source ceiling before `trim()` and equality. At or below the ceiling, established trim/equality behavior is preserved. Above the ceiling, structure/content work fails closed to refresh/rebuild while automatic speech fails closed to no announcement. Generated identities remain tiny, but direct callers no longer inherit that assumption implicitly.
+
+Applied provenance: `patches/try-forever-heartbeat-refresh-plan-previous-identity-source-throat.patch`; owner base `e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6` -> commit `0833625cb0738473516fdad54d81c914b0aeba75` -> blob `0d6aa78b0a457ad11660142b8600800055c81529`. Source fixtures include `tools/test_try_forever_heartbeat_refresh_plan_previous_identity_source_work.py` and `HeartbeatPreviousRefreshIdentitySourceWorkTest.java`; both are **UNEXECUTED / TESTED_NO**.
 
 Stable native object identity is not stable viewport contact. Existing-owner source wiring may preserve a semantic anchor and bounded viewport offset across in-place refresh/rebuild, but runtime keyboard-focus and TalkBack-focus behavior remain unproven until an authorized Android body observes them.
-
-## Remaining direct previous-identity wound
-The public decision helpers still accept arbitrary caller Strings for previous structure/render/announcement identities and currently call `clean(...)` before equality. Generated identities are tiny, but public direct callers do not inherit that fact automatically.
-
-`patches/try-forever-heartbeat-refresh-plan-previous-identity-source-throat.patch` is an exact existing-owner proposal against blob `e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6`. It reuses the broad direct-source ceiling before trim/equality. `tools/test_try_forever_heartbeat_refresh_plan_previous_identity_source_work.py` pins the desired order. This seam is **RED SOURCE / PROPOSED_NOT_APPLIED / UNEXECUTED / TESTED_NO**.
-
-Do not green-paint this wound merely because normal service callers feed generated 64-hex identities.
 
 ## Cold-start, mute, visibility, and contact rules
 An empty previous announcement identity means unknown history, not a proven transition. The first model may render, but automatic speech stays quiet until a prior semantic baseline exists.
@@ -76,7 +73,9 @@ At minimum cover:
 - over-ceiling boundary UI identity stops before whole-source UTF-8/SHA work;
 - two over-ceiling equal-length boundaries may share non-authoritative UI identity while exact evidence remains distinct;
 - direct selected/focused ids cross the broad source-work throat before adapter trim;
-- previous structure/render/announcement direct identities remain RED until their proposed pre-trim throat is applied;
+- previous structure/render/announcement direct identities cross the broad source-work throat before trim/equality;
+- at-ceiling padded previous identities retain existing trimmed equality semantics;
+- max+1 previous identities fail closed to rebuild/refresh and no speech;
 - mute/hidden/collapsed suppression does not create stale replay.
 
 Regression files are source only until an authorized runner executes them.
@@ -86,7 +85,7 @@ Keep these states separate:
 
 `requested -> implemented source -> regression source -> tested -> existing-owner source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-Current state: refresh-boundary speech/dedup source-work custody **SOURCE_WIRED / APPLIED_SOURCE**; direct refresh selection/focus adapter custody **SOURCE_WIRED / APPLIED_SOURCE**; previous refresh-identity direct source-work custody **NO / RED SOURCE / PROPOSED_NOT_APPLIED**; regression execution **NO**; TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted **NO**.
+Current state: refresh-boundary speech/dedup source-work custody **SOURCE_WIRED / APPLIED_SOURCE**; direct refresh selection/focus adapter custody **SOURCE_WIRED / APPLIED_SOURCE**; previous refresh-identity direct source-work custody **SOURCE_WIRED / APPLIED_SOURCE**; regression source **YES / UNEXECUTED**; regression execution **NO**; TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted **NO**.
 
 ## Done for one source pulse
 Light this skill only when dedupe/selection/contact/accessibility semantics, source-work custody, existing-owner composition, or their regression doctrine materially changes. Another poll, unchanged failure, or invisible equivalent pulse alone is not work.
