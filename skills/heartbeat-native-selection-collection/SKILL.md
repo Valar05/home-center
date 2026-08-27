@@ -1,103 +1,65 @@
 # Heartbeat Native Selection Collection
 
 ## Purpose
-Keep persistent heartbeat-light selection semantically honest across DOM specimens and the existing native Operator Overlay owner.
-
-A heartbeat light selects one item whose Why/Consequence/Evidence/Source appears in a shared detail surface. Activating the selected light does not switch selection off. This is a persistent one-of-many state machine, not a toggle.
+Keep persistent heartbeat-light selection semantically honest in the existing native Operator Overlay owner.
 
 ## Core law
 `PERSISTENT ONE-OF-MANY ≠ TOGGLE`.
 
-Selection, keyboard focus, accessibility focus, activation, and detail presentation are separate state machines. Do not infer one from another.
+Selection, keyboard focus, accessibility focus, activation, detail presentation, and material-transition announcement are separate state machines. Do not infer one from another.
 
-### DOM / source specimens
-Use radio-style semantics for a persistent mutually-exclusive light set:
-- one `radiogroup` owner;
-- each light exposes `role=radio` + `aria-checked`;
-- exactly one selected light owns the tab stop when a selection exists;
-- Arrow keys move and select deterministically; Home/End may select first/last;
-- activating the already-selected light keeps it selected;
-- the shared detail surface remains a separate persistent region;
-- dynamic detail is inert text, not injected HTML.
+## Native collection contract
+`HeartbeatSelectionAccessibilityPolicy` owns the accepted collection geometry for the horizontal heartbeat strip:
+- controls present: **rows = 1, columns = item count**;
+- item geometry: `rowIndex=0`, `columnIndex=itemIndex`;
+- semantic id survives reorder; source-level `positionInSet=index+1` remains human/set-order evidence;
+- stale selected id may yield zero selected items; never invent replacement selection;
+- persistent selection does not request keyboard or accessibility focus.
 
-This supersedes older heartbeat source-specimen wording that treated persistent light selection as `aria-pressed` toggle state. The reusable `persistent-selection-semantics` law is authoritative on this point.
+The old rows=N / columns=1 doctrine was a transposition defect. Horizontal rendered order is modeled as columns in one row.
 
-### Native Android source contract
-The existing `OperatorOverlayService` already carries a semantic selected id and calls `Button.setSelected(...)`. That is not the complete accessibility collection contract by itself.
+## Existing-owner lifecycle
+Collection semantics belong to the collection lifecycle, not to per-child construction alone.
 
-`HeartbeatSelectionAccessibilityPolicy` defines source-only collection/item semantics from the already accepted `HeartbeatOverlayViewModel.Model`:
-- one single-selection collection when controls exist;
-- because the native control strip is a horizontal row, Android collection geometry is **rows = 1, columns = item count**;
-- each item uses zero-based `rowIndex=0`, `columnIndex=index` for native collection geometry;
-- a separate source-level one-based `positionInSet=index+1` remains useful for human/set-order semantics;
-- semantic id remains the identity across reorder;
-- stale selection does not invent a replacement selection;
-- selection does not claim keyboard or accessibility focus ownership.
+The existing `OperatorOverlayService` now counts as **SOURCE_WIRED** because it:
+- preserves its canonical semantic selected id and native `Button.setSelected(...)` lifecycle;
+- owns one `applyHeartbeatSelectionAccessibility(...)` helper;
+- calls that helper after a full rebuild;
+- calls it after stable in-place content synchronization;
+- calls it again after persistent selection changes;
+- delegates `rowCount`, `columnCount`, `rowIndex`, and `columnIndex` to `HeartbeatSelectionAccessibilityPolicy` instead of copying geometry constants.
 
-The previous doctrine transposed this horizontal row into **rows=N / columns=1**. Fresh Android framework documentation contradicts that claim: `RecyclerView.LayoutManager.getRowCountForAccessibility(...)` defaults to `1` when vertical scrolling is not supported, while `getColumnCountForAccessibility(...)` defaults to the item count when horizontal scrolling is supported. This custom `HorizontalScrollView` + horizontal `LinearLayout` is not a RecyclerView, but the framework geometry supplies the correct orientation analogy: its visible horizontal order is modeled as columns within one row. Do not cargo-cult a RecyclerView implementation into this owner; do preserve the row/column meaning.
+Applied owner custody:
+- base owner blob: `c5de1411a6b68087ae17aff83c032af754587150`;
+- applied commit: `47e7ac3410b48596ad22d1c72a94580133e1596f`;
+- resulting owner blob: `2935243f136359e3489a89108406e888b0ec2911`;
+- canonical provenance: `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` = **APPLIED_SOURCE**.
 
-Reference: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.LayoutManager
+The standalone native-selection and material-transition patches remain historical/superseded provenance and must not be applied independently.
 
-### Owner lifecycle application law
-Collection semantics belong to the **collection lifecycle**, not to each child-construction call.
+## Accessibility and contact laws
+- Keep existing minimum touch targets and visible-focus behavior.
+- Selection does not authorize focus theft.
+- An interrupted/rejected heartbeat keeps last-good visible contact; discarded attempted controls do not become current collection items.
+- Selection itself does not authorize Christmas-light motion; motion remains governed by material heartbeat transition identity and reduced-motion/platform gates.
+- The native source wiring is not runtime TalkBack evidence.
 
-For the native owner to count as `SOURCE_WIRED`:
-- initial native selected state must be applied by the existing light owner;
-- selected state must be refreshed when the persistent selected id changes;
-- the collection/item policy must be projected inside one dedicated existing-owner helper;
-- the helper must be applied **after the heartbeat row is constructed** so the collection and every current child can be described together;
-- the helper must run again after persistent selection changes so `CollectionItemInfo.selected` cannot stay stale;
-- an implementation that only calls collection wiring from `applyHeartbeatLight(...)` is **PARTIAL_UNSAFE** even if every marker is present, because it rewrites collection semantics as a per-child side effect and does not prove later selection refresh;
-- comments, literals, wrong methods, policy existence, or patch artifacts do not count as owner wiring.
+## Regression / capability membrane
+`tools/test_try_forever_heartbeat_owner_patch_convergence.py` now treats the owner composition as convergence source and preserves Spotify/detail/Adam repeatable accessibility receipts.
 
-Stable-structure in-place content refresh is **not a third required owner proof**. The collection metadata derives from current child order/identity plus the persistent selected id; those are already governed by structure rebuild and selection-refresh owners. Reapplying the helper during an in-place content refresh is allowed as a defensive synchronization step, but a source probe must not falsely downgrade an otherwise complete owner merely because a consequence/evidence-only refresh did not rebuild identical collection metadata.
+Keep states separate:
+`requested → supporting source → owner source wired → regression source → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
 
-For the current minSdk 26 source contract, eventual owner implementation must use Android APIs available to that runtime. `AccessibilityNodeInfo.CollectionInfo.obtain(...)`, `CollectionItemInfo.obtain(...)`, and single-selection mode are API-21-compatible source shapes. Android now deprecates the pooling `obtain(...)` APIs in API 33 in favor of constructors added later; that deprecation is **not** permission to raise the runtime floor or add version-branch churn to a minSdk-26 owner. Prefer the oldest correct runtime-compatible shape until the build/runtime contract changes deliberately. Deprecation status does not prove runtime TalkBack behavior either.
-
-## Broad-doctrine convergence
-The stale broad heartbeat sentence permitting `aria-pressed` for this persistent one-of-many light set was removed through the audited Home Center GitHub lane at commit `01038f86ee131257b0eb68acf3e59e585d779891`; resulting `skills/heartbeat-skill-lights/SKILL.md` blob: `6287c7660a00a45b07bc00675af353f2a7ac6e0e`.
-
-The exact correction provenance remains at `patches/try-forever-heartbeat-selection-doctrine-convergence.patch` with status **APPLIED_SOURCE**. The source regression at `tools/test_heartbeat_selection_doctrine_convergence.py` pins broad doctrine + specialized doctrine + current DOM specimen to the same radio-style contract. That regression is repository source only until an authorized execution lane runs it.
-
-## Owner-surgery convergence
-Two review-ready accessibility repairs target the same authenticated native owner blob `c5de1411a6b68087ae17aff83c032af754587150`: this native-selection collection repair and the automatic heartbeat material-transition announcement migration. Applying either standalone patch first would stale the other's owner custody.
-
-Therefore the canonical review-ready source surgery is now `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` with status **CANONICAL_PROPOSED_NOT_APPLIED**. The old standalone selection patch remains historical provenance with status **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE**. `tools/test_try_forever_heartbeat_owner_patch_convergence.py` pins the combined scope and preserves the owner/test/runtime membrane. This convergence changes patch topology only; it does not make native collection wiring true.
-
-The combined patch consumes `HeartbeatSelectionAccessibilityPolicy` fields rather than hard-coding row/column values, so the 2026-08-27 geometry correction updates the supporting semantics without changing the patch's exact owner blob lock. Owner wiring remains **NO** until that surgery is actually applied to `OperatorOverlayService`.
-
-## Touch and motion
-Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
-
-## Contact preservation
-An interrupted or rejected heartbeat keeps the last-good visible selection surface. Do not expose discarded attempted controls as current collection items. A stale selected id may yield zero selected items rather than inventing a new selected identity.
-
-## Capability membrane
-Keep these separate:
-`requested → supporting source → owner source wired → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`.
-
-A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not runtime TalkBack proof.
-
-## Current PR #329 truth — 2026-08-27 16:00 CT source checkpoint
-- persistent-selection reusable doctrine: **YES**;
-- broad heartbeat persistent-selection doctrine: **CONVERGED / APPLIED_SOURCE**;
-- doctrine convergence regression source: **YES / UNEXECUTED**;
-- corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
-- `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES / HORIZONTAL GEOMETRY CORRECTED**;
-- Android horizontal geometry: **ROWS=1 / COLUMNS=N**;
-- deterministic JUnit source: **YES / GEOMETRY CONVERGED / UNEXECUTED**;
-- direct-owner source probe: **SOURCE YES / UNEXECUTED**;
-- hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
-- canonical combined owner surgery: **YES / CANONICAL_PROPOSED_NOT_APPLIED**;
-- standalone native-selection surgery: **SUPERSEDED / DO_NOT_APPLY_ALONE**;
-- owner-patch convergence regression source: **YES / UNEXECUTED**;
-- authenticated owner base blob for that surgery: `c5de1411a6b68087ae17aff83c032af754587150`;
-- current native owner selected-state lifecycle: **YES / SOURCE**;
-- native collection/item owner wiring: **NO / PARTIAL_UNSAFE**;
+Current truth:
+- corrected horizontal geometry: **SOURCE_WIRED**;
+- native collection/item owner wiring: **SOURCE_WIRED / APPLIED_SOURCE**;
+- heartbeat material-transition live-region owner wiring: **SOURCE_WIRED / APPLIED_SOURCE**;
+- Spotify/detail/Adam repeatable receipt migrations: **NOT APPLIED / blockers remain**;
+- regression source: **YES / UNEXECUTED**;
 - TESTED / runtime UI / runtime TalkBack / deployed / phone delivered / accepted: **NO**.
 
 ## P0 / phone firewall
-This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination. Repository/source work does not reopen the shared phone surface.
+This skill owns no Phone Hands ticket, primary-phone command, recovery queue, Nightcore, Pocket TTS, Chromium, Context Organs, PR317/PR318 mutation, physical acceptance, or P0 coordination. Repository/source work does not reopen the shared phone surface.
 
-## Done for one pulse
-Light this skill only when the persistent-selection contract, native collection semantics, owner evidence boundary, or source specimen materially changes. Once those source seams are stable, keep it dark until fresh evidence changes them.
+## Pulse rule
+Light this skill only when persistent-selection semantics, collection geometry, owner lifecycle wiring, or their evidence state materially changes.
