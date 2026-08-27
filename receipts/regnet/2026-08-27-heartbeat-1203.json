@@ -40,8 +40,13 @@
   "execution": {
     "regressionExecuted": false,
     "tested": false,
-    "workflowStateAtCheckpoint": "QUEUED",
-    "workflowRunIds": [33097400487, 33097400505, 33097400531],
+    "workflowRuns": [
+      {"id": 33097400487, "name": "Build Android", "status": "completed", "conclusion": "failure"},
+      {"id": 33097400505, "name": "Operator Overlay Android", "status": "completed", "conclusion": "failure", "jobId": 98605788159, "jobSteps": 0},
+      {"id": 33097400531, "name": "Home Center CI", "status": "completed", "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
     "commitStatusesObserved": 0
   },
   "firewall": {
