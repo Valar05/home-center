@@ -45,6 +45,7 @@ from try_forever_owner_surgery_metadata_exactness import (
 from try_forever_owner_surgery_semantic_parser import (
     OwnerSurgerySemanticError,
     parse_owner_surgery_observation,
+    project_owner_surgery_diagnostic_text,
 )
 from try_forever_posix_directory_handle_custody import (
     DescriptorArtifactCustodyError,
@@ -164,12 +165,14 @@ def _read_bounded_utf8(path: Path) -> str:
 
 
 def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
+    exception_type = project_owner_surgery_diagnostic_text(type(exc).__name__)
+    exception_message = project_owner_surgery_diagnostic_text(str(exc))
     return DiscoveryError(
         path=path.as_posix(),
         artifact_kind=artifact_kind,
         boundary=(
             "Owner surgery artifact excluded from custody authority: "
-            f"{type(exc).__name__}: {exc}"
+            f"{exception_type}: {exception_message}"
         ),
     )
 
@@ -611,6 +614,7 @@ def classify(
             "boundedArtifactCandidateSet": True,
             "boundedArtifactRead": True,
             "finiteRegularArtifactCustody": True,
+            "boundedAsciiDiscoveryDiagnosticProjection": True,
             "currentOwnerCustodyProvided": current_owner_custody_provided,
             "patchApplied": False,
             "ownerWired": True,
