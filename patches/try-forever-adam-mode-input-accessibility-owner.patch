@@ -1,8 +1,10 @@
 # TRY FOREVER — Adam mode/input/accessibility + Send availability owner surgery
-# Base owner blob: c5de1411a6b68087ae17aff83c032af754587150
-# State: CORRECTED_PROPOSED_NOT_APPLIED
+# Historical base owner blob: c5de1411a6b68087ae17aff83c032af754587150
+# Current observed owner blob at 2026-08-27 18:02 CT: 2935243f136359e3489a89108406e888b0ec2911
+# State: STALE_BASE_REBASE_REQUIRED / NOT_APPLIED
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
+# IMPORTANT: This artifact remains design/provenance evidence for the older exact base. Do not apply it to the current owner by fuzzy hunk matching. Rebase all intended Adam mutations against authenticated current source first.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
