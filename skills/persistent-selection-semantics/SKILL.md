@@ -21,6 +21,7 @@ Use when a DOM/source specimen or native-inspired UI exposes multiple mutually e
 9. A source specimen is not runtime accessibility proof. Source, test, runtime assistive-tech behavior, deployment, delivery, and acceptance remain separate states.
 10. Correct a recurring semantic failure at the reusable rule, not only at the latest specimen. Filename or art direction does not reset the contract.
 11. A direct selected-id query is its own source-work boundary. Safe canonical ids do not green-paint arbitrary public callers: bound raw selected-id work before repeated equality/case-fold comparisons, preserve admitted identity exactly, and fail oversized queries to no selection/null lookup rather than truncating them into a plausible semantic id.
+12. Native collection geometry follows the rendered axis. A horizontal one-dimensional strip is one row with items occupying columns; a vertical one-dimensional strip is one column with items occupying rows. Do not transpose visual order when constructing accessibility collection metadata.
 
 ## Regression doctrine
 
@@ -36,7 +37,8 @@ Source review or fixtures should prove:
 - touch/focus visibility remains intact;
 - direct selected-id input crosses a finite broad source-work throat before repeated item comparison;
 - direct collection lookup uses the same throat before comparison;
-- over-ceiling input cannot invent a replacement selection or a truncated lookup identity.
+- over-ceiling input cannot invent a replacement selection or a truncated lookup identity;
+- horizontal native collection metadata reports one row, N columns, `rowIndex=0`, and `columnIndex=item index`.
 
 ## Current scars
 
@@ -44,7 +46,9 @@ Source review or fixtures should prove:
 
 `docs/try-forever/heartbeat-skill-lights-source-specimen.html` later repeated the same failure shape: a mutually exclusive selected light controlling one persistent detail surface was exposed as `aria-pressed`. The 2026-08-21 19:57 TRY FOREVER pulse applies this law to that specimen and harvests `heartbeat-native-selection-collection` for the corresponding Android source contract. Any older heartbeat doctrine sentence permitting `aria-pressed` for this persistent one-of-many light set is superseded by this skill; a toggle is not made correct by being warm, luminous, or called a heartbeat.
 
-`HeartbeatSelectionAccessibilityPolicy.fromModel(...)` and `CollectionDecision.itemById(...)` now apply the same source-work law: values above `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` become no selection/null lookup before repeated `equalsIgnoreCase` work; admitted ids remain exact. Initial selected-id gate commit `53a277ec9772de8dfded4c778278e9c04dabf4c2`; direct collection lookup convergence commit `f2f59a0376a8fac11edd516f2c3a5f9b2e19710f`; current owner blob `525cb4aa657fc88a0125975f85358d71f2f3d22e`. This is **SOURCE_WIRED / regression source UNEXECUTED / runtime TalkBack NO**.
+`HeartbeatSelectionAccessibilityPolicy.fromModel(...)` and `CollectionDecision.itemById(...)` apply the direct source-work law: values above `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` become no selection/null lookup before repeated `equalsIgnoreCase` work; admitted ids remain exact. On 2026-08-27 the same owner was corrected from transposed horizontal geometry (`rows=N / columns=1`) to rendered-axis geometry (`rows=1 / columns=N`, item `rowIndex=0`, `columnIndex=index`). Current policy blob after that correction: `cb4638a2b02d077fd4760ada65b590a2643278e9`. Regression source is converged but **UNEXECUTED**; runtime TalkBack remains **NO**.
+
+Android framework orientation guidance is consistent with that correction: `RecyclerView.LayoutManager` reports one accessibility row when vertical scrolling is unsupported and item-count columns when horizontal scrolling is supported. Reference: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.LayoutManager
 
 ## Boundary
 
