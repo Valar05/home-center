@@ -19,12 +19,12 @@ def main() -> int:
         'role="status" aria-live="polite"',
         'role="img" aria-labelledby="diagramTitle diagramDesc"',
         '@media (prefers-reduced-motion: reduce)',
-        'DIRECT-STRING THROATS',
-        'PARSE',
+        'DIRECT-STRING + PARSER THROATS',
         'data-case="directString"',
         'data-case="parserPreparse"',
+        '32,769 → BLOCK',
+        'trim + JSON receive nothing',
         'SOURCE_WIRED, not TESTED or runtime proof.',
-        'RED / PROPOSED_NOT_APPLIED / UNEXECUTED',
         'Phone/P0 remains untouched',
     )
     missing = [needle for needle in required if needle not in text]
@@ -32,6 +32,7 @@ def main() -> int:
         raise AssertionError(f"predecode Warm Wall lost required source semantics: {missing}")
 
     forbidden = (
+        'RED / PROPOSED_NOT_APPLIED / UNEXECUTED',
         'autoplay',
         'setInterval(',
         'setTimeout(',
@@ -39,7 +40,7 @@ def main() -> int:
     )
     present = [needle for needle in forbidden if needle in text]
     if present:
-        raise AssertionError(f"predecode Warm Wall gained forbidden motion/runtime behavior: {present}")
+        raise AssertionError(f"predecode Warm Wall gained stale/forbidden source behavior: {present}")
 
     print("heartbeat predecode Warm Wall source contract: PASS (source only; runtime/TalkBack unproven)")
     return 0
