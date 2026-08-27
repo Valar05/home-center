@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-26-2300",
+  "reviewedSourceHead": "1d9a8effb93bd58372255baa37ea068b38d53bf3",
+  "verdict": "PASS_SUPPORTING_SOURCE__SHARED_DIAGNOSTIC_PROJECTOR_SOURCE_WIRED__CANONICAL_DISCOVERY_PROJECTION_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "sharedDiagnosticProjector": {
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_semantic_parser.py",
+      "blob": "a3abe553466da9760f534836ef36881b3cdf992d",
+      "constraints": [
+        "exact built-in str before callback-capable operations",
+        "bounded ASCII-safe human-facing projection",
+        "definitely-long source collapses before escaping",
+        "projection never becomes canonical evidence or promotion authority"
+      ]
+    },
+    "canonicalDiscoveryProjection": {
+      "state": "REVISE_REQUIRED",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "ownerBlob": "3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c",
+      "proposal": "patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch",
+      "proposalState": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "reason": "DiscoveryError.boundary still consumes raw str(exc); dependency capability does not transitively wire the canonical owner."
+    },
+    "regression": {
+      "path": "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "state": "SOURCE_UNEXECUTED",
+      "hostileCoverage": ["newline", "bidi", "lone_surrogate", "oversize", "str_subclass_callback"]
+    },
+    "accessibility": {
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "state": "SOURCE_ONLY",
+      "touchMinimumPx": 56,
+      "visibleFocus": true,
+      "nonColorStatus": true,
+      "svgSemantics": true,
+      "reducedMotion": true,
+      "blinkOrAutoplay": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33038351199, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33038351231, "job": 98406084730, "conclusion": "failure", "stepsObserved": 0},
+    "buildAndroid": {"run": 33038351214, "conclusion": "failure"},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
