@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RED source regression for direct semantic-id lookup source-work custody.
+"""Convergence source regression for direct semantic-id lookup source-work custody.
 
-SOURCE ONLY / UNEXECUTED. Direct accessibility/model lookup helpers currently trim and
-case-fold arbitrary caller Strings before a broad source-work gate. This fixture pins an
-existing-owner repair without claiming regression execution, TESTED, runtime TalkBack,
-deployment, phone delivery, or P0 action.
+SOURCE ONLY / UNEXECUTED. Direct accessibility/model lookup helpers now cross a broad
+source-work gate before trim/case-fold. This fixture pins that existing-owner repair
+without claiming regression execution, TESTED, runtime TalkBack, deployment, phone
+delivery, or P0 action.
 """
 
 from pathlib import Path
