@@ -18,6 +18,9 @@ public final class HeartbeatFrameAccessibility {
             HeartbeatSkillPolicy.MAX_COLLAPSED_NAMED_LIGHTS;
     /** Hard returned code-point budget for one label spoken in the collapsed summary. */
     public static final int MAX_COLLAPSED_LABEL_CODE_POINTS = 64;
+    /** Broad direct lookup throat before trim/case-fold; typed scene ids stay exact. */
+    public static final int MAX_DIRECT_NODE_ID_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     private HeartbeatFrameAccessibility() {
     }
@@ -171,7 +174,7 @@ public final class HeartbeatFrameAccessibility {
             HeartbeatSceneGraph.Frame frame,
             String nodeId) {
         if (frame == null) return "";
-        String target = clean(nodeId).toLowerCase(Locale.ROOT);
+        String target = boundedLookupId(nodeId);
         if (target.isEmpty()) return "";
         for (HeartbeatSceneGraph.Node node : frame.nodes) {
             if (node.id.toLowerCase(Locale.ROOT).equals(target)) {
@@ -184,7 +187,7 @@ public final class HeartbeatFrameAccessibility {
     /** Current focus index for a stable semantic id, or -1 when absent. */
     public static int focusIndexForId(HeartbeatSceneGraph.Frame frame, String nodeId) {
         if (frame == null) return -1;
-        String target = clean(nodeId).toLowerCase(Locale.ROOT);
+        String target = boundedLookupId(nodeId);
         if (target.isEmpty()) return -1;
         for (HeartbeatSceneGraph.Node node : frame.nodes) {
             if (node.id.toLowerCase(Locale.ROOT).equals(target)) return node.focusIndex;
@@ -217,6 +220,11 @@ public final class HeartbeatFrameAccessibility {
 
     private static String stateName(HeartbeatSkillPolicy.State state) {
         return state == null ? "unknown" : state.name().toLowerCase(Locale.ROOT);
+    }
+
+    private static String boundedLookupId(String value) {
+        if (value == null || value.length() > MAX_DIRECT_NODE_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value).toLowerCase(Locale.ROOT);
     }
 
     private static String clean(String value) {
