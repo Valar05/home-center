@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Source fixture for owner-surgery discovery diagnostic projection custody.
 
-SOURCE ONLY / UNEXECUTED. The shared semantic organ now owns both a finite 4,096-code-point
-diagnostic source-work throat and callback-free exception diagnostic projection. Canonical v10 still
-has one independent RED consumer boundary: ``_error(...)`` invokes caller-owned ``Exception.__str__``
-instead of consuming that shared callback-free helper. Canonical path/artifact evidence remains exact.
-This fixture proves no regression execution, TESTED, runtime, deployment, phone delivery, or P0
-capability.
+SOURCE ONLY / UNEXECUTED. The shared semantic organ owns a finite 4,096-code-point diagnostic
+source-work throat and callback-free exception projection, and canonical v10 now consumes that helper
+inside ``_error(...)`` instead of executing caller-owned ``Exception.__str__``/``__repr__``. Canonical
+path/artifact evidence remains exact. This fixture proves no regression execution, TESTED, runtime,
+deployment, phone delivery, or P0 capability.
 """
 
 from pathlib import Path
@@ -16,6 +15,7 @@ import try_forever_owner_surgery_semantic_parser as semantic
 from try_forever_owner_surgery_semantic_parser import (
     MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
     MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS,
+    MAX_SEMANTIC_EXCEPTION_ARGS,
     OwnerSurgerySemanticError,
     project_owner_surgery_diagnostic_text,
     project_owner_surgery_exception_diagnostic,
@@ -34,6 +34,7 @@ def _assert_shared_projector_source_wired() -> None:
     assert receipt["diagnosticSourceCodepointCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS
     assert receipt["finiteDiagnosticSourceWork"] is True
     assert receipt["callbackFreeExceptionDiagnosticProjection"] is True
+    assert receipt["exceptionDiagnosticArgCeiling"] == MAX_SEMANTIC_EXCEPTION_ARGS
     assert receipt["oversizeDiagnosticWholeIdentityPreserved"] is False
     assert receipt["regressionExecuted"] is False
     assert receipt["tested"] is False
@@ -76,6 +77,31 @@ def _assert_shared_exception_projector_is_callback_free() -> None:
     assert message == "line-one\\nline-two"
     assert HostileError.callback_executed is False
 
+    class HostilePayload:
+        callback_executed = False
+
+        def __str__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("exception payload __str__ executed")
+
+        def __repr__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("exception payload __repr__ executed")
+
+    kind, message = project_owner_surgery_exception_diagnostic(
+        HostileError(HostilePayload())
+    )
+    assert kind == "HostileError"
+    assert message == "<exception-payload-omitted>"
+    assert HostileError.callback_executed is False
+    assert HostilePayload.callback_executed is False
+
+    too_many = tuple(f"arg-{index}" for index in range(MAX_SEMANTIC_EXCEPTION_ARGS + 1))
+    kind, message = project_owner_surgery_exception_diagnostic(HostileError(*too_many))
+    assert kind == "HostileError"
+    assert message == f"<exception-payload:{MAX_SEMANTIC_EXCEPTION_ARGS + 1}-args>"
+    assert HostileError.callback_executed is False
+
 
 def _assert_canonical_projection(exc: Exception) -> None:
     error = custody._error(
@@ -92,21 +118,20 @@ def _assert_canonical_projection(exc: Exception) -> None:
     assert "\ud800" not in boundary.lower()
 
 
-def _assert_canonical_exception_str_callback_never_executes() -> None:
+def _assert_canonical_exception_callbacks_never_execute() -> None:
     class HostileError(Exception):
         callback_executed = False
 
         def __str__(self) -> str:
             type(self).callback_executed = True
-            raise AssertionError("caller-owned Exception.__str__ executed before projection")
+            raise AssertionError("canonical discovery executed caller-owned Exception.__str__")
 
-    try:
-        _assert_canonical_projection(HostileError("safe-base-args"))
-    except AssertionError:
-        pass
-    assert HostileError.callback_executed is False, (
-        "canonical discovery projection must consume the callback-free shared helper"
-    )
+        def __repr__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("canonical discovery executed caller-owned Exception.__repr__")
+
+    _assert_canonical_projection(HostileError("safe-base-args"))
+    assert HostileError.callback_executed is False
 
 
 def _assert_oversize_source_collapses_before_whole_identity_digest() -> None:
@@ -137,7 +162,7 @@ def main() -> int:
     _assert_canonical_projection(ValueError("bidi:\u202eattack"))
     _assert_canonical_projection(ValueError("surrogate:\ud800"))
     _assert_canonical_projection(ValueError("x" * 50_000))
-    _assert_canonical_exception_str_callback_never_executes()
+    _assert_canonical_exception_callbacks_never_execute()
     _assert_oversize_source_collapses_before_whole_identity_digest()
     return 0
 
