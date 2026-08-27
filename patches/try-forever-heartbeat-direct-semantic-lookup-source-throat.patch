@@ -1,14 +1,18 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER 1: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
 # OWNER 1 BASE BLOB: 4d49dc7227d9b2bbb7abf0123df5537782176b60
+# OWNER 1 APPLIED COMMIT: b5c0581ae4d11a30bde804e6b01a9ca84ec2bc54
+# OWNER 1 RESULT BLOB: 936a29ed0d85c191a1bef52f14407001215b1384
 # OWNER 2: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java
 # OWNER 2 BASE BLOB: a7a80e887dc233a4e242ec50e21523895a605801
+# OWNER 2 APPLIED COMMIT: 1066c33f430390f12172160dc79df5e5409b76a4
+# OWNER 2 RESULT BLOB: 3b682c2630a62e912ed369117d3ff5505598ae0d
 # PURPOSE: Bound direct semantic-id lookup work before trim/case-fold while preserving accepted scene/control identity and existing owners.
 # LAW: SMALL/CANONICAL SEMANTIC ID CONTRACT != BOUNDED DIRECT LOOKUP WORK.
 # SOURCE THROAT: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS before trim()/Locale.ROOT case-fold in public direct lookup paths.
 # PRESERVE: exact accepted node/control ids; case-insensitive lookup semantics at/below the source ceiling; stable-id detail lookup; focus-index lookup; selection/motion ownership; P0/phone firewall.
-# REGRESSION: tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py (RED SOURCE / UNEXECUTED)
-# CAPABILITY: DIRECT_SEMANTIC_LOOKUP_SOURCE_WORK_CUSTODY_NO / PROPOSED_NOT_APPLIED / TESTED_NO
+# REGRESSION: tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py (CONVERGENCE SOURCE / UNEXECUTED)
+# CAPABILITY: DIRECT_SEMANTIC_LOOKUP_SOURCE_WORK_CUSTODY_SOURCE_WIRED / APPLIED_SOURCE / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
