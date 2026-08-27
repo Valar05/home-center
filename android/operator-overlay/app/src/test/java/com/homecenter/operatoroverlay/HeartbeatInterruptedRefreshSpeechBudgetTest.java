@@ -65,6 +65,31 @@ public class HeartbeatInterruptedRefreshSpeechBudgetTest {
                 expectedProjection.codePointCount(0, expectedProjection.length()));
     }
 
+    @Test
+    public void overSourceWorkBoundaryUsesFixedSpeechStopAndPreservesExactEvidence() {
+        String exactBoundary = repeat(
+                "x",
+                HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS + 1);
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-good",
+                Collections.emptyList(),
+                true,
+                null);
+        HeartbeatSceneGraph.Frame interrupted = HeartbeatSceneGraph.preserveRejectedRefresh(
+                "attempt",
+                lastGood,
+                exactBoundary);
+
+        String description = interrupted.interruptedRefreshDescription();
+
+        assertTrue(description.contains(
+                "Boundary: Heartbeat refresh boundary exceeds speech source-work ceiling."));
+        assertFalse(description.contains(repeat(
+                "x",
+                HeartbeatSceneGraph.MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS)));
+        assertEquals(exactBoundary, interrupted.refreshBoundary);
+    }
+
     private static String repeat(String value, int count) {
         StringBuilder out = new StringBuilder();
         for (int index = 0; index < count; index++) out.append(value);
