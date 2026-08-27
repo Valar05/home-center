@@ -50,6 +50,7 @@ def main() -> int:
     )
     helper_end = source.index("private static boolean hasDuplicateMaterialIdentity", helper)
     helper_source = source[helper:helper_end]
+    assert helper_source.count("candidates.size()") == 1
     assert "int size = candidates.size();" in helper_source
     assert "candidates.isEmpty()" not in helper_source
     assert "size > HeartbeatEnvelopeParser.MAX_LIGHTS" in helper_source
