@@ -1,0 +1,106 @@
+{
+  "schema": "try-forever-heartbeat-swarm-v1",
+  "heartbeat": "2026-08-27T18:02:00-05:00",
+  "reviewedSourceHead": "eb0fdc56907fc2b7ae07ec5f7d55ce8c31fcc351",
+  "previousPublicationHead": "294fb04cbb0244d3a752e0768ea6ae8af0fc5af7",
+  "publicationParentAfterJudgments": "884fc82c57aec9a36a01013289a24460b50d5bb5",
+  "sourceDelta": {
+    "commits": 7,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Canon Auto-Select", "Originality Tax", "Hunger", "Ever-Polished Interpreter / Eat Everything"],
+      "state": "LIT",
+      "advance": "Fresh Adam send review exposed bounded post-trim semantics backed by unbounded pre-trim work. Supporting availability policy now reuses the existing 32768 UTF-16-unit source ceiling before toString/trim, while actual UI/state request owners remain explicitly RED."
+    },
+    {
+      "skills": ["Regnet QA", "deterministic routing", "contact preservation"],
+      "state": "LIT",
+      "advance": "Hostile max/max+1 source regression requires one length observation and zero toString work above the source ceiling, preserves admitted trim semantics, and keeps the legacy repeat-send accessibility receipt. Regression source remains UNEXECUTED."
+    },
+    {
+      "skills": ["Operator Campaign", "Harroway operator discipline", "recovery/checkpointing/idempotence", "evidence/capability-state discipline"],
+      "state": "LIT",
+      "advance": "A current-base exact request-owner surgery was staged against service blob 2935243f... and state blob 94772cc4... without applying it. The older Adam accessibility surgery was demoted to STALE_BASE_REBASE_REQUIRED instead of receiving a fuzzy apply."
+    },
+    {
+      "skills": ["accessibility/TalkBack", "touch semantics", "strange non-raster vector/DOM/native UI art", "warm walls", "Christmas-light scene graph"],
+      "state": "LIT",
+      "advance": "The existing Adam Warm Wall was mutated in place: 56px targets, visible focus, non-color source/owner state, semantic inline SVG, reduced motion, no autoplay/blink, and explicit runtime TalkBack NO. Christmas-light discipline contributed no decorative motion on source rejection."
+    },
+    {
+      "skills": ["She-Raw adversarial motivation", "Venice Judgment Jars"],
+      "state": "LIT_WITH_BOUNDARY",
+      "advance": "Authoritative She-Raw consultation was attempted and failed at account connection HTTP 400 with no synthetic substitute. Venice permits the bounded source checkpoint while request-owner mutation, regression execution, TESTED/runtime, and campaign remain continue-required."
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar"],
+      "state": "DARK",
+      "advance": "No material token ambiguity affected owner identity, routing, or evidence semantics."
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery", "P0 Fortress firewall"],
+      "state": "FIREWALLED",
+      "advance": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none."
+    }
+  ],
+  "fronts": [
+    {
+      "name": "Adam Send availability source-work custody",
+      "state": "SOURCE_WIRED_SUPPORTING_POLICY",
+      "evidence": "AdamSendAvailabilityAccessibilityPolicy blob e50093160bfa2ea8fc55317a06fa433ad8db0fcf"
+    },
+    {
+      "name": "Adam request UI/state owner source-work custody",
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "evidence": "patches/try-forever-adam-request-source-work-throat.patch blob cbda2eb2e4ec7064b913f49e401f3dd8ee720d54"
+    },
+    {
+      "name": "Adam owner surgery stale-base safety",
+      "state": "STALE_BASE_REBASE_REQUIRED",
+      "evidence": "historical accessibility patch explicitly forbids fuzzy application to the current owner"
+    },
+    {
+      "name": "Adam accessibility Warm Wall",
+      "state": "SOURCE_UPDATED_ONLY",
+      "evidence": "adam-mode-accessibility-warm-wall-source.html blob 4d7273975e2e9e8c66f709d145e7f7cf87b15c82"
+    },
+    {
+      "name": "Exact-head execution truth",
+      "state": "FAILED_NO_TEST_PROOF",
+      "evidence": "Home Center CI 33125354272 failure; Build Android 33125354264 failure; Operator Overlay Android 33125354271 failure; Operator job 98702071742 steps=[]"
+    }
+  ],
+  "crossPollination": "The existing small-output/source-work law crossed from heartbeat text custody into Adam Send availability. That made actual owner consumption separately reviewable, exposed the stale exact base of the older Adam accessibility surgery, and forced the existing Warm Wall to distinguish supporting policy from owner capability while retaining the repeatable send receipt and P0 firewall.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "adamAvailabilitySourceWorkThroat": "SOURCE_WIRED_SUPPORTING_POLICY",
+    "adamRequestUiOwnerThroat": "NO_PROPOSED_NOT_APPLIED",
+    "adamRequestStateOwnerThroat": "NO_PROPOSED_NOT_APPLIED",
+    "adamAccessibilityPatchCurrentBase": "NO_REBASE_REQUIRED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Home Center CI", "id": 33125354272, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33125354264, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33125354271, "conclusion": "failure", "jobId": 98702071742, "steps": 0}
+    ],
+    "manualRetry": false,
+    "diagnosisInvented": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ADAM_REQUEST_OWNER_MUTATION_REBASE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
