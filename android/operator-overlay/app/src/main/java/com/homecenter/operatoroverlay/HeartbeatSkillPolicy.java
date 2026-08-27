@@ -26,6 +26,9 @@ public final class HeartbeatSkillPolicy {
     public static final int MAX_DETAIL_CONSEQUENCE_CODE_POINTS = 320;
     public static final int MAX_DETAIL_EVIDENCE_CODE_POINTS = 384;
     public static final int MAX_DETAIL_SOURCE_LOCATOR_CODE_POINTS = 192;
+    /** Direct Candidate source-work throat before semantic scanning or trim. */
+    static final int MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     public enum State {
         DARK,
@@ -71,6 +74,13 @@ public final class HeartbeatSkillPolicy {
                 boolean changedThisPulse,
                 String consequence,
                 String evidenceBoundary) {
+            id = admitDirectCandidateSource(id, "id");
+            label = admitDirectCandidateSource(label, "label");
+            provenanceKind = admitDirectCandidateSource(provenanceKind, "provenanceKind");
+            provenanceLocator = admitDirectCandidateSource(provenanceLocator, "provenanceLocator");
+            activationReason = admitDirectCandidateSource(activationReason, "activationReason");
+            consequence = admitDirectCandidateSource(consequence, "consequence");
+            evidenceBoundary = admitDirectCandidateSource(evidenceBoundary, "evidenceBoundary");
             this.semanticTextSafeAtIngress = isSafeSemanticText(id)
                     && isSafeSemanticText(label)
                     && isSafeSemanticText(provenanceKind)
@@ -88,6 +98,14 @@ public final class HeartbeatSkillPolicy {
             this.consequence = clean(consequence);
             this.evidenceBoundary = clean(evidenceBoundary);
         }
+    }
+
+    private static String admitDirectCandidateSource(String value, String field) {
+        if (value != null && value.length() > MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException(
+                    "Direct heartbeat Candidate " + field + " exceeds source resource ceiling.");
+        }
+        return value;
     }
 
     private HeartbeatSkillPolicy() {
