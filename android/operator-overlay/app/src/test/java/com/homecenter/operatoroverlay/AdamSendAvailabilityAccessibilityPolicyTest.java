@@ -7,6 +7,38 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class AdamSendAvailabilityAccessibilityPolicyTest {
+    private static final class CountingCharSequence implements CharSequence {
+        private final String value;
+        int lengthCalls;
+        int toStringCalls;
+
+        CountingCharSequence(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public int length() {
+            lengthCalls++;
+            return value.length();
+        }
+
+        @Override
+        public char charAt(int index) {
+            return value.charAt(index);
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            return value.subSequence(start, end);
+        }
+
+        @Override
+        public String toString() {
+            toStringCalls++;
+            return value;
+        }
+    }
+
     @Test
     public void emptyRequestDisablesNativeSendInsteadOfInventingAnnouncement() {
         AdamSendAvailabilityAccessibilityPolicy.Decision decision =
@@ -49,6 +81,36 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
     public void nonAsciiSpaceDoesNotSilentlyBroadenCurrentOwnerTrimContract() {
         String emSpace = "\u2003";
         assertTrue(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(emSpace));
+    }
+
+    @Test
+    public void exactBroadSourceCeilingStillReachesExistingTrimSemantics() {
+        StringBuilder source = new StringBuilder(
+                AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS);
+        for (int index = 0;
+                index < AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS - 1;
+                index++) {
+            source.append(' ');
+        }
+        source.append('x');
+
+        assertTrue(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(source));
+    }
+
+    @Test
+    public void maxPlusOneStopsBeforeWholeSourceMaterializationAndTrim() {
+        StringBuilder source = new StringBuilder(
+                AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1);
+        for (int index = 0;
+                index < AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1;
+                index++) {
+            source.append('x');
+        }
+        CountingCharSequence hostile = new CountingCharSequence(source.toString());
+
+        assertFalse(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(hostile));
+        assertEquals(1, hostile.lengthCalls);
+        assertEquals(0, hostile.toStringCalls);
     }
 
     @Test(expected = IllegalArgumentException.class)
