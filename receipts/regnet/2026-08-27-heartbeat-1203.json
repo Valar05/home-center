@@ -1,0 +1,54 @@
+{
+  "receiptType": "regnet_qa_source_review",
+  "timestamp": "2026-08-27T12:03:02-05:00",
+  "reviewedSourceHead": "98ae24997c846940d69d841054cf9ac01d7ff81a",
+  "verdict": "PASS_BOUNDED_SOURCE__DIRECT_POLICY_SELECTION_SOURCE_WIRED__PERSISTENT_SELECTION_ID_CUSTODY_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "directPolicySelectionListCustody": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java",
+      "law": "one List.size observation; reject > MAX_LIGHTS; at most admitted indexed reads; detach before material/dedupe traversal",
+      "limit": "does not claim callback-free arbitrary Java List admission"
+    },
+    "persistentSelectionIdCustody": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSelectionAccessibilityPolicy.java",
+      "law": "bound direct selectedId and itemById semanticId before repeated equalsIgnoreCase work; admitted identity exact; over-ceiling becomes no selection/null lookup",
+      "runtimeTalkBack": false
+    },
+    "regression": {
+      "state": "SOURCE_UNEXECUTED",
+      "files": [
+        "tools/test_try_forever_heartbeat_policy_direct_selection_source_work.py",
+        "tools/test_try_forever_heartbeat_selection_selected_id_source_work.py",
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatSelectionAccessibilityPolicyTest.java"
+      ]
+    }
+  },
+  "review": {
+    "duplicateArchitecture": "NONE",
+    "weakerFallback": "NONE",
+    "contactPreservation": "PASS_SOURCE",
+    "capabilityInflation": "NONE",
+    "unexpectedPaths": 0,
+    "sourceDelta": {
+      "base": "e2f878f1a1b4a5db6838cb6df65a643bcca79536",
+      "commits": 13,
+      "paths": 8
+    }
+  },
+  "execution": {
+    "regressionExecuted": false,
+    "tested": false,
+    "workflowStateAtCheckpoint": "QUEUED",
+    "workflowRunIds": [33097400487, 33097400505, 33097400531],
+    "commitStatusesObserved": 0
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
