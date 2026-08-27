@@ -3,11 +3,11 @@
   "heartbeat": "2026-08-27-1100",
   "repository": "Valar05/home-center",
   "pullRequest": 329,
-  "reviewedSourceHead": "66d9ebfffd465ecce8f01dcd3e9e4cec0aff9a8c",
+  "reviewedSourceHead": "c35cd39d4a984063a459517a81749804c5d8cd7c",
   "verdict": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_POLICY_SELECTION_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
   "basis": [
     "Existing HeartbeatSceneGraph owner now has canonical MAX_LIGHTS direct collection custody with detached semantic traversal.",
-    "Overflow contact/no-motion/accessibility semantics are pinned in source regression but remain unexecuted.",
+    "Overflow contact/no-motion/accessibility semantics are pinned in source regression but remain unexecuted; owner-order source now requires exactly one candidates.size() occurrence in the helper.",
     "Direct HeartbeatSkillPolicy selection remains a distinct public collection-work boundary and is only proposed, not applied.",
     "Exact-head workflows failed with Operator job exposing zero steps; no manual retry or fabricated diagnosis was allowed.",
     "Phone/P0 surfaces and duplicate architecture remain untouched."
