@@ -33,7 +33,7 @@ A public pre-parser preservation seam may need to retain an exact rejection boun
 Never feed sanitized projection text back into persistence as replacement canonical payload.
 
 ### Finite projection work
-Bounded *returned* text does not imply bounded source work. A projector that returns 96 characters but hashes or encodes an arbitrarily large exact string still has an unbounded caller-controlled work throat.
+Bounded *returned* text does not imply bounded source work. A projector that returns 96 characters but hashes, encodes, trims, counts, or regex-walks an arbitrarily large source still has an unbounded caller-controlled work throat.
 
 For non-authoritative diagnostic projection:
 
@@ -43,6 +43,8 @@ For non-authoritative diagnostic projection:
 - this loss of diagnostic identity must never rewrite or weaken the exact canonical evidence that caused the rejection.
 
 Likewise, a consumer must not invoke caller-owned `Exception.__str__` or `__repr__` *before* a safe projection boundary. Safe projection after an unsafe callback is too late.
+
+The same resource principle applies to accessibility speech. A small TalkBack result does not justify whole-source `trim`, code-point counting, grapheme regex traversal, or marker expansion over arbitrarily large direct-source text. Reuse the existing finite projection organs; do not mutate canonical evidence merely to make speech work finite.
 
 ## Accessibility contract
 Text that reaches TalkBack or touch detail must agree with the visible semantic scene.
@@ -61,20 +63,24 @@ Text that reaches TalkBack or touch detail must agree with the visible semantic 
 
 `HeartbeatSkillPolicy` repeats the directional/control/surrogate safety gate at the typed display-ready boundary so direct source callers cannot bypass parser assumptions. `Candidate` captures decoded safety before its compatibility trim and carries that verdict into display readiness and speech. Focused candidate speech bounds the label/consequence independently from the exact typed fields. `HeartbeatSceneGraph` rejects an unsafe direct pulse id before storing it as attempted/visible contact, and `preserveRejectedRefresh(...)` suppresses an unsafe pre-parser attempted id while leaving the original rejection boundary unchanged. `Frame.interruptedRefreshDescription()` projects the retained last-good pulse id and exact rejection boundary through bounded safe speech without rewriting those evidence fields.
 
+Routine/plain TalkBack projections through `HeartbeatPlainTextBudget.boundedWithEllipsis(...)` now also own a finite direct-source work window before code-point/grapheme traversal. This is source-only accessibility/resource custody; it does not claim runtime TalkBack observation.
+
 The duplicated *gate* is defense in depth; the directional-control definition lives in one source policy helper so parser and scene consumers do not drift into different bidi lists.
 
 This remains source semantics only until the existing Operator Overlay runtime consumes the persisted payload, projects exact bytes, parses it, renders the scene, and exercises TalkBack through an authorized device lane.
 
 ## Owner-surgery discovery integration
-The owner-surgery semantic producer exposes the shared non-authoritative `project_owner_surgery_diagnostic_text(...)` organ. It accepts exact built-in strings only and projects them to bounded ASCII-safe diagnostic text. Canonical v10 consumes that projector inside `_error(...)`; `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is `APPLIED_SOURCE`, with applied commit `23091256cf90ea6bea3afc111db348e014c85584` and canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
+The owner-surgery semantic producer exposes two shared non-authoritative organs: `project_owner_surgery_diagnostic_text(...)` for exact built-in diagnostic strings and `project_owner_surgery_exception_diagnostic(...)` for callback-free exception type/message projection. The latter inspects bounded base exception arguments without invoking caller-owned `__str__` or `__repr__`.
 
-The semantic projector now also owns an independent **4,096-code-point direct source-work throat before whole-input encode/hash**. Over-ceiling non-authoritative prose returns a bounded ASCII marker and intentionally loses whole-input digest identity instead of hashing arbitrary caller text. This is **SOURCE_WIRED** in semantic owner blob `2540b6d11da67cad26fdd3943d3f8ee73ab1c91d`. Canonical path/artifact/Surgery evidence remains exact and is not rewritten by this projection policy.
+Canonical v10 consumes the ASCII-safe string projector inside `_error(...)`; `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is `APPLIED_SOURCE`, with applied commit `23091256cf90ea6bea3afc111db348e014c85584` and canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
 
-One distinct RED boundary remains: canonical `_error(...)` still computes `str(exc)` **before** handing the result to the safe projector, so an exception subclass can execute caller-owned `__str__` work inside the discovery diagnostic path. Safe final ASCII text does not retroactively make that callback safe.
+The semantic projector also owns an independent **4,096-code-point direct source-work throat before whole-input encode/hash**. Over-ceiling non-authoritative prose returns a bounded ASCII marker and intentionally loses whole-input digest identity instead of hashing arbitrary caller text. The callback-free exception projector and finite source-work throat are both **SOURCE_WIRED** in semantic dependency blob `525bd5aefa82fd788490cef329e8262ca6987a4a`. Canonical path/artifact/Surgery evidence remains exact and is not rewritten by either projection policy.
 
-`patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` has therefore been narrowed to the remaining callback seam. It is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against semantic blob `2540b6d11da67cad26fdd3943d3f8ee73ab1c91d` and canonical blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`. It proposes callback-free exception-argument projection inside the existing semantic-text organ rather than a second sanitizer.
+One distinct RED consumer boundary remains: canonical `_error(...)` still computes `str(exc)` instead of consuming the shared callback-free exception projector. Safe final ASCII text and a safe dependency do not retroactively make that canonical callback safe.
 
-`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is **RED SOURCE / UNEXECUTED** only because the canonical callback seam remains unwired. Its finite diagnostic source-work assertions now converge on SOURCE_WIRED semantics, but regression execution is still NO. Dependency capability and consumer capability remain separate.
+`patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` is now narrowed to that canonical consumer seam only. It is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against canonical blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`, consuming semantic dependency blob `525bd5aefa82fd788490cef329e8262ca6987a4a`. It proposes no second sanitizer.
+
+`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is **RED SOURCE / UNEXECUTED** only because the canonical callback consumer remains unwired. Its shared-helper and finite source-work assertions now converge on SOURCE_WIRED semantics, but regression execution is still NO. Dependency capability and consumer capability remain separate.
 
 ## Regression fixtures
 For any semantic-ingestion path covered by this skill, preserve hostile fixtures for:
@@ -92,7 +98,9 @@ For any semantic-ingestion path covered by this skill, preserve hostile fixtures
 - an oversized but safe interrupted-refresh boundary/pulse id whose speech projection truncates by code point while Frame evidence remains exact;
 - an unsafe pre-parser rejection boundary that remains exact in Frame.refreshBoundary but is replaced with a safe speech placeholder;
 - a hostile exception subclass whose `__str__` callback must not execute merely to produce human-facing discovery prose;
-- a diagnostic source at source-ceiling max/max+1 proving over-ceiling projection stops before whole-input encode/hash.
+- a diagnostic source at source-ceiling max/max+1 proving over-ceiling projection stops before whole-input encode/hash;
+- oversized direct routine-speech source proving the plain-text projector stops at its finite work window;
+- a surrogate pair straddling that source-work edge, proving the finite window never manufactures malformed UTF-16.
 
 Where scene/contact preservation exists, assert that rejected semantic text:
 
@@ -112,9 +120,10 @@ Keep `requested -> implemented -> tested -> deployed -> callable -> executed -> 
 Current owner-surgery state is intentionally split:
 
 - shared ASCII-safe diagnostic projector: **SOURCE_WIRED**;
-- canonical discovery consumption of that projector: **SOURCE_WIRED / APPLIED_SOURCE**;
 - finite direct diagnostic source-work throat: **SOURCE_WIRED**;
-- callback-free exception diagnostic extraction: **NO / PROPOSED_NOT_APPLIED**;
+- shared callback-free exception diagnostic projector: **SOURCE_WIRED**;
+- canonical discovery ASCII projection consumer: **SOURCE_WIRED / APPLIED_SOURCE**;
+- canonical callback-free exception consumer: **NO / PROPOSED_NOT_APPLIED**;
 - hostile regression: **RED SOURCE / UNEXECUTED**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted/phone delivery: **NO**.
 
@@ -125,11 +134,13 @@ If a parser correctly rejects poisoned values but then echoes an untrusted poiso
 
 If exact evidence is safe to retain but too large or unsafe to speak, do not solve the speech problem by rewriting the evidence. Add an explicit projection boundary and regression source that proves both sides stay true.
 
-If a shared projector is SOURCE_WIRED but a canonical consumer still emits raw diagnostic text, keep the consumer RED. Dependency capability is not transitive owner capability.
+If a shared projector is SOURCE_WIRED but a canonical consumer still emits or creates unsafe diagnostic text, keep the consumer RED. Dependency capability is not transitive owner capability.
 
 If a canonical consumer calls `str(exc)` and *then* safely projects the resulting string, inspect the callback boundary before the projector. Safe output does not retroactively make unsafe source work safe.
 
-If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. Once a finite source throat is SOURCE_WIRED, do not keep describing that seam as proposed merely because a neighboring callback seam remains red.
+If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. Once a finite source throat is SOURCE_WIRED, do not keep describing that seam as proposed merely because a neighboring consumer seam remains red.
+
+If a TalkBack helper returns a tiny ellipsized string but still trims, counts, or regex-walks an arbitrary direct-source string, the returned budget has not solved resource custody. Bound the work without rewriting canonical source.
 
 ## Done
 This skill has materially contributed only when it changes a parser/policy/scene constraint, regression fixture, accessibility rule, or exact evidence boundary in the current mission. Naming the skill without such a consequence is decorative and stays dark.
