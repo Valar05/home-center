@@ -4,8 +4,11 @@
   "repository": "Valar05/home-center",
   "pullRequest": 329,
   "previousPublicationHead": "15cc9dde194ce4c52c8650e890b90fd4ab2adcc6",
-  "reviewedSourceHead": "66d9ebfffd465ecce8f01dcd3e9e4cec0aff9a8c",
-  "sourceDelta": {"commits": 8, "intendedPaths": 7, "unexpectedPaths": 0},
+  "reviewedSourceHead": "c35cd39d4a984063a459517a81749804c5d8cd7c",
+  "sourceSlice": {
+    "ownerAndArtifactFront": "15cc9dde... -> 66d9ebff... = 8 commits / 7 intended paths / 0 unexpected paths",
+    "postReviewRegressionTightening": "c35cd39d4a984063a459517a81749804c5d8cd7c adds exact helper-scoped one-size predicate; owner capability unchanged"
+  },
   "fronts": [
     {
       "name": "direct_scene_candidate_snapshot",
@@ -17,7 +20,7 @@
     {
       "name": "scene_overflow_contact_accessibility_regression",
       "state": "SOURCE_UNEXECUTED",
-      "changed": "Focused Java and Python source pin one-size/zero-read max+1 rejection, exact-max <=64 reads, last-good visible contact, preserved touch/content-description semantics, and frame/node no-motion."
+      "changed": "Focused Java source pins one-size/zero-read max+1 rejection, exact-max <=64 reads, last-good visible contact, preserved touch/content-description semantics, and frame/node no-motion. Python owner-order source now additionally requires helper-scoped candidates.size() count == 1."
     },
     {
       "name": "direct_policy_selection_collection",
@@ -31,14 +34,14 @@
     }
   ],
   "skillLights": {
-    "failureIsTheShovel": "LIT: promoted the corrected third scene-list repair, then kept the neighboring policy API RED instead of declaring collection custody universal.",
+    "failureIsTheShovel": "LIT: promoted the corrected third scene-list repair, then attacked the regression itself and added an exact one-size source predicate instead of assuming its wording proved the claim.",
     "canonAutoSelect": "LIT: reused HeartbeatEnvelopeParser.MAX_LIGHTS and existing owners; no parallel cardinality authority.",
-    "originalityTax": "LIT: did not repeat count-only or isEmpty+size repairs rejected last pulse; applied one-size+bounded-index snapshot.",
+    "originalityTax": "LIT: did not repeat count-only or isEmpty+size repairs rejected last pulse; applied one-size+bounded-index snapshot and tightened its proof.",
     "hungerEatEverything": "LIT: crossed from scene composition into the independent direct public policy selection boundary.",
     "operatorCampaignHarroway": "LIT: remote GitHub owner mutation, regressions, provenance, doctrine, reviews, and receipts stayed on PR #329.",
     "sheRaw": "FAULT: authoritative hostile critique attempted; account connection HTTP 400; no synthetic substitute.",
     "venice": "LIT: bounded source checkpoint allowed; direct policy owner mutation + regression execution + test/runtime remain continue-required.",
-    "regnet": "LIT: scene source pass; policy selection revise-required; source regressions unexecuted; TESTED NO.",
+    "regnet": "LIT: scene source pass; one-size evidence tightened; policy selection revise-required; source regressions unexecuted; TESTED NO.",
     "accessibilityTalkBackTouch": "LIT: overflow regression preserves last-good node touch target/contentDescription and forbids frame/node motion; runtime TalkBack remains NO.",
     "deterministicRouting": "LIT: canonical MAX_LIGHTS is the reused authority; direct policy failure is explicit rather than counterfeit empty material state.",
     "evidenceCapabilityState": "LIT: SOURCE_WIRED, RED proposal, UNEXECUTED, TESTED/runtime/deployed/delivered remain separate.",
@@ -49,11 +52,11 @@
     "christmasLightSceneGraph": "LIT_CONSTRAINT: rejected over-ceiling scene refresh cannot manufacture transition motion.",
     "phoneRuntimePhoneHands": "DARK_FIREWALL: no fresh P0 execution predicate change was needed or consumed."
   },
-  "crossPollination": "Canonical parser MAX_LIGHTS parity made direct scene collection work executable; applying the bounded snapshot made the downstream policy calls safe only by composition, which exposed direct HeartbeatSkillPolicy selection as a separate public resource boundary. Accessibility/contact review then pinned last-good touch/speech semantics and Christmas-light no-motion on overflow without duplicating UI architecture.",
+  "crossPollination": "Canonical parser MAX_LIGHTS parity made direct scene collection work executable; applying the bounded snapshot made the downstream policy calls safe only by composition, which exposed direct HeartbeatSkillPolicy selection as a separate public resource boundary. Accessibility/contact review pinned last-good touch/speech semantics and Christmas-light no-motion on overflow. Failure Is The Shovel then attacked the proof itself: the source fixture now requires exactly one candidates.size() occurrence in the helper, while the Java counting List remains the eventual executable behavior pin.",
   "executionTruth": {
-    "buildAndroid": {"run": 33091460779, "conclusion": "failure"},
-    "homeCenterCi": {"run": 33091460677, "conclusion": "failure"},
-    "operatorOverlayAndroid": {"run": 33091460670, "job": 98585084702, "conclusion": "failure", "steps": 0},
+    "buildAndroid": {"run": 33091784749, "conclusion": "failure"},
+    "homeCenterCi": {"run": 33091784753, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33091784810, "job": 98586233215, "conclusion": "failure", "steps": 0},
     "manualRetry": false,
     "regressionExecuted": false,
     "tested": false
