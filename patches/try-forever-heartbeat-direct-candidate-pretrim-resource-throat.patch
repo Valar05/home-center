@@ -1,12 +1,14 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
 # OWNER BASE BLOB: 5b5f89174da52b7fff742fdad4e2c103281424fc
+# APPLIED COMMIT: 2c2ba7fcbfbbb54d45e8638cf4ac9991b28367f5
+# OWNER RESULT BLOB: a0cfad7ce47455d06d83607f4e5ebdf71b9aada5
 # PURPOSE: Bound direct/legacy Candidate raw String work before semantic safety scanning and trim without changing canonical parser or accepted typed-field limits.
 # LAW: post-trim typed bound parity != finite pre-trim source work.
-# PROPOSED SOURCE THROAT: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS per raw Candidate String field before isSafeSemanticText(...) or trim().
+# SOURCE THROAT: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS per raw Candidate String field before isSafeSemanticText(...) or trim().
 # PRESERVE: canonical parser behavior; ordinary direct source at/below the raw work ceiling; smaller typed field bounds; exact accepted field contents after existing trim semantics; speech projection ownership; P0/phone firewall.
-# REGRESSION: HeartbeatTypedSourceHardeningTest.directCandidatePretrimSourceWorkHasIndependentFiniteThroat (RED SOURCE / UNEXECUTED)
-# CAPABILITY: DIRECT_CANDIDATE_PRETRIM_RESOURCE_CUSTODY_NO / PROPOSED_NOT_APPLIED / TESTED_NO
+# REGRESSION: HeartbeatTypedSourceHardeningTest.directCandidatePretrimSourceWorkHasIndependentFiniteThroat (SOURCE / UNEXECUTED)
+# CAPABILITY: DIRECT_CANDIDATE_PRETRIM_RESOURCE_CUSTODY_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
