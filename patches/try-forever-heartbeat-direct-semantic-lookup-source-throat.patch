@@ -1,0 +1,75 @@
+# STATUS: PROPOSED_NOT_APPLIED
+# OWNER 1: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
+# OWNER 1 BASE BLOB: 4d49dc7227d9b2bbb7abf0123df5537782176b60
+# OWNER 2: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java
+# OWNER 2 BASE BLOB: a7a80e887dc233a4e242ec50e21523895a605801
+# PURPOSE: Bound direct semantic-id lookup work before trim/case-fold while preserving accepted scene/control identity and existing owners.
+# LAW: SMALL/CANONICAL SEMANTIC ID CONTRACT != BOUNDED DIRECT LOOKUP WORK.
+# SOURCE THROAT: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS before trim()/Locale.ROOT case-fold in public direct lookup paths.
+# PRESERVE: exact accepted node/control ids; case-insensitive lookup semantics at/below the source ceiling; stable-id detail lookup; focus-index lookup; selection/motion ownership; P0/phone firewall.
+# REGRESSION: tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py (RED SOURCE / UNEXECUTED)
+# CAPABILITY: DIRECT_SEMANTIC_LOOKUP_SOURCE_WORK_CUSTODY_NO / PROPOSED_NOT_APPLIED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java
+@@
+ public final class HeartbeatFrameAccessibility {
+@@
+     public static final int MAX_COLLAPSED_LABEL_CODE_POINTS = 64;
++    /** Broad direct lookup throat before trim/case-fold; typed scene ids stay exact. */
++    public static final int MAX_DIRECT_NODE_ID_SOURCE_CODE_UNITS =
++            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+@@
+     public static String detailContentDescription(
+             HeartbeatSceneGraph.Frame frame,
+             String nodeId) {
+         if (frame == null) return "";
+-        String target = clean(nodeId).toLowerCase(Locale.ROOT);
++        String target = boundedLookupId(nodeId);
+         if (target.isEmpty()) return "";
+@@
+     public static int focusIndexForId(HeartbeatSceneGraph.Frame frame, String nodeId) {
+         if (frame == null) return -1;
+-        String target = clean(nodeId).toLowerCase(Locale.ROOT);
++        String target = boundedLookupId(nodeId);
+         if (target.isEmpty()) return -1;
+@@
++    private static String boundedLookupId(String value) {
++        if (value == null || value.length() > MAX_DIRECT_NODE_ID_SOURCE_CODE_UNITS) return "";
++        return clean(value).toLowerCase(Locale.ROOT);
++    }
++
+     private static String clean(String value) {
+         return value == null ? "" : value.trim();
+     }
+ }
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java
+@@
+ public final class HeartbeatOverlayViewModel {
+@@
+     public static final int MAX_VISIBLE_LABEL_CODE_POINTS = 72;
++    /** Broad direct lookup throat before trim/case-fold; accepted control ids stay exact. */
++    public static final int MAX_DIRECT_CONTROL_ID_SOURCE_CODE_UNITS =
++            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+@@
+         /** Stable semantic lookup for selection retention across scene reordering. */
+         public LightControl controlById(String id) {
+-            String target = clean(id).toLowerCase(Locale.ROOT);
++            String target = boundedControlLookupId(id);
+             if (target.isEmpty()) return null;
+@@
+     private static String boundedLabel(String value) {
+@@
+     }
++
++    private static String boundedControlLookupId(String value) {
++        if (value == null || value.length() > MAX_DIRECT_CONTROL_ID_SOURCE_CODE_UNITS) return "";
++        return clean(value).toLowerCase(Locale.ROOT);
++    }
+ 
+     private static String raw(String value) {
