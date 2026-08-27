@@ -9,10 +9,17 @@ package com.homecenter.operatoroverlay;
  * enabled/disabled semantics tied to the exact request-admission rule over inventing
  * a new repeated announcement receipt.</p>
  *
+ * <p>Small post-trim request semantics do not authorize unbounded work before trim.
+ * This policy reuses the overlay's existing broad direct-source ceiling before
+ * materializing/trimming the editable value. Oversized direct input is unavailable;
+ * it is not truncated, normalized, or converted into a smaller request. The bounded
+ * length observation does not claim callback-free admission for arbitrary custom
+ * CharSequence implementations.</p>
+ *
  * <p>This source intentionally mirrors the owner's current {@link String#trim()}
- * admission boundary instead of silently broadening whitespace semantics. Any future
- * request-normalization change must update owner admission and availability together.
- * Mode-specific action wording remains owned by
+ * admission boundary for admitted values instead of silently broadening whitespace
+ * semantics. Any future request-normalization change must update owner admission and
+ * availability together. Mode-specific action wording remains owned by
  * {@link AdamSendActionAccessibilityPolicy}. Editable value and READY/SENT context
  * remain owned by {@link AdamInputResultAccessibilityPolicy}. This policy owns no
  * Button, TextWatcher, request transport, announcement, controller, phone execution,
@@ -20,6 +27,13 @@ package com.homecenter.operatoroverlay;
  * owner.</p>
  */
 public final class AdamSendAvailabilityAccessibilityPolicy {
+    /**
+     * Broad finite direct-source work budget. Reuse the existing overlay envelope
+     * ceiling rather than growing an Adam-only magic number table.
+     */
+    public static final int MAX_REQUEST_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+
     public static final class Decision {
         public final AdamModeSelectionAccessibilityPolicy.Mode mode;
         public final boolean enabled;
@@ -49,7 +63,13 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
         return new Decision(action.mode, enabled, action.actionDescription);
     }
 
+    public static boolean sourceWithinWorkBudget(CharSequence editableValue) {
+        return editableValue == null
+                || editableValue.length() <= MAX_REQUEST_SOURCE_CODE_UNITS;
+    }
+
     public static boolean hasMaterialRequest(CharSequence editableValue) {
-        return editableValue != null && !editableValue.toString().trim().isEmpty();
+        if (editableValue == null || !sourceWithinWorkBudget(editableValue)) return false;
+        return !editableValue.toString().trim().isEmpty();
     }
 }
