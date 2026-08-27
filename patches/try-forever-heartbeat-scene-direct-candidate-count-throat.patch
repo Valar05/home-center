@@ -1,10 +1,11 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java
 # OWNER BASE BLOB: 4012d09b10b72956a546276175f16504882148eb
-# PURPOSE: Preserve canonical MAX_LIGHTS cardinality at direct complete-scene ingress before duplicate/material traversal.
-# LAW: CANONICAL PARSER LIGHT COUNT != UNBOUNDED DIRECT SCENE LIST; SAFE CANDIDATE FIELDS DO NOT BOUND LIST CARDINALITY WORK.
+# PURPOSE: Preserve canonical MAX_LIGHTS cardinality at direct complete-scene ingress and detach the admitted candidate references before duplicate/material traversal.
+# LAW: CANONICAL PARSER LIGHT COUNT != UNBOUNDED DIRECT SCENE LIST; SAFE CANDIDATE FIELDS DO NOT BOUND LIST CARDINALITY WORK; ONE SIZE OBSERVATION + <=MAX_LIGHTS INDEXED READS != REPEATED CALLER LIST TRAVERSAL.
 # REUSE: HeartbeatEnvelopeParser.MAX_LIGHTS; preserve incomplete-pulse early stop and last-good/no-motion rejection.
-# CAPABILITY: DIRECT_SCENE_CANDIDATE_COUNT_CUSTODY_NO / PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
+# LIMIT: Java List.size()/get() remain caller-interface calls; this proposal bounds their count after one size observation but does not claim callback-free arbitrary-List admission.
+# CAPABILITY: DIRECT_SCENE_CANDIDATE_COUNT_CUSTODY_NO / CORRECTED_PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java
@@ -14,7 +15,10 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          if (attempted.isEmpty()) {
              return preserveLastGood("", lastGood, "Pulse identity is missing.");
          }
-+        if (candidates != null && candidates.size() > HeartbeatEnvelopeParser.MAX_LIGHTS) {
+-        if (hasDuplicateMaterialIdentity(candidates)) {
++        List<HeartbeatSkillPolicy.Candidate> boundedCandidates =
++                snapshotDirectCandidates(candidates);
++        if (boundedCandidates == null) {
 +            return preserveLastGood(
 +                    attempted,
 +                    lastGood,
@@ -22,6 +26,32 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                            + HeartbeatEnvelopeParser.MAX_LIGHTS
 +                            + " lights.");
 +        }
-         if (hasDuplicateMaterialIdentity(candidates)) {
++        if (hasDuplicateMaterialIdentity(boundedCandidates)) {
              return preserveLastGood(
                      attempted,
+                     lastGood,
+                     "Duplicate material heartbeat light identity is ambiguous.");
+         }
+ 
+         List<HeartbeatSkillPolicy.Candidate> material =
+-                HeartbeatSkillPolicy.selectMaterialLights(candidates);
++                HeartbeatSkillPolicy.selectMaterialLights(boundedCandidates);
+         List<HeartbeatSkillPolicy.Candidate> selected =
+-                HeartbeatSkillPolicy.selectDisplayReadyLights(candidates);
++                HeartbeatSkillPolicy.selectDisplayReadyLights(boundedCandidates);
+@@
+         return next;
+     }
++
++    private static List<HeartbeatSkillPolicy.Candidate> snapshotDirectCandidates(
++            List<HeartbeatSkillPolicy.Candidate> candidates) {
++        if (candidates == null || candidates.isEmpty()) return Collections.emptyList();
++        int size = candidates.size();
++        if (size < 0 || size > HeartbeatEnvelopeParser.MAX_LIGHTS) return null;
++        List<HeartbeatSkillPolicy.Candidate> detached = new ArrayList<>(size);
++        for (int index = 0; index < size; index++) detached.add(candidates.get(index));
++        return Collections.unmodifiableList(detached);
++    }
+ 
+     private static boolean hasDuplicateMaterialIdentity(
+             List<HeartbeatSkillPolicy.Candidate> candidates) {
