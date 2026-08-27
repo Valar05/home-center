@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.AbstractList;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -72,6 +71,8 @@ public class HeartbeatDirectSceneCandidateSnapshotTest {
         assertTrue(rejected.refreshInterrupted);
         assertEquals("pulse-good", rejected.visiblePulseId);
         assertEquals("contact", rejected.nodes.get(0).id);
+        assertEquals(lastGood.nodes.get(0).touchTargetDp, rejected.nodes.get(0).touchTargetDp);
+        assertEquals(lastGood.nodes.get(0).contentDescription, rejected.nodes.get(0).contentDescription);
         assertFalse(rejected.transitionMotionAllowed);
         assertFalse(rejected.nodes.get(0).transitionMotion);
         assertTrue(rejected.refreshBoundary.contains("exceeds 64 lights"));
@@ -91,6 +92,6 @@ public class HeartbeatDirectSceneCandidateSnapshotTest {
         assertEquals(HeartbeatEnvelopeParser.MAX_LIGHTS, admitted.getCalls);
         assertFalse(frame.refreshInterrupted);
         assertEquals(HeartbeatEnvelopeParser.MAX_LIGHTS, frame.nodes.size());
-        assertFalse(frame.refreshBoundary.length() > 0);
+        assertEquals("", frame.refreshBoundary);
     }
 }
