@@ -27,9 +27,9 @@ package com.homecenter.operatoroverlay;
  *
  * <p>Direct callers are also finite-work callers. A small returned detail budget does
  * not bound the scan that discovers invisible controls, so every public traversal entry
- * point rejects source beyond the canonical evidence-source ceiling before code-point
- * iteration or marker expansion. This is a projection work throat, not a rewrite of the
- * exact canonical source.</p>
+ * point crosses the same broad direct-source work ceiling as the canonical envelope
+ * parser before code-point iteration or marker expansion. This is a projection work
+ * throat, not a rewrite of the exact canonical source or a second semantic-field gate.</p>
  *
  * <p>This class owns no parser, acceptance gate, scene, renderer, storage, transport,
  * phone surface, deployment, or P0 recovery action. Source projection is not consumer
@@ -44,9 +44,9 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     public static final int WORD_JOINER = 0x2060;
     public static final int BYTE_ORDER_MARK = 0xFEFF;
 
-    /** Direct projection work must remain inside the largest canonical evidence field. */
+    /** Broad direct-source work ceiling before explicit projection traversal. */
     public static final int MAX_SOURCE_CODE_UNITS =
-            HeartbeatEnvelopeParser.MAX_EVIDENCE_BOUNDARY_CHARS;
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     private static final String TRUNCATION_SUFFIX = "… (truncated)";
     private static final int TRUNCATION_SUFFIX_CODE_POINTS =
