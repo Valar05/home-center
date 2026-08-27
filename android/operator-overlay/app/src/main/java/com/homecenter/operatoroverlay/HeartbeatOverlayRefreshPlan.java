@@ -21,6 +21,10 @@ import java.util.Locale;
  * deployment, or delivery proof.</p>
  */
 public final class HeartbeatOverlayRefreshPlan {
+    /** Diagnostic boundary work budget for non-authoritative UI/dedup identities. */
+    public static final int MAX_REFRESH_BOUNDARY_IDENTITY_SOURCE_CODE_UNITS =
+            HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS;
+
     public static final class Plan {
         public final HeartbeatSceneGraph.Frame frame;
         public final HeartbeatOverlayViewModel.Model model;
@@ -110,6 +114,7 @@ public final class HeartbeatOverlayRefreshPlan {
         String transition = HeartbeatFrameCheckpoint.transitionSha256(frame);
         String interrupted = frame != null && frame.refreshInterrupted ? "1" : "0";
         String exactBoundary = frame == null ? "Heartbeat scene unavailable." : raw(frame.refreshBoundary);
+        String identityBoundary = refreshBoundaryIdentity(exactBoundary);
 
         // Ordered semantic ids define whether the native child structure itself
         // must change. Label/state/detail/touch semantics can be updated on the
@@ -126,12 +131,12 @@ public final class HeartbeatOverlayRefreshPlan {
                 "heartbeat-overlay-render.v2",
                 presentation,
                 interrupted,
-                exactBoundary);
+                identityBoundary);
         String announcementIdentity = digest(
                 "heartbeat-overlay-announcement.v1",
                 transition,
                 interrupted,
-                exactBoundary);
+                identityBoundary);
         return new Plan(
                 frame,
                 model,
@@ -298,6 +303,14 @@ public final class HeartbeatOverlayRefreshPlan {
             }
         }
         return sha256(canonical.toString());
+    }
+
+    private static String refreshBoundaryIdentity(String value) {
+        String exact = raw(value);
+        if (exact.length() > MAX_REFRESH_BOUNDARY_IDENTITY_SOURCE_CODE_UNITS) {
+            return "<refresh-boundary-source-limit:" + exact.length() + ">";
+        }
+        return exact;
     }
 
     private static String digest(String schema, String... values) {
