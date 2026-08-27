@@ -27,14 +27,16 @@ The existing `OperatorOverlayService` already carries a semantic selected id and
 
 `HeartbeatSelectionAccessibilityPolicy` defines source-only collection/item semantics from the already accepted `HeartbeatOverlayViewModel.Model`:
 - one single-selection collection when controls exist;
-- because the native control strip is a horizontal list, Android framework collection geometry is **rows = item count, columns = 1**;
-- each item uses zero-based `rowIndex=index`, `columnIndex=0` for native collection geometry;
+- because the native control strip is a horizontal row, Android collection geometry is **rows = 1, columns = item count**;
+- each item uses zero-based `rowIndex=0`, `columnIndex=index` for native collection geometry;
 - a separate source-level one-based `positionInSet=index+1` remains useful for human/set-order semantics;
 - semantic id remains the identity across reorder;
 - stale selection does not invent a replacement selection;
 - selection does not claim keyboard or accessibility focus ownership.
 
-The Android framework documentation models a horizontal list as one column with as many rows as list items. Do not transpose this custom `HorizontalScrollView` + horizontal `LinearLayout` owner into one row/many columns merely because some higher-level collection widgets use a different convention. That geometry distinction is a review boundary, not a reason to cargo-cult a RecyclerView implementation into this owner.
+The previous doctrine transposed this horizontal row into **rows=N / columns=1**. Fresh Android framework documentation contradicts that claim: `RecyclerView.LayoutManager.getRowCountForAccessibility(...)` defaults to `1` when vertical scrolling is not supported, while `getColumnCountForAccessibility(...)` defaults to the item count when horizontal scrolling is supported. This custom `HorizontalScrollView` + horizontal `LinearLayout` is not a RecyclerView, but the framework geometry supplies the correct orientation analogy: its visible horizontal order is modeled as columns within one row. Do not cargo-cult a RecyclerView implementation into this owner; do preserve the row/column meaning.
+
+Reference: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.LayoutManager
 
 ### Owner lifecycle application law
 Collection semantics belong to the **collection lifecycle**, not to each child-construction call.
@@ -62,6 +64,8 @@ Two review-ready accessibility repairs target the same authenticated native owne
 
 Therefore the canonical review-ready source surgery is now `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` with status **CANONICAL_PROPOSED_NOT_APPLIED**. The old standalone selection patch remains historical provenance with status **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE**. `tools/test_try_forever_heartbeat_owner_patch_convergence.py` pins the combined scope and preserves the owner/test/runtime membrane. This convergence changes patch topology only; it does not make native collection wiring true.
 
+The combined patch consumes `HeartbeatSelectionAccessibilityPolicy` fields rather than hard-coding row/column values, so the 2026-08-27 geometry correction updates the supporting semantics without changing the patch's exact owner blob lock. Owner wiring remains **NO** until that surgery is actually applied to `OperatorOverlayService`.
+
 ## Touch and motion
 Keep the existing minimum touch target and visible-focus contracts. Selection semantics do not authorize new animation. Christmas-light motion remains governed by material heartbeat transition identity; selecting a light to inspect detail is not a new heartbeat transition.
 
@@ -74,15 +78,15 @@ Keep these separate:
 
 A Java policy, JUnit source, DOM specimen, owner probe, or patch artifact is not runtime TalkBack proof.
 
-## Current PR #329 truth — 2026-08-21 22:59 CT
+## Current PR #329 truth — 2026-08-27 16:00 CT source checkpoint
 - persistent-selection reusable doctrine: **YES**;
 - broad heartbeat persistent-selection doctrine: **CONVERGED / APPLIED_SOURCE**;
 - doctrine convergence regression source: **YES / UNEXECUTED**;
 - corrected radio-style heartbeat DOM specimen: **SOURCE YES**;
-- `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES**;
-- Android framework horizontal geometry review: **ROWS=N / COLUMNS=1 RETAINED**;
-- deterministic JUnit source: **YES / UNEXECUTED**;
-- direct-owner source probe: **v2 / SOURCE YES / UNEXECUTED**;
+- `HeartbeatSelectionAccessibilityPolicy`: **SUPPORTING SOURCE YES / HORIZONTAL GEOMETRY CORRECTED**;
+- Android horizontal geometry: **ROWS=1 / COLUMNS=N**;
+- deterministic JUnit source: **YES / GEOMETRY CONVERGED / UNEXECUTED**;
+- direct-owner source probe: **SOURCE YES / UNEXECUTED**;
 - hostile owner fixture rejects per-light-only collection wiring: **YES / UNEXECUTED**;
 - canonical combined owner surgery: **YES / CANONICAL_PROPOSED_NOT_APPLIED**;
 - standalone native-selection surgery: **SUPERSEDED / DO_NOT_APPLY_ALONE**;
