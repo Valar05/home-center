@@ -1,10 +1,11 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: f4e4b602cfe91717cef02fab0394ea99558353d2
+# APPLIED OWNER BLOB: 1ec96c6c70a52565afac979ada233df4c61318b3
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
 # PURPOSE: Bound the direct Java-String compatibility adapter before UTF-8 encoding can process arbitrarily large caller-owned text.
 # PRESERVE: exact original String still reaches semantic validation at/below the source throat; strict byte/SHA/update verification; malformed UTF-16 remains visible to HeartbeatEnvelopeParser; byte-first projectBytes path unchanged; no phone/P0/runtime/deployment claim.
-# REGRESSION: android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java (RED SOURCE / UNEXECUTED)
-# CAPABILITY: PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
+# REGRESSION: android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java (SOURCE / UNEXECUTED)
+# CAPABILITY: APPLIED_SOURCE / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java
