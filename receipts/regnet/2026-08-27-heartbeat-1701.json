@@ -1,0 +1,35 @@
+{
+  "schema": "try-forever-regnet-v1",
+  "heartbeat": "2026-08-27T17:01:00-05:00",
+  "reviewedSourceHead": "d74982da6f68a4f070893cadb1760a087192e6b7",
+  "verdict": "PASS_BOUNDED_SOURCE__NATIVE_COLLECTION_LIVE_REGION_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "OperatorOverlayService base blob c5de1411a6b68087ae17aff83c032af754587150 exactly matched the canonical combined surgery before mutation.",
+    "Applied owner commit 47e7ac3410b48596ad22d1c72a94580133e1596f produced owner blob 2935243f136359e3489a89108406e888b0ec2911.",
+    "Horizontal collection geometry is delegated to HeartbeatSelectionAccessibilityPolicy: rows=1, columns=N, rowIndex=0, columnIndex=itemIndex.",
+    "Only HEARTBEAT_MATERIAL_TRANSITION migrated to gated one-shot live-region semantics; Spotify/detail/Adam announceForAccessibility receipts remain present.",
+    "WAITING, SKIP_UNCHANGED, and pre-contact clearing force the heartbeat summary live region to NONE.",
+    "Owner convergence regression and doctrine were updated as source only and remain unexecuted.",
+    "Exact reviewed source has zero PR workflow runs and zero commit statuses observed at checkpoint; TESTED remains NO.",
+    "She-Raw hostile critique was attempted and failed with account connection HTTP 400; no substitute reviewer was invented.",
+    "Phone/P0 consumption=0, mutation=0, duplicate architecture=0, new P0 finding=none."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "nativeCollectionOwnerWired": true,
+    "heartbeatMaterialTransitionOwnerWired": true,
+    "repeatableSpotifyDetailAdamMigrations": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
