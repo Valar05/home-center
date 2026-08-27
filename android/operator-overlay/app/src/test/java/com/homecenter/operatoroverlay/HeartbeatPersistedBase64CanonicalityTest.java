@@ -47,4 +47,30 @@ public final class HeartbeatPersistedBase64CanonicalityTest {
         assertFalse(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(null, "Zg=="));
         assertFalse(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip("Zg==", null));
     }
+
+    @Test
+    public void directComparisonWorkStopsAtCanonicalPersistedTextCeiling() {
+        int max = HeartbeatPersistedPollPolicy.MAX_PAYLOAD_B64_CHARS;
+        String exactMax = ascii(max);
+        String over = ascii(max + 1);
+
+        assertTrue(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                exactMax,
+                exactMax));
+        assertFalse(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                over,
+                over));
+        assertFalse(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                exactMax,
+                over));
+        assertFalse(HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                over,
+                exactMax));
+    }
+
+    private static String ascii(int length) {
+        char[] chars = new char[length];
+        for (int index = 0; index < chars.length; index++) chars[index] = 'A';
+        return new String(chars);
+    }
 }
