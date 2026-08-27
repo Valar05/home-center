@@ -100,16 +100,19 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
     public void directSelectedIdSourceWorkIsBoundedBeforeItemComparison() {
         HeartbeatOverlayViewModel.Model source = model("pulse-source-bound", "alpha", "beta");
         int max = HeartbeatSelectionAccessibilityPolicy.MAX_DIRECT_SELECTED_ID_SOURCE_CODE_UNITS;
+        String atMaxId = repeated('x', max);
+        String overId = repeated('x', max + 1);
 
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision atMax =
-                HeartbeatSelectionAccessibilityPolicy.fromModel(source, repeated('x', max));
+                HeartbeatSelectionAccessibilityPolicy.fromModel(source, atMaxId);
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision maxPlusOne =
-                HeartbeatSelectionAccessibilityPolicy.fromModel(source, repeated('x', max + 1));
+                HeartbeatSelectionAccessibilityPolicy.fromModel(source, overId);
 
         assertEquals(0, atMax.selectedCount());
         assertEquals(0, maxPlusOne.selectedCount());
         assertFalse(maxPlusOne.itemById("alpha").selected);
         assertFalse(maxPlusOne.itemById("beta").selected);
+        assertNull(maxPlusOne.itemById(overId));
     }
 
     @Test
