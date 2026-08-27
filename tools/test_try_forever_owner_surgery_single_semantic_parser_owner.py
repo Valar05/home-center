@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Regression source forbidding dormant local semantic-parser ownership in canonical v10.
 
-SOURCE ONLY / RED until the canonical owner removes parser fossils that became dead when
-parse_owner_surgery_observation(...) became the sole semantic producer for both backends.
+SOURCE ONLY / UNEXECUTED. Canonical v10 delegates both patch and delta semantics to
+parse_owner_surgery_observation(...); this fixture pins the removal of the dead local parser
+machinery without claiming regression execution, TESTED, runtime, deployment, or delivery.
 """
 
 import inspect
@@ -41,6 +42,9 @@ def main() -> int:
         "canonical v10 retains dormant local semantic-parser ownership after composition: "
         + ", ".join(present)
     )
+
+    assert hasattr(custody, "SHA1_RE"), "current-owner SHA custody must survive parser cleanup"
+    assert hasattr(custody, "parse_owner_surgery_observation")
 
     return 0
 
