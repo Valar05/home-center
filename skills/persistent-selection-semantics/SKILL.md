@@ -20,6 +20,7 @@ Use when a DOM/source specimen or native-inspired UI exposes multiple mutually e
 8. Keep touch targets and visible focus first-class. Reduced-motion behavior remains independent.
 9. A source specimen is not runtime accessibility proof. Source, test, runtime assistive-tech behavior, deployment, delivery, and acceptance remain separate states.
 10. Correct a recurring semantic failure at the reusable rule, not only at the latest specimen. Filename or art direction does not reset the contract.
+11. A direct selected-id query is its own source-work boundary. Safe canonical ids do not green-paint arbitrary public callers: bound raw selected-id work before repeated equality/case-fold comparisons, preserve admitted identity exactly, and fail oversized queries to no selection rather than truncating them into a plausible semantic id.
 
 ## Regression doctrine
 
@@ -32,13 +33,16 @@ Source review or fixtures should prove:
 - arrow navigation changes both focus and selected item deterministically;
 - Home/End boundaries are deterministic when implemented;
 - dynamic status text remains inert text;
-- touch/focus visibility remains intact.
+- touch/focus visibility remains intact;
+- direct selected-id input crosses a finite broad source-work throat before repeated item comparison, and over-ceiling input cannot invent a replacement selection.
 
 ## Current scars
 
 `docs/try-forever/heartbeat-swan-veil-semantic-scar-source.html` previously used persistent one-of-many `button[aria-pressed]` controls. The repaired source uses a radio group, `role=radio` + `aria-checked`, roving `tabindex`, and arrow/Home/End navigation. That is source semantics only; browser/screen-reader runtime behavior remains unproven until executed.
 
 `docs/try-forever/heartbeat-skill-lights-source-specimen.html` later repeated the same failure shape: a mutually exclusive selected light controlling one persistent detail surface was exposed as `aria-pressed`. The 2026-08-21 19:57 TRY FOREVER pulse applies this law to that specimen and harvests `heartbeat-native-selection-collection` for the corresponding Android source contract. Any older heartbeat doctrine sentence permitting `aria-pressed` for this persistent one-of-many light set is superseded by this skill; a toggle is not made correct by being warm, luminous, or called a heartbeat.
+
+`HeartbeatSelectionAccessibilityPolicy.fromModel(...)` now applies the same source-work law to its direct `selectedId` input: values above `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` become no selection before repeated `equalsIgnoreCase` work; admitted ids remain exact. This is **SOURCE_WIRED / regression source UNEXECUTED / runtime TalkBack NO**.
 
 ## Boundary
 
