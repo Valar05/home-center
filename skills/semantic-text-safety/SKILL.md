@@ -66,16 +66,15 @@ The duplicated *gate* is defense in depth; the directional-control definition li
 This remains source semantics only until the existing Operator Overlay runtime consumes the persisted payload, projects exact bytes, parses it, renders the scene, and exercises TalkBack through an authorized device lane.
 
 ## Owner-surgery discovery integration
-The owner-surgery semantic producer exposes the shared non-authoritative `project_owner_surgery_diagnostic_text(...)` organ. It accepts exact built-in strings only and projects them to bounded ASCII-safe diagnostic text. Canonical v10 now **does consume that projector** inside `_error(...)`; `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is `APPLIED_SOURCE`, with applied commit `23091256cf90ea6bea3afc111db348e014c85584` and resulting canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
+The owner-surgery semantic producer exposes the shared non-authoritative `project_owner_surgery_diagnostic_text(...)` organ. It accepts exact built-in strings only and projects them to bounded ASCII-safe diagnostic text. Canonical v10 consumes that projector inside `_error(...)`; `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is `APPLIED_SOURCE`, with applied commit `23091256cf90ea6bea3afc111db348e014c85584` and canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
 
-That applied consumption closes the earlier raw newline/bidi/surrogate echo wound, but authenticated source review exposes two distinct remaining boundaries:
+The semantic projector now also owns an independent **4,096-code-point direct source-work throat before whole-input encode/hash**. Over-ceiling non-authoritative prose returns a bounded ASCII marker and intentionally loses whole-input digest identity instead of hashing arbitrary caller text. This is **SOURCE_WIRED** in semantic owner blob `2540b6d11da67cad26fdd3943d3f8ee73ab1c91d`. Canonical path/artifact/Surgery evidence remains exact and is not rewritten by this projection policy.
 
-1. canonical `_error(...)` currently computes `str(exc)` **before** handing the resulting string to the safe projector, so an exception subclass can execute caller-owned `__str__` work inside the discovery diagnostic path;
-2. `project_owner_surgery_diagnostic_text(...)` returns at most a short segment but still computes a whole-input SHA-256 digest for any exact string longer than the returned-text ceiling, leaving direct diagnostic source work unbounded.
+One distinct RED boundary remains: canonical `_error(...)` still computes `str(exc)` **before** handing the result to the safe projector, so an exception subclass can execute caller-owned `__str__` work inside the discovery diagnostic path. Safe final ASCII text does not retroactively make that callback safe.
 
-These are **RED source boundaries**, not a rollback of the already-applied ASCII-safe consumer. `patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against semantic blob `a3abe553466da9760f534836ef36881b3cdf992d` and canonical blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`. It proposes a 4,096-code-point diagnostic source-work throat plus callback-free exception-argument projection inside the existing semantic-text organ. Over-ceiling diagnostic prose intentionally loses whole-input digest identity because projection is non-authoritative; canonical path/artifact/Surgery evidence stays exact.
+`patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` has therefore been narrowed to the remaining callback seam. It is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against semantic blob `2540b6d11da67cad26fdd3943d3f8ee73ab1c91d` and canonical blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`. It proposes callback-free exception-argument projection inside the existing semantic-text organ rather than a second sanitizer.
 
-`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is now **RED SOURCE / UNEXECUTED** for those two remaining wounds while retaining coverage of the already SOURCE_WIRED ASCII-safe projection. Dependency capability and consumer capability remain separate.
+`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is **RED SOURCE / UNEXECUTED** only because the canonical callback seam remains unwired. Its finite diagnostic source-work assertions now converge on SOURCE_WIRED semantics, but regression execution is still NO. Dependency capability and consumer capability remain separate.
 
 ## Regression fixtures
 For any semantic-ingestion path covered by this skill, preserve hostile fixtures for:
@@ -114,8 +113,8 @@ Current owner-surgery state is intentionally split:
 
 - shared ASCII-safe diagnostic projector: **SOURCE_WIRED**;
 - canonical discovery consumption of that projector: **SOURCE_WIRED / APPLIED_SOURCE**;
+- finite direct diagnostic source-work throat: **SOURCE_WIRED**;
 - callback-free exception diagnostic extraction: **NO / PROPOSED_NOT_APPLIED**;
-- finite direct diagnostic source-work throat: **NO / PROPOSED_NOT_APPLIED**;
 - hostile regression: **RED SOURCE / UNEXECUTED**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted/phone delivery: **NO**.
 
@@ -130,7 +129,7 @@ If a shared projector is SOURCE_WIRED but a canonical consumer still emits raw d
 
 If a canonical consumer calls `str(exc)` and *then* safely projects the resulting string, inspect the callback boundary before the projector. Safe output does not retroactively make unsafe source work safe.
 
-If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. A 16-character digest can still hide a megabyte-sized hot loop.
+If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. Once a finite source throat is SOURCE_WIRED, do not keep describing that seam as proposed merely because a neighboring callback seam remains red.
 
 ## Done
 This skill has materially contributed only when it changes a parser/policy/scene constraint, regression fixture, accessibility rule, or exact evidence boundary in the current mission. Naming the skill without such a consequence is decorative and stays dark.
