@@ -72,15 +72,13 @@ This remains source semantics only until the existing Operator Overlay runtime c
 ## Owner-surgery discovery integration
 The owner-surgery semantic producer exposes two shared non-authoritative organs: `project_owner_surgery_diagnostic_text(...)` for exact built-in diagnostic strings and `project_owner_surgery_exception_diagnostic(...)` for callback-free exception type/message projection. The latter inspects bounded base exception arguments without invoking caller-owned `__str__` or `__repr__`.
 
-Canonical v10 consumes the ASCII-safe string projector inside `_error(...)`; `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is `APPLIED_SOURCE`, with applied commit `23091256cf90ea6bea3afc111db348e014c85584` and canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
+Canonical v10 first acquired ASCII-safe string projection inside `_error(...)` through `patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch`, applied commit `23091256cf90ea6bea3afc111db348e014c85584` and prior canonical owner blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`.
 
 The semantic projector also owns an independent **4,096-code-point direct source-work throat before whole-input encode/hash**. Over-ceiling non-authoritative prose returns a bounded ASCII marker and intentionally loses whole-input digest identity instead of hashing arbitrary caller text. The callback-free exception projector and finite source-work throat are both **SOURCE_WIRED** in semantic dependency blob `525bd5aefa82fd788490cef329e8262ca6987a4a`. Canonical path/artifact/Surgery evidence remains exact and is not rewritten by either projection policy.
 
-One distinct RED consumer boundary remains: canonical `_error(...)` still computes `str(exc)` instead of consuming the shared callback-free exception projector. Safe final ASCII text and a safe dependency do not retroactively make that canonical callback safe.
+Canonical v10 now consumes the callback-free exception projector directly inside `_error(...)`; it no longer computes `str(exc)` merely to produce non-authoritative discovery prose. `patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` is **APPLIED_SOURCE** against canonical base blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`, applied commit `d371f5debd2e1a2f73de683462753758386afe23`, producing canonical owner blob `c20cda131e39d0d2415d533f787827b95c912e4d`. Canonical capability source now reports `callbackFreeDiscoveryExceptionProjection=true`.
 
-`patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch` is now narrowed to that canonical consumer seam only. It is an exact base-blob-locked `CORRECTED_PROPOSED_NOT_APPLIED` surgery against canonical blob `6de62efa07df4dabbb408ca77a427e83fbc4e883`, consuming semantic dependency blob `525bd5aefa82fd788490cef329e8262ca6987a4a`. It proposes no second sanitizer.
-
-`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is **RED SOURCE / UNEXECUTED** only because the canonical callback consumer remains unwired. Its shared-helper and finite source-work assertions now converge on SOURCE_WIRED semantics, but regression execution is still NO. Dependency capability and consumer capability remain separate.
+`tools/test_try_forever_owner_surgery_discovery_error_projection.py` is **CONVERGENCE SOURCE / UNEXECUTED**. It covers the finite shared source-work throat, exact built-in diagnostic admission, hostile exception `__str__` and `__repr__`, hostile non-string exception payloads, bounded exception-argument fanout, newline/bidi/lone-surrogate projection, and canonical ASCII boundary behavior. Source convergence does not prove regression execution or TESTED capability.
 
 ## Regression fixtures
 For any semantic-ingestion path covered by this skill, preserve hostile fixtures for:
@@ -97,7 +95,9 @@ For any semantic-ingestion path covered by this skill, preserve hostile fixtures
 - a swan-heavy direct-source label that exceeds the focused speech budget while Candidate.label remains exact;
 - an oversized but safe interrupted-refresh boundary/pulse id whose speech projection truncates by code point while Frame evidence remains exact;
 - an unsafe pre-parser rejection boundary that remains exact in Frame.refreshBoundary but is replaced with a safe speech placeholder;
-- a hostile exception subclass whose `__str__` callback must not execute merely to produce human-facing discovery prose;
+- a hostile exception subclass whose `__str__` and `__repr__` callbacks must not execute merely to produce human-facing discovery prose;
+- a hostile non-string exception argument whose `__str__` and `__repr__` must not execute merely to make diagnostic output prettier;
+- exception argument fanout over the shared ceiling, proving projection collapses the payload instead of traversing or stringifying arbitrary argument content;
 - a diagnostic source at source-ceiling max/max+1 proving over-ceiling projection stops before whole-input encode/hash;
 - oversized direct routine-speech source proving the plain-text projector stops at its finite work window;
 - a surrogate pair straddling that source-work edge, proving the finite window never manufactures malformed UTF-16.
@@ -117,14 +117,14 @@ A committed parser/policy/scene repair proves **implemented source** after exact
 
 Keep `requested -> implemented -> tested -> deployed -> callable -> executed -> delivered -> accepted` separate. A source-side semantic safety repair does not reopen a gated phone lane or authorize P0 recovery work.
 
-Current owner-surgery state is intentionally split:
+Current owner-surgery state is intentionally explicit:
 
 - shared ASCII-safe diagnostic projector: **SOURCE_WIRED**;
 - finite direct diagnostic source-work throat: **SOURCE_WIRED**;
 - shared callback-free exception diagnostic projector: **SOURCE_WIRED**;
 - canonical discovery ASCII projection consumer: **SOURCE_WIRED / APPLIED_SOURCE**;
-- canonical callback-free exception consumer: **NO / PROPOSED_NOT_APPLIED**;
-- hostile regression: **RED SOURCE / UNEXECUTED**;
+- canonical callback-free exception consumer: **SOURCE_WIRED / APPLIED_SOURCE**;
+- hostile regression: **CONVERGENCE SOURCE / UNEXECUTED**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted/phone delivery: **NO**.
 
 ## Failure Is The Shovel
@@ -136,9 +136,11 @@ If exact evidence is safe to retain but too large or unsafe to speak, do not sol
 
 If a shared projector is SOURCE_WIRED but a canonical consumer still emits or creates unsafe diagnostic text, keep the consumer RED. Dependency capability is not transitive owner capability.
 
-If a canonical consumer calls `str(exc)` and *then* safely projects the resulting string, inspect the callback boundary before the projector. Safe output does not retroactively make unsafe source work safe.
+If a canonical consumer calls `str(exc)` and *then* safely projects the resulting string, inspect the callback boundary before the projector. Safe output does not retroactively make unsafe source work safe. Once the consumer is repaired, converge the regression and doctrine instead of leaving the old RED story behind.
 
-If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. Once a finite source throat is SOURCE_WIRED, do not keep describing that seam as proposed merely because a neighboring consumer seam remains red.
+If a bounded projector digests an arbitrarily large exact source to produce a tiny marker, inspect source-work rather than returned-text size. Once a finite source throat is SOURCE_WIRED, do not keep describing that seam as proposed merely because a neighboring seam was historically red.
+
+If a callback-free exception helper accepts arbitrary payload objects, prove those objects are never stringified or repr-rendered just to improve a diagnostic. Bound argument fanout independently from the final returned message.
 
 If a TalkBack helper returns a tiny ellipsized string but still trims, counts, or regex-walks an arbitrary direct-source string, the returned budget has not solved resource custody. Bound the work without rewriting canonical source.
 
