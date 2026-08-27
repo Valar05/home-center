@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RED source regression for persistent heartbeat selection doctrine convergence.
+"""Source regression for persistent heartbeat selection doctrine convergence.
 
 Repository-source evidence only. This does not execute Android, exercise TalkBack,
 render the overlay, or touch the phone/P0 chain.
@@ -32,12 +32,18 @@ def main() -> int:
 
     assert "`PERSISTENT ONE-OF-MANY ≠ TOGGLE`" in native
     assert "radio-style contract" in selection
+    assert "rows = 1, columns = item count" in native
+    assert "rowIndex=0" in native and "columnIndex=index" in native
+    assert "horizontal one-dimensional strip is one row" in selection
+    assert "rows=N / columns=1" in native, (
+        "native doctrine should preserve the prior transposed geometry as an explicit scar"
+    )
     assert 'role="radiogroup"' in specimen
     assert 'role="radio"' in specimen
     assert 'aria-checked="true"' in specimen
     assert "aria-pressed" not in specimen
 
-    print("Heartbeat persistent-selection doctrine converged on radio semantics: PASS")
+    print("Heartbeat persistent-selection doctrine converged on radio + horizontal geometry: PASS")
     return 0
 
 
