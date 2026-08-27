@@ -1,15 +1,18 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER 1: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java
 # OWNER 1 BASE BLOB: 021f4e6f672002762848b46c6ef42eb4d1d3f0a4
+# OWNER 1 APPLIED COMMIT: da807bd09b2797b48cd31bf563a155d1d15baf1b
+# OWNER 1 RESULT BLOB: 4012d09b10b72956a546276175f16504882148eb
 # OWNER 2: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
 # OWNER 2 BASE BLOB: 483257e1d1aca72610dc632a8343a96f0262e0d6
+# OWNER 2 APPLIED COMMIT: e32217ed58d630126d1056a3a9466113a1089458
+# OWNER 2 RESULT BLOB: 0ebc584bfe0cb3837f97495751f4e9fc3bbcf76a
 # PURPOSE: Preserve exact interrupted-refresh boundary evidence while bounding non-authoritative speech scanning and render/announcement identity work.
 # LAW: EXACT DIAGNOSTIC EVIDENCE != UNBOUNDED HUMAN/DEDUP SOURCE WORK.
 # SOURCE THROAT: HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS (4096 UTF-16 code units) before whole-boundary semantic scan or digest materialization.
 # PRESERVE: Frame.refreshBoundary exact evidence; last-good contact; attempted-pulse suppression; no-motion rejection; ordinary bounded boundary speech; render/announcement semantics at/below the throat; P0/phone firewall.
-# REGRESSION: tools/test_try_forever_heartbeat_refresh_boundary_source_work.py (RED SOURCE / UNEXECUTED)
-# CAPABILITY: REFRESH_BOUNDARY_SPEECH_AND_IDENTITY_SOURCE_WORK_CUSTODY_NO / CORRECTED_PROPOSED_NOT_APPLIED / TESTED_NO
-# CORRECTION: removed one leading-space patch delimiter that made the second file hunk non-canonical as a unified diff.
+# REGRESSION: tools/test_try_forever_heartbeat_refresh_boundary_source_work.py + HeartbeatInterruptedRefreshSpeechBudgetTest + HeartbeatRefreshBoundaryIdentitySourceWorkTest (SOURCE / UNEXECUTED)
+# CAPABILITY: REFRESH_BOUNDARY_SPEECH_AND_IDENTITY_SOURCE_WORK_CUSTODY_SOURCE_WIRED / APPLIED_SOURCE / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java
@@ -30,11 +33,6 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                                    MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS,
 +                                    "Heartbeat refresh boundary contains unsafe semantic text.");
              String boundary = spokenBoundary.isEmpty() ? "" : " Boundary: " + spokenBoundary;
-@@
-         private Frame(
-@@
--            this.refreshBoundary = raw(refreshBoundary);
-+            this.refreshBoundary = raw(refreshBoundary);
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
