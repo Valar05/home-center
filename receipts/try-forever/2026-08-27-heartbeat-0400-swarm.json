@@ -1,0 +1,82 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-27-heartbeat-0400",
+  "previousPublicationHead": "08bfe4d3274f69bef069e5401c4400deda8943ba",
+  "reviewedSourceHead": "44d4cb2018c41d7433d5c2ec450e9af82c9248aa",
+  "changeCustody": {"commits": 6, "paths": 5, "unexpectedPaths": 0},
+  "fronts": {
+    "directCandidatePretrim": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "ownerBlob": "a0cfad7ce47455d06d83607f4e5ebdf71b9aada5",
+      "appliedCommit": "2c2ba7fcbfbbb54d45e8638cf4ac9991b28367f5"
+    },
+    "directPulseSourceWork": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "ownerBlob": "021f4e6f672002762848b46c6ef42eb4d1d3f0a4",
+      "appliedCommit": "f2d76ace9f65429f6725a9f74c1adf95e46dfe6f",
+      "contactPreservation": "last-good retained; over-ceiling attempted identity suppressed; motion clamped"
+    },
+    "sourceBoundParitySkill": "CONVERGED_SOURCE",
+    "candidateAndPulseRegressions": "SOURCE_UNEXECUTED",
+    "canonicalCallbackFreeDiscoveryConsumer": "CORRECTED_PROPOSED_NOT_APPLIED"
+  },
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "contact preservation",
+      "heartbeat-source-bound-parity"
+    ],
+    "dark": {
+      "Autocorrect Judgment Jar": "no material ambiguous token affected routing or authority",
+      "strange non-raster art / Warm Walls": "existing 56px/focus/non-color/SVG/reduced-motion source specimen reviewed; no interaction-topology change justified mutation",
+      "Christmas-light scene graph": "no runtime motion contract changed",
+      "Phone Runtime / Phone Hands": "binding shared-surface firewall",
+      "P0 Fortress": "binding conductor firewall"
+    }
+  },
+  "crossPollination": "Candidate pre-trim repair made the broader direct-source law executable; Eat Everything applied the same skepticism to raw pulse identity and found semantic scan/trim before the typed pulse bound. That second owner was repaired with the same canonical envelope ceiling, and Regnet expanded source fixtures to preserve last-good contact and distinguish broad work bounds from smaller typed bounds. Source-bound doctrine was then converged without creating a second parser, scene owner, overlay controller, or recovery lane.",
+  "executionTruth": {
+    "homeCenterCi": {"runId": 33057376962, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33057376984, "conclusion": "failure"},
+    "operatorOverlay": {"runId": 33057377013, "jobId": 98467431303, "conclusion": "failure", "steps": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": "ATTEMPTED_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "membrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
