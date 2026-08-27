@@ -8,7 +8,7 @@ A display-ready direct-source candidate MUST satisfy the same post-trim Java `St
 
 The root pulse identity is part of the same contract. `HeartbeatSceneGraph.build(String pulseId, ...)` MUST reject any post-trim pulse id larger than `HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS`, and `preserveRejectedRefresh(...)` MUST NOT retain an oversized attempted pulse id as diagnostic frame state. Canonical parser rejection, direct scene ingress, and pre-parser rejection therefore cannot disagree about how large a pulse identity is allowed to become.
 
-The public parser itself is also a source boundary. Persisted bytes may be bounded upstream, but direct callers of `HeartbeatEnvelopeParser.parse(...)` do not inherit that byte custody automatically. The parser therefore needs its own finite pre-parse source-work throat **before** `trim()` or `JsonCursor` traversal. The proposed owner gate is `MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768`: values above it fail before blank normalization or JSON allocation; values at/below it continue through the existing strict parser. This is currently **RED / PROPOSED_NOT_APPLIED / regression source unexecuted** and must not be described as implemented until the exact existing owner changes.
+The public parser itself is also a source boundary. Persisted bytes may be bounded upstream, but direct callers of `HeartbeatEnvelopeParser.parse(...)` do not inherit that byte custody automatically. The existing parser now owns its finite pre-parse source-work throat **before** `trim()` or `JsonCursor` traversal. `MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768`: values above it fail before blank normalization or JSON allocation; values at/below it continue through the existing strict parser. This is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED** and must not be described as TESTED or runtime proof.
 
 This is a source/evidence safety rule, not merely a speech rule. TalkBack projections intentionally use smaller Unicode-code-point budgets, but those projection limits do not protect scene hashing, checkpoint identity, native semantic ownership, touch detail, diagnostic frame state, parser allocation, or memory from an oversized source record.
 
@@ -34,7 +34,7 @@ Keep source fixtures for:
 - direct pulse identity exactly at `MAX_PULSE_ID_CHARS` being accepted;
 - direct pulse identity at `MAX_PULSE_ID_CHARS + 1` failing closed like canonical parsing;
 - pre-parser rejection suppressing an oversized attempted pulse id while preserving the exact rejection boundary and last-good contact;
-- a raw envelope exactly at the proposed public parser source ceiling still reaching existing parser semantics;
+- a raw envelope exactly at the public parser source ceiling still reaching existing parser semantics;
 - a raw envelope at source ceiling + 1 failing at the resource throat before blank normalization / JSON traversal.
 
 These fixtures are regression source until they actually execute. Never report their existence as `TESTED`.
@@ -43,6 +43,6 @@ These fixtures are regression source until they actually execute. Never report t
 
 Keep these states separate: requested, implemented source, exact repository readback, regression source, tested, runtime consumed, UI rendered, TalkBack exercised, deployed, callable, executed, delivered, accepted.
 
-Current direct Candidate/pulse source-bound parity is implemented source. The public envelope pre-parse resource throat is **NO / RED / PROPOSED_NOT_APPLIED** with regression source **YES / UNEXECUTED**. Neither state is runtime or phone proof.
+Current direct Candidate/pulse source-bound parity is implemented source. The public envelope pre-parse resource throat is **SOURCE_WIRED / APPLIED_SOURCE** with regression source **YES / UNEXECUTED**. Neither state is runtime or phone proof.
 
 This skill owns no renderer, overlay controller, transport, phone execution surface, recovery daemon, or P0 coordination. Compose existing organs only.
