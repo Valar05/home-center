@@ -1,103 +1,92 @@
 # Heartbeat Refresh Deduplication
 
 ## Purpose
-Keep a fast polling loop from becoming a fast UI rebuild loop or a TalkBack chatter loop. The existing Operator Overlay may poll persisted heartbeat state frequently, but UI work is earned only by semantic presentation change.
+Keep a fast polling loop from becoming a fast UI rebuild loop or a TalkBack chatter loop. UI work is earned by semantic presentation change, not by poll frequency, timestamps, or invisible evidence churn.
 
 ## Ownership boundary
-This skill owns **source planning plus composition into the existing UI owner**. It does not create or own a second Android service, renderer, state store, transport, queue, phone executor, P0 recovery action, deployment, delivery, or acceptance lane.
+This skill owns source planning plus composition into the existing Operator Overlay owner. It does not create or own a second Android service, renderer, state store, transport, queue, phone executor, P0 recovery action, deployment, delivery, or acceptance lane.
 
 Compose existing organs in this order:
 
-`OperatorState persisted byte/SHA identity -> HeartbeatPersistedEnvelopeProjection -> HeartbeatSceneGraph.Frame -> HeartbeatOverlayViewModel -> HeartbeatOverlayRefreshPlan -> existing OperatorOverlayService child views`
+`OperatorState persisted identity -> HeartbeatPersistedEnvelopeProjection -> HeartbeatSceneGraph.Frame -> HeartbeatOverlayViewModel -> HeartbeatOverlayRefreshPlan -> existing OperatorOverlayService child views`
 
 Do not bypass the parser/scene gate and do not create a neighboring overlay controller.
 
 ## Four identities, four jobs
-Keep exact evidence identity separate from UI work identity:
+Keep exact evidence identity separate from UI-work identity:
 
-- **exact contact/checkpoint identity** (`HeartbeatFrameCheckpoint.contactSha256`) includes the accepted visible pulse id plus the full last-good contact surface. It exists for evidence/idempotence truth; a new pulse id is allowed to be a new exact checkpoint even when nothing visible changed. Exact semantic-id spelling is retained here because producer/source drift is evidence even when it does not change UI ownership.
-- **presentation identity** (`HeartbeatFrameCheckpoint.presentationSha256`) excludes the otherwise invisible accepted pulse id but includes ordered controls, labels, provenance/evidence detail, state, consequence, focus order, and touch targets. Semantic light ids are folded case-insensitively in this identity because material-light dedupe, model lookup, selection, native-child tags, and structure ownership already treat them case-insensitively. Every actually visible/spoken/touchable field remains exact.
-- **structure identity** changes only when the ordered semantic light-id set changes. Stable structure means existing native child objects are updated in place instead of destroyed/recreated, preserving keyboard/TalkBack focus opportunities.
-- **announcement identity** changes only when transition semantics change or a new interruption wound appears. Evidence-only/provenance-only refreshes and pulse-id-only retries must not become unsolicited speech.
+- **contact/checkpoint identity** includes the accepted visible pulse id and full last-good contact surface. It is evidence/idempotence truth.
+- **presentation identity** excludes the otherwise invisible accepted pulse id but includes the presented/touchable node surface. Semantic ids are case-folded only in this UI-work identity.
+- **structure identity** changes only when the ordered semantic light-id set changes. Stable structure means the existing native child objects can be updated in place.
+- **announcement identity** changes only for transition semantics or a new interruption wound.
 
-A case-only semantic-id drift such as `Regnet -> regnet` is therefore allowed to advance **exact checkpoint/evidence identity** while leaving **presentation, structure, and announcement identities unchanged** when every presented semantic field is otherwise identical. It earns no native rebuild, no in-place content refresh, no automatic speech, and no Christmas-light motion. Do not weaken exact evidence identity merely to make the UI quiet; narrow only the UI-work identity.
+Case-only semantic-id drift may advance exact checkpoint evidence while presentation/structure/announcement remain stable when every presented semantic field is otherwise identical. It earns no native rebuild, automatic speech, or Christmas-light motion.
 
-`HeartbeatOverlayRefreshPlan.renderIdentity` is derived from **presentation identity + interruption state + exact interruption boundary**, not from exact pulse/checkpoint identity. Therefore a producer may advance `pulseId` with an identical presented/touchable surface without earning native content churn. If a later refresh is interrupted, the interruption wound still changes render identity and the scene can speak the exact current visible pulse id through its bounded interrupted-refresh projection.
+## Interrupted-refresh diagnostic custody
+`Frame.refreshBoundary` is exact evidence and remains exact. Exact diagnostic evidence is not permission to spend unbounded work in human-facing projection or dedup hashing.
 
-Do not use wall-clock timestamps as semantic identities. Do not rebuild, refresh, or announce merely because the service poll ran again, because an otherwise invisible pulse id advanced, or because a semantic id changed case without changing presented semantics.
+Current SOURCE_WIRED behavior:
 
-### Current capability scar
-`HeartbeatOverlayRefreshPlan` exposes the structure/presentation-render/speech split and the **existing `OperatorOverlayService` source consumes it**. The service keeps remembered structure/render/announcement identities; a changed structure identity earns the existing full child rebuild path, while stable structure plus changed render identity updates the existing semantic-id `Button` objects in place. Before any in-place mutation, child count/order/tag identity is verified case-insensitively; drift fails safe to the existing rebuild path instead of updating the wrong semantic control.
+- `Frame.interruptedRefreshDescription()` checks `HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS` before whole-boundary semantic scanning; admitted boundaries continue through the existing hard returned speech budget, while max+1 becomes one fixed source-work stop.
+- `HeartbeatOverlayRefreshPlan` derives a bounded `identityBoundary` before render/announcement SHA-256 materialization. At/below the throat, the exact boundary still distinguishes UI wounds. Above the throat, non-authoritative UI identity collapses to a deterministic marker keyed by Java `String.length()`; the exact frame evidence remains separate and unchanged.
+- last-good contact stays visible and all rejected-refresh transition motion remains clamped off.
 
-The existing service also consumes deterministic semantic viewport-restore policy for **stable in-place refresh, structural rebuild, and live-structure-drift fallback rebuild**. It captures a visible semantic owner before mutation, carries a generation-bound restore ticket through a one-shot pre-draw callback, and revalidates current interaction ownership plus the actual mutation class before moving the viewport. Direct keyboard focus, semantic selection, visible viewport contact, and TalkBack accessibility focus remain separate claims. This is existing-owner **source wiring**, not Android viewport/keyboard-focus/TalkBack runtime proof.
+Therefore `renderIdentity` and `announcementIdentity` are **not** whole-source hashes of arbitrary exact interruption prose anymore. Do not regress doctrine back to “exact interruption boundary is always hashed.”
 
-The automatic-speech path now also distinguishes **whole-overlay visibility** from **heartbeat-surface visibility** in the existing owner. `OperatorOverlayService` derives `overlayVisible` from the persisted hidden state plus root visibility, derives `heartbeatSurfaceVisible` from the existing `details` subtree visibility, and passes both into the five-argument `shouldAnnounce(...)` gate. Because `applyPresentationState()` makes `details` `GONE` when collapsed, a visible root no longer authorizes heartbeat speech from behind the collapsed wall at the source level.
-
-This is **EXISTING-OWNER SOURCE WIRING including the heartbeat-surface speech gate**, not Android execution, runtime focus-preservation proof, TalkBack runtime proof, deployment, phone delivery, or acceptance.
-
-## Cold-start, mute, and visibility rules
-An empty previous announcement identity means **unknown history**, not a proven transition. The first model may render, but automatic speech must stay quiet until there is an established prior semantic baseline and a later announcement identity differs. Do not narrate stale persisted state as though the service just witnessed it happen.
-
-Mute, whole-overlay visibility, and heartbeat-surface visibility are presentation gates, not semantic identities. A root overlay can remain visible while the heartbeat/details subtree is deliberately collapsed/GONE. In that state automatic heartbeat speech must remain silent. When a transition arrives while muted, hidden, or collapsed, suppress speech **but still advance the remembered announcement identity**. Unmuting, restoring, or expanding later must not replay the old transition as though it just happened.
-
-Explicit touch detail must honor the same global heartbeat-speech mute gate. Muting may not silence automatic status while leaving touch detail unexpectedly vocal.
+Applied provenance: `patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch`; scene base `021f4e6f672002762848b46c6ef42eb4d1d3f0a4` -> commit `da807bd09b2797b48cd31bf563a155d1d15baf1b` -> blob `4012d09b10b72956a546276175f16504882148eb`; refresh-plan base `483257e1d1aca72610dc632a8343a96f0262e0d6` -> commit `e32217ed58d630126d1056a3a9466113a1089458` -> later owner blob `e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6` after the independent direct-selection repair. Regression source is UNEXECUTED; TESTED remains NO.
 
 ## Stable selection, focus, and viewport contact
-Retain selection by semantic light `id`, never by focus index. Reordering the scene may move a control's focus position without changing which light the user selected. If the selected id disappears from the new accepted/preserved model, clear selection rather than silently selecting a different light.
+Retain selection by semantic light id, never by focus index. Reordering may move focus position without changing which light is selected. If the selected id disappears, clear selection rather than silently selecting another light.
 
-Do not confuse stable selection with stable native focus. When the ordered semantic-id structure is unchanged, update the existing child objects in place. Refresh their visible label, touch minimums, selected state, content description, semantic tag, and click-detail closure without replacing the `Button` instance. This preserves the native object that may currently hold keyboard/accessibility focus.
+Direct refresh-plan adapters are source boundaries too. `fromFrame(..., selectedControlId)` and `viewportAnchorId(selectedControlId, keyboardFocusedControlId, model)` now cross `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before adapter `trim()` and downstream case-fold lookup. Safe `Model.controlById(...)` did not retroactively bound the adapter work that preceded it. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
 
-Do not confuse stable native object identity with stable viewport contact either. A content-only refresh may change text width on an earlier sibling and slide the same selected/focused Button inside the horizontal content coordinate system. Existing-owner source wiring captures a semantic anchor plus viewport offset before mutation and restores that offset after layout with bounded restore policy. Structural rebuild and structure-drift fallback now use the same existing-owner generation-bound semantic ticket path. The policy clamps to the current scroll range, does not use wall-clock identity, and does not claim TalkBack accessibility-focus ownership or runtime focus preservation.
+Stable native object identity is not stable viewport contact. Existing-owner source wiring may preserve a semantic anchor and bounded viewport offset across in-place refresh/rebuild, but runtime keyboard-focus and TalkBack-focus behavior remain unproven until an authorized Android body observes them.
 
-If live Android child count/order/tag identity contradicts the deterministic structure identity, do **not** guess. Fall back to the existing rebuild path and re-establish the canonical child structure.
+## Remaining direct previous-identity wound
+The public decision helpers still accept arbitrary caller Strings for previous structure/render/announcement identities and currently call `clean(...)` before equality. Generated identities are tiny, but public direct callers do not inherit that fact automatically.
 
-## Contact preservation
-Storage/parser/Base64 rejection inherits the existing scene preservation contract:
+`patches/try-forever-heartbeat-refresh-plan-previous-identity-source-throat.patch` is an exact existing-owner proposal against blob `e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6`. It reuses the broad direct-source ceiling before trim/equality. `tools/test_try_forever_heartbeat_refresh_plan_previous_identity_source_work.py` pins the desired order. This seam is **RED SOURCE / PROPOSED_NOT_APPLIED / UNEXECUTED / TESTED_NO**.
 
-- show only last-good contact;
-- expose the interruption wound separately;
-- keep one-shot motion clamped off;
-- never surface discarded attempted candidates as current controls;
-- repeating the same wound must not earn repeated rebuild/refresh/announcement work.
+Do not green-paint this wound merely because normal service callers feed generated 64-hex identities.
 
-A wound that preserves the same visible child identities updates interruption metadata without requiring child replacement.
+## Cold-start, mute, visibility, and contact rules
+An empty previous announcement identity means unknown history, not a proven transition. The first model may render, but automatic speech stays quiet until a prior semantic baseline exists.
+
+Mute, whole-overlay visibility, and heartbeat-surface visibility are presentation gates, not semantic identities. Suppressed speech still advances remembered announcement identity so later unmute/restore/expand does not replay a stale transition.
+
+Storage/parser/Base64 rejection inherits the existing scene preservation contract: show only last-good contact, expose the interruption wound separately, clamp motion, never surface discarded attempted candidates, and do not repeat identical wound work.
 
 ## Accessibility contract
-A fast refresh loop must not reset TalkBack focus every poll. Existing-owner source wiring compares structure identity before replacing children, render identity before refreshing mutable content, and announcement identity before automatic status speech.
+A fast refresh loop must not reset accessibility contact every poll. Stable structure should keep native child identity; visible/touchable content refreshes are separate from structure replacement; semantic announcement identity is separate from rendering; and exact diagnostic evidence is separate from bounded human-facing speech/dedup work.
 
-A pulse-id-only accepted refresh with exactly the same presentation must earn **none** of those UI/speech consequences. Exact checkpoint identity may still advance independently. The same is true for case-only semantic-id drift when all presented semantics remain unchanged: exact source identity may advance without forcing a Button mutation that could churn accessibility state.
-
-Heartbeat child controls remain independently focusable native controls. A scrolling/container wrapper must not become a competing TalkBack destination. Each light honors the scene's minimum touch target on both width and height and exposes state by token + word rather than color alone.
-
-Visible horizontal contact matters independently from object identity. Existing source wiring attempts viewport restoration through stable refresh, rebuild, and drift fallback; runtime viewport/keyboard-focus/TalkBack behavior remains unproven until an authorized Android body observes it.
-
-A visible overlay root is not sufficient evidence that heartbeat content is presented. Automatic heartbeat speech requires the heartbeat surface itself to be presented; collapsed/GONE heartbeat content is silent while semantic announcement history continues to advance. Explicit user-requested detail remains separately available through the existing compact/detail descriptions when the surface is present. Never replace exact evidence with a speech projection.
+Heartbeat child controls remain independently focusable native controls. State must be communicated by token + word rather than color alone. Existing source-level minimum touch semantics remain authoritative; runtime TalkBack is not claimed.
 
 ## Regression source
 At minimum cover:
 
-- cold start: structure + content work, no automatic transition speech;
+- cold start: structure/content work, no automatic transition speech;
 - exact retry: no structure/content/speech work;
-- **new pulse id + byte-for-byte-equivalent presented surface: exact checkpoint changes, presentation/render/announcement stay stable, no UI/speech work**;
-- evidence-only refresh: stable structure, changed presentation/content, no speech;
-- state/consequence change with same ids: stable structure, changed content, transition speech allowed;
-- reorder or membership change: structure replacement required;
-- **id case normalization: exact checkpoint may change, but presentation/render/structure/announcement remain stable and no UI/speech/motion work is earned when all presented fields are otherwise identical**;
-- interrupted refresh with preserved last-good ids: stable structure, wound content changes once;
-- mute/hidden suppression without stale replay;
-- **root visible + heartbeat surface collapsed/GONE: automatic speech suppressed while announcement history advances; expanding later must not replay that transition**;
-- **the four-argument compatibility speech gate cannot represent collapsed-subtree truth and must not be substituted for existing-owner five-argument wiring**;
-- live child/tag mismatch: existing owner must fail safe to canonical rebuild instead of applying content to the wrong semantic child;
-- viewport-anchor math: width growth/shrink keeps a captured anchor offset stable, clamps at both scroll edges, and cannot overflow into negative scroll.
+- invisible new pulse id with identical presentation: checkpoint may change, UI identities stay stable;
+- evidence-only refresh: stable structure, content refresh, no speech;
+- state/consequence transition: content + announcement identity change;
+- reorder/membership change: structure replacement required;
+- case-only semantic-id drift: exact evidence may change without UI work;
+- interrupted refresh: exact boundary preserved, last-good contact held, no motion;
+- over-ceiling boundary speech stops before whole-source semantic scan;
+- over-ceiling boundary UI identity stops before whole-source UTF-8/SHA work;
+- two over-ceiling equal-length boundaries may share non-authoritative UI identity while exact evidence remains distinct;
+- direct selected/focused ids cross the broad source-work throat before adapter trim;
+- previous structure/render/announcement direct identities remain RED until their proposed pre-trim throat is applied;
+- mute/hidden/collapsed suppression does not create stale replay.
 
-A regression file is source only until an authorized runner executes it. Existing pure refresh-plan/checkpoint tests cover semantic work identities; `HeartbeatInvisiblePulseIdDedupTest` covers the exact-checkpoint/presentation split; `HeartbeatSemanticIdCaseDedupTest` covers exact case-sensitive evidence versus case-insensitive presentation work; `HeartbeatCollapsedPresentationSpeechTest` covers whole-overlay-vs-heartbeat-surface speech policy plus the compatibility-gate gap. Existing `OperatorOverlayService` source now consumes the five-argument collapsed-surface gate; Android child reconciliation, viewport behavior, and TalkBack speech behavior remain runtime-unproven until authorized evidence advances them.
+Regression files are source only until an authorized runner executes them.
 
 ## Evidence membrane
 Keep these states separate:
 
 `requested -> implemented source -> regression source -> tested -> existing-owner source wired -> runtime UI observed -> TalkBack exercised -> deployed -> callable -> executed -> delivered -> accepted`
 
-GitHub source/readback proves durable source presence and existing-owner source wiring only. A regression file is not a passing test until an authorized test body executes it. Exact checkpoint identity is not automatically presentation work. Existing-owner source wiring is not runtime rendering proof. The five-argument speech gate is now consumed by `OperatorOverlayService` source, but that still does not prove Android execution or TalkBack behavior.
+Current state: refresh-boundary speech/dedup source-work custody **SOURCE_WIRED / APPLIED_SOURCE**; direct refresh selection/focus adapter custody **SOURCE_WIRED / APPLIED_SOURCE**; previous refresh-identity direct source-work custody **NO / RED SOURCE / PROPOSED_NOT_APPLIED**; regression execution **NO**; TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted **NO**.
 
 ## Done for one source pulse
-This skill may light only when dedupe/selection/contact/accessibility semantics, existing-owner source composition, viewport-contact policy, heartbeat-surface presentation policy, or their regression source materially change. If the only event is another poll, another invisible pulse id, another case-only semantic id drift with unchanged presentation, or another unchanged CI failure, keep it dark.
+Light this skill only when dedupe/selection/contact/accessibility semantics, source-work custody, existing-owner composition, or their regression doctrine materially changes. Another poll, unchanged failure, or invisible equivalent pulse alone is not work.
