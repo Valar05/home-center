@@ -32,9 +32,15 @@ Use the existing organs:
 1. `HeartbeatSkillPolicy.hasTypedSourceContract(...)` rejects an invalid machine id.
 2. `HeartbeatEnvelopeParser` already requires that typed contract, so canonical wire ingestion fails closed.
 3. `HeartbeatSceneGraph.selectDisplayReadyLights(...)` already uses the same contract, so direct source callers cannot bypass the boundary into presentation.
-4. Existing native/view-model/viewport owners may retain their current ASCII case-tolerant lookup behavior; the accepted alphabet makes their equivalence relation deterministic.
+4. Existing native/view-model/viewport owners retain ASCII case-tolerant lookup behavior only after direct query work crosses the shared broad source-work ceiling.
 
 No new overlay controller, renderer, state store, transport path, phone ingress path, or P0 recovery owner is authorized by this skill.
+
+## Direct lookup work custody
+
+Typed ID validity does not bound arbitrary public lookup input. `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`, `HeartbeatFrameAccessibility.focusIndexForId(frame, nodeId)`, and `HeartbeatOverlayViewModel.Model.controlById(id)` are direct caller surfaces and therefore own a broad source-work throat before `trim()` or `Locale.ROOT` case-fold.
+
+Those owners now reuse `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` for that throat. Over-ceiling direct queries fail closed to no match; accepted scene/control IDs are not truncated, normalized into a new identity, or rewritten. At/below the throat, existing ASCII case-insensitive lookup semantics are preserved. This is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED** and is not runtime TalkBack or delivery evidence.
 
 ## Regression law
 Source regression must pin all of these:
@@ -44,12 +50,16 @@ Source regression must pin all of these:
 - at least one Unicode case-equivalence split rejected;
 - a visually confusable non-ASCII id rejected while its human label may remain Unicode;
 - canonical parser rejection preserves the source/runtime membrane;
-- direct-source rejection preserves the last-good scene and earns no transition motion.
+- direct-source rejection preserves the last-good scene and earns no transition motion;
+- direct frame detail/focus lookup and model lookup cross the broad source-work ceiling before trim/case-fold;
+- over-ceiling direct lookup does not create a second normalized identity or execute deeper lookup work.
 
 A regression source file is **not** executed test evidence until the deterministic test lane actually runs it.
 
 ## Accessibility consequence
 One semantic ID must name one touch/focus/detail owner. If two accepted source IDs can alias the same native Button tag or viewport owner, TalkBack selection and visible contact become ambiguous even if the labels look correct. The machine-ID boundary therefore protects accessibility identity, not merely parser neatness.
+
+The same applies to resource custody: a semantically invalid or over-ceiling direct query must not be allowed to monopolize accessibility lookup work merely because no accepted scene node could ever have that identity.
 
 ## Capability membrane
 Keep these states separate:
