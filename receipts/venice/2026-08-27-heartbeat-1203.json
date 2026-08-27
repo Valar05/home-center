@@ -7,13 +7,20 @@
     "direct public policy selection now owns canonical MAX_LIGHTS collection-work parity without a second owner",
     "persistent-selection construction and direct collection lookup now bound arbitrary semantic-id work before repeated equality while preserving admitted identity",
     "focused regression artifacts exist but have not executed",
-    "exact-head workflows were queued at checkpoint, so TESTED/runtime claims remain unavailable",
+    "exact-head Build Android, Operator Overlay Android, and Home Center CI all completed failure; the exact-head Operator job exposed zero steps, so no source/test diagnosis is established",
     "phone and P0 surfaces were not consumed"
   ],
   "sheRaw": {
     "attempted": true,
     "result": "ACCOUNT_CONNECTION_HTTP_400",
     "syntheticSubstitute": false
+  },
+  "execution": {
+    "workflowRuns": [33097400487, 33097400505, 33097400531],
+    "operatorJobId": 98605788159,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
   },
   "capabilityMembrane": {
     "requested": true,
