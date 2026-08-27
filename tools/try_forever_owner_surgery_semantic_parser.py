@@ -43,6 +43,7 @@ MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS = 16
 MAX_SEMANTIC_SHA256_CODEPOINTS = 64
 MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS = 96
 MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS = 4_096
+MAX_SEMANTIC_EXCEPTION_ARGS = 8
 _DIAGNOSTIC_DIGEST_CHARS = 16
 
 
@@ -101,6 +102,28 @@ def project_owner_surgery_diagnostic_text(value: str) -> str:
     if len(escaped) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
         return f"<text>...#{_diagnostic_digest(value)}"
     return escaped
+
+
+def project_owner_surgery_exception_diagnostic(exc: BaseException) -> tuple[str, str]:
+    """Project exception prose without executing caller-owned ``__str__`` or ``__repr__``.
+
+    Exception diagnostics are non-authoritative human-facing evidence. Bypass subclass attribute
+    hooks, inspect only the exact base ``args`` tuple, bound the number of arguments considered, and
+    project the first exact built-in string payload. Arbitrary payload objects are never stringified
+    merely to make a discovery error prettier.
+    """
+
+    exception_type = type.__getattribute__(type(exc), "__name__")
+    projected_type = project_owner_surgery_diagnostic_text(exception_type)
+    args = BaseException.args.__get__(exc, BaseException)
+    if type(args) is not tuple:
+        return projected_type, "<exception-payload-unavailable>"
+    if len(args) > MAX_SEMANTIC_EXCEPTION_ARGS:
+        return projected_type, f"<exception-payload:{len(args)}-args>"
+    for item in args:
+        if type(item) is str:
+            return projected_type, project_owner_surgery_diagnostic_text(item)
+    return projected_type, "<exception-payload-omitted>"
 
 
 def _project_diagnostic_text(value: str) -> str:
@@ -182,10 +205,6 @@ def _admit_exact_observation(
     if SHA256_RE.fullmatch(sha256) is None:
         raise OwnerSurgerySemanticError("sha256 must be one exact lowercase SHA-256 string")
 
-    # Canonical v10 already supplies content from a 1 MiB bounded artifact observation. Keep this
-    # supporting producer finite for direct callers too, before caller-controlled text can trigger an
-    # unbounded UTF-8 encode/hash. Every valid Unicode code point occupies at least one UTF-8 byte, so
-    # the code-point precheck is a safe early rejection; the post-encode check closes multibyte text.
     if byte_count > MAX_SEMANTIC_OBSERVATION_BYTES:
         raise OwnerSurgerySemanticError(
             "byte_count exceeds semantic observation byte ceiling "
@@ -352,6 +371,8 @@ def source_receipt() -> dict[str, object]:
         "diagnosticSegmentCharCeiling": MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
         "diagnosticSourceCodepointCeiling": MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS,
         "finiteDiagnosticSourceWork": True,
+        "callbackFreeExceptionDiagnosticProjection": True,
+        "exceptionDiagnosticArgCeiling": MAX_SEMANTIC_EXCEPTION_ARGS,
         "oversizeDiagnosticWholeIdentityPreserved": False,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
