@@ -38,17 +38,14 @@ from try_forever_generated_index_artifact_observation import (
     observe_generated_index_artifact,
 )
 from try_forever_owner_surgery_backend_policy import select_owner_surgery_backend
-from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
 from try_forever_owner_surgery_metadata_exactness import (
     MAX_OWNER_IDENTITY_CODEPOINTS,
     admit_owner_identity,
-    admit_patch_metadata,
 )
 from try_forever_owner_surgery_semantic_parser import (
     OwnerSurgerySemanticError,
     parse_owner_surgery_observation,
 )
-from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
 from try_forever_posix_directory_handle_custody import (
     DescriptorArtifactCustodyError,
     DescriptorCustodyCleanupError,
@@ -64,8 +61,6 @@ from try_forever_skill_root_identity import (
 
 PATCH_ROOT = Path("patches")
 PATCH_ROOT_SUBJECT = "owner surgery patches root"
-DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
-DELTA_SCHEMA = "try-forever-owner-delta.v1"
 MAX_ARTIFACT_BYTES = 1_048_576
 MAX_CUSTODY_ARTIFACTS = 2_048
 MAX_CUSTODY_DIRECTORY_ENTRIES = 32_768
@@ -78,12 +73,7 @@ MAX_PROGRAMMATIC_ARGV_ITEMS = 4_096
 MAX_PROGRAMMATIC_ARG_CODEPOINTS = MAX_CURRENT_OWNER_ASSIGNMENT_CODEPOINTS
 MAX_PROGRAMMATIC_ARGV_TOTAL_CODEPOINTS = MAX_ARTIFACT_BYTES
 
-BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
-OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
-STATE_RE = re.compile(r"^#\s*(?:STATUS|State)\s*: ([^\r\n]*)$", re.I | re.M)
 SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
-DELTA_BASE_KEYS = ("baseBlob", "ownerBaseBlob", "baseOwnerBlob")
-DELTA_STATE_KEYS = ("state", "status")
 
 
 @dataclass(frozen=True)
@@ -107,10 +97,6 @@ class DiscoveryError:
 
 class ArtifactAdmissionError(ValueError):
     """Recognized surgery evidence could not be safely admitted."""
-
-
-def _promotion_candidate(state: str) -> bool:
-    return admit_owner_surgery_state(state).promotion_candidate
 
 
 def _artifact_kind_for_name(name: str) -> str | None:
@@ -276,33 +262,6 @@ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
         ), None
     except (ArtifactAdmissionError, OwnerSurgerySemanticError, OSError, UnicodeError, ValueError) as exc:
         return None, _error(path, "patch", exc)
-
-
-def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
-    result: dict[str, object] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"duplicate JSON member: {key}")
-        result[key] = value
-    return result
-
-
-def _consistent_delta_string(
-    payload: dict[str, object],
-    keys: tuple[str, ...],
-    field_name: str,
-) -> str:
-    present = [(key, payload[key]) for key in keys if key in payload]
-    if not present:
-        raise ValueError(f"missing {field_name}")
-    values: list[str] = []
-    for key, raw in present:
-        if not isinstance(raw, str) or not raw:
-            raise ValueError(f"{key} must be a non-empty string")
-        values.append(raw)
-    if len(set(values)) != 1:
-        raise ValueError(f"conflicting {field_name} aliases")
-    return values[0]
 
 
 def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
