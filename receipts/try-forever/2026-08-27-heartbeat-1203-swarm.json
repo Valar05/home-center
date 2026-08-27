@@ -1,0 +1,93 @@
+{
+  "receiptType": "try_forever_harroway_heartbeat",
+  "timestamp": "2026-08-27T12:03:02-05:00",
+  "sourceHead": "98ae24997c846940d69d841054cf9ac01d7ff81a",
+  "sourceDelta": {
+    "base": "e2f878f1a1b4a5db6838cb6df65a643bcca79536",
+    "commits": 13,
+    "paths": 8,
+    "unexpectedPaths": 0
+  },
+  "frontsAdvanced": [
+    {
+      "name": "direct_policy_selection_collection_custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java",
+      "change": "selectMaterialLights now observes List.size once, rejects >MAX_LIGHTS, performs at most admitted indexed reads into an immutable detached snapshot, then traverses only the snapshot",
+      "boundary": "bounded caller-interface observation count; no callback-free arbitrary-List claim"
+    },
+    {
+      "name": "persistent_selection_semantic_id_custody",
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSelectionAccessibilityPolicy.java",
+      "change": "fromModel selectedId and CollectionDecision.itemById semanticId now cross the shared 32768-code-unit source-work throat before repeated equalsIgnoreCase work",
+      "boundary": "admitted ids remain exact; over-ceiling input produces no selection/null lookup; runtime TalkBack unproven"
+    },
+    {
+      "name": "regression_and_doctrine_convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "direct-policy RED fixture became convergence source; selected-id Python source-order fixture and JUnit max/max+1 fixture added; heartbeat-source-bound-parity and persistent-selection-semantics skills converged",
+      "boundary": "regression execution NO; TESTED NO"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: old direct-policy RED wound was applied, then the accessibility review found the independent itemById bypass after the first selectedId repair",
+    "Canon Auto-Select": "LIT: reused HeartbeatEnvelopeParser.MAX_LIGHTS and MAX_ENVELOPE_SOURCE_CODE_UNITS as existing authorities",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected routing or authority",
+    "Originality Tax": "LIT: no repeated count-only patch or neighboring validator; repaired the existing owners",
+    "Hunger": "LIT: source mutation forced patch, regression, heartbeat-source-bound-parity, and persistent-selection-semantics convergence",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: continued past fromModel and found direct CollectionDecision.itemById had the same public semantic-id work bypass",
+    "Operator Campaign": "LIT: durable GitHub source, doctrine, Regnet, Venice, and swarm receipts; PR left open/unmerged",
+    "Harroway operator discipline": "LIT: exact existing-owner mutations only; no substitute execution lane",
+    "She-Raw adversarial motivation": "LIT/FAULT: authoritative ambient review attempted; account connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT: source checkpoint allowed only behind regression/test/runtime membrane",
+    "Regnet QA": "LIT: source-order, cardinality, identity-preservation, no-replacement-selection, and capability-inflation review",
+    "accessibility/TalkBack and touch semantics": "LIT: persistent one-of-many selection and direct lookup now preserve exact admitted semantic identity; runtime TalkBack remains NO",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED: consumption 0, mutation 0",
+    "deterministic routing": "LIT: canonical parser ceilings reused rather than copied into new policy tables",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, regression source, workflow queued, TESTED, runtime, deployed, delivered, accepted kept separate",
+    "recovery/checkpointing/idempotence": "LIT: no manual CI retry, no duplicate owner, durable checkpoint published",
+    "strange non-raster vector/DOM/native UI art": "DARK: no operator-visible topology changed; new art would be duplicate heartbeat theater",
+    "warm walls": "DARK: existing specimen remained truthful; no source-wall mutation justified",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion contract changed",
+    "contact preservation": "LIT: over-ceiling selected ids cannot invent replacement selection; direct policy overflow fails explicitly instead of counterfeit empty/no-material state",
+    "heartbeat-source-bound-parity": "LIT: direct policy selection and persistent-selection lookup are now explicit source-work throats",
+    "persistent-selection-semantics": "LIT: finite raw selected-id/lookup work added to persistent one-of-many doctrine"
+  },
+  "crossPollination": "Canonical scene MAX_LIGHTS parity closed direct policy selection; source-bound review then moved from collection work to semantic-id equality work; accessibility selectedId repair exposed itemById as an independent direct bypass; the same shared parser ceiling closed both without normalization, replacement selection, or new architecture; doctrine and regression surfaces were then converged.",
+  "executionTruth": {
+    "workflowRunsAtSourceCheckpoint": [
+      {"id": 33097400487, "name": "Build Android", "status": "queued"},
+      {"id": 33097400505, "name": "Operator Overlay Android", "status": "queued"},
+      {"id": 33097400531, "name": "Home Center CI", "status": "queued"}
+    ],
+    "commitStatusesObserved": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "p0ReceiptsReadOnly": true
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
