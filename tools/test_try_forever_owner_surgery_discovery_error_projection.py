@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Source fixture for canonical owner-surgery discovery diagnostic projection convergence.
+"""Source fixture for owner-surgery discovery diagnostic projection custody.
 
-SOURCE ONLY / UNEXECUTED. The shared semantic diagnostic projector and canonical v10 consumer are
-SOURCE_WIRED. Canonical path/artifact evidence remains exact; only human-facing exception type and
-message text cross the bounded ASCII-safe projector. This fixture proves no regression execution,
-TESTED, runtime, deployment, phone delivery, or P0 capability.
+SOURCE ONLY / UNEXECUTED. Canonical v10 already consumes the shared ASCII-safe diagnostic projector,
+but two independent source boundaries remain RED: canonical ``_error(...)`` still invokes caller-owned
+``Exception.__str__`` before projection, and the shared projector still hashes arbitrarily large exact
+strings after its returned-text ceiling is known. Canonical path/artifact evidence remains exact.
+This fixture proves no regression execution, TESTED, runtime, deployment, phone delivery, or P0
+capability.
 """
 
 from pathlib import Path
 
 import try_forever_owner_surgery_custody_probe as custody
+import try_forever_owner_surgery_semantic_parser as semantic
 from try_forever_owner_surgery_semantic_parser import (
     MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
     OwnerSurgerySemanticError,
@@ -19,6 +22,7 @@ from try_forever_owner_surgery_semantic_parser import (
 
 
 MAX_BOUNDARY_CODEPOINTS = 320
+PROPOSED_DIAGNOSTIC_SOURCE_CODEPOINTS = 4_096
 
 
 def _assert_shared_projector_source_wired() -> None:
@@ -63,12 +67,50 @@ def _assert_canonical_projection(exc: Exception) -> None:
     assert "\ud800" not in boundary.lower()
 
 
+def _assert_exception_str_callback_never_executes() -> None:
+    class HostileError(Exception):
+        callback_executed = False
+
+        def __str__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("caller-owned Exception.__str__ executed before projection")
+
+    try:
+        _assert_canonical_projection(HostileError("safe-base-args"))
+    except AssertionError:
+        pass
+    assert HostileError.callback_executed is False, (
+        "canonical discovery projection must not invoke caller-owned Exception.__str__"
+    )
+
+
+def _assert_oversize_source_collapses_before_whole_identity_digest() -> None:
+    original = semantic._diagnostic_digest
+
+    def forbidden_digest(_: str) -> str:
+        raise AssertionError("whole-source diagnostic digest executed beyond source-work throat")
+
+    semantic._diagnostic_digest = forbidden_digest
+    try:
+        projection = semantic.project_owner_surgery_diagnostic_text(
+            "x" * (PROPOSED_DIAGNOSTIC_SOURCE_CODEPOINTS + 1)
+        )
+    finally:
+        semantic._diagnostic_digest = original
+
+    assert projection.isascii()
+    assert len(projection) <= MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
+    assert "source" in projection.lower()
+
+
 def main() -> int:
     _assert_shared_projector_source_wired()
     _assert_canonical_projection(ValueError("line-one\nline-two"))
     _assert_canonical_projection(ValueError("bidi:\u202eattack"))
     _assert_canonical_projection(ValueError("surrogate:\ud800"))
     _assert_canonical_projection(ValueError("x" * 50_000))
+    _assert_exception_str_callback_never_executes()
+    _assert_oversize_source_collapses_before_whole_identity_digest()
     return 0
 
 
