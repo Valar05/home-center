@@ -13,18 +13,18 @@
   fieldset { border: 1px solid #737b8f; border-radius: 16px; padding: 12px; }
   legend { padding: 0 8px; font-weight: 700; }
   .modes { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 8px; }
-  .choice { min-height: 52px; display: flex; align-items: center; gap: 8px; border: 1px solid #737b8f; border-radius: 12px; padding: 4px 10px; cursor: pointer; }
+  .choice { min-height: 56px; display: flex; align-items: center; gap: 8px; border: 1px solid #737b8f; border-radius: 12px; padding: 4px 10px; cursor: pointer; }
   .choice:has(input:checked) { outline: 3px solid currentColor; }
   input[type="radio"] { inline-size: 24px; block-size: 24px; }
   label, button, input { font: inherit; }
   .sendrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
-  #request { min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 12px; background: #17191f; color: inherit; }
-  button { min-width: 96px; min-height: 52px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 14px; background: #303540; color: inherit; }
+  #request { min-height: 56px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 12px; background: #17191f; color: inherit; }
+  button { min-width: 96px; min-height: 56px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 14px; background: #303540; color: inherit; }
   button:focus-visible, input:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
   .wall { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
   .cell { border: 1px solid #737b8f; border-radius: 14px; padding: 12px; min-height: 92px; }
   .token { font-size: 1.35rem; font-weight: 900; }
-  #detail { margin-top: 14px; min-height: 52px; border-left: 4px solid currentColor; padding: 8px 12px; }
+  #detail { margin-top: 14px; min-height: 56px; border-left: 4px solid currentColor; padding: 8px 12px; }
   svg { width: 100%; height: auto; margin-top: 14px; }
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 </style>
@@ -32,7 +32,7 @@
 <body>
 <main>
   <h1>ADAM MODE / WARM WALL</h1>
-  <p class="scar">SOURCE LIFECYCLE + VALUE + ACTION + SET POSITION READY · OWNER SURGERY PREPARED · OWNER UNWIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+  <p class="scar">SOURCE AVAILABILITY THROAT WIRED · REQUEST OWNER THROAT RED · ADAM OWNER ACCESSIBILITY SURGERY REBASE REQUIRED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
 
   <fieldset id="modeGroup">
     <legend>Adam mode — one persistent choice, five stable positions</legend>
@@ -46,44 +46,46 @@
   </fieldset>
 
   <div class="sendrow">
-    <input id="request" aria-describedby="inputState" placeholder="Adam request">
+    <input id="request" maxlength="32768" aria-describedby="inputState" placeholder="Adam request">
     <button id="send" type="button">Send</button>
   </div>
   <p id="inputState" aria-live="polite">Terminal mode. Ready to send.</p>
 
   <div class="wall" aria-label="Source capability states">
-    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many state is still missing in the native owner.</section>
+    <section class="cell"><div class="token">●</div><strong>AVAILABILITY SOURCE THROAT</strong><br>32,768 UTF-16 code units before whole-source materialization/trim; max+1 means unavailable, never truncated into a request.</section>
+    <section class="cell"><div class="token">□</div><strong>REQUEST OWNER THROAT</strong><br>The UI submit owner and direct OperatorState owner still need the same finite pre-trim / alias / encode gate.</section>
+    <section class="cell"><div class="token">□</div><strong>MODE OWNER</strong><br>Persistent one-of-many Adam mode state is still missing in the native owner.</section>
     <section class="cell"><div class="token">●</div><strong>SET POSITION SOURCE</strong><br>Canonical TERM/CHAT/CONT/VLAD/RADIO order carries stable positions 1..5 and set size 5.</section>
-    <section class="cell"><div class="token">●</div><strong>OWNER SURGERY</strong><br>The exact owner patch now carries single-selection collection + per-mode collection-item position semantics; it is still unapplied.</section>
+    <section class="cell"><div class="token">△</div><strong>OWNER SURGERY</strong><br>The historical accessibility patch is design evidence, but its exact owner base is stale and must be rebased before apply.</section>
     <section class="cell"><div class="token">□</div><strong>NATIVE SET CONTEXT</strong><br><code>setSelected(...)</code> alone is PARTIAL_UNSAFE until collection and item-position context are both present.</section>
-    <section class="cell"><div class="token">□</div><strong>INPUT OWNER</strong><br>Native READY/SENT/edit-recovery lifecycle is still unwired.</section>
     <section class="cell"><div class="token">●</div><strong>EDITABLE VALUE</strong><br>The input text stays the semantic value; context is state, not a generic replacement description.</section>
-    <section class="cell"><div class="token">□</div><strong>SEND ACTION OWNER</strong><br>Native Send action still fails to name the exact selected mode.</section>
-    <section class="cell"><div class="token">●</div><strong>EDIT RECOVERY</strong><br>SENT + real new text → READY; empty programmatic clear keeps SENT.</section>
-    <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence.</section>
+    <section class="cell"><div class="token">●</div><strong>REPEAT SEND RECEIPT</strong><br>The explicit Adam send announcement remains because identical-send replacement semantics are unresolved.</section>
+    <section class="cell"><div class="token">×</div><strong>RUNTIME PROOF</strong><br>No Android/TalkBack execution evidence and no phone delivery claim.</section>
   </div>
 
-  <div id="detail" role="status">Terminal selected, position 1 of 5. Source policy knows the set; native owner does not yet expose it.</div>
+  <div id="detail" role="status">Terminal selected, position 1 of 5. Availability source work is bounded in policy; native request-owner consumption remains red.</div>
 
-  <svg viewBox="0 0 800 200" role="img" aria-labelledby="svgTitle svgDesc">
-    <title id="svgTitle">Warm-wall source lifecycle and native set-position boundary</title>
-    <desc id="svgDesc">Five Adam modes have stable positions in one persistent selection set. The owner surgery contains single-selection collection and per-item position semantics but is not applied. The editable input remains its own semantic value. The send action names the selected mode. The input moves from ready to sent after submit and back to ready when real new text is typed. Runtime proof remains blocked.</desc>
+  <svg viewBox="0 0 800 220" role="img" aria-labelledby="svgTitle svgDesc">
+    <title id="svgTitle">Adam request source throat and accessibility owner boundary</title>
+    <desc id="svgDesc">A finite source throat precedes trim and send availability. The supporting policy is source wired. The actual UI and state request owners have not yet consumed that throat. Five Adam modes retain stable set-position design, the repeat send receipt remains preserved, runtime TalkBack is unproven, and phone P0 surfaces are untouched.</desc>
     <path d="M40 65 H210 M210 65 H390 M390 65 H570 M570 65 H750" fill="none" stroke="currentColor" stroke-width="4"/>
     <circle cx="75" cy="65" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="220" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="400" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <rect x="580" y="35" width="140" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
     <text x="75" y="72" text-anchor="middle" fill="currentColor" font-size="20">1/5</text>
-    <text x="290" y="72" text-anchor="middle" fill="currentColor" font-size="18">READY</text>
-    <text x="470" y="72" text-anchor="middle" fill="currentColor" font-size="18">SENT</text>
-    <text x="650" y="72" text-anchor="middle" fill="currentColor" font-size="18">EDIT → READY</text>
-    <text x="400" y="126" text-anchor="middle" fill="currentColor" font-size="17">MODE = POSITION / 5 · INPUT VALUE = TEXT</text>
-    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">OWNER SURGERY ● · OWNER APPLIED □</text>
-    <text x="400" y="182" text-anchor="middle" fill="currentColor" font-size="17">TESTED × · PHONE/P0 UNTOUCHED</text>
+    <text x="290" y="72" text-anchor="middle" fill="currentColor" font-size="17">≤32768</text>
+    <text x="470" y="72" text-anchor="middle" fill="currentColor" font-size="17">TRIM / SEND</text>
+    <text x="650" y="72" text-anchor="middle" fill="currentColor" font-size="17">RECEIPT HELD</text>
+    <text x="400" y="126" text-anchor="middle" fill="currentColor" font-size="17">POLICY SOURCE ● · OWNER CONSUMER □</text>
+    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">56PX TOUCH · FOCUS VISIBLE · NON-COLOR STATE</text>
+    <text x="400" y="182" text-anchor="middle" fill="currentColor" font-size="17">TESTED × · RUNTIME TALKBACK ×</text>
+    <text x="400" y="210" text-anchor="middle" fill="currentColor" font-size="17">PHONE/P0 UNTOUCHED · MOTION NONE</text>
   </svg>
 </main>
 <script>
 (() => {
+  const SOURCE_LIMIT = 32768;
   const order = ['terminal','chat','continue','vlad','radio'];
   const labels = {terminal:'Terminal',chat:'Chat',continue:'Continue',vlad:'Vlad',radio:'Radio'};
   const group = document.getElementById('modeGroup');
@@ -93,26 +95,27 @@
   const send = document.getElementById('send');
   let result = 'Ready to send.';
   const active = () => document.querySelector('input[name="mode"]:checked').value;
+  const withinSourceBudget = () => request.value.length <= SOURCE_LIMIT;
+  const material = () => withinSourceBudget() && request.value.trim().length > 0;
   const render = () => {
     const mode = active();
     const label = labels[mode];
     const position = order.indexOf(mode) + 1;
+    send.disabled = !material();
     state.textContent = `${label} mode. ${result}`;
     send.setAttribute('aria-label', `Send request to Adam using ${label} mode`);
-    detail.textContent = `${label} selected, position ${position} of ${order.length}. ${result} Source collection semantics are prepared for the native owner but remain unapplied; selection is not keyboard or accessibility focus ownership.`;
+    detail.textContent = `${label} selected, position ${position} of ${order.length}. ${result} Availability source work is bounded before trim in supporting policy; actual request-owner consumption remains proposed, selection is not keyboard or accessibility focus ownership.`;
   };
   group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
   send.addEventListener('click', () => {
-    if (!request.value.trim()) return;
+    if (!material()) return;
     result = 'Sent.';
     request.value = '';
     render();
   });
   request.addEventListener('input', () => {
-    if (request.value.trim() && result === 'Sent.') {
-      result = 'Ready to send.';
-      render();
-    }
+    if (material() && result === 'Sent.') result = 'Ready to send.';
+    render();
   });
   render();
 })();
