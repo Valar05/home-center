@@ -10,7 +10,9 @@ A second wound exists even after that arithmetic is repaired: a code-point-safe 
 
 A third wound exists when bounded output is backed by unbounded input work. A helper that returns 96 spoken code points but runs `codePointCount` and a grapheme regex over an arbitrarily large direct-source String has not actually bounded the caller-controlled speech projection path.
 
-These are not cosmetic defects. Routine TalkBack, collapsed summaries, interrupted-refresh status speech, and native Button labels are bounded operator surfaces. Their resource limit must describe the returned projection, the retained prefix must not amputate a grapheme cluster, and direct/legacy source work must remain finite before whole-source traversal.
+A fourth variant appears when an outer projection has a finite helper but performs `trim()`, normalization, semantic scanning, or evidence-marker traversal before it reaches that helper. The work throat must be before the first whole-source traversal, not merely somewhere later in the call chain.
+
+These are not cosmetic defects. Routine TalkBack, collapsed summaries, interrupted-refresh status speech, native Button labels, and explicit on-demand evidence detail are bounded operator surfaces. Their resource limit must describe the returned projection, the retained prefix must not amputate a grapheme cluster, and direct/legacy source work must remain finite before whole-source traversal.
 
 ## One plain projection law
 
@@ -30,7 +32,7 @@ The invariant is:
 
 The current pure source uses the platform regex extended-grapheme matcher `\X` to walk whole clusters while continuing to account the public resource contract in Unicode code points. Do not replace it with Java 17 `BreakIterator` and assume equivalent behavior: this skill requires the actual extended-grapheme contract, not merely a code-point or legacy character boundary.
 
-Do not copy the old `prefix(max) + ellipsis` pattern into another helper, including scene-level interruption/status projection helpers. Also do not assume a small returned string means the source-work path is finite; inspect any pre-projection `trim`, `codePointCount`, regex, normalization, encode, or digest operation separately.
+Do not copy the old `prefix(max) + ellipsis` pattern into another helper, including scene-level interruption/status projection helpers. Also do not assume a small returned string means the source-work path is finite; inspect any pre-projection `trim`, `codePointCount`, regex, normalization, encode, digest, invisible-control scan, or marker-expansion operation separately.
 
 ## Plain speech is not explicit evidence
 
@@ -42,7 +44,7 @@ Those are different surfaces:
 - collapsed label speech: plain text, hard returned budget, grapheme-safe retained prefix, finite direct-source work;
 - interrupted-refresh visible pulse id / safe boundary speech: plain text, hard returned budget while exact Frame evidence remains untouched;
 - native visible Button label: plain text, hard returned budget, grapheme-safe retained prefix;
-- selected explicit evidence detail: collision-safe invisible-control markers, separately hard-bounded after expansion.
+- selected explicit evidence detail: collision-safe invisible-control markers, separately hard-bounded after expansion and independently finite before direct projection traversal.
 
 Cross-pollinate the resource invariant, not the presentation semantics.
 
@@ -57,9 +59,11 @@ Current source state:
 - one shared plain-text hard-budget helper: YES / SOURCE;
 - whole-grapheme retained prefix inside the same code-point budget: YES / SOURCE;
 - finite direct/legacy source-work window before code-point/grapheme traversal: YES / SOURCE_WIRED;
+- `HeartbeatCollapsedOwnerAccessibility` direct owner-status input crosses the shared finite work window before `trim()`, then its existing 96-code-point returned budget: YES / SOURCE_WIRED; existing `OperatorOverlayService` owner-status overload consumption remains NO;
+- `HeartbeatInvisibleSemanticControlPolicy` public traversal APIs cross the broad canonical direct-source ceiling before invisible-control scanning/marker expansion: YES / SOURCE_WIRED; exact canonical evidence remains separately authoritative;
 - exact `Frame.visiblePulseId` / `Frame.refreshBoundary` mutation: NO BY DESIGN;
 - canonical Candidate/Node source-field mutation: NO BY DESIGN;
-- explicit evidence marker projection changed: NO / ORDERED DARK;
+- explicit evidence presentation semantics changed: NO; only direct projection work custody changed;
 - Android/JVM regression execution: NO unless separately evidenced;
 - runtime TalkBack / native UI observation: NO;
 - deployed / callable / executed / delivered / accepted: NO.
@@ -84,7 +88,9 @@ Pin these independently:
 14. Explicit evidence-detail projection remains a separate authority and routine speech does not start naming invisible Unicode markers.
 15. An oversized direct/legacy String returns from the finite source-work window without requiring whole-source code-point/grapheme traversal.
 16. A surrogate pair crossing the work-window edge is never split.
-17. Regression source is not TESTED evidence until an authorized execution lane actually runs it.
+17. Collapsed owner-status input must cross a finite work window before `trim()`; an over-window suffix cannot become semantic status while heartbeat/contact truth remains present.
+18. Direct invisible-control projection at the broad source ceiling remains available, while max+1 fails before code-point scan/marker expansion rather than pretending a small returned budget bounded the source work.
+19. Regression source is not TESTED evidence until an authorized execution lane actually runs it.
 
 ## Architecture / P0 firewall
 
