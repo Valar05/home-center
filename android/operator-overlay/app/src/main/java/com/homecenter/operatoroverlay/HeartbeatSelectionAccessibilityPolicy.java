@@ -12,9 +12,10 @@ import java.util.List;
  * rendering, transport, phone execution, or P0 recovery. Persistent selection is not a toggle:
  * selection, keyboard focus, accessibility focus, and activation are separate state machines.</p>
  *
- * <p>Android's collection contract models a horizontal list as one column with one row per item.
- * The separate one-based {@code positionInSet} is retained as a source-level human/order identity,
- * while native collection geometry uses {@code rowIndex=index} and {@code columnIndex=0}.</p>
+ * <p>The native control strip is horizontal, so its accessibility collection geometry is one row
+ * with one column per rendered item. The separate one-based {@code positionInSet} is retained as a
+ * source-level human/order identity, while native collection geometry uses {@code rowIndex=0} and
+ * {@code columnIndex=index}.</p>
  *
  * <p>Source policy is not native owner wiring or runtime TalkBack evidence. The existing
  * {@link OperatorOverlayService} remains the sole native owner.</p>
@@ -41,8 +42,8 @@ public final class HeartbeatSelectionAccessibilityPolicy {
                 int setSize,
                 boolean selected) {
             this.id = id;
-            this.rowIndex = itemIndex;
-            this.columnIndex = 0;
+            this.rowIndex = 0;
+            this.columnIndex = itemIndex;
             this.positionInSet = itemIndex + 1;
             this.setSize = setSize;
             this.selected = selected;
@@ -60,8 +61,8 @@ public final class HeartbeatSelectionAccessibilityPolicy {
 
         private CollectionDecision(List<ItemDecision> items) {
             this.items = Collections.unmodifiableList(new ArrayList<>(items));
-            this.rowCount = items.size();
-            this.columnCount = items.isEmpty() ? 0 : 1;
+            this.rowCount = items.isEmpty() ? 0 : 1;
+            this.columnCount = items.size();
             this.singleSelection = true;
         }
 
@@ -90,7 +91,7 @@ public final class HeartbeatSelectionAccessibilityPolicy {
      * Derive collection/item semantics from the already accepted UI-ready heartbeat model.
      *
      * <p>A stale selected id does not invent a replacement selection. The rendered order owns
-     * stable one-based position-in-set and zero-based native row index for this frame. Reordering
+     * stable one-based position-in-set and zero-based native column index for this frame. Reordering
      * therefore changes positions but not semantic identity. No decision here requests keyboard or
      * accessibility focus.</p>
      *
