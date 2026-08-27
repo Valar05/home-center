@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-swarm-v1",
+  "heartbeat": "2026-08-27T17:01:00-05:00",
+  "previousPublicationHead": "2335bdf6c8643e744461e39480a811425af4f44d",
+  "reviewedSourceHead": "d74982da6f68a4f070893cadb1760a087192e6b7",
+  "sourceDelta": {"commits": 6, "intendedPaths": 6, "unexpectedPaths": 0},
+  "fronts": [
+    {
+      "name": "native selection collection",
+      "state": "SOURCE_WIRED_APPLIED",
+      "evidence": "OperatorOverlayService owner commit 47e7ac3410b48596ad22d1c72a94580133e1596f; owner blob 2935243f136359e3489a89108406e888b0ec2911",
+      "change": "Existing owner consumes HeartbeatSelectionAccessibilityPolicy after rebuild, in-place synchronization, and selection refresh; horizontal rows=1/columns=N geometry remains policy-owned."
+    },
+    {
+      "name": "heartbeat material-transition accessibility",
+      "state": "SOURCE_WIRED_APPLIED",
+      "change": "Only HEARTBEAT_MATERIAL_TRANSITION migrated from announceForAccessibility to gated one-shot live-region semantics; WAITING/SKIP/precontact clear live-region authority; Spotify/detail/Adam explicit receipts remain."
+    },
+    {
+      "name": "regression and doctrine convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "Combined patch provenance moved to APPLIED_SOURCE; owner convergence regression and native-selection, persistent-selection, repeatable-event skills now reflect current owner truth."
+    },
+    {
+      "name": "adversarial review",
+      "state": "BOUNDARY",
+      "change": "Authoritative She-Raw hostile critique attempted; account connection HTTP 400; no synthetic substitute. Regnet and Venice receipts persisted."
+    },
+    {
+      "name": "execution truth",
+      "state": "NO_EXECUTION_EVIDENCE",
+      "change": "Exact reviewed source had zero PR workflow runs and zero commit statuses observed at checkpoint; no manual retry; TESTED remains NO."
+    },
+    {
+      "name": "P0 and phone firewall",
+      "state": "UNTOUCHED",
+      "change": "phone consumption=0; phone mutation=0; P0 mutation=0; duplicate architecture=0; new P0 finding=none."
+    }
+  ],
+  "skills": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "contact preservation",
+      "heartbeat-native-selection-collection",
+      "persistent-selection-semantics",
+      "operator-repeatable-accessibility-event-semantics"
+    ],
+    "dark": {
+      "Autocorrect Judgment Jar": "no material token ambiguity affected authority or routing",
+      "Phone Runtime / Phone Hands recovery": "binding P0/phone firewall; no execution predicate change",
+      "strange non-raster vector/DOM/native UI art": "native semantic topology changed without visible geometry; no new specimen needed",
+      "warm walls": "existing visual source not made false by this owner mutation",
+      "Christmas-light scene graph": "selection semantics do not authorize new motion; no transition law changed"
+    }
+  },
+  "crossPollination": "Corrected horizontal collection policy made the exact-base combined owner surgery safe to apply; owner mutation then made patch provenance, regression expectations, and three reusable accessibility doctrines stale; those were converged while preserving unresolved repeatable receipts and keeping source capability behind TESTED/runtime.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "nativeCollectionOwnerWired": true,
+    "heartbeatMaterialTransitionOwnerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
