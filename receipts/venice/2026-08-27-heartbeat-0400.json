@@ -1,0 +1,19 @@
+{
+  "schema": "venice-judgment.v1",
+  "checkpoint": "2026-08-27-heartbeat-0400",
+  "sourceHead": "44d4cb2018c41d7433d5c2ec450e9af82c9248aa",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_CALLBACK_CONSUMER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "Direct Candidate raw source work now stops at the existing envelope ceiling before semantic scan or trim.",
+    "Direct and pre-parser pulse identity work now stops at the same broad source ceiling before semantic scan or trim while preserving last-good contact.",
+    "Focused regression source exists but has not executed.",
+    "Canonical callback-free exception dependency exists, but canonical _error still has not consumed it.",
+    "Exact-head workflows failed with an Operator job containing zero steps; no step-level cause is established and no retry was fired.",
+    "No P0 or phone execution surface was consumed and no neighboring architecture was created."
+  ],
+  "tested": false,
+  "runtime": false,
+  "deployed": false,
+  "delivered": false,
+  "accepted": false
+}
