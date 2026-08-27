@@ -72,8 +72,12 @@ def _diagnostic_digest(value: str) -> str:
     ]
 
 
-def _project_diagnostic_text(value: str) -> str:
-    """Project one exact source string into bounded ASCII-only diagnostic evidence.
+def project_owner_surgery_diagnostic_text(value: str) -> str:
+    """Project one exact built-in source string into bounded ASCII-only diagnostic evidence.
+
+    This is the shared non-authoritative text projection organ for owner-surgery diagnostics. It may
+    be reused by canonical discovery/error surfaces, but its output must never be fed back into
+    semantic evidence, persistence, backend selection, grouping, or promotion authority.
 
     Long input collapses before JSON escaping so a bounded semantic observation cannot expand into a
     many-megabyte rejection string. Short input is escaped with ``ensure_ascii=True`` so newline,
@@ -81,12 +85,22 @@ def _project_diagnostic_text(value: str) -> str:
     Canonical source evidence is not rewritten or fed back into semantic admission.
     """
 
+    if type(value) is not str:
+        raise OwnerSurgerySemanticError(
+            "diagnostic source must be one exact built-in string"
+        )
     if len(value) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
         return f"<text>...#{_diagnostic_digest(value)}"
     escaped = json.dumps(value, ensure_ascii=True, separators=(",", ":"))[1:-1]
     if len(escaped) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
         return f"<text>...#{_diagnostic_digest(value)}"
     return escaped
+
+
+def _project_diagnostic_text(value: str) -> str:
+    """Compatibility alias for the shared owner-surgery diagnostic projection organ."""
+
+    return project_owner_surgery_diagnostic_text(value)
 
 
 def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -328,6 +342,7 @@ def source_receipt() -> dict[str, object]:
         "artifactKindCodepointCeiling": MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS,
         "sha256CodepointLength": MAX_SEMANTIC_SHA256_CODEPOINTS,
         "boundedAsciiDiagnosticProjection": True,
+        "publicDiagnosticProjection": True,
         "diagnosticSegmentCharCeiling": MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
