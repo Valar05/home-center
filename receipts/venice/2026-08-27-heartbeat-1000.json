@@ -1,0 +1,37 @@
+{
+  "schema": "venice-judgment.v1",
+  "heartbeat": "2026-08-27T10:00:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "e181dccf51b344c0852f0b65173e7dfd78070988",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_SCENE_CANDIDATE_SNAPSHOT_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "The prior previous-refresh-identity RED seam advanced through the existing HeartbeatOverlayRefreshPlan owner without changing generated Plan identities or creating a neighboring controller.",
+    "Max+1 previous structure/render identity deterministically earns refresh work while max+1 prior announcement identity cannot manufacture automatic speech; Java/Python regression source is durable but unexecuted.",
+    "Hunger continued into an independent direct-scene List resource seam: canonical parsing caps lights at 64 before traversal while direct scene ingress currently does not.",
+    "Failure Is The Shovel corrected the first staged scene repair twice; the current proposal bounds one size observation plus at most 64 indexed reads and traverses only a detached snapshot, while explicitly refusing to claim callback-free arbitrary-List admission.",
+    "Exact-head workflows failed with an Operator job exposing zero steps; no retry or step-level diagnosis was manufactured.",
+    "Phone/P0 execution and recovery surfaces were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "stopScope": "bounded non-P0 source slice only",
+  "continueRequired": [
+    "resolve direct HeartbeatSceneGraph candidate-list bounded snapshot ownership without inflating arbitrary-List callback guarantees",
+    "authorized regression execution",
+    "TESTED evidence",
+    "runtime UI and TalkBack evidence",
+    "deployment/delivery/acceptance evidence",
+    "recurring Try Forever campaign"
+  ],
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
