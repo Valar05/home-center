@@ -1,55 +1,57 @@
 # Persistent Selection Semantics
 
 ## Purpose
-
 Prevent a persistent one-of-many UI selection from masquerading as a toggle merely because `aria-pressed` is convenient.
 
-## Trigger
-
-Use when a DOM/source specimen or native-inspired UI exposes multiple mutually exclusive choices and activating the already-selected choice does **not** switch it off.
-
-## Law
+## Core law
+`PERSISTENT ONE-OF-MANY ≠ TOGGLE`.
 
 1. Model the state machine first, then choose semantics.
-2. A control with `aria-pressed` is a toggle contract: activation can change pressed ↔ not pressed. Do not use it for a persistent choice that cannot be deselected by activating itself.
-3. A persistent one-of-many choice belongs to a radio-style contract: one selected item, `aria-checked`, a radio-group owner, and deterministic keyboard navigation.
-4. For custom radio controls, keep one item in the tab sequence and move that tab stop with the selected item. Arrow keys move/select within the group; Home/End may select the first/last item.
-5. Selection state, focus state, activation state, and application consequence are separate. Do not infer one from another.
-6. Native `button` styling may be reused, but styling does not override the exposed accessibility role/state machine.
-7. Use `textContent` or equivalent inert text projection for dynamic status/detail; selection repair is not permission to introduce HTML injection.
-8. Keep touch targets and visible focus first-class. Reduced-motion behavior remains independent.
-9. A source specimen is not runtime accessibility proof. Source, test, runtime assistive-tech behavior, deployment, delivery, and acceptance remain separate states.
-10. Correct a recurring semantic failure at the reusable rule, not only at the latest specimen. Filename or art direction does not reset the contract.
-11. A direct selected-id query is its own source-work boundary. Safe canonical ids do not green-paint arbitrary public callers: bound raw selected-id work before repeated equality/case-fold comparisons, preserve admitted identity exactly, and fail oversized queries to no selection/null lookup rather than truncating them into a plausible semantic id.
-12. Native collection geometry follows the rendered axis. A horizontal one-dimensional strip is one row with items occupying columns; a vertical one-dimensional strip is one column with items occupying rows. Do not transpose visual order when constructing accessibility collection metadata.
+2. `aria-pressed` is a toggle contract; do not use it for a choice that cannot be deselected by activating itself.
+3. Persistent mutually-exclusive choice uses radio-style semantics (`radiogroup`/radio or native collection selection equivalent).
+4. Selection, keyboard focus, accessibility focus, activation, detail presentation, and material-transition announcement are separate state machines.
+5. Native styling does not override accessibility role/state.
+6. Dynamic detail/status stays inert text; semantic repair is not permission for HTML injection.
+7. Touch targets, visible focus, and reduced-motion behavior remain first-class.
+8. Source semantics are not runtime assistive-technology proof.
+9. A direct selected-id query is its own source-work boundary: bound work before repeated equality/case-fold comparison, preserve admitted identity exactly, and fail oversized input to no selection/null rather than truncating it into a plausible id.
+10. Collection geometry follows the rendered axis: horizontal one-dimensional strip = one row with item columns; vertical strip = one column with item rows.
+11. A stale selected id may yield zero selected items; never invent replacement selection.
+12. Persistent selection does not authorize focus theft or Christmas-light motion.
+
+## Native heartbeat application
+`HeartbeatSelectionAccessibilityPolicy` supplies current horizontal geometry:
+- `rowCount = controls.isEmpty() ? 0 : 1`;
+- `columnCount = controls.size()`;
+- item `rowIndex=0`, `columnIndex=index`;
+- semantic id remains identity across reorder;
+- direct selected-id and item lookup use the shared broad source-work throat before repeated comparison.
+
+`OperatorOverlayService` now consumes that policy in the existing collection lifecycle after rebuild, after in-place synchronization, and after selection refresh. This is **SOURCE_WIRED / APPLIED_SOURCE**, not merely a patch proposal.
+
+Applied owner custody:
+- base owner blob `c5de1411a6b68087ae17aff83c032af754587150`;
+- owner commit `47e7ac3410b48596ad22d1c72a94580133e1596f`;
+- resulting owner blob `2935243f136359e3489a89108406e888b0ec2911`.
+
+The same owner mutation migrates only the automatic heartbeat material transition to one-shot live-region semantics. Spotify/detail/Adam repeatable receipts remain explicit and unresolved; selection semantics do not authorize removing them.
 
 ## Regression doctrine
+Source review/fixtures should prove:
+- horizontal native metadata reports one row, N columns, `rowIndex=0`, `columnIndex=itemIndex`;
+- the sole owner delegates geometry to the policy rather than copying constants;
+- selection refresh rewrites current item selected metadata without moving focus;
+- direct selected-id work is bounded before repeated comparisons;
+- over-ceiling input cannot invent a replacement selection or truncated lookup identity;
+- the heartbeat material transition uses its separately gated consequence rather than selection itself;
+- Spotify/detail/Adam legacy receipts remain present until their blockers are paid.
 
-Source review or fixtures should prove:
+`tools/test_try_forever_heartbeat_owner_patch_convergence.py` is current convergence source and remains **UNEXECUTED**.
 
-- the group exposes one persistent-selection owner (`radiogroup` or native equivalent);
-- each choice exposes radio selection state (`aria-checked` or native equivalent), not toggle state;
-- exactly one selected item is the active tab stop;
-- clicking an already-selected item does not create an impossible toggle contract;
-- arrow navigation changes both focus and selected item deterministically;
-- Home/End boundaries are deterministic when implemented;
-- dynamic status text remains inert text;
-- touch/focus visibility remains intact;
-- direct selected-id input crosses a finite broad source-work throat before repeated item comparison;
-- direct collection lookup uses the same throat before comparison;
-- over-ceiling input cannot invent a replacement selection or a truncated lookup identity;
-- horizontal native collection metadata reports one row, N columns, `rowIndex=0`, and `columnIndex=item index`.
+## Capability membrane
+`source policy → owner source wired → regression source → regression executed → tested → runtime UI → runtime TalkBack → deployed → delivered → accepted`.
 
-## Current scars
-
-`docs/try-forever/heartbeat-swan-veil-semantic-scar-source.html` previously used persistent one-of-many `button[aria-pressed]` controls. The repaired source uses a radio group, `role=radio` + `aria-checked`, roving `tabindex`, and arrow/Home/End navigation. That is source semantics only; browser/screen-reader runtime behavior remains unproven until executed.
-
-`docs/try-forever/heartbeat-skill-lights-source-specimen.html` later repeated the same failure shape: a mutually exclusive selected light controlling one persistent detail surface was exposed as `aria-pressed`. The 2026-08-21 19:57 TRY FOREVER pulse applies this law to that specimen and harvests `heartbeat-native-selection-collection` for the corresponding Android source contract. Any older heartbeat doctrine sentence permitting `aria-pressed` for this persistent one-of-many light set is superseded by this skill; a toggle is not made correct by being warm, luminous, or called a heartbeat.
-
-`HeartbeatSelectionAccessibilityPolicy.fromModel(...)` and `CollectionDecision.itemById(...)` apply the direct source-work law: values above `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` become no selection/null lookup before repeated `equalsIgnoreCase` work; admitted ids remain exact. On 2026-08-27 the same owner was corrected from transposed horizontal geometry (`rows=N / columns=1`) to rendered-axis geometry (`rows=1 / columns=N`, item `rowIndex=0`, `columnIndex=index`). Current policy blob after that correction: `cb4638a2b02d077fd4760ada65b590a2643278e9`. Regression source is converged but **UNEXECUTED**; runtime TalkBack remains **NO**.
-
-Android framework orientation guidance is consistent with that correction: `RecyclerView.LayoutManager` reports one accessibility row when vertical scrolling is unsupported and item-count columns when horizontal scrolling is supported. Reference: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.LayoutManager
+Current truth: policy **SOURCE_WIRED** · native collection lifecycle **SOURCE_WIRED / APPLIED_SOURCE** · regression source **YES / UNEXECUTED** · TESTED/runtime TalkBack/deployed/delivered/accepted **NO**.
 
 ## Boundary
-
-This skill owns no Android overlay controller, phone surface, Home Center recovery path, scheduler, transport, P0 owner, or physical acceptance chain.
+This skill owns no Android overlay twin, phone surface, Home Center recovery path, scheduler, transport, P0 owner, PR317/PR318 mutation, or physical acceptance chain.
