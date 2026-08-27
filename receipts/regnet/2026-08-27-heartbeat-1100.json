@@ -3,7 +3,7 @@
   "heartbeat": "2026-08-27-1100",
   "repository": "Valar05/home-center",
   "pullRequest": 329,
-  "reviewedSourceHead": "66d9ebfffd465ecce8f01dcd3e9e4cec0aff9a8c",
+  "reviewedSourceHead": "c35cd39d4a984063a459517a81749804c5d8cd7c",
   "verdict": "PASS_BOUNDED_SOURCE__DIRECT_SCENE_SNAPSHOT_SOURCE_WIRED__DIRECT_POLICY_SELECTION_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
   "findings": [
     {
@@ -14,7 +14,7 @@
     {
       "front": "scene_overflow_contact_accessibility",
       "state": "SOURCE_REGRESSION_UNEXECUTED",
-      "evidence": "Focused Java source pins last-good visible id/node, preserved touch target and contentDescription, frame/node no-motion, one size call, and zero get calls on max+1 overflow."
+      "evidence": "Focused Java source pins last-good visible id/node, preserved touch target and contentDescription, frame/node no-motion, one size call, and zero get calls on max+1 overflow. Python owner-order source now also requires helper-scoped candidates.size() count == 1."
     },
     {
       "front": "direct_policy_selection_list",
@@ -33,9 +33,9 @@
     "accepted": false
   },
   "executionTruth": {
-    "buildAndroid": {"run": 33091460779, "conclusion": "failure"},
-    "homeCenterCi": {"run": 33091460677, "conclusion": "failure"},
-    "operatorOverlayAndroid": {"run": 33091460670, "job": 98585084702, "conclusion": "failure", "steps": 0},
+    "buildAndroid": {"run": 33091784749, "conclusion": "failure"},
+    "homeCenterCi": {"run": 33091784753, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33091784810, "job": 98586233215, "conclusion": "failure", "steps": 0},
     "manualRetry": false,
     "stepLevelDiagnosisClaimed": false
   },
