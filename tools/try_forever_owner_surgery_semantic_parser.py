@@ -42,6 +42,7 @@ MAX_SEMANTIC_PATH_CODEPOINTS = MAX_SEMANTIC_OBSERVATION_BYTES
 MAX_SEMANTIC_ARTIFACT_KIND_CODEPOINTS = 16
 MAX_SEMANTIC_SHA256_CODEPOINTS = 64
 MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS = 96
+MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS = 4_096
 _DIAGNOSTIC_DIGEST_CHARS = 16
 
 
@@ -80,16 +81,21 @@ def project_owner_surgery_diagnostic_text(value: str) -> str:
     semantic evidence, persistence, backend selection, grouping, or promotion authority.
 
     Long input collapses before JSON escaping so a bounded semantic observation cannot expand into a
-    many-megabyte rejection string. Short input is escaped with ``ensure_ascii=True`` so newline,
-    bidi controls, lone surrogates, and other layout hazards never enter operator/log prose raw.
-    Canonical source evidence is not rewritten or fed back into semantic admission.
+    many-megabyte rejection string. Source work is independently capped before whole-input encode/hash;
+    over-ceiling non-authoritative prose deliberately loses whole-input digest identity. Short input is
+    escaped with ``ensure_ascii=True`` so newline, bidi controls, lone surrogates, and other layout
+    hazards never enter operator/log prose raw. Canonical source evidence is not rewritten or fed back
+    into semantic admission.
     """
 
     if type(value) is not str:
         raise OwnerSurgerySemanticError(
             "diagnostic source must be one exact built-in string"
         )
-    if len(value) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
+    source_codepoints = len(value)
+    if source_codepoints > MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS:
+        return f"<text-over-source-ceiling:{source_codepoints}cp>"
+    if source_codepoints > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
         return f"<text>...#{_diagnostic_digest(value)}"
     escaped = json.dumps(value, ensure_ascii=True, separators=(",", ":"))[1:-1]
     if len(escaped) > MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS:
@@ -344,6 +350,9 @@ def source_receipt() -> dict[str, object]:
         "boundedAsciiDiagnosticProjection": True,
         "publicDiagnosticProjection": True,
         "diagnosticSegmentCharCeiling": MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
+        "diagnosticSourceCodepointCeiling": MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS,
+        "finiteDiagnosticSourceWork": True,
+        "oversizeDiagnosticWholeIdentityPreserved": False,
         "contentWitnessRecomputedBeforeSemantics": True,
         "strictUtf8EncodeFailureTyped": True,
         "deepJsonRecursionFailureTyped": True,
