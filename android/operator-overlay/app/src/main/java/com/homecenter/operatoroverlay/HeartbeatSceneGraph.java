@@ -117,10 +117,13 @@ public final class HeartbeatSceneGraph {
          */
         public String interruptedRefreshDescription() {
             if (!refreshInterrupted) return "";
-            String spokenBoundary = safeBoundedSpeech(
-                    refreshBoundary,
-                    MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS,
-                    "Heartbeat refresh boundary contains unsafe semantic text.");
+            String spokenBoundary =
+                    refreshBoundary.length() > HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS
+                            ? "Heartbeat refresh boundary exceeds speech source-work ceiling."
+                            : safeBoundedSpeech(
+                                    refreshBoundary,
+                                    MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS,
+                                    "Heartbeat refresh boundary contains unsafe semantic text.");
             String boundary = spokenBoundary.isEmpty() ? "" : " Boundary: " + spokenBoundary;
             if (visiblePulseId.isEmpty()) {
                 return "Heartbeat refresh interrupted. No complete heartbeat is available." + boundary;
