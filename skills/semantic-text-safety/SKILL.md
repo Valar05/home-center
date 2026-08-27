@@ -53,6 +53,13 @@ The duplicated *gate* is defense in depth; the directional-control definition li
 
 This remains source semantics only until the existing Operator Overlay runtime consumes the persisted payload, projects exact bytes, parses it, renders the scene, and exercises TalkBack through an authorized device lane.
 
+## Owner-surgery discovery integration
+The owner-surgery semantic producer now exposes one shared non-authoritative `project_owner_surgery_diagnostic_text(...)` source organ. It accepts exact built-in strings only and projects them to bounded ASCII-safe diagnostic text; long bounded source collapses to a deterministic digest marker before escaping. This projector is **SOURCE_WIRED** and is not canonical evidence or promotion authority.
+
+Canonical v10 discovery-error consumption remains a separate capability. Until `tools/try_forever_owner_surgery_custody_probe.py` imports and uses the shared projector inside `_error(...)`, `DiscoveryError.boundary` remains **RED / PROPOSED_NOT_APPLIED** even though the projector itself exists. Do not green-paint a consumer from the capability of its dependency.
+
+`patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch` is the exact current-base existing-owner surgery for that consumption boundary. `tools/test_try_forever_owner_surgery_discovery_error_projection.py` is SOURCE / UNEXECUTED and intentionally proves the dependency and the still-red consumer separately.
+
 ## Regression fixtures
 For any semantic-ingestion path covered by this skill, preserve hostile fixtures for:
 
@@ -90,6 +97,8 @@ If a prior sanitizer fix simply rejected every Unicode `FORMAT` character, inspe
 If a parser correctly rejects poisoned values but then echoes an untrusted poisoned member name into its error text, the boundary is still wounded. Repair the projection rather than declaring victory at the value validator.
 
 If exact evidence is safe to retain but too large or unsafe to speak, do not solve the speech problem by rewriting the evidence. Add an explicit projection boundary and regression source that proves both sides stay true.
+
+If a shared projector is SOURCE_WIRED but a canonical consumer still emits raw diagnostic text, keep the consumer RED. Dependency capability is not transitive owner capability.
 
 ## Done
 This skill has materially contributed only when it changes a parser/policy/scene constraint, regression fixture, accessibility rule, or exact evidence boundary in the current mission. Naming the skill without such a consequence is decorative and stays dark.
