@@ -45,9 +45,10 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +
 +    private static List<HeartbeatSkillPolicy.Candidate> snapshotDirectCandidates(
 +            List<HeartbeatSkillPolicy.Candidate> candidates) {
-+        if (candidates == null || candidates.isEmpty()) return Collections.emptyList();
++        if (candidates == null) return Collections.emptyList();
 +        int size = candidates.size();
 +        if (size < 0 || size > HeartbeatEnvelopeParser.MAX_LIGHTS) return null;
++        if (size == 0) return Collections.emptyList();
 +        List<HeartbeatSkillPolicy.Candidate> detached = new ArrayList<>(size);
 +        for (int index = 0; index < size; index++) detached.add(candidates.get(index));
 +        return Collections.unmodifiableList(detached);
