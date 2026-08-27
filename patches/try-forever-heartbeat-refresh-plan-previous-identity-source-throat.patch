@@ -1,10 +1,12 @@
-# STATUS: PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
 # OWNER BASE BLOB: e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6
+# APPLIED COMMIT: 0833625cb0738473516fdad54d81c914b0aeba75
+# RESULT BLOB: 0d6aa78b0a457ad11660142b8600800055c81529
 # PURPOSE: Bound direct previous structure/render/announcement identity input before trim/equality work.
 # LAW: GENERATED 64-HEX IDENTITY != ARBITRARY DIRECT CALLER STRING; SAFE DOWNSTREAM IDENTITY DOES NOT BOUND UNSAFE ADAPTER INPUT.
-# REUSE: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS as the broad direct-source work ceiling; preserve existing trim/equality behavior at/below the throat.
-# CAPABILITY: PREVIOUS_REFRESH_IDENTITY_SOURCE_WORK_CUSTODY_NO / PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
+# REUSE: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS through the existing broad direct-source work ceiling; preserve trim/equality behavior at/below the throat.
+# CAPABILITY: PREVIOUS_REFRESH_IDENTITY_SOURCE_WORK_CUSTODY_SOURCE_WIRED / REGRESSION_SOURCE_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
