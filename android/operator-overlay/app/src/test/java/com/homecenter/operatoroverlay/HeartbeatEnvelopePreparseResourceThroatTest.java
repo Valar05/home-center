@@ -11,13 +11,19 @@ import org.junit.Test;
  * <p>The persisted writer's byte budget does not protect direct callers of
  * HeartbeatEnvelopeParser.parse(...). The parser must reject an obviously oversized
  * Java String before trim or JSON traversal can consume the whole caller-owned value.</p>
+ *
+ * <p>The proposed ceiling remains fixture-local until the existing parser owner actually
+ * exposes the matching public constant. This keeps the RED regression compilable instead
+ * of turning an unapplied owner proposal into a compile-time capability claim.</p>
  */
 public class HeartbeatEnvelopePreparseResourceThroatTest {
+    private static final int PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS = 32_768;
+
     @Test
     public void oversizedAllWhitespaceFailsAtResourceThroatBeforeBlankNormalization() {
         String oversized = repeat(
                 ' ',
-                HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS + 1);
+                PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS + 1);
 
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(oversized);
 
@@ -29,7 +35,7 @@ public class HeartbeatEnvelopePreparseResourceThroatTest {
     public void exactSourceCeilingStillReachesExistingParserSemantics() {
         String exact = repeat(
                 ' ',
-                HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS);
+                PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS);
 
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(exact);
 
