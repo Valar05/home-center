@@ -1,110 +1,59 @@
 # Operator Repeatable Accessibility Event Semantics
 
 ## Purpose
-
-Prevent deprecated announcement migration from replacing useful semantics with a fake event cannon. Repeated explicit actions must remain understandable, but **not every repeated press requires a repeated synthetic spoken confirmation**.
-
-This skill is repository/source accessibility doctrine only. It owns no Android View, controller, renderer, phone execution, P0 recovery, deployment, delivery, or acceptance lane.
+Prevent accessibility announcement migration from replacing useful repeatable receipts with fake freshness or a blanket live-region cannon. This is repository/source doctrine only; it owns no phone/P0/runtime lane.
 
 ## Core distinction
+A live region is a semantic **value-change** surface. A native control exposes an **action**. A persistent selected/result surface exposes **state**. Removing an explicit event receipt is allowed only when that consequence has a complete owner contract for identical repeats, failure/result behavior, focus, mute, and persistent inspection.
 
-A live region is a semantic **value-change** surface. A native control exposes an **action**. A persistent selected/result surface exposes **state**. Those ingredients can describe a replacement, but a plausible replacement design is not automatically safe enough to remove an existing explicit event receipt.
+## Current consequence states
+1. **Automatic heartbeat material transition — SOURCE_WIRED.**
+   - This is the narrow value-change case.
+   - Existing transition/announcement identity gates the consequence.
+   - `OperatorOverlayService` now uses `AccessibilityAnnouncementSemanticPolicy` to select one-shot live-region mode for `HEARTBEAT_MATERIAL_TRANSITION` and resets the live region to `NONE` afterward.
+   - WAITING, SKIP_UNCHANGED, and pre-contact clearing explicitly force `NONE`.
+   - The old heartbeat-summary `announceForAccessibility(...)` call is removed from the owner.
 
-The exact promotion question is:
-
-`Has this repeatable explicit event been reviewed as a complete owner contract, including identical-repeat behavior, failure/result behavior, focus ownership, mute behavior, persistent inspection, and the correct native selection geometry?`
-
-Until yes, fail closed, keep the legacy event receipt, and carry a typed `MigrationBlocker` that says what remains unresolved.
-
-## Current TRY FOREVER contract
-
-1. **Spotify explicit command receipt — design exists / owner migration NOT ready.**
-   - The command button names the action and `spotifyStatus` exposes a changing result value.
-   - A changed-status live-region design exists, but identical-repeat event semantics remain unresolved as an owner contract.
+2. **Spotify explicit command receipt — migration blocked.**
    - Blocker: `SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED`.
-   - `ownerMigrationReady=false`; keep the legacy receipt for now.
+   - Keep the existing bounded explicit receipt.
 
-2. **Heartbeat explicit detail selection — design exists / owner migration NOT ready.**
-   - The light owns semantic selection and the detail well persistently exposes Why/Consequence/Evidence/Source.
-   - Re-selection semantics are not yet accepted as a complete replacement for the explicit event receipt.
+3. **Heartbeat explicit detail selection — migration blocked.**
    - Blocker: `DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED`.
-   - `ownerMigrationReady=false`; keep the legacy receipt for now.
+   - Persistent selection/detail semantics exist, but repeated explicit selection has not earned receipt removal.
 
-3. **Adam send confirmation — design exists / owner migration NOT ready.**
-   - Mode-specific action/result semantics exist in source design.
-   - Same-mode resend and future asynchronous result/failure semantics are not yet accepted as a complete owner contract.
+4. **Adam send confirmation — migration blocked.**
    - Blocker: `ADAM_REPEAT_SEND_RESULT_UNRESOLVED`.
-   - `ownerMigrationReady=false`; keep the legacy receipt for now.
+   - Keep the existing explicit send receipt.
 
-4. **Automatic heartbeat material transition — separate value-change case / owner migration READY.**
-   - Existing transition/announcement identity already represents a material semantic change.
-   - Blocker: `NONE`.
-   - The narrow one-shot polite-live-region design remains the only review-ready announcement migration.
+## Applied owner custody
+The canonical combined selection + material-transition surgery is **APPLIED_SOURCE**:
+- base owner blob: `c5de1411a6b68087ae17aff83c032af754587150`;
+- applied owner commit: `47e7ac3410b48596ad22d1c72a94580133e1596f`;
+- resulting owner blob: `2935243f136359e3489a89108406e888b0ec2911`;
+- provenance: `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch`.
 
-## Authenticated owner revalidation — 2026-08-27 16:00 source checkpoint
+The same mutation composes `HeartbeatSelectionAccessibilityPolicy` into the native collection lifecycle. Horizontal geometry remains **rows=1 / columns=N**, with `rowIndex=0` and `columnIndex=itemIndex`; the owner consumes policy fields rather than duplicating those constants.
 
-Fresh PR-head readback keeps capability states separate:
-
-- `OperatorOverlayService.java` remains exact blob `c5de1411a6b68087ae17aff83c032af754587150` and still contains the legacy Spotify, heartbeat-summary, heartbeat-detail, and Adam announcement receipts;
-- `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` remains base-locked to that exact owner blob and **CANONICAL_PROPOSED_NOT_APPLIED**;
-- the heartbeat selection policy had a separate supporting-source defect: a horizontal strip was transposed into rows=N / columns=1;
-- that supporting policy is now corrected to rows=1 / columns=N with `rowIndex=0` and `columnIndex=item index`;
-- its deterministic JUnit and doctrine/source regressions were converged, but remain **UNEXECUTED**;
-- the combined patch delegates row/column values to the policy rather than hard-coding them, so its owner blob lock remains current after the supporting policy correction;
-- therefore heartbeat automatic transition migration remains **REVIEW_READY DESIGN / OWNER_WIRED NO**, while Spotify/detail/Adam blockers remain non-`NONE` and their legacy receipts remain untouched.
-
-Fresh Android framework orientation guidance supports the geometry correction: a horizontally scrolling layout reports one accessibility row and item-count columns. Reference: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.LayoutManager
-
-This is an exact source boundary, not runtime evidence and not permission to consume the phone/P0 surface.
+`tools/test_try_forever_heartbeat_owner_patch_convergence.py` is convergence regression source. It requires the native collection helper and heartbeat live-region wiring while preserving the Spotify/detail/Adam legacy receipts. It remains **UNEXECUTED**.
 
 ## Laws
+1. Repeated action does not automatically imply repeated announcement; replacement semantics must be complete first.
+2. Same value is not fresh evidence. Never mutate text only to trigger accessibility output.
+3. Do not blanket-live-region a frequently refreshed value; background/poll paths stay silent unless independently authorized.
+4. Collection geometry follows the rendered axis; the horizontal strip is one row of item columns.
+5. Selection is state, not focus. Do not steal keyboard/accessibility focus.
+6. A one-shot live-region consequence must reset after the intended mutation.
+7. Repeatable receipts with unresolved blockers stay in the sole owner.
+8. Compose `OperatorOverlayService`; never create a neighboring accessibility-event controller.
+9. Capability membrane: `policy source → owner source wired → regression source → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
+10. P0 firewall: no Phone Hands, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, PR317/PR318 mutation, or physical acceptance.
 
-1. **Repeated action does not automatically imply repeated announcement.** Prefer native action + persistent semantic result when that replacement contract is actually complete.
-2. **Design-ready is not owner-migration-ready.** Keep those capability states separate.
-3. **Migration-unready must name its wound.** A typed blocker is required; do not leave `false` as unexplained archaeology.
-4. **Same value is not fresh evidence.** Never mutate text solely to trigger accessibility output.
-5. **Changed async result may use a live region.** Gate it to the explicit action and actual semantic value change; startup/poll changes remain silent unless independently authorized.
-6. **Selection is state.** Selection+detail can be part of a replacement, but must not silently erase a meaningful event receipt before acceptance.
-7. **Collection geometry follows the rendered axis.** A horizontal native strip is one row with item columns; do not transpose it while claiming selection semantics are complete.
-8. **Action labels track action.** Mode/state-sensitive controls must expose their exact current action.
-9. **No fake freshness.** No decorative timestamps, counters, punctuation, zero-width markers, or opaque request IDs.
-10. **Do not steal focus.** Programmatic focus movement needs its own interaction contract and runtime proof.
-11. **Do not blanket-live-region a frequently refreshed value.** A live region that speaks polls is a regression, not accessibility.
-12. **Review-ready patch custody is exact.** Only a migration intended for promotion tracks the authenticated current owner blob. Rejected historical surgery must stay rejected rather than being continuously rebased into a tempting current-looking patch.
-13. **One owner.** Compose `OperatorOverlayService`; do not create a neighboring accessibility-event controller.
-14. **Capability membrane:** `policy source → regression source → owner patch → owner source wired → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
-15. **P0 firewall:** no Phone Hands, primary-phone execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.
-
-## Owner acceptance questions
-
-Before removing one legacy `announceForAccessibility(...)` call:
-
-- Is its typed `MigrationBlocker` now `NONE`, and what evidence paid that blocker?
-- Is the control/action accurately named?
-- Is the resulting semantic state/value persistently inspectable?
-- Does collection geometry match the rendered orientation and item order?
-- What happens when the same action repeats and the persistent value does not change?
-- What happens on asynchronous failure or delayed result?
-- For live-region use, did the semantic value actually change?
-- Can background/poll work mutate the same surface, and is that path gated silent?
-- Does the design preserve mute, selection, focus, viewport-contact, and contact-preservation laws?
-- Does the existing native owner carry the design?
-- Is any one-shot live-region authority reset after the intended mutation?
-- Does regression source distinguish source design from owner wiring and runtime proof?
-
-If any owner event-semantics question is unresolved, keep the legacy call and keep a non-`NONE` typed blocker.
-
-## Current PR #329 source truth — 2026-08-27 16:00
-
-- doctrine: **YES / IMPLEMENTED_SOURCE**;
-- supporting semantic designs for all four consequences: **YES**;
-- heartbeat horizontal collection policy: **SOURCE_CORRECTED / ROWS=1 / COLUMNS=N**;
-- heartbeat material transition: **OWNER_MIGRATION_READY=true / blocker NONE / OWNER_WIRED NO**;
-- Spotify receipt: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
-- repeated detail selection: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
-- Adam send confirmation: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
-- canonical combined heartbeat-selection + material-transition patch: **CANONICAL_PROPOSED_NOT_APPLIED / exact current owner blob lock**;
-- geometry + owner-patch regression source: **YES / UNEXECUTED**;
-- authenticated current owner still contains all four legacy calls: **YES / blob c5de1411a6b68087ae17aff83c032af754587150**;
-- She-Raw pre-execution consultation at this checkpoint: **FAULT / account connection HTTP 400**, no substitute reviewer;
-- TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO unless fresh exact-head evidence proves otherwise**.
+## Current truth
+- heartbeat horizontal collection policy: **SOURCE_WIRED / ROWS=1 / COLUMNS=N**;
+- heartbeat material-transition migration: **SOURCE_WIRED / APPLIED_SOURCE**;
+- Spotify receipt migration: **NO / blocker non-NONE**;
+- repeated detail-selection receipt migration: **NO / blocker non-NONE**;
+- Adam send receipt migration: **NO / blocker non-NONE**;
+- owner-convergence regression source: **YES / UNEXECUTED**;
+- TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO absent fresh evidence**.
