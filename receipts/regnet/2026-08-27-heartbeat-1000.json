@@ -1,0 +1,76 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-27T10:00:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "e181dccf51b344c0852f0b65173e7dfd78070988",
+  "verdict": "PASS_BOUNDED_SOURCE__PREVIOUS_IDENTITY_SOURCE_WIRED__DIRECT_SCENE_CANDIDATE_SNAPSHOT_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "previous refresh identity direct source-work custody",
+      "state": "PASS_SOURCE_WIRED_APPLIED_SOURCE",
+      "evidence": "HeartbeatOverlayRefreshPlan shouldRebuildStructure, shouldRefreshContent/shouldRebuild, and shouldAnnounce now route prior identity Strings through the existing 32768-code-unit broad source throat before trim/equality. At/below the throat established trim/equality is preserved; max+1 structure/render fails closed to work and max+1 announcement fails closed to silence."
+    },
+    {
+      "front": "previous identity regression and doctrine convergence",
+      "state": "PASS_SOURCE_UNEXECUTED",
+      "evidence": "Java max/max+1 behavior source, Python owner-order source, APPLIED_SOURCE patch provenance, and heartbeat-refresh-deduplication doctrine agree on current owner truth. No regression execution or runtime claim exists."
+    },
+    {
+      "front": "direct complete-scene candidate-list custody",
+      "state": "REVISE_REQUIRED_RED_SOURCE",
+      "evidence": "Canonical HeartbeatEnvelopeParser rejects rawLights.size()>MAX_LIGHTS=64 before candidate traversal, while direct HeartbeatSceneGraph.build still hands arbitrary caller List input to duplicate/material traversal. The corrected existing-owner proposal performs one size observation, rejects over 64, takes at most 64 indexed reads into a detached list, then traverses only that snapshot. It explicitly does not claim callback-free arbitrary-List admission. Owner mutation remains unapplied."
+    },
+    {
+      "front": "proposal self-review",
+      "state": "PASS_CORRECTED_SOURCE",
+      "evidence": "Failure Is The Shovel rejected the first map-like count-only repair because later code still traversed the caller List, then rejected an isEmpty()+size version because it violated the one-size-observation claim. The staged artifact and RED fixture now encode the corrected bounded-snapshot contract."
+    },
+    {
+      "front": "contact, accessibility, and motion",
+      "state": "PASS_SOURCE_BOUNDARY",
+      "evidence": "The applied previous-identity gate does not rewrite next Plan identities; oversize previous announcement input cannot manufacture speech. The staged scene-list repair preserves last-good contact and no-motion rejection. Runtime TalkBack remains unproven and no visual/runtime surface was claimed."
+    }
+  ],
+  "regressions": {
+    "sourcePresent": true,
+    "executed": false,
+    "tested": false,
+    "notes": "Previous-identity Java/Python fixtures are convergence source. Direct scene candidate snapshot fixture is RED source and unexecuted."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "exactHead": "e181dccf51b344c0852f0b65173e7dfd78070988",
+    "workflowRuns": [
+      {"name": "Build Android", "id": 33086468620, "status": "completed", "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 33086468624, "status": "completed", "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33086468480, "status": "completed", "conclusion": "failure", "jobId": 98567342174, "steps": 0}
+    ],
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "previousIdentityCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "directSceneCandidateSnapshotCustody": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
