@@ -1,0 +1,40 @@
+{
+  "receiptType": "venice_judgment",
+  "timestamp": "2026-08-27T12:03:02-05:00",
+  "reviewedSourceHead": "98ae24997c846940d69d841054cf9ac01d7ff81a",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "direct public policy selection now owns canonical MAX_LIGHTS collection-work parity without a second owner",
+    "persistent-selection construction and direct collection lookup now bound arbitrary semantic-id work before repeated equality while preserving admitted identity",
+    "focused regression artifacts exist but have not executed",
+    "exact-head workflows were queued at checkpoint, so TESTED/runtime claims remain unavailable",
+    "phone and P0 surfaces were not consumed"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
