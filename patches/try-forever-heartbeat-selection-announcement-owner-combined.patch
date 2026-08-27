@@ -1,6 +1,8 @@
 # TRY FOREVER heartbeat selection + automatic-announcement owner surgery
-# STATUS: CANONICAL_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: c5de1411a6b68087ae17aff83c032af754587150
+# APPLIED OWNER COMMIT: 47e7ac3410b48596ad22d1c72a94580133e1596f
+# APPLIED OWNER BLOB: 2935243f136359e3489a89108406e888b0ec2911
 # OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 #
 # Why combined:
@@ -18,7 +20,8 @@
 # - do not create another renderer/controller/owner;
 # - no phone/P0 work.
 #
-# Capability: supporting surgery source only. OWNER_WIRED=NO, TESTED=NO, RUNTIME=NO.
+# Capability: owner source wiring + authenticated remote readback only. REGRESSION_EXECUTED=NO,
+# TESTED=NO, RUNTIME=NO, DEPLOYED=NO, DELIVERED=NO, ACCEPTED=NO.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
