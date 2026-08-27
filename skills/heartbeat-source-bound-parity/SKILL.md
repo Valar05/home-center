@@ -16,7 +16,7 @@ Direct public policy selection is a separate source-work boundary and now has th
 
 Direct semantic lookup is also source work. `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`, `HeartbeatFrameAccessibility.focusIndexForId(frame, nodeId)`, and `HeartbeatOverlayViewModel.Model.controlById(id)` reuse `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before trim/`Locale.ROOT` case-fold. Oversized direct queries fail closed without creating a second id namespace; accepted scene/control identities and case-insensitive lookup behavior at/below the throat stay exact. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**. Safe canonical scene ids still do not authorize unbounded work for arbitrary direct callers.
 
-Persistent-selection input is another direct semantic-id boundary. `HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId)` now gates raw `selectedId` through `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before repeated `equalsIgnoreCase` comparison against rendered controls. Oversized input becomes no selection, not a truncated or normalized replacement id. Admitted input stays exact. This seam is **SOURCE_WIRED / regression source UNEXECUTED / runtime TalkBack NO**.
+Persistent-selection input and lookup are another direct semantic-id boundary. `HeartbeatSelectionAccessibilityPolicy.fromModel(model, selectedId)` and `CollectionDecision.itemById(semanticId)` gate raw query text through `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before repeated `equalsIgnoreCase` comparison against rendered items. Oversized input becomes no selection/null lookup, not a truncated or normalized replacement id. Admitted input stays exact. This seam is **SOURCE_WIRED / regression source UNEXECUTED / runtime TalkBack NO**.
 
 Interrupted-refresh diagnostic boundaries are a second independent source-work channel. `HeartbeatSceneGraph.Frame.refreshBoundary` remains exact evidence, but exact diagnostic evidence does not authorize unbounded human-facing semantic scanning or render/announcement identity hashing. `HeartbeatSceneGraph.Frame.interruptedRefreshDescription()` stops over-ceiling boundary prose at `HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS` before whole-boundary semantic scanning, while ordinary admitted boundaries continue through the existing 320-code-point speech projection. `HeartbeatOverlayRefreshPlan` independently derives a bounded diagnostic identity before SHA-256 materialization; over-ceiling boundaries collapse to a deterministic source-limit marker keyed only by O(1) Java length, while the exact frame field remains unchanged. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
 
@@ -40,7 +40,7 @@ When an oversized raw envelope reaches the public parser, reject it at the finit
 
 For direct Candidate construction, `MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS` delegates to the parser's `MAX_ENVELOPE_SOURCE_CODE_UNITS` and is applied independently to each raw String field before semantic scanning or trimming. For direct pulse identity, `MAX_DIRECT_PULSE_SOURCE_CODE_UNITS` delegates to the same parser ceiling before semantic scanning or trim. Do not synthesize a smaller replacement record. Do not truncate evidence or pulse identity into something that can pass the typed gate. Speech projection may be bounded independently only after source acceptance.
 
-For direct stable-id lookup, fail closed before trim/case-fold when the raw query exceeds the broad source-work ceiling. Do not create a second id namespace or normalize an oversized query into a plausible semantic id. For persistent selection, over-ceiling raw selected ids become no selection before repeated equality work, never a replacement selection. For interrupted-refresh boundaries, preserve the exact boundary field but independently bound the work used for spoken projection and UI dedup identities; diagnostic collapse must never feed canonical contact or authority evidence.
+For direct stable-id lookup, fail closed before trim/case-fold when the raw query exceeds the broad source-work ceiling. Do not create a second id namespace or normalize an oversized query into a plausible semantic id. For persistent selection and collection lookup, over-ceiling raw ids become no selection/null lookup before repeated equality work, never a replacement selection. For interrupted-refresh boundaries, preserve the exact boundary field but independently bound the work used for spoken projection and UI dedup identities; diagnostic collapse must never feed canonical contact or authority evidence.
 
 Candidate applied provenance: `patches/try-forever-heartbeat-direct-candidate-pretrim-resource-throat.patch`; base owner blob `5b5f89174da52b7fff742fdad4e2c103281424fc`; applied commit `2c2ba7fcbfbbb54d45e8638cf4ac9991b28367f5`; result blob `a0cfad7ce47455d06d83607f4e5ebdf71b9aada5`.
 
@@ -54,7 +54,7 @@ Direct scene candidate snapshot applied provenance: `patches/try-forever-heartbe
 
 Direct public selection applied provenance: `patches/try-forever-heartbeat-policy-direct-selection-candidate-snapshot.patch`; policy base blob `a0cfad7ce47455d06d83607f4e5ebdf71b9aada5`; applied commit `3e5aa33a11fef2fa8ba3cf224b6844aa4cbecde2`; result blob `fad085133d55d6c154ee591ffc66d28ce4507223`; focused regression source **YES / UNEXECUTED**.
 
-Persistent-selection selected-id source-work custody: `HeartbeatSelectionAccessibilityPolicy.java`; source commit `53a277ec9772de8dfded4c778278e9c04dabf4c2`; result blob `a2e49d60a67fb5fdc2e93d85e912a4e88c38cf49`; focused source-order regression **YES / UNEXECUTED**.
+Persistent-selection semantic-id source-work custody: `HeartbeatSelectionAccessibilityPolicy.java`; initial selected-id gate commit `53a277ec9772de8dfded4c778278e9c04dabf4c2`; direct collection lookup convergence commit `f2f59a0376a8fac11edd516f2c3a5f9b2e19710f`; current owner blob `525cb4aa657fc88a0125975f85358d71f2f3d22e`; focused Java/Python regression source **YES / UNEXECUTED**.
 
 ## Regression requirements
 
@@ -78,7 +78,7 @@ Keep source fixtures for:
 - a raw envelope at source ceiling + 1 failing at the resource throat before blank normalization / JSON traversal;
 - direct frame detail/focus lookup and model control lookup crossing a broad raw source gate before trim/case-fold;
 - exact accepted semantic ids continuing to resolve case-insensitively after lookup custody;
-- persistent-selection direct selected id crossing the broad raw source gate before repeated item comparison, with max+1 producing no selection and no replacement identity;
+- persistent-selection direct selected id and direct collection item lookup crossing the broad raw source gate before repeated item comparison, with max+1 producing no selection/null and no replacement identity;
 - over-ceiling interrupted-refresh boundary prose failing to a deterministic bounded speech wound before whole-source semantic scanning while exact evidence remains unchanged;
 - render/announcement identities consuming a bounded diagnostic boundary identity while the exact `Frame.refreshBoundary` remains unchanged;
 - two over-ceiling diagnostic boundaries with equal length but different contents sharing the same non-authoritative UI/dedup identity while their exact evidence remains distinct;
@@ -100,7 +100,7 @@ Current state:
 - direct complete-scene candidate snapshot/count custody: **SOURCE_WIRED / APPLIED_SOURCE**;
 - direct public policy selection candidate-list custody: **SOURCE_WIRED / APPLIED_SOURCE**;
 - direct semantic lookup pre-trim/case-fold custody: **SOURCE_WIRED / APPLIED_SOURCE**;
-- persistent-selection selected-id source-work custody: **SOURCE_WIRED**;
+- persistent-selection selected-id / collection-lookup source-work custody: **SOURCE_WIRED**;
 - interrupted-refresh speech/dedup source-work custody: **SOURCE_WIRED / APPLIED_SOURCE**;
 - focused Candidate/pulse/scene/selection/lookup/boundary regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
