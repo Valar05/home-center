@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Source fixture for owner-surgery discovery diagnostic projection custody.
 
-SOURCE ONLY / UNEXECUTED. Canonical v10 already consumes the shared ASCII-safe diagnostic projector,
-and the shared projector now owns a finite 4,096-code-point direct source-work throat before whole-input
-encode/hash. One independent source boundary remains RED: canonical ``_error(...)`` still invokes
-caller-owned ``Exception.__str__`` before projection. Canonical path/artifact evidence remains exact.
+SOURCE ONLY / UNEXECUTED. The shared semantic organ now owns both a finite 4,096-code-point
+diagnostic source-work throat and callback-free exception diagnostic projection. Canonical v10 still
+has one independent RED consumer boundary: ``_error(...)`` invokes caller-owned ``Exception.__str__``
+instead of consuming that shared callback-free helper. Canonical path/artifact evidence remains exact.
 This fixture proves no regression execution, TESTED, runtime, deployment, phone delivery, or P0
 capability.
 """
@@ -18,6 +18,7 @@ from try_forever_owner_surgery_semantic_parser import (
     MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS,
     OwnerSurgerySemanticError,
     project_owner_surgery_diagnostic_text,
+    project_owner_surgery_exception_diagnostic,
     source_receipt as semantic_source_receipt,
 )
 
@@ -32,6 +33,7 @@ def _assert_shared_projector_source_wired() -> None:
     assert receipt["diagnosticSegmentCharCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
     assert receipt["diagnosticSourceCodepointCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS
     assert receipt["finiteDiagnosticSourceWork"] is True
+    assert receipt["callbackFreeExceptionDiagnosticProjection"] is True
     assert receipt["oversizeDiagnosticWholeIdentityPreserved"] is False
     assert receipt["regressionExecuted"] is False
     assert receipt["tested"] is False
@@ -55,6 +57,26 @@ def _assert_shared_projector_source_wired() -> None:
         raise AssertionError("shared projector admitted a str subclass")
 
 
+def _assert_shared_exception_projector_is_callback_free() -> None:
+    class HostileError(Exception):
+        callback_executed = False
+
+        def __str__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("shared exception projector executed caller-owned __str__")
+
+        def __repr__(self) -> str:
+            type(self).callback_executed = True
+            raise AssertionError("shared exception projector executed caller-owned __repr__")
+
+    kind, message = project_owner_surgery_exception_diagnostic(
+        HostileError("line-one\nline-two")
+    )
+    assert kind == "HostileError"
+    assert message == "line-one\\nline-two"
+    assert HostileError.callback_executed is False
+
+
 def _assert_canonical_projection(exc: Exception) -> None:
     error = custody._error(
         Path("patches/try-forever-diagnostic-projection.patch"),
@@ -70,7 +92,7 @@ def _assert_canonical_projection(exc: Exception) -> None:
     assert "\ud800" not in boundary.lower()
 
 
-def _assert_exception_str_callback_never_executes() -> None:
+def _assert_canonical_exception_str_callback_never_executes() -> None:
     class HostileError(Exception):
         callback_executed = False
 
@@ -83,7 +105,7 @@ def _assert_exception_str_callback_never_executes() -> None:
     except AssertionError:
         pass
     assert HostileError.callback_executed is False, (
-        "canonical discovery projection must not invoke caller-owned Exception.__str__"
+        "canonical discovery projection must consume the callback-free shared helper"
     )
 
 
@@ -110,11 +132,12 @@ def _assert_oversize_source_collapses_before_whole_identity_digest() -> None:
 
 def main() -> int:
     _assert_shared_projector_source_wired()
+    _assert_shared_exception_projector_is_callback_free()
     _assert_canonical_projection(ValueError("line-one\nline-two"))
     _assert_canonical_projection(ValueError("bidi:\u202eattack"))
     _assert_canonical_projection(ValueError("surrogate:\ud800"))
     _assert_canonical_projection(ValueError("x" * 50_000))
-    _assert_exception_str_callback_never_executes()
+    _assert_canonical_exception_str_callback_never_executes()
     _assert_oversize_source_collapses_before_whole_identity_digest()
     return 0
 
