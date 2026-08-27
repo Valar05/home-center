@@ -161,7 +161,7 @@ public final class HeartbeatOverlayRefreshPlan {
             String previousStructureIdentity,
             Plan next) {
         if (next == null) return false;
-        return !clean(previousStructureIdentity).equals(next.structureIdentity);
+        return !boundedPreviousIdentity(previousStructureIdentity).equals(next.structureIdentity);
     }
 
     /** Whether visible/touchable content changed and should be refreshed. */
@@ -169,7 +169,7 @@ public final class HeartbeatOverlayRefreshPlan {
             String previousRenderIdentity,
             Plan next) {
         if (next == null) return false;
-        return !clean(previousRenderIdentity).equals(next.renderIdentity);
+        return !boundedPreviousIdentity(previousRenderIdentity).equals(next.renderIdentity);
     }
 
     /**
@@ -189,7 +189,7 @@ public final class HeartbeatOverlayRefreshPlan {
      */
     public static boolean shouldAnnounce(String previousAnnouncementIdentity, Plan next) {
         if (next == null) return false;
-        String previous = clean(previousAnnouncementIdentity);
+        String previous = boundedPreviousIdentity(previousAnnouncementIdentity);
         if (previous.isEmpty()) return false;
         return !previous.equals(next.announcementIdentity);
     }
@@ -317,6 +317,11 @@ public final class HeartbeatOverlayRefreshPlan {
     }
 
     private static String boundedSelectionId(String value) {
+        if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value);
+    }
+
+    private static String boundedPreviousIdentity(String value) {
         if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
         return clean(value);
     }
