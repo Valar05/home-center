@@ -31,6 +31,12 @@ final class HeartbeatPersistedBase64Canonicality {
      *
      * <p>Empty/null values are not canonical payload declarations here. The poll
      * policy owns the separate WAITING/contact-loss meaning of an absent store.</p>
+     *
+     * <p>This direct comparison boundary also reuses the canonical persisted Base64
+     * source ceiling before {@link String#equals(Object)}. Safe composition through
+     * the snapshot reader already supplies bounded declarations, but direct/package
+     * callers do not inherit that guarantee. Oversized exact text is rejected rather
+     * than normalized, truncated, or compared with attacker-sized repeated work.</p>
      */
     static boolean matchesCanonicalRoundTrip(
             String persistedDeclaration,
@@ -39,6 +45,11 @@ final class HeartbeatPersistedBase64Canonicality {
             return false;
         }
         if (persistedDeclaration.isEmpty() || canonicalReencodedDeclaration.isEmpty()) {
+            return false;
+        }
+        int maxChars = HeartbeatPersistedPollPolicy.MAX_PAYLOAD_B64_CHARS;
+        if (persistedDeclaration.length() > maxChars
+                || canonicalReencodedDeclaration.length() > maxChars) {
             return false;
         }
         return persistedDeclaration.equals(canonicalReencodedDeclaration);
