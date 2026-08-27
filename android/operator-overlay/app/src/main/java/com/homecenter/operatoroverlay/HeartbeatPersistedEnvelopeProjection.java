@@ -22,6 +22,12 @@ import java.util.Locale;
 public final class HeartbeatPersistedEnvelopeProjection {
     /** Alias the canonical ingress ceiling rather than repeating its numeric literal. */
     public static final int MAX_PAYLOAD_BYTES = OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES;
+    /**
+     * Safe early Java source-work ceiling for the compatibility String adapter.
+     * A String longer than the canonical byte ceiling cannot encode to fewer UTF-8
+     * bytes than that ceiling; exact-at-ceiling text still reaches the byte gate.
+     */
+    public static final int MAX_DIRECT_STRING_SOURCE_CODE_UNITS = MAX_PAYLOAD_BYTES;
 
     public static final class Result {
         public final boolean storageAccepted;
@@ -78,6 +84,14 @@ public final class HeartbeatPersistedEnvelopeProjection {
         if (payloadJson == null || payloadJson.isEmpty()) {
             return storageReject(
                     "Stored heartbeat payload is empty.",
+                    lastGood,
+                    0,
+                    "",
+                    updatedMs);
+        }
+        if (payloadJson.length() > MAX_DIRECT_STRING_SOURCE_CODE_UNITS) {
+            return storageReject(
+                    "Stored heartbeat source text exceeds the pre-encode resource ceiling.",
                     lastGood,
                     0,
                     "",
