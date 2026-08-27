@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""RED source regression for direct previous refresh identity source-work custody.
+"""Source regression for direct previous refresh identity source-work custody.
 
 SOURCE ONLY / UNEXECUTED. Generated structure/render/announcement identities are tiny, but the
-public refresh-plan decision helpers still accept arbitrary caller Strings and currently trim
-them before equality. This fixture pins the existing-owner repair without claiming it exists.
+public refresh-plan decision helpers accept arbitrary caller Strings. The existing owner now
+bounds those inputs before trim/equality; this fixture pins that ordering without claiming test
+execution or runtime behavior.
 """
 
 from pathlib import Path
@@ -13,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OWNER = ROOT / (
     "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/"
     "HeartbeatOverlayRefreshPlan.java"
+)
+JAVA_REGRESSION = ROOT / (
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/"
+    "HeartbeatPreviousRefreshIdentitySourceWorkTest.java"
 )
 
 
@@ -34,6 +39,12 @@ def main() -> int:
     assert "clean(previousStructureIdentity).equals(next.structureIdentity)" not in source
     assert "clean(previousRenderIdentity).equals(next.renderIdentity)" not in source
     assert "String previous = clean(previousAnnouncementIdentity);" not in source
+
+    java_source = JAVA_REGRESSION.read_text(encoding="utf-8")
+    assert "atCeilingPreservesTrimmedIdentityWhileMaxPlusOneFailsClosed" in java_source
+    assert "assertTrue(HeartbeatOverlayRefreshPlan.shouldRebuildStructure(structureTooLong, plan));" in java_source
+    assert "assertTrue(HeartbeatOverlayRefreshPlan.shouldRefreshContent(renderTooLong, plan));" in java_source
+    assert "assertFalse(HeartbeatOverlayRefreshPlan.shouldAnnounce(announceTooLong, plan));" in java_source
     return 0
 
 
