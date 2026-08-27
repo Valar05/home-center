@@ -35,6 +35,12 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
         return HeartbeatOverlayViewModel.fromFrame(frame);
     }
 
+    private static String repeated(char value, int count) {
+        StringBuilder out = new StringBuilder(count);
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
+    }
+
     @Test
     public void persistentHorizontalSelectionIsSingleColumnCollection() {
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
@@ -88,6 +94,22 @@ public class HeartbeatSelectionAccessibilityPolicyTest {
         assertEquals(0, decision.selectedCount());
         assertFalse(decision.itemById("alpha").selected);
         assertFalse(decision.itemById("beta").selected);
+    }
+
+    @Test
+    public void directSelectedIdSourceWorkIsBoundedBeforeItemComparison() {
+        HeartbeatOverlayViewModel.Model source = model("pulse-source-bound", "alpha", "beta");
+        int max = HeartbeatSelectionAccessibilityPolicy.MAX_DIRECT_SELECTED_ID_SOURCE_CODE_UNITS;
+
+        HeartbeatSelectionAccessibilityPolicy.CollectionDecision atMax =
+                HeartbeatSelectionAccessibilityPolicy.fromModel(source, repeated('x', max));
+        HeartbeatSelectionAccessibilityPolicy.CollectionDecision maxPlusOne =
+                HeartbeatSelectionAccessibilityPolicy.fromModel(source, repeated('x', max + 1));
+
+        assertEquals(0, atMax.selectedCount());
+        assertEquals(0, maxPlusOne.selectedCount());
+        assertFalse(maxPlusOne.itemById("alpha").selected);
+        assertFalse(maxPlusOne.itemById("beta").selected);
     }
 
     @Test
