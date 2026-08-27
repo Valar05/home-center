@@ -1,47 +1,14 @@
 # STATUS: CORRECTED_PROPOSED_NOT_APPLIED
-# SEMANTIC OWNER: tools/try_forever_owner_surgery_semantic_parser.py
-# SEMANTIC BASE BLOB: 2540b6d11da67cad26fdd3943d3f8ee73ab1c91d
+# SEMANTIC DEPENDENCY: tools/try_forever_owner_surgery_semantic_parser.py
+# SEMANTIC DEPENDENCY BLOB: 525bd5aefa82fd788490cef329e8262ca6987a4a
 # CANONICAL OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # CANONICAL BASE BLOB: 6de62efa07df4dabbb408ca77a427e83fbc4e883
-# PURPOSE: Close the remaining non-authoritative diagnostic callback wound without rewriting canonical evidence: canonical discovery must not execute caller-owned Exception.__str__/__repr__ merely to produce bounded human-facing prose.
-# ALREADY APPLIED: finite diagnostic source-work throat is SOURCE_WIRED in semantic owner blob 2540b6d11da67cad26fdd3943d3f8ee73ab1c91d (4096 source code points -> 96 returned code points; over-ceiling whole-input diagnostic identity intentionally not preserved).
+# PURPOSE: Close the remaining non-authoritative diagnostic callback wound without rewriting canonical evidence: canonical discovery must consume the already-SOURCE_WIRED callback-free exception projector instead of executing caller-owned Exception.__str__/__repr__.
+# ALREADY APPLIED IN SEMANTIC DEPENDENCY: finite diagnostic source-work throat (4096 source code points -> 96 returned code points; over-ceiling whole-input diagnostic identity intentionally not preserved) and callback-free exception diagnostic helper.
 # PRESERVE: exact path/artifact/Surgery evidence; canonical backend selection; semantic producer ownership; zero-partial-authority; no weaker fallback; P0/phone firewall.
-# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (RED SOURCE / UNEXECUTED only for callback seam)
-# CAPABILITY: CALLBACK_REPAIR_PROPOSED_NOT_APPLIED / FINITE_SOURCE_WORK_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (RED SOURCE / UNEXECUTED only because canonical consumer remains unwired)
+# CAPABILITY: SHARED_CALLBACK_FREE_PROJECTOR_SOURCE_WIRED / CANONICAL_CONSUMER_PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
-
-diff --git a/tools/try_forever_owner_surgery_semantic_parser.py b/tools/try_forever_owner_surgery_semantic_parser.py
---- a/tools/try_forever_owner_surgery_semantic_parser.py
-+++ b/tools/try_forever_owner_surgery_semantic_parser.py
-@@
- MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS = 96
- MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS = 4_096
-+MAX_SEMANTIC_EXCEPTION_ARGS = 8
- _DIAGNOSTIC_DIGEST_CHARS = 16
-@@
- def project_owner_surgery_diagnostic_text(value: str) -> str:
-@@
-     return escaped
-+
-+
-+def project_owner_surgery_exception_diagnostic(exc: BaseException) -> tuple[str, str]:
-+    """Project exception diagnostics without caller-owned __str__/__repr__ callbacks."""
-+
-+    exception_type = type.__getattribute__(type(exc), "__name__")
-+    projected_type = project_owner_surgery_diagnostic_text(exception_type)
-+    args = BaseException.args.__get__(exc, BaseException)
-+    if type(args) is not tuple:
-+        return projected_type, "<exception-payload-unavailable>"
-+    if len(args) > MAX_SEMANTIC_EXCEPTION_ARGS:
-+        return projected_type, f"<exception-payload:{len(args)}-args>"
-+    for item in args:
-+        if type(item) is str:
-+            return projected_type, project_owner_surgery_diagnostic_text(item)
-+    return projected_type, "<exception-payload-omitted>"
-@@
-         "finiteDiagnosticSourceWork": True,
-+        "callbackFreeExceptionDiagnosticProjection": True,
-         "oversizeDiagnosticWholeIdentityPreserved": False,
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
 --- a/tools/try_forever_owner_surgery_custody_probe.py
