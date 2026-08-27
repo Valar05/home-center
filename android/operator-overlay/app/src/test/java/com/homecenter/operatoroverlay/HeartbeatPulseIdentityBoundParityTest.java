@@ -60,6 +60,50 @@ public class HeartbeatPulseIdentityBoundParityTest {
     }
 
     @Test
+    public void directScenePulseSourceWorkHasIndependentFiniteThroat() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-good",
+                Collections.singletonList(candidate()),
+                true,
+                null);
+        String atCeiling = repeat("p", HeartbeatSceneGraph.MAX_DIRECT_PULSE_SOURCE_CODE_UNITS);
+
+        HeartbeatSceneGraph.Frame typedRejected = HeartbeatSceneGraph.build(
+                atCeiling,
+                Collections.singletonList(candidate()),
+                true,
+                lastGood);
+        assertTrue(typedRejected.refreshInterrupted);
+        assertEquals("pulse-good", typedRejected.visiblePulseId);
+        assertEquals("", typedRejected.attemptedPulseId);
+        assertEquals(
+                "Pulse identity exceeds "
+                        + HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS
+                        + " characters.",
+                typedRejected.refreshBoundary);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, typedRejected));
+        assertFalse(typedRejected.transitionMotionAllowed);
+
+        String maxPlusOne = atCeiling + "p";
+        HeartbeatSceneGraph.Frame resourceRejected = HeartbeatSceneGraph.build(
+                maxPlusOne,
+                Collections.singletonList(candidate()),
+                true,
+                lastGood);
+        assertTrue(resourceRejected.refreshInterrupted);
+        assertEquals("pulse-good", resourceRejected.visiblePulseId);
+        assertEquals("", resourceRejected.attemptedPulseId);
+        assertEquals(
+                "Pulse identity exceeds direct source-work ceiling "
+                        + HeartbeatSceneGraph.MAX_DIRECT_PULSE_SOURCE_CODE_UNITS
+                        + " code units.",
+                resourceRejected.refreshBoundary);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, resourceRejected));
+        assertFalse(resourceRejected.transitionMotionAllowed);
+        assertFalse(resourceRejected.nodes.get(0).transitionMotion);
+    }
+
+    @Test
     public void preParserOversizedAttemptedIdentityIsNotRetainedAsDiagnosticState() {
         HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
                 "pulse-good",
@@ -70,6 +114,33 @@ public class HeartbeatPulseIdentityBoundParityTest {
 
         HeartbeatSceneGraph.Frame rejected = HeartbeatSceneGraph.preserveRejectedRefresh(
                 oversized,
+                lastGood,
+                "Persisted heartbeat byte identity mismatch.");
+
+        assertTrue(rejected.refreshInterrupted);
+        assertEquals("pulse-good", rejected.visiblePulseId);
+        assertEquals("", rejected.attemptedPulseId);
+        assertEquals(
+                "Persisted heartbeat byte identity mismatch.",
+                rejected.refreshBoundary);
+        assertTrue(HeartbeatFrameCheckpoint.sameVisibleContact(lastGood, rejected));
+        assertFalse(rejected.transitionMotionAllowed);
+        assertFalse(rejected.nodes.get(0).transitionMotion);
+    }
+
+    @Test
+    public void preParserPulseSourceWorkStopsBeforeSemanticScan() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-good",
+                Collections.singletonList(candidate()),
+                true,
+                null);
+        String maxPlusOne = repeat(
+                "x",
+                HeartbeatSceneGraph.MAX_DIRECT_PULSE_SOURCE_CODE_UNITS + 1);
+
+        HeartbeatSceneGraph.Frame rejected = HeartbeatSceneGraph.preserveRejectedRefresh(
+                maxPlusOne,
                 lastGood,
                 "Persisted heartbeat byte identity mismatch.");
 
