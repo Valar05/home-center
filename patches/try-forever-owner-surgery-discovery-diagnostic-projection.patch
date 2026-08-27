@@ -1,0 +1,37 @@
+# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# BASE OWNER BLOB: 3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# SHARED PROJECTOR OWNER: tools/try_forever_owner_surgery_semantic_parser.py
+# SHARED PROJECTOR BLOB: a3abe553466da9760f534836ef36881b3cdf992d
+# PURPOSE: Route human-facing DiscoveryError.boundary exception type/message text through the existing shared bounded ASCII-safe owner-surgery diagnostic projection organ without rewriting canonical path/artifact evidence or promotion authority.
+# PRESERVE: DiscoveryError.path and artifact_kind evidence; canonical Surgery semantics; backend selection; zero-partial-authority; no weaker fallback; phone/P0 firewall.
+# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (RED SOURCE / UNEXECUTED)
+# CAPABILITY: PROPOSED_NOT_APPLIED / OWNER_WIRING_NO / SHARED_PROJECTOR_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ from try_forever_owner_surgery_semantic_parser import (
+     OwnerSurgerySemanticError,
+     parse_owner_surgery_observation,
++    project_owner_surgery_diagnostic_text,
+ )
+@@
+ def _error(path: Path, artifact_kind: str, exc: Exception) -> DiscoveryError:
++    exception_type = project_owner_surgery_diagnostic_text(type(exc).__name__)
++    exception_message = project_owner_surgery_diagnostic_text(str(exc))
+     return DiscoveryError(
+         path=path.as_posix(),
+         artifact_kind=artifact_kind,
+         boundary=(
+             "Owner surgery artifact excluded from custody authority: "
+-            f"{type(exc).__name__}: {exc}"
++            f"{exception_type}: {exception_message}"
+         ),
+     )
+@@
+             "finiteRegularArtifactCustody": True,
++            "boundedAsciiDiscoveryDiagnosticProjection": True,
+             "currentOwnerCustodyProvided": current_owner_custody_provided,
