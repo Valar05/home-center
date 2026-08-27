@@ -16,6 +16,11 @@ package com.homecenter.operatoroverlay;
 public final class HeartbeatDetailSurfacePolicy {
     /** Spatial target only. Never feed this value to TextView.setMaxLines(...). */
     public static final int MAX_VISIBLE_LINES = 5;
+    /** Broad direct-source work ceiling before compatibility trim. */
+    public static final int MAX_DETAIL_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+    /** Deterministic non-authoritative fallback for a direct caller that exceeds that work ceiling. */
+    public static final String SOURCE_LIMIT_DETAIL = "Heartbeat detail exceeds source-work ceiling.";
     /** Reuse the overlay's existing first-class touch floor rather than drifting a duplicate literal. */
     public static final int MIN_TOUCH_TARGET_DP = OverlayUiPolicy.MIN_TOUCH_TARGET_DP;
     /** Passive detail is not part of direct keyboard-focus ownership. */
@@ -69,11 +74,18 @@ public final class HeartbeatDetailSurfacePolicy {
      * Project one already-bounded explicit detail into native surface semantics.
      *
      * <p>The existing owner historically trims surrounding whitespace before
-     * display/announcement, so this helper preserves that established behavior. It
-     * never truncates the remaining text or invents a second evidence formatter.</p>
+     * display/announcement, so this helper preserves that established behavior. A broad direct-source
+     * work ceiling is checked first so a caller that bypasses canonical envelope admission cannot turn
+     * that compatibility trim into an arbitrarily large scan. Over-ceiling detail is not truncated into
+     * plausible evidence; it becomes one deterministic non-authoritative boundary message. Ordinary
+     * admitted detail is never truncated merely to fit the visible viewport.</p>
      */
     public static Presentation fromDetail(String detail) {
-        String clean = detail == null ? "" : detail.trim();
+        if (detail == null) return new Presentation(EMPTY_DETAIL);
+        if (detail.length() > MAX_DETAIL_SOURCE_CODE_UNITS) {
+            return new Presentation(SOURCE_LIMIT_DETAIL);
+        }
+        String clean = detail.trim();
         return new Presentation(clean.isEmpty() ? EMPTY_DETAIL : clean);
     }
 
