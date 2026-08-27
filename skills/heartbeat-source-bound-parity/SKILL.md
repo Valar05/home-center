@@ -1,6 +1,6 @@
 # Heartbeat Source Bound Parity
 
-Use this skill when heartbeat records can enter through more than one source path, especially canonical JSON parsing, direct `HeartbeatSkillPolicy.Candidate` construction, direct scene construction, pre-parser rejection composition, or direct semantic lookup APIs.
+Use this skill when heartbeat records can enter through more than one source path, especially canonical JSON parsing, direct `HeartbeatSkillPolicy.Candidate` construction, direct scene construction, direct policy selection, pre-parser rejection composition, or direct semantic lookup APIs.
 
 ## Contract
 
@@ -10,13 +10,17 @@ Post-trim typed-field parity is not the same thing as finite pre-trim source wor
 
 The root pulse identity is part of the same contract. `HeartbeatSceneGraph.build(String pulseId, ...)` owns the same broad raw-source work ceiling before semantic scanning or `trim()`, and `preserveRejectedRefresh(...)` suppresses a raw attempted pulse identity above that ceiling before safety scanning. At/below that broad ceiling, the smaller canonical `MAX_PULSE_ID_CHARS` remains the typed identity authority. This keeps direct scene ingress and pre-parser rejection from doing arbitrary whole-source work merely to discover that the pulse identity is invalid.
 
+Direct complete-scene candidate collections are also source work. Canonical parsing rejects more than `HeartbeatEnvelopeParser.MAX_LIGHTS` before candidate traversal. `HeartbeatSceneGraph.build(String, List<Candidate>, ...)` now preserves that cardinality at direct scene ingress by observing caller `List.size()` once, rejecting values above `MAX_LIGHTS`, taking at most `MAX_LIGHTS` indexed reads into a detached immutable snapshot, then running duplicate/material/display-ready traversal only over that snapshot. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**. It bounds caller-interface observation count; it does not claim callback-free admission for arbitrary Java `List` implementations.
+
+Direct public policy selection remains a separate boundary. `HeartbeatSkillPolicy.selectMaterialLights(List<Candidate>)` can still call `isEmpty()` and iterate an arbitrary caller List without canonical `MAX_LIGHTS` parity. Safe scene composition does not green-paint that direct API. A base-blob-locked existing-owner proposal stages one size observation, at most `MAX_LIGHTS` indexed reads, a detached snapshot, and explicit typed failure for over-ceiling direct selection rather than returning a counterfeit empty/no-material result. That seam remains **NO / PROPOSED_NOT_APPLIED / RED SOURCE / UNEXECUTED**.
+
 Direct semantic lookup is also source work. `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`, `HeartbeatFrameAccessibility.focusIndexForId(frame, nodeId)`, and `HeartbeatOverlayViewModel.Model.controlById(id)` now reuse `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before trim/`Locale.ROOT` case-fold. Oversized direct queries fail closed without creating a second id namespace; accepted scene/control identities and case-insensitive lookup behavior at/below the throat stay exact. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**. Safe canonical scene ids still do not authorize unbounded work for arbitrary direct callers.
 
 Interrupted-refresh diagnostic boundaries are a second independent source-work channel. `HeartbeatSceneGraph.Frame.refreshBoundary` remains exact evidence, but exact diagnostic evidence does not authorize unbounded human-facing semantic scanning or render/announcement identity hashing. `HeartbeatSceneGraph.Frame.interruptedRefreshDescription()` now stops over-ceiling boundary prose at `HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS` before whole-boundary semantic scanning, while ordinary admitted boundaries continue through the existing 320-code-point speech projection. `HeartbeatOverlayRefreshPlan` independently derives a bounded diagnostic identity before SHA-256 materialization; over-ceiling boundaries collapse to a deterministic source-limit marker keyed only by O(1) Java length, while the exact frame field remains unchanged. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
 
 The public parser itself is also a source boundary. Persisted bytes may be bounded upstream, but direct callers of `HeartbeatEnvelopeParser.parse(...)` do not inherit that byte custody automatically. The existing parser owns its finite pre-parse source-work throat **before** `trim()` or `JsonCursor` traversal. `MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768`: values above it fail before blank normalization or JSON allocation; values at/below it continue through the existing strict parser. This is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED** and must not be described as TESTED or runtime proof.
 
-This is a source/evidence safety rule, not merely a speech rule. TalkBack projections intentionally use smaller Unicode-code-point budgets, and the shared plain-text TalkBack helper owns its own finite work window, but those projection limits do not retroactively bound source safety scans, scene hashing, checkpoint identity, native semantic ownership, touch detail, direct semantic lookup, or memory from an oversized record.
+This is a source/evidence safety rule, not merely a speech rule. TalkBack projections intentionally use smaller Unicode-code-point budgets, and the shared plain-text TalkBack helper owns its own finite work window, but those projection limits do not retroactively bound source safety scans, scene hashing, checkpoint identity, native semantic ownership, touch detail, direct semantic lookup, collection traversal, or memory from an oversized record.
 
 Human-facing semantic text remains Unicode subject to the existing semantic-safety rules. Machine semantic IDs remain subject to the deterministic ASCII owner-token boundary. Bounds do not authorize normalization, truncation, or rewriting of canonical source identity: an oversized typed record or pulse identity is rejected rather than converted into a smaller counterfeit identity.
 
@@ -25,6 +29,10 @@ Human-facing semantic text remains Unicode subject to the existing semantic-safe
 When an oversized direct material candidate reaches `HeartbeatSceneGraph.build(...)`, display-ready selection must reject it. If a last-good frame exists, preserve that contact, expose the existing typed-contract rejection boundary, and clamp both frame and node transition motion.
 
 When a raw direct pulse id exceeds `MAX_DIRECT_PULSE_SOURCE_CODE_UNITS`, reject it before semantic-safety scanning or trim, preserve last-good contact, suppress the oversized attempted id, expose the bounded direct-source-work rejection boundary, and clamp motion. When the raw source is within that broad ceiling but its trimmed identity exceeds `HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS`, preserve the existing smaller typed rejection. A pre-parser rejection may retain an attempted pulse id only when it is within the broad source-work ceiling, semantically safe, and within the canonical pulse-id bound.
+
+When a direct complete-scene List reports more than `MAX_LIGHTS`, preserve the last-good frame and clamp frame/node motion before reading any candidate element. When its reported size is admitted, take at most that many indexed reads once into a detached snapshot and never return to the caller List for duplicate/material/display-ready traversal. Do not describe this as callback-free arbitrary-List admission; the bounded `size()` and `get()` calls are still caller-interface calls.
+
+When the direct public selection API receives more than `MAX_LIGHTS`, the staged repair must fail explicitly instead of converting over-ceiling input into an empty result that could be narrated as “No material skill lights.” That owner mutation remains unapplied until authenticated source says otherwise.
 
 When an oversized raw envelope reaches the public parser, reject it at the finite source-work throat before `trim()` or JSON cursor traversal. Do not parse enough of an oversized envelope to decide whether it might otherwise have been valid, and do not reinterpret the source-work rejection as accepted telemetry.
 
@@ -40,6 +48,10 @@ Direct semantic lookup applied provenance: `patches/try-forever-heartbeat-direct
 
 Refresh-boundary applied provenance: `patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch`; scene base blob `021f4e6f672002762848b46c6ef42eb4d1d3f0a4`; applied commit `da807bd09b2797b48cd31bf563a155d1d15baf1b`; scene result blob `4012d09b10b72956a546276175f16504882148eb`; refresh-plan base blob `483257e1d1aca72610dc632a8343a96f0262e0d6`; applied commit `e32217ed58d630126d1056a3a9466113a1089458`; refresh-plan result blob `0ebc584bfe0cb3837f97495751f4e9fc3bbcf76a`; **APPLIED_SOURCE / SOURCE_WIRED / regression source UNEXECUTED**.
 
+Direct scene candidate snapshot applied provenance: `patches/try-forever-heartbeat-scene-direct-candidate-count-throat.patch`; scene base blob `4012d09b10b72956a546276175f16504882148eb`; applied commit `06f1016b664483c85e7ae5b7c3f4787e3692a3ba`; result blob `3aafe40fe802225c3e2aa61d76b1c0e2c62655a3`; focused Java/Python regression source **YES / UNEXECUTED**.
+
+Direct public selection proposal: `patches/try-forever-heartbeat-policy-direct-selection-candidate-snapshot.patch`; policy base blob `a0cfad7ce47455d06d83607f4e5ebdf71b9aada5`; **PROPOSED_NOT_APPLIED / RED SOURCE / UNEXECUTED**.
+
 ## Regression requirements
 
 Keep source fixtures for:
@@ -54,6 +66,9 @@ Keep source fixtures for:
 - raw direct pulse source exactly at `MAX_DIRECT_PULSE_SOURCE_CODE_UNITS` reaching the smaller typed pulse-id gate;
 - raw direct pulse source at broad work ceiling + 1 failing before semantic scan/trim while preserving last-good contact and clamping motion;
 - pre-parser rejection suppressing raw pulse source above the broad source-work ceiling without rewriting the supplied rejection boundary;
+- direct scene candidate List at exactly `MAX_LIGHTS` using one size observation and exactly the admitted indexed reads before detached semantic traversal;
+- direct scene candidate List at `MAX_LIGHTS + 1` preserving last-good contact/no-motion after one size observation and zero element reads;
+- direct policy selection remaining RED until it gains the same finite collection observation contract at its own public boundary;
 - a raw envelope exactly at the public parser source ceiling still reaching existing parser semantics;
 - a raw envelope at source ceiling + 1 failing at the resource throat before blank normalization / JSON traversal;
 - direct frame detail/focus lookup and model control lookup crossing a broad raw source gate before trim/case-fold;
@@ -76,9 +91,11 @@ Current state:
 - plain TalkBack projection finite source-work window: **SOURCE_WIRED**;
 - direct Candidate pre-trim resource throat: **SOURCE_WIRED / APPLIED_SOURCE**;
 - direct pulse/pre-parser raw-source work throat: **SOURCE_WIRED / APPLIED_SOURCE**;
+- direct complete-scene candidate snapshot/count custody: **SOURCE_WIRED / APPLIED_SOURCE**;
+- direct public policy selection candidate-list custody: **NO / PROPOSED_NOT_APPLIED / RED SOURCE**;
 - direct semantic lookup pre-trim/case-fold custody: **SOURCE_WIRED / APPLIED_SOURCE**;
 - interrupted-refresh speech/dedup source-work custody: **SOURCE_WIRED / APPLIED_SOURCE**;
-- focused Candidate/pulse/lookup/boundary regression source: **YES / UNEXECUTED**;
+- focused Candidate/pulse/scene/lookup/boundary regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 
