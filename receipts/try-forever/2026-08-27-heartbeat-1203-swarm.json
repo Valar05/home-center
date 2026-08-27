@@ -45,7 +45,7 @@
     "accessibility/TalkBack and touch semantics": "LIT: persistent one-of-many selection and direct lookup now preserve exact admitted semantic identity; runtime TalkBack remains NO",
     "Phone Runtime / Phone Hands recovery": "FIREWALLED: consumption 0, mutation 0",
     "deterministic routing": "LIT: canonical parser ceilings reused rather than copied into new policy tables",
-    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, regression source, workflow queued, TESTED, runtime, deployed, delivered, accepted kept separate",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, regression source, exact-head zero-step workflow failure, TESTED, runtime, deployed, delivered, accepted kept separate",
     "recovery/checkpointing/idempotence": "LIT: no manual CI retry, no duplicate owner, durable checkpoint published",
     "strange non-raster vector/DOM/native UI art": "DARK: no operator-visible topology changed; new art would be duplicate heartbeat theater",
     "warm walls": "DARK: existing specimen remained truthful; no source-wall mutation justified",
@@ -56,13 +56,14 @@
   },
   "crossPollination": "Canonical scene MAX_LIGHTS parity closed direct policy selection; source-bound review then moved from collection work to semantic-id equality work; accessibility selectedId repair exposed itemById as an independent direct bypass; the same shared parser ceiling closed both without normalization, replacement selection, or new architecture; doctrine and regression surfaces were then converged.",
   "executionTruth": {
-    "workflowRunsAtSourceCheckpoint": [
-      {"id": 33097400487, "name": "Build Android", "status": "queued"},
-      {"id": 33097400505, "name": "Operator Overlay Android", "status": "queued"},
-      {"id": 33097400531, "name": "Home Center CI", "status": "queued"}
+    "workflowRuns": [
+      {"id": 33097400487, "name": "Build Android", "status": "completed", "conclusion": "failure"},
+      {"id": 33097400505, "name": "Operator Overlay Android", "status": "completed", "conclusion": "failure", "jobId": 98605788159, "jobSteps": 0},
+      {"id": 33097400531, "name": "Home Center CI", "status": "completed", "conclusion": "failure"}
     ],
     "commitStatusesObserved": 0,
     "manualRetry": false,
+    "stepLevelCauseEstablished": false,
     "regressionExecuted": false,
     "tested": false
   },
