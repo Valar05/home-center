@@ -74,9 +74,10 @@ public final class HeartbeatSelectionAccessibilityPolicy {
         }
 
         public ItemDecision itemById(String semanticId) {
-            if (semanticId == null || semanticId.isEmpty()) return null;
+            String target = boundedDirectSelectedId(semanticId);
+            if (target.isEmpty()) return null;
             for (ItemDecision item : items) {
-                if (item.id.equalsIgnoreCase(semanticId)) return item;
+                if (item.id.equalsIgnoreCase(target)) return item;
             }
             return null;
         }
@@ -96,7 +97,7 @@ public final class HeartbeatSelectionAccessibilityPolicy {
      * <p>The direct selected-id argument is a public source-work boundary of its own. A canonical
      * scene/model id is already small, but direct callers do not inherit that guarantee. Reject an
      * oversized query to "no selection" before repeated {@code equalsIgnoreCase} work; do not trim
-     * or synthesize a smaller identity.</p>
+     * or synthesize a smaller identity. The same throat protects direct collection lookup.</p>
      */
     public static CollectionDecision fromModel(
             HeartbeatOverlayViewModel.Model model,
