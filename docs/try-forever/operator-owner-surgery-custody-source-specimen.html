@@ -5,170 +5,90 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TRY FOREVER — Owner Surgery Custody</title>
 <style>
-  :root { font-family: system-ui, sans-serif; background: #111; color: #f4f4f4; }
-  body { margin: 0; padding: 24px; max-width: 920px; }
-  h1 { font-size: 1.35rem; margin: 0 0 8px; }
-  .scar { border: 2px solid currentColor; padding: 12px; margin: 16px 0; font-weight: 700; }
-  .owner, code { overflow-wrap: anywhere; font-family: ui-monospace, monospace; }
-  details { border: 1px solid currentColor; margin: 12px 0; }
-  summary { min-height: 56px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; font-weight: 700; }
-  details > div { border-top: 1px solid currentColor; padding: 12px 16px 16px; }
-  .token { display: inline-grid; place-items: center; min-width: 2.5rem; min-height: 2.5rem; border: 1px solid currentColor; padding: 2px 6px; flex: 0 0 auto; }
-  .flow { width: 100%; max-width: 780px; height: auto; margin: 18px 0; }
-  .flow text { fill: currentColor; font: 700 13px system-ui, sans-serif; }
-  .flow path, .flow circle, .flow rect { stroke: currentColor; fill: none; stroke-width: 2; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; background:#111; color:#f4f4f4; }
+  body { margin:0; padding:24px; max-width:920px; }
+  h1 { font-size:1.4rem; margin:0 0 8px; }
+  p { line-height:1.5; }
+  .scar { border:2px solid currentColor; padding:12px; margin:16px 0; font-weight:700; }
+  .flow { width:100%; max-width:820px; height:auto; margin:18px 0; }
+  .flow text { fill:currentColor; font:700 13px system-ui,sans-serif; }
+  .flow path,.flow circle,.flow rect { stroke:currentColor; fill:none; stroke-width:2; }
+  details { border:1px solid currentColor; margin:12px 0; }
+  summary { min-height:56px; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer; font-weight:700; }
+  details > div { border-top:1px solid currentColor; padding:12px 16px 16px; }
+  .token { display:inline-grid; place-items:center; min-width:44px; min-height:44px; border:1px solid currentColor; padding:4px; flex:0 0 auto; }
+  summary:focus-visible { outline:3px solid currentColor; outline-offset:3px; }
+  code { overflow-wrap:anywhere; }
+  .state { font-weight:800; }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
 </style>
 </head>
 <body>
-<h1>OWNER SURGERY CUSTODY</h1>
-<p>One custody owner. Exact evidence first. Applied source is not TESTED or runtime proof. Stronger descriptor custody remains supporting source, not a second authority.</p>
-<div class="scar">● v10 OWNER SOURCE WIRED · ● CURRENT OWNER MAP EXACT-DICT SOURCE WIRED · ● BASE BLOB EXACT SOURCE WIRED · ● CURRENT OWNER BLOB EXACT-STRING SOURCE WIRED · ● OWNER KEY EXACT SOURCE WIRED · ● PATCH HEADER CARDINALITY SOURCE WIRED · ● DEFAULT OWNER DIFF BINDING SOURCE WIRED · ● METADATA+FALLBACK SURGERY APPLIED SOURCE · ● ROOT/INVENTORY/ARTIFACT/CLOSE TYPED SUPPORTING SOURCE · □ HELD-FD BACKEND SUPPORTING SOURCE · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/PHONE-P0</div>
-<p class="owner"><strong>Canonical custody owner:</strong> v10 source-wired<br><strong>Current-owner map gate:</strong> exact built-in <code>dict</code> before <code>items()</code>; exact built-in lowercase-hex blob strings.<br><strong>Owner-key/header exactness:</strong> SOURCE_WIRED in canonical v10.<br><strong>Implicit default-owner binding:</strong> SOURCE_WIRED; arbitrary basename mention no longer earns fallback authority.<br><strong>Applied owner surgery:</strong> <code>patches/try-forever-owner-surgery-metadata-exactness-owner.patch</code>, base blob <code>523d8005212745738106733e91be6dd625caf767</code>, result blob <code>a96d572698dfdbc3800410446f27e77908938e4b</code>, status <strong>APPLIED_SOURCE</strong>.<br><strong>Descriptor root/inventory/cleanup source:</strong> supporting source only; canonical v10 descriptor consumption remains NO.</p>
+<h1>OWNER SURGERY CUSTODY · v10</h1>
+<p>One canonical authority owner. One shared patch/delta semantic producer. Exact evidence first. Source wiring is not regression execution, TESTED, runtime, deployment, phone delivery, or acceptance.</p>
+<div class="scar" role="status" aria-live="polite">
+  ● CANONICAL BACKEND SELECTION SOURCE_WIRED · ● DESCRIPTOR + PORTABLE CUSTODY SOURCE_WIRED · ● SINGLE SHARED SEMANTIC PARSER SOURCE_WIRED · ● CURRENT-OWNER RESOURCE THROATS SOURCE_WIRED · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/TALKBACK/PHONE-P0
+</div>
 
-<svg class="flow" viewBox="0 0 780 150" role="img" aria-labelledby="flow-title flow-desc">
-  <title id="flow-title">Owner surgery custody chain</title>
-  <desc id="flow-desc">Portable v10 root and finite-file custody feeds exact state, exact artifact base blob identity, an exact built-in current-owner map gate, exact authenticated current-owner blob identity, exact owner-key/header admission, and exact implicit default-owner diff binding. The metadata/default-owner surgery is applied source. Descriptor custody remains supporting source only.</desc>
-  <path d="M20 75 H755"/>
-  <circle cx="45" cy="75" r="21"/><text x="28" y="80">ROOT</text>
-  <circle cx="130" cy="75" r="21"/><text x="112" y="80">SCAN</text>
-  <circle cx="215" cy="75" r="21"/><text x="199" y="80">FILE</text>
-  <circle cx="300" cy="75" r="21"/><text x="278" y="80">STATE</text>
-  <circle cx="390" cy="75" r="21"/><text x="369" y="80">BASE</text>
-  <rect x="455" y="44" width="82" height="62"/><text x="473" y="70">MAP</text><text x="466" y="91">GATE</text>
-  <rect x="550" y="44" width="82" height="62"/><text x="560" y="70">OWNER</text><text x="572" y="91">KEY</text>
-  <rect x="645" y="31" width="92" height="88"/><text x="657" y="57">SURGERY</text><text x="660" y="80">APPLIED</text><text x="660" y="103">SOURCE</text>
+<svg class="flow" viewBox="0 0 820 170" role="img" aria-labelledby="flow-title flow-desc">
+  <title id="flow-title">Canonical owner-surgery custody chain</title>
+  <desc id="flow-desc">Exact root and resource gates lead to one backend selection. Descriptor or portable custody then feeds one shared semantic producer before canonical authority grouping. Descriptor failure never retries through the weaker portable backend.</desc>
+  <path d="M24 82 H794"/>
+  <circle cx="55" cy="82" r="25"/><text x="37" y="87">GATE</text>
+  <rect x="115" y="50" width="105" height="64"/><text x="127" y="77">SELECT</text><text x="126" y="98">BACKEND</text>
+  <rect x="260" y="35" width="120" height="48"/><text x="279" y="64">DESCRIPTOR</text>
+  <rect x="260" y="92" width="120" height="48"/><text x="286" y="121">PORTABLE</text>
+  <rect x="430" y="50" width="130" height="64"/><text x="451" y="77">SHARED</text><text x="444" y="98">SEMANTICS</text>
+  <rect x="610" y="50" width="150" height="64"/><text x="635" y="77">AUTHORITY</text><text x="637" y="98">GROUPING</text>
+  <path d="M220 82 C238 82 242 59 260 59"/><path d="M220 82 C238 82 242 116 260 116"/>
+  <path d="M380 59 C404 59 408 82 430 82"/><path d="M380 116 C404 116 408 82 430 82"/>
 </svg>
 
 <details open>
-  <summary><span class="token">MAP</span> Authenticated current-owner map — SOURCE WIRED</summary>
+  <summary><span class="token">ONE</span> Shared semantic ownership — SOURCE_WIRED</summary>
   <div>
-    <p>The current-owner evidence container is admitted before traversal. Caller-owned <code>dict</code> subclasses cannot run an overridden <code>items()</code> callback inside custody admission.</p>
-    <p>Blob tokens are exact built-in strings already matching forty lowercase hexadecimal characters; case, whitespace, length drift, and string subclasses fail closed instead of being repaired into authority.</p>
-    <p><strong>Regression source:</strong> <code>test_try_forever_owner_surgery_current_owner_blob_admission.py</code>; <strong>UNEXECUTED</strong>.</p>
+    <p>Both <code>inspect_patch(...)</code> and <code>inspect_delta(...)</code>, plus descriptor-relative observations, delegate semantic admission to <code>parse_owner_surgery_observation(...)</code>.</p>
+    <p>The dormant local parser regexes, alias tables, fallback-owner/parser imports, and dead helper bodies were removed from canonical v10. <code>SHA1_RE</code> remains because current-owner blob custody still needs it.</p>
+    <p><strong>Applied source:</strong> <code>patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch</code>. <strong>Regression:</strong> <code>tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py</code> — SOURCE / UNEXECUTED.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">KEY</span> Authenticated owner key — SOURCE WIRED</summary>
+  <summary><span class="token">FD</span> Backend custody — SOURCE_WIRED</summary>
   <div>
-    <p>Owner identity is a machine key. A CLI owner spelled with leading or trailing whitespace does not gain authenticated custody because a parser helpfully calls <code>strip()</code>.</p>
-    <p><strong>Owner source:</strong> canonical v10 now delegates programmatic and CLI owner-key admission to <code>admit_owner_identity(...)</code>.</p>
-    <p><strong>Regression source:</strong> supporting fixtures + owner boundary; <strong>UNEXECUTED</strong>.</p>
+    <p>Admitted POSIX descriptor primitives select the existing <code>HeldDirectoryCustody</code> owner. Descriptor setup, inventory, artifact, or cleanup wounds return zero surgery authority and do not retry through portable pathname custody in the same attempt.</p>
+    <p>When descriptor primitives are unavailable, the existing bounded pathname/root-revalidation backend is primary. Stronger descriptor custody is not universal filesystem atomicity proof.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">HDR</span> Textual patch headers — cardinality exact SOURCE WIRED</summary>
+  <summary><span class="token">2048</span> Finite machine-evidence throats — SOURCE_WIRED</summary>
   <div>
-    <p>A patch with two base headers, two state/status headers, or two explicit owner headers is ambiguous authority evidence even when duplicate values agree.</p>
-    <p><strong>Owner source:</strong> canonical v10 now delegates patch metadata to <code>admit_patch_metadata(...)</code>; first-match regex declarations may remain as inert archaeology but no longer own admission.</p>
-    <p><strong>Regression source:</strong> cardinality, malformed duplicate, cross-line, CRLF, and many-duplicate fixtures; <strong>UNEXECUTED</strong>.</p>
+    <p>Candidate custody is capped at 2,048 artifacts; directory work at 32,768 entries; each artifact at 1 MiB. Authenticated current-owner maps are capped at 2,048 pairs and 1,048,576 aggregate code points. Repeated owner evidence and direct programmatic argv have their own finite item/member/aggregate gates.</p>
+    <p>Omitted current-owner custody remains distinct from explicitly supplied empty custody. Exact evidence is never repaired into authority by trimming, case folding, prefix acceptance, or caller-owned callbacks.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">OWN</span> Implicit default owner — exact diff binding SOURCE WIRED</summary>
+  <summary><span class="token">ERR</span> Contact preservation on failure — SOURCE_WIRED</summary>
   <div>
-    <p><strong>Arbitrary basename mention is not owner authority.</strong> Missing explicit owner metadata now routes through exact single-file <code>diff --git</code> binding.</p>
-    <p><strong>Owner source:</strong> exact <code>a/&lt;DEFAULT_OWNER&gt; b/&lt;DEFAULT_OWNER&gt;</code> ownership; case drift, multi-file fallback, duplicate diff headers, path normalization, and basename matching fail closed.</p>
-    <p><strong>Regression source:</strong> fallback-owner hostile fixtures; <strong>UNEXECUTED</strong>.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">●</span> Applied exact owner surgery — source wired</summary>
-  <div>
-    <p>The applied surgery composes <code>admit_patch_metadata(...)</code>, <code>admit_owner_identity(...)</code>, and <code>admit_default_owner_from_patch(...)</code> into the existing v10 owner. It removed first-match metadata authority, owner-key trimming, and arbitrary-basename fallback without creating a second custody owner.</p>
-    <p><strong>Base custody:</strong> <code>523d8005212745738106733e91be6dd625caf767</code>.</p>
-    <p><strong>Applied commit:</strong> <code>2e94d752012234d7025f6271f262d27ed3a97f6c</code>. <strong>Result blob:</strong> <code>a96d572698dfdbc3800410446f27e77908938e4b</code>.</p>
-    <p><strong>Capability:</strong> SOURCE_WIRED only. Regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain NO.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">ROOT</span> Root setup I/O — typed supporting source</summary>
-  <div>
-    <p>A named-root open failure or root-descriptor identity-read failure cannot escape as raw OS error or leave a half-established custody object.</p>
-    <p><strong>Consequence:</strong> bounded <code>PosixDirectoryHandleCustodyUnavailable</code>; any partially opened root descriptor is cleaned up without masking the original setup wound.</p>
-    <p><strong>Regression source:</strong> missing-root open failure and synthetic root <code>fstat</code> failure; <strong>UNEXECUTED</strong>.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">SCAN</span> Inventory I/O — typed supporting source</summary>
-  <div>
-    <p>Fresh scan-handle open, <code>scandir</code> enumeration, and candidate <code>DirEntry.stat</code> failures occur before candidate inventory can earn authority.</p>
-    <p><strong>Consequence:</strong> bounded <code>DescriptorArtifactCustodyError</code> with no partial inventory returned. Caller-supplied candidate-policy failures remain caller failures and are not laundered into filesystem wounds.</p>
-    <p><strong>Regression source:</strong> scan open, enumeration, candidate stat, and caller-policy separation; <strong>UNEXECUTED</strong>.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">CLOSE</span> Cleanup failure ownership — typed supporting source</summary>
-  <div>
-    <p>Root, scan, and artifact descriptor cleanup has one explicit rule: a close failure is a custody wound only when cleanup is the primary failure.</p>
-    <p><strong>Primary cleanup failure:</strong> bounded <code>DescriptorCustodyCleanupError</code>. <strong>Earlier body/inventory/artifact failure:</strong> that earlier wound remains primary and cleanup failure cannot replace it.</p>
-    <p>Explicit held-root close retires the descriptor number before the syscall so a failed close does not invite a retry against a number the kernel may already have recycled.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">BASE</span> Exact artifact base-owner blob identity — SOURCE WIRED</summary>
-  <div>
-    <p>Patch/delta base-owner SHA text is authority evidence, not display text. Uppercase or normalization-dependent evidence is rejected instead of lowercased into authority.</p>
-    <p>This completed blob channel remains distinct from owner-key/header/default-owner admission even though all are now source-wired.</p>
-  </div>
-</details>
-
-<details open>
-  <summary><span class="token">NOW</span> Exact authenticated current-owner blob identity — SOURCE WIRED</summary>
-  <div>
-    <p>The blob authority token used to decide CURRENT versus STALE custody is not repaired by lowercase or whitespace normalization and is not accepted through a caller-owned string subclass.</p>
-    <p><strong>Current split:</strong> exact map container, blob scalar, owner-key, header cardinality, and implicit fallback ownership are all SOURCE_WIRED; regression execution is still separate.</p>
+    <p>Zero promotion authority does not erase bounded work evidence. Descriptor inventory failure preserves observed counts; an identified artifact custody wound preserves its path/kind plus established counts; cleanup failure preserves only evidence actually established before the wound.</p>
+    <p>Human-facing diagnostics remain separate from canonical evidence. Projected diagnostic prose cannot feed persistence or authority.</p>
   </div>
 </details>
 
 <details>
-  <summary><span class="token">v10</span> Portable canonical owner</summary>
+  <summary><span class="token">A11Y</span> Source accessibility contract</summary>
   <div>
-    <p>Canonical v10 owns bounded non-recursive root traversal, bounded candidate collection, finite ordinary-file custody, exact promotion state, final pathname root revalidation, collision/stale/unverified grouping, artifact-content witnesses, exact artifact base blob identity, exact current-owner map/blob admission, exact owner-key/header metadata, and exact implicit default-owner binding.</p>
-    <p><strong>Still not atomic:</strong> pathname revalidation does not eliminate swap-and-restore or filesystem identity reuse.</p>
-  </div>
-</details>
-
-<details>
-  <summary><span class="token">32K</span> Directory-entry throat</summary>
-  <div><p>Unrelated entries count against the bounded directory scan. Total entry work stays separate from matching candidate count.</p></div>
-</details>
-
-<details>
-  <summary><span class="token">2048</span> Candidate throat</summary>
-  <div><p>Matching patch/delta candidates have an independent budget. Candidate max+1 rejects the inventory instead of blessing first-N partial authority.</p></div>
-</details>
-
-<details open>
-  <summary><span class="token">I/O</span> Artifact filesystem failure containment — supporting source</summary>
-  <div><p>Candidate disappearance, descriptor-relative open/read/fstat failure, or post-read named-path drift stays inside bounded custody errors and returns no admitted observation.</p></div>
-</details>
-
-<details open>
-  <summary><span class="token">UTF8</span> Strict text admission — supporting source</summary>
-  <div><p>Malformed UTF-8 does not become replacement text, partial authority, or an escaping raw decoder error.</p></div>
-</details>
-
-<details>
-  <summary><span class="token">FD</span> Held-directory backend — supporting source</summary>
-  <div>
-    <p>On POSIX runtimes with the required descriptor primitives, supporting source can hold the root directory, scan through fresh descriptor-relative handles, carry enumeration-time candidate identity into pre-open checks, and read candidates through no-follow descriptor-relative operations.</p>
-    <p><strong>Owner composition:</strong> NO. <strong>Atomic root binding:</strong> NO universal claim. <strong>Atomic candidate binding:</strong> NO. <strong>Windows parity:</strong> NO.</p>
+    <p>This specimen uses native disclosure controls with at least 56px summary rows, visible keyboard focus, non-color status text, inline SVG title/description semantics, and reduced-motion handling. There is no autoplay, timer animation, or blink.</p>
+    <p class="state">SOURCE ONLY · runtime TalkBack NO · deployed NO · phone delivery NO · accepted NO.</p>
   </div>
 </details>
 
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Portable v10 owner:</strong> SOURCE_WIRED. <strong>Exact current-owner map/blob admission:</strong> SOURCE_WIRED. <strong>Exact artifact/current-owner blob identity:</strong> SOURCE_WIRED. <strong>Owner-key exactness:</strong> SOURCE_WIRED. <strong>Patch-header cardinality:</strong> SOURCE_WIRED. <strong>Implicit default-owner diff binding:</strong> SOURCE_WIRED. <strong>Metadata+fallback surgery:</strong> APPLIED_SOURCE. <strong>Current-owner map regression:</strong> SOURCE / UNEXECUTED. <strong>Metadata/fallback regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor custody:</strong> SUPPORTING SOURCE. <strong>Descriptor regressions:</strong> SOURCE / UNEXECUTED. <strong>Descriptor owner integration:</strong> NO. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Requested:</strong> YES. <strong>Canonical owner source:</strong> SOURCE_WIRED. <strong>Single shared semantic parser ownership:</strong> SOURCE_WIRED. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Deployed/callable/executed/delivered/accepted:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
