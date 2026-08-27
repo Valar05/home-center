@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""RED source fixture for canonical owner-surgery discovery diagnostic projection.
+"""Source fixture for canonical owner-surgery discovery diagnostic projection convergence.
 
-SOURCE ONLY / UNEXECUTED. The shared semantic diagnostic projector is SOURCE_WIRED and reusable;
-canonical ``DiscoveryError.boundary`` consumption remains RED until the existing v10 owner imports
-and uses it. Canonical path/artifact evidence remains exact. This fixture proves no regression
-execution, TESTED, runtime, deployment, phone delivery, or P0 capability.
+SOURCE ONLY / UNEXECUTED. The shared semantic diagnostic projector and canonical v10 consumer are
+SOURCE_WIRED. Canonical path/artifact evidence remains exact; only human-facing exception type and
+message text cross the bounded ASCII-safe projector. This fixture proves no regression execution,
+TESTED, runtime, deployment, phone delivery, or P0 capability.
 """
 
 from pathlib import Path
@@ -66,7 +66,11 @@ def _assert_canonical_projection(exc: Exception) -> None:
 def main() -> int:
     _assert_shared_projector_source_wired()
 
-    # These remain RED until canonical v10 consumes the shared projector.
+    capability = custody.classify(Path("patches"))["capability"]
+    assert capability["boundedAsciiDiscoveryDiagnosticProjection"] is True
+    assert capability["regressionExecuted"] is False
+    assert capability["tested"] is False
+
     _assert_canonical_projection(ValueError("line-one\nline-two"))
     _assert_canonical_projection(ValueError("bidi:\u202eattack"))
     _assert_canonical_projection(ValueError("surrogate:\ud800"))
