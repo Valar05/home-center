@@ -25,6 +25,33 @@ public class HeartbeatDetailSurfacePolicyTest {
     }
 
     @Test
+    public void directDetailSourceWorkHasBroadPreTrimCeiling() {
+        String exactMax = "x".repeat(HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS);
+        HeartbeatDetailSurfacePolicy.Presentation admitted =
+                HeartbeatDetailSurfacePolicy.fromDetail(exactMax);
+        assertEquals(exactMax, admitted.text);
+        assertEquals(exactMax, admitted.contentDescription);
+
+        String overMax = exactMax + "x";
+        HeartbeatDetailSurfacePolicy.Presentation rejected =
+                HeartbeatDetailSurfacePolicy.fromDetail(overMax);
+        assertEquals(HeartbeatDetailSurfacePolicy.SOURCE_LIMIT_DETAIL, rejected.text);
+        assertEquals(rejected.text, rejected.contentDescription);
+        assertTrue(rejected.verticallyScrollable);
+        assertFalse(rejected.ellipsizeEnd);
+    }
+
+    @Test
+    public void overCeilingWhitespaceDoesNotBecomeEmptyDetailThroughTrim() {
+        String overMax = " ".repeat(HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS + 1);
+        HeartbeatDetailSurfacePolicy.Presentation presentation =
+                HeartbeatDetailSurfacePolicy.fromDetail(overMax);
+
+        assertEquals(HeartbeatDetailSurfacePolicy.SOURCE_LIMIT_DETAIL, presentation.text);
+        assertEquals(presentation.text, presentation.contentDescription);
+    }
+
+    @Test
     public void touchScrollableDetailDoesNotClaimKeyboardOrClickOwnership() {
         HeartbeatDetailSurfacePolicy.Presentation presentation =
                 HeartbeatDetailSurfacePolicy.fromDetail(
