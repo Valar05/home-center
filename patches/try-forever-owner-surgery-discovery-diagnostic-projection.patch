@@ -1,12 +1,14 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # BASE OWNER BLOB: 3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c
 # OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# APPLIED COMMIT: 23091256cf90ea6bea3afc111db348e014c85584
+# RESULT OWNER BLOB: 6de62efa07df4dabbb408ca77a427e83fbc4e883
 # SHARED PROJECTOR OWNER: tools/try_forever_owner_surgery_semantic_parser.py
-# SHARED PROJECTOR BLOB: a3abe553466da9760f534836ef36881b3cdf992d
+# SHARED PROJECTOR BLOB AT APPLICATION: a3abe553466da9760f534836ef36881b3cdf992d
 # PURPOSE: Route human-facing DiscoveryError.boundary exception type/message text through the existing shared bounded ASCII-safe owner-surgery diagnostic projection organ without rewriting canonical path/artifact evidence or promotion authority.
 # PRESERVE: DiscoveryError.path and artifact_kind evidence; canonical Surgery semantics; backend selection; zero-partial-authority; no weaker fallback; phone/P0 firewall.
-# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (RED SOURCE / UNEXECUTED)
-# CAPABILITY: PROPOSED_NOT_APPLIED / OWNER_WIRING_NO / SHARED_PROJECTOR_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (CONVERGENCE SOURCE / UNEXECUTED)
+# CAPABILITY: APPLIED_SOURCE / OWNER_WIRING_SOURCE_WIRED / SHARED_PROJECTOR_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
