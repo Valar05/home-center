@@ -12,7 +12,7 @@ The root pulse identity is part of the same contract. `HeartbeatSceneGraph.build
 
 Direct semantic lookup is also source work. `HeartbeatFrameAccessibility.detailContentDescription(frame, nodeId)`, `HeartbeatFrameAccessibility.focusIndexForId(frame, nodeId)`, and `HeartbeatOverlayViewModel.Model.controlById(id)` now reuse `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS` before trim/`Locale.ROOT` case-fold. Oversized direct queries fail closed without creating a second id namespace; accepted scene/control identities and case-insensitive lookup behavior at/below the throat stay exact. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**. Safe canonical scene ids still do not authorize unbounded work for arbitrary direct callers.
 
-Interrupted-refresh diagnostic boundaries are a second independent source-work channel. `HeartbeatSceneGraph.Frame.refreshBoundary` is exact evidence and must stay exact, but exact diagnostic evidence does not authorize unbounded human-facing semantic scanning or render/announcement identity hashing. Direct `preserveRejectedRefresh(...)` callers can supply arbitrary boundary text. The proposed repair reuses `HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS` before whole-boundary speech safety scanning and before digest materialization, while retaining the exact boundary separately. Over-ceiling diagnostic projection may collapse to one deterministic source-limit wound because it is non-authoritative prose; it must not rewrite the exact evidence field. This seam remains **RED SOURCE / CORRECTED_PROPOSED_NOT_APPLIED / UNEXECUTED**.
+Interrupted-refresh diagnostic boundaries are a second independent source-work channel. `HeartbeatSceneGraph.Frame.refreshBoundary` remains exact evidence, but exact diagnostic evidence does not authorize unbounded human-facing semantic scanning or render/announcement identity hashing. `HeartbeatSceneGraph.Frame.interruptedRefreshDescription()` now stops over-ceiling boundary prose at `HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS` before whole-boundary semantic scanning, while ordinary admitted boundaries continue through the existing 320-code-point speech projection. `HeartbeatOverlayRefreshPlan` independently derives a bounded diagnostic identity before SHA-256 materialization; over-ceiling boundaries collapse to a deterministic source-limit marker keyed only by O(1) Java length, while the exact frame field remains unchanged. This seam is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED**.
 
 The public parser itself is also a source boundary. Persisted bytes may be bounded upstream, but direct callers of `HeartbeatEnvelopeParser.parse(...)` do not inherit that byte custody automatically. The existing parser owns its finite pre-parse source-work throat **before** `trim()` or `JsonCursor` traversal. `MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768`: values above it fail before blank normalization or JSON allocation; values at/below it continue through the existing strict parser. This is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED** and must not be described as TESTED or runtime proof.
 
@@ -38,7 +38,7 @@ Direct pulse applied provenance: `HeartbeatSceneGraph.java` base blob `a096b74cc
 
 Direct semantic lookup applied provenance: `patches/try-forever-heartbeat-direct-semantic-lookup-source-throat.patch`; frame-accessibility base blob `4d49dc7227d9b2bbb7abf0123df5537782176b60`; applied commit `b5c0581ae4d11a30bde804e6b01a9ca84ec2bc54`; result blob `936a29ed0d85c191a1bef52f14407001215b1384`; view-model base blob `a7a80e887dc233a4e242ec50e21523895a605801`; applied commit `1066c33f430390f12172160dc79df5e5409b76a4`; result blob `3b682c2630a62e912ed369117d3ff5505598ae0d`; **APPLIED_SOURCE / SOURCE_WIRED / regression source UNEXECUTED**.
 
-Refresh-boundary source-work proposal: `patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch`; scene base blob `021f4e6f672002762848b46c6ef42eb4d1d3f0a4`; refresh-plan base blob `483257e1d1aca72610dc632a8343a96f0262e0d6`; **CORRECTED_PROPOSED_NOT_APPLIED**.
+Refresh-boundary applied provenance: `patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch`; scene base blob `021f4e6f672002762848b46c6ef42eb4d1d3f0a4`; applied commit `da807bd09b2797b48cd31bf563a155d1d15baf1b`; scene result blob `4012d09b10b72956a546276175f16504882148eb`; refresh-plan base blob `483257e1d1aca72610dc632a8343a96f0262e0d6`; applied commit `e32217ed58d630126d1056a3a9466113a1089458`; refresh-plan result blob `0ebc584bfe0cb3837f97495751f4e9fc3bbcf76a`; **APPLIED_SOURCE / SOURCE_WIRED / regression source UNEXECUTED**.
 
 ## Regression requirements
 
@@ -58,8 +58,10 @@ Keep source fixtures for:
 - a raw envelope at source ceiling + 1 failing at the resource throat before blank normalization / JSON traversal;
 - direct frame detail/focus lookup and model control lookup crossing a broad raw source gate before trim/case-fold;
 - exact accepted semantic ids continuing to resolve case-insensitively after lookup custody;
-- over-ceiling interrupted-refresh boundary prose failing to a deterministic bounded speech wound before whole-source semantic scanning;
-- render/announcement identities consuming a bounded diagnostic boundary identity while the exact `Frame.refreshBoundary` remains unchanged.
+- over-ceiling interrupted-refresh boundary prose failing to a deterministic bounded speech wound before whole-source semantic scanning while exact evidence remains unchanged;
+- render/announcement identities consuming a bounded diagnostic boundary identity while the exact `Frame.refreshBoundary` remains unchanged;
+- two over-ceiling diagnostic boundaries with equal length but different contents sharing the same non-authoritative UI/dedup identity while their exact evidence remains distinct;
+- two admitted at-ceiling diagnostic boundaries with different contents retaining distinct render/announcement identities.
 
 These fixtures are regression source until they actually execute. Never report their existence as `TESTED`.
 
@@ -75,7 +77,7 @@ Current state:
 - direct Candidate pre-trim resource throat: **SOURCE_WIRED / APPLIED_SOURCE**;
 - direct pulse/pre-parser raw-source work throat: **SOURCE_WIRED / APPLIED_SOURCE**;
 - direct semantic lookup pre-trim/case-fold custody: **SOURCE_WIRED / APPLIED_SOURCE**;
-- interrupted-refresh speech/dedup source-work custody: **NO / RED SOURCE / CORRECTED_PROPOSED_NOT_APPLIED**;
+- interrupted-refresh speech/dedup source-work custody: **SOURCE_WIRED / APPLIED_SOURCE**;
 - focused Candidate/pulse/lookup/boundary regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
