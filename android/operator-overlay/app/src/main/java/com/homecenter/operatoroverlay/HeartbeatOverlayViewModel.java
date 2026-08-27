@@ -16,6 +16,9 @@ import java.util.Locale;
 public final class HeartbeatOverlayViewModel {
     /** Hard returned budget for one visible button label before state framing. */
     public static final int MAX_VISIBLE_LABEL_CODE_POINTS = 72;
+    /** Broad direct lookup throat before trim/case-fold; accepted control ids stay exact. */
+    public static final int MAX_DIRECT_CONTROL_ID_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     public static final class LightControl {
         public final String id;
@@ -85,7 +88,7 @@ public final class HeartbeatOverlayViewModel {
 
         /** Stable semantic lookup for selection retention across scene reordering. */
         public LightControl controlById(String id) {
-            String target = clean(id).toLowerCase(Locale.ROOT);
+            String target = boundedControlLookupId(id);
             if (target.isEmpty()) return null;
             for (LightControl control : controls) {
                 if (control.id.toLowerCase(Locale.ROOT).equals(target)) return control;
@@ -233,6 +236,11 @@ public final class HeartbeatOverlayViewModel {
         return HeartbeatPlainTextBudget.boundedWithEllipsis(
                 clean(value),
                 MAX_VISIBLE_LABEL_CODE_POINTS);
+    }
+
+    private static String boundedControlLookupId(String value) {
+        if (value == null || value.length() > MAX_DIRECT_CONTROL_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value).toLowerCase(Locale.ROOT);
     }
 
     private static String raw(String value) {
