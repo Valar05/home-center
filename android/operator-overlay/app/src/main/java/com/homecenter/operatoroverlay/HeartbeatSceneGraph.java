@@ -214,6 +214,12 @@ public final class HeartbeatSceneGraph {
      * callers, but a scene must never silently turn two material records with the
      * same semantic id into first-wins native ownership. That ambiguity is rejected
      * before display-ready filtering so parser and direct scene ingress agree.
+     *
+     * Direct list ingress additionally preserves canonical MAX_LIGHTS cardinality
+     * before duplicate/material traversal. The source List is observed once for
+     * size and at most MAX_LIGHTS times by index, then semantic traversal uses only
+     * the detached snapshot. This bounds caller-interface work but deliberately does
+     * not claim callback-free arbitrary-List admission.
      */
     public static Frame build(
             String pulseId,
@@ -249,7 +255,17 @@ public final class HeartbeatSceneGraph {
         if (attempted.isEmpty()) {
             return preserveLastGood("", lastGood, "Pulse identity is missing.");
         }
-        if (hasDuplicateMaterialIdentity(candidates)) {
+        List<HeartbeatSkillPolicy.Candidate> boundedCandidates =
+                snapshotDirectCandidates(candidates);
+        if (boundedCandidates == null) {
+            return preserveLastGood(
+                    attempted,
+                    lastGood,
+                    "Direct heartbeat scene exceeds "
+                            + HeartbeatEnvelopeParser.MAX_LIGHTS
+                            + " lights.");
+        }
+        if (hasDuplicateMaterialIdentity(boundedCandidates)) {
             return preserveLastGood(
                     attempted,
                     lastGood,
@@ -257,9 +273,9 @@ public final class HeartbeatSceneGraph {
         }
 
         List<HeartbeatSkillPolicy.Candidate> material =
-                HeartbeatSkillPolicy.selectMaterialLights(candidates);
+                HeartbeatSkillPolicy.selectMaterialLights(boundedCandidates);
         List<HeartbeatSkillPolicy.Candidate> selected =
-                HeartbeatSkillPolicy.selectDisplayReadyLights(candidates);
+                HeartbeatSkillPolicy.selectDisplayReadyLights(boundedCandidates);
         if (material.size() != selected.size()) {
             return preserveLastGood(
                     attempted,
@@ -291,6 +307,17 @@ public final class HeartbeatSceneGraph {
                     "Pulse identity collision: the visible pulse id was reused with different contact semantics.");
         }
         return next;
+    }
+
+    private static List<HeartbeatSkillPolicy.Candidate> snapshotDirectCandidates(
+            List<HeartbeatSkillPolicy.Candidate> candidates) {
+        if (candidates == null) return Collections.emptyList();
+        int size = candidates.size();
+        if (size < 0 || size > HeartbeatEnvelopeParser.MAX_LIGHTS) return null;
+        if (size == 0) return Collections.emptyList();
+        List<HeartbeatSkillPolicy.Candidate> detached = new ArrayList<>(size);
+        for (int index = 0; index < size; index++) detached.add(candidates.get(index));
+        return Collections.unmodifiableList(detached);
     }
 
     private static boolean hasDuplicateMaterialIdentity(
