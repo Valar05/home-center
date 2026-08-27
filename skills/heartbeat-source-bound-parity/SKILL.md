@@ -6,13 +6,13 @@ Use this skill when heartbeat records can enter through more than one source pat
 
 A display-ready direct-source candidate MUST satisfy the same post-trim Java `String.length()` field limits as `HeartbeatEnvelopeParser`. The parser's public candidate-field constants are the single typed-bound authority; do not copy their numeric values into a second table.
 
-Post-trim typed-field parity is not the same thing as finite pre-trim source work. The direct `Candidate` constructor currently runs semantic-safety scans and `trim()` over raw caller Strings before `hasTypedSourceContract(...)` reaches the smaller typed field limits. Canonical parser input already has a 32,768-code-unit whole-envelope preparse throat, but direct Candidate construction does not inherit that protection. Keep this as a separate capability state.
+Post-trim typed-field parity is not the same thing as finite pre-trim source work. The existing direct `Candidate` constructor now owns an independent raw-source work throat before semantic-safety scans or `trim()`: each raw String field is admitted only when its Java UTF-16 length is at or below `HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS`. This is deliberately broader than the smaller typed field limits. At-ceiling raw source may construct and later fail typed-field admission; max+1 raw source fails before whole-source safety scanning/trim. Canonical parser input separately owns the same 32,768-code-unit whole-envelope preparse ceiling. Keep those capabilities distinct.
 
 The root pulse identity is part of the same contract. `HeartbeatSceneGraph.build(String pulseId, ...)` MUST reject any post-trim pulse id larger than `HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS`, and `preserveRejectedRefresh(...)` MUST NOT retain an oversized attempted pulse id as diagnostic frame state. Canonical parser rejection, direct scene ingress, and pre-parser rejection therefore cannot disagree about how large a pulse identity is allowed to become.
 
 The public parser itself is also a source boundary. Persisted bytes may be bounded upstream, but direct callers of `HeartbeatEnvelopeParser.parse(...)` do not inherit that byte custody automatically. The existing parser owns its finite pre-parse source-work throat **before** `trim()` or `JsonCursor` traversal. `MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768`: values above it fail before blank normalization or JSON allocation; values at/below it continue through the existing strict parser. This is **SOURCE_WIRED / APPLIED_SOURCE / regression source UNEXECUTED** and must not be described as TESTED or runtime proof.
 
-This is a source/evidence safety rule, not merely a speech rule. TalkBack projections intentionally use smaller Unicode-code-point budgets, and the shared plain-text TalkBack helper now owns its own finite work window, but those projection limits do not retroactively bound direct Candidate constructor safety scans, scene hashing, checkpoint identity, native semantic ownership, touch detail, or memory from an oversized source record.
+This is a source/evidence safety rule, not merely a speech rule. TalkBack projections intentionally use smaller Unicode-code-point budgets, and the shared plain-text TalkBack helper owns its own finite work window, but those projection limits do not retroactively bound source safety scans, scene hashing, checkpoint identity, native semantic ownership, touch detail, or memory from an oversized record.
 
 Human-facing semantic text remains Unicode subject to the existing semantic-safety rules. Machine semantic IDs remain subject to the deterministic ASCII owner-token boundary. Bounds do not authorize normalization, truncation, or rewriting of canonical source identity: an oversized typed record or pulse identity is rejected rather than converted into a smaller counterfeit identity.
 
@@ -24,9 +24,9 @@ When an oversized direct pulse id reaches `HeartbeatSceneGraph.build(...)`, reje
 
 When an oversized raw envelope reaches the public parser, reject it at the finite source-work throat before `trim()` or JSON cursor traversal. Do not parse enough of an oversized envelope to decide whether it might otherwise have been valid, and do not reinterpret the source-work rejection as accepted telemetry.
 
-For direct Candidate construction, the proposed pre-trim resource throat is the existing parser's `MAX_ENVELOPE_SOURCE_CODE_UNITS` applied independently to each raw String field before semantic scanning or trimming. This broad work ceiling is deliberately separate from the much smaller typed field limits: at-ceiling raw source may still construct and later fail the typed field contract; max+1 raw source must fail before whole-source scan/trim. The exact surgery is `patches/try-forever-heartbeat-direct-candidate-pretrim-resource-throat.patch`, currently **PROPOSED_NOT_APPLIED** against `HeartbeatSkillPolicy` blob `5b5f89174da52b7fff742fdad4e2c103281424fc`.
+For direct Candidate construction, `MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS` delegates to the parser's `MAX_ENVELOPE_SOURCE_CODE_UNITS` and is applied independently to each raw String field before semantic scanning or trimming. Do not synthesize a smaller replacement record. Do not truncate evidence or pulse identity into something that can pass the typed gate. Speech projection may be bounded independently only after source acceptance.
 
-Do not synthesize a smaller replacement record. Do not truncate evidence or pulse identity into something that can pass the typed gate. Speech projection may be bounded independently only after source acceptance.
+Applied provenance: `patches/try-forever-heartbeat-direct-candidate-pretrim-resource-throat.patch`; base owner blob `5b5f89174da52b7fff742fdad4e2c103281424fc`; applied commit `2c2ba7fcbfbbb54d45e8638cf4ac9991b28367f5`; result blob `a0cfad7ce47455d06d83607f4e5ebdf71b9aada5`.
 
 ## Regression requirements
 
@@ -54,7 +54,8 @@ Current state:
 - post-trim direct Candidate typed-field parity: **SOURCE_WIRED**;
 - public envelope preparse resource throat: **SOURCE_WIRED / APPLIED_SOURCE**;
 - plain TalkBack projection finite source-work window: **SOURCE_WIRED**;
-- direct Candidate pre-trim resource throat: **NO / PROPOSED_NOT_APPLIED / RED regression source**;
+- direct Candidate pre-trim resource throat: **SOURCE_WIRED / APPLIED_SOURCE**;
+- focused direct-Candidate regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - TESTED/runtime/TalkBack/deployed/callable/executed/delivered/accepted: **NO**.
 
