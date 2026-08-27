@@ -1,0 +1,115 @@
+{
+  "schema": "try-forever.swarm-receipt.v1",
+  "heartbeat": "2026-08-27T13:00:00-05:00",
+  "mission": "Advance multiple independent non-P0 Harroway fronts through authenticated repository owners while preserving capability-state truth and the phone/P0 firewall.",
+  "previousPublicationHead": "c10908d89085646a3a58ad3660ad2c0bf21ca423",
+  "reviewedSourceHead": "bf1d77a3b6e09dc85891309d5c6d82e685a09e7e",
+  "sourceDelta": {
+    "commits": 6,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatInvisibleSemanticControlPolicy.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatInvisibleSemanticControlSourceWorkTest.java",
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatCollapsedOwnerAccessibility.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatCollapsedOwnerStatusSourceWorkTest.java",
+      "skills/heartbeat-hard-returned-text-budgets/SKILL.md"
+    ]
+  },
+  "frontsAdvanced": [
+    {
+      "front": "explicit invisible-control projection source work",
+      "state": "SOURCE_WIRED",
+      "change": "HeartbeatInvisibleSemanticControlPolicy now gates all public traversal entry points at HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS before code-point scan or marker expansion. The first 4096-unit repair was rejected as needlessly narrower than the established broad direct-source contract and corrected to 32768 units.",
+      "ownerBlob": "e10fd59f37d6ee06fd1d899dcb45fde445081df1",
+      "regressionBlob": "72f8314f6a2d65107818b65db6295a69c4bdc352"
+    },
+    {
+      "front": "collapsed owner operational-status pre-trim work",
+      "state": "SOURCE_WIRED",
+      "change": "HeartbeatCollapsedOwnerAccessibility now sends direct operatorStatusDescription through the existing finite plain-text source window before trim, then through the existing 96-code-point status budget. Ordinary within-window trim behavior and heartbeat/contact composition are preserved; owner runtime consumption of this overload remains NO.",
+      "ownerBlob": "b4788bd6a738a1a5d1346433b46c1201a2facfc6",
+      "regressionBlob": "11110b07238271f7224dd0514827bcc90665f78f"
+    },
+    {
+      "front": "finite-work doctrine convergence",
+      "state": "SOURCE",
+      "change": "heartbeat-hard-returned-text-budgets now records pre-helper trim/scan as an independent work throat and cross-pollinates the finite-work invariant into explicit evidence without merging its presentation semantics with routine speech.",
+      "skillBlob": "9c0086c5fe4f00afa9b772677cfa87be412daadf"
+    },
+    {
+      "front": "adversarial and judgment review",
+      "state": "DURABLE",
+      "change": "Authoritative She-Raw was attempted and failed with HTTP 400 account connection; no synthetic substitute. Regnet grants bounded source PASS only. Venice allows the source slice to checkpoint while regression execution, TESTED/runtime, and campaign continue.",
+      "regnet": "receipts/regnet/2026-08-27-heartbeat-1300.json",
+      "venice": "receipts/venice/2026-08-27-heartbeat-1300.json"
+    },
+    {
+      "front": "exact-head execution truth",
+      "state": "FAILED_INFRASTRUCTURE_SHAPED_NO_TEST_PROOF",
+      "change": "Exact reviewed source generated three failed pull-request workflows; Operator Overlay job 98623955787 exposes zero steps. No manual retry and no source/test diagnosis were invented.",
+      "runs": [33102600225, 33102600236, 33102600268]
+    }
+  ],
+  "skillLights": [
+    {"skill": "Failure Is The Shovel", "state": "LIT", "why": "Self-review rejected the first over-tight invisible-projection source ceiling and corrected the same owner instead of entrenching the mistake."},
+    {"skill": "Canon Auto-Select", "state": "LIT", "why": "Reused HeartbeatEnvelopeParser and HeartbeatPlainTextBudget limits plus existing projection/accessibility owners; no alternate policy architecture."},
+    {"skill": "Autocorrect Judgment Jar", "state": "DARK", "why": "No material token ambiguity affected routing, owner identity, or evidence semantics."},
+    {"skill": "Originality Tax", "state": "LIT", "why": "Moved from recently repaired semantic-id/list seams to two independent pre-projection/pre-trim work seams and corrected the first repair strategy when it over-constrained capability."},
+    {"skill": "Hunger", "state": "LIT", "why": "Continued past bounded returned text to inspect preceding source work and found two separate whole-source traversal wounds."},
+    {"skill": "Ever-Polished Interpreter / Eat Everything", "state": "LIT", "why": "Cross-checked direct public evidence projection, collapsed owner status composition, hostile max/max+1 cases, and doctrine."},
+    {"skill": "Operator Campaign", "state": "LIT", "why": "Published Regnet, Venice, and broad swarm evidence on the active PR branch."},
+    {"skill": "Harroway operator discipline", "state": "LIT", "why": "Mutated only existing authorized non-P0 owners and preserved exact boundaries where runtime/test authority was unavailable."},
+    {"skill": "She-Raw adversarial motivation", "state": "FAULT", "why": "Authoritative connector attempt returned HTTP 400 account-connection failure; no synthetic reviewer was substituted."},
+    {"skill": "Venice Judgment Jars", "state": "LIT", "why": "Separated source checkpoint permission from regression/test/runtime continuation requirements."},
+    {"skill": "Regnet QA", "state": "LIT", "why": "Reviewed capability contraction, evidence preservation, regression-source truth, and zero-step workflow evidence."},
+    {"skill": "accessibility/TalkBack and touch semantics", "state": "LIT", "why": "Collapsed-owner source work was bounded before trim while preserving heartbeat/contact speech; runtime TalkBack remains explicitly NO."},
+    {"skill": "Phone Runtime / Phone Hands recovery", "state": "FIREWALLED_DARK", "why": "Primary-phone and canonical P0 recovery surfaces were not consumed or mutated."},
+    {"skill": "deterministic routing", "state": "LIT", "why": "Both repairs reuse canonical existing source ceilings rather than copying new magic-number policies."},
+    {"skill": "evidence/capability-state discipline", "state": "LIT", "why": "SOURCE_WIRED, regression source, regression executed, TESTED, runtime, deployment, delivery, and acceptance remain separate."},
+    {"skill": "recovery/checkpointing/idempotence", "state": "LIT", "why": "Used exact-head workflow readback, did not manually retry zero-step failures, and wrote durable repository receipts."},
+    {"skill": "strange non-raster vector/DOM/native UI art", "state": "DARK", "why": "No visible interaction topology changed; a new specimen would be duplicate visual paperwork."},
+    {"skill": "warm walls", "state": "DARK", "why": "Existing source specimens remain truthful for this machine-work change; no wall mutation was justified."},
+    {"skill": "Christmas-light scene graph", "state": "DARK", "why": "No runtime transition or motion law changed; no decorative motion was introduced."},
+    {"skill": "contact preservation", "state": "LIT", "why": "Collapsed status source bounding preserves heartbeat/contact truth, and explicit evidence projection leaves canonical source identity untouched."},
+    {"skill": "heartbeat-hard-returned-text-budgets", "state": "LIT", "why": "Converged doctrine on work-before-trim/scan and distinct plain-speech versus explicit-evidence projection semantics."},
+    {"skill": "heartbeat-invisible-semantic-controls", "state": "LIT", "why": "Its projection-not-canonical-identity law constrained the new finite direct-source work throat."},
+    {"skill": "heartbeat-collapsed-owner-speech-load", "state": "LIT", "why": "Its operational-status masking and contact-preservation rules constrained the collapsed-owner repair and regression fixtures."}
+  ],
+  "crossPollination": "Hard returned-text doctrine made small output backed by large source work suspicious. That exposed unbounded invisible-control scan/marker work and, independently, collapsed owner status trim before the existing plain-text budget. The first invisible fix was itself shoveled because it reused the smaller typed evidence limit instead of the broader established direct-source ceiling. The corrected source-work law then converged into shared doctrine while preserving distinct presentation semantics and contact evidence.",
+  "executionTruth": {
+    "sourceHead": "bf1d77a3b6e09dc85891309d5c6d82e685a09e7e",
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33102600225, "conclusion": "failure", "jobId": 98623955787, "steps": 0},
+      {"name": "Home Center CI", "id": 33102600236, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33102600268, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "invisibleProjectionSourceWork": "SOURCE_WIRED",
+    "collapsedStatusPretrimSourceWork": "SOURCE_WIRED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
