@@ -6,24 +6,21 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
- * RED source regression for a finite public-parser source-work throat.
+ * Source regression for the finite public-parser source-work throat.
  *
  * <p>The persisted writer's byte budget does not protect direct callers of
  * HeartbeatEnvelopeParser.parse(...). The parser must reject an obviously oversized
  * Java String before trim or JSON traversal can consume the whole caller-owned value.</p>
  *
- * <p>The proposed ceiling remains fixture-local until the existing parser owner actually
- * exposes the matching public constant. This keeps the RED regression compilable instead
- * of turning an unapplied owner proposal into a compile-time capability claim.</p>
+ * <p>This fixture now consumes the existing parser owner's public source ceiling. Its
+ * source convergence does not claim that the regression has executed.</p>
  */
 public class HeartbeatEnvelopePreparseResourceThroatTest {
-    private static final int PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS = 32_768;
-
     @Test
     public void oversizedAllWhitespaceFailsAtResourceThroatBeforeBlankNormalization() {
         String oversized = repeat(
                 ' ',
-                PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS + 1);
+                HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS + 1);
 
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(oversized);
 
@@ -35,7 +32,7 @@ public class HeartbeatEnvelopePreparseResourceThroatTest {
     public void exactSourceCeilingStillReachesExistingParserSemantics() {
         String exact = repeat(
                 ' ',
-                PROPOSED_MAX_ENVELOPE_SOURCE_CODE_UNITS);
+                HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS);
 
         HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(exact);
 
