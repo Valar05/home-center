@@ -1,0 +1,93 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26-2300",
+  "pr": 329,
+  "previousPublicationHead": "1c9ac65ee020f53b49f06f67bf72ce361288d37e",
+  "reviewedSourceHead": "1d9a8effb93bd58372255baa37ea068b38d53bf3",
+  "sourceDelta": {
+    "commits": 5,
+    "paths": 5,
+    "unexpectedPaths": 0,
+    "pathsChanged": [
+      "tools/try_forever_owner_surgery_semantic_parser.py",
+      "patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch",
+      "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "skills/semantic-text-safety/SKILL.md"
+    ]
+  },
+  "lights": {
+    "failureIsTheShovel": "Split dependency capability from canonical-owner consumption and rejected transitive green-painting.",
+    "canonAutoSelect": "Selected existing semantic-text-safety and owner-surgery organs; no adjacent sanitizer/owner.",
+    "originalityTax": "Exposed the existing diagnostic projector instead of creating a duplicate module.",
+    "hungerEatEverything": "Added exact-str callback defense and separately pinned the still-RED canonical consumer.",
+    "operatorCampaignHarroway": "Staged one base-locked existing-owner patch and synchronized durable review surfaces.",
+    "regnetQa": "Hostile source fixture covers newline, bidi, lone surrogate, oversize text, and str-subclass callbacks.",
+    "accessibilityTouchWarmWalls": "Existing sole Warm Wall now exposes SOURCE_WIRED projector vs RED canonical consumption; 56px, focus, non-color status, SVG semantics, reduced motion preserved.",
+    "deterministicRoutingEvidenceDiscipline": "Exact source, proposal, regression, TESTED, runtime, and phone states remain distinct.",
+    "recoveryCheckpointingIdempotence": "Exact-head workflow evidence captured; no manual retry.",
+    "contactPreservation": "Canonical path/artifact evidence remains exact; only human-facing diagnostic prose is projected.",
+    "sheRaw": "Authoritative hostile critique attempted; account connection HTTP 400; no synthetic substitute.",
+    "venice": "Bounded source checkpoint allowed; canonical owner mutation/test/runtime continue required.",
+    "autocorrect": "DARK_NO_MATERIAL_AMBIGUITY",
+    "christmasSceneGraph": "DARK_NO_RUNTIME_MOTION_CONTRACT_CHANGE",
+    "phoneRuntimePhoneHandsP0": "FIREWALLED_ZERO_TOUCH"
+  },
+  "fronts": {
+    "sharedDiagnosticProjection": {
+      "state": "SOURCE_WIRED",
+      "commit": "0fcd66fca3ef401aff70286f2acea2e742a2f8e9",
+      "blob": "a3abe553466da9760f534836ef36881b3cdf992d"
+    },
+    "canonicalDiscoveryProjection": {
+      "state": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c",
+      "proposal": "patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch"
+    },
+    "regression": {
+      "state": "SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_owner_surgery_discovery_error_projection.py"
+    },
+    "skillDoctrine": {
+      "state": "SOURCE_CONVERGED",
+      "path": "skills/semantic-text-safety/SKILL.md"
+    },
+    "warmWall": {
+      "state": "SOURCE_UPDATED_RUNTIME_NO",
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    }
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33038351199, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33038351231, "job": 98406084730, "conclusion": "failure", "stepsObserved": 0},
+    "buildAndroid": {"run": 33038351214, "conclusion": "failure"},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "crossPollination": "Raw discovery diagnostics exposed a projection wound; existing semantic projection was promoted to a shared non-authoritative organ; Regnet then attacked that organ's scalar boundary while preserving canonical evidence; the dependency/consumer distinction forced doctrine and the existing accessible Warm Wall to show SOURCE_WIRED versus RED separately; exact-head zero-step CI kept source progress behind TESTED/runtime.",
+  "membrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "sharedDiagnosticProjectorSourceWired": true,
+    "canonicalDiscoveryProjectionOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_DISCOVERY_PROJECTION_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
