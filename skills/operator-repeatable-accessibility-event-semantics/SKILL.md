@@ -39,8 +39,23 @@ Until yes, fail closed, keep the legacy event receipt, and carry a typed `Migrat
 4. **Automatic heartbeat material transition — separate value-change case / owner migration READY.**
    - Existing transition/announcement identity already represents a material semantic change.
    - Blocker: `NONE`.
-   - The narrow one-shot polite-live-region owner surgery is the only currently review-ready migration.
-   - That surgery is now re-locked to authenticated owner blob `c5de1411a6b68087ae17aff83c032af754587150` but is still **CORRECTED_PROPOSED_NOT_APPLIED**.
+   - The narrow one-shot polite-live-region design remains the only review-ready announcement migration.
+
+## Authenticated owner revalidation — 2026-08-27 14:02 source checkpoint
+
+Fresh PR-head readback revalidates the boundary instead of inheriting the 2026-08-21 snapshot:
+
+- `OperatorOverlayService.java` is still exact blob `c5de1411a6b68087ae17aff83c032af754587150` after unrelated source commits;
+- the owner still contains the legacy Spotify `announceForAccessibility(...)` receipt;
+- the owner still contains the legacy heartbeat-summary `announceForAccessibility(...)` receipt;
+- the owner still contains the explicit heartbeat-detail `announceForAccessibility(...)` receipt;
+- the owner still contains the Adam-send `announceForAccessibility(...)` receipt;
+- `patches/try-forever-heartbeat-selection-announcement-owner-combined.patch` is still base-locked to that exact owner blob and still **CANONICAL_PROPOSED_NOT_APPLIED**;
+- the standalone heartbeat live-region patch remains **SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE**;
+- therefore heartbeat automatic transition migration is **REVIEW_READY DESIGN / OWNER_WIRED NO**, and the three repeatable explicit-event blockers remain non-`NONE`;
+- no source review in this checkpoint authorizes removal of Spotify/detail/Adam legacy receipts.
+
+This revalidation is an exact boundary, not runtime evidence and not permission to consume the phone/P0 surface.
 
 ## Laws
 
@@ -77,7 +92,7 @@ Before removing one legacy `announceForAccessibility(...)` call:
 
 If any owner event-semantics question is unresolved, keep the legacy call and keep a non-`NONE` typed blocker.
 
-## Current PR #329 source truth — 2026-08-21 0811
+## Current PR #329 source truth — 2026-08-27 14:02
 
 - doctrine: **YES / IMPLEMENTED_SOURCE**;
 - supporting semantic designs for all four consequences: **YES**;
@@ -86,10 +101,9 @@ If any owner event-semantics question is unresolved, keep the legacy call and ke
 - repeated detail selection: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
 - Adam send confirmation: **OWNER_MIGRATION_READY=false / typed blocker / OWNER_WIRED NO**;
 - broad four-consequence patch: **REJECTED_SUPERSEDED__DO_NOT_APPLY / historical provenance**;
-- narrow heartbeat patch: **CORRECTED_PROPOSED_NOT_APPLIED / CURRENT_OWNER_BLOB_LOCKED**;
+- canonical combined heartbeat-selection + material-transition patch: **CANONICAL_PROPOSED_NOT_APPLIED / exact current owner blob lock**;
 - owner-boundary regression source: **YES / UNEXECUTED**;
-- owner-inventory regression source: **YES / UNEXECUTED**, with rejected-patch archaeology no longer falsely required to track current owner custody;
-- authenticated owner at plan time still contains all four legacy calls: **YES / blob c5de1411a6b68087ae17aff83c032af754587150**;
-- Command Center Codex worker/job/session surface: **PERMANENTLY RETIRED**; no worker queue is a valid substitute execution claim;
-- She-Raw pre-execution consultation: **FAULT / account connection HTTP 400**, no substitute reviewer;
+- owner-inventory regression source: **YES / UNEXECUTED**;
+- authenticated current owner still contains all four legacy calls: **YES / blob c5de1411a6b68087ae17aff83c032af754587150**;
+- She-Raw pre-execution consultation at this checkpoint: **FAULT / account connection HTTP 400**, no substitute reviewer;
 - TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO unless fresh exact-head evidence proves otherwise**.
