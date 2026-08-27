@@ -4,9 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import org.junit.Test;
 
 public class HeartbeatDetailSurfacePolicyTest {
+    private static String repeated(char value, int count) {
+        char[] chars = new char[count];
+        Arrays.fill(chars, value);
+        return new String(chars);
+    }
+
     @Test
     public void longExplicitDetailRemainsExactAndScrollInspectable() {
         String detail = "Skill Regnet, fault. Why: source review. Consequence: boundary held. "
@@ -26,7 +33,7 @@ public class HeartbeatDetailSurfacePolicyTest {
 
     @Test
     public void directDetailSourceWorkHasBroadPreTrimCeiling() {
-        String exactMax = "x".repeat(HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS);
+        String exactMax = repeated('x', HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS);
         HeartbeatDetailSurfacePolicy.Presentation admitted =
                 HeartbeatDetailSurfacePolicy.fromDetail(exactMax);
         assertEquals(exactMax, admitted.text);
@@ -43,7 +50,7 @@ public class HeartbeatDetailSurfacePolicyTest {
 
     @Test
     public void overCeilingWhitespaceDoesNotBecomeEmptyDetailThroughTrim() {
-        String overMax = " ".repeat(HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS + 1);
+        String overMax = repeated(' ', HeartbeatDetailSurfacePolicy.MAX_DETAIL_SOURCE_CODE_UNITS + 1);
         HeartbeatDetailSurfacePolicy.Presentation presentation =
                 HeartbeatDetailSurfacePolicy.fromDetail(overMax);
 
