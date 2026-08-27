@@ -27,12 +27,12 @@
 <h1>OWNER SURGERY CUSTODY · v10</h1>
 <p>One canonical authority owner. One shared patch/delta semantic producer. Exact evidence first. Source wiring is not regression execution, TESTED, runtime, deployment, phone delivery, or acceptance.</p>
 <div class="scar" role="status" aria-live="polite">
-  ● CANONICAL BACKEND SELECTION SOURCE_WIRED · ● DESCRIPTOR + PORTABLE CUSTODY SOURCE_WIRED · ● SINGLE SHARED SEMANTIC PARSER SOURCE_WIRED · ● CURRENT-OWNER RESOURCE THROATS SOURCE_WIRED · □ DISCOVERY DIAGNOSTIC PROJECTION RED · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/TALKBACK/PHONE-P0
+  ● CANONICAL BACKEND SELECTION SOURCE_WIRED · ● DESCRIPTOR + PORTABLE CUSTODY SOURCE_WIRED · ● SINGLE SHARED SEMANTIC PARSER SOURCE_WIRED · ● SHARED DIAGNOSTIC PROJECTOR SOURCE_WIRED · □ CANONICAL DISCOVERY PROJECTION RED / PROPOSED_NOT_APPLIED · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/TALKBACK/PHONE-P0
 </div>
 
 <svg class="flow" viewBox="0 0 820 170" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Canonical owner-surgery custody chain</title>
-  <desc id="flow-desc">Exact root and resource gates lead to one backend selection. Descriptor or portable custody then feeds one shared semantic producer before canonical authority grouping. Descriptor failure never retries through the weaker portable backend. Human-facing discovery diagnostics remain a separate red projection boundary.</desc>
+  <desc id="flow-desc">Exact root and resource gates lead to one backend selection. Descriptor or portable custody then feeds one shared semantic producer before canonical authority grouping. Descriptor failure never retries through the weaker portable backend. Human-facing discovery diagnostics have a shared source-wired projector, while canonical discovery-error consumption remains a separate red proposed boundary.</desc>
   <path d="M24 82 H794"/>
   <circle cx="55" cy="82" r="25"/><text x="37" y="87">GATE</text>
   <rect x="115" y="50" width="105" height="64"/><text x="127" y="77">SELECT</text><text x="126" y="98">BACKEND</text>
@@ -78,10 +78,19 @@
 </details>
 
 <details open>
-  <summary><span class="token">RED</span> Discovery diagnostic projection — RED / NO</summary>
+  <summary><span class="token">SAFE</span> Shared diagnostic projector — SOURCE_WIRED</summary>
   <div>
-    <p>Authenticated source still constructs <code>DiscoveryError.boundary</code> with raw <code>str(exc)</code>. Newline, bidi, lone-surrogate, or very long exception text therefore lacks the bounded ASCII-safe projection required by <code>semantic-text-safety</code>.</p>
-    <p><strong>RED regression source:</strong> <code>tools/test_try_forever_owner_surgery_discovery_error_projection.py</code> — SOURCE / UNEXECUTED. Canonical evidence must remain exact; only human-facing boundary prose may be projected.</p>
+    <p>The existing semantic producer now exposes <code>project_owner_surgery_diagnostic_text(...)</code> as the shared non-authoritative owner-surgery projection organ. Exact built-in strings are projected to bounded ASCII-safe diagnostic text; definitely-long text collapses to a deterministic digest marker before escaping. Projected text never becomes semantic evidence or promotion authority.</p>
+    <p><strong>Authenticated source:</strong> <code>tools/try_forever_owner_surgery_semantic_parser.py</code>. This is source wiring only; regression execution and TESTED remain NO.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">RED</span> Canonical discovery projection — RED / PROPOSED_NOT_APPLIED</summary>
+  <div>
+    <p>Canonical v10 still constructs <code>DiscoveryError.boundary</code> with raw <code>str(exc)</code>. Newline, bidi, lone-surrogate, or very long exception text therefore still lacks shared bounded ASCII-safe projection at that owner boundary.</p>
+    <p><strong>Exact existing-owner surgery:</strong> <code>patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch</code> — CORRECTED_PROPOSED_NOT_APPLIED against owner blob <code>3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c</code>. <strong>RED regression source:</strong> <code>tools/test_try_forever_owner_surgery_discovery_error_projection.py</code> — SOURCE / UNEXECUTED.</p>
+    <p>Canonical path/artifact evidence must remain exact; only human-facing boundary prose may be projected.</p>
   </div>
 </details>
 
@@ -96,7 +105,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Requested:</strong> YES. <strong>Canonical owner source:</strong> SOURCE_WIRED. <strong>Single shared semantic parser ownership:</strong> SOURCE_WIRED. <strong>Discovery diagnostic projection:</strong> NO / RED SOURCE. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Deployed/callable/executed/delivered/accepted:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Requested:</strong> YES. <strong>Canonical owner source:</strong> SOURCE_WIRED. <strong>Single shared semantic parser ownership:</strong> SOURCE_WIRED. <strong>Shared diagnostic projector:</strong> SOURCE_WIRED. <strong>Canonical discovery diagnostic consumption:</strong> NO / RED / PROPOSED_NOT_APPLIED. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Deployed/callable/executed/delivered/accepted:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
