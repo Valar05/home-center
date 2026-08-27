@@ -1,13 +1,15 @@
-# STATUS: CORRECTED_PROPOSED_NOT_APPLIED
+# STATUS: APPLIED_SOURCE
 # SEMANTIC DEPENDENCY: tools/try_forever_owner_surgery_semantic_parser.py
 # SEMANTIC DEPENDENCY BLOB: 525bd5aefa82fd788490cef329e8262ca6987a4a
 # CANONICAL OWNER: tools/try_forever_owner_surgery_custody_probe.py
 # CANONICAL BASE BLOB: 6de62efa07df4dabbb408ca77a427e83fbc4e883
-# PURPOSE: Close the remaining non-authoritative diagnostic callback wound without rewriting canonical evidence: canonical discovery must consume the already-SOURCE_WIRED callback-free exception projector instead of executing caller-owned Exception.__str__/__repr__.
+# APPLIED COMMIT: d371f5debd2e1a2f73de683462753758386afe23
+# CANONICAL RESULT BLOB: c20cda131e39d0d2415d533f787827b95c912e4d
+# PURPOSE: Close the remaining non-authoritative diagnostic callback wound without rewriting canonical evidence: canonical discovery consumes the already-SOURCE_WIRED callback-free exception projector instead of executing caller-owned Exception.__str__/__repr__.
 # ALREADY APPLIED IN SEMANTIC DEPENDENCY: finite diagnostic source-work throat (4096 source code points -> 96 returned code points; over-ceiling whole-input diagnostic identity intentionally not preserved) and callback-free exception diagnostic helper.
 # PRESERVE: exact path/artifact/Surgery evidence; canonical backend selection; semantic producer ownership; zero-partial-authority; no weaker fallback; P0/phone firewall.
-# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (RED SOURCE / UNEXECUTED only because canonical consumer remains unwired)
-# CAPABILITY: SHARED_CALLBACK_FREE_PROJECTOR_SOURCE_WIRED / CANONICAL_CONSUMER_PROPOSED_NOT_APPLIED / REGRESSION_UNEXECUTED / TESTED_NO
+# REGRESSION: tools/test_try_forever_owner_surgery_discovery_error_projection.py (CONVERGENCE SOURCE / UNEXECUTED)
+# CAPABILITY: SHARED_CALLBACK_FREE_PROJECTOR_SOURCE_WIRED / CANONICAL_CONSUMER_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
 # P0/PHONE: UNTOUCHED
 
 diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
