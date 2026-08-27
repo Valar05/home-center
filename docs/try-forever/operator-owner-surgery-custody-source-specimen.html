@@ -27,12 +27,12 @@
 <h1>OWNER SURGERY CUSTODY · v10</h1>
 <p>One canonical authority owner. One shared semantic producer. Exact evidence first. Diagnostic prose is projection, not authority. Source wiring is not regression execution, TESTED, runtime, deployment, phone delivery, or acceptance.</p>
 <div class="scar" role="status" aria-live="polite">
-  ● CANONICAL DISCOVERY ASCII PROJECTION SOURCE_WIRED · ● DIAGNOSTIC SOURCE-WORK THROAT SOURCE_WIRED · ● DESCRIPTOR + PORTABLE CUSTODY SOURCE_WIRED · ● SINGLE SHARED SEMANTIC PARSER SOURCE_WIRED · ▲ EXCEPTION CALLBACK GATE RED · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/TALKBACK/PHONE-P0
+  ● CANONICAL DISCOVERY ASCII PROJECTION SOURCE_WIRED · ● DIAGNOSTIC SOURCE-WORK THROAT SOURCE_WIRED · ● SHARED CALLBACK-FREE EXCEPTION PROJECTOR SOURCE_WIRED · ● DESCRIPTOR + PORTABLE CUSTODY SOURCE_WIRED · ▲ CANONICAL CALLBACK CONSUMER RED · □ REGRESSIONS UNEXECUTED · × TESTED/RUNTIME/TALKBACK/PHONE-P0
 </div>
 
-<svg class="flow" viewBox="0 0 820 205" role="img" aria-labelledby="flow-title flow-desc">
+<svg class="flow" viewBox="0 0 820 215" role="img" aria-labelledby="flow-title flow-desc">
   <title id="flow-title">Canonical owner-surgery custody and diagnostic projection chain</title>
-  <desc id="flow-desc">Exact root and resource gates lead to one backend selection and shared semantic producer before canonical authority grouping. Human-facing discovery diagnostics cross the ASCII-safe projector, and direct diagnostic text has a finite 4096-code-point source-work throat. Exception stringification still occurs before that projector and remains red.</desc>
+  <desc id="flow-desc">Exact root and resource gates lead to one backend selection and shared semantic producer before canonical authority grouping. Human-facing diagnostic text has a finite 4096-code-point source-work throat and a callback-free exception projection helper. Canonical discovery still calls exception stringification directly instead of consuming that helper, so the consumer remains red.</desc>
   <path d="M24 72 H794"/>
   <circle cx="55" cy="72" r="25"/><text x="37" y="77">GATE</text>
   <rect x="115" y="40" width="105" height="64"/><text x="127" y="67">SELECT</text><text x="126" y="88">BACKEND</text>
@@ -42,10 +42,10 @@
   <rect x="610" y="40" width="150" height="64"/><text x="635" y="67">AUTHORITY</text><text x="637" y="88">GROUPING</text>
   <path d="M220 72 C238 72 242 49 260 49"/><path d="M220 72 C238 72 242 106 260 106"/>
   <path d="M380 49 C404 49 408 72 430 72"/><path d="M380 106 C404 106 408 72 430 72"/>
-  <path d="M430 154 H760" stroke-dasharray="7 5"/>
-  <text x="438" y="149">4096 SOURCE THROAT → 96 ASCII · SOURCE_WIRED</text>
-  <text x="438" y="176">EXCEPTION __str__ CALLBACK → RED</text>
-  <text x="438" y="196">CALLBACK-FREE EXTRACTION · PROPOSED / NOT APPLIED</text>
+  <path d="M410 154 H790" stroke-dasharray="7 5"/>
+  <text x="416" y="149">4096 SOURCE → 96 ASCII · SOURCE_WIRED</text>
+  <text x="416" y="176">CALLBACK-FREE EXCEPTION HELPER · SOURCE_WIRED</text>
+  <text x="416" y="202">CANONICAL _error CONSUMER · RED / PROPOSED</text>
 </svg>
 
 <details open>
@@ -75,7 +75,7 @@
 <details open>
   <summary><span class="token">SAFE</span> Discovery ASCII projection — SOURCE_WIRED / APPLIED_SOURCE</summary>
   <div>
-    <p>Canonical <code>_error(...)</code> uses the shared <code>project_owner_surgery_diagnostic_text(...)</code> organ before storing human-facing exception type/message prose. Newline, bidi, lone-surrogate, and long diagnostic text therefore no longer enter <code>DiscoveryError.boundary</code> raw.</p>
+    <p>Canonical <code>_error(...)</code> uses the shared ASCII-safe string projector before storing human-facing exception type/message prose. Newline, bidi, lone-surrogate, and long diagnostic strings therefore do not enter <code>DiscoveryError.boundary</code> raw.</p>
     <p><strong>Applied provenance:</strong> <code>patches/try-forever-owner-surgery-discovery-diagnostic-projection.patch</code>; applied commit <code>23091256cf90ea6bea3afc111db348e014c85584</code>; canonical result blob <code>6de62efa07df4dabbb408ca77a427e83fbc4e883</code>.</p>
   </div>
 </details>
@@ -83,17 +83,24 @@
 <details open>
   <summary><span class="token">4096</span> Diagnostic source-work throat — SOURCE_WIRED</summary>
   <div>
-    <p>The shared projector now admits at most 4,096 exact built-in diagnostic source code points for whole-input digest work. Beyond that ceiling it emits a bounded ASCII over-source marker before UTF-8 encode/hash.</p>
-    <p>Whole-input diagnostic identity may be lost because this projection is explicitly non-authoritative; canonical path/artifact/Surgery evidence is untouched. Semantic owner blob: <code>2540b6d11da67cad26fdd3943d3f8ee73ab1c91d</code>.</p>
+    <p>The shared projector admits at most 4,096 exact built-in diagnostic source code points for whole-input digest work. Beyond that ceiling it emits a bounded ASCII over-source marker before UTF-8 encode/hash.</p>
+    <p>Whole-input diagnostic identity may be lost because this projection is explicitly non-authoritative; canonical path/artifact/Surgery evidence is untouched.</p>
   </div>
 </details>
 
 <details open>
-  <summary><span class="token">RED</span> Pre-projection exception callback — RED</summary>
+  <summary><span class="token">HELP</span> Callback-free exception helper — SOURCE_WIRED</summary>
   <div>
-    <p>Canonical <code>_error(...)</code> still evaluates <code>str(exc)</code> before the safe projector sees the result. A caller-owned exception subclass can therefore execute <code>__str__</code> inside the diagnostic path even though the final returned text is safe.</p>
-    <p>The staged existing-organ repair inspects base exception arguments without arbitrary stringification, then projects exact built-in diagnostic strings. <strong>Exact surgery:</strong> <code>patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch</code> — CORRECTED_PROPOSED_NOT_APPLIED.</p>
-    <p><strong>Regression:</strong> <code>tools/test_try_forever_owner_surgery_discovery_error_projection.py</code> — RED SOURCE / UNEXECUTED only because this callback seam remains unwired.</p>
+    <p>The shared semantic organ now exposes <code>project_owner_surgery_exception_diagnostic(...)</code>. It bypasses caller-owned <code>__str__</code>/<code>__repr__</code>, inspects at most eight base exception arguments, and projects only exact built-in string payloads.</p>
+    <p><strong>Semantic dependency blob:</strong> <code>525bd5aefa82fd788490cef329e8262ca6987a4a</code>. This is dependency capability only; canonical consumption is separate.</p>
+  </div>
+</details>
+
+<details open>
+  <summary><span class="token">RED</span> Canonical callback consumer — RED</summary>
+  <div>
+    <p>Canonical <code>_error(...)</code> still evaluates <code>str(exc)</code> instead of consuming the callback-free helper. Safe dependency capability is not transitive canonical capability.</p>
+    <p><strong>Exact surgery:</strong> <code>patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch</code> — CORRECTED_PROPOSED_NOT_APPLIED. <strong>Regression:</strong> <code>tools/test_try_forever_owner_surgery_discovery_error_projection.py</code> — RED SOURCE / UNEXECUTED only because this consumer seam remains unwired.</p>
   </div>
 </details>
 
@@ -108,7 +115,7 @@
 <details>
   <summary><span class="token">×</span> Capability membrane</summary>
   <div>
-    <p><strong>Requested:</strong> YES. <strong>Canonical owner source:</strong> SOURCE_WIRED. <strong>Shared semantic parser:</strong> SOURCE_WIRED. <strong>Canonical discovery ASCII projection:</strong> SOURCE_WIRED / APPLIED_SOURCE. <strong>Finite diagnostic source-work throat:</strong> SOURCE_WIRED. <strong>Callback-free exception projection:</strong> NO / PROPOSED_NOT_APPLIED. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Deployed/callable/executed/delivered/accepted:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
+    <p><strong>Requested:</strong> YES. <strong>Canonical owner source:</strong> SOURCE_WIRED. <strong>Shared semantic parser:</strong> SOURCE_WIRED. <strong>Canonical discovery ASCII projection:</strong> SOURCE_WIRED / APPLIED_SOURCE. <strong>Finite diagnostic source-work throat:</strong> SOURCE_WIRED. <strong>Shared callback-free exception helper:</strong> SOURCE_WIRED. <strong>Canonical callback-free exception consumer:</strong> NO / PROPOSED_NOT_APPLIED. <strong>Regression source:</strong> YES / UNEXECUTED. <strong>TESTED:</strong> NO. <strong>Runtime UI/TalkBack:</strong> NO. <strong>Deployed/callable/executed/delivered/accepted:</strong> NO. <strong>Phone/P0:</strong> UNTOUCHED.</p>
   </div>
 </details>
 </body>
