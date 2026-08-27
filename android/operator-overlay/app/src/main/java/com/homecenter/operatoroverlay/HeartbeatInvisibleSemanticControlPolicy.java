@@ -25,6 +25,12 @@ package com.homecenter.operatoroverlay;
  * {@code marker[2028 LS]}. A diagnostic projection that aliases those sources would be
  * evidence theater.</p>
  *
+ * <p>Direct callers are also finite-work callers. A small returned detail budget does
+ * not bound the scan that discovers invisible controls, so every public traversal entry
+ * point rejects source beyond the canonical evidence-source ceiling before code-point
+ * iteration or marker expansion. This is a projection work throat, not a rewrite of the
+ * exact canonical source.</p>
+ *
  * <p>This class owns no parser, acceptance gate, scene, renderer, storage, transport,
  * phone surface, deployment, or P0 recovery action. Source projection is not consumer
  * wiring or runtime proof.</p>
@@ -38,6 +44,10 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     public static final int WORD_JOINER = 0x2060;
     public static final int BYTE_ORDER_MARK = 0xFEFF;
 
+    /** Direct projection work must remain inside the largest canonical evidence field. */
+    public static final int MAX_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_EVIDENCE_BOUNDARY_CHARS;
+
     private static final String TRUNCATION_SUFFIX = "… (truncated)";
     private static final int TRUNCATION_SUFFIX_CODE_POINTS =
             TRUNCATION_SUFFIX.codePointCount(0, TRUNCATION_SUFFIX.length());
@@ -48,8 +58,9 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
     /** True when text contains a layout/shaping semantic this evidence policy reveals. */
     public static boolean containsRevealableInvisibleControl(String value) {
         if (value == null || value.isEmpty()) return false;
-        for (int index = 0; index < value.length();) {
-            int codePoint = value.codePointAt(index);
+        String source = requireFiniteSource(value);
+        for (int index = 0; index < source.length();) {
+            int codePoint = source.codePointAt(index);
             if (isRevealableInvisibleControl(codePoint)) return true;
             index += Character.charCount(codePoint);
         }
@@ -65,9 +76,10 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
      */
     public static String explicitEvidenceProjection(String value) {
         if (value == null || value.isEmpty()) return "";
-        StringBuilder out = new StringBuilder(value.length());
-        for (int index = 0; index < value.length();) {
-            int codePoint = value.codePointAt(index);
+        String source = requireFiniteSource(value);
+        StringBuilder out = new StringBuilder(source.length());
+        for (int index = 0; index < source.length();) {
+            int codePoint = source.codePointAt(index);
             out.append(projectedUnit(codePoint));
             index += Character.charCount(codePoint);
         }
@@ -92,11 +104,12 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
      */
     public static String boundedEvidenceProjection(String value, int maxCodePoints) {
         if (value == null || value.isEmpty() || maxCodePoints <= 0) return "";
+        String source = requireFiniteSource(value);
 
         boolean truncationNeeded = false;
         int fullProjectedCodePoints = 0;
-        for (int index = 0; index < value.length();) {
-            int codePoint = value.codePointAt(index);
+        for (int index = 0; index < source.length();) {
+            int codePoint = source.codePointAt(index);
             String unit = projectedUnit(codePoint);
             int unitCodePoints = unit.codePointCount(0, unit.length());
             if (fullProjectedCodePoints + unitCodePoints > maxCodePoints) {
@@ -106,17 +119,17 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
             fullProjectedCodePoints += unitCodePoints;
             index += Character.charCount(codePoint);
         }
-        if (!truncationNeeded) return explicitEvidenceProjection(value);
+        if (!truncationNeeded) return explicitEvidenceProjection(source);
 
         if (maxCodePoints < TRUNCATION_SUFFIX_CODE_POINTS) {
             return "…";
         }
 
         int contentBudget = maxCodePoints - TRUNCATION_SUFFIX_CODE_POINTS;
-        StringBuilder out = new StringBuilder(Math.min(value.length(), maxCodePoints));
+        StringBuilder out = new StringBuilder(Math.min(source.length(), maxCodePoints));
         int projectedCodePoints = 0;
-        for (int index = 0; index < value.length();) {
-            int codePoint = value.codePointAt(index);
+        for (int index = 0; index < source.length();) {
+            int codePoint = source.codePointAt(index);
             String unit = projectedUnit(codePoint);
             int unitCodePoints = unit.codePointCount(0, unit.length());
             if (projectedCodePoints + unitCodePoints > contentBudget) break;
@@ -130,6 +143,14 @@ public final class HeartbeatInvisibleSemanticControlPolicy {
 
     public static boolean isRevealableInvisibleControl(int codePoint) {
         return markerFor(codePoint) != null;
+    }
+
+    private static String requireFiniteSource(String value) {
+        if (value.length() > MAX_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException(
+                    "explicit evidence source exceeds finite work budget");
+        }
+        return value;
     }
 
     private static String projectedUnit(int codePoint) {
