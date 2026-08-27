@@ -24,6 +24,9 @@ public final class HeartbeatOverlayRefreshPlan {
     /** Diagnostic boundary work budget for non-authoritative UI/dedup identities. */
     public static final int MAX_REFRESH_BOUNDARY_IDENTITY_SOURCE_CODE_UNITS =
             HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS;
+    /** Direct selection/focus query work budget before trim/case-fold routing. */
+    public static final int MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     public static final class Plan {
         public final HeartbeatSceneGraph.Frame frame;
@@ -107,7 +110,7 @@ public final class HeartbeatOverlayRefreshPlan {
             HeartbeatSceneGraph.Frame frame,
             String selectedControlId) {
         HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(frame);
-        String selected = clean(selectedControlId);
+        String selected = boundedSelectionId(selectedControlId);
         if (!selected.isEmpty() && model.controlById(selected) == null) selected = "";
 
         String presentation = HeartbeatFrameCheckpoint.presentationSha256(frame);
@@ -254,11 +257,11 @@ public final class HeartbeatOverlayRefreshPlan {
             String keyboardFocusedControlId,
             HeartbeatOverlayViewModel.Model acceptedNextModel) {
         if (acceptedNextModel == null) return "";
-        String selected = clean(selectedControlId);
+        String selected = boundedSelectionId(selectedControlId);
         if (!selected.isEmpty() && acceptedNextModel.controlById(selected) != null) {
             return acceptedNextModel.controlById(selected).id;
         }
-        String focused = clean(keyboardFocusedControlId);
+        String focused = boundedSelectionId(keyboardFocusedControlId);
         if (!focused.isEmpty() && acceptedNextModel.controlById(focused) != null) {
             return acceptedNextModel.controlById(focused).id;
         }
@@ -311,6 +314,11 @@ public final class HeartbeatOverlayRefreshPlan {
             return "<refresh-boundary-source-limit:" + exact.length() + ">";
         }
         return exact;
+    }
+
+    private static String boundedSelectionId(String value) {
+        if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value);
     }
 
     private static String digest(String schema, String... values) {
