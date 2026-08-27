@@ -394,6 +394,7 @@ public class OperatorOverlayService extends Service {
         heartbeatSummary = textView(12f, true);
         heartbeatSummary.setText("HEARTBEAT • waiting");
         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
+        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
         heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
 
         heartbeatLights = new LinearLayout(this);
@@ -860,6 +861,7 @@ public class OperatorOverlayService extends Service {
                     heartbeatFrame);
 
             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
+                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
                 if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
                         persistedDecision,
                         heartbeatFrame)) {
@@ -869,6 +871,7 @@ public class OperatorOverlayService extends Service {
                 return;
             }
             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
+                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
                 return;
             }
@@ -941,6 +944,12 @@ public class OperatorOverlayService extends Service {
                 muted,
                 overlayVisible,
                 heartbeatSurfaceVisible);
+        int heartbeatLiveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
+                false,
+                announce,
+                muted);
+        heartbeatSummary.setAccessibilityLiveRegion(heartbeatLiveRegionMode);
 
         HeartbeatViewportRestorePolicy.Ticket viewportRestoreTicket = null;
         if ((rebuildStructure || refreshContent) && heartbeatScroller != null) {
@@ -1001,8 +1010,9 @@ public class OperatorOverlayService extends Service {
                     viewportRestoreTicket,
                     mutationMayDestroyKeyboardFocus);
         }
-        if (announce) {
-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
+        if (heartbeatLiveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
+            heartbeatSummary.post(() -> heartbeatSummary.setAccessibilityLiveRegion(
+                    View.ACCESSIBILITY_LIVE_REGION_NONE));
         }
 
         heartbeatStructureIdentity = next.structureIdentity;
@@ -1020,6 +1030,7 @@ public class OperatorOverlayService extends Service {
         for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
             heartbeatLights.addView(createHeartbeatLight(control));
         }
+        applyHeartbeatSelectionAccessibility(model);
         applyHeartbeatModelChrome(model);
         heartbeatLights.requestLayout();
         heartbeatLights.post(this::clampAndPersistPosition);
@@ -1041,6 +1052,7 @@ public class OperatorOverlayService extends Service {
             Button light = (Button) heartbeatLights.getChildAt(index);
             applyHeartbeatLight(light, model.controls.get(index));
         }
+        applyHeartbeatSelectionAccessibility(model);
         applyHeartbeatModelChrome(model);
         heartbeatLights.requestLayout();
         heartbeatLights.post(this::clampAndPersistPosition);
@@ -1172,6 +1184,49 @@ public class OperatorOverlayService extends Service {
         });
     }
 
+    private void applyHeartbeatSelectionAccessibility(HeartbeatOverlayViewModel.Model model) {
+        if (heartbeatLights == null || model == null) return;
+        HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
+                HeartbeatSelectionAccessibilityPolicy.fromModel(model, heartbeatSelectedId);
+
+        heartbeatLights.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(
+                    View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        decision.rowCount,
+                        decision.columnCount,
+                        false,
+                        decision.singleSelection
+                                ? AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE
+                                : AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE));
+            }
+        });
+
+        for (HeartbeatSelectionAccessibilityPolicy.ItemDecision item : decision.items) {
+            View child = heartbeatChildById(item.id);
+            if (child == null) continue;
+            final HeartbeatSelectionAccessibilityPolicy.ItemDecision itemDecision = item;
+            child.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(
+                        View host,
+                        AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                            itemDecision.rowIndex,
+                            1,
+                            itemDecision.columnIndex,
+                            1,
+                            false,
+                            itemDecision.selected));
+                }
+            });
+        }
+    }
+
     private HeartbeatOverlayViewModel.Model currentHeartbeatModel() {
         return heartbeatFrame == null ? null : HeartbeatOverlayViewModel.fromFrame(heartbeatFrame);
     }
@@ -1218,6 +1273,7 @@ public class OperatorOverlayService extends Service {
         heartbeatRenderIdentity = "";
         heartbeatAnnouncementIdentity = "";
         if (heartbeatLights != null) heartbeatLights.removeAllViews();
+        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
         heartbeatSummary.setText("HEARTBEAT • waiting");
         heartbeatSummary.setContentDescription(
                 "Heartbeat skill lights waiting for a material pulse.");
@@ -1308,6 +1364,7 @@ public class OperatorOverlayService extends Service {
             child.setSelected(tag != null
                     && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
         }
+        applyHeartbeatSelectionAccessibility(currentHeartbeatModel());
     }
 
     private void showHeartbeatDetail(String detail, boolean explicitSelection) {
