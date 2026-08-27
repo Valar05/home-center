@@ -80,6 +80,32 @@ public class HeartbeatPlainTextBudgetTest {
         assertTrue(HeartbeatPlainTextBudget.boundedWithEllipsis("", 4).isEmpty());
     }
 
+    @Test
+    public void oversizedDirectSpeechSourceStopsAtFiniteWorkWindow() {
+        String value = repeat("x", HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS + 50_000);
+
+        assertEquals(
+                "xxxxxxx…",
+                HeartbeatPlainTextBudget.boundedWithEllipsis(value, 8));
+    }
+
+    @Test
+    public void sourceWorkWindowNeverSplitsSurrogatePair() {
+        String prefix = repeat("x", HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS - 1);
+        String swan = "🦢";
+        String value = prefix + swan + "tail";
+
+        String projected = HeartbeatPlainTextBudget.boundedWithEllipsis(
+                value,
+                HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS);
+
+        assertFalse(projected.contains("\uFFFD"));
+        assertTrue(projected.endsWith("…"));
+        assertEquals(
+                HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS,
+                projected.codePointCount(0, projected.length()));
+    }
+
     private static String repeat(String value, int count) {
         StringBuilder out = new StringBuilder();
         for (int index = 0; index < count; index++) out.append(value);
