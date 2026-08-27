@@ -2,9 +2,9 @@
 """Source fixture for owner-surgery discovery diagnostic projection custody.
 
 SOURCE ONLY / UNEXECUTED. Canonical v10 already consumes the shared ASCII-safe diagnostic projector,
-but two independent source boundaries remain RED: canonical ``_error(...)`` still invokes caller-owned
-``Exception.__str__`` before projection, and the shared projector still hashes arbitrarily large exact
-strings after its returned-text ceiling is known. Canonical path/artifact evidence remains exact.
+and the shared projector now owns a finite 4,096-code-point direct source-work throat before whole-input
+encode/hash. One independent source boundary remains RED: canonical ``_error(...)`` still invokes
+caller-owned ``Exception.__str__`` before projection. Canonical path/artifact evidence remains exact.
 This fixture proves no regression execution, TESTED, runtime, deployment, phone delivery, or P0
 capability.
 """
@@ -15,6 +15,7 @@ import try_forever_owner_surgery_custody_probe as custody
 import try_forever_owner_surgery_semantic_parser as semantic
 from try_forever_owner_surgery_semantic_parser import (
     MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS,
+    MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS,
     OwnerSurgerySemanticError,
     project_owner_surgery_diagnostic_text,
     source_receipt as semantic_source_receipt,
@@ -22,7 +23,6 @@ from try_forever_owner_surgery_semantic_parser import (
 
 
 MAX_BOUNDARY_CODEPOINTS = 320
-PROPOSED_DIAGNOSTIC_SOURCE_CODEPOINTS = 4_096
 
 
 def _assert_shared_projector_source_wired() -> None:
@@ -30,6 +30,9 @@ def _assert_shared_projector_source_wired() -> None:
     assert receipt["boundedAsciiDiagnosticProjection"] is True
     assert receipt["publicDiagnosticProjection"] is True
     assert receipt["diagnosticSegmentCharCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
+    assert receipt["diagnosticSourceCodepointCeiling"] == MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS
+    assert receipt["finiteDiagnosticSourceWork"] is True
+    assert receipt["oversizeDiagnosticWholeIdentityPreserved"] is False
     assert receipt["regressionExecuted"] is False
     assert receipt["tested"] is False
 
@@ -37,7 +40,7 @@ def _assert_shared_projector_source_wired() -> None:
     assert project_owner_surgery_diagnostic_text("bidi:\u202eattack").isascii()
     assert project_owner_surgery_diagnostic_text("surrogate:\ud800").isascii()
     long_projection = project_owner_surgery_diagnostic_text("x" * 50_000)
-    assert long_projection.startswith("<text>...#")
+    assert long_projection == "<text-over-source-ceiling:50000cp>"
     assert len(long_projection) <= MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
 
     class HostileText(str):
@@ -93,14 +96,16 @@ def _assert_oversize_source_collapses_before_whole_identity_digest() -> None:
     semantic._diagnostic_digest = forbidden_digest
     try:
         projection = semantic.project_owner_surgery_diagnostic_text(
-            "x" * (PROPOSED_DIAGNOSTIC_SOURCE_CODEPOINTS + 1)
+            "x" * (MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS + 1)
         )
     finally:
         semantic._diagnostic_digest = original
 
+    assert projection == (
+        f"<text-over-source-ceiling:{MAX_SEMANTIC_DIAGNOSTIC_SOURCE_CODEPOINTS + 1}cp>"
+    )
     assert projection.isascii()
     assert len(projection) <= MAX_SEMANTIC_DIAGNOSTIC_SEGMENT_CHARS
-    assert "source" in projection.lower()
 
 
 def main() -> int:
