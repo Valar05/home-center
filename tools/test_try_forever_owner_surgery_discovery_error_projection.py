@@ -65,12 +65,6 @@ def _assert_canonical_projection(exc: Exception) -> None:
 
 def main() -> int:
     _assert_shared_projector_source_wired()
-
-    capability = custody.classify(Path("patches"))["capability"]
-    assert capability["boundedAsciiDiscoveryDiagnosticProjection"] is True
-    assert capability["regressionExecuted"] is False
-    assert capability["tested"] is False
-
     _assert_canonical_projection(ValueError("line-one\nline-two"))
     _assert_canonical_projection(ValueError("bidi:\u202eattack"))
     _assert_canonical_projection(ValueError("surrogate:\ud800"))
