@@ -1,15 +1,25 @@
 package com.homecenter.operatoroverlay;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** RED source regression for the direct String compatibility adapter's pre-encode resource throat. */
+/** Source regression for the direct String compatibility adapter's pre-encode resource throat. */
 public final class HeartbeatPersistedStringPreencodeResourceThroatTest {
     @Test
+    public void publicSourceCeilingTracksCanonicalPayloadByteCeiling() {
+        assertEquals(
+                OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES,
+                HeartbeatPersistedEnvelopeProjection.MAX_DIRECT_STRING_SOURCE_CODE_UNITS);
+    }
+
+    @Test
     public void sourceMaxPlusOneFailsBeforeUtf8Encoding() {
-        String oversized = repeat('a', OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES + 1);
+        String oversized = repeat(
+                'a',
+                HeartbeatPersistedEnvelopeProjection.MAX_DIRECT_STRING_SOURCE_CODE_UNITS + 1);
 
         HeartbeatPersistedEnvelopeProjection.Result result =
                 HeartbeatPersistedEnvelopeProjection.project(
@@ -22,12 +32,14 @@ public final class HeartbeatPersistedStringPreencodeResourceThroatTest {
         assertFalse(result.storageAccepted);
         assertFalse(result.semanticAttempted);
         assertTrue(result.boundary.contains("pre-encode resource ceiling"));
-        assertTrue(result.observedBytes == 0);
+        assertEquals(0, result.observedBytes);
     }
 
     @Test
     public void exactAsciiSourceCeilingReachesExistingByteIntegrityPath() {
-        String exact = repeat('a', OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES);
+        String exact = repeat(
+                'a',
+                HeartbeatPersistedEnvelopeProjection.MAX_DIRECT_STRING_SOURCE_CODE_UNITS);
 
         HeartbeatPersistedEnvelopeProjection.Result result =
                 HeartbeatPersistedEnvelopeProjection.project(
@@ -39,12 +51,14 @@ public final class HeartbeatPersistedStringPreencodeResourceThroatTest {
 
         assertFalse(result.storageAccepted);
         assertFalse(result.boundary.contains("pre-encode resource ceiling"));
-        assertTrue(result.observedBytes == OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES);
+        assertEquals(OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES, result.observedBytes);
     }
 
     @Test
     public void exactCodeUnitMultibyteTextStillHitsCanonicalByteCeilingAfterEncode() {
-        String exactCodeUnits = repeat('\u00e9', OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES);
+        String exactCodeUnits = repeat(
+                '\u00e9',
+                HeartbeatPersistedEnvelopeProjection.MAX_DIRECT_STRING_SOURCE_CODE_UNITS);
 
         HeartbeatPersistedEnvelopeProjection.Result result =
                 HeartbeatPersistedEnvelopeProjection.project(
