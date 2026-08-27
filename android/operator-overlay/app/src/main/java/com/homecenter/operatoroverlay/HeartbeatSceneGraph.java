@@ -19,6 +19,9 @@ public final class HeartbeatSceneGraph {
     public static final int MAX_SPOKEN_PULSE_ID_CODE_POINTS = 96;
     /** Spoken rejection boundary stays bounded; exact refreshBoundary remains available as evidence. */
     public static final int MAX_SPOKEN_REFRESH_BOUNDARY_CODE_POINTS = 320;
+    /** Direct/pre-parser pulse source-work throat before semantic scanning or trim. */
+    static final int MAX_DIRECT_PULSE_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     public static final class Node {
         public final String id;
@@ -214,6 +217,14 @@ public final class HeartbeatSceneGraph {
             List<HeartbeatSkillPolicy.Candidate> candidates,
             boolean pulseComplete,
             Frame lastGood) {
+        if (exceedsDirectPulseSourceWork(pulseId)) {
+            return preserveLastGood(
+                    "",
+                    lastGood,
+                    "Pulse identity exceeds direct source-work ceiling "
+                            + MAX_DIRECT_PULSE_SOURCE_CODE_UNITS
+                            + " code units.");
+        }
         if (!HeartbeatSkillPolicy.isSafeSemanticText(pulseId)) {
             return preserveLastGood(
                     "",
@@ -291,7 +302,12 @@ public final class HeartbeatSceneGraph {
         return false;
     }
 
+    private static boolean exceedsDirectPulseSourceWork(String value) {
+        return value != null && value.length() > MAX_DIRECT_PULSE_SOURCE_CODE_UNITS;
+    }
+
     private static String boundedSafePulseIdentity(String value) {
+        if (exceedsDirectPulseSourceWork(value)) return "";
         if (!HeartbeatSkillPolicy.isSafeSemanticText(value)) return "";
         String clean = clean(value);
         if (clean.length() > HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS) return "";
