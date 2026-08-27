@@ -1,0 +1,36 @@
+{
+  "schema": "venice-judgment.v1",
+  "heartbeat": "2026-08-27T09:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "1986db8d956f55073f6dea401191181aec8019c7",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__PREVIOUS_REFRESH_IDENTITY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "The prior interrupted-refresh RED seam advanced through the existing scene and refresh-plan owners without rewriting exact refreshBoundary evidence or creating a neighboring controller.",
+    "Speech source work and render/announcement identity work now have finite pre-traversal/pre-hash throats; direct selected/focused refresh-plan adapters also gained finite pre-trim custody.",
+    "Regnet preserved a different direct previous-identity boundary as RED / PROPOSED_NOT_APPLIED instead of declaring the refresh-plan surface universally safe.",
+    "Regression files are durable source but unexecuted; exact-head CI evidence does not justify TESTED or runtime claims.",
+    "Phone/P0 execution surfaces were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "stopScope": "bounded non-P0 source slice only",
+  "continueRequired": [
+    "apply or otherwise resolve the existing-owner previous refresh identity source-work wound",
+    "authorized regression execution",
+    "TESTED evidence",
+    "runtime UI and TalkBack evidence",
+    "deployment/delivery/acceptance evidence",
+    "recurring Try Forever campaign"
+  ],
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
