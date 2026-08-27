@@ -1,0 +1,79 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-27T05:58:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "4ccfa8b281516341360495c6359d0298cee1a25d",
+  "verdict": "PASS_BOUNDED_SOURCE__CALLBACK_FREE_CANONICAL_CONSUMER_AND_DETAIL_PRETRIM_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "canonicalDiscoveryExceptionProjection": {
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "appliedCommit": "d371f5debd2e1a2f73de683462753758386afe23",
+      "resultBlob": "c20cda131e39d0d2415d533f787827b95c912e4d",
+      "constraint": "canonical _error consumes the existing callback-free exception projector; canonical path/artifact/Surgery evidence remains exact"
+    },
+    "discoveryDiagnosticRegression": {
+      "state": "SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "coverage": [
+        "hostile exception __str__ callback",
+        "hostile exception __repr__ callback",
+        "hostile non-string exception payload callbacks",
+        "bounded exception argument fanout",
+        "newline/bidi/lone-surrogate ASCII projection",
+        "4096-code-point diagnostic source-work ceiling"
+      ]
+    },
+    "heartbeatDetailPretrimResourceCustody": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicy.java",
+      "appliedCommit": "60143ba95ff35d2fa9d4415fdb1da013ab04eb25",
+      "resultBlob": "2006cc124d5211cba389b83d3dadc51859b4e1fe",
+      "sourceCodeUnitCeiling": 32768,
+      "constraint": "direct detail source is bounded before compatibility trim; ordinary admitted detail remains exact and scroll-inspectable"
+    },
+    "heartbeatDetailRegression": {
+      "state": "SOURCE_UNEXECUTED",
+      "path": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicyTest.java",
+      "finalSourceCommit": "4ccfa8b281516341360495c6359d0298cee1a25d",
+      "coverage": [
+        "exact max source preserved",
+        "max+1 source rejected before trim",
+        "max+1 whitespace cannot normalize into empty detail",
+        "existing touch/passive focus/click/scroll semantics preserved"
+      ]
+    }
+  },
+  "selfReview": {
+    "duplicateArchitecture": false,
+    "weakerFallbackAdded": false,
+    "canonicalEvidenceRewritten": false,
+    "runtimeTalkBackClaimed": false,
+    "regressionExecutedClaimed": false,
+    "testedClaimed": false
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33066629630, "conclusion": "failure", "jobId": 98498186441, "jobSteps": 0},
+      {"name": "Build Android", "id": 33066629606, "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 33066629591, "conclusion": "failure"}
+    ],
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
