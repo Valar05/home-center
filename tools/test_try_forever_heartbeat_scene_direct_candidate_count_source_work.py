@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""RED source regression for direct scene candidate-count source-work custody.
+"""Source regression for direct scene candidate-count source-work custody.
 
 SOURCE ONLY / UNEXECUTED. Canonical heartbeat parsing rejects more than MAX_LIGHTS records before
-candidate traversal. Direct HeartbeatSceneGraph.build(...) currently reaches duplicate/material
-list traversal without a bounded detached candidate snapshot. This fixture pins an existing-owner
-repair that performs one size observation, at most MAX_LIGHTS indexed reads, then only traverses
-the detached snapshot. It does not claim callback-free arbitrary-List admission or test execution.
+candidate traversal. Direct HeartbeatSceneGraph.build(...) now performs one size observation,
+at most MAX_LIGHTS indexed reads, then traverses only a detached snapshot. This fixture pins that
+existing-owner ordering. It deliberately does not claim callback-free arbitrary-List admission,
+regression execution, TESTED state, runtime UI, TalkBack, deployment, phone delivery, or P0 work.
 """
 
 from pathlib import Path
@@ -20,11 +20,16 @@ PARSER = ROOT / (
     "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/"
     "HeartbeatEnvelopeParser.java"
 )
+JAVA_REGRESSION = ROOT / (
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/"
+    "HeartbeatDirectSceneCandidateSnapshotTest.java"
+)
 
 
 def main() -> int:
     source = OWNER.read_text(encoding="utf-8")
     parser = PARSER.read_text(encoding="utf-8")
+    java_regression = JAVA_REGRESSION.read_text(encoding="utf-8")
 
     assert "public static final int MAX_LIGHTS = 64;" in parser
     build = source.index(
@@ -50,6 +55,15 @@ def main() -> int:
     assert "size > HeartbeatEnvelopeParser.MAX_LIGHTS" in helper_source
     assert "for (int index = 0; index < size; index++) detached.add(candidates.get(index));" in helper_source
     assert "Collections.unmodifiableList(detached)" in helper_source
+
+    assert "maxPlusOneRejectsAfterOneSizeObservationWithoutElementReads" in java_regression
+    assert "exactMaximumUsesOneSizeObservationAndAtMostSixtyFourIndexedReads" in java_regression
+    assert "assertEquals(1, hostile.sizeCalls);" in java_regression
+    assert "assertEquals(0, hostile.getCalls);" in java_regression
+    assert "assertEquals(1, admitted.sizeCalls);" in java_regression
+    assert "HeartbeatEnvelopeParser.MAX_LIGHTS, admitted.getCalls" in java_regression
+    assert "assertFalse(rejected.transitionMotionAllowed);" in java_regression
+    assert "assertFalse(rejected.nodes.get(0).transitionMotion);" in java_regression
     return 0
 
 
