@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-27-heartbeat-1402",
+  "previousPublicationHead": "9811f0334273b56e4c40d1204ecb3e526c6c8a21",
+  "reviewedSourceHead": "6be3b987d874a23cbfffaf4f426ce6481ad3dadc",
+  "sourceDelta": "4 commits / 4 intended paths / 0 unexpected paths",
+  "fronts": {
+    "base64DirectComparison": "SOURCE_WIRED: MAX_PAYLOAD_B64_CHARS before exact equality; regression SOURCE_UNEXECUTED",
+    "accessibilityOwnerRevalidation": "BOUNDARY_REVALIDATED: owner blob c5de1411a6b68087ae17aff83c032af754587150 still carries four legacy announcement receipts; canonical combined heartbeat patch remains PROPOSED_NOT_APPLIED",
+    "executionTruth": "Build Android 33107703267 failure; Home Center CI 33107703264 failure; Operator Overlay 33107703340 job 98641915517 failure with 0 steps; no manual retry; TESTED_NO"
+  },
+  "skillLights": {
+    "Failure Is The Shovel": "LIT",
+    "Canon Auto-Select": "LIT",
+    "Originality Tax": "LIT",
+    "Hunger": "LIT",
+    "Ever-Polished Interpreter / Eat Everything": "LIT",
+    "Operator Campaign": "LIT",
+    "Harroway operator discipline": "LIT",
+    "She-Raw adversarial motivation": "LIT_FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "Venice Judgment Jars": "LIT",
+    "Regnet QA": "LIT",
+    "accessibility/TalkBack and touch semantics": "LIT_SOURCE_ONLY_RUNTIME_NO",
+    "deterministic routing": "LIT_REUSED_EXISTING_CEILING",
+    "evidence/capability-state discipline": "LIT",
+    "recovery/checkpointing/idempotence": "LIT_NO_RETRY",
+    "Christmas-light scene graph": "LIT_CONSTRAINT_NO_DECORATIVE_MOTION",
+    "contact preservation": "LIT",
+    "Autocorrect Judgment Jar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "strange non-raster vector/DOM/native UI art": "DARK_NO_TOPOLOGY_CHANGE",
+    "warm walls": "DARK_EXISTING_SPECIMEN_REMAINS_TRUE",
+    "Phone Runtime / Phone Hands recovery": "DARK_BY_BINDING_FIREWALL"
+  },
+  "crossPollination": "Finite poll text custody exposed the direct canonicality equality boundary; the same capability discipline revalidated accessibility design versus owner wiring without removing unresolved legacy receipts.",
+  "capability": "requested YES; source YES; authenticated readback YES; regression source YES/UNEXECUTED; TESTED/runtime UI/runtime TalkBack/deployed/callable/executed/delivered/accepted NO",
+  "firewall": "consumption 0; mutation 0; duplicate architecture 0; new P0 finding none"
+}
