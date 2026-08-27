@@ -1,0 +1,55 @@
+# TRY FOREVER — Adam request source-work throat existing-owner surgery
+# State: CORRECTED_PROPOSED_NOT_APPLIED
+# Scope: existing OperatorOverlayService + OperatorState request owners only.
+# Service base blob: 2935243f136359e3489a89108406e888b0ec2911
+# State base blob: 94772cc4e9a3b42591832337420de4c416aa18e4
+# Supporting availability policy is SOURCE_WIRED at commit 13e2f37e3b8638db35bd7e1f015c120b9ac1d86d.
+# P0/phone execution, routing aliases, queue/relay, recovery, and transport destinations are untouched.
+# Preserve: exact admitted request text after the existing trim/alias semantics; legacy Adam repeat-send accessibility receipt remains present.
+# Law: a small post-trim semantic request does not authorize unbounded pre-trim / regex / UTF-8 / Base64 / SHA work.
+# Broad work ceiling: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS (32768 UTF-16 code units).
+# Over-ceiling source fails closed; it is never truncated or normalized into a smaller request.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private void submitAdamRequest() {
+         if (adamInput == null) return;
+-        String text = adamInput.getText().toString().trim();
++        CharSequence editable = adamInput.getText();
++        if (!AdamSendAvailabilityAccessibilityPolicy.sourceWithinWorkBudget(editable)) {
++            return;
++        }
++        String text = editable.toString().trim();
+         if (text.isEmpty()) return;
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+         adamInput.setHint("Adam — " + adamMode + " • sent");
+         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+     }
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java
+@@
+     static final int MAX_HEARTBEAT_LIGHTS_BYTES = 32768;
++    static final int MAX_ADAM_REQUEST_SOURCE_CODE_UNITS =
++            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
++    static final int MAX_ADAM_MODE_SOURCE_CODE_UNITS = 64;
+@@
+     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
+-        String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
++        String rawMode = mode == null ? "terminal" : mode;
++        if (rawMode.length() > MAX_ADAM_MODE_SOURCE_CODE_UNITS) {
++            throw new IllegalArgumentException("Adam mode source exceeds finite work budget");
++        }
++        String cleanMode = rawMode.trim().toLowerCase();
+         if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
+         String exact = text == null ? "" : text;
++        if (exact.length() > MAX_ADAM_REQUEST_SOURCE_CODE_UNITS) {
++            throw new IllegalArgumentException("Adam request source exceeds finite work budget");
++        }
+         if (exact.trim().isEmpty()) return;
+         if (cleanMode.equals("terminal")) exact = deterministicTerminalAlias(exact);
+         byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
