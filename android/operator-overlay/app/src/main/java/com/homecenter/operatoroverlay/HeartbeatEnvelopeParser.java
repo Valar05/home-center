@@ -30,6 +30,15 @@ public final class HeartbeatEnvelopeParser {
     public static final int MAX_ACTIVATION_REASON_CHARS = 1024;
     public static final int MAX_CONSEQUENCE_CHARS = 2048;
     public static final int MAX_EVIDENCE_BOUNDARY_CHARS = 4096;
+    /**
+     * Direct Java source-work ceiling before trim/JSON traversal.
+     *
+     * The canonical persisted writer admits at most 32 KiB of strict UTF-8. A Java
+     * String longer than 32,768 UTF-16 code units cannot represent fewer than that
+     * many strict UTF-8 bytes, so this is a safe early resource rejection for the
+     * public parser without pretending to replace the writer's byte-level custody.
+     */
+    public static final int MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768;
     private static final int MAX_JSON_DEPTH = 32;
     private static final int MAX_STRING_CHARS = 8192;
     private static final int MAX_BOUNDARY_MEMBER_NAME_CODE_POINTS = 96;
@@ -79,7 +88,13 @@ public final class HeartbeatEnvelopeParser {
     }
 
     public static Result parse(String payloadJson) {
-        if (payloadJson == null || payloadJson.trim().isEmpty()) {
+        if (payloadJson == null) {
+            return reject("Heartbeat envelope is empty.");
+        }
+        if (payloadJson.length() > MAX_ENVELOPE_SOURCE_CODE_UNITS) {
+            return reject("Heartbeat envelope exceeds the source resource ceiling.");
+        }
+        if (payloadJson.trim().isEmpty()) {
             return reject("Heartbeat envelope is empty.");
         }
         try {
