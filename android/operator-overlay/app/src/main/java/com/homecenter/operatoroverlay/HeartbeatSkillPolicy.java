@@ -112,17 +112,31 @@ public final class HeartbeatSkillPolicy {
     }
 
     public static List<Candidate> selectMaterialLights(List<Candidate> candidates) {
-        if (candidates == null || candidates.isEmpty()) return Collections.emptyList();
+        List<Candidate> boundedCandidates = snapshotDirectSelectionCandidates(candidates);
+        if (boundedCandidates.isEmpty()) return Collections.emptyList();
 
         List<Candidate> selected = new ArrayList<>();
         Set<String> seenIds = new HashSet<>();
-        for (Candidate candidate : candidates) {
+        for (Candidate candidate : boundedCandidates) {
             if (!isMaterial(candidate)) continue;
             String dedupeKey = candidate.id.toLowerCase(Locale.ROOT);
             if (!seenIds.add(dedupeKey)) continue;
             selected.add(candidate);
         }
         return Collections.unmodifiableList(selected);
+    }
+
+    private static List<Candidate> snapshotDirectSelectionCandidates(List<Candidate> candidates) {
+        if (candidates == null) return Collections.emptyList();
+        int size = candidates.size();
+        if (size < 0 || size > HeartbeatEnvelopeParser.MAX_LIGHTS) {
+            throw new IllegalArgumentException(
+                    "Direct heartbeat selection exceeds canonical light-count ceiling.");
+        }
+        if (size == 0) return Collections.emptyList();
+        List<Candidate> detached = new ArrayList<>(size);
+        for (int index = 0; index < size; index++) detached.add(candidates.get(index));
+        return Collections.unmodifiableList(detached);
     }
 
     /**
