@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever-regnet-v1",
+  "heartbeat": "2026-08-27T18:02:00-05:00",
+  "reviewedSourceHead": "eb0fdc56907fc2b7ae07ec5f7d55ce8c31fcc351",
+  "verdict": "PASS_SUPPORTING_SOURCE__ADAM_AVAILABILITY_THROAT_SOURCE_WIRED__REQUEST_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "AdamSendAvailabilityAccessibilityPolicy now reuses HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS (32768 UTF-16 code units) before whole-source toString/trim work; over-ceiling editable input becomes unavailable without truncation or normalization.",
+    "The availability policy bounds post-length work but does not claim callback-free arbitrary CharSequence admission; one caller length() observation remains part of the direct interface contract.",
+    "AdamSendAvailabilityAccessibilityPolicyTest adds exact-ceiling and max+1 hostile source cases; max+1 requires one length observation and zero toString calls. Regression source is unexecuted.",
+    "OperatorOverlayService.submitAdamRequest() still materializes and trims editable text before an owner-level broad work gate, and OperatorState.submitAdamRequest(...) still trims/aliases/encodes direct caller text without that finite owner gate. Actual request-owner custody therefore remains RED.",
+    "patches/try-forever-adam-request-source-work-throat.patch is CORRECTED_PROPOSED_NOT_APPLIED and exact-base-locked to service blob 2935243f136359e3489a89108406e888b0ec2911 plus state blob 94772cc4e9a3b42591832337420de4c416aa18e4. It preserves routing destinations and the legacy repeat-send accessibility receipt.",
+    "The historical Adam accessibility surgery was explicitly marked STALE_BASE_REBASE_REQUIRED after unrelated current owner mutation; fuzzy apply is forbidden.",
+    "The existing Adam Warm Wall was mutated in place: touch/input/detail targets are now at least 56px, source-throat versus owner-consumer states are separately visible, focus/non-color/SVG/reduced-motion semantics remain, and runtime TalkBack is still NO.",
+    "Authoritative She-Raw consultation was attempted and failed with account connection HTTP 400; no synthetic reviewer was substituted.",
+    "Exact reviewed source workflows Home Center CI 33125354272, Build Android 33125354264, and Operator Overlay Android 33125354271 all concluded failure. Operator job 98702071742 exposes zero steps; no retry or step-level diagnosis was manufactured.",
+    "Phone/P0 consumption=0, mutation=0, duplicate architecture=0, new P0 finding=none."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "adamAvailabilitySourceWorkThroat": true,
+    "adamRequestUiOwnerThroat": false,
+    "adamRequestStateOwnerThroat": false,
+    "adamAccessibilityHistoricalPatchCurrentBase": false,
+    "warmWallSourceUpdated": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
