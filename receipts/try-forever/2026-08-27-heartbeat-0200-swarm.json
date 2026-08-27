@@ -1,0 +1,105 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27-0200",
+  "pr": 329,
+  "previousCheckpointHead": "3ccb3e8bb95450423c9da1b372ee475ab7e3c5e1",
+  "reviewedSourceHead": "810c7b6395ff6ff8b11122e5ee1ef8f61ea34fd0",
+  "sourceDelta": {
+    "commits": 4,
+    "paths": 4,
+    "unexpectedPaths": 0,
+    "pathsChanged": [
+      "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch",
+      "skills/semantic-text-safety/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    ]
+  },
+  "lights": {
+    "failureIsTheShovel": "Attacked the already-applied safe-output repair and found unsafe work occurring before and inside projection rather than repeating the old raw-output fix.",
+    "canonAutoSelect": "Selected semantic-text-safety plus the existing owner-surgery semantic/canonical organs; no neighboring sanitizer or owner.",
+    "originalityTax": "Reused the existing diagnostic projector and staged one existing-organ surgery instead of creating Sanitizer II or a sidecar authority path.",
+    "hungerEatEverything": "Split safe returned text from pre-projection exception callbacks and whole-source digest work; both are now explicit RED boundaries.",
+    "operatorCampaignHarroway": "Bound the proposal to authenticated semantic/canonical owner blobs and synchronized regression, doctrine, art, Regnet, Venice, and swarm evidence.",
+    "regnetQa": "Hostile source now attacks Exception.__str__ callback execution and max+1 diagnostic source-work in addition to newline/bidi/surrogate cases.",
+    "accessibilityTalkBackTouch": "Existing sole Warm Wall retained native 56px disclosure controls, focus, non-color live state, SVG semantics, and runtime TalkBack NO while exposing the two new RED states.",
+    "strangeVectorDomNativeArtWarmWalls": "Mutated the existing non-raster owner-custody specimen in place; no duplicate visual architecture.",
+    "deterministicRoutingEvidenceDiscipline": "Applied ASCII-safe canonical projection remains SOURCE_WIRED while callback-free exception extraction and finite diagnostic source-work remain PROPOSED_NOT_APPLIED.",
+    "recoveryCheckpointingIdempotence": "Captured exact-head workflow evidence and refused a manual retry on an empty-step failure.",
+    "contactPreservation": "Canonical path/artifact/Surgery evidence remains exact; over-ceiling diagnostic identity may be dropped only in non-authoritative prose.",
+    "sheRaw": "Authoritative hostile critique attempted; account connection HTTP 400; no synthetic substitute.",
+    "venice": "Bounded source checkpoint allowed; owner mutation, regression execution, TESTED/runtime, and campaign continue required.",
+    "autocorrect": "DARK_NO_MATERIAL_AMBIGUITY",
+    "christmasSceneGraph": "DARK_NO_RUNTIME_MOTION_CONTRACT_CHANGE",
+    "phoneRuntimePhoneHandsP0": "FIREWALLED_ZERO_TOUCH"
+  },
+  "fronts": {
+    "canonicalAsciiDiscoveryProjection": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "ownerBlob": "6de62efa07df4dabbb408ca77a427e83fbc4e883",
+      "appliedCommit": "23091256cf90ea6bea3afc111db348e014c85584"
+    },
+    "exceptionCallbackCustody": {
+      "state": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+      "reason": "canonical _error still invokes str(exc) before safe projection"
+    },
+    "diagnosticSourceWork": {
+      "state": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+      "currentReturnedSegmentCeiling": 96,
+      "proposedSourceCodepointCeiling": 4096,
+      "reason": "current long diagnostic projection still performs whole-input encode/hash"
+    },
+    "repairProposal": {
+      "state": "SOURCE_PROPOSED_NOT_APPLIED",
+      "path": "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch",
+      "semanticBaseBlob": "a3abe553466da9760f534836ef36881b3cdf992d",
+      "canonicalBaseBlob": "6de62efa07df4dabbb408ca77a427e83fbc4e883"
+    },
+    "regression": {
+      "state": "RED_SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_owner_surgery_discovery_error_projection.py"
+    },
+    "skillDoctrine": {
+      "state": "SOURCE_CONVERGED",
+      "path": "skills/semantic-text-safety/SKILL.md"
+    },
+    "warmWall": {
+      "state": "SOURCE_UPDATED_RUNTIME_NO",
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    }
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33048414404, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33048414462, "job": 98437764511, "conclusion": "failure", "stepsObserved": 0},
+    "buildAndroid": {"run": 33048414390, "conclusion": "failure"},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "crossPollination": "The already-applied canonical ASCII projection made its own pre-projection work suspicious. That exposed caller-owned Exception.__str__ before the projector; reviewing the projector itself then exposed bounded output backed by unbounded whole-source digest work. The same non-authoritative/evidence split justified a finite source throat that may drop diagnostic identity without touching canonical evidence. Regnet turned both into RED hostile fixtures, semantic-text-safety harvested the generalized law, and the existing accessible Warm Wall now displays applied safe output separately from the two still-unapplied work-custody seams.",
+  "membrane": {
+    "requested": true,
+    "implementedSourceArtifacts": true,
+    "authenticatedReadback": true,
+    "canonicalAsciiDiscoveryProjectionSourceWired": true,
+    "callbackFreeExceptionProjectionOwnerWired": false,
+    "finiteDiagnosticSourceWorkOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__EXCEPTION_CALLBACK_DIAGNOSTIC_SOURCE_WORK_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
