@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collections;
 
@@ -57,6 +58,39 @@ public class HeartbeatTypedSourceHardeningTest {
                 "skills\\execution-truth\\SKILL.md")));
         assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
                 "skills/execution-truth/README.md")));
+    }
+
+    @Test
+    public void directCandidatePretrimSourceWorkHasIndependentFiniteThroat() {
+        String atCeiling = repeat("x", HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS);
+        HeartbeatSkillPolicy.Candidate admittedResourceShape = new HeartbeatSkillPolicy.Candidate(
+                "execution-truth",
+                atCeiling,
+                "doctrine",
+                "source-bound-parity",
+                "Direct-source work and typed field admission are separate contracts.",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "At-ceiling raw source may still fail the smaller typed field contract.",
+                "Source-only resource fixture");
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(admittedResourceShape));
+
+        String maxPlusOne = atCeiling + "x";
+        try {
+            new HeartbeatSkillPolicy.Candidate(
+                    "execution-truth",
+                    maxPlusOne,
+                    "doctrine",
+                    "source-bound-parity",
+                    "Oversized raw direct source must stop before semantic scan/trim work.",
+                    HeartbeatSkillPolicy.State.BLOCKED,
+                    false,
+                    "Resource rejection must not become a smaller counterfeit candidate.",
+                    "Source-only resource fixture");
+            fail("direct Candidate admitted source beyond the pre-trim resource throat");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().contains("source resource ceiling"));
+        }
     }
 
     @Test
@@ -176,5 +210,11 @@ public class HeartbeatTypedSourceHardeningTest {
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
                 .replace("\t", "\\t");
+    }
+
+    private static String repeat(String value, int count) {
+        StringBuilder out = new StringBuilder(value.length() * count);
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
     }
 }
