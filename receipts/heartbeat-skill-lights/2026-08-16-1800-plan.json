@@ -1,0 +1,39 @@
+{
+  "schema": "try_forever.heartbeat_plan.v1",
+  "heartbeat": "2026-08-16-1800",
+  "mission": "Separate exact semantic-id evidence identity from case-insensitive presentation identity so a case-only light-id change cannot churn the existing Operator Overlay while exact checkpoint truth remains intact.",
+  "source_boundary": {
+    "repository": "Valar05/home-center",
+    "pull_request": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "source_only": true,
+    "phone_or_p0_mutation_authorized": false,
+    "duplicate_architecture_authorized": false
+  },
+  "planned_fronts": [
+    "HeartbeatFrameCheckpoint: preserve exact contact/evidence identity while folding semantic light ids only in presentation identity.",
+    "HeartbeatFrameCheckpointTest and HeartbeatOverlayRefreshPlanTest: hostile case-only semantic-id regression fixtures.",
+    "heartbeat-refresh-deduplication skill doctrine: synchronize exact-checkpoint versus presentation semantics.",
+    "Existing warm-wall non-raster specimen: make case-only identity drift visibly quiet rather than creating a new specimen.",
+    "Regnet/Venice/evidence receipts: keep source, tested, runtime, deployment, delivery, and acceptance states separate."
+  ],
+  "expected_invariant": "Regnet -> regnet may change exact contact/checkpoint identity, but must not change presentation identity, structure identity, announcement identity, native content refresh, automatic speech, or Christmas-light motion when every presented semantic field is otherwise unchanged.",
+  "reviewers": {
+    "she_raw": "ATTEMPTED_PRE_EXECUTION_CONNECTOR_FAULT_HTTP_400",
+    "regnet": "REQUIRED_AFTER_SOURCE_MUTATION",
+    "venice": "REQUIRED_AFTER_SOURCE_MUTATION"
+  },
+  "test_boundary_before_mutation": "GitHub Actions remained blocked by Actions budget on the preceding source slice; do not manually retry unchanged conditions. Inspect only automatic runs produced by new source commits.",
+  "capability_before": {
+    "requested": true,
+    "implemented_source": true,
+    "tested": false,
+    "runtime_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}

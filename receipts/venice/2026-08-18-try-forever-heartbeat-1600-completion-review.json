@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-venice.v1",
+  "reviewedSourceHead": "e7f456b5580c0dd165aa759ab8af27b5ae192f33",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED",
+  "codeReview": "PASS_BOUNDED_SUPPORTING_SOURCE",
+  "why": [
+    "Two independent ambiguity wounds received pure policies, hostile regression source, exact existing-owner patch provenance, durable skills, and one accessible source specimen.",
+    "No patch artifact was promoted into existing-owner implementation.",
+    "The accessible source specimen explicitly marks owner patches unapplied and runtime/phone delivery unproven.",
+    "Fresh exact-source CI concluded failure, but no step-level cause was established and no retry was dispatched.",
+    "The P0/primary-phone firewall and duplicate-architecture law remained intact."
+  ],
+  "mustRemainOpen": [
+    "Apply and read back the direct skill identity-set gate in the existing provenance owner before calling it SOURCE_WIRED.",
+    "Apply and read back both generated-index byte/UTF-8 ingress and alias-contract gates in the existing inspect_generated_index owner before calling either SOURCE_WIRED.",
+    "Apply and read back the final skills-root revalidation gate before calling that late-root wound closed.",
+    "Do not call any source fixture TESTED until an authorized runner actually executes it.",
+    "Do not infer runtime UI, TalkBack, deployment, callability, execution, delivery, or acceptance from repository source."
+  ],
+  "reviewers": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false,
+    "regnet": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__REVISE_REQUIRED_OWNER_UNWIRED"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "campaign": "CONTINUE_REQUIRED"
+}

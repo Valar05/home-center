@@ -1,0 +1,166 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-0602",
+  "scope": "independent non-P0 work only",
+  "frontsAdvanced": [
+    {
+      "front": "whole-skill hash resource policy",
+      "result": "IMPLEMENTED_SOURCE",
+      "commit": "d2deaaa1e0176606b10eff1c8232685bd7c4a0cd"
+    },
+    {
+      "front": "hostile regression source",
+      "result": "REGRESSION_SOURCE",
+      "commit": "3e3db5aa4d9337d384b084f58f8d6080d0de9ae3"
+    },
+    {
+      "front": "stale title-regression correction",
+      "result": "REGRESSION_SOURCE_CORRECTED",
+      "commit": "556f347fccc9e8ebd94bec2cfb01838c75dd59a7"
+    },
+    {
+      "front": "repository provenance doctrine",
+      "result": "DURABLE_SKILL_UPDATED",
+      "commit": "344c362ea1ce08df298c024361e2f1ada0327a62"
+    },
+    {
+      "front": "accessible warm-wall resource topology",
+      "result": "SOURCE_ART_MUTATED_IN_PLACE",
+      "commit": "139fdd1df6959a57bc34ae58733e8b53f624e83d"
+    },
+    {
+      "front": "Regnet code-first review",
+      "result": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "receipt": "receipts/regnet/2026-08-18-try-forever-heartbeat-0602-whole-skill-hash-review.json"
+    },
+    {
+      "front": "Venice completion judgment",
+      "result": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+      "receipt": "receipts/venice/2026-08-18-try-forever-heartbeat-0602-completion-review.json"
+    },
+    {
+      "front": "exact-head execution evidence",
+      "result": "TESTED_NO__RUN_FAILED_WITHOUT_STEP_CAUSE",
+      "runId": 32131030540,
+      "jobId": 95691996226
+    }
+  ],
+  "lights": {
+    "Failure Is The Shovel": {
+      "state": "ACTIVE",
+      "consequence": "advanced the unbounded whole-file hash wound instead of retrying blocked CI or reopening title work"
+    },
+    "Canon Auto-Select": {
+      "state": "ACTIVE",
+      "consequence": "selected current repository provenance skill and existing resource-throat art owner"
+    },
+    "Autocorrect Judgment Jar": {
+      "state": "DARK",
+      "reason": "no ambiguous/STT token affected this technical slice"
+    },
+    "Originality Tax": {
+      "state": "ACTIVE",
+      "consequence": "forbade repeating title-throat work and forced a different resource seam"
+    },
+    "Hunger": {
+      "state": "ACTIVE",
+      "consequence": "turned the preserved next wound into executable source, hostile fixtures, doctrine, and touchable state"
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "state": "ACTIVE",
+      "consequence": "cross-file review caught stale title tests that contradicted the new admission order"
+    },
+    "Operator Campaign / Harroway": {
+      "state": "ACTIVE",
+      "consequence": "kept writes on authenticated GitHub/Home Center lanes and preserved owner/capability boundaries"
+    },
+    "She-Raw": {
+      "state": "FAULT",
+      "reason": "authoritative ambient call returned account-connection HTTP 400; no synthetic substitute"
+    },
+    "Venice Judgment Jars": {
+      "state": "ACTIVE",
+      "consequence": "bounded stop authority to this source slice only"
+    },
+    "Regnet QA": {
+      "state": "ACTIVE",
+      "consequence": "code-first review found and repaired stale title-regression SHA expectations; TESTED remained NO"
+    },
+    "Accessibility/TalkBack and touch semantics": {
+      "state": "ACTIVE",
+      "consequence": "existing radiogroup Warm Wall gained HASH BODY BLOCKED state while retaining roving keyboard/touch semantics and source-only scar"
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "state": "DARK_FIREWALLED",
+      "reason": "P0/shared-phone surface is not owned by TRY FOREVER"
+    },
+    "Deterministic routing / evidence discipline": {
+      "state": "ACTIVE",
+      "consequence": "exact EOF-within-budget produces authority; max+1 cannot become a prefix hash"
+    },
+    "Recovery/checkpoint/idempotence": {
+      "state": "DARK",
+      "reason": "no heartbeat contact/runtime checkpoint semantics changed"
+    },
+    "Warm walls / strange non-raster art": {
+      "state": "ACTIVE",
+      "consequence": "mutated existing source specimen rather than creating a neighboring artifact family"
+    },
+    "Christmas-light scene graph": {
+      "state": "DARK",
+      "reason": "repository provenance bookkeeping earned no motion/blink consequence"
+    },
+    "Contact preservation": {
+      "state": "DARK",
+      "reason": "this slice does not change runtime last-good heartbeat contact"
+    },
+    "heartbeat-skill-provenance-freshness": {
+      "state": "ACTIVE",
+      "provenance": "repository_skill",
+      "consequence": "authority order now includes title-first admission plus bounded exact whole-file SHA"
+    }
+  },
+  "crossPollination": [
+    "previous title-throat completion exposed the whole-file hash workload",
+    "hash resource policy forced title-before-hash admission order",
+    "that order exposed stale diagnostic-SHA regression assumptions",
+    "Regnet repaired those tests instead of accepting regression soup",
+    "the accessible Warm Wall inherited the new two-throat topology and removed its stale diagnostic-SHA claim",
+    "evidence discipline kept automatic workflow failure from becoming guessed TESTED evidence",
+    "review surfaced the next independent resource wound: unbounded sorted rglob candidate enumeration before per-file throats"
+  ],
+  "testBoundary": {
+    "tested": false,
+    "runId": 32131030540,
+    "jobId": 95691996226,
+    "conclusion": "failure",
+    "stepsExposed": false,
+    "logs": "404 BlobNotFound",
+    "cause": "UNESTABLISHED",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleSourceArt": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "findingForP0": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANDIDATE_ENUMERATION_WOUND_OPEN__CAMPAIGN_CONTINUE_REQUIRED"
+}

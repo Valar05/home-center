@@ -1,0 +1,56 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "commission": "Advance TRY FOREVER heartbeat skill lights through independent non-phone source work while the P0 Fortress firewall owns the shared phone surface.",
+  "reviewer": {
+    "kind": "judgment_jar_same_worker",
+    "name": "Venice",
+    "provenance": "skills/fortress-core/SKILL.md section 3-4"
+  },
+  "research": [
+    "PR #329 remains open and unmerged; current branch head before this plan was f24ffeb4cce4d25fe5bb0b98702e7a5625b5301f.",
+    "OverlayUpdateReceiver handles ACTION_HEARTBEAT by validating/persisting the optional heartbeatLightsJson before calling OperatorState.heartbeat.",
+    "OperatorState.updateHeartbeatLights throws IllegalArgumentException for malformed Unicode or payloads over 32768 bytes and throws IllegalStateException on commit failure.",
+    "Therefore a caller-invalid optional skill-light payload can currently abort BroadcastReceiver.onReceive and suppress the independent liveness heartbeat instead of preserving last-good contact plus liveness.",
+    "HeartbeatPersistedEnvelopeProjection and HeartbeatSceneGraph already provide fail-closed semantic/contact preservation after bytes exist; this wound is earlier, at optional ingress validation.",
+    "Authoritative She-Raw ambient consultation was attempted before execution and returned HTTP 400 account-connection failure; no synthetic She-Raw verdict is substituted.",
+    "No fresh evidence was retrieved that changes the P0 execution predicate; phone, Phone Hands, queues, recovery owners, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain out of scope."
+  ],
+  "selected_jars": [
+    {
+      "name": "Failure Is The Shovel / Originality Tax",
+      "why": "Do not retry unchanged blocked CI; turn the source-side ingress failure into a different durable repair plus regression."
+    },
+    {
+      "name": "Execution Truth",
+      "why": "Keep source implementation, test source, deployment, runtime rendering, phone callability, delivery, and acceptance separate."
+    },
+    {
+      "name": "Contact Preservation",
+      "why": "Invalid optional telemetry must not erase the prior durable payload or kill the independent liveness heartbeat."
+    },
+    {
+      "name": "Accessibility / Embodied Communication",
+      "why": "Any visual specimen must carry non-color semantics, reachable controls, bounded spoken meaning, and no fake runtime claim."
+    },
+    {
+      "name": "Duplicate-Architecture Law",
+      "why": "Repair the existing ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState organ; do not create a neighboring controller or recovery daemon."
+    }
+  ],
+  "plan": [
+    "Add a small pure HeartbeatIngressPolicy that composes the existing receiver/state owner and treats an invalid optional payload as a bounded rejection while still executing the independent heartbeat sink; internal/storage failures continue to propagate.",
+    "Wire OverlayUpdateReceiver through that policy without touching phone/P0 paths or changing the existing broadcast action/permission contract.",
+    "Add pure regression source proving: empty payload still heartbeats; valid payload persists then heartbeats; IllegalArgumentException rejects payload but still heartbeats; other runtime/storage failures are not swallowed.",
+    "Add a source-only vector specimen showing the separation between liveness pulse and optional skill-light payload acceptance, with explicit SOURCE ONLY / NOT RUNTIME PROOF scarring.",
+    "Update heartbeat skill doctrine with the ingress-separation rule and create Regnet/Venice completion/swarm receipts after code-first review and exact GitHub readback."
+  ],
+  "antagonism": [
+    "Do not catch every RuntimeException: swallowing SharedPreferences/storage defects would turn a real implementation failure into fake liveness.",
+    "Do not mutate OperatorState schema or provider columns merely to make the receipt prettier unless the code proves a durable runtime need; this slice can preserve the exact rejection as policy result/source evidence without expanding state ownership.",
+    "Do not claim the new policy is used on a phone until the branch is tested, deployed, invoked, and observed through the authorized owner lane.",
+    "Do not use the shared phone surface to test this source slice while P0 retains first claim."
+  ],
+  "decision": "PLAN_ALLOWED",
+  "allowed_scope": "Repository/source mutation on PR #329 only: existing receiver composition, pure policy/regression source, skill doctrine, source-only vector art, and review receipts.",
+  "forbidden_scope": "Any phone/Phone Hands/queue/P0 recovery mutation, deployment, runtime acceptance, neighboring overlay controller, Home Center recovery daemon, Nightcore/Pocket TTS/Chromium/Context Organs action, or merge-as-delivered-interface claim."
+}

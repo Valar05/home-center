@@ -1,0 +1,56 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "heartbeat": "2026-08-18-1100",
+  "scope": "existing provenance owner root identity integration",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__ATOMICITY_AND_TEST_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "whyStopThisSlice": [
+    "the exact formerly proposed delta is now applied to the existing owner through audited Home Center GitHub admin",
+    "authenticated readback verifies owner blob e3627e342150c48f38099bb68fb118b3c54f2bf4",
+    "hostile integration regression source exists for root drift, unavailable identity, and redirector-before-traversal behavior",
+    "durable skill doctrine, patch provenance, and accessible Warm Wall agree with SOURCE_WIRED state",
+    "the duplicate-architecture and phone/P0 firewalls remained intact"
+  ],
+  "whyCampaignContinues": [
+    "source tests were not observed executing successfully",
+    "two path observations do not atomically bind the skills root",
+    "swap-and-restore and post-revalidation replacement remain open",
+    "filesystem identity-token reuse remains open",
+    "a separate candidate-file symlink-alias provenance wound is preserved for later review"
+  ],
+  "executionEvidence": {
+    "reviewedHead": "5c369b002fb4d0f621f0668fa610c6dece73f16a",
+    "workflow": "Operator Overlay Android",
+    "runId": 32158638263,
+    "jobId": 95781861131,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "reviewers": {
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "existingOwnerSourceWired": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "probeExecuted": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneSurfaceConsumed": false,
+    "p0Mutation": false,
+    "duplicateArchitecture": false
+  }
+}

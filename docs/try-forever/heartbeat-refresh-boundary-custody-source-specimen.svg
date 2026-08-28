@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Interrupted refresh boundary custody source specimen</title>
+  <desc id="desc">Exact refresh boundary evidence is retained unchanged. Human speech work and render announcement identity work each cross a 4096 UTF-16 code unit source-work throat. Over-ceiling speech becomes one fixed diagnostic stop and over-ceiling UI identity becomes a deterministic length marker. Last-good contact remains visible and rejected refresh motion stays off. Source only; runtime TalkBack and phone delivery are not claimed.</desc>
+  <style>
+    text { font-family: system-ui, sans-serif; fill: currentColor; }
+    .box { fill: none; stroke: currentColor; stroke-width: 3; rx: 24; }
+    .pipe { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; }
+    .scar { fill: none; stroke: currentColor; stroke-width: 3; stroke-dasharray: 12 10; }
+    .head { font-size: 24px; font-weight: 700; }
+    .body { font-size: 18px; }
+    .small { font-size: 15px; }
+  </style>
+  <rect class="box" x="40" y="60" width="300" height="330"/>
+  <text class="head" x="190" y="110" text-anchor="middle">EXACT EVIDENCE</text>
+  <text class="body" x="190" y="155" text-anchor="middle">Frame.refreshBoundary</text>
+  <text class="small" x="190" y="195" text-anchor="middle">preserved unchanged</text>
+  <text class="small" x="190" y="225" text-anchor="middle">authority / checkpoint input</text>
+  <path class="scar" d="M95 270 H285"/>
+  <text class="small" x="190" y="310" text-anchor="middle">NO truncation</text>
+  <text class="small" x="190" y="340" text-anchor="middle">NO normalization</text>
+
+  <path class="pipe" d="M340 165 H435"/>
+  <path class="pipe" d="M340 310 H435"/>
+
+  <rect class="box" x="435" y="60" width="320" height="190"/>
+  <text class="head" x="595" y="108" text-anchor="middle">SPEECH WORK</text>
+  <text class="body" x="595" y="150" text-anchor="middle">4096 code units → 320 cp</text>
+  <text class="small" x="595" y="188" text-anchor="middle">max+1 → fixed source-work stop</text>
+  <text class="small" x="595" y="218" text-anchor="middle">before semantic scan / trim</text>
+
+  <rect class="box" x="435" y="285" width="320" height="190"/>
+  <text class="head" x="595" y="333" text-anchor="middle">UI / DEDUP WORK</text>
+  <text class="body" x="595" y="375" text-anchor="middle">4096 code units → identity</text>
+  <text class="small" x="595" y="413" text-anchor="middle">max+1 → length marker</text>
+  <text class="small" x="595" y="443" text-anchor="middle">before UTF-8 / SHA-256</text>
+
+  <path class="pipe" d="M755 155 H850"/>
+  <path class="pipe" d="M755 380 H850"/>
+
+  <rect class="box" x="850" y="120" width="310" height="300"/>
+  <text class="head" x="1005" y="170" text-anchor="middle">CONTACT HELD</text>
+  <text class="body" x="1005" y="215" text-anchor="middle">last-good frame survives</text>
+  <text class="body" x="1005" y="252" text-anchor="middle">transition motion = NO</text>
+  <path class="scar" d="M910 292 H1100"/>
+  <text class="small" x="1005" y="330" text-anchor="middle">SOURCE_WIRED</text>
+  <text class="small" x="1005" y="360" text-anchor="middle">regressions UNEXECUTED</text>
+  <text class="small" x="1005" y="390" text-anchor="middle">runtime TalkBack / phone = NO</text>
+</svg>

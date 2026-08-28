@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "slice": "focus-stable native refresh planning",
+  "source_head": "7c3c88d78541d3f28b0cd70986d21ef1e302f687",
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","changed":"CI was not retried; failure redirected work into a distinct focus-stability seam."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","changed":"Existing HeartbeatOverlayRefreshPlan, scene, view-model, skill, and specimen remained authoritative."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","changed":"No STT/autocorrect ambiguity materially affected this source slice."},
+    {"name":"Originality Tax","state":"ACTIVE","changed":"The swarm did not repeat the prior full-rebuild/evidence-only assumption as the proposed solution; it split structure/content/speech work identities."},
+    {"name":"Hunger","state":"ACTIVE","changed":"The existing warm-wall artifact was eaten and mutated in place rather than cloned."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","changed":"The semantic contract now distinguishes stable selection from stable native focus and records the remaining service-wiring scar."},
+    {"name":"Operator Campaign / Harroway discipline","state":"ACTIVE","changed":"No duplicate owner was created; the next seam remains inside OperatorOverlayService."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","changed":"Authoritative consult attempted; connector returned account-connection HTTP 400. No synthetic She-Raw verdict was substituted."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","changed":"Completion review preserves the plan-order scar and allows only this bounded source slice to yield."},
+    {"name":"Regnet QA","state":"ACTIVE","changed":"Source/readback passes; test/runtime/deployment states remain false with exact CI boundary."},
+    {"name":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","changed":"Evidence/state/wound refreshes can now be planned without automatically destroying stable native child identities; reorder/membership remains the structural rebuild case."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","changed":"Zero phone/P0 surface consumption or recovery mutation."},
+    {"name":"Deterministic routing","state":"ACTIVE","changed":"Ordered case-folded semantic ids now form a separate deterministic structure identity."},
+    {"name":"Evidence / capability-state discipline","state":"ACTIVE","changed":"Source planning is explicitly separated from service wiring, testing, runtime observation, deployment, callability, delivery, and acceptance."},
+    {"name":"Recovery / checkpointing / idempotence","state":"ACTIVE","changed":"Exact retries stay work-free; preserved wounds keep last-good child structure while wound content changes once."},
+    {"name":"Strange non-raster vector/DOM/native UI art","state":"ACTIVE","changed":"Existing DOM/inline-SVG pacemaker now exposes structure rebuilds, content refreshes, and announcements as separate counters."},
+    {"name":"Warm walls","state":"ACTIVE","changed":"Existing warm wall mutated to the three-chamber pacemaker rather than spawning another specimen."},
+    {"name":"Christmas-light scene graph","state":"ACTIVE","changed":"State/consequence change can refresh content and speech without earning child replacement; reorder/membership change earns structure replacement."},
+    {"name":"Contact preservation","state":"ACTIVE","changed":"Rejected refresh can preserve last-good semantic child identities while interruption metadata changes independently."}
+  ],
+  "fronts": {
+    "source_policy": "HeartbeatOverlayRefreshPlan adds structureIdentity, shouldRebuildStructure, and shouldRefreshContent while preserving the legacy shouldRebuild compatibility path.",
+    "regression_source": "HeartbeatOverlayRefreshPlanTest now distinguishes exact retry, evidence-only refresh, state change, reorder/membership, case-only id change, preserved wound, and mute/hidden behavior.",
+    "durable_skill": "heartbeat-refresh-deduplication now teaches three work identities, stable focus vs stable selection, and the explicit service-wiring scar.",
+    "art": "heartbeat-refresh-gate-source-specimen.html mutated in place into a touchable three-chamber pacemaker with no raster/autoplay/decorative blink.",
+    "review": "Regnet and Venice receipts preserve source truth, blocked testing, She-Raw fault, P0 firewall, and the next source seam."
+  },
+  "cross_pollination": "The 200ms refresh loop plus evidence-only contact hashing exposed a native focus-churn risk. Accessibility turned that into a structure-vs-content distinction; deterministic routing supplied ordered semantic ids; contact preservation showed wounds can keep structure while changing metadata; Hunger pushed the distinction into the existing warm wall; Regnet/Venice kept the new source planning from being reported as runtime wiring.",
+  "ci_boundary": {
+    "workflow":"Build Android",
+    "run":31930665887,
+    "job":95124833741,
+    "source_head":"7c3c88d78541d3f28b0cd70986d21ef1e302f687",
+    "steps":0,
+    "annotation":"The job was not started because an Actions budget is preventing further use."
+  },
+  "p0_mutations": 0,
+  "capability": {
+    "requested":true,
+    "implemented_source":true,
+    "exact_github_readback":true,
+    "regression_source":true,
+    "tested":false,
+    "focus_stable_structure_planning_source":true,
+    "operator_service_consumes_structure_identity":false,
+    "runtime_ui_observed":false,
+    "runtime_talkback":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  }
+}

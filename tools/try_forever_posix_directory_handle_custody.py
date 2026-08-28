@@ -1,0 +1,522 @@
+#!/usr/bin/env python3
+"""Source-only POSIX held-directory custody for TRY FOREVER evidence artifacts.
+
+This organ strengthens *root* custody when the local Python/OS surface exposes the required POSIX
+primitives. It opens the named directory once with O_DIRECTORY|O_NOFOLLOW, keeps that descriptor as
+the authority root, enumerates through fresh descriptor-relative directory handles, captures each
+candidate object's no-follow identity during that held-root enumeration, and opens candidate names
+relative to that same held authority root.
+
+It deliberately does not claim universal filesystem atomicity. A held root descriptor prevents a
+later replacement of the root pathname from redirecting subsequent descriptor-relative work. A
+captured candidate identity also rejects persistent candidate replacement between enumeration and
+authority-facing open/read. Candidate swap-and-restore between observations and filesystem identity
+reuse remain separate boundaries. Regression execution, owner integration, runtime behavior,
+deployment, phone execution, delivery, and acceptance are all separate capability states.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import os
+import stat
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Callable
+
+from try_forever_directory_handle_binding_capability import (
+    current_directory_handle_binding_capability,
+)
+
+
+READ_CHUNK_BYTES = 64 * 1024
+
+
+class PosixDirectoryHandleCustodyUnavailable(RuntimeError):
+    """The current runtime cannot safely support this descriptor-bound source path."""
+
+
+class DescriptorArtifactCustodyError(ValueError):
+    """A descriptor-relative candidate could not earn artifact authority."""
+
+
+class DescriptorInventoryCustodyError(DescriptorArtifactCustodyError):
+    """Inventory failed closed while retaining bounded non-authoritative observed-work counts."""
+
+    def __init__(
+        self,
+        boundary: str,
+        *,
+        candidates_observed: int,
+        entries_observed: int,
+    ) -> None:
+        super().__init__(boundary)
+        self.candidates_observed = candidates_observed
+        self.entries_observed = entries_observed
+
+
+class DescriptorCustodyCleanupError(RuntimeError):
+    """Descriptor cleanup failed when no earlier custody wound already owned the failure."""
+
+
+@dataclass(frozen=True)
+class DescriptorIdentity:
+    device: int
+    inode: int
+    size: int
+    mtime_ns: int
+
+
+@dataclass(frozen=True)
+class DescriptorCandidate:
+    """One candidate name plus its held-root no-follow enumeration identity."""
+
+    name: str
+    identity: DescriptorIdentity
+    mode: int
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class DescriptorCandidateInventory:
+    """One bounded held-root inventory with both candidate identities and scan-work evidence."""
+
+    candidates: tuple[DescriptorCandidate, ...]
+    entries_observed: int
+
+    @property
+    def candidates_observed(self) -> int:
+        return len(self.candidates)
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class DescriptorArtifactObservation:
+    name: str
+    utf8_text: str
+    byte_count: int
+    sha256: str
+    identity: DescriptorIdentity
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def _identity_from_stat(result: os.stat_result) -> DescriptorIdentity:
+    return DescriptorIdentity(
+        device=int(result.st_dev),
+        inode=int(result.st_ino),
+        size=int(result.st_size),
+        mtime_ns=int(result.st_mtime_ns),
+    )
+
+
+def _same_identity(left: DescriptorIdentity, right: DescriptorIdentity) -> bool:
+    return left == right
+
+
+def _require_simple_name(name: str) -> str:
+    if type(name) is not str or not name or name in {".", ".."}:
+        raise DescriptorArtifactCustodyError("candidate name must be one non-empty basename")
+    if "\x00" in name or "/" in name or (os.altsep and os.altsep in name):
+        raise DescriptorArtifactCustodyError("candidate name must not contain path traversal syntax")
+    return name
+
+
+def _require_non_negative_budget(value: int, *, field: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(f"{field} must be one non-negative exact built-in integer")
+    return value
+
+
+def _require_directory_root(path: Path | str) -> Path:
+    """Admit one exact root value before Path/os.fspath can execute caller-owned code."""
+
+    if type(path) is str:
+        return Path(path)
+    if type(path) is type(Path(".")):
+        return path
+    raise ValueError("directory root must be one exact built-in string or exact platform Path")
+
+
+def _directory_open_flags() -> int:
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    return flags
+
+
+def _close_owned_fd(
+    fd: int,
+    *,
+    boundary: str,
+    preserve_primary_failure: bool,
+) -> None:
+    """Close one owned descriptor without stealing an earlier custody failure.
+
+    Close failure is authority-relevant when it is the only failure: the caller cannot claim clean
+    cleanup. When another exception is already propagating, cleanup failure must not replace that
+    primary wound with a less useful close error. This helper therefore converts a primary cleanup
+    failure to `DescriptorCustodyCleanupError`, but suppresses close failure when a prior exception
+    already owns the failure path.
+    """
+
+    try:
+        os.close(fd)
+    except OSError:
+        if preserve_primary_failure:
+            return
+        raise DescriptorCustodyCleanupError(boundary) from None
+
+
+class HeldDirectoryCustody:
+    """One held POSIX directory descriptor and bounded descriptor-relative operations."""
+
+    def __init__(self, path: Path | str):
+        self.path = _require_directory_root(path)
+        capability = current_directory_handle_binding_capability()
+        if capability.status != "SUPPORTED_POSIX_PRIMITIVES":
+            raise PosixDirectoryHandleCustodyUnavailable(capability.boundary)
+
+        try:
+            self.fd = os.open(os.fspath(self.path), _directory_open_flags())
+        except UnicodeError:
+            self.fd = -1
+            raise PosixDirectoryHandleCustodyUnavailable(
+                "held directory path encoding failed before descriptor custody could be established"
+            ) from None
+        except OSError:
+            self.fd = -1
+            raise PosixDirectoryHandleCustodyUnavailable(
+                "held directory open failed before descriptor custody could be established"
+            ) from None
+        try:
+            try:
+                opened = os.fstat(self.fd)
+            except OSError:
+                raise PosixDirectoryHandleCustodyUnavailable(
+                    "held directory descriptor identity read failed"
+                ) from None
+            if not stat.S_ISDIR(opened.st_mode):
+                raise PosixDirectoryHandleCustodyUnavailable(
+                    "held descriptor does not refer to an ordinary directory"
+                )
+            if int(opened.st_ino) == 0:
+                raise PosixDirectoryHandleCustodyUnavailable(
+                    "held directory descriptor exposes no stable inode identity"
+                )
+            self.root_identity = _identity_from_stat(opened)
+        except Exception:
+            try:
+                os.close(self.fd)
+            except OSError:
+                pass
+            self.fd = -1
+            raise
+
+    def _close(self, *, preserve_primary_failure: bool) -> None:
+        if self.fd < 0:
+            return
+        fd = self.fd
+        # Ownership is surrendered before close. A failed close must never invite a retry against a
+        # descriptor number that the kernel may already have released and recycled.
+        self.fd = -1
+        _close_owned_fd(
+            fd,
+            boundary="held directory descriptor close failed",
+            preserve_primary_failure=preserve_primary_failure,
+        )
+
+    def close(self) -> None:
+        self._close(preserve_primary_failure=False)
+
+    def __enter__(self) -> "HeldDirectoryCustody":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self._close(preserve_primary_failure=exc_type is not None)
+
+    def candidate_inventory(
+        self,
+        *,
+        is_candidate: Callable[[str], bool],
+        max_entries: int,
+        max_candidates: int,
+    ) -> DescriptorCandidateInventory:
+        """Enumerate bounded candidates and retain both identities and total scan-work evidence.
+
+        A new `open(".", dir_fd=self.fd)` is intentional. Directory descriptors can carry stream
+        position; reusing the authority descriptor directly for repeated scans can make later scans
+        depend on earlier enumeration. The fresh scan handle stays anchored to the held root while
+        giving each bounded inventory pass an independent directory position.
+
+        Capturing each matching entry's no-follow identity here does not make candidate-name custody
+        atomic. It does, however, let the later authority-facing open reject persistent replacement
+        that occurred after enumeration instead of silently treating the replacement as the object
+        that was enumerated.
+
+        `entries_observed` deliberately counts unrelated entries too. Canonical callers can therefore
+        preserve artifactDirectoryEntriesObserved evidence rather than replacing it with candidate
+        count and quietly weakening the receipt.
+
+        Authority-facing scan-handle open, iterator advance, candidate-name admission, and candidate
+        stat failures stay inside the custody error domain. Caller-supplied `is_candidate` failures
+        stay caller-owned, even when the caller happens to raise an OSError. A failed inventory returns
+        no partial candidate authority, but typed inventory wounds retain bounded observed-work counts
+        so canonical receipts do not erase work that was already observed. Cleanup-close failure is
+        typed when it is the only failure and cannot mask an earlier inventory wound.
+        """
+
+        max_entries = _require_non_negative_budget(max_entries, field="max_entries")
+        max_candidates = _require_non_negative_budget(max_candidates, field="max_candidates")
+        entries_seen = 0
+        candidates: list[DescriptorCandidate] = []
+
+        def inventory_error(boundary: str) -> DescriptorInventoryCustodyError:
+            return DescriptorInventoryCustodyError(
+                boundary,
+                candidates_observed=len(candidates),
+                entries_observed=entries_seen,
+            )
+
+        try:
+            scan_fd = os.open(".", _directory_open_flags(), dir_fd=self.fd)
+        except OSError:
+            raise inventory_error("held-directory scan handle open failed") from None
+        primary_failure = False
+        try:
+            try:
+                entries_context = os.scandir(scan_fd)
+            except OSError:
+                raise inventory_error("held-directory enumeration I/O failed") from None
+            with entries_context as entries:
+                iterator = iter(entries)
+                while True:
+                    try:
+                        entry = next(iterator)
+                    except StopIteration:
+                        break
+                    except OSError:
+                        raise inventory_error("held-directory enumeration I/O failed") from None
+
+                    entries_seen += 1
+                    if entries_seen > max_entries:
+                        raise inventory_error(
+                            f"held-directory scan exceeds {max_entries} entry budget"
+                        )
+                    try:
+                        name = _require_simple_name(entry.name)
+                    except DescriptorArtifactCustodyError as exc:
+                        raise inventory_error(str(exc)) from None
+                    if not is_candidate(name):
+                        continue
+                    try:
+                        observed = entry.stat(follow_symlinks=False)
+                    except OSError:
+                        raise inventory_error(
+                            "candidate identity stat failed during held-directory enumeration"
+                        ) from None
+                    identity = _identity_from_stat(observed)
+                    if identity.inode == 0:
+                        raise inventory_error(
+                            "enumerated candidate exposes no stable inode identity"
+                        )
+                    candidates.append(
+                        DescriptorCandidate(
+                            name=name,
+                            identity=identity,
+                            mode=int(observed.st_mode),
+                        )
+                    )
+                    if len(candidates) > max_candidates:
+                        raise inventory_error(
+                            f"held-directory candidate set exceeds {max_candidates} budget"
+                        )
+        except BaseException:
+            primary_failure = True
+            raise
+        finally:
+            _close_owned_fd(
+                scan_fd,
+                boundary="held-directory scan handle close failed",
+                preserve_primary_failure=primary_failure,
+            )
+        candidates.sort(key=lambda item: item.name)
+        return DescriptorCandidateInventory(
+            candidates=tuple(candidates),
+            entries_observed=entries_seen,
+        )
+
+    def candidate_entries(
+        self,
+        *,
+        is_candidate: Callable[[str], bool],
+        max_entries: int,
+        max_candidates: int,
+    ) -> tuple[DescriptorCandidate, ...]:
+        """Compatibility projection over `candidate_inventory`; identity evidence remains available."""
+
+        return self.candidate_inventory(
+            is_candidate=is_candidate,
+            max_entries=max_entries,
+            max_candidates=max_candidates,
+        ).candidates
+
+    def candidate_names(
+        self,
+        *,
+        is_candidate: Callable[[str], bool],
+        max_entries: int,
+        max_candidates: int,
+    ) -> tuple[str, ...]:
+        """Compatibility projection over `candidate_inventory`; full evidence remains available."""
+
+        return tuple(
+            item.name
+            for item in self.candidate_inventory(
+                is_candidate=is_candidate,
+                max_entries=max_entries,
+                max_candidates=max_candidates,
+            ).candidates
+        )
+
+    def observe_utf8_regular_file(
+        self,
+        name: str,
+        *,
+        max_bytes: int,
+        expected_candidate: DescriptorCandidate | None = None,
+    ) -> DescriptorArtifactObservation:
+        """Observe one named regular file through the held root descriptor.
+
+        The candidate is no-follow stat'ed relative to the held root, optionally required to match
+        the identity captured during held-root enumeration, opened relative to the same descriptor
+        with O_NOFOLLOW, read completely within the byte budget, then revalidated both through the
+        open descriptor and through the still-held directory descriptor. Strict UTF-8 is part of
+        custody admission; malformed bytes and authority-facing filesystem I/O failures stay inside
+        the DescriptorArtifactCustodyError domain rather than leaking raw decoder/OS exceptions.
+        Cleanup-close failure is typed when it is primary and cannot mask an earlier artifact wound.
+        """
+
+        name = _require_simple_name(name)
+        max_bytes = _require_non_negative_budget(max_bytes, field="max_bytes")
+        if expected_candidate is not None:
+            if type(expected_candidate) is not DescriptorCandidate:
+                raise DescriptorArtifactCustodyError(
+                    "expected_candidate must be one exact DescriptorCandidate"
+                )
+            if expected_candidate.name != name:
+                raise DescriptorArtifactCustodyError(
+                    "expected candidate identity belongs to a different basename"
+                )
+            if not stat.S_ISREG(expected_candidate.mode):
+                raise DescriptorArtifactCustodyError(
+                    "enumerated candidate is not an ordinary regular file"
+                )
+
+        try:
+            pre = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
+        except OSError:
+            raise DescriptorArtifactCustodyError(
+                "candidate unavailable during pre-open descriptor-relative stat"
+            ) from None
+        if not stat.S_ISREG(pre.st_mode):
+            raise DescriptorArtifactCustodyError("candidate is not an ordinary regular file")
+        pre_identity = _identity_from_stat(pre)
+        if pre_identity.inode == 0:
+            raise DescriptorArtifactCustodyError("candidate exposes no stable inode identity")
+        if expected_candidate is not None and not _same_identity(
+            expected_candidate.identity,
+            pre_identity,
+        ):
+            raise DescriptorArtifactCustodyError(
+                "candidate identity changed after held-root enumeration"
+            )
+
+        flags = os.O_RDONLY | os.O_NOFOLLOW
+        if hasattr(os, "O_CLOEXEC"):
+            flags |= os.O_CLOEXEC
+        if hasattr(os, "O_NONBLOCK"):
+            flags |= os.O_NONBLOCK
+
+        try:
+            artifact_fd = os.open(name, flags, dir_fd=self.fd)
+        except OSError:
+            raise DescriptorArtifactCustodyError(
+                "candidate open failed after pre-open identity admission"
+            ) from None
+        primary_failure = False
+        try:
+            try:
+                opened = os.fstat(artifact_fd)
+                if not stat.S_ISREG(opened.st_mode):
+                    raise DescriptorArtifactCustodyError("opened candidate is not a regular file")
+                opened_identity = _identity_from_stat(opened)
+                if not _same_identity(pre_identity, opened_identity):
+                    raise DescriptorArtifactCustodyError(
+                        "candidate identity changed between descriptor-relative stat and open"
+                    )
+
+                chunks: list[bytes] = []
+                total = 0
+                digest = hashlib.sha256()
+                while True:
+                    chunk = os.read(artifact_fd, min(READ_CHUNK_BYTES, max_bytes + 1 - total))
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise DescriptorArtifactCustodyError(
+                            f"candidate exceeds {max_bytes} byte custody budget"
+                        )
+                    digest.update(chunk)
+                    chunks.append(chunk)
+
+                after_fd = _identity_from_stat(os.fstat(artifact_fd))
+                if not _same_identity(opened_identity, after_fd):
+                    raise DescriptorArtifactCustodyError(
+                        "opened candidate changed during bounded descriptor read"
+                    )
+
+                after_name = os.stat(name, dir_fd=self.fd, follow_symlinks=False)
+                if not stat.S_ISREG(after_name.st_mode):
+                    raise DescriptorArtifactCustodyError(
+                        "candidate name no longer identifies an ordinary regular file"
+                    )
+                after_name_identity = _identity_from_stat(after_name)
+                if not _same_identity(opened_identity, after_name_identity):
+                    raise DescriptorArtifactCustodyError(
+                        "candidate name no longer identifies the opened artifact object"
+                    )
+            except OSError:
+                raise DescriptorArtifactCustodyError(
+                    "candidate descriptor I/O failed during bounded custody"
+                ) from None
+
+            raw = b"".join(chunks)
+            try:
+                utf8_text = raw.decode("utf-8", errors="strict")
+            except UnicodeDecodeError:
+                raise DescriptorArtifactCustodyError(
+                    "candidate content is not strict UTF-8"
+                ) from None
+            return DescriptorArtifactObservation(
+                name=name,
+                utf8_text=utf8_text,
+                byte_count=total,
+                sha256=digest.hexdigest(),
+                identity=opened_identity,
+            )
+        except BaseException:
+            primary_failure = True
+            raise
+        finally:
+            _close_owned_fd(
+                artifact_fd,
+                boundary="candidate descriptor close failed",
+                preserve_primary_failure=primary_failure,
+            )

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heartbeat Pre-Decode Throat — source specimen</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #17191d; color: #f1efe8; }
+  main { width: min(940px, calc(100vw - 24px)); border: 2px solid #777b85; border-radius: 24px; padding: 18px; background: #24272d; box-sizing: border-box; }
+  h1 { margin: 0 0 6px; font-size: clamp(1.4rem, 4vw, 2.4rem); }
+  .scar { margin: 0 0 16px; font-weight: 800; letter-spacing: .06em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  button { min-width: 56px; min-height: 56px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; font: inherit; font-weight: 750; background: transparent; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  button[aria-pressed="true"] { background: #f1efe8; color: #17191d; }
+  svg { width: 100%; height: auto; display: block; border-radius: 18px; background: #1b1e23; }
+  .node { fill: #272b32; stroke: #d7d2c8; stroke-width: 3; }
+  .wire { stroke: #d7d2c8; stroke-width: 4; fill: none; }
+  .blocked { stroke-dasharray: 10 8; }
+  .label { fill: #f1efe8; font: 700 18px system-ui, sans-serif; text-anchor: middle; }
+  .small { fill: #d7d2c8; font: 600 13px system-ui, sans-serif; text-anchor: middle; }
+  #status { min-height: 3em; margin-top: 14px; border-left: 5px solid currentColor; padding: 10px 12px; background: #1b1e23; }
+  .legend { margin: 12px 0 0; font-size: .92rem; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / PRE-DECODE THROAT</h1>
+  <p class="scar">SOURCE OWNER WIRED · READER + POLL + DIRECT-STRING + PARSER THROATS · RUNTIME UNPROVEN</p>
+
+  <div class="controls" role="group" aria-label="Choose a heartbeat resource-boundary case">
+    <button type="button" data-case="max" aria-pressed="true">Exact max</button>
+    <button type="button" data-case="overflow" aria-pressed="false">Base64 + 1</button>
+    <button type="button" data-case="directString" aria-pressed="false">Direct String + 1</button>
+    <button type="button" data-case="parserPreparse" aria-pressed="false">Parser + 1</button>
+    <button type="button" data-case="alias" aria-pressed="false">Base64 alias</button>
+    <button type="button" data-case="sha" aria-pressed="false">SHA whitespace</button>
+  </div>
+
+  <svg viewBox="0 0 900 330" role="img" aria-labelledby="diagramTitle diagramDesc">
+    <title id="diagramTitle">Heartbeat persisted and direct-source resource gates</title>
+    <desc id="diagramDesc">A warm-wall pipeline from exact heartbeat source text through finite source-work throats into existing integrity and semantic processing. Coherent-reader, poll-dedup, direct persisted String, and direct envelope parser preparse throats are source wired. Rejection preserves existing last-good contact and does not create runtime or phone claims.</desc>
+    <path class="wire" d="M190 165 H330" />
+    <path id="gateWire" class="wire" d="M570 165 H710" />
+    <rect class="node" x="30" y="105" width="160" height="120" rx="24" />
+    <text class="label" x="110" y="150">EXACT SOURCE</text>
+    <text class="small" x="110" y="180">persisted or direct</text>
+    <text class="small" x="110" y="200">no trim / no repair</text>
+
+    <rect class="node" x="330" y="75" width="240" height="180" rx="34" />
+    <text class="label" x="450" y="125">THE THROATS</text>
+    <text class="small" x="450" y="156">reader / poll / string / parser</text>
+    <text id="budgetText" class="label" x="450" y="194">43,692 → PASS</text>
+    <text id="motionText" class="small" x="450" y="225">canonical declaration continues</text>
+
+    <rect class="node" x="710" y="105" width="160" height="120" rx="24" />
+    <text class="label" x="790" y="150">EXISTING</text>
+    <text class="small" x="790" y="180">integrity + parser</text>
+    <text class="small" x="790" y="200">then scene</text>
+  </svg>
+
+  <div id="status" role="status" aria-live="polite">Exact maximum: the coherent reader permits the declaration to continue. Exact writer-form Base64, integrity, parsing, rendering, and delivery remain separate gates.</div>
+  <p class="legend">● Resource bounds are source-work custody, not acceptance. □ Decoder acceptance is not declaration acceptance. × Rejection preserves last-good contact and earns no Christmas motion. ◇ Phone/P0 remains untouched.</p>
+</main>
+<script>
+(() => {
+  const buttons = [...document.querySelectorAll('button[data-case]')];
+  const status = document.getElementById('status');
+  const budgetText = document.getElementById('budgetText');
+  const motionText = document.getElementById('motionText');
+  const gateWire = document.getElementById('gateWire');
+
+  const cases = {
+    max: {
+      budget: '43,692 → PASS',
+      note: 'canonical declaration continues',
+      blocked: false,
+      status: 'Exact maximum: the coherent reader permits the declaration to continue. Exact writer-form Base64, integrity, parsing, rendering, and delivery remain separate gates.'
+    },
+    overflow: {
+      budget: '43,693 → BLOCK',
+      note: 'decoder receives nothing',
+      blocked: true,
+      status: 'Persisted Base64 maximum plus one: the coherent reader rejects before the existing owner decodes. The bounded storage-read wound may preserve last-good contact; no Christmas motion is earned.'
+    },
+    directString: {
+      budget: '32,769 → BLOCK',
+      note: 'UTF-8 encode receives nothing',
+      blocked: true,
+      status: 'Direct persisted String maximum plus one: source owner wiring rejects before UTF-8 encoding. Exact-at-ceiling text still reaches the existing byte-integrity gate; this is SOURCE_WIRED, not TESTED or runtime proof.'
+    },
+    parserPreparse: {
+      budget: '32,769 → BLOCK',
+      note: 'trim + JSON receive nothing',
+      blocked: true,
+      status: 'Direct envelope parser maximum plus one: the existing parser owner now rejects at its 32,768-code-unit preparse throat before trim or JSON traversal. Exact-at-ceiling text still reaches existing strict parser semantics. This is SOURCE_WIRED, not TESTED or runtime proof.'
+    },
+    alias: {
+      budget: 'Zg==\\n → BLOCK',
+      note: 'decoder alias ≠ writer identity',
+      blocked: true,
+      status: 'Base64 alias: even if the existing decoder yields the same bytes, canonical re-encoding is compared against the exact stored declaration. A textual alias is rejected through the existing contact-preservation path before semantic projection.'
+    },
+    sha: {
+      budget: 'LENGTH → PASS',
+      note: 'exact SHA text survives',
+      blocked: false,
+      status: 'SHA whitespace: the reader does not normalize integrity text. Base64 canonicality is already a separate owner gate; downstream exact SHA policy still owns this rejection.'
+    }
+  };
+
+  function select(key) {
+    const selected = cases[key];
+    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.case === key)));
+    budgetText.textContent = selected.budget;
+    motionText.textContent = selected.note;
+    gateWire.classList.toggle('blocked', selected.blocked);
+    status.textContent = selected.status;
+  }
+
+  buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.case)));
+})();
+</script>
+</body>
+</html>

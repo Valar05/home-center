@@ -1,0 +1,50 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-21-0100",
+  "reviewedSourceHead": "c198aeaa8f694edd85fe6a0f68ab9d2e44528b8a",
+  "scope": "non-P0 semantic accessibility announcement migration supporting source",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__OWNER_UNWIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "review": {
+    "planGateBeforeMutation": true,
+    "duplicateArchitecture": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "sourceFronts": [
+      "AccessibilityAnnouncementSemanticPolicy",
+      "AccessibilityAnnouncementSemanticPolicyTest",
+      "operator-semantic-announcement-migration skill",
+      "operator semantic announcement throat source specimen",
+      "Adam overlay contract mechanism-dependency repair"
+    ],
+    "ownerEvidence": {
+      "owner": "OperatorOverlayService",
+      "legacyAnnounceForAccessibilityConsequences": [
+        "Spotify explicit command receipt",
+        "heartbeat automatic material-transition summary",
+        "heartbeat explicit detail selection",
+        "Adam send feedback"
+      ],
+      "semanticMigrationOwnerWired": false,
+      "legacyCallsRemoved": false
+    },
+    "correctionScar": "First policy revision called the explicit-detail channel FOCUSED_DETAIL_VALUE. Code-first review found the passive heartbeat detail well is intentionally not a keyboard-focus owner. The policy, regression, and skill were corrected to SELECTED_DETAIL_VALUE rather than manufacturing focus authority.",
+    "independentContractScar": "tools/test_adam_overlay_contract.py previously required the mechanism token announceForAccessibility. That mechanism lock-in was removed and replaced with semantic Adam input/send surface assertions so API deprecation work is not blocked by a stale generic contract.",
+    "capabilityMembrane": {
+      "requested": true,
+      "implementedSupportingSource": true,
+      "authenticatedRemoteReadback": true,
+      "regressionSource": true,
+      "regressionExecuted": false,
+      "existingOwnerSemanticMigrationWired": false,
+      "tested": false,
+      "runtimeUi": false,
+      "runtimeTalkBack": false,
+      "deployed": false,
+      "callable": false,
+      "executed": false,
+      "delivered": false,
+      "accepted": false
+    }
+  },
+  "nextBoundary": "Do not blanket-replace the four owner calls. Review each consequence against the source policy and select an exact existing-owner semantic mechanism before any owner mutation."
+}

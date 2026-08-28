@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-23T12:00:40-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without touching the gated phone/P0 chain.",
+  "reviewedPr": 329,
+  "startingHead": "bd6b26b5a602ecdc272387b647bb7a09b2b060ad",
+  "fronts": [
+    {
+      "name": "descriptor-shadow wound tri-state owner repair",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+      "intent": "A descriptor custody failure before comparison must emit null comparison fields, not false divergence."
+    },
+    {
+      "name": "temporal receipt-integrity owner composition",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+      "intent": "Completed shadow comparisons must pass the existing strict receipt-context gate before temporal binding."
+    },
+    {
+      "name": "focused regression source",
+      "owner": "tools/test_try_forever_owner_surgery_descriptor_shadow_owner_convergence.py",
+      "intent": "Pin both owner repairs without claiming execution."
+    },
+    {
+      "name": "doctrine and operator receipt convergence",
+      "owner": "PR #329 command surface",
+      "intent": "Update capability truth after authenticated remote readback; keep TESTED/runtime/deployed states separate."
+    }
+  ],
+  "constraints": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "canonicalV10AuthorityMutation": false,
+    "descriptorAuthorityAdmission": false,
+    "testedClaimAllowed": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "venicePlanGate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_OWNER_CONVERGENCE",
+  "regnetPrecondition": "Source/readback may advance; regression execution and TESTED remain separate."
+}

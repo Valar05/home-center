@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Receipt Snapshot Custody — Source Specimen</title>
+<style>
+:root{font-family:system-ui,sans-serif;background:#181818;color:#f4f1e8}body{margin:0;padding:24px;max-width:880px}h1{font-size:1.35rem}.scar{border:2px solid currentColor;padding:14px;margin:16px 0}.states{display:grid;gap:10px}.state{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center;min-height:56px;padding:8px 12px;border:1px solid currentColor;border-radius:10px;cursor:pointer}.state:focus-within{outline:3px solid currentColor;outline-offset:3px}.state input{width:24px;height:24px}.detail{min-height:120px;border-left:4px solid currentColor;padding:12px 16px;margin-top:18px;white-space:pre-wrap}.flow{font-family:ui-monospace,monospace;overflow:auto;padding:12px 0}small{display:block;line-height:1.45}</style>
+</head>
+<body>
+<h1>WARM WALL / ONE BOUNDED OBSERVATION</h1>
+<div class="scar"><strong>SOURCE OWNER WIRED · SNAPSHOT v2 · EXACT BUILT-IN OBJECT ADMISSION</strong><small>CALLER CODE BLOCKED BEFORE items() · DIAGNOSTIC CONTEXT BOUNDED BEFORE PROJECTION · REGRESSION UNEXECUTED · TESTED NO · RUNTIME TALKBACK NO · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</small></div>
+<div class="flow" aria-label="receipt verification custody flow">CALLER OBJECT → EXACT BUILT-IN DICT GATE → DIAGNOSTIC CONTEXT GATE → INTEGER THROAT → RESOURCE THROAT → SNAPSHOT → SEMANTIC GATE → DIGEST → RAW LINKAGE → DERIVATION</div>
+<div class="states" role="radiogroup" aria-label="Snapshot custody states">
+<label class="state"><input type="radio" name="state" value="mapping" checked><span><strong>× CALLER MAPPING BLOCKED</strong><br>Custom Mapping / dict subclass cannot execute items() before budgets.</span></label>
+<label class="state"><input type="radio" name="state" value="diagnostic"><span><strong>□ DIAGNOSTIC CONTEXT THROAT</strong><br>Root error context is bounded before JSON escaping/projection; canonical receipt evidence is untouched.</span></label>
+<label class="state"><input type="radio" name="state" value="exact"><span><strong>□ EXACT JSON</strong><br>Tuple/non-string nested-key normalization is rejected, not repaired.</span></label>
+<label class="state"><input type="radio" name="state" value="integer"><span><strong>□ INTEGER THROAT</strong><br>Exact JSON integer shape still has a pre-serialization magnitude ceiling.</span></label>
+<label class="state"><input type="radio" name="state" value="budget"><span><strong>□ RESOURCE THROAT</strong><br>Depth, nodes, text, and detached encoded bytes are bounded before verification.</span></label>
+<label class="state"><input type="radio" name="state" value="snapshot"><span><strong>● SNAPSHOT HELD</strong><br>One detached JSON observation owns later verification.</span></label>
+<label class="state"><input type="radio" name="state" value="raw"><span><strong>◇ RAW DETACHED</strong><br>Nested raw evidence cannot mutate after linkage and before derivation.</span></label>
+<label class="state"><input type="radio" name="state" value="owner"><span><strong>● OWNER SOURCE WIRED</strong><br>Existing final-v4 owner consumes bounded exact snapshot custody; regression execution is still unknown.</span></label>
+</div>
+<div id="detail" class="detail" role="status" aria-live="polite"></div>
+<script>
+const copy={
+ mapping:'BOUNDARY\nExact built-in dict admission happens before traversal. Mapping subclasses and custom Mapping objects are rejected by type identity without invoking caller-owned items().',
+ diagnostic:'DIAGNOSTIC CUSTODY\nCaller-supplied root context crosses a 4096-code-point source ceiling before JSON escaping/projection. The accepted context remains exact; only diagnostic prose is projected.',
+ exact:'EXACTNESS\nPython JSON conveniences are not evidence law. Nested integer keys, tuples, empty field names, and hostile container subclasses fail closed instead of being normalized.',
+ integer:'INTEGER CUSTODY\n14,284 binary bits is the source ceiling before decimal JSON conversion. Values inside that source throat still remain subject to any stricter process serializer policy; max+1 fails before serializer work. This is a resource boundary, not a runtime throughput claim.',
+ budget:'RESOURCE CUSTODY\n64 depth · 50,000 nodes · 1,048,576 total string code points · 8 MiB detached JSON ceiling. Exceeding the throat stops before semantic/hash/linkage work.',
+ snapshot:'SOURCE CONTRACT\nCapture once into plain dict/list JSON values. Validate, hash, link, and derive only from the captured object graph.',
+ raw:'CONTACT PRESERVATION\nNested lists/dicts are detached. Later caller mutation cannot rewrite the evidence after SHA linkage.',
+ owner:'CAPABILITY MEMBRANE\nExisting final-v4 owner consumes snapshot custody and exact-container admission in source. Regression execution, TESTED, runtime TalkBack, deployment, delivery, and acceptance remain NO.'
+};
+const radios=[...document.querySelectorAll('input[name=state]')];
+function show(){const r=radios.find(x=>x.checked);document.getElementById('detail').textContent=copy[r.value];}
+radios.forEach((r,i)=>{r.addEventListener('change',show);r.addEventListener('keydown',e=>{let n=null;if(e.key==='ArrowDown'||e.key==='ArrowRight')n=(i+1)%radios.length;if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=(i+radios.length-1)%radios.length;if(e.key==='Home')n=0;if(e.key==='End')n=radios.length-1;if(n!==null){e.preventDefault();radios[n].checked=true;radios[n].focus();show();}})});show();
+</script>
+</body>
+</html>

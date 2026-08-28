@@ -1,0 +1,56 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-17-0400",
+  "scope": "PR #329 non-P0 existing-owner WAITING recovery wiring and evidence convergence",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY",
+  "reviewedOwnerCommit": "90807b87c9bdbdcc9c570e5b10c4eab313ff40c0",
+  "checks": {
+    "waitingRecoveryPolicy": "PASS_EXISTING_SOURCE",
+    "existingOwnerWaitingRecoveryConsumption": "PASS_SOURCE_WIRED",
+    "ownerDiffMatchesAuthorizedDelta": "PASS_EXACT_COMMIT_DIFF",
+    "unrelatedOwnerRegression": "PASS_NO_UNRELATED_DIFF_IN_OWNER_COMMIT",
+    "repeatedHealthyWaitingUiSpeechMotionQuiet": "PASS_BY_SOURCE_CONTROL_FLOW_NOT_RUNTIME",
+    "acceptedOrPreservedContactCleared": "PASS_POLICY_EXCLUDES_CONTACT",
+    "patchArtifactTruth": "PASS_APPLIED_PROVENANCE",
+    "skillTruth": "PASS_SYNCHRONIZED",
+    "warmWallTruth": "PASS_SOURCE_ONLY",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATION_ZERO_CONSUMPTION",
+    "tested": "BLOCKED_ACTIONS_BUDGET"
+  },
+  "evidence": {
+    "operatorOverlayServiceBlob": "81adaa031a7fd0935ad117a0913996b59e2d5877",
+    "operatorOverlayServiceCommit": "90807b87c9bdbdcc9c570e5b10c4eab313ff40c0",
+    "appliedOwnerPatchBlob": "51dbe853fa15cb66d942313d8932d778f0a2c5b2",
+    "persistedPollSkillBlob": "b7de9a2ab4ca01f53874c51079835708acc86d2b",
+    "warmWallSvgBlob": "5f2a0b8e7a9040d7d42da2a506b9ba601f7ce3b6",
+    "ciRun": 32013303645,
+    "ciJob": 95337316255,
+    "ciSteps": 0,
+    "ciBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "reviewFindings": [
+    "The owner commit contains exactly two source hunks: WAITING now consumes shouldClearPreContactWoundOnWaiting, and one helper clears stale pre-contact frame/UI identities back to canonical waiting.",
+    "The clear path invalidates pending viewport restore and resets native heartbeat motion before removing stale controls, so a recovery clear does not preserve stale focus/motion machinery.",
+    "The processed empty snapshot advances after the clear; later healthy WAITING polls see a null frame, so the recovery helper is not invoked again. This is source control-flow evidence, not Android runtime proof.",
+    "Accepted/preserved visiblePulseId contact remains excluded by the existing policy predicate, including zero-material accepted contact.",
+    "The prior patch artifact, skill, and warm-wall source previously said owner consumption NO; all three now reflect owner source wiring YES without upgrading tested/runtime/phone claims.",
+    "Fresh automatic CI on the owner commit executed zero steps because the Actions budget prevented job start."
+  ],
+  "nextAuthorizedCut": "Do not relight this closed owner seam merely because CI is blocked. Find a materially different non-P0 source/accessibility/evidence wound; keep runtime and phone claims dark until authorized evidence exists.",
+  "capabilityMembrane": {
+    "requested": true,
+    "waitingRecoveryPolicySource": true,
+    "waitingRecoveryRegressionSource": true,
+    "existingOwnerWaitingRecoveryWired": true,
+    "exactGitHubReadback": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "talkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

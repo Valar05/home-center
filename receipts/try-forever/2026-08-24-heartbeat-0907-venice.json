@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "checkpoint": "2026-08-24T09:07:33-05:00",
+  "reviewedSourceHead": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The source slice advances a distinct evidence-custody wound rather than repeating the prior raw-linkage work.",
+    "The repair composes the existing raw audit, self-integrity, projector, and final receipt owner; no neighboring receipt owner or descriptor authority exists.",
+    "Authenticated Home Center GitHub-admin readback proves derivation custody is SOURCE_WIRED in the existing v4 final owner.",
+    "The owner-boundary regression and supporting hostile regression remain source-only and unexecuted, so TESTED/runtime/deployment/delivery remain NO.",
+    "Exact-head automatic workflows completed failure with zero exposed Operator steps and unavailable logs; no step-level cause is established and no manual retry was fired."
+  ],
+  "reviewerState": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false,
+    "regnet": "PASS_BOUNDED_SOURCE_AND_OWNER_WIRING__REGRESSIONS_UNEXECUTED__TESTED_NO"
+  },
+  "executionTruth": {
+    "exactSourceHead": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+    "homeCenterCiRun": 32738207097,
+    "operatorOverlayRun": 32738207375,
+    "operatorOverlayJob": 97466077851,
+    "buildAndroidRun": 32738207393,
+    "status": "completed",
+    "conclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "tested": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "manualWorkflowRetry": false,
+    "mergeOrRebase": false
+  }
+}

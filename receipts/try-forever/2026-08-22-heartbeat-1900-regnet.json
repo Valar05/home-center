@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-22T19:00:00-05:00",
+  "reviewedSourceHead": "0365e034e65989ffdfcba894882e758e10742965",
+  "verdict": "PASS_SUPPORTING_AUTHORITY_MEMBER_SOURCE__CANONICAL_OWNER_REPAIR_UNAPPLIED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceEvidence": {
+    "backendPolicyBlob": "0b35e517818f1f58a8f4fd03aeb3c71c49b73497",
+    "backendRegressionBlob": "9ff75443c46c2f533fdf40a05bb27c4f49e1b52e",
+    "focusedMemberRegressionBlob": "605506266e77c91fb8adc12831c0ca7028eb00a3",
+    "authorityCoverageSkillBlob": "b2f563861be7f18927546947fdf157fb3a33b327",
+    "backendSelectionSkillBlob": "ab240e6cf8e22ea78bff3632a38b79d92603c44f",
+    "warmWallBlob": "7d13fd52c1bfe8c4c30f882b988318be6f0e017e"
+  },
+  "materialChecks": [
+    "authority group shell alone no longer earns supporting result-gate authority",
+    "collision groups require at least two distinct canonical Surgery-shaped members",
+    "stale and unverified groups require at least one canonical member",
+    "member owner/base/state/kind/path/promotion flag are admitted before authority",
+    "duplicate member artifact identities and duplicate owner/base groups fail closed",
+    "owner-specific current/stale/unverified custody checks remain intact",
+    "incomplete exhaustive custody still rejects nonempty promotion authority groups"
+  ],
+  "correctionScar": "Code-first review found that minimum member counts alone could be counterfeited by duplicating the same surgery evidence. Supporting policy was corrected to reject duplicate member artifact identities and duplicate owner/base authority groups before this verdict.",
+  "canonicalOwnerBoundary": {
+    "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+    "blob": "f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "zeroPartialRegression": "RED_UNEXECUTED",
+    "zeroPartialPatchBlob": "f4084bc0157c6cbb97d68e8bb039cf5255642517",
+    "zeroPartialRepair": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "backendSelectionConsumption": "NO",
+    "descriptorConsumption": "NO"
+  },
+  "executionTruth": {
+    "operatorRun": 32606967590,
+    "operatorJob": 97113322845,
+    "operatorConclusion": "failure",
+    "homeCenterCiRun": 32606967617,
+    "buildAndroidRun": 32606967591,
+    "stepLevelCause": "UNAVAILABLE",
+    "manualRetry": false,
+    "tested": false
+  },
+  "reviewerTruth": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "veniceExternalWorker": "OFFLINE",
+    "syntheticReviewerSubstituted": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-17-1600",
+  "source_head_reviewed": "25f7c97d45a90abc201787a18051735df25374a1",
+  "material_fronts_advanced": [
+    {
+      "front": "aggregate_collapsed_speech",
+      "result": "IMPLEMENTED_SOURCE",
+      "change": "Legacy Candidate-level collapsed heartbeat speech now names at most the shared 12-light ceiling, preserves material order and within-budget compatibility output, and reports exact additional-safe and unsafe-semantic omission counts. FrameAccessibility aliases the same source constant."
+    },
+    {
+      "front": "persisted_canonical_absence",
+      "result": "IMPLEMENTED_SOURCE_AFTER_CORRECTION",
+      "change": "Canonical empty persistence now requires updatedMs == 0 and projection identity distinguishes positive-valid, zero-missing, and negative-corrupt timestamp classes."
+    },
+    {
+      "front": "regression_truth",
+      "result": "IMPLEMENTED_SOURCE",
+      "change": "A stale poll regression that still treated SHA whitespace as equal was repaired; a separate poison fixture now requires PROJECT. New aggregate-fanout and negative-timestamp hostile fixtures were added."
+    },
+    {
+      "front": "skill_harvest",
+      "result": "IMPLEMENTED_DURABLE_SKILL",
+      "change": "Added heartbeat-collapsed-speech-fanout and synchronized heartbeat-persisted-poll-contact with exact absence/timestamp-class doctrine."
+    },
+    {
+      "front": "review_and_evidence",
+      "result": "DURABLE_RECEIPTS",
+      "change": "Plan, Venice plan gate, corrective replan scar, Regnet source review, Venice completion review, exact-head CI boundary, and this swarm receipt are stored on the PR branch."
+    }
+  ],
+  "skill_lights": [
+    {"light":"Failure Is The Shovel","state":"ACTIVE","why":"The completed 1500 seam stayed dark; source archaeology moved to aggregate fanout and persisted absence metadata.","changed":"Different defects were repaired instead of retrying the same CI or truncation work."},
+    {"light":"Canon Auto-Select","state":"ACTIVE","why":"Existing heartbeat projection/poll organs were selected from current source truth.","changed":"No adjacent renderer, poller, or controller was substituted."},
+    {"light":"Autocorrect Judgment Jar","state":"DARK","why":"No STT/autocorrect ambiguity materially affected source identity.","changed":"None by design."},
+    {"light":"Originality Tax","state":"ACTIVE","why":"Prior per-field budget work was ordered dark.","changed":"Aggregate breadth and canonical absence became the new targets."},
+    {"light":"Hunger","state":"ACTIVE","why":"One fix was not allowed to hide the stale regression/doctrine wounds discovered beside it.","changed":"The swarm consumed aggregate fanout, zero/negative timestamp aliasing, and stale SHA-whitespace test truth."},
+    {"light":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"Source, tests, and durable skills were cross-checked against one another.","changed":"A first timestamp repair was found insufficient and corrected to a three-way class."},
+    {"light":"Operator Campaign","state":"ACTIVE","why":"Mission and owner boundaries stayed explicit.","changed":"Only existing heartbeat policy/accessibility organs were modified."},
+    {"light":"Harroway operator discipline","state":"ACTIVE","why":"Requested/source/tested/runtime capability states were kept separate.","changed":"No source commit was reported as runtime delivery."},
+    {"light":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative pre-execution consultation was attempted.","changed":"Account-connection HTTP 400 preserved as the exact boundary; no substitute She-Raw verdict invented."},
+    {"light":"Venice Judgment Jars","state":"ACTIVE","why":"Plan and completion quality gates reviewed compatibility, taste, architecture, and capability truth.","changed":"Source slice may yield; campaign remains CONTINUE_REQUIRED."},
+    {"light":"Regnet QA","state":"ACTIVE","why":"Code-first source review attacked both repairs and their fixtures.","changed":"Caught the zero-versus-negative dedupe alias and preserved TESTED=NO."},
+    {"light":"accessibility/TalkBack and touch semantics","state":"ACTIVE","why":"Legacy collapsed speech could become an aggregate monologue despite bounded individual fields.","changed":"Shared 12-name fanout ceiling plus exact omitted counts; no routine speech switched to explicit evidence narration."},
+    {"light":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALL","why":"P0 conductor retains sole ownership and shared-phone surface is gated.","changed":"Zero consumption and zero mutation."},
+    {"light":"deterministic routing","state":"ACTIVE","why":"Poll classification determines whether corrupt metadata enters verification or is skipped.","changed":"Canonical zero and corrupt negative timestamp classes no longer alias."},
+    {"light":"evidence/capability-state discipline","state":"ACTIVE","why":"Exact SHA metadata and current-head CI were treated as evidence, not display formatting or aspiration.","changed":"Stale whitespace regression repaired; source/runtime membrane preserved."},
+    {"light":"recovery/checkpointing/idempotence","state":"ACTIVE","why":"A corrupt timestamp must PROJECT once rather than masquerade as WAITING, while unchanged invalid class may later dedupe.","changed":"Poll identity now preserves the one-wound-then-quiet pattern without canonical absence laundering."},
+    {"light":"strange non-raster vector/DOM/native UI art","state":"DARK","why":"No new operator-state topology justified source-art churn.","changed":"None; existing art was deliberately left untouched to avoid specimen fungus."},
+    {"light":"warm walls","state":"DARK","why":"The repairs are source speech/evidence semantics, not a new touchable topology.","changed":"None by design."},
+    {"light":"Christmas-light scene graph","state":"DARK","why":"Neither aggregate speech budgeting nor metadata classification earns transition motion.","changed":"No decorative twitch added."},
+    {"light":"contact preservation","state":"ACTIVE","why":"Corrupt persisted metadata must re-enter the existing fail-closed projection rather than disappear into WAITING.","changed":"Negative-timestamp empty-store corruption now reaches the existing rejection/contact-preservation path."},
+    {"light":"heartbeat-collapsed-speech-fanout","state":"ACTIVE_NEW_REPOSITORY_SKILL","why":"Aggregate breadth is a distinct accessibility resource from per-field text budgets.","changed":"New durable skill harvested with regression and capability membrane."},
+    {"light":"heartbeat-persisted-poll-contact","state":"ACTIVE_UPDATED_REPOSITORY_SKILL","why":"Source policy changed its canonical absence/timestamp identity contract.","changed":"Skill synchronized so doctrine no longer says merely positive versus non-positive."}
+  ],
+  "cross_pollination": [
+    "1500 hard per-field budgets exposed that per-item safety still did not bound aggregate legacy collapsed speech.",
+    "FrameAccessibility's existing 12-name rule supplied the shared fanout ceiling without changing legacy material order.",
+    "Poll regression review exposed a stale SHA-whitespace expectation, which forced exact-evidence doctrine back into the fixture.",
+    "Canonical absence review exposed negative updatedMs laundering; reviewing the first fix then exposed a second zero-versus-negative dedupe alias.",
+    "The repaired timestamp classes preserve contact/retry semantics while keeping positive wall-clock magnitude non-semantic.",
+    "Art and Christmas motion stayed dark because evidence/projection repairs do not earn decorative UI consequences."
+  ],
+  "ci_boundary": {
+    "workflow":"Operator Overlay Android",
+    "run_id":32069712644,
+    "job_id":95509910106,
+    "head_sha":"25f7c97d45a90abc201787a18051735df25374a1",
+    "steps_executed":0,
+    "annotation":"The job was not started because an Actions budget is preventing further use.",
+    "manual_retry":false
+  },
+  "p0": {
+    "finding_for_owner": null,
+    "phone_hands_tickets":0,
+    "primary_phone_commands":0,
+    "queue_or_relay_probes":0,
+    "p0_recovery_mutations":0,
+    "nightcore_actions":0,
+    "pocket_tts_actions":0,
+    "chromium_actions":0,
+    "context_organ_actions":0,
+    "physical_acceptance_actions":0,
+    "duplicate_p0_owners":0
+  },
+  "capability": {
+    "requested":true,
+    "implemented_source":true,
+    "exact_github_readback":true,
+    "regression_source":true,
+    "durable_skill":true,
+    "source_art_changed":false,
+    "tested":false,
+    "runtime_ui_observed":false,
+    "runtime_talkback_exercised":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  },
+  "gate":"SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

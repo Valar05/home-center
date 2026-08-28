@@ -1,0 +1,100 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "reviewedSourceHead": "76376381cbec58f1f1d6a852ef138dfac937b897",
+  "frontsAdvanced": [
+    {
+      "front": "descriptor-strict-utf8-admission",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "change": "malformed UTF-8 now fails through bounded DescriptorArtifactCustodyError rather than leaking UnicodeDecodeError; no DescriptorArtifactObservation is admitted"
+    },
+    {
+      "front": "descriptor-artifact-io-containment",
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "change": "authority-facing pre-stat/open/read/fstat/post-stat OS failures in artifact observation now fail through bounded custody-domain errors"
+    },
+    {
+      "front": "hostile-regression-source",
+      "state": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "change": "fixtures now cover malformed UTF-8 and candidate disappearance after enumeration in addition to existing identity/resource wounds"
+    },
+    {
+      "front": "descriptor-skill-convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "operator-owner-surgery-descriptor-custody now records typed text/I-O failure containment without changing owner-integration or atomicity claims"
+    },
+    {
+      "front": "warm-wall-contact",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "existing non-raster custody organism exposes typed I/O and strict UTF-8 failure gates while preserving source/runtime/phone membrane"
+    },
+    {
+      "front": "code-first-next-wound",
+      "state": "EXACT_BOUNDARY",
+      "change": "candidate_inventory still has raw os.open/os.scandir/DirEntry.stat failure channels; preserved as separate next wound rather than silently widening this slice"
+    },
+    {
+      "front": "review-and-execution-evidence",
+      "state": "DURABLE",
+      "change": "plan/replan/Venice plan, Regnet, Venice completion, She-Raw fault, exact workflow evidence, and firewall state recorded"
+    }
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": {"state": "lit", "consequence": "converted raw decoder and artifact-I/O escape channels into typed custody failures instead of polishing already-closed exact-owner identity"},
+    "CanonAutoSelect": {"state": "lit", "consequence": "selected operator-owner-surgery-descriptor-custody and existing custody source specimen from authenticated repository evidence"},
+    "AutocorrectJudgmentJar": {"state": "dark", "reason": "no material ambiguity or STT/autocorrect token affected this source slice"},
+    "OriginalityTax": {"state": "lit", "consequence": "code review found a second independent artifact-I/O wound and used a replan rather than pretending the UTF-8 fix covered it"},
+    "HungerEatEverything": {"state": "lit", "consequence": "forced source, hostile fixtures, skill doctrine, Warm Wall, reviews, and PR command surface toward one capability truth"},
+    "OperatorCampaignHarroway": {"state": "lit", "consequence": "kept the existing held-directory source organ and canonical v10 owner boundaries; no neighboring custody controller"},
+    "SheRaw": {"state": "fault", "consequence": "authoritative attempt returned account-connection HTTP 400; no synthetic substitute"},
+    "Venice": {"state": "lit", "consequence": "PLAN_ALLOWED before mutation, REPLAN_ALLOWED after code-first second wound, bounded completion only"},
+    "Regnet": {"state": "lit", "consequence": "source/readback PASS only; regressions UNEXECUTED; candidate_inventory I/O next wound preserved"},
+    "AccessibilityTouch": {"state": "lit", "consequence": "existing DOM/SVG custody organism gained touch-inspectable failure gates without runtime/TalkBack claims"},
+    "PhoneRuntimePhoneHands": {"state": "dark-firewalled", "reason": "P0/phone firewall binding; no shared execution surface consumed"},
+    "DeterministicRouting": {"state": "lit", "consequence": "malformed bytes and artifact OS failures route through deterministic custody-domain boundaries"},
+    "EvidenceCapabilityDiscipline": {"state": "lit", "consequence": "supporting source, regression source, owner integration, TESTED, runtime, phone, delivery and acceptance remain separate"},
+    "RecoveryCheckpointIdempotence": {"state": "lit", "consequence": "candidate disappearance after enumeration becomes a stable typed wound rather than raw platform exception"},
+    "NonRasterWarmWalls": {"state": "lit", "consequence": "existing custody organism mutated in place; no raster or neighboring controller"},
+    "ChristmasMotion": {"state": "dark", "reason": "failure-containment source work did not earn a runtime transition/blink"},
+    "ContactPreservation": {"state": "lit", "consequence": "failed text/I-O admission returns no observation authority while exact identity/resource gates remain intact"}
+  },
+  "crossPollination": [
+    "held-descriptor artifact review exposed raw UnicodeDecodeError escaping the custody domain",
+    "fixing text admission made adjacent raw filesystem-I/O escapes visible",
+    "typed failure containment propagated into hostile fixtures, reusable skill doctrine, and the existing touchable Warm Wall",
+    "code-first review then isolated candidate_inventory I/O containment as a different future wound rather than overclaiming completion"
+  ],
+  "executionEvidence": {
+    "sourceHead": "76376381cbec58f1f1d6a852ef138dfac937b897",
+    "operatorOverlayAndroid": {"runId": 32589944675, "jobId": 97072075059, "conclusion": "failure", "steps": 0, "logs": "404 BlobNotFound", "stepLevelCauseEstablished": false},
+    "homeCenterCI": {"runId": 32589944623, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32589944577, "conclusion": "failure"},
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedRemoteReadback": true,
+    "typedUtf8CustodyFailure": true,
+    "typedArtifactIoCustodyFailure": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorOwnerIntegrated": false,
+    "atomicRootBinding": false,
+    "atomicCandidateBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

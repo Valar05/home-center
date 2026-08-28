@@ -1,0 +1,107 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T07:00:00-05:00",
+  "previousPublicationHead": "6f78040067ee9866671529a2d9451217d038e44e",
+  "reviewedSourceHead": "a905a9053e5101e7f87b72d636833407f47ae08d",
+  "sourceDelta": {
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_default_owner_binding.py",
+      "tools/try_forever_owner_surgery_metadata_exactness.py",
+      "tools/test_try_forever_owner_surgery_direct_patch_resource_throats.py",
+      "skills/operator-owner-surgery-default-owner-binding/SKILL.md",
+      "skills/operator-owner-surgery-metadata-exactness/SKILL.md"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "direct patch metadata resource custody",
+      "state": "SOURCE_WIRED",
+      "change": "admit_patch_metadata rejects exact patch text above 1048576 code points before regex traversal"
+    },
+    {
+      "name": "direct default-owner resource custody",
+      "state": "SOURCE_WIRED",
+      "change": "fallback helper caps exact patch text at 1048576 code points before regex and exact default-owner identity at 4096 code points before formatting/equality"
+    },
+    {
+      "name": "hostile regression",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "ordinary exact parity plus max+1 rejection for all three direct helper throats"
+    },
+    {
+      "name": "repository skill convergence",
+      "state": "CONVERGED_SOURCE",
+      "change": "existing metadata/default-owner skills now state direct finite-helper law rather than relying on canonical caller bounds"
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "ATTEMPTED_CONNECTOR_FAULT",
+      "change": "authoritative ambient consultation returned account-connection HTTP 400; no synthetic substitute"
+    },
+    {
+      "name": "execution truth",
+      "state": "TESTED_NO",
+      "change": "exact source head produced three completed workflow failures; Operator job 98172007641 has zero steps; no manual retry and no step-level diagnosis invented"
+    }
+  ],
+  "workflowEvidence": [
+    {"name": "Build Android", "runId": 32967118850, "status": "completed", "conclusion": "failure"},
+    {"name": "Home Center CI", "runId": 32967118778, "status": "completed", "conclusion": "failure"},
+    {"name": "Operator Overlay Android", "runId": 32967118763, "jobId": 98172007641, "status": "completed", "conclusion": "failure", "steps": 0}
+  ],
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "contact preservation",
+      "operator-owner-surgery-metadata-exactness",
+      "operator-owner-surgery-default-owner-binding"
+    ],
+    "darkWithReason": {
+      "Autocorrect Judgment Jar": "no material ambiguous token affected routing or authority",
+      "accessibility/TalkBack and touch semantics": "no operator-facing interaction contract changed in this source slice; runtime TalkBack remains unclaimed",
+      "Phone Runtime / Phone Hands recovery": "binding P0/phone firewall",
+      "strange non-raster vector/DOM/native UI art": "no operator-facing topology changed",
+      "warm walls": "no source UI state changed; mutation would be decorative",
+      "Christmas-light scene graph": "no runtime transition or motion contract changed"
+    }
+  },
+  "crossPollination": "Canonical one-observation resource custody made direct helper dependence on caller composition suspicious. That exposed unbounded exact patch text in metadata regex traversal and, independently, unbounded patch/default-owner text in fallback regex/formatting. The same finite-input law repaired both existing helpers, then forced source-only regression and existing-skill doctrine convergence.",
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swan Veil — invisible semantic evidence source specimen</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #18191d; color: #f4f0e8; }
+  main { width: min(940px, calc(100vw - 24px)); box-sizing: border-box; padding: 18px; border: 2px solid #8c8f98; border-radius: 26px; background: #25272d; }
+  h1 { margin: 0 0 6px; font-size: clamp(1.5rem, 4vw, 2.5rem); }
+  .scar { margin: 0 0 14px; font-weight: 850; letter-spacing: .055em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  button { min-width: 48px; min-height: 48px; padding: 10px 14px; border: 2px solid currentColor; border-radius: 14px; background: transparent; color: inherit; font: inherit; font-weight: 760; cursor: pointer; }
+  button:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  button[aria-checked="true"] { background: #f4f0e8; color: #18191d; }
+  svg { width: 100%; height: auto; display: block; border-radius: 18px; background: #1d1f24; }
+  .wire { stroke: #dbd5ca; stroke-width: 4; fill: none; }
+  .veil { fill: none; stroke: #dbd5ca; stroke-width: 3; stroke-dasharray: 7 8; }
+  .node { fill: #2b2e35; stroke: #dbd5ca; stroke-width: 3; }
+  .label { fill: #f4f0e8; font: 750 18px system-ui, sans-serif; text-anchor: middle; }
+  .small { fill: #d9d4ca; font: 600 13px system-ui, sans-serif; text-anchor: middle; }
+  #status { min-height: 3.5em; margin-top: 14px; padding: 10px 12px; border-left: 5px solid currentColor; background: #1d1f24; }
+  .legend { margin: 12px 0 0; font-size: .92rem; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>SWAN VEIL / EVIDENCE VISIBILITY</h1>
+  <p class="scar">ONE DETAIL AUTHORITY · DEEP DETAIL = BOUNDED WELL + FULL SCROLL · PASSIVE DETAIL ≠ FOCUS OWNER · RADIO SELECTION ≠ TOGGLE · RUNTIME UNPROVEN · PHONE UNTOUCHED</p>
+
+  <div class="controls" role="radiogroup" aria-label="Semantic text evidence case">
+    <button type="button" role="radio" data-case="plain" aria-checked="true" tabindex="0">Plain text</button>
+    <button type="button" role="radio" data-case="zwsp" aria-checked="false" tabindex="-1">Zero-width space</button>
+    <button type="button" role="radio" data-case="wj" aria-checked="false" tabindex="-1">Word joiner</button>
+    <button type="button" role="radio" data-case="bom" aria-checked="false" tabindex="-1">BOM</button>
+    <button type="button" role="radio" data-case="zwj" aria-checked="false" tabindex="-1">ZWJ</button>
+    <button type="button" role="radio" data-case="zwnj" aria-checked="false" tabindex="-1">ZWNJ</button>
+    <button type="button" role="radio" data-case="literal" aria-checked="false" tabindex="-1">Literal marker text</button>
+    <button type="button" role="radio" data-case="detail" aria-checked="false" tabindex="-1">Explicit detail tap</button>
+    <button type="button" role="radio" data-case="overflow" aria-checked="false" tabindex="-1">Projection overflow</button>
+    <button type="button" role="radio" data-case="authority" aria-checked="false" tabindex="-1">One detail authority</button>
+    <button type="button" role="radio" data-case="candidate" aria-checked="false" tabindex="-1">Candidate ↔ Node</button>
+    <button type="button" role="radio" data-case="hardbudget" aria-checked="false" tabindex="-1">64 means 64</button>
+    <button type="button" role="radio" data-case="deepdetail" aria-checked="false" tabindex="-1">Deep detail well</button>
+    <button type="button" role="radio" data-case="focus" aria-checked="false" tabindex="-1">Passive focus ownership</button>
+  </div>
+
+  <svg viewBox="0 0 900 350" role="img" aria-labelledby="diagramTitle diagramDesc">
+    <title id="diagramTitle">Swan Veil explicit evidence projection, hard returned text budgets, and deep detail viewport</title>
+    <desc id="diagramDesc">A warm-wall evidence pipeline. Exact source text stays unchanged. Compact and collapsed speech remain plain. Explicit evidence detail remains collision-safe and bounded semantically, while its visible native detail topology is a bounded-height touch-scroll-inspectable well rather than destructive end ellipsis. The proposed Android owner patch explicitly preserves passive focus and click ownership after movement-method installation; runtime and phone delivery remain unproven.</desc>
+
+    <path class="wire" d="M180 175 H330" />
+    <path class="wire" d="M570 175 H720" />
+    <rect class="node" x="35" y="115" width="145" height="120" rx="26" />
+    <text class="label" x="107" y="158">SOURCE</text>
+    <text id="sourceGlyph" class="small" x="107" y="188">Warm Wall</text>
+    <text class="small" x="107" y="210">unchanged identity</text>
+
+    <path class="veil" d="M330 60 C415 100 415 250 330 290 M570 60 C485 100 485 250 570 290" />
+    <rect class="node" x="355" y="100" width="190" height="150" rx="40" />
+    <text class="label" x="450" y="145">SWAN VEIL</text>
+    <text id="decisionText" class="label" x="450" y="182">PASS</text>
+    <text id="ruleText" class="small" x="450" y="214">nothing hidden</text>
+
+    <rect class="node" x="720" y="105" width="145" height="140" rx="26" />
+    <text class="label" x="792" y="150">DETAIL</text>
+    <text id="contactText" class="small" x="792" y="180">Warm Wall</text>
+    <text class="small" x="792" y="202">explicit + bounded</text>
+    <text class="small" x="792" y="222">not canonical rewrite</text>
+  </svg>
+
+  <div id="status" role="status" aria-live="polite">Plain text: the explicit evidence projection is identical to the source. Compact speech, acceptance state, runtime claims, and Christmas motion remain unchanged.</div>
+  <p class="legend">● Routine speech stays plain and every named max is a hard returned budget. ◇ Explicit evidence detail may reveal invisible semantics through its separate bounded projection. ◇ Deep detail uses a spatially bounded touch-scroll well so Evidence/Source remain inspectable without stealing keyboard-focus ownership. ◇ Case selection is one persistent radio choice, not a toggle pretending it can be switched off. × Destructive visible ellipsis is not full detail. □ Source identity, phone/P0, and runtime claims stay untouched.</p>
+</main>
+<script>
+(() => {
+  const buttons = [...document.querySelectorAll('button[role="radio"][data-case]')];
+  const status = document.getElementById('status');
+  const sourceGlyph = document.getElementById('sourceGlyph');
+  const decisionText = document.getElementById('decisionText');
+  const ruleText = document.getElementById('ruleText');
+  const contactText = document.getElementById('contactText');
+
+  const cases = {
+    plain: {
+      source: 'Warm Wall', decision: 'PASS', rule: 'nothing hidden', evidence: 'Warm Wall',
+      status: 'Plain text: the explicit evidence projection is identical to the source. Compact speech, acceptance state, runtime claims, and Christmas motion remain unchanged.'
+    },
+    zwsp: {
+      source: 'Warm​Wall', decision: 'REVEAL', rule: 'U+200B line-break semantics', evidence: 'Warm\\u{200B ZWSP}Wall',
+      status: 'Zero-width space: Unicode gives this character real word/line-break semantics. Source stays unchanged; explicit detail reveals the otherwise hard-to-see code point.'
+    },
+    wj: {
+      source: 'Reg⁠net', decision: 'REVEAL', rule: 'U+2060 no-break semantics', evidence: 'Reg\\u{2060 WJ}net',
+      status: 'Word joiner: intentional no-break semantics remain legal. Swan Veil reveals them only in explicit detail instead of calling legitimate formatting poison.'
+    },
+    bom: {
+      source: '﻿Heartbeat', decision: 'REVEAL', rule: 'U+FEFF BOM / legacy ZWNBSP', evidence: '\\u{FEFF BOM}Heartbeat',
+      status: 'FEFF: explicit detail reveals the BOM/legacy zero-width no-break code point while preserving the exact source string and leaving acceptance to existing owners.'
+    },
+    zwj: {
+      source: '👩‍💻', decision: 'REVEAL', rule: 'U+200D grapheme shaping', evidence: '👩\\u{200D ZWJ}💻',
+      status: 'ZWJ: legitimate grapheme/emoji shaping remains allowed. Explicit detail makes its presence inspectable without contaminating routine speech.'
+    },
+    zwnj: {
+      source: 'join‌test', decision: 'REVEAL', rule: 'U+200C language shaping', evidence: 'join\\u{200C ZWNJ}test',
+      status: 'ZWNJ: legitimate language shaping remains allowed. The visible marker belongs to the on-demand evidence projection, never to canonical source identity.'
+    },
+    literal: {
+      source: 'Reg\\u{200B ZWSP}net', decision: 'ESCAPE', rule: 'literal backslash doubles', evidence: 'Reg\\\\u{200B ZWSP}net',
+      status: 'Literal marker text: the projection doubles the source backslash. It therefore cannot collide with the projection of an actual U+200B character.'
+    },
+    detail: {
+      source: 'Warm​Wall', decision: 'TAP', rule: 'routine ≠ evidence speech', evidence: 'detail: Warm\\u{200B ZWSP}Wall',
+      status: 'Explicit detail tap: the compact heartbeat description remains ordinary; only the selected-light detail path names the invisible semantic control. Source wiring exists; Android/TalkBack runtime proof does not.'
+    },
+    overflow: {
+      source: '​ ​ ​ ​ ​ ​', decision: 'BOUND', rule: 'after marker expansion', evidence: '\\u{200B ZWSP} …',
+      status: 'Projection overflow: the bound applies after markers expand. A marker is emitted whole or not at all and the truncation indicator stays inside the same hard budget.'
+    },
+    authority: {
+      source: 'exact scene fields', decision: 'ONE', rule: 'detail authority only', evidence: 'EvidenceDetailProjection',
+      status: 'One detail authority: the scene keeps exact semantic fields and compact speech, but no longer caches a second legacy detail string. View-model and frame-accessibility detail converge on HeartbeatEvidenceDetailProjection.'
+    },
+    candidate: {
+      source: 'Candidate ↔ Node', decision: 'SAME', rule: 'one formatter', evidence: 'byte-for-byte parity',
+      status: 'Candidate ↔ Node: typed Candidate compatibility and accepted scene Node detail share the same formatter. Legacy untyped Candidate detail still falls back to compact speech; runtime proof remains separate.'
+    },
+    hardbudget: {
+      source: '64 source slots', decision: '63 + …', rule: 'ellipsis lives inside cap', evidence: 'returned code points = 64',
+      status: 'Hard returned budget: if a collapsed label cap says 64, truncation returns 63 source code points plus one ellipsis. Compact focus speech and native visible labels use the same plain-text rule with their own caps. Exact source text is not rewritten, and explicit evidence markers remain a separate projection.'
+    },
+    deepdetail: {
+      source: 'Why → Consequence → Evidence → Source', decision: 'SCROLL', rule: '5-line well; no END ellipsis', evidence: 'full detail survives below fold',
+      status: 'Deep detail well: the explicit detail remains one full projected string and one full TalkBack content description. The visible native source policy keeps a five-line well, removes destructive END ellipsis, requires the shared touch floor, and makes overflow vertically inspectable. OperatorOverlayService wiring remains a proposed patch; runtime scrolling remains unproven and phone/P0 stay untouched.'
+    },
+    focus: {
+      source: 'ScrollingMovementMethod', decision: 'PASSIVE', rule: 'focus/click restored after install', evidence: 'focus=false · click=false · long=false',
+      status: 'Passive focus ownership: movement-method installation is not allowed to silently make the detail well a keyboard-focus or click owner. The corrected source policy and proposed owner patch explicitly restore focusable=false, clickable=false, and longClickable=false after movement-method wiring while keeping touch-scroll inspection. Real Android owner execution remains unproven.'
+    }
+  };
+
+  function select(key, moveFocus = false) {
+    const chosen = cases[key];
+    const selectedIndex = buttons.findIndex(button => button.dataset.case === key);
+    buttons.forEach((button, index) => {
+      const selected = index === selectedIndex;
+      button.setAttribute('aria-checked', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    if (moveFocus && selectedIndex >= 0) buttons[selectedIndex].focus();
+    sourceGlyph.textContent = chosen.source;
+    decisionText.textContent = chosen.decision;
+    ruleText.textContent = chosen.rule;
+    contactText.textContent = chosen.evidence;
+    status.textContent = chosen.status;
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => select(button.dataset.case));
+    button.addEventListener('keydown', event => {
+      let nextIndex = index;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % buttons.length;
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + buttons.length) % buttons.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = buttons.length - 1;
+      else if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        select(button.dataset.case);
+        return;
+      } else return;
+      event.preventDefault();
+      select(buttons[nextIndex].dataset.case, true);
+    });
+  });
+})();
+</script>
+</body>
+</html>

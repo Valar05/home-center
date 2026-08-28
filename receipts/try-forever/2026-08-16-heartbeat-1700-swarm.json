@@ -1,0 +1,91 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1700",
+  "pr": 329,
+  "fronts_advanced": [
+    {
+      "front": "existing-owner-native-motion",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "OperatorOverlayService now consumes HeartbeatNativeMotionPolicy using actual heartbeat-surface presentation, ValueAnimator system animator enablement, established semantic history, existing Buttons, and the existing summary fallback."
+    },
+    {
+      "front": "regression-source",
+      "state": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "change": "Added summary presentation/platform gates, node-owned summary suppression, and cold-start history fixtures."
+    },
+    {
+      "front": "durable-skill-doctrine",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "heartbeat-native-motion now records existing-owner source consumption, cold-start clamping, stale animation reset, accessibility boundaries, evidence membrane, and P0 firewall."
+    },
+    {
+      "front": "warm-wall-art",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Existing motion-clamp DOM/vector specimen was mutated in place to show source owner wiring, cold-start clamp, pure-removal fallback, and runtime-unproven boundary."
+    },
+    {
+      "front": "review-evidence",
+      "state": "DURABLE_RECEIPTS",
+      "change": "Constraint-ledger diff caught and repaired an accidental disable-confirmation timeout regression; Regnet/Venice preserve the source/test/runtime membrane."
+    }
+  ],
+  "skill_lights": [
+    {"light":"Failure Is The Shovel","state":"ACTIVE","consequence":"Dead CI was not retried; source work moved to the existing native owner."},
+    {"light":"Canon Auto-Select","state":"ACTIVE","consequence":"heartbeat-native-motion and existing OperatorOverlayService were selected from repository evidence rather than a fixed decorative list."},
+    {"light":"Autocorrect Judgment Jar","state":"DARK","consequence":"No STT/autocorrect ambiguity materially affected this slice."},
+    {"light":"Originality Tax","state":"ACTIVE","consequence":"The accidental control-confirmation regression triggered a materially different constraint-diff repair before completion."},
+    {"light":"Hunger","state":"ACTIVE","consequence":"The dead transitionMotion projection was converted into one bounded native consequence."},
+    {"light":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Owner wiring, tests, doctrine, art, and capability ledger were synchronized rather than leaving source layers contradictory."},
+    {"light":"Operator Campaign","state":"ACTIVE","consequence":"Only the existing OperatorOverlayService was mutated; ownership stayed singular."},
+    {"light":"Harroway operator discipline","state":"ACTIVE","consequence":"Requested/implemented/tested/runtime/deployed/delivered/accepted remain separate."},
+    {"light":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative consultation was attempted and failed account connection HTTP 400; no substitute reviewer was invented."},
+    {"light":"Venice Judgment Jars","state":"ACTIVE","consequence":"Code-first completion review allows only the bounded source slice to yield."},
+    {"light":"Regnet QA","state":"ACTIVE_BLOCKED_TEST","consequence":"Implemented-source/readback claim passes; deterministic execution remains blocked by Actions budget."},
+    {"light":"Accessibility/TalkBack and touch semantics","state":"ACTIVE","consequence":"Motion is supplementary, system-animation-gated, surface-gated, and leaves semantic text/touch/TalkBack truth intact."},
+    {"light":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Zero phone commands, tickets, queue/device probes, or recovery mutations."},
+    {"light":"deterministic routing","state":"ACTIVE","consequence":"Existing semantic transition history and policy decisions determine the native owner consequence."},
+    {"light":"evidence/capability-state discipline","state":"ACTIVE","consequence":"Owner source wiring is YES; test/runtime/deploy/delivery remain NO."},
+    {"light":"recovery/checkpointing/idempotence","state":"ACTIVE","consequence":"Cold-start and hidden/collapsed transition history cannot replay stale motion later."},
+    {"light":"strange non-raster vector/DOM/native UI art","state":"ACTIVE","consequence":"Existing warm-wall DOM/vector source was mutated in place; no raster or replacement controller."},
+    {"light":"warm walls","state":"ACTIVE","consequence":"Motion-clamp specimen now makes the owner-source/runtime membrane touchable."},
+    {"light":"Christmas-light scene graph","state":"ACTIVE","consequence":"Material semantic transition bits now have one bounded native source consequence, not decorative polling animation."},
+    {"light":"contact preservation","state":"ACTIVE","consequence":"Interrupted/hidden/collapsed states keep semantic contact while stale alpha/scale is reset."}
+  ],
+  "cross_pollination": "Dead semantic motion projection -> existing-owner wiring -> cold-start replay hazard -> reuse announcement-history baseline -> accessibility/system-animation gate -> warm-wall teaching scar -> constraint-ledger diff catches unrelated control timeout regression -> repair -> Regnet/Venice capability membrane.",
+  "p0_firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_p0_owners": 0
+  },
+  "ci": {
+    "reviewed_source_head": "3f38bb558d90eb9c98512d76371383ea98861cca",
+    "operator_overlay_run": 31975438863,
+    "operator_overlay_job": 95234095004,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "existing_owner_native_motion_source_wiring": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "runtime_reduced_motion_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

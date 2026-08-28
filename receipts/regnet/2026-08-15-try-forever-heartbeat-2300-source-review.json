@@ -1,0 +1,80 @@
+{
+  "schema": "try-forever.regnet-source-review.v1",
+  "heartbeat": "2026-08-15T23:00:00-05:00",
+  "reviewedHead": "08063157d43811c43f4d731ae3d1067059d5aaf7",
+  "claimUnderReview": "Heartbeat refresh deduplication is durably implemented as source and regression source without claiming existing-overlay runtime wiring or phone delivery.",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "mixed",
+  "sourceReadback": {
+    "HeartbeatOverlayRefreshPlan.java": "bd862665769bcd306079004b6d96ff2d4faf2c53",
+    "HeartbeatOverlayRefreshPlanTest.java": "2f03f51a097491c54ddf8924fe0b2457d7cfb006",
+    "heartbeat-refresh-gate-source-specimen.html": "910760657790abfce2bc3a4f733bf4d3a1f9f8e0",
+    "skills/heartbeat-refresh-deduplication/SKILL.md": "13a18607909d482341626b00daafee068fd854e4"
+  },
+  "materialChecks": [
+    {
+      "check": "poll-loop dedupe",
+      "result": "PASS_SOURCE",
+      "detail": "Separate render and announcement identities prevent a fast poll from automatically becoming a fast subtree rebuild or TalkBack loop."
+    },
+    {
+      "check": "evidence-versus-speech membrane",
+      "result": "PASS_SOURCE",
+      "detail": "Visible evidence/provenance detail may change render identity without changing announcement identity."
+    },
+    {
+      "check": "contact preservation",
+      "result": "PASS_SOURCE",
+      "detail": "Persisted storage/parser rejection composes the existing last-good scene and keeps discarded attempted state out of the model."
+    },
+    {
+      "check": "selection identity",
+      "result": "PASS_SOURCE",
+      "detail": "Selection is retained by semantic light id and cleared if that id disappears, never silently transferred by focus index."
+    },
+    {
+      "check": "cold-start speech",
+      "result": "REPAIRED_BEFORE_REVIEW_CLOSE",
+      "detail": "Initial source version treated empty prior announcement identity as a transition. Code-first review changed the contract so cold start may render but cannot claim it witnessed a transition or auto-announce stale persisted state."
+    },
+    {
+      "check": "duplicate architecture",
+      "result": "PASS_SOURCE",
+      "detail": "No service, renderer, state store, receiver, transport, queue, phone executor, or P0 coordinator was created."
+    }
+  ],
+  "deterministicTestGate": {
+    "tested": false,
+    "state": "BLOCKED_UNKNOWN",
+    "automaticRun": 31925942572,
+    "job": 95113403763,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "existingOperatorOverlayServiceWired": false,
+    "runtimeRendered": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0
+  }
+}

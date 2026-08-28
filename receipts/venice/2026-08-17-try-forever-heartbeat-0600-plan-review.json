@@ -1,0 +1,16 @@
+{
+  "receipt": "venice-plan-review",
+  "pulse": "2026-08-17-0600",
+  "mode": "same-worker-separate-judgment-pass",
+  "verdict": "PLAN_ALLOWED",
+  "checks": {
+    "missionFidelity": "PASS",
+    "p0Firewall": "PASS",
+    "duplicateArchitecture": "PASS",
+    "evidenceMembrane": "PASS",
+    "accessibilityRelevance": "PASS",
+    "originalityTax": "PASS"
+  },
+  "review": "The proposed Base64 declaration check is materially different from the closed SHA-whitespace seam: it targets decoder normalization before exact payload-byte verification. Keep exact raw stored identity separate from canonical decoded bytes. A repair may compare raw stored Base64 to the writer-equivalent canonical re-encoding, but must not trim, remove whitespace, repair padding, or otherwise normalize the persisted declaration into acceptance. Source policy/test/skill/art may advance now. Existing-owner wiring remains a separate capability state unless actually edited and read back through GitHub.",
+  "gate": "PLAN_ALLOWED_SOURCE_ONLY"
+}

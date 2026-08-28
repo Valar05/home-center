@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Temporal Content Binding — Warm Wall</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; background: #111; color: #f5f5f5; }
+    main { max-width: 58rem; margin: auto; padding: 1rem; }
+    h1 { font-size: 1.4rem; }
+    .scar, #detail { border: 1px solid currentColor; padding: .85rem; }
+    fieldset { border: 0; padding: 0; margin: 1rem 0; }
+    legend { font-weight: 800; margin-bottom: .75rem; }
+    label { display: grid; grid-template-columns: 3rem 1fr; gap: .8rem; align-items: center; min-height: 56px; padding: .6rem; margin: .7rem 0; border: 1px solid currentColor; cursor: pointer; }
+    input[type=radio] { inline-size: 28px; block-size: 28px; margin: auto; }
+    label:focus-within { outline: 3px solid currentColor; outline-offset: 3px; }
+    .token { font-weight: 900; }
+    #detail { min-height: 8rem; white-space: pre-wrap; }
+    svg { display: block; width: 100%; max-height: 220px; margin: 1rem 0; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / TEMPORAL CONTENT BINDING</h1>
+  <p class="scar"><strong>SOURCE ONLY.</strong> TEMPORAL CALLER SNAPSHOT: SOURCE_WIRED · CANONICAL RESULT ID: YES · SAME-OBSERVATION CONTENT WITNESS: SOURCE_WIRED · DESCRIPTOR TEMPORAL POLICY: SOURCE_WIRED · EMPTY SET PROOF: BLOCKED · REGRESSIONS: UNEXECUTED · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+
+  <svg viewBox="0 0 920 220" role="img" aria-labelledby="title desc">
+    <title id="title">Bounded exact evidence snapshot joined to canonical artifact witness and later descriptor shadow evidence</title>
+    <desc id="desc">Caller-owned canonical and shadow evidence first cross the existing bounded exact-JSON snapshot. Canonical v10 then supplies exact byte count and SHA witnesses from the same bounded artifact observations that produced Surgery records. Later portable and descriptor reads remain separate observations. A nonempty exact witness chain may bind; an empty artifact set remains explicitly unproven.</desc>
+    <path d="M20 110 H112 M182 110 H285 M355 110 H468 M538 110 H650 M720 110 H815" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="112" y="72" width="70" height="76" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <circle cx="320" cy="110" r="36" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="468" y="72" width="70" height="76" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="650" y="72" width="70" height="76" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <rect x="815" y="72" width="70" height="76" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+    <text x="90" y="54" fill="currentColor">SNAPSHOT</text>
+    <text x="274" y="170" fill="currentColor">RESULT SHA</text>
+    <text x="440" y="54" fill="currentColor">V10 WITNESS</text>
+    <text x="624" y="54" fill="currentColor">LATER READS</text>
+    <text x="795" y="54" fill="currentColor">BIND</text>
+    <text x="440" y="190" fill="currentColor">NONEMPTY ONLY</text>
+  </svg>
+
+  <fieldset>
+    <legend>Inspect one evidence state</legend>
+    <label><input type="radio" name="state" value="snapshot" checked><span><span class="token">● CALLER MAPPING BLOCKED / EXACT SNAPSHOT HELD</span><br>Both public temporal entrypoints admit exact built-in dict evidence through the existing bounded snapshot organ before schema, identity, witness, comparison, status, backend, or capability reads.</span></label>
+    <label><input type="radio" name="state" value="result"><span><span class="token">◇ RESULT ID BOUND</span><br>canonicalResultSha256 identifies the exact canonical JSON result payload. It is still distinct from artifact-content identity.</span></label>
+    <label><input type="radio" name="state" value="witness"><span><span class="token">● CANONICAL WITNESS SOURCE WIRED</span><br>Each admitted Surgery retains byte count and SHA from the exact bounded artifact observation that produced it, and v10 emits artifactContentWitnesses.</span></label>
+    <label><input type="radio" name="state" value="empty"><span><span class="token">× EMPTY SET IS NOT PROOF</span><br>No admitted Surgery content means there is nothing to bind. Equal empty witness/read maps remain NO_CANONICAL_ARTIFACT_CONTENT, not TEMPORAL_CONTENT_BOUND.</span></label>
+    <label><input type="radio" name="state" value="later"><span><span class="token">□ LATER READS AGREE</span><br>Portable and held-directory staging may agree on path, byte count, and SHA. They remain later observations, not canonical evidence by themselves.</span></label>
+    <label><input type="radio" name="state" value="bound"><span><span class="token">● TEMPORAL BINDING PATH SOURCE WIRED</span><br>The descriptor shadow consumes the temporal receipt-integrity gate and temporal policy. A nonempty exact witness + portable + descriptor identity may report TEMPORAL_CONTENT_BOUND, still without promotion authority or atomicity claims.</span></label>
+    <label><input type="radio" name="state" value="diverged"><span><span class="token">× TEMPORAL CONTENT DIVERGED</span><br>Canonical witnesses and later staging differ. Preserve all evidence surfaces and stop before authority promotion.</span></label>
+    <label><input type="radio" name="state" value="tested"><span><span class="token">□ EXECUTION UNPROVEN</span><br>Source wiring and regression source exist. Regression execution, TESTED, runtime UI, runtime TalkBack, deployment, phone delivery, and acceptance remain NO.</span></label>
+  </fieldset>
+
+  <div id="detail" role="status" aria-live="polite" aria-atomic="true">CALLER MAPPING BLOCKED / EXACT SNAPSHOT HELD\nTemporal evidence crosses one bounded exact-JSON observation before semantic reads; unsupported Mapping callbacks are outside the evidence contract.</div>
+  <script>
+    const detail = document.getElementById('detail');
+    const copy = {
+      snapshot: 'CALLER MAPPING BLOCKED / EXACT SNAPSHOT HELD\nTemporal evidence crosses one bounded exact-JSON observation before semantic reads; unsupported Mapping callbacks are outside the evidence contract.',
+      result: 'RESULT ID BOUND\nExact canonical result payload identity. Artifact-content identity remains a separate contract.',
+      witness: 'CANONICAL WITNESS SOURCE WIRED\nCanonical v10 emits same-observation path, byteCount, and SHA evidence from admitted Surgery observations.',
+      empty: 'EMPTY SET IS NOT PROOF\nAn empty canonical Surgery/witness set cannot earn temporalBindingProven merely because all later maps are also empty.',
+      later: 'LATER READS AGREE\nPortable and descriptor staging agreement remains non-authoritative later evidence.',
+      bound: 'TEMPORAL BINDING PATH SOURCE WIRED\nThe existing descriptor shadow consumes the temporal receipt-integrity gate and temporal policy. A bound result still grants no promotion authority or filesystem atomicity.',
+      diverged: 'TEMPORAL CONTENT DIVERGED\nStop before authority promotion. Preserve canonical result identity and all three content evidence surfaces.',
+      tested: 'EXECUTION UNPROVEN\nSource wiring is authenticated in GitHub. Regression execution, TESTED, runtime UI/TalkBack, deployment, delivery, and acceptance remain NO.'
+    };
+    for (const radio of document.querySelectorAll('input[name=state]')) {
+      radio.addEventListener('change', () => { if (radio.checked) detail.textContent = copy[radio.value]; });
+    }
+  </script>
+</main>
+</body>
+</html>

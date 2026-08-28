@@ -1,0 +1,59 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedSourceHead": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__DESCRIPTOR_OWNER_INTEGRATION_NO__TESTED_NO",
+  "sourceDiff": {
+    "base": "44c80fa131b1d4b465e941abc23d9c7dc800399b",
+    "head": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+    "aheadBy": 6,
+    "intendedPaths": [
+      "receipts/try-forever/2026-08-22-heartbeat-1158-plan.json",
+      "receipts/try-forever/2026-08-22-heartbeat-1158-venice-plan.json",
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/test_try_forever_owner_surgery_base_blob_exactness.py",
+      "skills/operator-owner-surgery-base-identity/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    ],
+    "unexpectedPaths": []
+  },
+  "acceptedBoundedClaims": [
+    "canonical custody owner now rejects normalization-dependent authenticated current-owner blob evidence in CLI and programmatic paths",
+    "authenticated owner readback at commit bbc13531816eb48353d01c201b2ef4e8d3715563 produced blob f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "hostile regression source covers lowercase acceptance plus uppercase/padded rejection for artifact, CLI, and programmatic current-owner evidence",
+    "operator-owner-surgery-base-identity doctrine is converged to current source truth",
+    "existing non-raster custody Warm Wall is updated in place and remains source-only",
+    "POSIX descriptor custody was cross-reviewed as independent supporting source; no fresh safe canonical-owner composition was established"
+  ],
+  "withheldClaims": [
+    "regression execution",
+    "TESTED",
+    "descriptor canonical-owner integration",
+    "universal filesystem atomicity",
+    "runtime UI/TalkBack",
+    "deployment/callability/execution/delivery/acceptance",
+    "phone/P0 delivery"
+  ],
+  "executionEvidence": {
+    "operatorOverlayAndroid": {
+      "runId": 32586826330,
+      "jobId": 97064363984,
+      "status": "completed",
+      "conclusion": "failure",
+      "stepLevelCauseEstablished": false
+    },
+    "homeCenterCI": {"runId": 32586826450, "status": "completed", "conclusion": "failure"},
+    "buildAndroid": {"runId": 32586826338, "status": "completed", "conclusion": "failure"},
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

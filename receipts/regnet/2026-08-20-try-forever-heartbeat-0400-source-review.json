@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-20-0400",
+  "reviewedHead": "b52a649818c0aed67811b6b2bbf14e0b16d05a06",
+  "reviewedFronts": [
+    "pre-mutation process-gate restoration",
+    "strict generated-index JSON hostile regression hardening",
+    "durable strict-JSON owner-promotion doctrine",
+    "existing-owner mutation-lane truth",
+    "fresh exact-head workflow evidence"
+  ],
+  "findings": {
+    "planGate": "PASS: durable research/plan/jars receipt and separate Venice PLAN_ALLOWED existed before substantive source mutation.",
+    "strictJsonRegression": "PASS_FOR_SOURCE: escaped JSON member spelling that decodes to an existing member is now a hostile duplicate fixture; distinct supported alias spellings remain distinct so typed alias policy retains its owner boundary.",
+    "skillDoctrine": "PASS_FOR_SOURCE: doctrine now records semantic-duplicate behavior, promotion ordering, exact owner blob, She-Raw fault, and safe-lane boundary without claiming owner wiring or testing.",
+    "ownerWiring": "REVISE_REQUIRED / BLOCKED_ON_AUTHORIZED_LANE: authenticated owner blob 2f3ebd530f46283a59bd6ff34149042a1b825d89 still calls default json.loads. Exact delta exists but is unapplied.",
+    "mutationLane": "BOUNDARY_PROVEN: windows-hands-01 is offline; lane-try-forever-provenance-owner is active/occupied; historical request hands-tf-provenance-report-owner-v4 is not found. Active lane is not request identity, so no duplicate request is authorized.",
+    "accessibility": "PASS_WITH_DARK_UI: no user-facing topology changed, so the existing source organism and Christmas motion correctly remain unchanged. Evidence admission must not create new routine speech/focus/motion claims.",
+    "testing": "BLOCKED_UNKNOWN: automatic exact-head workflows failed before useful test evidence; Operator Overlay job exposes zero steps and logs return BlobNotFound. No retry was dispatched.",
+    "p0Firewall": "PASS: zero phone/P0 consumption or mutation; no duplicate architecture."
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "exactRemoteReadback": true,
+    "regressionSource": true,
+    "ownerDeltaPrepared": true,
+    "ownerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_PROCESS_REPAIR__OWNER_UNWIRED__TESTED_NO",
+  "directive": "CONTINUE_REQUIRED_ON_OWNER_EXECUTION_OR_DIFFERENT_INDEPENDENT_FRONT"
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "commission": "Advance a broad materially active TRY FOREVER heartbeat through independent non-phone fronts while the P0/primary-phone firewall remains binding.",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1100-plan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1100-source-review-final.json",
+  "reviewedCodeArtHead": "859a5b3138c2ec7071423811b7938f3405fd4916",
+  "reviewedReceiptHead": "97bc209b8bd1314538b24363eb0d734901484e82",
+  "selectedJars": [
+    "mission-boundary",
+    "change-discipline",
+    "repository-truth",
+    "heartbeat-skill-lights",
+    "venice-review-memory",
+    "regnet-qa"
+  ],
+  "codeFirstFindings": [
+    {
+      "finding": "The existing preserveLastGood implementation violated its own no-motion contract by retaining node-level transitionMotion=true from the previous accepted frame.",
+      "resolution": "Re-materialize last-good nodes with identical semantic fields and transitionMotion=false; regression source asserts semantic checkpoint preservation rather than Java object identity.",
+      "status": "repaired"
+    },
+    {
+      "finding": "Pulse ids lacked an explicit collision guard, so one id could mutate visible contact semantics across retries.",
+      "resolution": "Same visible pulse id is now exact-contact idempotent: unchanged contact is accepted without motion; changed contact fails closed with an explicit collision boundary.",
+      "status": "repaired"
+    },
+    {
+      "finding": "The first source-art motion selector did not target any rendered element.",
+      "resolution": "Selector corrected to the actual light heading nodes.",
+      "status": "repaired"
+    },
+    {
+      "finding": "The first source-art accessibility pass risked duplicate spoken updates by combining a live stage with a dedicated status live region.",
+      "resolution": "Only the dedicated atomic status node remains live.",
+      "status": "repaired"
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_consult",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false,
+    "hammered": false
+  },
+  "evidence": {
+    "HeartbeatSceneGraph.java": "45e2cefd76819205cb026d4e32e0c4d8af85ea0a",
+    "HeartbeatSceneGraphTest.java": "30345adde9eb28d4122e317092aaa942343e75b0",
+    "heartbeat-motion-clamp-source-specimen.html": "cadf0d49d6a412b6addecc3212996f88a3d5c938",
+    "planReceipt": "0ba66029209c309d033862ab9a7067fce9c431ff",
+    "javaWorkflowRun": 31894346632,
+    "javaWorkflowJob": 95035201047,
+    "javaWorkflowExecutedSteps": 0,
+    "javaWorkflowBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "adversarialJudgment": [
+    "This slice fixed a real contradictory source contract rather than relabeling the existing CI fault.",
+    "The idempotence rule composes the existing scene/checkpoint organs and does not create a second retry coordinator.",
+    "The touchable specimen is useful because it teaches the exact repaired contract; it remains explicitly disqualified as runtime proof.",
+    "Regression source is not test evidence. The Actions-budget boundary keeps TESTED at BLOCKED_UNKNOWN.",
+    "The shared phone/P0 surface remained untouched, so source progress did not steal execution ownership from the recovery conductor."
+  ],
+  "quality": "mixed",
+  "directive": "STOP_ALLOWED_FOR_THIS_BOUNDED_SOURCE_SLICE_ONLY",
+  "notAuthorized": [
+    "merge as delivered interface",
+    "runtime capability promotion",
+    "phone deployment or execution",
+    "P0 recovery-chain mutation",
+    "campaign completion",
+    "owner acceptance"
+  ]
+}

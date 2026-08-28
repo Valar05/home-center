@@ -1,0 +1,110 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26-2000",
+  "previousPublicationHead": "dd9da882d6e510ebd8de01269dbddfd044e3a329",
+  "reviewedSourceHead": "bfe46ada6a12773707cafa7aa2c8dbfd1872939a",
+  "changeCustody": {
+    "aheadByCommits": 8,
+    "intendedSourcePaths": 7,
+    "unexpectedPaths": 0
+  },
+  "lights": {
+    "failureIsTheShovel": {
+      "state": "ACTIVE",
+      "changed": "Converted the direct parser preparse proposal into existing-owner source wiring; caught and repaired the RED fixture's temporary compile-invalid coupling to an unapplied owner constant."
+    },
+    "canonAutoSelect": {
+      "state": "ACTIVE",
+      "changed": "Reused the existing HeartbeatEnvelopeParser and existing Warm Wall; no adjacent parser or controller was created."
+    },
+    "originalityTax": {
+      "state": "ACTIVE",
+      "changed": "Advanced the exact previous RED owner seam instead of restaging another proposal."
+    },
+    "hungerEatEverything": {
+      "state": "ACTIVE",
+      "changed": "Forced parser source, regression, patch provenance, two repository skills, Warm Wall, and accessibility fixture to converge."
+    },
+    "operatorCampaignHarroway": {
+      "state": "ACTIVE",
+      "changed": "Bound all claims to authenticated PR source and exact head execution evidence."
+    },
+    "sheRaw": {
+      "state": "FAULT",
+      "changed": "Authoritative consultation attempted; account connection returned HTTP 400; no synthetic substitute."
+    },
+    "regnetQa": {
+      "state": "ACTIVE",
+      "changed": "Kept regression execution and TESTED false; semantic parser fossil cleanup remains revise-required."
+    },
+    "venice": {
+      "state": "ACTIVE",
+      "changed": "Allowed only the bounded source slice to checkpoint; semantic cleanup/test/runtime/campaign continue-required."
+    },
+    "accessibilityTouchWarmWall": {
+      "state": "ACTIVE",
+      "changed": "Existing 56px keyboard/touch-native non-raster Warm Wall now reports parser preparse SOURCE_WIRED; source fixture converged; runtime TalkBack remains NO."
+    },
+    "deterministicRoutingEvidenceState": {
+      "state": "ACTIVE",
+      "changed": "Preserved source/regression/test/runtime/deployment/delivery distinctions and exact source-work rejection before trim/JSON."
+    },
+    "recoveryCheckpointIdempotence": {
+      "state": "ACTIVE",
+      "changed": "Observed exact-head automatic workflow failures and fired no retry."
+    },
+    "contactPreservation": {
+      "state": "ACTIVE",
+      "changed": "Resource rejection remains fail-closed source custody; existing last-good contact semantics are not rewritten into acceptance."
+    },
+    "autocorrectJudgmentJar": {
+      "state": "DARK",
+      "why": "No material ambiguous token affected authority or routing."
+    },
+    "christmasLightSceneGraph": {
+      "state": "DARK",
+      "why": "No runtime motion transition changed; no decorative motion mutation was justified."
+    },
+    "phoneRuntimePhoneHandsP0": {
+      "state": "FIREWALLED",
+      "why": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; no P0 finding"
+    }
+  },
+  "fronts": {
+    "directEnvelopePreparse": "SOURCE_WIRED_APPLIED_SOURCE",
+    "envelopeRegression": "SOURCE_UNEXECUTED",
+    "resourceDoctrine": "CONVERGED_SOURCE",
+    "warmWallAccessibility": "CONVERGED_SOURCE_ONLY",
+    "semanticParserFossilCleanup": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "execution": "FAILURE_WITH_ZERO_OPERATOR_STEPS_TESTED_NO"
+  },
+  "executionEvidence": {
+    "homeCenterCiRun": 33028944864,
+    "operatorOverlayRun": 33028944858,
+    "operatorOverlayJob": 98376711420,
+    "operatorOverlaySteps": 0,
+    "buildAndroidRun": 33028944860,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "crossPollination": "The stale RED parser boundary first exposed that its regression fixture could not compile without pretending an unapplied owner constant existed. Making the fixture honestly RED cleared the path for the actual existing-owner mutation. That mutation then made patch provenance, source-bound doctrine, resource doctrine, Warm Wall state, and its accessibility fixture stale, so all were converged. Independent canonical-v10 archaeology preserved the dormant semantic-parser cleanup as the next exact owner wound rather than claiming whole-stack completion.",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "directEnvelopePreparseSourceWired": true,
+    "semanticParserCleanupApplied": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED__SEMANTIC_PARSER_CLEANUP_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27-0300",
+  "pr": 329,
+  "previousCheckpointHead": "54b4a11eca070500ce6e8decdfa5779bb64fd3ec",
+  "reviewedSourceHead": "02c7759d60ec75f09b571d903f6c4ce03af8073c",
+  "sourceDelta": {
+    "commits": 16,
+    "paths": 11,
+    "unexpectedPaths": 0,
+    "pathsChanged": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPlainTextBudget.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPlainTextBudgetTest.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatTypedSourceHardeningTest.java",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "patches/try-forever-heartbeat-direct-candidate-pretrim-resource-throat.patch",
+      "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch",
+      "skills/heartbeat-hard-returned-text-budgets/SKILL.md",
+      "skills/heartbeat-source-bound-parity/SKILL.md",
+      "skills/semantic-text-safety/SKILL.md",
+      "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "tools/try_forever_owner_surgery_semantic_parser.py"
+    ]
+  },
+  "lights": {
+    "failureIsTheShovel": "Split the prior two-wound diagnostic repair: finite source-work custody became real source, then the already-safe output path exposed the remaining consumer callback seam; the same resource skepticism found unbounded plain-speech traversal and direct Candidate pre-trim work.",
+    "canonAutoSelect": "Selected semantic-text-safety, heartbeat-hard-returned-text-budgets, and heartbeat-source-bound-parity because the source state crossed diagnostic, TalkBack projection, and direct-source ingress boundaries.",
+    "autocorrect": "DARK_NO_MATERIAL_AMBIGUITY",
+    "originalityTax": "Reused the existing semantic projector, plain-text budget, Candidate owner, tests, skills, and sole Warm Wall; no sanitizer, speech projector, parser, controller, or recovery twin was created.",
+    "hungerEatEverything": "Did not stop at bounded return size: inspected whole-source encode/hash, exception callbacks, code-point/grapheme traversal, and constructor scan/trim work independently.",
+    "operatorCampaignHarroway": "Bound every source mutation/proposal to the existing PR branch and preserved exact SOURCE_WIRED versus PROPOSED_NOT_APPLIED versus TESTED/runtime states.",
+    "sheRaw": "Authoritative hostile critique attempted; account connection HTTP 400; no synthetic substitute.",
+    "venice": "Bounded source slice may checkpoint; canonical callback consumer, direct Candidate pre-trim owner mutation, regression execution, TESTED/runtime, and campaign continue required.",
+    "regnetQa": "Shared diagnostic helper/source-work and plain speech source-work pass bounded source review; canonical callback consumer and direct Candidate pre-trim throat remain revise-required; all regressions unexecuted.",
+    "accessibilityTalkBackTouch": "Plain TalkBack projection now has finite source work in the existing helper; owner-custody Warm Wall retains native >=56px disclosures, visible focus, non-color role=status, SVG semantics, reduced motion, and runtime TalkBack NO.",
+    "phoneRuntimePhoneHands": "FIREWALLED_ZERO_TOUCH",
+    "deterministicRouting": "Canonical exact evidence stays exact; only non-authoritative diagnostic/speech projection loses over-ceiling whole-input work/identity where explicitly permitted.",
+    "evidenceCapabilityState": "Dependency capability is not transitive consumer capability; shared callback-free helper SOURCE_WIRED while canonical _error consumer remains NO/PROPOSED_NOT_APPLIED.",
+    "recoveryCheckpointingIdempotence": "Observed exact-head automatic workflow failures, zero operator steps, and fired no manual retry.",
+    "strangeVectorDomNativeArtWarmWalls": "Mutated the existing non-raster custody Warm Wall in place to show the dependency/consumer split; no second specimen family.",
+    "christmasSceneGraph": "DARK_NO_RUNTIME_MOTION_CONTRACT_CHANGE",
+    "contactPreservation": "Canonical path/artifact/Surgery and accepted heartbeat source remain exact; source-work bounds affect only non-authoritative projection or reject oversized direct ingress rather than truncating it into accepted identity."
+  },
+  "fronts": {
+    "diagnosticSourceWork": {
+      "state": "SOURCE_WIRED",
+      "semanticBlob": "525bd5aefa82fd788490cef329e8262ca6987a4a",
+      "sourceCodepointCeiling": 4096,
+      "returnedCodepointCeiling": 96,
+      "oversizeWholeIdentityPreserved": false
+    },
+    "sharedCallbackFreeExceptionProjection": {
+      "state": "SOURCE_WIRED_DEPENDENCY",
+      "semanticBlob": "525bd5aefa82fd788490cef329e8262ca6987a4a",
+      "argCeiling": 8
+    },
+    "canonicalCallbackConsumer": {
+      "state": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+      "canonicalBaseBlob": "6de62efa07df4dabbb408ca77a427e83fbc4e883",
+      "patch": "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch"
+    },
+    "plainTalkBackSourceWork": {
+      "state": "SOURCE_WIRED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPlainTextBudget.java",
+      "ownerBlob": "fb30763884e96489856342d261ebbe10de5c710a",
+      "sourceCodeUnitCeiling": 4096,
+      "regression": "SOURCE_UNEXECUTED"
+    },
+    "directCandidatePretrimSourceWork": {
+      "state": "NO_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "5b5f89174da52b7fff742fdad4e2c103281424fc",
+      "proposedSourceCodeUnitCeiling": 32768,
+      "patch": "patches/try-forever-heartbeat-direct-candidate-pretrim-resource-throat.patch",
+      "regression": "RED_SOURCE_UNEXECUTED"
+    },
+    "warmWall": {
+      "state": "SOURCE_UPDATED_RUNTIME_NO",
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    }
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33053351967, "conclusion": "failure"},
+    "buildAndroid": {"run": 33053351950, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33053352000, "job": 98453972406, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "crossPollination": "The prior bounded-output diagnostic repair was split into source work and callback work. Finite diagnostic source custody then became SOURCE_WIRED, and a callback-free shared helper became SOURCE_WIRED without green-painting the canonical consumer. Applying the same bounded-return-versus-bounded-work law to accessibility exposed whole-source code-point/grapheme traversal in the existing plain speech helper, which was repaired in place. That in turn exposed a still-earlier direct Candidate constructor scan/trim throat; it is now an exact RED owner proposal rather than being falsely covered by typed field bounds or the repaired speech projector.",
+  "membrane": {
+    "requested": true,
+    "implementedSourceArtifacts": true,
+    "authenticatedReadback": true,
+    "diagnosticSourceWorkSourceWired": true,
+    "sharedCallbackFreeExceptionProjectorSourceWired": true,
+    "canonicalCallbackConsumerSourceWired": false,
+    "plainTalkBackSourceWorkSourceWired": true,
+    "directCandidatePretrimSourceWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_CALLBACK_CONSUMER_DIRECT_CANDIDATE_PRETRIM_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

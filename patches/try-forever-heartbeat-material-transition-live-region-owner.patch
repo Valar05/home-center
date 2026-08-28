@@ -1,0 +1,65 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: c5de1411a6b68087ae17aff83c032af754587150
+# State: SUPERSEDED_BY_COMBINED_PATCH__DO_NOT_APPLY_ALONE
+# Superseded by: patches/try-forever-heartbeat-selection-announcement-owner-combined.patch
+# Historical scope: heartbeat automatic material transition only; existing OperatorOverlayService.
+#
+# The earlier proposal left the summary POLITE after the one material transition until some
+# later owner mutation changed it. This corrected source reset the live-region mode on the
+# next main-loop turn and on every early-return/recovery path, so authority is one-shot.
+# Explicit Spotify/detail/Adam source designs exist, but their typed MigrationBlockers remain
+# non-NONE. Their legacy receipts therefore remain separate and untouched.
+#
+# This source is retained as provenance only. It shares the exact same owner/base blob with the
+# heartbeat native-selection collection surgery; independent application would stale the sibling
+# surgery. Use the canonical combined surgery instead.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         heartbeatSummary = textView(12f, true);
+         heartbeatSummary.setText("HEARTBEAT • waiting");
+         heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+@@
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                         persistedDecision,
+                         heartbeatFrame)) {
+@@
+             }
+             if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
++                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                 heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                 return;
+@@
+         boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                 heartbeatAnnouncementIdentity,
+                 next,
+                 muted,
+                 overlayVisible,
+                 heartbeatSurfaceVisible);
++        int heartbeatLiveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
++                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
++                false,
++                announce,
++                muted);
++        heartbeatSummary.setAccessibilityLiveRegion(heartbeatLiveRegionMode);
+@@
+-        if (announce) {
+-            heartbeatSummary.announceForAccessibility(next.model.collapsedContentDescription);
++        if (heartbeatLiveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
++            heartbeatSummary.post(() -> heartbeatSummary.setAccessibilityLiveRegion(
++                    View.ACCESSIBILITY_LIVE_REGION_NONE));
+         }
+ 
+         heartbeatStructureIdentity = next.structureIdentity;
+@@
+         heartbeatAnnouncementIdentity = "";
+         if (heartbeatLights != null) heartbeatLights.removeAllViews();
++        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+         heartbeatSummary.setText("HEARTBEAT • waiting");

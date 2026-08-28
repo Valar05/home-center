@@ -1,0 +1,45 @@
+# STATUS: APPLIED_SOURCE
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
+# OWNER BASE BLOB: e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6
+# APPLIED COMMIT: 0833625cb0738473516fdad54d81c914b0aeba75
+# RESULT BLOB: 0d6aa78b0a457ad11660142b8600800055c81529
+# PURPOSE: Bound direct previous structure/render/announcement identity input before trim/equality work.
+# LAW: GENERATED 64-HEX IDENTITY != ARBITRARY DIRECT CALLER STRING; SAFE DOWNSTREAM IDENTITY DOES NOT BOUND UNSAFE ADAPTER INPUT.
+# REUSE: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS through the existing broad direct-source work ceiling; preserve trim/equality behavior at/below the throat.
+# CAPABILITY: PREVIOUS_REFRESH_IDENTITY_SOURCE_WORK_CUSTODY_SOURCE_WIRED / REGRESSION_SOURCE_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java
+@@
+     public static boolean shouldRebuildStructure(
+             String previousStructureIdentity,
+             Plan next) {
+         if (next == null) return false;
+-        return !clean(previousStructureIdentity).equals(next.structureIdentity);
++        return !boundedPreviousIdentity(previousStructureIdentity).equals(next.structureIdentity);
+@@
+     public static boolean shouldRefreshContent(
+             String previousRenderIdentity,
+             Plan next) {
+         if (next == null) return false;
+-        return !clean(previousRenderIdentity).equals(next.renderIdentity);
++        return !boundedPreviousIdentity(previousRenderIdentity).equals(next.renderIdentity);
+@@
+     public static boolean shouldAnnounce(String previousAnnouncementIdentity, Plan next) {
+         if (next == null) return false;
+-        String previous = clean(previousAnnouncementIdentity);
++        String previous = boundedPreviousIdentity(previousAnnouncementIdentity);
+         if (previous.isEmpty()) return false;
+         return !previous.equals(next.announcementIdentity);
+@@
+     private static String boundedSelectionId(String value) {
+         if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
+         return clean(value);
+     }
++
++    private static String boundedPreviousIdentity(String value) {
++        if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
++        return clean(value);
++    }

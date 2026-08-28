@@ -1,0 +1,126 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27T05:58:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "89bcdae757b6209e66e50c6181d7e237712ef9d6",
+  "reviewedSourceHead": "4ccfa8b281516341360495c6359d0298cee1a25d",
+  "sourceDelta": {
+    "commits": 8,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch",
+      "skills/semantic-text-safety/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicy.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatDetailSurfacePolicyTest.java"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "canonical callback-free discovery diagnostics",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "canonical _error now consumes project_owner_surgery_exception_diagnostic directly; callbackFreeDiscoveryExceptionProjection capability is explicit",
+      "ownerCommit": "d371f5debd2e1a2f73de683462753758386afe23",
+      "ownerBlob": "c20cda131e39d0d2415d533f787827b95c912e4d"
+    },
+    {
+      "name": "hostile discovery diagnostic regression",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "converged hostile exception callback fixture and added non-string payload plus bounded argument-fanout coverage"
+    },
+    {
+      "name": "semantic text safety doctrine and provenance",
+      "state": "SOURCE_CONVERGED",
+      "changed": "proposed callback consumer state became APPLIED_SOURCE; doctrine now separates exact evidence from finite callback-free diagnostic projection"
+    },
+    {
+      "name": "owner custody non-raster warm wall",
+      "state": "SOURCE_UPDATED",
+      "changed": "existing accessible DOM/SVG specimen now shows canonical callback consumer SOURCE_WIRED while retaining 56px controls, focus, non-color live status, SVG semantics, reduced motion, and no blink"
+    },
+    {
+      "name": "direct heartbeat detail pre-trim resource custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "existing HeartbeatDetailSurfacePolicy rejects direct source above 32768 UTF-16 code units before trim; ordinary admitted detail remains exact and scroll-inspectable",
+      "ownerCommit": "60143ba95ff35d2fa9d4415fdb1da013ab04eb25",
+      "ownerBlob": "2006cc124d5211cba389b83d3dadc51859b4e1fe"
+    },
+    {
+      "name": "heartbeat detail hostile/resource regression",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "pins exact max, max+1, over-ceiling whitespace, touch-scroll/passive focus-click semantics; fixture was corrected to avoid String.repeat compatibility drift"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: prior callback-safe dependency exposed unsafe canonical str(exc); detail audit exposed separate unbounded trim work; fixture self-review removed newer-Java String.repeat dependency",
+    "Canon Auto-Select": "LIT: reused the existing semantic projector, canonical v10 owner, existing detail policy, parser ceiling, existing Warm Wall, and deep-detail viewport doctrine",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected authority or routing",
+    "Originality Tax": "LIT: no sanitizer II, parser II, detail renderer/controller, second Warm Wall, recovery daemon, or phone lane was created",
+    "Hunger": "LIT: did not stop after canonical callback repair; independently audited direct detail work before trim",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: hostile exception payload/fanout cases and exact-max/max+1 detail cases expanded the regression surface",
+    "Operator Campaign": "LIT: all writes stayed on PR 329 branch with exact owner/source/provenance readback",
+    "Harroway operator discipline": "LIT: existing owners mutated in place; proposals, source, regression execution, TESTED, runtime and delivery kept separate",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative consultation attempted; account connection returned HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT: bounded source slice may checkpoint while regression execution, TESTED/runtime, and campaign remain required",
+    "Regnet QA": "LIT: source-only verdict, hostile regression expansion, fixture compatibility correction, no TESTED inflation",
+    "accessibility/TalkBack and touch semantics": "LIT: full admitted detail/contact preserved; existing 56px/focus/non-color/SVG/reduced-motion source contract retained; runtime TalkBack remains NO",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation; P0 scheduler remains sole conductor",
+    "deterministic routing": "LIT: canonical callback path routes through the shared projector; detail source-work ceiling aliases HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED and SOURCE_UNEXECUTED do not imply TESTED/runtime/deployed/delivered",
+    "recovery/checkpointing/idempotence": "LIT: exact-head workflows read once; zero-step failure was not retried or diagnosed",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing owner-custody DOM/SVG specimen converged in place",
+    "warm walls": "LIT: existing wall updated to current callback-free consumer truth; no second specimen",
+    "Christmas-light scene graph": "DARK: no runtime scene/motion contract changed; no decorative motion added",
+    "contact preservation": "LIT: canonical path/artifact/Surgery evidence remains exact; admitted full detail remains exact and scroll-inspectable"
+  },
+  "discoveredSkills": {
+    "semantic-text-safety": "LIT and converged",
+    "heartbeat-deep-detail-viewport": "LIT as a constraint: existing detail owner, full inspectable detail, passive touch ownership, no duplicate renderer/controller; skill file itself not rewritten this pulse"
+  },
+  "crossPollination": "Safe returned diagnostic text exposed an earlier callback boundary, which was closed by reusing the shared callback-free projector. The same source-work-versus-returned-size law then crossed into the independent detail viewport and exposed trim before any broad direct-source ceiling. The canonical parser's existing 32768-unit ceiling supplied the non-duplicated bound; deep-detail doctrine preserved full admitted evidence and touch inspection. Regnet then attacked hostile exception payloads, argument fanout, exact max/max+1 detail input, and the fixture's own Java compatibility. The Warm Wall and semantic-text doctrine were forced to converge on the new owner truth without claiming runtime TalkBack or phone delivery.",
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33066629630, "conclusion": "failure", "jobId": 98498186441, "steps": 0},
+      {"name": "Build Android", "id": 33066629606, "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 33066629591, "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false
+  },
+  "reviews": {
+    "regnet": "receipts/regnet/2026-08-27-heartbeat-0558.json",
+    "regnetCommit": "277c16b55ea10ee40607fdbd66bfaae4bf81415c",
+    "venice": "receipts/venice/2026-08-27-heartbeat-0558.json",
+    "veniceCommit": "99f9f40e3b392faa5f812b07ea8843286723f443",
+    "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "canonicalCallbackFreeExceptionConsumer": "SOURCE_WIRED_APPLIED_SOURCE",
+    "detailPretrimSourceWorkCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

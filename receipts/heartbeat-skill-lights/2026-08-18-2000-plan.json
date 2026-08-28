@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever-heartbeat-plan.v2",
+  "heartbeat": "2026-08-18-2000",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching the gated phone/P0 chain or creating neighboring provenance architecture.",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "ownerBaseBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+  "plannedFronts": [
+    {
+      "name": "snapshot certification owner convergence",
+      "supportingPolicy": "tools/try_forever_skill_snapshot_authority.py",
+      "intent": "Authority-facing skills must be zero when the pre/post checkout is not STABLE_CLEAN or --expected-head mismatches; diagnostic discovery remains separately visible. Because skillCount semantics change from discovery to certified authority, bump the report envelope from v2 to v3 instead of silently changing a v2 contract."
+    },
+    {
+      "name": "title semantic admission owner convergence",
+      "supportingPolicy": "tools/try_forever_skill_title_fallback_policy.py",
+      "intent": "H1 and folder-fallback titles share one exact semantic/resource admission contract; decoded raw H1 text is inspected before broad whitespace normalization can erase controls."
+    },
+    {
+      "name": "queued-child traversal identity owner convergence",
+      "supportingPolicy": "tools/try_forever_skill_directory_traversal_guard.py",
+      "intent": "A child directory admitted during parent enumeration is revalidated no-follow immediately before its later scandir; persistent redirector/type/device/inode drift fails closed. Atomic swap-and-restore remains explicitly unproven."
+    },
+    {
+      "name": "owner-composition regression source",
+      "intent": "Add focused source fixtures for v3 authority/discovery separation, raw-title safety through the real owner, and child-directory replacement rejection. Regression source is not test execution."
+    },
+    {
+      "name": "skill and art convergence",
+      "intent": "Synchronize affected durable skill doctrine and mutate the existing accessible provenance Warm Wall in place; no raster, autoplay, decorative blink, second probe/controller, or runtime claim."
+    },
+    {
+      "name": "review and execution evidence",
+      "intent": "Regnet/Venice review the exact bounded claim; query fresh exact-head workflow evidence without manual retry or stale-cause reuse."
+    }
+  ],
+  "preExecutionReview": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "venicePlan": "PLAN_ALLOWED_WITH_SCHEMA_V3_CORRECTION_AND_CAPABILITY_MEMBRANE"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "p0ReadOnly": true,
+    "duplicateArchitectureForbidden": true
+  },
+  "capabilityBefore": {
+    "supportingSource": true,
+    "snapshotCertificationOwnerWired": false,
+    "titleOwnerWired": false,
+    "childDirectoryOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

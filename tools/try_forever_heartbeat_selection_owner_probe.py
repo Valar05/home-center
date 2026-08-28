@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Source-capability probe for native heartbeat persistent-selection semantics.
+
+Repository/source evidence only. This does not execute Android, exercise TalkBack,
+touch the phone/P0 chain, or promote policy/probe existence into owner wiring.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+from try_forever_adam_accessibility_owner_probe import _direct_method_surface, _owner_surface
+
+
+@dataclass(frozen=True)
+class SeamVerdict:
+    status: str
+    reason: str
+    supporting_policy: str
+
+
+def classify_native_selection(source: str) -> SeamVerdict:
+    owner = _owner_surface(source)
+    apply_light = _direct_method_surface(owner, "applyHeartbeatLight")
+    apply_collection = _direct_method_surface(owner, "applyHeartbeatSelectionAccessibility")
+    rebuild = _direct_method_surface(owner, "rebuildHeartbeatLights")
+    refresh_selection = _direct_method_surface(owner, "refreshHeartbeatSelection")
+    policy = "HeartbeatSelectionAccessibilityPolicy"
+
+    native_selected_initial = "light.setSelected(" in apply_light
+    native_selected_refresh = "child.setSelected(" in refresh_selection
+    policy_projection = policy in apply_collection and ".fromModel(" in apply_collection
+    collection_context = (
+        "heartbeatLights.setAccessibilityDelegate(" in apply_collection
+        and "AccessibilityNodeInfo.CollectionInfo.obtain(" in apply_collection
+        and "AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE" in apply_collection
+        and "rowCount" in apply_collection
+        and "columnCount" in apply_collection
+    )
+    item_context = (
+        "AccessibilityNodeInfo.CollectionItemInfo.obtain(" in apply_collection
+        and "rowIndex" in apply_collection
+        and "columnIndex" in apply_collection
+        and "selected" in apply_collection
+    )
+
+    # Collection semantics are a collection-lifecycle responsibility, not a per-child side effect.
+    # Initial application must happen after the row has been constructed, and item selection
+    # metadata must be refreshed when the persistent selected id changes.
+    rebuild_application = "applyHeartbeatSelectionAccessibility(model)" in rebuild
+    selection_refresh_application = (
+        "applyHeartbeatSelectionAccessibility(" in refresh_selection
+        and "currentHeartbeatModel()" in refresh_selection
+    )
+    per_light_application = "applyHeartbeatSelectionAccessibility(" in apply_light
+
+    complete = all(
+        (
+            native_selected_initial,
+            native_selected_refresh,
+            policy_projection,
+            collection_context,
+            item_context,
+            rebuild_application,
+            selection_refresh_application,
+        )
+    ) and not per_light_application
+
+    if complete:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "existing heartbeat owner exposes persistent native selected state plus single-selection collection/item semantics after row construction and after selection changes",
+            policy,
+        )
+
+    if (
+        native_selected_initial
+        or native_selected_refresh
+        or policy in owner
+        or "CollectionInfo.obtain(" in owner
+    ):
+        missing = []
+        if not native_selected_initial:
+            missing.append("initial native selected state")
+        if not native_selected_refresh:
+            missing.append("selected-state refresh lifecycle")
+        if not policy_projection:
+            missing.append("selection collection policy projection")
+        if not collection_context:
+            missing.append("single-selection row/column collection context")
+        if not item_context:
+            missing.append("per-light row/item selection context")
+        if not rebuild_application:
+            missing.append("post-rebuild collection application")
+        if not selection_refresh_application:
+            missing.append("selection-change collection refresh")
+        if per_light_application:
+            missing.append("collection application must not be only/performed as a per-light side effect")
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "heartbeat persistent selection is incomplete: missing " + ", ".join(missing),
+            policy,
+        )
+
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "heartbeat controls expose no persistent selected-state or collection/item semantics",
+        policy,
+    )
+
+
+def classify(source: str) -> dict[str, object]:
+    return {
+        "schema": "try-forever-heartbeat-selection-owner-probe.v2",
+        "nativePersistentSelection": asdict(classify_native_selection(source)),
+        "capability": {
+            "sourceInspection": True,
+            "regressionExecuted": False,
+            "tested": False,
+            "runtimeUi": False,
+            "runtimeTalkBack": False,
+            "deployed": False,
+            "phoneDelivered": False,
+            "accepted": False,
+        },
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--owner",
+        default=(
+            "android/operator-overlay/app/src/main/java/com/homecenter/"
+            "operatoroverlay/OperatorOverlayService.java"
+        ),
+    )
+    args = parser.parse_args()
+    source = Path(args.owner).read_text(encoding="utf-8")
+    print(json.dumps(classify(source), indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

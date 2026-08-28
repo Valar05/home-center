@@ -1,0 +1,25 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26T07:00:00-05:00",
+  "reviewedSourceHead": "a905a9053e5101e7f87b72d636833407f47ae08d",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "whyStopThisSlice": [
+    "two independent direct public helper resource wounds were repaired in their existing owners",
+    "the new regression is source-only and preserves ordinary exact patch/fallback behavior",
+    "existing repository skills were converged rather than creating adjacent architecture",
+    "the P0 and primary-phone surfaces were not consumed or mutated"
+  ],
+  "continueRequired": [
+    "authorized regression execution",
+    "TESTED evidence",
+    "runtime and TalkBack observation if a future authorized non-firewalled lane exists",
+    "the recurring Try Forever campaign"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capabilityInflationRejected": true,
+  "phoneOrP0DeliveryClaimed": false
+}

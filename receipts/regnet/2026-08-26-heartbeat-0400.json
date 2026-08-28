@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T04:00:00-05:00",
+  "scope": "non-P0 Harroway Try Forever source slice",
+  "sourceHead": "57a13d186efb48e738f344cec1c82de83b4a43a0",
+  "verdict": "PASS_SOURCE_READBACK__DIAGNOSTIC_CONTEXT_CUSTODY_WIRED__SKILL_DOCTRINE_DRIFT_OPEN__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "owner-identity diagnostic context custody",
+      "state": "SOURCE_WIRED",
+      "evidence": "admit_owner_identity now admits diagnostic field context as one exact non-empty built-in str with a 256-code-point source ceiling before any formatted error can use it; hostile str-subclass formatting callbacks cannot execute across this boundary"
+    },
+    {
+      "front": "hostile regression source",
+      "state": "SOURCE_UNEXECUTED",
+      "evidence": "metadata regression now attacks diagnostic field str-subclass __str__/__format__ callbacks plus max+1 diagnostic context while retaining the prior owner identity and patch metadata fixtures"
+    },
+    {
+      "front": "repository skill archaeology",
+      "state": "STALE_NONAUTHORITY_OPEN",
+      "evidence": "operator-owner-surgery-metadata-exactness does not yet record the new bounded diagnostic-context law; operator-owner-surgery-custody also retains dated capability prose that predates authenticated canonical descriptor-backend integration. Current authenticated source outranks both stale summaries."
+    },
+    {
+      "front": "accessibility / Warm Wall",
+      "state": "UNCHANGED_SOURCE_ONLY",
+      "evidence": "no operator-facing topology or touch contract changed in this slice, so the existing source-only native-radio/56px/focus/live-status/SVG/reduced-motion contract was not churned; runtime TalkBack remains NO"
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "execution": {
+    "homeCenterCi": {"runId": 32951817847, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32951817885, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32951817904, "jobId": 98124682716, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

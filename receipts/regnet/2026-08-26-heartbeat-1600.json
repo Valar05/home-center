@@ -1,0 +1,66 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "4acecf5338af5e73874f5826e844e6bf880dd43a",
+  "verdict": "PASS_BOUNDED_SOURCE__BACKEND_CANONICAL_PARITY_SOURCE_WIRED__SEMANTIC_PARSER_CLEANUP_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "backendCanonicalParity": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "owner": "tools/try_forever_owner_surgery_backend_policy.py",
+      "regression": "tools/test_try_forever_owner_surgery_backend_canonical_resource_parity.py",
+      "regressionExecuted": false,
+      "constraints": [
+        "canonical owner identity admission",
+        "currentOwnerBlobs <= 2048",
+        "authority groups <= 2048 per family",
+        "authority members <= 2048 per group",
+        "bounded exact JSON does not authorize canonical-impossible authority shapes"
+      ]
+    },
+    "singleSemanticParserOwnership": {
+      "state": "REVISE_REQUIRED_CORRECTED_PROPOSED_NOT_APPLIED",
+      "canonicalOwner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "canonicalOwnerBlob": "f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d",
+      "activeSemanticOwner": "tools/try_forever_owner_surgery_semantic_parser.py",
+      "cleanupPatch": "patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch",
+      "regression": "tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py",
+      "regressionExecuted": false,
+      "wound": "canonical patch/delta paths already delegate semantics to parse_owner_surgery_observation, but dormant local semantic parser constants/helpers remain in canonical v10"
+    },
+    "accessibilityWarmWall": {
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "path": "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "runtimeTalkBack": false,
+      "touchRowsAtLeast56Px": true,
+      "nativeRadioControls": true,
+      "visibleFocus": true,
+      "nonColorLiveStatus": true,
+      "inlineSvgSemantics": true,
+      "reducedMotion": true,
+      "blink": false
+    }
+  },
+  "executionTruth": {
+    "head": "4acecf5338af5e73874f5826e844e6bf880dd43a",
+    "operatorOverlayAndroid": {"run": 33014136510, "conclusion": "failure", "job": 98327825236, "steps": 0},
+    "homeCenterCI": {"run": 33014136509, "conclusion": "failure"},
+    "buildAndroid": {"run": 33014136607, "conclusion": "failure"},
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "authoritativeSurfaceResult": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

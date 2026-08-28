@@ -1,0 +1,87 @@
+{
+  "slice": "2026-08-17-2000",
+  "source_head": "7818c4a6ef491d58ab56a986632cb1314c29d98e",
+  "fronts_advanced": [
+    {
+      "front": "plain-text projection source",
+      "result": "HeartbeatPlainTextBudget now retains only whole platform Unicode extended grapheme clusters while preserving the hard returned code-point budget and exact under-budget pass-through."
+    },
+    {
+      "front": "hostile accessibility regression source",
+      "result": "Added combining-mark, ZWJ emoji, emoji-modifier, regional-indicator flag, family-emoji, swan, tiny-budget, and pass-through fixtures; code review repaired the first fixtures that failed to force truncation."
+    },
+    {
+      "front": "durable skill harvesting",
+      "result": "heartbeat-hard-returned-text-budgets now encodes grapheme-safe retained prefixes, hard returned budgets, exact-source preservation, and the source/test/runtime membrane."
+    },
+    {
+      "front": "platform-contract verification",
+      "result": "Primary Java 17 and Android Pattern documentation both identify regex \\X as the Unicode extended grapheme matcher; Java 17 BreakIterator was deliberately not substituted as equivalent."
+    },
+    {
+      "front": "review and evidence",
+      "result": "Pre-mutation plan, Venice plan gate, Regnet bounded-source review, Venice completion gate, exact blob readback, and exact-head automatic workflow boundary are durable."
+    }
+  ],
+  "skill_lights": {
+    "Failure Is The Shovel": "ACTIVE: chose the independent grapheme scar rather than retrying the prior collapsed-owner/CI wound.",
+    "Canon Auto-Select": "ACTIVE: reused the existing shared plain-text projection organ and existing skill rather than creating a parallel formatter.",
+    "Autocorrect Judgment Jar": "DARK: no ambiguous token affected the slice.",
+    "Originality Tax": "ACTIVE: moved to a materially different Unicode/accessibility defect and did not repeat blocked CI manually.",
+    "Hunger": "ACTIVE: source review kept digging after arithmetic safety and found user-perceived-character integrity.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: one shared helper, its consumers, regression doctrine, and platform semantics were reconciled.",
+    "Operator Campaign": "ACTIVE: existing Operator Overlay ownership remained unchanged and source/runtime states stayed separate.",
+    "Harroway operator discipline": "ACTIVE: exact commit/blob custody and no substitute execution lane.",
+    "She-Raw adversarial motivation": "FAULT: authoritative connector attempted pre-execution; account connection HTTP 400; no synthetic critique.",
+    "Venice Judgment Jars": "ACTIVE: PLAN_ALLOWED then SOURCE_SLICE_STOP_ALLOWED; campaign CONTINUE_REQUIRED.",
+    "Regnet QA": "ACTIVE: code-first fixture defect found and bounded source claim reviewed; TESTED remains NO.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: routine visible/speech truncation no longer amputates combining/emoji grapheme clusters at source.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero gated phone/P0 surface consumption or mutation.",
+    "deterministic routing": "ACTIVE: all existing plain-text consumers continue through one deterministic projection helper.",
+    "evidence/capability-state discipline": "ACTIVE: implemented source/readback/regression source are YES; tested/runtime/deployed/callable/executed/delivered/accepted remain NO.",
+    "recovery/checkpointing/idempotence": "DARK: no checkpoint or retry semantic changed in this slice.",
+    "strange non-raster vector/DOM/native UI art": "DARK: projection safety created no new operator-state topology, so art mutation would be decorative theater.",
+    "warm walls": "DARK for the same topology reason.",
+    "Christmas-light scene graph": "DARK: no new scene transition or motion consequence was earned.",
+    "contact preservation": "CONSTRAINT ONLY: canonical source/evidence is never rewritten, but no contact-preservation implementation changed."
+  },
+  "cross_pollination": "hard returned-budget doctrine -> grapheme scar -> platform regex contract -> shared helper repair -> hostile TalkBack fixtures -> code-first fixture correction -> durable skill convergence -> exact-head CI boundary -> Regnet/Venice membrane",
+  "execution_boundary": {
+    "operator_overlay_run": 32086890470,
+    "operator_overlay_job": 95561184253,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "manual_retry": false,
+    "tested": false
+  },
+  "p0_phone": {
+    "commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_relay_probes": 0,
+    "recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance": 0,
+    "new_p0_finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "durable_skill": true,
+    "art_mutated": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

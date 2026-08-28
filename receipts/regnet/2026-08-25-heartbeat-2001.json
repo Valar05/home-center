@@ -1,0 +1,46 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "checkpoint": "2026-08-25T20:01:44-05:00",
+  "reviewedSourceHead": "f0cbd4190ece86fbbd69d9673ba1494672636e33",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "semantic_parser_error_custody",
+      "state": "SOURCE_WIRED",
+      "finding": "Strict UTF-8 encode failure is now converted to OwnerSurgerySemanticError before witness semantics can escape the producer error domain; ordinary exact built-in text behavior is unchanged."
+    },
+    {
+      "front": "witness_parity_public_contract",
+      "state": "SOURCE_WIRED",
+      "finding": "Supporting witness facade now advertises dict[str, object], matching the exact built-in dict downstream owner contract instead of promising arbitrary Mapping callbacks."
+    },
+    {
+      "front": "canonical_semantic_producer_composition",
+      "state": "PROPOSED_NOT_APPLIED",
+      "finding": "Exact base-blob-locked surgery and RED delegation fixture exist, but canonical v10 still duplicates patch/delta semantic parsing and does not consume parse_owner_surgery_observation. Do not claim canonical consumption."
+    },
+    {
+      "front": "descriptor_exact_input_custody",
+      "state": "PROPOSED_NOT_APPLIED",
+      "finding": "Held-directory custody still accepts callback-capable str/int/candidate-shaped public inputs before exact scalar/candidate admission. Exact source surgery and RED fixture exist; owner mutation remains required."
+    },
+    {
+      "front": "descriptor_patch_base_identity",
+      "state": "CORRECTED_SOURCE_PROVENANCE",
+      "finding": "The first patch metadata commit named the wrong base blob. Authenticated readback established the actual owner blob 8e9df28967113610d958d590e05eec969ca91e25 and the current patch artifact was corrected before this checkpoint. The bad intermediate commit remains history, not current authority."
+    }
+  ],
+  "duplicateArchitecture": false,
+  "phoneSurfaceConsumed": false,
+  "p0Mutation": false,
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "callable": false,
+  "executed": false,
+  "delivered": false,
+  "accepted": false,
+  "boundary": "Supporting source may advance; canonical semantic composition and descriptor exact-input owner wiring remain revise-required."
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0100",
+  "pr": 329,
+  "mission": "Advance independent non-P0 TRY FOREVER heartbeat fronts while preserving OperatorOverlayService as sole native owner, accessibility-first semantics, exact capability-state truth, and the P0/phone firewall.",
+  "preMutationTruth": {
+    "prState": "open_unmerged",
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "currentOwnerBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "deepDetailPolicyBlob": "36fadf5319e655b424ee1ff2f1a797864af94208",
+    "correctedOwnerPatchBlob": "991cc7b950d1beb7ce9f50815b7107094562ba80",
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "fronts": [
+    "Re-evaluate the exact non-phone mutation lane from deployed Home Center capabilities; do not reuse retired Command Center worker/job doctrine.",
+    "Advance the existing-owner deep-detail seam only through OperatorOverlayService and the already-reviewed HeartbeatDetailSurfacePolicy; no adjacent renderer/controller.",
+    "Add a source-level owner-contract guard so future drift cannot silently restore maxLines/END truncation after the owner seam changes.",
+    "Synchronize heartbeat-deep-detail-viewport doctrine to the exact realized owner/source state, not the intended patch state.",
+    "Mutate an existing warm-wall/Swan Veil source specimen only if realized source topology changes; otherwise keep art dark.",
+    "Run Regnet/Venice evidence review and fresh exact-head CI readback without recycling stale failure causes or manually retrying unchanged CI.",
+    "Harvest any newly material repository skill only if it owns a reusable contract rather than decorating the constellation."
+  ],
+  "requiredLights": {
+    "failureIsTheShovel": "CONSIDER",
+    "canonAutoSelect": "CONSIDER",
+    "autocorrectJudgmentJar": "CONSIDER",
+    "originalityTax": "CONSIDER",
+    "hunger": "CONSIDER",
+    "everPolishedInterpreterEatEverything": "CONSIDER",
+    "operatorCampaign": "CONSIDER",
+    "harrowayOperatorDiscipline": "CONSIDER",
+    "sheRawAdversarialMotivation": "CONSIDER",
+    "veniceJudgmentJars": "CONSIDER",
+    "regnetQa": "CONSIDER",
+    "accessibilityTalkBackTouch": "CONSIDER",
+    "phoneRuntimePhoneHandsRecovery": "FIREWALLED_READ_ONLY",
+    "deterministicRouting": "CONSIDER",
+    "evidenceCapabilityState": "CONSIDER",
+    "recoveryCheckpointIdempotence": "CONSIDER",
+    "strangeNonRasterVectorDomNativeArt": "CONSIDER_IF_TOPOLOGY_CHANGES",
+    "warmWalls": "CONSIDER_IF_TOPOLOGY_CHANGES",
+    "christmasLightSceneGraph": "CONSIDER_IF_TRANSITION_SEMANTICS_CHANGE",
+    "contactPreservation": "CONSIDER"
+  },
+  "firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0
+  },
+  "gate": "PLAN_ALLOWED_NON_P0_ONLY"
+}

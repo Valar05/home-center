@@ -1,0 +1,75 @@
+{
+  "schema": "venice-plan-review.v1",
+  "commission": "TRY FOREVER heartbeat 2000 non-phone source slice",
+  "reviewerRole": "venice-judgment-jar",
+  "timestampLocal": "2026-08-15T19:59:52-05:00",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "evidenceIdentity": {
+    "pr": 329,
+    "observedHead": "87953b59534a88ee31854db242545bedc307c081",
+    "heartbeatSkill": "aa8ae1b3b55955c5361debf868895992f3d53e49",
+    "parser": "2a7b4ca5edf6b8f28625a9e07b6688659bbd4c6d",
+    "semanticBoundsTest": "b43f3b55c27fb1bf782297e2d116d518e7431e11",
+    "motionClampSpecimen": "e7271b76bfa569e151ff3a0a392c579637011028",
+    "executionTruthSkill": "080f3537ac1c1e32176aad02d6b61044fc785ed2"
+  },
+  "selectedJudgmentJars": [
+    {
+      "id": "failure-is-the-shovel",
+      "why": "The Actions-budget CI boundary is unchanged; this pulse must advance an independent source/evidence defect rather than retrying the same blocked job."
+    },
+    {
+      "id": "originality-tax",
+      "why": "The prior pulse hardened ingress rejection text. This pulse must move to a distinct semantic-ingestion wound rather than polishing the same boundary sanitizer."
+    },
+    {
+      "id": "canon-auto-select",
+      "why": "Repository-native execution-truth, heartbeat-skill-lights, embodied-communication, fortress-core, and the active parser/scene organs are materially relevant; named doctrines without SKILL.md remain doctrine/jar provenance."
+    },
+    {
+      "id": "accessibility-talkback",
+      "why": "Parsed labels, reasons, consequences, evidence, and provenance are spoken or rendered later; invisible bidi/FORMAT controls can spoof visual order and operator evidence without being ISO controls."
+    },
+    {
+      "id": "contact-preservation",
+      "why": "A semantic-ingestion rejection must preserve the last-good scene and must not earn transition motion."
+    },
+    {
+      "id": "evidence-capability-state",
+      "why": "Source/readback and regression fixtures must remain distinct from executed tests, runtime parsing, rendering, deployment, callability, delivery, and acceptance."
+    },
+    {
+      "id": "p0-firewall-duplicate-architecture",
+      "why": "No primary-phone, Phone Hands, queue/device probe, recovery coordinator, Nightcore, Pocket TTS, Chromium, Context Organs, or neighboring overlay controller may be touched."
+    }
+  ],
+  "research": [
+    "HeartbeatEnvelopeParser.requireSafeSemanticText rejects ISO controls and malformed surrogate structure, but does not reject Unicode Character.FORMAT code points such as bidi overrides/isolates.",
+    "The previous ingress-boundary pulse already established that FORMAT/bidi controls are a presentation/evidence spoofing class; the semantic parser currently does not carry that protection into canonical heartbeat fields.",
+    "HeartbeatSceneGraph already fail-closes parser rejection through last-good contact preservation and motion clamping, so no new controller or renderer is needed for the source repair.",
+    "HeartbeatFrameAccessibility consumes the already-built visible frame, so rejecting spoofable semantic text before scene construction cross-pollinates directly into TalkBack and touch semantics.",
+    "She-Raw authoritative ambient consultation was attempted pre-execution and failed with account-connection HTTP 400; no synthetic She-Raw verdict is permitted."
+  ],
+  "boundedPlan": [
+    "Harden the existing semantic source contract so typed heartbeat fields containing Unicode FORMAT/bidi controls fail closed before they can become display-ready scene nodes or TalkBack text.",
+    "Add hostile regression source covering U+202E/U+2066 in label/provenance/evidence/protocol token paths while preserving valid paired Unicode such as the swan fixture.",
+    "Mutate the existing motion-clamp DOM specimen in place with a semantic-bidi scar that distinguishes parser rejection from storage/UTF-8 wounds; no new specimen zoo.",
+    "Update the existing heartbeat-skill-lights skill doctrine to make FORMAT/bidi rejection explicit and to preserve command-looking inert data that is not itself a spoofing control.",
+    "Persist Regnet/Venice/swarm receipts and update PR #329 with exact remote readback. Do not manually retry unchanged CI; only inspect automatic evidence if GitHub creates it."
+  ],
+  "antagonism": [
+    "Do not strip or normalize spoofing controls into trusted semantic text; canonical heartbeat ingestion should fail closed so exact source identity is not silently rewritten.",
+    "Do not broaden this into an execution/content filter: ordinary Unicode and command-looking text remain inert data.",
+    "Do not invent a second parser, renderer, overlay controller, persistence owner, phone ingress path, or P0 coordinator.",
+    "Do not report regression source as executed test evidence.",
+    "Do not consume the primary-phone surface or mutate any P0 receipt/queue/recovery chain."
+  ],
+  "sheRaw": {
+    "surface": "she_raw_ambient",
+    "state": "FAULT",
+    "boundary": "HTTP 400 account-connection failure; no synthetic She-Raw substituted."
+  },
+  "directive": "PLAN_ALLOWED",
+  "doneCondition": "Existing semantic policy/parser path rejects bidi/FORMAT poisoning with hostile regression source; the existing motion-clamp specimen and skill doctrine are updated in place; exact GitHub readback and review receipts preserve source/test/runtime/phone distinctions; P0 mutation count remains zero."
+}

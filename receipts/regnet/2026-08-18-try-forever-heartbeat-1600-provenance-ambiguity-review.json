@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "reviewedSourceHead": "e7f456b5580c0dd165aa759ab8af27b5ae192f33",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__REVISE_REQUIRED_OWNER_UNWIRED",
+  "fronts": {
+    "directSkillIdentitySet": {
+      "policySource": true,
+      "regressionSource": true,
+      "ownerPatchProvenance": "PROPOSED_NOT_APPLIED",
+      "existingOwnerWired": false,
+      "finding": "The current owner can preserve an earlier SkillRecord when a later path collides under the existing case-insensitive identity key. Set-level ambiguity should reject all direct-skill authority before title/hash work."
+    },
+    "generatedIndexAliasContract": {
+      "policySource": true,
+      "regressionSource": true,
+      "ownerPatchProvenance": "PROPOSED_NOT_APPLIED",
+      "existingOwnerWired": false,
+      "finding": "The current generated-index owner uses first_value across supported alias families, so conflicting metadata aliases can silently select by key order. Scalar shape and finite-number truth also need an explicit gate."
+    },
+    "accessibleWarmWall": {
+      "source": true,
+      "runtimeObserved": false,
+      "talkBackRuntime": false,
+      "notes": "Native disclosure controls provide touch/keyboard inspection, non-color state tokens, inline SVG, reduced-motion handling, and explicit SOURCE ONLY scarring."
+    }
+  },
+  "existingOpenOwnerPatches": {
+    "finalSkillsRootRevalidation": "PROPOSED_NOT_APPLIED",
+    "generatedIndexByteUtf8Ingress": "PROPOSED_NOT_APPLIED"
+  },
+  "executionEvidence": {
+    "operatorOverlayRun": 32186033457,
+    "operatorOverlayJob": 95869731049,
+    "status": "completed",
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "reviewerState": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSheRawUsed": false,
+    "venicePlanGate": "PLAN_ALLOWED_BOUND_SOURCE_SLICE"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactGitHubReadback": true,
+    "existingOwnerIdentitySetGate": false,
+    "existingOwnerGeneratedIndexAliasGate": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

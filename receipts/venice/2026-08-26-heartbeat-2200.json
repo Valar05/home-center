@@ -1,0 +1,27 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26T22:00:00-05:00",
+  "sourceHead": "9fb8a3b2e753bfc87b4bdfad66011b4423a081bb",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__DISCOVERY_DIAGNOSTIC_PROJECTION_OWNER_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "single semantic-parser ownership is now source-wired in the existing canonical v10 owner",
+    "the convergence regression and applied-patch provenance are durable but unexecuted",
+    "the existing accessibility Warm Wall was updated in place and exposes the new diagnostic RED state without claiming runtime TalkBack",
+    "raw DiscoveryError.boundary exception prose remains an exact non-P0 source wound",
+    "exact-head workflows failed before steps; no source/test cause or TESTED state is established"
+  ],
+  "continueRequired": [
+    "discovery diagnostic projection owner repair",
+    "regression execution",
+    "TESTED evidence",
+    "runtime/deployment/delivery evidence",
+    "recurring Try Forever campaign"
+  ],
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

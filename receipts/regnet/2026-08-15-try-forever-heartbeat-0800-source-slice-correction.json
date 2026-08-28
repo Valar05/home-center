@@ -1,0 +1,70 @@
+{
+  "schema": "home-center.regnet-qa.v1",
+  "kind": "correction",
+  "supersedesForCurrentSource": "receipts/regnet/2026-08-15-try-forever-heartbeat-0800-source-slice.json",
+  "reason": "Code-first inspection after the first Regnet receipt found that semantic safety was applied after trimming, which could silently remove an edge control character instead of rejecting the decoded semantic input. The parser and regression source were corrected before Venice completion review.",
+  "commission": "Advance the TRY FOREVER heartbeat as multiple independent source-only fronts under the binding P0/phone firewall, preserving capability-state truth and avoiding duplicate architecture.",
+  "reviewedClaim": "IMPLEMENTED_SOURCE_PLUS_EXACT_GITHUB_READBACK",
+  "reviewedHead": "d56a5191b32f9682a714e449186433b6e1b7d5ac",
+  "reviewBase": "9b47934d653be8663ff03c6b50e567f523f18b9f",
+  "artifactIdentity": {
+    "parserBlob": "f10d536f0871798ebce31ddc2e4dcab9fe98e3e3",
+    "semanticBoundsTestBlob": "0e96041f31c85efefa042c83a3bf8ccee8c94632",
+    "checkpointBlob": "4b55681bf61265f143f6d7a0005837cceaa67b3e",
+    "checkpointTestBlob": "5c71b266b8be1443d52d628dc00b7798ea76b364",
+    "accessibilityBlob": "2871117bc1dcc76824203680d3e48149b1cec2f2",
+    "accessibilityTestBlob": "1dac38525ad78ec359967de8ff6a0ddd935bf919",
+    "contactSheetBlob": "deacd14ddedb9e99927d434d5a4c1a4576012651",
+    "skillDoctrineBlob": "1b0b373f6ea561c4f651767f9caea98d7986823f"
+  },
+  "correction": {
+    "finding": "Semantic strings were validated only after requiredString() trimmed them, so a decoded ISO control character at a field edge could disappear before the safety check.",
+    "repair": "requiredSemanticString now reads the decoded raw String directly, validates control characters and surrogate pairing before trimming, then rejects empty or field-oversized normalized text.",
+    "regressionTarget": "A decoded U+0009 at the beginning of label must fail with the semantic control-character boundary rather than being trimmed away.",
+    "state": "IMPLEMENTED_SOURCE_NOT_EXECUTED"
+  },
+  "acceptanceCriteria": [
+    "Field-specific semantic bounds exist for pulse and human-facing typed fields.",
+    "Decoded ISO controls are rejected before any trimming can erase them.",
+    "Unpaired surrogates are rejected while valid surrogate pairs remain inert Unicode data.",
+    "Checkpoint identities separate visible contact from transition-worthy semantics.",
+    "Accessibility speech derives from the exact preserved scene rather than discarded attempted candidates.",
+    "The warm-wall contact sheet is DOM/CSS/vector-only, touch/keyboard reachable, non-color, reduced-motion aware, and has no autoplay blink loop.",
+    "No phone/P0 mutation or duplicate controller/renderer/ingress/daemon is introduced."
+  ],
+  "verification": {
+    "sourceReadback": "PASS",
+    "deterministicExecution": "BLOCKED_UNKNOWN",
+    "latestExecutedAutomaticAndroidEvidence": {
+      "codeHead": "0792c171f7b74ca94a9412273e5e81662f689549",
+      "run": 31886406449,
+      "job": 95016233725,
+      "stepsExecuted": 0,
+      "annotation": "The job was not started because an Actions budget is preventing further use."
+    },
+    "currentCorrectedHeadWorkflowObservation": "No pull-request workflow run was visible yet for d56a5191b32f9682a714e449186433b6e1b7d5ac at correction review time. This is not test evidence and does not improve TESTED state.",
+    "manualRetry": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedInRepository": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "runtimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS",
+  "testedClaimVerdict": "BLOCKED_UNKNOWN",
+  "directive": "PROCEED_TO_VENICE_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "reviewer": "Regnet QA",
+  "reviewerMode": "SYNTHETIC_REGNET",
+  "reviewProvenance": "Fresh correction review of exact GitHub source after a code-inspection finding; no human Regnet/Renee statement is claimed.",
+  "reviewedAt": "2026-08-15T13:17:00Z"
+}

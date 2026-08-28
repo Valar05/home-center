@@ -1,0 +1,113 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-25-heartbeat-1800",
+  "mission": "Advance independent non-P0 TRY FOREVER source work on PR #329 while preserving the P0/phone firewall, existing owners, duplicate-architecture law, and capability-state membrane.",
+  "previousPublicationHead": "8e98ce726a64edb3535d209a4c54043a15b2608b",
+  "reviewedSourceHead": "da46d6ff7b4d9c23cd3f69810162c270924da06c",
+  "fronts": [
+    {
+      "name": "platform capability exact-input custody",
+      "state": "SOURCE_WIRED",
+      "paths": [
+        "tools/try_forever_directory_handle_binding_capability.py",
+        "tools/test_try_forever_directory_handle_binding_capability.py"
+      ],
+      "result": "The capability classifier now admits os_name as an exact built-in string and every primitive-presence flag as an exact built-in boolean before equality/truthiness selection. Hostile str-subclass and truthy-object regression source requires rejection before caller callbacks execute.",
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "canonical descriptor composition archaeology",
+      "state": "EXACT_BOUNDARY_PROVEN",
+      "paths": [
+        "tools/try_forever_owner_surgery_custody_probe.py",
+        "tools/try_forever_posix_directory_handle_custody.py",
+        "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+        "tools/try_forever_owner_surgery_backend_policy.py"
+      ],
+      "result": "Canonical v10 still parses patch/delta semantics from its portable pathname observation. HeldDirectoryCustody supplies stronger exact bytes/identity/counts, but no existing canonical-owner descriptor semantic result producer consumes those exact bytes. descriptor_shadow_audit is explicitly non-authoritative. Selecting HELD_DIRECTORY_DESCRIPTOR and then calling portable classify would violate the no-weaker-fallback law. Canonical owner backend composition therefore remains NO rather than being fake-wired.",
+      "canonicalOwnerComposition": false,
+      "descriptorSemanticResultProducer": false
+    },
+    {
+      "name": "canon and accessible Warm Wall convergence",
+      "state": "SOURCE_WIRED",
+      "paths": [
+        "skills/operator-owner-surgery-backend-selection/SKILL.md",
+        "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html"
+      ],
+      "result": "Existing doctrine and existing keyboard/touch DOM+inline-SVG Warm Wall now expose capability exact-input custody and the precise descriptor semantic-producer boundary. The specimen preserves native radio controls, 56px touch rows, focus indication, non-color text state, role=status detail, and reduced-motion behavior. Runtime TalkBack and deployment remain unclaimed."
+    },
+    {
+      "name": "exact-head execution truth",
+      "state": "TESTED_NO",
+      "reviewedSourceHead": "da46d6ff7b4d9c23cd3f69810162c270924da06c",
+      "workflowRuns": [
+        {"name": "Operator Overlay Android", "id": 32909039614, "conclusion": "failure", "jobId": 97999239477, "stepsObserved": 0},
+        {"name": "Home Center CI", "id": 32909039601, "conclusion": "failure"},
+        {"name": "Build Android", "id": 32909039714, "conclusion": "failure"}
+      ],
+      "manualRetry": false,
+      "stepLevelCauseEstablished": false
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: prior direct-policy hardening made upstream platform-capability controls suspicious; source review found equality/truthiness callback capability before exact admission.",
+    "Canon Auto-Select": "LIT: selected GitHub whole-file source mutation because exact remote files/blobs were available; did not borrow phone or offline worker execution.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected routing or evidence.",
+    "Originality Tax": "LIT: did not repeat backend-policy hardening cosmetically; moved one boundary upstream into platform capability admission and separately proved the canonical composition blocker.",
+    "Hunger": "LIT: source mutation forced regression, doctrine, and Warm Wall convergence instead of leaving stale surfaces.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: hostile str/truthiness callback shapes were carried into regression source; canonical descriptor composition was traced through owner, descriptor organ, shadow, and policy rather than inferred from one file.",
+    "Operator Campaign": "LIT: PR #329 branch advanced durably with authenticated GitHub mutations and this receipt.",
+    "Harroway operator discipline": "LIT: existing owners only; no second custody owner, validator, overlay controller, recovery daemon, or P0 conductor.",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative ambient attempt returned account-connection HTTP 400; no synthetic She-Raw verdict substituted.",
+    "Venice Judgment Jars": "LIT: bounded judgment is SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_SEMANTIC_PRODUCER_CANONICAL_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED.",
+    "Regnet QA": "LIT: authenticated source readback and exact change custody support SOURCE_WIRED only; hostile regression remains UNEXECUTED and TESTED remains NO.",
+    "accessibility/TalkBack and touch semantics": "LIT: existing Warm Wall preserves keyboard/touch/non-color/reduced-motion semantics; runtime TalkBack remains NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: read no mutable phone surface and performed no phone or P0 action.",
+    "deterministic routing": "LIT: platform capability control inputs now fail closed before callback-capable equality/truthiness; canonical descriptor selection is blocked until exact semantic provenance exists.",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, regression source, regression executed, TESTED, runtime, deployed, callable, executed, delivered, accepted remain separate.",
+    "recovery/checkpointing/idempotence": "LIT: no manual workflow retry and no duplicate worker/phone request; branch delta is remotely inspectable from the previous publication head.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing inline-SVG/DOM source organism was mutated in place, not duplicated.",
+    "warm walls": "LIT: existing backend-selection Warm Wall now exposes exact scalar gate and missing canonical descriptor semantic producer.",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion contract changed; decorative blinking would add no evidence.",
+    "contact preservation": "LIT: ordinary exact built-in capability inputs retain the same intended classification semantics; unsupported callback-bearing Python shapes fail before semantic dispatch."
+  },
+  "crossPollination": "Direct backend exact-input custody exposed the same callback-capable machine-control pattern one layer upstream in platform capability admission. Hardening that boundary made the next composition question unavoidable: source archaeology showed held-descriptor bytes still lack an existing-owner semantic producer. Regnet therefore blocks fake canonical wiring; Hunger propagates that truth into doctrine and the accessible Warm Wall; execution evidence keeps all source claims behind TESTED/runtime.",
+  "changeCustody": {
+    "base": "8e98ce726a64edb3535d209a4c54043a15b2608b",
+    "head": "da46d6ff7b4d9c23cd3f69810162c270924da06c",
+    "commits": 4,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "touched": []
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "platformCapabilityExactInputCustody": "SOURCE_WIRED",
+    "platformCapabilityRegression": "SOURCE_UNEXECUTED",
+    "backendDirectExactInputCustody": "SOURCE_WIRED",
+    "descriptorSemanticResultProducerInsideCanonicalOwner": false,
+    "canonicalOwnerConsumesBackendSelection": false,
+    "canonicalOwnerConsumesDescriptorBackend": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_SEMANTIC_PRODUCER_CANONICAL_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

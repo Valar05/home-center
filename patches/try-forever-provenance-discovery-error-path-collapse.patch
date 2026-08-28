@@ -1,0 +1,23 @@
+diff --git a/tools/try_forever_skill_provenance_probe.py b/tools/try_forever_skill_provenance_probe.py
+--- a/tools/try_forever_skill_provenance_probe.py
++++ b/tools/try_forever_skill_provenance_probe.py
+@@
+ def bounded_error_path(relative: str) -> str:
+     """Bound operator-facing discovery error paths without inventing aliases."""
+ 
+     if len(relative) <= MAX_DISCOVERY_ERROR_PATH_CHARS:
+         return relative
+     digest = hashlib.sha256(
+         relative.encode("utf-8", errors="surrogatepass")
+     ).hexdigest()[:16]
+-    suffix = f"...#{digest}"
+-    keep = max(0, MAX_DISCOVERY_ERROR_PATH_CHARS - len(suffix))
+-    return relative[:keep] + suffix
++    # Do not expose an arbitrary prefix when bounding an error path. A raw
++    # code-point cut can split a combining/emoji grapheme before the later
++    # collision-safe report projector gets a chance to see the original
++    # identity. Collapse the whole over-budget repository-relative diagnostic
++    # to the same constant marker + exact-identity digest shape used by the
++    # report display policy. In-budget diagnostics remain exact internal text
++    # until serialization.
++    return f"<repo-path>...#{digest}"

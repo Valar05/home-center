@@ -1,0 +1,37 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-27-heartbeat-1558",
+  "reviewedSourceHead": "0b1213cba2be3b4c6aab2435582c495bcc81107b",
+  "verdict": "PASS_BOUNDED_SOURCE__HORIZONTAL_GEOMETRY_SOURCE_WIRED__OWNER_WIRING_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "horizontalCollectionGeometry": {
+      "state": "SOURCE_WIRED",
+      "policyBlob": "cb4638a2b02d077fd4760ada65b590a2643278e9",
+      "law": "horizontal native strip => rows=1, columns=N; item rowIndex=0, columnIndex=index",
+      "contact": "stale selected identity still yields zero selected items rather than inventing replacement selection"
+    },
+    "regressionConvergence": {
+      "state": "SOURCE_UNEXECUTED",
+      "junitBlob": "cd14fc23a1165d8af5a50164603b882188f18e32",
+      "doctrineAndOwnerPatchFixtures": "SOURCE_UPDATED_UNEXECUTED"
+    },
+    "nativeOwner": {
+      "state": "REVISE_REQUIRED",
+      "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+      "combinedPatch": "CANONICAL_PROPOSED_NOT_APPLIED",
+      "heartbeatMaterialTransition": "REVIEW_READY_DESIGN_OWNER_WIRED_NO",
+      "spotifyDetailAdam": "LEGACY_RECEIPTS_PRESERVED_BLOCKERS_NON_NONE"
+    }
+  },
+  "adversarialReview": [
+    "reject transposed horizontal row/column collection metadata",
+    "do not promote supporting policy or patch existence into native owner wiring",
+    "do not remove repeatable Spotify/detail/Adam receipts by association",
+    "selection semantics do not authorize focus movement or motion",
+    "source/JUnit/doctrine evidence is not runtime TalkBack proof"
+  ],
+  "externalStandardCheck": "Android RecyclerView.LayoutManager documentation: horizontal scrolling => item-count accessibility columns; no vertical scrolling => one accessibility row",
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_SUBSTITUTE",
+  "executionTruth": "exact-head workflows completed failure; Operator Overlay job 98672888060 has steps=[]; no manual retry; TESTED_NO",
+  "firewall": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+}

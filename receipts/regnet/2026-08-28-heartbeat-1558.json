@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-28T15:58:00-05:00",
+  "reviewedSourceHead": "d43bfd58b2bc329c0be732ab4482654940d353c5",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "fronts": {
+    "sendLifecycleFieldCustody": "EVIDENCE_REVISE_REQUIRED_RED_SOURCE_UNEXECUTED",
+    "temporalShadowFixture": "RED_SOURCE_UNEXECUTED",
+    "temporalDoctrine": "PASS_SOURCE_HARDENED",
+    "warmWallTruthSync": "PASS_SOURCE_ONLY_NOT_RUNTIME",
+    "warmWallTruthFixture": "PASS_SOURCE_CONVERGED_UNEXECUTED",
+    "nativeUiRequestOwner": "REBASED_PROPOSED_NOT_APPLIED",
+    "nativeAccessibilityOwner": "REBASED_PROPOSED_NOT_APPLIED",
+    "runtimeTalkBack": "NO",
+    "tested": "NO"
+  },
+  "findings": [
+    "Owner-probe v11 lifecycle regexes can be satisfied by method-local declarations named adamSendButton or adamMode; these tokens do not prove persistent field custody.",
+    "The existing temporal fixture now pins both local-shadow shapes as PARTIAL_UNSAFE hostile cases; current probe v11 does not yet reject them, so the source is intentionally RED and unexecuted.",
+    "The existing Warm Wall is truth-demoted and the Send action now references current non-live inputState with aria-describedby, keeping action and availability reason inspectable together without live-region chatter.",
+    "No native owner or runtime capability changed."
+  ],
+  "execution": {
+    "operatorOverlayAndroidRun": 33210934970,
+    "homeCenterCiRun": 33210934953,
+    "buildAndroidRun": 33210934932,
+    "conclusions": "failure/failure/failure",
+    "operatorJob": 98983699276,
+    "operatorSteps": 0,
+    "manualRetry": false,
+    "fixtureExecution": false,
+    "regressionExecuted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

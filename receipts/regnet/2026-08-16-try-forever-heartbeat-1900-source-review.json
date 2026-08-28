@@ -1,0 +1,41 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-1900",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedHead": "31e70f8e6ec73d7f6a0ad05d57618743a9754b96",
+  "review": {
+    "identityRule": "PASS: display-ready machine ids now use one deterministic ASCII token alphabet while human-facing semantic text remains safe Unicode.",
+    "architecture": "PASS: the change composes the existing typed source contract and existing overlay ownership; no neighboring owner was introduced.",
+    "accessibility": "PASS: accepted semantic ids now have one deterministic case-insensitive ownership relation for touch, selection, detail, and viewport routing.",
+    "knownBoundary": "Canonical parser rejection currently uses the existing generic typed-contract rejection text. It is fail-closed; wording specificity is not expanded in this source slice."
+  },
+  "readback": {
+    "policyBlob": "8623beb8a02450061a8dadb244c371268e5f87b6",
+    "regressionBlob": "4dde3f27b4a573795a389dfd767af0ba369f68f7",
+    "skillBlob": "46e851587d062a6e45cf6e6e63578302f43883f3",
+    "artBlob": "26b88ee3dc46df8dd95a3a2a7d0bc6e81cc14323"
+  },
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflowRun": 31980979621,
+    "job": 95247572274,
+    "head": "ce83597a2adcfb44af3092862b1a748200ac8911",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "try-forever-swarm-receipt.v3",
+  "heartbeat": "2026-08-18-2200",
+  "sourceHeadReviewed": "b5417e3faaef69d5a619ee1aac635fde348f6f11",
+  "existingOwner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "authenticatedBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+    "portablePathPolicyConsumed": false,
+    "emissionSnapshotPolicyConsumed": false
+  },
+  "frontsAdvanced": [
+    "exact existing-owner report-boundary composition patch",
+    "code-first patch correction for final currentHead/currentTreeDirty truth",
+    "owner-integration hostile regression source",
+    "portable-report-path skill convergence",
+    "report-emission-snapshot skill convergence",
+    "accessible non-raster provenance Warm Wall mutation",
+    "authoritative She-Raw consultation attempt",
+    "fresh exact-head workflow evidence without retry",
+    "Regnet and Venice durable review"
+  ],
+  "lights": [
+    {"light":"Failure Is The Shovel","state":"ACTIVE","why":"Turned the 2100 unwired-owner boundary into an exact existing-owner surgery and red integration fixture instead of repeating policy-only prose."},
+    {"light":"Canon Auto-Select","state":"ACTIVE","why":"Current-tree report-path and emission-snapshot skills were selected because the owner still does not consume them; completed provenance gates stayed dark."},
+    {"light":"Autocorrect Judgment Jar","state":"DARK","why":"No speech-to-text or autocorrect ambiguity materially affected this pulse."},
+    {"light":"Originality Tax","state":"ACTIVE","why":"Code review rejected patch v1 after discovering its currentHead/currentTreeDirty fields would become stale relative to the new final emission observation; v2 repaired the contract."},
+    {"light":"Hunger","state":"ACTIVE","why":"Ate two source-only report-boundary policies into one exact owner composition plan without hatching a second provenance owner."},
+    {"light":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"Cross-pollinated privacy-safe path projection, late custody, schema truth, strict-mode semantics, regression source, skills, art, and reviews."},
+    {"light":"Operator Campaign / Harroway discipline","state":"ACTIVE","why":"All durable mutations used the authenticated GitHub lane; the real owner was read back and kept authoritative while the patch remains explicitly unapplied."},
+    {"light":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative ambient consultation was attempted and account connection returned HTTP 400; no synthetic critique was substituted."},
+    {"light":"Venice Judgment Jars","state":"ACTIVE","why":"Allows this supporting-source slice to yield but keeps owner wiring, tests, runtime, and campaign CONTINUE_REQUIRED."},
+    {"light":"Regnet QA","state":"ACTIVE","why":"Caught the stale-current-field defect, required schema v4, and refused to promote a patch artifact or red fixture into owner implementation/test evidence."},
+    {"light":"accessibility/TalkBack and touch semantics","state":"ACTIVE_BOUNDED","why":"Operator-facing durable report paths suppress host-local identity leakage; the existing keyboard/touch Warm Wall was updated to expose PATCH PREPARED versus OWNER WIRED without claiming runtime TalkBack."},
+    {"light":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"Considered and deliberately untouched under the P0/shared-phone firewall."},
+    {"light":"deterministic routing / evidence capability discipline","state":"ACTIVE","why":"Internal Path identity, serialized display path, discovery certification, final emission observation, proposed owner patch, owner readback, tests, runtime, deployment, delivery, and acceptance remain separate states."},
+    {"light":"recovery/checkpointing/idempotence","state":"ACTIVE_BOUNDED","why":"Late custody must fail closed and zero earlier authority instead of letting a stale certified record set float forward; this narrows but does not atomically close the mutation window."},
+    {"light":"strange non-raster vector/DOM/native UI art + warm walls","state":"ACTIVE","why":"Existing DOM/inline-SVG Warm Wall was materially mutated in place with PATCH PREPARED / PROPOSED v4 truth; no new renderer or specimen family was created."},
+    {"light":"Christmas-light scene graph","state":"DARK","why":"Report bookkeeping and patch provenance earned no autoplay, blink, or transition motion."},
+    {"light":"contact preservation","state":"ACTIVE_BOUNDED","why":"A late repository wound must preserve diagnostic evidence while withholding authority-facing skill records; this is report-evidence contact, not Android heartbeat-frame runtime contact."}
+  ],
+  "crossPollination": [
+    "portable report path + late emission custody -> one owner composition -> schema v4 instead of silent v3 drift",
+    "late emission observation -> code review discovers currentHead/currentTreeDirty would become stale -> patch v2 binds current fields to final observation",
+    "owner patch -> red integration fixture -> skill doctrine convergence -> Warm Wall patch-prepared topology",
+    "exact owner readback + failed workflow evidence -> capability membrane stays shut"
+  ],
+  "executionEvidence": {
+    "patchHead": "cc09ccb074439d3b3aed1f64dc9d99034214ae46",
+    "operatorRunId": 32211096873,
+    "operatorJobId": 95943766257,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "latestSourceArtHead": "b5417e3faaef69d5a619ee1aac635fde348f6f11",
+    "workflowRunsObservedAtLatestSourceArtQuery": 0
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "ownerIntegrationPatch": "PROPOSED_NOT_APPLIED",
+    "ownerPortablePathWired": false,
+    "ownerEmissionSnapshotWired": false,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED"
+}

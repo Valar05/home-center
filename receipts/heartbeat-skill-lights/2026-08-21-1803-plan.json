@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-21-1803",
+  "scope": "non-P0 TRY FOREVER owner convergence",
+  "missionBoundary": {
+    "existingOwner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "ownerBlobRequired": "c5de1411a6b68087ae17aff83c032af754587150",
+    "p0PhoneConsumptionAllowed": false,
+    "duplicateArchitectureAllowed": false
+  },
+  "fronts": [
+    {
+      "name": "collapsed-operational-truth-refresh",
+      "action": "Apply the already-reviewed existing-owner composition so changing HC operational state refreshes the surviving collapsed semantic owner independently of heartbeat SKIP_UNCHANGED, with equality-gated contentDescription writes.",
+      "supportingOrgans": [
+        "HeartbeatCollapsedOwnerAccessibility",
+        "heartbeat-collapsed-operational-refresh"
+      ]
+    },
+    {
+      "name": "adam-send-availability",
+      "action": "Apply the already-reviewed existing-owner composition so trim-empty Adam requests expose native disabled Send semantics and edit/mode changes refresh the exact current action.",
+      "supportingOrgans": [
+        "AdamSendAvailabilityAccessibilityPolicy",
+        "AdamSendActionAccessibilityPolicy"
+      ]
+    },
+    {
+      "name": "evidence-convergence",
+      "action": "After mutation, authenticate owner blob/readback, retire PROPOSED_NOT_APPLIED provenance, synchronize affected skills/art, and preserve TESTED/runtime/deployed/delivered states independently."
+    },
+    {
+      "name": "execution-truth",
+      "action": "Observe automatic workflows only; do not retry unchanged zero-step failures and do not infer a step-level cause without evidence."
+    }
+  ],
+  "reviewConstraints": {
+    "sheRaw": "Attempt authoritative consultation once; preserve connector fault if unavailable.",
+    "regnet": "Code/readback claims only until deterministic tests execute.",
+    "venice": "Source slice may stop only after authenticated owner readback and capability membrane review."
+  },
+  "firewall": {
+    "phoneHands": "forbidden",
+    "primaryPhone": "forbidden",
+    "p0RecoveryMutation": "forbidden",
+    "nightcorePocketTtsChromiumContextOrgans": "forbidden",
+    "physicalAcceptance": "forbidden"
+  }
+}

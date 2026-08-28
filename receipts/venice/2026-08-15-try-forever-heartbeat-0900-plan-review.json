@@ -1,0 +1,104 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone skill-light fronts while P0 and the primary-phone surface remain firewalled; preserve capability-state truth and avoid decorative progress.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "cc7733c8101b32bd9e13ff6f7a1c5e7f3fa87112",
+  "timestamp": "2026-08-15T13:58:30Z",
+  "research": [
+    "PR #329 current body and capability ledger",
+    "skills/heartbeat-skill-lights/SKILL.md",
+    "skills/vlad-swarm/SKILL.md",
+    "skills/renee-qa/SKILL.md",
+    "skills/venice-review-memory/SKILL.md",
+    "skills/vlad-judgment-jars/SKILL.md",
+    "skills/fortress-plan-gate/SKILL.md",
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    "HeartbeatSkillPolicy.java",
+    "HeartbeatEnvelopeParser.java",
+    "HeartbeatSceneGraph.java",
+    "HeartbeatFrameAccessibility.java",
+    "HeartbeatFrameCheckpoint.java",
+    "existing DOM contact-sheet specimen"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0/phone ownership, execution lane, and delivery surface are binding exclusions."
+    },
+    {
+      "id": "change-discipline",
+      "source": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "Keep each source mutation small, coherent, inspectable, and contract-preserving."
+    },
+    {
+      "id": "venice-review-memory",
+      "source": "skills/venice-review-memory/SKILL.md",
+      "why": "Apply scars for status-without-capability, evidence laundering, planning bypass, dead jokes, and grand-plan inflation."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "Separate source/readback from TESTED and attack accessibility/regression claims."
+    },
+    {
+      "id": "vlad-judgment-jars",
+      "source": "skills/vlad-judgment-jars/SKILL.md",
+      "why": "Preserve typed provenance and durable review/result receipts without inventing a second watcher or control plane."
+    }
+  ],
+  "plan": [
+    "Front A — Accessibility/TalkBack: bound collapsed speech so a broad constellation cannot become a 100k-character screen-reader monologue; retain total/state truth and move verbose consequence/evidence to per-light detail.",
+    "Front B — Stable touch semantics: add stable node-id detail lookup so selection can survive scene reorder without relying only on a transient focus index; preserve the existing index API.",
+    "Front C — Hunger/warm-wall art: add one new touchable DOM/vector constellation source specimen populated from repository-grounded skill provenance plus explicit doctrine/reviewer/runtime-boundary lights; no raster and no runtime claim.",
+    "Front D — Doctrine/regression source: update heartbeat skill doctrine and regression fixtures for bounded collapsed speech, stable-id lookup, and source-only capability truth.",
+    "Front E — Evidence/review: perform code-first Regnet-style source review, Venice completion review, exact GitHub readback, and update PR #329 without promoting TESTED/UI/deployed/callable/delivered/accepted."
+  ],
+  "outsideScope": [
+    "primary-phone execution",
+    "Phone Hands tickets or queue mutation",
+    "P0 Fortress recovery orchestration",
+    "Nightcore playback",
+    "Pocket TTS",
+    "Chromium control",
+    "Context Organs",
+    "new overlay controller or recovery daemon",
+    "merging PR #329 as delivered capability"
+  ],
+  "antagonism": [
+    "Do not turn accessibility hardening into a second renderer or runtime wiring project.",
+    "Do not hide material faults merely to shorten speech; retain exact totals/state counts and per-node detail reachability.",
+    "Do not use the new DOM specimen as runtime/UI proof.",
+    "Do not retry blocked GitHub Actions merely to manufacture activity.",
+    "She-Raw authoritative ambient critique was attempted and returned the existing account-connection HTTP 400; do not synthesize a fake reviewer verdict.",
+    "Do not consume or mutate any P0/phone surface even if repository or queue evidence looks green.",
+    "Keep the patch bounded: no broad overlay rewrite, no duplicate architecture, no unrelated cleanup."
+  ],
+  "acceptance": [
+    "New source changes are committed on the existing PR branch and survive exact GitHub readback.",
+    "Collapsed accessibility output has a deterministic bounded form while preserving total/state truth and direct detail lookup.",
+    "Stable-id detail lookup exists without breaking focus-index compatibility.",
+    "A new non-raster touchable constellation specimen exists and labels itself source-only.",
+    "Regression source covers overload and stable-id behavior.",
+    "P0/phone mutation count remains zero.",
+    "TESTED remains NO/BLOCKED_UNKNOWN unless an authorized deterministic job actually executes."
+  ],
+  "reviewerPrecedent": [
+    "repository evidence laundered into runtime proof",
+    "status panel substituted for capability",
+    "grand-plan inflation starved the usable MVP",
+    "planning bypass",
+    "dead motivational joke substituted for worker motivation"
+  ],
+  "veniceDirective": "PLAN_ALLOWED",
+  "veniceFindings": [
+    "The proposed fronts are independent of the gated phone/P0 chain.",
+    "The accessibility overload defect is material because MAX_LIGHTS=64 and consequence text may be large even when parsing is valid.",
+    "Stable node identity is a useful source contract that composes the existing scene rather than inventing a controller.",
+    "The new art specimen is allowed only as an explicit source specimen, never as runtime evidence."
+  ]
+}

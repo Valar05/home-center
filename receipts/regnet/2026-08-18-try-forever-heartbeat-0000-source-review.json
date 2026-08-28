@@ -1,0 +1,73 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "reviewedSourceHead": "d36dd8d41bbff2fb1cf8afd09ce135d813b7d4a1",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "summary": "The prior five-line deep-detail patch was correctly rejected before owner application after primary AOSP source showed TextView line-mode maximums flow into StaticLayout max-lines. The corrected source uses a pixel-height viewport so the full projected detail layout remains available for scrolling, preserves passive movement-method ownership, and retains generation-bound scroll restoration. Existing-owner wiring remains false.",
+  "checks": {
+    "failureIsTheShovel": "PASS_REPLAN_INSTEAD_OF_APPLYING_INVALID_PATCH",
+    "originalityTax": "PASS_MATERIALLY_DIFFERENT_RECOVERY",
+    "duplicateArchitecture": "PASS_NO_NEW_OWNER",
+    "p0Firewall": "PASS_ZERO_PHONE_OR_P0_MUTATION",
+    "fullDetailLayoutPreservedByPolicy": "PASS_SOURCE",
+    "destructiveEllipsisForbidden": "PASS_SOURCE",
+    "pixelHeightViewportPolicy": "PASS_SOURCE",
+    "overflowSafeViewportMath": "PASS_SOURCE",
+    "passiveFocusClickOwnership": "PASS_SOURCE",
+    "generationBoundScrollRestore": "PASS_PROPOSED_PATCH",
+    "nativeRuntimeProof": "NO",
+    "tested": "NO"
+  },
+  "exactSource": {
+    "HeartbeatDetailSurfacePolicy.java": "36fadf5319e655b424ee1ff2f1a797864af94208",
+    "HeartbeatDetailSurfacePolicyTest.java": "0b035bb21a8396fb1f25e13ff61f1b7445688fcf",
+    "operator-overlay-heartbeat-detail-scroll-wiring.patch": "991cc7b950d1beb7ce9f50815b7107094562ba80",
+    "heartbeat-deep-detail-viewport/SKILL.md": "cffc9ce17677eed9490f390d92595de81fc14861",
+    "actual OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
+  "primaryPlatformEvidence": [
+    "AOSP TextView.java: setMovementMethod invokes fixFocusableAndClickableSettings and warns non-focusable callers to reassert focusability after movement method installation.",
+    "AOSP TextView.java: movement method participates in onTouchEvent without a clickability gate when enabled/spannable/laid out.",
+    "AOSP ScrollingMovementMethod.java: touch events delegate to the scrolling Touch helper.",
+    "AOSP TextView.java: line-mode maximum is passed to StaticLayout.Builder.setMaxLines; pixel-height maximum leaves layout line budget unbounded while measured height is pixel-capped."
+  ],
+  "testBoundary": {
+    "sourceHead": "d36dd8d41bbff2fb1cf8afd09ce135d813b7d4a1",
+    "operatorOverlayRun": 32101857821,
+    "operatorOverlayJob": 95603771939,
+    "conclusion": "failure",
+    "stepLevelCauseAvailable": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "mutationBoundary": {
+    "computerHandsWorker": "windows-hands-01",
+    "computerHandsOnline": false,
+    "directGitHubWriteShape": "whole-file replacement only",
+    "ownerPatchApplied": false,
+    "reason": "Do not reconstruct a large existing owner file from partial conversational context merely to claim implementation; preserve the exact corrected delta until an exact patch-capable non-phone lane is available."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewInvented": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "hostileRegressionSource": true,
+    "correctedOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "remainingWound": "Apply the corrected pixel-height deep-detail delta to the existing OperatorOverlayService through an exact patch-capable non-phone mutation lane; then verify native source and execute Android tests when a runner is available."
+}

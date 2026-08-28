@@ -1,0 +1,92 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T05:00:00-05:00",
+  "commission": "Harroway operator-mode non-P0 broad swarm",
+  "previousPublicationHead": "2d683ae50ddd93d9b4d8db959f2c7b5929d5e429",
+  "reviewedSourceHead": "a3aa4af802643b7a06965435873ca0a369a86e06",
+  "sourceDelta": {
+    "commits": 6,
+    "paths": 6,
+    "unexpectedPaths": 0,
+    "pathsChanged": [
+      "tools/try_forever_owner_surgery_semantic_parser.py",
+      "tools/test_try_forever_owner_surgery_semantic_parser.py",
+      "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "skills/operator-owner-surgery-custody/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "tools/test_try_forever_owner_surgery_backend_selection_source_specimen.py"
+    ]
+  },
+  "lights": {
+    "failureIsTheShovel": "LIT__RAW_SEMANTIC_DIAGNOSTIC_AND_PREOP_SCALAR_RESOURCE_WOUNDS",
+    "canonAutoSelect": "LIT__EXISTING_SEMANTIC_OWNER_SKILLS_AND_WARM_WALL_REUSED",
+    "autocorrectJudgmentJar": "DARK__NO_MATERIAL_TOKEN_AMBIGUITY",
+    "originalityTax": "LIT__ADVANCED_NEW_SEMANTIC_BOUNDARIES_NOT_PRIOR_CONTENT_THROAT_REPEAT",
+    "hunger": "LIT__STALE_BACKEND_AND_CUSTODY_DOCTRINE_CONVERGED",
+    "eatEverything": "LIT__SCALAR_CONTENT_DIAGNOSTIC_DOCTRINE_ACCESSIBILITY_REVIEWED_TOGETHER",
+    "operatorCampaign": "LIT__DURABLE_REMOTE_SOURCE_AND_RECEIPTS",
+    "harrowayDiscipline": "LIT__SOLE_EXISTING_OWNERS_AND_EXACT_CAPABILITY_MEMBRANE",
+    "sheRaw": "RED__REAL_CONNECTOR_ATTEMPT_HTTP_400_NO_SUBSTITUTE",
+    "venice": "LIT__BOUNDED_SOURCE_STOP_ONLY_CONTINUE_REQUIRED",
+    "regnetQa": "LIT__HOSTILE_CALLBACK_RESOURCE_AND_DIAGNOSTIC_FIXTURES",
+    "accessibilityTalkBackTouch": "LIT_SOURCE_ONLY__NATIVE_RADIOS_56PX_FOCUS_LIVE_STATUS_SVG_REDUCED_MOTION_RUNTIME_TALKBACK_NO",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED__ZERO_CONSUMPTION_ZERO_MUTATION",
+    "deterministicRouting": "LIT__NO_SIDE_CAR_AUTHORITY_NO_WEAKER_DESCRIPTOR_FALLBACK",
+    "evidenceCapabilityState": "LIT__SOURCE_WIRED_REGRESSION_UNEXECUTED_TESTED_NO",
+    "recoveryCheckpointingIdempotence": "LIT__EXACT_HEAD_WORKFLOW_READBACK_NO_MANUAL_RETRY",
+    "strangeNonRasterArt": "LIT__EXISTING_DOM_SVG_WARM_WALL_MUTATED_IN_PLACE",
+    "warmWalls": "LIT__SEMANTIC_RESOURCE_AND_DIAGNOSTIC_STATES_ADDED",
+    "christmasLightSceneGraph": "DARK__NO_RUNTIME_MOTION_CONTRACT_CHANGE",
+    "contactPreservation": "LIT__EXACT_EVIDENCE_PRESERVED_PROJECTION_SEPARATE"
+  },
+  "additionalSkills": [
+    "semantic-text-safety",
+    "operator-owner-surgery-backend-selection",
+    "operator-owner-surgery-custody"
+  ],
+  "frontsAdvanced": {
+    "semanticScalarAndContentCustody": "SOURCE_WIRED",
+    "semanticDiagnosticProjection": "SOURCE_WIRED",
+    "hostileSemanticRegression": "SOURCE_UNEXECUTED",
+    "backendDoctrine": "CONVERGED_SOURCE",
+    "custodyDoctrine": "CONVERGED_SOURCE",
+    "accessibleWarmWall": "SOURCE_WIRED",
+    "warmWallRegression": "SOURCE_UNEXECUTED"
+  },
+  "crossPollination": "stale doctrine archaeology -> semantic direct-input review -> pre-membership/regex scalar resource throats + raw hostile diagnostic echo -> semantic-text-safety separation of exact evidence from projection -> hostile regression source -> backend/custody doctrine convergence -> existing accessible Warm Wall convergence -> exact-head workflow truth",
+  "executionTruth": {
+    "homeCenterCiRun": 32956517289,
+    "buildAndroidRun": 32956517419,
+    "operatorOverlayRun": 32956517293,
+    "operatorOverlayJob": 98139254401,
+    "operatorOverlaySteps": 0,
+    "conclusion": "failure",
+    "manualRetryFired": false,
+    "sourceDiagnosisEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0PhoneFirewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

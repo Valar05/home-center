@@ -1,0 +1,58 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-22T11:58:48-05:00",
+  "baseHead": "44c80fa131b1d4b465e941abc23d9c7dc800399b",
+  "mission": "Advance multiple non-P0 TRY FOREVER fronts without consuming phone/P0 surfaces or creating duplicate architecture.",
+  "fronts": [
+    {
+      "name": "authenticated-current-owner-identity",
+      "action": "Remove trim/lowercase repair of authenticated current-owner blob evidence in both CLI admission and programmatic classify input; add exact fail-closed admission and regression coverage.",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "boundary": "No normalization-dependent blob may earn current-base authority."
+    },
+    {
+      "name": "descriptor-custody-cross-review",
+      "action": "Review held-directory supporting source against canonical v10 evidence fields and preserve any uncovered composition boundary without mutating canonical owner unless independently justified.",
+      "owner": "tools/try_forever_posix_directory_handle_custody.py",
+      "boundary": "Descriptor integration remains distinct from exact current-owner identity repair and universal atomicity remains unclaimed."
+    },
+    {
+      "name": "skill-doctrine-convergence",
+      "action": "Update operator-owner-surgery-base-identity doctrine only after authenticated source readback proves the owner state.",
+      "owner": "skills/operator-owner-surgery-base-identity/SKILL.md"
+    },
+    {
+      "name": "warm-wall-contact",
+      "action": "Mutate the existing non-raster custody organism in place so exact current-owner identity is touch-inspectable without claiming runtime/TalkBack/phone delivery.",
+      "owner": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html"
+    },
+    {
+      "name": "review-evidence",
+      "action": "Record She-Raw fault if present, Regnet bounded review, Venice completion gate, workflow/test evidence, and exact capability membrane."
+    }
+  ],
+  "requiredLightsConsidered": {
+    "FailureIsTheShovel": "active",
+    "CanonAutoSelect": "active",
+    "AutocorrectJudgmentJar": "dark-no-ambiguity",
+    "OriginalityTax": "active",
+    "HungerEatEverything": "active",
+    "OperatorCampaignHarroway": "active",
+    "SheRaw": "attempted-pre-execution",
+    "Venice": "plan-gate-active",
+    "Regnet": "completion-review-required",
+    "AccessibilityTouch": "active",
+    "PhoneRuntimePhoneHands": "firewalled-dark",
+    "DeterministicRouting": "active",
+    "EvidenceCapabilityDiscipline": "active",
+    "RecoveryCheckpointIdempotence": "active",
+    "NonRasterWarmWalls": "active",
+    "ChristmasMotion": "dark-unless-state-topology-earns-it",
+    "ContactPreservation": "active"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

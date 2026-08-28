@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "heartbeat": "2026-08-25T12:01:34-05:00",
+  "reviewMode": "same-worker-judgment-jar",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_TYPE_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "boundedPass": [
+    "RED public type-contract regression is durable",
+    "exact base-blob owner surgery provenance is durable and unapplied",
+    "bounded-container doctrine is converged to projector/self-integrity source truth",
+    "exact-head workflow evidence is refreshed without retry or invented cause"
+  ],
+  "continueRequired": [
+    "apply final-v4 public type-contract owner surgery through a safe exact-owner mutation lane",
+    "execute regressions",
+    "repair stale shadow-receipt-integrity schema-v3 doctrine",
+    "TESTED/runtime/deployment/delivery/acceptance"
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "externalVeniceWorkerVerdict": null,
+  "phoneP0Consumption": 0,
+  "phoneP0Mutation": 0
+}

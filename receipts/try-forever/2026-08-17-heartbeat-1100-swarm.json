@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever.heartbeat-swarm.v1",
+  "heartbeat": "2026-08-17T11:00:00-05:00",
+  "theme": "ONE DETAIL AUTHORITY / FAILURE EATS ITS OWN STALE FIXTURES",
+  "frontsAdvanced": [
+    {
+      "front": "source truth convergence",
+      "change": "Retired HeartbeatSceneGraph.Node.detailContentDescription and its copy/construction assignments.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "accessibility regression",
+      "change": "Added HeartbeatDetailAuthorityTest to prevent legacy detail-cache reintroduction and pin ViewModel + frame-accessibility consumers to the collision-safe bounded projection.",
+      "state": "REGRESSION_SOURCE"
+    },
+    {
+      "front": "source archaeology",
+      "change": "Found HeartbeatSceneGraphTest direct references to the retired field and repaired them to use HeartbeatEvidenceDetailProjection.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "contact-preservation fixture repair",
+      "change": "Found a stale assertSame in HeartbeatTypedSourceHardeningTest; rejected refreshes intentionally re-materialize nodes to clamp transition motion, so the fixture now asserts semantic contact equality, distinct object identity, and motion off.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "durable skill doctrine",
+      "change": "heartbeat-invisible-semantic-controls now records one explicit-detail authority and forbids restoring the scene-level duplicate cache.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "touchable non-raster art",
+      "change": "Existing Swan Veil HTML/SVG was mutated in place with a One detail authority case and source/runtime boundary scar.",
+      "state": "IMPLEMENTED_SOURCE_NOT_RUNTIME"
+    },
+    {
+      "front": "review and evidence",
+      "change": "Pre-mutation plan + Venice plan review, Regnet source review, Venice completion review, exact GitHub readback, and current source-head Actions readback boundary are durable.",
+      "state": "REVIEWED_SOURCE"
+    }
+  ],
+  "skillLights": [
+    {"light":"Failure Is The Shovel","state":"ACTIVE","consequence":"Source review found stale direct field references and a stale object-identity fixture; both were repaired."},
+    {"light":"Canon Auto-Select","state":"ACTIVE","consequence":"Selected the explicit-detail convergence seam named by the prior durable receipt rather than relighting completed persistence/motion work."},
+    {"light":"Autocorrect Judgment Jar","state":"DARK","consequence":"No ambiguous speech-to-text token materially affected this source slice."},
+    {"light":"Originality Tax","state":"ACTIVE","consequence":"The duplicate detail path was removed instead of adding a third projection or compatibility wrapper."},
+    {"light":"Hunger","state":"ACTIVE","consequence":"The scene cache, stale fixtures, stale doctrine, and stale art scar were consumed together rather than treated as separate posters."},
+    {"light":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Cross-pollination from field removal forced test archaeology and exposed the unrelated stale no-motion object-identity assertion."},
+    {"light":"Operator Campaign / Harroway discipline","state":"ACTIVE","consequence":"Existing OperatorOverlayService ownership remained unchanged; selected-light detail continues through the existing ViewModel path."},
+    {"light":"She-Raw","state":"FAULT","consequence":"Authoritative consultation attempted; account connection returned HTTP 400. No substitute She-Raw verdict was invented."},
+    {"light":"Venice Judgment Jars","state":"ACTIVE","consequence":"Plan allowed before mutation; completion permits only this bounded source slice to yield."},
+    {"light":"Regnet QA","state":"ACTIVE","consequence":"PASS only for implemented-source/readback; TESTED remains NO."},
+    {"light":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","consequence":"Explicit detail has one collision-safe bounded authority while compact and collapsed routine speech remain unchanged."},
+    {"light":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Zero phone/P0 surface consumption or mutation."},
+    {"light":"Deterministic routing","state":"ACTIVE","consequence":"Known detail consumers converge on one deterministic projection authority."},
+    {"light":"Evidence/capability-state discipline","state":"ACTIVE","consequence":"Source, regression source, tested, runtime, deployed, callable, executed, delivered, accepted remain separated."},
+    {"light":"Recovery/checkpoint/idempotence","state":"ACTIVE","consequence":"Stale object-identity test was corrected to the existing semantic-contact/no-motion preservation contract; checkpoint hashing still uses exact source fields."},
+    {"light":"Warm walls / strange non-raster DOM-SVG","state":"ACTIVE","consequence":"Swan Veil was mutated in place with no raster, autoplay, neighboring renderer, or runtime claim."},
+    {"light":"Christmas-light scene graph","state":"ACTIVE","consequence":"Field convergence does not change transition identity; rejected-refresh fixtures explicitly keep motion clamped."},
+    {"light":"Contact preservation","state":"ACTIVE","consequence":"Rejected refresh semantics remain last-good source contact re-materialized with transitionMotion=false."}
+  ],
+  "crossPollination": "Legacy detail cache removal -> stale test compile references -> canonical projection repair -> source review exposed stale assertSame -> contact-preservation fixture repair -> doctrine and Swan Veil synchronized -> Regnet/Venice keep source progress behind the runtime membrane.",
+  "sourceIdentities": {
+    "HeartbeatSceneGraph.java": "977399cd408537bd6be8d712d48fae31b1b8295a",
+    "HeartbeatDetailAuthorityTest.java": "87c2244505632678cad987a2b4e7125955ef6ebc",
+    "HeartbeatSceneGraphTest.java": "0111149f54a984ca8684ba583dbd3865679581a2",
+    "HeartbeatTypedSourceHardeningTest.java": "9bc452db106495ecc68acfa30212d93a94291b25",
+    "heartbeat-invisible-semantic-controls/SKILL.md": "83114dfc2987749d9dcd77d23ea5b7817445c476",
+    "heartbeat-swan-veil-semantic-scar-source.html": "4c3d8eb2818686bacdfde48632f008295e49a099"
+  },
+  "testBoundary": "GitHub Actions workflow-run readback for exact source head 11822c4c8b88c35043e9a4bffdd27a6d17fb1a4f returned HTTP 403 Resource not accessible by integration. No retry was dispatched and no older run was reused.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "legacySceneDetailCacheRetired": true,
+    "knownExplicitConsumersConverged": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

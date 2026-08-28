@@ -1,0 +1,43 @@
+{
+  "heartbeat": "2026-08-22T14:02:57-05:00",
+  "reviewer": "REGNET_QA",
+  "reviewed_source_head": "98e3743da2c30569867a08d5a5e4b7f9db40f895",
+  "verdict": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__DESCRIPTOR_OWNER_UNINTEGRATED__TESTED_NO",
+  "passes": [
+    "HeldDirectoryCustody root open/fstat authority-facing failures are now bounded PosixDirectoryHandleCustodyUnavailable source behavior.",
+    "candidate_inventory fresh scan-handle open, iterator enumeration, and candidate stat authority-facing failures are now bounded DescriptorArtifactCustodyError source behavior with no inventory returned.",
+    "Caller is_candidate failure remains caller-owned even when the callback raises OSError; the first overbroad repair was rejected and replaced after a durable corrective replan.",
+    "Existing entry/candidate budgets, candidate identity handoff, strict UTF-8, artifact I/O containment, portable v10 evidence metrics, and no-follow descriptor custody are preserved in source.",
+    "Focused hostile regression source exists for root open/fstat, scan open/scandir/stat, and caller-policy ownership; execution is not claimed.",
+    "Descriptor skill and the existing non-raster custody wall were converged without creating a second owner/controller."
+  ],
+  "review_scars": [
+    {
+      "wound": "First inventory repair caught callback OSError as enumeration I/O.",
+      "disposition": "REJECTED_AND_REPLACED",
+      "repair": "Catch scandir creation and iterator next OSError only; execute caller policy outside those catchers; hostile fixture now raises caller OSError."
+    }
+  ],
+  "remaining_wounds": [
+    "Descriptor cleanup close channels remain separate: fresh scan-fd close is raw; artifact/root close paths can also surface cleanup OSError. Do not report cleanup containment complete.",
+    "Canonical v10 owner does not consume the held-descriptor backend.",
+    "Atomic root binding and atomic candidate-name binding remain unproven; swap-and-restore and identity reuse remain open.",
+    "Descriptor regressions are source only / UNEXECUTED.",
+    "TESTED/runtime UI/runtime TalkBack/deployment/phone callability/execution/delivery/acceptance remain NO."
+  ],
+  "execution_truth": {
+    "workflow_head": "98e3743da2c30569867a08d5a5e4b7f9db40f895",
+    "home_center_ci": {"run": 32592910536, "status": "completed", "conclusion": "failure"},
+    "operator_overlay_android": {"run": 32592910513, "job": 97079391637, "status": "completed", "conclusion": "failure", "steps": 0, "logs": "404 BlobNotFound"},
+    "build_android": {"run": 32592910510, "status": "completed", "conclusion": "failure"},
+    "step_level_cause_established": false,
+    "manual_retry_fired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phone_p0_consumption": 0,
+    "phone_p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null
+  }
+}

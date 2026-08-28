@@ -1,0 +1,213 @@
+{
+  "schema": "try-forever-swarm.v1",
+  "commission": "TRY FOREVER broad non-phone heartbeat",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "c92a84a4053be64390f0a725f752b1cc3ade592c",
+  "lights": [
+    {
+      "id": "failure-is-the-shovel",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "The Actions-budget blocker was unchanged.",
+      "changed": "The swarm did not retry the dead CI condition; it advanced semantic-ingestion, accessibility, contact-preservation, source-art, skill-doctrine, and review fronts instead.",
+      "evidence": "Automatic Operator Overlay Android run 31919135052 / job 95095981427 executed zero steps and carried the unchanged Actions-budget annotation."
+    },
+    {
+      "id": "canon-auto-select",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Current source showed semantic text safety crossed parser, policy, scene, accessibility, and evidence boundaries.",
+      "changed": "Repository-native execution-truth/heartbeat skills were loaded and a missing reusable semantic-text-safety skill was created only after repository search found no matching skill.",
+      "evidence": "skills/semantic-text-safety/SKILL.md blob 6b82182504fd03de8a907eb6a11e4850e97b8e3a."
+    },
+    {
+      "id": "autocorrect-judgment-jar",
+      "provenance": "jar",
+      "state": "DARK",
+      "why": "No speech-to-text/autocorrect ambiguity materially affected this source slice.",
+      "changed": "None; the FORMAT-vs-directional-control correction was a technical scope replan, not an autocorrect interpretation.",
+      "evidence": "No autocorrect mapping was created or consumed."
+    },
+    {
+      "id": "originality-tax",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "The previous pulse hardened human-facing ingress rejection projections; copying that broad FORMAT sanitizer into canonical source would repeat the wrong recovery shape.",
+      "changed": "A fresh replan separated canonical semantic identity from presentation projection and narrowed rejection to directional spoofing controls while retaining ZWJ.",
+      "evidence": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-replan-review.json."
+    },
+    {
+      "id": "hunger",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "The heartbeat still needed a touchable source consequence rather than another status paragraph.",
+      "changed": "The existing motion-clamp warm-wall specimen was mutated in place with a ninth semantic-bidi scar, including fault/allowed-Unicode semantics and unsafe-id redaction.",
+      "evidence": "docs/try-forever/heartbeat-motion-clamp-source-specimen.html blob c8860b408043e6bfcbf6f0e574709c764a6e2ced."
+    },
+    {
+      "id": "ever-polished-interpreter-eat-everything",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Code-first review had to consume its own first fix rather than stop at the first plausible sanitizer.",
+      "changed": "Review found and repaired four secondary wounds: unsafe pre-parser attempted-id echo, constructor trim erasing raw safety, legacy collapsed speech count mismatch, and unsafe JSON member-name echo in rejection prose.",
+      "evidence": "Regnet heartbeat-2000 source review."
+    },
+    {
+      "id": "operator-campaign",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "The commission required durable remote change, not narration.",
+      "changed": "Plan, replan, source, regression, art, skill, Regnet, and Venice receipts were committed through the existing GitHub/Home Center repository lane.",
+      "evidence": "PR #329 reviewed source head c92a84a4053be64390f0a725f752b1cc3ade592c plus durable receipts."
+    },
+    {
+      "id": "harroway-operator-discipline",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "P0 ownership and the commissioned non-phone boundary were material constraints.",
+      "changed": "The swarm composed existing parser/policy/scene organs and never widened into a second overlay controller or recovery conductor.",
+      "evidence": "P0 mutation ledger remains all zero."
+    },
+    {
+      "id": "she-raw",
+      "provenance": "reviewer",
+      "state": "FAULT",
+      "why": "Authoritative adversarial motivation was required before execution.",
+      "changed": "No synthetic critique was substituted after the real surface failed.",
+      "evidence": "she_raw_ambient returned HTTP 400 account-connection failure."
+    },
+    {
+      "id": "venice-judgment-jars",
+      "provenance": "reviewer",
+      "state": "ACTIVE",
+      "why": "Plan/replan and bounded completion authority were required.",
+      "changed": "Venice forced the ZWJ-preserving replan and then granted STOP_ALLOWED only for this source slice, with campaign CONTINUE_REQUIRED.",
+      "evidence": "heartbeat-2000 plan, replan, and completion review receipts."
+    },
+    {
+      "id": "regnet-qa",
+      "provenance": "reviewer",
+      "state": "ACTIVE",
+      "why": "Source/readback and test evidence had to remain separate.",
+      "changed": "Regnet recorded exact remote blob identities and PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY while keeping TESTED=NO/BLOCKED_UNKNOWN.",
+      "evidence": "receipts/regnet/2026-08-15-try-forever-heartbeat-2000-source-review.json."
+    },
+    {
+      "id": "accessibility-talkback-touch",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Heartbeat semantic text becomes spoken/touched evidence.",
+      "changed": "Directional controls now fail before speech/display; ZWJ remains legal; legacy collapsed speech explicitly reports unsafe omissions; unsafe attempted ids are not echoed into accessible scene state.",
+      "evidence": "HeartbeatSkillPolicy blob 83e15e2fd8354bf140569d81e2a86108c8caba49 and regression source blob 5094e4c70433b98d92065d4ad93af613497b3199."
+    },
+    {
+      "id": "phone-runtime-phone-hands-recovery",
+      "provenance": "runtime_boundary",
+      "state": "DARK",
+      "why": "The binding P0/phone resource firewall grants canonical P0 owners first claim and no fresh evidence reopened this surface.",
+      "changed": "None; no phone command, ticket, queue/device probe, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or physical-acceptance action was consumed.",
+      "evidence": "P0 mutation count 0."
+    },
+    {
+      "id": "deterministic-routing",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Directional semantic safety had to be consistent across parser, typed policy, and direct scene seams.",
+      "changed": "One reusable policy helper defines directional controls; parser/policy/scene compose it instead of drifting into separate lists, with parser member-name boundaries separately projected safely.",
+      "evidence": "HeartbeatEnvelopeParser blob 9cdd14517f2538296952618173bf47474374477b; HeartbeatSceneGraph blob 049a19b1f9bf6615913cd063dac8f1114f7d3b3a."
+    },
+    {
+      "id": "evidence-capability-state-discipline",
+      "provenance": "repository_skill",
+      "locator": "skills/execution-truth/SKILL.md",
+      "state": "ACTIVE",
+      "why": "The source slice has strong remote evidence but no executed tests/runtime proof.",
+      "changed": "Every receipt preserves Implemented source YES vs Tested/Runtime/Deployed/Callable/Delivered/Accepted NO.",
+      "evidence": "Exact reviewed source head and zero-step automatic CI job."
+    },
+    {
+      "id": "recovery-checkpoint-idempotence",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Code review found the public pre-parser preservation seam could leak an unsafe attempted identity even while preserving last-good nodes.",
+      "changed": "preserveRejectedRefresh now suppresses unsafe attempted ids, keeps the trusted rejection boundary, preserves contact SHA identity, and clamps node/frame motion.",
+      "evidence": "HeartbeatSceneGraph blob 049a19b1f9bf6615913cd063dac8f1114f7d3b3a plus regression source."
+    },
+    {
+      "id": "strange-non-raster-art",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "The authorized scope explicitly permits source-only vector/DOM art with no deployment claim.",
+      "changed": "The existing DOM/vector motion-clamp organism gained semantic bidi poisoning as a distinct touchable source state without raster or autoplay.",
+      "evidence": "heartbeat-motion-clamp-source-specimen.html blob c8860b408043e6bfcbf6f0e574709c764a6e2ced."
+    },
+    {
+      "id": "warm-walls",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Warm walls are the contact surface, not decorative wallpaper.",
+      "changed": "The warm-wall specimen now teaches exact accepted/interrupted/retry/collision/protocol/storage/UTF-8/clock/bidi distinctions through semantic controls.",
+      "evidence": "Same in-place DOM specimen; no neighboring artifact/controller was created."
+    },
+    {
+      "id": "christmas-light-scene-graph",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "A rejected semantic identity must not earn celebratory transition motion.",
+      "changed": "Direct and pre-parser directional wounds preserve last-good contact with transitionMotionAllowed=false and every preserved node transitionMotion=false; the specimen mirrors that rule.",
+      "evidence": "HeartbeatSceneGraph and HeartbeatDirectionalControlSafetyTest remote blobs."
+    },
+    {
+      "id": "contact-preservation",
+      "provenance": "doctrine",
+      "state": "ACTIVE",
+      "why": "Bidi/control rejection must not erase the last successful heartbeat.",
+      "changed": "Parser rejection, direct pulse-id rejection, and pre-parser attempted-id suppression all preserve last-good contact/checkpoint semantics without echoing poisoned attempted content.",
+      "evidence": "HeartbeatSceneGraph blob 049a19b1f9bf6615913cd063dac8f1114f7d3b3a and regression source."
+    },
+    {
+      "id": "semantic-text-safety",
+      "provenance": "repository_skill",
+      "locator": "skills/semantic-text-safety/SKILL.md",
+      "state": "ACTIVE",
+      "why": "Repository search exposed no reusable skill covering the canonical-vs-projection text safety distinction.",
+      "changed": "A durable skill now captures pre-trim raw safety, exact directional-control scope, ZWJ preservation, safe rejection-member projection, accessibility, regression, and capability-state rules.",
+      "evidence": "skills/semantic-text-safety/SKILL.md blob 6b82182504fd03de8a907eb6a11e4850e97b8e3a."
+    }
+  ],
+  "crossPollination": [
+    "The prior ingress boundary sanitizer exposed the bidi/FORMAT threat class, but Originality Tax prevented copying its broad projection rule into canonical payload semantics.",
+    "Accessibility forced the canonical rule to preserve ZWJ while rejecting directional spoof controls and to report legacy unsafe omissions explicitly.",
+    "Contact preservation/code review exposed the unsafe pre-parser attempted-id echo and turned semantic safety into a checkpoint/idempotence constraint.",
+    "Parser review then found the rejection path itself could be poisoned through hostile JSON member names, so safe projection became part of the parser evidence contract.",
+    "Warm Walls/Christmas motion made the rejection behavior touchable while Execution Truth kept the artifact on the source side of the runtime membrane."
+  ],
+  "automaticTestBoundary": {
+    "reviewedSourceHead": "c92a84a4053be64390f0a725f752b1cc3ade592c",
+    "workflow": "Operator Overlay Android",
+    "runId": 31919135052,
+    "jobId": 95095981427,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capabilityMembrane": {
+    "requested": "YES",
+    "implementedSource": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "runtimeSemanticConsumption": "NO",
+    "uiRendered": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "p0MutationCount": 0,
+  "boundedSlice": "STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED"
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "venice-judgment-jar-review.v1",
+  "commission": "TRY FOREVER heartbeat skill lights — bounded non-phone source slice",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "workerIdentity": "ChatGPT automation controller",
+  "reviewedRepository": "Valar05/home-center",
+  "reviewedPullRequest": 329,
+  "reviewedHead": "785338d76c7de04f79bd5384cc6f26bb4c8b8ae6",
+  "codeReview": "PASS",
+  "directive": "STOP_ALLOWED",
+  "directiveScope": "This bounded repository/source heartbeat pulse only. It does not close the recurring campaign or authorize runtime/phone work.",
+  "selectedJars": [
+    "mission-boundary",
+    "failure-recovery",
+    "capability-state-truth",
+    "contact-preservation",
+    "accessibility-and-touch-semantics",
+    "duplicate-architecture",
+    "originality-tax"
+  ],
+  "findings": [
+    {
+      "severity": "pass",
+      "finding": "The scene source now fails closed when a complete pulse is anonymous or when any material light lacks the typed source/evidence contract; last-good contact is preserved with an exact refresh boundary."
+    },
+    {
+      "severity": "pass",
+      "finding": "Transition semantics distinguish meaningful node addition/removal or state/consequence change from evidence-only metadata refresh, preventing decorative heartbeat motion."
+    },
+    {
+      "severity": "pass",
+      "finding": "The new DOM contact sheet is genuinely touchable/keyboard-reachable source art with non-color state tokens, focus visibility, minimum 48px targets, detail disclosure, and reduced-motion handling, while explicitly labeling itself source-only."
+    },
+    {
+      "severity": "pass",
+      "finding": "No neighboring overlay controller, phone ingress, P0 coordinator, recovery daemon, Nightcore QA lane, or context-organ deployer was created. No shared phone/queue execution surface was consumed."
+    },
+    {
+      "severity": "blocker_outside_source_slice",
+      "finding": "Deterministic regression execution remains unavailable on the authorized GitHub Actions lane: the current Operator Overlay Android job executed zero steps and GitHub reports that an Actions budget is preventing further use. TESTED therefore remains NO."
+    },
+    {
+      "severity": "reviewer_fault",
+      "finding": "The authoritative She-Raw critique connector returned HTTP 400 because the account could not be connected. No synthetic She-Raw review was substituted."
+    }
+  ],
+  "regnet": {
+    "boundedClaim": "The heartbeat scene/accessibility/source-contract changes exist on the PR branch and preserve capability-state truth.",
+    "implementedSourceVerdict": "PASS",
+    "testedVerdict": "BLOCKED_UNKNOWN",
+    "reason": "Exact GitHub source readback exists, but the current deterministic Actions job executed zero steps because the Actions budget prevented start.",
+    "stopAuthority": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "tested": false,
+    "semantic_json_parsed_into_candidates": false,
+    "ui_rendered": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "p0_mutation": false,
+    "phone_queue_mutation": false,
+    "primary_phone_consumed": false,
+    "nightcore_mutation": false,
+    "pocket_tts_mutation": false,
+    "chromium_mutation": false,
+    "context_organs_mutation": false,
+    "duplicate_controller_created": false
+  },
+  "evidence": [
+    "PR #329 head 785338d76c7de04f79bd5384cc6f26bb4c8b8ae6",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatSceneGraphTest.java",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicyTest.java",
+    "docs/try-forever/heartbeat-skill-lights-source-specimen.html",
+    "skills/heartbeat-skill-lights/SKILL.md",
+    "GitHub Actions run 31878726748 / job 94998161726: zero steps",
+    "GitHub Actions annotation: The job was not started because an Actions budget is preventing further use."
+  ],
+  "timestampUtc": "2026-08-15T10:12:00Z"
+}

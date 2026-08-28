@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localTime": "2026-08-24T17:00:46-05:00",
+  "scope": "non-P0 repository/source only",
+  "owner": "existing final-v4 descriptor-shadow operator receipt chain",
+  "fronts": [
+    "bound snapshot-custody work before JSON serialization",
+    "reject non-JSON key/type normalization at every nested level",
+    "strengthen hostile regression source",
+    "converge snapshot-custody repository skill",
+    "mutate existing non-raster Warm Wall in place",
+    "record Regnet/Venice/capability receipts"
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "manualWorkflowRetry": false,
+    "testedClaimAllowed": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "account-connection HTTP 400",
+    "syntheticSubstitute": false
+  },
+  "currentEvidence": {
+    "pr": 329,
+    "head": "094fe5169390b2b98f019ff54497ed6012154645",
+    "snapshotOwnerSourceWired": true,
+    "regressionExecuted": false,
+    "tested": false
+  }
+}

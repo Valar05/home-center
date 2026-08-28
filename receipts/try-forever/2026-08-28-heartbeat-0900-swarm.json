@@ -1,0 +1,117 @@
+{
+  "schema": "try-forever-swarm-heartbeat.v2",
+  "checkpoint": "2026-08-28T09:00:00-05:00",
+  "prior_publication_head": "803361b5762ed6a557886d2563f27d8f3d20b9b7",
+  "reviewed_source_head": "72c15feb210480aeead3572e5bfc3885c9b96923",
+  "source_delta": {
+    "commits": 5,
+    "intended_paths": 5,
+    "unexpected_paths": 0,
+    "paths": [
+      "tools/try_forever_adam_accessibility_owner_probe.py",
+      "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "skills/adam-mode-accessibility/SKILL.md"
+    ]
+  },
+  "heartbeat_lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Originality Tax", "Hunger", "Ever-Polished Interpreter / Eat Everything", "deterministic routing"],
+      "state": "LIT",
+      "why": "v8 was already demoted for two counterfeit-green evidence shapes",
+      "changed": "repaired the existing probe in place as v9 so compound local rebinding and any second request-persistence sink fail closed"
+    },
+    {
+      "skills": ["Canon Auto-Select", "Operator Campaign", "Harroway operator discipline", "recovery/checkpointing/idempotence", "operator-owner-surgery-custody"],
+      "state": "LIT",
+      "why": "owner custody and no-duplicate-architecture rules require converging the sole evidence organ without applying or cloning native owner surgery",
+      "changed": "broad/focused fixtures converged on v9; native UI request and accessibility surgeries remain exact-base PROPOSED_NOT_APPLIED"
+    },
+    {
+      "skills": ["accessibility/TalkBack and touch semantics", "strange non-raster vector/DOM/native UI art", "warm walls", "Christmas-light scene graph", "contact preservation", "adam-mode-accessibility", "operator-repeatable-accessibility-event-semantics"],
+      "state": "LIT",
+      "why": "the existing Warm Wall encoded capability state with punctuation that had no textual key",
+      "changed": "added a visible capability legend associated with the wall, retained >=56px targets, focus, non-live detail, reduced motion, 1x5 geometry, ASCII trim parity, and the held repeat-send receipt; no blink or synthetic rejection speech"
+    },
+    {
+      "skills": ["Regnet QA", "Venice Judgment Jars", "evidence/capability-state discipline"],
+      "state": "LIT",
+      "why": "source hardening must not be promoted into owner/runtime claims",
+      "changed": "bounded source progress accepted; regression execution, TESTED, Android UI, TalkBack, deployed/callable/executed/delivered/accepted all remain NO"
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "LIT_BOUNDARY",
+      "why": "adversarial review was requested against authority leakage, counterfeit evidence, accessibility/contact regression, duplicate architecture, and P0 overlap",
+      "changed": "authoritative connector attempt returned account-connection HTTP 400; no synthetic substitute or approval manufactured"
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar"],
+      "state": "DARK",
+      "why": "no authority-bearing ambiguous token required phonetic/contextual resolution",
+      "changed": null
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "FIREWALLED_DARK",
+      "why": "binding P0 and primary-phone surface firewall",
+      "changed": "phone consumption and mutation remained zero"
+    }
+  ],
+  "cross_pollination": [
+    "v8 evidence demotion identified compound-binding and second-sink counterfeits",
+    "the same single-owner custody doctrine shaped v9 instead of creating a neighboring probe/controller",
+    "reviewing capability evidence semantics exposed the Warm Wall punctuation-only state key",
+    "the accessibility fix was harvested into adam-mode-accessibility canon",
+    "repeatable-event doctrine prevented source progress from deleting the explicit Adam send receipt",
+    "exact-head zero-step CI kept every repository improvement behind regression-executed/TESTED/runtime"
+  ],
+  "execution_truth": {
+    "home_center_ci": {"run_id": 33179353785, "status": "completed", "conclusion": "failure"},
+    "operator_overlay_android": {"run_id": 33179353824, "job_id": 98876226722, "status": "completed", "conclusion": "failure", "step_count": 0},
+    "build_android": {"run_id": 33179353870, "status": "completed", "conclusion": "failure"},
+    "regression_executed": false,
+    "manual_retry": false,
+    "step_level_diagnosis_claimed": false
+  },
+  "firewall": {
+    "phone_consumption": 0,
+    "phone_mutation": 0,
+    "p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null,
+    "untouched": [
+      "Phone Ingress Swarm",
+      "Nightcore Playback Canary",
+      "Pocket TTS Swarm",
+      "Chromium Control Swarm",
+      "Context Organs Swarm",
+      "queue/relay prerequisites",
+      "PR317/PR318",
+      "physical acceptance chain"
+    ]
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_supporting_source": true,
+    "authenticated_readback": true,
+    "adam_state_request_owner": "SOURCE_WIRED",
+    "adam_ui_request_owner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "adam_native_accessibility_owner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "request_probe_v9": "SOURCE_HARDENED_UNEXECUTED",
+    "focused_fixture": "SOURCE_CONVERGED_UNEXECUTED",
+    "broad_fixture": "SOURCE_CONVERGED_UNEXECUTED",
+    "warm_wall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

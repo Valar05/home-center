@@ -1,0 +1,122 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27T10:00:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "36d4469377e1e56b4c138dbbe940fe0f08b02d2b",
+  "reviewedSourceHead": "e181dccf51b344c0852f0b65173e7dfd78070988",
+  "sourceDelta": {
+    "commits": 10,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0,
+    "paths": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPreviousRefreshIdentitySourceWorkTest.java",
+      "patches/try-forever-heartbeat-refresh-plan-previous-identity-source-throat.patch",
+      "patches/try-forever-heartbeat-scene-direct-candidate-count-throat.patch",
+      "skills/heartbeat-refresh-deduplication/SKILL.md",
+      "tools/test_try_forever_heartbeat_refresh_plan_previous_identity_source_work.py",
+      "tools/test_try_forever_heartbeat_scene_direct_candidate_count_source_work.py"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "previous refresh identity direct source-work custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "Existing HeartbeatOverlayRefreshPlan now bounds direct previous structure/render/announcement identity Strings at the canonical broad source-work ceiling before trim/equality. At/below the throat existing equality semantics remain; above it structure/render fail closed to work and automatic speech fails closed to silence.",
+      "ownerCommit": "0833625cb0738473516fdad54d81c914b0aeba75",
+      "resultBlob": "0d6aa78b0a457ad11660142b8600800055c81529"
+    },
+    {
+      "name": "previous identity regression and doctrine convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "Added Java max/max+1 behavior source, converged Python owner-order source, recorded APPLIED_SOURCE provenance, and updated heartbeat-refresh-deduplication doctrine. No regression execution claim."
+    },
+    {
+      "name": "direct complete-scene candidate-list bounded snapshot",
+      "state": "RED_SOURCE_CORRECTED_PROPOSED_NOT_APPLIED",
+      "changed": "Canonical parser caps lights at 64 before traversal, while direct SceneGraph still traverses arbitrary caller List input. Corrected existing-owner proposal performs one size observation, rejects >64, takes at most 64 indexed reads into an immutable detached list, then routes duplicate/material/display traversal only through that snapshot. Arbitrary-List callback-free admission is explicitly not claimed."
+    },
+    {
+      "name": "proposal adversarial self-review",
+      "state": "SOURCE_CORRECTED_UNEXECUTED",
+      "changed": "The first scene proposal was rejected because it checked count but later traversed the original caller List. The second was rejected because isEmpty()+size contradicted the one-size-observation claim. The patch and RED fixture were corrected rather than promoted."
+    },
+    {
+      "name": "accessibility and contact",
+      "state": "SOURCE_CONSTRAINT",
+      "changed": "Over-ceiling previous announcement identity cannot manufacture automatic speech; generated next identities remain exact. The proposed >64 scene rejection preserves last-good contact and no-motion semantics. Runtime TalkBack remains NO."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: applied the prior RED seam, then used failure against the swarm's own scene proposal twice until it stopped traversing the caller List and stopped making two size/emptiness observations.",
+    "Canon Auto-Select": "LIT: reused HeartbeatOverlayRefreshPlan, HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS, HeartbeatEnvelopeParser.MAX_LIGHTS, and HeartbeatSceneGraph; no neighboring controller/parser was created.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected owner identity, routing, or evidence semantics.",
+    "Originality Tax": "LIT: prior direct-identity failure was repaired in the existing owner; the next independent list-cardinality wound is staged against the existing SceneGraph owner rather than a new admission service.",
+    "Hunger": "LIT: continued past the completed previous-identity gate into direct scene list cardinality and repeated caller-list traversal rather than declaring the refresh stack cured.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: owner mutation forced Java/Python regression, patch provenance, and refresh-dedup doctrine convergence; proposal self-review then tightened the next RED contract.",
+    "Operator Campaign": "LIT: source changes, hostile fixtures, reviews, and receipts are durable on PR 329's branch.",
+    "Harroway operator discipline": "LIT: all work stayed source-only, non-P0, existing-owner, and capability-separated.",
+    "She-Raw adversarial motivation": "LIT_FAULTED: authoritative hostile review was attempted and account connection returned HTTP 400; no synthetic substitute was used.",
+    "Venice Judgment Jars": "LIT: bounded source checkpoint allowed while direct scene candidate ownership, regression execution, TESTED/runtime, and campaign remain continue-required.",
+    "Regnet QA": "LIT: previous identity owner repair passes bounded source review; direct scene candidate snapshot remains REVISE_REQUIRED and unapplied.",
+    "accessibility/TalkBack and touch semantics": "LIT: oversize prior announcement identity fails closed to no speech; generated semantic identities and existing touch/focus contract remain unchanged; runtime TalkBack is NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: phone consumption 0 and phone mutation 0; no P0 recovery owner or surface was touched.",
+    "deterministic routing": "LIT: oversize previous structure/render identity routes to refresh work, oversize prior announcement routes to silence; staged oversize scene list routes to last-good/no-motion rejection.",
+    "evidence/capability-state discipline": "LIT: APPLIED_SOURCE, SOURCE_UNEXECUTED, CORRECTED_PROPOSED_NOT_APPLIED, TESTED, runtime, deployed, delivered, and accepted remain distinct.",
+    "recovery/checkpointing/idempotence": "LIT: exact-head workflow failures were observed without manual retry; next scene proposal preserves last-good contact and clamps rejected-refresh motion.",
+    "strange non-raster vector/DOM/native UI art": "DARK_REVIEWED: existing accessible refresh-boundary SVG remains truthful; no interaction/visual topology changed enough to justify another specimen.",
+    "warm walls": "DARK_REVIEWED: existing source specimen still expresses exact evidence versus bounded work and runtime denial; duplicate wall mutation was refused.",
+    "Christmas-light scene graph": "LIT_CONSTRAINT: the next list-cardinality rejection is required to preserve no-motion rejected-refresh semantics; no decorative animation was added.",
+    "contact preservation": "LIT: next Plan identities remain exact, oversize prior speech identity cannot cause announcement, and the staged scene-list stop preserves last-good visible contact."
+  },
+  "discoveredSkills": {
+    "heartbeat-refresh-deduplication": "LIT_CONVERGED: previous refresh identity direct source-work custody is now SOURCE_WIRED/APPLIED_SOURCE and regression source remains unexecuted.",
+    "heartbeat-source-bound-parity": "LIT_REVIEWED: supplied the cross-path law that canonical field safety does not imply finite direct caller work; parser MAX_LIGHTS parity exposed the independent direct scene List wound.",
+    "heartbeat-semantic-id-boundary": "LIT_REVIEWED: confirmed the repair bounds work around generated identities without creating a second identity namespace."
+  },
+  "crossPollination": "The prior RED previous-identity seam became real owner source, which made its regression/provenance/doctrine stale and forced convergence. The same source-bound-parity law then moved from String work to collection work: canonical parsing caps lights at 64 before traversal, but direct SceneGraph did not. Failure Is The Shovel attacked the first count-only proposal because downstream code still traversed the caller List, then attacked the revised helper because isEmpty()+size violated its one-observation claim. The corrected RED proposal now bounds one size observation plus at most 64 indexed reads, detaches before semantic traversal, explicitly refuses to claim callback-free arbitrary-List admission, and preserves last-good/no-motion semantics without touching P0.",
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Build Android", "id": 33086468620, "status": "completed", "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 33086468624, "status": "completed", "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33086468480, "status": "completed", "conclusion": "failure", "jobId": 98567342174, "steps": 0}
+    ],
+    "exactHead": "e181dccf51b344c0852f0b65173e7dfd78070988",
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "reviews": {
+    "regnet": "receipts/regnet/2026-08-27-heartbeat-1000.json",
+    "regnetCommit": "e13081b4e81f473af8a90893fd1d523b28a6885e",
+    "venice": "receipts/venice/2026-08-27-heartbeat-1000.json",
+    "veniceCommit": "1d1a25d4ebb84f1a70f5fe0840cf987c3c95995d",
+    "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_SCENE_CANDIDATE_SNAPSHOT_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "previousRefreshIdentityCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "directSceneCandidateSnapshotCustody": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

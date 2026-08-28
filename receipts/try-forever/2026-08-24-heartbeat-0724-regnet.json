@@ -1,0 +1,57 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-24T07:24:00-05:00",
+  "reviewedSourceHead": "992732a39d87ae5a3e50936f7b03d520a59802ac",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourceClaims": {
+    "operatorReceiptIdentityVerifierSourceWired": true,
+    "rawEvidenceToFinalReceiptDigestChainSourceWired": true,
+    "finalSemanticMembraneRecheckedBeforeDigestTrust": true,
+    "nativeHeartbeatOwnerPromotion": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "authenticatedReadback": {
+    "operatorReceiptOwnerBlob": "c763848052e5a289dbc255ea9b31a2d798ff2dd0",
+    "identityRegressionBlob": "c702be818065db09dc8de9952f9cceb960028877",
+    "skillBlob": "1f901f28c814c62160d6011e4215aac9eda0f7dc",
+    "nativeOperatorOwnerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "nativeCombinedSurgeryBlob": "2711576ae045b561ceae663184f705beb4c6d468"
+  },
+  "reviewScars": [
+    "The first identity verifier checked digest equality but could have accepted a self-consistently re-signed receipt carrying forbidden final capability or raw-evidence-binding state. The owner was strengthened to recheck the final semantic membrane before digest equality.",
+    "The first hostile rawMachineEvidenceBound assertion expected the wrong error wording. The fixture was corrected to the actual fail-closed final-contract message before this review."
+  ],
+  "sourceDelta": {
+    "base": "e6093d06271fe639e5f48cad67bc804e058ec35f",
+    "commits": 7,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "buildAndroidRun": 32727486042,
+    "operatorOverlayRun": 32727485660,
+    "operatorOverlayJob": 97431950134,
+    "homeCenterCiRun": 32727485670,
+    "operatorStepsExposed": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "reviewerFaults": {
+    "sheRaw": "account connection HTTP 400"
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

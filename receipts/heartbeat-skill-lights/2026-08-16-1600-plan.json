@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-heartbeat-plan/v1",
+  "heartbeat": "2026-08-16-1600",
+  "commission": "Advance broad TRY FOREVER skill lights through authorized non-P0 source lanes only.",
+  "p0_firewall": "BINDING_READ_ONLY",
+  "phone_surface": "UNTOUCHED",
+  "observed_wound": {
+    "owner": "OperatorOverlayService",
+    "source": "HeartbeatOverlayViewModel.LightControl.transitionMotion",
+    "problem": "Semantic transitionMotion reaches the native view model but the existing Android owner never consumes it, so the Christmas-light scene-graph consequence is dead source data rather than bounded native behavior.",
+    "evidence": "OperatorOverlayService applies label/touch/tag/selection/contentDescription but no transitionMotion consequence."
+  },
+  "authorized_fronts": [
+    "pure deterministic native-motion policy",
+    "hostile regression source for no decorative repeat motion",
+    "existing-owner Button wiring only",
+    "accessibility/reduced-motion gate using platform animator enablement",
+    "durable skill doctrine synchronization",
+    "mutate an existing non-raster warm-wall specimen in place if a matching artifact exists",
+    "Regnet/Venice bounded source review and exact capability ledger"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone commands",
+    "P0 recovery/queue/relay mutation",
+    "new overlay controller or renderer",
+    "Nightcore/Pocket TTS/Chromium/Context Organs actions",
+    "runtime/deployed/delivered claims without exact evidence",
+    "decorative autoplay or repeating blink"
+  ],
+  "acceptance": [
+    "motion is allowed only for a material semantic transition",
+    "motion is one-shot and bounded",
+    "platform disabled/reduced animation state prevents native animation",
+    "evidence-only refresh and exact retry earn no motion",
+    "existing OperatorOverlayService remains sole native owner",
+    "source/test/runtime/deployment states remain separate"
+  ],
+  "reviewer_state": {
+    "she_raw": "AUTHORITATIVE_ATTEMPT_FAILED_ACCOUNT_CONNECTION_400"
+  }
+}

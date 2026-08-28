@@ -1,0 +1,72 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-27T09:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "1986db8d956f55073f6dea401191181aec8019c7",
+  "verdict": "PASS_BOUNDED_SOURCE__REFRESH_BOUNDARY_SOURCE_WIRED__REFRESH_SELECTION_SOURCE_WIRED__PREVIOUS_IDENTITY_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "interrupted refresh speech source-work custody",
+      "state": "PASS_SOURCE_WIRED",
+      "evidence": "HeartbeatSceneGraph preserves exact Frame.refreshBoundary while max+1 non-authoritative speech stops before whole-boundary semantic scanning; ordinary admitted boundaries retain the existing 320-code-point projection."
+    },
+    {
+      "front": "interrupted refresh render/announcement identity custody",
+      "state": "PASS_SOURCE_WIRED",
+      "evidence": "HeartbeatOverlayRefreshPlan derives identityBoundary before UTF-8/SHA-256 work; over-ceiling diagnostic boundaries collapse to a deterministic length marker while exact frame evidence remains unchanged."
+    },
+    {
+      "front": "direct refresh selection/focus source-work custody",
+      "state": "PASS_SOURCE_WIRED",
+      "evidence": "fromFrame selectedControlId and viewportAnchorId selected/focused ids now cross the canonical broad direct-source ceiling before adapter trim and downstream case-fold lookup."
+    },
+    {
+      "front": "previous refresh identity direct source-work custody",
+      "state": "REVISE_REQUIRED_RED_SOURCE",
+      "evidence": "shouldRebuildStructure, shouldRefreshContent, and shouldAnnounce still clean arbitrary previous identity Strings before equality; exact existing-owner proposal and RED source fixture are durable but unapplied."
+    },
+    {
+      "front": "contact and motion",
+      "state": "PASS_SOURCE",
+      "evidence": "Rejected refresh keeps exact last-good contact and clamps transition motion; no diagnostic projection feeds canonical contact authority."
+    },
+    {
+      "front": "accessibility source specimen",
+      "state": "PASS_SOURCE_ONLY",
+      "evidence": "New SVG is non-raster, has title/description semantics, shows exact-evidence versus bounded speech/dedup work, and explicitly denies runtime TalkBack/phone proof."
+    }
+  ],
+  "regressions": {
+    "sourcePresent": true,
+    "executed": false,
+    "tested": false,
+    "notes": "Java and Python fixtures pin max/max+1 interrupted-refresh speech, bounded UI identity, direct refresh selection/focus adapters, and the still-RED previous-identity boundary."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "refreshBoundaryCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "refreshSelectionCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "previousIdentityCustody": "NO_PROPOSED_NOT_APPLIED",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

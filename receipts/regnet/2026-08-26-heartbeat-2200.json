@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-26T22:00:00-05:00",
+  "sourceHead": "9fb8a3b2e753bfc87b4bdfad66011b4423a081bb",
+  "verdict": "PASS_BOUNDED_SOURCE__SINGLE_SEMANTIC_PARSER_SOURCE_WIRED__DISCOVERY_DIAGNOSTIC_PROJECTION_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "review": {
+    "singleSemanticParserOwnership": "SOURCE_WIRED",
+    "cleanupOwnerBlob": "3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c",
+    "cleanupRegression": "SOURCE_UNEXECUTED",
+    "discoveryDiagnosticProjection": "RED_SOURCE_UNEXECUTED",
+    "diagnosticFinding": "canonical DiscoveryError.boundary still interpolates raw str(exc); bounded ASCII-safe human-facing projection is not owner-wired",
+    "warmWall": "SOURCE_CONVERGED_WITH_RED_DIAGNOSTIC_STATE",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Home Center CI", "id": 33035351677, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33035351670, "conclusion": "failure", "jobId": 98396758673, "steps": 0},
+      {"name": "Build Android", "id": 33035351690, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-1400",
+  "reviewedOwnerSourceHead": "b9922c7b0fc72dbbebca0648e37f70fbd609462e",
+  "frontsAdvanced": [
+    {
+      "front": "existing-owner named candidate topology",
+      "state": "SOURCE_WIRED",
+      "artifact": "tools/try_forever_skill_provenance_probe.py",
+      "formerBlob": "e3627e342150c48f38099bb68fb118b3c54f2bf4",
+      "blob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+      "change": "Named SKILL.md redirectors/non-ordinary files now fail the global candidate gate under no-follow checks before title/hash authority, with zero partial SkillRecords."
+    },
+    {
+      "front": "existing-owner candidate-file identity revalidation",
+      "state": "SOURCE_WIRED",
+      "artifact": "tools/try_forever_skill_provenance_probe.py",
+      "blob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+      "change": "The existing owner captures no-follow candidate identity before path/collision/title/hash work and revalidates after exact bounded hashing before record append. Persistent replacement, redirector state, unavailable identity, or size/mtime drift blocks authority."
+    },
+    {
+      "front": "hostile existing-owner integration regression",
+      "state": "REGRESSION_SOURCE",
+      "artifact": "tools/test_try_forever_skill_file_identity_integration.py",
+      "blob": "1bb73365270a6c7d85eef0dbe66583d850b29be7",
+      "change": "Pins stable authority, named non-file and symlink rejection before title/hash, post-hash replacement rejection, and identity-capture failure. Source exists; not executed."
+    },
+    {
+      "front": "candidate file identity durable skill",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "skills/heartbeat-skill-file-identity-revalidation/SKILL.md",
+      "blob": "92eef169926fe44069a6154dc0b154eb2e500169",
+      "change": "Doctrine now records existing-owner topology and file-identity wiring YES/SOURCE_WIRED while keeping atomicity, tests, runtime, delivery, and phone claims open."
+    },
+    {
+      "front": "applied static topology provenance",
+      "state": "APPLIED_SOURCE",
+      "artifact": "patches/try-forever-skill-file-topology.patch",
+      "blob": "a3a85e5037169663a803a5b1448edb45139a877a",
+      "change": "Retires stale PROPOSED_NOT_APPLIED status and binds the original topology delta to owner commit b9922c7b0fc72dbbebca0648e37f70fbd609462e / blob 532a5a004dbca1f99caab6e230ef565dd61bf258."
+    },
+    {
+      "front": "accessible candidate identity Warm Wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "docs/try-forever/heartbeat-skill-file-identity-source-specimen.html",
+      "blob": "7d4b1f246a0ef3e70339bd1bf023da98dec999c2",
+      "change": "Existing DOM/inline-SVG radiogroup mutated in place to show owner source wired, redirector/non-file blocked, stable observation, file changed, identity unavailable, and atomicity open; keyboard, >=48px touch, non-color, live detail, and reduced-motion semantics remain."
+    },
+    {
+      "front": "Regnet QA",
+      "state": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "artifact": "receipts/regnet/2026-08-18-try-forever-heartbeat-1400-candidate-owner-integration-review.json",
+      "blob": "2c59c15f58ed95b0ef68186469a956ff7ad8ae75",
+      "change": "Passes existing-owner source wiring and exact readback while preserving final-root, atomicity, execution, test, runtime, and delivery wounds."
+    },
+    {
+      "front": "Venice Judgment Jar",
+      "state": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+      "artifact": "receipts/venice/2026-08-18-try-forever-heartbeat-1400-completion-review.json",
+      "blob": "57f142c8477e66b9e0070a8ef913663583539665",
+      "change": "Allows this bounded owner-wiring source slice to yield while keeping final-root revalidation, atomicity, tests, runtime, and campaign completion open."
+    },
+    {
+      "front": "exact-owner-source execution evidence",
+      "state": "FAILURE_CAUSE_UNRESOLVED",
+      "head": "b9922c7b0fc72dbbebca0648e37f70fbd609462e",
+      "buildAndroidRun": 32174337737,
+      "operatorOverlayRun": 32174337699,
+      "operatorOverlayJob": 95832639575,
+      "homeCenterCiRun": 32174337599,
+      "change": "Fresh automatic workflows concluded failure. Operator Overlay job exposes zero steps and logs return HTTP 404 BlobNotFound; no step-level cause is established and no retry was dispatched. TESTED remains NO."
+    }
+  ],
+  "lights": {
+    "FailureIsTheShovel": "LIT_CHANGED_MUTATION_BOUNDARY_USED",
+    "CanonAutoSelect": "LIT_EXISTING_OWNER_PATCH_HELPER_AND_SKILL_COMPOSED",
+    "AutocorrectJudgmentJar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "OriginalityTax": "LIT_NO_REPEAT_BLOCKED_LANE_NO_SECOND_PROBE_NO_PHONE_SUBSTITUTE",
+    "Hunger": "LIT_PROPOSAL_EATEN_INTO_REAL_OWNER_SOURCE",
+    "EverPolishedInterpreterEatEverything": "LIT_STALE_DOCTRINE_PATCH_PROVENANCE_AND_ART_CONVERGED",
+    "OperatorCampaign": "LIT_EXISTING_OWNER_MUTATED_THROUGH_AUTHORIZED_GITHUB_LANE",
+    "HarrowayOperatorDiscipline": "LIT_EXACT_BASE_BLOB_AND_READBACK",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "VeniceJudgmentJars": "LIT_SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+    "RegnetQA": "LIT_PASS_BOUNDED_SOURCE_ONLY",
+    "AccessibilityTalkBackTouch": "LIT_HOSTILE_FIXTURES_AND_ACCESSIBLE_WARM_WALL",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED_ZERO_CONSUMPTION",
+    "DeterministicRouting": "LIT_NO_FOLLOW_TOPOLOGY_AND_IDENTITY_BRACKET",
+    "EvidenceCapabilityState": "LIT_SOURCE_TEST_RUNTIME_ATOMICITY_DELIVERY_SEPARATED",
+    "RecoveryCheckpointIdempotence": "LIT_FAIL_CLOSED_PRE_POST_IDENTITY_BRACKET",
+    "StrangeNonRasterArt": "LIT_EXISTING_DOM_INLINE_SVG_WALL_MUTATED_IN_PLACE",
+    "WarmWalls": "LIT",
+    "ChristmasLightSceneGraph": "DARK_NO_RUNTIME_SCENE_TRANSITION_OR_MOTION_CHANGE",
+    "ContactPreservation": "LIT_ZERO_PARTIAL_AUTHORITY_ON_GLOBAL_TOPOLOGY_FAILURE",
+    "HeartbeatSkillFileIdentityRevalidation": "LIT_SOURCE_WIRING_CHANGED",
+    "SkillCandidateTopologyOwnerProbe": "LIT_AS_EXISTING_SOURCE_EVIDENCE_NOT_EXECUTED"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "crossPollination": "old whole-file mutation boundary -> full authenticated owner blob becomes available -> Shovel converts proposal into existing-owner surgery -> static no-follow topology gate kills symlink aliases/non-files before partial authority -> existing file-identity helper brackets title/hash work -> hostile integration fixtures attack replacement and early failures -> doctrine/provenance/Warm-Wall converge -> fresh exact-source CI fails without diagnostic steps -> Regnet preserves final-root/atomicity/test membrane -> Venice closes only this source slice",
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayReadOrMutation": 0,
+    "p0Mutation": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedRepositorySource": true,
+    "exactRepositoryReadback": true,
+    "existingOwnerStaticCandidateTopologyWired": true,
+    "existingOwnerFileIdentityWired": true,
+    "ownerIntegrationRegressionSource": true,
+    "durableSkillAndAppliedPatchProvenance": true,
+    "accessibleNonRasterSourceArt": true,
+    "candidateOwnerCapabilityProbeExecuted": false,
+    "atomicCrossPlatformFileBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWound": "The existing skills-root identity bracket ends immediately after candidate enumeration. Revalidate root identity again after all per-file title/hash/file-identity work to reject persistent late root replacement before report emission; keep true atomic swap-and-restore exclusion as a separate platform-evidence wound."
+}

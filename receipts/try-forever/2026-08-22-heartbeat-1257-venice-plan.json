@@ -1,0 +1,23 @@
+{
+  "schema": "try-forever-venice-plan.v1",
+  "verdict": "PLAN_ALLOWED",
+  "reason": "The descriptor UTF-8 wound is independent, source-bounded, reuses the existing custody organ, preserves all identity/resource gates, and does not touch P0/phone/runtime delivery. A malformed text artifact should fail through the custody domain error rather than escape as a raw decoder exception.",
+  "mustPreserve": [
+    "existing held-root descriptor owner",
+    "enumeration-time candidate identity handoff",
+    "entry/candidate/byte budgets",
+    "exact SHA and byte-count evidence",
+    "strict UTF-8 admission",
+    "canonical v10 integration remains NO",
+    "atomic root/candidate binding remains NO",
+    "regression source is not TESTED evidence",
+    "Phone Hands/P0 consumption and mutation remain zero"
+  ],
+  "forbidden": [
+    "second custody probe",
+    "decoder replacement semantics",
+    "prefix or replacement-decoded authority",
+    "phone/P0 execution",
+    "claiming runtime/deployed/delivered state"
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "try-forever.swarm-receipt.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "reviewedSourceHead": "d36dd8d41bbff2fb1cf8afd09ce135d813b7d4a1",
+  "frontsAdvanced": [
+    "primary Android framework archaeology for TextView movement-method ownership",
+    "primary Android framework archaeology for setMaxLines versus pixel-height layout semantics",
+    "corrective pixel-height deep-detail viewport source policy",
+    "hostile viewport-height and overflow arithmetic regression source",
+    "corrected existing-owner patch provenance without applying it",
+    "deep-detail durable skill synchronization",
+    "exact non-phone mutation-lane boundary synthesis",
+    "fresh exact-head workflow boundary plus Regnet/Venice review"
+  ],
+  "lights": {
+    "failureIsTheShovel": {"state":"ACTIVE","changed":"Primary AOSP evidence disproved the prior five-line setMaxLines patch before owner application; the patch was rejected and replanned instead of defended."},
+    "canonAutoSelect": {"state":"ACTIVE","changed":"Kept the existing heartbeatDetail/OperatorOverlayService and heartbeat-deep-detail-viewport skill as the sole owner/source organs; no adjacent renderer or detail controller was selected."},
+    "autocorrectJudgmentJar": {"state":"DARK","reason":"No STT/autocorrect ambiguity materially affected this pulse."},
+    "originalityTax": {"state":"ACTIVE","changed":"The failure did not trigger another cosmetic patch iteration; the viewport contract changed from layout line cap to pixel-height spatial cap backed by platform source."},
+    "hunger": {"state":"ACTIVE","changed":"Pulled the discovered max-lines wound through policy, hostile fixture, owner patch provenance, durable skill, review, and capability ledger."},
+    "everPolishedInterpreterEatEverything": {"state":"ACTIVE","changed":"Separated full semantic layout, measured viewport height, touch scrolling, keyboard/click ownership, TalkBack content, runtime proof, and owner implementation into distinct contracts."},
+    "operatorCampaign": {"state":"ACTIVE","changed":"Preserved OperatorOverlayService as the sole native owner and refused to call the corrected patch implemented while the owner file remains legacy."},
+    "harrowayOperatorDiscipline": {"state":"ACTIVE","changed":"Used authenticated GitHub/Home Center read-only evidence and repository writes only; did not route owner mutation through a different device or worker lane."},
+    "sheRawAdversarialMotivation": {"state":"FAULT","boundary":"Authoritative she_raw_ambient returned account-connection HTTP 400; no synthetic reviewer was substituted."},
+    "veniceJudgmentJars": {"state":"ACTIVE","changed":"Plan and corrective-replan gates existed before their respective mutations; completion review allows only the bounded source slice to yield and keeps owner seam/campaign CONTINUE_REQUIRED."},
+    "regnetQa": {"state":"ACTIVE","changed":"Passes policy/test/patch/skill source and exact readback only; native owner wiring, TESTED, runtime, and delivery remain false."},
+    "accessibilityTalkBackTouch": {"state":"ACTIVE","changed":"Prevented sighted/touch Evidence/Source amputation by replacing line-count layout truncation with a full-layout pixel-height viewport; passive movement-method ownership remains explicit."},
+    "phoneRuntimePhoneHandsRecovery": {"state":"DARK_FIREWALLED","boundary":"Zero Phone Hands, primary-phone, queue/relay, recovery, Nightcore, Pocket TTS, Chromium, Context Organ, or physical-acceptance consumption/mutation."},
+    "deterministicRouting": {"state":"ACTIVE","changed":"Five-line spatial intent now maps through one overflow-safe maxViewportHeightPx authority instead of an ambiguous maxLines presentation command."},
+    "evidenceCapabilityState": {"state":"ACTIVE","changed":"Platform source evidence, implemented source, proposed owner patch, actual owner source, workflow failure, runtime, deployment, delivery, and acceptance remain separate states."},
+    "recoveryCheckpointIdempotence": {"state":"ACTIVE","changed":"Corrected proposed owner patch retains generation-bound post-layout reading-position restoration and clamp semantics while changing only the viewport bound."},
+    "strangeNonRasterVectorDomNativeArt": {"state":"DARK","reason":"No realized owner/runtime topology changed; mutating Swan Veil again would be source-art theater rather than consequence."},
+    "warmWalls": {"state":"DARK","reason":"The existing warm-wall specimen already records the deep-detail source/runtime membrane; no new deployed/touch topology was produced this pulse."},
+    "christmasLightSceneGraph": {"state":"DARK","reason":"A text-layout viewport correction earns no heartbeat transition motion or decorative blink."},
+    "contactPreservation": {"state":"ACTIVE","changed":"The corrected patch keeps background reading position only while legal after layout and generation-invalidates stale deferred restoration; no owner/runtime claim is made."},
+    "androidPlatformSourceEvidence": {"state":"ACTIVE_NEW_LIGHT","changed":"Primary AOSP TextView/ScrollingMovementMethod behavior became an explicit source-evidence light that materially changed the implementation contract."}
+  },
+  "exactSource": {
+    "HeartbeatDetailSurfacePolicy.java": "36fadf5319e655b424ee1ff2f1a797864af94208",
+    "HeartbeatDetailSurfacePolicyTest.java": "0b035bb21a8396fb1f25e13ff61f1b7445688fcf",
+    "operator-overlay-heartbeat-detail-scroll-wiring.patch": "991cc7b950d1beb7ce9f50815b7107094562ba80",
+    "heartbeat-deep-detail-viewport/SKILL.md": "cffc9ce17677eed9490f390d92595de81fc14861",
+    "actual OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
+  "testBoundary": {
+    "sourceHead": "d36dd8d41bbff2fb1cf8afd09ce135d813b7d4a1",
+    "operatorOverlayRun": 32101857821,
+    "operatorOverlayJob": 95603771939,
+    "conclusion": "failure",
+    "stepLevelCauseAvailable": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "mutationBoundary": {
+    "computerHandsWorker": "windows-hands-01",
+    "computerHandsOnline": false,
+    "directGitHubWriteShape": "whole-file replacement only",
+    "ownerPatchApplied": false,
+    "boundary": "Exact patch-capable non-phone executor unavailable. Do not reconstruct the large owner file from partial conversational context merely to claim implementation."
+  },
+  "crossPollination": "deep-detail touch goal -> AOSP movement-method archaeology -> AOSP max-lines archaeology invalidates prior patch -> Failure Is The Shovel corrective replan -> pixel-height full-layout policy -> hostile arithmetic fixtures -> corrected patch provenance -> durable skill -> exact non-phone mutation boundary -> Regnet/Venice capability membrane.",
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "hostileRegressionSource": true,
+    "androidPlatformSourceEvidence": true,
+    "correctedOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SEAM_CONTINUE_REQUIRED__CAMPAIGN_CONTINUE_REQUIRED"
+}

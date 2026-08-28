@@ -1,0 +1,20 @@
+{
+  "schema": "try-forever-heartbeat-corrective-replan.v1",
+  "heartbeat": "2026-08-23T23:01:00-05:00",
+  "trigger": "Code-first review of descriptor-shadow self-integrity found temporalContentBinding.status admits any non-empty string when temporalBindingProven=false.",
+  "wound": "Unknown temporal status text can cross the self-integrity boundary as if it were an admitted temporal policy state; status equality/proof checks do not establish enum admission.",
+  "authorizedCorrection": [
+    "Add one supporting exact temporal-status admission policy using the existing temporal policy's known states.",
+    "Add hostile pure regression and RED self-integrity owner-boundary regression.",
+    "Harvest/update durable doctrine; keep existing self-integrity owner unwired this pulse unless exact safe owner mutation is separately proven."
+  ],
+  "preservedConstraints": {
+    "canonicalAuthorityMutation": false,
+    "secondTemporalOwner": false,
+    "secondReceiptProjector": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "testedClaim": false,
+    "runtimeClaim": false
+  }
+}

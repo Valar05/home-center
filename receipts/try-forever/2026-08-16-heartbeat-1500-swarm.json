@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1500",
+  "pr": 329,
+  "mission": "Advance the collapsed-heartbeat presentation wound through the existing owner while fanning out into regression, doctrine, non-raster art, and review/evidence fronts without touching P0/phone ownership.",
+  "fronts": [
+    {
+      "front": "existing-owner source",
+      "status": "ADVANCED",
+      "change": "OperatorOverlayService now separates overlayVisible from heartbeatSurfaceVisible using its existing details subtree and calls the five-argument automatic-speech gate.",
+      "evidence": "58fb9aa26bf7e5a1947941d163afae3a30b42703"
+    },
+    {
+      "front": "accessibility regression source",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "HeartbeatCollapsedPresentationSpeechTest now proves the four-argument compatibility gate cannot represent collapsed-subtree truth and preserves the no-stale-replay contract.",
+      "evidence": "1d5350d2d544337b89284cc0ac56ea9085691390"
+    },
+    {
+      "front": "durable repository skill",
+      "status": "ADVANCED",
+      "change": "heartbeat-refresh-deduplication now records existing-owner heartbeat-surface speech wiring as source truth while keeping Android/TalkBack runtime truth unproven.",
+      "evidence": "626f8b40739c9af5087d08e3b45578ec8d4c4b00"
+    },
+    {
+      "front": "warm-wall non-raster source art",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "The existing refresh-gate DOM/inline-SVG specimen was mutated in place to make owner root-vs-details visibility and silent-history advancement touchable without raster, autoplay, or decorative blink.",
+      "evidence": "377190198b0606292a4d2372b657882c183d6dce"
+    },
+    {
+      "front": "execution truth",
+      "status": "EXACT_BOUNDARY",
+      "change": "Automatic Operator Overlay Android CI on the owner-source commit produced one job with zero steps; unchanged Actions-budget blocker preserved without manual retry.",
+      "run": 31969607559,
+      "job": 95219873808,
+      "steps": 0,
+      "boundary": "The job was not started because an Actions budget is preventing further use."
+    }
+  ],
+  "skill_lights": [
+    {"skill":"Failure Is The Shovel","state":"ACTIVE","consequence":"Refused another unchanged-condition CI retry and used the blocker to force a different owner-source front."},
+    {"skill":"Canon Auto-Select","state":"ACTIVE","consequence":"Selected the existing heartbeat-refresh-deduplication organ and exact OperatorOverlayService seam from current PR evidence."},
+    {"skill":"Originality Tax","state":"ACTIVE","consequence":"Did not repeat the 1400 policy-only result; crossed the previously missing existing-owner consumption seam."},
+    {"skill":"Hunger / Eat Everything","state":"ACTIVE","consequence":"Cross-pollinated owner source, hostile regression source, durable doctrine, warm-wall art, CI truth, and review receipts."},
+    {"skill":"Operator Campaign / Harroway discipline","state":"ACTIVE","consequence":"Mutated the existing OperatorOverlayService only; created no neighboring controller, renderer, state store, daemon, or recovery lane."},
+    {"skill":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","consequence":"Collapsed/GONE heartbeat content no longer receives source authorization for automatic speech; existing warm-wall controls remain semantic and at least 48px."},
+    {"skill":"Deterministic routing","state":"ACTIVE","consequence":"Whole-overlay visibility and existing details-subtree visibility are distinct deterministic inputs to the five-argument speech gate."},
+    {"skill":"Recovery / checkpointing / idempotence","state":"ACTIVE","consequence":"Announcement identity still advances while speech is suppressed, preventing replay on later expansion, restore, or unmute."},
+    {"skill":"Evidence / capability-state discipline","state":"ACTIVE","consequence":"Exact blobs, owner commit, automatic CI job, and source/runtime/deployment membrane are preserved separately."},
+    {"skill":"Warm Walls / Christmas-light scene graph / non-raster art","state":"ACTIVE","consequence":"Existing DOM/SVG specimen now expresses owner source wiring; hidden-surface bookkeeping earns no decorative motion."},
+    {"skill":"Contact preservation","state":"ACTIVE","consequence":"Presentation returns without replaying an already-observed collapsed transition; no discarded or stale speech event is manufactured."},
+    {"skill":"Regnet QA","state":"ACTIVE","consequence":"PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY; TESTED remains blocked/unknown."},
+    {"skill":"Venice Judgment Jars","state":"ACTIVE","consequence":"STOP_ALLOWED for this bounded source slice only; larger recurring campaign remains open."},
+    {"skill":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative connector attempted once and returned account-connection HTTP 400; no synthetic She-Raw verdict substituted."},
+    {"skill":"Autocorrect Judgment Jar","state":"DARK","consequence":"No material ambiguity or STT/autocorrect token required resolution in this pulse."},
+    {"skill":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","consequence":"Zero gated phone/P0 surface consumption; no phone command, ticket, queue/device probe, recovery mutation, or physical acceptance action."}
+  ],
+  "cross_pollination": "1400 policy-only wound -> exact existing-owner call-site archaeology -> root/details visibility split -> five-argument owner wiring -> compatibility-gap regression fixture -> skill doctrine synchronization -> touchable warm-wall mutation -> automatic CI exact boundary -> Regnet/Venice capability membrane.",
+  "p0_firewall": {
+    "status": "PASS_ZERO_CONSUMPTION",
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_owners_created": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "existing_owner_consumes_heartbeat_surface_gate": true,
+    "tested": false,
+    "tested_state": "BLOCKED_ACTIONS_BUDGET",
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED"
+}

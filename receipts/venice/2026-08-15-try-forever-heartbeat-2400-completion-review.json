@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever.venice-completion-review.v1",
+  "heartbeat": "2400",
+  "reviewed_source_head": "bb9f11f7f813754b9b7fa9bf56e93d728955f7e4",
+  "code_review": "PASS_FOR_SOURCE_SLICE",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED",
+  "reasons": [
+    "Existing OperatorOverlayService remains the sole UI owner; no duplicate controller/service/renderer was created.",
+    "Persisted heartbeat bytes now enter the existing semantic projection and refresh identities before native source children are rebuilt.",
+    "Cold start, evidence-only refresh, mute, hidden presentation, stable semantic selection, last-good contact, and repeat-wound dedupe are represented in source/regression contracts.",
+    "Code-first review found and repaired the scroller TalkBack destination, explicit-detail mute leak, and two-axis touch-target gap before completion.",
+    "The warm-wall specimen was mutated in place and explicitly scars SOURCE WIRED / RUNTIME UNPROVEN / NOT PHONE DELIVERY.",
+    "No authorized deterministic test body executed the reviewed head, so compilation/runtime rendering/TalkBack behavior remain unproven.",
+    "The P0/phone firewall remained untouched."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400",
+    "synthetic_replacement_used": false
+  },
+  "capability_membrane": {
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "existing_owner_source_wired": true,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "current_gate": "Do not merge or report as a delivered interface. Yield this source slice; continue the campaign through independent non-phone work until test/runtime ownership becomes authorized and proven."
+}

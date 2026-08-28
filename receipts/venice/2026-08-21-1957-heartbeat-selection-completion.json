@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "reviewedAt": "2026-08-21T19:57:00-05:00",
+  "sourceHeadReviewed": "e39ba29ab6b8312b1655f27a8f45bc698a3375d0",
+  "reviewerMode": "same_worker_judgment_jar",
+  "externalVeniceVerdictInvented": false,
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The pulse advanced multiple independent authorized non-P0 fronts: persistent DOM selection repair, native collection policy, deterministic regression source, direct owner evidence, durable skill harvesting, source specimen hardening, and review/evidence.",
+    "Failure Is The Shovel and Originality Tax materially changed two bad repairs: Android horizontal collection geometry was corrected to rows=itemCount/columns=1, and the DOM radio structure was corrected to direct radiogroup children.",
+    "The existing OperatorOverlayService remains the sole native owner and was not mutated in this slice. Native collection/item owner wiring is still PARTIAL_UNSAFE rather than falsely promoted.",
+    "P0 and primary-phone surfaces were not consumed or mutated. No duplicate controller, recovery daemon, phone ingress path, or P0 coordinator was created.",
+    "Automatic CI evidence establishes failure with zero exposed steps and unavailable logs, not source-test failure; TESTED stays NO."
+  ],
+  "knownOpenWounds": [
+    "OperatorOverlayService exposes selected Button state but does not yet consume HeartbeatSelectionAccessibilityPolicy collection/item semantics.",
+    "skills/heartbeat-skill-lights/SKILL.md still contains older aria-pressed persistent-selection wording; specialized persistent-selection doctrine supersedes it, but the stale sentence should be removed in a later safe doctrine edit.",
+    "Regression sources are unexecuted; Android runtime UI and TalkBack behavior remain unobserved."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "capability": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "nativeOwnerCollectionWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

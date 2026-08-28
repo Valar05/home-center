@@ -1,0 +1,112 @@
+{
+  "schema": "try-forever-swarm-receipt/v1",
+  "heartbeat": "2026-08-16-1600",
+  "pr": 329,
+  "commission": "Broad materially active TRY FOREVER heartbeat under the P0 Fortress firewall.",
+  "fronts": [
+    {
+      "front": "native motion semantics",
+      "advanced": true,
+      "change": "Added HeartbeatNativeMotionPolicy with exact node/frame/presentation/platform gates and bounded one-shot parameters."
+    },
+    {
+      "front": "UI-ready projection",
+      "advanced": true,
+      "change": "HeartbeatOverlayViewModel now exposes node motion decisions and a pure-removal summary fallback without creating a renderer."
+    },
+    {
+      "front": "regression source",
+      "advanced": true,
+      "change": "Added hostile fixtures for material transition, hidden/reduced motion, evidence-only refresh, pure removal, and interrupted contact preservation."
+    },
+    {
+      "front": "warm-wall non-raster art",
+      "advanced": true,
+      "change": "Mutated heartbeat-motion-clamp-source-specimen.html in place with an eleventh native one-shot gate and source/runtime scar."
+    },
+    {
+      "front": "durable skill harvest",
+      "advanced": true,
+      "change": "Added repository skill skills/heartbeat-native-motion/SKILL.md and captured pure-removal/accessibility/evidence rules."
+    },
+    {
+      "front": "review/evidence",
+      "advanced": true,
+      "change": "Regnet and Venice receipts preserve the exact source boundary, review repair, CI blocker, and capability membrane."
+    }
+  ],
+  "skill_lights": [
+    {"id":"failure-is-the-shovel","state":"active","consequence":"Did not retry the unchanged Actions-budget failure; excavated the unused native transitionMotion seam instead."},
+    {"id":"canon-auto-select","state":"active","consequence":"Harvested the new repository-native heartbeat-native-motion skill because the current source wound called for it."},
+    {"id":"autocorrect-judgment-jar","state":"dark","consequence":"No ambiguous STT/autocorrect token materially affected this pulse."},
+    {"id":"originality-tax","state":"active","consequence":"Changed failure strategy from CI retry/presentation speech work to a materially different native-motion semantic front."},
+    {"id":"hunger","state":"active","consequence":"Converted dead transition metadata into a concrete one-shot motion policy and touchable warm-wall consequence."},
+    {"id":"ever-polished-interpreter-eat-everything","state":"active","consequence":"Cross-pollinated scene motion, removal semantics, reduced-motion accessibility, UI projection, and art; review caught and repaired vague fallback boundaries."},
+    {"id":"operator-campaign","state":"active","consequence":"Preserved the existing OperatorOverlayService as the sole future native owner; no neighboring controller was created."},
+    {"id":"harroway-operator-discipline","state":"active","consequence":"Kept source/test/runtime/deployed/callable/delivered/accepted states separate and left owner wiring explicitly NO."},
+    {"id":"she-raw","state":"fault","consequence":"Authoritative pre-execution ambient consultation was attempted and failed with account-connection HTTP 400; no synthetic She-Raw verdict replaced it."},
+    {"id":"venice-judgment-jars","state":"active","consequence":"Completion review approved only the bounded source slice and preserved the exact next owner-wiring wound."},
+    {"id":"regnet-qa","state":"active","consequence":"Code/evidence review split two conflated rejection boundaries and kept TESTED blocked/unknown."},
+    {"id":"accessibility-talkback-touch","state":"active","consequence":"Motion now requires actual presentation plus platform animator permission and remains supplementary to non-color/text/TalkBack state."},
+    {"id":"phone-runtime-phone-hands","state":"dark","consequence":"Binding P0/phone firewall; zero gated phone surface consumption or mutation."},
+    {"id":"deterministic-routing","state":"active","consequence":"Pure node-vs-summary ownership is deterministic: transitioning node first; existing summary only for pure removal."},
+    {"id":"evidence-capability-state","state":"active","consequence":"Java policy/art/test source are recorded as source only; existing-owner consumption/runtime/deployment remain NO."},
+    {"id":"recovery-checkpoint-idempotence","state":"active","consequence":"Evidence-only refresh and interrupted preserved frames are explicitly motion-silent; hidden transitions cannot earn replay later."},
+    {"id":"strange-non-raster-art","state":"active","consequence":"Existing DOM/vector motion-clamp specimen was mutated in place; no raster or autoplay loop was introduced."},
+    {"id":"warm-walls","state":"active","consequence":"Warm wall now exposes the native gate and the blocked owner seam as touchable semantics."},
+    {"id":"christmas-light-scene-graph","state":"active","consequence":"Scene transition truth now has a pure native one-shot policy; decorative repeat motion remains forbidden."},
+    {"id":"contact-preservation","state":"active","consequence":"Interrupted refresh regression proves preserved last-good contact cannot leak prior node motion."}
+  ],
+  "cross_pollination": [
+    "Unused transitionMotion field exposed native consequence gap.",
+    "Scene add/remove semantics exposed a second wound: pure removal has no removed node left to animate.",
+    "Accessibility converted presentation and platform animator state into mandatory gates.",
+    "Contact preservation and idempotence converted hidden/interrupted/evidence-only updates into explicit no-motion cases.",
+    "Warm-wall art made policy-vs-owner capability truth touchable without claiming Android runtime."
+  ],
+  "source_evidence": {
+    "policy_blob":"9c16a17735ea788471c2ae35dde7d129e63e16de",
+    "view_model_blob":"a01d283677980404b27124550baa21ae613eaa54",
+    "regression_blob":"31f7a557034d2039f1cc8868860a2a9b8b05b451",
+    "skill_blob":"689102b52b5cc2fc84ffb159d7dbef3584cadaec",
+    "warm_wall_blob":"a786713d2288e699a334a3502ab9098613652e47",
+    "reviewed_source_head":"ae45450c7548326f5a12fa7a9c32fc3dab218ac1",
+    "operator_overlay_run":31972431765,
+    "operator_overlay_job":95226806843,
+    "operator_overlay_steps":0,
+    "ci_annotation":"The job was not started because an Actions budget is preventing further use."
+  },
+  "p0_firewall": {
+    "phone_commands":0,
+    "phone_hands_tickets":0,
+    "queue_or_device_probes":0,
+    "recovery_mutations":0,
+    "nightcore_actions":0,
+    "pocket_tts_actions":0,
+    "chromium_actions":0,
+    "context_organs_actions":0,
+    "physical_acceptance_actions":0,
+    "duplicate_p0_owners":0
+  },
+  "capability_membrane": {
+    "requested":true,
+    "implemented_source":true,
+    "exact_github_readback":true,
+    "regression_source":true,
+    "native_motion_policy_source":true,
+    "ui_ready_motion_projection_source":true,
+    "existing_owner_consumes_native_motion_policy":false,
+    "tested":false,
+    "tested_state":"BLOCKED_ACTIONS_BUDGET",
+    "runtime_ui_observed":false,
+    "runtime_talkback_observed":false,
+    "runtime_reduced_motion_observed":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  },
+  "next_exact_wound":"Existing OperatorOverlayService does not yet consume HeartbeatNativeMotionPolicy. Future authorized non-P0 source work should wire that existing owner only; no second animator/controller and no phone/P0 lane.",
+  "gate":"SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

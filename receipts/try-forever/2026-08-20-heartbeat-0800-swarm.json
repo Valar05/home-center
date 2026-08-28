@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestamp": "2026-08-20T08:14:20-05:00",
+  "reviewedSourceHead": "c32eea592ca8b53f458fc9f73628ce57045a5bbb",
+  "frontsAdvanced": [
+    {
+      "front": "generated-index-source-head-admission",
+      "status": "SUPPORTING_SOURCE",
+      "changed": "malformed/normalization-dependent sourceHead now has a strict exact canonical Git-object-ID policy and no longer belongs in the same evidence class as ordinary canonical stale identity"
+    },
+    {
+      "front": "generated-index-source-head-regression",
+      "status": "REGRESSION_SOURCE_UNEXECUTED",
+      "changed": "hostile exact/missing/whitespace/case/control/nonhex/wrong-length/non-string fixtures plus intentionally RED owner boundary"
+    },
+    {
+      "front": "generated-index-source-head-owner-surgery",
+      "status": "PROPOSED_NOT_APPLIED",
+      "changed": "base-blob-locked sole-owner delta specifies policy import, typed UNRESOLVED rejection, and ordering before stale comparison"
+    },
+    {
+      "front": "skill-head-content-owner-boundary",
+      "status": "REGRESSION_SOURCE_RED_UNEXECUTED",
+      "changed": "requires exactly one bounded HEAD blob-set observation before per-file work, same-observation content.git_blob_identity, no recomputation/second content read, and rejection before record append"
+    },
+    {
+      "front": "durable-skill-harvest",
+      "status": "SOURCE",
+      "changed": "heartbeat-generated-index-source-head-contract harvested with explicit source/owner/test/runtime membrane"
+    },
+    {
+      "front": "accessible-non-raster-evidence-art",
+      "status": "SOURCE_ONLY",
+      "changed": "touchable DOM/inline-SVG sourceHead throat distinguishes missing, canonical, canonical-stale, and malformed evidence with native radio semantics, keyboard focus, >=48px targets, non-color states, aria-live detail, and reduced-motion handling"
+    },
+    {
+      "front": "mutation-lane-truth",
+      "status": "BOUNDARY_PROVEN",
+      "changed": "fresh Command Center workers.list reports Codex agents/jobs/sessions/workers permanently retired; no spelling retry, shadow worker API, duplicate request, or phone substitute"
+    },
+    {
+      "front": "execution-evidence",
+      "status": "TESTED_NO",
+      "changed": "automatic workflows on reviewed source head failed; Operator job exposed zero steps and logs returned 404 BlobNotFound; no step-level cause and no retry"
+    }
+  ],
+  "lights": {
+    "FailureIsTheShovel": "ACTIVE: changed source/evidence fronts instead of retrying CI",
+    "CanonAutoSelect": "ACTIVE: reused repository object-ID authority and current provenance organs",
+    "AutocorrectJudgmentJar": "DARK: no material ambiguity",
+    "OriginalityTax": "ACTIVE: no dead-worker spelling retries, no CI corpse-kick, no unsafe owner reconstruction",
+    "Hunger": "ACTIVE: all progress made durable in remote repository artifacts",
+    "EverPolishedInterpreterEatEverything": "ACTIVE: code-first review removed duplicate Git-OID definition and synchronized policy/fixtures/skill/art",
+    "OperatorCampaignHarroway": "ACTIVE: sole-owner, exact-lane and evidence-state discipline",
+    "SheRaw": "FAULT: authoritative account connection HTTP 400; no synthetic substitute",
+    "VeniceJudgment": "ACTIVE: PLAN_ALLOWED before mutation; bounded completion verdict after Regnet",
+    "RegnetQA": "ACTIVE: source/readback PASS; owner revise required; regressions unexecuted; TESTED NO",
+    "AccessibilityTalkBackTouch": "ACTIVE: inspectable source specimen with native control semantics and no runtime overclaim",
+    "PhoneRuntimePhoneHands": "DARK_BY_FIREWALL",
+    "DeterministicRouting": "ACTIVE: exact canonical identity classes and fail-closed owner boundaries",
+    "EvidenceCapabilityState": "ACTIVE: supporting source / owner-wired / regression-executed / tested / runtime / deployed / delivered / accepted kept separate",
+    "RecoveryCheckpointIdempotence": "ACTIVE: malformed evidence and unavailable authority fail closed without partial authority",
+    "StrangeNonRasterWarmWalls": "ACTIVE: one bounded sourceHead evidence throat",
+    "ChristmasLightSceneGraph": "DARK: no decorative blink or runtime scene transition was earned",
+    "ContactPreservation": "CONSTRAINT_ONLY: no runtime contact state mutated"
+  },
+  "crossPollination": [
+    "Existing strict JSON + alias policy exposed a semantic identity gap in sourceHead classification.",
+    "Repository emission already had canonical Git object-ID shape authority, so code-first review removed a duplicate sourceHead identity definition and reused that organ.",
+    "The resulting evidence distinction justified a touchable source specimen and a reusable skill without inventing runtime capability.",
+    "Independent content-to-HEAD work reused the same sole-owner/evidence discipline and gained a stronger RED acceptance boundary while remaining safely unwired."
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "sourceHeadOwnerWired": false,
+    "headContentOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

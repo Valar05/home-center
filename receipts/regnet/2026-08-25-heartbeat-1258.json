@@ -1,0 +1,71 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "timestampLocal": "2026-08-25T12:58:23-05:00",
+  "reviewedSourceHead": "038db2287cb0909e5ea25ed6d7b2fb83e1583487",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK_ONLY",
+  "fronts": {
+    "finalReceiptPublicTypeContract": {
+      "state": "SOURCE_WIRED",
+      "ownerBlob": "42cd1fceccfae861e9e5edd129b145b15969d401",
+      "appliedCommit": "04767647bcfc9ef29b6b867d5db7c7e6e8dbc66f",
+      "finding": "Three public reverification APIs now advertise exact built-in dict receipt/raw evidence, matching the existing snapshot runtime admission contract."
+    },
+    "publicTypeRegression": {
+      "state": "SOURCE_UNEXECUTED",
+      "blob": "bb3f55175179a95449a1cef9ababe709f901d39b",
+      "finding": "Convergence fixture still pins callback-free hostile Mapping rejection and exact-dict type annotations."
+    },
+    "boundedContainerDoctrine": {
+      "state": "CONVERGED",
+      "blob": "f1de7251fa2715d4518104bbc3b5c0cade1bc629"
+    },
+    "receiptIntegrityDoctrine": {
+      "state": "CONVERGED",
+      "blob": "20ee545bb43c58b4abfd225a92564e08a496f515",
+      "finding": "Removed stale schema-v3 and RED/unwired fossil; final operator receipt owner is v4 and public exact-dict contract is source-wired."
+    }
+  },
+  "sourceCustody": {
+    "previousHead": "cb7f7c1fddab479d21af509694853613da37040a",
+    "reviewedHead": "038db2287cb0909e5ea25ed6d7b2fb83e1583487",
+    "commits": 6,
+    "paths": 6,
+    "unexpectedPaths": 0
+  },
+  "executionEvidence": {
+    "tested": false,
+    "operatorOverlayRun": 32881658588,
+    "operatorOverlayJob": 97912351406,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "homeCenterCiRun": 32881658595,
+    "buildAndroidRun": 32881658592,
+    "reason": "Exact-head automatic workflows concluded failure; Operator job exposed zero steps. No step-level source/test cause established and no retry fired."
+  },
+  "reviewers": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "regnet": "PASS_SOURCE_READBACK_ONLY",
+    "venice": "same-worker bounded judgment; completion recorded separately"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

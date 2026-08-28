@@ -1,0 +1,66 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-17T12:00:00-05:00",
+  "target": "HeartbeatInvisibleSemanticControlPolicy hard post-projection code-point budget",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "sourceFindings": [
+    {
+      "severity": "material-fixed",
+      "finding": "The prior boundedEvidenceProjection could consume maxCodePoints with projection units and then append `… (truncated)` outside the caller's hard budget.",
+      "resolution": "The implementation now detects truncation first, reserves the complete suffix inside the budget, emits only atomic projection units that fit the remaining content budget, and uses one bounded ellipsis when the budget is smaller than the full suffix."
+    },
+    {
+      "severity": "regression-fixed",
+      "finding": "The first new suffix-reservation fixture used two ZWSP markers with a budget exactly equal to two projected markers, so no truncation would occur and the expected marker-plus-suffix result was false.",
+      "resolution": "The fixture now uses three ZWSP markers so truncation is guaranteed; this correction landed before this review receipt."
+    },
+    {
+      "severity": "process-scar",
+      "finding": "The durable 1200 pre-mutation plan and Venice plan review targeted a different verified seam: candidate-vs-node detail authority convergence.",
+      "resolution": "Source review redirected the actual mutation to the stricter concrete budget defect. A post-mutation durable replan explicitly records that timing rather than pretending the first plan predicted the final cut."
+    }
+  ],
+  "checks": {
+    "canonicalSourceRewritten": false,
+    "markerAtomicityPreserved": true,
+    "literalBackslashCollisionRulePreserved": true,
+    "returnedProjectionHardBoundIncludesSuffix": true,
+    "tinyBudgetBounded": true,
+    "compactRoutineSpeechChanged": false,
+    "checkpointOrContactIdentityChanged": false,
+    "neighboringArchitectureCreated": false,
+    "phoneOrP0SurfaceConsumed": false
+  },
+  "exactReadback": {
+    "policyBlob": "6a0e80a73522e35a397158bd99100429dbe63c4d",
+    "regressionBlob": "8b5ceabba1fd42e1b25da59a895efb269f8dd70e",
+    "skillBlob": "f048fd38f0a394e48605a5f7b442aee05ca571d8",
+    "reviewedSourceHead": "a6ad7db28cf97188620a4e5a84d416d297969605"
+  },
+  "testBoundary": {
+    "tested": false,
+    "status": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "runId": 32048901895,
+    "jobId": 95443219505,
+    "executedSteps": 0,
+    "exactAnnotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryDispatched": false
+  },
+  "remainingIndependentFinding": "HeartbeatSkillPolicy.detailContentDescription(Candidate) still independently formats typed explicit detail and does not share the scene-level invisible-marker projection. This source-truth seam was verified but deliberately not mutated in the projection-budget repair.",
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

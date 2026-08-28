@@ -1,0 +1,69 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-26T05:00:00-05:00",
+  "reviewedSourceHead": "a3aa4af802643b7a06965435873ca0a369a86e06",
+  "previousPublicationHead": "2d683ae50ddd93d9b4d8db959f2c7b5929d5e429",
+  "sourceDelta": {
+    "commits": 6,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0
+  },
+  "fronts": {
+    "semanticScalarResourceThroats": "SOURCE_WIRED",
+    "semanticContentObservationThroat": "SOURCE_WIRED",
+    "semanticDiagnosticProjection": "SOURCE_WIRED",
+    "backendSelectionDoctrine": "CONVERGED_SOURCE",
+    "ownerSurgeryCustodyDoctrine": "CONVERGED_SOURCE",
+    "warmWallAccessibilitySource": "SOURCE_WIRED",
+    "regressionSource": "YES_UNEXECUTED"
+  },
+  "adversarialChecks": [
+    "caller string subclasses rejected before callback-capable semantic work",
+    "artifact_kind bounded before set membership/hash",
+    "sha256 exact length checked before regex",
+    "semantic path bounded before returned canonical evidence",
+    "duplicate JSON member and unsupported schema diagnostics never echo hostile newline/bidi/surrogate text raw",
+    "long diagnostic source collapses before escaping",
+    "diagnostic projection never feeds authority or persistence",
+    "descriptor wound never silently retries through weaker pathname custody",
+    "runtime TalkBack and phone delivery remain unclaimed"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "CONNECTOR_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "executionTruth": {
+    "homeCenterCiRun": 32956517289,
+    "buildAndroidRun": 32956517419,
+    "operatorOverlayRun": 32956517293,
+    "operatorOverlayJob": 98139254401,
+    "operatorOverlaySteps": 0,
+    "allRunConclusions": "failure",
+    "manualRetryFired": false,
+    "stepLevelSourceDiagnosisEstablished": false
+  },
+  "p0PhoneFirewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "verdict": "PASS_BOUNDED_SOURCE__SEMANTIC_RESOURCE_AND_DIAGNOSTIC_CUSTODY_WIRED__DOCTRINE_CONVERGED__ACCESSIBILITY_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "pulse": "2026-08-21T21:01:00-05:00",
+  "startHead": "1f6a5556f6afae13d67119e0732e273fed9e39ef",
+  "sourceHeadReviewed": "0fe0cf9df4e01949c4dd34c77165213610cac469",
+  "mission": "Advance broad non-P0 TRY FOREVER work with materially active skills and exact capability-state truth.",
+  "fronts": [
+    {
+      "name": "selection_owner_evidence_lifecycle",
+      "advanced": true,
+      "result": "Owner probe advanced to v2. SOURCE_WIRED now requires collection semantics after row construction and after persistent selection changes, not as a per-light side effect."
+    },
+    {
+      "name": "hostile_owner_regression",
+      "advanced": true,
+      "result": "Regression source now rejects a per-light-only collection implementation and preserves comment/literal/wrong-method counterfeit checks."
+    },
+    {
+      "name": "exact_owner_surgery_provenance",
+      "advanced": true,
+      "result": "Base-blob-locked existing-owner patch prepared for post-rebuild and post-selection collection/item semantics. STATUS PROPOSED_NOT_APPLIED."
+    },
+    {
+      "name": "skill_doctrine_convergence",
+      "advanced": true,
+      "result": "heartbeat-native-selection-collection now encodes collection lifecycle ownership, per-light counterfeit rejection, source/runtime membrane, and current owner PARTIAL_UNSAFE state."
+    },
+    {
+      "name": "regnet_review",
+      "advanced": true,
+      "result": "Code-first bounded review passed source/evidence improvements while requiring owner revision and keeping regressions/test/runtime unproven."
+    },
+    {
+      "name": "venice_completion",
+      "advanced": true,
+      "result": "Bounded source slice may yield; owner wiring, tests, runtime, delivery, and campaign remain CONTINUE_REQUIRED."
+    },
+    {
+      "name": "execution_truth",
+      "advanced": true,
+      "result": "Fresh exact-source-head workflow readback recorded failure for all three automatic workflows; no step-level cause was established and no retry was fired."
+    },
+    {
+      "name": "durable_pr_surface",
+      "advanced": true,
+      "result": "Plan, source changes, patch provenance, Regnet, Venice, and this swarm receipt are durable remote repository artifacts; PR front page is the final publication target."
+    }
+  ],
+  "sourceDiff": {
+    "base": "1f6a5556f6afae13d67119e0732e273fed9e39ef",
+    "head": "0fe0cf9df4e01949c4dd34c77165213610cac469",
+    "commits": 5,
+    "paths": 5,
+    "changed": [
+      "operator-evidence/try-forever-heartbeat-20260821T2101-plan.md",
+      "patches/try-forever-heartbeat-native-selection-collection-owner.patch",
+      "skills/heartbeat-native-selection-collection/SKILL.md",
+      "tools/test_try_forever_heartbeat_selection_owner_probe.py",
+      "tools/try_forever_heartbeat_selection_owner_probe.py"
+    ]
+  },
+  "sourceArtifacts": {
+    "ownerBlobUnchanged": "c5de1411a6b68087ae17aff83c032af754587150",
+    "ownerProbeBlob": "08d2a0978e557a7eee8154c50dda0fff8fcf71fd",
+    "ownerProbeRegressionBlob": "c9bd69065693c601502da52315c881d380ce68d9",
+    "ownerPatchBlob": "ee4408e14d4dc0323344e0fb66166ff889a987da",
+    "skillBlob": "f7f701564dc798a25853a14b5c901119b7f9112d"
+  },
+  "executionTruth": {
+    "head": "0fe0cf9df4e01949c4dd34c77165213610cac469",
+    "homeCenterCi": {"run": 32545305616, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32545305610, "status": "completed", "conclusion": "failure"},
+    "buildAndroid": {"run": 32545305726, "status": "completed", "conclusion": "failure"},
+    "combinedCommitStatuses": 0,
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "lights": [
+    {"id":"failure-is-the-shovel","state":"RECOVERED","consequence":"The prior per-light owner-evidence shape was replaced by collection-lifecycle evidence rather than cosmetically extended."},
+    {"id":"originality-tax","state":"ACTIVE","consequence":"No retry of the same workflow failure and no per-child collection delegate architecture was repeated."},
+    {"id":"canon-auto-select","state":"ACTIVE","consequence":"heartbeat-native-selection-collection and persistent-selection doctrine governed the pulse."},
+    {"id":"hunger-eat-everything","state":"ACTIVE","consequence":"Probe, hostile fixture, patch provenance, doctrine, review, and PR evidence were converged."},
+    {"id":"operator-campaign-harroway","state":"ACTIVE","consequence":"Only the existing OperatorOverlayService is targeted; patch existence remains separate from owner implementation."},
+    {"id":"accessibility-talkback-touch","state":"ACTIVE","consequence":"One-of-many native collection semantics are now bound to row-build and selection-refresh lifecycle in source/evidence contracts."},
+    {"id":"deterministic-routing","state":"ACTIVE","consequence":"Collection semantics have explicit owner lifecycle points instead of a per-child incidental call."},
+    {"id":"evidence-capability-discipline","state":"ACTIVE","consequence":"Owner unchanged, patch unapplied, regression unexecuted, TESTED NO, runtime/deployment/delivery NO."},
+    {"id":"recovery-checkpoint-idempotence","state":"ACTIVE","consequence":"Selection changes deterministically reproject item selected metadata without inventing focus or a new selected identity."},
+    {"id":"contact-preservation","state":"ACTIVE","consequence":"Collection projection is derived from the accepted current/last-good model; discarded attempted controls are not current items."},
+    {"id":"regnet-qa","state":"ACTIVE","consequence":"Bounded source review passed and retained owner/test/runtime gates."},
+    {"id":"venice-judgment","state":"ACTIVE","consequence":"Source slice allowed to yield; owner wiring/test/runtime/campaign continue."},
+    {"id":"she-raw","state":"FAULT","consequence":"Authoritative connector returned account-connection HTTP 400; no synthetic substitute used."},
+    {"id":"autocorrect-judgment-jar","state":"DARK","consequence":"No material ambiguity required resolution."},
+    {"id":"warm-walls-strange-art","state":"DARK","consequence":"No operator-visible topology changed; mutating source art would be decorative theater."},
+    {"id":"christmas-motion","state":"DARK","consequence":"Selection semantics do not create a heartbeat transition and earned no motion rule."},
+    {"id":"phone-runtime-phone-hands-p0","state":"DARK","consequence":"Binding firewall: zero phone/P0 consumption, mutation, or duplicate architecture."}
+  ],
+  "crossPollination": [
+    "Persistent one-of-many semantics made selected-state-only owner evidence suspicious.",
+    "Reviewing the owner probe exposed that collection semantics were being modeled as a per-light side effect rather than a collection lifecycle.",
+    "That evidence correction directly shaped the exact owner surgery: post-rebuild collection application plus post-selection item refresh.",
+    "Contact preservation and idempotence constrained the repair to accepted current model state without focus theft or replacement selection.",
+    "Execution truth kept all source progress behind TESTED/runtime/deployment/delivery boundaries."
+  ],
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedRemoteReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerPatchPrepared": true,
+    "ownerPatchApplied": false,
+    "nativeCollectionOwnerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

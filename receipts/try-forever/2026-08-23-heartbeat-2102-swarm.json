@@ -1,0 +1,68 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "checkpoint": "2026-08-23T21:02:08-05:00",
+  "reviewedSourceHead": "37ceba50d87b00226b2d836ad27966e5dec13798",
+  "fronts": [
+    {"name": "raw-capability-policy", "state": "IMPLEMENTED_SUPPORTING_SOURCE", "change": "Exact false-only membrane for descriptor authority, owner mutation, regression execution, TESTED, runtime UI/TalkBack, and phone delivery."},
+    {"name": "pure-hostile-regression", "state": "SOURCE_UNEXECUTED", "change": "Missing and truthy/falsey capability substitutes fail closed."},
+    {"name": "self-integrity-owner-boundary", "state": "RED_SOURCE_UNEXECUTED", "change": "Existing self-integrity owner must reject raw capability overclaims before projection."},
+    {"name": "operator-command-boundary", "state": "RED_SOURCE_UNEXECUTED", "change": "Actual bounded operator receipt must consume the same fail-closed membrane; fixture corrected to remove test-to-test import coupling."},
+    {"name": "owner-surgery-provenance", "state": "CORRECTED_PROPOSED_NOT_APPLIED", "change": "Base-blob-locked narrow surgery imports/calls membrane after shadow-schema admission, without schema widening."},
+    {"name": "durable-skill", "state": "IMPLEMENTED_SOURCE", "change": "Harvested operator-owner-surgery-raw-capability-membrane with explicit source/owner/test/runtime membrane."},
+    {"name": "touchable-non-raster-art", "state": "IMPLEMENTED_SOURCE", "change": "Warm Wall exposes CLEAN RAW, tested/runtime/phone overclaims, missing!=false, owner gap, and source-only membrane."},
+    {"name": "review-evidence", "state": "DURABLE", "change": "Pre-mutation plan + Venice PLAN_ALLOWED + Regnet review + Venice completion + exact source compare/workflow readback."}
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": "ACTIVE: projector sanitization was treated as an evidence wound rather than accepted because output looked conservative.",
+    "CanonAutoSelect": "ACTIVE: reused existing raw shadow, self-integrity owner, projector, and operator command; new skill only for the newly discovered reusable membrane.",
+    "AutocorrectJudgmentJar": "DARK: no material speech/autocorrect ambiguity affected this source slice.",
+    "OriginalityTax": "ACTIVE: first operator-boundary fixture depended on another test module; review replaced that evidence path rather than keeping the same brittle shape.",
+    "HungerEatEverything": "ACTIVE: source policy, two owner boundaries, patch provenance, skill, art, and governance receipts were converged around one wound.",
+    "OperatorCampaignHarroway": "ACTIVE: existing owners preserved; owner mutation stopped at exact whole-file/patch-application boundary instead of substitute architecture.",
+    "SheRaw": "FAULT: authoritative ambient attempt returned account-connection HTTP 400; no substitute reviewer.",
+    "Venice": "ACTIVE: PLAN_ALLOWED pre-mutation and bounded completion gate.",
+    "Regnet": "ACTIVE: code-first review caught cross-test dependency and preserves owner REVISE_REQUIRED / TESTED NO.",
+    "AccessibilityTalkBackTouch": "ACTIVE: touchable radio-based non-raster source organism makes capability-state laundering inspectable; runtime TalkBack not claimed.",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED: zero consumption/mutation; no P0 finding.",
+    "DeterministicRoutingEvidence": "ACTIVE: exact branch, source head, owner blob, patch base blob, compare counts, workflow IDs, and capability-state distinctions preserved.",
+    "RecoveryCheckpointIdempotence": "ACTIVE: regression source distinguishes unknown/missing capability from false and prevents a bounded projection from erasing contradictory source state.",
+    "ChristmasLightSceneGraph": "DARK: source/evidence topology changed, but no runtime scene transition law justified decorative motion."
+  },
+  "sourceCustody": {
+    "priorPublicationHead": "f5f3a62fcbdc3ac185fe00e33c0f999fdcfaaee4",
+    "reviewedSourceHead": "37ceba50d87b00226b2d836ad27966e5dec13798",
+    "commits": 10,
+    "intendedPaths": 9,
+    "unexpectedPaths": 0,
+    "selfIntegrityOwnerBlob": "ae76c2d7db2b71cd1b1c2518e62625bf5483538d"
+  },
+  "executionTruth": {
+    "operatorOverlayAndroid": {"runId": 32682151515, "jobId": 97300561572, "status": "completed", "conclusion": "failure", "stepLevelCauseEstablished": false},
+    "buildAndroid": {"runId": 32682151508, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32682151506, "status": "queued", "conclusion": null},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "preparedOwnerSurgery": true,
+    "ownerSurgeryApplied": false,
+    "ownerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {"phoneP0Consumption": 0, "phoneP0Mutation": 0, "duplicateArchitecture": 0, "newP0Finding": null},
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

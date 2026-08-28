@@ -1,0 +1,127 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestampLocal": "2026-08-24T22:00:00-05:00",
+  "pr": 329,
+  "previousCheckpointHead": "5faaec4f314ff233a3cb4bb3943db5e42c83f13a",
+  "reviewedSourceHead": "05fbf7dbe54038726c5648d34dbf592e1acf8b5c",
+  "frontsAdvanced": [
+    {
+      "front": "final-v4 Unicode fingerprint custody",
+      "before": "OWNER_UTF8_ONLY_RED",
+      "after": "EXACT_OWNER_SURGERY_PREPARED_NOT_APPLIED",
+      "change": "Prepared one base-blob-locked surgery that reuses the existing surrogate-safe canonical-result fingerprint organ for final operator receipt identity without changing valid-Unicode digest identity.",
+      "ownerBlob": "82af7cc572d2a95624fb549c387946068483c7e3",
+      "patchBlob": "3b0fa933a9e421a8f72ba887bb4ecf0cb4da1f13"
+    },
+    {
+      "front": "hostile digest behavior regression",
+      "after": "RED_SOURCE_UNEXECUTED",
+      "change": "Pins valid-Unicode parity, insertion-order independence, deterministic surrogate evidence, material drift, and non-finite rejection.",
+      "blob": "85361f567d24c304f435f9eaa75bd1698b0cee8e"
+    },
+    {
+      "front": "direct-owner evidence regression",
+      "after": "RED_SOURCE_UNEXECUTED",
+      "change": "Requires direct _operator_receipt_sha256 consumption of the shared fingerprint organ; imports/comments/nested calls do not count as owner wiring.",
+      "blob": "f25d171a6115e27776cda5b8a16bd3fca8223419"
+    },
+    {
+      "front": "durable skill harvest",
+      "after": "SOURCE_OWNER_GAP_EXPLICIT",
+      "change": "Added operator-receipt-unicode-fingerprint-custody; reuses existing evidence identity and preserves owner/test/runtime membrane.",
+      "blob": "eddf46ab7ab3e7f17b60f09eeccb205f3dce3d9b"
+    },
+    {
+      "front": "fingerprint Warm Wall convergence",
+      "before": "STALE_DESCRIPTOR_OWNER_UNWIRED",
+      "after": "DESCRIPTOR_OWNER_WIRED__FINAL_V4_OWNER_GAP",
+      "change": "Existing non-raster source organism now distinguishes authenticated descriptor-shadow owner wiring from the unapplied final-v4 reuse seam.",
+      "blob": "b9e4d622e3ae2ea096e850e148fac055084b29e6"
+    },
+    {
+      "front": "Regnet evidence membrane",
+      "after": "PASS_SUPPORTING_SOURCE_AND_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO"
+    },
+    {
+      "front": "Venice bounded review",
+      "after": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+    }
+  ],
+  "crossPollination": [
+    "The already-wired canonical-result fingerprint showed that final-v4 receipt identity duplicated the same serialization law without the surrogate-safe encoding consequence.",
+    "Originality Tax forced reuse of the existing fingerprint organ instead of a second digest implementation.",
+    "Authenticated final-owner readback kept the seam RED and shaped a direct-owner regression rather than letting helper presence count as wiring.",
+    "Review of the existing fingerprint Warm Wall exposed stale descriptor-owner-unwired prose; Hunger/Eat Everything forced source art to converge to current capability truth.",
+    "Accessibility/contact preservation constrained the repair to preserve ordinary valid-Unicode receipt IDs and avoid adding speech or runtime UI behavior."
+  ],
+  "skillLights": [
+    {"name":"Failure Is The Shovel","state":"LIT","effect":"moved to a distinct final-receipt Unicode identity wound"},
+    {"name":"Canon Auto-Select","state":"LIT","effect":"selected the already-wired canonical-result fingerprint organ"},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","effect":"no material ambiguity"},
+    {"name":"Originality Tax","state":"LIT","effect":"forbade a second deterministic JSON digest implementation"},
+    {"name":"Hunger","state":"LIT","effect":"forced skill/art/evidence convergence around authenticated owner truth"},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"LIT","effect":"removed stale descriptor-owner-unwired art semantics and separated descriptor owner from final-v4 owner"},
+    {"name":"Operator Campaign","state":"LIT","effect":"advanced real GitHub source, regression, patch, skill, art, and receipts through Home Center"},
+    {"name":"Harroway operator discipline","state":"LIT","effect":"used exact owner blob/readback and stopped at unapplied owner boundary"},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","effect":"account connection HTTP 400; no synthetic substitute"},
+    {"name":"Venice Judgment Jars","state":"LIT","effect":"PLAN_ALLOWED before mutation and bounded completion review"},
+    {"name":"Regnet QA","state":"LIT","effect":"source/readback pass only; owner revision and unexecuted regressions preserved"},
+    {"name":"accessibility/TalkBack and touch semantics","state":"LIT","effect":"preserved valid-Unicode identity and in-place keyboard/touch non-raster evidence organism without adding routine speech"},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","effect":"zero consumption/mutation"},
+    {"name":"deterministic routing","state":"LIT","effect":"one shared deterministic evidence-identity organ selected for both relevant owner contexts"},
+    {"name":"evidence/capability-state discipline","state":"LIT","effect":"supporting source, owner wiring, regression execution, TESTED, runtime and delivery remain distinct"},
+    {"name":"recovery/checkpointing/idempotence","state":"LIT","effect":"previous head and exact final-owner blob used as immutable checkpoints; no stale owner promotion"},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"LIT","effect":"existing canonical fingerprint specimen mutated in place"},
+    {"name":"warm walls","state":"LIT","effect":"shared fingerprint and final-owner gap are touch-inspectable"},
+    {"name":"Christmas-light scene graph","state":"DARK","effect":"no runtime transition or motion law changed"},
+    {"name":"contact preservation","state":"LIT","effect":"ordinary valid-Unicode receipt identities must not churn to fix hostile surrogate evidence"},
+    {"name":"operator-receipt-unicode-fingerprint-custody","state":"LIT_NEW","effect":"durable reusable law for shared evidence identity vs final owner wiring"}
+  ],
+  "evidenceDelta": {
+    "base": "5faaec4f314ff233a3cb4bb3943db5e42c83f13a",
+    "head": "05fbf7dbe54038726c5648d34dbf592e1acf8b5c",
+    "commits": 8,
+    "paths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "exactReviewedHeadWorkflowRunsObserved": 0,
+    "intermediateHead": "f7ea677566330cf7f761147daf585c37bfc92f73",
+    "homeCenterCiRun": 32804039869,
+    "buildAndroidRun": 32804039863,
+    "operatorRun": 32804039860,
+    "operatorJob": 97670489666,
+    "operatorSteps": 0,
+    "operatorConclusion": "failure",
+    "operatorLogs": "404_BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "descriptorShadowSharedFingerprintOwnerWired": true,
+    "finalOperatorReceiptSharedFingerprintOwnerWired": false,
+    "ownerSurgeryPrepared": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

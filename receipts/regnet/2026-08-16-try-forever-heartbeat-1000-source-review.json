@@ -1,0 +1,59 @@
+{
+  "schema": "regnet-source-review.v1",
+  "time": "2026-08-16T10:00:00-05:00",
+  "scope": "TRY FOREVER heartbeat visible-contact owner wiring only; no P0/phone authority.",
+  "review_mode": "code-first source/evidence review",
+  "reviewed_source": {
+    "OperatorOverlayService.java": "80f9e4d7050c5adf1bce481209be23f98dc5184e",
+    "HeartbeatViewportRestorePolicy.java": "b8bf39204159a0c9d9c3eadf3edd826d0e1e3d1c",
+    "HeartbeatViewportRestorePolicyTest.java": "6d80b0e7c1ca8dc7c0efbd14496343eb0a1e157a",
+    "skills/heartbeat-viewport-contact/SKILL.md": "29e987c3983d2fc68d958dca78d014198ee3947e",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "b63f9701b46ea08e188f53a63efacd14abe8a691",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "72f14fed52a0eebe310baee719aa99d85064a2b4"
+  },
+  "findings": [
+    {
+      "severity": "material_repaired",
+      "finding": "The first geometry-aware owner recheck required a keyboard-derived ticket's native focus to remain present after mutation. Structural rebuild can destroy the old Button and clear focus before pre-draw, so that rule would reject the exact rebuild restore it claimed to support.",
+      "repair": "Captured-owner revalidation now treats empty post-mutation direct keyboard focus as possible rebuild-caused focus loss, while a different non-empty focused heartbeat id or changed selection invalidates the ticket. This preserves viewport ownership without claiming keyboard focus survived."
+    },
+    {
+      "severity": "pass",
+      "finding": "Existing OperatorOverlayService is the sole Android UI owner and now measures live selected/focused controls against the existing HorizontalScrollView before capture. No neighboring renderer/controller/state store was introduced."
+    },
+    {
+      "severity": "pass",
+      "finding": "TalkBack accessibility focus is neither queried nor inferred. Selection, direct keyboard focus, visible viewport contact, and TalkBack focus remain separate claims."
+    },
+    {
+      "severity": "pass",
+      "finding": "Viewport generation/idempotence, captured interaction ownership, bounded scroll math, touch semantics, and no-geometry-only-Christmas-motion doctrine remain separated from evidence/announcement identity."
+    }
+  ],
+  "deterministic_test_boundary": {
+    "code_test_head": "5cce0fcd3da347ee5ee4a0f951da616eb9c2544c",
+    "workflow": "Operator Overlay Android",
+    "run_id": 31954791345,
+    "job_id": 95183659842,
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "capability_verdict": {
+    "implemented_source": "PASS",
+    "exact_github_readback": "PASS",
+    "regression_source_present": "PASS",
+    "existing_owner_visible_contact_gate_source_wired": "PASS",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtime_viewport_observed": "NO",
+    "runtime_keyboard_focus_observed": "NO",
+    "runtime_talkback_observed": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "p0_phone_mutations": 0,
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY"
+}

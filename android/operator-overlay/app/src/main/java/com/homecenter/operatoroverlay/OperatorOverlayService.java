@@ -1,5 +1,6 @@
 package com.homecenter.operatoroverlay;
 
+import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -19,15 +20,19 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -63,6 +68,10 @@ public class OperatorOverlayService extends Service {
     private TextView meta;
     private TextView latest;
     private TextView spotifyStatus;
+    private TextView heartbeatSummary;
+    private LinearLayout heartbeatLights;
+    private HorizontalScrollView heartbeatScroller;
+    private TextView heartbeatDetail;
     private SpotifyShizukuClient spotifyClient;
     private Button collapseButton;
     private Button hideButton;
@@ -71,6 +80,14 @@ public class OperatorOverlayService extends Service {
     private Button controlButton;
     private EditText adamInput;
     private String adamMode = "terminal";
+    private String heartbeatSelectedId = "";
+    private String heartbeatStructureIdentity = "";
+    private String heartbeatRenderIdentity = "";
+    private String heartbeatAnnouncementIdentity = "";
+    private HeartbeatSceneGraph.Frame heartbeatFrame;
+    private HeartbeatPersistedPollPolicy.Snapshot heartbeatProcessedPersistedSnapshot;
+    private long heartbeatViewportRestoreGeneration;
+    private long heartbeatDetailPresentationGeneration;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -145,6 +162,7 @@ public class OperatorOverlayService extends Service {
     @Override
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        resetHeartbeatNativeMotion();
         if (spotifyClient != null) spotifyClient.close();
         removeView(root);
         removeView(touchGuard);
@@ -192,7 +210,7 @@ public class OperatorOverlayService extends Service {
         }
         if (spotifyStatus != null) spotifyStatus.setText(summary);
         if (requestId > 0L && spotifyStatus != null) {
-            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
+            String announcement = HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160);
             spotifyStatus.announceForAccessibility(announcement);
         }
     }
@@ -246,10 +264,11 @@ public class OperatorOverlayService extends Service {
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
 
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
         touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
+        touchGuard.setImportantForAccessibility(
+                TechnicalTouchGuardAccessibilityPolicy.importantForAccessibility());
+        touchGuard.setContentDescription(
+                TechnicalTouchGuardAccessibilityPolicy.contentDescription());
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -274,7 +293,8 @@ public class OperatorOverlayService extends Service {
 
         dragHandle = textView(14f, true);
         dragHandle.setText("☰  HOME CENTER");
-        dragHandle.setContentDescription("Drag Home Center overlay. Tap to shrink or expand.");
+        dragHandle.setContentDescription(
+                HeartbeatCollapsedOwnerAccessibility.OVERLAY_ACTION_DESCRIPTION);
         dragHandle.setGravity(Gravity.CENTER_VERTICAL);
         dragHandle.setMinWidth(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         dragHandle.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
@@ -305,7 +325,9 @@ public class OperatorOverlayService extends Service {
 
         spotifyStatus = textView(12f, false);
         spotifyStatus.setText(OperatorState.spotifySummary(this));
-        spotifyStatus.setContentDescription("Current Spotify playback status");
+        // TextView text is the focused semantic value; do not override it with a stale
+        // generic description. Explicit command receipts still use bounded announcements.
+        spotifyStatus.setContentDescription(null);
         spotifyStatus.setSingleLine(true);
         spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
         spotifyStatus.setPadding(dp(4), 0, dp(4), 0);
@@ -347,7 +369,9 @@ public class OperatorOverlayService extends Service {
 
         status = textView(14f, true);
         status.setText("HOME CENTER • OFFLINE");
-        status.setContentDescription("Home Center connection and control state");
+        // This status text changes continuously; let TextView expose its current text
+        // instead of replacing it with a generic description that can mask the state.
+        status.setContentDescription(null);
         statusRow.addView(status, new LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -367,6 +391,42 @@ public class OperatorOverlayService extends Service {
         meta.setTextColor(Color.rgb(190, 198, 212));
         meta.setPadding(0, dp(6), 0, dp(2));
 
+        heartbeatSummary = textView(12f, true);
+        heartbeatSummary.setText("HEARTBEAT • waiting");
+        heartbeatSummary.setContentDescription("Heartbeat skill lights waiting for a material pulse.");
+        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+        heartbeatSummary.setPadding(dp(4), dp(6), dp(4), dp(2));
+
+        heartbeatLights = new LinearLayout(this);
+        heartbeatLights.setOrientation(LinearLayout.HORIZONTAL);
+        heartbeatLights.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+
+        heartbeatScroller = new HorizontalScrollView(this);
+        heartbeatScroller.setHorizontalScrollBarEnabled(false);
+        heartbeatScroller.setFillViewport(false);
+        heartbeatScroller.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        heartbeatScroller.addView(heartbeatLights, new HorizontalScrollView.LayoutParams(
+                HorizontalScrollView.LayoutParams.WRAP_CONTENT,
+                HorizontalScrollView.LayoutParams.WRAP_CONTENT));
+
+        heartbeatDetail = textView(11f, false);
+        heartbeatDetail.setText("Touch a heartbeat light for Why, Consequence, Evidence, and Source.");
+        heartbeatDetail.setTextColor(Color.rgb(190, 198, 212));
+        heartbeatDetail.setPadding(dp(4), dp(2), dp(4), dp(4));
+        heartbeatDetail.setEllipsize(null);
+        heartbeatDetail.setMaxHeight(HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
+                heartbeatDetail.getLineHeight(),
+                heartbeatDetail.getTotalPaddingTop() + heartbeatDetail.getTotalPaddingBottom()));
+        heartbeatDetail.setMinHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
+        heartbeatDetail.setMinimumHeight(dp(HeartbeatDetailSurfacePolicy.MIN_TOUCH_TARGET_DP));
+        heartbeatDetail.setVerticalScrollBarEnabled(true);
+        heartbeatDetail.setMovementMethod(ScrollingMovementMethod.getInstance());
+        heartbeatDetail.setFocusable(HeartbeatDetailSurfacePolicy.KEYBOARD_FOCUSABLE);
+        heartbeatDetail.setClickable(HeartbeatDetailSurfacePolicy.CLICKABLE);
+        heartbeatDetail.setLongClickable(HeartbeatDetailSurfacePolicy.LONG_CLICKABLE);
+        heartbeatDetail.setContentDescription(
+                "Touch a heartbeat light for why, consequence, evidence, and source detail.");
+
         latest = textView(14f, false);
         latest.setText(OperatorState.latestText(this));
         latest.setMaxLines(2);
@@ -375,7 +435,25 @@ public class OperatorOverlayService extends Service {
         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
         latest.setVerticalScrollBarEnabled(true);
         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
-        latest.setContentDescription("Latest Home Center or Adam message. Tap to expand or collapse text.");
+        // TextView text is the semantic value; a static description would mask the
+        // changing Home Center message for accessibility services.
+        latest.setContentDescription(null);
+        latest.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            latest.setStateDescription(
+                    LatestMessageAccessibilityPolicy.stateDescription(expandedText));
+        }
+        latest.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(
+                    View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new AccessibilityNodeInfo.AccessibilityAction(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(),
+                        LatestMessageAccessibilityPolicy.clickActionLabel(expandedText)));
+            }
+        });
         latest.setOnClickListener(v -> {
             expandedText = !expandedText;
             applyExpandedTextState();
@@ -436,6 +514,9 @@ public class OperatorOverlayService extends Service {
         details.addView(statusRow);
         details.addView(screenBadge);
         details.addView(meta);
+        details.addView(heartbeatSummary);
+        details.addView(heartbeatScroller);
+        details.addView(heartbeatDetail);
         details.addView(latest);
         details.addView(adamModeRow);
         details.addView(adamInputRow);
@@ -558,8 +639,11 @@ public class OperatorOverlayService extends Service {
 
     private void applyPresentationState() {
         if (root == null || windowParams == null) return;
+        invalidateHeartbeatViewportRestore();
         boolean collapsed = OperatorState.panelCollapsed(this);
         details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        applyHeartbeatCollapsedOwnerAccessibility(currentHeartbeatModel());
+        if (collapsed) resetHeartbeatNativeMotion();
         hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         compactControlButton.setVisibility(collapsed ? View.VISIBLE : View.GONE);
         collapseButton.setText(collapsed ? "+" : "−");
@@ -578,7 +662,8 @@ public class OperatorOverlayService extends Service {
     private void hideOverlay() {
         if (root == null) return;
         confirmDisable = false;
-        // Commit the fail-closed state before removing the user's visible escape.
+        invalidateHeartbeatViewportRestore();
+        resetHeartbeatNativeMotion();
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
@@ -626,14 +711,18 @@ public class OperatorOverlayService extends Service {
     private void applyExpandedTextState() {
         if (latest == null) return;
         if (expandedText) {
-            latest.setMaxLines(30);
-            latest.setMaxHeight(dp(520));
+            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(true));
+            latest.setMaxHeight(dp(LatestMessageAccessibilityPolicy.expandedMaxHeightDp()));
             latest.setEllipsize(null);
         } else {
             latest.scrollTo(0, 0);
-            latest.setMaxLines(2);
+            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(false));
             latest.setMaxHeight(Integer.MAX_VALUE);
             latest.setEllipsize(TextUtils.TruncateAt.END);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            latest.setStateDescription(
+                    LatestMessageAccessibilityPolicy.stateDescription(expandedText));
         }
         latest.requestLayout();
         latest.post(this::clampAndPersistPosition);
@@ -709,6 +798,7 @@ public class OperatorOverlayService extends Service {
         }
 
         muteButton.setText(muted ? "Unmute speech" : "Mute speech");
+        muteButton.setContentDescription(muted ? "Unmute speech" : "Mute speech");
         String fullControlLabel;
         String compactControlLabel;
         if (!enabled) {
@@ -723,6 +813,8 @@ public class OperatorOverlayService extends Service {
         }
         controlButton.setText(fullControlLabel);
         compactControlButton.setText(compactControlLabel);
+        controlButton.setContentDescription(fullControlLabel);
+        compactControlButton.setContentDescription(fullControlLabel);
 
         String source = OperatorState.latestSource(this);
         long lastUpdate = OperatorState.lastUpdateMs(this);
@@ -736,6 +828,612 @@ public class OperatorOverlayService extends Service {
         if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
             spotifyStatus.setText(spotifySummary);
         }
+        boolean overlayVisible = !hidden && root.getVisibility() == View.VISIBLE;
+        boolean heartbeatSurfaceVisible = details != null && details.getVisibility() == View.VISIBLE;
+        refreshHeartbeatLights(muted, overlayVisible, heartbeatSurfaceVisible);
+    }
+
+    private void refreshHeartbeatLights(
+            boolean muted,
+            boolean overlayVisible,
+            boolean heartbeatSurfaceVisible) {
+        if (heartbeatSummary == null || heartbeatLights == null || heartbeatDetail == null) return;
+
+        boolean heartbeatSurfacePresented = overlayVisible && heartbeatSurfaceVisible;
+        boolean platformAnimatorsEnabled = ValueAnimator.areAnimatorsEnabled();
+        if (!heartbeatSurfacePresented || !platformAnimatorsEnabled) {
+            resetHeartbeatNativeMotion();
+        }
+
+        HeartbeatPersistedPollPolicy.Snapshot currentPersistedSnapshot = null;
+        String persistedReadBoundary = "";
+        try {
+            currentPersistedSnapshot = HeartbeatPersistedSnapshotReader.read(this);
+        } catch (RuntimeException storageReadFailure) {
+            persistedReadBoundary = HeartbeatPersistedSnapshotReader.STORAGE_READ_FAILURE_BOUNDARY;
+        }
+
+        HeartbeatPersistedPollPolicy.Decision persistedDecision = null;
+        if (persistedReadBoundary.isEmpty()) {
+            persistedDecision = HeartbeatPersistedPollPolicy.decide(
+                    heartbeatProcessedPersistedSnapshot,
+                    currentPersistedSnapshot,
+                    heartbeatFrame);
+
+            if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.WAITING) {
+                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                if (HeartbeatPersistedPollPolicy.shouldClearPreContactWoundOnWaiting(
+                        persistedDecision,
+                        heartbeatFrame)) {
+                    clearHeartbeatPreContactWoundToWaiting();
+                }
+                heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                return;
+            }
+            if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.SKIP_UNCHANGED) {
+                heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+                heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+                return;
+            }
+        }
+
+        HeartbeatOverlayRefreshPlan.Plan next;
+        if (!persistedReadBoundary.isEmpty()) {
+            HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                    "",
+                    heartbeatFrame,
+                    persistedReadBoundary);
+            next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+        } else if (persistedDecision == HeartbeatPersistedPollPolicy.Decision.PRESERVE_MISSING_CONTACT) {
+            HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                    "",
+                    heartbeatFrame,
+                    HeartbeatPersistedPollPolicy.MISSING_AFTER_CONTACT_BOUNDARY);
+            next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+        } else {
+            try {
+                byte[] exactPayload = Base64.decode(
+                        currentPersistedSnapshot.payloadB64,
+                        Base64.NO_WRAP);
+                String canonicalPayloadB64 = Base64.encodeToString(
+                        exactPayload,
+                        Base64.NO_WRAP);
+                if (!HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip(
+                        currentPersistedSnapshot.payloadB64,
+                        canonicalPayloadB64)) {
+                    HeartbeatSceneGraph.Frame preserved =
+                            HeartbeatSceneGraph.preserveRejectedRefresh(
+                                    "",
+                                    heartbeatFrame,
+                                    HeartbeatPersistedBase64Canonicality.NON_CANONICAL_BOUNDARY);
+                    next = HeartbeatOverlayRefreshPlan.fromFrame(
+                            preserved,
+                            heartbeatSelectedId);
+                } else {
+                    HeartbeatOverlayRefreshPlan.PersistedPlan persisted =
+                            HeartbeatOverlayRefreshPlan.projectPersisted(
+                                    exactPayload,
+                                    currentPersistedSnapshot.declaredBytes,
+                                    currentPersistedSnapshot.declaredSha256,
+                                    currentPersistedSnapshot.updatedMs,
+                                    heartbeatFrame,
+                                    heartbeatSelectedId);
+                    next = persisted.plan;
+                }
+            } catch (IllegalArgumentException invalidBase64) {
+                HeartbeatSceneGraph.Frame preserved = HeartbeatSceneGraph.preserveRejectedRefresh(
+                        "",
+                        heartbeatFrame,
+                        "Stored heartbeat Base64 identity is invalid.");
+                next = HeartbeatOverlayRefreshPlan.fromFrame(preserved, heartbeatSelectedId);
+            }
+        }
+
+        boolean rebuildStructure = HeartbeatOverlayRefreshPlan.shouldRebuildStructure(
+                heartbeatStructureIdentity,
+                next);
+        boolean refreshContent = HeartbeatOverlayRefreshPlan.shouldRefreshContent(
+                heartbeatRenderIdentity,
+                next);
+        boolean semanticTransitionObserved = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                heartbeatAnnouncementIdentity,
+                next);
+        boolean announce = HeartbeatOverlayRefreshPlan.shouldAnnounce(
+                heartbeatAnnouncementIdentity,
+                next,
+                muted,
+                overlayVisible,
+                heartbeatSurfaceVisible);
+        int heartbeatLiveRegionMode = AccessibilityAnnouncementSemanticPolicy.liveRegionModeFor(
+                AccessibilityAnnouncementSemanticPolicy.Consequence.HEARTBEAT_MATERIAL_TRANSITION,
+                false,
+                announce,
+                muted);
+        heartbeatSummary.setAccessibilityLiveRegion(heartbeatLiveRegionMode);
+
+        HeartbeatViewportRestorePolicy.Ticket viewportRestoreTicket = null;
+        if ((rebuildStructure || refreshContent) && heartbeatScroller != null) {
+            heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
+                    heartbeatViewportRestoreGeneration);
+            String keyboardFocusedControlId = heartbeatKeyboardFocusedControlId();
+            View selectedControl = heartbeatChildById(next.selectedControlId);
+            View keyboardFocusedControl = heartbeatChildById(keyboardFocusedControlId);
+            boolean selectedHasVisibleContact = heartbeatHasVisibleViewportContact(selectedControl);
+            boolean keyboardFocusHasVisibleContact = heartbeatHasVisibleViewportContact(
+                    keyboardFocusedControl);
+            String viewportAnchorId = HeartbeatViewportRestorePolicy.visibleViewportAnchorId(
+                    next.selectedControlId,
+                    selectedHasVisibleContact,
+                    keyboardFocusedControlId,
+                    keyboardFocusHasVisibleContact,
+                    next.model);
+            View anchor = heartbeatChildById(viewportAnchorId);
+            if (anchor != null) {
+                viewportRestoreTicket = HeartbeatViewportRestorePolicy.captureVisible(
+                        heartbeatViewportRestoreGeneration,
+                        next.selectedControlId,
+                        selectedHasVisibleContact,
+                        keyboardFocusedControlId,
+                        keyboardFocusHasVisibleContact,
+                        anchor.getLeft() - heartbeatScroller.getScrollX(),
+                        next.model);
+            }
+        }
+
+        heartbeatFrame = next.frame;
+        heartbeatSelectedId = next.selectedControlId;
+        boolean mutatedHeartbeatViews = false;
+        boolean mutationMayDestroyKeyboardFocus = false;
+        if (rebuildStructure) {
+            rebuildHeartbeatLights(next.model);
+            mutatedHeartbeatViews = true;
+            mutationMayDestroyKeyboardFocus = true;
+        } else if (refreshContent) {
+            boolean refreshedInPlace = refreshHeartbeatLightsInPlace(next.model);
+            if (!refreshedInPlace) {
+                rebuildHeartbeatLights(next.model);
+                mutationMayDestroyKeyboardFocus = true;
+            }
+            mutatedHeartbeatViews = true;
+        }
+        if (mutatedHeartbeatViews) {
+            applyHeartbeatNativeMotion(
+                    next.model,
+                    semanticTransitionObserved,
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+        }
+        if (mutatedHeartbeatViews
+                && viewportRestoreTicket != null
+                && viewportRestoreTicket.hasAnchor()) {
+            restoreHeartbeatViewportAfterLayout(
+                    viewportRestoreTicket,
+                    mutationMayDestroyKeyboardFocus);
+        }
+        if (heartbeatLiveRegionMode != View.ACCESSIBILITY_LIVE_REGION_NONE) {
+            heartbeatSummary.post(() -> heartbeatSummary.setAccessibilityLiveRegion(
+                    View.ACCESSIBILITY_LIVE_REGION_NONE));
+        }
+
+        heartbeatStructureIdentity = next.structureIdentity;
+        heartbeatRenderIdentity = next.renderIdentity;
+        heartbeatAnnouncementIdentity = next.announcementIdentity;
+        if (persistedReadBoundary.isEmpty()) {
+            heartbeatProcessedPersistedSnapshot = currentPersistedSnapshot;
+        }
+    }
+
+    private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
+        heartbeatLights.removeAllViews();
+
+        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+            heartbeatLights.addView(createHeartbeatLight(control));
+        }
+        applyHeartbeatSelectionAccessibility(model);
+        applyHeartbeatModelChrome(model);
+        heartbeatLights.requestLayout();
+        heartbeatLights.post(this::clampAndPersistPosition);
+    }
+
+    private boolean refreshHeartbeatLightsInPlace(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatLights == null || heartbeatSummary == null) return false;
+        if (heartbeatLights.getChildCount() != model.controls.size()) return false;
+
+        for (int index = 0; index < model.controls.size(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            if (!(child instanceof Button)) return false;
+            HeartbeatOverlayViewModel.LightControl control = model.controls.get(index);
+            Object tag = child.getTag();
+            if (tag == null || !tag.toString().equalsIgnoreCase(control.id)) return false;
+        }
+
+        for (int index = 0; index < model.controls.size(); index++) {
+            Button light = (Button) heartbeatLights.getChildAt(index);
+            applyHeartbeatLight(light, model.controls.get(index));
+        }
+        applyHeartbeatSelectionAccessibility(model);
+        applyHeartbeatModelChrome(model);
+        heartbeatLights.requestLayout();
+        heartbeatLights.post(this::clampAndPersistPosition);
+        return true;
+    }
+
+    private String heartbeatKeyboardFocusedControlId() {
+        if (heartbeatLights == null) return "";
+        for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            if (!child.isFocused()) continue;
+            Object tag = child.getTag();
+            return tag == null ? "" : tag.toString();
+        }
+        return "";
+    }
+
+    private View heartbeatChildById(String semanticId) {
+        if (heartbeatLights == null || TextUtils.isEmpty(semanticId)) return null;
+        for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            Object tag = child.getTag();
+            if (tag != null && tag.toString().equalsIgnoreCase(semanticId)) return child;
+        }
+        return null;
+    }
+
+    private boolean heartbeatHasVisibleViewportContact(View control) {
+        if (heartbeatScroller == null || control == null || !control.isShown()) return false;
+        int viewportWidth = Math.max(0,
+                heartbeatScroller.getWidth()
+                        - heartbeatScroller.getPaddingLeft()
+                        - heartbeatScroller.getPaddingRight());
+        return HeartbeatViewportRestorePolicy.hasVisibleViewportContact(
+                control.getLeft(),
+                control.getWidth(),
+                heartbeatScroller.getScrollX(),
+                viewportWidth);
+    }
+
+    private void invalidateHeartbeatViewportRestore() {
+        heartbeatViewportRestoreGeneration = HeartbeatViewportRestorePolicy.nextGeneration(
+                heartbeatViewportRestoreGeneration);
+    }
+
+    private void restoreHeartbeatViewportAfterLayout(
+            HeartbeatViewportRestorePolicy.Ticket ticket,
+            boolean mutationMayDestroyKeyboardFocus) {
+        if (heartbeatScroller == null
+                || heartbeatLights == null
+                || ticket == null
+                || !ticket.hasAnchor()) return;
+        ViewTreeObserver observer = heartbeatLights.getViewTreeObserver();
+        if (!observer.isAlive()) return;
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                ViewTreeObserver current = heartbeatLights.getViewTreeObserver();
+                if (current.isAlive()) current.removeOnPreDrawListener(this);
+                restoreHeartbeatViewportNow(ticket, mutationMayDestroyKeyboardFocus);
+                return true;
+            }
+        });
+        heartbeatLights.requestLayout();
+    }
+
+    private void restoreHeartbeatViewportNow(
+            HeartbeatViewportRestorePolicy.Ticket ticket,
+            boolean mutationMayDestroyKeyboardFocus) {
+        if (heartbeatScroller == null
+                || heartbeatLights == null
+                || ticket == null
+                || !ticket.hasAnchor()) return;
+        HeartbeatOverlayViewModel.Model currentModel = HeartbeatOverlayViewModel.fromFrame(
+                heartbeatFrame);
+        boolean anyDirectKeyboardFocusPresent = root != null && root.findFocus() != null;
+        if (!HeartbeatViewportRestorePolicy.shouldRestoreCapturedOwner(
+                ticket,
+                heartbeatViewportRestoreGeneration,
+                currentModel,
+                heartbeatSelectedId,
+                heartbeatKeyboardFocusedControlId(),
+                mutationMayDestroyKeyboardFocus,
+                anyDirectKeyboardFocusPresent)) return;
+        View anchor = heartbeatChildById(ticket.semanticId);
+        if (anchor == null) return;
+        int viewportWidth = Math.max(0,
+                heartbeatScroller.getWidth()
+                        - heartbeatScroller.getPaddingLeft()
+                        - heartbeatScroller.getPaddingRight());
+        int maxScrollX = Math.max(0, heartbeatLights.getWidth() - viewportWidth);
+        int targetScrollX = HeartbeatViewportRestorePolicy.targetScrollX(
+                ticket,
+                anchor.getLeft(),
+                maxScrollX);
+        if (heartbeatScroller.getScrollX() != targetScrollX) {
+            heartbeatScroller.scrollTo(targetScrollX, 0);
+        }
+    }
+
+    private Button createHeartbeatLight(HeartbeatOverlayViewModel.LightControl control) {
+        Button light = button(control.visibleLabel);
+        light.setTextSize(10f);
+        light.setMaxLines(2);
+        applyHeartbeatLight(light, control);
+        return light;
+    }
+
+    private void applyHeartbeatLight(
+            Button light,
+            HeartbeatOverlayViewModel.LightControl control) {
+        if (light == null || control == null) return;
+        int targetDp = Math.max(
+                OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
+                control.minTouchTargetDp);
+        light.setText(control.visibleLabel);
+        light.setMinHeight(dp(targetDp));
+        light.setMinimumHeight(dp(targetDp));
+        light.setMinWidth(dp(targetDp));
+        light.setMinimumWidth(dp(targetDp));
+        light.setTag(control.id);
+        light.setSelected(control.id.equalsIgnoreCase(heartbeatSelectedId));
+        light.setContentDescription(control.contentDescription);
+        light.setOnClickListener(v -> {
+            invalidateHeartbeatViewportRestore();
+            heartbeatSelectedId = control.id;
+            refreshHeartbeatSelection();
+            showHeartbeatDetail(control.detailContentDescription, true);
+        });
+    }
+
+    private void applyHeartbeatSelectionAccessibility(HeartbeatOverlayViewModel.Model model) {
+        if (heartbeatLights == null || model == null) return;
+        HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
+                HeartbeatSelectionAccessibilityPolicy.fromModel(model, heartbeatSelectedId);
+
+        heartbeatLights.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(
+                    View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        decision.rowCount,
+                        decision.columnCount,
+                        false,
+                        decision.singleSelection
+                                ? AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE
+                                : AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE));
+            }
+        });
+
+        for (HeartbeatSelectionAccessibilityPolicy.ItemDecision item : decision.items) {
+            View child = heartbeatChildById(item.id);
+            if (child == null) continue;
+            final HeartbeatSelectionAccessibilityPolicy.ItemDecision itemDecision = item;
+            child.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(
+                        View host,
+                        AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                            itemDecision.rowIndex,
+                            1,
+                            itemDecision.columnIndex,
+                            1,
+                            false,
+                            itemDecision.selected));
+                }
+            });
+        }
+    }
+
+    private HeartbeatOverlayViewModel.Model currentHeartbeatModel() {
+        return heartbeatFrame == null ? null : HeartbeatOverlayViewModel.fromFrame(heartbeatFrame);
+    }
+
+    private void applyHeartbeatCollapsedOwnerAccessibility(HeartbeatOverlayViewModel.Model model) {
+        if (dragHandle == null) return;
+        dragHandle.setContentDescription(
+                HeartbeatCollapsedOwnerAccessibility.contentDescription(
+                        OperatorState.panelCollapsed(this),
+                        model));
+    }
+
+    private void applyHeartbeatModelChrome(HeartbeatOverlayViewModel.Model model) {
+        if (model == null || heartbeatSummary == null) return;
+        heartbeatSummary.setText(model.summaryVisibleLabel());
+        heartbeatSummary.setContentDescription(model.collapsedContentDescription);
+        applyHeartbeatCollapsedOwnerAccessibility(model);
+
+        HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
+        if (selected != null) {
+            showHeartbeatDetail(selected.detailContentDescription, false);
+        } else if (model.refreshInterrupted) {
+            showHeartbeatDetail(model.interruptionDetailContentDescription(), false);
+        } else {
+            showHeartbeatDetail(
+                    "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
+                    false);
+        }
+    }
+
+    /**
+     * Clear one stale pre-contact interruption after storage has recovered to the
+     * canonical fully-absent WAITING shape. Repeated healthy empty polls see a null
+     * frame and therefore do no further UI work. Accepted/preserved contact cannot
+     * reach this helper because the poll policy's contact predicate keeps it out of
+     * WAITING recovery.
+     */
+    private void clearHeartbeatPreContactWoundToWaiting() {
+        invalidateHeartbeatViewportRestore();
+        resetHeartbeatNativeMotion();
+        heartbeatFrame = null;
+        heartbeatSelectedId = "";
+        heartbeatStructureIdentity = "";
+        heartbeatRenderIdentity = "";
+        heartbeatAnnouncementIdentity = "";
+        if (heartbeatLights != null) heartbeatLights.removeAllViews();
+        heartbeatSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_NONE);
+        heartbeatSummary.setText("HEARTBEAT • waiting");
+        heartbeatSummary.setContentDescription(
+                "Heartbeat skill lights waiting for a material pulse.");
+        applyHeartbeatCollapsedOwnerAccessibility(null);
+        showHeartbeatDetail(
+                "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
+                false);
+    }
+
+    private void applyHeartbeatNativeMotion(
+            HeartbeatOverlayViewModel.Model model,
+            boolean semanticTransitionObserved,
+            boolean heartbeatSurfacePresented,
+            boolean platformAnimatorsEnabled) {
+        if (model == null
+                || !semanticTransitionObserved
+                || !heartbeatSurfacePresented
+                || !platformAnimatorsEnabled) {
+            resetHeartbeatNativeMotion();
+            return;
+        }
+
+        for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+            View light = heartbeatChildById(control.id);
+            if (light == null) continue;
+            resetHeartbeatNativeMotionView(light);
+            HeartbeatNativeMotionPolicy.Decision decision = model.motionDecisionFor(
+                    control.id,
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+            if (decision.animate) animateHeartbeatNativeView(light, decision);
+        }
+
+        if (heartbeatSummary != null) {
+            resetHeartbeatNativeMotionView(heartbeatSummary);
+            HeartbeatNativeMotionPolicy.Decision summaryDecision = model.summaryMotionDecision(
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+            if (summaryDecision.animate) {
+                animateHeartbeatNativeView(heartbeatSummary, summaryDecision);
+            }
+        }
+    }
+
+    private void animateHeartbeatNativeView(
+            View view,
+            HeartbeatNativeMotionPolicy.Decision decision) {
+        if (view == null || decision == null || !decision.animate) return;
+        view.animate().cancel();
+        view.setScaleX(decision.startScale);
+        view.setScaleY(decision.startScale);
+        view.setAlpha(decision.startAlpha);
+        view.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(decision.durationMs)
+                .withEndAction(() -> {
+                    view.setScaleX(1f);
+                    view.setScaleY(1f);
+                    view.setAlpha(1f);
+                })
+                .start();
+    }
+
+    private void resetHeartbeatNativeMotion() {
+        if (heartbeatLights != null) {
+            for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+                resetHeartbeatNativeMotionView(heartbeatLights.getChildAt(index));
+            }
+        }
+        resetHeartbeatNativeMotionView(heartbeatSummary);
+    }
+
+    private void resetHeartbeatNativeMotionView(View view) {
+        if (view == null) return;
+        view.animate().cancel();
+        view.setScaleX(1f);
+        view.setScaleY(1f);
+        view.setAlpha(1f);
+    }
+
+    private void refreshHeartbeatSelection() {
+        if (heartbeatLights == null) return;
+        for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
+            View child = heartbeatLights.getChildAt(index);
+            Object tag = child.getTag();
+            child.setSelected(tag != null
+                    && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+        }
+        applyHeartbeatSelectionAccessibility(currentHeartbeatModel());
+    }
+
+    private void showHeartbeatDetail(String detail, boolean explicitSelection) {
+        if (heartbeatDetail == null) return;
+        long presentationGeneration = ++heartbeatDetailPresentationGeneration;
+        int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
+        HeartbeatDetailSurfacePolicy.Presentation presentation =
+                HeartbeatDetailSurfacePolicy.fromDetail(detail);
+        heartbeatDetail.setText(presentation.text);
+        heartbeatDetail.setContentDescription(presentation.contentDescription);
+        heartbeatDetail.setEllipsize(
+                presentation.ellipsizeEnd ? TextUtils.TruncateAt.END : null);
+        heartbeatDetail.setMinHeight(dp(presentation.minTouchTargetDp));
+        heartbeatDetail.setMinimumHeight(dp(presentation.minTouchTargetDp));
+        heartbeatDetail.setMaxHeight(HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
+                heartbeatDetail.getLineHeight(),
+                heartbeatDetail.getTotalPaddingTop() + heartbeatDetail.getTotalPaddingBottom()));
+        heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);
+        heartbeatDetail.setMovementMethod(
+                presentation.verticallyScrollable
+                        ? ScrollingMovementMethod.getInstance()
+                        : null);
+        heartbeatDetail.setFocusable(presentation.keyboardFocusable);
+        heartbeatDetail.setClickable(presentation.clickable);
+        heartbeatDetail.setLongClickable(presentation.longClickable);
+        if (explicitSelection) {
+            heartbeatDetail.scrollTo(0, 0);
+        } else {
+            restoreHeartbeatDetailScrollAfterLayout(
+                    preservedScrollY,
+                    presentationGeneration);
+        }
+        if (explicitSelection && !OperatorState.muted(this)) {
+            heartbeatDetail.announceForAccessibility(presentation.contentDescription);
+        }
+    }
+
+    private void restoreHeartbeatDetailScrollAfterLayout(
+            int preservedScrollY,
+            long presentationGeneration) {
+        if (heartbeatDetail == null) return;
+        ViewTreeObserver observer = heartbeatDetail.getViewTreeObserver();
+        if (!observer.isAlive()) return;
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                ViewTreeObserver current = heartbeatDetail.getViewTreeObserver();
+                if (current.isAlive()) current.removeOnPreDrawListener(this);
+                if (presentationGeneration != heartbeatDetailPresentationGeneration) {
+                    return true;
+                }
+                android.text.Layout layout = heartbeatDetail.getLayout();
+                int contentHeightPx = layout == null ? 0 : layout.getHeight();
+                int viewportHeightPx = Math.max(
+                        0,
+                        heartbeatDetail.getHeight()
+                                - heartbeatDetail.getTotalPaddingTop()
+                                - heartbeatDetail.getTotalPaddingBottom());
+                int targetScrollY = HeartbeatDetailSurfacePolicy.clampScrollY(
+                        preservedScrollY,
+                        contentHeightPx,
+                        viewportHeightPx);
+                if (heartbeatDetail.getScrollY() != targetScrollY) {
+                    heartbeatDetail.scrollTo(0, targetScrollY);
+                }
+                return true;
+            }
+        });
+        heartbeatDetail.requestLayout();
     }
 
     private Button adamModeButton(String label, String mode, String description) {

@@ -1,0 +1,82 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "sourceHeadReviewed": "6e1bc6a98c456298ad75aefc28903aeedb48144e",
+  "timestamp": "2026-08-15T20:07:00Z",
+  "fronts": [
+    {
+      "id": "ingress-contract",
+      "state": "advanced",
+      "change": "HeartbeatPersistedEnvelopeProjection.MAX_PAYLOAD_BYTES now aliases OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES, eliminating the duplicated numeric 32768 ceiling without creating a new owner."
+    },
+    {
+      "id": "wall-clock-truth",
+      "state": "advanced_after_replan",
+      "change": "Code-first review proved updatedMs comes from System.currentTimeMillis(). The first monotonic rollback/collision design was removed before completion; final source treats positive updatedMs as observation metadata only."
+    },
+    {
+      "id": "regression-source",
+      "state": "advanced_unexecuted",
+      "change": "HeartbeatPersistedEnvelopeObservationTest covers shared ingress ceiling, positive timestamp presence, and content identity independence from wall-clock magnitude. It is regression source only."
+    },
+    {
+      "id": "warm-wall-art",
+      "state": "advanced_source_only",
+      "change": "The existing motion-clamp specimen was mutated in place with a seventh wall-clock witness; timestamp ordering is visibly blocked as evidence while byte/SHA content identity remains authoritative."
+    },
+    {
+      "id": "accessibility-review",
+      "state": "dark",
+      "change": "HeartbeatFrameAccessibility was inspected; no new concrete TalkBack/touch defect was established, so no decorative source churn was made."
+    },
+    {
+      "id": "deterministic-test-gate",
+      "state": "blocked",
+      "change": "Automatic Operator Overlay Android run 31905644148 / job 95062863616 on source head 6e1bc6a98c456298ad75aefc28903aeedb48144e executed zero steps. Exact boundary: The job was not started because an Actions budget is preventing further use. No manual retry was issued."
+    }
+  ],
+  "skillLights": [
+    {"id":"failure-is-the-shovel","provenanceKind":"doctrine","state":"active","why":"The first 1500 design was disproved by direct source evidence and replaced rather than defended.","consequence":"Wall-clock rollback logic was removed before completion."},
+    {"id":"canon-auto-select","provenanceKind":"doctrine","state":"active","why":"Repository skills were harvested from the live branch rather than a fixed favorites list.","consequence":"execution-truth, fortress-plan-gate, venice-governed-campaign, heartbeat-skill-lights, and Regnet QA materially governed the pulse."},
+    {"id":"autocorrect-judgment-jar","provenanceKind":"jar","state":"dark","why":"No material ambiguous/autocorrect token required resolution.","consequence":"No action."},
+    {"id":"originality-tax","provenanceKind":"doctrine","state":"active","why":"A repeated false-identity failure shape could not survive as wording polish.","consequence":"Fresh replan removed unsupported timestamp ordering and renamed the regression fixture from Freshness to Observation."},
+    {"id":"hunger","provenanceKind":"doctrine","state":"active","why":"The art front had to teach a real new constraint rather than add a specimen.","consequence":"Existing warm-wall organism gained a wall-clock witness in place."},
+    {"id":"ever-polished-interpreter","provenanceKind":"doctrine","state":"active","why":"Source meaning was reconciled across receiver, projection, regression fixture, and specimen.","consequence":"updatedMs is consistently treated as wall-clock observation metadata rather than monotonic replay identity."},
+    {"id":"operator-campaign","provenanceKind":"repository_skill","provenanceLocator":"skills/operator-campaign/SKILL.md","state":"active","why":"The source campaign required durable continuation and receipts.","consequence":"Plan, replan, Regnet, Venice, and swarm state were persisted on the PR branch."},
+    {"id":"harroway-operator-discipline","provenanceKind":"doctrine","state":"active","why":"Mission lane and evidence boundaries were binding.","consequence":"No phone/P0 execution or adjacent architecture was substituted for non-phone source work."},
+    {"id":"she-raw","provenanceKind":"reviewer","state":"fault","why":"Authoritative adversarial review was attempted before mutation.","consequence":"She-Raw returned HTTP 400 account-connection failure; no synthetic replacement was used."},
+    {"id":"venice-judgment-jars","provenanceKind":"jar","state":"active","why":"Plan and stopping authority governed source mutation.","consequence":"PLAN_ALLOWED, replan after wall-clock finding, and bounded STOP_ALLOWED receipts are durable."},
+    {"id":"regnet-qa","provenanceKind":"repository_skill","provenanceLocator":"skills/renee-qa/SKILL.md","state":"active","why":"Capability-state and regression truth were material.","consequence":"Source/readback passes only; TESTED remains BLOCKED_UNKNOWN."},
+    {"id":"accessibility-talkback-touch","provenanceKind":"doctrine","state":"dark","why":"Existing accessibility projection was inspected but no new defect was proven.","consequence":"No decorative accessibility mutation."},
+    {"id":"phone-runtime-phone-hands","provenanceKind":"runtime_boundary","state":"blocked","why":"Binding P0/primary-phone firewall reserves the shared execution surface.","consequence":"Zero phone commands, tickets, queue/device probes, or P0 mutations."},
+    {"id":"deterministic-routing","provenanceKind":"doctrine","state":"active","why":"One canonical content identity contract was required.","consequence":"Projection now consumes the existing OperatorState byte ceiling rather than a duplicated literal."},
+    {"id":"evidence-capability-state","provenanceKind":"repository_skill","provenanceLocator":"skills/execution-truth/SKILL.md","state":"active","why":"Source/readback and runtime capability had to remain distinct.","consequence":"Implemented source YES; Tested/Deployed/Callable/Delivered/Accepted remain NO."},
+    {"id":"recovery-checkpoint-idempotence","provenanceKind":"doctrine","state":"active","why":"The first replay-defense idea had to be checked against the actual persisted clock contract.","consequence":"Unsupported timestamp-order dedupe was rejected; content byte/SHA identity remains the proven storage contract."},
+    {"id":"strange-non-raster-art","provenanceKind":"doctrine","state":"active","why":"The changed contract needed a touchable teaching surface without runtime theater.","consequence":"Existing DOM/vector warm-wall specimen gained one meaningful source state, no raster or autoplay."},
+    {"id":"warm-walls","provenanceKind":"doctrine","state":"active","why":"Contact and evidence semantics were made touchable.","consequence":"Wall-clock witness visibly separates observation time from content identity."},
+    {"id":"christmas-light-scene-graph","provenanceKind":"doctrine","state":"active","why":"Motion must encode material semantic transition only.","consequence":"Clock magnitude alone earns no Christmas motion."},
+    {"id":"contact-preservation","provenanceKind":"doctrine","state":"active","why":"False integrity wounds must not erase last-good semantics.","consequence":"The repaired design avoids inventing timestamp rollback wounds; true byte/SHA/parser wounds retain existing fail-closed contact behavior."}
+  ],
+  "crossPollination": [
+    "Regnet's previous constant-drift finding became the 1500 ingress-contract front.",
+    "Execution-truth readback of OverlayUpdateReceiver disproved the first rollback design because updatedMs is wall clock.",
+    "Originality Tax forced a replan instead of defending the new code; the regression fixture name and art semantics were repaired with the code.",
+    "Warm Walls and Christmas-light discipline converted the repaired evidence rule into a touchable source witness without claiming Android rendering.",
+    "The P0 firewall kept all physical/phone owners dark while source fronts advanced independently."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneMutationCount": 0
+}

@@ -1,0 +1,179 @@
+{
+  "schema": "try-forever-swarm-receipt.v3",
+  "heartbeat": "2026-08-18-2100",
+  "sourceHeadReviewed": "72aa7c051a67b92c56fe61375d11ba2b093ebdd2",
+  "existingOwner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "authenticatedBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+    "portablePathPolicyConsumed": false,
+    "emissionSnapshotPolicyConsumed": false
+  },
+  "frontsAdvanced": [
+    {
+      "front": "portable provenance report paths",
+      "result": "IMPLEMENTED_SUPPORTING_SOURCE_UNWIRED",
+      "changed": "Added bounded repository-relative display projection and constant external-path redaction. Code-first review rejected both a deterministic absolute-path fingerprint oracle and tiny budgets that could amputate semantic markers; both defects were repaired before completion."
+    },
+    {
+      "front": "portable path hostile regression source",
+      "result": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "changed": "Fixtures cover repository root '.', repo-relative paths, external host-path suppression, constant external marker, long bounded relative paths, and semantic minimum budget."
+    },
+    {
+      "front": "report-emission snapshot custody",
+      "result": "IMPLEMENTED_SUPPORTING_SOURCE_UNWIRED",
+      "changed": "Added a final-observation policy that fails closed if certified HEAD is missing/changed, final cleanliness is unknown, or checkout becomes dirty before emission. It explicitly does not claim atomic repository binding."
+    },
+    {
+      "front": "emission snapshot hostile regression source",
+      "result": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "changed": "Fixtures cover stable clean, changed HEAD, dirty final checkout, unknown cleanliness, missing final HEAD, and refusal to upgrade an uncertified snapshot."
+    },
+    {
+      "front": "durable skill harvest",
+      "result": "IMPLEMENTED_SOURCE",
+      "changed": "Harvested heartbeat-portable-provenance-report-paths and heartbeat-report-emission-snapshot with explicit owner/test/runtime/P0 membranes."
+    },
+    {
+      "front": "accessible provenance Warm Wall",
+      "result": "IMPLEMENTED_SOURCE",
+      "changed": "Mutated the existing provenance certification DOM/inline-SVG organism in place with portable-path and late-emission states while preserving native radio controls, visible focus, >=48px touch intent, non-color state, reduced motion, and no decorative animation."
+    },
+    {
+      "front": "Regnet and Venice review",
+      "result": "SOURCE_PASS_OWNER_REVISE_REQUIRED",
+      "changed": "Regnet passes bounded supporting-source claims only; Venice allows the source slice to yield while owner wiring, testing, runtime, and campaign remain open."
+    },
+    {
+      "front": "fresh exact-head execution evidence",
+      "result": "TESTED_NO_BLOCKED_UNKNOWN",
+      "changed": "Automatic Operator Overlay Android run 32207464366 on exact reviewed source head failed. Job 95933360316 exposes zero steps and logs return 404 BlobNotFound. No cause was invented and no retry was fired."
+    }
+  ],
+  "lights": [
+    {
+      "light": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "why": "Turned the old provenance owner into new evidence questions rather than retrying CI or polishing completed owner gates."
+    },
+    {
+      "light": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "why": "Current-tree search found no matching path-projection or emission-snapshot skill, so two genuinely new skills were harvested."
+    },
+    {
+      "light": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No speech-to-text/autocorrect ambiguity materially affected this pulse."
+    },
+    {
+      "light": "Originality Tax",
+      "state": "ACTIVE",
+      "why": "Rejected the first external-path fingerprint design and then the tiny-budget marker-amputation behavior instead of defending or cosmetically retrying either."
+    },
+    {
+      "light": "Hunger",
+      "state": "ACTIVE",
+      "why": "Ate host-specific report topology and a late evidence-custody window without creating a second provenance owner."
+    },
+    {
+      "light": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "why": "Cross-pollinated report serialization, snapshot authority, privacy, resource budgets, skills, tests, and the Warm Wall into coherent bounded source contracts."
+    },
+    {
+      "light": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "why": "All durable mutations used the authenticated Home Center GitHub-admin lane. Existing owner remains the only provenance owner; source helpers are policies, not adjacent execution architecture."
+    },
+    {
+      "light": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "why": "Authoritative ambient consultation was attempted and account connection returned HTTP 400; no synthetic She-Raw contribution was substituted."
+    },
+    {
+      "light": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "why": "Code-first completion judgment allows only this bounded supporting-source slice to yield and leaves owner wiring/test/runtime campaign open."
+    },
+    {
+      "light": "Regnet QA",
+      "state": "ACTIVE",
+      "why": "Caught two path-projection design defects, preserved the atomicity boundary, and refused to call supporting policy owner implementation or test evidence."
+    },
+    {
+      "light": "accessibility/TalkBack and touch semantics",
+      "state": "ACTIVE",
+      "why": "The existing Warm Wall gained two inspectable states without losing native single-selection semantics, visible focus, touch target intent, non-color state, or reduced-motion behavior. Runtime TalkBack remains unproven."
+    },
+    {
+      "light": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "why": "Considered and deliberately untouched under the P0/shared-phone firewall."
+    },
+    {
+      "light": "deterministic routing / evidence capability discipline",
+      "state": "ACTIVE",
+      "why": "Internal filesystem path, report display, discovery-time certification, emission-time observation, owner wiring, regression source, tests, runtime, deployment, delivery, and acceptance remain distinct."
+    },
+    {
+      "light": "recovery/checkpointing/idempotence",
+      "state": "ACTIVE_BOUNDED",
+      "why": "Late report custody is treated as a fail-closed final observation, while explicitly refusing to label observation pairs atomic checkpoint binding."
+    },
+    {
+      "light": "strange non-raster vector/DOM/native UI art + warm walls",
+      "state": "ACTIVE",
+      "why": "Existing DOM/inline-SVG provenance Warm Wall was materially mutated in place; it remains source, not deployed UI proof."
+    },
+    {
+      "light": "Christmas-light scene graph",
+      "state": "DARK",
+      "why": "Provenance/report bookkeeping earned no autoplay, blink, or transition motion."
+    },
+    {
+      "light": "contact preservation",
+      "state": "ACTIVE_BOUNDED",
+      "why": "Evidence custody preserves the last certified authority only while final observations remain compatible; a late wound must fail closed rather than let earlier authority float forward. This is report evidence semantics, not runtime heartbeat-frame contact."
+    }
+  ],
+  "crossPollination": [
+    "current owner absolute report paths -> evidence/privacy wound -> display-only projection -> fingerprint oracle discovered -> constant external marker -> semantic minimum budget",
+    "discovery snapshot certification -> generated-index/report work occurs later -> final-emission custody policy -> atomicity boundary preserved",
+    "two source contracts -> new current-tree skills -> existing Warm Wall topology expands without a second UI/controller",
+    "exact-head workflow failure with zero steps/logs -> TESTED stays NO instead of inheriting an older failure story"
+  ],
+  "executionEvidence": {
+    "operatorRunId": 32207464366,
+    "operatorJobId": 95933360316,
+    "sha": "72aa7c051a67b92c56fe61375d11ba2b093ebdd2",
+    "runConclusion": "failure",
+    "exposedStepCount": 0,
+    "logReadback": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "ownerPortablePathWired": false,
+    "ownerEmissionSnapshotWired": false,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED"
+}

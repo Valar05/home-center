@@ -1,0 +1,28 @@
+{
+  "type": "try_forever_heartbeat_plan",
+  "heartbeat": "2026-08-17-0100",
+  "mission": "Wire the existing OperatorOverlayService to consume HeartbeatPersistedSnapshotReader.read(...) without creating another poller/controller or touching P0/phone surfaces.",
+  "fronts": [
+    "existing-owner coherent persisted snapshot wiring",
+    "retryable bounded storage-read wound semantics",
+    "regression source for storage-read failure and retry",
+    "heartbeat-persisted-poll-contact skill synchronization",
+    "existing non-raster warm-wall scar mutation",
+    "Regnet/Venice evidence review"
+  ],
+  "constraints": {
+    "p0_phone_firewall": true,
+    "duplicate_architecture_forbidden": true,
+    "source_not_runtime_proof": true,
+    "processed_snapshot_advances_only_after_applied_decision": true,
+    "coherent_read_failure_must_not_advance_processed_snapshot": true,
+    "coherent_read_failure_must_preserve_last_good_contact": true,
+    "coherent_read_failure_must_retry_next_poll": true
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "substitute_verdict": false
+  },
+  "gate": "PLAN_ALLOWED_WITH_EXISTING_OWNER_ONLY"
+}

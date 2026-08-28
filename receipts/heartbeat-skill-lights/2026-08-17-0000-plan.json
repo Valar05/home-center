@@ -1,0 +1,51 @@
+{
+  "schema": "try_forever.heartbeat_plan.v1",
+  "heartbeat": "2026-08-17-0000",
+  "mission": "Wire the existing OperatorOverlayService to consume HeartbeatPersistedPollPolicy without creating a neighboring poller, renderer, controller, state store, phone lane, or P0 coordinator.",
+  "source_truth_before": {
+    "persisted_poll_policy_source": true,
+    "existing_owner_consumes_policy": false,
+    "tested": false,
+    "runtime_observed": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "authorized_fronts": [
+    "existing-owner persisted poll classification and deduplication source wiring",
+    "accessibility/contact-preservation/idempotence regression source",
+    "heartbeat-persisted-poll-contact skill synchronization",
+    "existing non-raster warm-wall source artifact mutation",
+    "Regnet/Venice/evidence receipts"
+  ],
+  "owner_wiring_contract": [
+    "Construct exactly one HeartbeatPersistedPollPolicy.Snapshot from the four existing OperatorState heartbeat persistence reads per poll.",
+    "Classify against the last successfully applied processed snapshot and current heartbeatFrame.",
+    "WAITING: show waiting only before visible contact and do no decode/hash/parse/project work.",
+    "SKIP_UNCHANGED: do no decode/hash/parse/project/UI/speech/motion work.",
+    "PRESERVE_MISSING_CONTACT: preserve the last-good frame through HeartbeatSceneGraph.preserveRejectedRefresh using the canonical missing-contact boundary.",
+    "PROJECT: use the existing Base64 -> HeartbeatOverlayRefreshPlan.projectPersisted chain.",
+    "Retain the current processed snapshot only after the chosen decision has been applied; unexpected internal aborts must remain retryable.",
+    "Positive timestamp magnitude remains observation metadata, not semantic identity."
+  ],
+  "firewalls": {
+    "p0_fortress": "READ_ONLY",
+    "primary_phone_surface": "DO_NOT_CONSUME",
+    "phone_hands": "DO_NOT_CONSUME",
+    "queue_or_relay": "DO_NOT_READ_OR_MUTATE",
+    "nightcore_pocket_tts_chromium_context_organs": "DO_NOT_CONSUME",
+    "duplicate_architecture": "FORBIDDEN"
+  },
+  "review": {
+    "she_raw": "ATTEMPTED_PRE_EXECUTION_ACCOUNT_CONNECTION_HTTP_400",
+    "venice_plan_gate": "PLAN_ALLOWED_WITH_SOURCE_ONLY_CAPABILITY_MEMBRANE",
+    "regnet_required": true
+  },
+  "acceptance_for_this_slice": [
+    "remote GitHub source mutation exists on PR #329 branch",
+    "exact readback confirms existing-owner policy consumption source",
+    "regression source covers project -> unchanged -> missing contact -> repeated missing -> recovery semantics",
+    "skill and source art report owner SOURCE WIRED while runtime/deploy/phone remain unproven",
+    "no P0 or phone surface consumed"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "commission": "TRY FOREVER heartbeat skill lights — bounded source-hardening review and durability correction only",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedHeadBeforePlanReceipt": "737cf4015725aca8728b2aeb629333355148e33f",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "same-worker separate adversarial pass",
+  "selectedJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0 and primary-phone ownership are explicit exclusions; source-only improvements must not widen the lane."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "why": "The slice makes source/evidence claims while deterministic testing is blocked."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "The hardening must remain a small semantic patch rather than a neighboring architecture."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "why": "The Actions-budget failure must change strategy rather than trigger blind retries."
+    },
+    {
+      "path": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "why": "Repository code changed and requires evidence-first code review before this worker slice may stop."
+    }
+  ],
+  "boundedPlan": [
+    "Inspect the exact current source-hardening diff from the last reviewed source head rather than rereading the entire campaign as authority.",
+    "Review closed-world envelope parsing, repository-skill provenance shape, parser-to-scene contact preservation, regression source, and DOM selection semantics for logic/regression risk.",
+    "Preserve the Actions-budget blocker exactly; do not manually retry unchanged CI or infer TESTED.",
+    "Preserve P0/primary-phone/Phone Hands/Nightcore/Pocket TTS/Chromium/Context Organs as untouched surfaces.",
+    "Persist any review/process defect and a fresh completion-review receipt; do not merge or claim runtime capability."
+  ],
+  "antagonism": [
+    {
+      "risk": "Closed-world v1 parsing could be mistaken for generic forward compatibility.",
+      "answer": "Unknown members are intentionally rejected only inside schema heartbeat-skill-lights.v1; future fields require a schema/contract change rather than silent acceptance."
+    },
+    {
+      "risk": "A syntactically valid repository_skill path could be narrated as proving the skill exists.",
+      "answer": "Policy and doctrine explicitly state path-shape validation is not repository-existence proof; GitHub discovery/readback remains the evidence source."
+    },
+    {
+      "risk": "Parser-to-scene composition could become a stealth runtime controller.",
+      "answer": "The overload is pure and non-rendering, takes only parser Result + last-good Frame, and owns no OperatorState, receiver, transport, phone, or P0 surface."
+    },
+    {
+      "risk": "Accessibility semantics could overstate expansion behavior.",
+      "answer": "The always-present shared detail region now uses persistent selection via aria-pressed instead of aria-expanded."
+    },
+    {
+      "risk": "Source regressions could be laundered into passing tests.",
+      "answer": "Current GitHub Actions jobs execute zero steps due the Actions-budget boundary; TESTED remains NO/BLOCKED_UNKNOWN."
+    }
+  ],
+  "processObservation": {
+    "finding": "The first source-hardening mutations in this worker slice occurred before this fresh plan-review receipt was persisted.",
+    "classification": "planning-gate process defect",
+    "effectOnCapabilityClaims": "No promotion is allowed; source readback remains implementation evidence only.",
+    "remediation": "This receipt gates all subsequent mutations in this slice; the defect must also be preserved in the completion review rather than erased."
+  },
+  "directive": "PLAN_ALLOWED",
+  "directiveScope": "Review/durability correction of the existing bounded source-hardening slice only. No new phone/P0/runtime architecture, deployment, merge, or capability promotion is authorized."
+}

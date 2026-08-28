@@ -1,0 +1,27 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "pulse": "2026-08-17-1900",
+  "replan": 1,
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "replanReceipt": "receipts/heartbeat-skill-lights/2026-08-17-1900-replan-1.json",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "Bounded correction to preserve urgent blocked/fault awareness on the concise existing collapsed owner.",
+  "findings": [
+    "The initial short-voice repair correctly removes per-light enumeration from the action control but overcorrects by removing blocked/fault awareness entirely.",
+    "A compact exact blocked/fault count is materially different from reintroducing the broad collapsed list and is appropriate on the surviving control.",
+    "Typed state must flow through the existing ViewModel projection; parsing visible labels would create a second semantic contract and is rejected.",
+    "Only blocked/fault counts belong in this compact status. Active/recovered counts are dashboard detail and would recreate routine speech load.",
+    "The existing aggregate hard budget remains mandatory and exact source/evidence fields remain untouched.",
+    "No new Android owner, renderer, accessibility service, poller, phone lane, or P0 mutation is authorized."
+  ],
+  "hardGates": {
+    "existingOwnerOnly": "PASS",
+    "perLightEnumerationOnCollapsedHandle": "FORBIDDEN",
+    "blockedFaultAwareness": "REQUIRED",
+    "typedStateSource": "REQUIRED",
+    "aggregateSpeechBudget": "REQUIRED",
+    "runtimeClaimWithoutEvidence": "FORBIDDEN"
+  },
+  "directive": "Apply the typed-state/compact-attention correction, extend hostile regression source, then resume the original skill/art/review fronts."
+}

@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -15,6 +19,10 @@ final class OperatorState {
     static final String KEY_LATEST_SOURCE = "latest_source";
     static final String KEY_LAST_UPDATE_MS = "last_update_ms";
     static final String KEY_LAST_HEARTBEAT_MS = "last_heartbeat_ms";
+    static final String KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64 = "heartbeat_lights_payload_b64";
+    static final String KEY_HEARTBEAT_LIGHTS_BYTES = "heartbeat_lights_bytes";
+    static final String KEY_HEARTBEAT_LIGHTS_SHA256 = "heartbeat_lights_sha256";
+    static final String KEY_HEARTBEAT_LIGHTS_UPDATED_MS = "heartbeat_lights_updated_ms";
     static final String KEY_SCREEN_ACTIVE_UNTIL_MS = "screen_active_until_ms";
     static final String KEY_SCREEN_YIELD_UNTIL_MS = "screen_yield_until_ms";
     static final String KEY_PANEL_COLLAPSED = "panel_collapsed";
@@ -30,6 +38,9 @@ final class OperatorState {
     static final String KEY_SPOTIFY_RECEIPT_B64 = "spotify_receipt_b64";
     static final String KEY_SPOTIFY_SUMMARY = "spotify_summary";
     static final String KEY_SPOTIFY_UPDATED_MS = "spotify_updated_ms";
+    static final int MAX_HEARTBEAT_LIGHTS_BYTES = 32768;
+    static final int MAX_ADAM_REQUEST_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
     private OperatorState() {}
 
@@ -40,6 +51,10 @@ final class OperatorState {
     static String latestSource(Context context) { return prefs(context).getString(KEY_LATEST_SOURCE, "ChatGPT"); }
     static long lastUpdateMs(Context context) { return prefs(context).getLong(KEY_LAST_UPDATE_MS, 0L); }
     static long lastHeartbeatMs(Context context) { return prefs(context).getLong(KEY_LAST_HEARTBEAT_MS, 0L); }
+    static String heartbeatLightsPayloadB64(Context context) { return prefs(context).getString(KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, ""); }
+    static long heartbeatLightsBytes(Context context) { return prefs(context).getLong(KEY_HEARTBEAT_LIGHTS_BYTES, 0L); }
+    static String heartbeatLightsSha256(Context context) { return prefs(context).getString(KEY_HEARTBEAT_LIGHTS_SHA256, ""); }
+    static long heartbeatLightsUpdatedMs(Context context) { return prefs(context).getLong(KEY_HEARTBEAT_LIGHTS_UPDATED_MS, 0L); }
     static long screenActiveUntilMs(Context context) { return prefs(context).getLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L); }
     static long screenYieldUntilMs(Context context) { return prefs(context).getLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L); }
     static boolean panelCollapsed(Context context) { return prefs(context).getBoolean(KEY_PANEL_COLLAPSED, true); }
@@ -148,9 +163,13 @@ final class OperatorState {
     }
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
-        String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
-        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
+        AdamModeSelectionAccessibilityPolicy.Mode admittedMode =
+                AdamModeSelectionAccessibilityPolicy.requireMode(mode == null ? "terminal" : mode);
+        String cleanMode = admittedMode.wireValue;
         String exact = text == null ? "" : text;
+        if (exact.length() > MAX_ADAM_REQUEST_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException("Adam request source exceeds finite work budget");
+        }
         if (exact.trim().isEmpty()) return;
         if (cleanMode.equals("terminal")) exact = deterministicTerminalAlias(exact);
         byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
@@ -179,6 +198,49 @@ final class OperatorState {
         if (cleanSummary.length() > 240) cleanSummary = cleanSummary.substring(0, 240);
         return cleanSummary;
     }
+
+    /**
+     * Encode heartbeat JSON without replacement semantics. Standard String#getBytes
+     * silently replaces unpaired UTF-16 surrogates, which would destroy evidence
+     * before the persisted byte-count/SHA identity exists. This helper rejects that
+     * input before SharedPreferences mutation while remaining byte-identical to
+     * ordinary UTF-8 encoding for well-formed Unicode.
+     */
+    static byte[] strictHeartbeatLightsUtf8(String payloadJson) {
+        String exact = payloadJson == null ? "" : payloadJson;
+        try {
+            ByteBuffer encoded = StandardCharsets.UTF_8
+                    .newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .encode(CharBuffer.wrap(exact));
+            byte[] bytes = new byte[encoded.remaining()];
+            encoded.get(bytes);
+            return bytes;
+        } catch (CharacterCodingException invalidEncoding) {
+            throw new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                    "heartbeat lights payload contains invalid Unicode",
+                    invalidEncoding);
+        }
+    }
+
+    static void updateHeartbeatLights(Context context, String payloadJson, long nowMs) {
+        if (payloadJson == null || payloadJson.trim().isEmpty()) return;
+        byte[] bytes = strictHeartbeatLightsUtf8(payloadJson);
+        if (bytes.length > MAX_HEARTBEAT_LIGHTS_BYTES) {
+            throw new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                    "heartbeat lights payload exceeds " + MAX_HEARTBEAT_LIGHTS_BYTES + " bytes");
+        }
+        String encoded = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        boolean committed = prefs(context).edit()
+                .putString(KEY_HEARTBEAT_LIGHTS_PAYLOAD_B64, encoded)
+                .putLong(KEY_HEARTBEAT_LIGHTS_BYTES, bytes.length)
+                .putString(KEY_HEARTBEAT_LIGHTS_SHA256, sha256(bytes))
+                .putLong(KEY_HEARTBEAT_LIGHTS_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+        if (!committed) throw new IllegalStateException("heartbeat lights commit failed");
+    }
+
     static void updateText(Context context, String source, String text, long nowMs) {
         String clean = text == null ? "" : text.trim(); if (clean.length() > 8000) clean = clean.substring(0, 8000);
         String cleanSource = source == null || source.trim().isEmpty() ? "ChatGPT" : source.trim(); if (cleanSource.length() > 80) cleanSource = cleanSource.substring(0, 80);

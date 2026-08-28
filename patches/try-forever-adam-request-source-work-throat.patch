@@ -1,0 +1,51 @@
+# TRY FOREVER — Adam request source-work throat existing-owner surgery
+# State: PARTIAL_APPLIED_SOURCE__SERVICE_REBASED_PROPOSED_NOT_APPLIED
+# Scope: existing OperatorOverlayService + OperatorState request owners only.
+# Service exact current/base blob: 2935243f136359e3489a89108406e888b0ec2911
+# Service owner revalidated on branch feat/heartbeat-skill-lights-20260815 before this artifact was rewritten.
+# OperatorState original base blob: 94772cc4e9a3b42591832337420de4c416aa18e4
+# OperatorState finite request source-work custody applied at commit f3e0eac397e8ba524ee21e0aa1b6d3ee31ad02bd.
+# OperatorState mode routing then converged through exact AdamModeSelectionAccessibilityPolicy admission at commit 322f18c867e5c2c28c0116e3b2250ae115606317.
+# OperatorState current/result blob: 3870272863878cd7eaef69d24b31a6c8de1bbef9
+# AdamModeSelectionAccessibilityPolicy current blob: 0ab827c07cca64ce29879c0d7a51d229835a9aeb
+# Supporting availability policy is SOURCE_WIRED at blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
+# Availability bounds admitted CharSequence scanning without whole-source toString materialization and distinguishes
+# EMPTY_OR_WHITESPACE / MATERIAL / OVER_BUDGET. Its separate hasUnsentText contact truth is owned by the
+# native accessibility lifecycle and is not request-admission authority.
+# P0/phone execution, routing destinations, queue/relay, recovery, and transport ownership are untouched.
+# Preserve: exact admitted request text after existing historical UI trim semantics; legacy Adam repeat-send accessibility receipt remains present.
+# Law: a small post-trim semantic request does not authorize unbounded pre-trim / regex / UTF-8 / Base64 / SHA work.
+# Broad work ceiling: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS (32768 UTF-16 code units).
+# Direct state owner is SOURCE_WIRED. The remaining service seam is exact-base-locked below and remains NOT_APPLIED.
+# Over-ceiling editable source must fail closed; it is never truncated or normalized into a smaller request.
+# The service gate consumes the exact AdamSendAvailabilityAccessibilityPolicy material-request predicate that owns native availability before calling toString().
+# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v10 has a separate
+# requestAdmission seam. SOURCE_WIRED requires one editable-source observation, immediate unconditional top-level
+# fully-qualified AdamSendAvailabilityAccessibilityPolicy admission, immediate detached trim materialization from
+# that same aliased Editable observation, and exactly one request-persistence sink carrying the admitted text.
+# Shadow/ignored/nested guards, pre-gate work, post-gate/pre-materialization executable work, source/text rebinding,
+# wrong persistence arguments, duplicate observations/gates/materialization, and duplicate persistence sinks fail closed.
+# Temporal scar: Android Editable is mutable aliased state. A policy decision followed by arbitrary executable work
+# and only then toString() does not prove that the bytes/text materialized are the content that was admitted.
+# This staged hunk keeps the canonical guard and materialization adjacent, so it satisfies the v10 source shape,
+# but the native owner remains REBASED_PROPOSED_NOT_APPLIED until this exact-base surgery is actually applied.
+# Supporting-policy safety and a repaired evidence probe must not green-paint the consumer.
+# Rebase scar: an older version of this artifact described a different submitAdamRequest() body/signature.
+# This hunk is rebuilt from authenticated current owner source and MUST NOT be fuzzy-applied to any later blob.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private void submitAdamRequest() {
+         if (adamInput == null) return;
+-        String text = adamInput.getText().toString().trim();
++        CharSequence editable = adamInput.getText();
++        if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;
++        String text = editable.toString().trim();
+         if (text.isEmpty()) return;
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+         adamInput.setHint("Adam — " + adamMode + " • sent");
+         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+     }

@@ -1,0 +1,28 @@
+{
+  "schema": "regnet-qa-receipt.v1",
+  "heartbeat": "2026-08-24T10:03:00-05:00",
+  "reviewedSourceHead": "43b2cf2296e7b678ac5bf5e5c625cdb6c373ef10",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Current final v4 identity hashes all present fields, while current derivation owner call verifies projector-derived fields as a subset.",
+    "Supporting derivation source now offers opt-in exact fieldset closure and hostile fixtures for undeclared/missing fields.",
+    "Authenticated final owner blob b1da64ae3d50c26dd415d73e6000fb5ddda51183 still calls derivation without allowed_extra_fields.",
+    "Base-locked owner patch exists but is CORRECTED_PROPOSED_NOT_APPLIED; do not promote it to implementation.",
+    "Automatic workflows on the reviewed source head completed failure; no step-level cause was established."
+  ],
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "ownerExactFieldsetWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,11 @@
+# STATUS: APPLIED_SOURCE
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# BASE_BLOB: 44d4e273e79f8dc37227651ba11a31842169db18
+# OWNER_COMMIT: a87d21b48eba28433688b40860f9befeb6347278
+# OWNER_BLOB: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# PURPOSE: compose the two remaining interaction-accessibility seams in the existing OperatorOverlayService owner.
+# LATEST_MESSAGE: changing TextView text remains the semantic value; standard ACTION_CLICK is labeled; API 30+ uses stateDescription; state synchronization lives in applyExpandedTextState so direct click and programmatic panel collapse share one path; no explicit confirmation announceForAccessibility was added.
+# DYNAMIC_ACTIONS: mute/full/compact control content descriptions now synchronize to the exact action that will happen now, including Confirm disable.
+# OWNER_DIFF: one owner file only; import + latest interaction semantics + shared state synchronization + three current-action descriptions; pre-existing final-newline absence was normalized by the audited whole-file write.
+# CAPABILITY: OWNER_SOURCE_WIRED=YES; AUTHENTICATED_READBACK=YES; REGRESSION_SOURCE=YES; REGRESSION_EXECUTED=NO; TESTED=NO; RUNTIME_UI=NO; RUNTIME_TALKBACK=NO; DEPLOYED=NO; PHONE_P0=UNTOUCHED.
+# DO_NOT_APPLY: this artifact is provenance for an already-applied source mutation, not a pending patch.

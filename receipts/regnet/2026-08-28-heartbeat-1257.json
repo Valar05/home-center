@@ -1,0 +1,98 @@
+{
+  "schema": "try-forever-regnet-heartbeat.v1",
+  "heartbeat": "2026-08-28T12:57:31-05:00",
+  "reviewedSourceHead": "733263acde4fcd087cd25fbf7377049a3922473e",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "fronts": {
+    "requestAdmissionTemporalCustody": {
+      "state": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "Existing Adam owner probe advanced from v9 to v10. SOURCE_WIRED now requires canonical admission and detached trim materialization of the admitted mutable Editable alias to be adjacent, rejecting executable post-admission/pre-materialization work. Focused and temporal source regressions were converged to v10.",
+      "owner": "tools/try_forever_adam_accessibility_owner_probe.py",
+      "ownerBlob": "58819933e7d12d644f4188f7e2492900eb020de2"
+    },
+    "sendActionTemporalCustody": {
+      "state": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "Existing Send-action evidence now requires one current-mode snapshot, immediate policy Decision from that snapshot, and bounded projection to visible/semantic action without intervening adamMode mutation or arbitrary executable work. Existing native accessibility surgery was converged to the same modeSnapshot shape but remains proposed-not-applied.",
+      "proposal": "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "proposalBlob": "7fe1604fef070b05ccdf1db5c05219c27fcdaa30"
+    },
+    "requestSurgeryCustody": {
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "change": "Existing request surgery metadata now reflects v10 same-observation custody. Its exact-base hunk already keeps canonical admission immediately adjacent to materialization; it was not applied to the native owner.",
+      "proposal": "patches/try-forever-adam-request-source-work-throat.patch",
+      "proposalBlob": "4d1f5a844a9961502faf789de5ed8fae49315fa1"
+    },
+    "warmWallAccessibility": {
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "change": "Existing non-raster Warm Wall now preserves richer per-mode consequence names in the radio accessible labels while keeping persistent selection semantics, one-row five-choice geometry, >=56px targets, visible focus, multiline request naming, non-live detail, reduced motion, non-color textual capability state, and no rejection blink. Evidence labels now truthfully say v10 source-repaired/unexecuted."
+    },
+    "skillHarvest": {
+      "state": "SOURCE_UPDATED",
+      "change": "Existing operator-owner-surgery-temporal-content-binding skill now generalizes same-observation custody to mutable UI request admission and current-mode semantic projection without creating another owner or promotion authority."
+    }
+  },
+  "skillsActivated": [
+    "Failure Is The Shovel",
+    "Canon Auto-Select",
+    "Originality Tax",
+    "Hunger",
+    "Ever-Polished Interpreter / Eat Everything",
+    "Operator Campaign",
+    "Harroway operator discipline",
+    "operator-owner-surgery-temporal-content-binding",
+    "adam-mode-accessibility",
+    "operator-repeatable-accessibility-event-semantics",
+    "accessibility/TalkBack and touch semantics",
+    "deterministic routing",
+    "evidence/capability-state discipline",
+    "recovery/checkpointing/idempotence",
+    "strange non-raster vector/DOM/native UI art",
+    "warm walls",
+    "Christmas-light scene graph",
+    "contact preservation",
+    "Regnet QA",
+    "Venice Judgment Jars"
+  ],
+  "skillsDark": {
+    "Autocorrect Judgment Jar": "No authority-bearing ambiguous token affected this pulse.",
+    "Phone Runtime / Phone Hands recovery": "Binding P0/phone resource firewall; no fresh P0 evidence reopened the surface."
+  },
+  "executionTruth": {
+    "reviewedSourceHead": "733263acde4fcd087cd25fbf7377049a3922473e",
+    "buildAndroidRun": 33197844640,
+    "operatorOverlayRun": 33197844643,
+    "homeCenterCiRun": 33197844638,
+    "conclusions": "failure",
+    "operatorJob": 98939449277,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "diagnosisClaimed": false
+  },
+  "nativeOwners": {
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "runtimeTalkBack": false
+  },
+  "sheRaw": {
+    "consulted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "continueRequired": [
+    "fixture execution through an authorized non-phone regression lane",
+    "native UI request-owner mutation through its existing owner lane",
+    "native accessibility-owner mutation through its existing owner lane",
+    "runtime TalkBack evidence",
+    "deployment/delivery/acceptance"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "regnet-heartbeat-review.v1",
+  "checkpoint": "2026-08-23T21:02:08-05:00",
+  "reviewedSourceHead": "37ceba50d87b00226b2d836ad27966e5dec13798",
+  "verdict": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "The existing self-integrity/projector chain currently checks raw descriptor authority and owner mutation but can sanitize contradictory top-level regression/test/runtime/phone capability claims by projecting constant false values.",
+    "New supporting raw capability membrane requires descriptorAuthorityAdmitted, ownerMutation, regressionExecuted, tested, runtimeUi, runtimeTalkBack, and phoneDelivered to be explicitly present and exactly boolean false; missing and falsey substitutes fail closed.",
+    "Pure hostile source attacks every field for missing/true/falsey substitutes. RED existing-owner and actual operator-command boundaries require capability overclaims to reject before bounded projection.",
+    "Code-first review found the first operator-command fixture importing another test module. That dependency was removed; the hostile operator boundary is now self-contained so test ordering/import path cannot become evidence.",
+    "Prepared owner surgery is base-blob locked to authenticated self-integrity owner blob ae76c2d7db2b71cd1b1c2518e62625bf5483538d and only imports/calls the membrane after exact shadow-schema admission; it does not widen self-integrity v2 or operator receipt v3.",
+    "Authenticated owner readback after supporting source remains ae76c2d7db2b71cd1b1c2518e62625bf5483538d, so owner membrane consumption is NO and both owner boundaries remain RED/unexecuted.",
+    "Prior publication head f5f3a62fcbdc3ac185fe00e33c0f999fdcfaaee4 to reviewed source head is 10 commits / 9 intended paths / 0 unexpected paths.",
+    "Regression sources exist but have not executed; workflow failure is not regression execution or TESTED evidence."
+  ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {"runId": 32682151515, "jobId": 97300561572, "status": "completed", "conclusion": "failure", "stepLevelCauseEstablished": false},
+    "buildAndroid": {"runId": 32682151508, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32682151506, "status": "queued", "conclusion": null},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "supportingPolicy": true,
+    "authenticatedReadback": true,
+    "pureHostileRegressionSource": true,
+    "selfIntegrityOwnerBoundaryRed": true,
+    "operatorCommandBoundaryRed": true,
+    "preparedOwnerSurgery": true,
+    "ownerSurgeryApplied": false,
+    "selfIntegrityOwnerConsumesMembrane": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {"phoneP0Consumption": 0, "phoneP0Mutation": 0, "duplicateArchitecture": 0, "newP0Finding": null},
+  "sheRaw": {"attempted": true, "result": "ACCOUNT_CONNECTION_HTTP_400", "substituteReviewer": false}
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-22T19:00:00-05:00",
+  "pr": 329,
+  "mission": "Advance independent non-P0 TRY FOREVER source fronts without touching Phone/P0 owners or duplicating architecture.",
+  "ownerBoundaries": {
+    "canonicalCustodyOwner": "tools/try_forever_owner_surgery_custody_probe.py",
+    "canonicalOwnerBlob": "f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "zeroPartialRepair": "prepared_not_applied",
+    "computerHands": "offline_queue_depth_4_active_provenance_lane",
+    "phoneP0": "read_only_firewall"
+  },
+  "fronts": [
+    {
+      "id": "authority-member-integrity",
+      "action": "Harden supporting backend admission so promotionCandidates cannot be empty, cross-owner, cross-base, non-promotion, or otherwise counterfeit group authority.",
+      "lane": "github_source",
+      "ownerMutation": false
+    },
+    {
+      "id": "authority-regression",
+      "action": "Add hostile source fixtures for hollow and counterfeit authority-group members.",
+      "lane": "github_source",
+      "testedClaim": false
+    },
+    {
+      "id": "authority-doctrine",
+      "action": "Converge the existing owner-surgery authority-coverage skill around member integrity without creating a second custody owner.",
+      "lane": "github_source"
+    },
+    {
+      "id": "warm-wall",
+      "action": "Mutate the existing backend-selection DOM/inline-SVG wall in place with a candidate-integrity stop; preserve keyboard/touch/non-color semantics and no autoplay.",
+      "lane": "github_source_art"
+    },
+    {
+      "id": "execution-truth",
+      "action": "Read current exact-head workflow state without manual retry; preserve TESTED separately.",
+      "lane": "github_readback"
+    },
+    {
+      "id": "reviewers",
+      "action": "Attempt She-Raw once; use bounded Regnet/same-worker Venice review when external reviewer bodies are unavailable; never fabricate verdicts.",
+      "lane": "review"
+    }
+  ],
+  "firewall": {
+    "phoneHands": 0,
+    "primaryPhoneCommands": 0,
+    "p0Mutations": 0,
+    "duplicateArchitecture": 0
+  }
+}

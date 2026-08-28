@@ -1,0 +1,18 @@
+STATUS: APPLIED_SOURCE
+OWNER: tools/try_forever_skill_provenance_probe.py
+OWNER_BASE_BLOB: 51e6efdbcec03d044ab89f37213659252514856a
+APPLIED_OWNER_COMMIT: d05261c74998f1f818d2a3b30efa229b695de100
+APPLIED_OWNER_BLOB: afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a
+SUPPORTING_POLICY: tools/try_forever_skill_snapshot_authority.py
+INTENT: Authority-facing `skills`/`skillCount` fail closed when the repository snapshot is not STABLE_CLEAN or an expected-head binding fails. Diagnostic discovery remains separately labeled. Because `skillCount` changed from discovery breadth to certified authority, owner application also bumped the report schema from v2 to v3 and added `discoveredSkillCount`.
+
+APPLIED DELTA:
+- import `certify_repository_skills`
+- certify discovered records after snapshot and expected-head evaluation
+- emit `skillAuthority` status/reason/authoritative
+- emit `discoveredSkillCount = len(discovered skills)`
+- emit `skillCount` and `skills` from certified authority only
+- bump `try-forever-skill-provenance.v2` -> `try-forever-skill-provenance.v3`
+- keep generated-index evidence and strict-exit semantics separate from certification
+
+BOUNDARY: APPLIED_SOURCE proves repository source wiring and authenticated readback only. It does not prove the probe executed on an authorized runner, tests passed, runtime behavior, deployment, callability, delivery, or acceptance.

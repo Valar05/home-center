@@ -1,0 +1,59 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T03:00:00-05:00",
+  "scope": "non-P0 Harroway Try Forever source slice",
+  "sourceHead": "f572fae6820001ac5cdc7d55f9dfec70708cad81",
+  "verdict": "PASS_SOURCE_READBACK__BOUNDED_CONTROL_CUSTODY_CONVERGED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "owner-surgery state admission",
+      "state": "SOURCE_WIRED",
+      "evidence": "direct state policy now rejects str subclasses before strip/regex/membership and admits at most 128 code points without normalizing accepted evidence"
+    },
+    {
+      "front": "backend machine-control custody",
+      "state": "SOURCE_WIRED",
+      "evidence": "capability status is bounded at 128 code points and fail-closed boundary evidence at 4096 code points before semantic/error-output projection; admitted text remains exact"
+    },
+    {
+      "front": "platform capability custody",
+      "state": "SOURCE_WIRED",
+      "evidence": "direct OS-name evidence remains exact built-in str and now crosses a 64-code-point source ceiling before platform equality classification"
+    },
+    {
+      "front": "hostile regression source",
+      "state": "SOURCE_UNEXECUTED",
+      "evidence": "state subclass/max+1, backend control max+1, and OS-name max+1 fixtures are durable source but have not executed in an authorized test lane"
+    },
+    {
+      "front": "accessibility Warm Wall",
+      "state": "SOURCE_UNEXECUTED",
+      "evidence": "existing DOM/SVG wall exposes bounded control throats through native radio interaction while preserving 56px touch rows, focus, non-color live status, reduced motion, runtime TalkBack NO, and phone/P0 untouched"
+    },
+    {
+      "front": "repository doctrine",
+      "state": "SOURCE_CONVERGED",
+      "evidence": "existing backend-selection skill records exact-versus-unbounded control law and bounded backend control throats without creating neighboring authority"
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "execution": {
+    "homeCenterCi": {"runId": 32946111889, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32946111873, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32946111867, "jobId": 98107051825, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

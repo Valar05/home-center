@@ -1,0 +1,103 @@
+{
+  "schema": "regnet-source-review.v1",
+  "commission": "TRY FOREVER heartbeat 2000 semantic text safety source slice",
+  "reviewerRole": "regnet-qa",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "c92a84a4053be64390f0a725f752b1cc3ade592c",
+  "planReceipts": {
+    "plan": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-plan-review.json",
+    "replan": "receipts/venice/2026-08-15-try-forever-heartbeat-2000-replan-review.json"
+  },
+  "exactRemoteReadback": {
+    "HeartbeatEnvelopeParser.java": "9cdd14517f2538296952618173bf47474374477b",
+    "HeartbeatSkillPolicy.java": "83e15e2fd8354bf140569d81e2a86108c8caba49",
+    "HeartbeatSceneGraph.java": "049a19b1f9bf6615913cd063dac8f1114f7d3b3a",
+    "HeartbeatDirectionalControlSafetyTest.java": "5094e4c70433b98d92065d4ad93af613497b3199",
+    "heartbeat-motion-clamp-source-specimen.html": "c8860b408043e6bfcbf6f0e574709c764a6e2ced",
+    "skills/semantic-text-safety/SKILL.md": "6b82182504fd03de8a907eb6a11e4850e97b8e3a",
+    "skills/heartbeat-skill-lights/SKILL.md": "76e93aa2613139718f7d89cd6e44dea84f23d883"
+  },
+  "codeFirstFindings": [
+    {
+      "finding": "The initial plan proposed rejecting every Unicode Character.FORMAT code point in canonical semantic payload.",
+      "risk": "That would reject legitimate U+200D ZERO WIDTH JOINER used in emoji/grapheme composition.",
+      "repair": "Fresh replan narrowed canonical rejection to directional spoofing controls U+061C, U+200E/U+200F, U+202A..U+202E, U+2066..U+2069 while retaining ordinary Unicode and ZWJ."
+    },
+    {
+      "finding": "HeartbeatSceneGraph.preserveRejectedRefresh(...) could echo an unsafe attempted pulse id supplied by a pre-parser caller.",
+      "risk": "A storage/integrity wound could preserve contact but still inject bidi/control text into attemptedPulseId and accessibility/debug state.",
+      "repair": "The existing scene-preservation seam now suppresses unsafe attempted ids while preserving the original trusted rejection boundary and last-good checkpoint/contact identity."
+    },
+    {
+      "finding": "Candidate compatibility trim could erase an edge control before the display-ready safety check saw it.",
+      "risk": "A direct source caller could pass tab/control-prefixed semantic text that normalized into apparently safe canonical text.",
+      "repair": "Candidate captures semantic safety from raw constructor inputs before trim; display readiness and speech require both that ingress verdict and post-normalization safety."
+    },
+    {
+      "finding": "Legacy collapsed speech counted unsafe material candidates but contentDescription omitted their names.",
+      "risk": "TalkBack could announce a material-light count and then silently omit the poisoned light, creating a truth mismatch.",
+      "repair": "Legacy collapsed speech now reports an exact unsafe-omission count without speaking the unsafe label."
+    },
+    {
+      "finding": "Unknown or duplicate JSON member names were echoed into parser rejection prose without semantic safety/bounds.",
+      "risk": "A bidi-poisoned field name could spoof the parser boundary even though ordinary field values fail closed.",
+      "repair": "Parser boundaries now show safe member names only under a 96-code-point cap; unsafe names become <unsafe member name>."
+    }
+  ],
+  "regressionSourceCoverage": [
+    "RLO in a human label rejects before display readiness.",
+    "Directional isolate in evidence rejects during canonical parse.",
+    "Directional control in pulseId rejects before scene construction.",
+    "Directional isolate in protocol state rejects before normalization.",
+    "Unknown and duplicate directional member names never echo into parser boundary text.",
+    "Direct Candidate edge control remains rejected even though compatibility trim cleans the public label field.",
+    "Legacy collapsed speech reports unsafe omission without naming poisoned text.",
+    "Direct scene pulse identity and pre-parser preservation both suppress unsafe attempted ids, preserve last-good checkpoint identity, and clamp motion.",
+    "Valid ZWJ emoji/grapheme data and supplementary Unicode such as the swan remain accepted."
+  ],
+  "automaticTestBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31919135052,
+    "jobId": 95095981427,
+    "headSha": "c92a84a4053be64390f0a725f752b1cc3ade592c",
+    "jobConclusion": "failure",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "sheRaw": {
+    "state": "FAULT",
+    "surface": "she_raw_ambient",
+    "boundary": "HTTP 400 account-connection failure; authoritative reviewer was not impersonated."
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedBoundary": "BLOCKED_UNKNOWN — automatic CI executed zero steps because Actions budget prevented job start.",
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRenderedFromParsedCandidates": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "gate": "Do not promote source/readback/regression presence into TESTED, runtime integration, UI rendering, deployment, phone callability, delivery, acceptance, or P0 authorization."
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-17-0300",
+  "scope": "PR #329 non-P0 heartbeat persisted-poll recovery/source-integrity slice",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_WITH_OWNER_SEAM_OPEN",
+  "reviewedSourceHead": "b4f649e4437811fd836b4d2a3fa774fc84985dae",
+  "checks": {
+    "waitingRecoveryPolicy": "PASS_SOURCE",
+    "waitingRecoveryRegression": "PASS_SOURCE_FIXTURE",
+    "acceptedContactNotCleared": "PASS_SOURCE_FIXTURE",
+    "floatingMetadataRejected": "PASS_SOURCE_AND_FIXTURE",
+    "existingOwnerWaitingRecoveryConsumption": "OPEN_NOT_IMPLEMENTED",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATION_ZERO_CONSUMPTION",
+    "exactGitHubReadback": "PASS",
+    "tested": "BLOCKED_ACTIONS_BUDGET"
+  },
+  "evidence": {
+    "persistedPollPolicyBlob": "a01e634e4ea9675f0a5a390fcb12ea0208d08ce1",
+    "persistedPollPolicyTestBlob": "23b6549b776bf186ed2e1bea4fcbdae3d7566bcd",
+    "persistedSnapshotReaderBlob": "a9e6dd61bf799c53d8520d8ae97018489eac0f27",
+    "persistedSnapshotReaderTestBlob": "a11e438211c9ec687d72c0fc6783be54aefede0e",
+    "persistedPollSkillBlob": "2aedc37d5a986225fcae20e41321e3d311c0a1fa",
+    "warmWallSvgBlob": "1d21c6560504109942646e66ef50896683f6b0fa",
+    "ownerDeltaArtifact": "docs/try-forever/operator-overlay-precontact-waiting-recovery.patch",
+    "ownerDeltaState": "PROPOSED_NOT_APPLIED",
+    "ciRun": 32009254684,
+    "ciJob": 95325072483,
+    "ciSteps": 0,
+    "ciBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "reviewFindings": [
+    "The one-shot recovery predicate is contact-safe: WAITING + interrupted non-contact frame only; accepted/preserved visiblePulseId contact is excluded, including zero-material accepted contact.",
+    "Repeated healthy empty polls become quiet only after the existing owner clears the stale pre-contact frame. The pure source gate alone does not perform that Android mutation.",
+    "HeartbeatPersistedSnapshotReader previously accepted arbitrary Number and called longValue(), allowing SharedPreferences Float metadata to be silently truncated. Source now accepts Integer/Long integral shapes and rejects floating metadata as a coherent-read wound.",
+    "The exact owner delta is durable but remains a patch artifact. It is not existing-owner wiring proof and must not be reported as implemented OperatorOverlayService behavior."
+  ],
+  "nextAuthorizedCut": "Apply the already-specified one-shot WAITING recovery delta to the existing OperatorOverlayService, then exact-readback and review it. No second poller/controller; no Phone Hands/P0 surface.",
+  "capabilityMembrane": {
+    "requested": true,
+    "waitingRecoveryPolicySource": true,
+    "waitingRecoveryRegressionSource": true,
+    "metadataTypeHardeningSource": true,
+    "metadataTypeRegressionSource": true,
+    "ownerDeltaArtifact": true,
+    "existingOwnerWaitingRecoveryWired": false,
+    "exactGitHubReadback": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "talkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

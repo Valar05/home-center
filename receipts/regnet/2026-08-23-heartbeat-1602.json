@@ -1,0 +1,58 @@
+{
+  "schema": "regnet-review.v1",
+  "reviewer": "try-forever-automation-worker",
+  "reviewMode": "code-first-bounded-source",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK",
+  "sourceHead": "7ec93c22b8be130c28f49a007c2c1281ce78e9f5",
+  "baseCheckpoint": "0a3bdd1599d9268f579ac39c71acd6ca26fb123b",
+  "diffCustody": {
+    "commits": 10,
+    "changedPaths": 8,
+    "unexpectedPaths": 0
+  },
+  "fronts": {
+    "comparisonMetricTransparency": "PASS_SOURCE_WIRED",
+    "operatorReceiptIdentity": "PASS_SOURCE_WIRED",
+    "projectionRegression": "SOURCE_UNEXECUTED",
+    "operatorBoundaryRegression": "SOURCE_UNEXECUTED",
+    "doctrineConvergence": "PASS_SOURCE",
+    "warmWall": "PASS_SOURCE_ONLY"
+  },
+  "reviewCorrections": [
+    "The first operator-boundary fixture could only prove self-integrity rejected contradictory metrics before the projector. The existing direct projector fixture was repaired to exercise exact work-count visibility and contradiction rejection directly.",
+    "Adding comparisonWork and operatorReceiptSha256 materially changed two emitted receipt contracts. Both source schema identifiers were advanced from v1 to v2 rather than silently widening a v1 contract."
+  ],
+  "executionTruth": {
+    "homeCenterCi": {"run": 32666626001, "conclusion": "failure"},
+    "buildAndroid": {"run": 32666625999, "conclusion": "failure"},
+    "operatorOverlay": {"run": 32666626000, "job": 97260909498, "conclusion": "failure", "stepsExposed": 0, "logs": "404 BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "completedWorkMetricsVisible": true,
+    "operatorReceiptFingerprint": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "PASS_BOUNDED_SOURCE__REGRESSIONS_UNEXECUTED__TESTED_NO"
+}

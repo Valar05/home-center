@@ -1,0 +1,48 @@
+# STATUS: APPLIED_SOURCE
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+# OWNER BASE BLOB: 5b5f89174da52b7fff742fdad4e2c103281424fc
+# APPLIED COMMIT: 2c2ba7fcbfbbb54d45e8638cf4ac9991b28367f5
+# OWNER RESULT BLOB: a0cfad7ce47455d06d83607f4e5ebdf71b9aada5
+# PURPOSE: Bound direct/legacy Candidate raw String work before semantic safety scanning and trim without changing canonical parser or accepted typed-field limits.
+# LAW: post-trim typed bound parity != finite pre-trim source work.
+# SOURCE THROAT: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS per raw Candidate String field before isSafeSemanticText(...) or trim().
+# PRESERVE: canonical parser behavior; ordinary direct source at/below the raw work ceiling; smaller typed field bounds; exact accepted field contents after existing trim semantics; speech projection ownership; P0/phone firewall.
+# REGRESSION: HeartbeatTypedSourceHardeningTest.directCandidatePretrimSourceWorkHasIndependentFiniteThroat (SOURCE / UNEXECUTED)
+# CAPABILITY: DIRECT_CANDIDATE_PRETRIM_RESOURCE_CUSTODY_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+@@
+ public final class HeartbeatSkillPolicy {
++    static final int MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS =
++            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+@@
+         public Candidate(
+                 String id,
+                 String label,
+@@
+                 boolean changedThisPulse,
+                 String consequence,
+                 String evidenceBoundary) {
++            id = admitDirectCandidateSource(id, "id");
++            label = admitDirectCandidateSource(label, "label");
++            provenanceKind = admitDirectCandidateSource(provenanceKind, "provenanceKind");
++            provenanceLocator = admitDirectCandidateSource(provenanceLocator, "provenanceLocator");
++            activationReason = admitDirectCandidateSource(activationReason, "activationReason");
++            consequence = admitDirectCandidateSource(consequence, "consequence");
++            evidenceBoundary = admitDirectCandidateSource(evidenceBoundary, "evidenceBoundary");
+             this.semanticTextSafeAtIngress = isSafeSemanticText(id)
+@@
+             this.evidenceBoundary = clean(evidenceBoundary);
+         }
+     }
++
++    private static String admitDirectCandidateSource(String value, String field) {
++        if (value != null && value.length() > MAX_DIRECT_CANDIDATE_SOURCE_CODE_UNITS) {
++            throw new IllegalArgumentException(
++                    "Direct heartbeat Candidate " + field + " exceeds source resource ceiling.");
++        }
++        return value;
++    }

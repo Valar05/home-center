@@ -1,0 +1,21 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "heartbeat": "2026-08-18-1200",
+  "phase": "plan_review",
+  "verdict": "PLAN_ALLOWED",
+  "review": {
+    "missionFidelity": "PASS",
+    "existingOwner": "tools/try_forever_skill_provenance_probe.py",
+    "duplicateArchitecture": "PASS_NO_NEW_PROBE_OR_CONTROLLER",
+    "phoneP0Firewall": "PASS_ZERO_CONSUMPTION_PLANNED",
+    "evidenceMembrane": "PASS_SOURCE_AND_REGRESSION_ONLY_UNLESS_FRESH_EXECUTION_PROVES_MORE",
+    "accessibility": "PASS_IF_EXISTING_WARM_WALL_IS_MUTATED_IN_PLACE_WITH_CURRENT_RADIO_KEYBOARD_TOUCH_CONTRACT",
+    "failureLaw": "A named SKILL.md redirector/non-ordinary file must fail complete candidate admission rather than be silently skipped or followed into multiple path identities."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewerInvented": false
+  },
+  "stopCondition": "After authenticated readback and code-first review, close only the bounded source slice; do not claim TESTED/runtime/deployed/delivered/accepted without evidence."
+}

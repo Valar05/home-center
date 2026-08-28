@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heartbeat layout-separator evidence source specimen</title>
+<style>
+  :root { font-family: system-ui, sans-serif; }
+  body { margin: 0; padding: 1rem; line-height: 1.45; }
+  main { max-width: 48rem; margin: 0 auto; }
+  .scar { border: 2px solid currentColor; border-radius: 1rem; padding: 1rem; }
+  .wall { display: grid; gap: .75rem; }
+  details { border: 1px solid currentColor; border-radius: .75rem; padding: .5rem; }
+  summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+  code { overflow-wrap: anywhere; }
+  svg { width: 100%; height: auto; max-height: 12rem; }
+  .state { font-weight: 800; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="scar" aria-labelledby="title">
+    <h1 id="title">Warm Wall / Layout Separator Evidence</h1>
+    <p><strong>SOURCE ONLY · TESTED NO · RUNTIME/TALKBACK UNPROVEN · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</strong></p>
+    <svg viewBox="0 0 720 180" role="img" aria-labelledby="svg-title svg-desc">
+      <title id="svg-title">One wall with two explicit separator scars</title>
+      <desc id="svg-desc">A continuous wall is interrupted by labeled U plus 2028 line separator and U plus 2029 paragraph separator evidence markers rather than invisible layout breaks.</desc>
+      <path d="M30 90 H210 M330 90 H450 M590 90 H690" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+      <rect x="210" y="52" width="120" height="76" rx="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <rect x="450" y="52" width="140" height="76" rx="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="270" y="86" text-anchor="middle" font-size="20" fill="currentColor">U+2028</text>
+      <text x="270" y="111" text-anchor="middle" font-size="16" fill="currentColor">LS</text>
+      <text x="520" y="86" text-anchor="middle" font-size="20" fill="currentColor">U+2029</text>
+      <text x="520" y="111" text-anchor="middle" font-size="16" fill="currentColor">PS</text>
+    </svg>
+    <div class="wall">
+      <details open>
+        <summary>Provenance path: reveal the layout break</summary>
+        <p class="state">ACTIVE SOURCE</p>
+        <p>Exact identity remains <code>skills/line&lt;U+2028&gt;wall/SKILL.md</code>. Durable display becomes <code>skills/line\u{2028}wall/SKILL.md</code>.</p>
+      </details>
+      <details>
+        <summary>Heartbeat detail: name the semantic separator</summary>
+        <p class="state">ACTIVE SOURCE</p>
+        <p>Selected-light detail projects <code>Warm\u{2028 LS}Wall</code> and <code>Evidence\u{2029 PS}Boundary</code>. Candidate source text remains unchanged.</p>
+      </details>
+      <details>
+        <summary>Literal marker text: keep it distinct</summary>
+        <p class="state">ACTIVE SOURCE</p>
+        <p>Literal source spelling <code>\u{2028}</code> escapes its backslash before projection, so it cannot impersonate an actual separator.</p>
+      </details>
+      <details>
+        <summary>Runtime proof</summary>
+        <p class="state">BLOCKED / NOT CLAIMED</p>
+        <p>This specimen proves only source semantics. It is not Android execution, TalkBack runtime evidence, phone delivery, deployment, callability, delivery, or acceptance.</p>
+      </details>
+    </div>
+  </section>
+</main>
+</body>
+</html>

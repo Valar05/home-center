@@ -1,0 +1,33 @@
+{
+  "heartbeat": "2026-08-20-1000",
+  "mission": "Advance independent non-P0 TRY FOREVER source fronts without touching Phone/P0 surfaces or duplicating owners.",
+  "reviewedHead": "a6241c5e62185904ae190a9fde7b9719ad235192",
+  "fronts": [
+    {
+      "id": "provenance-path-separator-evidence",
+      "plan": "Harden the existing provenance report-path display projection so Unicode LINE SEPARATOR and PARAGRAPH SEPARATOR are revealed as explicit evidence rather than emitted as raw layout controls; preserve exact path identity and external-path privacy."
+    },
+    {
+      "id": "heartbeat-detail-separator-evidence",
+      "plan": "Cross-pollinate the same evidence-visibility rule into the existing on-demand heartbeat evidence projection without changing canonical source text or routine speech."
+    },
+    {
+      "id": "hostile-regression",
+      "plan": "Add focused regression source for U+2028/U+2029 projection, literal-marker non-aliasing, and bounded projection behavior; do not call source fixtures TESTED."
+    },
+    {
+      "id": "doctrine-convergence",
+      "plan": "Update only existing relevant skills; do not create a neighboring parser, renderer, provenance owner, or P0 lane."
+    },
+    {
+      "id": "evidence-review",
+      "plan": "Perform code-first Regnet/Venice review, exact GitHub readback, and preserve source/test/runtime capability states."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "testedClaim": "NO_UNLESS_AN_AUTHORIZED_EXECUTION_LANE_ACTUALLY_RUNS_THE_FIXTURES"
+}

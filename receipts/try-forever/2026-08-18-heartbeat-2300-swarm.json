@@ -1,0 +1,130 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-2300",
+  "sourceHeadReviewed": "bcc818dcbb45d0375787b5e40995267342d4eed5",
+  "missionResult": "ADVANCED_MULTIPLE_NON_P0_FRONTS",
+  "fronts": [
+    {
+      "name": "generated-index final-custody policy",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "tools/try_forever_generated_index_emission_policy.py",
+      "change": "VERIFIED_CURRENT is withheld as UNRESOLVED if the final report-emission repository snapshot is unstable; negative diagnostics are preserved."
+    },
+    {
+      "name": "hostile pure-policy regression",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "artifact": "tools/test_try_forever_generated_index_emission_policy.py",
+      "change": "Pins stable survival, unstable withholding, and non-promotion of stale/unresolved diagnostics."
+    },
+    {
+      "name": "existing-owner integration regression",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "artifact": "tools/test_try_forever_provenance_report_owner_integration.py",
+      "change": "Late HEAD change must zero direct skill authority and generated-index positive currentness together."
+    },
+    {
+      "name": "existing-owner patch repair",
+      "state": "PROPOSED_NOT_APPLIED",
+      "artifact": "patches/try-forever-provenance-report-boundaries-owner.patch",
+      "change": "Patch now routes generated-index currentness through the same final custody gate and avoids post-final-gate re-read."
+    },
+    {
+      "name": "skill harvest",
+      "state": "DURABLE_SOURCE",
+      "artifact": "skills/heartbeat-generated-index-emission-custody/SKILL.md",
+      "change": "New durable rule: positive generated-index currentness cannot outlive final repository custody."
+    },
+    {
+      "name": "doctrine convergence",
+      "state": "DURABLE_SOURCE",
+      "artifact": "skills/heartbeat-report-emission-snapshot/SKILL.md",
+      "change": "Final-emission skill now covers direct skill authority and generated-index currentness under one custody law."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "PASS_SUPPORTING_SOURCE__REVISE_REQUIRED_OWNER_UNWIRED",
+      "artifact": "receipts/regnet/2026-08-18-try-forever-heartbeat-2300-report-custody-review.json"
+    },
+    {
+      "name": "Venice Judgment",
+      "state": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED",
+      "artifact": "receipts/venice/2026-08-18-try-forever-heartbeat-2300-completion-review.json"
+    }
+  ],
+  "crossPollination": [
+    "late direct-skill custody repair exposed a generated-index currentness contradiction",
+    "evidence discipline rejected re-reading the index after the declared final custody observation",
+    "the conservative downgrade became pure policy plus hostile fixtures",
+    "the same rule propagated into the proposed existing-owner patch and repository skills",
+    "Regnet kept policy/patch/test source from being promoted into owner implementation or TESTED",
+    "Venice kept the source slice bounded while preserving the owner/runtime campaign"
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE",
+    "Canon Auto-Select": "ACTIVE",
+    "Autocorrect Judgment Jar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "Originality Tax": "ACTIVE_NO_CI_RETRY_AND_DIFFERENT_REPAIR_PATH",
+    "Hunger": "ACTIVE_DURABLE_POLICY_AND_SKILL",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE_REPORT_SEMANTIC_CONVERGENCE",
+    "Operator Campaign": "ACTIVE_EXISTING_OWNER_ONLY",
+    "Harroway operator discipline": "ACTIVE_CAPABILITY_MEMBRANE",
+    "She-Raw adversarial motivation": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "Venice Judgment Jars": "ACTIVE",
+    "Regnet QA": "ACTIVE",
+    "accessibility/TalkBack and touch semantics": "DARK_NO_REALIZED_USER_FACING_TOPOLOGY_CHANGE",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_DARK",
+    "deterministic routing": "ACTIVE_CONSERVATIVE_DOWNGRADE_NO_POST_GATE_REREAD",
+    "evidence/capability-state discipline": "ACTIVE",
+    "recovery/checkpointing/idempotence": "ACTIVE_PLAN_RECEIPT_AND_IDEMPOTENT_WRITES",
+    "strange non-raster vector/DOM/native UI art": "DARK_NO_REALIZED_TOPOLOGY_CHANGE",
+    "warm walls": "DARK_NO_REALIZED_TOPOLOGY_CHANGE",
+    "Christmas-light scene graph": "DARK_EVIDENCE_BOOKKEEPING_EARNS_NO_MOTION",
+    "contact preservation": "ACTIVE_AUTHORITY_WITHHELD_NOT_REWRITTEN"
+  },
+  "executionTruth": {
+    "sourceHead": "bcc818dcbb45d0375787b5e40995267342d4eed5",
+    "homeCenterCiRun": 32214608402,
+    "buildAndroidRun": 32214608395,
+    "operatorOverlayRun": 32214608458,
+    "operatorOverlayJob": 95953659182,
+    "workflowConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "ownerTruth": {
+    "owner": "tools/try_forever_skill_provenance_probe.py",
+    "authenticatedOwnerBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+    "ownerSchema": "try-forever-skill-provenance.v3",
+    "ownerConsumesReportPathPolicy": false,
+    "ownerConsumesEmissionSnapshotPolicy": false,
+    "ownerConsumesGeneratedIndexEmissionPolicy": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactAuthenticatedReadback": true,
+    "regressionSource": true,
+    "existingOwnerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

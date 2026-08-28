@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-0500",
+  "mission": "Bound SKILL.md title extraction without truncating an oversized or malformed file into repository_skill authority.",
+  "authorizedLane": "GitHub repository/source only; no phone/P0 surface",
+  "owner": "existing tools/try_forever_skill_provenance_probe.py provenance probe",
+  "fronts": [
+    "resource-bounded title extraction",
+    "hostile regression source",
+    "durable repository-skill doctrine",
+    "accessible Warm Wall source mutation",
+    "Regnet source/capability review",
+    "Venice completion review",
+    "exact GitHub readback and current-head CI evidence"
+  ],
+  "constraints": {
+    "noTruncationIntoAuthority": true,
+    "perFileFailureIsolation": true,
+    "preserveSchemaV2": true,
+    "duplicateArchitecture": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "testedClaimRequiresExecutionEvidence": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "preMutationVenice": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE",
+  "expectedCapabilityAfterSourceWork": {
+    "implementedSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

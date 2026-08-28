@@ -1,0 +1,27 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "timestampLocal": "2026-08-24T19:04:40-05:00",
+  "mode": "same-worker bounded Judgment Jar review",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "non-P0 TRY FOREVER repository/source work only",
+  "grounds": [
+    "The plan composes the existing cross-host serialized-path display policy into the existing descriptor-shadow receipt projector; it does not create a neighboring projector/controller.",
+    "The owner mutation is exact-base-blob guarded by authenticated current owner blob 4cc65f162f600e70a9771d7cf3edac94e45f5344 and an already-reviewed source patch.",
+    "The regression, doctrine, art, and receipt fronts are allowed only to converge on authenticated source truth; they cannot promote regression execution, TESTED, runtime, deployment, phone delivery, or acceptance.",
+    "Phone/P0 execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain explicitly firewalled.",
+    "If owner readback diverges from the commissioned patch shape, mutation must stop at the exact boundary rather than route around it."
+  ],
+  "constraints": {
+    "noPhoneP0Mutation": true,
+    "noDuplicateArchitecture": true,
+    "noRuntimeClaimFromSource": true,
+    "noDecorativeSkillLights": true,
+    "noDecorativeArtMutation": true,
+    "sourceVsTestMembrane": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstituteUsed": false
+  }
+}

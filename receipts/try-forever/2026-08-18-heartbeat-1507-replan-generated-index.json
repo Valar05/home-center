@@ -1,0 +1,19 @@
+{
+  "schema": "try-forever-heartbeat-corrective-replan.v1",
+  "localTime": "2026-08-18T15:07:11-05:00",
+  "trigger": "Source archaeology during final-root review found an independent non-P0 wound: inspect_generated_index uses unbounded path.read_text(encoding='utf-8') and does not catch UnicodeDecodeError, so malformed UTF-8 can abort the probe and arbitrarily large index input can consume unbounded read/JSON memory before becoming non-authoritative evidence.",
+  "decision": "Advance a separate generated-index ingress resource/error-isolation source front without touching Phone/P0 or creating another provenance probe.",
+  "plannedArtifacts": [
+    "exact existing-owner patch provenance for bounded binary read + UTF-8/JSON error isolation",
+    "red hostile regression source for malformed UTF-8 and oversized index",
+    "durable generated-index ingress skill doctrine"
+  ],
+  "capabilityBoundary": {
+    "ownerPatchApplied": false,
+    "tested": false,
+    "runtime": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0
+  },
+  "venicePlan": "PLAN_ALLOWED_FOR_SECOND_INDEPENDENT_SOURCE_FRONT_ONLY"
+}

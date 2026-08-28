@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timestampLocal": "2026-08-23T22:01:25-05:00",
+  "reviewedSourceHead": "8de4dec8f84c2e1a70f20772d23d07944ded717c",
+  "fronts": [
+    {
+      "name": "raw capability owner promotion",
+      "state": "SOURCE_WIRED",
+      "change": "Existing self-integrity owner now calls require_raw_shadow_capability_membrane before bounded projection.",
+      "commit": "2acfa301f849889f73bcd50f69af9be217b57374",
+      "ownerBlob": "bd25082da9c7644fd48301a43e91ac53bc389b9d"
+    },
+    {
+      "name": "operator-command capability coverage",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "change": "Actual bounded command regression now covers descriptor authority and owner mutation in addition to test/runtime/phone overclaims."
+    },
+    {
+      "name": "durable skill/provenance convergence",
+      "state": "SOURCE_UPDATED",
+      "change": "Raw-capability skill and patch provenance now record APPLIED_SOURCE / SOURCE_WIRED without promoting TESTED/runtime."
+    },
+    {
+      "name": "warm wall",
+      "state": "SOURCE_UPDATED",
+      "change": "Existing non-raster organism now exposes owner source wiring and authority/mutation overclaim states; no new renderer or blink loop."
+    },
+    {
+      "name": "She-Raw adversarial review",
+      "state": "FAULT",
+      "change": "Authoritative consultation attempted once; account connection returned HTTP 400; no substitute reviewer."
+    },
+    {
+      "name": "execution truth",
+      "state": "BLOCKED_UNKNOWN",
+      "change": "Automatic Home Center CI, Operator Overlay Android, and Build Android failed on the reviewed source head; no usable step-level cause established; no retry fired."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: converted the exact prepared owner seam into real source wiring instead of another proposal.",
+    "Canon Auto-Select": "LIT: selected existing self-integrity owner, raw-capability skill, operator receipt command, and existing Warm Wall.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguity.",
+    "Originality Tax": "LIT: after owner promotion, changed fronts to regression coverage/doctrine/art instead of repeating the same surgery.",
+    "Hunger": "LIT: forced stale prepared/unwired surfaces to converge on authenticated owner truth.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: patch provenance, skill doctrine, tests, and art were corrected after owner mutation.",
+    "Operator Campaign": "LIT: existing owner and bounded operator command remained authoritative; no neighbor controller.",
+    "Harroway operator discipline": "LIT: exact base blob and post-mutation readback governed source promotion.",
+    "She-Raw adversarial motivation": "FAULT: connector HTTP 400; no substitute critique.",
+    "Venice Judgment Jars": "LIT: pre-mutation PLAN_ALLOWED and bounded completion receipt.",
+    "Regnet QA": "LIT: source/readback PASS only; regression/test/runtime membrane held.",
+    "accessibility/TalkBack and touch semantics": "LIT: Warm Wall retains native radio/keyboard/touch semantics and source-only runtime boundary.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero consumption/mutation.",
+    "deterministic routing": "LIT: contradictory raw capability now fails before projector sanitization.",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED separated from regression execution, TESTED, runtime, deployed, delivered, accepted.",
+    "recovery/checkpointing/idempotence": "LIT: source seam closed and ordered dark unless fresh evidence changes it.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing Warm Wall mutated in place; no raster/new family.",
+    "warm walls": "LIT: owner-wired state became touchable.",
+    "Christmas-light scene graph": "DARK: no runtime transition law changed; no decorative blink.",
+    "contact preservation": "LIT: raw contradictory capability cannot be normalized into accepted operator contact."
+  },
+  "crossPollination": [
+    "prepared owner surgery -> authenticated owner wiring -> stale doctrine/provenance/art became false and had to converge",
+    "raw capability membrane -> actual operator-command regression exposed missing authority/mutation coverage -> coverage expanded",
+    "execution failure -> no diagnosis/retry -> source/test/runtime membrane remained closed"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

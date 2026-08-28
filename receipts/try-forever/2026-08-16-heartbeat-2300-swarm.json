@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "local_slot": "2026-08-16-2300",
+  "source_slice": "persisted-poll contact truth + semantic projection dedupe",
+  "fronts_advanced": [
+    {
+      "front": "poll_policy",
+      "status": "IMPLEMENTED_SOURCE",
+      "changed": "Added WAITING / PROJECT / PRESERVE_MISSING_CONTACT / SKIP_UNCHANGED classification with canonical persisted snapshot semantics."
+    },
+    {
+      "front": "accessibility_regression_source",
+      "status": "IMPLEMENTED_SOURCE_NOT_TESTED",
+      "changed": "Added hostile fixtures including accepted zero-material visible contact, lost storage contact, positive timestamp churn, validity-class changes, and inconsistent metadata."
+    },
+    {
+      "front": "skill_harvest",
+      "status": "DURABLE_REPOSITORY_SKILL",
+      "changed": "Added heartbeat-persisted-poll-contact doctrine with owner, accessibility, idempotence, evidence, and P0 boundaries."
+    },
+    {
+      "front": "warm_wall_art",
+      "status": "NON_RASTER_SOURCE_MUTATION",
+      "changed": "Mutated the existing SVG with WAITING != CONTACT LOST and positive timestamp churn != semantic work; no new specimen/controller."
+    },
+    {
+      "front": "review_evidence",
+      "status": "DURABLE_RECEIPTS",
+      "changed": "Regnet/Venice review captured the corrected visible-contact predicate, owner-wiring gap, zero-step CI boundary, She-Raw fault, and zero P0/phone consumption."
+    }
+  ],
+  "skill_lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","contribution":"Moved off unchanged CI and selected a new persisted-poll wound."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","contribution":"Selected the existing OperatorState -> overlay poll seam rather than a neighboring architecture."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","contribution":"No material STT/autocorrect ambiguity affected this slice."},
+    {"name":"Originality Tax","state":"ACTIVE","contribution":"The wound differs materially from prior pulse-id, duplicate-owner, motion, viewport, and source-bound slices."},
+    {"name":"Hunger","state":"ACTIVE","contribution":"Existing warm-wall organism was mutated in place with a new load-bearing scar."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","contribution":"Cross-layer review caught the initial undefined visible-contact predicate and repaired it across policy, fixture, and skill."},
+    {"name":"Operator Campaign / Harroway","state":"ACTIVE","contribution":"Kept sole owner and capability membrane explicit; no duplicate poller/controller."},
+    {"name":"She-Raw","state":"FAULT","contribution":"Authoritative ambient attempt returned account-connection HTTP 400; no substitute verdict."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","contribution":"Code-first completion review preserved the correction scar and withheld merge/runtime/delivery authority."},
+    {"name":"Regnet QA","state":"ACTIVE","contribution":"Passed bounded source/readback only and kept TESTED / owner-wired false."},
+    {"name":"Accessibility / TalkBack / touch","state":"ACTIVE","contribution":"Defined stale-contact wound semantics, quiet repeated absence, and zero-material pulse contact truth."},
+    {"name":"Phone Runtime / Phone Hands","state":"DARK_FIREWALLED","contribution":"Zero surface consumption; no fresh P0 predicate change was used."},
+    {"name":"Deterministic routing / evidence discipline","state":"ACTIVE","contribution":"Exact persisted projection inputs are classified independently from positive wall-clock magnitude."},
+    {"name":"Recovery / checkpoint / idempotence","state":"ACTIVE","contribution":"Missing-after-contact preserves last-good once; unchanged absence and unchanged projection inputs become quiet."},
+    {"name":"strange non-raster vector / warm walls / Christmas scene graph","state":"ACTIVE","contribution":"Existing SVG gained one meaningful scar; no raster, autoplay, or decorative blink."},
+    {"name":"Contact preservation","state":"ACTIVE","contribution":"Policy and doctrine route contact loss to the existing fail-closed scene organ rather than silently preserving stale currentness."},
+    {"name":"heartbeat-persisted-poll-contact","state":"ACTIVE_NEW_SKILL","contribution":"New repository skill harvested from the discovered seam."}
+  ],
+  "cross_pollination": [
+    "200ms service archaeology exposed redundant semantic work and silent storage disappearance.",
+    "Persisted projection timestamp doctrine prevented wall-clock magnitude from becoming fake semantic identity.",
+    "Accessibility review exposed node-count as an invalid contact predicate because a complete zero-material pulse is still contact.",
+    "That correction propagated into source policy, regression fixtures, durable skill doctrine, and the warm-wall scar.",
+    "Regnet/Venice kept policy source separate from existing-owner wiring, test execution, runtime, and phone delivery."
+  ],
+  "automatic_ci": {
+    "workflow":"Operator Overlay Android",
+    "run_id":31993400133,
+    "job_id":95280758777,
+    "head_sha":"dab6946a0ef28fcd8fb9d4dd8cacd4431fcf6e42",
+    "steps_executed":0,
+    "boundary":"The job was not started because an Actions budget is preventing further use.",
+    "manual_retry":false
+  },
+  "p0_phone_firewall": {
+    "phone_commands":0,
+    "phone_hands_tickets":0,
+    "queue_or_device_probes":0,
+    "p0_recovery_mutations":0,
+    "nightcore_actions":0,
+    "pocket_tts_actions":0,
+    "chromium_actions":0,
+    "context_organs_actions":0,
+    "physical_acceptance_actions":0,
+    "duplicate_owners_created":0
+  },
+  "capability": {
+    "requested":true,
+    "implemented_source":true,
+    "exact_github_readback":true,
+    "regression_source":true,
+    "durable_skill":true,
+    "non_raster_source_art":true,
+    "existing_owner_consumes_policy":false,
+    "tested":false,
+    "runtime_ui_observed":false,
+    "runtime_talkback_exercised":false,
+    "deployed":false,
+    "callable":false,
+    "executed":false,
+    "delivered":false,
+    "accepted":false
+  },
+  "gate":"SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

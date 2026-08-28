@@ -1,0 +1,45 @@
+{
+  "schema": "try-forever-regnet-heartbeat.v1",
+  "heartbeat": "2026-08-28T14:01:00-05:00",
+  "reviewedSourceHead": "83f98fd523fe3302ef43069b7957fedc15f14328",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "acceptedSourceProgress": [
+    "The existing temporal-custody fixture now pins refresh-before-Send-owner-assignment and refresh-before-mode-mutation as hostile RED source shapes.",
+    "The existing temporal-content-binding skill now distinguishes lifecycle co-location from lifecycle ordering and demotes optimistic Send-action evidence.",
+    "The staged native accessibility owner proposal was reviewed against both new topology laws and already orders adamSendButton assignment before create refresh and mode mutation before mode refresh; it remains unapplied."
+  ],
+  "heldBoundaries": [
+    "Owner-probe v10 still does not consume the two new lifecycle-ordering witnesses; Send-action evidence is EVIDENCE_REVISE_REQUIRED.",
+    "The new hostile source assertions were not executed; RED SOURCE is not a tested failing regression.",
+    "Warm Wall source still says Send-action probe v10 SOURCE_REPAIRED and is now stale against the demoted evidence state; no runtime claim follows from that specimen.",
+    "Native UI request owner and native accessibility owner remain REBASED_PROPOSED_NOT_APPLIED.",
+    "Runtime UI, TalkBack, deployment, callability, phone delivery, and acceptance remain absent.",
+    "P0 and primary-phone surfaces remain forbidden to this swarm."
+  ],
+  "executionBoundary": {
+    "operatorOverlayRun": 33202610278,
+    "homeCenterCiRun": 33202610306,
+    "buildAndroidRun": 33202610283,
+    "conclusion": "failure",
+    "operatorJob": 98955558992,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "fixtureExecution": false,
+    "regressionExecution": false,
+    "tested": false,
+    "stepLevelDiagnosis": null
+  },
+  "sheRaw": {
+    "consulted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "nextGate": "SOURCE_SLICE_STOP_ALLOWED__SEND_LIFECYCLE_PROBE_REPAIR_WARM_WALL_TRUTH_SYNC_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

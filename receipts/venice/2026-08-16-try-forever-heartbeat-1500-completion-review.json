@@ -1,0 +1,45 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "heartbeat": "2026-08-16-1500",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "reviewType": "completion_code_review",
+  "commission": "Close the existing-owner collapsed-heartbeat speech seam without P0/phone consumption or duplicate overlay architecture, while preserving stale-replay prevention and capability truth.",
+  "verdict": "PASS_BOUNDED_SOURCE",
+  "directive": "STOP_ALLOWED_FOR_THIS_SOURCE_SLICE_CONTINUE_CAMPAIGN",
+  "jar": "observable evidence + capability-state separation + hard gates outrank polish",
+  "finding": "The prior owner seam is now durably source-wired: OperatorOverlayService separates root visibility from the existing details-subtree visibility and supplies both to the five-argument automatic-speech gate. The identity ledger still advances after suppression, so collapse/unhide/unmute cannot replay the already-observed transition. Regression source, doctrine, and warm-wall source were synchronized without a neighboring owner.",
+  "remaining_boundary": "Android execution and TalkBack behavior are still unproven because automatic CI did not start any steps under the unchanged Actions-budget blocker. Do not promote source wiring into tested, deployed, callable, delivered, or accepted state.",
+  "evidence": {
+    "plan_receipt": "receipts/heartbeat-skill-lights/2026-08-16-1500-plan.json",
+    "regnet_receipt": "receipts/regnet/2026-08-16-try-forever-heartbeat-1500-source-review.json",
+    "operator_overlay_service_blob": "58fb9aa26bf7e5a1947941d163afae3a30b42703",
+    "regression_blob": "1d5350d2d544337b89284cc0ac56ea9085691390",
+    "skill_blob": "626f8b40739c9af5087d08e3b45578ec8d4c4b00",
+    "warm_wall_blob": "377190198b0606292a4d2372b657882c183d6dce",
+    "owner_source_commit": "ff8d54a9028515028576f2a29c9d317adcf45e62",
+    "ci_run": 31969607559,
+    "ci_job": 95219873808,
+    "ci_steps": 0,
+    "ci_boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  },
+  "p0_firewall": "PASS_ZERO_CONSUMPTION",
+  "capability_state": {
+    "implemented_source": true,
+    "regression_source": true,
+    "existing_owner_consumption": true,
+    "tested": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestampLocal": "2026-08-25T19:00:00-05:00",
+  "repository": "Valar05/home-center",
+  "reviewedSourceHead": "b3f1d3a71368d8a906a33e3b5264b43361bb9bec",
+  "reviewer": "current-authorized-chatgpt-worker",
+  "mode": "regnet-qa-source-review",
+  "verdict": "PASS_SUPPORTING_SEMANTIC_PRODUCER__CANONICAL_COMPOSITION_REVISE_REQUIRED",
+  "checks": [
+    {
+      "front": "default-owner exact scalar admission",
+      "status": "PASS_SOURCE_WIRED",
+      "finding": "The existing default-owner binding policy now requires exact built-in patch/default-owner strings before regex, formatting, or equality work. The canonical portable owner already consumes this policy; ordinary built-in-string semantics are preserved."
+    },
+    {
+      "front": "exact-observation semantic production",
+      "status": "PASS_SUPPORTING_SOURCE",
+      "finding": "A pure parser now turns one exact already-observed UTF-8 artifact plus matching byte-count/SHA-256 witness into patch/delta semantic fields without filesystem re-read. It recomputes the content witness before semantic admission and owns no grouping or promotion authority."
+    },
+    {
+      "front": "hostile regression source",
+      "status": "PASS_SOURCE_UNEXECUTED",
+      "finding": "Focused fixtures pin callback-free fallback-owner admission, patch/delta semantic parity, exact content-witness binding, duplicate JSON rejection, and hostile scalar rejection. Their source presence is not execution evidence."
+    },
+    {
+      "front": "canonical descriptor composition",
+      "status": "REVISE_REQUIRED_NOT_WIRED",
+      "finding": "Canonical v10 still reads/parses through the portable pathname path and does not consume backend selection, the pure semantic producer, or descriptor observations. Calling the producer beside v10 would be a second authority-shaped path, so integration remains NO."
+    },
+    {
+      "front": "accessible source specimen",
+      "status": "PASS_SOURCE",
+      "finding": "The existing keyboard/touch-native backend-selection Warm Wall was mutated in place so it shows the semantic producer as supporting source while preserving canonical-integration NO, runtime TalkBack NO, reduced-motion behavior, and non-color state semantics."
+    },
+    {
+      "front": "P0 and phone firewall",
+      "status": "PASS_ZERO_TOUCH",
+      "finding": "No primary-phone execution, Phone Hands, P0 queue/recovery owner, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance chain, or duplicate architecture was consumed or mutated."
+    }
+  ],
+  "authenticatedReadback": true,
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "callable": false,
+  "executed": false,
+  "delivered": false,
+  "accepted": false,
+  "gate": "PASS_SOURCE_SLICE__CANONICAL_OWNER_DESCRIPTOR_COMPOSITION_REVISE_REQUIRED__REGRESSION_EXECUTION_TEST_RUNTIME_CONTINUE_REQUIRED"
+}

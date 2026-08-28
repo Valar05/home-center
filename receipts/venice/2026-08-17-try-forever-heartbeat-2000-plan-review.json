@@ -1,0 +1,22 @@
+{
+  "slice": "2026-08-17-2000",
+  "reviewer": "Venice Judgment Jar",
+  "phase": "plan",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "The target is a verified independent source wound named in the prior durable receipt.",
+    "The repair remains inside the existing plain-text projection organ and does not create duplicate architecture.",
+    "The plan preserves hard returned code-point budgets while adding grapheme-boundary safety rather than replacing one contract with another.",
+    "P0 and shared-phone surfaces remain firewalled.",
+    "The plan requires hostile regression source and forbids runtime/test/delivery promotion without evidence."
+  ],
+  "watch_for": [
+    "BreakIterator or other segmentation behavior that does not actually protect ZWJ/flag/modifier cases in the project toolchain.",
+    "A grapheme-safe prefix whose appended ellipsis exceeds maxCodePoints.",
+    "Overclaiming full Unicode conformance from a narrower implementation.",
+    "Changing exact under-budget source text or evidence fields.",
+    "Decorative art mutation with no new operator-state topology."
+  ],
+  "source_slice_only": true,
+  "campaign_after_slice": "CONTINUE_REQUIRED"
+}

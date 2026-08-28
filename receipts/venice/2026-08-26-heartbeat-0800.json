@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26T08:00:00-05:00",
+  "reviewedSourceHead": "7dc4b7c9502156070c3fe90e4ef690fa9fc32762",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__MAIN_ARGV_LEGACY_FIXTURE_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "whyStopThisSlice": [
+    "canonical v10 current-owner repeated-value parsing now has exact container/scalar admission and a finite assignment throat in the existing owner",
+    "omitted versus explicitly supplied empty current-owner custody is now preserved as capability presence truth without changing promotion semantics",
+    "new hostile and focused v10 regression source is durable but explicitly unexecuted",
+    "self-review did not green-paint the remaining direct main(argv) iterable callback boundary or the stale legacy v7/ownerWired=false regression fossil",
+    "no adjacent authority, overlay, recovery, phone, or P0 architecture was created"
+  ],
+  "continueRequired": [
+    "direct programmatic main(argv) exact-input custody",
+    "legacy broad custody regression convergence from v7/ownerWired=false to authenticated v10 truth",
+    "authorized regression execution",
+    "TESTED evidence",
+    "runtime and TalkBack observation only if a future authorized non-firewalled lane exists",
+    "the recurring Try Forever campaign"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capabilityInflationRejected": true,
+  "phoneOrP0DeliveryClaimed": false
+}

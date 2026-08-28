@@ -1,0 +1,41 @@
+# TRY FOREVER owner surgery — collapsed operational contact only
+# Base owner blob: c5de1411a6b68087ae17aff83c032af754587150
+# Target: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# State: CORRECTED_PROPOSED_NOT_APPLIED
+# P0/phone: untouched
+# Ownership correction 2026-08-21:
+# - This patch now owns ONLY collapsed Home Center operational-contact refresh.
+# - Adam Send availability moved into the existing Adam mode/input accessibility owner surgery.
+# - Reason: both previous proposals touched the same Adam fields/TextWatcher/mode method on the
+#   same base blob. Keeping availability here would create overlapping patch order hazards and
+#   duplicate semantic writers. One concern, one canonical surgery surface.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+         status.setText(state);
+         status.setTextColor(stateColor);
+         dragHandle.setText(OperatorState.panelCollapsed(this)
+                 ? "☰  " + compactState
+                 : "☰  HOME CENTER");
+         dragHandle.setTextColor(stateColor);
++        // Operational status changes independently of heartbeat persistence. Keep the
++        // surviving collapsed semantic owner current even when heartbeat polling takes
++        // the SKIP_UNCHANGED fast path.
++        applyHeartbeatCollapsedOwnerAccessibility(currentHeartbeatModel());
+@@
+     private void applyHeartbeatCollapsedOwnerAccessibility(HeartbeatOverlayViewModel.Model model) {
+         if (dragHandle == null) return;
+-        dragHandle.setContentDescription(
+-                HeartbeatCollapsedOwnerAccessibility.contentDescription(
+-                        OperatorState.panelCollapsed(this),
+-                        model));
++        String operatorStatus = status == null ? "" : status.getText().toString();
++        String nextDescription = HeartbeatCollapsedOwnerAccessibility.contentDescription(
++                OperatorState.panelCollapsed(this),
++                operatorStatus,
++                model);
++        if (!TextUtils.equals(dragHandle.getContentDescription(), nextDescription)) {
++            dragHandle.setContentDescription(nextDescription);
++        }

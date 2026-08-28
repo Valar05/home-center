@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-20-1700",
+  "mission": "Advance materially different non-P0 Operator Overlay accessibility source work without touching Phone/P0 or inventing a neighboring owner.",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "firewall": {
+    "phoneHands": "READ_ONLY_NOT_CONSUMED",
+    "p0Recovery": "READ_ONLY_NOT_MUTATED",
+    "duplicateArchitecture": "FORBIDDEN"
+  },
+  "freshEvidence": [
+    "Current owner blob c266e66a8004623efadab1933de4e429e677c6a5 still gives non-interactive TextViews spotifyStatus and status generic static contentDescription values while their visible text changes.",
+    "Android Developers guidance says not to provide descriptions for TextView elements because accessibility services automatically announce the text itself.",
+    "The existing combined owner patch currently proposes replacing static Spotify focus semantics with a dynamic contentDescription; this plan treats that as a review wound and prefers native TextView text semantics instead."
+  ],
+  "fronts": [
+    "Repair the existing owner-source patch so Spotify focus semantics use native TextView text rather than a duplicate dynamic contentDescription, while keeping grapheme-safe explicit announcements.",
+    "Add a separate status TextView seam: generic static contentDescription must not override the changing Home Center/control state text.",
+    "Advance the deterministic owner probe and hostile fixtures so both seams are source-classifiable without promoting source evidence into runtime TalkBack proof.",
+    "Converge operator-accessibility-owner-boundary doctrine and the existing non-raster accessibility throat onto the corrected semantics.",
+    "Run code-first Regnet review, preserve She-Raw connector failure as a reviewer fault, and inspect fresh automatic workflow evidence without retrying CI."
+  ],
+  "capabilityTarget": {
+    "supportingSource": true,
+    "ownerPatch": "PROPOSED_NOT_APPLIED",
+    "ownerWiring": false,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeTalkBack": false,
+    "phoneDelivery": false
+  }
+}

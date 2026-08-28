@@ -1,0 +1,14 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "checkpoint": "2026-08-23T20:03:54-05:00",
+  "verdict": "PLAN_ALLOWED",
+  "boundedReason": "The planned work stays inside existing descriptor-shadow receipt organs, regression source, doctrine, and non-raster source art. It does not create a second authority/projector/controller, does not consume the phone/P0 chain, and preserves capability-state distinctions.",
+  "mustPreserve": [
+    "DESCRIPTOR_WOUND may retain already-observed portable artifacts as diagnostic contact",
+    "non-comparison states must not counterfeit completed descriptor evidence or work counters",
+    "regression source is not regression execution or TESTED evidence",
+    "no Phone Hands, primary-phone, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work",
+    "no second receipt projector or descriptor authority"
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_MUTATION_MAY_PROCEED"
+}

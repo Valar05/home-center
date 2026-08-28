@@ -1,0 +1,98 @@
+{
+  "type": "try_forever_broad_swarm_receipt",
+  "heartbeat": "2026-08-17-0100",
+  "fronts_advanced": [
+    {
+      "front": "coherent persisted observation",
+      "change": "Existing OperatorOverlayService now consumes HeartbeatPersistedSnapshotReader.read(this), replacing four independent heartbeat SharedPreferences getters."
+    },
+    {
+      "front": "retryable storage-read wound",
+      "change": "Coherent read failure preserves last-good scene with a bounded boundary, does not advance processed snapshot, and retries next poll."
+    },
+    {
+      "front": "regression source",
+      "change": "Added hostile source fixtures for last-good preservation, pre-contact failure, repeated read failure, and recovery classification."
+    },
+    {
+      "front": "accessibility evidence truth",
+      "change": "Code-first review exposed pre-contact CONTACT HELD overclaim. Added pure summaryVisibleLabel source + fixtures distinguishing REFRESH BLOCKED from CONTACT HELD; existing service consumption remains an explicit next gap."
+    },
+    {
+      "front": "durable skill",
+      "change": "heartbeat-persisted-poll-contact now records coherent-reader owner wiring and storage-read retry semantics."
+    },
+    {
+      "front": "warm walls non-raster art",
+      "change": "Mutated existing SVG in place with coherent-read owner wiring and retry scar; source-only/runtime-unproven labeling retained."
+    },
+    {
+      "front": "review and evidence",
+      "change": "Regnet marks coherent-reader owner source PASS with accessibility REVISE_REQUIRED; Venice returns CONTINUE_REQUIRED. Fresh CI boundary verified on reviewed source head."
+    }
+  ],
+  "skill_lights": {
+    "Failure Is The Shovel": "ACTIVE: moved from unchanged blocked CI to coherent-read and accessibility wounds",
+    "Canon Auto-Select": "ACTIVE: reused existing reader, poll policy, scene preservation, view model, service owner, skill, and SVG",
+    "Autocorrect Judgment Jar": "DARK: no material STT/autocorrect ambiguity",
+    "Originality Tax": "ACTIVE: no blind CI retry and no neighboring poller/controller",
+    "Hunger": "ACTIVE: owner wiring cross-pollinated into fixture, skill, art, and review fronts",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: code-first review found CONTACT HELD evidence overclaim after owner wiring",
+    "Operator Campaign": "ACTIVE: plan receipt preceded mutation and source/runtime states stayed distinct",
+    "Harroway operator discipline": "ACTIVE: existing-owner-only mutation; no duplicate architecture",
+    "She-Raw": "FAULT: authoritative connector returned account-connection HTTP 400; no substitute verdict",
+    "Venice Judgment Jars": "ACTIVE: CONTINUE_REQUIRED due owner summary consumption gap and blocked tests",
+    "Regnet QA": "ACTIVE: PASS owner coherent-read source / REVISE accessibility owner gap / TESTED false",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: bounded read wound; pre-contact CONTACT HELD overclaim isolated with pure repair source",
+    "Phone Runtime / Phone Hands recovery": "DARK_BY_FIREWALL: zero consumption or mutation",
+    "deterministic routing": "ACTIVE: one getAll() observation is one persisted heartbeat snapshot",
+    "evidence/capability-state discipline": "ACTIVE: source wiring not reported as runtime/deployed/delivered",
+    "recovery/checkpointing/idempotence": "ACTIVE: read failure retains previous processed snapshot and last-good contact",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing SVG mutated in place; no raster or deployment claim",
+    "warm walls": "ACTIVE: coherent read/retry scar added",
+    "Christmas-light scene graph": "ACTIVE: read wounds clamp semantic motion and repeated work remains deduped by identities",
+    "contact preservation": "ACTIVE: last-good visible pulse/nodes survive coherent read failure"
+  },
+  "fresh_test_boundary": {
+    "reviewed_source_head": "cd2dc3566fde33649d1ec4d71c57a794f38011d0",
+    "workflow": "Operator Overlay Android",
+    "run": 32000913706,
+    "job": 95300941561,
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_phone_firewall": {
+    "phone_hands_tickets": 0,
+    "primary_phone_commands": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_p0_owners": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "existing_owner_coherent_reader_source_wired": true,
+    "bounded_read_failure_source_semantics": true,
+    "regression_source": true,
+    "precontact_summary_policy_source": true,
+    "existing_owner_consumes_precontact_summary_policy": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "cross_pollination": "four-getter coherence wound -> one-map owner wiring -> retryable read-failure semantics -> pre-contact accessibility truth wound -> pure summary policy + fixtures -> skill/art synchronization -> Regnet/Venice evidence membrane",
+  "gate": "CONTINUE_REQUIRED",
+  "next_exact_non_p0_cut": "Existing OperatorOverlayService.applyHeartbeatModelChrome consumes model.summaryVisibleLabel(); no new renderer/controller and no Phone Hands/P0 surface."
+}

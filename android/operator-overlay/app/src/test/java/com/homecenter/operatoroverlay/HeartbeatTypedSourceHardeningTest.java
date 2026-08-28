@@ -1,0 +1,220 @@
+package com.homecenter.operatoroverlay;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collections;
+
+import org.junit.Test;
+
+/** Source-only regressions for the typed heartbeat contract and parser-to-scene seam. */
+public class HeartbeatTypedSourceHardeningTest {
+    @Test
+    public void canonicalEnvelopeRejectsUnknownRootMember() {
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(
+                "{\"schema\":\"heartbeat-skill-lights.v1\","
+                        + "\"pulseId\":\"pulse-root-typo\","
+                        + "\"complete\":true,\"lights\":[],"
+                        + "\"deployed\":true}");
+
+        assertFalse(result.accepted());
+        assertEquals("Heartbeat envelope has unknown field: deployed.", result.boundary);
+    }
+
+    @Test
+    public void canonicalEnvelopeRejectsUnknownLightMember() {
+        String payload = envelope(
+                "pulse-light-typo",
+                light(
+                        "execution-truth",
+                        "Execution Truth",
+                        "repository_skill",
+                        "skills/execution-truth/SKILL.md",
+                        "Capability state must remain exact.",
+                        "blocked",
+                        false,
+                        "Runtime rendering is still absent.",
+                        "Exact source-only boundary",
+                        ",\"uiRendered\":true"));
+
+        HeartbeatEnvelopeParser.Result result = HeartbeatEnvelopeParser.parse(payload);
+
+        assertFalse(result.accepted());
+        assertEquals("Light 0 has unknown field: uiRendered.", result.boundary);
+    }
+
+    @Test
+    public void repositorySkillProvenanceRequiresExactSkillFileShape() {
+        assertTrue(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
+                "skills/execution-truth/SKILL.md")));
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
+                "docs/execution-truth/SKILL.md")));
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
+                "skills/../execution-truth/SKILL.md")));
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
+                "skills\\execution-truth\\SKILL.md")));
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(candidate(
+                "skills/execution-truth/README.md")));
+    }
+
+    @Test
+    public void directCandidatePretrimSourceWorkHasIndependentFiniteThroat() {
+        String atCeiling = repeat("x", HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS);
+        HeartbeatSkillPolicy.Candidate admittedResourceShape = new HeartbeatSkillPolicy.Candidate(
+                "execution-truth",
+                atCeiling,
+                "doctrine",
+                "source-bound-parity",
+                "Direct-source work and typed field admission are separate contracts.",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "At-ceiling raw source may still fail the smaller typed field contract.",
+                "Source-only resource fixture");
+        assertFalse(HeartbeatSkillPolicy.hasTypedSourceContract(admittedResourceShape));
+
+        String maxPlusOne = atCeiling + "x";
+        try {
+            new HeartbeatSkillPolicy.Candidate(
+                    "execution-truth",
+                    maxPlusOne,
+                    "doctrine",
+                    "source-bound-parity",
+                    "Oversized raw direct source must stop before semantic scan/trim work.",
+                    HeartbeatSkillPolicy.State.BLOCKED,
+                    false,
+                    "Resource rejection must not become a smaller counterfeit candidate.",
+                    "Source-only resource fixture");
+            fail("direct Candidate admitted source beyond the pre-trim resource throat");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().contains("source resource ceiling"));
+        }
+    }
+
+    @Test
+    public void rejectedParserResultPreservesLastGoodSceneAndExactBoundary() {
+        HeartbeatSceneGraph.Frame lastGood = HeartbeatSceneGraph.build(
+                "pulse-good",
+                Collections.singletonList(new HeartbeatSkillPolicy.Candidate(
+                        "contact-preservation",
+                        "Contact Preservation",
+                        "doctrine",
+                        "Contact Preservation",
+                        "Last-good contact is material.",
+                        HeartbeatSkillPolicy.State.ACTIVE,
+                        true,
+                        "Last-good heartbeat remains readable.",
+                        "Exact source fixture")),
+                true,
+                null);
+
+        HeartbeatEnvelopeParser.Result rejected = HeartbeatEnvelopeParser.parse(
+                "{\"schema\":\"heartbeat-skill-lights.v1\","
+                        + "\"pulseId\":\"pulse-bad\","
+                        + "\"complete\":true,\"lights\":[],"
+                        + "\"accepted\":true}");
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(rejected, lastGood);
+
+        assertTrue(frame.refreshInterrupted);
+        assertEquals("pulse-good", frame.visiblePulseId);
+        assertEquals("", frame.attemptedPulseId);
+        assertEquals("Heartbeat envelope has unknown field: accepted.", frame.refreshBoundary);
+        assertNotSame(lastGood.nodes.get(0), frame.nodes.get(0));
+        assertEquals(lastGood.nodes.get(0).id, frame.nodes.get(0).id);
+        assertEquals(lastGood.nodes.get(0).evidenceBoundary, frame.nodes.get(0).evidenceBoundary);
+        assertFalse(frame.nodes.get(0).transitionMotion);
+        assertFalse(frame.transitionMotionAllowed);
+    }
+
+    @Test
+    public void acceptedParserResultComposesIntoSemanticSceneWithoutRuntimeClaim() {
+        HeartbeatEnvelopeParser.Result parsed = HeartbeatEnvelopeParser.parse(
+                envelope(
+                        "pulse-composed",
+                        light(
+                                "execution-truth",
+                                "Execution Truth",
+                                "repository_skill",
+                                "skills/execution-truth/SKILL.md",
+                                "Source parsing is materially composed.",
+                                "active",
+                                true,
+                                "Parser output now feeds the pure semantic scene.",
+                                "Source-only composition fixture",
+                                "")));
+
+        HeartbeatSceneGraph.Frame frame = HeartbeatSceneGraph.build(parsed, null);
+
+        assertTrue(parsed.accepted());
+        assertFalse(frame.refreshInterrupted);
+        assertEquals("pulse-composed", frame.visiblePulseId);
+        assertEquals(1, frame.nodes.size());
+        assertEquals("execution-truth", frame.nodes.get(0).id);
+        assertEquals("Source-only composition fixture", frame.nodes.get(0).evidenceBoundary);
+        assertTrue(frame.transitionMotionAllowed);
+    }
+
+    private static HeartbeatSkillPolicy.Candidate candidate(String locator) {
+        return new HeartbeatSkillPolicy.Candidate(
+                "execution-truth",
+                "Execution Truth",
+                "repository_skill",
+                locator,
+                "Provenance truth is material.",
+                HeartbeatSkillPolicy.State.BLOCKED,
+                false,
+                "Malformed repository-skill locators stay out of display-ready state.",
+                "Source contract fixture");
+    }
+
+    private static String envelope(String pulseId, String light) {
+        return "{\"schema\":\"heartbeat-skill-lights.v1\","
+                + "\"pulseId\":\"" + pulseId + "\","
+                + "\"complete\":true,\"lights\":[" + light + "]}";
+    }
+
+    private static String light(
+            String id,
+            String label,
+            String provenanceKind,
+            String provenanceLocator,
+            String activationReason,
+            String state,
+            boolean changedThisPulse,
+            String consequence,
+            String evidenceBoundary,
+            String extraMember) {
+        return "{"
+                + field("id", id) + ","
+                + field("label", label) + ","
+                + field("provenanceKind", provenanceKind) + ","
+                + field("provenanceLocator", provenanceLocator) + ","
+                + field("activationReason", activationReason) + ","
+                + field("state", state) + ","
+                + "\"changedThisPulse\":" + changedThisPulse + ","
+                + field("consequence", consequence) + ","
+                + field("evidenceBoundary", evidenceBoundary)
+                + extraMember
+                + "}";
+    }
+
+    private static String field(String name, String value) {
+        return "\"" + name + "\":\"" + escape(value) + "\"";
+    }
+
+    private static String escape(String value) {
+        return value.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
+    private static String repeat(String value, int count) {
+        StringBuilder out = new StringBuilder(value.length() * count);
+        for (int index = 0; index < count; index++) out.append(value);
+        return out.toString();
+    }
+}

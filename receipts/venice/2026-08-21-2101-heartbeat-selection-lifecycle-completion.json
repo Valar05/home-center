@@ -1,0 +1,25 @@
+{
+  "schema": "venice-completion.v1",
+  "pulse": "2026-08-21T21:01:00-05:00",
+  "subject": "Heartbeat native persistent-selection lifecycle evidence",
+  "sourceHeadReviewed": "0fe0cf9df4e01949c4dd34c77165213610cac469",
+  "codeReviewFirst": true,
+  "regnetVerdict": "PASS_SUPPORTING_SOURCE_AND_OWNER_LIFECYCLE_EVIDENCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "judgment": {
+    "sourceSlice": "ALLOW_YIELD",
+    "ownerPromotion": "CONTINUE_REQUIRED",
+    "regressionExecution": "CONTINUE_REQUIRED",
+    "runtimeTalkBack": "CONTINUE_REQUIRED",
+    "deploymentDeliveryAcceptance": "CONTINUE_REQUIRED",
+    "campaign": "CONTINUE_REQUIRED"
+  },
+  "reasons": [
+    "The source/evidence contract materially improved: collection semantics are now bound to row-build and selection-refresh lifecycle owners rather than a per-light side effect.",
+    "The exact existing-owner surgery is prepared but unapplied, so the owner capability state remains partial and is not promoted.",
+    "No source evidence proves Android runtime collection behavior or TalkBack output.",
+    "The P0/phone firewall was preserved with zero consumption and zero mutation.",
+    "Warm-wall and Christmas-motion work correctly stayed dark because no operator-visible topology changed."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-23T10:57:00-05:00",
+  "reviewerKind": "same_worker_judgment_jar",
+  "scope": "non-P0 descriptor-shadow evidence semantics and temporal receipt integrity",
+  "checks": {
+    "missionBoundaryPreserved": true,
+    "canonicalAuthorityUntouched": true,
+    "phoneP0FirewallPreserved": true,
+    "duplicateArchitectureForbidden": true,
+    "sourceVsTestVsRuntimeMembraneExplicit": true,
+    "artMutationConditionalOnRealTopologyChange": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewerInvented": false
+  },
+  "verdict": "PLAN_ALLOWED",
+  "boundary": "Proceed with supporting source/regression/doctrine work only. No canonical promotion authority, Android runtime owner, phone/P0, deployment, or delivery mutation is authorized."
+}

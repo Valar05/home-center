@@ -1,0 +1,88 @@
+{
+  "schema": "regnet-qa.v1",
+  "heartbeat": "2026-08-18-1300",
+  "verdict": "REVISE_REQUIRED",
+  "boundedPass": "INDEPENDENT_SOURCE_AND_EXACT_READBACK_ONLY",
+  "reviewedSourceHead": "9461c7ab3daac2c9f702fee9a81af2fa2209a48a",
+  "findings": [
+    {
+      "severity": "pass",
+      "result": "FILE_IDENTITY_POLICY_ADVANCED",
+      "finding": "tools/try_forever_skill_file_identity.py is durable as blob 166261a203fad3057d132916cab8753bbe66dcf1. It uses no-follow file observations, rejects redirectors/unavailable identity, detects persistent object or size/mtime drift, and explicitly refuses to call equal observations atomic binding."
+    },
+    {
+      "severity": "pass",
+      "result": "HOSTILE_REGRESSION_SOURCE_ADVANCED",
+      "finding": "tools/test_try_forever_skill_file_identity.py is durable as blob f63745f15d632d86881ebb13f788828f004802c8 and covers ordinary stability, symlink redirector, os.replace replacement, size/mtime drift, missing file-index identity, and the non-atomicity claim boundary. Regression source exists; it has not executed."
+    },
+    {
+      "severity": "pass",
+      "result": "OWNER_CAPABILITY_PROBE_ADVANCED",
+      "finding": "tools/try_forever_skill_candidate_topology_owner_probe.py is durable as blob 110ad901d9fae9140be72962fee59f304a46f85b. It classifies only exact known source markers as LEGACY_OWNER, SOURCE_WIRED, or PARTIAL_UNSAFE and carries an explicit source-only capability boundary. Its regression source is blob d9e067fe4e52d735bd1f0408318d8d7f23282001."
+    },
+    {
+      "severity": "pass",
+      "result": "DURABLE_SKILL_AND_ACCESSIBLE_ART_ADVANCED",
+      "finding": "heartbeat-skill-file-identity-revalidation is durable as blob 89e2d2cfff6f551267b6f0f005f10228ecd5f1bd. The candidate-file Warm Wall is durable as blob 6d18b3edca05973df4f02c6caeb775967210f272 with radiogroup/radio semantics, roving keyboard navigation, >=48px controls, non-color state tokens, polite live detail, inline SVG, reduced-motion handling, and explicit source/runtime/phone scars."
+    },
+    {
+      "severity": "material",
+      "result": "OWNER_STATIC_GATE_STILL_UNWIRED",
+      "finding": "Authenticated owner readback remains blob e3627e342150c48f38099bb68fb118b3c54f2bf4 and still admits named SKILL.md through entry.is_file(follow_symlinks=True). The base-blob-locked static topology patch remains PROPOSED_NOT_APPLIED. No source-capability probe or helper artifact upgrades this owner state."
+    },
+    {
+      "severity": "boundary",
+      "result": "FILE_IDENTITY_HELPER_NOT_CONSUMED",
+      "finding": "The existing provenance owner does not import or consume try_forever_skill_file_identity.py. Therefore candidate-file identity/revalidation is implemented supporting source only, not existing-owner behavior."
+    },
+    {
+      "severity": "boundary",
+      "result": "ATOMICITY_NOT_CLAIMED",
+      "finding": "Equal no-follow device/inode and size/mtime observations do not exclude swap-and-restore races, inode/file-index reuse, same-size/same-mtime rewrites, or replacement after the final observation. This pulse does not claim atomic cross-platform file binding."
+    },
+    {
+      "severity": "boundary",
+      "result": "OWNER_MUTATION_LANE_BLOCKED",
+      "finding": "GitHub admin can only safely replace the complete owner file; reconstructing this large owner from partial context is forbidden by mutation-lane doctrine. The separate Computer Hands worker is currently offline with queueDepth 3, so no additional ticket was manufactured and no phone-shaped substitute was used."
+    }
+  ],
+  "executionEvidence": {
+    "exactSourceHead": "9461c7ab3daac2c9f702fee9a81af2fa2209a48a",
+    "operatorOverlayRun": 32169435287,
+    "operatorOverlayJob": 95816744718,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedIndependentSource": true,
+    "exactRepositoryReadback": true,
+    "fileIdentityPolicySource": true,
+    "fileIdentityRegressionSource": true,
+    "candidateOwnerCapabilityProbeSource": true,
+    "existingOwnerStaticTopologyWired": false,
+    "existingOwnerFileIdentityWired": false,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

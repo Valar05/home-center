@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+"""Operator-facing display projection for descriptor-shadow receipts.
+
+The descriptor shadow may carry exact repository paths and exception boundaries that are useful for
+machine evidence but unsafe or noisy as direct operator/TalkBack text. This source-only projection
+keeps the raw shadow result untouched and creates a bounded display receipt instead:
+
+- exact canonical-result identity remains explicit;
+- artifact paths use the existing portable provenance path projector;
+- raw failure-boundary prose is not echoed; the receipt carries a deterministic digest plus a
+  status-specific summary;
+- comparison fields remain exact booleans-or-none rather than truthiness-normalized text;
+- completed comparison work metrics are exposed and checked against the claimed metrics result so
+  ``metricsMatch`` is auditable rather than a free-floating boolean;
+- comparison failure is distinct from comparison unavailability: SHADOW_DIVERGED requires actual
+  boolean comparison evidence, while wound/unavailable states require null comparisons;
+- no authority, TESTED, runtime, deployment, phone, or acceptance state is promoted.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import re
+from collections.abc import Mapping
+from pathlib import Path
+
+from try_forever_operator_receipt_snapshot_custody import (
+    OperatorReceiptSnapshotCustodyError,
+    snapshot_json_mapping,
+)
+from try_forever_provenance_report_path import project_serialized_report_path
+
+
+SHADOW_SCHEMA = "try-forever-owner-surgery-descriptor-shadow.v3"
+RECEIPT_SCHEMA = "try-forever-owner-surgery-descriptor-shadow-receipt.v2"
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+STATUS_SUMMARY = {
+    "SHADOW_MATCH": "Descriptor and portable staging agree on compared paths, metrics, and exact content identity.",
+    "SHADOW_DIVERGED": "Descriptor and portable staging completed and disagree; stop before owner integration.",
+    "CANONICAL_SCHEMA_WOUND": "Canonical custody schema is not the exact shadow-compatible v10 contract.",
+    "CANONICAL_WOUND": "Canonical custody is incomplete; shadow staging is not allowed to decorate it as healthy.",
+    "PORTABLE_SHADOW_WOUND": "Portable exact-content staging failed before descriptor comparison.",
+    "DESCRIPTOR_UNAVAILABLE": "Descriptor primitives are unavailable; canonical portable authority remains unchanged.",
+    "CAPABILITY_WOUND": "Descriptor capability evidence is not one admitted platform state.",
+    "DESCRIPTOR_WOUND": "Descriptor custody failed before a complete comparison could be established.",
+}
+
+COMPLETED_STATUSES = {"SHADOW_MATCH", "SHADOW_DIVERGED"}
+COMPARISON_UNAVAILABLE_STATUSES = {
+    "CANONICAL_SCHEMA_WOUND",
+    "CANONICAL_WOUND",
+    "PORTABLE_SHADOW_WOUND",
+    "DESCRIPTOR_UNAVAILABLE",
+    "CAPABILITY_WOUND",
+    "DESCRIPTOR_WOUND",
+}
+
+
+def _nonnegative_int(value: object, *, field: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{field} must be one non-negative integer")
+    return value
+
+
+def _optional_bool(value: object, *, field: str) -> bool | None:
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        raise ValueError(f"{field} must be one boolean or null")
+    return value
+
+
+def _project_shadow_path(repo_root: Path, path_text: str):
+    """Project serialized shadow paths without making reviewer-host syntax authoritative."""
+
+    return project_serialized_report_path(repo_root, path_text)
+
+
+def _artifact_projection(repo_root: Path, item: object, *, field: str) -> dict[str, object]:
+    if not isinstance(item, Mapping):
+        raise ValueError(f"{field} entries must be mappings")
+    path_text = item.get("path")
+    if not isinstance(path_text, str) or not path_text:
+        raise ValueError(f"{field} path must be one non-empty string")
+    byte_count = _nonnegative_int(item.get("byteCount"), field=f"{field} byteCount")
+    sha256 = item.get("sha256")
+    if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+        raise ValueError(f"{field} sha256 must be 64 lowercase hexadecimal")
+
+    projected = _project_shadow_path(repo_root, path_text)
+    return {
+        "path": projected.display_path,
+        "pathScope": projected.scope,
+        "byteCount": byte_count,
+        "sha256": sha256,
+    }
+
+
+def _validate_comparison_semantics(
+    status: str,
+    artifact_set_match: bool | None,
+    metrics_match: bool | None,
+    content_identity_match: bool | None,
+) -> None:
+    comparisons = (artifact_set_match, metrics_match, content_identity_match)
+
+    if status == "SHADOW_MATCH":
+        if comparisons != (True, True, True):
+            raise ValueError("SHADOW_MATCH requires all three exact comparison booleans true")
+        return
+
+    if status == "SHADOW_DIVERGED":
+        if any(value is None for value in comparisons):
+            raise ValueError(
+                "SHADOW_DIVERGED requires completed boolean comparisons; null means comparison unavailable"
+            )
+        if all(value is True for value in comparisons):
+            raise ValueError("SHADOW_DIVERGED requires at least one completed comparison false")
+        return
+
+    if status in COMPARISON_UNAVAILABLE_STATUSES:
+        if comparisons != (None, None, None):
+            raise ValueError(
+                f"{status} requires null comparison fields because comparison was not completed"
+            )
+        return
+
+    raise ValueError("shadow status is not one admitted comparison-semantics state")
+
+
+def _comparison_work_projection(
+    result: Mapping[str, object],
+    *,
+    status: str,
+    metrics_match: bool | None,
+) -> dict[str, object] | None:
+    """Expose the exact bounded work counters only when a comparison completed.
+
+    A completed ``metricsMatch`` claim must agree with the counters it describes. Wound/unavailable
+    receipts intentionally return ``None`` here: a non-comparison state must not make partial work
+    counters look like completed comparison evidence.
+    """
+
+    if status not in COMPLETED_STATUSES:
+        return None
+
+    canonical_entries = _nonnegative_int(
+        result.get("canonicalArtifactDirectoryEntriesObserved"),
+        field="canonicalArtifactDirectoryEntriesObserved",
+    )
+    canonical_candidates = _nonnegative_int(
+        result.get("canonicalArtifactCandidatesObserved"),
+        field="canonicalArtifactCandidatesObserved",
+    )
+    descriptor_entries = _nonnegative_int(
+        result.get("descriptorArtifactDirectoryEntriesObserved"),
+        field="descriptorArtifactDirectoryEntriesObserved",
+    )
+    descriptor_candidates = _nonnegative_int(
+        result.get("descriptorArtifactCandidatesObserved"),
+        field="descriptorArtifactCandidatesObserved",
+    )
+
+    if canonical_candidates > canonical_entries:
+        raise ValueError(
+            "canonical artifact candidate count cannot exceed directory-entry count"
+        )
+    if descriptor_candidates > descriptor_entries:
+        raise ValueError(
+            "descriptor artifact candidate count cannot exceed directory-entry count"
+        )
+
+    actual_metrics_match = (
+        canonical_entries == descriptor_entries
+        and canonical_candidates == descriptor_candidates
+    )
+    if metrics_match is not actual_metrics_match:
+        raise ValueError(
+            "metricsMatch contradicts the exact compared work counters"
+        )
+
+    return {
+        "canonical": {
+            "directoryEntriesObserved": canonical_entries,
+            "candidatesObserved": canonical_candidates,
+        },
+        "descriptor": {
+            "directoryEntriesObserved": descriptor_entries,
+            "candidatesObserved": descriptor_candidates,
+        },
+    }
+
+
+def project_shadow_receipt(repo_root: Path, result: dict[str, object]) -> dict[str, object]:
+    """Create one bounded display receipt from one detached exact-JSON observation."""
+
+    try:
+        result = snapshot_json_mapping(
+            result,
+            field="descriptor shadow receipt projection input",
+        )
+    except OperatorReceiptSnapshotCustodyError as exc:
+        raise ValueError(f"descriptor shadow receipt snapshot rejected: {exc}") from exc
+
+    if result.get("schema") != SHADOW_SCHEMA:
+        raise ValueError("shadow receipt projection requires exact descriptor-shadow v3 source")
+
+    status = result.get("status")
+    if not isinstance(status, str) or status not in STATUS_SUMMARY:
+        raise ValueError("shadow status is not one admitted receipt state")
+
+    canonical_result_sha256 = result.get("canonicalResultSha256")
+    if (
+        not isinstance(canonical_result_sha256, str)
+        or SHA256_RE.fullmatch(canonical_result_sha256) is None
+    ):
+        raise ValueError("canonicalResultSha256 must be 64 lowercase hexadecimal")
+
+    if result.get("descriptorAuthorityAdmitted") is not False:
+        raise ValueError("descriptor shadow receipt must never carry descriptor authority")
+    if result.get("ownerMutation") is not False:
+        raise ValueError("descriptor shadow receipt must never claim owner mutation")
+
+    portable = result.get("portableShadowArtifacts")
+    descriptor = result.get("descriptorArtifacts")
+    if not isinstance(portable, list) or not isinstance(descriptor, list):
+        raise ValueError("shadow artifact evidence must be list-shaped")
+
+    boundary = result.get("boundary")
+    if not isinstance(boundary, str) or not boundary:
+        raise ValueError("shadow boundary must be one non-empty string")
+    boundary_sha256 = hashlib.sha256(
+        boundary.encode("utf-8", errors="surrogatepass")
+    ).hexdigest()
+
+    artifact_set_match = _optional_bool(
+        result.get("artifactSetMatch"),
+        field="artifactSetMatch",
+    )
+    metrics_match = _optional_bool(
+        result.get("metricsMatch"),
+        field="metricsMatch",
+    )
+    content_identity_match = _optional_bool(
+        result.get("contentIdentityMatch"),
+        field="contentIdentityMatch",
+    )
+
+    _validate_comparison_semantics(
+        status,
+        artifact_set_match,
+        metrics_match,
+        content_identity_match,
+    )
+    comparison_work = _comparison_work_projection(
+        result,
+        status=status,
+        metrics_match=metrics_match,
+    )
+
+    return {
+        "schema": RECEIPT_SCHEMA,
+        "sourceSchema": SHADOW_SCHEMA,
+        "status": status,
+        "summary": STATUS_SUMMARY[status],
+        "canonicalResultSha256": canonical_result_sha256,
+        "boundarySha256": boundary_sha256,
+        "portableArtifacts": [
+            _artifact_projection(repo_root, item, field="portableShadowArtifacts")
+            for item in portable
+        ],
+        "descriptorArtifacts": [
+            _artifact_projection(repo_root, item, field="descriptorArtifacts")
+            for item in descriptor
+        ],
+        "artifactSetMatch": artifact_set_match,
+        "metricsMatch": metrics_match,
+        "contentIdentityMatch": content_identity_match,
+        "comparisonWork": comparison_work,
+        "authorityAdmitted": False,
+        "ownerMutation": False,
+        "regressionExecuted": False,
+        "tested": False,
+        "runtimeUi": False,
+        "runtimeTalkBack": False,
+        "phoneDelivered": False,
+    }

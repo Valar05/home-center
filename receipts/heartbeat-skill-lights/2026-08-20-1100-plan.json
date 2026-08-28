@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-20-1100",
+  "mission": "Advance a materially different non-P0 TRY FOREVER source/test slice without touching phone/P0 or retrying unchanged CI.",
+  "owner": "Valar05/home-center PR #329 branch feat/heartbeat-skill-lights-20260815",
+  "fronts": [
+    {
+      "id": "stale-provenance-regression-surface",
+      "intent": "Retire stale provenance tests that still exercise legacy markdown_title/sha256_file helpers and non-Git temp-root discovery assumptions after the sole owner moved to one-artifact content custody, tracked-candidate authority, canonical sourceHead admission, and content-to-HEAD binding.",
+      "allowed": ["test-source correction", "fixture migration", "exact GitHub readback"],
+      "forbidden": ["claim TESTED", "manual CI retry", "phone/P0 execution"]
+    },
+    {
+      "id": "content-custody-doctrine-convergence",
+      "intent": "Converge heartbeat-skill-content-custody doctrine with the already-source-wired content-to-HEAD owner gate and retire stale PROPOSED_NOT_APPLIED wording contradicted by the current owner and heartbeat-skill-head-content-binding doctrine.",
+      "allowed": ["existing skill update", "capability-state correction"],
+      "forbidden": ["new provenance owner", "new controller", "runtime claim"]
+    },
+    {
+      "id": "review-and-evidence",
+      "intent": "Run code-first Regnet/Venice review over the exact source diff and preserve She-Raw connector failure as a fault, not a synthetic verdict.",
+      "allowed": ["same-worker Judgment Jar review", "PR checkpoint update"],
+      "forbidden": ["fabricated external reviewer result", "source-to-tested promotion"]
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0FindingsMutationAllowed": false
+  },
+  "plannedCapabilityMembrane": {
+    "implementedSource": "may advance",
+    "regressionSource": "may advance",
+    "tested": "must remain NO without authorized runner evidence",
+    "runtimeUiTalkBack": "NO",
+    "deployedCallableExecutedDeliveredAccepted": "NO"
+  }
+}

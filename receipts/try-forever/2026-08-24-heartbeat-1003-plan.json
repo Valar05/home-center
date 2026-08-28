@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-24T10:03:00-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without phone/P0 consumption.",
+  "planAllowed": true,
+  "fronts": [
+    "operator receipt exact field-set custody",
+    "hostile receipt derivation regression source",
+    "existing receipt owner integration",
+    "durable skill/doctrine convergence",
+    "Regnet/Venice bounded review",
+    "fresh exact-head execution evidence"
+  ],
+  "constraints": {
+    "p0ReadOnly": true,
+    "phoneConsumption": false,
+    "duplicateArchitecture": false,
+    "sourceIsNotTested": true,
+    "runtimeClaims": false
+  },
+  "hypothesis": "A re-signed v4 operator receipt can currently carry extra undeclared fields because derivation verifies expected fields as a subset and identity verification hashes whatever extra fields are present. Exact v4 schema custody should reject unknown fields without changing valid receipts."
+}

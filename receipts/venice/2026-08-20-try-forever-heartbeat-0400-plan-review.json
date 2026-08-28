@@ -1,0 +1,41 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "mission": "Wire the existing strict generated-index JSON admission policy into the sole provenance owner, then advance multiple independent non-P0 review/evidence fronts without touching the phone/P0 chain.",
+  "owner": "Drew Clarke",
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-20-0400-plan.json",
+  "planReceiptBlob": "db377408f51add781c5bde020bdb5d7df4a8ca75",
+  "sourceHeadBeforeSubstantiveMutation": "e040e37ad450c88929c847f119d57fa9fa656711",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "failure-is-the-shovel",
+    "originality-tax",
+    "evidence-capability-membrane",
+    "regnet-qa",
+    "venice-review-gate",
+    "accessibility-first"
+  ],
+  "review": {
+    "missionFidelity": "PASS: the plan keeps the existing provenance owner and generated-index evidence seam; no adjacent controller/probe/phone lane is substituted.",
+    "p0Firewall": "PASS: phone/P0 consumption and mutation remain forbidden; no P0 recovery or shared-phone work is planned.",
+    "duplicateArchitecture": "PASS: the existing strict parser is composed into the sole owner rather than duplicated.",
+    "accessibility": "PASS_WITH_CONSTRAINT: parser/evidence changes must not create new routine speech, focus, motion, or UI claims; art remains dark unless topology changes.",
+    "evidence": "PASS: owner source wiring, regression source, executed tests, runtime, deployment, delivery, and acceptance remain distinct.",
+    "failureRecovery": "PASS: invalid strict JSON must map to the existing UNRESOLVED evidence boundary rather than process failure or partial authority.",
+    "originality": "PASS: the next action changes the owner instead of repeating the prior supporting-source/unwired state or retrying unchanged CI.",
+    "reviewRisk": "After owner wiring, inspect the composed path for a separate evidence wound before touching doctrine/art; do not assume existing fixtures cover root-shape, duplicate nested members, or failure-message stability until read back."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "reason": "authoritative connector account connection HTTP 400",
+    "syntheticSubstituteAllowed": false
+  },
+  "directive": "PLAN_ALLOWED",
+  "verdict": "PASS",
+  "planPermissionGranted": true,
+  "reviewer": "GPT-5.6 Sol",
+  "reviewerMode": "chatgpt-venice-judgment-jar",
+  "reviewProvenance": "Separate adversarial plan pass over authenticated PR/source evidence, the durable plan receipt, selected Judgment Jars, and the P0/phone firewall.",
+  "reviewedAt": "2026-08-20T04:04:00-05:00"
+}

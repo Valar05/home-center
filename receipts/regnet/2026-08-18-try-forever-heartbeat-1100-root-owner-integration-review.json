@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-18-1100",
+  "scope": "existing skill-provenance owner root-identity integration",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed": {
+    "ownerCommit": "3e3bdb5abc8d68dfe96c2337a931732e67a7a55a",
+    "ownerBlob": "e3627e342150c48f38099bb68fb118b3c54f2bf4",
+    "integrationTestCommit": "8f9814cf4fcbbf2a9e3dee9dce87d4dec51370a7",
+    "integrationTestBlob": "52d987404ec3837e70847f5d5ebbc175bbe3008d",
+    "skillBlob": "1b040ac935f1194458f619dc9f9c13bac2027873",
+    "warmWallBlob": "87b0a139a3ac3aa9c046577fd7ffa8e8538adfbf",
+    "patchProvenanceBlob": "02bf7d3d5a5df2257aa1f769887b5f50d290e793"
+  },
+  "passes": [
+    "existing provenance owner now imports and consumes the existing root-identity helper",
+    "redirector roots fail before candidate traversal",
+    "persistent root identity/type drift and unavailable identity fail before per-file title/hash authority",
+    "no second probe, registry, controller, scheduler, phone lane, or P0 owner was created",
+    "skill doctrine, patch provenance, and Warm Wall now match the owner source state",
+    "source/runtime/test/delivery capability states remain separated"
+  ],
+  "sourceRegression": {
+    "exists": true,
+    "executed": false,
+    "claims": [
+      "persistent root change returns zero records before title/hash work",
+      "unavailable identity returns zero records before title/hash work",
+      "junction root blocks before candidate traversal"
+    ]
+  },
+  "openBoundaries": [
+    "two path observations are not atomic handle binding",
+    "swap-and-restore entirely between observations is not excluded",
+    "replacement after the second observation while per-file authority proceeds is not excluded",
+    "filesystem identity-token reuse is not excluded",
+    "candidate SKILL.md symlink aliases remain a separate provenance question because enumeration currently checks file candidates with follow_symlinks=true and later containment alone does not establish one underlying-file owner"
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "existingOwnerSourceWired": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "probeExecuted": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "status": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "p0Firewall": {
+    "phoneSurfaceConsumed": false,
+    "p0Mutation": false,
+    "duplicateArchitecture": false
+  }
+}

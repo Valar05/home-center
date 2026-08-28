@@ -1,0 +1,67 @@
+{
+  "receipt": "try-forever-heartbeat-swarm",
+  "pulse": "2026-08-17-0800",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED",
+  "frontsAdvanced": [
+    "existing-owner Base64 canonicality wiring",
+    "fail-closed contact/motion regression source",
+    "repository skill synchronization",
+    "applied-delta provenance repair",
+    "existing warm-wall DOM/SVG mutation",
+    "Regnet/Venice evidence review",
+    "fresh automatic CI boundary readback"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: moved from the closed pre-decode resource seam to exact stored-declaration identity; no manual CI retry",
+    "Canon Auto-Select": "ACTIVE: selected existing persisted-heartbeat owner/policy/scene organs rather than adjacent architecture",
+    "Autocorrect Judgment Jar": "DARK: no STT/autocorrect ambiguity affected the source slice",
+    "Originality Tax": "ACTIVE: converted a previously proposed owner delta into exact existing-owner wiring instead of another policy-only artifact",
+    "Hunger": "ACTIVE: required the prior proposed/not-applied scar to be consumed into implementation/provenance truth",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: synchronized source, test, skill, provenance, art, review, and capability ledger",
+    "Operator Campaign": "ACTIVE: preserved the requested owner and source/runtime membrane",
+    "Harroway operator discipline": "ACTIVE: exact existing-owner mutation and GitHub readback; no substitute lane",
+    "She-Raw adversarial motivation": "FAULT: authoritative ambient call returned account-connection HTTP 400; no substitute verdict",
+    "Venice Judgment Jars": "ACTIVE: pre-mutation PLAN_ALLOWED plus bounded completion STOP_ALLOWED_SOURCE_SLICE_ONLY",
+    "Regnet QA": "ACTIVE: bounded source/readback claim PASS; TESTED remains NO",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: decoder-tolerated alias becomes bounded semantic wound while last-good contact survives; warm wall remains keyboard/touch semantic",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero phone/P0 surface consumption or mutation",
+    "deterministic routing": "ACTIVE: raw declaration -> existing decode -> canonical re-encode -> exact compare -> existing projection/preservation",
+    "evidence/capability-state discipline": "ACTIVE: owner source wiring YES; runtime/deployed/delivered/accepted NO",
+    "recovery/checkpointing/idempotence": "ACTIVE: rejection preserves last-good checkpoint and unchanged corrupt storage can become quiet through existing poll identity",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing pre-decode throat DOM/inline-SVG mutated in place; no raster/deployment claim",
+    "warm walls": "ACTIVE: Base64 alias is now touchable in the existing warm-wall specimen",
+    "Christmas-light scene graph": "ACTIVE: corruption earns no transition motion",
+    "contact preservation": "ACTIVE: non-canonical declaration routes through preserveRejectedRefresh"
+  },
+  "crossPollination": "pre-decode resource work exposed the remaining declaration-identity seam; evidence truth forced raw-vs-canonical comparison; contact preservation supplied the fail-closed consequence; accessibility forbade silent normalization; Hunger forced stale proposed provenance to become applied truth; Warm Walls made the distinction touchable; Regnet/Venice kept source wiring behind the runtime membrane",
+  "source": {
+    "ownerCommit": "663c5369838674c4c2a394f4a23bb0c3e32b54a7",
+    "ownerBlob": "a208dbce5b0f3ff774aa1cc2113493c65a173f89",
+    "ownerBoundaryTestBlob": "897e6e1d28eb02a80e9ff33024d65ee3eebada3b",
+    "skillBlob": "278c917105f5574901458e1a40dd9664ff871961",
+    "artBlob": "df1a5f8e8a1c0c8427412ffc5c8da4b114041633"
+  },
+  "ci": {
+    "head": "19c8aca0bdd77cd55a8ec6eec029f0ce36427c59",
+    "run": 32033700245,
+    "job": 95399154214,
+    "steps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "p0PhoneMutationCount": 0,
+  "capability": {
+    "requested": "YES",
+    "implementedSource": "YES",
+    "existingOwnerCanonicalityWiring": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}

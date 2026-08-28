@@ -1,0 +1,108 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance a broad materially active non-phone skill-light swarm while P0 and the primary-phone surface remain firewalled; preserve capability-state truth and avoid decorative progress.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "c826cea89ef9ef58277a612564c293bf6ac17ce3",
+  "timestamp": "2026-08-15T15:00:11Z",
+  "research": [
+    "PR #329 current body/head/capability ledger",
+    "skills/fortress-plan-gate/SKILL.md",
+    "skills/venice-review-memory/SKILL.md",
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    "HeartbeatSkillPolicy.java",
+    "HeartbeatEnvelopeParser.java",
+    "HeartbeatSceneGraph.java",
+    "HeartbeatFrameAccessibility.java",
+    "HeartbeatFrameAccessibilityTest.java",
+    "HeartbeatSkillPolicyTest.java",
+    "2026-08-15 0900 swarm receipt"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0/phone ownership, execution lane, exclusions, and delivery surface are binding."
+    },
+    {
+      "id": "change-discipline",
+      "source": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "Prefer targeted compatibility-preserving edits over a second accessibility or rendering architecture."
+    },
+    {
+      "id": "repository-truth",
+      "source": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "why": "Current branch source and exact GitHub readback are the authoritative implementation surface for this slice."
+    },
+    {
+      "id": "venice-review-memory",
+      "source": "skills/venice-review-memory/SKILL.md",
+      "why": "Apply scars for accessibility/status theater, evidence laundering, planning bypass, grand-plan inflation, and dead unconsumed critique."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "Keep source/readback separate from TESTED and attack the accessibility claims with deterministic fixtures."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_consult",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "plan": [
+    "Front A — Attention-first TalkBack: keep the exact state histogram but deterministically name FAULT/BLOCKED lights before RECOVERED/ACTIVE in the bounded collapsed summary, so a serious boundary cannot be buried behind twelve earlier active lights. Preserve scene focus order and stable ids; this is speech projection only.",
+    "Front B — Per-node speech load: bound the compact node content description consequence while keeping the full typed reason/consequence/evidence/provenance reachable through explicit detail. Use Unicode code-point-safe truncation and preserve the existing public method contract.",
+    "Front C — Regression source: add fixtures proving attention-first ordering, stable deterministic ordering within a state, bounded Unicode-safe compact consequence speech, and retention of full detail semantics.",
+    "Front D — Warm-wall art: add one new touchable non-raster attention-map source specimen that visually and semantically separates attention queue from the warm-wall constellation, labels itself source-only, and does not create a renderer/controller/runtime path.",
+    "Front E — Evidence/review: exact GitHub readback of changed artifacts, code-first Regnet-style review, Venice completion review, swarm receipt, and PR body refresh without promoting TESTED/UI/deployed/callable/delivered/accepted."
+  ],
+  "outsideScope": [
+    "primary-phone execution",
+    "Phone Hands tickets or queue reads/mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore playback",
+    "Pocket TTS",
+    "Chromium control",
+    "Context Organs",
+    "new overlay controller, renderer, accessibility service, phone ingress path, recovery daemon, or coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "antagonism": [
+    "Do not reorder the actual scene or focus traversal merely to improve speech; only the collapsed summary should prioritize attention states.",
+    "Do not shorten per-light detail into uselessness; compact focus speech may be bounded, explicit detail must retain the complete typed contract.",
+    "Do not let a new warm-wall specimen become a neighboring UI implementation or runtime proof.",
+    "Do not retry the unchanged Actions-budget failure as activity.",
+    "Do not synthesize a She-Raw opinion after the authoritative connector fault.",
+    "Do not touch the phone/P0 surface even if unrelated repository evidence appears healthy.",
+    "Keep all edits targeted and preserve existing APIs."
+  ],
+  "acceptance": [
+    "Collapsed frame speech preserves exact totals/state counts and names attention states before non-attention states within the existing twelve-name ceiling.",
+    "Visual scene/focus order remains unchanged by the speech priority rule.",
+    "Compact per-node description bounds consequence speech by Unicode code points while full typed detail retains complete reason/consequence/evidence/source.",
+    "Regression source covers priority, stable order, Unicode-safe compaction, and detail retention.",
+    "A touchable non-raster source-only attention specimen exists through the existing documentation/art lane.",
+    "Changed artifacts survive exact GitHub readback.",
+    "P0/phone mutations remain zero.",
+    "TESTED remains NO/BLOCKED_UNKNOWN unless a deterministic job actually executes."
+  ],
+  "reviewerPrecedent": [
+    "repository evidence laundered into runtime proof",
+    "status panel substituted for capability",
+    "grand-plan inflation starved the usable MVP",
+    "planning bypass",
+    "dead motivational joke substituted for worker motivation"
+  ],
+  "veniceDirective": "PLAN_ALLOWED",
+  "veniceFindings": [
+    "The 64-light valid envelope plus a twelve-name collapsed limit creates a real accessibility risk: a fault or blocker can be counted but unnamed when earlier active lights occupy the speech budget.",
+    "The existing Candidate consequence bound is large enough that per-node compact speech can still become excessive; bounding only the compact projection preserves full detail while reducing focus chatter.",
+    "Both code changes compose existing pure source organs and do not require a renderer, transport, controller, phone surface, or P0 mutation.",
+    "The art front is allowed only as an explicit source specimen with no runtime capability claim."
+  ]
+}

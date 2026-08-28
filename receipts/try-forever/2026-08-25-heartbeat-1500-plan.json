@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-25T15:00:00-05:00",
+  "commission": "Advance a broad non-P0 TRY FOREVER heartbeat without phone/P0 consumption or duplicate architecture.",
+  "previousPublicationHead": "0f3235d55ac9d68b74b6c61339b0f42d7d492f53",
+  "finding": {
+    "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+    "boundary": "Authenticated current-owner blob evidence is iterated through (values or {}).items() before exact built-in-dict admission, and blob values use isinstance(str) rather than exact built-in-string admission.",
+    "risk": "A caller-owned dict subclass can execute Python before custody admission; a str subclass is broader than the exact machine-evidence contract.",
+    "sourceBlob": "a96d572698dfdbc3800410446f27e77908938e4b"
+  },
+  "fronts": [
+    "wire exact built-in dict/string admission into the existing current-owner blob custody function",
+    "add hostile callback/type regression source without executing it",
+    "converge the existing owner-surgery custody skill and existing accessible non-raster Warm Wall",
+    "perform Regnet QA and Venice Judgment-Jar review with explicit source/test/runtime membrane",
+    "read exact-head workflow evidence only; do not retry workflows"
+  ],
+  "venicePlanReview": {
+    "verdict": "PASS",
+    "directive": "PLAN_ALLOWED",
+    "reviewerMode": "judgment_jar_emulation",
+    "reviewerSemantics": "primary-judgment-jar",
+    "jar": "observable evidence outranks confidence; actor before artifact; hard gates outrank urgency",
+    "note": "The slice repairs one existing evidence owner in place, has a bounded hostile regression target, preserves phone/P0 and duplicate-architecture firewalls, and does not promote SOURCE to TESTED/runtime."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "p0PhoneFirewall": {
+    "consumptionAuthorized": false,
+    "mutationAuthorized": false,
+    "duplicateArchitectureAuthorized": false
+  }
+}

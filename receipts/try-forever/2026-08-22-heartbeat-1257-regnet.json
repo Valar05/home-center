@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-regnet-receipt.v1",
+  "reviewedSourceHead": "76376381cbec58f1f1d6a852ef138dfac937b897",
+  "verdict": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__DESCRIPTOR_OWNER_UNINTEGRATED__TESTED_NO",
+  "sourceReview": [
+    "Descriptor artifact observation now contains malformed UTF-8 inside DescriptorArtifactCustodyError with no admitted observation.",
+    "Authority-facing pre-stat/open/read/fstat/post-stat OSError paths in observe_utf8_regular_file now fail through bounded custody-domain wounds.",
+    "Successful byte count, SHA-256, candidate identity handoff, entry/candidate/byte budgets, no-follow ownership, and post-read identity checks remain intact.",
+    "Hostile regression source covers malformed UTF-8 and candidate disappearance after enumeration; source exists but has not executed.",
+    "Canonical v10 descriptor owner integration remains NO; atomic root/candidate binding remains NO."
+  ],
+  "nextWound": "candidate_inventory still has raw authority-facing os.open/os.scandir/DirEntry.stat failure paths; inventory I/O containment is a separate future source target, not silently included in this completed artifact-observation slice.",
+  "execution": {
+    "operatorOverlayRun": 32589944675,
+    "operatorOverlayJob": 97072075059,
+    "operatorSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "homeCenterCI": 32589944623,
+    "buildAndroid": 32589944577,
+    "tested": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "localCheckpoint": "2026-08-22 10:02 CT",
+  "reviewedSourceHead": "15899e69576914cb1f65f67bb5b0a8966936a260",
+  "frontsAdvanced": [
+    "descriptor candidate identity handoff",
+    "descriptor inventory evidence metrics",
+    "descriptor hostile regression source",
+    "base-owner identity exactness regression",
+    "base-owner exactness owner patch provenance",
+    "descriptor and base-identity durable skills",
+    "existing Warm Wall custody topology",
+    "review/governance and exact-head execution evidence"
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE — redirected from dead CI retry into two independent authority-evidence wounds",
+    "Canon Auto-Select": "ACTIVE — reused descriptor/root/state organs and harvested only one genuinely new base-identity skill",
+    "Autocorrect Judgment Jar": "DARK — no material ambiguity",
+    "Originality Tax": "ACTIVE — no repeated CI retry, no second custody owner, no phone-shaped substitute",
+    "Hunger": "ACTIVE — supporting source, hostile fixtures, doctrine and art all converged",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE — caught base-blob normalization and evidence-metric loss before owner composition",
+    "Operator Campaign": "ACTIVE — existing owners preserved; promotion remains explicit",
+    "Harroway operator discipline": "ACTIVE — authenticated remote source/readback used, no local proof",
+    "She-Raw adversarial motivation": "FAULT — account connection HTTP 400; no substitute verdict",
+    "Venice Judgment Jars": "ACTIVE — bounded source slice may yield; owner/test/runtime continue",
+    "Regnet QA": "ACTIVE — source/readback pass only; owner gaps and unexecuted regressions remain red",
+    "accessibility/TalkBack and touch semantics": "ACTIVE — Warm Wall remains touch/keyboard inspectable, non-raster, source-only",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED — consumption 0, mutation 0",
+    "deterministic routing": "ACTIVE — candidate identity and exact base authority fail closed",
+    "evidence/capability-state discipline": "ACTIVE — supporting source != owner wiring != TESTED/runtime",
+    "recovery/checkpointing/idempotence": "ACTIVE — held-root/candidate identity preserves custody across persistent drift",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE — existing custody Warm Wall mutated in place",
+    "warm walls": "ACTIVE — custody chain now exposes CANDIDATE ID and BASE ID scars",
+    "Christmas-light scene graph": "DARK — no runtime transition law changed",
+    "contact preservation": "ACTIVE — identity-bearing custody preserves the intended source object or fails closed"
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 32581007373, "status": "completed", "conclusion": "failure"},
+    "buildAndroid": {"run": 32581007296, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32581007319, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "descriptorCandidateIdentity": true,
+    "descriptorEvidenceMetrics": true,
+    "descriptorOwnerIntegration": false,
+    "baseIdentityPatchPrepared": true,
+    "baseIdentityOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

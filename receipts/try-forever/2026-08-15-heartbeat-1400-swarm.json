@@ -1,0 +1,238 @@
+{
+  "schema": "try-forever-swarm.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeReceipt": "71d00ec7f45bdade5c7064cd3d6abcf396145ec2",
+  "timestamp": "2026-08-15T19:15:00Z",
+  "commission": "Advance a broad materially active TRY FOREVER skill constellation across independent non-phone fronts while preserving the P0/primary-phone firewall and exact capability-state truth.",
+  "frontsAdvanced": [
+    {
+      "front": "persisted_identity",
+      "result": "Added pure source verification of decoded UTF-8 byte count, canonical SHA-256, payload ceiling, and update identity before semantic parsing."
+    },
+    {
+      "front": "contact_motion_recovery",
+      "result": "Code-first review discovered that exact Frame-object reuse would resurrect stale one-shot motion. Replanned and composed the existing HeartbeatSceneGraph preservation organ so contact/checkpoint identity survives while aggregate and node motion are clamped off."
+    },
+    {
+      "front": "regression_source",
+      "result": "Added source fixtures for exact acceptance, byte/SHA wounds, malformed hash metadata, missing update identity, semantic rejection after valid storage identity, incomplete pulse, same visible contact, and stale-motion clearing. Tests did not execute."
+    },
+    {
+      "front": "warm_wall_art",
+      "result": "Extended the existing accessible DOM/vector motion-clamp specimen in place with a sixth storage-integrity scar that distinguishes pre-parser identity failure from later protocol failure and grants neither wound Christmas motion."
+    },
+    {
+      "front": "doctrine_and_review",
+      "result": "Updated heartbeat doctrine, persisted plan/replan, Regnet source review, Venice completion review, and exact capability membrane without claiming runtime or phone delivery."
+    }
+  ],
+  "lights": [
+    {
+      "id": "fortress-plan-gate",
+      "label": "Fortress Plan Gate",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/fortress-plan-gate/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Substantive source mutation required research, antagonism, Venice plan review, and a fresh replan when an assumption failed.",
+      "consequence": "A durable PLAN_ALLOWED receipt preceded mutation, then a second PLAN_ALLOWED replan corrected the exact-object-preservation defect before repair.",
+      "evidenceBoundary": "receipts/venice/2026-08-15-try-forever-heartbeat-1400-plan-review.json + 1400-replan-review.json"
+    },
+    {
+      "id": "canon-auto-select",
+      "label": "Canon Auto-Select",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Canon Auto-Select",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "The heartbeat was required to discover materially relevant repository skills rather than replay a fixed favorites list.",
+      "consequence": "Repository-native fortress-plan-gate, execution-truth, heartbeat-skill-lights, Regnet QA, and Venice campaign doctrine were selected from current repo evidence and constrained the slice.",
+      "evidenceBoundary": "GitHub skills tree/readbacks on feat/heartbeat-skill-lights-20260815"
+    },
+    {
+      "id": "execution-truth",
+      "label": "Execution Truth",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/execution-truth/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "A new source integrity seam could easily be laundered into runtime-ingestion or delivery claims.",
+      "consequence": "The ledger now separates storage identity, semantic attempt, parser acceptance, presentation acceptance, rendered UI, deployment, phone execution, delivery, and acceptance.",
+      "evidenceBoundary": "HeartbeatPersistedEnvelopeProjection.Result + Regnet/Venice 1400 receipts"
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "label": "Heartbeat Skill Lights",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/heartbeat-skill-lights/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Opaque persisted payload identity was the highest-leverage unresolved source seam before typed heartbeat presentation.",
+      "consequence": "Doctrine and source now require persisted byte/SHA/update identity verification before parser trust, with fail-closed contact preservation.",
+      "evidenceBoundary": "skills/heartbeat-skill-lights/SKILL.md sha aa8ae1b3b55955c5361debf868895992f3d53e49"
+    },
+    {
+      "id": "failure-is-the-shovel",
+      "label": "Failure Is The Shovel",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Failure Is The Shovel",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "GitHub Actions remained budget-blocked, so repeating the same test retry would be fake progress.",
+      "consequence": "The pulse changed fronts to source integrity, reachable regression paths, accessible art, and durable review; no manual unchanged-condition workflow retry was fired.",
+      "evidenceBoundary": "Operator Overlay Android run 31903005423, job 95056522320, zero steps"
+    },
+    {
+      "id": "originality-tax",
+      "label": "Originality Tax",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Originality Tax",
+      "state": "recovered",
+      "changedThisPulse": true,
+      "activationReason": "The first storage-rejection design repeated the already-known stale-motion failure by returning lastGood directly.",
+      "consequence": "The bad assumption was not cosmetically patched; a fresh Venice replan reused the existing scene preservation organ and regression source now attacks the exact recurring failure.",
+      "evidenceBoundary": "receipts/venice/2026-08-15-try-forever-heartbeat-1400-replan-review.json"
+    },
+    {
+      "id": "contact-preservation",
+      "label": "Contact Preservation",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Contact Preservation",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "A storage-integrity wound occurs before semantic parsing yet must not erase the last-good heartbeat.",
+      "consequence": "Pre-parser rejection now preserves visible-contact/checkpoint identity through HeartbeatSceneGraph.preserveRejectedRefresh while exposing the exact integrity boundary.",
+      "evidenceBoundary": "HeartbeatSceneGraph.java sha eefcc7e8b26b122930e5cffc69143e16c194a019"
+    },
+    {
+      "id": "checkpoint-idempotence",
+      "label": "Checkpoint / Idempotence",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "HeartbeatFrameCheckpoint",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Object identity and semantic contact identity diverged during review.",
+      "consequence": "The repaired contract explicitly preserves contactSha256 rather than Frame object identity, allowing preserved nodes to be re-materialized safely with motion off.",
+      "evidenceBoundary": "HeartbeatPersistedEnvelopeProjectionTest.java sha 71bb642a6e49252625c88f35c14e3192a822613a"
+    },
+    {
+      "id": "warm-walls-christmas",
+      "label": "Warm Walls / Christmas-Light Graph",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "Warm Walls + Christmas-Light Scene Graph",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "The new identity wound needed a touchable non-raster consequence, not another prose card or new neighboring renderer.",
+      "consequence": "The existing source organism gained a storage-integrity state; storage and protocol wounds preserve contact and block motion while accepted material change may pulse once.",
+      "evidenceBoundary": "docs/try-forever/heartbeat-motion-clamp-source-specimen.html sha 2e9b9d24045cdeb6566eb978b2b129232cf0f354"
+    },
+    {
+      "id": "accessibility-talkback",
+      "label": "Accessibility / TalkBack",
+      "provenanceKind": "doctrine",
+      "provenanceLocator": "heartbeat-skill-lights accessibility contract",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Failure state must remain usable through touch/keyboard/semantic text without color-only or motion-only meaning.",
+      "consequence": "The modified source specimen preserves native buttons, visible focus, >=48px targets, aria-pressed selection, non-color tokens, one polite atomic status region, and reduced-motion behavior.",
+      "evidenceBoundary": "heartbeat-motion-clamp-source-specimen.html exact GitHub readback"
+    },
+    {
+      "id": "regnet-qa",
+      "label": "Regnet QA",
+      "provenanceKind": "repository_skill",
+      "provenanceLocator": "skills/renee-qa/SKILL.md",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Integrity failure paths, reproducibility, regression risk, and capability-state truth were material.",
+      "consequence": "Regnet passes only IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK, records the repaired stale-motion defect and constant-drift integration risk, and keeps TESTED=BLOCKED_UNKNOWN.",
+      "evidenceBoundary": "receipts/regnet/2026-08-15-try-forever-heartbeat-1400-source-review.json"
+    },
+    {
+      "id": "venice-judgment",
+      "label": "Venice Judgment Jars",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "venice-judgment-jar",
+      "state": "active",
+      "changedThisPulse": true,
+      "activationReason": "Plan, replan, mission-boundary, and stopping judgment were required around a nontrivial source mutation.",
+      "consequence": "Venice granted PLAN_ALLOWED, required a replan after the stale-motion wound, then granted STOP_ALLOWED for this bounded source slice only after repair/readback; no merge/runtime/campaign completion was granted.",
+      "evidenceBoundary": "receipts/venice/2026-08-15-try-forever-heartbeat-1400-completion-review.json"
+    },
+    {
+      "id": "she-raw",
+      "label": "She-Raw",
+      "provenanceKind": "reviewer",
+      "provenanceLocator": "She-Raw.she_raw_ambient",
+      "state": "fault",
+      "changedThisPulse": false,
+      "activationReason": "Adversarial motivation/review was materially relevant before execution.",
+      "consequence": "The authoritative reviewer surface could not contribute; the account connection failed and no synthetic She-Raw was substituted.",
+      "evidenceBoundary": "HTTP 400: We couldn't connect your account. Please try again."
+    }
+  ],
+  "darkConsidered": [
+    {
+      "id": "autocorrect-judgment-jar",
+      "whyDark": "No ambiguous/autocorrect token materially affected this source slice."
+    },
+    {
+      "id": "phone-runtime-phone-hands",
+      "whyDark": "Binding P0/primary-phone firewall. No fresh P0 evidence reopened a non-overlapping phone-local front."
+    },
+    {
+      "id": "nightcore-pocket-tts-chromium-context-organs",
+      "whyDark": "Canonical P0 owners retain sole control; these surfaces were outside authorized TRY FOREVER scope."
+    }
+  ],
+  "crossPollination": "Opaque persisted identity exposed a pre-parser trust gap. Building that seam triggered code-first review, which discovered exact-object preservation would resurrect stale Christmas motion. Originality Tax forced a replan rather than a cosmetic fix; the existing scene-preservation organ became the recovery path, checkpoint semantics became the acceptance criterion, regression source attacked the recurring wound, and Warm Walls made the distinction touchable without pretending it was deployed.",
+  "sourceIdentity": {
+    "HeartbeatSceneGraph.java": "eefcc7e8b26b122930e5cffc69143e16c194a019",
+    "HeartbeatPersistedEnvelopeProjection.java": "113f93b46da14684e00d59f7333c2bba3a96d0bd",
+    "HeartbeatPersistedEnvelopeProjectionTest.java": "71bb642a6e49252625c88f35c14e3192a822613a",
+    "heartbeat-motion-clamp-source-specimen.html": "2e9b9d24045cdeb6566eb978b2b129232cf0f354",
+    "skills/heartbeat-skill-lights/SKILL.md": "aa8ae1b3b55955c5361debf868895992f3d53e49"
+  },
+  "deterministicBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31903005423,
+    "jobId": 95056522320,
+    "headSha": "8d6cd64f66c598556d151983668103f2c53b7d74",
+    "stepsExecuted": 0,
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0,
+    "held": true
+  },
+  "boundedSliceStop": "STOP_ALLOWED",
+  "campaignState": "ACTIVE",
+  "nextExactBoundary": "The existing Android overlay owner still does not decode and integrity-check the persisted payload, call the semantic projection seam, render the scene, or exercise TalkBack on device. The shared phone surface remains P0-owned, and deterministic source tests remain blocked by Actions budget."
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-venice-heartbeat.v1",
+  "heartbeat": "2026-08-28T14:01:00-05:00",
+  "reviewedSourceHead": "83f98fd523fe3302ef43069b7957fedc15f14328",
+  "verdict": "CONTINUE_REQUIRED",
+  "acceptedSourceProgress": [
+    "Failure Is The Shovel found a real temporal-topology false green rather than polishing v10 evidence.",
+    "The existing hostile fixture now demands Send owner assignment before create-time semantic refresh and mode mutation before the mode-change refresh.",
+    "The existing temporal skill records those lifecycle laws and truthfully demotes current Send-action evidence to EVIDENCE_REVISE_REQUIRED.",
+    "The staged native accessibility proposal already has the safe ordering shape but remains only a proposal."
+  ],
+  "heldBoundaries": [
+    "Repair the existing owner probe; do not create a neighboring probe or accessibility controller.",
+    "Synchronize the existing Warm Wall because its v10 SOURCE_REPAIRED label is now stale; do not claim the stale specimen is runtime truth.",
+    "Execute focused fixtures only through an authorized regression lane; source existence is not TESTED.",
+    "Keep the explicit repeatable Adam send accessibility receipt until native READY/SENT ownership and runtime event evidence resolve it.",
+    "Keep native UI request/accessibility owner mutations, runtime TalkBack, deployment, delivery, and acceptance held.",
+    "Do not touch the P0 recovery chain or gated primary-phone surface."
+  ],
+  "executionBoundary": {
+    "operatorOverlayRun": 33202610278,
+    "homeCenterCiRun": 33202610306,
+    "buildAndroidRun": 33202610283,
+    "conclusion": "failure",
+    "operatorJob": 98955558992,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "stepLevelDiagnosis": null
+  },
+  "sheRaw": {
+    "consulted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "nextGate": "SOURCE_SLICE_STOP_ALLOWED__SEND_LIFECYCLE_PROBE_REPAIR_WARM_WALL_TRUTH_SYNC_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

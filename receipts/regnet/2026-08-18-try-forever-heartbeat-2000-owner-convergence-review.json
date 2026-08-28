@@ -1,0 +1,85 @@
+{
+  "schema": "regnet-review.v2",
+  "heartbeat": "2026-08-18-2000",
+  "reviewMode": "code_first_bounded_source_review",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "mixed",
+  "reviewedSourceHead": "01357a2d3c6dfd92d0e44117aa67662eaba5c62a",
+  "owner": {
+    "path": "tools/try_forever_skill_provenance_probe.py",
+    "convergenceCommit": "d05261c74998f1f818d2a3b30efa229b695de100",
+    "authenticatedBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+    "readback": "PASS"
+  },
+  "checks": [
+    {
+      "name": "snapshot certification",
+      "result": "PASS_SOURCE",
+      "detail": "Authority-facing skillCount/skills now come from certification while discoveredSkillCount preserves diagnostic discovery breadth. Unstable snapshot or expected-head mismatch emits zero authority-facing records."
+    },
+    {
+      "name": "schema compatibility",
+      "result": "PASS_SOURCE",
+      "detail": "The owner bumps the report envelope to try-forever-skill-provenance.v3 instead of silently changing v2 skillCount semantics."
+    },
+    {
+      "name": "title semantic admission",
+      "result": "PASS_SOURCE",
+      "detail": "The owner decodes the bounded raw Markdown line then applies admit_markdown_h1_title before broad whitespace normalization; H1 and folder fallback share the same explicit semantic/resource admission authority."
+    },
+    {
+      "name": "queued child traversal identity",
+      "result": "PASS_SOURCE_WITH_BOUNDARY",
+      "detail": "Each queued child carries a no-follow identity from parent enumeration and is revalidated immediately before scandir. Persistent redirector/type/device/inode drift fails discovery globally. This is an observation pair, not atomic handle binding."
+    },
+    {
+      "name": "regression source",
+      "result": "PASS_SOURCE_UNEXECUTED",
+      "detail": "tools/test_try_forever_provenance_owner_convergence_2000.py covers v3 certification, expected-head mismatch, raw H1 control rejection, fallback title safety, and queued-child replacement before title/hash work. It has not executed."
+    },
+    {
+      "name": "doctrine and provenance convergence",
+      "result": "PASS_SOURCE",
+      "detail": "Three skill docs say SOURCE_WIRED and three historical patch/delta artifacts say APPLIED_SOURCE with exact owner commit/blob; stale PROPOSED_NOT_APPLIED claims were removed."
+    },
+    {
+      "name": "accessible source specimen",
+      "result": "PASS_SOURCE",
+      "detail": "The existing provenance Warm Wall was mutated in place with native radio controls, visible focus, >=48px target intent, non-color states, reduced-motion handling, source/runtime scars, and no decorative blink."
+    },
+    {
+      "name": "execution evidence",
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "Automatic Operator Overlay Android run 32203790198 on exact reviewed head 01357a2d3c6dfd92d0e44117aa67662eaba5c62a concluded failure. Job 95922852990 exposes zero steps; log retrieval returned 404 BlobNotFound. No step-level cause is established and no manual retry was fired."
+    }
+  ],
+  "openBoundaries": [
+    "queued-child pre-scan revalidation is not atomic; swap-and-restore, identity reuse, or replacement after revalidation remain unproven",
+    "the new regression source has not executed",
+    "the provenance probe has not been executed by an authorized runner in this heartbeat",
+    "runtime UI/TalkBack/deployment/callability/execution/delivery/acceptance remain unproven"
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "ownerSnapshotCertificationWired": true,
+    "ownerTitleAdmissionWired": true,
+    "ownerQueuedChildTraversalGuardWired": true,
+    "regressionSource": true,
+    "tested": false,
+    "probeExecutedByAuthorizedRunner": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

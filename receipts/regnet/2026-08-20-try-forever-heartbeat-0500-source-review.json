@@ -1,0 +1,69 @@
+{
+  "schema": "regnet-source-review.v1",
+  "review": "TRY FOREVER heartbeat 0500 strict generated-index JSON owner promotion",
+  "reviewedSourceHead": "a5617a4bdd4dd7cbd0d6ea78ed03d8593e7cb5ce",
+  "planGate": "PLAN_ALLOWED",
+  "sourceDiff": {
+    "base": "9bb9dd950056530d52df21f652d879f7d2a81208",
+    "head": "a5617a4bdd4dd7cbd0d6ea78ed03d8593e7cb5ce",
+    "commits": 5,
+    "files": [
+      "tools/try_forever_skill_provenance_probe.py",
+      "tools/try_forever_generated_index_json_policy.py",
+      "tools/test_try_forever_generated_index_json_owner_boundary.py",
+      "skills/heartbeat-generated-index-json-contract/SKILL.md",
+      "patches/try-forever-generated-index-json-owner.delta.json"
+    ]
+  },
+  "ownerEvidence": {
+    "ownerCommit": "0c137eac3c84cfa6c9fba0b26615e5ddc8ba6628",
+    "ownerBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
+    "commitChangedFiles": 1,
+    "exactHunks": [
+      "strict parser import added",
+      "default json.loads generated-index call replaced by parse_generated_index_json",
+      "GeneratedIndexJsonError mapped into existing UNRESOLVED failure surface"
+    ]
+  },
+  "reviewFindings": [
+    "PASS: owner promotion is surgical and composes the existing strict JSON organ into the sole provenance owner.",
+    "PASS: no neighboring parser/probe/controller or P0/phone lane was introduced.",
+    "PASS: authenticated owner readback proves the strict import/call/error mapping and new blob identity.",
+    "PASS: delta provenance and strict-JSON skill now record SOURCE_WIRED without promoting regression execution or TESTED.",
+    "PASS: stale owner-boundary fixture and strict-policy ownership prose were corrected after source wiring instead of leaving doctrine drift.",
+    "BLOCKED_UNKNOWN: hostile regression and owner-boundary regression have source but no authorized executed receipt on reviewed head.",
+    "BLOCKED_UNKNOWN: automatic workflow failure exposes zero steps and job logs are BlobNotFound; no step-level source-failure cause is established.",
+    "FAULT: She-Raw authoritative connector returned account-connection HTTP 400; no synthetic substitute was used."
+  ],
+  "workflowEvidence": {
+    "buildAndroidRun": 32357635485,
+    "homeCenterCiRun": 32357635728,
+    "operatorOverlayRun": 32357635710,
+    "operatorJob": 96390167314,
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "logs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false
+  },
+  "capabilityBoundary": {
+    "requested": true,
+    "supportingPolicySource": true,
+    "ownerWired": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY__REGRESSION_UNEXECUTED__TESTED_NO"
+}

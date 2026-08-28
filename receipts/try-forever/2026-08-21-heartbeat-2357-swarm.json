@@ -1,0 +1,68 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "reviewedSourceHead": "1415ed1821fc3525de21f8b5073fa38d4f9c9fee",
+  "frontsAdvanced": [
+    "owner-surgery custody probe v2",
+    "hostile current/stale/unverified custody regression source",
+    "serialized-and-rebase promotion plan",
+    "operator-owner-surgery-custody skill convergence",
+    "touchable non-raster custody wall",
+    "Regnet/Venice evidence review"
+  ],
+  "heartbeatLights": {
+    "Failure Is The Shovel": "ACTIVE — replaced same-base-only classification with current-owner-bound custody and corrected an overclaimed exhaustive promotion plan.",
+    "Canon Auto-Select": "ACTIVE — selected operator-owner-surgery-custody as the material repository skill and kept unrelated closed seams dark.",
+    "Autocorrect Judgment Jar": "DARK — no ambiguous speech/autocorrect token materially affected this slice.",
+    "Originality Tax": "ACTIVE — did not retry CI or promote one colliding patch blindly; changed the evidence model and promotion topology instead.",
+    "Hunger": "ACTIVE — demanded a concrete promotion plan, not merely a collision warning.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE — propagated current-owner custody into probe, regression source, skill, plan, and source organism.",
+    "Operator Campaign": "ACTIVE — preserved OperatorOverlayService as the sole native owner and left all owner surgeries unapplied.",
+    "Harroway operator discipline": "ACTIVE — exact source/readback states remain separate from owner mutation/test/runtime states.",
+    "She-Raw adversarial motivation": "FAULT — authoritative call attempted; account connection HTTP 400; no substitute verdict invented.",
+    "Venice Judgment Jars": "ACTIVE — bounded source-slice completion only; owner promotion/test/runtime/campaign continue.",
+    "Regnet QA": "ACTIVE — caught and corrected the promotion plan's false exhaustiveness claim.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE — native disclosure controls, >=56px touch rows, non-color state and reduced-motion source organism; runtime TalkBack unclaimed.",
+    "Phone Runtime / Phone Hands recovery": "DARK BY FIREWALL — no consumption or mutation.",
+    "deterministic routing": "ACTIVE — current/stale/unverified owner custody states are explicit and fail closed.",
+    "evidence/capability-state discipline": "ACTIVE — regression source unexecuted; owner unmutated; TESTED/runtime/deployed/delivered/accepted remain NO.",
+    "recovery/checkpointing/idempotence": "ACTIVE — promotion plan requires authenticated post-mutation owner readback before sibling rebase/promotion.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE — added source-only owner-surgery custody wall.",
+    "warm walls": "ACTIVE — source organism makes the collision/rebase membrane touch-inspectable.",
+    "Christmas-light scene graph": "DARK — no runtime transition law changed; no decorative motion earned.",
+    "contact preservation": "ACTIVE — current owner custody is treated as contact that must be re-established after every owner mutation before sibling promotion."
+  },
+  "crossPollination": "Same-base patch collision work exposed that a collision claim without authenticated current-owner custody can itself go stale. Binding the probe to current owner truth then exposed a second evidence wound: the promotion plan could not honestly claim its known three candidates were exhaustive before authorized probe execution. That correction propagated into the plan, skill, Regnet review, and the touchable source wall.",
+  "executionTruth": {
+    "workflowHead": "1415ed1821fc3525de21f8b5073fa38d4f9c9fee",
+    "operatorOverlayRun": 32553250685,
+    "operatorOverlayJob": 96983284649,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlaySteps": 0,
+    "operatorOverlayLogs": "404 BlobNotFound",
+    "homeCenterCiRun": 32553250697,
+    "buildAndroidRun": 32553250689,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerMutation": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

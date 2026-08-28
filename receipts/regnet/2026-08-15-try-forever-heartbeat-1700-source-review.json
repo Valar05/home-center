@@ -1,0 +1,82 @@
+{
+  "schema": "regnet-source-review.v1",
+  "commission": "TRY FOREVER heartbeat 1700 non-phone source slice: separate optional heartbeat-light ingress rejection from independent heartbeat-sink invocation without hiding storage/runtime failures.",
+  "reviewed_source_head": "4f10cf4f08beb613d4c8366a05cf1489a291c5cd",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "tested_state": "NO_BLOCKED_UNKNOWN",
+  "source_readback": {
+    "HeartbeatIngressPolicy.java": "8f8f5719647e9b2286d03b2747a84a3b4dfe38eb",
+    "OverlayUpdateReceiver.java": "f1bb946bcb86d4f42e7e434035666126e54c8242",
+    "HeartbeatIngressPolicyTest.java": "6a751698b1dace29800d78931d9f3c264390bbf2",
+    "heartbeat-ingress-separation-source-specimen.html": "850f6480f03ef87d0ec1379155560f3684b4a9d6",
+    "skills/heartbeat-ingress-separation/SKILL.md": "9b429bf26604c2917e38a9fae1b401d13920bb57"
+  },
+  "code_first_findings": [
+    {
+      "severity": "major_corrected",
+      "finding": "The first policy result called a normal heartbeat-sink return heartbeatAccepted. OperatorState.heartbeat uses SharedPreferences.apply(), so that name overstated source evidence as acceptance/durability.",
+      "correction": "Renamed the field to heartbeatInvoked and documented that a normal return is not synchronous disk durability, deployment, runtime observation, phone callability, delivery, or acceptance. Regression names and the DOM specimen were corrected to match."
+    },
+    {
+      "severity": "pass",
+      "finding": "Caller-invalid optional telemetry is isolated without swallowing internal/storage failures.",
+      "evidence": "HeartbeatIngressPolicy catches only IllegalArgumentException from the optional payload sink; IllegalStateException and heartbeat-sink failures propagate and return no success result."
+    },
+    {
+      "severity": "pass",
+      "finding": "Existing ownership is preserved.",
+      "evidence": "OverlayUpdateReceiver still owns ACTION_HEARTBEAT and delegates to OperatorState; the new policy is pure ordering/error composition and owns no receiver registration, storage, renderer, queue, transport, phone body, or P0 recovery."
+    },
+    {
+      "severity": "pass",
+      "finding": "Regression source covers the materially distinct error classes and order contract.",
+      "evidence": "Fixtures cover blank optional payload, valid payload before heartbeat invocation, caller-invalid optional payload followed by heartbeat invocation, storage failure with no heartbeat invocation, and heartbeat-sink failure propagation."
+    },
+    {
+      "severity": "pass",
+      "finding": "Source art remains accessibility-oriented and non-raster without claiming runtime proof.",
+      "evidence": "The specimen uses native buttons, aria-pressed, visible focus, one live region, non-color tokens, reduced-motion handling, inline SVG/DOM only, and an explicit SOURCE ONLY / NOT OPERATOR-OVERLAY RUNTIME PROOF scar."
+    }
+  ],
+  "deterministic_test_boundary": {
+    "workflow_run": 31911472939,
+    "workflow": "Home Center CI",
+    "job": 95077074162,
+    "head_sha": "4f10cf4f08beb613d4c8366a05cf1489a291c5cd",
+    "steps_executed": 0,
+    "conclusion": "failure",
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source_present": true,
+    "tested": false,
+    "deployed": false,
+    "callable_on_phone": false,
+    "executed_on_phone": false,
+    "ui_rendered": false,
+    "talkback_runtime_exercised": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_reads_or_mutations": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "duplicate_controllers_or_daemons": 0
+  },
+  "residual_boundaries": [
+    "The pure regression source did not execute because GitHub Actions could not start the job.",
+    "The broader persisted payload -> Base64 bytes -> projectBytes -> parser -> scene -> Android renderer/TalkBack runtime path remains unimplemented and unproven.",
+    "The authoritative She-Raw ambient connector was attempted once before execution and returned HTTP 400 account-connection failure; no synthetic reviewer verdict replaced it.",
+    "No shared phone/P0 surface was consumed, so there is intentionally no on-device proof in this slice."
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "heartbeat": "2026-08-18-1300",
+  "reviewMode": "same-worker-code-first-completion-review",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_STATIC_GATE_FILE_IDENTITY_INTEGRATION_AND_TEST_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "reviewedSourceHead": "9461c7ab3daac2c9f702fee9a81af2fa2209a48a",
+  "judgments": [
+    {
+      "axis": "mission fidelity",
+      "result": "PASS",
+      "reason": "Work stayed in independent non-P0 repository/source fronts and preserved the existing provenance owner, P0/phone firewall, and duplicate-architecture law."
+    },
+    {
+      "axis": "originality tax",
+      "result": "PASS",
+      "reason": "The swarm did not retry failed CI, did not reconstruct the large owner unsafely, and did not queue another request onto an offline Computer Hands worker. It advanced the distinct post-admission file-identity wound instead."
+    },
+    {
+      "axis": "source quality",
+      "result": "PASS_BOUNDED",
+      "reason": "Candidate-file identity policy, hostile fixtures, deterministic owner-capability classifier, durable skill doctrine, and touchable non-raster evidence wall are coherent source artifacts with exact remote blobs."
+    },
+    {
+      "axis": "accessibility",
+      "result": "PASS_SOURCE",
+      "reason": "The Warm Wall uses persistent one-of-many radio semantics, roving keyboard navigation, >=48px controls, non-color state tokens, a polite live detail region, inline SVG, and reduced-motion handling. Runtime TalkBack remains unproven."
+    },
+    {
+      "axis": "evidence truth",
+      "result": "PASS",
+      "reason": "STABLE is explicitly an observation verdict, not atomic binding. Source artifacts are not reported as executed tests, owner wiring, runtime, deployment, phone delivery, or acceptance."
+    },
+    {
+      "axis": "existing owner",
+      "result": "CONTINUE_REQUIRED",
+      "reason": "Authenticated owner blob e3627e342150c48f38099bb68fb118b3c54f2bf4 still follows named SKILL.md links. The static topology patch remains PROPOSED_NOT_APPLIED and the new file-identity helper is not consumed."
+    },
+    {
+      "axis": "test gate",
+      "result": "CONTINUE_REQUIRED",
+      "reason": "Fresh exact-source-head Operator Overlay Android run 32169435287 / job 95816744718 concluded failure; current evidence does not establish a step-level cause and no manual retry was dispatched. TESTED remains NO."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutation": 0,
+    "p0Mutation": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "implementedIndependentSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "existingOwnerStaticTopologyWired": false,
+    "existingOwnerFileIdentityWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWounds": [
+    "Apply the existing-owner no-follow candidate topology delta only through a mutation lane that can preserve the complete owner file and prove authenticated readback.",
+    "After static topology wiring, compose the candidate-file identity observation/revalidation helper into the same owner without claiming atomic cross-platform file binding.",
+    "Keep stronger handle-bound atomicity as a separate platform-evidence wound rather than green-painting portable path observations."
+  ]
+}

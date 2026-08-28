@@ -1,0 +1,24 @@
+{
+  "schema": "venice-judgment-jar-review.v1",
+  "heartbeat": "2026-08-17-0900",
+  "review_mode": "SYNTHETIC_JUDGMENT_JAR",
+  "authority_boundary": "Same-worker repository Judgment Jar review only; not an external reviewer, runtime proof, phone proof, or delivery proof.",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "code_first_review": "PASS_AFTER_TWO_REPLANS",
+  "what_changed": [
+    "A new pure source policy provides explicit, collision-safe evidence projection for meaningful invisible Unicode layout/shaping controls without normalizing canonical text.",
+    "Regression source pins ZWSP/WJ/FEFF/ZWJ/ZWNJ reveal behavior, ordinary Unicode preservation, existing bidi/ISO safety separation, literal-backslash escaping, and marker-collision prevention.",
+    "A durable repository skill preserves the rejected blanket-ban strategy as a scar and forbids reintroducing it.",
+    "A touchable DOM/inline-SVG Swan Veil source specimen makes exact source versus explicit evidence projection operable with at least 48px controls, keyboard focus, aria-pressed selection, one polite live region, reduced-motion handling, and no raster/autoplay."
+  ],
+  "why_not_more": [
+    "The projection is not yet consumed by the canonical parser, typed detail, scene, Android owner, or TalkBack runtime.",
+    "Wiring it into routine speech without a separate bounded on-demand evidence decision could create accessibility noise. That is a distinct future review seam, not permission to silently wire it now.",
+    "Current-head GitHub Actions run readback is inaccessible to the connector, so TESTED remains NO rather than inheriting the previous head's Actions-budget blocker as current proof.",
+    "P0/Phone Hands remain firewalled and untouched."
+  ],
+  "next_exact_non_p0_wound": "Assess and, if justified, compose the collision-safe invisible-semantic projection into an existing on-demand evidence/detail surface with an explicit speech bound while leaving compact/routine speech unchanged. No second parser/renderer/controller.",
+  "merge_allowed": false,
+  "delivery_claim_allowed": false,
+  "p0_phone_mutation_count": 0
+}

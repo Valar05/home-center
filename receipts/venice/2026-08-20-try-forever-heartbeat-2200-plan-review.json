@@ -1,0 +1,17 @@
+{
+  "schema": "venice-plan-review.v1",
+  "checkpoint": "2026-08-20-2200",
+  "campaign": "TRY FOREVER heartbeat skill lights",
+  "verdict": "PLAN_ALLOWED",
+  "boundedClaim": "Source-only accessibility interaction semantics for the existing latest-message TextView may advance without touching P0/phone surfaces or creating a neighboring UI owner.",
+  "requiredConstraints": [
+    "Preserve latest changing TextView text as the semantic value; do not restore a masking non-null contentDescription.",
+    "Keep OperatorOverlayService as the sole native owner.",
+    "Use the standard ACTION_CLICK accessibility action with an explicit expand/collapse label rather than inventing a parallel control.",
+    "State/confirmation semantics must respect minSdk 26 and may use stateDescription only behind API 30 gating.",
+    "Any explicit confirmation announcement must honor the existing mute contract.",
+    "Regression source is not TESTED evidence; runtime TalkBack and phone delivery remain NO.",
+    "Phone/P0 consumption and mutation stay zero."
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_ONLY__P0_PHONE_FIREWALL_BINDING"
+}

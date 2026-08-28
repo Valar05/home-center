@@ -1,0 +1,19 @@
+{
+  "schema": "try-forever-heartbeat-corrective-replan.v1",
+  "timeLocal": "2026-08-24T11:27:00-05:00",
+  "trigger": "Code-first review after owner wiring found the new supporting namespace-disjointness rule conflicts with the existing bounded projector contract.",
+  "wound": "The bounded projector already derives several exact-false capability fields that FINAL_DENIED_CAPABILITY_FIELDS intentionally reasserts in the final envelope. Requiring the entire final-owner allowlist to be disjoint from derived fields would reject the valid current owner.",
+  "correction": [
+    "Remove the broad derived-vs-final disjointness rejection from generic derivation custody.",
+    "Restore exact union semantics: derived fields are value-checked; the explicit final allowlist closes the total field set, including intentional reasserted capability fields.",
+    "Keep the stronger owner-boundary evidence that requires the actual OPERATOR_OWNED_RECEIPT_FIELDS + FINAL_DENIED_CAPABILITY_FIELDS families rather than a keyword-shaped counterfeit.",
+    "Remove the incorrect overlap regression and repair durable skill/art prose before publishing the checkpoint."
+  ],
+  "originalityTax": "REPLACE_BAD_CONSTRAINT__DO_NOT_POLISH_OR_PRESERVE_IT",
+  "veniceCorrectiveGate": "REPLAN_ALLOWED__PRESERVE_EXISTING_REASSERTED_CAPABILITY_OWNERSHIP",
+  "p0Phone": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

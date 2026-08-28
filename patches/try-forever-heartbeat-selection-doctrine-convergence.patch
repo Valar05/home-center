@@ -1,0 +1,22 @@
+# TRY FOREVER heartbeat persistent-selection doctrine convergence
+# STATUS: APPLIED_SOURCE
+# BASE BLOB: 76e93aa2613139718f7d89cd6e44dea84f23d883
+# TARGET: skills/heartbeat-skill-lights/SKILL.md
+# APPLIED COMMIT: 01038f86ee131257b0eb68acf3e59e585d779891
+# RESULT BLOB: 6287c7660a00a45b07bc00675af353f2a7ac6e0e
+# MUTATION LANE: audited Home Center GitHub admin whole-file upsert from authenticated base
+#
+# Intent: remove stale toggle-shaped permission from the broad heartbeat doctrine.
+# The current DOM specimen plus `persistent-selection-semantics` and
+# `heartbeat-native-selection-collection` use persistent one-of-many radio semantics.
+# This is repository/source doctrine only; it does not claim runtime TalkBack or native owner wiring.
+
+diff --git a/skills/heartbeat-skill-lights/SKILL.md b/skills/heartbeat-skill-lights/SKILL.md
+--- a/skills/heartbeat-skill-lights/SKILL.md
++++ b/skills/heartbeat-skill-lights/SKILL.md
+@@
+-- Persistent selection of one light controlling a shared always-present detail surface uses selection semantics such as `aria-pressed`; do not claim `aria-expanded` unless content is actually expanded/collapsed by that control.
++- Persistent selection of one light controlling a shared always-present detail surface uses one-of-many radio semantics (`radiogroup` + `radio` / `aria-checked`) rather than toggle semantics such as `aria-pressed`; do not claim `aria-expanded` unless content is actually expanded/collapsed by that control.
+@@
+-The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: semantic buttons, minimum 48px targets, explicit non-color tokens, focus visibility, persistent pressed selection, detail disclosure, live selection status, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.
++The source-only DOM contact sheet at `docs/try-forever/heartbeat-skill-lights-source-specimen.html` is a deliberately touchable/keyboard-reachable accessibility specimen: one-of-many radio controls, minimum 48px targets, explicit non-color tokens, focus visibility, persistent radio selection, shared detail disclosure, live selection status, and reduced-motion handling. It is **not** Operator Overlay runtime evidence and must never be reported as deployed, callable, physically presented, or accepted.

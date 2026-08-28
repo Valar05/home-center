@@ -1,0 +1,47 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-28T07:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewedSourceHead": "87f9841a64b8134f2dc05224f918447e2a946f56",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "acceptedBoundedProgress": [
+    "request-admission evidence probe v8 rejects nested guards, rebound admitted bindings, wrong persistence arguments, ignored/shadow/duplicate work",
+    "focused and broad source fixtures converge on v8 without claiming execution",
+    "existing Warm Wall removes implicit role=status live-region chatter and remains source-only",
+    "existing adam-mode-accessibility skill harvests the new evidence and speech scars"
+  ],
+  "continueRequired": [
+    "actual existing OperatorOverlayService UI request-owner mutation through an authorized non-P0 repository lane",
+    "actual existing native Adam accessibility-owner mutation through an authorized non-P0 repository lane",
+    "real regression execution",
+    "TESTED evidence",
+    "Android runtime UI evidence",
+    "TalkBack runtime evidence",
+    "deployment/callability/delivery/acceptance only through their authorized later lanes"
+  ],
+  "preserve": [
+    "legacy Adam repeat-send announcement while ADAM_REPEAT_SEND_RESULT_UNRESOLVED remains non-NONE",
+    "exact owner blob custody; no fuzzy carry-forward",
+    "one existing OperatorOverlayService owner; no neighboring controller",
+    "P0 and primary-phone firewalls"
+  ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {"runId": 33169839670, "conclusion": "failure", "jobId": 98844002469, "steps": 0},
+    "homeCenterCI": {"runId": 33169839675, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33169839674, "conclusion": "failure"},
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

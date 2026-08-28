@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall / Skill Provenance</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #151719; color: #f5f2e9; }
+  main { max-width: 780px; margin: 0 auto; padding: 24px; }
+  .wall { border: 2px solid currentColor; border-radius: 24px; padding: 20px; background: #24211f; }
+  h1 { margin-top: 0; font-size: 1.35rem; }
+  .scar { font-weight: 800; letter-spacing: .04em; line-height: 1.45; }
+  [role="radiogroup"] { display: grid; gap: 12px; margin: 18px 0; }
+  [role="radio"] {
+    min-height: 48px;
+    min-width: 48px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid currentColor;
+    border-radius: 16px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+  [role="radio"][aria-checked="true"] { outline: 4px double currentColor; outline-offset: 3px; }
+  [role="radio"]:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  .token { display: inline-block; width: 2.2em; font-weight: 900; }
+  .detail { min-height: 10rem; border-top: 1px solid currentColor; padding-top: 16px; }
+  .detail strong { display: inline-block; min-width: 8rem; }
+  svg { width: 100%; height: 80px; margin-top: 14px; }
+  .wire, .node { fill: none; stroke: currentColor; stroke-width: 3; vector-effect: non-scaling-stroke; }
+  small { display: block; margin-top: 16px; line-height: 1.45; }
+  @media (prefers-reduced-motion: no-preference) {
+    [role="radio"] { transition: transform 120ms ease; }
+    [role="radio"]:active { transform: scale(.99); }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section class="wall" aria-labelledby="title">
+    <h1 id="title">WARM WALL / SKILL PROVENANCE</h1>
+    <p class="scar">TRACKED ≠ COMMITTED CONTENT. CLEAN-LOOKING ≠ BYTE-IDENTICAL TO HEAD. ONE EXACT SKILL LIGHT NEEDS ONE EXACT CONTENT IDENTITY.</p>
+
+    <svg viewBox="0 0 700 80" role="img" aria-label="Seven provenance states connected across one repository authority chain">
+      <path class="wire" d="M25 40 H675"/>
+      <circle class="node" cx="55" cy="40" r="17"/>
+      <path class="node" d="M135 23 L169 57 M169 23 L135 57"/>
+      <rect class="node" x="232" y="23" width="34" height="34" rx="6"/>
+      <path class="node" d="M345 21 L366 40 L345 59 L324 40 Z"/>
+      <path class="node" d="M441 22 L469 22 L455 58 Z"/>
+      <path class="node" d="M540 22 L572 58 M572 22 L540 58 M536 40 H576"/>
+      <path class="node" d="M640 21 L660 40 L640 59 L620 40 Z M629 40 H651"/>
+    </svg>
+
+    <div id="states" role="radiogroup" aria-label="Skill provenance state">
+      <button type="button" role="radio" aria-checked="true" tabindex="0" data-state="verified">
+        <span class="token" aria-hidden="true">●</span><strong>VERIFIED CURRENT</strong> — direct ordinary SKILL.md under one stable certified repository state
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="headmismatch">
+        <span class="token" aria-hidden="true">×</span><strong>HEAD CONTENT MISMATCH</strong> — tracked path / clean-looking status cannot override different bytes
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="stale">
+        <span class="token" aria-hidden="true">□</span><strong>STALE INDEX</strong> — generated discovery aid cannot earn repository authority
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unresolved">
+        <span class="token" aria-hidden="true">◇</span><strong>UNRESOLVED</strong> — required proof unavailable; fail closed
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="unstable">
+        <span class="token" aria-hidden="true">△</span><strong>UNSTABLE SNAPSHOT</strong> — repository custody moved or became unknowable
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="filefault">
+        <span class="token" aria-hidden="true">!</span><strong>FILE FAULT ISOLATED</strong> — wounded skill earns no record; peer evidence stays diagnosable
+      </button>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-state="redirector">
+        <span class="token" aria-hidden="true">⊘</span><strong>SKILL.md REDIRECTOR BLOCKED</strong> — existing owner refuses redirecting/non-file candidate topology
+      </button>
+    </div>
+
+    <div class="detail" id="detail" aria-live="polite" aria-atomic="true"></div>
+    <small>SOURCE SPECIMEN ONLY · HEAD-BLOB OBSERVATION SOURCE WIRED · CONTENT↔HEAD OWNER GATE SOURCE WIRED · GENERATED INDEX DISCOVERY-ONLY WHEN STALE/UNSTABLE · REGRESSION SOURCE UNEXECUTED · NOT OPERATOR-OVERLAY RUNTIME PROOF · NOT PHONE DELIVERY · NO AUTOPLAY · NO CHRISTMAS BLINK</small>
+  </section>
+</main>
+<script>
+(() => {
+  const group = document.getElementById('states');
+  const radios = [...group.querySelectorAll('[role="radio"]')];
+  const detail = document.getElementById('detail');
+  const states = {
+    verified: {
+      state: 'VERIFIED CURRENT',
+      why: 'The existing owner admits ordinary non-redirecting tracked SKILL.md files inside bounded repository custody and binds the same observed content to the ordinary blob committed at the authority HEAD.',
+      consequence: 'Repository-skill provenance may be emitted only after the current-tree owner gates agree; a generated discovery index remains an aid rather than authority.',
+      evidence: 'Root/traversal/candidate topology, tracked-path gate, single-artifact content custody, exact content↔HEAD binding, repository snapshot certification, expected-head binding, and late custody are SOURCE_WIRED. Regression execution remains NO.',
+      source: 'skills/heartbeat-skill-head-content-binding/SKILL.md'
+    },
+    headmismatch: {
+      state: 'HEAD CONTENT MISMATCH',
+      why: 'Git can intentionally reduce ordinary worktree checking through index flags. A tracked path and clean-looking status therefore do not prove that the exact observed SKILL.md bytes equal the blob committed at HEAD.',
+      consequence: 'The existing owner compares exact Git blob identity for the same bounded observed content with the ordinary blob identity from the named HEAD tree. Mismatch fails closed before SkillRecord append; status cannot vote it away.',
+      evidence: 'Bounded HEAD-tree observation, exact Git blob framing, and the content↔HEAD owner gate are SOURCE_WIRED. The hostile owner-boundary regression exists but is UNEXECUTED; atomic filesystem binding remains unclaimed.',
+      source: 'skills/heartbeat-skill-head-content-binding/SKILL.md'
+    },
+    stale: {
+      state: 'STALE INDEX',
+      why: 'The generated index has a known custody/freshness mismatch.',
+      consequence: 'It remains a discovery aid only and cannot authorize repository_skill provenance.',
+      evidence: 'Typed status and custody evidence remain visible rather than normalized into current authority.',
+      source: 'skills/heartbeat-skill-provenance-freshness/SKILL.md'
+    },
+    unresolved: {
+      state: 'UNRESOLVED',
+      why: 'Required provenance proof is unavailable or ambiguous.',
+      consequence: 'Fail closed. Keep repository_skill authority dark instead of replacing missing evidence with confidence.',
+      evidence: 'Unknown state survives as unknown.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
+    },
+    unstable: {
+      state: 'UNSTABLE SNAPSHOT',
+      why: 'Repository HEAD or cleanliness moved, was dirty, or became unavailable while authority was assembled.',
+      consequence: 'Discovered records cannot be promoted through the current-snapshot authority gate.',
+      evidence: 'One-process repository observations bracket discovery and late emission.',
+      source: 'skills/heartbeat-skill-snapshot-certification/SKILL.md'
+    },
+    filefault: {
+      state: 'FILE FAULT ISOLATED',
+      why: 'One otherwise admitted SKILL.md fails bounded content or identity custody.',
+      consequence: 'That file produces a structured diagnostic instead of authority. Healthy peer evidence may remain diagnosable under the existing owner contract.',
+      evidence: 'Bounded discoveryErrors preserve stage/type/fixed reason without raw host exception prose.',
+      source: 'tools/try_forever_skill_provenance_probe.py'
+    },
+    redirector: {
+      state: 'SKILL.md REDIRECTOR BLOCKED',
+      why: 'The existing owner requires named SKILL.md candidates to be ordinary non-redirecting files under no-follow admission and revalidates file identity around content custody.',
+      consequence: 'Redirecting or non-file topology cannot earn title/hash authority or a second repository path identity.',
+      evidence: 'Candidate topology and file-identity owner wiring are already source-wired; runtime/test claims remain separate.',
+      source: 'skills/heartbeat-skill-file-identity-revalidation/SKILL.md'
+    }
+  };
+
+  function render(button, announce = true) {
+    const item = states[button.dataset.state];
+    radios.forEach(radio => {
+      const selected = radio === button;
+      radio.setAttribute('aria-checked', String(selected));
+      radio.tabIndex = selected ? 0 : -1;
+    });
+    detail.replaceChildren();
+    [['State', item.state], ['Why', item.why], ['Consequence', item.consequence], ['Evidence', item.evidence], ['Source', item.source]].forEach(([label, value]) => {
+      const p = document.createElement('p');
+      const strong = document.createElement('strong');
+      strong.textContent = label + ':';
+      p.append(strong, document.createTextNode(' ' + value));
+      detail.appendChild(p);
+    });
+    if (!announce) detail.setAttribute('aria-live', 'off');
+    requestAnimationFrame(() => detail.setAttribute('aria-live', 'polite'));
+  }
+
+  radios.forEach((radio, index) => {
+    radio.addEventListener('click', () => render(radio));
+    radio.addEventListener('keydown', event => {
+      let next = index;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (index + 1) % radios.length;
+      else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (index - 1 + radios.length) % radios.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = radios.length - 1;
+      else return;
+      event.preventDefault();
+      radios[next].focus();
+      render(radios[next]);
+    });
+  });
+
+  render(radios[0], false);
+})();
+</script>
+</body>
+</html>

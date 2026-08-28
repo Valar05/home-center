@@ -1,0 +1,196 @@
+{
+  "schema": "home-center.try-forever-heartbeat-swarm.v1",
+  "slice": "2026-08-15-heartbeat-1800",
+  "reviewedSourceHead": "70933b5c3460f93b7eb1483b5f95e2852a73b3e7",
+  "campaignState": "CONTINUE_REQUIRED",
+  "fronts": [
+    {
+      "id": "typed-ingress-failure-taxonomy",
+      "state": "ADVANCED",
+      "changed": "Caller-invalid optional telemetry now uses a dedicated exception. Generic IllegalArgumentException propagates without invoking heartbeat, preventing internal defects from being painted as bad caller data."
+    },
+    {
+      "id": "talkback-detail-speech-budget",
+      "state": "ADVANCED",
+      "changed": "Expanded TalkBack reason/consequence/evidence/source fields now have Unicode-code-point speech budgets with explicit truncation while exact Candidate data remains intact."
+    },
+    {
+      "id": "regression-source",
+      "state": "ADVANCED_SOURCE_ONLY",
+      "changed": "Added source fixtures for unrelated argument failure propagation, typed malformed-Unicode rejection, and swan-Unicode speech truncation without source-data loss. Tests did not execute."
+    },
+    {
+      "id": "warm-wall-organism",
+      "state": "ADVANCED_SOURCE_ONLY",
+      "changed": "Mutated the existing ingress-separation DOM/SVG specimen in place with distinct caller-invalid/internal/storage states and a visible VOICE ≠ DATABASE accessibility contract."
+    },
+    {
+      "id": "durable-skill-harvesting",
+      "state": "ADVANCED",
+      "changed": "Updated heartbeat-ingress-separation skill doctrine to make the typed failure boundary, TalkBack speech budget, and new regression cases loadable by future workers."
+    },
+    {
+      "id": "evidence-review",
+      "state": "ADVANCED",
+      "changed": "Exact GitHub blob readback, Regnet review, Venice code-first review, CI boundary, and capability membrane were persisted."
+    }
+  ],
+  "skillLights": [
+    {
+      "light": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "why": "The Actions-budget failure remained unchanged.",
+      "consequence": "No manual retry was fired; the blocked test mouth fed typed-ingress and accessibility source defects instead."
+    },
+    {
+      "light": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "why": "Repository truth exposed execution-truth, fortress-core, and heartbeat-ingress-separation as materially relevant skills.",
+      "consequence": "The pulse followed repository-native ownership/evidence doctrine rather than a decorative fixed list."
+    },
+    {
+      "light": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No material ambiguous/autocorrect token required resolution.",
+      "consequence": "No invented interpretation work was manufactured."
+    },
+    {
+      "light": "Originality Tax",
+      "state": "ACTIVE",
+      "why": "Repeating the same CI retry would have reproduced an already-proven failure mode.",
+      "consequence": "The swarm changed evidence/work fronts instead of cosmetically retrying."
+    },
+    {
+      "light": "Hunger",
+      "state": "ACTIVE",
+      "why": "The existing artifact needed to metabolize new failure semantics rather than spawning another specimen.",
+      "consequence": "The ingress-separation warm wall was surgically mutated in place."
+    },
+    {
+      "light": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "why": "The failure taxonomy and accessibility findings affected code, tests, skill doctrine, art, and evidence language.",
+      "consequence": "The same scar propagated consistently across every owned source surface."
+    },
+    {
+      "light": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "why": "The mission boundary required existing owners, durable proof, and no P0 substitution.",
+      "consequence": "Work stayed on PR #329 and existing OverlayUpdateReceiver -> HeartbeatIngressPolicy -> OperatorState organs."
+    },
+    {
+      "light": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "why": "Authoritative she_raw_ambient was attempted before execution.",
+      "consequence": "HTTP 400 account-connection failure was preserved; no synthetic She-Raw verdict was invented."
+    },
+    {
+      "light": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "why": "Fresh plan and completion gates were mandatory for substantive mutation.",
+      "consequence": "PLAN_ALLOWED preceded mutation; code-first completion review caught stale speech/evidence wording and repaired it before bounded STOP_ALLOWED."
+    },
+    {
+      "light": "Regnet QA",
+      "state": "ACTIVE",
+      "why": "Source claims required an adversarial evidence-state pass.",
+      "consequence": "Implemented/readback passed only as source; TESTED remained NO/BLOCKED_UNKNOWN."
+    },
+    {
+      "light": "Accessibility / TalkBack / touch semantics",
+      "state": "ACTIVE",
+      "why": "Expanded detail could speak several kilobytes and the source organism needed semantic controls.",
+      "consequence": "Unicode-safe spoken-field budgets were added; the existing specimen retains native buttons, >=48px targets, aria-pressed, visible focus, one live region, and reduced-motion handling."
+    },
+    {
+      "light": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "why": "P0 owns the shared primary-phone recovery/execution surface.",
+      "consequence": "Zero phone commands, tickets, queue/device probes, or recovery mutations occurred."
+    },
+    {
+      "light": "Deterministic routing",
+      "state": "ACTIVE",
+      "why": "Failure classification determines whether heartbeat is allowed to continue.",
+      "consequence": "Only the dedicated caller-invalid exception takes the continue-heartbeat branch; unrelated argument/storage failures propagate deterministically."
+    },
+    {
+      "light": "Evidence / capability-state discipline",
+      "state": "ACTIVE",
+      "why": "Source presence, source readback, test execution, deployment, and physical effect are distinct states.",
+      "consequence": "The capability ledger remains source-only and the zero-step CI job did not become TESTED."
+    },
+    {
+      "light": "Recovery / checkpointing / idempotence",
+      "state": "DARK",
+      "why": "Existing contact/checkpoint source was relevant context but no new checkpoint/idempotence defect was established this pulse.",
+      "consequence": "No decorative churn was added to checkpoint code."
+    },
+    {
+      "light": "Strange non-raster vector/DOM/native UI art",
+      "state": "ACTIVE",
+      "why": "Failure taxonomy needed a touchable source-side consequence without claiming deployment.",
+      "consequence": "The existing DOM/inline-SVG warm wall now exposes four distinct semantic states and retains the SOURCE ONLY scar."
+    },
+    {
+      "light": "Warm walls",
+      "state": "ACTIVE",
+      "why": "The existing warm-wall organism was the authorized art surface.",
+      "consequence": "It was modified in place instead of creating artifact sprawl."
+    },
+    {
+      "light": "Christmas-light scene discipline",
+      "state": "ACTIVE",
+      "why": "State motion must encode a real consequence rather than festive noise.",
+      "consequence": "Only the caller-invalid state gets the existing one-shot pulse; internal/storage failure states do not animate and reduced-motion still disables animation."
+    },
+    {
+      "light": "Contact preservation",
+      "state": "ACTIVE",
+      "why": "Caller-invalid optional telemetry must not erase last-good skill-light identity merely to preserve liveness.",
+      "consequence": "Typed caller-invalid validation remains pre-write; internal failures propagate instead of manufacturing replacement telemetry."
+    },
+    {
+      "light": "Heartbeat Ingress Separation",
+      "state": "ACTIVE",
+      "why": "Repository skill harvesting identified the exact current organ and its failure-class weakness.",
+      "consequence": "The skill itself was strengthened with typed taxonomy, evidence language, accessibility budget, and regression doctrine."
+    }
+  ],
+  "crossPollination": [
+    "Ingress separation exposed a type-system weakness: catching generic IllegalArgumentException could conceal future internal defects.",
+    "Execution Truth forced that weakness into an explicit typed exception rather than message matching or broad catch behavior.",
+    "Accessibility review then found a separate evidence-richness wound: exact semantic fields were safe to store but not safe to speak without bounds.",
+    "Hunger carried both findings into the existing warm-wall organism rather than creating a neighboring artifact.",
+    "Venice code-first review caught stale documentation that still blurred bounded speech with full evidence, and the wording was repaired before completion review.",
+    "Regnet kept all source/test-fixture progress behind the deterministic test membrane when Actions executed zero steps."
+  ],
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31913972065,
+    "jobId": 95083067848,
+    "headSha": "70933b5c3460f93b7eb1483b5f95e2852a73b3e7",
+    "executedSteps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "mutations": 0,
+    "findingForP0": null
+  },
+  "capabilityState": {
+    "requested": "YES",
+    "implementedSource": "YES",
+    "exactGitHubReadback": "YES",
+    "regressionSource": "YES",
+    "tested": "NO/BLOCKED_UNKNOWN",
+    "runtimeSemanticIntegration": "NO",
+    "uiRendered": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}

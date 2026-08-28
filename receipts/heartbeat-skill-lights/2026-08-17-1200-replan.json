@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever.heartbeat-replan.v1",
+  "heartbeat": "2026-08-17T12:00:00-05:00",
+  "receiptTiming": "POST_MUTATION_DURABLE_CAPTURE",
+  "decisionTiming": "PRE_MUTATION_SOURCE_REVIEW",
+  "initialTarget": "Converge the remaining typed Candidate explicit-detail formatter onto HeartbeatEvidenceDetailProjection.",
+  "replacementTarget": "Repair boundedEvidenceProjection so the returned on-demand evidence string, including its truncation indicator, never exceeds the caller's code-point budget.",
+  "whyChanged": [
+    "Source review found a simpler, directly exercised accessibility/resource defect in the existing explicit-detail projection organ.",
+    "The prior implementation filled the entire projected-content budget and then appended `… (truncated)` outside the budget.",
+    "The existing regression encoded the same overrun by expecting one full marker plus a suffix when the budget only covered the marker.",
+    "Originality Tax therefore redirected the pulse to the concrete failing contract rather than forcing the initially planned Candidate-authority refactor through for schedule aesthetics."
+  ],
+  "actualMutation": [
+    "Reserve room for the complete truncation indicator before emitting atomic marker/backslash projection units.",
+    "When the caller budget is smaller than the full indicator, return a single bounded ellipsis.",
+    "Replace the stale regression with hard total-budget assertions and add a tiny-budget fixture.",
+    "Synchronize heartbeat-invisible-semantic-controls doctrine with the repaired absolute-budget contract."
+  ],
+  "deferredNotImplemented": "HeartbeatSkillPolicy.detailContentDescription(Candidate) remains an independently formatted typed detail API and is a separately verified future source-truth seam; this pulse did not modify it.",
+  "artDecision": "Warm-wall/Swan-Veil source art stayed dark this pulse because the repair changes a strict projection budget, not operator-state topology; mutating art would be decorative churn.",
+  "evidenceBoundary": "Implemented source/readback may advance. Tests are source fixtures only unless an authorized lane executes them. Runtime UI/TalkBack/deployment/phone/delivery states remain unchanged.",
+  "p0Firewall": "PASS_READ_ONLY_ZERO_CONSUMPTION"
+}

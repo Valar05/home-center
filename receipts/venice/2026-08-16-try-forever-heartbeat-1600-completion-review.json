@@ -1,0 +1,43 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "heartbeat": "2026-08-16-1600",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "JUDGMENT_JAR_VENICE",
+  "plan_receipt": "receipts/heartbeat-skill-lights/2026-08-16-1600-plan.json",
+  "review_mode": "code_first_then_evidence",
+  "mission_fidelity": "PASS",
+  "duplicate_architecture": "PASS",
+  "p0_firewall": "PASS_ZERO_CONSUMPTION",
+  "source_taste": {
+    "verdict": "PASS",
+    "reason": "The new motion layer gives the Christmas-light scene graph one bounded consequence while retaining non-color/text/TalkBack truth. The warm wall was mutated in place instead of spawning a replacement overlay organism."
+  },
+  "accessibility": {
+    "verdict": "PASS_SOURCE_ONLY",
+    "reason": "Surface presentation and platform animator permission are mandatory; reduced/disabled motion can suppress the visual cue without suppressing state information. Runtime behavior remains unproven."
+  },
+  "review_scar": {
+    "verdict": "REPAIRED_BEFORE_COMPLETION",
+    "reason": "Initial summary fallback used one vague rejection boundary for both frame clamp and node-owned transition. Regnet/code review split those into exact boundaries before this completion review."
+  },
+  "capability_truth": {
+    "semantic_motion_source": true,
+    "native_motion_policy_source": true,
+    "ui_ready_motion_projection_source": true,
+    "pure_removal_summary_fallback_source": true,
+    "regression_source": true,
+    "warm_wall_source": true,
+    "existing_owner_consumes_native_motion_policy": false,
+    "tested": false,
+    "tested_boundary": "BLOCKED_ACTIONS_BUDGET",
+    "runtime_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "next_exact_wound": "Wire the existing OperatorOverlayService, and only that owner, to consume HeartbeatNativeMotionPolicy using actual heartbeat-surface visibility plus platform animator enablement; apply one bounded cue to transitioning Buttons and the existing summary for pure removal. Do not touch P0/phone lanes and do not create a second animator/controller.",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

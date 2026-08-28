@@ -19,11 +19,14 @@ for token in [
     'adamModeButton("CONT", "continue"',
     'adamModeButton("VLAD", "vlad"',
     'submitAdamRequest()',
-    'announceForAccessibility',
+    'adamInput.setContentDescription("Adam input. Current mode terminal.")',
+    'adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode")',
     'Latest Home Center or Adam message',
     'FLAG_NOT_TOUCH_MODAL',
 ]:
     assert token in service, f"overlay missing {token}"
+# Accessibility contract is semantic, not mechanism-specific: deprecated global
+# announcement APIs are not required merely to prove the Adam input/send surface exists.
 for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_PAYLOAD_B64", "Base64.NO_WRAP"]:
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:

@@ -1,0 +1,100 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "project": "Valar05/home-center",
+  "pullRequest": 329,
+  "previousPublicationHead": "d65403ff7a372f3996bd04f9515105f9aa914794",
+  "reviewedSourceHead": "dd9c231a5a32fab79f81b2b66da083be031f8bb3",
+  "sourceDelta": {"commits": 13, "intendedPaths": 10, "unexpectedPaths": 0},
+  "lights": {
+    "failureIsTheShovel": "LIT__FOUND_UNBOUNDED_DIAGNOSTIC_SOURCE_WORK_AND_SELF_REVIEWED_SURROGATE_WINDOW_PEEK",
+    "canonAutoSelect": "LIT__ACTIVATED_HEARTBEAT_INGRESS_SEPARATION_HEARTBEAT_SOURCE_BOUND_PARITY_AND_EXISTING_OWNER_SURGERY",
+    "autocorrectJudgmentJar": "DARK__NO_MATERIAL_TOKEN_AMBIGUITY",
+    "originalityTax": "LIT__MUTATED_EXISTING_INGRESS_OWNER_AND_EXISTING_WARM_WALL_NO_DUPLICATE_CONTROLLER_OR_PARSER",
+    "hungerEatEverything": "LIT__PUSHED_REPAIR_INTO_REGRESSION_SKILLS_ART_AND_FOUND_PUBLIC_PARSER_PREPARSE_WOUND",
+    "operatorCampaign": "LIT__REMOTE_REPOSITORY_ARTIFACTS_AND_RECEIPTS_ADVANCED",
+    "harrowayDiscipline": "LIT__EXACT_OWNER_BOUNDARIES_AND_CAPABILITY_MEMBRANE_PRESERVED",
+    "sheRaw": "FAULT__AUTHORITATIVE_HOSTILE_CRITIQUE_ATTEMPT_HTTP_400_ACCOUNT_CONNECTION_NO_SYNTHETIC_SUBSTITUTE",
+    "venice": "LIT__SOURCE_SLICE_CHECKPOINT_ONLY_CONTINUE_REQUIRED",
+    "regnetQA": "LIT__SOURCE_WIRED_DIAGNOSTIC_THROAT_TWO_REVISE_REQUIRED_OWNER_WOUNDS_REGRESSIONS_UNEXECUTED",
+    "accessibilityTalkBackTouch": "LIT__56PX_NATIVE_CONTROLS_VISIBLE_FOCUS_ROLE_STATUS_SVG_REDUCED_MOTION_RUNTIME_TALKBACK_NO",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED__CONSUMPTION_0_MUTATION_0",
+    "deterministicRouting": "LIT__EXACT_EXISTING_OWNERS_ONLY_NO_WEAKER_SUBSTITUTE_PATH",
+    "evidenceCapabilityState": "LIT__SOURCE_VS_PROPOSED_VS_REGRESSION_EXECUTED_TESTED_RUNTIME_DELIVERY_SEPARATED",
+    "recoveryCheckpointingIdempotence": "LIT__NO_MANUAL_RETRY_EXACT_HEAD_WORKFLOW_READBACK",
+    "strangeNonRasterArtWarmWalls": "LIT__EXISTING_INGRESS_DOM_SVG_WARM_WALL_MUTATED_IN_PLACE",
+    "christmasLightSceneGraph": "DARK__NO_RUNTIME_SCENE_OR_MOTION_CONTRACT_CHANGE",
+    "contactPreservation": "LIT__CALLER_INVALID_OPTIONAL_TELEMETRY_PRESERVES_PRIOR_PAYLOAD_AND_INDEPENDENT_HEARTBEAT_SEMANTICS"
+  },
+  "fronts": {
+    "ingressDiagnosticProjection": {
+      "state": "SOURCE_WIRED",
+      "sourceWorkCodeUnits": 4096,
+      "returnedCodePoints": 320,
+      "surrogatePeekAcrossWindow": false,
+      "regressionSource": true,
+      "regressionExecuted": false
+    },
+    "singleSemanticParserOwnership": {
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "baseOwnerBlob": "f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d",
+      "cleanupExpandedToParserOnlyImportsAndConstants": true,
+      "regressionSource": true,
+      "regressionExecuted": false
+    },
+    "heartbeatEnvelopePreparseResource": {
+      "state": "PROPOSED_NOT_APPLIED",
+      "baseOwnerBlob": "9cdd14517f2538296952618173bf47474374477b",
+      "proposedSourceCodeUnits": 32768,
+      "regressionSource": true,
+      "regressionExecuted": false
+    },
+    "accessibilityWarmWall": {
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "touchTargetPx": 56,
+      "nativeControls": true,
+      "nonColorLiveStatus": true,
+      "inlineSvg": true,
+      "reducedMotion": true,
+      "infiniteBlink": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "crossPollination": [
+    "bounded final diagnostic text exposed unbounded source-normalization work",
+    "Regnet self-review then found a surrogate pair could peek one code unit beyond the proposed source window and forced a corrected owner implementation plus hostile regression",
+    "resource-bound skepticism crossed into direct HeartbeatEnvelopeParser ingress, producing a distinct RED preparse owner boundary rather than claiming upstream persisted-byte custody protects direct callers",
+    "semantic ownership review attacked its own cleanup patch and widened it to remove parser-only imports/constants as well as dead helpers",
+    "source mutations forced existing skills and the existing Warm Wall to converge without duplicate architecture"
+  ],
+  "executionTruth": {
+    "head": "dd9c231a5a32fab79f81b2b66da083be031f8bb3",
+    "homeCenterCI": {"run": 33018581816, "status": "queued", "conclusion": null},
+    "operatorOverlayAndroid": {"run": 33018581886, "status": "queued", "conclusion": null},
+    "buildAndroid": {"run": 33018581966, "status": "completed", "conclusion": "failure", "job": 98343004784, "steps": 0},
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

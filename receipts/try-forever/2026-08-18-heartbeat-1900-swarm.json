@@ -1,0 +1,128 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v2",
+  "heartbeat": "2026-08-18-1900",
+  "sourceHeadReviewed": "ad3c04adf29e5844adcfbe31fedd6076d8dcb20b",
+  "ownerBlobReviewed": "51e6efdbcec03d044ab89f37213659252514856a",
+  "summary": "Six independent non-P0 fronts advanced: queued-child traversal identity, hostile traversal regression, durable traversal skill/owner delta, pre-strip title semantic safety, accessible provenance Warm Wall, and Regnet/Venice/execution evidence. Snapshot certification was re-proven as an exact owner boundary rather than falsely promoted.",
+  "fronts": [
+    {
+      "name": "queued child traversal identity",
+      "advanced": true,
+      "artifacts": [
+        "tools/try_forever_skill_directory_traversal_guard.py",
+        "tools/test_try_forever_skill_directory_traversal_guard.py",
+        "skills/heartbeat-skill-directory-traversal-guard/SKILL.md",
+        "patches/try-forever-skill-directory-traversal-guard.patch"
+      ],
+      "change": "Persistent redirector/type/device/inode drift between child admission and pre-scan observation now has a fail-closed portable source policy, hostile fixtures, doctrine and corrected existing-owner delta.",
+      "boundary": "Existing owner wiring NO. Swap-and-restore, identity reuse and replacement after revalidation remain atomicity-open."
+    },
+    {
+      "name": "skill-title pre-normalization semantic safety",
+      "advanced": true,
+      "artifacts": [
+        "tools/try_forever_skill_title_fallback_policy.py",
+        "tools/test_try_forever_skill_title_fallback_policy.py",
+        "patches/try-forever-skill-title-fallback-hygiene.delta.json",
+        "skills/heartbeat-skill-title-fallback-hygiene/SKILL.md"
+      ],
+      "change": "H1 admission now has supporting source that observes decoded raw-line controls before broad strip can erase them, while preserving legitimate Unicode composition and sharing the same exact title contract with folder fallback.",
+      "boundary": "Existing owner still uses line.strip(); corrected delta is PROPOSED_NOT_APPLIED."
+    },
+    {
+      "name": "snapshot certification",
+      "advanced": false,
+      "boundary": "Exact owner readback still publishes discovered skillCount/skills even when snapshot is UNSTABLE or expected-head mismatches. Supporting certification policy/patch exist, owner wiring NO. Preserved rather than green-painted."
+    },
+    {
+      "name": "accessible provenance Warm Wall",
+      "advanced": true,
+      "artifact": "docs/try-forever/heartbeat-provenance-certification-source-specimen.html",
+      "change": "Existing source organism now exposes queued-child change, unstable snapshot, expected-head mismatch, pre-strip title rejection and atomicity-open states with native radio controls, focus visibility, >=48px touch intent, non-color tokens, inline SVG and reduced-motion handling.",
+      "boundary": "SOURCE ONLY; no Android render, TalkBack runtime, deployment or phone delivery claim."
+    },
+    {
+      "name": "Regnet/Venice",
+      "advanced": true,
+      "artifacts": [
+        "receipts/regnet/2026-08-18-try-forever-heartbeat-1900-source-review.json",
+        "receipts/venice/2026-08-18-try-forever-heartbeat-1900-plan-review.json",
+        "receipts/venice/2026-08-18-try-forever-heartbeat-1900-completion-review.json"
+      ],
+      "change": "Code-first review repaired two self-created defects before completion and keeps every owner/test/runtime boundary explicit."
+    },
+    {
+      "name": "execution evidence",
+      "advanced": true,
+      "change": "Fresh automatic workflow conclusions were bound to the exact reviewed source head without manual retry or stale-cause reuse."
+    }
+  ],
+  "heartbeatLights": [
+    {"light": "Failure Is The Shovel", "state": "ACTIVE", "consequence": "Changed strategy to independent provenance wounds and did not manually retry failed CI."},
+    {"light": "Canon Auto-Select", "state": "ACTIVE", "consequence": "Selected current repository provenance/title skills and harvested heartbeat-skill-directory-traversal-guard."},
+    {"light": "Autocorrect Judgment Jar", "state": "DARK", "consequence": "No STT/autocorrect ambiguity materially affected this pulse."},
+    {"light": "Originality Tax", "state": "ACTIVE", "consequence": "The first traversal delta's wrong error shape and the title post-strip design were both replaced with materially different corrections before completion."},
+    {"light": "Hunger", "state": "ACTIVE", "consequence": "Converted two discovered wounds into durable policy/test/skill/provenance artifacts instead of narration."},
+    {"light": "Ever-Polished Interpreter / Eat Everything", "state": "ACTIVE", "consequence": "Cross-reviewed owner behavior, policy, fixtures, doctrine and art so title/traversal meanings agree."},
+    {"light": "Operator Campaign", "state": "ACTIVE", "consequence": "Used the audited Home Center GitHub lane and refused unsafe whole-owner reconstruction from partial context."},
+    {"light": "Harroway operator discipline", "state": "ACTIVE", "consequence": "Preserved requested/source/tested/runtime states and existing provenance owner."},
+    {"light": "She-Raw adversarial motivation", "state": "FAULT", "consequence": "Authoritative call returned account-connection HTTP 400; no substitute reviewer."},
+    {"light": "Venice Judgment Jars", "state": "ACTIVE", "consequence": "Plan gate and bounded completion gate persisted; owner/test/runtime campaign remains CONTINUE_REQUIRED."},
+    {"light": "Regnet QA", "state": "ACTIVE", "consequence": "PASS only for bounded supporting-source claims; REVISE_REQUIRED for owner-unwired gates."},
+    {"light": "accessibility/TalkBack and touch semantics", "state": "ACTIVE", "consequence": "Title controls are admitted before broad normalization in supporting source; Warm Wall uses native single-selection/touch/focus/non-color semantics."},
+    {"light": "Phone Runtime / Phone Hands recovery", "state": "DARK_FIREWALLED", "consequence": "Zero phone/P0 consumption or mutation."},
+    {"light": "deterministic routing", "state": "ACTIVE", "consequence": "Directory and title failures now have typed fail-closed source boundaries; partial authority forbidden."},
+    {"light": "evidence/capability-state discipline", "state": "ACTIVE", "consequence": "Owner blob, source head, automatic workflow IDs and negative capability states are explicit."},
+    {"light": "recovery/checkpointing/idempotence", "state": "ACTIVE_SOURCE_ONLY", "consequence": "Queued-directory identity is revalidated before traversal in supporting policy; no runtime checkpoint claim."},
+    {"light": "strange non-raster vector/DOM/native UI art", "state": "ACTIVE_SOURCE_ONLY", "consequence": "Existing DOM/inline-SVG Warm Wall mutated in place; no raster or duplicate UI owner."},
+    {"light": "warm walls", "state": "ACTIVE_SOURCE_ONLY", "consequence": "Provenance topology/certification wounds became touch-inspectable source states."},
+    {"light": "Christmas-light scene graph", "state": "DARK", "consequence": "Provenance bookkeeping earned no autoplay, blink or transition motion."},
+    {"light": "contact preservation", "state": "DARK", "consequence": "No heartbeat runtime/contact semantics changed this pulse."},
+    {"light": "heartbeat-skill-directory-traversal-guard", "state": "ACTIVE_NEW_REPOSITORY_SKILL", "consequence": "New repository skill preserves child-directory traversal identity and atomicity boundaries."},
+    {"light": "heartbeat-skill-snapshot-certification", "state": "BLOCKED_OWNER_UNWIRED", "consequence": "Supporting certification exists, but current owner still emits authority-looking skill records on unstable/head-mismatch diagnostics."}
+  ],
+  "crossPollination": [
+    "bounded traversal doctrine exposed a path-versus-directory-object race",
+    "root identity vocabulary became a child-directory revalidation vocabulary without inventing a new probe",
+    "title authority review exposed broad-strip laundering of edge Cc controls",
+    "accessibility semantics forced structural Markdown whitespace to stay distinct from forbidden title controls",
+    "code review caught both the first traversal error-shape leak and the first post-strip title admission design before completion",
+    "Warm Wall inherited the same topology/certification/title distinctions rather than becoming decorative status art",
+    "fresh workflow failures were treated as execution evidence only, not as a source-failure diagnosis"
+  ],
+  "executionTruth": {
+    "sourceHead": "ad3c04adf29e5844adcfbe31fedd6076d8dcb20b",
+    "homeCenterCiRun": 32200052595,
+    "buildAndroidRun": 32200052549,
+    "operatorOverlayAndroidRun": 32200052570,
+    "operatorOverlayJob": 95911721299,
+    "conclusions": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRemoteReadback": true,
+    "regressionSource": true,
+    "childDirectoryOwnerWired": false,
+    "titleOwnerWired": false,
+    "snapshotCertificationOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CONTINUE_REQUIRED"
+}

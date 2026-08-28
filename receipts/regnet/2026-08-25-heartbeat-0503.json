@@ -1,0 +1,58 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-25-0503",
+  "reviewedSourceHead": "c87d657fdbc7ff697948fd03bcb60255b56ea084",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "sourceClaims": [
+    "operator-receipt snapshot doctrine now matches source-wired exact built-in dict admission and no longer describes hostile Mapping duplicate-member traversal as an admitted channel",
+    "existing skill-provenance Warm Wall now matches current-tree content↔HEAD owner SOURCE_WIRED truth",
+    "generated discovery index observed through Droobiedoo is stale/dirty and remains discovery-only, not repository-skill authority"
+  ],
+  "authenticatedReadback": true,
+  "delta": {
+    "previousPublicationHead": "cee71d2b2fbac6c6fcbb814b01b61059b0856779",
+    "commits": 3,
+    "paths": 3,
+    "unexpectedPaths": 0
+  },
+  "reviewScars": [
+    "Exact built-in dict admission made older hostile-Mapping duplicate-field doctrine false; the doctrine was corrected instead of preserving compatibility theater.",
+    "The existing Warm Wall still said the content↔HEAD gate was proposed/unwired although current repository skill doctrine proves authenticated owner SOURCE_WIRED; the specimen was converged in place.",
+    "Droobiedoo skill-match evidence is over 40 days old, source-dirty, and beyond its 14-day freshness contract; it was not used as authority."
+  ],
+  "executionEvidence": {
+    "homeCenterHealthyEnoughForReadOnlyEvidence": true,
+    "computerHandsOnline": false,
+    "computerHandsQueueDepth": 4,
+    "duplicateRequestCreated": false,
+    "operatorWorkflowRun": 32835890305,
+    "operatorWorkflowJob": 97764539837,
+    "operatorWorkflowConclusion": "failure",
+    "operatorStepCount": 0,
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "reviewers": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "externalVeniceWorker": "OFFLINE_QUEUE_DEPTH_2"
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-24T07:24:00-05:00",
+  "reviewedSourceHead": "992732a39d87ae5a3e50936f7b03d520a59802ac",
+  "fronts": [
+    {
+      "name": "final operator receipt identity custody",
+      "state": "SOURCE_WIRED",
+      "changed": "Existing final owner now exposes deterministic v4 receipt verification and rechecks final raw-evidence/capability semantics before trusting digest equality."
+    },
+    {
+      "name": "raw machine evidence to bounded final receipt chain",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "changed": "Focused hostile source proves raw-only evidence drift changes rawMachineEvidenceSha256 and operatorReceiptSha256 even when bounded projection remains unchanged."
+    },
+    {
+      "name": "self-consistent capability laundering",
+      "state": "SOURCE_WIRED",
+      "changed": "A recomputed matching digest cannot legitimize tested=true or rawMachineEvidenceBound=false."
+    },
+    {
+      "name": "operator receipt doctrine convergence",
+      "state": "SOURCE_WIRED",
+      "changed": "Existing operator-receipt capability skill now records identity verification, raw-to-final digest linkage, review scars, and the exact capability membrane."
+    },
+    {
+      "name": "native heartbeat owner custody",
+      "state": "REVIEW_READY_NOT_APPLIED",
+      "changed": "Authenticated OperatorOverlayService remains blob c5de1411a6b68087ae17aff83c032af754587150 and the canonical combined selection/material-transition surgery remains blob 2711576ae045b561ceae663184f705beb4c6d468 against that exact base. No promotion attempted."
+    },
+    {
+      "name": "execution truth",
+      "state": "TESTED_NO",
+      "changed": "Exact reviewed source head produced failed Build Android, Operator Overlay Android, and Home Center CI runs; Operator job exposes zero steps and logs are 404 BlobNotFound. No cause or retry manufactured."
+    }
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: digest equality was made suspicious and the first verifier was strengthened rather than accepted as sufficient.",
+    "Canon Auto-Select": "ACTIVE: existing final receipt owner and existing capability skill were reused; no decorative new owner/skill.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguity.",
+    "Originality Tax": "ACTIVE: review found and replaced two weak first-pass assumptions before completion.",
+    "Hunger": "ACTIVE: source, hostile fixture, skill, receipts, and native boundary were forced to agree on current truth.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: self-consistent digest laundering is now rejected by semantic closure, not merely checksum comparison.",
+    "Operator Campaign": "ACTIVE: sole existing receipt owner preserved; neighboring native owner re-authenticated read-only.",
+    "Harroway operator discipline": "ACTIVE: owner/source/test/runtime/deployment/delivery states remain separate.",
+    "She-Raw adversarial motivation": "FAULT: account connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "ACTIVE: bounded source slice may yield; regression/native-owner/test/runtime/campaign continue.",
+    "Regnet QA": "ACTIVE: source/readback PASS only; regressions unexecuted and TESTED NO.",
+    "accessibility/TalkBack and touch semantics": "CONSTRAINT_ACTIVE: no speech/UI topology changed; no runtime TalkBack claim.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero consumption/mutation.",
+    "deterministic routing": "ACTIVE: final receipt digest and raw evidence digest remain deterministic and separately scoped.",
+    "evidence/capability-state discipline": "ACTIVE: matching digest cannot promote capability.",
+    "recovery/checkpointing/idempotence": "ACTIVE: identical raw evidence yields stable identity; raw-only drift yields a new identity.",
+    "strange non-raster vector/DOM/native UI art": "DARK: no user-facing topology changed; art mutation would be decorative.",
+    "warm walls": "DARK: existing topology remains sufficient.",
+    "Christmas-light scene graph": "DARK: no transition/motion law changed.",
+    "contact preservation": "ACTIVE: bounded projection may remain stable while raw evidence identity still preserves underlying contact drift."
+  },
+  "crossPollination": "Raw/display separation made receipt identity suspicious; deterministic receipt identity exposed that checksum equality alone could launder forbidden final capability state; semantic closure was therefore placed before digest trust. The neighboring native owner was re-authenticated and left review-ready/not-applied because its execution boundary has not changed.",
+  "executionTruth": {
+    "buildAndroidRun": 32727486042,
+    "operatorOverlayRun": 32727485660,
+    "operatorOverlayJob": 97431950134,
+    "homeCenterCiRun": 32727485670,
+    "operatorStepsExposed": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "nativeOwnerPromotion": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedAt": "2026-08-21T19:57:00-05:00",
+  "sourceHeadReviewed": "e39ba29ab6b8312b1655f27a8f45bc698a3375d0",
+  "mission": "Persistent heartbeat selection semantics across source DOM and native source contract without P0/phone consumption or duplicate owner architecture.",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_PARTIAL_UNSAFE__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "materialFindings": [
+    {
+      "front": "dom_persistent_selection",
+      "state": "PASS_SOURCE",
+      "finding": "Existing heartbeat source specimen no longer exposes persistent one-of-many selection as aria-pressed toggle state. Radios are direct children of the radiogroup, selection uses aria-checked, roving tabindex, Arrow/Home/End navigation, and inert detail projection."
+    },
+    {
+      "front": "native_selection_collection",
+      "state": "PASS_SUPPORTING_SOURCE",
+      "finding": "HeartbeatSelectionAccessibilityPolicy defines one single-selection native collection from the accepted UI-ready model. Regnet/platform review corrected the first draft: Android horizontal-list collection geometry is rows=itemCount, columns=1, with item rowIndex=index and columnIndex=0. Source-level positionInSet remains one-based human/set order."
+    },
+    {
+      "front": "owner_evidence",
+      "state": "REVISE_REQUIRED",
+      "finding": "Authenticated OperatorOverlayService still carries Button.setSelected(...) only. No explicit native collection/item semantics are wired. Direct owner probe therefore classifies the native persistent-selection seam PARTIAL_UNSAFE, and an intentionally RED owner boundary remains unexecuted."
+    },
+    {
+      "front": "doctrine_convergence",
+      "state": "PARTIAL",
+      "finding": "persistent-selection-semantics and heartbeat-native-selection-collection now carry the corrected persistent one-of-many law. The older heartbeat-skill-lights doctrine still contains stale aria-pressed wording; the specialized persistent-selection laws explicitly supersede it, but that stale text remains a future cleanup wound rather than being silently called converged."
+    }
+  ],
+  "selfCorrections": [
+    "First native source draft transposed Android horizontal collection geometry into one row/many columns; corrected to many rows/one column after platform review.",
+    "First DOM radio repair left li wrappers between radiogroup and radios; corrected to direct radio children and pinned by source regression."
+  ],
+  "regressions": {
+    "HeartbeatSelectionAccessibilityPolicyTest": "SOURCE_UNEXECUTED",
+    "test_try_forever_heartbeat_selection_owner_probe.py": "SOURCE_UNEXECUTED",
+    "test_try_forever_heartbeat_selection_owner_boundary.py": "SOURCE_UNEXECUTED_INTENTIONALLY_RED",
+    "test_try_forever_heartbeat_selection_source_specimen.py": "SOURCE_UNEXECUTED"
+  },
+  "executionTruth": {
+    "nearestExactExecutionHead": "2ef05c06046c283f8bef42ff90c7030fa0d17d60",
+    "operatorOverlayRun": 32542526504,
+    "operatorOverlayJob": 96955138019,
+    "conclusion": "failure",
+    "stepsExposed": 0,
+    "logs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "domPersistentSelectionCorrected": true,
+    "nativeCollectionPolicySource": true,
+    "nativeOwnerCollectionWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "home-center.regnet-qa.v1",
+  "commission": "Advance the TRY FOREVER heartbeat as multiple independent source-only fronts under the binding P0/phone firewall, preserving capability-state truth and avoiding duplicate architecture.",
+  "reviewedClaim": "IMPLEMENTED_SOURCE_PLUS_EXACT_GITHUB_READBACK",
+  "reviewedHead": "2c0872d0cc617bb74d9bd3baa072790f8dd4e5b2",
+  "reviewBase": "9b47934d653be8663ff03c6b50e567f523f18b9f",
+  "reviewedFiles": [
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameCheckpoint.java",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeSemanticBoundsTest.java",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatFrameCheckpointTest.java",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibilityTest.java",
+    "docs/try-forever/heartbeat-contact-sheet-source-specimen.html",
+    "skills/heartbeat-skill-lights/SKILL.md"
+  ],
+  "artifactIdentity": {
+    "parserBlob": "70cbaffd14167af21dba6ce7955ca908a4cea10c",
+    "checkpointBlob": "4b55681bf61265f143f6d7a0005837cceaa67b3e",
+    "accessibilityBlob": "2871117bc1dcc76824203680d3e48149b1cec2f2",
+    "semanticBoundsTestBlob": "5077bd2f17000a0add989f84c62a6251e6307d17",
+    "checkpointTestBlob": "5c71b266b8be1443d52d628dc00b7798ea76b364",
+    "accessibilityTestBlob": "1dac38525ad78ec359967de8ff6a0ddd935bf919",
+    "contactSheetBlob": "deacd14ddedb9e99927d434d5a4c1a4576012651",
+    "skillDoctrineBlob": "1b0b373f6ea561c4f651767f9caea98d7986823f"
+  },
+  "acceptanceCriteria": [
+    "Heartbeat semantic text has per-field bounds and rejects decoded control/unpaired-surrogate text before it can become spoken/touched telemetry.",
+    "A pure deterministic checkpoint identity distinguishes visible-contact changes from transition-worthy state/consequence changes without creating persistence or runtime ownership.",
+    "Collapsed/detail accessibility is projected from the actual preserved scene rather than discarded attempted candidates.",
+    "A source-only non-raster warm-wall contact sheet demonstrates complete, interrupted-preserved, evidence-only, and recovered frames without autoplay blinking.",
+    "No phone/P0 execution, queue mutation, recovery retasking, duplicate controller, renderer, ingress path, or daemon is introduced.",
+    "Implemented/tested/deployed/callable/executed/delivered/accepted states remain separate."
+  ],
+  "deterministicChecks": [
+    {
+      "name": "exact GitHub source readback",
+      "result": "PASS",
+      "evidence": "Exact branch blobs were fetched after mutation for parser, checkpoint, accessibility projection, regression source, contact-sheet source, and heartbeat doctrine.",
+      "stateProved": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "source delta inspection",
+      "result": "PASS",
+      "evidence": "GitHub compare from Venice plan commit 9b47934d653be8663ff03c6b50e567f523f18b9f through source head 0792c171f7b74ca94a9412273e5e81662f689549 showed seven bounded files/changes for parser hardening, checkpointing, scene-derived accessibility, regression source, and contact-sheet art; doctrine was then updated separately at 2c0872d0cc617bb74d9bd3baa072790f8dd4e5b2.",
+      "stateProved": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "Operator Overlay deterministic test execution",
+      "result": "BLOCKED_UNKNOWN",
+      "evidence": "On code head 0792c171f7b74ca94a9412273e5e81662f689549, automatic Operator Overlay Android run 31886406449 / job 95016233725 completed with zero steps. Exact annotation: The job was not started because an Actions budget is preventing further use. No manual unchanged-condition retry was fired. No workflow run was yet visible for the subsequent doctrine-only head at review time.",
+      "stateProved": "TESTED_NO"
+    }
+  ],
+  "failurePathsReviewed": [
+    {
+      "path": "incomplete refresh",
+      "result": "SOURCE_COVERED_NOT_EXECUTED",
+      "detail": "Regression source asserts the last-good contact and transition fingerprints remain stable; visible-scene speech excludes discarded attempted content."
+    },
+    {
+      "path": "evidence-only refresh",
+      "result": "SOURCE_COVERED_NOT_EXECUTED",
+      "detail": "Regression source asserts contact identity may change while transition identity and motion remain unchanged."
+    },
+    {
+      "path": "pathological semantic JSON text",
+      "result": "SOURCE_COVERED_NOT_EXECUTED",
+      "detail": "Regression source covers field bounds, decoded control characters, unpaired surrogate rejection, and valid surrogate-pair acceptance."
+    },
+    {
+      "path": "authoritative She-Raw reviewer unavailable",
+      "result": "FAULT_PRESERVED",
+      "detail": "She-Raw.she_raw_ambient returned HTTP 400 because the account could not be connected. No synthetic She-Raw opinion was substituted."
+    },
+    {
+      "path": "shared phone/P0 execution unavailable or reserved",
+      "result": "FIREWALL_HELD",
+      "detail": "No phone command, Phone Hands ticket, queue mutation, wake/park/retask, P0 recovery action, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance action was attempted."
+    }
+  ],
+  "reviewFindings": [
+    {
+      "area": "mission fidelity",
+      "result": "PASS",
+      "detail": "All mutations are repository/source artifacts inside the authorized independent scope; shared phone/P0 ownership was not touched."
+    },
+    {
+      "area": "duplicate architecture",
+      "result": "PASS",
+      "detail": "The slice extends the existing parser/scene model with pure helpers and source specimens. It creates no alternate overlay controller, renderer owner, ingress path, daemon, or recovery conductor."
+    },
+    {
+      "area": "accessibility semantics",
+      "result": "PASS_SOURCE",
+      "detail": "Frame-derived collapsed/detail text now follows visible scene truth; semantic text is bounded before later TalkBack consumption. Runtime TalkBack behavior is not claimed."
+    },
+    {
+      "area": "recovery/checkpoint/idempotence",
+      "result": "PASS_SOURCE",
+      "detail": "Length-prefixed SHA-256 checkpoint source distinguishes visible contact from transition semantics and gives future retries deterministic comparison identities without introducing persistence ownership."
+    },
+    {
+      "area": "visual/touch source",
+      "result": "PASS_SOURCE",
+      "detail": "Contact-sheet source uses DOM/CSS/vector primitives, semantic buttons, non-color state tokens, reduced-motion handling, and no timer/autoplay/decorative blink loop. It explicitly disclaims runtime proof."
+    },
+    {
+      "area": "verification",
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "Regression files are source only. The current code-head Android workflow did not execute a single step because of the GitHub Actions budget boundary."
+    },
+    {
+      "area": "capability truth",
+      "result": "PASS",
+      "detail": "Nothing in this review promotes source into UI rendering, deployment, phone callability/execution, delivery, or acceptance."
+    }
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implementedInRepository": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "runtimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS",
+  "testedClaimVerdict": "BLOCKED_UNKNOWN",
+  "directive": "PROCEED_TO_VENICE_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "reviewer": "Regnet QA",
+  "reviewerMode": "SYNTHETIC_REGNET",
+  "reviewProvenance": "Separate deterministic evidence/capability-state review of the exact GitHub source slice. No human Regnet/Renee statement is claimed.",
+  "reviewedAt": "2026-08-15T13:12:00Z"
+}

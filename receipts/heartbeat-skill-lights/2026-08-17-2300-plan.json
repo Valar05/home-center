@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "heartbeat": "2026-08-17-2300",
+  "pr": 329,
+  "mission": "Repair the proposed deep-detail scroll well's undeclared focus/click ownership before any existing-owner application, and independently repair Swan Veil persistent single-selection semantics without touching P0 or phone execution.",
+  "ownerBoundary": "OperatorOverlayService remains the sole Android owner. The deep-detail owner patch remains PROPOSED_NOT_APPLIED during this source repair.",
+  "fronts": [
+    "declare passive touch-scroll focus/click/long-click ownership in HeartbeatDetailSurfacePolicy",
+    "add hostile source regression for movement-method ownership semantics",
+    "repair exact proposed owner patch so movement-method side effects are explicitly neutralized after installation",
+    "synchronize heartbeat-deep-detail-viewport durable skill doctrine",
+    "repair Swan Veil from persistent aria-pressed toggle semantics to persistent radio-group selection in place",
+    "Regnet/Venice bounded source review and exact GitHub readback"
+  ],
+  "constraints": {
+    "noDuplicateArchitecture": true,
+    "noPhoneOrP0Surface": true,
+    "noRuntimeOrDeliveryClaim": true,
+    "noManualCiRetry": true,
+    "fullDetailRemainsTouchInspectable": true,
+    "destructiveEllipsisMustNotReturn": true,
+    "talkBackFocusOwnershipMustNotBeInferred": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewInvented": false
+  },
+  "capabilityBefore": {
+    "deepDetailPolicySource": true,
+    "correctedOwnerPatchArtifact": "YES_PROPOSED_NOT_APPLIED",
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

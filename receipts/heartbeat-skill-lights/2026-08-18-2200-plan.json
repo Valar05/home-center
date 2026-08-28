@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever-heartbeat-plan.v3",
+  "heartbeat": "2026-08-18-2200",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without consuming Phone Hands/P0 and without creating a second provenance owner.",
+  "sourceHeadAtPlan": "f2615fc294620fd06b85dffa3612f75a5cf1e703",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "fronts": [
+    "prepare exact existing-owner composition for portable report-path projection",
+    "prepare exact existing-owner late report-emission snapshot gate",
+    "add owner-integration hostile regression source",
+    "synchronize both repository skills with exact proposed-owner capability state",
+    "publish Regnet/Venice/swarm evidence and refresh PR checkpoint"
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "ownerMustRemainExistingProbe": true,
+    "doNotPromotePatchToImplementation": true,
+    "testedRequiresExecutionEvidence": true
+  }
+}

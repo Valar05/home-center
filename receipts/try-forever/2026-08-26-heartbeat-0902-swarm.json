@@ -1,0 +1,110 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T09:02:00-05:00",
+  "pr": 329,
+  "previousPublicationHead": "235a234bcf3730899d38a30bd99f7a155a1aef2b",
+  "reviewedSourceHead": "14213e2fde78f41adc895b5e18ad696b7c68be5b",
+  "sourceDelta": {
+    "commits": 4,
+    "intendedPaths": 4,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/test_try_forever_owner_surgery_main_argv_exact_input_boundary.py",
+      "tools/test_try_forever_owner_surgery_v10_contract.py",
+      "skills/operator-owner-surgery-custody/SKILL.md"
+    ]
+  },
+  "lights": {
+    "Failure Is The Shovel": "LIT__converted prior RED main(argv) wound into existing-owner source wiring",
+    "Canon Auto-Select": "LIT__selected canonical v10 owner and existing custody skill rather than adjacent architecture",
+    "Autocorrect Judgment Jar": "DARK__no material token ambiguity affected routing or authority",
+    "Originality Tax": "LIT__mutated existing owner; no wrapper/parser/controller twin",
+    "Hunger": "LIT__expanded callback fix into finite item/member/aggregate argv custody and capability contract",
+    "Ever-Polished Interpreter / Eat Everything": "LIT__hostile list/string subclass, max+1, aggregate and detachment source cases added",
+    "Operator Campaign": "LIT__four-path exact source slice plus durable review receipts",
+    "Harroway operator discipline": "LIT__owner/authority/capability boundaries preserved and source delta authenticated",
+    "She-Raw adversarial motivation": "LIT_ATTEMPTED__authoritative connector returned account-connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT__bounded source stop with legacy fixture/test/runtime/campaign continue-required",
+    "Regnet QA": "LIT__source pass only; stale broad fixture remains REVISE_REQUIRED",
+    "accessibility/TalkBack and touch semantics": "DARK__CLI evidence boundary changed no operator-facing interaction topology; runtime TalkBack remains NO",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED__zero phone consumption or mutation",
+    "deterministic routing": "LIT__non-None programmatic argv must cross exact finite gate before argparse",
+    "evidence/capability-state discipline": "LIT__SOURCE_WIRED kept distinct from regression execution/TESTED/runtime/deployment/delivery/acceptance",
+    "recovery/checkpointing/idempotence": "LIT__exact-head automatic workflow failures recorded; no manual retry",
+    "strange non-raster vector/DOM/native UI art": "DARK__no UI topology changed",
+    "warm walls": "DARK__no operator-facing state changed",
+    "Christmas-light scene graph": "DARK__no runtime motion transition changed",
+    "contact preservation": "LIT__argv=None OS CLI behavior and ordinary exact-list semantics preserved; admitted argv detached after validation",
+    "operator-owner-surgery-custody": "LIT_DISCOVERED__repository skill converged on exact bounded programmatic argv law and stale legacy fixture boundary"
+  },
+  "fronts": {
+    "canonicalProgrammaticArgv": {
+      "state": "SOURCE_WIRED",
+      "exactList": true,
+      "exactStrings": true,
+      "itemCeiling": 4096,
+      "memberCodepointCeiling": 4137,
+      "aggregateCodepointCeiling": 1048576,
+      "detachedBeforeArgparse": true
+    },
+    "focusedHostileRegression": {
+      "state": "SOURCE_UNEXECUTED",
+      "covers": [
+        "list subclass callback",
+        "string subclass callback",
+        "item max+1",
+        "member max+1",
+        "aggregate max+1",
+        "ordinary detached exact list"
+      ]
+    },
+    "v10CapabilityContract": {
+      "state": "SOURCE_UNEXECUTED",
+      "programmaticArgvCapabilityPinned": true
+    },
+    "legacyBroadCustodyRegression": {
+      "state": "STALE_NONAUTHORITY__CONVERGENCE_OPEN",
+      "knownFossils": [
+        "schema v7 assertion",
+        "ownerWired=false assertion",
+        "portable-only root revalidation assumptions may be backend-stale"
+      ]
+    }
+  },
+  "crossPollination": "Prior repeated-owner exact-input repair exposed outer main(argv) traversal. Closing that seam made exact-but-unbounded argv suspicious, so the owner gained finite item/member/aggregate throats. Those new capability claims forced the hostile fixture, focused v10 contract, and custody skill to converge; self-review preserved the older broad v7 fixture as stale non-authority instead of laundering it into current evidence.",
+  "executionTruth": {
+    "head": "14213e2fde78f41adc895b5e18ad696b7c68be5b",
+    "Build Android": {"run": 32978690405, "conclusion": "failure"},
+    "Operator Overlay Android": {"run": 32978690471, "job": 98209639442, "conclusion": "failure", "steps": 0},
+    "Home Center CI": {"run": 32978690493, "conclusion": "failure"},
+    "manualRetry": false,
+    "stepLevelDiagnosisEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "programmaticArgvSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__LEGACY_FIXTURE_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

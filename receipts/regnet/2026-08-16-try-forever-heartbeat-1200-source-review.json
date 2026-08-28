@@ -1,0 +1,60 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-1200",
+  "pr": 329,
+  "reviewed_source_head": "b2dfbd26f3e5ad6e888184f46bd074bf25e2fb6a",
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+  "reviewer_mode": "same-worker-code-first-regnet",
+  "exact_readback": {
+    "HeartbeatViewportRestorePolicy.java": "5b36da5ceb5f7bba2fed8e7ad85f342bd8b1c2f0",
+    "HeartbeatViewportInteractionOwnershipRegressionTest.java": "73d418a85b5c4232dd846993ffac1ce6088bee42",
+    "skills/heartbeat-focus-scope-fail-closed/SKILL.md": "d0241b6b2af84a7e2275930db786bc3adfdb56cb",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "67817cd8c911e7a3a2d43b43bfef7fa5cdf74e6a",
+    "docs/try-forever/operator-overlay-focus-scope-owner-wiring.patch": "9cd0d1f72f08c33d017e22131e804b92c985fa11",
+    "OperatorOverlayService.java": "80f9e4d7050c5adf1bce481209be23f98dc5184e"
+  },
+  "findings": [
+    "Latest Kaiju interaction-ownership scar is repaired in policy source: persistent selection no longer automatically outranks newer direct keyboard focus.",
+    "Code-first review found and repaired a secondary evidence-loss bug: capture-time keyboard-focus identity remains evidence even if that secondary control disappears from the accepted current model.",
+    "The backward-compatible service-consumed overload now fails closed when heartbeat-child focus is empty, preventing missing focus-scope evidence from being treated as rebuild evidence.",
+    "The explicit overload preserves touch-selected behavior only when complete scope evidence proves no newer direct focus, and grants captured-focus loss amnesty only for a focus-destroying mutation.",
+    "A hostile standalone regression source covers newer keyboard focus superseding persistent selection, removed captured-focus baseline, and explicit no-focus scope.",
+    "The existing OperatorOverlayService still calls the backward-compatible overload and still does not provide actual mutation class plus overlay-wide direct-focus presence. Existing-owner explicit focus-scope wiring therefore remains NO.",
+    "The ready-to-apply OperatorOverlayService patch is durable proposal evidence only; it is not implemented service wiring.",
+    "TalkBack accessibility focus remains deliberately unqueried and unproven; direct keyboard focus must not be promoted to TalkBack focus evidence."
+  ],
+  "deterministic_test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31960989080,
+    "job_id": 95198833199,
+    "head": "b2dfbd26f3e5ad6e888184f46bd074bf25e2fb6a",
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "execution_lane_boundaries": {
+    "command_center_codex": "RETIRED_NOT_A_HOME_CENTER_CAPABILITY",
+    "windows_hands_01": "OFFLINE_AT_BOUNDARY_CHECK",
+    "phone_p0_surface_consumed": false
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "interaction_ownership_policy_source": true,
+    "legacy_fail_closed_source": true,
+    "existing_owner_explicit_focus_scope_wiring": false,
+    "tested": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_firewall": "PASS_ZERO_PHONE_P0_MUTATIONS_OR_SURFACE_CONSUMPTION"
+}

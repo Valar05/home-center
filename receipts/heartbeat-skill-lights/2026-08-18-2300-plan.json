@@ -1,0 +1,53 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-2300",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts while preserving existing owners, accessibility truth, capability-state evidence, and the phone/P0 firewall.",
+  "freshWound": "The proposed report-boundary patch can leave generatedIndex.status=VERIFIED_CURRENT after a late report-emission custody failure while currentHead/currentTreeDirty reflect the later unstable observation.",
+  "activeFronts": [
+    "repair generated-index currentness at report-emission custody boundary",
+    "add hostile pure-policy regression source",
+    "harvest durable generated-index emission-custody skill",
+    "repair existing owner integration patch without promoting it to implementation",
+    "Regnet evidence/capability review",
+    "Venice bounded completion review",
+    "fresh exact-head workflow evidence without manual retry"
+  ],
+  "constraints": {
+    "existingProvenanceOwnerOnly": true,
+    "ownerMutationPlanned": false,
+    "duplicateArchitectureForbidden": true,
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "testedMayNotBeInferredFromSource": true,
+    "runtimeMayNotBeInferredFromRepository": true
+  },
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE: convert patch-review contradiction into a materially different repair",
+    "Canon Auto-Select": "ACTIVE: use current provenance/report policies rather than fixed favorite nouns",
+    "Autocorrect Judgment Jar": "DARK unless material token ambiguity appears",
+    "Originality Tax": "ACTIVE: do not retry CI or repeat the previous owner-unwired narration",
+    "Hunger": "ACTIVE: turn the new wound into durable source plus doctrine",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: reconcile final report semantics across direct skill and generated-index evidence",
+    "Operator Campaign": "ACTIVE: preserve one existing provenance owner",
+    "Harroway operator discipline": "ACTIVE: exact requested/implemented/tested/runtime membrane",
+    "She-Raw adversarial motivation": "CONSIDER/ATTEMPT authoritative surface once; no synthetic substitute",
+    "Venice Judgment Jars": "ACTIVE: bounded source-slice completion review",
+    "Regnet QA": "ACTIVE: require hostile cases and capability-state truth",
+    "accessibility/TalkBack and touch semantics": "DARK unless report semantics create a user-facing topology change",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_DARK",
+    "deterministic routing": "ACTIVE: deterministic downgrade rather than re-read after final custody observation",
+    "evidence/capability-state discipline": "ACTIVE",
+    "recovery/checkpointing/idempotence": "ACTIVE: durable plan before mutation and idempotent request IDs",
+    "strange non-raster vector/DOM/native UI art": "DARK unless topology materially changes",
+    "warm walls": "DARK unless topology materially changes",
+    "Christmas-light scene graph": "DARK; evidence bookkeeping earns no motion",
+    "contact preservation": "ACTIVE conceptually: late custody failure withholds authority rather than rewriting prior evidence"
+  },
+  "p0Firewall": {
+    "finding": null,
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0
+  }
+}

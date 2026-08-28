@@ -1,0 +1,90 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance a broad, materially active, non-phone swarm while P0 and the primary-phone execution surface remain firewalled; preserve capability-state truth and avoid decorative progress.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "2835b350c1124b6b2e0d3b28c69bee1dbd30f439",
+  "timestamp": "2026-08-15T16:58:09Z",
+  "research": [
+    "PR #329 current head/body/capability ledger",
+    "skills/fortress-core/SKILL.md",
+    "skills/venice-review-memory/SKILL.md",
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    "HeartbeatEnvelopeParser.java and HeartbeatEnvelopeParserTest.java",
+    "HeartbeatFrameAccessibility.java and HeartbeatFrameAccessibilityTest.java",
+    "HeartbeatFrameCheckpoint.java and HeartbeatSceneGraph.java",
+    "heartbeat-attention-map-source-specimen.html"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "P0/phone ownership, execution lane, exclusions, evidence standard, and delivery surface are binding."
+    },
+    {
+      "id": "venice-review-memory",
+      "source": "skills/venice-review-memory/SKILL.md",
+      "why": "Apply scars for evidence laundering, planning bypass, duplicate architecture, decorative status work, and connector hammering."
+    },
+    {
+      "id": "fortress-core",
+      "source": "skills/fortress-core/SKILL.md",
+      "why": "Keep requested/implemented/tested/deployed/callable/delivered/accepted states separate and require durable review before stopping."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Only materially consequential lights may be lit; source semantics must fail closed and preserve contact."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "plan": [
+    "Front A — Semantic-token hardening: route schema/state strings through the same decoded-control and surrogate validation used by operator-facing semantic fields, so hidden control characters cannot be trimmed into accepted protocol tokens.",
+    "Front B — Attention-overflow truth: when the collapsed TalkBack summary must omit FAULT/BLOCKED identities beyond its 12-name budget, report the exact omitted attention-light count instead of burying serious boundaries inside a generic 'more lights' tail.",
+    "Front C — Checkpoint/motion consistency: make transition checkpoint identity match the documented motion contract. Pure scene reorder must not change transitionSha256 when no node was added/removed and no state/consequence changed.",
+    "Front D — Touchable warm-wall source art: refine the existing attention-map specimen to demonstrate attention overflow explicitly, without adding a neighboring renderer/controller or claiming runtime proof.",
+    "Front E — Review/evidence: exact GitHub readback of changed source, regression-source review, capability ledger refresh, no unchanged-condition CI hammering, and no promotion beyond source/readback evidence."
+  ],
+  "outsideScope": [
+    "primary-phone execution",
+    "Phone Hands tickets, device probes, or queue reads/mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore playback",
+    "Pocket TTS",
+    "Chromium control",
+    "Context Organs",
+    "new overlay controller, renderer, accessibility service, phone ingress path, recovery daemon, or coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "antagonism": [
+    "Do not call a token safe merely because trim() erases its decoded control characters; protocol words should fail closed before normalization.",
+    "Do not let a 13th or later FAULT/BLOCKED light disappear into a generic remainder count; serious omitted identities need an exact attention-overflow count while preserving the speech bound.",
+    "Do not let transitionSha256 change for a pure reorder if transitionMotionAllowed correctly stays false; checkpoint identity must describe the same transition semantics as the scene contract.",
+    "Do not create another art file merely to satisfy an art quota; mutate the existing attention specimen only if it teaches the repaired accessibility contract.",
+    "Do not retry the unchanged Actions-budget failure as activity.",
+    "Do not synthesize a She-Raw opinion after the authoritative connector fault.",
+    "Do not touch the phone/P0 surface."
+  ],
+  "acceptance": [
+    "Escaped decoded control characters or unpaired surrogates in schema/state protocol tokens fail closed rather than normalize into accepted values.",
+    "Collapsed accessibility output keeps its bounded named-light budget and exact histogram, and additionally states the exact number of omitted FAULT/BLOCKED lights when attention identities overflow that budget.",
+    "Pure scene reorder preserves transition checkpoint identity and does not earn transition motion; add/remove or state/consequence change still changes transition identity.",
+    "The existing touchable attention specimen visibly demonstrates overflow semantics with no raster/autoplay/decorative blink and remains explicitly source-only.",
+    "Changed artifacts survive exact GitHub readback.",
+    "P0/phone mutations remain zero.",
+    "TESTED remains NO/BLOCKED_UNKNOWN unless a deterministic job actually executes."
+  ],
+  "veniceDirective": "PLAN_ALLOWED",
+  "veniceFindings": [
+    "HeartbeatEnvelopeParser validates decoded controls for semantic fields but still uses requiredString for schema/state, creating an avoidable normalization asymmetry at protocol boundaries.",
+    "HeartbeatFrameAccessibility prioritizes attention states but, with more than 12 attention states, the omitted urgent identities collapse into the same generic remainder wording as non-attention lights.",
+    "HeartbeatFrameCheckpoint.transitionSha256 is order-sensitive even though HeartbeatSceneGraph.transitionMotionAllowed intentionally ignores pure reorder; those two source contracts currently disagree."
+  ]
+}

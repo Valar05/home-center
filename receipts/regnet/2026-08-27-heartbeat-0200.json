@@ -1,0 +1,80 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-27-0200",
+  "reviewedSourceHead": "810c7b6395ff6ff8b11122e5ee1ef8f61ea34fd0",
+  "verdict": "PASS_BOUNDED_SOURCE__CANONICAL_ASCII_PROJECTION_SOURCE_WIRED__EXCEPTION_CALLBACK_AND_DIAGNOSTIC_SOURCE_WORK_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "canonicalDiscoveryAsciiProjection": {
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+      "ownerBlob": "6de62efa07df4dabbb408ca77a427e83fbc4e883",
+      "appliedCommit": "23091256cf90ea6bea3afc111db348e014c85584",
+      "constraint": "path/artifact/Surgery evidence stays exact; only human-facing exception prose is projected"
+    },
+    "exceptionCallbackCustody": {
+      "state": "REVISE_REQUIRED",
+      "reason": "canonical _error still calls str(exc) before the safe projector and can execute caller-owned Exception.__str__",
+      "proposal": "patches/try-forever-owner-surgery-diagnostic-source-callback-custody.patch",
+      "proposalState": "CORRECTED_PROPOSED_NOT_APPLIED"
+    },
+    "diagnosticSourceWork": {
+      "state": "REVISE_REQUIRED",
+      "reason": "project_owner_surgery_diagnostic_text bounds returned text but still UTF-8 encodes and SHA-256 hashes arbitrarily large exact strings",
+      "proposedSourceCodepointCeiling": 4096,
+      "returnedSegmentCeiling": 96,
+      "overCeilingWholeIdentityPreserved": false
+    },
+    "regression": {
+      "path": "tools/test_try_forever_owner_surgery_discovery_error_projection.py",
+      "state": "RED_SOURCE_UNEXECUTED",
+      "hostileCoverage": [
+        "newline",
+        "bidi",
+        "lone_surrogate",
+        "str_subclass_callback",
+        "exception_str_callback",
+        "diagnostic_source_work_max_plus_one"
+      ]
+    },
+    "doctrine": {
+      "path": "skills/semantic-text-safety/SKILL.md",
+      "state": "SOURCE_CONVERGED",
+      "laws": [
+        "bounded returned text does not imply bounded source work",
+        "safe projection after unsafe Exception.__str__ is too late",
+        "non-authoritative over-ceiling diagnostics may lose whole-input digest identity while canonical evidence remains exact"
+      ]
+    },
+    "accessibility": {
+      "path": "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "state": "SOURCE_UPDATED_RUNTIME_NO",
+      "touchMinimumPx": 56,
+      "visibleFocus": true,
+      "nonColorStatus": true,
+      "svgSemantics": true,
+      "reducedMotion": true,
+      "blinkOrAutoplay": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33048414404, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33048414462, "job": 98437764511, "conclusion": "failure", "stepsObserved": 0},
+    "buildAndroid": {"run": 33048414390, "conclusion": "failure"},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

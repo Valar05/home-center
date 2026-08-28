@@ -1,0 +1,33 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-2100",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "quality": "mixed_due_to_unexecuted_tests",
+  "review": {
+    "missionFidelity": "PASS: a materially different non-P0 ownership wound advanced without touching the gated phone/P0 surface.",
+    "taste": "PASS: duplicate material semantic owners are rejected rather than arbitrarily picking whichever record arrived first.",
+    "accessibility": "PASS_SOURCE: ambiguous ownership is stopped before native Button/selection/viewport/TalkBack detail projection; runtime TalkBack remains unobserved.",
+    "art": "PASS_SOURCE: the existing warm-wall SVG was mutated in place with a one-material-ID-one-owner scar; no neighboring visual/runtime owner was created.",
+    "evidence": "PASS: source blobs, regression-source existence, zero-step CI, and runtime/deployment states remain distinct.",
+    "remainingBoundary": "Deterministic tests did not execute. Automatic Operator Overlay Android job 95263242695 had zero steps because the Actions budget prevented start."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "state": "FAULT",
+    "boundary": "Account connection returned HTTP 400; no substitute reviewer verdict was invented."
+  },
+  "capabilityGate": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0
+}

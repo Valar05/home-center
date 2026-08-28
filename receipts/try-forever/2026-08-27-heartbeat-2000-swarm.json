@@ -1,0 +1,107 @@
+{
+  "schema": "try-forever-heartbeat-lights-v1",
+  "checkpoint": "2026-08-27-heartbeat-2000",
+  "pr": 329,
+  "reviewedSourceHead": "fac30538527e88fde2e37765bf4c2be2e87981a7",
+  "previousPublicationHead": "ccbc74c027c5281008628eb057f8a388d4fe9b7e",
+  "publicationParentHead": "9db26fd9b711d1e4c24946d905656fda2e232ea6",
+  "sourceDelta": {
+    "commits": 9,
+    "paths": 6,
+    "unexpectedPaths": 0,
+    "pathsChanged": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/AdamSendAvailabilityAccessibilityPolicy.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/AdamSendAvailabilityAccessibilityPolicyTest.java",
+      "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "patches/try-forever-adam-request-source-work-throat.patch",
+      "skills/adam-mode-accessibility/SKILL.md",
+      "tools/test_try_forever_adam_request_source_work.py"
+    ]
+  },
+  "lights": {
+    "Failure Is The Shovel": "LIT: self-review rejected bounded-output/whole-source-materialization equivalence and later separated OVER_BUDGET from EMPTY_OR_WHITESPACE.",
+    "Canon Auto-Select": "LIT: reused existing Adam availability, request-owner, accessibility-owner, and skill organs; no adjacent controller.",
+    "Autocorrect Judgment Jar": "DARK: no authority-affecting ambiguous token appeared.",
+    "Originality Tax": "LIT: did not repeat another sourceWithinWorkBudget-only patch; supporting availability now avoids toString and the RED fixture was sharpened.",
+    "Hunger": "LIT: propagated the resource finding into edit-state truth, service surgery, regression, and doctrine.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: discovered that unavailable OVER_BUDGET text could otherwise preserve stale SENT state and corrected the staged native owner design.",
+    "Operator Campaign": "LIT: exact remote source delta, durable receipts, and PR checkpoint advanced.",
+    "Harroway operator discipline": "LIT: existing owners only; current UI owner remains RED until authenticated source mutation exists.",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative consultation attempted; account connection returned HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "LIT: bounded source slice may checkpoint; owner wiring/test/runtime continue-required.",
+    "Regnet QA": "LIT: hostile CharSequence call-count regression plus explicit compile-valid RED service boundary.",
+    "accessibility/TalkBack and touch semantics": "LIT: Send availability now has finite non-materializing source work; staged edit lifecycle disables OVER_BUDGET and refuses stale SENT. Runtime TalkBack remains NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero phone or P0 consumption/mutation.",
+    "deterministic routing": "LIT: exact five-mode policy and existing OperatorState request owner remain sole request-routing authorities.",
+    "evidence/capability-state discipline": "LIT: supporting policy SOURCE_WIRED; UI request owner and native accessibility owner remain PROPOSED_NOT_APPLIED; TESTED/runtime remain NO.",
+    "recovery/checkpointing/idempotence": "LIT: no manual CI retry; no fuzzy patch application; exact owner blobs retained.",
+    "strange non-raster vector/DOM/native UI art": "DARK: no applied visible topology change justified a new specimen.",
+    "warm walls": "DARK: existing Adam wall remains source-only; no applied native-owner change warranted visual mutation.",
+    "Christmas-light scene graph": "LIT CONSTRAINT: unavailable/over-budget request evidence earns no synthetic announcement or decorative motion.",
+    "contact preservation": "LIT: OVER_BUDGET is unavailable but not empty; staged edit lifecycle fails closed to READY instead of retaining stale SENT, and repeat-send announcement stays preserved."
+  },
+  "fronts": [
+    {
+      "name": "bounded Adam availability classification",
+      "state": "SOURCE_WIRED",
+      "policyBlob": "73a44a78236d8852f74f7aedda267f2ba905ac45",
+      "regressionBlob": "a39b699ea941bd5c4e08e6f5baa4e9da18da4d6e"
+    },
+    {
+      "name": "Adam UI request pre-materialization owner",
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "patchBlob": "28462fa8755bbbcc24a610e348d0050e5da67ba5",
+      "fixtureBlob": "99c6cf45d40efcbd69941891a026e481dda150f5"
+    },
+    {
+      "name": "Adam native availability + READY/SENT edit lifecycle",
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "patchBlob": "af09520781199559ab6e618e3dab4ed990e1dadc"
+    },
+    {
+      "name": "Adam accessibility doctrine",
+      "state": "CONVERGED_SOURCE",
+      "skillBlob": "3dc5260ebe3365ae0df42149e665d3dab31e9482"
+    }
+  ],
+  "crossPollination": "Removing whole-source availability materialization exposed that OVER_BUDGET and EMPTY_OR_WHITESPACE cannot share contact semantics. That distinction then changed the staged TextWatcher design, sharpened the UI request-owner patch and RED fixture, and forced Adam accessibility doctrine to converge without creating a second owner.",
+  "execution": {
+    "exactReviewedHeadRuns": [
+      {"name": "Operator Overlay Android", "id": 33131853248, "conclusion": "failure", "jobId": 98722937293, "steps": 0},
+      {"name": "Home Center CI", "id": 33131853249, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33131853243, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelCauseEstablished": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "adamAvailabilitySourceWired": true,
+    "adamUiRequestOwnerWired": false,
+    "adamNativeAccessibilityOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ADAM_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

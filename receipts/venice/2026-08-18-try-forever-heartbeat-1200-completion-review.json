@@ -1,0 +1,49 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "heartbeat": "2026-08-18-1200",
+  "phase": "completion_review",
+  "verdict": "CONTINUE_REQUIRED",
+  "boundedSourceSlice": "YIELD_ALLOWED",
+  "why": [
+    "Multiple non-P0 fronts materially advanced: hostile regression source, exact owner-delta provenance, candidate-enumeration doctrine, accessible Warm Wall topology, Regnet review, and exact-head execution evidence.",
+    "The existing provenance owner remains unchanged and still follows SKILL.md file symlinks during candidate enumeration, so candidate-file-topology consumption is not implemented.",
+    "The new regression source is intentionally red against current owner source; existence of a patch is not implementation and existence of tests is not TESTED.",
+    "Fresh exact-head CI concludes failure but current evidence does not establish a step-level cause. No older cause was recycled and no retry was dispatched.",
+    "Phone/P0 and duplicate-architecture firewalls remained intact."
+  ],
+  "lights": {
+    "FailureIsTheShovel": "LIT_SWITCHED_FROM_POLISH_TO_CANDIDATE_TOPOLOGY",
+    "CanonAutoSelect": "LIT_EXISTING_PROVENANCE_OWNER_AND_CANDIDATE_SKILL_SELECTED",
+    "AutocorrectJudgmentJar": "DARK_NO_AMBIGUOUS_TOKEN",
+    "OriginalityTax": "LIT_NO_CI_RETRY_NO_PHONE_SUBSTITUTE",
+    "HungerEatEverything": "LIT_REGRESSION_DOCTRINE_PATCH_ART_REVIEW_CONVERGED",
+    "OperatorCampaignHarroway": "LIT_EXISTING_OWNER_PRESERVED_PATCH_UNAPPLIED",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "Venice": "LIT_CONTINUE_REQUIRED",
+    "Regnet": "LIT_REVISE_REQUIRED_OWNER_NOT_WIRED",
+    "AccessibilityTalkBackTouch": "LIT_RADIO_KEYBOARD_48PX_NONCOLOR_LIVE_DETAIL",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED",
+    "DeterministicRoutingEvidence": "LIT_NO_FOLLOW_FAIL_CLOSED_ZERO_PARTIAL_AUTHORITY_CONTRACT",
+    "RecoveryCheckpointIdempotence": "LIT_GLOBAL_CANDIDATE_FAILURE_DOES_NOT_PROMOTE_PARTIAL_RECORDS",
+    "WarmWallsVectorDOM": "LIT_EXISTING_SPECIMEN_MUTATED_IN_PLACE",
+    "ChristmasLightSceneGraph": "DARK_NO_RUNTIME_SCENE_TRANSITION",
+    "ContactPreservation": "LIT_PROVENANCE_AUTHORITY_PRESERVED_BY_FAIL_CLOSED_GLOBAL_GATE"
+  },
+  "nextIndependentWound": "Apply the base-blob-locked no-follow candidate topology delta to the existing provenance owner through an exact whole-file mutation or another already-authorized patch-capable non-phone lane, then read back the owner before claiming SOURCE_WIRED. After that, separately review per-file swap/replacement atomicity; do not conflate static no-follow admission with atomic file binding.",
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "ownerPatch": "PROPOSED_NOT_APPLIED",
+    "existingOwnerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-25T22:02:00-05:00",
+  "reviewedSourceHead": "20eda78df77749b8d1cb20485a1e98c4b0d9a81c",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_COMPOSITION_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "descriptorOwnerComposition": {
+      "state": "CORRECTED_PROPOSED_NOT_APPLIED",
+      "baseOwnerBlob": "985f95e9018d1fe354b0f3bfcbfbf26ea51dee05",
+      "patch": "patches/try-forever-owner-surgery-descriptor-backend-composition.patch",
+      "redBoundaryFixture": "tools/test_try_forever_owner_surgery_descriptor_backend_composition_boundary.py",
+      "requirements": [
+        "compose existing canonical v10 owner; do not create sidecar authority",
+        "select exactly one backend from admitted capability",
+        "consume HeldDirectoryCustody directly only when descriptor backend is selected",
+        "preserve portable v10 as primary only when descriptor primitives are unavailable",
+        "selected descriptor wound fails closed with no portable retry",
+        "preserve directory/candidate counts, discoveryErrors, currentOwnerBlobs, authority groups, and content witnesses",
+        "preserve zero partial authority on any discovery wound",
+        "reuse the existing exact-observation semantic producer"
+      ]
+    },
+    "doctrineConvergence": {
+      "state": "SOURCE_WIRED",
+      "path": "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "correction": "canonical v10 already consumes the exact-observation semantic producer on its portable path; descriptor backend composition remains NO"
+    },
+    "accessibilityWarmWall": {
+      "state": "SOURCE_WIRED_SOURCE_ONLY",
+      "path": "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "constraints": [
+        "native radio semantics",
+        "56px touch rows",
+        "visible keyboard focus",
+        "role=status live detail",
+        "non-color capability text",
+        "inline SVG only",
+        "prefers-reduced-motion honored",
+        "runtime TalkBack unclaimed"
+      ]
+    }
+  },
+  "adversarialReview": [
+    "A proposed descriptor patch is not canonical owner integration.",
+    "A RED fixture is not regression execution.",
+    "Semantic-producer SOURCE_WIRED does not imply descriptor backend SOURCE_WIRED.",
+    "HeldDirectoryCustody supporting source does not prove universal filesystem atomicity.",
+    "Descriptor failure must not be laundered into a portable success in the same classification attempt.",
+    "Source UI accessibility semantics do not prove runtime TalkBack behavior."
+  ],
+  "executionTruth": {
+    "workflowRuns": {
+      "Build Android": {"id": 32925278834, "conclusion": "failure"},
+      "Operator Overlay Android": {"id": 32925278800, "jobId": 98046818911, "conclusion": "failure", "stepCount": 0},
+      "Home Center CI": {"id": 32925278947, "conclusion": "failure"}
+    },
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelCauseEstablished": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

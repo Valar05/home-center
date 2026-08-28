@@ -1,0 +1,96 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestamp": "2026-08-21T11:10:00-05:00",
+  "pullRequest": 329,
+  "reviewedSourceHead": "2fdefb0be5878322163f9a92dbc1f7f799f028f0",
+  "priorCheckpointHead": "9442f6da05da47cbbcbe2c0eb2837cc04595272b",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourceCompare": {
+    "aheadBy": 10,
+    "files": 9,
+    "intended": true,
+    "paths": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/AdamInputResultAccessibilityPolicy.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/AdamInputResultAccessibilityPolicyTest.java",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "receipts/heartbeat-skill-lights/2026-08-21-1059-plan.json",
+      "receipts/venice/2026-08-21-try-forever-heartbeat-1059-plan-review.json",
+      "skills/adam-mode-accessibility/SKILL.md",
+      "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "tools/try_forever_adam_accessibility_owner_probe.py"
+    ]
+  },
+  "materialFindings": [
+    {
+      "front": "Adam input lifecycle",
+      "result": "PASS_SOURCE",
+      "detail": "READY/SENT now has material MODE_SELECTED, SUBMIT_SUCCEEDED, and EDITED transitions. Empty programmatic clear preserves SENT; real non-empty editing returns stale SENT to READY."
+    },
+    {
+      "front": "Owner evidence v3",
+      "result": "PASS_SOURCE",
+      "detail": "SOURCE_WIRED now requires mode initialization/refresh plus READY/SENT/edit-recovery lifecycle. A partial state setter without edit recovery is PARTIAL_UNSAFE."
+    },
+    {
+      "front": "Owner surgery provenance",
+      "result": "REVISE_REQUIRED_OWNER_UNWIRED",
+      "detail": "Exact current-owner surgery is CORRECTED_PROPOSED_NOT_APPLIED and locked to owner blob c5de1411a6b68087ae17aff83c032af754587150. Authenticated owner readback remains legacy."
+    },
+    {
+      "front": "Warm wall",
+      "result": "PASS_SOURCE",
+      "detail": "Existing source organism now makes SENT -> real edit -> READY touchable without stealing radio-group focus or claiming runtime proof."
+    }
+  ],
+  "correctionsPaid": [
+    "Initial owner proposal replaced the existing richer per-mode content descriptions with generic policy action descriptions. Code-first review rejected that regression; corrected proposal preserves the existing descriptions and uses native selected state solely for selection truth.",
+    "Persistent SENT was initially under-specified as a state label. Lifecycle review established that non-empty new input is material unsent work and must return READY, while the programmatic empty clear after submit must preserve SENT.",
+    "Owner evidence that only saw READY/SENT setters could false-green stale SENT behavior. Probe v3 requires edit recovery before SOURCE_WIRED."
+  ],
+  "authenticatedOwner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "blob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "modeSelection": "LEGACY_OWNER",
+    "inputResultLifecycle": "LEGACY_OWNER",
+    "legacySendAnnouncementPresent": true
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32501346008,
+    "operatorOverlayJob": 96831487497,
+    "buildAndroidRun": 32501346043,
+    "homeCenterCiRun": 32501346004,
+    "exactHead": "2fdefb0be5878322163f9a92dbc1f7f799f028f0",
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "reviewerTruth": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteSheRawInvented": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

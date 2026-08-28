@@ -1,0 +1,98 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-18-1000",
+  "scope": "repository-skill root identity revalidation and platform topology truth",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedSource": {
+    "helperCommit": "1bd07aa4a796196f93d5b4e4e9961aca33367036",
+    "helperBlob": "c9bd4c4fc843a35e3008585d2a57c10636eaca42",
+    "regressionCommit": "42749ecc9114f0d67fdf1342c16fdaaa11638e7f",
+    "regressionBlob": "2180248d09cd6eee1319f9388d03e8050f4e918e",
+    "proposedOwnerPatchCommit": "da289673b053fd418612e009f72702a4ae60f6d6",
+    "proposedOwnerPatchBlob": "f8222f1f0c3ca10d8c17b348ccee84dcae742ca8",
+    "skillCommit": "54375c12c5d9f8b9fa681ec09570a1b18473d90a",
+    "skillBlob": "92c6abdf2eabb7794d3172d490eb46ee3cd481ea",
+    "warmWallCommit": "35db1fdb82115a8b88d392d29379cde1f7e249e9",
+    "warmWallBlob": "290548449f426bd438320e6f1d288972b4838581"
+  },
+  "checks": [
+    {
+      "name": "platform-specific atomicity overclaim avoided",
+      "result": "PASS_SOURCE",
+      "evidence": "helper and skill explicitly refuse to promote Unix-only scandir(fd) support into a cross-platform atomic directory-handle claim"
+    },
+    {
+      "name": "root redirector classification",
+      "result": "PASS_SOURCE",
+      "evidence": "no-follow stat policy classifies symlink and Windows mount-point junction tags without resolving the root target"
+    },
+    {
+      "name": "persistent observed identity/type drift",
+      "result": "PASS_SOURCE",
+      "evidence": "before/after root device+inode/type/redirector observations fail closed when the observed directory identity differs"
+    },
+    {
+      "name": "identity-token fail closed",
+      "result": "PASS_AFTER_REVIEW_REPAIR",
+      "evidence": "review found the first helper could treat a filesystem device number alone as a stable token; final source requires a non-zero inode/file-index component and adds a regression fixture"
+    },
+    {
+      "name": "identity reuse / swap-and-restore boundary",
+      "result": "PASS_AFTER_CLAIM_REPAIR",
+      "evidence": "review narrowed the claim: equal path observations do not exclude transient swap-and-restore or filesystem identity-token reuse"
+    },
+    {
+      "name": "duplicate architecture",
+      "result": "PASS",
+      "evidence": "one helper/skill composes into the existing provenance probe; no second probe, registry, scheduler, renderer, controller, phone lane, or P0 owner was created"
+    },
+    {
+      "name": "existing provenance owner integration",
+      "result": "NOT_IMPLEMENTED",
+      "evidence": "the exact integration delta exists only as patches/try-forever-skill-root-identity-revalidation.patch with STATUS PROPOSED_NOT_APPLIED; tools/try_forever_skill_provenance_probe.py remains on base blob f7fe082751875e27213a9e324d85bc371f46f335"
+    },
+    {
+      "name": "test execution",
+      "result": "BLOCKED_UNKNOWN",
+      "evidence": "automatic Operator Overlay Android run 32153014376 on helper source head 1bd07aa4a796196f93d5b4e4e9961aca33367036 concluded failure; job 95763351456 exposed zero steps and decoded job logs returned 404 BlobNotFound, so no regression test execution is proven and no failure cause is inferred"
+    }
+  ],
+  "residualWounds": [
+    "The existing provenance probe does not yet consume the root-identity helper or junction-aware admission patch.",
+    "Two pathname observations cannot atomically exclude a transient swap-and-restore that returns the original observed identity before revalidation.",
+    "Filesystem identity-token reuse after replacement is not excluded by equal (device, inode) observations.",
+    "No probe execution, regression pass, runtime UI, TalkBack, deployment, phone, or physical-acceptance evidence exists for this slice."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "status": "FAULT",
+    "boundary": "authoritative She-Raw ambient connector returned account-connection HTTP 400; no synthetic reviewer substituted"
+  },
+  "capability": {
+    "requested": true,
+    "policyHelperSource": true,
+    "regressionSource": true,
+    "exactGitHubReadback": true,
+    "durableSkill": true,
+    "accessibleWarmWallSource": true,
+    "exactOwnerPatch": true,
+    "ownerPatchApplied": false,
+    "existingProbeConsumesHelper": false,
+    "atomicCrossPlatformRootBinding": false,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

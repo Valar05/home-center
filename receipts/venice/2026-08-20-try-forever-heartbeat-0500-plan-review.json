@@ -1,0 +1,48 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat 0500 non-P0 strict generated-index JSON owner promotion",
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-20-0500-plan.json",
+  "evidenceIdentity": {
+    "ownerPath": "tools/try_forever_skill_provenance_probe.py",
+    "ownerBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+    "deltaPath": "patches/try-forever-generated-index-json-owner.delta.json",
+    "deltaBlob": "b360513ce902b9413dfda40a0fb48f8e64eac42d",
+    "strictJsonRegressionBlob": "0edd90be6d386bbee3b2622202c9bcd9f7821335",
+    "strictJsonSkillBlob": "d6bccbd46c901c36acbd3800fbe875401f520de7"
+  },
+  "selectedJudgmentJars": [
+    "Failure Is The Shovel",
+    "Originality Tax",
+    "Execution Truth / Capability States",
+    "Duplicate Architecture Law",
+    "Venice Review Memory",
+    "P0 Fortress Firewall"
+  ],
+  "precedentConsulted": [
+    "planning bypass: research -> plan -> jars -> antagonize -> Venice -> execute",
+    "repository evidence laundered into runtime proof",
+    "wrong/stale architecture seam",
+    "narrated continuation substituted for execution",
+    "connector hammering",
+    "grand-plan inflation starved the usable MVP"
+  ],
+  "findings": [
+    "The owner blob matches the delta base blob in authenticated readback.",
+    "The exact wound is narrow and evidenced: default json.loads still sits between bounded artifact custody and typed alias reconciliation.",
+    "The proposed change reuses the existing strict JSON policy and the sole provenance owner; it does not create duplicate architecture.",
+    "The three delta operations are bounded, mechanically checkable, and preserve the existing UNRESOLVED error surface.",
+    "Regression source is present but unexecuted, so TESTED cannot advance merely from owner wiring.",
+    "P0/phone surfaces are unrelated and must remain untouched.",
+    "She-Raw was attempted once and faulted at account connection; do not hammer the connector."
+  ],
+  "directive": "PLAN_ALLOWED",
+  "conditions": [
+    "re-read the owner blob immediately before mutation and abort on mismatch",
+    "apply only the exact three delta operations",
+    "perform exact authenticated post-mutation readback",
+    "update doctrine/provenance only after readback proves owner wiring",
+    "keep TESTED/runtime/deployed/callable/delivered/accepted unchanged absent fresh evidence",
+    "perform code-first Regnet and Venice completion review before publishing checkpoint"
+  ]
+}

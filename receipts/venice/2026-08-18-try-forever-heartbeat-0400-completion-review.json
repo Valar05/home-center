@@ -1,0 +1,50 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-0400",
+  "reviewedSourceHead": "64c4337c162ecb92a63d77b29b86cdada77f2fb2",
+  "reviewMode": "same-worker Judgment Jar; no external Venice connector authority claimed",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "missionFidelity": "PASS",
+    "accessibility": "PASS_SOURCE_ONLY",
+    "evidenceDiscipline": "PASS",
+    "duplicateArchitecture": "PASS",
+    "phoneP0Firewall": "PASS",
+    "testedRuntimeDelivery": "NOT_PROVEN"
+  },
+  "why": [
+    "The pulse repairs the exact 0300 provenance wound: one unreadable or malformed SKILL.md no longer aborts unrelated skill discovery, while the broken file remains fail-closed.",
+    "The v1-to-v2 correction is load-bearing rather than cosmetic: structured discoveryErrors changed the report contract, so the source now names that schema change instead of silently mutating v1.",
+    "The FILE FAULT ISOLATED Warm Wall state is warranted because partial discovery with a bounded file fault is distinct from STALE INDEX, UNRESOLVED provenance, and an UNSTABLE repository snapshot.",
+    "Current Home Center evidence says Command Center Codex jobs/workers are retired. The prior queued deep-detail ticket is historical only; no phone/P0 shortcut or adjacent worker architecture was substituted.",
+    "Automatic exact-head CI failed before exposing any steps and log retrieval returned 404 BlobNotFound. No cause is established, no prior cause is recycled, and TESTED remains NO.",
+    "A new independent resource-budget wound remains open in title extraction, so this bounded source slice may yield but the recurring campaign is not complete."
+  ],
+  "processScar": "The initial source pass made discoveryErrors structured while retaining report schema v1. Code-first review caught the compatibility lie and forced a corrective source pass to v2 before completion review.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstitute": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleSourceSpecimen": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneOrP0Consumption": 0,
+    "phoneOrP0Mutation": 0,
+    "duplicateArchitectureCreated": false
+  }
+}

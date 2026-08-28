@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeatLocal": "2026-08-19T22:02:12-05:00",
+  "baseHead": "afd9e1f632c65bec2acd7f2a4cc61db33ad71873",
+  "scope": "non-P0 repository/source only",
+  "fronts": [
+    {
+      "name": "skill-content-custody",
+      "state": "SUPPORTING_SOURCE",
+      "change": "one bounded finite artifact observation can supply both SKILL.md title and SHA; owner integration remains deliberately RED/unwired"
+    },
+    {
+      "name": "generated-index-timestamp-contract",
+      "state": "SUPPORTING_SOURCE",
+      "change": "exact timestamp policy rejects broad edge-whitespace/control normalization; owner broad-strip behavior remains deliberately RED/unwired"
+    },
+    {
+      "name": "hostile-regression-source",
+      "state": "UNEXECUTED",
+      "change": "pure policy fixtures plus two owner-boundary RED fixtures"
+    },
+    {
+      "name": "durable-skill-harvest",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "two repository skills record the new wounds and exact owner boundary"
+    },
+    {
+      "name": "accessible-non-raster-art",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "touchable native-details evidence custody throat; source-only, reduced-motion, non-color state"
+    },
+    {
+      "name": "she-raw",
+      "state": "FAULT",
+      "change": "authoritative ambient consultation attempted pre-execution; account connection returned HTTP 400; no substitute verdict"
+    }
+  ],
+  "capability": {
+    "requested": true,
+    "supportingSourceImplemented": true,
+    "ownerSkillContentCustodyWired": false,
+    "ownerExactTimestampPolicyWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

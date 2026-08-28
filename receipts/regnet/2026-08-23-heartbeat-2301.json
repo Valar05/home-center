@@ -1,0 +1,38 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-23T23:01:00-05:00",
+  "subject": "canonical-result fingerprint custody + temporal status exactness",
+  "reviewedSourceHead": "de63cb02f50155f60b9b2142e9bb163d8430e20b",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__TWO_OWNER_SEAMS_UNWIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceReview": {
+    "canonicalFingerprintPolicy": "PASS",
+    "validUnicodeFingerprintStability": "PASS",
+    "surrogateBearingEvidenceDeterminism": "PASS_SOURCE_CONTRACT",
+    "temporalStatusAdmissionPolicy": "PASS",
+    "unknownTemporalStatusFailClosed": "PASS_SOURCE_CONTRACT",
+    "fingerprintOwnerBoundary": "RED_BY_DESIGN",
+    "temporalStatusOwnerBoundary": "RED_BY_DESIGN",
+    "fingerprintOwnerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "temporalStatusOwnerPatch": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "duplicateArchitecture": "PASS_ZERO_NEW_AUTHORITY_PROJECTOR_OR_TEMPORAL_OWNER",
+    "phoneP0Firewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION"
+  },
+  "codeFirstNotes": [
+    "The fingerprint policy preserves the current fingerprint for ordinary valid Unicode and closes only the surrogate encoding hole.",
+    "The descriptor-shadow fingerprint owner remains unwired; the RED owner fixture must fail until authenticated source consumes the shared helper.",
+    "Receipt self-integrity currently admits any non-empty temporal status when temporalBindingProven=false; exact status admission is therefore a distinct evidence defect.",
+    "The temporal status policy owns the current finite state vocabulary and performs no normalization. The self-integrity owner remains unwired and its RED owner fixture preserves that boundary.",
+    "Neither prepared owner surgery changes canonical promotion authority, descriptor authority, temporal authority, TESTED, runtime, deployment, delivery, or acceptance."
+  ],
+  "executionTruth": {
+    "homeCenterCi": {"run": 32689033504, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32689033498, "job": 97319239011, "status": "completed", "conclusion": "failure", "stepsExposed": 0},
+    "buildAndroid": {"run": 32689033556, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {"attempted": true, "result": "ACCOUNT_CONNECTION_HTTP_400", "substituteReviewer": false},
+  "requiredNextState": "OWNER_INTEGRATION_REMAINS_SEPARATE_FROM_SUPPORTING_SOURCE_AND_TESTED"
+}

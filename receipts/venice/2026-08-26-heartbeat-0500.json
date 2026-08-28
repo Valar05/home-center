@@ -1,0 +1,30 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26T05:00:00-05:00",
+  "reviewedSourceHead": "a3aa4af802643b7a06965435873ca0a369a86e06",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "semantic direct callers now cross finite path/kind/SHA/content source throats before expensive or authority-facing work",
+    "hostile semantic diagnostics are projected separately from exact evidence using bounded ASCII-safe output",
+    "backend-selection and owner-surgery custody doctrine now match authenticated current descriptor/semantic composition",
+    "existing Warm Wall was mutated in place rather than creating a second specimen family",
+    "source-only accessibility keeps native controls, touch geometry, focus, live status, SVG semantics, reduced motion, and no blink",
+    "exact-head workflows failed before exposing useful Operator steps, so TESTED cannot be claimed",
+    "P0 and primary-phone surfaces were not consumed or mutated"
+  ],
+  "continueRequired": [
+    "regression execution",
+    "TESTED evidence",
+    "runtime UI and TalkBack evidence",
+    "deployment/callability/execution/delivery/acceptance",
+    "recurring Try Forever campaign"
+  ],
+  "doNotInfer": [
+    "SOURCE_WIRED is not TESTED",
+    "source accessibility is not runtime TalkBack",
+    "workflow failure with zero Operator steps is not a source diagnosis",
+    "stronger descriptor custody is not universal filesystem atomicity",
+    "semantic diagnostic projection is not canonical evidence rewriting"
+  ],
+  "p0PhoneFirewall": "HELD_ZERO_TOUCH"
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1900",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER provenance/accessibility fronts without consuming the phone/P0 surface or creating neighboring owners.",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "ownerBlobObserved": "51e6efdbcec03d044ab89f37213659252514856a",
+  "fronts": [
+    {
+      "name": "child-directory traversal topology race",
+      "wound": "bounded_skill_candidates records a child as a non-symlink directory, then later os.scandir(path) can follow that path if it is replaced by a redirector before traversal; later skill-path escape checks protect authority but not repository-owned traversal scope",
+      "authorizedWork": "pure fail-closed directory-topology policy + hostile regression source + durable skill doctrine; owner wiring remains separate"
+    },
+    {
+      "name": "skill-title pre-normalization control loss",
+      "wound": "current markdown_title uses line.strip() before the proposed title semantic admission; edge Cc whitespace such as U+0085 can disappear before the policy sees it",
+      "authorizedWork": "tighten supporting title admission/provenance so markdown structural newline handling is distinct from silently stripping forbidden title controls; preserve ordinary Unicode composition"
+    },
+    {
+      "name": "snapshot certification owner gap",
+      "wound": "current owner emits discovered skill records even when repositorySnapshot is UNSTABLE or --expected-head mismatches; supporting certification exists but is not owner-wired",
+      "authorizedWork": "review and strengthen exact owner delta/provenance only; do not reconstruct the large owner file from partial context"
+    },
+    {
+      "name": "accessible provenance Warm Wall",
+      "authorizedWork": "mutate existing non-raster source organism only if these source-topology distinctions materially change it; keep source/runtime/phone claims explicit"
+    },
+    {
+      "name": "Regnet/Venice/evidence",
+      "authorizedWork": "code-first review, exact GitHub readback, capability membrane, fresh automatic workflow evidence only; no manual CI retry"
+    }
+  ],
+  "firewall": {
+    "phoneHands": "READ/WRITE FORBIDDEN",
+    "primaryPhone": "FORBIDDEN",
+    "p0RecoveryChain": "READ-ONLY / NO MUTATION",
+    "duplicateArchitecture": "FORBIDDEN"
+  },
+  "initialCapability": {
+    "requested": true,
+    "implementedSource": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

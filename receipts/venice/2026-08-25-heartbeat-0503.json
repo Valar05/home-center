@@ -1,0 +1,25 @@
+{
+  "schema": "venice-judgment-receipt.v1",
+  "heartbeat": "2026-08-25-0503",
+  "planReceipt": "receipts/try-forever/2026-08-25-heartbeat-0503-plan.json",
+  "reviewedSourceHead": "c87d657fdbc7ff697948fd03bcb60255b56ea084",
+  "externalVenice": {
+    "workerOnline": false,
+    "queueDepth": 2,
+    "resultInvented": false
+  },
+  "boundedJudgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "The source slice corrects stale durable truth instead of creating a neighboring owner or recovery path.",
+    "The existing accessible non-raster skill-provenance organism was mutated in place and still labels runtime/phone delivery as unproven.",
+    "Current-tree repository skill doctrine outranks the stale generated discovery index for authority.",
+    "Exact-head workflows failed with zero Operator steps; source/readback is not promoted to TESTED.",
+    "Computer Hands and external Venice workers are offline; no duplicate queueing was created.",
+    "Phone/P0 consumption and mutation remain zero."
+  ],
+  "sourceSliceMayYield": true,
+  "campaignContinueRequired": true,
+  "mergeAuthorized": false,
+  "runtimeAuthorized": false,
+  "phoneP0Authorized": false
+}

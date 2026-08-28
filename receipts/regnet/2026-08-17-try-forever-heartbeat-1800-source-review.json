@@ -1,0 +1,53 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-17-1800",
+  "reviewedSourceHead": "7c8aaa5767bd617a73c3702090a2113dda4ccd39",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "sourceIdentities": {
+    "OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "HeartbeatCollapsedOwnerAccessibility.java": "25d23edaf79b379a8d5746921fceed20a7e2af9b",
+    "HeartbeatCollapsedOwnerAccessibilityTest.java": "3fc1295b875466e0ff048d953914fde2608e47cb",
+    "skills/heartbeat-zero-material-contact-truth/SKILL.md": "851b085078f1c89825f513cccfeac25db0036b11",
+    "docs/try-forever/heartbeat-skill-lights-source-specimen.svg": "87544e4efc90d76b149b04f3d75f32b9770c3e56"
+  },
+  "checks": {
+    "correctOwner": "PASS: existing OperatorOverlayService only",
+    "collapsedSurface": "PASS_SOURCE: existing dragHandle survives details == GONE and receives model-derived heartbeat contentDescription",
+    "presentationToggle": "PASS_SOURCE: applyPresentationState refreshes collapsed/expanded description from current accepted frame",
+    "modelChange": "PASS_SOURCE: applyHeartbeatModelChrome refreshes the same surviving surface",
+    "waitingRecovery": "PASS_SOURCE: clearHeartbeatPreContactWoundToWaiting restores ordinary waiting truth",
+    "zeroMaterialVsWaiting": "PASS_SOURCE: hostile fixture distinguishes accepted zero-light contact from waiting",
+    "heldVsBlocked": "PASS_SOURCE: hostile fixture distinguishes CONTACT HELD from REFRESH BLOCKED",
+    "expandedMode": "PASS_SOURCE: ordinary overlay action description is restored without duplicate heartbeat prose",
+    "duplicateArchitecture": "PASS: no renderer/controller/poller/recovery owner added",
+    "p0Firewall": "PASS: no phone/P0 surface consumed or mutated",
+    "runtimeTalkBack": "UNPROVEN",
+    "tested": "NO"
+  },
+  "ci": {
+    "runId": 32079528138,
+    "jobId": 95539611941,
+    "head": "7c8aaa5767bd617a73c3702090a2113dda4ccd39",
+    "workflow": "Operator Overlay Android",
+    "runConclusion": "failure",
+    "jobConclusion": "failure",
+    "stepLevelReasonAvailableInCurrentReadback": false,
+    "tested": false,
+    "rule": "Do not copy an older head's Actions-budget annotation forward as current-head evidence."
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "existingOwnerCollapsedAccessibilityWiring": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

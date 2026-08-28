@@ -1,0 +1,25 @@
+{
+  "schema": "heartbeat-skill-lights-plan.v1",
+  "heartbeat": "2026-08-17-1400",
+  "pr": 329,
+  "mission": "Advance a materially different non-P0 heartbeat wound through the existing source owners without decorative progress or capability laundering.",
+  "verifiedWound": "Three routine/plain text projections advertise maximum code-point budgets but append an ellipsis after consuming the entire budget: compact focused speech in HeartbeatSkillPolicy, collapsed label speech in HeartbeatFrameAccessibility, and visible native label text in HeartbeatOverlayViewModel. Returned text can therefore exceed the named cap by one code point.",
+  "plannedFronts": [
+    "Introduce one pure plain-text hard-returned-budget helper that keeps the ellipsis inside the caller's budget and never rewrites canonical source fields.",
+    "Wire the three existing plain-text consumers to that helper; do not route routine speech through the invisible-evidence marker projection.",
+    "Repair stale regression expectations and add hostile Unicode/tiny-budget coverage so source fixtures test the hard returned cap rather than preserving the bug.",
+    "Harvest a durable repository skill for hard returned text budgets, explicitly separating canonical source bounds, routine plain projections, and explicit evidence projection.",
+    "Mutate the existing Swan Veil DOM/inline-SVG source in place with a touchable hard-budget scar; do not create a new renderer/controller/specimen family.",
+    "Perform Regnet source/evidence review and Venice completion review; record requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted separately."
+  ],
+  "constraints": {
+    "p0PhoneSurface": "READ_ONLY_FIREWALLED_ZERO_CONSUMPTION",
+    "duplicateArchitecture": "FORBIDDEN",
+    "canonicalSourceRewrite": "FORBIDDEN",
+    "routineSpeechInvisibleMarkers": "FORBIDDEN_BY_DESIGN",
+    "explicitEvidenceProjectionSeam": "ORDERED_DARK_UNLESS_REGRESSION_REQUIRES_REFERENCE",
+    "testClaimWithoutExecution": "FORBIDDEN"
+  },
+  "sheRawPreExecution": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE_REVIEWER",
+  "gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}

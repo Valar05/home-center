@@ -1,0 +1,53 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestamp": "2026-08-21T10:59:02-05:00",
+  "pullRequest": 329,
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "baseHead": "9442f6da05da47cbbcbe2c0eb2837cc04595272b",
+  "mission": "Advance Adam accessibility as a broad non-P0 source swarm without inventing a second native owner or crossing the phone/recovery firewall.",
+  "fronts": [
+    {
+      "id": "adam-input-lifecycle",
+      "action": "Make READY/SENT source semantics lifecycle-complete: mode change returns READY, successful submit becomes SENT, and real new non-empty editing after SENT returns READY."
+    },
+    {
+      "id": "adam-owner-evidence-v3",
+      "action": "Strengthen deterministic direct-owner evidence so partial READY/SENT setters without edit recovery cannot earn SOURCE_WIRED."
+    },
+    {
+      "id": "adam-owner-surgery-provenance",
+      "action": "Preserve one exact current-owner patch proposal, base locked to OperatorOverlayService blob c5de1411a6b68087ae17aff83c032af754587150. Do not report it as applied."
+    },
+    {
+      "id": "adam-warm-wall",
+      "action": "Mutate the existing non-raster Adam warm wall in place so SENT -> real new edit -> READY is touchable and inspectable."
+    },
+    {
+      "id": "adam-skill-doctrine",
+      "action": "Synchronize the existing adam-mode-accessibility skill with lifecycle, evidence, owner, announcement, and capability-state truth."
+    },
+    {
+      "id": "review-evidence",
+      "action": "Perform code-first Regnet and Venice bounded reviews, refresh exact workflow evidence, and keep TESTED/runtime/deployed/delivered states separate."
+    }
+  ],
+  "constraints": {
+    "existingNativeOwnerOnly": "OperatorOverlayService",
+    "duplicateArchitecture": false,
+    "preserveLegacyAdamSendAnnouncement": true,
+    "reasonLegacyAnnouncementRemains": "Repeatable identical-send event semantics remain unresolved; persistent SENT state does not replace an event receipt.",
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "phoneSurfaceAllowed": false,
+    "p0RecoveryMutationAllowed": false,
+    "sourceIsRuntimeProof": false,
+    "regressionSourceIsTestEvidence": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "surface": "she_raw_ambient",
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewerInvented": false
+  },
+  "gate": "PLAN_PENDING_VENICE_REVIEW"
+}

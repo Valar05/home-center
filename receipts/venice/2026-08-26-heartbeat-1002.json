@@ -1,0 +1,11 @@
+{
+  "schema": "try-forever-venice-source-judgment.v1",
+  "heartbeat": "2026-08-26T10:02:00-05:00",
+  "reviewedSourceHead": "90695b5c64779e16a7c092f2d81a9f30596ff900",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_FAILURE_EVIDENCE_OWNER_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "legacyBroadFixture": "CONVERGED_SOURCE_UNEXECUTED",
+  "descriptorFailureEvidenceParity": "RED_SOURCE_UNEXECUTED",
+  "runtimeTalkBack": false,
+  "tested": false,
+  "phoneP0Untouched": true
+}

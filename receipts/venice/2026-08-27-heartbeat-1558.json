@@ -1,0 +1,32 @@
+{
+  "schema": "venice-source-judgment.v1",
+  "checkpoint": "2026-08-27-heartbeat-1558",
+  "reviewedSourceHead": "0b1213cba2be3b4c6aab2435582c495bcc81107b",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__NATIVE_OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "supporting heartbeat selection collection geometry is corrected in the existing policy and regression source",
+    "repository selection doctrine now agrees with rendered horizontal orientation and current Android accessibility orientation guidance",
+    "canonical combined owner surgery still targets the authenticated sole OperatorOverlayService blob and remains unapplied",
+    "Spotify/detail/Adam repeatable-event blockers remain unresolved and their legacy receipts remain intact",
+    "exact-head workflow failures expose no executable steps, so no test/runtime claim or retry is authorized"
+  ],
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "nativeSelectionGeometrySource": true,
+    "nativeOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_SUBSTITUTE",
+  "firewall": "P0 and primary-phone surfaces untouched; duplicate architecture 0"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "timestampLocal": "2026-08-22T11:08:00-05:00",
+  "trigger": "artifact base-identity surgery exposed a second authority-normalization channel",
+  "newWound": "_parse_owner_blob and classify normalize authenticated current-owner blob input with strip/lower before SHA authority comparison",
+  "authorizedFront": "supporting RED regression and doctrine only",
+  "ownerMutationAuthorizedThisFront": false,
+  "why": "keep the freshly wired artifact-evidence seam closed; characterize the independent current-owner input wound before a second owner surgery",
+  "constraints": [
+    "no phone/P0 surfaces",
+    "no second custody owner",
+    "do not promote RED regression source to TESTED",
+    "do not mutate current-owner admission in this replan"
+  ],
+  "gate": "PLAN_ALLOWED_SUPPORTING_SOURCE_ONLY"
+}

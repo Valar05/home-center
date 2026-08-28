@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-23T23:01:00-05:00",
+  "mission": "Advance non-P0 TRY FOREVER through independent repository/source fronts without touching the gated phone/P0 execution surface.",
+  "currentPr": 329,
+  "baseCheckpoint": "9da41044942c2776e00ae4a64bf09d04fe1c18d5",
+  "fronts": [
+    {
+      "id": "canonical-result-fingerprint-custody",
+      "intent": "Make canonical-result receipt fingerprinting deterministic for hostile Unicode/surrogate-bearing JSON-shaped evidence without changing canonical authority.",
+      "owner": "existing descriptor-shadow audit",
+      "mutation": "supporting helper + hostile regression + RED owner boundary; owner remains unwired this pulse unless an exact safe mutation surface is established"
+    },
+    {
+      "id": "descriptor-shadow-doctrine",
+      "intent": "Harvest the fingerprint distinction into durable repository skill doctrine and preserve requested/source/test/runtime capability states."
+    },
+    {
+      "id": "touchable-evidence-scar",
+      "intent": "Create one source-only non-raster touchable specimen that makes result identity, artifact identity, and authority distinct without claiming deployment."
+    },
+    {
+      "id": "regnet-venice-evidence",
+      "intent": "Perform code-first review, keep regressions UNEXECUTED, and publish exact source/readback/firewall state."
+    }
+  ],
+  "constraints": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "canonicalAuthorityMutation": false,
+    "phoneExecution": false,
+    "runtimeClaim": false,
+    "testedClaim": false
+  },
+  "veniceGateRequiredBeforeMutation": true,
+  "sheRaw": "attempt authoritative ambient review once; preserve connector fault if unavailable"
+}

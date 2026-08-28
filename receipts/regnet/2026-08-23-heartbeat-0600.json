@@ -1,0 +1,39 @@
+{
+  "schema": "regnet-review.v1",
+  "checkpoint": "2026-08-23T06:00:00-05:00",
+  "reviewedSourceHead": "b610cbaaedafaacda67614bfc13c274d28759a6e",
+  "pr": 329,
+  "verdict": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Pre-mutation PLAN_ALLOWED receipt existed before substantive source mutation.",
+    "Prepared metadata owner surgery is exact-base-blob locked to canonical owner blob 523d8005212745738106733e91be6dd625caf767 and remains CORRECTED_PROPOSED_NOT_APPLIED.",
+    "Canonical v10 owner still first-matches patch base/state/owner metadata and structurally trims CLI owner identity; metadata-exactness owner integration remains NO/RED.",
+    "New patch-provenance regression prevents prepared surgery existence from laundering current owner into SOURCE_WIRED.",
+    "Code-first review rejected the first prepared patch because over-escaped unified-diff context made regex-declaration removal unsafe; corrected surgery leaves harmless declarations and removes authority in owner methods only.",
+    "All regression files are source-only and unexecuted. TESTED remains NO.",
+    "Phone/P0 consumption 0; mutation 0; duplicate architecture 0; new P0 finding none."
+  ],
+  "executionEvidence": {
+    "Build Android": {"run": 32635521128, "status": "completed", "conclusion": "failure"},
+    "Home Center CI": {"run": 32635521126, "status": "completed", "conclusion": "failure"},
+    "Operator Overlay Android": {"run": 32635521151, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capability": {
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "preparedOwnerSurgery": true,
+    "ownerSurgeryApplied": false,
+    "ownerMetadataWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

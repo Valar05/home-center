@@ -1,0 +1,13 @@
+{
+  "schema": "try-forever-venice-receipt.v1",
+  "checkpoint": "2026-08-22T08:02:00-05:00",
+  "reviewedSourceHead": "67f86bb7dc45c97e008f50775ed72f8fc4abae39",
+  "reviewKind": "same-worker-judgment-jar",
+  "authoritativeExternalVeniceInvoked": false,
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_ATOMIC_BINDING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "sourceWired": true,
+  "tested": false,
+  "atomicRootBinding": false,
+  "campaignContinueRequired": true,
+  "boundary": "Yield this bounded v10 source-wiring slice. Do not promote source/readback to regression execution, TESTED, runtime, deployment, delivery, acceptance, or phone/P0 capability."
+}

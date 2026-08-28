@@ -1,0 +1,79 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-1700",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE: converted four stale proposed owner seams into one existing-owner composition instead of retrying failed CI",
+    "Canon Auto-Select": "ACTIVE: provenance-specific repository skills governed the source cut",
+    "Autocorrect Judgment Jar": "DARK: no material speech/autocorrect ambiguity",
+    "Originality Tax": "ACTIVE: changed strategy from supporting patches to exact whole-owner composition after authenticated full owner content was available",
+    "Hunger": "ACTIVE: ate stale PROPOSED_NOT_APPLIED doctrine/provenance",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: synchronized owner, patches, four skills, regression source and accessible art",
+    "Operator Campaign": "ACTIVE: existing provenance owner remained sole owner",
+    "Harroway operator discipline": "ACTIVE: source/readback/test/runtime capability states kept separate",
+    "She-Raw adversarial motivation": "FAULT: authoritative consult attempted; account connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "ACTIVE: pre-mutation PLAN_ALLOWED and bounded completion review",
+    "Regnet QA": "ACTIVE: bounded source claim PASS; TESTED remains NO",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: Warm Wall remains native disclosure, keyboard/touch, non-color, reduced-motion source; runtime TalkBack unclaimed",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: consumption 0, mutation 0",
+    "deterministic routing": "ACTIVE: global identity-set ambiguity and typed alias ambiguity cannot choose winners by order",
+    "evidence/capability-state discipline": "ACTIVE: exact owner blob/readback and exact-head workflow boundary",
+    "recovery/checkpointing/idempotence": "ACTIVE: final root gate prevents late-root partial authority; no retry of unchanged CI failure",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: provenance authority Warm Wall mutated in place",
+    "warm walls": "ACTIVE: existing artifact updated rather than duplicated",
+    "Christmas-light scene graph": "DARK: provenance bookkeeping earns no decorative motion",
+    "contact preservation": "ACTIVE: fail-closed global gates return zero ambiguous authority rather than partial winners"
+  },
+  "frontsAdvanced": [
+    "existing-owner identity-set fail-closed composition",
+    "existing-owner generated-index byte/strict-UTF8 ingress composition",
+    "existing-owner generated-index typed-alias composition",
+    "existing-owner final skills-root revalidation composition",
+    "focused owner-composition regression source",
+    "four skill-doctrine capability updates",
+    "four patch-provenance status updates",
+    "accessible non-raster Warm Wall source mutation",
+    "Regnet/Venice/evidence publication"
+  ],
+  "sourceEvidence": {
+    "ownerCommit": "8603d51710d5147a5a7163dce05d9a998cf88557",
+    "ownerBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+    "ownerCompositionTestBlob": "1d7ca45279d4ab31774b6896cb91d8b14e2897a5",
+    "sourceArtHead": "ffbb304076d9f931b68411cea3b5983225a0dbc2"
+  },
+  "executionEvidence": {
+    "homeCenterCi": "32191224094 failure",
+    "operatorOverlayAndroid": "32191224032 / job 95885771857 failure / zero exposed steps / logs 404 BlobNotFound",
+    "buildAndroid": "32191224062 failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactAuthenticatedReadback": true,
+    "ownerSourceWired": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "crossPollination": "first-wins skill identity wound + first-value index alias wound + stale ingress/final-root patches -> one existing-owner composition -> hostile owner fixture -> stale skill/patch provenance repair -> accessible Warm Wall source truth -> exact-head CI boundary -> Regnet/Venice capability membrane",
+  "remainingIndependentWounds": [
+    "true atomic cross-platform root/file binding remains unproven",
+    "probe execution by an authorized runner remains unproven",
+    "runtime UI/TalkBack and later delivery states remain unproven"
+  ]
+}

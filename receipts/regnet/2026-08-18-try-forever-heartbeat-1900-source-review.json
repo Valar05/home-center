@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-18-1900",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__REVISE_REQUIRED_OWNER_UNWIRED",
+  "reviewedOwnerBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+  "reviewedSourceHead": "ad3c04adf29e5844adcfbe31fedd6076d8dcb20b",
+  "checks": [
+    {
+      "front": "child-directory traversal topology",
+      "status": "PASS_SOURCE_ONLY",
+      "evidence": [
+        "tools/try_forever_skill_directory_traversal_guard.py blob 5bce6621fef03c8d7fd0b859f7e117c677284b2e",
+        "tools/test_try_forever_skill_directory_traversal_guard.py blob b69d65f264fd18eaa806b870e278833b7690e992",
+        "skills/heartbeat-skill-directory-traversal-guard/SKILL.md blob 37e874e540ca6ec033f193c4f12f3c49919b08a9",
+        "patches/try-forever-skill-directory-traversal-guard.patch blob 1f3543078df772cbc281c2a486bad0b0a1a4ce29"
+      ],
+      "boundary": "Existing owner still queues plain child Paths and later scandir(path); guard/patch are supporting source only. Portable observation pair is not atomic."
+    },
+    {
+      "front": "skill-title pre-normalization semantic safety",
+      "status": "PASS_SOURCE_ONLY",
+      "evidence": [
+        "tools/try_forever_skill_title_fallback_policy.py blob 09d9b92d82c1671267ac8cc9ddd533e38feae1aa",
+        "tools/test_try_forever_skill_title_fallback_policy.py blob 128dba5bf83cbeb0867310d40b302ac6a9526c17",
+        "patches/try-forever-skill-title-fallback-hygiene.delta.json blob 985154caddd195254cfb927af1f49672de23b018",
+        "skills/heartbeat-skill-title-fallback-hygiene/SKILL.md blob ed26f499761234ec54865fd472e09335e2dfa71c"
+      ],
+      "boundary": "Existing owner still performs line.strip() before H1 authority and still uses raw folder fallback; corrected delta remains PROPOSED_NOT_APPLIED."
+    },
+    {
+      "front": "snapshot certification",
+      "status": "REVISE_REQUIRED_OWNER_UNWIRED",
+      "evidence": [
+        "tools/try_forever_skill_snapshot_authority.py supporting policy exists",
+        "patches/try-forever-skill-snapshot-certification.patch blob c8655cd3507badfe2fc2716384d820c90c5e0184",
+        "current owner still emits skillCount=len(skills) and skills=all discovered records even when snapshot/head certification is not authoritative"
+      ],
+      "boundary": "Diagnostics and authority are not yet separated in the existing owner. Do not report repository-skill certification as wired."
+    },
+    {
+      "front": "accessible Warm Wall",
+      "status": "PASS_SOURCE_ONLY",
+      "evidence": "docs/try-forever/heartbeat-provenance-certification-source-specimen.html blob 9a7f4f60cfa5db07d43e19972fad41f3ca07122f",
+      "boundary": "Native radio/source semantics only; no Android render or TalkBack runtime evidence."
+    },
+    {
+      "front": "review corrections",
+      "status": "PASS",
+      "evidence": [
+        "Initial traversal delta used a candidate-topology error shape; corrected before completion to traversal-specific bounded evidence.",
+        "Earlier title delta admitted after broad strip; corrected before completion so raw decoded line reaches narrow H1 admission first."
+      ]
+    }
+  ],
+  "executionTruth": {
+    "sourceHead": "ad3c04adf29e5844adcfbe31fedd6076d8dcb20b",
+    "homeCenterCi": {"runId": 32200052595, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32200052549, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32200052570, "jobId": 95911721299, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "status": "FAULT",
+    "boundary": "account connection returned HTTP 400; no synthetic review substituted"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRemoteReadback": true,
+    "childDirectoryOwnerWired": false,
+    "titleOwnerWired": false,
+    "snapshotCertificationOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

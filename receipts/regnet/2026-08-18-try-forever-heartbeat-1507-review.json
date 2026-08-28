@@ -1,0 +1,70 @@
+{
+  "schema": "regnet-review.v1",
+  "localTime": "2026-08-18T15:07:11-05:00",
+  "verdict": "REVISE_REQUIRED_FOR_OWNER_WIRING__PASS_FOR_BOUNDED_SOURCE_CLAIMS",
+  "reviewedFronts": {
+    "finalRootRevalidation": {
+      "patch": "patches/try-forever-skill-final-root-revalidation.patch",
+      "patchBlob": "0d9930467cff8f90ffa8fd79ecd0ea96c7409864",
+      "regressionSource": "tools/test_try_forever_skill_final_root_revalidation.py",
+      "regressionBlob": "14549b5563f6f74ff4eef7be2295dc6a0b7e7b85",
+      "skill": "skills/heartbeat-skill-final-root-revalidation/SKILL.md",
+      "skillBlob": "cecc33efa72688dfed89607110fe375d6b3bce1f",
+      "existingOwnerConsumption": false,
+      "finding": "Candidate enumeration is root-bracketed, but current owner blob 532a5a004dbca1f99caab6e230ef565dd61bf258 still returns gathered records after per-file authority work without one final root comparison. Exact patch provenance is coherent and fail-closed, but source patch existence is not implementation.",
+      "remainingBoundary": "Persistent late root replacement is addressed only by proposed source. Swap-and-restore, identity reuse, same-token rewrite, and atomic cross-platform binding remain unproven even after the proposed third observation."
+    },
+    "generatedIndexIngress": {
+      "patch": "patches/try-forever-generated-index-ingress-budget.patch",
+      "patchBlob": "7cdc431c16e429efbbc4dfd637043ab7ef08dff4",
+      "regressionSource": "tools/test_try_forever_generated_index_ingress_budget.py",
+      "regressionBlob": "03dc2d0ca8fac826735c4509d61e90b6f8fb8f4c",
+      "skill": "skills/heartbeat-generated-index-ingress-budget/SKILL.md",
+      "skillBlob": "ae8938ef6ad21f91b30d94616381fbfee3719d27",
+      "existingOwnerConsumption": false,
+      "finding": "Current inspect_generated_index still uses unbounded read_text(encoding='utf-8') and catches OSError/json.JSONDecodeError but not UnicodeDecodeError. Malformed UTF-8 can abort the probe; oversized generated-index input is read/decoded before becoming non-authoritative evidence. Proposed source adds a 1 MiB + sentinel byte throat and strict UTF-8 isolation while preserving valid-small-input semantics.",
+      "remainingBoundary": "Generated-index path topology/atomicity was not expanded in this slice; generated indexes remain discovery aids, never repository-skill authority."
+    },
+    "accessibilityWarmWall": {
+      "path": "docs/try-forever/heartbeat-skill-file-identity-source-specimen.html",
+      "blob": "b4f3794c06c4b2e6bb0d2a12b6cf97d64ed83403",
+      "sourceOnly": true,
+      "finding": "Existing radiogroup/roving-keyboard/48px/non-color/reduced-motion organism was mutated in place with FINAL ROOT COMMIT GATE and explicit owner-NO/runtime-unproven semantics. No duplicate UI owner or automatic speech/motion was introduced."
+    }
+  },
+  "reviewerTruth": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400__NO_SYNTHETIC_REVIEWER",
+    "venicePlanGate": "PRESENT_BEFORE_BOUNDED_MUTATIONS",
+    "commandCenter": "PERMANENTLY_RETIRED__NO_WORKER_DISPATCH"
+  },
+  "executionTruth": {
+    "automaticOperatorOverlayRun": 32181282155,
+    "exactHead": "30b9d8836434ab14b0600a09bbbac7a349277b7c",
+    "conclusion": "failure",
+    "job": 95854641293,
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "repositorySourceArtifacts": true,
+    "exactRemoteReadback": true,
+    "regressionSource": true,
+    "existingOwnerFinalRootWiring": false,
+    "existingOwnerGeneratedIndexBudgetWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

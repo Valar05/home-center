@@ -1,0 +1,47 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-1400",
+  "pr": 329,
+  "sourceHeadReviewed": "bed8d828e14829b51d360738c8f4af1fbf35b6c6",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "frontsReviewed": [
+    "HeartbeatPlainTextBudget shared plain-text hard returned-budget helper",
+    "HeartbeatSkillPolicy compact focused speech wiring",
+    "HeartbeatFrameAccessibility collapsed per-light label wiring",
+    "HeartbeatOverlayViewModel native visible-label wiring",
+    "Unicode/tiny-budget and consumer regression source",
+    "heartbeat-hard-returned-text-budgets durable skill",
+    "existing Swan Veil source mutation"
+  ],
+  "findings": [
+    "The original three helpers consumed the entire named source budget and appended an ellipsis afterward; the new shared helper reserves the ellipsis inside the same returned code-point cap.",
+    "Routine/plain projections remain distinct from explicit invisible-control evidence projection. The resource invariant was cross-pollinated without importing evidence-marker semantics into routine TalkBack or native labels.",
+    "Code-first review caught a stale ViewModel Unicode fixture using 90 swans: 180 UTF-16 chars exceeded the typed source label bound of 160 and could fail before reaching the visible-label budget. The fixture was repaired to 78 swans, which remains over the 72-code-point visible budget while staying inside the 160-char typed-source bound.",
+    "Canonical Candidate/Node fields are not mutated by the shared projection helper; only returned routine/plain text is bounded.",
+    "No parser, scene graph, overlay controller, renderer, state store, transport, phone lane, P0 coordinator, or recovery daemon was added."
+  ],
+  "testBoundary": {
+    "tested": false,
+    "workflow": "Operator Overlay Android",
+    "runId": 32058862776,
+    "jobId": 95475229405,
+    "head": "bed8d828e14829b51d360738c8f4af1fbf35b6c6",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "PASS_ZERO_PHONE_P0_CONSUMPTION_OR_MUTATION"
+}

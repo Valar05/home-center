@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRY FOREVER — Provenance Certification Warm Wall</title>
+<style>
+  :root { font-family: system-ui, sans-serif; line-height: 1.35; }
+  body { margin: 0; padding: 1rem; background: Canvas; color: CanvasText; }
+  main { max-width: 62rem; margin: auto; }
+  .scar { border: 2px solid currentColor; padding: .75rem; font-weight: 700; }
+  svg { width: 100%; height: auto; margin: 1rem 0; }
+  fieldset { border: 2px solid currentColor; padding: .75rem; }
+  legend { font-weight: 800; padding: 0 .4rem; }
+  .choice { position: relative; }
+  .choice input { position: absolute; inline-size: 1px; block-size: 1px; opacity: .01; }
+  .choice label {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: .5rem;
+    align-items: center;
+    min-block-size: 48px;
+    padding: .5rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .choice input:focus-visible + label { outline: 3px solid currentColor; outline-offset: 2px; }
+  .choice input:checked + label { border-color: currentColor; font-weight: 800; }
+  .token { font-size: 1.5rem; text-align: center; }
+  .detail { display: none; margin: 0 0 .75rem 3rem; padding: .5rem; border-inline-start: 4px solid currentColor; }
+  .choice input:checked ~ .detail { display: block; }
+  code { overflow-wrap: anywhere; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Provenance Certification Warm Wall</h1>
+  <p class="scar">OWNER v6 · PRE/POST/FINAL ONE-PROCESS SNAPSHOT SOURCE_WIRED · EXACT OID SOURCE_WIRED · GIT ENV REDIRECT BLOCKED · TRACKED + CONTENT↔HEAD SOURCE_WIRED · TESTED NO · RUNTIME/PHONE/P0 UNTOUCHED</p>
+
+  <svg viewBox="0 0 1320 190" role="img" aria-labelledby="wall-title wall-desc">
+    <title id="wall-title">Warm wall from repository observation through final provenance emission</title>
+    <desc id="wall-desc">The sole provenance owner is schema v6. One-process repository observations bracket discovery and final emission, branch object identity is admitted exactly without whitespace or case repair, inherited repository and config redirection are removed, tracked skill and content-to-HEAD custody remain source wired, and testing runtime and phone delivery remain unproven.</desc>
+    <path d="M25 95 H1295" fill="none" stroke="currentColor" stroke-width="6"/>
+    <rect x="5" y="55" width="135" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="150" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="305" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="460" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="615" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="770" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="925" y="55" width="145" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="1080" y="55" width="215" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="72" y="88" text-anchor="middle">SNAPSHOT</text><text x="72" y="112" text-anchor="middle">3 observations</text>
+    <text x="222" y="88" text-anchor="middle">OID</text><text x="222" y="112" text-anchor="middle">exact</text>
+    <text x="377" y="88" text-anchor="middle">GIT ENV</text><text x="377" y="112" text-anchor="middle">isolated</text>
+    <text x="532" y="88" text-anchor="middle">TRACKED</text><text x="532" y="112" text-anchor="middle">owner wired</text>
+    <text x="687" y="88" text-anchor="middle">CONTENT↔HEAD</text><text x="687" y="112" text-anchor="middle">owner wired</text>
+    <text x="842" y="88" text-anchor="middle">INDEX FILE</text><text x="842" y="112" text-anchor="middle">finite</text>
+    <text x="997" y="88" text-anchor="middle">LATE REPO</text><text x="997" y="112" text-anchor="middle">preserve only</text>
+    <text x="1187" y="88" text-anchor="middle">REPORT v6</text><text x="1187" y="112" text-anchor="middle">source only</text>
+  </svg>
+
+  <fieldset>
+    <legend>Touch a provenance state</legend>
+
+    <div class="choice">
+      <input type="radio" name="state" id="snapshot" checked aria-describedby="snapshot-detail">
+      <label for="snapshot"><span class="token" aria-hidden="true">●</span><span>One-process repository observations own pre, post, and final custody</span></label>
+      <p class="detail" id="snapshot-detail"><strong>Existing owner source-wired.</strong> The same bounded repository observation runs before discovery, after discovery, and at final emission. Matching observations narrow evidence drift but do not claim an atomic filesystem snapshot.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="oid" aria-describedby="oid-detail">
+      <label for="oid"><span class="token" aria-hidden="true">●</span><span>Branch OID must already be exact canonical evidence</span></label>
+      <p class="detail" id="oid-detail"><strong>Implemented source; regression unexecuted.</strong> Lowercase SHA-1/SHA-256 is admitted exactly after the porcelain protocol prefix. Leading/trailing whitespace, tab suffixes, uppercase, malformed, or duplicate OID headers fail closed rather than being normalized into authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="git-env" aria-describedby="git-env-detail">
+      <label for="git-env"><span class="token" aria-hidden="true">●</span><span>Inherited repository and config redirection is blocked</span></label>
+      <p class="detail" id="git-env-detail"><strong>Implemented source; regression unexecuted.</strong> The Git subprocess removes repository/index/object redirects, global/system config-file selectors, command-scope config injection, and replacement-object redirection while preserving benign environment such as PATH.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="tracked" aria-describedby="tracked-detail">
+      <label for="tracked"><span class="token" aria-hidden="true">●</span><span>Filesystem candidates must also be Git-tracked</span></label>
+      <p class="detail" id="tracked-detail"><strong>Existing owner source-wired.</strong> Bounded literal tracked-path observation and the exact tracked-set gate run before per-file authority. Any untracked candidate fails the repository-skill authority set closed.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="head-content" aria-describedby="head-content-detail">
+      <label for="head-content"><span class="token" aria-hidden="true">●</span><span>Observed SKILL.md content must match the raw HEAD blob</span></label>
+      <p class="detail" id="head-content-detail"><strong>Existing owner source-wired.</strong> One bounded skill-content observation carries title, SHA, and Git blob identity; bounded raw-HEAD observation must match before a SkillRecord earns repository authority. Atomic file-handle binding remains unclaimed.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="index" aria-describedby="index-detail">
+      <label for="index"><span class="token" aria-hidden="true">●</span><span>Generated-index currentness is preservation-only</span></label>
+      <p class="detail" id="index-detail"><strong>Existing owner source-wired.</strong> Generated-index currentness survives only when exact initial and late artifact identities agree under stable final repository custody. The index remains a discovery aid, never repository-skill authority.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="atomicity" aria-describedby="atomicity-detail">
+      <label for="atomicity"><span class="token" aria-hidden="true">□</span><span>Atomicity still open</span></label>
+      <p class="detail" id="atomicity-detail"><strong>Observation is not handle binding.</strong> One-process Git observations and file/path identity gates detect many persistent changes but do not prove away every swap-and-restore or identity-reuse race.</p>
+    </div>
+
+    <div class="choice">
+      <input type="radio" name="state" id="membrane" aria-describedby="membrane-detail">
+      <label for="membrane"><span class="token" aria-hidden="true">×</span><span>Capability membrane remains shut</span></label>
+      <p class="detail" id="membrane-detail"><strong>Source progress is not runtime proof.</strong> Owner source, regression source, doctrine, and this Warm Wall are repository artifacts. TESTED, runtime UI, runtime TalkBack, deployed, callable, executed, delivered, and accepted remain dark until their own receipts exist.</p>
+    </div>
+  </fieldset>
+
+  <p><strong>Christmas-light rule:</strong> evidence plumbing earns no autoplay, blink, or transition motion. This wall is touch-inspectable source, not deployed Operator Overlay evidence.</p>
+</main>
+</body>
+</html>

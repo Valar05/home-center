@@ -1,0 +1,182 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-1800",
+  "sourceHeadReviewed": "723fc6625b01e4b9f0825ead3c3d7bfff2f405cc",
+  "multipleFrontsAdvanced": 8,
+  "fronts": [
+    "snapshot authority certification policy",
+    "snapshot hostile regression source",
+    "shared H1/fallback title admission policy",
+    "title hostile regression source",
+    "two durable repository skill doctrines",
+    "two exact unapplied owner-delta provenance surfaces",
+    "accessible non-raster certification Warm Wall",
+    "Regnet/Venice/exact-head execution evidence"
+  ],
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "changed": "Refused CI retry and redirected to independent provenance authority wounds."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "changed": "When the title patch-text write was rejected by the tool gate, changed the durable provenance shape to a machine-readable owner delta in the same Home Center lane instead of retrying the blocked shape."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "changed": "Selected execution-truth, semantic-text-safety, provenance freshness and Regnet/Venice constraints because source custody and human-facing skill text were material."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "why": "No speech-to-text/autocorrect ambiguity materially affected this slice."
+    },
+    {
+      "name": "Hunger / Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "changed": "Review of the fallback-only repair exposed that H1 and folder fallback feed one SkillRecord.title; the supporting policy/tests/doctrine/delta/art were converged before completion."
+    },
+    {
+      "name": "Operator Campaign / Harroway discipline",
+      "state": "ACTIVE",
+      "changed": "Kept tools/try_forever_skill_provenance_probe.py as the sole owner and preserved owner changes as unapplied deltas rather than hatching Probe II."
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "FAULT",
+      "why": "Authoritative connector attempt returned account-connection HTTP 400; no synthetic She-Raw verdict substituted."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "changed": "PASS for bounded supporting-source/readback claims; REVISE_REQUIRED for owner integration; BLOCKED_UNKNOWN for TESTED."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "changed": "SOURCE_SLICE_STOP_ALLOWED only; owner integration/test/runtime/campaign remain CONTINUE_REQUIRED. No merge authority."
+    },
+    {
+      "name": "Accessibility / TalkBack / touch semantics",
+      "state": "ACTIVE",
+      "changed": "Skill-title canonical text rejects control/bidi-direction state without banning ordinary Unicode composition; Warm Wall uses native radio semantics, >=48px target intent, non-color tokens and reduced-motion-safe no-autoplay behavior. Runtime TalkBack remains unproven."
+    },
+    {
+      "name": "Deterministic routing",
+      "state": "ACTIVE",
+      "changed": "Repository-skill authority is modeled as an explicit global certification gate instead of caller-dependent --strict behavior."
+    },
+    {
+      "name": "Evidence / capability-state discipline",
+      "state": "ACTIVE",
+      "changed": "Source claims are pinned to reviewed head 723fc662; source/readback/regression/owner-wired/tested/runtime/deployed/callable/executed/delivered/accepted remain separate."
+    },
+    {
+      "name": "Recovery / checkpointing / idempotence",
+      "state": "ACTIVE_EVIDENCE_ONLY",
+      "changed": "Expected-head mismatch and unstable-snapshot states cannot be silently promoted as current authority; reviewed source/test evidence stays commit-bound. No runtime checkpoint semantics changed."
+    },
+    {
+      "name": "Warm Walls / strange non-raster DOM+SVG art",
+      "state": "ACTIVE",
+      "changed": "Added one touchable provenance certification wall that self-disqualifies runtime/phone proof."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "DARK",
+      "why": "Provenance bookkeeping and title admission did not change heartbeat transition topology; no decorative motion was earned."
+    },
+    {
+      "name": "Contact preservation",
+      "state": "DARK",
+      "why": "No heartbeat runtime/contact frame semantics changed in this source slice."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "why": "P0 scheduler and shared phone surface retain sole ownership; no new P0 predicate change was discovered."
+    },
+    {
+      "name": "semantic-text-safety (repository skill)",
+      "state": "ACTIVE",
+      "changed": "Contributed the precise rule: reject canonical controls/directional spoofing without copying a broad FORMAT-character ban into legitimate Unicode text."
+    },
+    {
+      "name": "execution-truth (repository skill)",
+      "state": "ACTIVE",
+      "changed": "Prevented supporting policy, queued/automatic CI failure, or source art from being reported as owner wiring, tests, runtime, deployment, delivery or acceptance."
+    },
+    {
+      "name": "heartbeat-skill-snapshot-certification (new repository skill)",
+      "state": "ACTIVE_NEW",
+      "changed": "Harvested fail-closed certification doctrine for stable clean snapshot + expected-head custody."
+    },
+    {
+      "name": "heartbeat-skill-title-fallback-hygiene (new repository skill)",
+      "state": "ACTIVE_NEW",
+      "changed": "Harvested one shared H1/fallback source-title authority contract and its correction scar."
+    }
+  ],
+  "artifacts": {
+    "snapshotPolicy": "ac5a126b2ee254887fb7da3c5c08799256eaac72",
+    "snapshotRegression": "5854bc00572a62cde37eab1e33eff34efbc09ecc",
+    "titlePolicy": "0222a142663eb442c611bdad53e258d35868f28a",
+    "titleRegression": "81fa6574dbbee4c3779596dbbbd57c0f47e733de",
+    "snapshotSkill": "5e83bb9aa5e43577a05c8e99f165a55b1b65fde2",
+    "titleSkill": "fedcf86b46ea4e0e1a90dd88f7645249bf723eb9",
+    "snapshotOwnerPatch": "c8655cd3507badfe2fc2716384d820c90c5e0184",
+    "titleOwnerDelta": "b17ab5b7fa62a99017ec364664f25575857aa911",
+    "warmWall": "beffd35a51102bf6250ff4724e2fd0372532abfb",
+    "existingOwnerUnchanged": "51e6efdbcec03d044ab89f37213659252514856a"
+  },
+  "automaticExecutionEvidence": {
+    "head": "723fc6625b01e4b9f0825ead3c3d7bfff2f405cc",
+    "homeCenterCi": {"run": 32196038309, "conclusion": "failure"},
+    "buildAndroid": {"run": 32196038246, "conclusion": "failure"},
+    "operatorOverlay": {"run": 32196038237, "job": 95900145280, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "crossPollination": [
+    "snapshot authority prose + non-strict output exposed certification leakage",
+    "fallback title resource bypass activated semantic-text-safety",
+    "semantic review exposed that H1 and fallback are one title authority surface",
+    "correction propagated through helper, regression, doctrine, owner delta and Warm Wall",
+    "tool-gate rejection activated Originality Tax and changed artifact shape without changing lane",
+    "exact-head workflow failure remained execution evidence only and did not erase source/readback progress"
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "existingOwnerSnapshotCertificationWired": false,
+    "existingOwnerTitleAdmissionWired": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayProbes": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_TEST_RUNTIME_CONTINUE_REQUIRED"
+}

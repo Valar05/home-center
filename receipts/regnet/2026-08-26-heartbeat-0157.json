@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T01:57:00-05:00",
+  "scope": "non-P0 Harroway Try Forever source slice",
+  "sourceHead": "22b4b03f859a1a59299e88b1398d6f9950775a38",
+  "verdict": "PASS_SOURCE_READBACK__TYPED_AUTHORITY_SCALAR_CONVERGED__ACCESSIBILITY_FIXTURE_SOURCE__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "backend authority member admission",
+      "state": "SOURCE_WIRED",
+      "evidence": "artifact_kind must be an exact built-in string before patch/delta membership testing; JSON-shaped list/dict values now fail through ValueError instead of raw unhashable TypeError"
+    },
+    {
+      "front": "backend exact-input regression",
+      "state": "SOURCE_UNEXECUTED",
+      "evidence": "ordinary backend result now carries the required explicit backend control and hostile artifact_kind container coverage rejects raw TypeError leakage"
+    },
+    {
+      "front": "backend selection doctrine",
+      "state": "SOURCE_CONVERGED",
+      "evidence": "direct descriptor-root admission and root path-encoding containment are recorded as SOURCE_WIRED/APPLIED_SOURCE rather than the stale RED/proposed state"
+    },
+    {
+      "front": "accessibility Warm Wall contract",
+      "state": "SOURCE_UNEXECUTED",
+      "evidence": "source fixture pins native radios, 56px touch rows, focus, role=status live text, SVG title/desc, reduced motion, no decorative loop, runtime TalkBack NO, phone/P0 untouched"
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "execution": {
+    "homeCenterCi": {"runId": 32941035810, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32941035825, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32941035860, "jobId": 98091888327, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

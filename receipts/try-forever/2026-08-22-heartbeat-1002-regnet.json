@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever-regnet-receipt.v1",
+  "localCheckpoint": "2026-08-22 10:02 CT",
+  "reviewedSourceHead": "15899e69576914cb1f65f67bb5b0a8966936a260",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK_ONLY__DESCRIPTOR_OWNER_UNWIRED__BASE_IDENTITY_OWNER_UNWIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "passes": [
+    "HeldDirectoryCustody now carries enumeration-time no-follow candidate identity into pre-open authority checks.",
+    "Descriptor inventory now preserves total directory entries observed separately from matching candidates, keeping canonical v10 evidence fields composable.",
+    "Persistent candidate replacement after enumeration has hostile regression source and is rejected by supporting source before authority-facing read.",
+    "Base-owner blob normalization is exposed as an independent authority-evidence wound with hostile regression source and one exact existing-owner patch artifact.",
+    "Descriptor doctrine and existing Warm Wall were converged without duplicate controller/probe architecture.",
+    "P0/phone firewall remained zero-consumption and zero-mutation."
+  ],
+  "boundaries": [
+    "Canonical v10 owner still does not consume descriptor custody.",
+    "Descriptor custody does not prove candidate swap-and-restore immunity, inode/file-index reuse immunity, Windows parity, or universal filesystem atomicity.",
+    "Base-identity owner patch is CORRECTED_PROPOSED_NOT_APPLIED; canonical owner still normalizes base evidence.",
+    "Descriptor, base-identity, and current-inventory regressions are UNEXECUTED.",
+    "Automatic workflows failed on the reviewed source head, but current evidence establishes no step-level cause; TESTED remains NO."
+  ],
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "descriptorCandidateIdentity": true,
+    "descriptorEvidenceMetrics": true,
+    "descriptorOwnerIntegration": false,
+    "baseIdentityPatchPrepared": true,
+    "baseIdentityOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneDelivered": false,
+    "accepted": false
+  }
+}

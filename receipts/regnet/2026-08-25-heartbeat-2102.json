@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "checkpoint": "2026-08-25T21:02:46-05:00",
+  "reviewedSourceHead": "5bee09f2e78a4138d1bd6df7e3412922e9144458",
+  "verdict": "PASS_OWNER_SOURCE_WIRING__DESCRIPTOR_BACKEND_COMPOSITION_REMAINS_NO__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "canonical_semantic_producer_composition",
+      "state": "SOURCE_WIRED",
+      "finding": "Canonical v10 now performs its existing bounded artifact observation once and delegates patch/delta semantics to the existing pure parse_owner_surgery_observation producer. The convergence fixture requires observation-before-parse and rejects split semantic parsing inside inspect_patch/inspect_delta."
+    },
+    {
+      "front": "descriptor_exact_input_custody",
+      "state": "SOURCE_WIRED",
+      "finding": "Held-directory custody now requires exact built-in basename strings, exact built-in non-negative integer budgets, and an exact DescriptorCandidate before caller-controlled scalar/candidate semantics can execute. Hostile source fixtures cover callback-capable subclasses."
+    },
+    {
+      "front": "canonical_descriptor_backend_composition",
+      "state": "NO",
+      "finding": "Canonical v10 still uses its portable named-path artifact observer; HeldDirectoryCustody is not consumed by the canonical authority owner. Descriptor custody remains a stronger supporting backend, not canonical authority."
+    },
+    {
+      "front": "capability_receipt_convergence",
+      "state": "SOURCE_WIRED",
+      "finding": "The semantic producer source receipt now truthfully records canonicalOwnerConsumption=true while descriptorBackendConsumption remains false. Applied patch provenance records both repaired owners as APPLIED_SOURCE."
+    },
+    {
+      "front": "hostile_convergence_fixtures",
+      "state": "SOURCE_UNEXECUTED",
+      "finding": "Canonical semantic composition and descriptor exact-input boundary fixtures were strengthened after owner mutation, but no authorized regression execution receipt exists."
+    },
+    {
+      "front": "descriptor_skill_doctrine",
+      "state": "STALE_NONAUTHORITY",
+      "finding": "The existing operator-owner-surgery-descriptor-custody skill still predates this exact-input owner wiring. It remains useful as a constraint source, but its dated capability summary must not override authenticated current owner readback."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionEvidence": {
+    "head": "5bee09f2e78a4138d1bd6df7e3412922e9144458",
+    "homeCenterCi": {"run": 32921742311, "conclusion": "failure"},
+    "buildAndroid": {"run": 32921742314, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32921742331, "job": 98036504575, "conclusion": "failure", "steps": 0, "logs": "404_BlobNotFound"},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "duplicateArchitecture": false,
+  "phoneSurfaceConsumed": false,
+  "p0Mutation": false,
+  "newP0Finding": null,
+  "regressionExecuted": false,
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "callable": false,
+  "executed": false,
+  "delivered": false,
+  "accepted": false,
+  "boundary": "Both previously proposed exact owner repairs are SOURCE_WIRED with authenticated readback. Canonical descriptor-backend composition, descriptor-skill doctrine convergence, authorized regression execution, TESTED/runtime, and the recurring campaign remain open."
+}

@@ -1,0 +1,118 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewer": "Regnet QA",
+  "provenance": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedHead": "47250a6b22dd080582e8a8ca766281066c0158d2",
+  "timestamp": "2026-08-15T21:08:00Z",
+  "boundedClaim": "The 1600 heartbeat source closes a lossy-Unicode integrity gap on both sides of opaque heartbeat persistence without creating a new runtime owner: OperatorState strictly rejects malformed UTF-16 before persistence encoding; HeartbeatPersistedEnvelopeProjection adds a byte-first path that verifies exact byte count/SHA and strictly decodes UTF-8 before parser trust. Regression and warm-wall source encode the failure ordering. This is IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK only.",
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "exactSourceIdentity": {
+    "HeartbeatPersistedEnvelopeProjection.java": "66260cfa89a38534054b5d46600eca54e0966d3c",
+    "HeartbeatPersistedEnvelopeProjectionTest.java": "ff0b22c3b76dd83b21da546ce1b0afdc01bfac43",
+    "OperatorState.java": "57874058f04057926492bf74e9172a33fd8d27af",
+    "OperatorStateHeartbeatLightsEncodingTest.java": "c6ee86bffe8adc283cdff011af10b2e03a451c8b",
+    "heartbeat-motion-clamp-source-specimen.html": "e7271b76bfa569e151ff3a0a392c579637011028"
+  },
+  "acceptanceReview": [
+    {
+      "criterion": "Ingress persistence does not silently normalize malformed UTF-16 into replacement-encoded canonical bytes.",
+      "sourceEvidence": "OperatorState.updateHeartbeatLights now calls strictHeartbeatLightsUtf8 before SharedPreferences edit construction; the helper uses a UTF-8 CharsetEncoder with malformed/unmappable input set to REPORT.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Exact persisted raw bytes are verified and losslessly decoded before semantic parser trust.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjection.projectBytes clones caller bytes, checks positive observation metadata, byte ceiling, declared byte count, canonical SHA metadata, and exact SHA; only then does a REPORT-mode UTF-8 decoder produce parser input.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Malformed raw UTF-8 preserves last-good contact and cannot inherit transition motion.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjectionTest regression source supplies malformed C3 28 bytes with correct content identity and requires semanticAttempted=false, exact UTF-8 boundary, same contact/transition fingerprints, and frame/node motion false.",
+      "state": "regression_source_only"
+    },
+    {
+      "criterion": "Well-formed astral Unicode remains byte-stable across ingress and projection source contracts.",
+      "sourceEvidence": "OperatorStateHeartbeatLightsEncodingTest compares strict encoding to StandardCharsets.UTF_8 for a swan-bearing payload; projection regression source carries a swan label through projectBytes and expects identical presentation semantics.",
+      "state": "regression_source_only"
+    },
+    {
+      "criterion": "Integrity boundaries describe the bytes actually checked before UTF-8 trust.",
+      "sourceEvidence": "Code-first review changed pre-decode SHA mismatch wording from decoded-UTF-8 language to exact payload bytes, and changed the pre-decode byte ceiling boundary to generic bytes.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Warm-wall art teaches the encoding wound without becoming runtime evidence or accessibility theater.",
+      "sourceEvidence": "The existing motion-clamp specimen was extended in place to eight states with a strict UTF-8 encoding scar, while preserving native buttons, aria-pressed state selection, keyboard focus, >=48px targets, one live status region, non-color tokens, reduced-motion handling, no autoplay, and explicit SOURCE ONLY scarring.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "No duplicate controller/runtime/P0 owner or shared phone work is introduced.",
+      "sourceEvidence": "Changes are confined to the existing OperatorState persistence owner, existing pure projection/test surfaces, existing warm-wall specimen, and durable receipts. No phone, queue, recovery, renderer, transport, or P0 owner was created or invoked.",
+      "state": "pass_for_source_scope"
+    }
+  ],
+  "codeFirstFindings": [
+    {
+      "severity": "major_then_repaired_before_completion",
+      "finding": "The first 1600 plan assumed downstream strict byte projection was enough. Reading OperatorState exposed String.getBytes(StandardCharsets.UTF_8), which replacement-encodes unpaired surrogates before persisted byte/SHA evidence exists.",
+      "repair": "A fresh Venice replan preceded repair. OperatorState now REPORT-encodes heartbeat JSON before persistence mutation and deterministic regression source covers well-formed astral Unicode plus unpaired high/low surrogate rejection."
+    },
+    {
+      "severity": "minor_then_repaired_before_completion",
+      "finding": "The byte-first projection's old SHA mismatch boundary said decoded UTF-8 even though SHA is checked before strict decoding and the observed bytes may be malformed.",
+      "repair": "Boundary text now names exact payload bytes; pre-decode size wording likewise no longer presumes valid UTF-8."
+    }
+  ],
+  "accessibilityReview": {
+    "state": "active_specimen_constraint",
+    "sourceInspected": "docs/try-forever/heartbeat-motion-clamp-source-specimen.html",
+    "finding": "The materially changed source specimen retained semantic native controls, pressed selection, keyboard focus, minimum target contract, a single atomic live status surface, non-color state tokens, and reduced-motion behavior while adding the eighth encoding scar. No runtime TalkBack claim is made."
+  },
+  "deterministicExecution": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31908532057,
+    "jobId": 95070002807,
+    "headSha": "47250a6b22dd080582e8a8ca766281066c0158d2",
+    "stepsExecuted": 0,
+    "conclusion": "failure",
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "p0PhoneFirewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedVerdict": "BLOCKED_UNKNOWN",
+  "mergeVerdict": "NOT_GRANTED"
+}

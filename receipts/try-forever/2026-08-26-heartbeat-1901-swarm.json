@@ -1,0 +1,122 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "reviewedSourceHead": "9dfc2f54d6dad736edcebfc21317304ca4e60ddd",
+  "previousPublicationHead": "b60b96cbf2b21e4c48b2ab5f6dc512d1b9b0567e",
+  "sourceDelta": {
+    "commits": 6,
+    "paths": 6,
+    "unexpectedPaths": 0,
+    "pathsAdvanced": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedEnvelopeProjection.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedStringPreencodeResourceThroatTest.java",
+      "patches/try-forever-heartbeat-persisted-string-preencode-resource-throat.patch",
+      "docs/try-forever/heartbeat-predecode-throat-source.html",
+      "tools/test_try_forever_heartbeat_predecode_throat_source_specimen.py",
+      "skills/heartbeat-predecode-resource-budget/SKILL.md"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "direct-persisted-string-preencode",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "change": "Existing projection owner rejects over-ceiling Java String source before UTF-8 encode while exact-at-ceiling source still reaches existing byte/SHA/update/semantic custody."
+    },
+    {
+      "name": "accessibility-warm-wall",
+      "state": "SOURCE_WIRED_SOURCE_ONLY",
+      "change": "Existing Warm Wall touch targets corrected from 48px to 56px and expanded to expose direct-String SOURCE_WIRED versus parser-preparse RED through native controls, visible focus, live non-color status, SVG semantics, and reduced-motion behavior."
+    },
+    {
+      "name": "accessibility-source-regression",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "New source-only fixture pins >=56px controls, live/status and SVG semantics, reduced-motion/no-timer behavior, capability membrane, and P0 untouched text."
+    },
+    {
+      "name": "resource-doctrine",
+      "state": "CONVERGED_SOURCE",
+      "change": "heartbeat-predecode-resource-budget now records direct-String source wiring as applied while keeping envelope parser preparse RED and runtime/TalkBack/deployment unproven."
+    },
+    {
+      "name": "envelope-preparse",
+      "state": "NO_PROPOSED_NOT_APPLIED_RED_SOURCE",
+      "change": "Exact existing owner and staged 32,768-code-unit proposal revalidated; no owner mutation claimed."
+    },
+    {
+      "name": "single-semantic-parser-ownership",
+      "state": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+      "change": "Active shared semantic delegation and dormant local parser fossil remain separated; cleanup remains unapplied."
+    }
+  ],
+  "skills": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "strange non-raster vector/DOM/native UI art",
+      "warm walls",
+      "contact preservation",
+      "heartbeat-predecode-resource-budget",
+      "heartbeat-source-bound-parity"
+    ],
+    "dark": {
+      "Autocorrect Judgment Jar": "No material token ambiguity affected authority or routing.",
+      "Christmas-light scene graph": "No runtime transition law changed; no decorative motion added.",
+      "Phone Runtime / Phone Hands recovery": "Binding P0/phone firewall; exact zero-touch boundary."
+    }
+  },
+  "crossPollination": "Poll/reader resource custody made direct String pre-encode work suspicious; applying that existing-owner throat exposed stale resource doctrine. Accessibility review then found the existing Warm Wall's real 48px-vs-claimed-56px touch discrepancy, so the same source-state convergence repaired interaction source semantics without creating a second specimen. Source-bound parity kept the envelope parser's separate preparse wound explicitly RED rather than laundering upstream custody into parser safety.",
+  "execution": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33025879707, "conclusion": "failure", "job": 98366947665, "steps": 0},
+      {"name": "Home Center CI", "id": 33025879715, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33025879725, "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelCauseEstablished": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "directStringPreencode": "SOURCE_WIRED_APPLIED_SOURCE",
+    "envelopePreparse": "NO_PROPOSED_NOT_APPLIED",
+    "semanticParserCleanup": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUI": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ENVELOPE_PREPARSE_SEMANTIC_PARSER_CLEANUP_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

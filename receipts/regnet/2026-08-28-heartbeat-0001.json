@@ -1,0 +1,50 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "date": "2026-08-28",
+  "scope": "PR #329 non-P0 Try Forever source slice",
+  "reviewedSourceHead": "b427a4147a453290e71be91ef27e4bd27737dcba",
+  "verdict": "PASS_BOUNDED_SOURCE__UI_REQUEST_OWNER_REVISE_REQUIRED__NATIVE_ACCESSIBILITY_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "requestAdmissionProbe": {
+      "status": "SOURCE_CONVERGED",
+      "change": "requestAdmission now requires exactly one detached editable observation, exactly one bounded policy gate, exactly one detached materialization, and policy -> materialization -> persistence ordering",
+      "regression": "source fixture pins duplicate source, duplicate gate, and duplicate materialization as PARTIAL_UNSAFE"
+    },
+    "adamRepeatReceipt": {
+      "status": "SUPPORTING_SOURCE_CONVERGED",
+      "change": "ADAM_SEND_CONFIRMATION now explicitly requires an intervening READY state before a later successful SENT can participate in a repeatable result receipt",
+      "legacyReceipt": "PRESERVED",
+      "migrationBlocker": "ADAM_REPEAT_SEND_RESULT_UNRESOLVED"
+    },
+    "warmWall": {
+      "status": "SOURCE_CONVERGED",
+      "change": "specimen no longer uses JavaScript trim() as request authority; it uses ASCII <= U+0020 parity, allows OVER_BUDGET source to remain representable, and disables automatic live-region chatter"
+    },
+    "nativeUiRequestOwner": "NO_PROPOSED_NOT_APPLIED",
+    "nativeAdamAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED"
+  },
+  "executionTruth": {
+    "workflowRuns": {
+      "operatorOverlayAndroid": 33143997481,
+      "buildAndroid": 33143997502,
+      "homeCenterCi": 33143997484
+    },
+    "conclusion": "failure",
+    "operatorJob": 98760932142,
+    "operatorJobSteps": 0,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

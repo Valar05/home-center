@@ -1,0 +1,34 @@
+# SOURCE PROVENANCE ONLY — APPLIED_SOURCE
+# OWNER: tools/try_forever_owner_surgery_shadow_receipt_projection.py
+# BASE OWNER BLOB: 4cc65f162f600e70a9771d7cf3edac94e45f5344
+# APPLIED COMMIT: cad8d728efa14d8a20b229d1902896e9267d0e02
+# RESULT OWNER BLOB: 10b88a9583274d498524b3082e252886be4335af
+# PURPOSE: consume the existing cross-host serialized report-path projector; do not create a second projector.
+
+diff --git a/tools/try_forever_owner_surgery_shadow_receipt_projection.py b/tools/try_forever_owner_surgery_shadow_receipt_projection.py
+--- a/tools/try_forever_owner_surgery_shadow_receipt_projection.py
++++ b/tools/try_forever_owner_surgery_shadow_receipt_projection.py
+@@
+-from try_forever_provenance_report_path import (
+-    project_report_path,
+-    project_repository_relative_report_path,
+-)
++from try_forever_provenance_report_path import project_serialized_report_path
+@@
+ def _project_shadow_path(repo_root: Path, path_text: str):
+-    """Project canonical shadow path text without depending on process cwd.
+-
+-    Canonical v10/shadow source normally serializes repository-relative paths such as
+-    ``patches/try-forever-a.patch``. Feeding that text through ``Path.abspath`` would make display
+-    semantics depend on the caller's working directory. Relative shadow identities therefore use
+-    the repository-relative projector directly; absolute source paths retain the normal repository
+-    containment/external-host projection.
+-    """
+-
+-    path = Path(path_text)
+-    if not path.is_absolute():
+-        return project_repository_relative_report_path(path.as_posix())
+-    return project_report_path(repo_root, path)
++    """Project serialized shadow paths without making reviewer-host syntax authoritative."""
++
++    return project_serialized_report_path(repo_root, path_text)

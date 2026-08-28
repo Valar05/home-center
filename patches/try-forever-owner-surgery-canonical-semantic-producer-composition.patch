@@ -1,0 +1,114 @@
+# STATUS: APPLIED_SOURCE
+# BASE OWNER BLOB: e3810d1afb3a8afe458219d81e2826eafcb6ab33
+# APPLIED OWNER BLOB: 985f95e9018d1fe354b0f3bfcbfbf26ea51dee05
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# PURPOSE: Make canonical v10 consume the already-owned exact-observation semantic producer without adding a second authority owner or filesystem reread.
+# CAPABILITY: SOURCE_WIRED ONLY; regression execution, TESTED, descriptor backend composition, runtime, deployment, phone delivery, and acceptance remain NO.
+diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ from try_forever_owner_surgery_metadata_exactness import (
+     admit_owner_identity,
+     admit_patch_metadata,
+ )
++from try_forever_owner_surgery_semantic_parser import (
++    OwnerSurgerySemanticError,
++    parse_owner_surgery_observation,
++)
+ from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
+@@
+ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+     try:
+         observation = _observe_bounded_utf8(path)
+-        text = observation.utf8_text
+-        metadata = admit_patch_metadata(text)
+-
+-        if metadata.explicit_owner is None:
+-            owner = admit_default_owner_from_patch(
+-                text,
+-                default_owner=DEFAULT_OWNER,
+-            ).owner
+-        else:
+-            owner = metadata.explicit_owner
+-
++        semantic = parse_owner_surgery_observation(
++            path=path.as_posix(),
++            artifact_kind="patch",
++            utf8_text=observation.utf8_text,
++            byte_count=observation.size_bytes,
++            sha256=observation.sha256,
++        )
+         return Surgery(
+-            path=path.as_posix(),
+-            artifact_kind="patch",
+-            owner=owner,
+-            base_blob=metadata.base_blob,
+-            state=metadata.state,
+-            promotion_candidate=metadata.promotion_candidate,
+-            artifact_byte_count=observation.size_bytes,
+-            artifact_sha256=observation.sha256,
++            path=semantic.path,
++            artifact_kind=semantic.artifact_kind,
++            owner=semantic.owner,
++            base_blob=semantic.base_blob,
++            state=semantic.state,
++            promotion_candidate=semantic.promotion_candidate,
++            artifact_byte_count=semantic.artifact_byte_count,
++            artifact_sha256=semantic.artifact_sha256,
+         ), None
+-    except (ArtifactAdmissionError, OSError, UnicodeError, ValueError) as exc:
++    except (ArtifactAdmissionError, OwnerSurgerySemanticError, OSError, UnicodeError, ValueError) as exc:
+         return None, _error(path, "patch", exc)
+@@
+ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+     try:
+         observation = _observe_bounded_utf8(path)
+-        payload = json.loads(
+-            observation.utf8_text,
+-            object_pairs_hook=_reject_duplicate_json_members,
+-            parse_constant=lambda value: (_ for _ in ()).throw(
+-                ValueError(f"non-standard JSON constant: {value}")),
+-        )
+-        if not isinstance(payload, dict):
+-            raise ValueError("owner delta root must be an object")
+-        if payload.get("schema") != DELTA_SCHEMA:
+-            raise ValueError(f"unsupported owner delta schema: {payload.get('schema')!r}")
+-
+-        owner = admit_owner_identity(payload.get("owner"), field="delta owner")
+-
+-        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob")
+-        if SHA1_RE.fullmatch(base_blob) is None:
+-            raise ValueError("base owner blob must be 40 lowercase hexadecimal characters")
+-
+-        state_admission = admit_owner_surgery_state(
+-            _consistent_delta_string(payload, DELTA_STATE_KEYS, "state/status")
++        semantic = parse_owner_surgery_observation(
++            path=path.as_posix(),
++            artifact_kind="delta_json",
++            utf8_text=observation.utf8_text,
++            byte_count=observation.size_bytes,
++            sha256=observation.sha256,
+         )
+-
+         return Surgery(
+-            path=path.as_posix(),
+-            artifact_kind="delta_json",
+-            owner=owner,
+-            base_blob=base_blob,
+-            state=state_admission.state,
+-            promotion_candidate=state_admission.promotion_candidate,
+-            artifact_byte_count=observation.size_bytes,
+-            artifact_sha256=observation.sha256,
++            path=semantic.path,
++            artifact_kind=semantic.artifact_kind,
++            owner=semantic.owner,
++            base_blob=semantic.base_blob,
++            state=semantic.state,
++            promotion_candidate=semantic.promotion_candidate,
++            artifact_byte_count=semantic.artifact_byte_count,
++            artifact_sha256=semantic.artifact_sha256,
+         ), None
+-    except (ArtifactAdmissionError, OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
++    except (ArtifactAdmissionError, OwnerSurgerySemanticError, OSError, UnicodeError, ValueError) as exc:
+         return None, _error(path, "delta_json", exc)

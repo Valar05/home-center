@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-21-0100",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without consuming phone/P0 surfaces or creating duplicate owners.",
+  "preconditions": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "currentOwner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "p0PhoneConsumptionAuthorized": false,
+    "duplicateArchitectureAuthorized": false
+  },
+  "freshEvidence": {
+    "announcementCallsObserved": [
+      "Spotify explicit command receipt",
+      "heartbeat automatic summary",
+      "heartbeat explicit detail selection",
+      "Adam send feedback"
+    ],
+    "platform": "Android 16 / API 36 deprecates View.announceForAccessibility and TYPE_ANNOUNCEMENT; semantic alternatives must be selected by consequence rather than blanket replacement.",
+    "sheRaw": "attempted pre-execution; account connection returned HTTP 400; no substitute verdict"
+  },
+  "fronts": [
+    {
+      "name": "announcement semantic channel classification",
+      "action": "Add source-only policy that classifies existing announcement consequences into semantic replacement families without mutating OperatorOverlayService yet.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "owner-boundary regression",
+      "action": "Add a RED source fixture/probe that requires the current owner to stop using announceForAccessibility only when an explicit per-consequence semantic owner exists; preserve OWNER_WIRED=NO until owner surgery is authenticated.",
+      "stateTarget": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "name": "durable accessibility skill",
+      "action": "Harvest the migration law into a repository SKILL.md with capability membrane and no duplicate-controller rule.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "touchable non-raster source specimen",
+      "action": "Create one DOM/inline-SVG decision wall that makes consequence-to-semantic-channel choices inspectable and explicitly source-only.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "review and evidence convergence",
+      "action": "Run Regnet-style code-first review, inspect exact owner boundary, update PR checkpoint, and keep TESTED/runtime/deployed/delivered states separate.",
+      "stateTarget": "EVIDENCE_ONLY"
+    }
+  ],
+  "darkByDesign": [
+    "Phone Runtime / Phone Hands",
+    "P0 recovery chain",
+    "Nightcore",
+    "Pocket TTS",
+    "Chromium",
+    "Context Organs",
+    "Christmas motion unless scene topology changes",
+    "Autocorrect unless an actual ambiguous token appears"
+  ],
+  "gate": "PLAN_ALLOWED__NON_P0_SOURCE_ONLY__OWNER_MUTATION_REQUIRES_SEPARATE_PROOF"
+}

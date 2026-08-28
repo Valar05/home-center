@@ -1,0 +1,44 @@
+{
+  "schema": "regnet.source-review.v1",
+  "slice": "2026-08-16-0400-viewport-anchor-selection",
+  "reviewed_source_head": "7f219b285ff91dcdea746cbbc490eee6162ef5b5",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claims_allowed": [
+    "semantic viewport-anchor selection policy is implemented in source",
+    "selected accepted semantic id has priority over direct keyboard-focus fallback",
+    "stale/missing anchor ids fail closed to no anchor",
+    "bounded horizontal anchor geometry policy remains implemented in source",
+    "source-only regression fixtures exist",
+    "a reusable viewport-contact skill exists",
+    "a non-raster source-only warm-wall viewport scar exists"
+  ],
+  "claims_forbidden": [
+    "OperatorOverlayService consumes viewport-anchor selection or geometry policy",
+    "Android layout timing is tested",
+    "runtime viewport preservation is observed",
+    "TalkBack accessibility focus is retained or interrogated",
+    "deployed, callable, executed, delivered, or accepted"
+  ],
+  "source_blobs": {
+    "HeartbeatOverlayRefreshPlan.java": "d92900ba489d31fe38c316eea3f29b3ffa53c0a3",
+    "HeartbeatViewportAnchorPolicyTest.java": "d9ae77bae7c2d6174f80d98e634e9f5d34a63370",
+    "skills/heartbeat-viewport-contact/SKILL.md": "cb59c8285a4954fd093eec1c0f2fa50008212841",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "27aa432edc5a179506343a7e062840fdc7275550"
+  },
+  "ci": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31938267011,
+    "job_id": 95143512767,
+    "head": "7f219b285ff91dcdea746cbbc490eee6162ef5b5",
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "tested": false,
+    "test_state": "BLOCKED_UNKNOWN",
+    "manual_retry_fired": false
+  },
+  "review_notes": [
+    "The policy uses the accepted next model as the authority for anchor membership and returns its canonical semantic id.",
+    "The helper deliberately accepts only caller-supplied direct keyboard focus and does not infer TalkBack accessibility focus.",
+    "Existing-owner service consumption remains the exact next source seam; this review does not promote policy source into runtime wiring."
+  ]
+}

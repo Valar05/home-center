@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-plan-receipt.v1",
+  "heartbeat": "2026-08-16-1500",
+  "pr": 329,
+  "gate": "PLAN_ALLOWED",
+  "mission": "Close the existing-owner speech-presentation seam without touching P0: OperatorOverlayService must pass actual heartbeat/details presentation visibility into the five-argument automatic-speech gate while announcement history still advances when collapsed.",
+  "observed_source_wound": {
+    "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "current_call": "refreshHeartbeatLights(muted, !hidden && root.getVisibility() == View.VISIBLE) -> four-argument shouldAnnounce",
+    "presentation_truth": "applyPresentationState sets details GONE when panelCollapsed while the overlay root remains VISIBLE",
+    "risk": "A semantic heartbeat transition can announce from behind a deliberately collapsed heartbeat surface."
+  },
+  "authorized_fronts": [
+    "wire the existing OperatorOverlayService to the five-argument speech gate",
+    "add source-level owner wiring regression evidence without claiming test execution",
+    "synchronize heartbeat-refresh-deduplication doctrine",
+    "mutate the existing non-raster refresh-gate warm-wall specimen in place",
+    "perform Regnet/Venice evidence review and update the durable PR ledger"
+  ],
+  "constraints": [
+    "Use the existing details/heartbeat subtree as presentation evidence; do not create a second controller, renderer, or state store.",
+    "Collapsed, hidden, or muted presentation suppresses speech but must still advance announcement identity so expansion/unhide/unmute cannot replay stale transitions.",
+    "Do not touch Phone Hands, primary-phone execution, queues, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.",
+    "Repository/source work is not runtime, deployment, delivery, or acceptance proof.",
+    "Do not manually retry GitHub Actions while the budget blocker is unchanged."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  }
+}

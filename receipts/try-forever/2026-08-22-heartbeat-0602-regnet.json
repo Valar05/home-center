@@ -1,0 +1,42 @@
+{
+  "schema": "try-forever-regnet-receipt.v1",
+  "pulse": "2026-08-22T06:02:00-05:00",
+  "reviewedSourceHead": "e4d296e90ddeba545d54de7740c28abe78e810da",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE__OWNER_V9_NOT_APPLIED__REGRESSIONS_UNEXECUTED__ATOMIC_BINDING_UNPROVEN__TESTED_NO",
+  "pass": [
+    "pre-mutation plan is durable",
+    "exact owner-surgery state admission source exists and rejects substring authority",
+    "state hostile regression source exists",
+    "RED v9 owner-boundary source preserves owner-unwired truth",
+    "v8 patch is superseded and v9 converges final-root plus exact-state changes against the same owner/base",
+    "directory-handle capability source distinguishes POSIX primitive availability from atomicity proof",
+    "operator-owner-surgery-custody doctrine is converged to v9/source-state truth",
+    "touchable non-raster source organism exists without runtime/deployment claim",
+    "phone/P0 consumption and mutation remain zero"
+  ],
+  "blocked": [
+    "canonical owner-surgery custody probe remains v7; v9 owner surgery is not applied",
+    "state and directory-handle regression sources are unexecuted",
+    "held-directory-descriptor artifact custody is not implemented",
+    "portable cross-platform atomic root binding remains unproven",
+    "no workflow records were observed yet for the exact reviewed source head"
+  ],
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "statePolicySource": true,
+    "v9OwnerPatchPrepared": true,
+    "v9OwnerPatchApplied": false,
+    "atomicPrimitiveCapabilitySource": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

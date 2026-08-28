@@ -1,0 +1,18 @@
+{
+  "schema": "try-forever-regnet.v1",
+  "heartbeat": "2026-08-22T06:59:00-05:00",
+  "reviewedSourceHead": "8314c384e370b3f9922e9aad59d1b3db4b57d065",
+  "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE__OWNER_V10_NOT_APPLIED__REGRESSIONS_UNEXECUTED__ATOMIC_BINDING_UNPROVEN__TESTED_NO",
+  "findings": [
+    "v9 was unsafe as promotion source because current STATE_RE could normalize textual state whitespace before exact policy admission.",
+    "v9 is now rejected/superseded; v10 preserves final-root revalidation and adds non-normalizing textual state-header admission.",
+    "Canonical owner-surgery custody probe remains v7; v10 is proposal source only.",
+    "New patch-state exactness and v10 owner-boundary regressions are source-only and unexecuted.",
+    "Applying v10 may deliberately turn historical noncanonical STATUS formatting into discoveryErrors/evidenceComplete=false; exhaustive current inventory remains unproven until the regression/probe is actually executed.",
+    "Descriptor primitives do not prove atomic root binding; swap-and-restore and identity reuse remain open."
+  ],
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "p0PhoneConsumption": 0,
+  "p0PhoneMutation": 0,
+  "duplicateArchitecture": 0
+}

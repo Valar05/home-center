@@ -1,0 +1,31 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: REJECTED_UNSAFE__DO_NOT_APPLY
+# Superseded by: patches/try-forever-heartbeat-material-transition-live-region-owner.patch
+# Scope: historical rejected source only; no owner mutation, no phone/P0 action.
+
+The first 0200 surgery attempted to replace all four deprecated
+announceForAccessibility(...) consequences with live-region/status values.
+
+Regnet code-first review rejected that design because live regions notify users of
+changes to semantic values; they are not a generic repeatable-event broadcaster.
+Three existing explicit consequences can repeat while their proposed value remains
+byte-for-byte identical:
+
+- Spotify explicit command receipt can repeat while the current playback summary is unchanged.
+- The same heartbeat light can be explicitly selected again while its detail text is unchanged.
+- Adam can send again in the same mode while a simple "sent" status label is unchanged.
+
+Removing those three legacy calls without a fresh event/status semantic would risk
+silently losing a repeated confirmation/detail consequence. That violates the
+migration contract and accessibility-first requirement.
+
+The only currently migration-ready consequence is heartbeat automatic material
+transition, because the existing announcement identity already represents a material
+semantic transition and the owner can use the existing summary value under that exact
+gate. Its narrower owner patch is preserved separately.
+
+This file intentionally contains no applyable diff. Git history retains the rejected
+attempt for provenance; current source declares it unsafe so future workers cannot
+mistake old patch existence for an authorized owner surgery.

@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever.swarm.v1",
+  "slice": "2026-08-16-0400-viewport-anchor-selection",
+  "reviewed_source_head": "7f219b285ff91dcdea746cbbc490eee6162ef5b5",
+  "fronts": [
+    {
+      "name": "semantic viewport anchor selection",
+      "state": "ADVANCED_SOURCE",
+      "change": "HeartbeatOverlayRefreshPlan.viewportAnchorId(...) now deterministically prefers accepted semantic selection, then direct keyboard focus, and rejects stale ids."
+    },
+    {
+      "name": "accessibility regression source",
+      "state": "ADVANCED_SOURCE_UNTESTED",
+      "change": "HeartbeatViewportAnchorPolicyTest now covers selection priority, keyboard fallback, stale ids, null model, clamping, unchanged geometry, and overflow."
+    },
+    {
+      "name": "durable skill harvest",
+      "state": "ADVANCED_DURABLE",
+      "change": "Added skills/heartbeat-viewport-contact/SKILL.md with existing-owner, accessibility, evidence-membrane, and P0-firewall rules."
+    },
+    {
+      "name": "warm-wall non-raster art",
+      "state": "ADVANCED_SOURCE_ONLY",
+      "change": "Added accessible SVG source scar showing visible-contact preservation and the policy/runtime boundary."
+    },
+    {
+      "name": "test evidence",
+      "state": "BLOCKED_UNKNOWN",
+      "change": "Automatic Operator Overlay Android job executed zero steps because an Actions budget prevents further use; no manual retry fired."
+    }
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: unchanged CI blocker redirected work into semantic selection, regression, skill, and vector fronts instead of retrying.",
+    "Canon Auto-Select": "ACTIVE: existing HeartbeatOverlayRefreshPlan/OperatorOverlayService chain retained as authority; new policy composes rather than replacing it.",
+    "Autocorrect Judgment Jar": "DARK: no STT/autocorrect ambiguity materially affected this source slice.",
+    "Originality Tax": "ACTIVE: no repeated CI retry and no neighboring renderer/controller workaround.",
+    "Hunger": "ACTIVE: stable-object contact wound was eaten into a narrower semantic-anchor contract and source scar.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: semantic selection, keyboard focus, viewport contact, and TalkBack focus were separated rather than collapsed.",
+    "Operator Campaign": "ACTIVE: bounded existing-owner source seam, exact capability ledger, durable receipts.",
+    "Harroway operator discipline": "ACTIVE: requested lane and ownership preserved; no substitute delivery surface.",
+    "She-Raw": "FAULT: authoritative connector attempted; account connection returned HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "ACTIVE: bounded source slice may yield; larger campaign remains CONTINUE_REQUIRED.",
+    "Regnet QA": "ACTIVE: implemented/readback allowed; TESTED remains BLOCKED_UNKNOWN.",
+    "accessibility/TalkBack/touch": "ACTIVE: selected/direct-keyboard focus policy explicitly does not infer TalkBack accessibility focus; touch semantics remain existing native Button responsibility.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero consumption or mutation.",
+    "deterministic routing": "ACTIVE: accepted next model is the authority for canonical anchor identity.",
+    "evidence/capability-state discipline": "ACTIVE: source, test, runtime wiring, deployment, delivery, and acceptance remain separate.",
+    "recovery/checkpointing/idempotence": "ACTIVE: stale anchors fail closed; unchanged geometry manufactures no scroll movement.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: accessible SVG source scar added, explicitly not runtime proof.",
+    "warm walls": "ACTIVE: vector scar makes the viewport-contact wound visible without claiming deployment.",
+    "Christmas-light scene graph": "ACTIVE: viewport anchoring is forbidden from manufacturing semantic transition or motion eligibility.",
+    "contact preservation": "ACTIVE: visible viewport contact is now a separate contract from semantic/object identity.",
+    "execution-truth": "ACTIVE_REPOSITORY_SKILL: exact source/readback and CI boundary govern claims.",
+    "embodied-communication": "ACTIVE_REPOSITORY_SKILL: vector/source presentation is not physical presentation or acceptance.",
+    "heartbeat-viewport-contact": "NEW_ACTIVE_REPOSITORY_SKILL: reusable viewport-contact law harvested from this wound."
+  },
+  "cross_pollination": "stable Button identity wound -> semantic anchor selection -> accessibility separates selection/keyboard/TalkBack focus -> deterministic accepted-model membership -> stale-anchor fail-closed rule -> warm-wall vector scar -> durable viewport-contact skill -> Regnet/Venice preserve source/runtime membrane",
+  "p0": {
+    "mutations": 0,
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organs_actions": 0,
+    "new_p0_finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "viewport_anchor_selection_policy_source": true,
+    "viewport_anchor_geometry_policy_source": true,
+    "operator_overlay_service_consumes_viewport_anchor_policy": false,
+    "tested": false,
+    "test_state": "BLOCKED_UNKNOWN",
+    "runtime_viewport_preservation_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

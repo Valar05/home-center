@@ -1,0 +1,107 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T22:00:00-05:00",
+  "previousPublicationHead": "35ca18ed16d6f4f752a35854685ecc8d2248ca17",
+  "reviewedSourceHead": "9fb8a3b2e753bfc87b4bdfad66011b4423a081bb",
+  "sourceDelta": {
+    "commits": 6,
+    "paths": [
+      "tools/try_forever_owner_surgery_custody_probe.py",
+      "tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py",
+      "patches/try-forever-owner-surgery-single-semantic-parser-cleanup.patch",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "tools/test_try_forever_owner_surgery_discovery_error_projection.py"
+    ],
+    "unexpectedPaths": []
+  },
+  "fronts": [
+    {
+      "name": "single-semantic-parser ownership",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "change": "removed dormant local patch/delta semantic parser imports, constants, regexes, alias tables, and helper bodies from canonical v10 while preserving SHA1 current-owner custody and shared parse_owner_surgery_observation delegation"
+    },
+    {
+      "name": "regression and provenance convergence",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "converted the single-parser RED fixture to convergence source and recorded exact applied owner blob/commit in the existing patch provenance"
+    },
+    {
+      "name": "accessibility Warm Wall",
+      "state": "SOURCE_UPDATED_RUNTIME_TALKBACK_NO",
+      "change": "replaced stale portable-only/descriptor-NO source truth in the existing non-raster wall with current backend/semantic ownership states, native 56px disclosure controls, keyboard focus, non-color status, inline SVG semantics, and reduced-motion/no-blink behavior"
+    },
+    {
+      "name": "discovery diagnostic projection",
+      "state": "RED_SOURCE_UNEXECUTED",
+      "change": "semantic-text-safety review proved DiscoveryError.boundary still interpolates raw str(exc); added a hostile newline/bidi/surrogate/oversize regression without rewriting canonical evidence"
+    },
+    {
+      "name": "execution truth",
+      "state": "TESTED_NO",
+      "change": "exact reviewed head produced three workflow failures; Operator Overlay job exposed zero steps; no manual retry and no step-level cause invented"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: applied the prior exact semantic-parser cleanup instead of restating the proposal, then used the resulting owner review to expose a new diagnostic boundary",
+    "Canon Auto-Select": "LIT: selected the existing canonical v10 owner, existing shared semantic parser, existing Warm Wall, and semantic-text-safety doctrine; no substitute owners",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity affected owner identity or routing",
+    "Originality Tax": "LIT: no repeat of proposal-only parser cleanup; existing owner was actually mutated and authenticated",
+    "Hunger": "LIT: forced patch provenance, regression source, source art, and capability truth to converge after owner mutation",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: reviewed post-cleanup error paths and found raw DiscoveryError.boundary exception projection",
+    "Operator Campaign": "LIT: kept source mutations, durable review receipts, and exact PR checkpoint in one campaign surface",
+    "Harroway operator discipline": "LIT: one canonical authority owner preserved; no sidecar parser/controller/recovery architecture",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative hostile critique attempted; account connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT: bounded source slice may checkpoint; diagnostic repair/regression execution/test/runtime/campaign continue required",
+    "Regnet QA": "LIT: source/readback pass only; diagnostic projection remains revise-required; TESTED NO",
+    "accessibility/TalkBack and touch semantics": "LIT: existing Warm Wall updated in place with >=56px native controls/focus/non-color status/SVG/reduced motion; runtime TalkBack NO",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation",
+    "deterministic routing": "LIT: patch/delta semantic routing remains through one shared producer and selected backend semantics",
+    "evidence/capability-state discipline": "LIT: SOURCE_WIRED, regression source, regression execution, TESTED, runtime, deployed, delivered, accepted remain separate",
+    "recovery/checkpointing/idempotence": "LIT: exact-head workflow failures observed once; no manual retry or duplicate work request",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing inline-SVG source specimen materially converged; no new specimen family",
+    "warm walls": "LIT: stale source wall repaired in place and new RED diagnostic state made inspectable",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion law changed; no blink/autoplay added",
+    "contact preservation": "LIT: exact canonical evidence kept separate from the newly identified human-facing diagnostic projection wound",
+    "semantic-text-safety": "LIT: supplied the law that exact evidence may remain exact while human-facing rejection prose must be bounded and layout-safe"
+  },
+  "crossPollination": "Applying the single-parser cleanup invalidated stale provenance and source-art truth. Converging those surfaces forced a fresh canonical-owner read. The shared semantic-text-safety doctrine then exposed raw exception prose in DiscoveryError.boundary, which became a separate RED regression instead of being silently folded into the completed parser cleanup. Exact-head CI truth kept all source progress behind TESTED/runtime.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Home Center CI", "id": 33035351677, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33035351670, "conclusion": "failure", "jobId": 98396758673, "steps": 0},
+      {"name": "Build Android", "id": 33035351690, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "singleSemanticParserOwnership": "SOURCE_WIRED",
+    "discoveryDiagnosticProjection": "NO_RED_SOURCE",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

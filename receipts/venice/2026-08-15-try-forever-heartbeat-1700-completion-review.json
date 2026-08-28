@@ -1,0 +1,42 @@
+{
+  "schema": "venice-judgment-jar-completion-review.v1",
+  "commission": "TRY FOREVER heartbeat 1700: repair the optional heartbeat-light ingress/liveness coupling through the existing non-phone Operator Overlay source owner.",
+  "reviewer": {
+    "kind": "judgment_jar_same_worker",
+    "name": "Venice",
+    "provenance": "skills/fortress-core/SKILL.md sections 3, 15"
+  },
+  "plan_receipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1700-plan-review.json",
+  "regnet_receipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1700-source-review.json",
+  "reviewed_source_head": "4f10cf4f08beb613d4c8366a05cf1489a291c5cd",
+  "code_review": "PASS_FOR_BOUNDED_SOURCE_SLICE",
+  "review": [
+    "The source repaired a concrete pre-parser wound rather than retrying blocked CI: caller-invalid optional heartbeat-light telemetry can no longer suppress the independent heartbeat-sink call in source ordering.",
+    "The repair composes the existing ACTION_HEARTBEAT -> OverlayUpdateReceiver -> OperatorState owner. It does not create a neighboring controller, recovery daemon, ingress path, or P0 coordinator.",
+    "The failure membrane is intentionally asymmetric: caller-invalid optional telemetry is isolated, while internal/storage failure and heartbeat-sink failure propagate instead of being hidden behind a success result.",
+    "Code-first review caught an evidence-language defect in the first implementation: heartbeatAccepted overstated what SharedPreferences.apply() proves. The field, regression wording, and specimen were corrected to heartbeatInvoked/source-ordering language before completion.",
+    "A new repository skill makes this ingress-separation scar loadable by future workers instead of requiring chat archaeology.",
+    "The touchable source specimen is materially useful but remains explicitly source-only: semantic buttons, >=48px targets, non-color tokens, visible focus, one live region, reduced motion, no raster, and no runtime/deployment claim.",
+    "Regnet correctly refuses to promote regression source to TESTED. On the exact reviewed source head, the Home Center CI job executed zero steps because an Actions budget prevented the job from starting.",
+    "She-Raw was consulted through the authoritative surface and faulted at account connection. No substitute She-Raw voice or verdict was manufactured.",
+    "The P0/phone firewall remained intact with zero phone, Phone Hands, queue, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or duplicate-controller mutations."
+  ],
+  "capability_state": {
+    "requested": "YES",
+    "implemented_source": "YES",
+    "exact_github_readback": "YES",
+    "regression_source": "YES",
+    "tested": "NO_BLOCKED_UNKNOWN",
+    "runtime_persisted_payload_projection_wired": "NO",
+    "ui_rendered": "NO",
+    "talkback_runtime": "NO",
+    "deployed": "NO",
+    "callable_on_phone": "NO",
+    "executed_on_phone": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "stop_decision": "STOP_ALLOWED",
+  "stop_scope": "Only the bounded 1700 repository/source slice may yield. This is not permission to merge PR #329 as a delivered interface and does not end the recurring TRY FOREVER campaign.",
+  "continuation_boundary": "The next independent pulse must choose a materially different non-phone front unless fresh evidence changes the test or P0 execution predicates. Runtime persisted-payload projection/rendering remains a separate unimplemented capability and the shared phone surface remains P0-owned."
+}

@@ -1,0 +1,121 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T08:00:00-05:00",
+  "previousPublicationHead": "112795504151dd0f8b1a72a5710822d24eef5192",
+  "reviewedSourceHead": "7dc4b7c9502156070c3fe90e4ef690fa9fc32762",
+  "sourceDelta": {
+    "commits": 7,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0,
+    "paths": [
+      "skills/operator-owner-surgery-custody/SKILL.md",
+      "tools/test_try_forever_owner_surgery_current_owner_cli_admission.py",
+      "tools/test_try_forever_owner_surgery_current_owner_presence_truth.py",
+      "tools/test_try_forever_owner_surgery_main_argv_exact_input_boundary.py",
+      "tools/test_try_forever_owner_surgery_v10_contract.py",
+      "tools/try_forever_owner_surgery_custody_probe.py"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "current-owner repeated-value parser custody",
+      "state": "SOURCE_WIRED",
+      "change": "existing _parse_owner_blob now requires exact built-in list and exact built-in assignment strings, with a 4137-code-point throat before partition"
+    },
+    {
+      "name": "current-owner custody presence truth",
+      "state": "SOURCE_WIRED",
+      "change": "canonical v10 captures omitted-vs-explicit custody presence before normalization; currentOwnerCustodyProvided no longer aliases map truthiness"
+    },
+    {
+      "name": "hostile and focused v10 regressions",
+      "state": "SOURCE_UNEXECUTED",
+      "change": "new callback/resource/presence fixtures plus current v10 capability convergence; no regression execution receipt exists"
+    },
+    {
+      "name": "direct programmatic main argv",
+      "state": "RED_OPEN_BOUNDARY",
+      "change": "self-review preserved a RED fixture because non-None main(argv) still materializes arbitrary Iterable input before exact admission"
+    },
+    {
+      "name": "legacy broad custody regression",
+      "state": "STALE_NONAUTHORITY_OPEN_BOUNDARY",
+      "change": "authenticated source still shows schema v7 and ownerWired=false assertions in the older broad fixture; current canonical owner is v10 and SOURCE_WIRED"
+    },
+    {
+      "name": "repository skill convergence",
+      "state": "CONVERGED_SOURCE_WITH_OPEN_BOUNDARY",
+      "change": "existing operator-owner-surgery-custody skill now distinguishes parser custody, presence truth, open main(argv), source-only regressions, and the capability membrane"
+    },
+    {
+      "name": "She-Raw adversarial motivation",
+      "state": "ATTEMPTED_CONNECTOR_FAULT",
+      "change": "authoritative ambient consultation returned account-connection HTTP 400; no synthetic substitute"
+    },
+    {
+      "name": "execution truth",
+      "state": "TESTED_NO",
+      "change": "exact reviewed source head produced three completed workflow failures; Operator job 98189268903 has zero steps; no manual retry and no step-level diagnosis invented"
+    }
+  ],
+  "workflowEvidence": [
+    {"name": "Home Center CI", "runId": 32972493250, "status": "completed", "conclusion": "failure"},
+    {"name": "Build Android", "runId": 32972493224, "status": "completed", "conclusion": "failure"},
+    {"name": "Operator Overlay Android", "runId": 32972493194, "jobId": 98189268903, "status": "completed", "conclusion": "failure", "steps": 0}
+  ],
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "She-Raw adversarial motivation",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "contact preservation",
+      "operator-owner-surgery-custody"
+    ],
+    "darkWithReason": {
+      "Autocorrect Judgment Jar": "no material ambiguous token affected authority or routing",
+      "accessibility/TalkBack and touch semantics": "no operator-facing interaction contract changed; runtime TalkBack remains unclaimed",
+      "Phone Runtime / Phone Hands recovery": "binding P0/phone firewall",
+      "strange non-raster vector/DOM/native UI art": "no operator-facing topology changed",
+      "warm walls": "no source UI state changed; mutation would be decorative",
+      "Christmas-light scene graph": "no runtime transition or motion contract changed"
+    }
+  },
+  "crossPollination": "The prior direct-helper finite-input law made the authenticated current-owner path suspicious. That exposed callback-capable repeated-value parsing and a separate capability-presence collapse. Repairing both forced hostile regression and v10 doctrine convergence. Ever-Polished self-review then refused to overclaim the outer main(argv) path and found an older broad regression still fossilized at schema v7/ownerWired=false, so both remain explicit next wounds rather than being painted green.",
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "currentOwnerParserSourceWired": true,
+    "currentOwnerCustodyPresenceSourceWired": true,
+    "programmaticMainArgvExactAdmission": false,
+    "legacyBroadFixtureConverged": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__MAIN_ARGV_LEGACY_FIXTURE_REPAIR_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

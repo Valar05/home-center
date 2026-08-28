@@ -1,0 +1,47 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1200",
+  "commission": "Advance a broad non-P0 TRY FOREVER swarm without consuming Phone Hands/P0 or creating duplicate architecture.",
+  "sourceHeadObservedBeforePlan": "8a7315c8e911ca5aeb090579e525509bf0adbd36",
+  "activeFronts": [
+    {
+      "front": "candidate file topology",
+      "action": "Make SKILL.md candidate admission no-follow and fail the entire discovery when a named SKILL.md is a symlink or other non-ordinary file, so one underlying file cannot earn multiple repository_skill path identities through aliases."
+    },
+    {
+      "front": "hostile regression source",
+      "action": "Pin ordinary-file acceptance, in-root symlink alias rejection, non-ordinary SKILL.md rejection, zero partial authority, and zero title/hash work after topology rejection."
+    },
+    {
+      "front": "repository skill doctrine",
+      "action": "Synchronize candidate-enumeration and provenance-freshness doctrine with the no-follow candidate topology gate and its capability membrane."
+    },
+    {
+      "front": "accessible Warm Wall",
+      "action": "Mutate the existing skill-provenance DOM/SVG specimen in place only if the new topology state materially changes what the operator can inspect; preserve radio semantics, keyboard navigation, >=48px controls, non-color state, one live detail region, and reduced motion."
+    },
+    {
+      "front": "review/evidence",
+      "action": "Use authenticated Home Center GitHub readback after each source mutation, run Regnet/Venice code-first review, and seek fresh exact-head CI evidence without manually retrying a known-failing lane."
+    }
+  ],
+  "failureLaw": "Do not silently skip a named SKILL.md redirector: candidate-set incompleteness can hide ownership collisions, so return zero partial repository-skill authority.",
+  "firewall": {
+    "phoneHands": "FORBIDDEN",
+    "primaryPhone": "FORBIDDEN",
+    "p0RecoveryMutation": "FORBIDDEN",
+    "duplicateProvenanceProbe": "FORBIDDEN",
+    "neighboringController": "FORBIDDEN"
+  },
+  "capabilityTarget": {
+    "implementedSource": true,
+    "regressionSource": true,
+    "exactRepositoryReadback": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

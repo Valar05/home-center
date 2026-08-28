@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-23T10:03:00-05:00",
+  "mission": "Strengthen non-authoritative descriptor-shadow evidence without touching canonical authority, phone/P0, or runtime delivery.",
+  "fronts": [
+    {
+      "name": "descriptor-shadow-temporal-integration",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_audit.py",
+      "action": "Add focused regression source proving SHADOW_MATCH is distinct from temporal binding and that same-observation canonical witnesses can produce TEMPORAL_CONTENT_BOUND through the actual audit composition.",
+      "mutation": "regression source only"
+    },
+    {
+      "name": "descriptor-shadow-doctrine-convergence",
+      "owner": "skills/operator-owner-surgery-descriptor-shadow-audit/SKILL.md",
+      "action": "Record the integration fixture and preserve SHADOW_MATCH != TEMPORAL_CONTENT_BOUND as a durable law.",
+      "mutation": "skill doctrine only"
+    },
+    {
+      "name": "evidence-capability-review",
+      "action": "Re-read canonical v10, shadow v3, temporal policy, and current PR evidence; report source/readback separately from regression execution, TESTED, runtime, deployment, delivery, and acceptance.",
+      "mutation": "none"
+    }
+  ],
+  "constraints": {
+    "canonicalOwnerMutation": false,
+    "descriptorAuthorityMutation": false,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "artMutation": false,
+    "reasonArtDark": "No operator-visible state topology changes in this pulse."
+  },
+  "gate": "PLAN_ALLOWED"
+}

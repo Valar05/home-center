@@ -1,0 +1,57 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent, non-phone source fronts under the P0/primary-phone firewall; every lit skill must materially constrain, mutate, or review the work.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "6b67eaa0523d77c25c7968f0b42508c5cabc62a9",
+  "timestamp": "2026-08-15T18:01:22Z",
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "Phone/P0 ownership, authorized non-phone scope, evidence standard, and delivery surface remain binding."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Only materially consequential skills may light; malformed heartbeat telemetry must fail closed while preserving contact."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "Source mutation/readback may not be promoted into tested, rendered, deployed, callable, delivered, or accepted capability."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "plan": [
+    "Front A — Protocol-token hardening: remove schema/state from trim-before-safety requiredString and validate decoded control characters and surrogate structure before normalization; keep the strict wire vocabulary bounded.",
+    "Front B — Regression source: add fixtures proving escaped controls and unpaired surrogates cannot normalize into accepted schema/state tokens while canonical tokens still parse.",
+    "Front C — Touchable source art: refine an existing warm-wall DOM specimen in place so a malformed protocol-token wound visibly preserves the last-good contact frame and suppresses motion; do not add a neighboring renderer/controller or claim runtime proof.",
+    "Front D — Skill/canon harvest and doctrine: inspect repository-native execution/accessibility/checkpoint doctrine, then update heartbeat-skill-lights doctrine only where the parser repair materially changes the contract.",
+    "Front E — Evidence/review: exact GitHub readback of every changed artifact, bounded Regnet/Venice receipts, no unchanged-condition CI hammering, and exact capability-state ledger."
+  ],
+  "outsideScope": [
+    "primary-phone execution or Phone Hands",
+    "queue/device probes or mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore, Pocket TTS, Chromium, Context Organs",
+    "new overlay controller, renderer, daemon, ingress path, or coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "acceptance": [
+    "schema/state protocol strings reject decoded control characters and unpaired surrogates before trim can normalize them into accepted tokens.",
+    "canonical heartbeat-skill-lights.v1 and active/blocked/fault/recovered tokens still parse through the pure source parser.",
+    "Regression source covers protocol-token control/surrogate attacks.",
+    "Existing touchable DOM art demonstrates fail-closed protocol rejection with last-good contact and no earned transition motion, remains keyboard/touch accessible and source-only.",
+    "Doctrine describes protocol-token fail-closed behavior without implying runtime wiring.",
+    "P0/phone mutations remain zero and TESTED remains NO/BLOCKED_UNKNOWN unless deterministic execution actually occurs."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}

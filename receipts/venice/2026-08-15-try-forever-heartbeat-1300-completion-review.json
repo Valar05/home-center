@@ -1,0 +1,70 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "repository": "Valar05/home-center",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "25dbed74d17a83581510010e71c847cab8c6911d",
+  "runStartedAt": "2026-08-15T18:01:22Z",
+  "planReceipt": "receipts/venice/2026-08-15-try-forever-heartbeat-1300-plan-review.json",
+  "regnetReceipt": "receipts/regnet/2026-08-15-try-forever-heartbeat-1300-source-review.json",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "heartbeat-skill-lights",
+    "execution-truth",
+    "failure-is-the-shovel",
+    "originality-tax",
+    "contact-preservation",
+    "accessibility-and-touch-semantics"
+  ],
+  "adversarialReview": [
+    {
+      "question": "Did the parser repair the exact 1200 continuation wound rather than widening into a neighboring architecture?",
+      "answer": "YES. The existing pure HeartbeatEnvelopeParser now routes only schema/state through a bounded safe protocol-token helper. No renderer/controller/transport/phone owner was added."
+    },
+    {
+      "question": "Did regression work remain source evidence rather than masquerade as executed tests?",
+      "answer": "YES. New fixtures exist and survive GitHub readback, while TESTED remains NO/BLOCKED_UNKNOWN because the exact Operator Overlay job executed zero steps."
+    },
+    {
+      "question": "Did the strange warm-wall artifact encode a real consequence rather than decorative skill theater?",
+      "answer": "YES AFTER REPAIR. The first revision contradicted its own motion=false frames by keeping Christmas Motion ACTIVE; code-first review corrected those frames to BLOCKED and tied the reason to the missing material transition."
+    },
+    {
+      "question": "Did source progress consume or mutate the P0/primary-phone execution surface?",
+      "answer": "NO. Phone Hands, device/queue probes, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, and duplicate controllers/daemons remained untouched."
+    },
+    {
+      "question": "Was authoritative She-Raw replaced after connector failure?",
+      "answer": "NO. One ambient attempt faulted with HTTP 400 account connection failure; no synthetic verdict was substituted and the connector was not hammered."
+    }
+  ],
+  "findings": {
+    "blocking": [],
+    "repaired": [
+      "Motion-clamp source art originally exposed Christmas Motion as active on frames where motion was explicitly forbidden; corrected before completion review."
+    ],
+    "nonBlocking": [
+      "State case-folding and ordinary surrounding-space normalization remain existing wire behavior. This slice did not widen into canonical-case policy because the commissioned defect was decoded control/surrogate normalization safety."
+    ]
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRenderedFromParsedCandidates": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "mergePermission": false,
+  "runtimePermission": false,
+  "campaignComplete": false,
+  "veniceDirective": "STOP_ALLOWED",
+  "scope": "This STOP_ALLOWED applies only to the bounded 1300 non-phone source slice. It does not close the recurring TRY FOREVER campaign, authorize merge, clear P0/phone blockers, or promote any runtime capability state."
+}

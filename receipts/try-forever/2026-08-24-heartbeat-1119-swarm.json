@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timeLocal": "2026-08-24T11:33:00-05:00",
+  "reviewedSourceHead": "0eef4eead2779e85a2158aac89a72d417b752e02",
+  "frontsAdvanced": [
+    {
+      "front": "existing final v4 receipt owner",
+      "result": "SOURCE_WIRED",
+      "change": "Exact field-set custody now consumes OPERATOR_OWNED_RECEIPT_FIELDS + FINAL_DENIED_CAPABILITY_FIELDS in the existing owner."
+    },
+    {
+      "front": "owner evidence",
+      "result": "HARDENED_SOURCE",
+      "change": "AST owner boundary now requires the actual starred field-family tuple, not a keyword-shaped counterfeit."
+    },
+    {
+      "front": "Regnet correction",
+      "result": "BAD_CONSTRAINT_REMOVED",
+      "change": "Code-first review found the temporary broad namespace-disjointness rule contradicted intentional reasserted capability fields; corrective replan restored exact-union semantics."
+    },
+    {
+      "front": "patch provenance",
+      "result": "APPLIED_SOURCE",
+      "change": "Fieldset owner surgery provenance now records applied commit and authenticated resulting blob."
+    },
+    {
+      "front": "durable skill doctrine",
+      "result": "CONVERGED",
+      "change": "Operator Receipt Derivation Custody now reflects source-wired exact fieldset, intentional capability reassertion, and unexecuted regressions."
+    },
+    {
+      "front": "accessible non-raster Warm Wall",
+      "result": "MUTATED_IN_PLACE",
+      "change": "Existing derivation-custody DOM/SVG organism now exposes SOURCE_WIRED exact fieldset, reasserted capability fields, and the removed bad rule without claiming runtime proof."
+    },
+    {
+      "front": "execution truth",
+      "result": "BOUNDARY",
+      "change": "Operator Overlay Android, Home Center CI, and Build Android all concluded failure on the exact reviewed source head; no authenticated step-level cause was established and no retry was fired."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT__owner seam advanced and code-first review exposed the follow-up overconstraint",
+    "Canon Auto-Select": "LIT__selected operator-receipt derivation custody from current repository state",
+    "Autocorrect Judgment Jar": "DARK__no material ambiguity",
+    "Originality Tax": "LIT__bad disjointness repair was replaced rather than preserved or cosmetically edited",
+    "Hunger": "LIT__patch skill art and receipts forced to converge after owner mutation",
+    "Ever-Polished Interpreter / Eat Everything": "LIT__stale RED/proposed surfaces corrected to authenticated source truth",
+    "Operator Campaign": "LIT__existing final receipt owner remained sole owner",
+    "Harroway operator discipline": "LIT__authorized GitHub lane only and exact capability membrane preserved",
+    "She-Raw adversarial motivation": "FAULT__account connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars": "LIT__plan and corrective gates plus bounded completion receipt",
+    "Regnet QA": "LIT__caught the self-inflicted namespace overconstraint and required corrective replan",
+    "accessibility/TalkBack and touch semantics": "LIT__existing DOM/SVG Warm Wall mutated in place with keyboard/touch semantics and source-only scar",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED__consumption 0 mutation 0",
+    "deterministic routing": "LIT__exact branch owner source and authenticated readback",
+    "evidence/capability-state discipline": "LIT__SOURCE_WIRED separated from regression execution TESTED runtime deployment delivery acceptance",
+    "recovery/checkpointing/idempotence": "LIT__plan corrective-replan Regnet Venice and swarm receipts persist the correction path",
+    "strange non-raster vector/DOM/native UI art": "LIT__existing source organism mutated in place",
+    "warm walls": "LIT__operator receipt derivation custody wall updated",
+    "Christmas-light scene graph": "DARK__no runtime transition law changed",
+    "contact preservation": "LIT__intentional exact-false capability reassertion preserved instead of broken by an overbroad namespace rule"
+  },
+  "crossPollination": "Owner fieldset wiring made namespace ownership suspicious; Regnet review found the projector already derives capability fields that the final envelope intentionally reasserts; Originality Tax replaced the bad disjointness rule with exact-union semantics; owner evidence, patch provenance, skill doctrine, Warm Wall, and durable reviews all inherited the corrected truth.",
+  "executionEvidence": {
+    "operatorOverlayRun": 32751132803,
+    "operatorOverlayConclusion": "failure",
+    "homeCenterCiRun": 32751133071,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32751132762,
+    "buildAndroidConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "ownerExactFieldsetWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Phone": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

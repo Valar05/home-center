@@ -1,0 +1,106 @@
+{
+  "schema": "try-forever-swarm-receipt.v2",
+  "heartbeat": "2026-08-18-1000",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts while preserving existing owners and exact evidence states.",
+  "frontsAdvanced": [
+    {
+      "front": "platform truth / Originality Tax",
+      "changed": "Rejected the tempting universal atomic scandir(fd) plan because Python exposes file-descriptor scandir on Unix rather than as a cross-platform contract; corrective replan narrowed the claim."
+    },
+    {
+      "front": "root identity policy source",
+      "changed": "Added cross-platform no-follow root identity capture/revalidation source with symlink/junction classification and fail-closed identity semantics."
+    },
+    {
+      "front": "hostile regression source",
+      "changed": "Added fixtures for same identity, persistent changed identity, symlink, Windows junction tag, zero/device-only identity, and redirector takeover."
+    },
+    {
+      "front": "code-first Regnet repair",
+      "changed": "Found and fixed a false identity rule where st_dev alone could count as stable object identity; final policy requires a non-zero inode/file-index component."
+    },
+    {
+      "front": "claim discipline",
+      "changed": "Narrowed persistent-replacement wording to observed identity/type drift and preserved swap-and-restore plus identity-token-reuse boundaries."
+    },
+    {
+      "front": "durable skill harvesting",
+      "changed": "Added heartbeat-skill-root-identity-revalidation with owner, platform, evidence, and P0 boundaries."
+    },
+    {
+      "front": "Warm Wall accessibility art",
+      "changed": "Added touchable DOM/inline-SVG stable/redirector/changed/atomicity-open source specimen with radiogroup semantics, roving keyboard navigation, >=48px controls, non-color state tokens, live detail, and reduced-motion behavior."
+    },
+    {
+      "front": "existing-owner integration provenance",
+      "changed": "Published an exact base-blob-locked integration patch for the existing provenance probe, explicitly STATUS PROPOSED_NOT_APPLIED."
+    },
+    {
+      "front": "review/evidence",
+      "changed": "Published pre-mutation plan, corrective replan, Regnet review, Venice completion review, and fresh CI boundary without laundering source into TESTED/runtime capability."
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","consequence":"Dead CI was not retried; failure redirected effort into platform/source truth and a different provenance wound."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","consequence":"Activated repository provenance/traversal context and harvested heartbeat-skill-root-identity-revalidation from the live wound."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","consequence":"No ambiguous STT/autocorrect token materially affected this pulse."},
+    {"name":"Originality Tax","state":"ACTIVE","consequence":"The first atomic cross-platform idea was rejected rather than cosmetically restated after platform evidence disproved the premise."},
+    {"name":"Hunger","state":"ACTIVE","consequence":"The wound produced helper source, regression source, durable skill, accessible art, exact owner patch, and durable reviews rather than one status card."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","consequence":"Cross-file review found device-only identity and overbroad replacement claims and propagated repairs into source, tests, skill, and patch."},
+    {"name":"Operator Campaign","state":"ACTIVE","consequence":"The existing try_forever_skill_provenance_probe remains the sole intended provenance owner; integration is preserved as a proposed delta rather than a neighboring probe."},
+    {"name":"Harroway operator discipline","state":"ACTIVE","consequence":"Requested/source/tested/runtime/deployed/callable/executed/delivered/accepted states remained separate and exact."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","consequence":"Authoritative She-Raw ambient call returned account-connection HTTP 400; no synthetic reviewer substituted."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","consequence":"Pre-mutation plan plus corrective replan bounded the mission before source; completion review closes only the source slice and keeps owner/atomicity wounds open."},
+    {"name":"Regnet QA","state":"ACTIVE","consequence":"Code-first review found the false stable-token rule and the overbroad replacement claim; both were repaired before completion."},
+    {"name":"accessibility/TalkBack and touch semantics","state":"ACTIVE_SOURCE","consequence":"Warm Wall uses radio semantics, keyboard roving focus, >=48px controls, non-color tokens, polite live detail, and reduced-motion handling; runtime TalkBack remains unproven."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"FIREWALLED_DARK","consequence":"Zero consumption and zero mutation; canonical P0 owners retain the gated shared phone surface."},
+    {"name":"deterministic routing","state":"ACTIVE","consequence":"Root authority is ordered: no-follow topology/identity observation -> bounded candidate traversal -> revalidation -> per-file authority only if stable."},
+    {"name":"evidence/capability-state discipline","state":"ACTIVE","consequence":"Exact GitHub blobs and CI boundaries recorded; proposed patch is not implementation and regression source is not TESTED."},
+    {"name":"recovery/checkpointing/idempotence","state":"ACTIVE_SOURCE","consequence":"Revalidation is fail-closed and returns zero partial SkillRecord authority when observed root identity/type cannot be certified; no runtime checkpoint claim is made."},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"ACTIVE_SOURCE","consequence":"New DOM/inline-SVG Warm Wall source organism created with no raster and no deployment claim."},
+    {"name":"warm walls","state":"ACTIVE_SOURCE","consequence":"Root identity states are touchable and semantic rather than decorative."},
+    {"name":"Christmas-light scene graph","state":"DARK","consequence":"Repository provenance bookkeeping earned no blink/motion semantics."},
+    {"name":"contact preservation","state":"DARK","consequence":"No heartbeat UI contact/frame semantics changed; provenance fail-closed behavior was not mislabeled as runtime contact preservation."},
+    {"name":"heartbeat-skill-root-identity-revalidation","state":"ACTIVE_NEW_REPOSITORY_SKILL","consequence":"Durable source doctrine now preserves platform truth, exact owner state, and the remaining atomicity boundary."}
+  ],
+  "crossPollination": "static root-symlink wound -> Python platform evidence exposes Unix-only directory-fd scandir plus Windows junction topology -> corrective replan -> portable no-follow identity helper -> Regnet catches device-only false identity -> hostile test added -> claim narrowed for identity reuse/swap-and-restore -> exact owner patch preserved as not applied -> accessible Warm Wall makes stable/blocked/changed/open states touchable -> Venice keeps owner/runtime/P0 membrane shut",
+  "executionEvidence": {
+    "reviewedHelperHead": "1bd07aa4a796196f93d5b4e4e9961aca33367036",
+    "operatorOverlayRun": 32153014376,
+    "operatorOverlayJob": 95763351456,
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "jobLogs": "404 BlobNotFound",
+    "causeEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "accessibleNonRasterSource": true,
+    "exactOwnerPatch": true,
+    "ownerPatchApplied": false,
+    "existingProbeConsumesHelper": false,
+    "atomicCrossPlatformRootBinding": false,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_AND_ATOMICITY_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "regnet-review.v3",
+  "heartbeat": "2026-08-18-2200",
+  "sourceHeadReviewed": "b5417e3faaef69d5a619ee1aac635fde348f6f11",
+  "ownerPath": "tools/try_forever_skill_provenance_probe.py",
+  "ownerBlobObserved": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+  "verdict": "PASS_SUPPORTING_SOURCE__REVISE_REQUIRED_OWNER_UNWIRED",
+  "findings": [
+    "Portable report-path and final-emission snapshot policies are real current-tree source and now have one exact existing-owner composition patch plus an owner-integration regression source.",
+    "Code-first review rejected patch v1 because currentHead/currentTreeDirty would have remained bound to the earlier discovery observation after introducing a later emission observation. Patch v2 makes those fields reflect the final emission observation.",
+    "The proposed owner contract requires schema try-forever-skill-provenance.v4; silently changing v3 is forbidden.",
+    "A failed late emission gate withholds previously certified repository-skill records and strict mode treats the late custody wound as failure.",
+    "Authenticated current owner readback remains blob afe2b29e and contains neither policy import; owner consumption is therefore NO.",
+    "Regression source is not test execution. Runtime UI/TalkBack, deployment, callability, execution, delivery, and acceptance remain NO."
+  ],
+  "executionEvidence": {
+    "patchHead": "cc09ccb074439d3b3aed1f64dc9d99034214ae46",
+    "operatorRun": 32211096873,
+    "operatorJob": 95943766257,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "latestArtHeadQueried": "b5417e3faaef69d5a619ee1aac635fde348f6f11",
+    "latestArtHeadWorkflowRunsObserved": 0,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

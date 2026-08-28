@@ -1,0 +1,68 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewerRole": "regnet-qa",
+  "repository": "Valar05/home-center",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "25dbed74d17a83581510010e71c847cab8c6911d",
+  "runStartedAt": "2026-08-15T18:01:22Z",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedState": "BLOCKED_UNKNOWN",
+  "sourceClaims": [
+    {
+      "artifact": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java",
+      "blob": "2a7b4ca5edf6b8f28625a9e07b6688659bbd4c6d",
+      "claim": "schema/state protocol tokens now pass decoded control-character and surrogate validation before trim/normalization and carry narrow independent bounds."
+    },
+    {
+      "artifact": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeSemanticBoundsTest.java",
+      "blob": "b43f3b55c27fb1bf782297e2d116d518e7431e11",
+      "claim": "regression source attacks schema/state decoded controls, unpaired surrogates, and token-specific bounds while preserving the existing canonical parse fixture elsewhere."
+    },
+    {
+      "artifact": "docs/try-forever/heartbeat-motion-clamp-source-specimen.html",
+      "blob": "4154a184004e4bf5a78fbac64dfad39a62207b08",
+      "claim": "existing touchable source specimen now includes a protocol-scar frame that preserves last-good contact and suppresses motion; review also corrected its Christmas Motion light so blocked frames no longer falsely display it as active."
+    },
+    {
+      "artifact": "skills/heartbeat-skill-lights/SKILL.md",
+      "blob": "d2e48b0b2689df0c6a1006db919a5111665fefdd",
+      "claim": "doctrine now states that schema/state decoded controls and unpaired surrogates fail closed before normalization, without claiming runtime parser wiring."
+    }
+  ],
+  "codeFirstReview": {
+    "blockingFindings": [],
+    "repairedDuringReview": [
+      "The first protocol-scar DOM revision kept Christmas Motion visibly ACTIVE on interrupted/retry/collision/protocol frames even while motion=false. The specimen was corrected so those frames expose Christmas Motion as BLOCKED with the exact no-transition boundary."
+    ]
+  },
+  "deterministicTestBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31900294387,
+    "jobId": 95049881839,
+    "headSha": "25dbed74d17a83581510010e71c847cab8c6911d",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRenderedFromParsedCandidates": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneMutations": 0,
+  "notes": [
+    "Source review proves source shape/readback only; it does not promote TESTED or any runtime/physical state.",
+    "Authoritative She-Raw ambient consultation faulted once with HTTP 400 account connection failure; no synthetic She-Raw verdict was substituted.",
+    "No unchanged-condition Actions retry was fired."
+  ]
+}

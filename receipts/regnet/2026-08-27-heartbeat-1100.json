@@ -1,0 +1,54 @@
+{
+  "kind": "regnet_source_review",
+  "heartbeat": "2026-08-27-1100",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "c35cd39d4a984063a459517a81749804c5d8cd7c",
+  "verdict": "PASS_BOUNDED_SOURCE__DIRECT_SCENE_SNAPSHOT_SOURCE_WIRED__DIRECT_POLICY_SELECTION_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "direct_scene_candidate_snapshot",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "evidence": "HeartbeatSceneGraph observes caller List.size() once, rejects >MAX_LIGHTS before element reads, snapshots at most MAX_LIGHTS indexed elements, and traverses only boundedCandidates thereafter."
+    },
+    {
+      "front": "scene_overflow_contact_accessibility",
+      "state": "SOURCE_REGRESSION_UNEXECUTED",
+      "evidence": "Focused Java source pins last-good visible id/node, preserved touch target and contentDescription, frame/node no-motion, one size call, and zero get calls on max+1 overflow. Python owner-order source now also requires helper-scoped candidates.size() count == 1."
+    },
+    {
+      "front": "direct_policy_selection_list",
+      "state": "REVISE_REQUIRED_PROPOSED_NOT_APPLIED",
+      "evidence": "HeartbeatSkillPolicy.selectMaterialLights still calls isEmpty()/iterates arbitrary direct caller Lists. Base-blob-locked proposal stages one size observation, <=64 indexed reads, detached traversal, and typed failure for >64."
+    }
+  ],
+  "limits": {
+    "callbackFreeArbitraryListAdmissionClaimed": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "executionTruth": {
+    "buildAndroid": {"run": 33091784749, "conclusion": "failure"},
+    "homeCenterCi": {"run": 33091784753, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33091784810, "job": 98586233215, "conclusion": "failure", "steps": 0},
+    "manualRetry": false,
+    "stepLevelDiagnosisClaimed": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

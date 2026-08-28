@@ -1,0 +1,44 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-2000",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedHead": "18191fcfc362e1f0731981a5a835e3be64c4e0ff",
+  "review": {
+    "contractParity": "PASS: direct display-ready Candidate ingress now reuses the canonical parser candidate-field bounds instead of accepting arbitrarily large safe strings.",
+    "singleAuthority": "PASS: no numeric limit table was duplicated; HeartbeatSkillPolicy references HeartbeatEnvelopeParser public field-limit constants.",
+    "contactPreservation": "PASS_SOURCE: oversized direct material records are excluded by the typed gate, allowing existing HeartbeatSceneGraph fail-closed preservation and motion clamp semantics to hold.",
+    "accessibility": "PASS_SOURCE: speech remains independently tighter, while oversized source records are blocked before they become hashing/native/touch work.",
+    "architecture": "PASS: existing policy/parser/scene organs were composed; no overlay controller, renderer, transport, phone lane, or P0 owner was added.",
+    "knownBoundary": "Regression source exists but did not execute because the automatic Actions job had zero steps under the repository Actions budget blocker."
+  },
+  "readback": {
+    "parserBlob": "9cdd14517f2538296952618173bf47474374477b",
+    "policyBlob": "5d82d3118d17b79ba637fe1da54ac09d742701e0",
+    "regressionBlob": "95b9099beea4bbd08c35d3cce7aae77a904f3f18",
+    "skillBlob": "9701b56adc9fe16d1de2db85c1e85055b6a412b5",
+    "artBlob": "9b71e5325b929b918c344d78209c6979504828f5"
+  },
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflowRun": 31984126767,
+    "job": 95256039347,
+    "head": "18191fcfc362e1f0731981a5a835e3be64c4e0ff",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "implementedSource": true,
+    "exactReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0MutationCount": 0
+}

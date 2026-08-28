@@ -1,0 +1,26 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "timestamp": "2026-08-21T12:03:00-05:00",
+  "pullRequest": 329,
+  "verdict": "PLAN_ALLOWED",
+  "scope": "bounded non-P0 supporting-source slice",
+  "allowed": [
+    "strengthen existing Adam editable-value/state source policy",
+    "add exact mode-specific Adam send-action supporting policy",
+    "extend the existing Adam owner source probe and regression fixture",
+    "mutate the existing Adam non-raster warm wall if topology materially changes",
+    "update the existing adam-mode-accessibility skill",
+    "publish Regnet/Venice/swarm evidence and exact GitHub readback"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone execution",
+    "P0 recovery/queue/relay mutation",
+    "second accessibility or overlay owner",
+    "manual CI corpse-kick",
+    "promoting source fixtures to TESTED/runtime/deployed/delivered/accepted",
+    "removing the legacy repeatable Adam send receipt without a separately solved event contract"
+  ],
+  "owner": "OperatorOverlayService",
+  "capabilityBoundary": "supporting source may advance; native owner wiring remains NO unless a safe exact owner mutation lane is proved in-run",
+  "campaign": "CONTINUE_REQUIRED"
+}

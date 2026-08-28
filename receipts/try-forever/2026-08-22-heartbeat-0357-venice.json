@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-venice.v1",
+  "sourceHead": "268f172ee63b3f8428800ba5b5f1a2895ba85231",
+  "reviewerMode": "same-worker judgment-jar completion review",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_SLICE",
+  "directive": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_ATOMIC_BINDING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "findings": [
+    "The pulse advanced a materially different non-P0 wound instead of retrying the failed workflow lane.",
+    "The repair composes the existing no-follow root identity organ rather than creating a second custody architecture.",
+    "Root redirector/persistent identity failure now withholds the whole owner-surgery promotion inventory with zero partial authority.",
+    "The existing non-raster custody organism and durable skills were converged on the same source truth.",
+    "The source explicitly refuses to claim atomic directory binding, regression execution, TESTED, runtime UI/TalkBack, deployment, phone delivery, or acceptance.",
+    "She-Raw authoritative consultation was attempted and faulted on account connection; no substitute She-Raw verdict was invented."
+  ],
+  "unresolved": [
+    "A complete swap-and-restore between the two root observations can still evade pathname-level persistent-drift detection.",
+    "Filesystem identity reuse remains unclosed.",
+    "Regression source has not executed.",
+    "Automatic workflows failed without an authenticated step-level cause; TESTED remains NO."
+  ],
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Consumption": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

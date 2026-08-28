@@ -1,0 +1,135 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-23T10:57:00-05:00",
+  "reviewedSourceHead": "4d25c8b37a97c9a78cfe26ab934fdb12e6090091",
+  "frontsAdvanced": 6,
+  "lights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "ACTIVE",
+      "consequence": "Descriptor custody failure was reclassified from fake negative comparison toward comparison-unavailable semantics; current upstream false/false/false shape is now a RED boundary instead of hidden telemetry."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "ACTIVE",
+      "consequence": "No CI retry and no authority-owner rewrite. The failure redirected into receipt semantics, temporal context integrity, hostile fixtures, doctrine, and existing art."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "ACTIVE",
+      "consequence": "Selected existing descriptor-shadow, receipt-projection, temporal-binding, provenance-path, and Warm Wall organs; no neighboring authority/controller was created."
+    },
+    {
+      "name": "Ever-Polished Interpreter / Eat Everything",
+      "state": "ACTIVE",
+      "consequence": "Separated false divergence from unknown comparison and required completed shadow states to carry exact capability/context evidence."
+    },
+    {
+      "name": "Hunger",
+      "state": "ACTIVE",
+      "consequence": "Converted both evidence distinctions into durable regression/doctrine/art surfaces rather than prose-only findings."
+    },
+    {
+      "name": "Operator Campaign / Harroway",
+      "state": "ACTIVE",
+      "consequence": "Canonical v10 authority, descriptor authority, Android runtime owner, and P0 owners remained untouched; supporting work stayed in the existing repository lane."
+    },
+    {
+      "name": "She-Raw",
+      "state": "FAULT",
+      "consequence": "Authoritative ambient consultation returned account-connection HTTP 400; no substitute reviewer or retry loop was invented."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "ACTIVE",
+      "consequence": "Pre-mutation PLAN_ALLOWED existed; completion allows this source slice to yield while upstream owner repair, temporal owner composition, regression execution, testing, runtime, and campaign continue."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "ACTIVE",
+      "consequence": "Caught the first temporal helper gating descriptor capability only for SHADOW_MATCH; corrected the rule to both completed comparison states and then converged doctrine."
+    },
+    {
+      "name": "Accessibility / TalkBack / Touch",
+      "state": "ACTIVE",
+      "consequence": "Operator receipt semantics can no longer say different when evidence only proves could-not-compare; the existing descriptor Warm Wall now exposes FALSE != UNKNOWN and temporal receipt context."
+    },
+    {
+      "name": "Deterministic Routing / Evidence Discipline",
+      "state": "ACTIVE",
+      "consequence": "Exact v10/v3 schema, exact canonical completeness, canonical portable backend, exact descriptor capability, exact result SHA, and tri-state comparison fields remain distinct evidence channels."
+    },
+    {
+      "name": "Recovery / Checkpointing / Idempotence / Contact Preservation",
+      "state": "ACTIVE",
+      "consequence": "Canonical authority remains last-good truth across shadow wounds; failed comparison cannot mutate promotion authority or be laundered into divergence."
+    },
+    {
+      "name": "Warm Walls / Vector DOM Art",
+      "state": "ACTIVE",
+      "consequence": "Existing descriptor-shadow specimen mutated in place; no raster, no new specimen family, no deployment claim."
+    },
+    {
+      "name": "operator-owner-surgery-shadow-receipt-integrity",
+      "state": "ACTIVE_NEW_SKILL",
+      "consequence": "Harvested durable false-vs-unknown and shadow-receipt-context laws with explicit source/test/runtime/P0 membrane."
+    },
+    {
+      "name": "Christmas-Light Scene Graph",
+      "state": "DARK",
+      "consequence": "No runtime transition law changed; no motion earned."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "consequence": "No material token ambiguity required resolution."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands / P0 Fortress",
+      "state": "DARK_FIREWALLED",
+      "consequence": "Consumption 0; mutation 0; duplicate architecture 0; new P0 finding none."
+    }
+  ],
+  "fronts": {
+    "comparisonTriStateReceipt": "IMPLEMENTED_SOURCE",
+    "comparisonTriStateRegression": "SOURCE_UNEXECUTED",
+    "descriptorWoundOwnerBoundary": "RED_SOURCE_UNEXECUTED__OWNER_FIX_NO",
+    "temporalReceiptContext": "SUPPORTING_SOURCE",
+    "temporalReceiptRegression": "SOURCE_UNEXECUTED",
+    "doctrineArtReview": "SOURCE_CONVERGED"
+  },
+  "sourceCustody": {
+    "preMutationVeniceHead": "6dd8c8279688f005c89bc469dd0a9512be05c999",
+    "reviewedSourceHead": "4d25c8b37a97c9a78cfe26ab934fdb12e6090091",
+    "intendedChangedPaths": 8,
+    "unexpectedChangedPaths": 0
+  },
+  "execution": {
+    "operatorOverlay": {"run": 32650688448, "job": 97221690506, "conclusion": "failure", "stepsExposed": 0, "logs": "404_BlobNotFound"},
+    "homeCenterCi": {"run": 32650688472, "conclusion": "failure"},
+    "buildAndroid": {"run": 32650688456, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "crossPollination": "Descriptor-shadow wound telemetry made operator receipt semantics suspicious -> false-vs-null tri-state gate exposed the upstream owner wound -> temporal receipt review showed result SHA alone was insufficient context -> first helper repair was too narrow because SHADOW_DIVERGED also claims completed descriptor comparison -> Regnet widened the exact capability/completeness gate -> doctrine and the existing Warm Wall inherited the corrected law while canonical authority and P0 remained untouched.",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorShadowOwnerTriStateFixed": false,
+    "temporalOwnerConsumesStrictReceiptGate": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UPSTREAM_DESCRIPTOR_WOUND_TEMPORAL_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

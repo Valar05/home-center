@@ -1,0 +1,149 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpointLocal": "2026-08-24 06:00 CT",
+  "pr": 329,
+  "reviewedSourceHead": "431051b68f1ee8551296648ae7be4110cc359d05",
+  "previousCheckpointHead": "6f74af55c1dd48ee2a978920f86256f428ca3a98",
+  "sourceDelta": {
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "docs/try-forever/heartbeat-20260824-0600-plan.md",
+      "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "tools/test_try_forever_descriptor_shadow_operator_receipt_capability_closure.py",
+      "skills/operator-receipt-capability-closure/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-raw-capability-membrane-source-specimen.html"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "final-receipt-upstream-composition-custody",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "blob": "fe81fe1a417d36a87b6130db4e84a5a738478db7",
+      "change": "Final operator receipt v4 now requires exact existing projector receipt v2, raw descriptor-shadow v3, and self-integrity v2 identities before capability closure. False-shaped capability state cannot repair a missing or drifting upstream source contract."
+    },
+    {
+      "name": "final-receipt-hostile-regression",
+      "state": "SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_descriptor_shadow_operator_receipt_capability_closure.py",
+      "blob": "984713e676c6d063b3bd162b8cc35ffa96ed964e",
+      "change": "Fixture now attacks missing/wrong upstream projector, raw-source, and self-integrity contracts in addition to missing/positive capability state and final namespace collisions."
+    },
+    {
+      "name": "skill-doctrine-convergence",
+      "state": "SOURCE",
+      "path": "skills/operator-receipt-capability-closure/SKILL.md",
+      "blob": "8c9318e07473f2ec9a8fdfdceb85f2c9d60f0e88",
+      "change": "Durable law now separates exact upstream composition custody from final capability closure and keeps SOURCE_WIRED != REGRESSION_EXECUTED != TESTED != RUNTIME != DEPLOYED/CALLABLE/EXECUTED/DELIVERED/ACCEPTED."
+    },
+    {
+      "name": "accessibility-warm-wall",
+      "state": "SOURCE",
+      "path": "docs/try-forever/operator-owner-surgery-raw-capability-membrane-source-specimen.html",
+      "blob": "08a517d2a2798f22ec376e92f40bd82d7d94a823",
+      "change": "Existing DOM/inline-SVG organism now exposes RAW v3 -> PROJECTOR v2 -> SELF v2 -> FINAL v4 and a touchable UPSTREAM CONTRACT DRIFT wound. No raster, autoplay, decorative blink, runtime TalkBack, or phone claim."
+    },
+    {
+      "name": "native-heartbeat-selection-owner-boundary",
+      "state": "CURRENT_BASE_REVIEW_READY_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+      "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+      "patch": "patches/try-forever-heartbeat-selection-announcement-owner-combined.patch",
+      "patchBlob": "2711576ae045b561ceae663184f705beb4c6d468",
+      "change": "Authenticated owner still matches the combined native-selection/material-transition surgery base exactly. Patch remains proposed/not applied; no unsafe whole-file reconstruction or phone/P0 substitute was used."
+    },
+    {
+      "name": "non-phone-mutation-lane-boundary",
+      "state": "BLOCKED_WORKER_OFFLINE_NO_DUPLICATE",
+      "worker": "windows-hands-01",
+      "online": false,
+      "queueDepth": 4,
+      "activeLanes": [
+        "lane-reality-membrane",
+        "lane-spotify-radio",
+        "lane-try-forever-heartbeat-detail",
+        "lane-try-forever-provenance-owner"
+      ],
+      "change": "Fresh Home Center readback says the patch-capable non-phone worker is offline with existing TRY FOREVER lanes. No duplicate request was created."
+    },
+    {
+      "name": "execution-evidence",
+      "state": "TESTED_NO",
+      "sourceHead": "431051b68f1ee8551296648ae7be4110cc359d05",
+      "runs": {
+        "operatorOverlayAndroid": {
+          "id": 32720152964,
+          "jobId": 97409641134,
+          "conclusion": "failure",
+          "exposedSteps": 0,
+          "logReadback": "404 BlobNotFound"
+        },
+        "homeCenterCi": {"id": 32720153012, "conclusion": "failure"},
+        "buildAndroid": {"id": 32720153007, "conclusion": "failure"}
+      },
+      "change": "Fresh exact-head automatic workflows failed. No usable step-level cause is established; no historical diagnosis was recycled and no manual retry was fired."
+    }
+  ],
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "strange non-raster vector/DOM/native UI art",
+      "warm walls",
+      "contact preservation",
+      "operator-receipt-capability-closure",
+      "heartbeat-native-selection-collection"
+    ],
+    "fault": {
+      "She-Raw adversarial motivation": "Authoritative pre-execution attempt returned account-connection HTTP 400; no substitute reviewer."
+    },
+    "dark": {
+      "Autocorrect Judgment Jar": "No material ambiguity required resolution.",
+      "Christmas-light scene graph": "No transition/motion law changed; no decorative blink earned.",
+      "Phone Runtime / Phone Hands recovery": "Binding P0/phone firewall; no phone/P0 surface consumed or mutated."
+    }
+  },
+  "review": {
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__UPSTREAM_CONTRACT_REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "veniceWorker": "NOT_REGISTERED_NO_EXTERNAL_VERDICT_FABRICATED",
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "crossPollination": "Full final capability closure made the final receipt composition itself suspicious: could a false-shaped bounded mapping drift its projector/raw/self-integrity contract and still become v4? That exposed exact upstream composition custody as a separate integrity seam. The final owner now imports and verifies the existing source-contract identities before capability closure. Hostile fixtures, durable skill doctrine, and the existing Warm Wall inherited the same law. Re-reading the neighboring native heartbeat owner then confirmed its combined selection/announcement surgery still matches the exact current owner blob, but fresh Home Center evidence says the patch-capable non-phone worker is offline; Execution Truth therefore preserved review-ready/not-applied rather than creating duplicate queue sludge, reconstructing a giant owner through an unsafe substitute, or borrowing phone/P0.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "finalReceiptUpstreamCompositionCustody": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "nativeOwnerPromotion": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UPSTREAM_CONTRACT_REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-20-1700",
+  "reviewedSourceHead": "441c9e04b7ca7d1f5269b57f0826dd0a535ae5ca",
+  "owner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "blob": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "mutatedThisPulse": false
+  },
+  "materialFronts": [
+    {
+      "front": "dynamic-textview-accessibility",
+      "changed": "Corrected the proposed sole-owner surgery: Spotify and Home Center dynamic status TextViews keep native text semantics instead of duplicating/replacing them with non-null contentDescription values.",
+      "state": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "front": "owner-source-evidence",
+      "changed": "Advanced deterministic owner probe to v6 with a separate dynamic TextView semantic classifier for Spotify and Home Center status.",
+      "state": "SUPPORTING_SOURCE"
+    },
+    {
+      "front": "hostile-regression-source",
+      "changed": "Added legacy/wired/partial fixtures for static, null, mixed non-null, wrong-method, nested-class, and missing-owner states; review corrected two initially wrong counterfeit expectations before receipt.",
+      "state": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "front": "durable-skill-doctrine",
+      "changed": "operator-accessibility-owner-boundary now distinguishes explicit event announcements from native TextView focus semantics and records four current owner wounds.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "touchable-non-raster-art",
+      "changed": "Mutated the existing Operator Accessibility Throat in place to expose four wounds and the corrected existing-organ repair shape with radio/keyboard/touch semantics and no decorative motion.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "front": "execution-evidence",
+      "changed": "Automatic Operator Overlay Android, Home Center CI, and Build Android all concluded failure on the reviewed source head; no authenticated step-level cause was established and no retry was fired.",
+      "state": "TESTED_NO"
+    }
+  ],
+  "lights": {
+    "FailureIsTheShovel": "ACTIVE: external platform evidence overturned the earlier dynamic-contentDescription repair rather than polishing it",
+    "CanonAutoSelect": "ACTIVE: reused OperatorOverlayService, HeartbeatDetailSurfacePolicy, HeartbeatPlainTextBudget, owner probe, existing skill and art",
+    "OriginalityTax": "ACTIVE: two wrong regression expectations were corrected before checkpoint instead of being defended",
+    "HungerEatEverything": "ACTIVE: patch, probe, fixtures, doctrine and art converged on one semantic correction",
+    "OperatorCampaignHarroway": "ACTIVE: sole owner preserved; no second accessibility controller",
+    "SheRaw": "FAULT: authoritative consult attempted; account connection HTTP 400; no synthetic verdict",
+    "VeniceJudgment": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "RegnetQA": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__REGRESSION_UNEXECUTED__OWNER_UNWIRED__TESTED_NO",
+    "AccessibilityTalkBackTouch": "ACTIVE: Android TextView guidance changed the repair; touchable source organism updated",
+    "DeterministicRoutingEvidence": "ACTIVE: v6 owner-method source classification; requested/source/regression/test/runtime states separated",
+    "RecoveryCheckpointIdempotence": "DARK: no runtime contact/recovery semantics changed",
+    "WarmWallsVectorDom": "ACTIVE: existing non-raster throat mutated in place",
+    "ChristmasLightSceneGraph": "DARK: no scene-transition law changed; no decorative blink",
+    "AutocorrectJudgmentJar": "DARK: no material transcription ambiguity",
+    "PhoneRuntimePhoneHands": "FIREWALLED_DARK: consumption 0, mutation 0",
+    "P0Fortress": "READ_ONLY: no finding requiring P0 handoff"
+  },
+  "externalEvidence": {
+    "androidGuidance": "Android Developers: do not provide descriptions for TextView elements; accessibility services automatically announce the text itself."
+  },
+  "executionEvidence": {
+    "operatorOverlayRun": 32422995805,
+    "homeCenterCiRun": 32422995789,
+    "buildAndroidRun": 32422995795,
+    "conclusion": "failure",
+    "stepLevelCause": "NOT_ESTABLISHED",
+    "manualRetry": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "combinedOwnerPatch": "PROPOSED_NOT_APPLIED",
+    "deepDetailOwnerWiring": false,
+    "spotifyAnnouncementOwnerWiring": false,
+    "spotifyNativeTextSemanticsOwnerWiring": false,
+    "homeCenterNativeTextSemanticsOwnerWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "crossPollination": "Android platform guidance made the earlier Spotify contentDescription patch suspicious -> the correction exposed the same static-description wound on Home Center status -> owner probe v6 generalized the distinction -> hostile fixtures caught counterfeit/mixed states -> code-first review corrected two fixture expectations -> skill doctrine and the existing touchable throat inherited the corrected semantics without touching the owner or P0."
+}

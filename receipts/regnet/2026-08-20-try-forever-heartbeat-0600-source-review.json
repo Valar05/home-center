@@ -1,0 +1,85 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestamp": "2026-08-20T06:00:00-05:00",
+  "reviewedSourceHead": "08c64ef880529c021600b411f28d62aca8c1a3d8",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "headBlobObservation": {
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "path": "tools/try_forever_skill_head_blob_observation.py",
+      "blob": "4cc680bf2673420ca8485ff860c85a9b963ad12d",
+      "review": "bounded literal candidate set, ordinary 100644/100755 blob only, exact set equality, zero partial authority on malformed/missing/redirector/duplicate/unexpected output"
+    },
+    "contentBinding": {
+      "state": "IMPLEMENTED_SUPPORTING_SOURCE",
+      "path": "tools/try_forever_skill_head_content_binding.py",
+      "blob": "d7b0373e4028fd36605815dc4a2573868d7e6389",
+      "review": "exact Git blob framing under SHA-1/SHA-256 repository object formats; SHA-1 explicitly compatibility-only via usedforsecurity=false; mismatch cannot be overruled by clean-status or tracked-path evidence"
+    },
+    "replacementObjectHardening": {
+      "state": "IMPLEMENTED_SOURCE_WIRED_SHARED_GIT_ENV",
+      "path": "tools/try_forever_repository_emission_observation.py",
+      "blob": "2747a04151acc302d2d272ed6c78f5613597a920",
+      "review": "code-first review caught replacement refs as an authority hole after the first HEAD-tree source landed; shared authority-facing Git environment now forces GIT_NO_REPLACE_OBJECTS=1 and the HEAD-tree observer inherits it"
+    },
+    "ownerBoundary": {
+      "state": "RED_REGRESSION_SOURCE",
+      "path": "tools/test_try_forever_skill_head_content_owner_boundary.py",
+      "blob": "562d726ce6ff753c126b8336aa7d8c94d1ffceb3",
+      "review": "sole provenance owner does not yet consume the HEAD blob observation/content binding and single-artifact skill content does not yet expose Git blob identity; no second content read is authorized as a shortcut"
+    },
+    "accessibilityArt": {
+      "state": "SOURCE_SPECIMEN_UPDATED",
+      "path": "docs/try-forever/heartbeat-skill-provenance-source-specimen.html",
+      "blob": "3485c8d7595652ce3357e84c1e61e0b797ff8822",
+      "review": "existing organism mutated in place; HEAD CONTENT MISMATCH is touch/keyboard inspectable with radio semantics, roving focus, >=48px intent, non-color state, reduced motion, no autoplay/blink, and explicit source/runtime/phone membrane"
+    }
+  },
+  "regressionSource": {
+    "headBlob": "tools/test_try_forever_skill_head_blob_observation.py",
+    "headBlobBlob": "9510bf338c27cad4bf981575f8a393e2c5c8f9a6",
+    "contentBinding": "tools/test_try_forever_skill_head_content_binding.py",
+    "contentBindingBlob": "04f7906165584b00dae6f6e2af1bb2fbce86eb82",
+    "sharedGitEnv": "tools/test_try_forever_repository_emission_observation.py",
+    "sharedGitEnvBlob": "024dfc2bea6f70641b0b864ae53a7db513afaed2",
+    "executed": false
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32362622330,
+    "operatorOverlayJob": 96405275620,
+    "operatorOverlayConclusion": "failure",
+    "exposedSteps": 0,
+    "jobLogs": "404 BlobNotFound",
+    "buildAndroidRun": 32362622374,
+    "homeCenterCiRun": 32362622354,
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "reviewScars": [
+    "The first HEAD-tree source inherited Git replacement-object semantics. Official Git behavior makes replacement refs active by default for most commands. That authority hole was repaired before bounded PASS by forcing GIT_NO_REPLACE_OBJECTS=1 in the shared Git authority environment.",
+    "Git SHA-1 object identity is compatibility framing here, not a security use; Python hashing was corrected to request usedforsecurity=false.",
+    "The new owner-boundary fixture is intentionally RED. Supporting source is not owner wiring."
+  ],
+  "capabilityMembrane": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "sharedGitReplacementSuppressionSourceWired": true,
+    "ownerHeadContentBindingWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

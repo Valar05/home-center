@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-20-1300",
+  "commission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching Phone/P0 ownership.",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "precondition": {
+    "ownerBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
+    "deepDetailLegacy": "heartbeatDetail.setMaxLines(5) + TextUtils.TruncateAt.END",
+    "spotifySpeechLegacy": "summary.substring(0, 160)",
+    "p0PhoneConsumptionAllowed": false
+  },
+  "fronts": [
+    {
+      "name": "deep-detail-existing-owner-wiring",
+      "action": "Apply the already-reviewed HeartbeatDetailSurfacePolicy wiring to the sole existing OperatorOverlayService: full layout, bounded pixel-height scroll viewport, passive focus ownership, explicit-selection top reset, generation-bound background scroll restoration.",
+      "acceptance": "No setMaxLines(5)/END ellipsis on heartbeatDetail; no second detail formatter/controller; exact Evidence/Source remains inspectable."
+    },
+    {
+      "name": "spotify-talkback-existing-owner-wiring",
+      "action": "Replace UTF-16 substring truncation with existing HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160).",
+      "acceptance": "No substring(0,160) TalkBack projection; hard returned 160-code-point budget remains grapheme-safe."
+    },
+    {
+      "name": "regression-and-owner-state-truth",
+      "action": "Advance deterministic owner-boundary regression/doctrine only if authenticated readback proves the owner mutation; keep regression-source versus TESTED distinct.",
+      "acceptance": "Owner state becomes SOURCE_WIRED only after exact GitHub readback; TESTED remains NO unless executable checks actually run."
+    },
+    {
+      "name": "accessibility-art-truth",
+      "action": "Mutate existing non-raster Operator Accessibility Throat only if owner topology really changes; no decorative new specimen or blink.",
+      "acceptance": "Art reports owner source wiring without claiming Android runtime, TalkBack runtime, phone delivery, or acceptance."
+    }
+  ],
+  "constraints": [
+    "OperatorOverlayService remains sole native owner.",
+    "No Phone Hands, primary-phone command, recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, physical acceptance, or P0 coordination.",
+    "No neighboring overlay controller/renderer/state store.",
+    "No manual retry of unchanged CI merely to animate red status.",
+    "requested/implemented/tested/runtime/deployed/callable/executed/delivered/accepted remain distinct."
+  ],
+  "sheRaw": "ATTEMPTED_PRE_EXECUTION__FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "veniceNext": "Run primary Judgment-Jar plan review before substantive owner mutation."
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-17-1900",
+  "reviewerRole": "regnet-qa",
+  "sourceHeadReviewed": "0e55be04ad8462d12a6f5987a51f3db61c68fab2",
+  "exactReadback": {
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatCollapsedOwnerAccessibility.java": "cb69aaba1346e794cde6e0f95238a1e6ccc28283",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java": "a7a80e887dc233a4e242ec50e21523895a605801",
+    "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatCollapsedOwnerAccessibilityTest.java": "b2449aba3680440fd4d64420c7a0bd9dee276968",
+    "skills/heartbeat-collapsed-owner-speech-load/SKILL.md": "2553ecfba1a82152d1adc51f5dc86b8fddffd2bf",
+    "docs/try-forever/heartbeat-skill-lights-source-specimen.svg": "9afc755f476a5e27407298c76e654f6efb172fdc"
+  },
+  "codeReviewFirst": true,
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "quality": "good",
+  "findings": [
+    "The first 1900 repair correctly removed broad per-light narration from the surviving collapsed dragHandle but also removed all blocked/fault awareness. The durable corrective replan was required and the final source no longer has that defect.",
+    "The final collapsed-owner projection retains the existing owner and expanded behavior, speaks only action + canonical heartbeat summary + compact exact blocked/fault counts + zero-material/interruption truth, and does not transplant the broad collapsed per-light list onto the action control.",
+    "The entire returned collapsed-owner description is bounded by MAX_COLLAPSED_OWNER_CODE_POINTS=320 through the existing plain-text projection helper. Canonical scene/evidence fields are not rewritten to satisfy the speech budget.",
+    "Attention counts are derived from accepted/preserved HeartbeatSceneGraph nodes through the ViewModel. They are not recovered by parsing visible labels. The hostile fixture proves a rejected attempted FAULT cannot leak into current collapsed-owner attention while CONTACT HELD preserves the last-good frame.",
+    "Broad source fixtures preserve the distinction between compact collapsed owner speech and expanded detail: twenty valid material lights retain detail enumeration, while the action control carries total count, exact blocked/fault attention, and an explicit expand-for-details cue without light labels or the full States list.",
+    "The new repository skill and existing warm-wall SVG agree with the implementation boundary: existing owner only; source wiring/readback yes; runtime TalkBack, deployment, delivery, and acceptance unproven.",
+    "The shared HeartbeatPlainTextBudget still has an independently known extended-grapheme-boundary defect elsewhere in the PR. This 1900 collapsed-owner composition currently contributes fixed action/summary/attention/wound prose rather than arbitrary human label text, so the bounded source claim here does not depend on that helper being generally grapheme-safe. No broader accessibility-budget correctness claim is granted."
+  ],
+  "testBoundary": {
+    "testHeadObserved": "cbc2cecc366aae7d2352682d250baf1eb908282f",
+    "operatorOverlayRunId": 32083651103,
+    "operatorOverlayJobId": 95551506537,
+    "status": "completed",
+    "conclusion": "failure",
+    "stepLevelReasonExposed": false,
+    "manualRetryDispatched": false,
+    "tested": false,
+    "note": "The connector exposes the failed job but not a current step-level reason. No older Actions-budget annotation is copied forward as current evidence."
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "existingOwnerConsumesProjection": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "nonRasterSourceArt": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayProbes": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateOwnersCreated": 0
+  },
+  "gate": "SOURCE_REVIEW_PASS_TESTED_REMAINS_NO"
+}

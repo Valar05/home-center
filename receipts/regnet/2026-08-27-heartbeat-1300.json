@@ -1,0 +1,92 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-27T13:00:00-05:00",
+  "reviewedSourceHead": "bf1d77a3b6e09dc85891309d5c6d82e685a09e7e",
+  "verdict": "PASS_BOUNDED_SOURCE__INVISIBLE_PROJECTION_SOURCE_WORK_SOURCE_WIRED__COLLAPSED_STATUS_PRETRIM_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": [
+    {
+      "name": "explicit invisible-control projection source work",
+      "state": "SOURCE_WIRED",
+      "owner": "HeartbeatInvisibleSemanticControlPolicy",
+      "ownerBlob": "e10fd59f37d6ee06fd1d899dcb45fde445081df1",
+      "review": [
+        "All public traversal entry points now cross HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS before code-point scanning or marker expansion.",
+        "The first repair used the smaller evidence-field ceiling; self-review rejected that as an unnecessary direct-caller capability contraction and aligned the final owner with the shared broad direct-source ceiling.",
+        "Exact canonical evidence remains separately authoritative; the source-work throat does not normalize or truncate canonical identity.",
+        "Zero returned budget still returns without projection traversal."
+      ]
+    },
+    {
+      "name": "collapsed owner status pre-trim work",
+      "state": "SOURCE_WIRED",
+      "owner": "HeartbeatCollapsedOwnerAccessibility",
+      "ownerBlob": "b4788bd6a738a1a5d1346433b46c1201a2facfc6",
+      "review": [
+        "Direct operatorStatusDescription now crosses HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS before trim.",
+        "Ordinary within-window trim semantics are preserved before the existing 96-code-point returned status budget.",
+        "An over-window suffix cannot become operator-status speech while heartbeat/contact truth remains composable.",
+        "OperatorOverlayService still consumes the heartbeat-only overload, so this source repair is not owner runtime consumption or TalkBack proof."
+      ]
+    },
+    {
+      "name": "hostile regression source",
+      "state": "SOURCE_UNEXECUTED",
+      "artifacts": [
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatInvisibleSemanticControlSourceWorkTest.java",
+        "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatCollapsedOwnerStatusSourceWorkTest.java"
+      ],
+      "blobs": [
+        "72f8314f6a2d65107818b65db6295a69c4bdc352",
+        "11110b07238271f7224dd0514827bcc90665f78f"
+      ],
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "doctrine convergence",
+      "state": "SOURCE",
+      "artifact": "skills/heartbeat-hard-returned-text-budgets/SKILL.md",
+      "blob": "9c0086c5fe4f00afa9b772677cfa87be412daadf",
+      "review": "Doctrine now records pre-helper trim/scan as a separate work throat and distinguishes routine plain speech from explicit evidence projection while cross-pollinating the finite-work invariant."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "sourceHead": "bf1d77a3b6e09dc85891309d5c6d82e685a09e7e",
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33102600225, "conclusion": "failure", "jobId": 98623955787, "steps": 0},
+      {"name": "Home Center CI", "id": 33102600236, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33102600268, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

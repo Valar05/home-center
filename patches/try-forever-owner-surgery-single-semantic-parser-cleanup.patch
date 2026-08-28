@@ -1,0 +1,78 @@
+# STATUS: APPLIED_SOURCE
+# BASE OWNER BLOB: f148c2e74287a7a251ac4f2ccdfc3c99a6fa948d
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# RESULT OWNER BLOB: 3d05ad9e06d4f00d3bdf7492fddb51fd7e913a8c
+# APPLIED COMMIT: 40fa34707593468c1950910d4be7ebe893d1495a
+# PURPOSE: Remove dormant local patch/delta semantic parser machinery and parser-only imports/constants after canonical v10 already delegates both artifact kinds to parse_owner_surgery_observation(...).
+# PRESERVE: SHA1_RE; canonical backend selection; bounded observation; admit_owner_identity current-owner custody; parse_owner_surgery_observation(...) calls; Surgery authority/grouping semantics.
+# REGRESSION: tools/test_try_forever_owner_surgery_single_semantic_parser_owner.py (SOURCE / UNEXECUTED)
+# CAPABILITY: APPLIED_SOURCE / OWNER_SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/tools/try_forever_owner_surgery_custody_probe.py b/tools/try_forever_owner_surgery_custody_probe.py
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ from try_forever_generated_index_artifact_observation import (
+@@
+ )
+ from try_forever_owner_surgery_backend_policy import select_owner_surgery_backend
+-from try_forever_owner_surgery_default_owner_binding import admit_default_owner_from_patch
+ from try_forever_owner_surgery_metadata_exactness import (
+     MAX_OWNER_IDENTITY_CODEPOINTS,
+     admit_owner_identity,
+-    admit_patch_metadata,
+ )
+ from try_forever_owner_surgery_semantic_parser import (
+     OwnerSurgerySemanticError,
+     parse_owner_surgery_observation,
+ )
+-from try_forever_owner_surgery_state_policy import admit_owner_surgery_state
+@@
+ PATCH_ROOT = Path("patches")
+ PATCH_ROOT_SUBJECT = "owner surgery patches root"
+-DEFAULT_OWNER = "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java"
+-DELTA_SCHEMA = "try-forever-owner-delta.v1"
+ MAX_ARTIFACT_BYTES = 1_048_576
+@@
+-BASE_RE = re.compile(r"^#\s*(?:BASE OWNER BLOB|Base owner blob|Base blob)\s*:\s*([0-9a-f]{40})\s*$", re.I | re.M)
+-OWNER_RE = re.compile(r"^#\s*(?:OWNER|Target|Base path)\s*:\s*(\S+)\s*$", re.I | re.M)
+-STATE_RE = re.compile(r"^#\s*(?:STATUS|State)\s*: ([^\r\n]*)$", re.I | re.M)
+ SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
+-DELTA_BASE_KEYS = ("baseBlob", "ownerBaseBlob", "baseOwnerBlob")
+-DELTA_STATE_KEYS = ("state", "status")
+@@
+-def _promotion_candidate(state: str) -> bool:
+-    return admit_owner_surgery_state(state).promotion_candidate
+-
+-
+ def _artifact_kind_for_name(name: str) -> str | None:
+@@
+-def _reject_duplicate_json_members(pairs: list[tuple[str, object]]) -> dict[str, object]:
+-    result: dict[str, object] = {}
+-    for key, value in pairs:
+-        if key in result:
+-            raise ValueError(f"duplicate JSON member: {key}")
+-        result[key] = value
+-    return result
+-
+-
+-def _consistent_delta_string(
+-    payload: dict[str, object],
+-    keys: tuple[str, ...],
+-    field_name: str,
+-) -> str:
+-    present = [(key, payload[key]) for key in keys if key in payload]
+-    if not present:
+-        raise ValueError(f"missing {field_name}")
+-    values: list[str] = []
+-    for key, raw in present:
+-        if not isinstance(raw, str) or not raw:
+-            raise ValueError(f"{key} must be a non-empty string")
+-        values.append(raw)
+-    if len(set(values)) != 1:
+-        raise ValueError(f"conflicting {field_name} aliases")
+-    return values[0]
+-
+-
+ def inspect_delta(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:

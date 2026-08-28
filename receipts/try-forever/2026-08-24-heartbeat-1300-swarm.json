@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "timeLocal": "2026-08-24T13:10:00-05:00",
+  "reviewedSourceHead": "571097c7f02747c631b7b71f6ccae4a6da0af283",
+  "frontsAdvanced": [
+    {"front":"identity fieldset supporting policy","result":"IMPLEMENTED_SOURCE","change":"Exact current self-integrity + operator-owned + denied-capability field union now has a fail-closed supporting gate."},
+    {"front":"hostile supporting regression","result":"SOURCE_UNEXECUTED","change":"Binds current self-integrity output to the vocabulary and attacks hitchhiker, missing-field, and duplicate declaration cases; first raw fixture defect was repaired."},
+    {"front":"RED existing-owner boundary","result":"HARDENED_SOURCE","change":"Requires the existing final contract to consume the gate before digest trust; nested-function counterfeit evidence was removed."},
+    {"front":"owner surgery provenance","result":"PROPOSED_NOT_APPLIED","change":"Exact base-blob-locked patch prepared against authenticated final owner blob 952a7de0…; owner remains unchanged."},
+    {"front":"durable skill harvest","result":"NEW_REPOSITORY_SKILL","change":"operator-receipt-identity-fieldset preserves identity-vs-derivation custody and the capability membrane."},
+    {"front":"accessible non-raster source art","result":"CREATED_SOURCE","change":"Touchable keyboard/radio Warm Wall makes exact union, hitchhiker, owner-RED, and membrane states inspectable without runtime claims."},
+    {"front":"Regnet/Venice review","result":"DURABLE_RECEIPTS","change":"Code-first corrections and bounded source-stop gate are remote; owner/test/runtime campaign remains open."},
+    {"front":"execution truth","result":"BOUNDARY","change":"Exact source head workflows failed; Operator job exposed zero steps and 404 BlobNotFound logs; no cause invented and no retry fired."}
+  ],
+  "skillLights": {
+    "Failure Is The Shovel":"LIT__fresh identity-level namespace wound extracted from deeper derivation-only protection",
+    "Canon Auto-Select":"LIT__selected final receipt identity custody from authenticated current source",
+    "Autocorrect Judgment Jar":"DARK__no material ambiguity",
+    "Originality Tax":"LIT__two self-inflicted regression/evidence defects were replaced before completion",
+    "Hunger":"LIT__policy regressions patch skill art and receipts forced to converge",
+    "Ever-Polished Interpreter / Eat Everything":"LIT__identity digest raw-linkage and derivation proof obligations separated",
+    "Operator Campaign":"LIT__existing final v4 receipt owner remains sole owner",
+    "Harroway operator discipline":"LIT__authorized GitHub lane and exact source/test/runtime membrane preserved",
+    "She-Raw adversarial motivation":"FAULT__account connection HTTP 400; no synthetic substitute",
+    "Venice Judgment Jars":"LIT__pre-mutation plan and bounded completion gate durable",
+    "Regnet QA":"LIT__caught missing raw capability fields and nested-AST counterfeit owner evidence",
+    "accessibility/TalkBack and touch semantics":"LIT__source-only keyboard/radio Warm Wall makes evidence state inspectable",
+    "Phone Runtime / Phone Hands recovery":"DARK_FIREWALLED__consumption 0 mutation 0",
+    "deterministic routing":"LIT__exact PR branch owner blob source head and workflow IDs bound",
+    "evidence/capability-state discipline":"LIT__supporting source owner wiring regression execution TESTED runtime deployment delivery acceptance separated",
+    "recovery/checkpointing/idempotence":"LIT__plan Regnet Venice and swarm receipts persist corrections and owner boundary",
+    "strange non-raster vector/DOM/native UI art":"LIT__new DOM/inline-SVG source specimen only",
+    "warm walls":"LIT__identity-fieldset Warm Wall created",
+    "Christmas-light scene graph":"DARK__no runtime transition law changed",
+    "contact preservation":"LIT__intentional exact-false capability reassertion preserved as union rather than disjointness"
+  },
+  "crossPollination":"Deeper derivation fieldset custody made identity-only verification suspicious; digest/raw-SHA custody exposed the hitchhiker gap; Regnet review then found the first hostile raw fixture failed too early and the first AST owner proof could be counterfeited by a nested function; both were repaired before receipts, while the exact owner surgery remained unapplied.",
+  "executionEvidence": {"operatorOverlayRun":32760588939,"operatorOverlayJob":97538220293,"operatorOverlayConclusion":"failure","operatorOverlaySteps":0,"operatorLogs":"404 BlobNotFound","homeCenterCiRun":32760588954,"homeCenterCiConclusion":"failure","buildAndroidRun":32760589009,"buildAndroidConclusion":"failure","stepLevelCauseEstablished":false,"manualRetryFired":false},
+  "capabilityMembrane": {"requested":true,"supportingSource":true,"authenticatedReadback":true,"regressionSource":true,"regressionExecuted":false,"ownerPatchPrepared":true,"ownerWired":false,"tested":false,"runtimeUi":false,"runtimeTalkBack":false,"deployed":false,"callable":false,"executed":false,"delivered":false,"accepted":false},
+  "p0Phone": {"consumption":0,"mutation":0,"duplicateArchitecture":0,"newP0Finding":null}
+}

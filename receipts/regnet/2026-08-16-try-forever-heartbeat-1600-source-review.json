@@ -1,0 +1,77 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "heartbeat": "2026-08-16-1600",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "SYNTHETIC_REGNET",
+  "bounded_claim": "A pure native-motion decision layer and UI-ready projection now exist for semantic heartbeat transitions, including a summary fallback for pure removals. The existing OperatorOverlayService does not consume that policy yet; Android motion remains unproven.",
+  "acceptance": [
+    "node cue requires node transition truth + frame motion permission + visible heartbeat surface + platform animators enabled",
+    "collapsed/hidden presentation and platform-disabled animation block the cue",
+    "evidence-only refresh and interrupted preserved frames earn no cue",
+    "pure removal is represented by the existing heartbeat summary rather than a synthetic replacement light",
+    "source artifact respects reduced-motion and remains explicitly source-only",
+    "new doctrine preserves the existing OperatorOverlayService as sole native owner",
+    "no phone/P0 surface was consumed"
+  ],
+  "evidence": {
+    "native_motion_policy_blob": "9c16a17735ea788471c2ae35dde7d129e63e16de",
+    "view_model_blob": "a01d283677980404b27124550baa21ae613eaa54",
+    "regression_blob": "31f7a557034d2039f1cc8868860a2a9b8b05b451",
+    "skill_blob": "689102b52b5cc2fc84ffb159d7dbef3584cadaec",
+    "warm_wall_blob": "a786713d2288e699a334a3502ab9098613652e47",
+    "reviewed_source_head": "ae45450c7548326f5a12fa7a9c32fc3dab218ac1",
+    "operator_overlay_run": 31972431765,
+    "operator_overlay_job": 95226806843,
+    "operator_overlay_steps": 0,
+    "ci_annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "review_scar": {
+    "found": "The first summary-fallback policy collapsed two distinct rejection reasons into NODE_HAS_NO_TRANSITION.",
+    "repair": "FRAME_MOTION_CLAMPED and NODE_OWNS_TRANSITION are now distinct fail-closed boundaries before the final source review."
+  },
+  "findings": [
+    {
+      "severity": "PASS_BOUNDED_SOURCE",
+      "finding": "Motion now has a deterministic pure policy instead of remaining an unused boolean with ad hoc future interpretation."
+    },
+    {
+      "severity": "PASS_REMOVAL_SEMANTICS",
+      "finding": "A removal-only structural transition is explicitly projected to the existing summary surface because no removed node remains to animate."
+    },
+    {
+      "severity": "PASS_ACCESSIBILITY_SOURCE",
+      "finding": "Presentation visibility and platform animation permission are mandatory; motion is supplementary and does not alter speech, selection, focus, authority, or execution."
+    },
+    {
+      "severity": "BLOCKED_OWNER_WIRING",
+      "finding": "OperatorOverlayService currently ignores HeartbeatNativeMotionPolicy decisions. Existing-owner native motion consumption is not implemented in this slice."
+    },
+    {
+      "severity": "BLOCKED_UNKNOWN",
+      "finding": "Automatic Android CI on the reviewed source head executed zero steps because the GitHub Actions budget prevented the job from starting."
+    }
+  ],
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "tested": false,
+  "tested_state": "BLOCKED_ACTIONS_BUDGET",
+  "capability_membrane": {
+    "requested": true,
+    "semantic_motion_source": true,
+    "native_motion_policy_source": true,
+    "ui_ready_motion_projection_source": true,
+    "regression_source": true,
+    "doctrine_source": true,
+    "non_raster_specimen_source": true,
+    "existing_owner_consumes_native_motion_policy": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "runtime_reduced_motion_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

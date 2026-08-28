@@ -1,0 +1,49 @@
+{
+  "schema": "regnet.source-review.v1",
+  "heartbeat": "2026-08-17T11:00:00-05:00",
+  "target": "Heartbeat explicit-detail source convergence",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "tested": "NO",
+  "testBoundary": "GitHub Actions current-head workflow-run readback returned HTTP 403 Resource not accessible by integration. No older run was copied forward and no retry was dispatched.",
+  "sourceFindings": [
+    {
+      "finding": "HeartbeatSceneGraph.Node cached an older candidate-level detail string while current explicit consumers used HeartbeatEvidenceDetailProjection.",
+      "resolution": "Removed the Node.detailContentDescription field and both construction/copy assignments."
+    },
+    {
+      "finding": "HeartbeatSceneGraphTest still referenced the removed field and would create a compile failure if left stale.",
+      "resolution": "Rewrote those assertions to consume HeartbeatEvidenceDetailProjection directly."
+    },
+    {
+      "finding": "HeartbeatTypedSourceHardeningTest still asserted object identity for a rejected refresh even though contact preservation intentionally re-materializes nodes to clamp stale transitionMotion.",
+      "resolution": "Changed the fixture to assert semantic contact preservation plus distinct node identity and transitionMotion=false."
+    }
+  ],
+  "authority": {
+    "explicitDetail": "HeartbeatEvidenceDetailProjection.detailContentDescription(node)",
+    "viewModel": "SOURCE_WIRED",
+    "frameAccessibilityByIndex": "SOURCE_WIRED",
+    "frameAccessibilityById": "SOURCE_WIRED",
+    "operatorOverlaySelectedDetail": "SOURCE_WIRED_THROUGH_VIEW_MODEL",
+    "legacySceneDetailCache": "RETIRED"
+  },
+  "checkpointTruth": "HeartbeatFrameCheckpoint continues hashing exact source semantic fields and does not depend on projected detail text.",
+  "accessibilityTruth": "Compact and collapsed routine speech remain unchanged by design; collision-safe bounded invisible-semantic markers remain explicit-detail-only.",
+  "remainingRisk": "No authorized Android compile/test execution evidence exists for this head. Full branch compile is therefore unproven even though audited known explicit-detail consumers and stale source fixtures were converged.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION",
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE_VERDICT"
+}

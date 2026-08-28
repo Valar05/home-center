@@ -1,0 +1,51 @@
+{
+  "schema": "venice-review.v2",
+  "heartbeat": "2026-08-18-2100",
+  "reviewMode": "same_worker_judgment_jar_code_first",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_CAMPAIGN_CONTINUE_REQUIRED",
+  "reviewedSourceHead": "72aa7c051a67b92c56fe61375d11ba2b093ebdd2",
+  "judgments": [
+    {
+      "axis": "mission fidelity",
+      "result": "PASS",
+      "detail": "Work stayed inside independent non-P0 provenance/evidence source, test fixtures, durable skills, and the existing Warm Wall. No phone/recovery/P0 lane was consumed."
+    },
+    {
+      "axis": "originality tax",
+      "result": "PASS_WITH_SCARS",
+      "detail": "The first external-path fingerprint design was rejected as a possible host-path oracle; the second review rejected tiny budgets that could amputate semantic markers. Both were repaired rather than defended or cosmetically retried."
+    },
+    {
+      "axis": "accessibility and touch",
+      "result": "PASS_SOURCE",
+      "detail": "Existing radio/focus/touch/non-color/reduced-motion Warm Wall semantics were preserved while two new evidence states became inspectable. No animation was added for bookkeeping."
+    },
+    {
+      "axis": "evidence truth",
+      "result": "PASS_BOUNDED",
+      "detail": "Supporting policies and regression fixtures are implemented source only. The existing provenance owner still emits host-local paths and has no final-emission revalidation; tested/runtime/deployed/delivered states remain NO."
+    },
+    {
+      "axis": "atomicity honesty",
+      "result": "PASS_BOUNDED",
+      "detail": "The late snapshot policy narrows one custody window but explicitly does not claim atomic repository binding or immunity from swap-and-restore, identity reuse, or mutation after final observation."
+    },
+    {
+      "axis": "execution",
+      "result": "BLOCKED_UNKNOWN",
+      "detail": "Automatic Operator Overlay Android run 32207464366 on the exact source head failed. Job 95933360316 exposes zero steps and logs return 404 BlobNotFound. No cause was invented and no retry was fired."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "nextAuthorizedCut": "Compose the two reviewed policies into tools/try_forever_skill_provenance_probe.py only after a safe owner delta is reviewed. A schema change is likely because repositoryRoot/generatedIndex path presentation and a report-emission snapshot field alter the durable report contract. Do not create a second probe or use phone/P0 lanes.",
+  "campaign": "CONTINUE_REQUIRED"
+}

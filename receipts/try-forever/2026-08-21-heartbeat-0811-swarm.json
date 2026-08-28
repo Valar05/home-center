@@ -1,0 +1,93 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-21-0811",
+  "reviewedSourceHead": "a0cabbae6c3fab407b2c3232eca74ab5f91217e7",
+  "activeLights": [
+    {
+      "skill": "Failure Is The Shovel",
+      "contribution": "Converted stale patch custody and a bad regression assumption into two concrete source repairs instead of retrying CI."
+    },
+    {
+      "skill": "Originality Tax",
+      "contribution": "Did not repeat broad announcement migration, rejected-patch rebasing, CI retry, worker queueing, or phone substitution."
+    },
+    {
+      "skill": "Canon Auto-Select",
+      "contribution": "Selected operator-semantic-announcement-migration and operator-repeatable-accessibility-event-semantics from current repository state."
+    },
+    {
+      "skill": "Hunger / Eat Everything",
+      "contribution": "Propagated the provenance correction through patch, regression, and both owning skill doctrines."
+    },
+    {
+      "skill": "Operator Campaign / Harroway",
+      "contribution": "Kept OperatorOverlayService as the sole owner and stopped at source provenance because the safe owner mutation lane is not callable through retired Command Center workers."
+    },
+    {
+      "skill": "She-Raw",
+      "contribution": "Authoritative pre-execution consultation attempted; account connection HTTP 400 preserved as a reviewer fault rather than replaced."
+    },
+    {
+      "skill": "Regnet QA",
+      "contribution": "Bounded source/readback PASS, owner REVISE_REQUIRED, TESTED BLOCKED_UNKNOWN."
+    },
+    {
+      "skill": "Venice Judgment",
+      "contribution": "Allowed this bounded source/provenance slice to yield while owner/test/runtime/campaign continue."
+    },
+    {
+      "skill": "Accessibility/TalkBack and touch semantics",
+      "contribution": "Protected consequence-specific migration, one-shot live-region authority, repeatable-event blockers, and no blanket replacement."
+    },
+    {
+      "skill": "Deterministic routing / evidence-state discipline",
+      "contribution": "Authenticated owner blob c5de1411... controls review-ready patch custody; rejected archaeology no longer pretends to be current."
+    },
+    {
+      "skill": "Recovery/checkpointing/idempotence / contact preservation",
+      "contribution": "Narrow patch keeps early-return/waiting recovery live-region reset semantics and does not change heartbeat identity/contact law."
+    }
+  ],
+  "darkLights": [
+    "Autocorrect Judgment Jar — no ambiguous token materially affected this pulse",
+    "Phone Runtime / Phone Hands — P0 firewall, consumption 0",
+    "P0 recovery chain — mutation 0",
+    "Warm Walls / non-raster art — no operator-visible topology changed; art churn would be decorative",
+    "Christmas-light scene graph — no scene-transition contract changed",
+    "Nightcore / Pocket TTS / Chromium / Context Organs — gated P0 surfaces untouched"
+  ],
+  "frontsAdvanced": [
+    "pre-mutation plan receipt",
+    "heartbeat-only owner-patch custody re-lock",
+    "rejected-archaeology inventory regression repair",
+    "semantic-announcement skill convergence",
+    "repeatable-event skill convergence",
+    "fresh exact-source-head workflow evidence",
+    "Regnet review",
+    "Venice completion review"
+  ],
+  "crossPollination": "Later accessibility owner surgeries changed the owner blob without changing the heartbeat migration seam. That exposed two coupled evidence defects: the review-ready patch had stale custody, while the rejected broad patch regression wrongly demanded current custody. Fixing both clarified a reusable law: promotion-ready surgery tracks the current owner; rejected archaeology stays unmistakably historical.",
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "ownerPatch": "CORRECTED_PROPOSED_NOT_APPLIED_CURRENT_BLOB_LOCKED",
+    "ownerSourceWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

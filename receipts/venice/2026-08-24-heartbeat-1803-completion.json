@@ -1,0 +1,46 @@
+{
+  "schema": "venice-judgment-jar-completion.v1",
+  "timestampLocal": "2026-08-24T18:03:50-05:00",
+  "mode": "same-worker bounded Judgment Jar completion review",
+  "reviewedSourceHead": "d482c6072889bcb575e29f727049c10b65686f76",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_SHADOW_OWNER_WIRING_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowYield": true,
+  "grounds": [
+    "Cross-host serialized path display privacy is implemented as supporting source and hostile regression source without changing path authority/I/O identity.",
+    "Originality Tax materially changed the first repair after review exposed Windows drive-relative/rooted host-context cases that is_absolute() alone does not cover.",
+    "The descriptor-shadow operator projector remains the correct existing owner; its exact surgery is preserved as PROPOSED_NOT_APPLIED and the RED owner-boundary fixture prevents helper existence from becoming implementation.",
+    "Snapshot-custody review found no separate concrete defect, so that front correctly stayed dark rather than generating churn.",
+    "The touchable non-raster source wall changed because the operator evidence topology materially changed and explicitly refuses runtime/phone claims.",
+    "Automatic workflows on the exact reviewed source head failed with no authenticated usable step-level cause; regressions remain unexecuted and TESTED remains NO.",
+    "Phone/P0 execution and recovery ownership remained untouched."
+  ],
+  "regnet": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "crossHostSerializedPathPolicy": "SOURCE",
+    "descriptorShadowOwnerWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

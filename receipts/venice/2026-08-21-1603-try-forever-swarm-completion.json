@@ -1,0 +1,75 @@
+{
+  "schema": "try-forever-swarm-completion.v1",
+  "timestamp": "2026-08-21T16:03:09-05:00",
+  "sourceHead": "4b358e96e886b36d3964e2ec152e376194ef346e",
+  "regnet": {
+    "verdict": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS_ONLY",
+    "ownerPromotion": "REVISE_REQUIRED",
+    "regressionExecution": "UNEXECUTED",
+    "tested": false
+  },
+  "venice": {
+    "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "fronts": [
+    {
+      "id": "collapsed-owner-operational-truth",
+      "implementedSource": true,
+      "regressionSource": true,
+      "ownerSourceWired": false,
+      "tested": false,
+      "runtimeTalkBack": false,
+      "change": "Collapsed owner projection can now compose a separately bounded owner-supplied operational-status description before heartbeat/contact truth, preventing a custom contentDescription from necessarily masking visible HC state once the existing owner consumes it."
+    },
+    {
+      "id": "adam-send-availability",
+      "implementedSource": true,
+      "regressionSource": true,
+      "ownerSourceWired": false,
+      "tested": false,
+      "runtimeTalkBack": false,
+      "change": "New policy mirrors the current owner trim admission boundary so an empty/ASCII-whitespace request can use native disabled Send semantics instead of a focusable guaranteed no-op or a synthetic repeated announcement."
+    },
+    {
+      "id": "operational-contact-source-organism",
+      "implementedSource": true,
+      "tested": false,
+      "runtime": false,
+      "change": "Touchable DOM + inline-SVG specimen makes both source seams and their owner gaps inspectable without raster art, autoplay, or P0/phone claims."
+    }
+  ],
+  "evidence": {
+    "collapsedOwnerBlob": "4c1768e5263b55af13d4d746ebd424644f6328d1",
+    "adamSendAvailabilityBlob": "eb84f328a97e15d01481888b08765bf81eb43883",
+    "adamSendAvailabilityTestBlob": "f31874d1e5a4f56620b0fa986ed559a37a7f7fa0",
+    "artBlob": "d81b56c26a6d3495e0b692282fc42d9afae05a93",
+    "operatorOwnerBlobObserved": "c5de1411a6b68087ae17aff83c032af754587150",
+    "operatorOwnerChangedThisSlice": false
+  },
+  "executionTruth": {
+    "workflowHead": "4b358e96e886b36d3964e2ec152e376194ef346e",
+    "homeCenterCi": {"run": 32527110952, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 32527110966, "job": 96911396185, "conclusion": "failure", "exposedSteps": 0},
+    "buildAndroid": {"run": 32527110964, "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "darkLights": {
+    "autocorrectJudgmentJar": "no material ambiguity",
+    "phoneRuntimePhoneHands": "binding firewall",
+    "christmasMotion": "no new runtime transition law",
+    "runtimeContactMutation": "source-only accessibility semantics"
+  }
+}

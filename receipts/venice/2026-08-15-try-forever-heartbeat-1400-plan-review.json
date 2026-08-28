@@ -1,0 +1,75 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone source fronts while the P0/primary-phone firewall remains binding; only materially consequential skill lights may illuminate.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "e77865f9e14e9bed92d7ff4375cceb3b5604833e",
+  "timestamp": "2026-08-15T19:00:38Z",
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "The commissioned non-phone scope, P0 ownership firewall, evidence standard, and delivery surface are binding."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "The current wound sits between opaque persisted payload identity and semantic ingestion; contact must fail closed without fake runtime claims."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "Repository source/readback must remain separate from tested, rendered, deployed, callable, executed, delivered, and accepted capability."
+    },
+    {
+      "id": "fortress-plan-gate",
+      "source": "skills/fortress-plan-gate/SKILL.md",
+      "why": "This pulse mutates repository source and therefore requires researched plan, antagonism, Venice ruling, and durable receipt before execution."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "The new integrity seam needs explicit failure-path and capability-state review before the pulse may yield."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "antagonism": [
+    "Do not wire or exercise the gated primary-phone surface, P0 queue, Nightcore, Pocket TTS, Chromium, Context Organs, or recovery owners.",
+    "Do not create a neighboring overlay controller or renderer merely to make source progress look like runtime progress.",
+    "Opaque base64 persistence is not semantic ingestion; byte count and SHA must be checked before parser output is trusted.",
+    "A storage-integrity failure must preserve last-good contact and must not execute the semantic parser on bytes whose identity no longer matches stored metadata.",
+    "Do not claim deterministic tests executed while Actions remains budget-blocked; regression source is not test evidence.",
+    "Do not add a decorative new specimen if an existing warm-wall organism can be surgically extended."
+  ],
+  "plan": [
+    "Front A — Persisted-envelope integrity seam: add a pure source helper that verifies exact UTF-8 byte count, SHA-256, update identity, and payload bounds before delegating accepted bytes into the existing HeartbeatEnvelopeParser -> HeartbeatSceneGraph seam. Storage rejection returns the last-good frame unchanged plus an exact boundary; it owns no Android state, renderer, transport, phone, or P0 authority.",
+    "Front B — Regression source: add deterministic JVM fixtures for exact acceptance, byte-count mismatch, SHA mismatch, malformed hash metadata, empty/stale stored identity, semantic parser rejection after valid storage identity, and last-good contact preservation.",
+    "Front C — Warm-wall art in place: extend heartbeat-motion-clamp-source-specimen.html with a storage-integrity scar showing hash/byte mismatch preserves last-good contact and prevents semantic ingestion/motion; keep native DOM buttons, keyboard reachability, non-color state semantics, reduced-motion behavior, and explicit SOURCE ONLY scarring.",
+    "Front D — Doctrine/canon: update heartbeat-skill-lights doctrine only where the new integrity seam changes the contract, without implying OperatorState or the Android renderer already consume it.",
+    "Front E — Evidence/review: perform exact GitHub readback, inspect any automatically triggered workflow without manual retry theater, persist Regnet and Venice completion receipts, update the PR capability membrane, and record zero P0/phone mutations."
+  ],
+  "outsideScope": [
+    "primary-phone execution or Phone Hands",
+    "queue/device probes or mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore, Pocket TTS, Chromium, Context Organs",
+    "new overlay controller, recovery daemon, phone ingress path, or P0 coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "acceptance": [
+    "Stored heartbeat payload identity is rejected before semantic parsing when UTF-8 byte count or SHA-256 disagrees with declared persisted metadata.",
+    "Storage rejection preserves the exact prior last-good scene reference/contact and exposes an exact integrity boundary.",
+    "A storage-valid but semantically invalid envelope reaches the existing parser and fails closed through the existing scene semantics rather than being relabeled as a storage fault.",
+    "Regression source covers integrity and semantic failure paths without claiming execution.",
+    "The existing warm-wall specimen visibly distinguishes storage-integrity rejection from protocol rejection and earns no transition motion for either.",
+    "P0/phone mutations remain zero; source/readback may advance IMPLEMENTED only, and TESTED remains NO/BLOCKED_UNKNOWN unless deterministic execution actually occurs."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}

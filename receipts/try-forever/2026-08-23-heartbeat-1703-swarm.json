@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "reviewedSourceHead": "fd858cac5293fa9b3b000f8a0a15ff3b366e2183",
+  "sourceBase": "36c9c8ed3a13e7bd40b9d5c6c77fd345a67ac24d",
+  "frontsAdvanced": [
+    "wound-context self-integrity",
+    "raw-machine-evidence receipt binding",
+    "operator receipt schema discipline",
+    "hostile regression source",
+    "durable skill/doctrine convergence",
+    "existing non-raster Warm Wall mutation",
+    "She-Raw adversarial attempt",
+    "Regnet/Venice review and exact workflow evidence"
+  ],
+  "skillLights": {
+    "lit": {
+      "Failure Is The Shovel": "Moved to raw/wound receipt-integrity defects rather than retrying the unchanged CI failure mode.",
+      "Canon Auto-Select": "Selected the existing descriptor-shadow audit, self-integrity gate, projector, operator receipt, two existing skills, and existing Warm Wall as authoritative organs.",
+      "Originality Tax": "Code review rejected the first schema-wound gate because missing schema could pass as merely non-v10; corrected with explicit schema identity and a focused hostile fixture.",
+      "Hunger": "Forced source, fixtures, doctrine, and touchable organism to converge on the same new capability truth.",
+      "Ever-Polished Interpreter / Eat Everything": "Separated raw machine evidence, raw-evidence digest linkage, bounded display, operator receipt identity, and capability state instead of collapsing them.",
+      "Operator Campaign": "Advanced the existing PR branch through authenticated GitHub source writes only.",
+      "Harroway operator discipline": "Preserved owners, exact source/readback/test/runtime distinctions, and no substitute execution lane.",
+      "She-Raw adversarial motivation": "Authoritative consult attempted; account connection HTTP 400 preserved as a reviewer fault with no substitute.",
+      "Venice Judgment Jars": "Plan gate and bounded completion gate were made durable before/after source work.",
+      "Regnet QA": "Code-first review found and corrected the missing-schema counterfeit wound; exact source diff and workflow state were preserved.",
+      "accessibility/TalkBack and touch semantics": "Existing Warm Wall now exposes raw binding and wound-context integrity with native radio/keyboard/non-color/reduced-motion semantics.",
+      "deterministic routing": "All changes composed through the existing descriptor-shadow receipt chain; no second projector/authority.",
+      "evidence/capability-state discipline": "SOURCE_WIRED, REGRESSION_EXECUTED, TESTED, RUNTIME, DEPLOYED, DELIVERED, ACCEPTED remain separate.",
+      "recovery/checkpointing/idempotence": "Raw evidence and bounded operator receipt each receive deterministic identities with distinct meanings.",
+      "warm walls": "Existing source organism mutated in place; no specimen family fork.",
+      "contact preservation": "Legitimate wound diagnostic contact remains while counterfeit wound labels fail closed."
+    },
+    "dark": {
+      "Autocorrect Judgment Jar": "No material ambiguous token required resolution.",
+      "Phone Runtime / Phone Hands recovery": "Binding P0/phone firewall; zero consumption and zero mutation.",
+      "Christmas-light scene graph": "Receipt/evidence topology changed, not runtime transition semantics; no decorative motion earned."
+    }
+  },
+  "crossPollination": [
+    "Raw-display separation made missing raw-evidence linkage visible; deterministic receipt identity supplied the binding shape.",
+    "Completed-comparison context validation made non-comparison wound labels suspicious; the same fail-closed evidence law became wound-context integrity.",
+    "Regnet review of the wound-context gate exposed missing schema identity as a counterfeit CANONICAL_SCHEMA_WOUND path and forced a corrective source pass.",
+    "The two source repairs changed the inspectable receipt topology, which justified doctrine and Warm Wall convergence without touching runtime/P0."
+  ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {
+      "runId": 32669758988,
+      "jobId": 97268645421,
+      "status": "completed",
+      "conclusion": "failure",
+      "exposedSteps": 0,
+      "logReadback": "404 BlobNotFound"
+    },
+    "buildAndroid": {"runId": 32669758996, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32669758994, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "woundContextIntegrity": "SOURCE_WIRED",
+    "rawMachineEvidenceBinding": "SOURCE_WIRED",
+    "operatorReceiptV3": "SOURCE_WIRED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

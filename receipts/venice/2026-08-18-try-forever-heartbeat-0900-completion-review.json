@@ -1,0 +1,26 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "heartbeat": "2026-08-18-0900",
+  "scope": "skills-root symlink admission seam",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__ROOT_TOCTOU_WOUND_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "missionFidelity": "PASS",
+    "ownerPreservation": "PASS",
+    "accessibility": "PASS_SOURCE_ART",
+    "evidenceDiscipline": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0Firewall": "PASS",
+    "tested": "NO"
+  },
+  "why": [
+    "The exact commissioned root-symlink wound is closed in the existing provenance owner: symlinked skills/ is rejected before directory/traversal admission.",
+    "Hostile regression source pins rejection before traversal/title/hash, broken-symlink classification, and the ordinary real-directory path.",
+    "The existing Warm Wall was mutated in place with ROOT SYMLINK BLOCKED using radio semantics, keyboard navigation, non-color state, polite live detail, >=48px controls, and reduced-motion handling.",
+    "Automatic CI on the reviewed source/art head failed without exposed steps; TESTED therefore remains NO and no stale failure cause is promoted.",
+    "Authoritative She-Raw was attempted and faulted at account connection; no synthetic reviewer was substituted.",
+    "Phone/P0 surfaces were not consumed or mutated."
+  ],
+  "processScar": "No separate pre-mutation Venice artifact was written before the first source commit in this pulse; this completion review preserves that ordering instead of inventing retroactive plan evidence.",
+  "nextIndependentWound": "The root is checked with is_symlink() and later opened by os.scandir() in separate operations. A root-topology replacement race between those operations is not atomically excluded. Keep the completed static root-symlink gate dark unless fresh evidence changes it; investigate a cross-platform no-follow/identity revalidation strategy without creating a second provenance probe.",
+  "capabilityMembrane": "requested YES; implemented source YES; exact GitHub readback YES; regression source YES; skill doctrine YES; accessible non-raster source YES; probe execution NO; tested NO; runtime UI/TalkBack NO; deployed/callable/executed/delivered/accepted NO"
+}

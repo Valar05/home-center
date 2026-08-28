@@ -1,0 +1,46 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-27T07:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "d3d4f8337dd22755f274302daad8267d76eda662",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_LOOKUP_REFRESH_BOUNDARY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "two independent direct-call source-work seams are now exact RED boundaries with base-blob-locked existing-owner surgeries and source regressions",
+    "the direct semantic lookup repair stays inside HeartbeatFrameAccessibility and HeartbeatOverlayViewModel and reuses the canonical envelope source ceiling",
+    "the interrupted-refresh repair keeps exact Frame.refreshBoundary evidence separate from bounded human-facing and dedup work",
+    "self-review corrected a malformed second-file diff delimiter rather than treating patch-shaped text as valid surgery",
+    "exact-head workflows failed with the Operator job exposing zero steps; no retry or diagnosis was manufactured",
+    "P0 and primary-phone surfaces remained untouched"
+  ],
+  "capability": {
+    "requested": true,
+    "durableSourceArtifacts": true,
+    "authenticatedReadback": true,
+    "directSemanticLookupOwnerWiring": "NO_PROPOSED_NOT_APPLIED",
+    "refreshBoundarySourceWorkOwnerWiring": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "sourceBoundParityDoctrine": "CONVERGED_SOURCE",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

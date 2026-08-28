@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-24T08:04:00-05:00",
+  "reviewedSourceHead": "8964c22b66ac8982df7c8817bcaf4796e25dca08",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourceReadback": {
+    "operatorReceiptOwnerBlob": "a4f20c8d5c0e8a6c33664b0ed74550d3f5d2e78a",
+    "identityRegressionBlob": "62ab34b12fcd45d12a88d6245989f2f4677be38a",
+    "capabilitySkillBlob": "e0cb488ca976be08ea861218d6948a3ecd2f432b"
+  },
+  "passes": [
+    "later receipt identity reverification now rechecks exact projector/raw/self-integrity upstream contract identity before digest trust",
+    "raw-evidence reverification is owned by the existing final receipt owner and independently binds a supplied exact raw descriptor-shadow record to rawMachineEvidenceSha256",
+    "raw-evidence reverification requires the supplied raw mapping itself to carry the exact descriptor-shadow source schema",
+    "hostile source covers self-consistently re-signed upstream contract drift, later raw-evidence mismatch, wrong raw source schema, capability laundering, stale digest, and digest spelling",
+    "no second receipt owner/projector/descriptor authority, no phone/P0 work, and no native heartbeat owner promotion"
+  ],
+  "correctionScar": "Code-first review found the first raw-evidence reverification helper accepted any hashable mapping; the helper and regression were corrected to require exact descriptor-shadow raw source schema before linkage can pass.",
+  "tested": false,
+  "runtimeUi": false,
+  "runtimeTalkBack": false,
+  "deployed": false,
+  "callable": false,
+  "executed": false,
+  "delivered": false,
+  "accepted": false,
+  "phoneP0Firewall": "untouched",
+  "duplicateArchitecture": "none"
+}

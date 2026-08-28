@@ -1,0 +1,109 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1200",
+  "pr": 329,
+  "source_head_reviewed": "b2dfbd26f3e5ad6e888184f46bd074bf25e2fb6a",
+  "fronts": [
+    {
+      "front": "interaction_ownership_policy",
+      "status": "ADVANCED",
+      "change": "Persistent selection no longer automatically survives newer direct keyboard navigation; capture-time keyboard focus remains evidence across accepted-model churn."
+    },
+    {
+      "front": "fail_closed_legacy_owner_path",
+      "status": "ADVANCED",
+      "change": "The five-argument policy path already consumed by OperatorOverlayService now rejects ambiguous empty heartbeat-child focus instead of treating missing scope as rebuild evidence."
+    },
+    {
+      "front": "hostile_regression_source",
+      "status": "ADVANCED_NOT_EXECUTED",
+      "change": "New interaction-ownership fixture covers selection supersession, removed captured-focus baseline, and explicit no-focus scope."
+    },
+    {
+      "front": "durable_skill_harvest",
+      "status": "ADVANCED",
+      "change": "New heartbeat-focus-scope-fail-closed skill makes the correction cumulative and preserves mutation-class, overlay-focus-scope, accessibility, evidence, duplicate-architecture, and P0 laws."
+    },
+    {
+      "front": "warm_wall_vector",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "Existing SVG mutated in place to show PERSISTENT SELECTION != PERMANENT OWNER and fail-closed focus-scope behavior without claiming runtime proof."
+    },
+    {
+      "front": "existing_owner_patch",
+      "status": "PROPOSED_PATCH_DURABLE_NOT_IMPLEMENTED",
+      "change": "Exact patch artifact records how the existing service should pass actual mutation class and overlay-wide direct-focus presence to the explicit overload."
+    },
+    {
+      "front": "execution_lane_recovery",
+      "status": "EXACT_BOUNDARY",
+      "change": "Home Center Command Center Codex/jobs are retired; windows-hands-01 was offline. No unsafe full-file service replacement or adjacent lane substitution was used."
+    }
+  ],
+  "lights": {
+    "failure_is_the_shovel": "ACTIVE_CHANGED_STRATEGY_NO_CI_RETRY",
+    "canon_auto_select": "ACTIVE_REAL_REPO_SKILL_HARVEST",
+    "autocorrect_judgment_jar": "DARK_NO_STT_AMBIGUITY",
+    "originality_tax": "ACTIVE_NO_REPEAT_OF_DEAD_CI_OR_FAKE_OWNER_WIRING",
+    "hunger": "ACTIVE_PROPAGATED_WOUND_ACROSS_POLICY_TEST_SKILL_ART_PATCH",
+    "ever_polished_interpreter_eat_everything": "ACTIVE_CODE_FIRST_SECONDARY_EVIDENCE_LOSS_REPAIR",
+    "operator_campaign": "ACTIVE_EXISTING_OWNER_ONLY",
+    "harroway_operator_discipline": "ACTIVE_CAPABILITY_MEMBRANE_AND_EXACT_BOUNDARIES",
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+    "venice_judgment_jars": "ACTIVE_BOUNDED_SOURCE_PASS_CAMPAIGN_CONTINUE_REQUIRED",
+    "regnet_qa": "ACTIVE_SOURCE_READBACK_PASS_TESTED_BLOCKED",
+    "accessibility_talkback_touch": "ACTIVE_NEWER_KEYBOARD_NAVIGATION_SUPERSEDES_STALE_SELECTION_RESTORE_TALKBACK_REMAINS_UNCLAIMED",
+    "phone_runtime_phone_hands": "DARK_FIREWALLED_ZERO_CONSUMPTION",
+    "deterministic_routing": "ACTIVE_GENERATION_PLUS_CAPTURED_INTERACTION_OWNER",
+    "evidence_capability_state": "ACTIVE_NO_SOURCE_TO_RUNTIME_LAUNDERING",
+    "recovery_checkpoint_idempotence": "ACTIVE_PENDING_RESTORE_GENERATION_AND_STALE_OWNER_REJECTION",
+    "strange_non_raster_art": "ACTIVE_EXISTING_VECTOR_SCAR_MUTATED_IN_PLACE",
+    "warm_walls": "ACTIVE_INTERACTION_OWNER_SCAR",
+    "christmas_light_scene_graph": "ACTIVE_GEOMETRY_FOCUS_BOOKKEEPING_EARNS_NO_DECORATIVE_MOTION",
+    "contact_preservation": "ACTIVE_STALE_RESTORE_YIELDS_TO_NEWER_INTERACTION",
+    "heartbeat_focus_scope_fail_closed": "ACTIVE_NEW_REPOSITORY_SKILL"
+  },
+  "cross_pollination": "Latest Kaiju selection-vs-keyboard wound -> interaction ownership policy -> code-first capture-baseline correction -> hostile regression source -> durable skill scar -> warm-wall vector update -> exact existing-owner patch -> Regnet/Venice evidence gate.",
+  "test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31960989080,
+    "job_id": 95198833199,
+    "head": "b2dfbd26f3e5ad6e888184f46bd074bf25e2fb6a",
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_firewall": {
+    "phone_hands": 0,
+    "primary_phone_commands": 0,
+    "phone_queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_p0_owners": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "service_consumes_fail_closed_legacy_policy": true,
+    "interaction_ownership_policy_source": true,
+    "existing_owner_explicit_mutation_focus_scope_wiring": false,
+    "proposed_owner_patch": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "current_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE. Bounded source slice may yield; recurring campaign continues. Existing owner explicit focus-scope wiring and runtime/TalkBack/test evidence remain open."
+}

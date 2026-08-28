@@ -1,0 +1,57 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-17-0900",
+  "mission": "Advance a materially different non-P0 heartbeat source/accessibility/evidence wound after the Base64 canonicality seam closed.",
+  "candidate_wound": {
+    "name": "invisible non-directional semantic formatting controls",
+    "observation": "HeartbeatSkillPolicy rejects ISO controls and bidi-direction controls but currently permits U+200B ZERO WIDTH SPACE, U+2060 WORD JOINER, and U+FEFF BOM/zero-width no-break space inside human-facing semantic fields. Those characters can create invisible distinctions in labels, reasons, evidence, parser member names, and checkpoint identity while the visible operator surface appears unchanged.",
+    "scope_discrimination": "Preserve U+200D ZERO WIDTH JOINER and U+200C ZERO WIDTH NON-JOINER because they have legitimate grapheme/language shaping uses. Do not ban Unicode FORMAT wholesale.",
+    "desired_consequence": "A narrow pure source policy identifies only the three invisible presentation controls as unsafe. Parser/direct-source/scene consumers can then fail closed without rewriting legitimate Unicode. Source policy is not runtime proof until an existing consumer is wired."
+  },
+  "fronts": [
+    "pure semantic visibility policy",
+    "hostile regression source including ZWJ/ZWNJ preservation",
+    "durable repository skill doctrine",
+    "touchable non-raster warm-wall semantic scar",
+    "Regnet/Venice evidence review and capability ledger"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "active: move off the closed Base64 seam and unchanged CI blocker",
+    "Canon Auto-Select": "active: semantic-text/accessibility organs selected from current source evidence",
+    "Autocorrect Judgment Jar": "dark: no ambiguous STT/autocorrect token affects this slice",
+    "Originality Tax": "active: do not retry CI or re-polish Base64 canonicality",
+    "Hunger": "active: turn an invisible-text ambiguity into executable source policy and a touchable scar",
+    "Ever-Polished Interpreter / Eat Everything": "active: preserve legitimate ZWJ/ZWNJ while rejecting only the proven invisible controls",
+    "Operator Campaign / Harroway": "active: no duplicate controller/renderer; source-only independent seam",
+    "She-Raw": "attempt authoritative ambient critique before mutation; preserve connector fault if unavailable",
+    "Venice Judgment Jars": "active: bounded source-only plan/completion review",
+    "Regnet QA": "active: reject capability laundering and regression-source-as-test-evidence",
+    "Accessibility/TalkBack": "active: prevent invisible operator evidence while preserving legitimate Unicode shaping",
+    "Phone Runtime / Phone Hands": "dark/firewalled: zero consumption or mutation",
+    "deterministic routing": "active: one semantic string must not have visually indistinguishable invisible aliases",
+    "evidence/capability-state discipline": "active: policy/source/test/runtime states remain separate",
+    "recovery/checkpoint/idempotence": "active: invisible source distinctions must fail before they become competing checkpoint identities",
+    "non-raster art / warm walls": "active: one touchable source specimen, explicitly not runtime proof",
+    "Christmas-light scene graph": "active: rejection earns no transition motion",
+    "contact preservation": "active: later consumer must use existing fail-closed scene preservation rather than partial replacement"
+  },
+  "firewall": {
+    "p0_phone_mutations_allowed": false,
+    "phone_surface_consumption_allowed": false,
+    "duplicate_architecture_allowed": false,
+    "manual_ci_retry_allowed": false
+  },
+  "capability_before": {
+    "requested": true,
+    "candidate_policy_implemented": false,
+    "consumer_wired": false,
+    "regression_source": false,
+    "tested": false,
+    "runtime_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,29 @@
+# TRY FOREVER owner surgery provenance
+# Base path: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+# Base blob: d8cad8c2931c688d0c6fad6f67626fae75e044d1
+# State: APPLIED_SOURCE
+# Applied owner commit: 5ad44ee456a8b1666b740ae7f44e019e3ef43142
+# Applied owner blob: c5de1411a6b68087ae17aff83c032af754587150
+# Scope: latest-message expanded inspection only; existing OperatorOverlayService.
+# Expanded mode keeps the full TextView layout and uses the existing bounded-height
+# scroll surface as the spatial limit. No second renderer/controller. No phone/P0 action.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+     private void applyExpandedTextState() {
+         if (latest == null) return;
+         if (expandedText) {
+-            latest.setMaxLines(30);
+-            latest.setMaxHeight(dp(520));
++            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(true));
++            latest.setMaxHeight(dp(LatestMessageAccessibilityPolicy.expandedMaxHeightDp()));
+             latest.setEllipsize(null);
+         } else {
+             latest.scrollTo(0, 0);
+-            latest.setMaxLines(2);
++            latest.setMaxLines(LatestMessageAccessibilityPolicy.maxLines(false));
+             latest.setMaxHeight(Integer.MAX_VALUE);
+             latest.setEllipsize(TextUtils.TruncateAt.END);
+         }

@@ -1,0 +1,166 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-25T20:01:44-05:00",
+  "sourceReviewHead": "f0cbd4190ece86fbbd69d9673ba1494672636e33",
+  "executionEvidenceHead": "5c950370e901c7d297455b64b47ee726dfd31b92",
+  "skillLights": {
+    "Failure Is The Shovel": {
+      "lit": true,
+      "contribution": "A wrong descriptor-patch base blob was detected by authenticated owner readback and corrected to 8e9df28967113610d958d590e05eec969ca91e25 before checkpoint authority."
+    },
+    "Canon Auto-Select": {
+      "lit": true,
+      "contribution": "Selected existing semantic-parser, witness-integrity, canonical-v10, and held-directory custody organs; no neighboring authority owner was created."
+    },
+    "Originality Tax": {
+      "lit": true,
+      "contribution": "Reused existing organs and staged exact owner surgeries instead of repeating the prior pattern of adding another validator/probe."
+    },
+    "Hunger": {
+      "lit": true,
+      "contribution": "The semantic-parser repair cross-pollinated into canonical-consumption review; witness public-contract review cross-pollinated into result-inventory doctrine; descriptor review exposed a separate exact-input boundary."
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "lit": true,
+      "contribution": "Strict UTF-8 encode failure now stays inside OwnerSurgerySemanticError; current-tree review caught and corrected the descriptor patch identity mistake."
+    },
+    "Operator Campaign": {
+      "lit": true,
+      "contribution": "Advanced four independent non-P0 fronts on PR #329 and recorded exact source/execution boundaries."
+    },
+    "Harroway operator discipline": {
+      "lit": true,
+      "contribution": "PR remains open/unmerged; no merge, rebase, workflow retry, phone action, or P0 mutation was attempted."
+    },
+    "She-Raw adversarial motivation": {
+      "lit": true,
+      "contribution": "Authoritative consultation was attempted; account connection returned HTTP 400. No synthetic She-Raw critique was substituted."
+    },
+    "Venice Judgment Jars": {
+      "lit": true,
+      "contribution": "Bounded source slice may stop; canonical semantic composition, descriptor exact-input owner wiring, regression execution, TESTED/runtime, and campaign remain continue-required."
+    },
+    "Regnet QA": {
+      "lit": true,
+      "contribution": "PASS on applied supporting-source repairs; REVISE_REQUIRED on both unapplied owner surgeries; regressions remain UNEXECUTED and TESTED remains NO."
+    },
+    "deterministic routing": {
+      "lit": true,
+      "contribution": "Canonical v10 remains sole promotion authority; semantic parser remains a semantic producer; witness facade remains supporting review; descriptor custody remains supporting backend source."
+    },
+    "evidence/capability-state discipline": {
+      "lit": true,
+      "contribution": "SOURCE_WIRED, PROPOSED_NOT_APPLIED, SOURCE/UNEXECUTED, TESTED, runtime, deployed, callable, executed, delivered, and accepted remain separate states."
+    },
+    "recovery/checkpointing/idempotence": {
+      "lit": true,
+      "contribution": "Automatic workflows on exact code-bearing head failed before usable execution evidence; no manual retry was fired and no step-level diagnosis was invented."
+    },
+    "contact preservation": {
+      "lit": true,
+      "contribution": "Ordinary exact patch/delta semantic output and witness-parity behavior were preserved; repairs change failure/type truth, not accepted content meaning."
+    },
+    "operator-owner-surgery-result-inventory-custody": {
+      "lit": true,
+      "contribution": "Existing skill doctrine now records the exact built-in-dict witness facade contract and its source-only regression."
+    },
+    "operator-owner-surgery-descriptor-custody": {
+      "lit": true,
+      "contribution": "Review found callback-capable basename/budget/expected-candidate public inputs still precede exact admission; exact surgery + RED fixture preserve the wound without false promotion."
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "lit": false,
+      "whyDark": "No operator-facing UI topology or native interaction semantics changed; runtime TalkBack remains NO."
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "lit": false,
+      "whyDark": "No user-facing state graph changed; mutating art would be decorative churn."
+    },
+    "warm walls": {
+      "lit": false,
+      "whyDark": "Existing Warm Wall state already distinguishes supporting source from canonical integration; this pulse changed developer evidence contracts, not the UI topology."
+    },
+    "Christmas-light scene graph": {
+      "lit": false,
+      "whyDark": "No runtime transition law changed."
+    },
+    "Autocorrect Judgment Jar": {
+      "lit": false,
+      "whyDark": "No material token ambiguity affected routing or source authority."
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "lit": false,
+      "whyDark": "P0/phone firewall binding; primary-phone surface was not consumed."
+    }
+  },
+  "fronts": [
+    {
+      "name": "semantic_parser_utf8_error_custody",
+      "state": "SOURCE_WIRED",
+      "artifacts": [
+        "tools/try_forever_owner_surgery_semantic_parser.py",
+        "tools/test_try_forever_owner_surgery_semantic_parser.py"
+      ]
+    },
+    {
+      "name": "witness_parity_public_contract",
+      "state": "SOURCE_WIRED",
+      "artifacts": [
+        "tools/try_forever_owner_surgery_witness_parity.py",
+        "tools/test_try_forever_owner_surgery_witness_parity_public_contract.py",
+        "skills/operator-owner-surgery-result-inventory-custody/SKILL.md"
+      ]
+    },
+    {
+      "name": "canonical_semantic_producer_composition",
+      "state": "PROPOSED_NOT_APPLIED",
+      "artifacts": [
+        "patches/try-forever-owner-surgery-canonical-semantic-producer-composition.patch",
+        "tools/test_try_forever_owner_surgery_canonical_semantic_composition_boundary.py"
+      ]
+    },
+    {
+      "name": "descriptor_exact_input_custody",
+      "state": "PROPOSED_NOT_APPLIED",
+      "artifacts": [
+        "patches/try-forever-posix-directory-custody-exact-inputs.patch",
+        "tools/test_try_forever_posix_directory_handle_exact_input_boundary.py"
+      ]
+    }
+  ],
+  "crossPollination": "Semantic producer hardening exposed the next canonical-consumption seam; witness public-contract truth forced result-inventory doctrine convergence; descriptor-custody review applied the same exact-input law to basenames, budgets, and expected-candidate evidence; authenticated readback then caught the proposed descriptor patch's own bad base identity before it could become authority.",
+  "executionEvidence": {
+    "head": "5c950370e901c7d297455b64b47ee726dfd31b92",
+    "Home Center CI": {"run": 32917714603, "conclusion": "failure"},
+    "Build Android": {"run": 32917714596, "conclusion": "failure"},
+    "Operator Overlay Android": {"run": 32917714586, "job": 98024800912, "conclusion": "failure", "steps": 0},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "semanticParserUtf8ErrorCustody": "SOURCE_WIRED",
+    "witnessFacadeExactDictContract": "SOURCE_WIRED",
+    "canonicalSemanticProducerConsumption": "NO__PROPOSED_NOT_APPLIED",
+    "descriptorExactInputOwnerWiring": "NO__PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

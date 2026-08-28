@@ -1,0 +1,48 @@
+{
+  "schema": "heartbeat-skill-lights.plan.v1",
+  "slice": "2026-08-16-0400-viewport-anchor-consumption",
+  "verdict": "PLAN_ALLOWED",
+  "mission_boundary": {
+    "owner": "existing OperatorOverlayService only",
+    "goal": "consume the existing HeartbeatOverlayRefreshPlan.anchoredScrollX policy during stable-structure in-place heartbeat light refresh",
+    "authorized": [
+      "promote the existing heartbeat HorizontalScrollView from local variable to existing-owner field",
+      "capture one semantic viewport anchor before stable-structure mutation",
+      "prefer selected heartbeat semantic id; otherwise direct keyboard-focused heartbeat Button",
+      "after layout find the same semantic id and restore its viewport offset with anchoredScrollX",
+      "add deterministic source fixtures and durable skill/review evidence",
+      "add a non-raster source-only viewport/contact artifact if it materially explains the seam"
+    ],
+    "forbidden": [
+      "new overlay controller or renderer",
+      "TalkBack accessibility-focus interrogation or retention claims",
+      "phone execution, Phone Hands, queue/device probes, P0 recovery mutation",
+      "deployment, runtime observation, delivery, or acceptance claims without evidence"
+    ]
+  },
+  "acceptance": [
+    "stable semantic structure can retain a selected/direct-keyboard-focused control's viewport offset across in-place content mutation in source",
+    "missing or stale anchor fails quietly without changing semantic selection",
+    "scroll target is bounded by existing pure anchoredScrollX policy",
+    "rebuild path remains the existing fallback",
+    "P0/phone mutation count remains zero"
+  ],
+  "review_inputs": {
+    "she_raw": "attempted before mutation; authoritative connector returned account-connection HTTP 400; no substitute verdict",
+    "venice": "same-worker Judgment Jar plan review: bounded existing-owner source seam is allowed; runtime and TalkBack focus claims remain prohibited",
+    "regnet": "source/readback may pass independently; TESTED cannot pass without executed test evidence"
+  },
+  "capability_before": {
+    "requested": true,
+    "implemented_source": true,
+    "viewport_anchor_policy_source": true,
+    "operator_overlay_service_consumes_viewport_anchor_policy": false,
+    "tested": false,
+    "runtime_viewport_preservation_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

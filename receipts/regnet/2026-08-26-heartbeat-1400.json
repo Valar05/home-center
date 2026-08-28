@@ -1,0 +1,48 @@
+{
+  "schema": "regnet-qa-receipt.v1",
+  "checkpoint": "2026-08-26-heartbeat-1400",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "691d19594d38d11a650886c068c73eb90ab81060",
+  "verdict": "PASS_BOUNDARY_SOURCE__BACKEND_CANONICAL_PARITY_REVISE_REQUIRED__SINGLE_SEMANTIC_PARSER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "Backend-result currentOwnerBlobs admission is snapshot-bounded but presently widens canonical v10 semantics: it admits owner identities without the canonical exact owner-identity gate and has no canonical 2048-map-item ceiling.",
+    "Backend authority-group/member admission can presently admit more than canonical v10's 2048 candidate ceiling; this is authority-evidence parity, not a snapshot-custody failure.",
+    "An exact base-blob-locked existing-owner surgery against backend-policy blob c4869396902d4c97380a8686dfa9649315c49096 stages owner-identity and canonical cardinality parity only; it is CORRECTED_PROPOSED_NOT_APPLIED.",
+    "Canonical v10 already delegates patch and delta semantics to parse_owner_surgery_observation, but dormant local semantic-parser helpers/constants remain in the canonical module; a RED fixture now forbids that duplicate parser ownership after cleanup.",
+    "Both focused regressions are SOURCE / UNEXECUTED. No production owner mutation is claimed for either RED boundary.",
+    "Accessibility/Warm Wall source was reviewed but not mutated because this pulse changes machine-input/ownership topology, not operator interaction topology; runtime TalkBack remains NO.",
+    "P0/phone execution and recovery ownership were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "workflowRuns": {
+      "Operator Overlay Android": {"id": 33003562766, "conclusion": "failure", "jobId": 98291304852, "steps": 0},
+      "Build Android": {"id": 33003562737, "conclusion": "failure"},
+      "Home Center CI": {"id": 33003562885, "conclusion": "failure"}
+    },
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "backendCanonicalParityOwnerWiring": false,
+    "singleSemanticParserCleanupOwnerWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

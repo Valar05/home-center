@@ -1,0 +1,38 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "pulse": "2026-08-17-1900",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "planReceipt": "receipts/heartbeat-skill-lights/2026-08-17-1900-plan.json",
+  "researchHead": "2b140e4f2c31a59e9482a6bdf6681501555cef01",
+  "selectedJudgmentJars": [
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/20-judgement-jar-repository-truth.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    ".continue/rules/40-judgement-jar-failure-recovery.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md"
+  ],
+  "reviewerMemory": "skills/venice-review-memory/SKILL.md",
+  "sheRawBoundary": "Authoritative She-Raw consultation attempted once; account connection returned HTTP 400; no substitute critique invented.",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "Bounded non-P0 collapsed-owner accessibility speech-load source repair only.",
+  "findings": [
+    "The 1800 owner-topology repair is real and must remain intact: heartbeat truth still has to reach the surviving dragHandle while details is GONE.",
+    "The new defect is also real: moving the entire broad collapsed summary onto one action control creates routine focus speech that can enumerate up to twelve labels plus aggregate prose. Correct placement does not excuse excessive speech load.",
+    "The repair must keep state/contact truth on the surviving owner but move per-light breadth back behind explicit expansion. A concise summary plus interruption truth is sufficient on the action control.",
+    "The aggregate returned contentDescription itself needs a hard code-point ceiling; per-field bounds do not prove the composed action-control description is bounded.",
+    "The existing HeartbeatPlainTextBudget should be reused. Do not truncate or rewrite canonical scene/evidence fields merely to make TalkBack quieter.",
+    "No new overlay/accessibility owner, poller, renderer, phone lane, or P0 mutation is authorized.",
+    "Source success remains source success only. Runtime TalkBack, deployment, delivery, and acceptance require their own fresh evidence."
+  ],
+  "hardGates": {
+    "p0Firewall": "PASS",
+    "phoneSurface": "UNTOUCHED_REQUIRED",
+    "duplicateArchitecture": "FORBIDDEN",
+    "expandedOwnerBehavior": "PRESERVE",
+    "collapsedContactTruth": "PRESERVE",
+    "aggregateSpeechBudget": "REQUIRED",
+    "runtimeClaimWithoutEvidence": "FORBIDDEN"
+  },
+  "directive": "Apply the smallest existing-projection repair, add hostile regression source, converge durable accessibility doctrine, mutate existing warm-wall source only if it materially represents short-voice/expand-for-detail behavior, then perform code-first Regnet/Venice completion review."
+}

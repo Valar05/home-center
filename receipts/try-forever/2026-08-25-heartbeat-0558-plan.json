@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-25T05:58:00-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER source/evidence fronts without touching the phone/P0 chain or creating duplicate architecture.",
+  "reviewGate": "PLAN_ALLOWED",
+  "fronts": [
+    {
+      "id": "repository-oid-exactness",
+      "owner": "tools/try_forever_repository_emission_observation.py",
+      "intent": "Reject normalization-dependent branch.oid evidence and inherited Git config-file redirection; add hostile regression source.",
+      "capabilityTarget": "SOURCE only"
+    },
+    {
+      "id": "canonical-fingerprint-container-admission",
+      "owner": "tools/try_forever_canonical_result_fingerprint.py",
+      "intent": "Require the exact built-in dict container before deterministic fingerprint serialization so caller-owned dict-subclass callbacks cannot become fingerprint evidence work.",
+      "capabilityTarget": "SOURCE only"
+    },
+    {
+      "id": "report-emission-doctrine-convergence",
+      "owner": "skills/heartbeat-report-emission-snapshot/SKILL.md",
+      "intent": "Repair stale v5/initial-split doctrine against authenticated current v6 one-process owner source.",
+      "capabilityTarget": "durable doctrine"
+    },
+    {
+      "id": "provenance-warm-wall",
+      "owner": "docs/try-forever/heartbeat-provenance-certification-source-specimen.html",
+      "intent": "Mutate the existing accessible non-raster organism in place to expose exact OID/config-env custody and current v6 owner truth without runtime claims or motion.",
+      "capabilityTarget": "SOURCE ONLY art"
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0EvidenceReadOnly": true
+  },
+  "reviewers": {
+    "sheRaw": "attempted pre-execution; connector account connection HTTP 400",
+    "venice": "same-worker bounded plan gate only; no external worker verdict invented",
+    "regnet": "code-first review required after mutation"
+  }
+}

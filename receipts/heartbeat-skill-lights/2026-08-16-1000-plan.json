@@ -1,0 +1,21 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "time": "2026-08-16T10:00:00-05:00",
+  "commission": "Advance independent TRY FOREVER heartbeat source work without touching the P0/primary-phone chain.",
+  "plan": [
+    "Wire the existing OperatorOverlayService capture path to measure live selected/focused native controls against the current HorizontalScrollView and consume HeartbeatViewportRestorePolicy.visibleViewportAnchorId(...).",
+    "Keep restore ownership geometry-aware after layout so an offscreen durable selection cannot invalidate a visible keyboard-focus ticket merely because selection exists semantically.",
+    "Add hostile pure-Java regression source for geometry-aware restore-owner revalidation while preserving the older semantic-only overload as a distinct contract.",
+    "Synchronize heartbeat-viewport-contact doctrine and mutate the existing non-raster viewport scar in place; do not create a neighboring renderer/controller/state owner.",
+    "Run code-first Regnet/Venice review, preserve the authoritative She-Raw connector fault honestly, and update PR evidence without claiming Android execution or phone delivery."
+  ],
+  "constraints": {
+    "p0_phone_mutations": 0,
+    "duplicate_architecture": false,
+    "ci_manual_retry": false,
+    "runtime_claims_allowed": false,
+    "talkback_focus_inference": false,
+    "she_raw": "authoritative ambient consult attempted once; connector returned account-connection HTTP 400"
+  },
+  "status": "PLAN_ALLOWED_FOR_BOUNDED_SOURCE_SLICE"
+}

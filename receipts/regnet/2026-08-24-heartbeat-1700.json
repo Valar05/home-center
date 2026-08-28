@@ -1,0 +1,23 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewedSourceHead": "fb79bd5cf0664c323aa9548211c94f503e6d5464",
+  "verdict": "PASS_SOURCE_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+  "summary": "Snapshot custody now performs one bounded exact JSON observation. Nested key/type normalization and resource overflow fail closed. Existing final-v4 receipt owner already consumes this helper. No duplicate receipt owner or projector was created.",
+  "sourceBlobs": {
+    "snapshot": "85c78ed8140ed36bb87a4e0dbd20da1533a7f793",
+    "regression": "a14bc22cc0f8aa8a7d7c2d08052890f9413c9c9d",
+    "skill": "8256491d5228a775d8aed0ae058eda43921d6ffd",
+    "warmWall": "9abe96a2a30bbb3781cb5d699850bdc46defbaa4"
+  },
+  "states": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "ownerSourceWired": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

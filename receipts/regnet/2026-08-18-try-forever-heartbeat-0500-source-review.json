@@ -1,0 +1,50 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-0500",
+  "reviewedSourceHead": "11050e25ced631204e7f244e3cb4d5182873237f",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "claimsAllowed": [
+    "skill title extraction has explicit scan-byte, line-byte, and title-character source bounds",
+    "oversized title source fails closed instead of truncating into repository_skill authority",
+    "malformed UTF-8 remains a distinct structured title error",
+    "hostile regression source exists",
+    "repository-skill doctrine is synchronized",
+    "accessible source-only Warm Wall exists",
+    "the 0500 slice created no overlay controller, poller, scheduler, phone lane, recovery daemon, or P0 owner"
+  ],
+  "claimsDenied": [
+    "probe executed",
+    "regression tests passed",
+    "Android runtime observed",
+    "TalkBack runtime exercised",
+    "deployed",
+    "callable",
+    "executed",
+    "delivered",
+    "accepted"
+  ],
+  "reviewFindings": [
+    "markdown_title reads binary lines with readline(limit+1) and rejects before UTF-8 decode when a byte/line bound is exceeded, avoiding false malformed-UTF8 classification at the byte throat",
+    "the exact-max title is admitted while max+1 is rejected; no truncated title is emitted as authority",
+    "a too-large preamble line rejects the skill instead of continuing to a later plausible H1",
+    "titleless folder fallback remains only when the file completes within the scan budget",
+    "the source diff from the prior heartbeat contains only plan/source/test/skill/art files; no duplicate runtime architecture appeared"
+  ],
+  "testEvidence": {
+    "tested": false,
+    "automaticRunId": 32124971157,
+    "automaticJobId": 95673383038,
+    "automaticConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "nextIndependentWound": {
+    "name": "whole-skill hash I/O resource budget",
+    "detail": "sha256_file still hashes the entire SKILL.md before bounded title extraction. Memory is chunk-bounded, but file-size I/O/work is not. This is a separate non-P0 provenance resource wound; do not call the title repair a whole-file resource cap."
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "findingForP0": null
+  }
+}

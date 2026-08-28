@@ -1,0 +1,63 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-1300",
+  "pr": 329,
+  "inherited_plan": "receipts/heartbeat-skill-lights/2026-08-16-1200-plan.json",
+  "reviewed_owner_source_commit": "730543e9c5747bbca73fc0fd731be211b6921abf",
+  "reviewed_branch_head_before_receipts": "cd56bafdce825e7468cd59d2b611567ce17cb440",
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "tested": "NO_BLOCKED_ACTIONS_BUDGET",
+  "reviewer_mode": "same-worker-code-first-regnet",
+  "exact_readback": {
+    "OperatorOverlayService.java": "befab3b2be1e3fa3750a18a11d0b45674ee5d285",
+    "HeartbeatViewportRestorePolicy.java": "5b36da5ceb5f7bba2fed8e7ad85f342bd8b1c2f0",
+    "HeartbeatViewportInteractionOwnershipRegressionTest.java": "73d418a85b5c4232dd846993ffac1ce6088bee42",
+    "skills/heartbeat-focus-scope-fail-closed/SKILL.md": "0b04530150ce13888c0c4afa51ba904449b8fe58",
+    "skills/heartbeat-viewport-contact/SKILL.md": "423bed3f110c01809fa8123b6f0f591679498385",
+    "skills/heartbeat-native-ui-projection/SKILL.md": "5072f2b68e3e77463e4800079a568f056eaec54a",
+    "docs/try-forever/heartbeat-viewport-anchor-scar-20260816.svg": "e1d86f142a2817f6493d5f37a9f4fee04cf37d69",
+    "docs/try-forever/operator-overlay-focus-scope-owner-wiring.patch": "823203a34b40c0fecf677423d417209a69635276"
+  },
+  "findings": [
+    "The exact existing-owner delta authorized by the 1200 plan is now implemented in OperatorOverlayService rather than preserved only as a proposal.",
+    "Mutation class follows the mutation that actually occurred: structural rebuild and drift fallback mark focus destruction possible; successful in-place refresh does not receive rebuild amnesty.",
+    "After layout, the existing overlay root supplies overlay-wide direct keyboard-focus presence separately from the heartbeat-child semantic focus id and calls the explicit seven-argument captured-owner revalidation.",
+    "The implementation does not query or claim TalkBack accessibility focus; root.findFocus() is direct keyboard-focus evidence only.",
+    "No second overlay owner, renderer, focus tracker, transport, phone path, or P0 coordinator was introduced.",
+    "Repository skill doctrine and applied-delta provenance were synchronized so stale OWNER WIRING NO language no longer contradicts the source.",
+    "The viewport skill also repaired a doctrine contradiction by separating the older semantic-only selected-first helper from the stronger geometry-aware captured-owner contract now consumed by the service.",
+    "The existing warm-wall SVG was mutated in place to reflect source wiring while explicitly withholding runtime/TalkBack/phone claims."
+  ],
+  "deterministic_test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31963495045,
+    "job_id": 95204944307,
+    "head": "730543e9c5747bbca73fc0fd731be211b6921abf",
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "reviewer_faults": {
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT"
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "interaction_ownership_policy_source": true,
+    "legacy_fail_closed_source": true,
+    "existing_owner_explicit_focus_scope_wiring": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_firewall": "PASS_ZERO_PHONE_P0_MUTATIONS_OR_SURFACE_CONSUMPTION"
+}

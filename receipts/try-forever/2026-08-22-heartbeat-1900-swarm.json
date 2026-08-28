@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-22T19:00:00-05:00",
+  "reviewedSourceHead": "0365e034e65989ffdfcba894882e758e10742965",
+  "frontsAdvanced": [
+    "backend authority-member integrity source",
+    "broader backend regression source convergence",
+    "focused hostile member-integrity regression",
+    "authority-coverage doctrine convergence",
+    "backend-selection doctrine convergence",
+    "existing Warm Wall source mutation",
+    "exact-head workflow evidence readback",
+    "Regnet/Venice/reviewer evidence receipts"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: moved from canonical zero-partial blocked owner mutation to an independent supporting authority-integrity wound; no CI retry.",
+    "Canon Auto-Select": "ACTIVE: reused state-policy, authority-coverage, backend-selection, and existing Warm Wall organs.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token required resolution.",
+    "Originality Tax": "ACTIVE: code-first review found duplicate-member cardinality counterfeit and changed the repair before completion.",
+    "Hunger": "ACTIVE: supporting policy, regressions, two skills, art, and reviews were converged instead of stopping after one file.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: group shell, owner custody, member evidence, duplicate cardinality, and capability states were made mutually consistent.",
+    "Operator Campaign": "ACTIVE: sole canonical custody owner preserved; no neighboring probe/backend/controller created.",
+    "Harroway operator discipline": "ACTIVE: authenticated GitHub readback and exact owner/worker boundaries governed claims.",
+    "She-Raw": "FAULT: authoritative ambient attempt returned account-connection HTTP 400; no substitute verdict.",
+    "Venice Judgment Jars": "ACTIVE: external worker offline; same-worker bounded gate allows source slice only, campaign continues.",
+    "Regnet QA": "ACTIVE: supporting source/readback PASS; canonical owner repair unapplied; regressions unexecuted; TESTED NO.",
+    "accessibility/TalkBack and touch": "ACTIVE: existing radio/keyboard/non-color Warm Wall gained a member-integrity stop; runtime TalkBack unclaimed.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation; P0 evidence read-only.",
+    "deterministic routing": "ACTIVE: authority member identity is explicitly bound to group owner/base/state/kind/path and duplicate evidence fails closed.",
+    "evidence/capability-state discipline": "ACTIVE: supporting source, canonical owner, regression execution, TESTED, runtime, phone delivery remain separate.",
+    "recovery/checkpointing/idempotence": "ACTIVE: incomplete or counterfeit evidence fails closed without partial promotion authority; existing canonical zero-partial wound remains explicit.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing DOM/inline-SVG Warm Wall mutated in place; SOURCE ONLY.",
+    "warm walls": "ACTIVE: group-member custody made touch-inspectable rather than decorative.",
+    "Christmas-light scene graph": "DARK: no runtime transition consequence changed; no decorative blink earned.",
+    "contact preservation": "ACTIVE: diagnostic surgery records may survive a wound, but promotion authority does not survive incomplete or counterfeit custody."
+  },
+  "sourceArtifacts": {
+    "backendPolicyBlob": "0b35e517818f1f58a8f4fd03aeb3c71c49b73497",
+    "backendRegressionBlob": "9ff75443c46c2f533fdf40a05bb27c4f49e1b52e",
+    "focusedMemberRegressionBlob": "605506266e77c91fb8adc12831c0ca7028eb00a3",
+    "authorityCoverageSkillBlob": "b2f563861be7f18927546947fdf157fb3a33b327",
+    "backendSelectionSkillBlob": "ab240e6cf8e22ea78bff3632a38b79d92603c44f",
+    "warmWallBlob": "7d13fd52c1bfe8c4c30f882b988318be6f0e017e"
+  },
+  "canonicalOwner": {
+    "path": "tools/try_forever_owner_surgery_custody_probe.py",
+    "blob": "f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "zeroPartialPatchBlob": "f4084bc0157c6cbb97d68e8bb039cf5255642517",
+    "zeroPartialRepair": "CORRECTED_PROPOSED_NOT_APPLIED",
+    "computerHandsWorker": "OFFLINE",
+    "computerHandsQueueDepth": 4,
+    "activeProvenanceLane": true,
+    "duplicateRequestCreated": false
+  },
+  "executionTruth": {
+    "operatorRun": 32606967590,
+    "operatorJob": 97113322845,
+    "operatorConclusion": "failure",
+    "homeCenterCiRun": 32606967617,
+    "buildAndroidRun": 32606967591,
+    "stepLevelCause": "UNAVAILABLE",
+    "manualRetry": false,
+    "tested": false
+  },
+  "crossPollination": "Owner-specific authority coverage made the group shell suspicious; member-integrity review then exposed hollow and duplicated evidence as a second laundering path. Originality Tax forced duplicate-cardinality rejection before completion, and the correction propagated into hostile fixtures, two existing skills, and the existing touchable Warm Wall while the canonical zero-partial owner wound stayed honestly open.",
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "canonicalZeroPartialOwnerRepair": false,
+    "canonicalBackendSelectionConsumption": false,
+    "descriptorOwnerIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

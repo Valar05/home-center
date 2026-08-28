@@ -1,0 +1,26 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "checkpoint": "2026-08-23T01:57:00-05:00",
+  "reason": "Code-first review after owner wiring exposed two narrower evidence defects that the initial plan did not name.",
+  "corrections": [
+    {
+      "name": "empty-temporal-proof",
+      "wound": "An empty canonical Surgery/witness set could vacuously satisfy later empty staging equality and report temporalBindingProven=true even though no artifact content exists to bind.",
+      "replacement": "Fail closed with a distinct no-canonical-artifacts temporal state; do not call an empty set a proven content binding."
+    },
+    {
+      "name": "backend-exact-member-content-evidence",
+      "wound": "Backend result integrity still defines exact Surgery identity without the newly source-wired artifact byte-count/SHA fields, so a promotion-group member with drifted content evidence could pass an 'exists exactly' check.",
+      "replacement": "Extend supporting SurgeryIdentity admission to validate exact artifact byte-count/SHA evidence while preserving promotion authority ownership in the existing backend policy."
+    }
+  ],
+  "unchangedBoundaries": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "tested": "NO",
+    "runtime": "NO",
+    "deployment": "NO",
+    "phoneDelivery": "NO"
+  }
+}

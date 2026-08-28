@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-23T07:58:21-05:00",
+  "reviewedSourceHead": "9dc77f7435bf47accbfbb9d9663960db32d192b8",
+  "previousHead": "55bd2c22dcd116c16937bb2698f483b5c2b1f789",
+  "sourceDiff": {
+    "commits": 9,
+    "paths": 9,
+    "pathsChanged": [
+      "docs/try-forever/heartbeat-20260823-0758-plan.md",
+      "docs/try-forever/operator-owner-surgery-custody-source-specimen.html",
+      "patches/try-forever-owner-surgery-metadata-exactness-owner.patch",
+      "skills/operator-owner-surgery-default-owner-binding/SKILL.md",
+      "skills/operator-owner-surgery-metadata-exactness/SKILL.md",
+      "tools/test_try_forever_owner_surgery_default_owner_binding.py",
+      "tools/test_try_forever_owner_surgery_metadata_owner_boundary.py",
+      "tools/test_try_forever_owner_surgery_metadata_owner_patch.py",
+      "tools/try_forever_owner_surgery_default_owner_binding.py"
+    ]
+  },
+  "lights": {
+    "failureIsTheShovel": "ACTIVE: metadata review exposed a distinct implicit-default-owner authority leak; work moved to that wound rather than retrying CI",
+    "canonAutoSelect": "ACTIVE: harvested operator-owner-surgery-default-owner-binding and converged metadata-exactness doctrine",
+    "autocorrectJudgmentJar": "DARK: no material speech/autocorrect ambiguity",
+    "originalityTax": "ACTIVE: no repeated CI retry and no second custody owner; exact fallback binding used a new evidence path",
+    "hungerEatEverything": "ACTIVE: source, hostile regression, prepared surgery, skill doctrine, owner-boundary regression, patch provenance, and Warm Wall all converged",
+    "operatorCampaignHarroway": "ACTIVE: canonical custody owner remained tools/try_forever_owner_surgery_custody_probe.py; owner mutation was not fabricated",
+    "sheRaw": "FAULT: authoritative pre-execution call returned account-connection HTTP 400; no substitute verdict",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "regnet": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "accessibilityTouch": "ACTIVE: existing keyboard/touch non-raster custody wall gained an inspectable default-owner diff-binding state",
+    "phoneRuntimePhoneHands": "DARK_FIREWALLED: consumption 0; mutation 0",
+    "deterministicRouting": "ACTIVE: implicit fallback now requires exactly one canonical diff target in supporting source",
+    "evidenceCapabilityState": "ACTIVE: owner patch remains CORRECTED_PROPOSED_NOT_APPLIED; owner wiring NO; regression source UNEXECUTED; TESTED NO",
+    "recoveryCheckpointIdempotence": "ACTIVE_CONSTRAINT: ambiguous/multi-file fallback fails closed rather than preserving partial promotion authority",
+    "warmWallsVectorDom": "ACTIVE: existing owner-surgery custody source specimen mutated in place; no new artifact family",
+    "christmasLightMotion": "DARK: no runtime transition/motion contract changed",
+    "contactPreservation": "ACTIVE_CONSTRAINT: authenticated canonical owner blob stayed unchanged and remains the last accepted owner state"
+  },
+  "newWound": {
+    "name": "implicit-default-owner-substring-authority",
+    "currentOwnerBehavior": "when # OWNER is absent, canonical inspect_patch accepts any patch text containing OperatorOverlayService.java",
+    "supportingRepair": "exactly one diff --git header whose a/ and b/ paths both equal the canonical default owner",
+    "ownerIntegration": false
+  },
+  "ownerCustody": {
+    "path": "tools/try_forever_owner_surgery_custody_probe.py",
+    "authenticatedBlob": "523d8005212745738106733e91be6dd625caf767",
+    "metadataExactnessWired": false,
+    "defaultOwnerBindingWired": false,
+    "preparedPatch": "patches/try-forever-owner-surgery-metadata-exactness-owner.patch",
+    "preparedPatchState": "CORRECTED_PROPOSED_NOT_APPLIED"
+  },
+  "executionLaneTruth": {
+    "commandCenterWorkerSurface": "RETIRED",
+    "workerMutationAttempted": false,
+    "manualWorkflowRetry": false
+  },
+  "workflowEvidence": [
+    {"name": "Operator Overlay Android", "runId": 32641289649, "jobId": 97198661255, "status": "completed", "conclusion": "failure", "stepLevelCauseEstablished": false},
+    {"name": "Build Android", "runId": 32641289647, "status": "completed", "conclusion": "failure", "stepLevelCauseEstablished": false},
+    {"name": "Home Center CI", "runId": 32641289658, "status": "completed", "conclusion": "failure", "stepLevelCauseEstablished": false}
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedRemoteReadback": true,
+    "hostileRegressionSource": true,
+    "regressionExecuted": false,
+    "canonicalOwnerIntegration": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "bounded metadata-cardinality work made fallback ownership suspicious -> arbitrary basename authority exposed -> exact single-diff binding policy + hostile fixtures -> combined existing-owner patch -> skill and Warm Wall convergence -> authenticated owner readback kept proposal behind owner boundary -> exact-head workflow evidence kept source behind TESTED/runtime membrane"
+}

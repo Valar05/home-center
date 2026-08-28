@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localCheckpoint": "2026-08-23T19:01:59-05:00",
+  "mission": "Harden descriptor-shadow operator receipt self-integrity without creating a second projector, authority owner, phone lane, or P0 mutation.",
+  "sourceHeadObserved": "ff3dd30da669c38de61b594fd7c31ded55845bd8",
+  "plannedFronts": [
+    "prove whether completed receipt self-integrity admits a missing or malformed canonicalResultSha256 when nested temporal fields agree",
+    "if proven, add exact lowercase 64-hex canonical-result identity admission in the existing self-integrity gate",
+    "add a hostile source fixture for missing, uppercase, padded, short, and valid canonical result identities",
+    "converge existing shadow-receipt-integrity doctrine only if the source contract changes",
+    "attempt She-Raw once; preserve connector failure without synthetic review",
+    "obtain fresh exact-head workflow evidence only after source mutation; do not manually retry zero-step failures"
+  ],
+  "constraints": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "runtimeClaim": false,
+    "testedClaim": false,
+    "regressionSourceDoesNotEqualExecuted": true
+  },
+  "sheRawPreExecution": "HTTP400_ACCOUNT_CONNECTION_FAULT",
+  "gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}

@@ -1,0 +1,64 @@
+{
+  "receipt": "regnet-try-forever-heartbeat-1700-source-review",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed_source_head": "080f0b5e4a13ed0819ccafdad2a0c2285824be44",
+  "claim": "Accepted zero-material heartbeat contact is distinct from pre-contact waiting across visible summary and collapsed accessibility source semantics.",
+  "source_readback": {
+    "HeartbeatOverlayViewModel.java": "a89a64e3de319735a8d08de7e2449420ef043d8d",
+    "HeartbeatFrameAccessibility.java": "4d49dc7227d9b2bbb7abf0123df5537782176b60",
+    "HeartbeatZeroMaterialContactTruthTest.java": "dc0441ba2b3efadc327694ba34e9255b728e89af",
+    "heartbeat-persisted-poll-contact/SKILL.md": "40a507cc5b93bcc1c669d9f0c0d04ea39dcf2c37",
+    "heartbeat-zero-material-contact-truth/SKILL.md": "bd67af82762f5f0fdf3b6519d2b9ba248f768d96",
+    "heartbeat-skill-lights-source-specimen.svg": "80226afaddc386c0fe8f7414664c1f1ed92d5d60"
+  },
+  "source_review": [
+    "HeartbeatSceneGraph already gives a complete accepted zero-material frame a non-empty visiblePulseId and zero nodes; no scene or checkpoint contract needed weakening.",
+    "HeartbeatPersistedPollPolicy already defines visible last-good contact by visiblePulseId rather than node count; the new chrome now agrees with that authority.",
+    "HeartbeatOverlayViewModel now reserves HEARTBEAT • waiting for no visible contact and emits HEARTBEAT • 0 LIGHTS for a current accepted zero-material frame.",
+    "HeartbeatFrameAccessibility now distinguishes current accepted zero-material contact, interrupted preserved zero-material contact, and no-contact frames without reading discarded attempted candidate content.",
+    "The hostile regression source covers accepted current zero-material contact, held interrupted zero-material contact, pre-contact read failure, and null-scene behavior.",
+    "The older persisted-poll skill was converged rather than left with a contradictory non-interrupted zero-control waiting rule; the harvested zero-material skill now records the same source truth.",
+    "The warm-wall SVG was mutated in place and explicitly remains source art, not Android/runtime/phone evidence.",
+    "Compare from 29eca9294fc55f612d28f3ab98bcd9ae6e6ad826 to reviewed head shows only the planned source/test/skill/art/plan-review files; no neighboring owner or P0 architecture was added."
+  ],
+  "regression_risks_checked": {
+    "pre_contact_waiting_preserved": true,
+    "pre_contact_refresh_blocked_preserved": true,
+    "interrupted_contact_held_preserved": true,
+    "zero_material_contact_uses_visible_pulse_identity": true,
+    "motion_identity_source_changed": false,
+    "announcement_identity_source_changed": false,
+    "existing_operator_overlay_owner_only": true,
+    "phone_or_p0_surface_consumed": false
+  },
+  "test_evidence": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "run_id": 32074823417,
+    "job_id": 95525629494,
+    "job_steps": 0,
+    "exact_annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "she_raw": {
+    "attempted": true,
+    "state": "FAULT",
+    "boundary": "Account connection HTTP 400; no synthetic She-Raw review substituted."
+  },
+  "capability_membrane": {
+    "requested": "YES",
+    "implemented_source": "YES",
+    "exact_github_readback": "YES",
+    "regression_source": "YES",
+    "existing_owner_source_consumption": "YES via existing model/chrome path",
+    "tested": "NO",
+    "runtime_ui_observed": "NO",
+    "runtime_talkback_exercised": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "p0_firewall": "PASS_ZERO_CONSUMPTION_ZERO_MUTATION"
+}

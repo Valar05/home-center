@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-27T07:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "5dd8dd6db4a83a99ce2ffeaf2b1b6567e7aee2f1",
+  "reviewedSourceHead": "d3d4f8337dd22755f274302daad8267d76eda662",
+  "verdict": "PASS_BOUNDED_SOURCE__TWO_OWNER_WOUNDS_RED__PATCH_TOPOLOGY_CORRECTED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "directSemanticLookupSourceWork": {
+      "state": "RED_SOURCE_PROPOSED_NOT_APPLIED",
+      "owners": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatFrameAccessibility.java",
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayViewModel.java"
+      ],
+      "ownerBaseBlobs": [
+        "4d49dc7227d9b2bbb7abf0123df5537782176b60",
+        "a7a80e887dc233a4e242ec50e21523895a605801"
+      ],
+      "patch": "patches/try-forever-heartbeat-direct-semantic-lookup-source-throat.patch",
+      "regression": "tools/test_try_forever_heartbeat_direct_semantic_lookup_source_throats.py",
+      "constraint": "direct stable-id detail/focus/model lookup must cross a broad source-work gate before trim and Locale.ROOT case-fold; accepted semantic ids stay exact"
+    },
+    "refreshBoundarySourceWork": {
+      "state": "RED_SOURCE_CORRECTED_PROPOSED_NOT_APPLIED",
+      "owners": [
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java",
+        "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java"
+      ],
+      "ownerBaseBlobs": [
+        "021f4e6f672002762848b46c6ef42eb4d1d3f0a4",
+        "483257e1d1aca72610dc632a8343a96f0262e0d6"
+      ],
+      "patch": "patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch",
+      "regression": "tools/test_try_forever_heartbeat_refresh_boundary_source_work.py",
+      "constraint": "exact Frame.refreshBoundary evidence remains exact while over-ceiling non-authoritative speech scanning and render/announcement identity work fail to bounded source-limit projections"
+    },
+    "sourceBoundParityDoctrine": {
+      "state": "SOURCE_CONVERGED",
+      "path": "skills/heartbeat-source-bound-parity/SKILL.md",
+      "constraint": "safe canonical producers do not green-paint arbitrary direct lookup or pre-parser diagnostic callers"
+    },
+    "patchSelfReview": {
+      "state": "CORRECTED_SOURCE",
+      "finding": "first refresh-boundary patch artifact contained one leading-space second-file diff delimiter",
+      "correction": "rewrote the same patch artifact with canonical diff delimiter and marked CORRECTED_PROPOSED_NOT_APPLIED"
+    }
+  },
+  "selfReview": {
+    "duplicateArchitecture": false,
+    "weakerFallbackAdded": false,
+    "canonicalEvidenceRewritten": false,
+    "runtimeTalkBackClaimed": false,
+    "ownerMutationClaimed": false,
+    "regressionExecutedClaimed": false,
+    "testedClaimed": false
+  },
+  "sourceDelta": {
+    "commits": 6,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33070895378, "conclusion": "failure", "jobId": 98512556413, "jobSteps": 0, "logs": "404 BlobNotFound"},
+      {"name": "Home Center CI", "id": 33070895354, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33070895367, "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

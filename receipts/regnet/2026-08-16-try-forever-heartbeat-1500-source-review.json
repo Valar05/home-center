@@ -1,0 +1,61 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "heartbeat": "2026-08-16-1500",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "SYNTHETIC_REGNET",
+  "bounded_claim": "The existing OperatorOverlayService source now consumes actual heartbeat/details presentation visibility through the five-argument automatic-speech gate; collapsed transitions remain silent while announcement identity still advances. This is source wiring, not runtime proof.",
+  "acceptance": [
+    "existing owner derives overlayVisible separately from heartbeatSurfaceVisible",
+    "heartbeatSurfaceVisible is sourced from the existing details subtree that applyPresentationState sets GONE when collapsed",
+    "existing owner calls five-argument shouldAnnounce rather than the whole-overlay compatibility overload",
+    "announcement identity still advances unconditionally after the presentation gate, preventing stale replay on later expansion/unhide/unmute",
+    "regression source demonstrates that the four-argument compatibility gate cannot represent collapsed-subtree truth",
+    "repository doctrine and touchable non-raster specimen match the source/runtime membrane",
+    "no phone/P0 surface was consumed and no neighboring owner was created"
+  ],
+  "evidence": {
+    "operator_overlay_service_blob": "58fb9aa26bf7e5a1947941d163afae3a30b42703",
+    "regression_blob": "1d5350d2d544337b89284cc0ac56ea9085691390",
+    "skill_blob": "626f8b40739c9af5087d08e3b45578ec8d4c4b00",
+    "warm_wall_blob": "377190198b0606292a4d2372b657882c183d6dce",
+    "owner_source_commit": "ff8d54a9028515028576f2a29c9d317adcf45e62",
+    "operator_overlay_run": 31969607559,
+    "operator_overlay_job": 95219873808,
+    "operator_overlay_steps": 0,
+    "ci_annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "findings": [
+    {
+      "severity": "PASS_BOUNDED_SOURCE",
+      "finding": "The exact existing-owner seam is source-wired without duplicate architecture: root visibility and details-subtree visibility are distinct inputs to the five-argument speech gate."
+    },
+    {
+      "severity": "PASS_CONTACT_IDEMPOTENCE",
+      "finding": "Suppression does not short-circuit identity updates; collapsed/hidden/muted transitions advance announcement history and therefore cannot replay merely because presentation returns."
+    },
+    {
+      "severity": "BLOCKED_UNKNOWN",
+      "finding": "Android/TalkBack behavior remains unexecuted. Automatic CI on the owner-source commit contained zero steps because the GitHub Actions budget prevented the job from starting."
+    }
+  ],
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "tested": false,
+  "tested_state": "BLOCKED_ACTIONS_BUDGET",
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "regression_source": true,
+    "doctrine_source": true,
+    "non_raster_specimen_source": true,
+    "existing_owner_consumes_heartbeat_surface_gate": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

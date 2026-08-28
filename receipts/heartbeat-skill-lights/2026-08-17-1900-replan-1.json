@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-heartbeat-replan.v1",
+  "pulse": "2026-08-17-1900",
+  "replan": 1,
+  "trigger": "Code-first review of the initial concise collapsed-owner repair found that removing the broad collapsedContentDescription also removed all blocked/fault awareness from the surviving dragHandle. A concise handle must not enumerate twelve labels, but it also must not hide urgent state while collapsed.",
+  "preservedConstraints": [
+    "existing OperatorOverlayService remains sole Android owner",
+    "expanded owner behavior remains unchanged",
+    "collapsed dragHandle remains concise and aggregate-bounded",
+    "per-light names stay behind explicit expansion",
+    "canonical scene/evidence fields remain exact",
+    "no phone/P0/new controller/renderer/poller work",
+    "source is not runtime TalkBack proof"
+  ],
+  "revisedPlan": [
+    "Add state to the existing HeartbeatOverlayViewModel.LightControl projection; do not derive state by parsing visible labels.",
+    "Add a compact Model.attentionStatusDescription() that reports exact blocked/fault counts only when either count is nonzero.",
+    "Compose that compact attention status into HeartbeatCollapsedOwnerAccessibility between the summary and interruption truth.",
+    "Extend ViewModel and collapsed-owner regression source so broad pulses remain concise while blocked/fault attention stays audible without enumerating labels.",
+    "Continue with the previously planned durable skill/art convergence only after source review passes."
+  ],
+  "antagonism": [
+    "Do not add active/recovered histogram chatter merely because state is available; collapsed owner speech should surface attention, not recite the dashboard.",
+    "Do not parse human-visible labels to recover state; use the typed scene/model state.",
+    "Do not turn the compact attention summary into automatic announceForAccessibility behavior; it is focus-state content only.",
+    "Do not claim runtime TalkBack or test execution from source fixtures."
+  ],
+  "status": "REPLAN_PENDING_VENICE"
+}

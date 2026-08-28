@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-23T04:02:00-05:00",
+  "mission": "Promote canonical Surgery↔artifactContentWitness parity into the existing backend result-admission owner, harden its regression boundary, converge doctrine/art only where material, and preserve the non-P0 capability membrane.",
+  "sourceHeadBefore": "14bf7bf5d6876bf8ca916bcf3c677a9026468183",
+  "fronts": [
+    {
+      "name": "existing-backend-witness-parity-owner-composition",
+      "intent": "Make the existing admit_backend_result_with_inventory_custody owner require exact artifactContentWitnesses parity before authority admission, without creating Backend Admission II or auditing canonical inventory twice.",
+      "ownerMutation": true
+    },
+    {
+      "name": "witness-parity-single-authority-refactor",
+      "intent": "Resolve the current import direction safely: keep backend-result integrity as the stronger owner gate and make the witness-parity helper a thin supporting facade rather than introducing circular ownership.",
+      "ownerMutation": false
+    },
+    {
+      "name": "hostile-owner-regression-convergence",
+      "intent": "Turn the existing RED backend-witness boundary into source evidence for the now-required rejection and add exact witness parity assertions without calling the fixtures executed tests.",
+      "ownerMutation": false
+    },
+    {
+      "name": "result-inventory-doctrine-convergence",
+      "intent": "Update the existing result-inventory custody skill from owner-unwired to SOURCE_WIRED only after authenticated source readback.",
+      "ownerMutation": false
+    },
+    {
+      "name": "touchable-backend-evidence-wall",
+      "intent": "Mutate the existing backend-selection Warm Wall only if the owner promotion materially changes the displayed evidence topology; do not create another artifact family.",
+      "ownerMutation": false
+    },
+    {
+      "name": "review-and-execution-truth",
+      "intent": "Attempt She-Raw once, perform bounded Regnet/Venice review, inspect exact-head workflow evidence, and preserve source/regression/test/runtime/deployment/delivery/acceptance states separately.",
+      "ownerMutation": false
+    }
+  ],
+  "crossPollination": "The later descriptor temporal-binding work proved witness identity matters; the earlier backend authority boundary already owns inventory admission, so fold parity into that owner rather than duplicate authority or trust later evidence to repair an earlier contradiction.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "forbidden": [
+      "Phone Hands",
+      "primary-phone execution",
+      "P0 recovery mutation",
+      "Nightcore",
+      "Pocket TTS",
+      "Chromium control",
+      "Context Organs",
+      "physical acceptance"
+    ]
+  },
+  "plannedCapabilityStates": {
+    "backendWitnessParityOwnerWiring": "MAY_ADVANCE_SOURCE_ONLY",
+    "regressionSource": "MAY_ADVANCE_UNEXECUTED",
+    "tested": "NO_UNLESS_FRESH_AUTHORIZED_EXECUTION_PROVES_OTHERWISE",
+    "runtime": "NO",
+    "deployed": "NO",
+    "phoneDelivered": "NO",
+    "accepted": "NO"
+  }
+}

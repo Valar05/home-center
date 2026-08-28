@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adam Mode Accessibility Warm Wall — Source Only</title>
+<style>
+  :root { font-family: system-ui, sans-serif; color-scheme: dark; }
+  body { margin: 0; min-height: 100vh; background: #17191f; color: #f5f7fb; display: grid; place-items: center; }
+  main { width: min(920px, calc(100vw - 24px)); border: 1px solid #737b8f; border-radius: 22px; padding: 20px; background: #22252d; }
+  h1 { margin: 0 0 8px; font-size: clamp(1.3rem, 4vw, 2.2rem); }
+  .scar { margin: 0 0 18px; font-weight: 700; }
+  fieldset { border: 1px solid #737b8f; border-radius: 16px; padding: 12px; }
+  legend { padding: 0 8px; font-weight: 700; }
+  .modes { display: grid; grid-template-columns: repeat(5,minmax(120px,1fr)); gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+  .choice { min-height: 56px; display: flex; align-items: center; gap: 8px; border: 1px solid #737b8f; border-radius: 12px; padding: 4px 10px; cursor: pointer; }
+  .choice:has(input:checked) { outline: 3px solid currentColor; }
+  input[type="radio"] { inline-size: 24px; block-size: 24px; }
+  label, button, input, textarea { font: inherit; }
+  .sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .sendrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; align-items: end; }
+  .requestfield { display: grid; gap: 6px; min-width: 0; }
+  .requestfield > label { font-weight: 700; }
+  #request { width: 100%; min-height: 56px; max-height: 12rem; border: 1px solid #737b8f; border-radius: 12px; padding: 10px 12px; background: #17191f; color: inherit; resize: vertical; box-sizing: border-box; }
+  #request[aria-invalid="true"] { border-width: 3px; }
+  button { min-width: 96px; min-height: 56px; border: 1px solid #737b8f; border-radius: 12px; padding: 0 14px; background: #303540; color: inherit; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 4px solid currentColor; outline-offset: 3px; }
+  .state-legend { margin: 12px 0 0; padding: 10px 12px; border: 1px solid #737b8f; border-radius: 12px; }
+  .wall { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
+  .cell { border: 1px solid #737b8f; border-radius: 14px; padding: 12px; min-height: 92px; }
+  .token { font-size: 1.35rem; font-weight: 900; }
+  #detail { margin-top: 14px; min-height: 56px; border-left: 4px solid currentColor; padding: 8px 12px; }
+  svg { width: 100%; height: auto; margin-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+  @media (max-width: 520px) { .sendrow { grid-template-columns: 1fr; } button { width: 100%; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>ADAM MODE / WARM WALL</h1>
+  <p class="scar">MODE IDENTITY ● · MODE CONSEQUENCE NAMES ● · HORIZONTAL GEOMETRY ● · AVAILABILITY ● · ASCII TRIM PARITY ● · MULTILINE EDITABLE PARITY ● · EXPLICIT EDITABLE NAME ● · RESULT/SENDABILITY SPLIT ● · OVER-BUDGET INVALID STATE ● · SEND ACTION CONTEXT ● · STATE REQUEST OWNER ● · UI REQUEST OWNER □ · REQUEST PROBE v11 △ SOURCE REPAIRED / UNEXECUTED · SEND ACTION PROBE v11 △ EVIDENCE REVISE REQUIRED / RED SOURCE / UNEXECUTED · ACCESSIBILITY OWNER △ REBASED · AUTO DETAIL SPEECH OFF ● · TESTED × · RUNTIME TALKBACK × · PHONE/P0 UNTOUCHED · NO CHRISTMAS BLINK</p>
+
+  <fieldset id="modeGroup">
+    <legend>Adam mode — one horizontal row, five persistent choices</legend>
+    <div class="modes">
+      <label class="choice"><input type="radio" name="mode" value="terminal" checked> TERM <span class="sr-only">— Adam terminal executor mode</span></label>
+      <label class="choice"><input type="radio" name="mode" value="chat"> CHAT <span class="sr-only">— Adam local chatbot mode</span></label>
+      <label class="choice"><input type="radio" name="mode" value="continue"> CONT <span class="sr-only">— Adam Continue consumer mode</span></label>
+      <label class="choice"><input type="radio" name="mode" value="vlad"> VLAD <span class="sr-only">— Ask Vlad for a bounded consultation</span></label>
+      <label class="choice"><input type="radio" name="mode" value="radio"> RADIO <span class="sr-only">— Adam mode for bounded background Spotify prompts</span></label>
+    </div>
+  </fieldset>
+
+  <div class="sendrow">
+    <div class="requestfield">
+      <label for="request">Adam request</label>
+      <textarea id="request" rows="4" aria-describedby="inputState" aria-invalid="false" placeholder="Type a request"></textarea>
+    </div>
+    <button id="send" type="button" aria-describedby="inputState">Send</button>
+  </div>
+  <p id="inputState" aria-live="off">Terminal mode. Result READY. Send is unavailable until the request has material text. Request is empty or ASCII whitespace.</p>
+  <p id="capabilityLegend" class="state-legend"><strong>Capability legend:</strong> ● source-wired/source-hardened · △ source evidence incomplete or repaired but unexecuted, or owner surgery rebased but unapplied · □ native owner not wired · × runtime/test proof absent. Symbols are visual shorthand; capability cells carry textual state and do not expose punctuation as their accessible name.</p>
+
+  <div class="wall" aria-label="Source capability states" aria-describedby="capabilityLegend">
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>EXACT MODE IDENTITY — SOURCE WIRED</strong><br>Five canonical values only. Direct policy work stops above 64 UTF-16 code units; whitespace/case drift does not normalize into authority.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>MODE CONSEQUENCE NAMES — SOURCE WIRED</strong><br>Each visible TERM/CHAT/CONT/VLAD/RADIO choice also exposes the richer existing mode consequence in its accessible label. Selection truth stays native radio state rather than being duplicated into prose.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>HORIZONTAL COLLECTION GEOMETRY — SOURCE WIRED</strong><br>Source owns 1 row × 5 columns; every item is row 0, column = canonical ordinal. The specimen remains one non-wrapping row and scrolls horizontally when narrower than the five touch targets.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>AVAILABILITY SOURCE THROAT — SOURCE WIRED</strong><br>32,768 UTF-16 code units before whole-source materialization/trim; max+1 means unavailable, never truncated into a request.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>ASCII TRIM PARITY — SOURCE WIRED</strong><br>The specimen scans admitted source with the native historical predicate <code>char &gt; U+0020</code>. Unicode spaces such as U+2003 remain material; JavaScript <code>trim()</code> is not allowed to silently broaden authority.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>MULTILINE EDITABLE PARITY — SOURCE WIRED</strong><br>The source specimen uses a real multiline <code>textarea</code> with four visible rows, matching the native Adam editable shape without claiming Android runtime equivalence.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>EXPLICIT EDITABLE NAME — SOURCE WIRED</strong><br>The request textarea has a persistent visible <code>&lt;label for="request"&gt;</code>; placeholder text is only a hint.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>RESULT / SENDABILITY SPLIT — SOURCE WIRED</strong><br>READY/SENT is result-state truth; Send availability is reported separately. Empty or over-budget source can be unavailable without the contradictory phrase “Ready to send.”</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>OVER-BUDGET INVALID STATE — SOURCE WIRED</strong><br>Only source above the 32,768 UTF-16 ceiling sets <code>aria-invalid="true"</code>. Empty input stays valid-but-unavailable, with a human-readable non-live reason.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>SEND ACTION CONTEXT — SOURCE WIRED</strong><br>The Send button names the current mode and references the current non-live input state as its description, so the action and its availability reason stay inspectable together without converting edits into live-region chatter.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>STATE REQUEST OWNER — SOURCE WIRED</strong><br><code>OperatorState</code> gates request text before trim/terminal alias/UTF-8/Base64/SHA and delegates mode admission to the exact mode policy.</section>
+    <section class="cell"><div class="token" aria-hidden="true">□</div><strong>UI REQUEST OWNER — NOT WIRED</strong><br><code>OperatorOverlayService.submitAdamRequest()</code> still materializes/trims editable text before consuming the finite supporting gate.</section>
+    <section class="cell"><div class="token" aria-hidden="true">△</div><strong>REQUEST OWNER PROBE v11 — SOURCE REPAIRED / UNEXECUTED</strong><br>v11 retains the v10 requirement that canonical admission and materialization of the admitted mutable <code>Editable</code> alias are adjacent, rejecting post-admission executable work that could mutate the content before materialization. The regression source exists; execution proof does not.</section>
+    <section class="cell"><div class="token" aria-hidden="true">△</div><strong>SEND ACTION PROBE v11 — EVIDENCE REVISE REQUIRED / RED SOURCE / UNEXECUTED</strong><br>v11 proves same-snapshot projection and lifecycle ordering lexically, but local declarations named <code>adamSendButton</code> or <code>adamMode</code> can counterfeit persistent-field assignment or mutation. The existing temporal fixture now pins both false-green shapes; the existing probe still needs field-custody repair.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>AUTOMATIC DETAIL SPEECH OFF — SOURCE WIRED</strong><br>The changing detail surface is a non-live note with <code>aria-live="off"</code>; typing and selection changes do not become Christmas-light narration.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>SET POSITION SOURCE — SOURCE WIRED</strong><br>Canonical TERM/CHAT/CONT/VLAD/RADIO order carries stable positions 1..5 and source geometry 1×5.</section>
+    <section class="cell"><div class="token" aria-hidden="true">△</div><strong>ACCESSIBILITY OWNER SURGERY — REBASED / PROPOSED NOT APPLIED</strong><br>Rebased exactly to current owner blob <code>2935243f…</code>; its staged Send proposal already orders owner assignment before create refresh and mode mutation before mode refresh, but native source remains unapplied.</section>
+    <section class="cell"><div class="token" aria-hidden="true">□</div><strong>NATIVE SET CONTEXT — NOT WIRED</strong><br><code>setSelected(...)</code> alone is PARTIAL_UNSAFE until collection and item-position geometry are actually present in the native owner.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>EDITABLE VALUE — SOURCE POLICY WIRED</strong><br>The input text stays the semantic value; context is state, not a generic replacement description.</section>
+    <section class="cell"><div class="token" aria-hidden="true">●</div><strong>REPEAT SEND CONTRACT — SUPPORTING SOURCE WIRED</strong><br>Supporting policy requires READY to intervene before a later successful SENT. The explicit Adam send announcement still remains because the native result owner is not wired and the repeatable receipt blocker is non-NONE.</section>
+    <section class="cell"><div class="token" aria-hidden="true">×</div><strong>RUNTIME PROOF — ABSENT</strong><br>No regression execution, Android/TalkBack runtime evidence, deployment, phone delivery, or acceptance claim.</section>
+  </div>
+
+  <div id="detail" role="note" aria-live="off">Terminal selected, position 1 of 5; row 1 of 1, column 1 of 5. Result READY. Send is unavailable until the request has material text. Exact mode geometry, consequence naming, ASCII trim parity, multiline editable parity, explicit editable naming, bounded invalid-state semantics, Send action context, and state request custody are source wired. Request-admission evidence is source-repaired at v11 but unexecuted; Send-action lifecycle evidence is RED source because persistent-field custody is not yet proven. Native UI request and accessibility owner consumption remain unapplied.</div>
+
+  <svg viewBox="0 0 800 280" role="img" aria-labelledby="svgTitle svgDesc">
+    <title id="svgTitle">Adam request and accessibility capability membrane</title>
+    <desc id="svgDesc">Exact mode identity, rich mode consequence names, horizontal one-row five-column geometry, ASCII trim parity, multiline editable parity, explicit request naming, result-state versus sendability separation, over-budget invalid-state semantics, Send action context, and direct state request custody are source wired. Request admission is repaired at version 11 but unexecuted. Send-action probe version 11 is RED source because local shadow declarations can counterfeit persistent-field lifecycle witnesses. The UI request owner remains not wired; the accessibility surgery is rebased but unapplied and preserves the explicit repeat-send receipt. Runtime TalkBack is unproven and phone P0 surfaces are untouched.</desc>
+    <path d="M30 60 H180 M180 60 H330 M330 60 H480 M480 60 H630 M630 60 H770" fill="none" stroke="currentColor" stroke-width="4"/>
+    <circle cx="75" cy="60" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="190" y="30" width="120" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="340" y="30" width="120" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="490" y="30" width="120" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="640" y="30" width="110" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="75" y="67" text-anchor="middle" fill="currentColor" font-size="20">1×5</text>
+    <text x="250" y="67" text-anchor="middle" fill="currentColor" font-size="16">MODE ≤64</text>
+    <text x="400" y="67" text-anchor="middle" fill="currentColor" font-size="16">REQ ≤32768</text>
+    <text x="550" y="67" text-anchor="middle" fill="currentColor" font-size="16">STATE ●</text>
+    <text x="695" y="67" text-anchor="middle" fill="currentColor" font-size="16">UI □</text>
+    <text x="400" y="124" text-anchor="middle" fill="currentColor" font-size="17">MODE + CONSEQUENCE ● · HORIZONTAL GEOMETRY 1×5 ● · EDITABLE NAME ●</text>
+    <text x="400" y="154" text-anchor="middle" fill="currentColor" font-size="17">ASCII TRIM ● · MULTILINE ● · AVAILABILITY ● · RESULT/SENDABILITY SPLIT ●</text>
+    <text x="400" y="184" text-anchor="middle" fill="currentColor" font-size="17">REQUEST PROBE v11 △ SOURCE · SEND ACTION v11 △ RED SOURCE · OWNER SURGERY △</text>
+    <text x="400" y="214" text-anchor="middle" fill="currentColor" font-size="17">56PX TOUCH · FOCUS VISIBLE · NON-COLOR STATE + TEXT LEGEND · SVG SEMANTICS</text>
+    <text x="400" y="244" text-anchor="middle" fill="currentColor" font-size="17">REGRESSION EXECUTED × · TESTED × · RUNTIME TALKBACK ×</text>
+    <text x="400" y="272" text-anchor="middle" fill="currentColor" font-size="17">PHONE/P0 UNTOUCHED · REPEAT RECEIPT HELD · AUTO DETAIL SPEECH OFF</text>
+  </svg>
+</main>
+<script>
+(() => {
+  const SOURCE_LIMIT = 32768;
+  const EMPTY = 'EMPTY_OR_WHITESPACE';
+  const MATERIAL = 'MATERIAL';
+  const OVER_BUDGET = 'OVER_BUDGET';
+  const order = ['terminal','chat','continue','vlad','radio'];
+  const labels = {terminal:'Terminal',chat:'Chat',continue:'Continue',vlad:'Vlad',radio:'Radio'};
+  const stateLabels = {
+    [EMPTY]: 'empty or ASCII whitespace',
+    [MATERIAL]: 'material and admissible',
+    [OVER_BUDGET]: 'over 32,768 UTF-16 code units and unavailable'
+  };
+  const group = document.getElementById('modeGroup');
+  const request = document.getElementById('request');
+  const state = document.getElementById('inputState');
+  const detail = document.getElementById('detail');
+  const send = document.getElementById('send');
+  let result = 'READY';
+  const active = () => document.querySelector('input[name="mode"]:checked').value;
+  const classifyRequest = () => {
+    const value = request.value;
+    if (value.length > SOURCE_LIMIT) return OVER_BUDGET;
+    for (let index = 0; index < value.length; index += 1) {
+      if (value.charCodeAt(index) > 0x20) return MATERIAL;
+    }
+    return EMPTY;
+  };
+  const availabilityText = requestState => {
+    if (requestState === MATERIAL) return 'Send is available.';
+    if (requestState === OVER_BUDGET) return 'Send is unavailable while the request exceeds 32,768 UTF-16 code units.';
+    return 'Send is unavailable until the request has material text.';
+  };
+  const render = () => {
+    const mode = active();
+    const label = labels[mode];
+    const position = order.indexOf(mode) + 1;
+    const requestState = classifyRequest();
+    const availability = availabilityText(requestState);
+    send.disabled = requestState !== MATERIAL;
+    request.setAttribute('aria-invalid', requestState === OVER_BUDGET ? 'true' : 'false');
+    state.textContent = `${label} mode. Result ${result}. ${availability} Request is ${stateLabels[requestState]}.`;
+    send.setAttribute('aria-label', `Send request to Adam using ${label} mode`);
+    detail.textContent = `${label} selected, position ${position} of ${order.length}; row 1 of 1, column ${position} of ${order.length}. Result ${result}. ${availability} Request is ${stateLabels[requestState]}. Exact horizontal collection geometry, rich mode consequence naming, ASCII-trim parity, multiline editable parity, explicit editable naming, bounded invalid-state semantics, Send action context, and direct state request custody are source wired; request-admission evidence is v11 source-repaired but unexecuted; Send-action lifecycle evidence is v11 RED source because persistent-field custody is not yet proven. Selection does not own keyboard or accessibility focus.`;
+  };
+  group.addEventListener('change', () => { result = 'READY'; render(); });
+  send.addEventListener('click', () => {
+    if (classifyRequest() !== MATERIAL) return;
+    result = 'SENT';
+    request.value = '';
+    render();
+  });
+  request.addEventListener('input', () => {
+    if (classifyRequest() !== EMPTY && result === 'SENT') result = 'READY';
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

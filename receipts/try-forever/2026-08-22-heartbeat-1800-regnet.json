@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-22T18:00:42-05:00",
+  "reviewedSourceHead": "6129dbb7d656aae19adab8a70cf89ce45127cfd3",
+  "verdict": "PASS_SUPPORTING_SOURCE__REGRESSION_UNEXECUTED__CANONICAL_OWNER_REPAIR_UNAPPLIED__TESTED_NO",
+  "sourceReadback": {
+    "backendPolicyBlob": "942bc43e90f154e83813fda677d27cb515e86ba9",
+    "zeroPartialOwnerBlob": "f3457f82f5ea135e303c6ca7b93491511a471dd7",
+    "zeroPartialPatchBlob": "f4084bc0157c6cbb97d68e8bb039cf5255642517"
+  },
+  "findings": [
+    "Backend result admission now validates collision/stale/unverified authority-group shape against the exact authenticated owner custody for each group owner.",
+    "Authenticated current-owner custody for owner A no longer upgrades owner B's UNVERIFIED_BASE_GROUP into generic owner evidence.",
+    "Code-first review caught the first regression fixture being malformed before the intended incomplete-authority assertion; the fixture was corrected to use a valid collision group before checkpoint.",
+    "Canonical v10 still builds promotion groups from healthy surgeries while discoveryErrors is non-empty. The exact repair remains CORRECTED_PROPOSED_NOT_APPLIED and base-matches authenticated owner blob f3457f82....",
+    "Backend-selection and descriptor custody remain supporting source only; canonical owner composition is not implemented."
+  ],
+  "execution": {
+    "buildAndroid": {"runId": 32604257277, "conclusion": "failure"},
+    "homeCenterCi": {"runId": 32604257295, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32604257292, "jobId": 97106905940, "conclusion": "failure", "stepsExposed": 0, "logs": "404 BlobNotFound"},
+    "tested": false,
+    "causeEstablished": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

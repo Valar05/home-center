@@ -1,0 +1,34 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-17-2300",
+  "pr": 329,
+  "reviewedSourceHead": "7b6fc7df39e4b83e7ae4f36a68692da37a142adc",
+  "claimReviewed": "The proposed deep-detail owner delta now explicitly neutralizes movement-method focus/click side effects through one shared passive ownership policy, and the existing Swan Veil source no longer exposes persistent single-selection as toggle-button semantics.",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_AND_PATCH_PROVENANCE_ONLY",
+  "source": {
+    "HeartbeatDetailSurfacePolicy.java": "dbf205cb1199a89965b59be55a57eb0514b7ed33",
+    "HeartbeatDetailSurfacePolicyTest.java": "520cd650787d54ff23287c9d5630c11123dfb449",
+    "operator-overlay-heartbeat-detail-scroll-wiring.patch": "72ee9e8a07621e1113a3283b467fc83de5b0b66c",
+    "heartbeat-swan-veil-semantic-scar-source.html": "baf6949bbfef271c7460d78c48572ca2f1c81db8",
+    "heartbeat-deep-detail-viewport/SKILL.md": "c721ee81b3e99dde363cb84056a290d6920fcbd0",
+    "persistent-selection-semantics/SKILL.md": "496e4baaee07b471d50712d642fc727ecce5e695",
+    "actual OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
+  "passes": [
+    "HeartbeatDetailSurfacePolicy has one passive ownership authority: KEYBOARD_FOCUSABLE=false, CLICKABLE=false, LONG_CLICKABLE=false.",
+    "The proposed owner patch applies those ownership values after setMovementMethod, where movement-method side effects must be neutralized.",
+    "The existing owner itself is still legacy and therefore has not accidentally acquired the proposed focus topology.",
+    "Swan Veil now exposes persistent one-of-many choice as radiogroup/radio + aria-checked with roving tabindex and arrow/Home/End navigation rather than aria-pressed toggle state.",
+    "Dynamic Swan Veil status/detail remains textContent-only; no HTML injection path was introduced.",
+    "No duplicate Android owner, renderer, detail controller, phone lane, poller, or P0 coordinator was created."
+  ],
+  "boundaries": [
+    "The pure Java ownership fixture does not instantiate the real Android TextView and therefore does not prove native post-setMovementMethod focus/click state.",
+    "The corrected owner patch remains PROPOSED_NOT_APPLIED; actual OperatorOverlayService still uses five-line END ellipsis and legacy detail wiring.",
+    "No browser/screen-reader runtime exercised the repaired Swan Veil radio behavior.",
+    "Automatic Operator Overlay workflow on Java source commit 8660a02eb38ba5d251c4e849541ab573c5dbd642 concluded failure with zero exposed steps; log retrieval returned 404 BlobNotFound. No cause is inferred.",
+    "TESTED, runtime UI, runtime TalkBack, deployed, callable, executed, delivered, and accepted remain false."
+  ],
+  "requiredNextOwnerEvidence": "Before existing-owner deep-detail wiring may be claimed, apply only the corrected delta to OperatorOverlayService and obtain native/source evidence that heartbeatDetail remains touch-scrollable while focusable/clickable/longClickable match policy after movement-method installation; do not infer TalkBack focus ownership from direct keyboard focus.",
+  "p0Firewall": "PASS_ZERO_PHONE_OR_P0_CONSUMPTION"
+}

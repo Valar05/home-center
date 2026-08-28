@@ -1,0 +1,362 @@
+package com.homecenter.operatoroverlay;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
+
+/**
+ * Pure render/announcement deduplication plan for the existing Operator Overlay.
+ *
+ * <p>The service refresh loop currently runs much faster than heartbeat semantics
+ * change. Rebuilding a native button subtree or announcing TalkBack content on
+ * every poll would turn a quiet heartbeat into focus churn. This source helper
+ * composes the existing persisted projection and view-model organs, then exposes
+ * deterministic identities consumed by the existing {@code OperatorOverlayService}
+ * source path.</p>
+ *
+ * <p>This class owns no renderer, service, state store, transport, phone action,
+ * queue, or P0 recovery authority. Callers retain the previous frame/identities.
+ * Existing-owner source composition is not Android execution, runtime rendering,
+ * deployment, or delivery proof.</p>
+ */
+public final class HeartbeatOverlayRefreshPlan {
+    /** Diagnostic boundary work budget for non-authoritative UI/dedup identities. */
+    public static final int MAX_REFRESH_BOUNDARY_IDENTITY_SOURCE_CODE_UNITS =
+            HeartbeatPlainTextBudget.MAX_SOURCE_CODE_UNITS;
+    /** Direct selection/focus query work budget before trim/case-fold routing. */
+    public static final int MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+
+    public static final class Plan {
+        public final HeartbeatSceneGraph.Frame frame;
+        public final HeartbeatOverlayViewModel.Model model;
+        public final String selectedControlId;
+        /**
+         * Changes only when the ordered semantic control identities change.
+         *
+         * <p>This is deliberately narrower than {@link #renderIdentity}. A stable
+         * control structure can refresh text/detail in place without destroying and
+         * recreating the native Button objects that may currently hold keyboard or
+         * accessibility focus.</p>
+         */
+        public final String structureIdentity;
+        /** Changes when the actually presented/touchable surface or interruption wound changes. */
+        public final String renderIdentity;
+        /** Changes only for transition semantics or a new interruption wound. */
+        public final String announcementIdentity;
+
+        private Plan(
+                HeartbeatSceneGraph.Frame frame,
+                HeartbeatOverlayViewModel.Model model,
+                String selectedControlId,
+                String structureIdentity,
+                String renderIdentity,
+                String announcementIdentity) {
+            this.frame = frame;
+            this.model = model;
+            this.selectedControlId = clean(selectedControlId);
+            this.structureIdentity = clean(structureIdentity);
+            this.renderIdentity = clean(renderIdentity);
+            this.announcementIdentity = clean(announcementIdentity);
+        }
+    }
+
+    public static final class PersistedPlan {
+        public final HeartbeatPersistedEnvelopeProjection.Result projection;
+        public final Plan plan;
+
+        private PersistedPlan(
+                HeartbeatPersistedEnvelopeProjection.Result projection,
+                Plan plan) {
+            this.projection = projection;
+            this.plan = plan;
+        }
+    }
+
+    private HeartbeatOverlayRefreshPlan() {
+    }
+
+    /**
+     * Compose exact persisted bytes through the existing integrity/parser/scene
+     * pipeline and then into the UI-ready model. Storage/parser rejection therefore
+     * inherits the existing last-good contact preservation and motion clamp.
+     */
+    public static PersistedPlan projectPersisted(
+            byte[] payloadUtf8,
+            long declaredBytes,
+            String declaredSha256,
+            long updatedMs,
+            HeartbeatSceneGraph.Frame lastGood,
+            String selectedControlId) {
+        HeartbeatPersistedEnvelopeProjection.Result projection =
+                HeartbeatPersistedEnvelopeProjection.projectBytes(
+                        payloadUtf8,
+                        declaredBytes,
+                        declaredSha256,
+                        updatedMs,
+                        lastGood);
+        return new PersistedPlan(
+                projection,
+                fromFrame(projection.frame, selectedControlId));
+    }
+
+    /**
+     * Build deterministic UI work identities from an already accepted/preserved
+     * scene. Selection is retained by semantic id rather than focus index so scene
+     * reorder cannot silently move the user's detail target.
+     */
+    public static Plan fromFrame(
+            HeartbeatSceneGraph.Frame frame,
+            String selectedControlId) {
+        HeartbeatOverlayViewModel.Model model = HeartbeatOverlayViewModel.fromFrame(frame);
+        String selected = boundedSelectionId(selectedControlId);
+        if (!selected.isEmpty() && model.controlById(selected) == null) selected = "";
+
+        String presentation = HeartbeatFrameCheckpoint.presentationSha256(frame);
+        String transition = HeartbeatFrameCheckpoint.transitionSha256(frame);
+        String interrupted = frame != null && frame.refreshInterrupted ? "1" : "0";
+        String exactBoundary = frame == null ? "Heartbeat scene unavailable." : raw(frame.refreshBoundary);
+        String identityBoundary = refreshBoundaryIdentity(exactBoundary);
+
+        // Ordered semantic ids define whether the native child structure itself
+        // must change. Label/state/detail/touch semantics can be updated on the
+        // existing child object when this identity is stable, preserving focus.
+        String structureIdentity = structureIdentity(model);
+
+        // Exact visible/touchable detail changes should refresh content, but the
+        // otherwise invisible accepted pulse id is checkpoint/evidence identity, not
+        // UI work. A new pulse carrying the exact same presented surface therefore
+        // does not churn native controls. If a later refresh is interrupted, the
+        // interruption state/boundary changes this identity and the current visible
+        // pulse id can still be projected by the scene's bounded wound description.
+        String renderIdentity = digest(
+                "heartbeat-overlay-render.v2",
+                presentation,
+                interrupted,
+                identityBoundary);
+        String announcementIdentity = digest(
+                "heartbeat-overlay-announcement.v1",
+                transition,
+                interrupted,
+                identityBoundary);
+        return new Plan(
+                frame,
+                model,
+                selected,
+                structureIdentity,
+                renderIdentity,
+                announcementIdentity);
+    }
+
+    /**
+     * Whether the native child structure must be rebuilt.
+     *
+     * <p>A stable ordered semantic-id set means existing buttons can be refreshed in
+     * place. This narrow identity exists specifically to avoid unnecessary
+     * keyboard/TalkBack focus churn on evidence, state, consequence, or label-only
+     * refreshes.</p>
+     */
+    public static boolean shouldRebuildStructure(
+            String previousStructureIdentity,
+            Plan next) {
+        if (next == null) return false;
+        return !boundedPreviousIdentity(previousStructureIdentity).equals(next.structureIdentity);
+    }
+
+    /** Whether visible/touchable content changed and should be refreshed. */
+    public static boolean shouldRefreshContent(
+            String previousRenderIdentity,
+            Plan next) {
+        if (next == null) return false;
+        return !boundedPreviousIdentity(previousRenderIdentity).equals(next.renderIdentity);
+    }
+
+    /**
+     * Existing service compatibility: until the owner consumes structureIdentity,
+     * a render-identity change still means its current full rebuild path should run.
+     * New wiring should prefer shouldRebuildStructure + shouldRefreshContent.
+     */
+    public static boolean shouldRebuild(String previousRenderIdentity, Plan next) {
+        return shouldRefreshContent(previousRenderIdentity, next);
+    }
+
+    /**
+     * Automatic speech requires an established prior semantic baseline. An empty
+     * previous identity means cold start/unknown history, not a proven transition;
+     * the renderer may still show the current model, but it must not announce it as
+     * though a state change was observed.
+     */
+    public static boolean shouldAnnounce(String previousAnnouncementIdentity, Plan next) {
+        if (next == null) return false;
+        String previous = boundedPreviousIdentity(previousAnnouncementIdentity);
+        if (previous.isEmpty()) return false;
+        return !previous.equals(next.announcementIdentity);
+    }
+
+    /**
+     * Compatibility presentation gate for callers that only know whole-overlay
+     * visibility. A visible root is treated as a visible heartbeat surface here.
+     * Callers that can distinguish a collapsed/GONE heartbeat sub-surface must use
+     * the five-argument overload below instead of laundering root visibility into
+     * heartbeat visibility.
+     */
+    public static boolean shouldAnnounce(
+            String previousAnnouncementIdentity,
+            Plan next,
+            boolean muted,
+            boolean overlayVisible) {
+        return shouldAnnounce(
+                previousAnnouncementIdentity,
+                next,
+                muted,
+                overlayVisible,
+                overlayVisible);
+    }
+
+    /**
+     * Existing-overlay runtime gate for automatic heartbeat speech.
+     *
+     * <p>Mute, whole-overlay visibility, and heartbeat-surface visibility are
+     * presentation policy, not semantic identity. A root overlay may remain visible
+     * while the heartbeat detail surface is deliberately collapsed/GONE. In that
+     * state the heartbeat must not speak from behind the wall merely because a
+     * semantic transition arrived.</p>
+     *
+     * <p>The caller should still advance the remembered announcement identity while
+     * muted, hidden, or collapsed so unmuting/restoring/expanding later does not
+     * replay a stale transition as a new event. This helper only decides whether the
+     * current semantic transition is allowed to speak now.</p>
+     */
+    public static boolean shouldAnnounce(
+            String previousAnnouncementIdentity,
+            Plan next,
+            boolean muted,
+            boolean overlayVisible,
+            boolean heartbeatSurfaceVisible) {
+        if (muted || !overlayVisible || !heartbeatSurfaceVisible) return false;
+        return shouldAnnounce(previousAnnouncementIdentity, next);
+    }
+
+    /**
+     * Choose one semantic heartbeat control to anchor inside the horizontal
+     * viewport during a stable-structure in-place refresh.
+     *
+     * <p>Explicit semantic selection wins because it is the user's durable detail
+     * target. Otherwise the caller may offer the id of a directly keyboard-focused
+     * heartbeat Button. Both candidates must still exist in the accepted next model;
+     * stale ids fail closed to no anchor. This helper deliberately does not inspect,
+     * infer, request, or claim TalkBack accessibility focus.</p>
+     *
+     * <p>This is source policy only. Existing-owner Android wiring is a separate
+     * capability state until {@code OperatorOverlayService} consumes the result and
+     * runtime evidence observes the behavior.</p>
+     */
+    public static String viewportAnchorId(
+            String selectedControlId,
+            String keyboardFocusedControlId,
+            HeartbeatOverlayViewModel.Model acceptedNextModel) {
+        if (acceptedNextModel == null) return "";
+        String selected = boundedSelectionId(selectedControlId);
+        if (!selected.isEmpty() && acceptedNextModel.controlById(selected) != null) {
+            return acceptedNextModel.controlById(selected).id;
+        }
+        String focused = boundedSelectionId(keyboardFocusedControlId);
+        if (!focused.isEmpty() && acceptedNextModel.controlById(focused) != null) {
+            return acceptedNextModel.controlById(focused).id;
+        }
+        return "";
+    }
+
+    /**
+     * Preserve a semantic control's horizontal viewport offset across an in-place
+     * content refresh whose labels may change width.
+     *
+     * <p>Stable native object identity is not stable visible contact by itself: a
+     * wider sibling can move the selected/focused Button even though the same Button
+     * instance survives. Existing-owner wiring can capture {@code viewportOffsetPx}
+     * before mutation, re-measure the same semantic id after layout, and use this
+     * pure bounded calculation to restore its prior viewport offset. No movement is
+     * manufactured when the child position is unchanged.</p>
+     *
+     * <p>This is geometry policy only. It does not claim existing-service
+     * consumption, Android focus retention, accessibility-focus ownership,
+     * rendering, deployment, or phone delivery.</p>
+     */
+    public static int anchoredScrollX(
+            int nextAnchorLeftPx,
+            int viewportOffsetPx,
+            int maxScrollXPx) {
+        long desired = (long) nextAnchorLeftPx - (long) viewportOffsetPx;
+        long boundedMax = Math.max(0L, (long) maxScrollXPx);
+        if (desired <= 0L) return 0;
+        if (desired >= boundedMax) return (int) boundedMax;
+        return (int) desired;
+    }
+
+    private static String structureIdentity(HeartbeatOverlayViewModel.Model model) {
+        StringBuilder canonical = new StringBuilder();
+        append(canonical, "heartbeat-overlay-structure.v1");
+        if (model == null) {
+            append(canonical, "<no-model>");
+        } else {
+            canonical.append('#').append(model.controls.size()).append(';');
+            for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
+                append(canonical, raw(control.id).toLowerCase(Locale.ROOT));
+            }
+        }
+        return sha256(canonical.toString());
+    }
+
+    private static String refreshBoundaryIdentity(String value) {
+        String exact = raw(value);
+        if (exact.length() > MAX_REFRESH_BOUNDARY_IDENTITY_SOURCE_CODE_UNITS) {
+            return "<refresh-boundary-source-limit:" + exact.length() + ">";
+        }
+        return exact;
+    }
+
+    private static String boundedSelectionId(String value) {
+        if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value);
+    }
+
+    private static String boundedPreviousIdentity(String value) {
+        if (value == null || value.length() > MAX_DIRECT_SELECTION_ID_SOURCE_CODE_UNITS) return "";
+        return clean(value);
+    }
+
+    private static String digest(String schema, String... values) {
+        StringBuilder canonical = new StringBuilder();
+        append(canonical, schema);
+        for (String value : values) append(canonical, raw(value));
+        return sha256(canonical.toString());
+    }
+
+    private static String sha256(String canonical) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = digest.digest(canonical.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(bytes.length * 2);
+            for (byte value : bytes) {
+                hex.append(String.format(Locale.ROOT, "%02x", value & 0xff));
+            }
+            return hex.toString();
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable.", impossible);
+        }
+    }
+
+    private static void append(StringBuilder out, String value) {
+        String safe = raw(value);
+        out.append(safe.length()).append(':').append(safe).append(';');
+    }
+
+    private static String raw(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String clean(String value) {
+        return raw(value).trim();
+    }
+}

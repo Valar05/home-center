@@ -1,0 +1,49 @@
+{
+  "schema": "venice-try-forever-heartbeat-completion.v1",
+  "timestampLocal": "2026-08-23T12:00:40-05:00",
+  "plan": "receipts/try-forever/2026-08-23-heartbeat-1200-plan.json",
+  "reviewedSourceHead": "781a51c9bbccfb7060af7e052f24d6741829e9c7",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_CANONICAL_BACKEND_COMPOSITION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "sourceSlice": {
+    "descriptorWoundTriState": "SOURCE_WIRED",
+    "temporalReceiptIntegrityOwnerConsumption": "SOURCE_WIRED",
+    "regressions": "SOURCE_UNEXECUTED",
+    "skillDoctrine": "CONVERGED",
+    "warmWall": "MUTATED_IN_PLACE_SOURCE_ONLY"
+  },
+  "limits": {
+    "canonicalDescriptorAuthorityIntegration": "NO",
+    "canonicalBackendSelectionConsumption": "NO",
+    "regressionExecution": "NO",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "executionTruth": {
+    "exactHead": "781a51c9bbccfb7060af7e052f24d6741829e9c7",
+    "automaticWorkflows": [
+      {"name": "Home Center CI", "runId": 32653728879, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32653729144, "jobId": 97229152474, "conclusion": "failure"},
+      {"name": "Build Android", "runId": 32653728884, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

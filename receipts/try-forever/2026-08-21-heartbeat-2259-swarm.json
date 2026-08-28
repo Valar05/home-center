@@ -1,0 +1,95 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-21T22:59:00-05:00",
+  "reviewedSourceHead": "4da52ad9b66c98c3397fe088cbc4b8b042b1409d",
+  "pr": 329,
+  "fronts": [
+    {
+      "name": "selection-announcement-owner-surgery-convergence",
+      "state": "SUPPORTING_SOURCE_ADVANCED",
+      "changed": [
+        "patches/try-forever-heartbeat-selection-announcement-owner-combined.patch",
+        "patches/try-forever-heartbeat-native-selection-collection-owner.patch",
+        "patches/try-forever-heartbeat-material-transition-live-region-owner.patch",
+        "tools/test_try_forever_heartbeat_owner_patch_convergence.py",
+        "skills/heartbeat-native-selection-collection/SKILL.md",
+        "skills/operator-semantic-announcement-migration/SKILL.md"
+      ],
+      "consequence": "two review-ready surgeries locked to the same exact OperatorOverlayService blob are no longer independently promotable; the combined surgery is canonical for those two consequences",
+      "ownerWired": false,
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "owner-surgery-custody",
+      "state": "NEW_SKILL_AND_PROBE_SOURCE",
+      "changed": [
+        "tools/try_forever_owner_surgery_custody_probe.py",
+        "tools/test_try_forever_owner_surgery_custody_probe.py",
+        "skills/operator-owner-surgery-custody/SKILL.md"
+      ],
+      "consequence": "same-owner same-base unapplied promotion candidates are now a typed COLLISION_SET rather than implicit patch-order debt",
+      "freshStaticEvidence": [
+        "patches/try-forever-operational-contact-owner.patch remains CORRECTED_PROPOSED_NOT_APPLIED on owner blob c5de1411a6b68087ae17aff83c032af754587150",
+        "patches/try-forever-adam-mode-input-accessibility-owner.patch remains CORRECTED_PROPOSED_NOT_APPLIED on the same owner blob"
+      ],
+      "probeExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "android-platform-accessibility-review",
+      "state": "EVIDENCE_SYNTHESIS",
+      "consequence": "current framework source confirms View.setSelected notifies accessibility state changes; collection metadata still remains source-only until owner wiring/runtime proof",
+      "ownerMutation": false
+    }
+  ],
+  "review": {
+    "regnet": "PASS_FOR_BOUNDED_SUPPORTING_SOURCE_CLAIMS__OWNER_UNWIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400__NO_SUBSTITUTE_REVIEWER"
+  },
+  "executionTruth": {
+    "head": "4da52ad9b66c98c3397fe088cbc4b8b042b1409d",
+    "workflows": [
+      {"name": "Home Center CI", "runId": 32550810029, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32550809940, "jobId": 96977108999, "conclusion": "failure", "steps": 0, "logReadback": "404 BlobNotFound"},
+      {"name": "Build Android", "runId": 32550809903, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "ownerTruth": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "authenticatedBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "nativeSelectionCollectionWired": false,
+    "heartbeatMaterialTransitionLiveRegionWired": false
+  },
+  "p0Firewall": {
+    "phoneSurfaceConsumed": false,
+    "p0Mutation": false,
+    "duplicateArchitecture": false,
+    "newP0Finding": null
+  },
+  "darkLights": {
+    "autocorrect": "no material ambiguity",
+    "christmasMotion": "no runtime transition law changed",
+    "phoneRuntimePhoneHands": "binding firewall; no surface consumption"
+  },
+  "capability": {
+    "supportingSource": true,
+    "authenticatedRemoteReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "selection collection and heartbeat announcement both targeted the same exact native owner custody; converging them exposed the broader same-base owner-surgery collision class, which became a reusable probe/skill instead of a one-off patch-order warning"
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall — Skill Provenance Resource Throats</title>
+<style>
+  :root { font-family: system-ui, sans-serif; background:#15130f; color:#f7f0df; }
+  body { margin:0; padding:24px; }
+  main { max-width:760px; margin:auto; border:2px solid currentColor; border-radius:24px; padding:20px; }
+  h1 { font-size:1.35rem; }
+  .scar { border-left:6px solid currentColor; padding:12px 16px; margin:16px 0; }
+  [role="radiogroup"] { display:grid; gap:12px; }
+  button[role="radio"] { min-height:48px; min-width:48px; width:100%; text-align:left; padding:12px 16px; border:2px solid currentColor; border-radius:14px; background:transparent; color:inherit; font:inherit; }
+  button[role="radio"]:focus-visible { outline:4px double currentColor; outline-offset:3px; }
+  button[aria-checked="true"] { box-shadow:inset 0 0 0 4px currentColor; }
+  #detail { min-height:8rem; white-space:pre-wrap; border:1px dashed currentColor; border-radius:14px; padding:14px; margin-top:16px; }
+  .token { font-weight:800; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / SKILL PROVENANCE RESOURCE THROATS</h1>
+  <p class="scar"><strong>SOURCE ONLY.</strong> Repository-owned root topology first, traversal throat second, candidate throat third, title throat fourth, whole-file hash throat fifth. Repository policy specimen; not executed probe evidence, Android runtime proof, phone delivery, or Christmas blink permission.</p>
+  <div role="radiogroup" aria-label="Skill provenance resource states" id="states">
+    <button role="radio" aria-checked="true" tabindex="0" data-state="accepted"><span class="token">● ACCEPTED</span> — real skills root + bounded traversal + candidates + title + full-file SHA</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="root"><span class="token">× ROOT SYMLINK BLOCKED</span> — skills/ redirects topology</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="traversal"><span class="token">× TRAVERSAL BLOCKED</span> — max+1 filesystem entries</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="candidate"><span class="token">× CANDIDATE SET BLOCKED</span> — max+1 SKILL.md paths</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="line"><span class="token">× TITLE LINE BLOCKED</span> — one line exceeds 8 KiB</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="scan"><span class="token">× TITLE SCAN BLOCKED</span> — H1 unresolved within 64 KiB</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="title"><span class="token">× TITLE TEXT BLOCKED</span> — H1 exceeds 256 code points</button>
+    <button role="radio" aria-checked="false" tabindex="-1" data-state="hash"><span class="token">× HASH BODY BLOCKED</span> — full SKILL.md exceeds 1 MiB</button>
+  </div>
+  <div id="detail" role="status" aria-live="polite"></div>
+</main>
+<script>
+const copy = {
+  accepted: 'Why: skills/ is a real repository-owned directory, the complete filesystem walk fit the declared entry throat, the candidate set fit its count throat, title admission succeeded, and complete SKILL.md bytes reached EOF inside the whole-file hash budget.\nConsequence: records may continue through path identity, snapshot, and generated-index provenance gates.\nEvidence: deterministic root admission, bounded traversal and candidate ordering plus exact full-file SHA; no redirected root, partial set, prefix, or truncation became authority.',
+  root: 'Why: repo_root/skills is itself a symbolic link, including a broken link.\nConsequence: reject the repository-skill namespace before is_dir(), os.scandir(), title extraction, or hashing; return no partial SkillRecord authority.\nEvidence: SymlinkedSkillsRoot at stage=repository. Child directory symlinks have a separate non-recursion rule; this wound is the root topology gate. Source only: no probe execution, runtime UI, TalkBack, or phone claim.',
+  traversal: 'Why: discovery observed max+1 filesystem entries under skills/, including non-candidate files/directories.\nConsequence: reject the entire repository-skill discovery before title/hash work; return no partial SkillRecord authority.\nEvidence: MAX_SKILL_TRAVERSAL_ENTRIES = 32768, directory symlinks are not followed, and traversal I/O/resource wounds are stage=traversal. This is a filesystem-work throat, not candidate/title/hash/runtime proof.',
+  candidate: 'Why: a completed bounded traversal observed max+1 actual SKILL.md file candidates.\nConsequence: reject the entire repository-skill candidate set before title/hash work; return no partial SkillRecord authority.\nEvidence: an omitted later path could hide a case-insensitive identity collision, so first-2048-wins is forbidden. Candidate count and traversal count are separate throats.',
+  line: 'Why: one title-stage source line crossed the 8 KiB byte throat.\nConsequence: omit the skill record immediately; do not spend whole-file hash work afterward.\nEvidence: structured stage=title failure; no diagnostic whole-file SHA is claimed.',
+  scan: 'Why: title work crossed the 64 KiB total scan throat.\nConsequence: omit the skill instead of blessing a later H1; whole-file hashing never starts.\nEvidence: title resource failure is not malformed UTF-8 and not a speech-budget event.',
+  title: 'Why: the decoded H1 crossed 256 code points.\nConsequence: reject; never truncate source into a plausible repository identity; whole-file hashing stays dark.\nEvidence: source remains source, authority does not materialize.',
+  hash: 'Why: a valid short title passed, but complete SKILL.md bytes exceeded the 1 MiB whole-file hash throat.\nConsequence: emit stage=hash SkillHashResourceLimitError, preserve healthy peer discovery, and return no prefix digest.\nEvidence: chunk-bounded memory is not enough; total provenance work is bounded too.'
+};
+const group = document.getElementById('states');
+const radios = [...group.querySelectorAll('[role="radio"]')];
+const detail = document.getElementById('detail');
+function select(next, focus=true) {
+  radios.forEach(r => { const on = r === next; r.setAttribute('aria-checked', on ? 'true' : 'false'); r.tabIndex = on ? 0 : -1; });
+  detail.textContent = copy[next.dataset.state];
+  if (focus) next.focus();
+}
+group.addEventListener('click', e => { const r=e.target.closest('[role="radio"]'); if(r) select(r,false); });
+group.addEventListener('keydown', e => {
+  const i=radios.indexOf(document.activeElement); if(i<0) return;
+  let n=null;
+  if(e.key==='ArrowDown'||e.key==='ArrowRight') n=(i+1)%radios.length;
+  if(e.key==='ArrowUp'||e.key==='ArrowLeft') n=(i-1+radios.length)%radios.length;
+  if(e.key==='Home') n=0; if(e.key==='End') n=radios.length-1;
+  if(n!==null){ e.preventDefault(); select(radios[n]); }
+});
+select(radios[0],false);
+</script>
+</body>
+</html>

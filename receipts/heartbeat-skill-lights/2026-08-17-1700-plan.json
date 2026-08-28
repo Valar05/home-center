@@ -1,0 +1,64 @@
+{
+  "receipt": "try-forever-heartbeat-1700-plan",
+  "status": "PLAN_ALLOWED",
+  "mission": "Advance a materially different non-P0 heartbeat wound without touching Phone Hands or P0 recovery owners.",
+  "source_head_before": "29eca9294fc55f612d28f3ab98bcd9ae6e6ad826",
+  "discovery": {
+    "wound": "A complete accepted heartbeat can carry a non-empty visiblePulseId and zero material lights, but the current visible summary calls that state waiting and collapsed TalkBack says only that there are no material lights.",
+    "evidence": [
+      "HeartbeatPersistedPollPolicy.hasVisibleLastGoodContact uses visiblePulseId rather than node count and explicitly treats a zero-material accepted pulse as contact.",
+      "HeartbeatSceneGraph preserves visiblePulseId on a complete accepted zero-material frame.",
+      "HeartbeatOverlayViewModel.summaryVisibleLabel returns HEARTBEAT • waiting for every non-interrupted zero-control model, even when visiblePulseId is non-empty.",
+      "HeartbeatFrameAccessibility.collapsedContentDescription says only No material skill lights for a zero-node frame, omitting accepted contact truth.",
+      "OperatorOverlayService already consumes both model summary and collapsed accessibility projection through the existing owner path."
+    ]
+  },
+  "authorized_fronts": [
+    {
+      "front": "visible-zero-material-contact-truth",
+      "action": "Reserve HEARTBEAT • waiting for no accepted visible contact; project an accepted zero-material frame as HEARTBEAT • 0 LIGHTS."
+    },
+    {
+      "front": "talkback-zero-material-contact-truth",
+      "action": "Make collapsed accessibility distinguish accepted zero-material contact from pre-contact/no-scene waiting and from an interrupted preserved zero-material frame."
+    },
+    {
+      "front": "hostile-regression-source",
+      "action": "Pin accepted zero-material current contact, preserved zero-material interrupted contact, and pre-contact/null behavior without claiming tests ran."
+    },
+    {
+      "front": "durable-doctrine",
+      "action": "Repair heartbeat-persisted-poll-contact doctrine so its interruption-chrome section no longer contradicts its own visiblePulseId contact rule."
+    },
+    {
+      "front": "warm-wall-source-art",
+      "action": "Mutate the existing refresh-gate specimen in place because WAITING versus accepted-zero is a new operator-state topology; do not create a neighboring artifact/controller."
+    }
+  ],
+  "constraints": {
+    "existing_owner_only": true,
+    "duplicate_architecture_forbidden": true,
+    "phone_surface_consumption": 0,
+    "p0_mutations": 0,
+    "runtime_or_delivery_claims_forbidden": true,
+    "test_source_is_not_test_evidence": true,
+    "do_not_merge": true
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "Authoritative She-Raw consultation returned account-connection HTTP 400; no substitute verdict is invented."
+  },
+  "expected_capability_after_source_slice": {
+    "requested": "YES",
+    "implemented_source": "YES if remote write/readback succeeds",
+    "tested": "NO unless exact-head runner evidence executes",
+    "runtime_ui_observed": "NO",
+    "runtime_talkback_exercised": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  }
+}

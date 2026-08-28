@@ -1,0 +1,38 @@
+# STATUS: APPLIED_SOURCE
+# BASE OWNER BLOB: 9cdd14517f2538296952618173bf47474374477b
+# APPLIED OWNER BLOB: 8b809e392192d9d1ad40784b5c75a2ef0e7ab2f0
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java
+# PURPOSE: Bound direct/canonical envelope source work before trim or JSON cursor traversal can process an arbitrarily large caller-owned String.
+# PRESERVE: strict JSON semantics; MAX_LIGHTS and field-specific bounds; semantic safety; duplicate-member rejection; parser remains pure source and owns no transport/runtime/P0 surface.
+# REGRESSION: android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatEnvelopePreparseResourceThroatTest.java (SOURCE / UNEXECUTED)
+# CAPABILITY: SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatEnvelopeParser.java
+@@
+     public static final int MAX_EVIDENCE_BOUNDARY_CHARS = 4096;
++    /**
++     * Direct Java source-work ceiling before trim/JSON traversal.
++     *
++     * The canonical persisted writer admits at most 32 KiB of strict UTF-8. A Java
++     * String longer than 32,768 UTF-16 code units cannot represent fewer than that
++     * many strict UTF-8 bytes, so this is a safe early resource rejection for the
++     * public parser without pretending to replace the writer's byte-level custody.
++     */
++    public static final int MAX_ENVELOPE_SOURCE_CODE_UNITS = 32768;
+     private static final int MAX_JSON_DEPTH = 32;
+@@
+     public static Result parse(String payloadJson) {
+-        if (payloadJson == null || payloadJson.trim().isEmpty()) {
++        if (payloadJson == null) {
+             return reject("Heartbeat envelope is empty.");
+         }
++        if (payloadJson.length() > MAX_ENVELOPE_SOURCE_CODE_UNITS) {
++            return reject("Heartbeat envelope exceeds the source resource ceiling.");
++        }
++        if (payloadJson.trim().isEmpty()) {
++            return reject("Heartbeat envelope is empty.");
++        }
+         try {

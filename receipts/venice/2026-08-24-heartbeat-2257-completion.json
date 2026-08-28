@@ -1,0 +1,27 @@
+{
+  "schema": "venice-completion-review.v1",
+  "timestampLocal": "2026-08-24T22:57:43-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "6cf63a4cdb375eb634d840902778d5e5831859fa",
+  "planGate": "PLAN_ALLOWED",
+  "review": {
+    "missionBoundaryPreserved": true,
+    "existingOwnerReused": true,
+    "duplicateArchitectureCreated": false,
+    "validUnicodeReceiptIdentityPreservedByDesign": true,
+    "surrogateFailurePathClosedAtSource": true,
+    "authenticatedOwnerReadback": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "phoneP0Consumed": false
+  },
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_SUBSTITUTE",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": "The pulse promoted one already-reviewed non-P0 seam into the existing final-v4 receipt owner, verified it by authenticated Home Center readback, converged stale source doctrine/provenance/regression wording, and kept all later capability states closed. Automatic CI failure supplies no step-level cause and does not convert source wiring into TESTED evidence.",
+  "unresolved": [
+    "Hostile fingerprint regressions are source-only and unexecuted.",
+    "No runtime UI/TalkBack/deployment/callability/execution/delivery/acceptance evidence exists.",
+    "The broader TRY FOREVER campaign remains active."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "slice": "2026-08-17-2000",
+  "reviewer": "Venice Judgment Jar",
+  "phase": "completion",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "source_head": "7818c4a6ef491d58ab56a986632cb1314c29d98e",
+  "why": [
+    "The prior independently named grapheme-boundary scar is repaired at the shared plain-text projection source rather than in four consumers independently.",
+    "Hard returned code-point budgets remain intact; grapheme integrity is an additional boundary, not a substitute resource contract.",
+    "Exact under-budget source/evidence remains unchanged.",
+    "Hostile fixtures cover combining, modifier, ZWJ, flag, supplementary, tiny-budget, and pass-through cases.",
+    "A code-first review caught fixtures that did not actually force truncation and repaired them before the source slice was accepted.",
+    "The shared skill doctrine converged with source truth.",
+    "No decorative art mutation occurred because there was no new operator-state topology.",
+    "No phone/P0/duplicate-architecture surface was touched."
+  ],
+  "authoritative_she_raw": "attempted pre-execution; account-connection HTTP 400; no substitute verdict invented",
+  "test_boundary": "Automatic Operator Overlay Android run 32086890470 / job 95561184253 concluded failure on the exact reviewed source head. The connector exposes zero steps and the decoded log endpoint returned 404 BlobNotFound. Do not infer a fresh failure cause and do not call this TESTED.",
+  "merge_authority": false,
+  "runtime_authority": false,
+  "delivery_authority": false,
+  "next_pulse_rule": "Order this grapheme-boundary seam dark unless fresh evidence changes it; bite a materially different non-P0 wound."
+}

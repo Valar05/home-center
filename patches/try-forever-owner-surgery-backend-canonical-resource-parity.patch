@@ -1,0 +1,13 @@
+# STATUS: APPLIED_SOURCE_PROVENANCE
+# BASE OWNER BLOB: c4869396902d4c97380a8686dfa9649315c49096
+# APPLIED OWNER BLOB: 843c98ffb7de0ba9e882beb17c3efd808d79f733
+# APPLIED COMMIT: db838d380947affade9e2d0233b03f17cbfd2a4e
+# OWNER: tools/try_forever_owner_surgery_backend_policy.py
+# PURPOSE: Prevent backend-result admission from widening canonical v10 owner identity, current-owner map cardinality, authority-group cardinality, or authority-member cardinality.
+# CAPABILITY: SOURCE_WIRED / REGRESSION_UNEXECUTED / TESTED_NO
+# REGRESSION: tools/test_try_forever_owner_surgery_backend_canonical_resource_parity.py (SOURCE / UNEXECUTED)
+# P0/PHONE: UNTOUCHED
+# AUTHORITY: The authenticated APPLIED OWNER BLOB above is source authority.
+# NOTE: The original proposed diff is intentionally not retained here as if it were the exact applied
+# mutation. Final owner surgery sharpened aggregate group/member counting and local constant naming
+# during authenticated review. This file is provenance, not an executable patch and not TESTED proof.

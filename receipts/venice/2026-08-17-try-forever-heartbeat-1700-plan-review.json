@@ -1,0 +1,23 @@
+{
+  "receipt": "venice-try-forever-heartbeat-1700-plan-review",
+  "verdict": "PLAN_ALLOWED",
+  "review_scope": "Bounded non-phone source slice only.",
+  "why_allowed": [
+    "The discovered contradiction is operator-visible and accessibility-visible: accepted zero-material contact is currently labeled waiting.",
+    "The repair composes existing HeartbeatSceneGraph, HeartbeatOverlayViewModel, HeartbeatFrameAccessibility, and OperatorOverlayService ownership rather than creating neighboring architecture.",
+    "The change can be pinned with pure regression source while Android execution remains separately unproven.",
+    "Mutating the existing warm-wall specimen is justified because the operator state topology changes from WAITING to ACCEPTED ZERO; no new specimen is authorized."
+  ],
+  "review_requirements": [
+    "Waiting must continue to mean no accepted/preserved visible heartbeat contact.",
+    "Accepted zero-material contact must remain distinct from interrupted CONTACT HELD and pre-contact REFRESH BLOCKED.",
+    "Do not announce a new automatic speech event merely because source labels change; announcement identity remains transition-driven.",
+    "Do not weaken visiblePulseId checkpoint/contact truth or use node count as contact identity.",
+    "Regression artifacts are source until an authorized runner executes them.",
+    "No Phone Hands, primary-phone, queue/relay, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organ, deployment, or physical acceptance action."
+  ],
+  "she_raw_status": "FAULT_ACCOUNT_CONNECTION_400",
+  "p0_firewall": "PASS_PRE_EXECUTION",
+  "merge_authority": "NONE",
+  "completion_authority": "SOURCE_SLICE_ONLY"
+}

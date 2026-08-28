@@ -1,0 +1,549 @@
+#!/usr/bin/env python3
+"""Deterministic source-capability probe for Adam accessibility owner seams.
+
+This probe reads repository source only. It does not execute Android, render UI,
+exercise TalkBack, touch the phone/P0 chain, or promote source evidence into TESTED,
+runtime, deployed, delivered, or accepted capability.
+
+Comments and literals are blanked first. Positive owner evidence must then occur in the
+direct OperatorOverlayService methods that own the Adam mode, send, edit, and request-admission
+lifecycle; unrelated state setters elsewhere in the large owner cannot counterfeit wiring.
+Version 11 additionally requires temporal same-observation custody where mutable UI state is
+classified and then consumed, plus owner-local lifecycle ordering for Send semantic refresh.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+from try_forever_operator_accessibility_owner_probe import (
+    java_lexical_code_surface,
+    java_named_class_surface,
+)
+
+
+@dataclass(frozen=True)
+class SeamVerdict:
+    status: str
+    reason: str
+    supporting_policy: str
+    owner_policy_reference: bool
+    owner_semantic_state: bool
+
+
+def _owner_surface(source: str) -> str:
+    lexical = java_lexical_code_surface(source)
+    return java_named_class_surface(lexical, "OperatorOverlayService")
+
+
+def _direct_method_surface(class_surface: str, method_name: str) -> str:
+    """Return one direct private owner method with any ordinary Java return type."""
+    declaration = re.compile(
+        rf"\bprivate\s+(?:static\s+)?[A-Za-z0-9_$.<>\[\],?]+\s+"
+        rf"{re.escape(method_name)}\s*\("
+    )
+    depth = 0
+    index = 0
+    while index < len(class_surface):
+        char = class_surface[index]
+        if char == "{":
+            depth += 1
+            index += 1
+            continue
+        if char == "}":
+            depth = max(0, depth - 1)
+            index += 1
+            continue
+        if depth != 1:
+            index += 1
+            continue
+        match = declaration.match(class_surface, index)
+        if match is None:
+            index += 1
+            continue
+        open_brace = class_surface.find("{", match.end())
+        if open_brace < 0:
+            return ""
+        method_depth = 0
+        for end in range(open_brace, len(class_surface)):
+            method_char = class_surface[end]
+            if method_char == "{":
+                method_depth += 1
+            elif method_char == "}":
+                method_depth -= 1
+                if method_depth == 0:
+                    return class_surface[match.start():end + 1]
+        return ""
+    return ""
+
+
+def _brace_depth_at(surface: str, index: int) -> int:
+    """Return lexical brace depth immediately before index on an already-blanked code surface."""
+    depth = 0
+    for char in surface[:max(0, index)]:
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth = max(0, depth - 1)
+    return depth
+
+
+def _binding_assignment_count(surface: str, identifier: str) -> int:
+    """Count Java simple and compound assignments to one local/field binding."""
+    assignment_operator = r"(?:>>>=|>>=|<<=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|=(?!=))"
+    return len(
+        re.findall(
+            rf"\b{re.escape(identifier)}\s*{assignment_operator}",
+            surface,
+        )
+    )
+
+
+def classify_mode_selection(source: str) -> SeamVerdict:
+    owner = _owner_surface(source)
+    create_method = _direct_method_surface(owner, "createOverlay")
+    mode_method = _direct_method_surface(owner, "adamModeButton")
+    refresh_method = _direct_method_surface(owner, "refreshAdamModeSelection")
+    policy = "AdamModeSelectionAccessibilityPolicy"
+
+    policy_reference = policy in mode_method and policy in refresh_method
+    initial_state = "setSelected(" in mode_method
+    refresh_state = "setSelected(" in refresh_method
+    refresh_call = "refreshAdamModeSelection(" in mode_method
+    has_persistent_state = initial_state and refresh_state and refresh_call
+
+    row_set_context = (
+        "adamModeRow.setAccessibilityDelegate(" in create_method
+        and "AccessibilityNodeInfo.CollectionInfo.obtain(" in create_method
+        and "AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE" in create_method
+        and "AdamModeSelectionAccessibilityPolicy.ROW_COUNT" in create_method
+        and "AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT" in create_method
+    )
+    item_set_context = (
+        "setAccessibilityDelegate(" in mode_method
+        and "AccessibilityNodeInfo.CollectionItemInfo.obtain(" in mode_method
+        and "decision.rowIndex" in mode_method
+        and "decision.rowSpan" in mode_method
+        and "decision.columnIndex" in mode_method
+        and "decision.columnSpan" in mode_method
+        and "decision.selected" in mode_method
+    )
+    has_native_set_context = row_set_context and item_set_context
+
+    if policy_reference and has_persistent_state and has_native_set_context:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam mode owner initializes and refreshes one-of-many native selection and consumes policy-owned horizontal collection/item geometry",
+            policy,
+            True,
+            True,
+        )
+    if (
+        policy in mode_method
+        or policy in refresh_method
+        or initial_state
+        or refresh_state
+        or refresh_call
+        or row_set_context
+        or item_set_context
+    ):
+        missing = []
+        if not has_persistent_state:
+            missing.append("persistent selected-state lifecycle")
+        if not row_set_context:
+            missing.append("policy-owned single-selection collection geometry")
+        if not item_set_context:
+            missing.append("policy-owned per-mode item geometry")
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam mode owner is incomplete: missing " + ", ".join(missing),
+            policy,
+            policy in mode_method or policy in refresh_method,
+            has_persistent_state or has_native_set_context,
+        )
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "direct Adam mode owner changes mode/focus but exposes no persistent selected/checked semantic lifecycle or native one-of-many collection geometry",
+        policy,
+        False,
+        False,
+    )
+
+
+def classify_input_result(source: str) -> SeamVerdict:
+    owner = _owner_surface(source)
+    create_method = _direct_method_surface(owner, "createOverlay")
+    mode_method = _direct_method_surface(owner, "adamModeButton")
+    send_method = _direct_method_surface(owner, "submitAdamRequest")
+    apply_method = _direct_method_surface(owner, "applyAdamInputResultState")
+    policy = "AdamInputResultAccessibilityPolicy"
+
+    ready_transition = (
+        policy in mode_method
+        and "Transition.MODE_SELECTED" in mode_method
+        and "applyAdamInputResultState(" in mode_method
+    )
+    sent_transition = (
+        policy in send_method
+        and "Transition.SUBMIT_SUCCEEDED" in send_method
+        and "applyAdamInputResultState(" in send_method
+    )
+    edit_transition = (
+        "adamInput.addTextChangedListener(" in create_method
+        and policy in create_method
+        and "Transition.EDITED" in create_method
+        and "applyAdamInputResultState(" in create_method
+    )
+    semantic_surface = (
+        policy in apply_method
+        and "adamInput.setStateDescription(" in apply_method
+        and "adamInput.setContentDescription(null)" in apply_method
+    )
+    policy_reference = ready_transition and sent_transition and edit_transition and semantic_surface
+    has_result_state = semantic_surface
+
+    if policy_reference and has_result_state:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam owner preserves the editable text as value, exposes READY/SENT state, and returns SENT to READY on real new editing while preserving empty programmatic clears",
+            policy,
+            True,
+            True,
+        )
+    if (
+        policy in create_method
+        or policy in mode_method
+        or policy in send_method
+        or policy in apply_method
+        or "adamInput.setStateDescription(" in owner
+        or "adamInput.addTextChangedListener(" in owner
+        or "adamInput.setContentDescription(null)" in owner
+    ):
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam owner contains only part of editable-value preservation plus the READY/SENT/edit-recovery lifecycle",
+            policy,
+            policy in create_method or policy in mode_method or policy in send_method or policy in apply_method,
+            "adamInput.setStateDescription(" in owner and "adamInput.setContentDescription(null)" in owner,
+        )
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "Adam input is masked by generic contentDescription/hint semantics and has no persistent READY/SENT edit-recovery lifecycle",
+        policy,
+        False,
+        False,
+    )
+
+
+def classify_send_action(source: str) -> SeamVerdict:
+    """Prove Send semantics plus owner-local lifecycle ordering from one mode snapshot."""
+    owner = _owner_surface(source)
+    create_method = _direct_method_surface(owner, "createOverlay")
+    mode_method = _direct_method_surface(owner, "adamModeButton")
+    refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
+    policy = "AdamSendActionAccessibilityPolicy"
+
+    create_owner_pattern = re.compile(
+        r"\b(?:this\.)?adamSendButton\s*=\s*[^;]+;"
+    )
+    mode_mutation_pattern = re.compile(
+        r"\b(?:this\.)?adamMode\s*=\s*mode\s*;"
+    )
+    lifecycle_refresh_pattern = re.compile(
+        r"\brefreshAdamSendAction\s*\(\s*\)\s*;"
+    )
+
+    create_owner_assignments = list(create_owner_pattern.finditer(create_method))
+    create_refreshes = list(lifecycle_refresh_pattern.finditer(create_method))
+    mode_mutations = list(mode_mutation_pattern.finditer(mode_method))
+    mode_refreshes = list(lifecycle_refresh_pattern.finditer(mode_method))
+
+    create_lifecycle_ordered = (
+        len(create_owner_assignments) == 1
+        and len(create_refreshes) == 1
+        and create_owner_assignments[0].end() <= create_refreshes[0].start()
+    )
+    mode_lifecycle_ordered = (
+        len(mode_mutations) == 1
+        and len(mode_refreshes) == 1
+        and mode_mutations[0].end() <= mode_refreshes[0].start()
+    )
+
+    snapshot_pattern = re.compile(
+        r"\b(?:final\s+)?String\s+modeSnapshot\s*=\s*adamMode\s*;"
+    )
+    decision_pattern = re.compile(
+        r"\bAdamSendActionAccessibilityPolicy\.Decision\s+decision\s*=\s*"
+        r"AdamSendActionAccessibilityPolicy\.decisionFor\s*\(\s*modeSnapshot\s*\)\s*;"
+    )
+    description_pattern = re.compile(
+        r"\badamSendButton\.setContentDescription\s*\(\s*decision\.actionDescription\s*\)\s*;"
+    )
+    visible_pattern = re.compile(
+        r"\badamSendButton\.setText\s*\(\s*decision\.visibleLabel\s*\)\s*;"
+    )
+
+    snapshots = list(snapshot_pattern.finditer(refresh_method))
+    decisions = list(decision_pattern.finditer(refresh_method))
+    descriptions = list(description_pattern.finditer(refresh_method))
+    policy_call_count = len(re.findall(
+        r"\bAdamSendActionAccessibilityPolicy\.decisionFor\s*\(",
+        refresh_method,
+    ))
+    snapshot_assignment_count = _binding_assignment_count(refresh_method, "modeSnapshot")
+    decision_assignment_count = _binding_assignment_count(refresh_method, "decision")
+    owner_mode_assignment_count = _binding_assignment_count(refresh_method, "adamMode")
+
+    immediate_snapshot_decision = False
+    bounded_projection = False
+    if len(snapshots) == 1 and len(decisions) == 1:
+        immediate_snapshot_decision = (
+            snapshots[0].end() <= decisions[0].start()
+            and refresh_method[snapshots[0].end():decisions[0].start()].strip() == ""
+        )
+    if len(decisions) == 1 and len(descriptions) == 1:
+        projection = refresh_method[decisions[0].end():descriptions[0].start()]
+        bounded_projection = re.fullmatch(
+            r"\s*(?:adamSendButton\.setText\s*\(\s*decision\.visibleLabel\s*\)\s*;\s*)?",
+            projection,
+        ) is not None
+
+    exact_temporal_data_flow = (
+        len(snapshots) == 1
+        and len(decisions) == 1
+        and len(descriptions) == 1
+        and policy_call_count == 1
+        and snapshot_assignment_count == 1
+        and decision_assignment_count == 1
+        and owner_mode_assignment_count == 0
+        and immediate_snapshot_decision
+        and bounded_projection
+        and snapshots[0].start() < decisions[0].start() < descriptions[0].start()
+        and len(visible_pattern.findall(refresh_method)) <= 1
+    )
+    policy_reference = create_lifecycle_ordered and mode_lifecycle_ordered and exact_temporal_data_flow
+
+    if policy_reference:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam Send owner assigns the persistent button before create-time refresh, mutates current mode before mode-change refresh, snapshots that mode once, immediately derives one policy Decision, and projects its current visible/semantic action without intervening owner-state mutation or arbitrary executable work",
+            policy,
+            True,
+            True,
+        )
+    if (
+        policy in create_method
+        or policy in refresh_method
+        or "refreshAdamSendAction(" in create_method
+        or "refreshAdamSendAction(" in mode_method
+        or "adamSendButton.setContentDescription(" in refresh_method
+        or "adamSendButton" in create_method
+        or "adamMode" in mode_method
+    ):
+        missing = []
+        if not create_lifecycle_ordered:
+            missing.append("one persistent Send-owner assignment before create-time semantic refresh")
+        if not mode_lifecycle_ordered:
+            missing.append("one current-mode mutation before the mode-change semantic refresh")
+        if not exact_temporal_data_flow:
+            missing.append("one mutation-free current-mode snapshot whose exact policy result drives the action description")
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam Send owner is incomplete: missing " + ", ".join(missing),
+            policy,
+            policy in create_method or policy in refresh_method,
+            exact_temporal_data_flow and create_lifecycle_ordered and mode_lifecycle_ordered,
+        )
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "Send action uses a generic semantic label that does not expose which selected Adam mode will receive the request",
+        policy,
+        False,
+        False,
+    )
+
+
+def classify_request_admission(source: str) -> SeamVerdict:
+    """Classify the native UI request-work throat independently from supporting policy safety.
+
+    SOURCE_WIRED requires one single-assignment detached editable observation, immediate canonical
+    fully-qualified bounded admission used as an unconditional top-level fail-closed return guard,
+    immediate exact detached materialization/trim from that admitted alias, and exactly one request-
+    persistence sink carrying that admitted `text`, in order. The admission guard and materialization
+    must form one mutation-free observation window because Android Editable is aliased mutable state.
+    """
+    owner = _owner_surface(source)
+    send_method = _direct_method_surface(owner, "submitAdamRequest")
+    policy = "AdamSendAvailabilityAccessibilityPolicy"
+
+    source_declaration_pattern = re.compile(
+        r"\bCharSequence\s+editable\s*=\s*adamInput\.getText\s*\(\s*\)\s*;"
+    )
+    source_declarations = list(source_declaration_pattern.finditer(send_method))
+    direct_source_observation_count = send_method.count("adamInput.getText()")
+    editable_assignment_count = _binding_assignment_count(send_method, "editable")
+    single_detached_source_observation = (
+        len(source_declarations) == 1
+        and direct_source_observation_count == 1
+        and editable_assignment_count == 1
+    )
+    source_declaration_index = source_declarations[0].start() if len(source_declarations) == 1 else -1
+
+    policy_call_patterns = (
+        "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)",
+        "AdamSendAvailabilityAccessibilityPolicy.classifyRequest(editable)",
+        "AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable)",
+    )
+    policy_call_count = sum(send_method.count(pattern) for pattern in policy_call_patterns)
+    admission_guard_pattern = re.compile(
+        r"if\s*\(\s*!\s*AdamSendAvailabilityAccessibilityPolicy\.hasMaterialRequest\s*"
+        r"\(\s*editable\s*\)\s*\)\s*(?:\{\s*)?return\s*;(?:\s*\})?"
+    )
+    admission_guards = list(admission_guard_pattern.finditer(send_method))
+    top_level_admission_guards = [
+        match for match in admission_guards if _brace_depth_at(send_method, match.start()) == 1
+    ]
+    single_controlling_guard = len(top_level_admission_guards) == 1 and policy_call_count == 1
+    policy_gate_index = top_level_admission_guards[0].start() if single_controlling_guard else -1
+    immediate_admission = (
+        single_detached_source_observation
+        and single_controlling_guard
+        and source_declarations[0].end() <= policy_gate_index
+        and send_method[source_declarations[0].end():policy_gate_index].strip() == ""
+    )
+    canonical_policy_reference = policy in send_method and single_controlling_guard and immediate_admission
+
+    direct_materialization_count = send_method.count("adamInput.getText().toString()")
+    detached_materialization_count = send_method.count("editable.toString()")
+    materialization_pattern = re.compile(
+        r"\bString\s+text\s*=\s*editable\.toString\s*\(\s*\)\.trim\s*\(\s*\)\s*;"
+    )
+    materializations = list(materialization_pattern.finditer(send_method))
+    text_assignment_count = _binding_assignment_count(send_method, "text")
+    single_detached_materialization = (
+        direct_materialization_count == 0
+        and detached_materialization_count == 1
+        and len(materializations) == 1
+        and text_assignment_count == 1
+    )
+    materialization_index = materializations[0].start() if len(materializations) == 1 else -1
+    immediate_materialization = (
+        single_controlling_guard
+        and single_detached_materialization
+        and top_level_admission_guards[0].end() <= materializations[0].start()
+        and send_method[top_level_admission_guards[0].end():materializations[0].start()].strip() == ""
+    )
+
+    persistence_sink_pattern = re.compile(r"\bOperatorState\.submitAdamRequest\s*\(")
+    persistence_sinks = list(persistence_sink_pattern.finditer(send_method))
+    exact_persistence_pattern = re.compile(
+        r"\bOperatorState\.submitAdamRequest\s*\(\s*this\s*,\s*adamMode\s*,\s*text\s*,"
+    )
+    exact_persistence_calls = list(exact_persistence_pattern.finditer(send_method))
+    exact_text_persistence = len(persistence_sinks) == 1 and len(exact_persistence_calls) == 1
+    submit_index = exact_persistence_calls[0].start() if exact_text_persistence else -1
+
+    ordered = (
+        single_detached_source_observation
+        and canonical_policy_reference
+        and single_detached_materialization
+        and immediate_materialization
+        and exact_text_persistence
+        and source_declaration_index >= 0
+        and policy_gate_index >= 0
+        and materialization_index >= 0
+        and submit_index >= 0
+        and source_declaration_index < policy_gate_index < materialization_index < submit_index
+    )
+
+    if ordered:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam UI request owner observes editable source once, immediately applies one canonical fail-closed admission guard, immediately materializes/trims the same admitted alias before any executable work can mutate it, and has exactly one persistence sink carrying that admitted text",
+            policy,
+            True,
+            True,
+        )
+
+    if policy in send_method or source_declarations or direct_source_observation_count > 0:
+        missing = []
+        if not single_detached_source_observation:
+            missing.append("exactly one single-assignment detached editable source observation")
+        if single_detached_source_observation and single_controlling_guard and not immediate_admission:
+            missing.append("immediate canonical fail-closed admission after source observation")
+        elif not canonical_policy_reference:
+            missing.append("one unconditional top-level canonical fully-qualified fail-closed request-admission policy guard")
+        if not single_detached_materialization:
+            missing.append("exactly one single-assignment post-gate detached trim materialization")
+        elif single_controlling_guard and not immediate_materialization:
+            missing.append("immediate materialization after canonical admission to preserve same-observation content custody")
+        if not exact_text_persistence:
+            missing.append("exactly one request-persistence sink carrying the admitted text variable")
+        if (
+            single_controlling_guard
+            and single_detached_materialization
+            and policy_gate_index >= 0
+            and materialization_index >= 0
+            and policy_gate_index > materialization_index
+        ):
+            missing.append("policy-before-materialization ordering")
+        if submit_index < 0 or (materialization_index >= 0 and submit_index < materialization_index):
+            missing.append("materialization-before-request-persistence ordering")
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam UI request owner is incomplete: missing " + ", ".join(missing),
+            policy,
+            canonical_policy_reference,
+            False,
+        )
+
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "direct Adam UI request owner materializes/trims editable text before consuming the bounded request-admission policy",
+        policy,
+        False,
+        False,
+    )
+
+
+def classify(source: str) -> dict[str, object]:
+    return {
+        "schema": "try-forever-adam-accessibility-owner-probe.v11",
+        "modeSelection": asdict(classify_mode_selection(source)),
+        "inputResult": asdict(classify_input_result(source)),
+        "sendAction": asdict(classify_send_action(source)),
+        "requestAdmission": asdict(classify_request_admission(source)),
+        "capability": {
+            "sourceInspection": True,
+            "regressionExecuted": False,
+            "tested": False,
+            "runtimeUi": False,
+            "runtimeTalkBack": False,
+            "deployed": False,
+            "phoneDelivered": False,
+            "accepted": False,
+        },
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--owner",
+        default=(
+            "android/operator-overlay/app/src/main/java/com/homecenter/"
+            "operatoroverlay/OperatorOverlayService.java"
+        ),
+    )
+    args = parser.parse_args()
+    source = Path(args.owner).read_text(encoding="utf-8")
+    print(json.dumps(classify(source), indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warm Wall — Receipt Identity Fieldset</title>
+<style>
+:root{font:18px/1.45 system-ui,sans-serif}body{margin:0;padding:1rem;max-width:70rem}fieldset{display:grid;gap:.75rem;border:2px solid;padding:1rem}label{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:center;min-height:56px;border:1px solid;padding:.7rem}input{width:24px;height:24px}svg{width:100%;max-height:220px}.scar{border:2px solid;padding:.75rem}#detail{white-space:pre-wrap;border:2px solid;padding:1rem;min-height:5rem}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head>
+<body><main>
+<h1>WARM WALL / FINAL RECEIPT IDENTITY FIELDSET</h1>
+<p class="scar"><strong>SOURCE ONLY.</strong> SUPPORTING FIELDSET GATE: YES · OWNER CONSUMPTION: NO / RED · REGRESSIONS: UNEXECUTED · TESTED: NO · RUNTIME TALKBACK: NO · PHONE/P0: UNTOUCHED · CHRISTMAS BLINK: NO</p>
+<svg viewBox="0 0 920 210" role="img" aria-labelledby="wall-title wall-desc"><title id="wall-title">Receipt identity passes through exact field-set custody before digest trust</title><desc id="wall-desc">The current final owner verifies schemas, capability closure and digest identity, but exact final field-set custody is still only wired in the deeper derivation path. Supporting source prepares the missing identity-level gate.</desc><path d="M35 105H880" stroke="currentColor" stroke-width="5"/><text x="35" y="75">RAW SHA</text><text x="210" y="75">UPSTREAM</text><text x="390" y="75">FIELDSET</text><text x="585" y="75">DIGEST</text><text x="755" y="75">FINAL v4</text><circle cx="75" cy="105" r="18" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="260" cy="105" r="18" fill="none" stroke="currentColor" stroke-width="5"/><rect x="430" y="84" width="75" height="42" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="630" cy="105" r="18" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="805" cy="105" r="18" fill="none" stroke="currentColor" stroke-width="5"/></svg>
+<fieldset><legend>Inspect one custody state</legend>
+<label><input type="radio" name="state" value="valid" checked><span><strong>● EXACT UNION / SOURCE POLICY</strong><br>Self-integrity fields + operator-owned fields + denied-capability fields, exactly.</span></label>
+<label><input type="radio" name="state" value="hitch"><span><strong>× RE-SIGNED HITCHHIKER</strong><br>An undeclared field can currently survive identity-only reverification if the final digest is recomputed.</span></label>
+<label><input type="radio" name="state" value="owner"><span><strong>□ OWNER GATE / RED</strong><br>The exact existing-owner surgery is prepared but not applied.</span></label>
+<label><input type="radio" name="state" value="membrane"><span><strong>◇ CAPABILITY MEMBRANE</strong><br>Source policy and patch provenance are not regression execution, TESTED, runtime, deployment, delivery, or acceptance.</span></label>
+</fieldset>
+<div id="detail" role="status" aria-live="polite" aria-atomic="true">EXACT UNION\nSupporting source closes the intended field vocabulary without creating a second receipt owner.</div>
+<script>
+const detail=document.getElementById('detail');const copy={valid:'EXACT UNION\nSupporting source closes the intended field vocabulary without creating a second receipt owner.',hitch:'RE-SIGNED HITCHHIKER\nDigest equality proves bytes in this envelope, not that an undeclared field belongs in the v4 contract.',owner:'OWNER GATE / RED\nCurrent owner blob 952a7de0… has not yet consumed the identity-level fieldset gate. Prepared surgery remains unapplied.',membrane:'CAPABILITY MEMBRANE\nSupporting source YES. Owner wiring NO. Regressions UNEXECUTED. TESTED/runtime/deployed/callable/executed/delivered/accepted NO. Phone/P0 untouched.'};for(const radio of document.querySelectorAll('input[name=state]'))radio.addEventListener('change',()=>{if(radio.checked)detail.textContent=copy[radio.value]});
+</script>
+</main></body></html>

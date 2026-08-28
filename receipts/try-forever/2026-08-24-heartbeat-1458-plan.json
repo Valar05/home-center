@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestamp": "2026-08-24T14:58:29-05:00",
+  "commission": "Advance independent non-P0 TRY FOREVER fronts without consuming or mutating the P0/phone chain.",
+  "currentPrHeadObserved": "872cf19c7f85697312665e539efa8402110f2f48",
+  "firewall": {
+    "phoneP0Consumption": false,
+    "phoneP0Mutation": false,
+    "duplicateArchitecture": false
+  },
+  "fronts": [
+    {
+      "id": "final-receipt-snapshot-custody",
+      "goal": "Make final-v4 identity verification consume one immutable receipt mapping snapshot before semantic and digest checks.",
+      "reason": "The current owner accepts arbitrary Mapping and reads get/keys before later dict materialization, permitting a stateful Mapping to present different values to semantic checks and the signed payload."
+    },
+    {
+      "id": "raw-evidence-snapshot-custody",
+      "goal": "Make raw linkage and derivation verification consume one immutable raw-evidence snapshot across schema, SHA, and derivation checks.",
+      "reason": "Raw Mapping evidence is currently re-read across linkage and derivation boundaries; one call must not validate one observation and derive from another."
+    },
+    {
+      "id": "hostile-regression",
+      "goal": "Add stateful-Mapping regressions proving capability and raw-evidence value flipping fails closed after snapshot custody."
+    },
+    {
+      "id": "durable-skill",
+      "goal": "Harvest reusable operator-receipt snapshot-custody doctrine with explicit source/test/runtime/phone membrane."
+    },
+    {
+      "id": "review-and-evidence",
+      "goal": "Run code-first Regnet review, bounded Venice completion judgment, exact GitHub readback, and workflow evidence without recycling stale failure causes."
+    }
+  ],
+  "lightsConsidered": {
+    "failureIsTheShovel": "active",
+    "canonAutoSelect": "active",
+    "originalityTax": "active",
+    "hungerEatEverything": "active",
+    "operatorCampaignHarroway": "active",
+    "regnet": "active",
+    "venice": "active",
+    "sheRaw": "faulted-account-connection-http-400",
+    "accessibilityTalkBackTouch": "constraint-only unless operator-facing topology changes",
+    "warmWallsVectorArt": "dark unless source topology becomes meaningfully inspectable",
+    "christmasMotion": "dark unless transition semantics change",
+    "autocorrect": "dark unless ambiguity appears",
+    "phoneRuntimeHandsP0": "firewalled-dark"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": false,
+    "regressionSource": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "TRY FOREVER heartbeat: advance multiple independent non-phone source fronts while the P0/primary-phone firewall remains binding; only materially consequential skill lights may illuminate.",
+  "repository": "Valar05/home-center",
+  "base": "main",
+  "head": "feat/heartbeat-skill-lights-20260815",
+  "evidenceHeadBeforeExecution": "308923bab6db0f0cd6de4e3ac363f65d30543b71",
+  "timestamp": "2026-08-15T19:57:03Z",
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "The commissioned non-phone scope, P0 ownership firewall, evidence standard, and delivery surface are binding."
+    },
+    {
+      "id": "heartbeat-skill-lights",
+      "source": "skills/heartbeat-skill-lights/SKILL.md",
+      "why": "The current source boundary includes a duplicated ingress-size contract and needs exact contact/evidence semantics without runtime theater."
+    },
+    {
+      "id": "execution-truth",
+      "source": "skills/execution-truth/SKILL.md",
+      "why": "Repository source/readback must remain separate from tested, rendered, deployed, callable, executed, delivered, and accepted capability."
+    },
+    {
+      "id": "fortress-plan-gate",
+      "source": "skills/fortress-plan-gate/SKILL.md",
+      "why": "This pulse mutates repository source and requires an explicit pre-execution plan and durable review receipts."
+    },
+    {
+      "id": "regnet-qa",
+      "source": "skills/renee-qa/SKILL.md",
+      "why": "Shared-contract and recovery semantics require failure-path review before the pulse may yield."
+    }
+  ],
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "antagonism": [
+    "Do not wire or exercise the gated primary-phone surface, P0 queue, Nightcore, Pocket TTS, Chromium, Context Organs, or recovery owners.",
+    "Do not create a neighboring overlay controller, renderer, phone ingress path, or recovery daemon.",
+    "Eliminate duplicated protocol limits without making the pure semantic projection depend on Android runtime state.",
+    "Do not treat a timestamp as trustworthy merely because it is positive; if rollback protection is added, it must preserve last-good contact and remain source-only.",
+    "Do not claim regression source as executed tests while Actions remains budget-blocked.",
+    "Do not add a decorative specimen when an existing warm-wall organism can be surgically extended."
+  ],
+  "plan": [
+    "Front A — Shared ingress contract: introduce one tiny pure-Java heartbeat ingress contract for the canonical payload byte ceiling and compose both OperatorState persistence and HeartbeatPersistedEnvelopeProjection from it, removing the 32768 drift risk without creating a controller or runtime owner.",
+    "Front B — Persistence idempotence/rollback source: inspect the persisted projection contract and, only if a clean pure-source seam exists, reject a stored update identity older than an explicitly supplied last-accepted update identity while preserving last-good contact and clamping motion; exact retry/equality must remain non-destructive.",
+    "Front C — Regression/accessibility source: add or strengthen deterministic JVM fixtures for shared-limit equality and any rollback semantics; inspect visible/touch semantics for a concrete defect before changing them, and leave the front dark if no defect is found.",
+    "Front D — Warm-wall art in place: mutate the existing motion-clamp/contact-preservation specimen only if the source semantics gained a materially teachable state such as persisted rollback; preserve native DOM controls, keyboard reachability, >=48px targets, non-color state semantics, reduced-motion behavior, and explicit SOURCE ONLY scarring.",
+    "Front E — Doctrine/evidence/review: update the heartbeat doctrine only where the source contract changes, perform exact GitHub readback, inspect automatically triggered CI without manually retrying an unchanged blocker, persist Regnet/Venice/swarm receipts, and preserve zero P0/phone mutations."
+  ],
+  "outsideScope": [
+    "primary-phone execution or Phone Hands",
+    "queue/device probes or mutations",
+    "P0 Fortress recovery orchestration",
+    "Nightcore, Pocket TTS, Chromium, Context Organs",
+    "new overlay controller, recovery daemon, phone ingress path, or P0 coordinator",
+    "merging PR #329 as delivered capability"
+  ],
+  "acceptance": [
+    "The heartbeat payload byte ceiling has one canonical pure-source definition consumed by both persistence and pure projection code.",
+    "Any newly added persisted-update rollback rule is explicit, source-only, contact-preserving, and regression-covered without silently changing runtime ownership.",
+    "No accessibility or art light illuminates unless a concrete semantic consequence changes.",
+    "Exact GitHub readback proves source identity; automated CI evidence is reported exactly and is not manually retried under an unchanged budget blocker.",
+    "P0/phone mutations remain zero and source progress does not promote runtime/deployment/delivery capability states."
+  ],
+  "veniceDirective": "PLAN_ALLOWED"
+}

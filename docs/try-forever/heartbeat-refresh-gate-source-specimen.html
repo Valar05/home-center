@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRY FOREVER — Heartbeat Refresh Gate</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #17191e; color: #f5f1e8; display: grid; place-items: center; padding: 20px; }
+  main { width: min(980px, 100%); border: 1px solid #6f7788; border-radius: 22px; padding: 18px; background: #20232a; box-shadow: inset 0 0 0 6px #292d35; }
+  h1 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: .08em; }
+  .scar { margin: 0 0 16px; font-size: .78rem; opacity: .82; }
+  .wall { position: relative; min-height: 310px; border: 1px solid #596271; border-radius: 18px; overflow: hidden; background: #1b1e24; }
+  svg { width: 100%; height: 310px; display: block; }
+  .controls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 14px; }
+  button { min-height: 48px; min-width: 48px; border-radius: 14px; border: 1px solid #788394; background: #2a2f38; color: inherit; font: inherit; padding: 8px 12px; }
+  button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+  .readout { margin-top: 14px; display: grid; grid-template-columns: repeat(8,1fr); gap: 8px; }
+  .meter { border: 1px solid #505866; border-radius: 12px; padding: 10px; min-height: 78px; }
+  .meter b { display: block; font-size: 1.35rem; }
+  #detail { margin: 12px 0 0; min-height: 48px; border-left: 4px solid #778294; padding: 8px 12px; }
+  @media (max-width: 900px) { .readout { grid-template-columns: repeat(4,1fr); } }
+  @media (max-width: 620px) { .controls, .readout { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>WARM WALL / CANONICAL BASE64 ≠ DECODER-ACCEPTED BASE64</h1>
+  <p class="scar">REFRESH/VIEWPORT OWNER SOURCE WIRED • EXACT SHA SOURCE HARDENED • BASE64 CANONICALITY POLICY SOURCE YES • OWNER BASE64 GATE NO • RUNTIME UNPROVEN • TALKBACK UNPROVEN • NOT PHONE DELIVERY</p>
+
+  <section class="wall" aria-label="Heartbeat refresh gate with exact persisted Base64 and SHA declarations, checkpoint, presentation, structure, speech-history, spoken-output, viewport, and restore identities">
+    <svg viewBox="0 0 940 310" role="img" aria-labelledby="title desc">
+      <title id="title">Heartbeat refresh identities and persisted integrity declarations are separate</title>
+      <desc id="desc">Persisted heartbeat contact enters the existing Operator Overlay owner. The writer's exact Base64 declaration, decoded payload bytes, byte count, canonical SHA metadata, exact contact, presentation, native structure, announcement history, audible speech, viewport anchor, and pending restore generation have different jobs. Decoder acceptance does not prove that the stored Base64 text is the exact writer encoding. A decoder-normalized alias must fail the exact round-trip source policy, preserve last-good contact, and earn no motion. Existing Android owner consumption of that new gate remains unproven.</desc>
+      <path d="M22 148 H142" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+      <path d="M798 148 H918" stroke="currentColor" stroke-width="4" fill="none"/>
+      <rect x="142" y="20" width="656" height="254" rx="30" fill="none" stroke="currentColor" stroke-width="3"/>
+      <text x="470" y="48" text-anchor="middle" fill="currentColor" font-size="17">EXISTING OPERATOR OVERLAY OWNER</text>
+      <text x="470" y="74" text-anchor="middle" fill="currentColor" font-size="14">raw Base64 declaration → decoded bytes + exact metadata → scene → checkpoint/presentation → model → service</text>
+      <text x="470" y="104" text-anchor="middle" fill="currentColor" font-size="13">INTEGRITY → SHA is exact; Base64 must equal writer-equivalent re-encoding, never decoder-normalized</text>
+      <text x="470" y="129" text-anchor="middle" fill="currentColor" font-size="13">EXACT CONTACT → evidence/checkpoint truth, including accepted pulse id</text>
+      <text x="470" y="154" text-anchor="middle" fill="currentColor" font-size="13">PRESENTATION → visible/touchable content work; invisible pulse id alone stays quiet</text>
+      <text x="470" y="179" text-anchor="middle" fill="currentColor" font-size="13">STRUCTURE → ordered semantic ids decide native child replacement</text>
+      <text x="470" y="204" text-anchor="middle" fill="currentColor" font-size="13">SPEECH HISTORY → semantic transition identity advances even while silent</text>
+      <path d="M250 224 H690" stroke="currentColor" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
+      <text x="470" y="246" text-anchor="middle" fill="currentColor" font-size="13">VIEWPORT/RESTORE → generation + semantic owner + old viewport offset</text>
+      <text x="470" y="266" text-anchor="middle" fill="currentColor" font-size="12">BASE64 ALIAS: PROJECT • DECODE • ROUNDTRIP REJECT • CONTACT HELD • MOTION NO</text>
+      <circle cx="54" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="886" cy="148" r="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="54" y="188" text-anchor="middle" fill="currentColor" font-size="13">POLL</text>
+      <text x="886" y="188" text-anchor="middle" fill="currentColor" font-size="13">NATIVE</text>
+    </svg>
+  </section>
+
+  <div class="controls" aria-label="Refresh gate source controls">
+    <button type="button" data-action="poll">· Exact retry — nothing changes</button>
+    <button type="button" data-action="shaPoison">× SHA whitespace poison — PROJECT then fail closed</button>
+    <button type="button" data-action="base64Poison">× Base64 alias — decoder accepts, exact round-trip rejects</button>
+    <button type="button" data-action="pulse">◇ New pulse id — checkpoint advances, presentation still</button>
+    <button type="button" data-action="evidence">◇ Evidence refresh — same Buttons, new detail</button>
+    <button type="button" data-action="state">● Visible state change — history + one spoken transition</button>
+    <button type="button" data-action="collapsed">□ Collapsed heartbeat — owner passes surface=false</button>
+    <button type="button" data-action="expand">◇ Expand after collapsed transition — no stale replay</button>
+    <button type="button" data-action="reorder">↕ Reorder — rebuild with surviving semantic anchor</button>
+    <button type="button" data-action="viewport">↔ Width shift — stable-structure restore ticket</button>
+    <button type="button" data-action="rebuildAnchor">◇ Rebuild keeps semantic id — owner consumes ticket</button>
+    <button type="button" data-action="supersede">× Later selection — generation invalidates pending restore</button>
+    <button type="button" data-action="focusMove">↹ Keyboard focus moves — same-generation owner invalidates</button>
+    <button type="button" data-action="wound">× Wound — last-good contact, wound changes once</button>
+    <button type="button" data-action="muted">□ Muted transition — history advances, spoken stays still</button>
+    <button type="button" data-action="drift">× Live child/tag drift — fallback rebuild keeps ticket path</button>
+  </div>
+
+  <div class="readout" aria-label="Gate counters and capability state">
+    <div class="meter">polls<b id="polls">0</b></div>
+    <div class="meter">checkpoint advances<b id="checkpoints">0</b></div>
+    <div class="meter">structure rebuilds<b id="structures">0</b></div>
+    <div class="meter">content refreshes<b id="contents">0</b></div>
+    <div class="meter">speech history advances<b id="speechHistory">0</b></div>
+    <div class="meter">spoken outputs<b id="spoken">0</b></div>
+    <div class="meter">restore tickets<b id="anchors">0</b></div>
+    <div class="meter">stale/owner-lost tickets<b id="staleDrops">0</b></div>
+  </div>
+  <p id="detail" role="status" aria-live="polite">Touch a source control. Exact persisted declaration truth, decoded payload truth, presentation work, semantic speech history, and audible output are intentionally separate; source policy is real, Android owner/runtime/TalkBack proof is not.</p>
+</main>
+<script>
+(() => {
+  const state = {
+    polls: 0,
+    checkpoints: 0,
+    structures: 0,
+    contents: 0,
+    speechHistory: 0,
+    spoken: 0,
+    anchors: 0,
+    staleDrops: 0,
+    generation: 0,
+    pendingGeneration: 0,
+    woundOpen: false,
+    collapsedTransitionPending: false
+  };
+  const $ = id => document.getElementById(id);
+  const render = message => {
+    $('polls').textContent = state.polls;
+    $('checkpoints').textContent = state.checkpoints;
+    $('structures').textContent = state.structures;
+    $('contents').textContent = state.contents;
+    $('speechHistory').textContent = state.speechHistory;
+    $('spoken').textContent = state.spoken;
+    $('anchors').textContent = state.anchors;
+    $('staleDrops').textContent = state.staleDrops;
+    $('detail').textContent = message;
+  };
+  const supersedeRestoreOwnership = () => {
+    state.generation += 1;
+    if (state.pendingGeneration && state.pendingGeneration !== state.generation) {
+      state.staleDrops += 1;
+      state.pendingGeneration = 0;
+    }
+  };
+  const issueRestoreTicket = () => {
+    state.anchors += 1;
+    state.pendingGeneration = state.generation;
+  };
+  document.querySelectorAll('button[data-action]').forEach(button => {
+    button.addEventListener('click', () => {
+      state.polls += 1;
+      switch (button.dataset.action) {
+        case 'poll':
+          render('Exact retry. Exact checkpoint, presentation, structure, speech history, spoken output, viewport geometry, and restore ownership remain still. Nothing earns work.');
+          break;
+        case 'shaPoison':
+          if (!state.woundOpen) state.contents += 1;
+          state.woundOpen = true;
+          render('The persisted SHA text changed only by surrounding whitespace. Exact poll identity therefore says PROJECT, not SKIP_UNCHANGED. The raw canonicality gate rejects it before semantic parsing, preserves last-good contact, clamps motion, and never trims corruption into accepted evidence.');
+          break;
+        case 'base64Poison':
+          if (!state.woundOpen) state.contents += 1;
+          state.woundOpen = true;
+          render('The raw persisted Base64 declaration changed into a decoder-tolerated alias such as ignored whitespace or missing padding. Decoded bytes and SHA may still match, so exact writer-equivalent round-trip identity is a separate gate. Policy source says reject the alias and preserve contact with no motion. Existing Android owner consumption of this new gate is still NO.');
+          break;
+        case 'pulse':
+          state.checkpoints += 1;
+          state.woundOpen = false;
+          render('A new accepted pulse id arrived with the identical presented/touchable surface. Exact contact/checkpoint identity advances; presentation, structure, speech history, spoken output, and viewport work stay still.');
+          break;
+        case 'evidence':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          issueRestoreTicket();
+          render('Evidence changed. Existing semantic Buttons refresh in place. A generation-bound viewport restore may run; evidence-only change earns neither new semantic speech history nor audible speech.');
+          break;
+        case 'state':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          state.speechHistory += 1;
+          state.spoken += 1;
+          issueRestoreTicket();
+          state.woundOpen = false;
+          state.collapsedTransitionPending = false;
+          render('A semantic transition arrived while the existing details subtree is visible. OperatorOverlayService passes root=true and heartbeatSurface=true; announcement history advances and one audible output is allowed by source policy.');
+          break;
+        case 'collapsed':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          state.speechHistory += 1;
+          state.collapsedTransitionPending = true;
+          state.woundOpen = false;
+          render('The overlay root is visible but applyPresentationState made the existing details subtree GONE. OperatorOverlayService source passes heartbeatSurface=false into the five-argument gate. Announcement history advances; audible output stays still. Android/TalkBack runtime behavior remains unproven.');
+          break;
+        case 'expand':
+          if (state.collapsedTransitionPending) state.collapsedTransitionPending = false;
+          render('The existing details subtree becomes visible again after a collapsed transition whose announcement identity was already remembered. No new semantic transition exists, so no stale speech is replayed.');
+          break;
+        case 'reorder':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.structures += 1;
+          state.contents += 1;
+          issueRestoreTicket();
+          state.woundOpen = false;
+          render('Ordered semantic ids changed. The existing owner captures a surviving semantic anchor before replacing children, then revalidates and restores its bounded viewport offset after layout. Source wired; runtime proof still absent.');
+          break;
+        case 'viewport':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          issueRestoreTicket();
+          state.woundOpen = false;
+          render('A preceding label widened. Existing service source captures a visible semantic owner and restores bounded viewport offset on pre-draw. Android runtime viewport/TalkBack evidence remains NO.');
+          break;
+        case 'rebuildAnchor':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.structures += 1;
+          state.contents += 1;
+          issueRestoreTicket();
+          render('The semantic id survives a changed structure. OperatorOverlayService consumes the generation-bound restore ticket path for structural rebuilds. Existing-owner source wiring YES; Android execution/runtime observation NO.');
+          break;
+        case 'supersede':
+          supersedeRestoreOwnership();
+          render('A later explicit semantic selection or presentation mutation advances restore generation. Any older pending ticket is stale and must be inert before it can move the viewport.');
+          break;
+        case 'focusMove':
+          if (state.pendingGeneration) {
+            state.staleDrops += 1;
+            state.pendingGeneration = 0;
+          }
+          render('Direct keyboard focus moved while generation stayed the same. Callback revalidation kills stale viewport ownership without inventing TalkBack focus or another heartbeat generation.');
+          break;
+        case 'wound':
+          if (!state.woundOpen) {
+            state.contents += 1;
+            state.speechHistory += 1;
+            state.spoken += 1;
+          }
+          state.woundOpen = true;
+          render('Rejected refresh. Last-good exact contact remains; interruption presentation changes once and repeated identical wounds stay quiet.');
+          break;
+        case 'muted':
+          supersedeRestoreOwnership();
+          state.checkpoints += 1;
+          state.contents += 1;
+          state.speechHistory += 1;
+          issueRestoreTicket();
+          state.woundOpen = false;
+          render('Material transition while muted. Existing Buttons may refresh and semantic announcement history advances, but spoken output stays still so unmuting cannot replay stale speech.');
+          break;
+        case 'drift':
+          supersedeRestoreOwnership();
+          state.structures += 1;
+          state.contents += 1;
+          issueRestoreTicket();
+          state.woundOpen = false;
+          render('Live child count/order/tag no longer matches deterministic structure. In-place mutation is refused; the existing owner falls back to canonical rebuild while preserving the generation-bound semantic viewport ticket path.');
+          break;
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

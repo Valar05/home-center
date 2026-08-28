@@ -1,0 +1,47 @@
+{
+  "schema": "regnet.source_review.v1",
+  "heartbeat": "2026-08-16-1800",
+  "claim_under_review": "Case-only semantic light-id drift advances exact checkpoint evidence without earning presentation/render/structure/announcement/native-motion work when every presented semantic field is otherwise unchanged.",
+  "reviewed_source_head": "e2c2b44e840a6fb905a709175b47557ccf69d406",
+  "exact_source_readback": {
+    "HeartbeatFrameCheckpoint.java": "f7ba3eca79e7ef7cc7e86b3cc718be29d84225d3",
+    "HeartbeatFrameCheckpointTest.java": "9cafe5f9dca4733e0334d9b40cd8c79d93b9bc99",
+    "HeartbeatSemanticIdCaseDedupTest.java": "d1fdd99d6556e10a9d0e92771fde71ebd49fcef0",
+    "skills/heartbeat-refresh-deduplication/SKILL.md": "04b95e79f7e0b0f4d9b2ca1055fcab8fac6cb11e",
+    "docs/try-forever/heartbeat-motion-clamp-source-specimen.html": "89bf045643bb38e0daf67e192ed4a06e8089fc91"
+  },
+  "checks": {
+    "exact_checkpoint_preserves_source_id_case": "PASS_SOURCE_REVIEW",
+    "presentation_identity_folds_only_semantic_id_case": "PASS_SOURCE_REVIEW",
+    "visible_spoken_touchable_fields_remain_exact": "PASS_SOURCE_REVIEW",
+    "structure_identity_remains_case_insensitive": "PASS_EXISTING_SOURCE_READBACK",
+    "announcement_identity_remains_transition_based": "PASS_EXISTING_SOURCE_READBACK",
+    "case_only_drift_regression_source": "PASS_SOURCE_PRESENT",
+    "no_duplicate_overlay_or_renderer": "PASS",
+    "p0_phone_firewall": "PASS_ZERO_MUTATION",
+    "deterministic_execution": "BLOCKED_ACTIONS_BUDGET"
+  },
+  "ci_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31978235416,
+    "job_id": 95240854272,
+    "head_sha": "e2c2b44e840a6fb905a709175b47557ccf69d406",
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capability": {
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS_FOR_BOUNDED_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_ONLY",
+  "next_gate": "Do not promote source fixtures or identity reasoning into test/runtime/delivery evidence while Actions execution remains blocked."
+}

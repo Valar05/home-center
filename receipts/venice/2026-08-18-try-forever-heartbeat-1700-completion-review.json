@@ -1,0 +1,31 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-18-1700",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+  "quality": "mixed",
+  "boundedClaim": "four previously-proposed provenance gates are now composed into the existing owner with exact authenticated readback, regression source, doctrine/provenance convergence and accessible source-art truth",
+  "passes": [
+    "existing owner preserved",
+    "identity-set ambiguity fails closed before per-file authority",
+    "generated-index byte/strict-UTF8 ingress precedes semantic parsing",
+    "generated-index aliases reject typed ambiguity instead of first-wins",
+    "final root identity is revalidated after per-file authority work",
+    "patch provenance and four directly affected skills no longer claim unapplied owner wiring",
+    "Warm Wall now says OWNER SOURCE WIRED while retaining TESTED/RUNTIME/PHONE boundaries",
+    "phone/P0 firewall held at zero",
+    "no duplicate architecture"
+  ],
+  "blocks": [
+    "TESTED remains NO because exact-head workflows failed with no established step-level cause",
+    "runtime UI/TalkBack/deployment/callability/execution/delivery/acceptance remain NO",
+    "true atomic cross-platform root/file binding remains open"
+  ],
+  "processScars": [
+    "She-Raw consultation failed with account-connection HTTP 400; no synthetic replacement was used",
+    "automatic CI failure was not retried and no stale cause was copied forward"
+  ],
+  "sourceHead": "ffbb304076d9f931b68411cea3b5983225a0dbc2",
+  "ownerCommit": "8603d51710d5147a5a7163dce05d9a998cf88557",
+  "ownerBlob": "51e6efdbcec03d044ab89f37213659252514856a",
+  "nextDirection": "Leave these four owner seams dark unless evidence changes; bite a materially different non-P0 provenance/accessibility wound rather than polishing them."
+}

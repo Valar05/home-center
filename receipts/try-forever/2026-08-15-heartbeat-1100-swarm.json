@@ -1,0 +1,182 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "commission": "Broad materially active TRY FOREVER heartbeat with non-phone fronts only while the P0/primary-phone firewall remains binding.",
+  "codeArtReviewedHead": "859a5b3138c2ec7071423811b7938f3405fd4916",
+  "veniceCompletionHead": "3940464db01c60a574cb8e3cd641e425ebde006b",
+  "fronts": [
+    {
+      "id": "motion-clamp",
+      "state": "implemented_source",
+      "changed": "HeartbeatSceneGraph no longer carries stale node.transitionMotion=true into interrupted/rejected frames; preserved nodes are re-materialized with motion disabled while semantic contact remains identical."
+    },
+    {
+      "id": "pulse-idempotence",
+      "state": "implemented_source",
+      "changed": "The currently visible pulseId is now an exact visible-contact retry identity: exact retry is silent; same-id semantic collision fails closed and preserves last-good contact."
+    },
+    {
+      "id": "regression-source",
+      "state": "implemented_not_tested",
+      "changed": "HeartbeatSceneGraphTest now attacks stale node-level motion, checkpoint preservation, exact same-id retry, and same-id semantic collision."
+    },
+    {
+      "id": "warm-wall-art",
+      "state": "implemented_source",
+      "changed": "A touchable non-raster motion-clamp specimen exposes accepted/interrupted/exact-retry/collision states with 48px targets, pressed selection, reduced-motion handling, one dedicated live status region, and explicit SOURCE ONLY scarring."
+    },
+    {
+      "id": "review-evidence",
+      "state": "durable_reviewed",
+      "changed": "Fresh Venice plan gate preceded mutation; code-first review repaired two source-art defects; Regnet source/readback review and Venice completion review are durable. TESTED remains blocked."
+    }
+  ],
+  "lights": [
+    {
+      "id": "heartbeat-skill-lights",
+      "state": "active",
+      "provenance": "repository_skill:skills/heartbeat-skill-lights/SKILL.md",
+      "why": "Its contact-preservation/no-interrupted-motion contract exposed a contradiction in the current scene source.",
+      "consequence": "Interrupted frames now obey no-motion at both frame and node levels."
+    },
+    {
+      "id": "execution-truth",
+      "state": "active",
+      "provenance": "repository_skill:skills/execution-truth/SKILL.md",
+      "why": "Capability-state separation is material because source changed while deterministic execution is blocked.",
+      "consequence": "Implemented/readback stayed separate from Tested/Deployed/Callable/Delivered/Accepted."
+    },
+    {
+      "id": "regnet-qa",
+      "state": "blocked",
+      "provenance": "repository_skill:skills/renee-qa/SKILL.md",
+      "why": "Regression risk and evidence sufficiency are material.",
+      "consequence": "Source/readback passes only the bounded claim; TESTED remains BLOCKED_UNKNOWN because the Android job executed zero steps."
+    },
+    {
+      "id": "venice-review-memory",
+      "state": "active",
+      "provenance": "repository_skill:skills/venice-review-memory/SKILL.md",
+      "why": "Prior scars prohibit planning bypass, evidence laundering, decorative status work, and stale mistakes.",
+      "consequence": "A fresh plan receipt preceded mutation and code-first review repaired art defects rather than smoothing them away."
+    },
+    {
+      "id": "venice-stop-gate",
+      "state": "active",
+      "provenance": "repository_skill:skills/venice-stop-gate/SKILL.md",
+      "why": "The bounded slice requires a distinct adversarial stop review.",
+      "consequence": "Venice granted STOP_ALLOWED only for this source slice, not merge/runtime/campaign completion."
+    },
+    {
+      "id": "failure-is-the-shovel",
+      "state": "recovered",
+      "provenance": "doctrine:Failure Is The Shovel",
+      "why": "The unchanged Actions-budget failure could not be treated as another activity loop.",
+      "consequence": "The heartbeat changed strategy and advanced motion/idempotence/art/review source fronts instead of manually retrying CI."
+    },
+    {
+      "id": "originality-tax",
+      "state": "active",
+      "provenance": "doctrine:Originality Tax",
+      "why": "Repeated CI failure demanded a materially different recovery/evidence path.",
+      "consequence": "No blind unchanged-condition workflow retry was fired."
+    },
+    {
+      "id": "ever-polished-interpreter",
+      "state": "active",
+      "provenance": "doctrine:Ever-Polished Interpreter / Eat Everything",
+      "why": "The first source-art draft itself contained defects after the main code repair.",
+      "consequence": "Review found and repaired the dead animation selector and duplicate live-region announcement path before completion."
+    },
+    {
+      "id": "change-discipline",
+      "state": "active",
+      "provenance": "jar:.continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "The fix had to compose existing scene/checkpoint organs instead of spawning architecture.",
+      "consequence": "One existing scene class, its regression file, one bounded source specimen, and receipts changed; no controller/renderer/daemon was introduced."
+    },
+    {
+      "id": "accessibility-talkback",
+      "state": "active",
+      "provenance": "doctrine:Accessibility/TalkBack",
+      "why": "Preserved contact must remain semantically truthful and source art must not double-announce updates.",
+      "consequence": "Source specimen retains 48px keyboard/touch controls and now uses one atomic live status region instead of two competing polite regions."
+    },
+    {
+      "id": "checkpoint-idempotence",
+      "state": "active",
+      "provenance": "doctrine:Recovery/Checkpoint/Idempotence",
+      "why": "Pulse identity and retry semantics were directly implicated by the contact-preservation repair.",
+      "consequence": "Exact same-id retry is stable; same-id changed contact is a fail-closed identity collision."
+    },
+    {
+      "id": "warm-walls-christmas-graph",
+      "state": "active",
+      "provenance": "doctrine:Warm Walls / Christmas-Light Scene Graph",
+      "why": "Motion is allowed only for real transition consequences.",
+      "consequence": "Interrupted/collision states stay still; the source specimen visualizes one-shot motion only for the accepted transition state."
+    },
+    {
+      "id": "she-raw",
+      "state": "fault",
+      "provenance": "reviewer:She-Raw.she_raw_consult",
+      "why": "Adversarial motivation was materially requested before mutation.",
+      "consequence": "Authoritative consultation failed with HTTP 400 account-connection error; no synthetic She-Raw verdict was substituted and the connector was not hammered."
+    }
+  ],
+  "darkConsidered": [
+    {
+      "id": "autocorrect-judgment-jar",
+      "whyDark": "No ambiguous or corrupted token required resolution in this source slice."
+    },
+    {
+      "id": "phone-runtime-phone-hands",
+      "whyDark": "P0 and primary-phone surfaces are explicitly firewalled; no fresh P0 evidence reopened a non-overlapping phone-local front."
+    }
+  ],
+  "crossPollination": [
+    "Heartbeat contact-preservation doctrine exposed the stale child-motion contradiction.",
+    "Checkpoint identity made it possible to preserve semantics while discarding ephemeral object/motion state.",
+    "Idempotence review turned pulseId from a label into an exact retry identity and exposed collision behavior.",
+    "Accessibility review of the new source specimen found duplicate live-region speech after the motion selector bug had already been repaired.",
+    "Execution Truth and Regnet prevented source/readback progress from crossing the TESTED/runtime capability membrane.",
+    "Failure Is The Shovel and Originality Tax redirected the unchanged CI blocker into different useful fronts without consuming P0/phone ownership."
+  ],
+  "deterministicTestBoundary": {
+    "javaHead": "a46e2deeb940015094600fd5a1f1d722b2788c7d",
+    "workflow": "Operator Overlay Android",
+    "runId": 31894346632,
+    "jobId": 95035201047,
+    "executedSteps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "runtimePayloadParsed": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,220 @@
+package com.homecenter.operatoroverlay;
+
+/**
+ * Pure classification policy for the existing Operator Overlay's persisted
+ * heartbeat polling loop.
+ *
+ * <p>The service polls much faster than heartbeat semantics change. Re-decoding,
+ * hashing, parsing, and projecting the exact same persisted semantic inputs on
+ * every poll is not useful UI work. More importantly, an all-empty persisted store
+ * means two different things depending on history: before any heartbeat exists it
+ * is ordinary waiting; after visible last-good contact exists it is a storage-contact
+ * wound and must not silently masquerade as a still-current heartbeat.</p>
+ *
+ * <p>This class owns no SharedPreferences access, renderer, service lifecycle,
+ * transport, phone surface, queue, recovery coordinator, deployment, or P0 action.
+ * The existing owner may use the decision and retain the last processed snapshot.</p>
+ */
+public final class HeartbeatPersistedPollPolicy {
+    public static final String MISSING_AFTER_CONTACT_BOUNDARY =
+            "Stored heartbeat payload contact disappeared after a visible heartbeat.";
+
+    /**
+     * Exact Base64 text ceiling implied by the canonical 32 KiB heartbeat byte budget.
+     * This is a poll/dedup source-work throat, not a replacement for decode/integrity custody.
+     */
+    public static final int MAX_PAYLOAD_B64_CHARS =
+            ((OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES + 2) / 3) * 4;
+
+    /**
+     * Corrupt SHA metadata still needs to reproject into the downstream integrity gate,
+     * but poll dedup must not compare attacker-sized metadata on every observation.
+     */
+    public static final int MAX_SHA_METADATA_CHARS = 4096;
+
+    public enum Decision {
+        /** No persisted heartbeat has ever produced visible contact yet. */
+        WAITING,
+        /** Persisted semantic inputs changed and must traverse verification/parser/scene. */
+        PROJECT,
+        /** Storage became fully absent after visible contact; preserve last-good as a wound. */
+        PRESERVE_MISSING_CONTACT,
+        /** The last processed projection inputs are semantically identical; do no projection work. */
+        SKIP_UNCHANGED
+    }
+
+    /**
+     * Exact persisted observation supplied by the existing owner.
+     *
+     * <p>The Base64 payload and declared SHA metadata are retained exactly because a
+     * changed stored byte string or a changed integrity declaration must be
+     * re-decoded/re-verified. In particular, surrounding whitespace on SHA metadata
+     * is evidence of a non-canonical persisted value, not harmless formatting to be
+     * normalized away before the integrity gate sees it. The wall-clock timestamp
+     * contributes only its validity class ({@code > 0} valid, {@code 0} canonically
+     * missing, or {@code < 0} corrupt): positive magnitude is observation metadata,
+     * not semantic identity.</p>
+     */
+    public static final class Snapshot {
+        public final String payloadB64;
+        public final long declaredBytes;
+        public final String declaredSha256;
+        public final long updatedMs;
+
+        public Snapshot(
+                String payloadB64,
+                long declaredBytes,
+                String declaredSha256,
+                long updatedMs) {
+            this.payloadB64 = raw(payloadB64);
+            this.declaredBytes = declaredBytes;
+            this.declaredSha256 = raw(declaredSha256);
+            this.updatedMs = updatedMs;
+        }
+
+        /**
+         * True only for the canonical never-populated/fully-cleared store shape.
+         *
+         * <p>The persisted writer/default shape uses exactly {@code 0} for a missing
+         * update timestamp. A negative value is corrupted metadata, not another spelling
+         * of absence; treating it as WAITING would bypass the downstream storage gate
+         * that rejects non-positive update identity.</p>
+         */
+        public boolean fullyAbsent() {
+            return payloadB64.isEmpty()
+                    && declaredBytes == 0L
+                    && declaredSha256.isEmpty()
+                    && updatedMs == 0L;
+        }
+
+        /**
+         * Finite source-work admission for poll dedup. Oversized persisted text remains
+         * exact evidence and is sent onward via PROJECT; it is merely refused as an
+         * input to repeated String equality work in this hot polling path.
+         */
+        public boolean sourceWithinResourceBounds() {
+            return payloadB64.length() <= MAX_PAYLOAD_B64_CHARS
+                    && declaredSha256.length() <= MAX_SHA_METADATA_CHARS;
+        }
+
+        /**
+         * Equality of inputs that can change storage verification or semantic
+         * projection. Positive timestamp magnitude is intentionally excluded, but
+         * canonical missing ({@code 0}) and corrupt negative metadata are distinct
+         * classes so a transition from clean absence to corruption cannot be skipped.
+         * Integrity metadata is exact: canonical and whitespace-poisoned SHA strings
+         * are different projection inputs even if trimming would make them equal.
+         *
+         * <p>Both snapshots must first pass the finite source-work throat. Oversized
+         * evidence is never normalized or truncated into equality; returning false
+         * forces the existing projection/integrity path to inspect and reject it.</p>
+         */
+        public boolean sameProjectionInputs(Snapshot other) {
+            if (other == null
+                    || !sourceWithinResourceBounds()
+                    || !other.sourceWithinResourceBounds()) {
+                return false;
+            }
+            return payloadB64.equals(other.payloadB64)
+                    && declaredBytes == other.declaredBytes
+                    && declaredSha256.equals(other.declaredSha256)
+                    && timestampClass(updatedMs) == timestampClass(other.updatedMs);
+        }
+
+        private static int timestampClass(long value) {
+            if (value > 0L) return 1;
+            if (value == 0L) return 0;
+            return -1;
+        }
+    }
+
+    private HeartbeatPersistedPollPolicy() {
+    }
+
+    /**
+     * Visible contact is keyed by an accepted/preserved visible pulse identity, not
+     * by material-node count. A valid pulse may legitimately contain zero material
+     * lights and still be the last complete heartbeat contact.
+     */
+    public static boolean hasVisibleLastGoodContact(HeartbeatSceneGraph.Frame frame) {
+        return frame != null && !clean(frame.visiblePulseId).isEmpty();
+    }
+
+    /**
+     * Decide whether a healthy WAITING observation should clear a stale pre-contact
+     * interruption exactly once.
+     *
+     * <p>A coherent-read failure before first contact creates a non-null interrupted
+     * frame so the wound can be shown. Once storage is healthy and fully absent again,
+     * the poll decision becomes WAITING. That recovery must clear the stale wound, but
+     * ordinary repeated WAITING polls must remain quiet. Accepted or preserved contact
+     * is never cleared here, including a valid zero-material heartbeat whose
+     * {@code visiblePulseId} is non-empty.</p>
+     *
+     * <p>This is pure owner policy only. It does not mutate Android views or claim
+     * existing-owner consumption.</p>
+     */
+    public static boolean shouldClearPreContactWoundOnWaiting(
+            Decision decision,
+            HeartbeatSceneGraph.Frame frame) {
+        return decision == Decision.WAITING
+                && frame != null
+                && frame.refreshInterrupted
+                && !hasVisibleLastGoodContact(frame);
+    }
+
+    /** Scene-bound convenience overload so the existing owner does not invent its own contact predicate. */
+    public static Decision decide(
+            Snapshot previousProcessed,
+            Snapshot current,
+            HeartbeatSceneGraph.Frame lastGoodFrame) {
+        return decide(
+                previousProcessed,
+                current,
+                hasVisibleLastGoodContact(lastGoodFrame));
+    }
+
+    /**
+     * Classify one poll without performing any Android or parsing work.
+     *
+     * <p>The caller should retain {@code current} only after it has applied the
+     * returned decision. If an unexpected internal exception aborts projection,
+     * retaining the older processed snapshot lets the next poll retry instead of
+     * falsely declaring the failed work deduplicated.</p>
+     */
+    public static Decision decide(
+            Snapshot previousProcessed,
+            Snapshot current,
+            boolean hasVisibleLastGoodContact) {
+        if (current == null) {
+            return hasVisibleLastGoodContact
+                    ? Decision.PRESERVE_MISSING_CONTACT
+                    : Decision.WAITING;
+        }
+
+        if (current.fullyAbsent()) {
+            if (!hasVisibleLastGoodContact) return Decision.WAITING;
+            if (current.sameProjectionInputs(previousProcessed)) {
+                return Decision.SKIP_UNCHANGED;
+            }
+            return Decision.PRESERVE_MISSING_CONTACT;
+        }
+
+        // Oversized exact evidence is not a dedup candidate. Route it through the
+        // existing projection/integrity boundary rather than repeatedly comparing it.
+        if (!current.sourceWithinResourceBounds()) return Decision.PROJECT;
+
+        if (current.sameProjectionInputs(previousProcessed)) {
+            return Decision.SKIP_UNCHANGED;
+        }
+        return Decision.PROJECT;
+    }
+
+    private static String raw(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String clean(String value) {
+        return raw(value).trim();
+    }
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever.venice-plan-review.v1",
+  "heartbeat": "2026-08-15T23:00:00-05:00",
+  "reviewerMode": "judgment_jar_emulation",
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "mission": "Wire the already-persisted heartbeat payload through the existing persisted projection, semantic scene, and UI-ready model into the existing OperatorOverlayService source without creating a neighboring controller or touching the P0 phone surface.",
+  "authorizedFronts": [
+    "existing OperatorOverlayService source wiring only",
+    "pure/JVM regression source for source-side integration helpers",
+    "accessibility and contact-preservation review",
+    "durable repository skill/doctrine update",
+    "exact GitHub readback and review receipts"
+  ],
+  "explicitExclusions": [
+    "no Phone Hands or primary-phone execution",
+    "no P0 recovery mutation or queue/device probe",
+    "no Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work",
+    "no neighboring overlay service/controller/renderer/state store",
+    "no deployment, delivery, acceptance, or runtime-success claim"
+  ],
+  "capabilityBefore": {
+    "persistedHeartbeatIdentitySource": true,
+    "semanticParserSource": true,
+    "sceneGraphSource": true,
+    "uiReadyViewModelSource": true,
+    "existingOverlayWiredToHeartbeatProjection": false,
+    "tested": false,
+    "uiRendered": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400"
+  },
+  "ciBoundaryObservedBeforeMutation": {
+    "head": "bdfa3d080bd6271e2e6ce5bb6db62e63de8ac7c9",
+    "homeCenterCiRun": 31923530235,
+    "job": 95107288205,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "reviewFocus": [
+    "decode and verify persisted Base64 bytes before semantic parsing",
+    "preserve last-good scene on storage/parser rejection",
+    "do not re-derive TalkBack/state semantics inside Android view code",
+    "keep touch targets at or above the existing 48dp contract",
+    "do not create motion or announcements merely because the refresh loop runs"
+  ]
+}

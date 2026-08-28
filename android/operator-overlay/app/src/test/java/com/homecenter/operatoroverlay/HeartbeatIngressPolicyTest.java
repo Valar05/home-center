@@ -1,0 +1,208 @@
+package com.homecenter.operatoroverlay;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
+public class HeartbeatIngressPolicyTest {
+    @Test
+    public void absentOptionalPayloadStillInvokesHeartbeatSink() {
+        RecordingSink sink = new RecordingSink();
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("   ", sink);
+
+        assertFalse(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals("", result.boundary);
+        assertEquals(Arrays.asList("heartbeat"), sink.events);
+    }
+
+    @Test
+    public void validOptionalPayloadIsAcceptedBeforeHeartbeatSinkInvocation() {
+        RecordingSink sink = new RecordingSink();
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertTrue(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals("", result.boundary);
+        assertEquals(
+                Arrays.asList("persist:{\"schema\":\"ok\"}", "heartbeat"),
+                sink.events);
+    }
+
+    @Test
+    public void callerInvalidOptionalPayloadStillInvokesIndependentHeartbeatSink() {
+        RecordingSink sink = new RecordingSink();
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                "invalid Unicode\nfrom optional lights");
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals(
+                "Heartbeat skill-light payload rejected: invalid Unicode from optional lights",
+                result.boundary);
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
+    public void callerInvalidBoundaryIsBoundedSingleLineAndFormatSafe() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder("  first\tline\nsecond\u0000 \u202e");
+        hostile.append('\ud800');
+        hostile.append(" tail ");
+        for (int index = 0; index < 400; index++) hostile.append("🦢");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertTrue(result.boundary.startsWith(
+                "Heartbeat skill-light payload rejected: first line second � tail "));
+        assertTrue(result.boundary.codePointCount(0, result.boundary.length())
+                <= HeartbeatIngressPolicy.MAX_BOUNDARY_CODE_POINTS);
+        for (int offset = 0; offset < result.boundary.length();) {
+            int codePoint = result.boundary.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            assertFalse(Character.isISOControl(codePoint));
+            assertFalse(Character.getType(codePoint) == Character.FORMAT);
+        }
+        assertFalse(Character.isHighSurrogate(result.boundary.charAt(result.boundary.length() - 1)));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
+    public void callerInvalidBoundaryStopsAtFiniteSourceWorkThroat() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder();
+        for (int index = 0;
+                index < HeartbeatIngressPolicy.MAX_BOUNDARY_SOURCE_CODE_UNITS;
+                index++) {
+            hostile.append('\u0000');
+        }
+        hostile.append("THIS_SUFFIX_MUST_NOT_ENTER_THE_PROJECTION");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals(
+                "Heartbeat skill-light payload was rejected by ingress validation.",
+                result.boundary);
+        assertFalse(result.boundary.contains("THIS_SUFFIX"));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
+    public void sourceWorkThroatNeverPeeksAtLowSurrogateBeyondItsWindow() {
+        RecordingSink sink = new RecordingSink();
+        StringBuilder hostile = new StringBuilder();
+        for (int index = 0;
+                index < HeartbeatIngressPolicy.MAX_BOUNDARY_SOURCE_CODE_UNITS - 1;
+                index++) {
+            hostile.append('\u0000');
+        }
+        hostile.append('\ud83e'); // final admitted source code unit
+        hostile.append('\udda2'); // low surrogate is beyond the source-work throat
+        hostile.append("UNREAD_SUFFIX");
+        sink.invalidPayload = new HeartbeatIngressPolicy.CallerInvalidPayloadException(
+                hostile.toString());
+
+        HeartbeatIngressPolicy.Result result = HeartbeatIngressPolicy.apply("{bad}", sink);
+
+        assertTrue(result.payloadPresent);
+        assertFalse(result.payloadAccepted);
+        assertTrue(result.heartbeatInvoked);
+        assertEquals("Heartbeat skill-light payload rejected: �", result.boundary);
+        assertFalse(result.boundary.contains("🦢"));
+        assertFalse(result.boundary.contains("UNREAD_SUFFIX"));
+        assertEquals(Arrays.asList("persist:{bad}", "heartbeat"), sink.events);
+    }
+
+    @Test
+    public void unrelatedIllegalArgumentExceptionPropagatesWithoutHeartbeat() {
+        RecordingSink sink = new RecordingSink();
+        sink.argumentFailure = new IllegalArgumentException("internal persistence contract failed");
+
+        try {
+            HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
+            fail("Expected unrelated argument failure to propagate");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("internal persistence contract failed", expected.getMessage());
+        }
+
+        assertEquals(Arrays.asList("persist:{\"schema\":\"ok\"}"), sink.events);
+    }
+
+    @Test
+    public void storageFailureIsNotSwallowedOrRelabeledAsHeartbeatSuccess() {
+        RecordingSink sink = new RecordingSink();
+        sink.storageFailure = new IllegalStateException("commit failed");
+
+        try {
+            HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
+            fail("Expected storage failure to propagate");
+        } catch (IllegalStateException expected) {
+            assertEquals("commit failed", expected.getMessage());
+        }
+
+        assertEquals(Arrays.asList("persist:{\"schema\":\"ok\"}"), sink.events);
+    }
+
+    @Test
+    public void heartbeatSinkFailureAfterAcceptedPayloadAlsoPropagates() {
+        RecordingSink sink = new RecordingSink();
+        sink.heartbeatFailure = new IllegalStateException("heartbeat sink failed");
+
+        try {
+            HeartbeatIngressPolicy.apply("{\"schema\":\"ok\"}", sink);
+            fail("Expected heartbeat sink failure to propagate");
+        } catch (IllegalStateException expected) {
+            assertEquals("heartbeat sink failed", expected.getMessage());
+        }
+
+        assertEquals(
+                Arrays.asList("persist:{\"schema\":\"ok\"}", "heartbeat"),
+                sink.events);
+    }
+
+    private static final class RecordingSink implements HeartbeatIngressPolicy.Sink {
+        final List<String> events = new ArrayList<>();
+        HeartbeatIngressPolicy.CallerInvalidPayloadException invalidPayload;
+        IllegalArgumentException argumentFailure;
+        IllegalStateException storageFailure;
+        IllegalStateException heartbeatFailure;
+
+        @Override
+        public void persistHeartbeatLights(String payloadJson) {
+            events.add("persist:" + payloadJson);
+            if (invalidPayload != null) throw invalidPayload;
+            if (argumentFailure != null) throw argumentFailure;
+            if (storageFailure != null) throw storageFailure;
+        }
+
+        @Override
+        public void heartbeat() {
+            events.add("heartbeat");
+            if (heartbeatFailure != null) throw heartbeatFailure;
+        }
+    }
+}

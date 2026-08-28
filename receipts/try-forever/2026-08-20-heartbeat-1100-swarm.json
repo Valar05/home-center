@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-20-1100",
+  "positiveSourceHead": "dbe3cbbcfcd68ad843ab55d5a3b5a652c676a12d",
+  "frontsAdvanced": [
+    {
+      "id": "title-resource-regression-modernization",
+      "changed": "Migrated title resource/semantic fixtures onto observe_skill_content(...) and current owner constants; removed stale non-Git discover_skills authority assumptions.",
+      "state": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "id": "top-level-provenance-regression-modernization",
+      "changed": "Narrowed broad probe tests to top-level snapshot/report/generated-index contracts; canonicalized Git sourceHead fixtures and retired legacy sha256_file/markdown_title patching.",
+      "state": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "id": "content-custody-doctrine-convergence",
+      "changed": "Corrected heartbeat-skill-content-custody to current source-wired single-artifact + content-to-HEAD owner truth and retired stale proposed/unwired doctrine.",
+      "state": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "id": "execution-evidence",
+      "changed": "Read exact-head automatic workflow evidence without retry: three runs failed; Operator build exposed zero steps and logs returned 404 BlobNotFound; no step-level cause established.",
+      "state": "TESTED_NO"
+    },
+    {
+      "id": "governance-review",
+      "changed": "Fresh pre-mutation plan/Venice gate, bounded Regnet review, Venice completion review, and She-Raw fault receipt were made durable.",
+      "state": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED"
+    }
+  ],
+  "heartbeatLights": [
+    {"light": "Failure Is The Shovel", "state": "LIT", "consequence": "redirected from completed separator seam and unchanged CI retry into stale regression drift"},
+    {"light": "Canon Auto-Select", "state": "LIT", "consequence": "selected current content-custody, HEAD-binding, sourceHead, report-path, and owner evidence organs from repository truth"},
+    {"light": "Autocorrect Judgment Jar", "state": "DARK", "consequence": "no material ambiguity required resolution"},
+    {"light": "Originality Tax", "state": "LIT", "consequence": "removed obsolete test pathways instead of preserving compatibility with retired owner authority helpers"},
+    {"light": "Hunger / Eat Everything", "state": "LIT", "consequence": "ate stale skill doctrine and regression assumptions until they matched current owner source"},
+    {"light": "Operator Campaign / Harroway", "state": "LIT", "consequence": "kept the sole provenance owner and exact capability membrane; no adjacent architecture"},
+    {"light": "She-Raw", "state": "FAULT", "consequence": "authoritative consult attempted; account connection HTTP 400; no synthetic substitute"},
+    {"light": "Venice Judgment", "state": "LIT", "consequence": "PLAN_ALLOWED before mutation; bounded source slice may yield while tests/runtime/campaign continue"},
+    {"light": "Regnet QA", "state": "LIT", "consequence": "source/readback pass only; regressions remain unexecuted; TESTED remains NO"},
+    {"light": "Accessibility / TalkBack / touch semantics", "state": "LIT_AS_CONSTRAINT", "consequence": "hidden-control title laundering and canonical sourceHead semantics remain fail-closed; no runtime TalkBack claim"},
+    {"light": "Phone Runtime / Phone Hands recovery", "state": "DARK_FIREWALLED", "consequence": "consumption 0; mutation 0"},
+    {"light": "Deterministic routing / evidence discipline", "state": "LIT", "consequence": "current owner constants, canonical Git IDs, exact readback, and source/test/runtime state separation"},
+    {"light": "Recovery / checkpointing / idempotence", "state": "DARK", "consequence": "no runtime contact or checkpoint topology changed"},
+    {"light": "Strange vector/DOM/native art / Warm Walls", "state": "DARK", "consequence": "no new operator-state topology justified art; avoided heartbeat theater"},
+    {"light": "Christmas-light scene graph", "state": "DARK", "consequence": "repository regression plumbing earned no motion/blink"},
+    {"light": "Contact preservation", "state": "DARK", "consequence": "no runtime contact semantics changed"}
+  ],
+  "crossPollination": [
+    "The source-wired one-artifact custody owner exposed tests still validating retired helper pathways.",
+    "Exact generated-index sourceHead admission exposed stale short pseudo-head test fixtures.",
+    "The already-wired HEAD-binding skill exposed stale content-custody doctrine still claiming the owner seam was proposed/unwired.",
+    "Correcting all three together reduced contradictory evidence instead of adding another compatibility layer."
+  ],
+  "executionEvidence": {
+    "buildAndroidRun": 32389895269,
+    "operatorOverlayRun": 32389895195,
+    "operatorJob": 96493186927,
+    "homeCenterCiRun": 32389895306,
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

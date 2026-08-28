@@ -1,0 +1,39 @@
+{
+  "slice": "2026-08-17-2000",
+  "commission": "TRY FOREVER heartbeat skill lights",
+  "target": "HeartbeatPlainTextBudget extended-grapheme boundary scar",
+  "authorized_scope": [
+    "pure non-P0 source helper",
+    "hostile regression source",
+    "durable skill doctrine",
+    "existing non-raster source specimen only if topology materially changes",
+    "Regnet/Venice evidence receipts"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone execution",
+    "P0 recovery chain mutation",
+    "new overlay renderer/controller/state store",
+    "runtime/deployment/delivery claims without evidence",
+    "manual retry of unchanged CI failure"
+  ],
+  "known_wound": "HeartbeatPlainTextBudget truncates by Unicode code point and can split an extended grapheme cluster such as a combining sequence, ZWJ emoji, emoji modifier sequence, or regional-indicator flag.",
+  "intended_repair": "Keep the existing hard code-point returned budget, but choose the largest prefix that fits the content budget without cutting a grapheme cluster; preserve exact under-budget source unchanged and keep the ellipsis inside the same budget.",
+  "review_gates": [
+    "Do not silently weaken the hard returned code-point budget.",
+    "Do not rewrite canonical source/evidence fields.",
+    "Do not claim full Unicode grapheme conformance beyond what the implementation actually guarantees.",
+    "Regression source must cover combining marks, ZWJ emoji, emoji modifiers, regional-indicator flags, swans, tiny budgets, and exact pass-through.",
+    "If source review shows the proposed segmentation primitive is not strong enough, stop and replan before mutation continues."
+  ],
+  "she_raw": "authoritative ambient consultation attempted pre-execution; connector returned account-connection HTTP 400; no substitute verdict invented",
+  "capability_before": {
+    "implemented_source": true,
+    "grapheme_safe_plain_budget": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

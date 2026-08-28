@@ -1,0 +1,26 @@
+{
+  "schema": "try-forever-owner-delta.v1",
+  "status": "APPLIED_SOURCE",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "baseOwnerBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
+  "appliedCommit": "94122a12714414686d34827321eaf7481d543424",
+  "appliedOwnerBlob": "60e85d95c484cee0ca5f637ac3d5763fd20d21cf",
+  "mission": "Classify generated-index sourceHead through exact canonical Git object-ID admission before ordinary current-HEAD comparison, so malformed evidence becomes UNRESOLVED rather than ordinary STALE.",
+  "appliedContract": [
+    "The sole provenance owner imports and consumes try_forever_generated_index_source_head_policy.py.",
+    "SourceHead admission occurs after strict JSON and alias-consistency admission and before ordinary source_head != current_head comparison.",
+    "None and exact empty sourceHead preserve the existing not-declared UNRESOLVED state.",
+    "Malformed or normalization-dependent identity becomes typed UNRESOLVED evidence; it is not trimmed, case-folded, normalized, coerced, or classified as ordinary STALE.",
+    "Timestamp, dirty-source, freshness, artifact-custody, repository-custody, report-path, phone/P0, and runtime ownership semantics remain separate.",
+    "No duplicate provenance owner was introduced."
+  ],
+  "evidence": {
+    "authenticatedOwnerReadback": true,
+    "ownerSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "phoneP0Consumed": false
+  }
+}

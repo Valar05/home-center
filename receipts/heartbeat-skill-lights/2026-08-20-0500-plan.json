@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "commission": "Advance the active TRY FOREVER non-P0 swarm through multiple material fronts while preserving the P0/phone firewall, existing owners, accessibility, and exact capability states.",
+  "slice": "generated-index strict JSON owner promotion plus bounded cross-pollinating doctrine/review/evidence fronts",
+  "evidence": {
+    "pr": "Valar05/home-center#329",
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "prHeadAtResearch": "9896a1ce18847f9b9d5a0ec6ed2c757b5d03a30d",
+    "ownerPath": "tools/try_forever_skill_provenance_probe.py",
+    "ownerBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+    "ownerObservedWound": "inspect_generated_index still calls json.loads(observation.utf8_text)",
+    "deltaPath": "patches/try-forever-generated-index-json-owner.delta.json",
+    "deltaBlob": "b360513ce902b9413dfda40a0fb48f8e64eac42d",
+    "strictJsonRegressionBlob": "0edd90be6d386bbee3b2622202c9bcd9f7821335",
+    "strictJsonSkillBlob": "d6bccbd46c901c36acbd3800fbe875401f520de7",
+    "sheRaw": "attempted pre-execution; account-connection HTTP 400"
+  },
+  "selectedJudgmentJars": [
+    {"name":"Failure Is The Shovel","why":"use the existing red owner boundary as the next executable seam rather than retry dead CI"},
+    {"name":"Originality Tax","why":"do not repeat prior owner-unwired narration when an audited non-phone GitHub mutation lane is callable"},
+    {"name":"Execution Truth / Capability States","why":"source wiring, regression source, TESTED, runtime, deployment, delivery, and acceptance remain separate"},
+    {"name":"Duplicate Architecture Law","why":"compose the sole provenance owner and existing strict parser; create no neighboring parser/probe/controller"},
+    {"name":"Venice Review Memory","why":"planning bypass, evidence laundering, stale-seam mutation, connector hammering, and narrated continuation are paid scars"},
+    {"name":"P0 Fortress Firewall","why":"phone/P0 surfaces remain read-only and unconsumed"}
+  ],
+  "fronts": [
+    "apply the exact three-operation strict-JSON owner delta if the authenticated owner blob still matches",
+    "perform authenticated exact owner readback and verify default json.loads is gone from the generated-index seam",
+    "synchronize strict-JSON doctrine/provenance from PROPOSED_NOT_APPLIED to SOURCE_WIRED only after readback",
+    "inspect current workflow evidence without retrying failed runs or inventing a cause",
+    "perform Regnet code-first review and Venice completion review",
+    "publish one compact swarm receipt and refresh PR checkpoint"
+  ],
+  "antagonism": [
+    "Do not mutate if owner blob moved away from 2f3ebd530f46283a59bd6ff34149042a1b825d89.",
+    "Do not replace the whole parser design; only compose the existing strict policy into the sole owner.",
+    "Do not claim TESTED from regression source or automatic workflow failure.",
+    "Do not touch Phone Hands, primary-phone, recovery queues, Nightcore, Pocket TTS, Chromium, Context Organs, or P0 ownership.",
+    "Do not retry She-Raw after the connector fault during this slice.",
+    "Do not create a second provenance parser/probe/controller."
+  ],
+  "doneCondition": "Authenticated owner readback proves the exact strict parser import/call/error mapping is wired in the sole owner; doctrine and patch provenance reflect SOURCE_WIRED/APPLIED_SOURCE; review receipts and compact capability ledger are durable; TESTED/runtime/deployed/delivered states remain unchanged unless fresh evidence proves otherwise."
+}

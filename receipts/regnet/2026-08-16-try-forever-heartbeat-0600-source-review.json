@@ -1,0 +1,56 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-16-0600",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedSourceHead": "69f524a48350c9bd21a618f86f1068c02748d31d",
+  "boundedClaim": "Exact pulse/checkpoint identity is now distinct from Operator Overlay presentation work identity. An accepted pulse-id-only change with an otherwise identical presented/touchable scene advances exact checkpoint identity without earning structure rebuild, native content refresh, or heartbeat announcement source work.",
+  "sourceReadback": {
+    "HeartbeatFrameCheckpoint.java": "e68edc5f3e8ad3032543060160e5e4bc3dbed9c3",
+    "HeartbeatOverlayRefreshPlan.java": "eae48354878cd29fb275236414b42cb04e6ad141",
+    "HeartbeatInvisiblePulseIdDedupTest.java": "321d8f527e259855534bc110adf0e0e34a03b6a6",
+    "heartbeat-refresh-deduplication/SKILL.md": "205636298ede4d89ba5233aad402af8c60a027aa",
+    "heartbeat-refresh-gate-source-specimen.html": "37de0e2512f0a645110140bfc22ff84e8ab19b27"
+  },
+  "checks": [
+    "contactSha256 remains pulse-id-sensitive for exact checkpoint/evidence identity.",
+    "presentationSha256 excludes only the otherwise invisible accepted pulse id while retaining ordered control/detail/touch semantics.",
+    "HeartbeatOverlayRefreshPlan.renderIdentity consumes presentationSha256 plus interruption state and exact interruption boundary; announcement identity remains transition/wound-driven.",
+    "Existing OperatorOverlayService already consumes renderIdentity, so the source behavior composes into the existing owner without a neighboring renderer/controller.",
+    "Source-only regression fixtures assert pulse-id-only checkpoint advance with no structure/content/speech work and evidence-only content refresh with no speech.",
+    "The existing warm-wall specimen was mutated in place and explicitly remains source semantics, not runtime/phone proof."
+  ],
+  "processScar": "The initial 0600 plan targeted structural-rebuild viewport restoration. Source archaeology exposed the higher-value pulse-id/presentation wound; the first checkpoint/render mutations preceded the corrective Venice replan receipt. Preserve that ordering as a process scar rather than claiming a clean pre-mutation replan.",
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflow": "Operator Overlay Android",
+    "runId": 31943591022,
+    "jobId": 95156204652,
+    "headSha": "69f524a48350c9bd21a618f86f1068c02748d31d",
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "remainingBoundaries": [
+    "Structural child rebuild viewport-anchor restoration remains unimplemented/unclaimed.",
+    "Pending pre-draw viewport-restore generation/idempotence remains unimplemented/unclaimed.",
+    "Android runtime UI behavior and TalkBack behavior remain unobserved.",
+    "Deployment, phone callability/execution, delivery, and acceptance remain false."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateP0Owners": 0
+  }
+}

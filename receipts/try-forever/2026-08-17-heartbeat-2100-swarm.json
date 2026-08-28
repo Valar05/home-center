@@ -1,0 +1,97 @@
+{
+  "slice": "2026-08-17-2100",
+  "source_head": "f9b1b85beffaa11cf4229dc78b5c02d024e0a6a6",
+  "fronts_advanced": [
+    {
+      "front": "deep-detail surface policy",
+      "result": "Added HeartbeatDetailSurfacePolicy: full explicit detail/contentDescription retained, five-line visible well, no destructive END ellipsis, vertical overflow inspectable, shared overlay touch floor."
+    },
+    {
+      "front": "hostile accessibility/touch regression source",
+      "result": "Added HeartbeatDetailSurfacePolicyTest for long detail preservation, deterministic empty fallback, Unicode/evidence preservation, scrollability, no ellipsis, and shared touch-target authority."
+    },
+    {
+      "front": "durable skill harvesting",
+      "result": "Added heartbeat-deep-detail-viewport with one-owner, one-formatter, touch, speech, scroll-position, capability-membrane, and P0 firewall doctrine."
+    },
+    {
+      "front": "existing-owner surgery provenance",
+      "result": "Preserved an exact OperatorOverlayService patch that replaces five-line END ellipsis with the scroll-inspectable policy and resets scroll only on explicit light selection; patch remains PROPOSED_NOT_APPLIED."
+    },
+    {
+      "front": "warm-wall / Swan Veil source art",
+      "result": "Mutated the existing non-raster Swan Veil in place with a touchable Deep detail well state; explicitly marks owner patch proposed, runtime unproven, phone untouched."
+    },
+    {
+      "front": "platform-contract verification",
+      "result": "Android primary docs confirm maxLines bounds TextView height, setEllipsize(null) disables ellipsizing, and ScrollingMovementMethod handles scrolling/touch navigation. App runtime remains unproven."
+    },
+    {
+      "front": "Regnet/Venice evidence review",
+      "result": "Review caught a duplicate 48dp authority and an over-eager background scroll reset in the first proposed shape; both were corrected. Owner wiring remains the exact blocking seam."
+    }
+  ],
+  "skill_lights": {
+    "Failure Is The Shovel": "ACTIVE: moved off the completed grapheme-budget seam to a distinct touch-visible evidence wound.",
+    "Canon Auto-Select": "ACTIVE: reused HeartbeatEvidenceDetailProjection, OperatorOverlayService heartbeatDetail, OverlayUiPolicy touch authority, and the existing Swan Veil instead of creating adjacent organs.",
+    "Autocorrect Judgment Jar": "DARK: no ambiguous token materially affected this slice.",
+    "Originality Tax": "ACTIVE: no manual CI retry and no repeat of text-budget polishing; the new front changed native detail topology source instead.",
+    "Hunger": "ACTIVE: kept digging past full TalkBack content and found that sighted/touch users could still lose Evidence/Source behind visual ellipsis.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: detail projection, touch target, scroll semantics, owner patch provenance, skill doctrine, art, and review were reconciled.",
+    "Operator Campaign": "ACTIVE: existing OperatorOverlayService remains sole owner; owner patch is explicitly proposed rather than silently promoted.",
+    "Harroway operator discipline": "ACTIVE: GitHub-only durable evidence, exact source/runtime states, no substitute execution lane.",
+    "She-Raw adversarial motivation": "FAULT: authoritative ambient call attempted pre-execution; account connection HTTP 400; no synthetic critique.",
+    "Venice Judgment Jars": "ACTIVE: PLAN_ALLOWED before mutation; completion verdict CONTINUE_REQUIRED because owner wiring is not applied.",
+    "Regnet QA": "ACTIVE: found duplicate touch-target authority and background scroll-reset regression; bounded source claim only; TESTED remains NO.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: full explicit detail stays in contentDescription while the proposed visible surface becomes a 48dp scroll-inspectable well instead of destructive END ellipsis.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero gated phone/P0 surface consumption or mutation.",
+    "deterministic routing": "ACTIVE: one detail formatter and one native owner remain authoritative; shared touch-target constant replaces a duplicate literal.",
+    "evidence/capability-state discipline": "ACTIVE: policy/test/skill/art/patch source are distinguished from owner wiring, TESTED, runtime, deployed, callable, executed, delivered, accepted.",
+    "recovery/checkpointing/idempotence": "ACTIVE AS READING-CONTACT CONSTRAINT: proposed owner patch preserves scroll position on background detail refresh and resets only on explicit selection; checkpoint source itself unchanged.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing Swan Veil mutated with a new Deep detail well interaction state; source-only and runtime-unproven.",
+    "warm walls": "ACTIVE: deep evidence becomes a bounded well with inspectable depth rather than a clipped wall.",
+    "Christmas-light scene graph": "DARK: detail scrolling is not a heartbeat state transition and earns no decorative motion.",
+    "contact preservation": "ACTIVE: semantic detail stays full; background model refresh must not deliberately yank an operator's current deep-reading position."
+  },
+  "cross_pollination": "full TalkBack detail -> sighted/touch ellipsis wound -> bounded scroll-well policy -> shared touch-target authority -> hostile source fixtures -> proposed owner wiring -> review catches background scroll reset -> corrected owner patch -> Swan Veil topology scar -> Regnet/Venice membrane",
+  "execution_boundary": {
+    "operator_overlay_run": 32090882716,
+    "operator_overlay_job": 95572642775,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "manual_retry": false,
+    "tested": false
+  },
+  "p0_phone": {
+    "commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_relay_probes": 0,
+    "recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance": 0,
+    "new_p0_finding": null
+  },
+  "capability": {
+    "requested": true,
+    "detail_surface_policy_source": true,
+    "regression_source": true,
+    "durable_skill": true,
+    "art_mutated": true,
+    "exact_owner_patch_artifact": true,
+    "existing_owner_consumes_policy": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "CONTINUE_REQUIRED",
+  "next_exact_cut": "Apply the exact existing-owner patch to OperatorOverlayService through the authorized GitHub write lane; do not create another detail owner."
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "regnet-review.v1",
+  "checkpoint": "2026-08-27-heartbeat-0400",
+  "sourceHead": "44d4cb2018c41d7433d5c2ec450e9af82c9248aa",
+  "verdict": "PASS_BOUNDED_SOURCE__CANDIDATE_AND_PULSE_SOURCE_WORK_WIRED__CALLBACK_CONSUMER_REVISE_REQUIRED__UNEXECUTED__TESTED_NO",
+  "candidateSourceWork": "SOURCE_WIRED",
+  "pulseSourceWork": "SOURCE_WIRED",
+  "callbackFreeCanonicalConsumer": "PROPOSED_NOT_APPLIED",
+  "regressionSource": "YES_UNEXECUTED",
+  "tested": false,
+  "workflowRuns": {
+    "homeCenterCi": 33057376962,
+    "buildAndroid": 33057376984,
+    "operatorOverlay": 33057377013,
+    "operatorJob": 98467431303,
+    "operatorSteps": 0
+  },
+  "sheRaw": "ATTEMPTED_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+  "firewall": "P0_AND_PHONE_UNTOUCHED_NO_DUPLICATE_ARCHITECTURE"
+}

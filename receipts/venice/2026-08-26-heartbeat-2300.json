@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26-2300",
+  "reviewedSourceHead": "1d9a8effb93bd58372255baa37ea068b38d53bf3",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_DISCOVERY_PROJECTION_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowedToCheckpoint": [
+    "shared diagnostic projector source wiring",
+    "hostile regression source expansion",
+    "exact existing-owner projection proposal",
+    "semantic-text-safety doctrine convergence",
+    "existing Warm Wall source convergence"
+  ],
+  "continueRequired": [
+    "canonical v10 DiscoveryError.boundary consumption of the shared projector",
+    "regression execution",
+    "TESTED evidence",
+    "runtime UI and TalkBack evidence",
+    "deployment/callability/execution/delivery/acceptance",
+    "recurring campaign"
+  ],
+  "authorityDiscipline": {
+    "canonicalEvidenceRewritten": false,
+    "newOwnerCreated": false,
+    "weakerFallbackAdded": false,
+    "phoneOrP0Touched": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  }
+}

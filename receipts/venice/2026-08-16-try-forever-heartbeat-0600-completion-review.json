@@ -1,0 +1,62 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-0600",
+  "reviewedSlice": "Exact heartbeat checkpoint identity separated from actual presentation work",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "largerCampaign": "CONTINUE_REQUIRED",
+  "mergeAsDeliveredInterface": false,
+  "processScar": "The initial 0600 plan targeted structural-rebuild viewport restoration. The first checkpoint/render mutations preceded the corrective replan receipt after source archaeology exposed the pulse-id/presentation wound. This is preserved as an ordering defect, not rewritten as a clean pre-mutation replan.",
+  "reasons": [
+    "Exact contact/checkpoint identity remains pulse-id-sensitive, preserving evidence/idempotence truth.",
+    "A new presentation fingerprint excludes only the otherwise invisible accepted pulse id and retains ordered control/detail/touch semantics.",
+    "The existing refresh plan now derives render work from presentation identity plus interruption wound, so pulse-id-only refreshes do not churn native content or TalkBack.",
+    "Evidence/provenance changes still earn content refresh; state/consequence/wound semantics still govern announcement and transition behavior.",
+    "The existing OperatorOverlayService already consumes renderIdentity, so this composes into the existing owner without duplicate architecture.",
+    "The existing interactive warm-wall artifact was mutated in place and explicitly remains source semantics rather than runtime/phone proof.",
+    "Structural-rebuild viewport restoration and pending pre-draw restore generation/idempotence remain separate unimplemented boundaries rather than being silently claimed.",
+    "No phone/P0 surface was consumed."
+  ],
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31943591022,
+    "jobId": 95156204652,
+    "sourceHead": "69f524a48350c9bd21a618f86f1068c02748d31d",
+    "steps": 0,
+    "conclusion": "failure",
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "sourceTruth": {
+    "frameCheckpointBlob": "e68edc5f3e8ad3032543060160e5e4bc3dbed9c3",
+    "refreshPlanBlob": "eae48354878cd29fb275236414b42cb04e6ad141",
+    "pulseIdDedupRegressionBlob": "321d8f527e259855534bc110adf0e0e34a03b6a6",
+    "refreshDedupSkillBlob": "205636298ede4d89ba5233aad402af8c60a027aa",
+    "warmWallBlob": "37de0e2512f0a645110140bfc22ff84e8ab19b27"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "existingOwnerConsumesRenderIdentity": true,
+    "pulseIdOnlyPresentationDedupSource": true,
+    "stableStructureViewportAnchorSourceWired": true,
+    "structuralRebuildViewportAnchorSourceWired": false,
+    "pendingViewportRestoreGenerationGateSource": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeViewportObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attemptedPreExecution": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0PhoneMutations": 0
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-16-0500",
+  "reviewedSlice": "Existing-owner heartbeat viewport-contact source wiring",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "largerCampaign": "CONTINUE_REQUIRED",
+  "mergeAsDeliveredInterface": false,
+  "reasons": [
+    "The commissioned non-phone seam moved from policy-only to existing OperatorOverlayService source wiring.",
+    "The implementation composes existing HeartbeatOverlayRefreshPlan policy and existing native Button owner rather than creating a second renderer/controller.",
+    "Source review repaired a weak View.post() after-layout assumption into one-shot pre-draw restoration.",
+    "Cross-skill review repaired stale keyboard-first doctrine to the canonical selected-first then direct-keyboard-focus fallback rule.",
+    "No TalkBack accessibility-focus ownership is queried, inferred, or claimed.",
+    "No phone/P0 surface was consumed.",
+    "Deterministic Android test execution remains blocked before steps by GitHub Actions budget, so runtime viewport/TalkBack behavior is unproven."
+  ],
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31940829138,
+    "jobId": 95149645061,
+    "sourceHead": "dccaaf16709c19898845e8f0991e821cc2154873",
+    "steps": 0,
+    "conclusion": "failure",
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "sourceTruth": {
+    "operatorOverlayServiceBlob": "d0be55ea97d5c80af03f0fcc1ed1c71cb2ddd568",
+    "viewportContactSkillBlob": "545de14f3a0c5a7bb0ec1399fc37cd45cf46ea4e",
+    "nativeUiProjectionSkillBlob": "a54c299e7957d02180c77827dafa35f8a730c28c",
+    "warmWallSvgBlob": "5f4366773d89a54a0fb97d9e9c2a8c875b9717de"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "existingOwnerViewportAnchorSourceWired": true,
+    "tested": false,
+    "runtimeViewportObserved": false,
+    "runtimeTalkBackObserved": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "sheRaw": {
+    "attemptedPreExecution": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0PhoneMutations": 0
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-26T00:00:00-05:00",
+  "reviewedSourceHead": "856f813f0f74349cbc8ae04c0d8fdc54c5972fa6",
+  "verdict": "PASS_SUPPORTING_SOURCE__DIRECT_DESCRIPTOR_ROOT_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourceFindings": [
+    {
+      "front": "backend-result explicit controls",
+      "state": "SOURCE_WIRED",
+      "finding": "backend and portableFallbackAttempted must be explicit result evidence; omission no longer inherits policy defaults"
+    },
+    {
+      "front": "direct descriptor root admission",
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "finding": "canonical v10 supplies an admitted exact Path, but direct HeldDirectoryCustody(path) can still execute arbitrary os.PathLike __fspath__; exact owner surgery is staged against blob 6eee417a736022910989137142811b787e85842e"
+    },
+    {
+      "front": "accessibility source specimen",
+      "state": "SOURCE_WIRED",
+      "finding": "existing Warm Wall exposes explicit-control and direct-root states with native radio/touch semantics, visible focus, non-color state and reduced-motion handling; runtime TalkBack remains NO"
+    }
+  ],
+  "regressionState": "SOURCE_UNEXECUTED",
+  "tested": false,
+  "runtime": false,
+  "deployed": false,
+  "delivered": false,
+  "accepted": false,
+  "p0Phone": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  }
+}

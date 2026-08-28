@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "pulse": "2026-08-20-1500",
+  "pr": 329,
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without consuming the phone/P0 chain or inventing duplicate owners.",
+  "planGate": "PLAN_ALLOWED",
+  "fronts": [
+    {
+      "name": "operator-accessibility-method-scoped-source-proof",
+      "owner": "tools/try_forever_operator_accessibility_owner_probe.py",
+      "goal": "Upgrade owner evidence from file-wide lexical marker presence to method-scoped lexical source evidence while keeping control-flow/runtime claims false."
+    },
+    {
+      "name": "counterfeit-wrong-method-regression",
+      "owner": "tools/test_try_forever_operator_accessibility_owner_probe.py",
+      "goal": "Prove complete expected markers placed in unrelated methods cannot earn SOURCE_WIRED."
+    },
+    {
+      "name": "operator-accessibility-doctrine-convergence",
+      "owner": "skills/operator-accessibility-owner-boundary/SKILL.md",
+      "goal": "Make method-scoped source custody a durable acceptance law and preserve the real owner wounds as unwired."
+    },
+    {
+      "name": "combined-owner-surgery-readiness",
+      "owner": "docs/try-forever/operator-overlay-accessibility-owner-combined.patch",
+      "goal": "Confirm the existing composed repair remains base-blob locked to the authenticated current owner; do not promote patch source into owner wiring."
+    }
+  ],
+  "requiredDark": [
+    "Phone Runtime / Phone Hands / P0",
+    "Nightcore",
+    "Pocket TTS",
+    "Chromium",
+    "Context Organs",
+    "physical acceptance"
+  ],
+  "capabilityRule": "requested != source != tested != runtime != deployed != callable != executed != delivered != accepted"
+}

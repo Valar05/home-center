@@ -1,0 +1,49 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-27T22:02:26-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "ce78266ebc850d00c8f8e051ad40c180e3e03fe7",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowStopForThisSourceSlice": true,
+  "continueRequired": [
+    "OperatorOverlayService Adam UI request finite-work owner mutation",
+    "OperatorOverlayService native Adam mode/input/accessibility owner mutation",
+    "regression execution",
+    "TESTED evidence",
+    "Android runtime UI evidence",
+    "runtime TalkBack evidence",
+    "deployment/callability/execution/delivery/acceptance",
+    "recurring Try Forever campaign"
+  ],
+  "judgmentBasis": [
+    "supporting Adam mode policy now owns horizontal 1x5 collection geometry",
+    "JUnit source pins geometry but is unexecuted",
+    "owner proposal consumes policy geometry without duplicating it",
+    "deterministic owner probe now rejects copied/manual geometry but is unexecuted",
+    "native owner blob remains unchanged and therefore cannot be reported SOURCE_WIRED",
+    "legacy repeat-send announcement remains preserved because repeatable-event replacement is unresolved",
+    "phone/P0 firewall remained untouched"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "nativeOwnerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

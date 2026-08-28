@@ -1,0 +1,67 @@
+{
+  "heartbeat": "2026-08-16-2200",
+  "reviewer": "Regnet QA",
+  "provenance": "SYNTHETIC_REGNET",
+  "boundedClaim": "Direct and pre-parser heartbeat scene ingress now share the canonical parser's MAX_PULSE_ID_CHARS root identity bound without truncating oversized pulse identity into accepted state; rejected oversize preserves last-good contact and clamps motion.",
+  "capabilityStateReviewed": "implemented_source",
+  "acceptance": [
+    "Direct HeartbeatSceneGraph.build rejects post-trim pulse identity above HeartbeatEnvelopeParser.MAX_PULSE_ID_CHARS before incomplete/collision handling.",
+    "Oversized direct pulse identity is not retained as attemptedPulseId on the rejected frame.",
+    "preserveRejectedRefresh retains attempted pulse identity only when semantically safe and within the canonical pulse bound.",
+    "No truncation or replacement pulse identity is synthesized to make oversized source acceptable.",
+    "Last-good visible contact survives rejection and both frame/node transition motion remain clamped.",
+    "Regression source covers exact max, max+1, canonical parser parity, and pre-parser suppression.",
+    "Existing heartbeat-source-bound-parity doctrine and non-raster warm-wall source reflect the same capability truth.",
+    "No phone/P0/queue/recovery/runtime acceptance surface is consumed or claimed."
+  ],
+  "exactReadback": {
+    "HeartbeatSceneGraph.java": "428c8583180681a6fb07183dc1668c4015aa311a",
+    "HeartbeatPulseIdentityBoundParityTest.java": "15133d2c5c57b6a8e4b9d6089f8babb7df31d20e",
+    "skills/heartbeat-source-bound-parity/SKILL.md": "bc7dd1045aa53ef734028e76ec31e5288735609b",
+    "heartbeat-viewport-anchor-scar-20260816.svg": "f3d489b0e7e3d78eb0576112d2b95e8b7243dc44",
+    "reviewedSourceArtHead": "0dc7db5c5ea4e81f1f6106fe5a0cce18a7953c61"
+  },
+  "reviewFindings": [
+    {
+      "severity": "PASS",
+      "finding": "Direct build uses the canonical parser constant after trim, matching parser String.length() bound semantics."
+    },
+    {
+      "severity": "PASS",
+      "finding": "Pre-parser diagnostic attempted identity now fails closed on unsafe or oversized content instead of allowing root-bound bypass through frame state."
+    },
+    {
+      "severity": "PASS",
+      "finding": "Rejected max+1 identity preserves last-good contact and does not invent a truncated accepted identity."
+    },
+    {
+      "severity": "BLOCKED_UNKNOWN",
+      "finding": "Regression bodies have not executed. Automatic Operator Overlay Android run 31989883773 / job 95271414254 on exact reviewed head executed zero steps because the Actions budget prevented the job from starting."
+    }
+  ],
+  "ciBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31989883773,
+    "jobId": 95271414254,
+    "head": "0dc7db5c5ea4e81f1f6106fe5a0cce18a7953c61",
+    "stepsExecuted": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateOwners": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedVerdict": "BLOCKED_UNKNOWN",
+  "mergeAuthority": false,
+  "stopAuthority": false
+}

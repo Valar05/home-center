@@ -1,0 +1,53 @@
+{
+  "schema": "regnet-try-forever-source-review.v1",
+  "heartbeat": "2026-08-26T04:27:00-05:00",
+  "sourceHead": "1802ae62b76b9adf39042d65ed6d314340eb51cf",
+  "reviewScope": [
+    "tools/try_forever_owner_surgery_semantic_parser.py",
+    "tools/test_try_forever_owner_surgery_semantic_parser.py",
+    "skills/operator-owner-surgery-metadata-exactness/SKILL.md"
+  ],
+  "findings": [
+    {
+      "state": "PASS_SOURCE",
+      "front": "semantic producer resource custody",
+      "detail": "direct semantic observation now rejects over-ceiling claimed byte counts and definitely-over-ceiling text before UTF-8 encode/hash, then checks bounded multibyte expansion after encode; canonical portable/descriptor consumers remain the same existing authority paths"
+    },
+    {
+      "state": "PASS_SOURCE",
+      "front": "semantic regression convergence",
+      "detail": "the source fixture no longer fossilizes canonicalOwnerConsumption=false; it now pins canonicalOwnerConsumption=true, descriptorBackendConsumption=true, callback-free exact scalars, byte ceiling, pre-encode text ceiling, multibyte expansion, witness mismatch, surrogate containment, and duplicate delta members"
+    },
+    {
+      "state": "PASS_SOURCE",
+      "front": "metadata doctrine convergence",
+      "detail": "operator-owner-surgery-metadata-exactness now records the exact non-empty 256-code-point diagnostic-context gate before error formatting and keeps diagnostic prose separate from authority evidence"
+    },
+    {
+      "state": "OPEN_NONAUTHORITY_DRIFT",
+      "front": "broader skill doctrine",
+      "detail": "operator-owner-surgery-backend-selection does not yet record the new direct semantic observation throat, and operator-owner-surgery-custody retains dated descriptor-capability prose; authenticated source remains authority until those summaries converge"
+    },
+    {
+      "state": "RED_EXTERNAL_BOUNDARY",
+      "front": "She-Raw adversarial consultation",
+      "detail": "authoritative She-Raw critique was attempted against resource-throat gaps, stale doctrine, capability inflation, duplicate architecture, and P0 overlap; account connection returned HTTP 400; no synthetic substitute was used"
+    }
+  ],
+  "executionTruth": {
+    "homeCenterCi": {"runId": 32953749286, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32953749281, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32953749276, "jobId": 98130755152, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "verdict": "PASS_BOUNDED_SOURCE__SEMANTIC_RESOURCE_THROAT_WIRED__METADATA_DOCTRINE_CONVERGED__BROADER_DOCTRINE_DRIFT_OPEN__REGRESSION_UNEXECUTED__TESTED_NO"
+}

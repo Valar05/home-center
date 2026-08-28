@@ -1,0 +1,86 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-23T10:57:00-05:00",
+  "reviewedSourceHead": "4d25c8b37a97c9a78cfe26ab934fdb12e6090091",
+  "preMutationGateHead": "6dd8c8279688f005c89bc469dd0a9512be05c999",
+  "sourceDiff": {
+    "intendedPaths": 8,
+    "unexpectedPaths": 0,
+    "canonicalAuthorityOwnerMutated": false,
+    "descriptorAuthorityMutated": false,
+    "androidRuntimeOwnerMutated": false,
+    "phoneP0Mutation": 0
+  },
+  "fronts": {
+    "shadowReceiptComparisonTriState": {
+      "state": "IMPLEMENTED_SOURCE",
+      "finding": "SHADOW_DIVERGED now requires completed boolean comparison evidence; wound/unavailable states require null comparison fields.",
+      "sourceBlob": "6722232206ff15e35f88e13094acdd125647f6c9"
+    },
+    "descriptorWoundOwnerBoundary": {
+      "state": "RED_REGRESSION_SOURCE_UNEXECUTED",
+      "finding": "Current descriptor-shadow v3 emits false/false/false when held-directory custody fails before comparison. The new owner-boundary fixture requires null/null/null. Upstream owner correction remains NO."
+    },
+    "temporalReceiptIntegrity": {
+      "state": "SUPPORTING_SOURCE",
+      "finding": "Completed SHADOW_MATCH/SHADOW_DIVERGED context now requires exact canonical v10 schema, exact canonical completeness, portable authority backend, and exact supported descriptor capability before delegating to temporal binding.",
+      "sourceBlob": "b87c24a3e1e4abba4d100901aee721cfa41120c2"
+    },
+    "temporalReceiptRegression": {
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "sourceBlob": "b3c2858c61d039a672ba7f8598998f9750cdc8b0"
+    },
+    "doctrine": {
+      "state": "SOURCE_CONVERGED",
+      "descriptorShadowSkillBlob": "f8b0c336b50542a22d05ecea888ece75828602a9",
+      "receiptIntegritySkillBlob": "3b1b1e936a0994a5c2f4e98f32469dbe73b42cf6"
+    },
+    "warmWall": {
+      "state": "SOURCE_MUTATED_IN_PLACE",
+      "blob": "5c248ba7afb797d0c7addace4223dd5929429df6",
+      "finding": "FALSE != UNKNOWN and temporal receipt context are now touch-inspectable without runtime/deployment claims."
+    }
+  },
+  "codeFirstCorrections": [
+    "Initial temporal helper gated exact descriptor capability only for SHADOW_MATCH. Review found SHADOW_DIVERGED also claims a completed descriptor comparison, so the exact capability/completeness gate was expanded to both completed states.",
+    "The newly harvested receipt-integrity skill initially described the older match-only rule. Doctrine was corrected after the source repair instead of preserving regression soup."
+  ],
+  "execution": {
+    "operatorOverlayRun": 32650688448,
+    "operatorOverlayJob": 97221690506,
+    "operatorOverlayConclusion": "failure",
+    "operatorOverlayStepsExposed": 0,
+    "operatorOverlayLogs": "404_BlobNotFound",
+    "homeCenterCiRun": 32650688472,
+    "homeCenterCiConclusion": "failure",
+    "buildAndroidRun": 32650688456,
+    "buildAndroidConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "regressionsExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteInvented": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorWoundOwnerFixed": false,
+    "temporalOwnerConsumesStrictReceiptGate": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__UPSTREAM_DESCRIPTOR_WOUND_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO"
+}

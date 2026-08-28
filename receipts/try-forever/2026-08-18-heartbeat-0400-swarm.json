@@ -1,0 +1,110 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-0400",
+  "pr": 329,
+  "reviewedSourceHead": "64c4337c162ecb92a63d77b29b86cdada77f2fb2",
+  "sourceBlobs": {
+    "tools/try_forever_skill_provenance_probe.py": "f9c1fc63e42a646f14e38a3ba7f9ce86fb142728",
+    "tools/test_try_forever_skill_provenance_probe.py": "a562e341d0ae653ac2f6dacd758b2bde7279f030",
+    "skills/heartbeat-skill-provenance-freshness/SKILL.md": "78ff2134397623a683abd029c71ae9465218081d",
+    "skills/home-center-mutation-lane-truth/SKILL.md": "2dfb059a2112dbb609b6b938ce8c93cc44751db3",
+    "docs/try-forever/heartbeat-skill-provenance-source-specimen.html": "0076a42cddddf58ea1499749315841e163e71a62"
+  },
+  "fronts": [
+    {
+      "name": "per-file provenance failure isolation",
+      "advanced": true,
+      "change": "Unreadable hash/title I/O and malformed UTF-8 now become bounded structured DiscoveryError records; unrelated valid skill discovery continues; wounded files earn no repository_skill authority."
+    },
+    {
+      "name": "report contract truth",
+      "advanced": true,
+      "change": "Code-first review rejected a silent v1 string-to-object contract mutation; the probe now emits try-forever-skill-provenance.v2 with one structured discoveryErrors envelope for repository, identity, hash, and title failures."
+    },
+    {
+      "name": "hostile regression source",
+      "advanced": true,
+      "change": "Added malformed UTF-8, deterministic hash I/O failure, raw-exception non-leakage, healthy-peer continuation, and hard-bounded error-path fixtures."
+    },
+    {
+      "name": "durable provenance doctrine",
+      "advanced": true,
+      "change": "heartbeat-skill-provenance-freshness now encodes per-file isolation, schema v2, strict-mode failure, stable-checkout-vs-file-validity separation, and source/test/runtime capability boundaries."
+    },
+    {
+      "name": "accessible Warm Wall",
+      "advanced": true,
+      "change": "Existing source specimen gained FILE FAULT ISOLATED as a fifth material provenance state while preserving radio semantics, roving keyboard navigation, touch sizing, non-color state tokens, one live detail surface, reduced motion, and no autoplay/blink."
+    },
+    {
+      "name": "Home Center mutation-lane evidence repair",
+      "advanced": true,
+      "change": "Fresh Home Center jobs.get readback says Command Center Codex jobs/workers are permanently retired. Prior 0300 queued deep-detail ticket state is historical, not current. Current connector discovery exposes no computer_hands action; no Phone Hands/P0 substitute was used."
+    },
+    {
+      "name": "exact-head execution evidence",
+      "advanced": true,
+      "change": "Automatic Operator Overlay Android run 32120199650 on exact source head failed; job 95658663458 exposes zero steps and logs return 404 BlobNotFound. No cause is established and no manual retry was fired."
+    },
+    {
+      "name": "Judgment Jar review",
+      "advanced": true,
+      "change": "Regnet passes only the bounded source/readback claim; same-worker Venice completion review allows this source slice to yield while keeping the campaign active. Authoritative She-Raw was attempted and faulted at account connection without synthetic substitution."
+    }
+  ],
+  "lights": {
+    "Failure Is The Shovel": {"state": "ACTIVE", "contribution": "Turned the prior malformed-file next wound into source/test/doctrine/art work and refused a blind CI retry."},
+    "Canon Auto-Select": {"state": "ACTIVE", "contribution": "Used current-tree heartbeat-skill-provenance-freshness and home-center-mutation-lane-truth as named repository authorities."},
+    "Autocorrect Judgment Jar": {"state": "DARK", "contribution": "No speech-to-text/autocorrect ambiguity materially affected this pulse."},
+    "Originality Tax": {"state": "ACTIVE", "contribution": "A first-pass schema lie triggered a corrective v2 strategy instead of cosmetic restatement; stale Command Center queue assumptions were not retried."},
+    "Hunger": {"state": "ACTIVE", "contribution": "A single file fault was forced to become a durable consequence across probe, fixtures, doctrine, and Warm Wall rather than a note."},
+    "Ever-Polished Interpreter / Eat Everything": {"state": "ACTIVE", "contribution": "Converted raw per-file failures into fixed structured evidence and synchronized every affected source surface."},
+    "Operator Campaign": {"state": "ACTIVE", "contribution": "Preserved PR #329 and existing repository owners; no side architecture was created."},
+    "Harroway operator discipline": {"state": "ACTIVE", "contribution": "Remote GitHub readback is the source proof; local/chat state was not used as accomplishment evidence."},
+    "She-Raw adversarial motivation": {"state": "FAULT", "contribution": "Authoritative ambient call attempted; account connection returned HTTP 400; no synthetic critique substituted."},
+    "Venice Judgment Jars": {"state": "ACTIVE", "contribution": "Same-worker bounded completion review separated source success from test/runtime/delivery and kept campaign CONTINUE_REQUIRED."},
+    "Regnet QA": {"state": "ACTIVE", "contribution": "Caught the v1 contract mutation, bounded the source claim, and preserved the next title-resource wound."},
+    "accessibility/TalkBack and touch semantics": {"state": "ACTIVE_SOURCE_ONLY", "contribution": "Warm Wall preserves radio/keyboard/touch/non-color/live-region semantics; no runtime TalkBack claim."},
+    "Phone Runtime / Phone Hands recovery": {"state": "DARK_FIREWALLED", "contribution": "Zero consumption and zero mutation; P0 owners retain first claim."},
+    "deterministic routing": {"state": "ACTIVE", "contribution": "One wounded file is routed to a stage-typed error while deterministic scanning continues for unrelated skills."},
+    "evidence/capability-state discipline": {"state": "ACTIVE", "contribution": "Structured schema v2, exact blobs, historical-vs-current Home Center correction, and TESTED/runtime/deployed/delivered states remain separate."},
+    "recovery/checkpointing/idempotence": {"state": "ACTIVE_BOUNDED", "contribution": "Discovery recovers around one per-file fault without erasing healthy records; strict mode still fails the report. No scheduler/idempotence architecture changed."},
+    "strange non-raster vector/DOM/native UI art": {"state": "ACTIVE_SOURCE_ONLY", "contribution": "Existing DOM/inline-SVG provenance wall mutated in place; no raster and no deployment claim."},
+    "warm walls": {"state": "ACTIVE", "contribution": "FILE FAULT ISOLATED became a touchable material state in the existing wall."},
+    "Christmas-light scene graph": {"state": "DARK", "contribution": "File-fault bookkeeping earns no decorative blink or new motion behavior."},
+    "contact preservation": {"state": "ACTIVE", "contribution": "Healthy provenance records remain visible/admitted while one wounded skill is isolated; the wounded record itself is not accepted."},
+    "heartbeat-skill-provenance-freshness": {"state": "ACTIVE_REPOSITORY_SKILL", "contribution": "Canonical current-tree provenance doctrine was directly read and synchronized."},
+    "home-center-mutation-lane-truth": {"state": "ACTIVE_REPOSITORY_SKILL", "contribution": "Fresh retired-Command-Center evidence prevented a stale queued-job claim or phone-shaped substitute from becoming execution theater."}
+  },
+  "crossPollination": [
+    "0300 malformed-skill wound -> per-file isolation source -> hostile UTF-8/I/O fixtures -> structured report contract review -> schema v2 correction.",
+    "Structured provenance fault -> accessibility topology change -> existing Warm Wall gains FILE FAULT ISOLATED without Christmas motion.",
+    "Fresh Home Center retired-job evidence -> home-center-mutation-lane-truth activation -> historical queued ticket demoted -> phone/P0 firewall preserved.",
+    "Exact-head CI failure -> zero-step/log boundary -> Regnet/Venice keep TESTED false instead of recycling an old cause."
+  ],
+  "nextIndependentWound": "markdown_title has no explicit per-line/title resource budget; a valid UTF-8 SKILL.md with an enormous first line can still consume disproportionate memory/report space. This is non-P0 and remains open for a later pulse.",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkillDoctrine": true,
+    "accessibleSourceSpecimen": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneOrP0Consumption": 0,
+    "phoneOrP0Mutation": 0,
+    "duplicateArchitectureCreated": false,
+    "p0FindingCreated": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__TITLE_RESOURCE_WOUND_OPEN__CAMPAIGN_CONTINUE_REQUIRED"
+}

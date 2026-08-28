@@ -1,0 +1,73 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-0700",
+  "commission": "Advance the TRY FOREVER heartbeat skill swarm without touching the P0 or primary-phone chain.",
+  "planAllowed": true,
+  "sourceBoundary": {
+    "repository": "Valar05/home-center",
+    "pullRequest": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "existingOwner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "duplicateArchitectureAllowed": false
+  },
+  "freshSourceWound": {
+    "name": "viewport restore lifecycle gap",
+    "observed": [
+      "Stable-structure refresh can schedule a one-shot pre-draw viewport restore.",
+      "Structural rebuilds and child/tag-drift fallback rebuilds do not currently restore surviving semantic viewport contact.",
+      "Pending pre-draw restores have no generation/idempotence guard, so an older callback can act after a later heartbeat mutation or explicit selection change."
+    ],
+    "notClaimed": [
+      "No Android runtime observation.",
+      "No TalkBack accessibility-focus ownership or retention proof.",
+      "No phone execution or physical acceptance."
+    ]
+  },
+  "fronts": [
+    {
+      "front": "existing-owner viewport lifecycle",
+      "action": "Capture a surviving selected/keyboard semantic anchor before either structural rebuild or content mutation, restore after layout through the existing HorizontalScrollView, and keep OperatorOverlayService as sole UI owner."
+    },
+    {
+      "front": "restore idempotence",
+      "action": "Add a monotonically advancing source generation so stale pre-draw callbacks are ignored; invalidate pending restore work when a later mutation or explicit light selection supersedes it."
+    },
+    {
+      "front": "regression source",
+      "action": "Extend pure viewport policy fixtures with current-vs-stale restore generation semantics and preserve bounded anchor geometry tests."
+    },
+    {
+      "front": "durable skill/art doctrine",
+      "action": "Update heartbeat viewport/refresh skills and mutate an existing non-raster warm-wall specimen rather than creating a neighboring controller or claiming runtime proof."
+    },
+    {
+      "front": "review/evidence",
+      "action": "Run separate Regnet and Venice source reviews, attempt authoritative She-Raw once, preserve CI/runtime boundaries, and keep requested/implemented/tested/deployed/callable/delivered/accepted separate."
+    }
+  ],
+  "requiredLights": {
+    "Failure Is The Shovel": "lit: use the known CI failure as a reason to advance a different source seam, not retry it",
+    "Canon Auto-Select": "lit: compose existing heartbeat organs and existing OperatorOverlayService",
+    "Autocorrect Judgment Jar": "dark unless an actual ambiguity appears",
+    "Originality Tax": "lit: do not repeat the prior stable-only viewport solution",
+    "Hunger": "lit: carry the repair across owner source, regression, skill doctrine, art, and receipts",
+    "Ever-Polished Interpreter / Eat Everything": "lit: review lifecycle edge cases and source/evidence wording",
+    "Operator Campaign / Harroway": "lit: preserve execution lane, ownership, and capability membrane",
+    "She-Raw": "fault if authoritative connector remains unavailable; no synthetic substitute",
+    "Venice / Regnet": "lit: separate plan/completion and evidence sufficiency reviews",
+    "accessibility/TalkBack/touch": "lit: preserve semantic viewport contact without claiming accessibility focus",
+    "Phone Runtime / Phone Hands": "dark/firewalled",
+    "deterministic routing": "lit: semantic anchor plus deterministic generation gating",
+    "evidence/capability-state": "lit",
+    "recovery/checkpointing/idempotence": "lit: stale callback suppression",
+    "strange non-raster art / warm walls / Christmas graph": "lit only if existing specimen is materially mutated",
+    "contact preservation": "lit: surviving semantic control keeps visible viewport offset when possible"
+  },
+  "p0Firewall": {
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcorePocketTtsChromiumContextOrgans": 0
+  }
+}

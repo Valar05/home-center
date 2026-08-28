@@ -1,0 +1,60 @@
+{
+  "schema": "regnet-qa-review.v1",
+  "heartbeat": "2026-08-16-1400",
+  "pr": 329,
+  "reviewer": "chatgpt-automation-worker",
+  "provenance": "SYNTHETIC_REGNET",
+  "bounded_claim": "A distinct whole-overlay-vs-heartbeat-surface automatic-speech policy is durably implemented with regression source, doctrine, and a touchable non-raster specimen; existing service consumption is not yet claimed.",
+  "acceptance": [
+    "five-argument announcement gate suppresses speech when heartbeatSurfaceVisible is false",
+    "mute and whole-overlay hidden gates remain intact",
+    "suppressed transition can advance announcement identity so expansion does not replay stale speech",
+    "regression source covers visible surface, collapsed surface, mute/hidden, and no-stale-replay cases",
+    "repository doctrine and source specimen preserve the same capability membrane",
+    "no phone/P0 surface is consumed"
+  ],
+  "evidence": {
+    "policy_blob": "483257e1d1aca72610dc632a8343a96f0262e0d6",
+    "regression_blob": "85c33bf6026c3996e88c69c952df6a215ce5a0f0",
+    "skill_blob": "81421273d3cb533b190cee7229e3cf00a9790cd9",
+    "warm_wall_blob": "b686959ac5d5b9cc097372946205b7294e060993",
+    "source_ci_head": "4cc01cb2f7bfb52f8e222feb27606c96e562e2c4",
+    "operator_overlay_run": 31966436501,
+    "operator_overlay_job": 95212201060,
+    "operator_overlay_steps": 0,
+    "ci_annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "findings": [
+    {
+      "severity": "PASS_BOUNDED_SOURCE",
+      "finding": "Policy, regression source, doctrine, and warm-wall source all distinguish visible root from visible heartbeat surface and preserve speech-history-vs-spoken-output truth."
+    },
+    {
+      "severity": "BLOCKED_UNKNOWN",
+      "finding": "Regression source has not executed because the automatic Android job contained zero steps under the unchanged Actions-budget blocker. TESTED remains NO."
+    },
+    {
+      "severity": "REVISE_REQUIRED",
+      "finding": "OperatorOverlayService still calls the four-argument compatibility gate using whole-overlay visibility. Existing-owner consumption of heartbeat-surface visibility remains NO, so the user-visible/runtime bug is not yet source-fixed at the owner seam."
+    }
+  ],
+  "verdict": "REVISE_REQUIRED",
+  "tested": false,
+  "tested_state": "BLOCKED_ACTIONS_BUDGET",
+  "capability_membrane": {
+    "requested": true,
+    "policy_source": true,
+    "regression_source": true,
+    "doctrine_source": true,
+    "non_raster_specimen_source": true,
+    "existing_owner_consumes_heartbeat_surface_gate": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

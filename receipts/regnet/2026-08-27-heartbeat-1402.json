@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "checkpoint": "2026-08-27-heartbeat-1402",
+  "reviewedSourceHead": "6be3b987d874a23cbfffaf4f426ce6481ad3dadc",
+  "verdict": "PASS_BOUNDED_SOURCE__BASE64_DIRECT_COMPARISON_SOURCE_WIRED__REPEATABLE_ACCESSIBILITY_OWNER_BOUNDARY_REVALIDATED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "persistedBase64Canonicality": {
+      "owner": "HeartbeatPersistedBase64Canonicality.matchesCanonicalRoundTrip",
+      "state": "SOURCE_WIRED",
+      "constraint": "reject either direct declaration above HeartbeatPersistedPollPolicy.MAX_PAYLOAD_B64_CHARS before String.equals; do not trim, truncate, normalize, or promote oversized text",
+      "regression": "HeartbeatPersistedBase64CanonicalityTest exact-max/max+1 source fixture",
+      "regressionExecuted": false
+    },
+    "repeatableAccessibilityEvents": {
+      "state": "BOUNDARY_REVALIDATED_SOURCE",
+      "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+      "heartbeatMaterialTransition": "REVIEW_READY_DESIGN__OWNER_WIRED_NO",
+      "combinedPatch": "CANONICAL_PROPOSED_NOT_APPLIED",
+      "spotifyRepeatableReceipt": "BLOCKER_NON_NONE__OWNER_WIRED_NO",
+      "detailRepeatSelectionReceipt": "BLOCKER_NON_NONE__OWNER_WIRED_NO",
+      "adamRepeatSendReceipt": "BLOCKER_NON_NONE__OWNER_WIRED_NO"
+    }
+  },
+  "adversarialChecks": [
+    "safe upstream composition does not green-paint a direct helper boundary",
+    "exact evidence must not be truncated or normalized into canonicality",
+    "design-ready accessibility migration is not owner-wired capability",
+    "do not remove repeatable explicit event receipts while typed blockers remain",
+    "no duplicate accessibility controller or renderer",
+    "no P0 or phone-surface consumption"
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

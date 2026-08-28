@@ -1,0 +1,27 @@
+{
+  "schema": "heartbeat-skill-lights-plan.v1",
+  "pulse": "2026-08-17-0400",
+  "commission": "Continue TRY FOREVER as a broad non-P0 swarm; every lit skill must materially change work or stay dark.",
+  "authority": {
+    "automationCommission": true,
+    "priorDurableGate": "PR #329 0300 next cut authorized applying the one-shot WAITING recovery delta to existing OperatorOverlayService only",
+    "p0PhoneFirewall": "BINDING_ZERO_MUTATION_ZERO_CONSUMPTION"
+  },
+  "plannedFronts": [
+    "apply already-durable one-shot WAITING recovery delta to existing OperatorOverlayService",
+    "exact-readback commit diff and preserve Actions-budget test boundary",
+    "convert stale proposed patch artifact into applied source provenance",
+    "synchronize persisted-poll skill doctrine with actual owner source truth",
+    "mutate the existing non-raster warm wall in place",
+    "perform Regnet/Venice/evidence review and preserve She-Raw connector fault without substitution"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone execution",
+    "P0 recovery coordination or mutation",
+    "Nightcore, Pocket TTS, Chromium, Context Organs",
+    "neighboring poller/controller/renderer/daemon",
+    "manual retry of unchanged Actions-budget CI failure"
+  ],
+  "processScar": "The scheduled commission and prior PR gate authorized the owner mutation before execution, but this repository plan receipt was written after the first owner commit. It is durable reconstruction, not retroactive evidence that a pre-mutation plan file existed.",
+  "capabilityDiscipline": "repository source/readback may advance; tested/runtime/deployed/callable/executed/delivered/accepted remain separate"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "venice.plan-review.v1",
+  "heartbeat": "2026-08-17T12:00:00-05:00",
+  "reviewType": "same-worker Judgment Jar plan review",
+  "target": "Converge typed Candidate and scene-node explicit detail onto HeartbeatEvidenceDetailProjection",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "The 1100 slice retired the scene-node detail cache, but HeartbeatSkillPolicy.detailContentDescription(Candidate) still independently formats typed explicit detail.",
+    "The two typed paths disagree on invisible semantic evidence markers and literal-marker collision handling, so a future Candidate caller can bypass the declared explicit-detail authority without creating any new architecture.",
+    "Delegating only fully typed Candidate detail preserves the legacy compact fallback and keeps compact/routine speech unchanged.",
+    "The cut composes existing source organs and does not touch phone/P0 ownership, transport, deployment, or a neighboring UI controller."
+  ],
+  "requiredChecks": [
+    "Candidate and Node typed detail must be byte-for-byte equal for the same canonical semantic fields.",
+    "Literal marker-looking text must remain distinguishable from projected invisible controls on both typed paths.",
+    "Legacy untyped Candidate detail must retain the compact fallback rather than inventing provenance/evidence.",
+    "Exact canonical source fields and checkpoint identity must remain unchanged.",
+    "No source/readback result may be reported as TESTED or runtime TalkBack evidence."
+  ],
+  "sheRawBoundary": "Authoritative She-Raw consultation was attempted and faulted at account connection; no substitute She-Raw verdict is represented here.",
+  "p0Firewall": "PASS_READ_ONLY"
+}

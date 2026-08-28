@@ -1,0 +1,22 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-17-1400",
+  "pr": 329,
+  "verdict": "PLAN_ALLOWED",
+  "missionFidelity": "PASS",
+  "review": [
+    "The wound is materially different from the completed explicit evidence-detail seam: it concerns routine/plain returned text budgets.",
+    "Use one pure helper rather than three drifting truncators; this does not create a renderer, controller, state store, transport, or P0 owner.",
+    "Routine speech and visible labels must remain plain text. Do not reuse the invisible-evidence marker projection merely because it already knows how to reserve suffix space.",
+    "The ellipsis is part of the returned resource budget. A named 64/72/96/160 code-point cap cannot legally return 65/73/97/161 code points.",
+    "Exact Candidate/Node source fields remain canonical and unmodified. Only projections are bounded.",
+    "P0 and shared-phone surfaces remain completely untouched."
+  ],
+  "requiredEvidence": [
+    "Exact GitHub source readback for helper and all three consumer wires.",
+    "Regression source proving Unicode-safe hard returned bounds and stale expectation repair.",
+    "Durable skill and existing-art mutation only if they materially encode the new invariant.",
+    "Fresh test/workflow readback if available; otherwise TESTED remains NO with exact boundary."
+  ],
+  "gate": "PLAN_ALLOWED / SOURCE_ONLY / NO_PHONE_P0"
+}

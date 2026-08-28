@@ -1,0 +1,42 @@
+{
+  "schema":"try-forever-swarm-v1",
+  "checkpoint":"2026-08-27T21:00:00-05:00",
+  "reviewedSourceHead":"d96219e72f46ee2c929bd7c22334ec0373cab31b",
+  "previousPublicationHead":"5d48356da7b3df47f0697b4668f2a5cbe5ea4369",
+  "sourceDelta":{"commits":10,"paths":7,"unexpectedPaths":0},
+  "lights":{
+    "FailureIsTheShovel":"LIT__broad_owner_rewrite_rejected_and_exact_tree_restored_before_further_work",
+    "CanonAutoSelect":"LIT__reused_existing_Adam_policies_and_exact_base_owner_patches",
+    "AutocorrectJudgmentJar":"DARK__no_material_token_ambiguity",
+    "OriginalityTax":"LIT__did_not_repeat_broad_whole_owner_rewrite_after_self_review_failure",
+    "Hunger":"LIT__crossed_sendability_contact_split_into_result_lifecycle_regression_and_doctrine",
+    "EatEverything":"LIT__reviewed_supporting_policy_tests_owner_patches_native_owner_and_exact_CI",
+    "OperatorCampaign":"LIT__PR329_checkpoint_and_durable_receipts",
+    "Harroway":"LIT__existing_owner_exact_base_and_no_duplicate_controller",
+    "SheRaw":"LIT_ATTEMPTED__account_connection_HTTP_400",
+    "Venice":"LIT__source_slice_checkpoint_with_continue_required_gate",
+    "Regnet":"LIT__supporting_source_pass_owner_revise_required",
+    "AccessibilityTalkBackTouch":"LIT__unsent_contact_truth_prevents_stale_SENT_and_preserves_repeat_send_receipt",
+    "PhoneRuntimePhoneHands":"DARK_FIREWALLED",
+    "DeterministicRouting":"LIT__exact_mode_and_request_owners_preserved",
+    "EvidenceCapabilityState":"LIT__patch_not_owner_source_not_tested",
+    "RecoveryCheckpointIdempotence":"LIT__bad_owner_commit_reverted_without_retrying_same_strategy",
+    "VectorDomNativeArt":"DARK__no_applied_visible_owner_topology_change",
+    "WarmWalls":"DARK__no_applied_visible_owner_topology_change",
+    "ChristmasLightSceneGraph":"LIT_CONSTRAINT__rejected_or_over_budget_input_earns_no_synthetic_motion_or_announcement",
+    "ContactPreservation":"LIT__OVER_BUDGET_is_unsendable_but_hasUnsentText_true"
+  },
+  "fronts":[
+    "Adam availability contact truth SOURCE_WIRED",
+    "Adam READY_SENT lifecycle doctrine SOURCE_WIRED supporting policy",
+    "Cross-policy JUnit regression SOURCE_UNEXECUTED",
+    "UI request source throat exact proposal CONVERGED_NOT_APPLIED",
+    "Native Adam accessibility exact proposal CONVERGED_NOT_APPLIED",
+    "Adam accessibility skill doctrine CONVERGED",
+    "She-Raw attempted boundary recorded",
+    "Exact-head workflow evidence read back"
+  ],
+  "executionTruth":{"operatorOverlayRun":33135449160,"operatorOverlayJob":98734243654,"operatorSteps":0,"homeCenterCiRun":33135449188,"buildAndroidRun":33135449173,"tested":false},
+  "firewall":{"sharedPhoneConsumed":false,"p0Mutated":false,"duplicateArchitecture":false,"newP0Finding":null},
+  "capability":{"requested":true,"supportingSource":true,"authenticatedReadback":true,"uiRequestOwner":false,"nativeAccessibilityOwner":false,"regressionSource":true,"regressionExecuted":false,"tested":false,"runtimeUi":false,"runtimeTalkBack":false,"deployed":false,"callable":false,"executed":false,"delivered":false,"accepted":false}
+}

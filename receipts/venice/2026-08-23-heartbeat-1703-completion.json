@@ -1,0 +1,39 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-23T17:03:00-05:00",
+  "reviewType": "same-worker Judgment Jar completion review",
+  "reviewedSourceHead": "fd858cac5293fa9b3b000f8a0a15ff3b366e2183",
+  "decision": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "passes": [
+    "Existing descriptor-shadow owners were strengthened; no second projector or descriptor authority was created.",
+    "Raw evidence remains separate from operator prose while the operator receipt now binds exact raw machine evidence by SHA-256.",
+    "Wound/unavailable statuses now fail closed when canonical/capability context does not match the claimed pipeline stop.",
+    "Accessibility source organism exposes the new receipt topology using native radio semantics, keyboard access, non-color state, and reduced-motion behavior.",
+    "P0 and primary-phone surfaces were not consumed or mutated."
+  ],
+  "openBoundaries": [
+    "Regression sources are unexecuted.",
+    "Exact-head workflows completed failure; Operator job exposed zero steps and log readback returned 404 BlobNotFound, so no usable step-level cause is established and TESTED remains NO.",
+    "Runtime UI and runtime TalkBack are unobserved.",
+    "Canonical descriptor authority integration remains outside this source slice.",
+    "Deployment, callability, execution, delivery, and acceptance remain NO."
+  ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {
+      "runId": 32669758988,
+      "jobId": 97268645421,
+      "status": "completed",
+      "conclusion": "failure",
+      "exposedSteps": 0,
+      "logReadback": "404 BlobNotFound"
+    },
+    "buildAndroid": {"runId": 32669758996, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32669758994, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "reviewerFaults": [
+    "Authoritative She-Raw consultation failed account connection with HTTP 400; no substitute verdict was fabricated."
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-1300",
+  "pr": 329,
+  "inherited_plan": "receipts/heartbeat-skill-lights/2026-08-16-1200-plan.json",
+  "owner_source_commit": "730543e9c5747bbca73fc0fd731be211b6921abf",
+  "fronts": [
+    {
+      "front": "existing_owner_focus_scope_wiring",
+      "status": "ADVANCED_IMPLEMENTED_SOURCE",
+      "change": "Applied the already-authorized owner delta directly to the existing OperatorOverlayService: actual mutation class and overlay-wide direct keyboard-focus presence now feed explicit captured-owner revalidation."
+    },
+    {
+      "front": "exact_github_readback",
+      "status": "ADVANCED",
+      "change": "Remote readback proves service blob befab3b2be1e3fa3750a18a11d0b45674ee5d285 contains rebuild/fallback mutation classification plus root.findFocus direct-focus scope and the seven-argument policy call."
+    },
+    {
+      "front": "durable_skill_convergence",
+      "status": "ADVANCED",
+      "change": "heartbeat-focus-scope-fail-closed, heartbeat-viewport-contact, and heartbeat-native-ui-projection now agree that existing-owner focus-scope wiring is source-implemented while runtime/TalkBack remain unproven."
+    },
+    {
+      "front": "applied_patch_provenance",
+      "status": "ADVANCED",
+      "change": "The old proposed owner-wiring patch is now historical applied-delta provenance with exact commit/blob identity instead of misleading pending-work status."
+    },
+    {
+      "front": "warm_wall_vector",
+      "status": "ADVANCED_SOURCE_ONLY",
+      "change": "Existing viewport SVG mutated in place to show OWNER FOCUS-SCOPE SOURCE WIRED / RUNTIME UNPROVEN / TALKBACK UNCLAIMED / PHONE UNTOUCHED without decorative geometry motion."
+    },
+    {
+      "front": "deterministic_test_boundary",
+      "status": "EXACT_BOUNDARY",
+      "change": "Automatic Operator Overlay Android on the exact owner source commit created one build job with zero steps; Actions budget still prevents job start. No manual retry was fired."
+    },
+    {
+      "front": "she_raw_review",
+      "status": "FAULT_EXACT_BOUNDARY",
+      "change": "Authoritative She-Raw review was attempted and returned account-connection HTTP 400; no synthetic reviewer replaced it."
+    }
+  ],
+  "lights": {
+    "failure_is_the_shovel": "ACTIVE_APPLIED_PREVIOUSLY_BLOCKED_OWNER_DELTA_THROUGH_DIRECT_GITHUB_SOURCE_LANE_NO_CI_RETRY",
+    "canon_auto_select": "ACTIVE_EXISTING_OWNER_AND_REAL_REPOSITORY_SKILLS_ONLY",
+    "autocorrect_judgment_jar": "DARK_NO_STT_OR_TOKEN_AMBIGUITY",
+    "originality_tax": "ACTIVE_NO_REPEAT_OF_PROPOSED_PATCH_ONLY_FAILURE_OR_DEAD_CI_RETRY",
+    "hunger": "ACTIVE_PROPAGATED_WIRING_TRUTH_ACROSS_OWNER_SKILLS_PROVENANCE_ART_AND_RECEIPTS",
+    "ever_polished_interpreter_eat_everything": "ACTIVE_REPAIRED_STALE_SKILL_DOCTRINE_AND_PROPOSAL_STATUS_AFTER_IMPLEMENTATION",
+    "operator_campaign": "ACTIVE_EXISTING_OPERATOR_OVERLAY_OWNER_ONLY",
+    "harroway_operator_discipline": "ACTIVE_EXACT_SOURCE_RUNTIME_PHONE_CAPABILITY_MEMBRANE",
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+    "venice_judgment_jars": "ACTIVE_BOUNDED_SOURCE_PASS_CAMPAIGN_CONTINUE_REQUIRED",
+    "regnet_qa": "ACTIVE_IMPLEMENTED_SOURCE_AND_EXACT_READBACK_PASS_TESTED_BLOCKED",
+    "accessibility_talkback_touch": "ACTIVE_DIRECT_KEYBOARD_SCOPE_SEPARATED_FROM_TALKBACK_AND_MUTATION_CLASS_FAIL_CLOSED",
+    "phone_runtime_phone_hands": "DARK_FIREWALLED_ZERO_CONSUMPTION",
+    "deterministic_routing": "ACTIVE_CAPTURED_OWNER_PLUS_ACTUAL_MUTATION_PLUS_ROOT_FOCUS_SCOPE",
+    "evidence_capability_state": "ACTIVE_OWNER_WIRING_YES_TESTED_RUNTIME_DEPLOYED_DELIVERED_ACCEPTED_NO",
+    "recovery_checkpoint_idempotence": "ACTIVE_EXISTING_GENERATION_AND_STALE_OWNER_REVALIDATION_COMPOSED_WITH_SCOPE",
+    "strange_non_raster_art": "ACTIVE_EXISTING_VECTOR_SCAR_MUTATED_IN_PLACE",
+    "warm_walls": "ACTIVE_OWNER_WIRING_SCAR_NOW_MATCHES_SOURCE_TRUTH",
+    "christmas_light_scene_graph": "ACTIVE_FOCUS_AND_GEOMETRY_BOOKKEEPING_STILL_EARNS_NO_DECORATIVE_MOTION",
+    "contact_preservation": "ACTIVE_RESTORE_NOW_REQUIRES_CURRENT_INTERACTION_OWNERSHIP_AND_EXPLICIT_FOCUS_SCOPE",
+    "heartbeat_focus_scope_fail_closed": "ACTIVE_REPOSITORY_SKILL_SYNCHRONIZED",
+    "heartbeat_viewport_contact": "ACTIVE_REPOSITORY_SKILL_SYNCHRONIZED_AND_DOCTRINE_CONTRADICTION_REPAIRED",
+    "heartbeat_native_ui_projection": "ACTIVE_REPOSITORY_SKILL_SYNCHRONIZED"
+  },
+  "cross_pollination": "Prior proposed owner patch -> direct existing-owner GitHub source application -> exact readback -> automatic CI boundary -> code-first focus/TalkBack claim review -> stale skill doctrine discovered -> three skills synchronized -> applied provenance repaired -> warm-wall source scar updated -> Regnet/Venice capability gate.",
+  "test_boundary": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31963495045,
+    "job_id": 95204944307,
+    "head": "730543e9c5747bbca73fc0fd731be211b6921abf",
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_firewall": {
+    "phone_hands": 0,
+    "primary_phone_commands": 0,
+    "phone_queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore": 0,
+    "pocket_tts": 0,
+    "chromium": 0,
+    "context_organs": 0,
+    "physical_acceptance_actions": 0,
+    "duplicate_p0_owners": 0
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "existing_owner_explicit_mutation_focus_scope_wiring": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_viewport_observed": false,
+    "runtime_keyboard_focus_observed": false,
+    "runtime_talkback_observed": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "current_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE. Existing-owner focus-scope source wiring is now implemented and durably read back; deterministic tests and all runtime/phone/acceptance states remain unproven. Recurring campaign continues."
+}

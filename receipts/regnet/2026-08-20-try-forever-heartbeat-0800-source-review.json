@@ -1,0 +1,55 @@
+{
+  "schema": "regnet-review.v1",
+  "timestamp": "2026-08-20T08:13:30-05:00",
+  "sourceHead": "c32eea592ca8b53f458fc9f73628ce57045a5bbb",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "review": [
+    "Generated-index sourceHead had an evidence-class defect: after strict JSON and alias admission, any non-empty string flowed directly into source_head != current_head, so malformed identity could be reported as ordinary STALE.",
+    "The new sourceHead policy fails malformed or normalization-dependent identity before freshness comparison while preserving exact missing/empty evidence as the existing not-declared state.",
+    "Code-first review rejected a second local Git-object-ID definition; the final policy reuses _is_git_object_id from the existing authority-facing repository observation organ.",
+    "Hostile policy regression covers exact SHA-1/SHA-256, whitespace, case drift, control/non-hex/wrong length, and non-string shapes. The owner boundary remains intentionally RED because the sole owner does not consume the policy.",
+    "The owner delta is base-blob locked to authenticated sole-owner blob 1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d and remains PROPOSED_NOT_APPLIED.",
+    "The existing exact SKILL.md content-to-HEAD owner boundary was strengthened to require one bounded HEAD blob-set observation before the per-file loop, same-observation content.git_blob_identity, no recomputation/second content read, and rejection before SkillRecord append.",
+    "Authenticated owner readback remains blob 1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d; neither owner seam is wired.",
+    "The sourceHead evidence throat is accessible source art only: native radio controls, keyboard focus, >=48px targets, non-color states, aria-live detail, reduced-motion handling, no runtime/phone claim and no decorative blink.",
+    "Command Center Codex agents/jobs/sessions/workers are freshly reported permanently retired; no spelling retry, duplicate worker API, or phone substitute was used. This does not independently prove every Computer Hands surface is retired.",
+    "Phone/P0 consumption and mutation are zero; no duplicate architecture was created."
+  ],
+  "exactReadback": {
+    "sourceHeadPolicyBlob": "e8f3f030c14afb239e8d29affb3a4a7cf9990385",
+    "sourceHeadPolicyRegressionBlob": "37722bc9d35444df1b082529d2068545719b49a5",
+    "sourceHeadOwnerBoundaryBlob": "af525eabc3a094c6c3c0a087a6bd92db1ab8a3d0",
+    "sourceHeadSkillBlob": "f49de14d18b2f86ab41fae97b8623ea661b6797e",
+    "sourceHeadOwnerDeltaBlob": "3cb6d78045f1207c2c61f2ea71a4e6e3b885cea3",
+    "sourceHeadArtBlob": "dbc3de3ad2f049323b1b53f559c52c37471c558b",
+    "headContentOwnerBoundaryBlob": "37b8b2bb9c8b6b52b830b5ccf05d5d35e1a98872",
+    "soleOwnerBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d"
+  },
+  "executionTruth": {
+    "operatorOverlayRun": 32372953059,
+    "operatorJob": 96437514099,
+    "operatorConclusion": "failure",
+    "exposedSteps": 0,
+    "logs": "404 BlobNotFound",
+    "buildAndroidRun": 32372953144,
+    "homeCenterCiRun": 32372953140,
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false,
+    "tested": false
+  },
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "sourceHeadOwnerWired": false,
+    "headContentOwnerWired": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

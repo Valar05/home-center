@@ -1,0 +1,27 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "timestampLocal": "2026-08-24T22:00:00-05:00",
+  "mode": "same-worker bounded Judgment Jar review",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "non-P0 TRY FOREVER repository/source work only",
+  "grounds": [
+    "The plan reuses the existing canonical-result fingerprint organ and existing final v4 receipt owner; it does not create a neighboring receipt owner/projector/digest authority.",
+    "The candidate repair preserves ordinary valid-Unicode digest identity and changes only the otherwise-unencodable surrogate case; this is evidence identity, not artifact authority.",
+    "The focused regression, doctrine, and existing-art mutation may advance only as repository/source evidence; regression execution, TESTED, runtime, deployment, phone delivery, and acceptance remain separate.",
+    "The current canonical-fingerprint specimen contains stale owner-unwired wording even though descriptor-shadow owner consumption is already authenticated; repairing that stale source-art truth is allowed.",
+    "Phone/P0 execution, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain explicitly firewalled."
+  ],
+  "constraints": {
+    "noPhoneP0Mutation": true,
+    "noDuplicateArchitecture": true,
+    "noRuntimeClaimFromSource": true,
+    "noDecorativeSkillLights": true,
+    "reuseExistingFingerprintOrgan": true,
+    "sourceVsTestMembrane": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "account_connection_http_400",
+    "syntheticSubstituteUsed": false
+  }
+}

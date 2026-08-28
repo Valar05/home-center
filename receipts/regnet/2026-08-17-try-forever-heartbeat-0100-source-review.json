@@ -1,0 +1,61 @@
+{
+  "type": "regnet_source_review",
+  "heartbeat": "2026-08-17-0100",
+  "scope": "TRY FOREVER non-P0 source slice",
+  "verdict": "PASS_FOR_OWNER_COHERENT_READ_SOURCE_WITH_REVISE_REQUIRED_ACCESSIBILITY_WOUND",
+  "verified": {
+    "existing_owner_uses_one_map_reader": true,
+    "storage_read_failure_uses_bounded_boundary": true,
+    "storage_read_failure_preserves_last_good_scene": true,
+    "storage_read_failure_does_not_advance_processed_snapshot": true,
+    "next_poll_retry_semantics": true,
+    "regression_source_added": true,
+    "skill_doctrine_synchronized": true,
+    "non_raster_art_mutated_in_place": true,
+    "p0_phone_mutations": 0
+  },
+  "code_first_findings": [
+    {
+      "severity": "fixed",
+      "finding": "Four independent heartbeat SharedPreferences getters could straddle committed maps and manufacture a false byte/SHA integrity wound.",
+      "resolution": "Existing OperatorOverlayService now consumes HeartbeatPersistedSnapshotReader.read(this)."
+    },
+    {
+      "severity": "fixed",
+      "finding": "A coherent storage read failure had no bounded retryable owner semantics.",
+      "resolution": "Owner preserves the existing scene with STORAGE_READ_FAILURE_BOUNDARY and does not advance heartbeatProcessedPersistedSnapshot."
+    },
+    {
+      "severity": "open",
+      "finding": "OperatorOverlayService.applyHeartbeatModelChrome still labels any zero-control interrupted frame as CONTACT HELD. A read failure before first accepted contact has no visiblePulseId, so that visible label would overclaim contact.",
+      "source_repair_prepared": "HeartbeatOverlayViewModel.Model.summaryVisibleLabel() now distinguishes REFRESH BLOCKED from CONTACT HELD, with regression source, but the existing service does not yet consume that helper.",
+      "required_next_cut": "Make existing applyHeartbeatModelChrome consume model.summaryVisibleLabel(); no new renderer/controller."
+    }
+  ],
+  "test_state": {
+    "tested": false,
+    "boundary": "BLOCKED_ACTIONS_BUDGET",
+    "workflow_run": 32000913706,
+    "job": 95300941561,
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "existing_owner_coherent_reader_source_wired": true,
+    "bounded_read_failure_source_semantics": true,
+    "precontact_summary_policy_source": true,
+    "existing_owner_consumes_precontact_summary_policy": false,
+    "regression_source": true,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "localTime": "2026-08-18T15:07:11-05:00",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "advancedFronts": [
+    {
+      "front": "final skills-root authority",
+      "changed": "exact existing-owner patch provenance adds a final root comparison after all per-file authority work",
+      "state": "SOURCE_PATCH_PROPOSED_NOT_APPLIED",
+      "artifact": "patches/try-forever-skill-final-root-revalidation.patch",
+      "blob": "0d9930467cff8f90ffa8fd79ecd0ea96c7409864"
+    },
+    {
+      "front": "final-root hostile fixtures",
+      "changed": "red source requires three root observations and zero partial authority on late persistent replacement/final identity failure",
+      "state": "REGRESSION_SOURCE_NOT_TESTED",
+      "artifact": "tools/test_try_forever_skill_final_root_revalidation.py",
+      "blob": "14549b5563f6f74ff4eef7be2295dc6a0b7e7b85"
+    },
+    {
+      "front": "generated-index ingress",
+      "changed": "exact existing-owner patch provenance adds a 1 MiB + sentinel byte throat and strict UTF-8 error isolation before JSON parsing",
+      "state": "SOURCE_PATCH_PROPOSED_NOT_APPLIED",
+      "artifact": "patches/try-forever-generated-index-ingress-budget.patch",
+      "blob": "7cdc431c16e429efbbc4dfd637043ab7ef08dff4"
+    },
+    {
+      "front": "generated-index hostile fixtures",
+      "changed": "red source isolates malformed UTF-8, oversized input, and valid-small-input semantic preservation",
+      "state": "REGRESSION_SOURCE_NOT_TESTED",
+      "artifact": "tools/test_try_forever_generated_index_ingress_budget.py",
+      "blob": "03dc2d0ca8fac826735c4509d61e90b6f8fb8f4c"
+    },
+    {
+      "front": "skill harvest",
+      "changed": "two reusable repository skills encode final-root release gating and generated-index ingress resource/error law",
+      "state": "DURABLE_SOURCE",
+      "artifacts": [
+        "skills/heartbeat-skill-final-root-revalidation/SKILL.md",
+        "skills/heartbeat-generated-index-ingress-budget/SKILL.md"
+      ],
+      "blobs": [
+        "cecc33efa72688dfed89607110fe375d6b3bce1f",
+        "ae8938ef6ad21f91b30d94616381fbfee3719d27"
+      ]
+    },
+    {
+      "front": "accessible Warm Wall",
+      "changed": "existing candidate identity DOM/inline-SVG organism mutated in place with FINAL ROOT COMMIT GATE, radio/roving keyboard/48px/non-color/reduced-motion semantics retained",
+      "state": "SOURCE_ONLY_RUNTIME_UNPROVEN",
+      "artifact": "docs/try-forever/heartbeat-skill-file-identity-source-specimen.html",
+      "blob": "b4f3794c06c4b2e6bb0d2a12b6cf97d64ed83403"
+    },
+    {
+      "front": "review and evidence",
+      "changed": "Regnet and Venice receipts preserve owner-NO/test-NO/runtime-NO membrane; She-Raw authoritative surface recorded as account-connection fault without substitution",
+      "state": "DURABLE_REVIEW"
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: moved from the preserved final-root wound into exact patch + red fixtures and then exposed a second independent generated-index ingress wound",
+    "Canon Auto-Select": "LIT: selected current repository owner/source evidence rather than stale generated-index authority",
+    "Autocorrect Judgment Jar": "DARK: no material STT/autocorrect ambiguity appeared",
+    "Originality Tax": "LIT: no CI retry and no re-polish of completed candidate-file seam; second front was structurally different",
+    "Hunger": "LIT: demanded durable owner-facing source contracts rather than another receipt-only pulse",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: source archaeology cross-pollinated final-root review into the generated-index UTF-8/resource wound",
+    "Operator Campaign": "LIT: existing provenance probe retained sole ownership; unapplied patch state preserved",
+    "Harroway operator discipline": "LIT: all writes used audited Home Center GitHub authority; Command Center workers were treated as permanently retired",
+    "She-Raw adversarial motivation": "FAULT: account connection HTTP 400; no synthetic reviewer",
+    "Venice Judgment Jars": "LIT: bounded source slice allowed to yield while owner/test/atomicity wounds remain open",
+    "Regnet QA": "LIT: PASS source claims / REVISE REQUIRED owner wiring; capability membrane enforced",
+    "accessibility/TalkBack and touch semantics": "LIT: existing radiogroup/roving keyboard/48px/non-color/reduced-motion Warm Wall gained a final-root gate without automatic speech",
+    "Phone Runtime / Phone Hands recovery": "DARK BY FIREWALL: consumption 0, mutation 0",
+    "deterministic routing": "LIT: exact current owner blob, exact patch/test/skill/art blobs, zero partial authority on final-root failure",
+    "evidence/capability-state discipline": "LIT: requested/source/owner-wired/tested/runtime/deployed/callable/executed/delivered/accepted remain separate",
+    "recovery/checkpointing/idempotence": "LIT: final root rejection discards all gathered records; generated-index rejection returns bounded UNRESOLVED instead of partial authority",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing inline-SVG/DOM Warm Wall mutated in place",
+    "warm walls": "LIT: FINAL ROOT COMMIT GATE is touchable and source/runtime boundaries are visible",
+    "Christmas-light scene graph": "DARK: repository provenance bookkeeping earned no transition animation",
+    "contact preservation": "LIT AS EVIDENCE LAW: fail-closed global gates preserve zero partial repository-skill authority rather than selecting a convenient surviving record"
+  },
+  "executionTruth": {
+    "exactReviewedSourceHead": "30b9d8836434ab14b0600a09bbbac7a349277b7c",
+    "automaticOperatorOverlayRun": 32181282155,
+    "job": 95854641293,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": "NONE"
+  },
+  "capability": {
+    "requested": true,
+    "implementedRepositorySourceArtifacts": true,
+    "exactRemoteReadback": true,
+    "regressionSource": true,
+    "existingOwnerFinalRootGate": false,
+    "existingOwnerGeneratedIndexIngressBudget": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "final-root authority wound -> exact late-root gate -> red three-observation fixtures -> durable skill -> accessible Warm Wall; source archaeology during that review -> unbounded generated-index read + uncaught UTF-8 wound -> independent ingress patch + red fixtures + durable skill; Regnet/Venice keep both proposed owner seams behind the capability membrane while P0 stays untouched"
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "regnet-review.v1",
+  "heartbeat": "2026-08-23T13:01:16-05:00",
+  "project": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "956e23fb482b11184c2fd048ffce09ae52e1d7bb",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__RECEIPT_SELF_INTEGRITY_SUPPORTING_SOURCE__PROJECTION_FIXTURE_REPAIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "sourceReview": {
+    "startingHead": "453ce5988c4fb2e291bdf96a46b1fcccacddb5fe",
+    "aheadBy": 8,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0,
+    "paths": [
+      "receipts/try-forever/2026-08-23-heartbeat-1301-plan.json",
+      "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+      "tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+      "tools/test_try_forever_owner_surgery_shadow_receipt_projection.py",
+      "skills/operator-owner-surgery-shadow-receipt-integrity/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-descriptor-shadow-source-specimen.html"
+    ]
+  },
+  "findings": [
+    {
+      "status": "REPAIRED_SOURCE",
+      "finding": "Existing operator receipt projection trusts supplied comparison booleans. New supporting self-integrity gate recomputes path-set, work-metric, and exact-content truth before delegating to the existing projector."
+    },
+    {
+      "status": "REPAIRED_SOURCE",
+      "finding": "Existing projection regression carried stale DESCRIPTOR_WOUND false/false/false semantics and stale SHADOW_DIVERGED error wording; both fixtures now match current tri-state source truth."
+    },
+    {
+      "status": "REPAIRED_DURING_REVIEW",
+      "finding": "First self-integrity draft validated temporal canonical result identity but did not fully pin carried shadow-result identity or denied capability fields. Corrective source now requires shadowCanonicalResultSha256 equality and false authority/owner/regression/test/runtime/TalkBack/phone flags; hostile fixtures attack both wounds."
+    },
+    {
+      "status": "REPAIRED_DOCTRINE",
+      "finding": "Shadow-receipt integrity skill was stale: tri-state owner and strict temporal receipt-context owner are already SOURCE_WIRED. Doctrine now matches authenticated owner truth and records self-integrity as supporting source only."
+    }
+  ],
+  "capability": {
+    "descriptorShadowTriStateOwner": "SOURCE_WIRED",
+    "temporalReceiptContextOwner": "SOURCE_WIRED",
+    "receiptSelfIntegrity": "SUPPORTING_SOURCE",
+    "receiptSelfIntegrityOwnerConsumption": "NO",
+    "regressionSource": "YES_UNEXECUTED",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "descriptorAuthorityIntegration": "NO",
+    "backendComposition": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "executionEvidence": {
+    "exactReviewedHeadWorkflowRunsObserved": 3,
+    "runs": [
+      {"name": "Operator Overlay Android", "runId": 32657058179, "conclusion": "failure", "jobId": 97237354419, "stepsExposed": 0, "logs": "404_BlobNotFound"},
+      {"name": "Build Android", "runId": 32657058176, "conclusion": "failure"},
+      {"name": "Home Center CI", "runId": 32657058170, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "testedPromotion": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-23T21:02:08-05:00",
+  "mission": "Advance non-P0 TRY FOREVER receipt integrity without creating a second descriptor authority, projector, overlay controller, or recovery organ.",
+  "plannedFronts": [
+    "Harden the existing descriptor-shadow receipt self-integrity owner so raw top-level capability claims cannot be sanitized into false operator claims; contradictory regressionExecuted/tested/runtimeUi/runtimeTalkBack/phoneDelivered evidence must fail closed.",
+    "Add hostile source fixtures at both self-integrity and actual operator-command boundaries proving raw capability overclaims are rejected before bounded projection.",
+    "Converge the existing receipt-integrity skill doctrine and existing descriptor-shadow Warm Wall around the new raw-capability membrane.",
+    "Perform code-first Regnet review, same-worker Venice completion review, exact remote readback, and current-head execution evidence check without manually retrying failed workflows.",
+    "Keep P0/phone surfaces at zero consumption/mutation and preserve regression source != regression execution != TESTED != runtime/deployed/delivered/accepted."
+  ],
+  "explicitNonGoals": [
+    "No Phone Hands or primary-phone execution",
+    "No P0 recovery mutation",
+    "No descriptor authority promotion",
+    "No second receipt projector",
+    "No manual CI retry",
+    "No merge or rebase"
+  ],
+  "gate": "PLAN_PENDING_VENICE_REVIEW"
+}

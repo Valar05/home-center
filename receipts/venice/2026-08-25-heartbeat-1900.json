@@ -1,0 +1,33 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "timestampLocal": "2026-08-25T19:00:00-05:00",
+  "reviewer": "current-authorized-chatgpt-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "repository": "Valar05/home-center",
+  "reviewedSourceHead": "b3f1d3a71368d8a906a33e3b5264b43361bb9bec",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "STOP_ALLOWED_FOR_SEMANTIC_PRODUCER_AND_DEFAULT_OWNER_HARDENING_ONLY",
+  "jar": "observable evidence outranks confidence; a reusable semantic organ is not authority until the existing owner consumes it; exact machine inputs must be admitted before callbacks; source/test/runtime/delivery states stay separate",
+  "finding": "The fallback-owner boundary is now exact-scalar source-wired, a pure exact-observation semantic producer removes the previous missing-parser supporting-source gap, hostile regression source records both boundaries, and the existing accessible Warm Wall/doctrine expose canonical descriptor composition as still unwired.",
+  "note": "STOP_ALLOWED applies only to this bounded non-P0 source slice. Canonical v10 still does not consume backend selection, descriptor observations, or the semantic producer. Regression execution, TESTED, runtime, deployment, delivery, acceptance, and the recurring TRY FOREVER campaign remain continue-required.",
+  "capabilityMembrane": {
+    "defaultOwnerExactInputSourceWired": true,
+    "semanticProducerSupportingSource": true,
+    "canonicalOwnerConsumesSemanticProducer": false,
+    "canonicalOwnerConsumesBackendSelection": false,
+    "canonicalOwnerConsumesDescriptorBackend": false,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_OWNER_DESCRIPTOR_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

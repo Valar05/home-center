@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "time": "2026-08-16T09:00:00-05:00",
+  "fronts": [
+    {
+      "name": "visible-contact policy",
+      "advanced": true,
+      "result": "Added pure horizontal intersection truth and geometry-aware selected-first/keyboard-focus-fallback chooser."
+    },
+    {
+      "name": "accessibility regression source",
+      "advanced": true,
+      "result": "Pinned whole/partial/offscreen/exact-edge/zero-width/overflow geometry and offscreen-selection fallback behavior."
+    },
+    {
+      "name": "durable skill doctrine",
+      "advanced": true,
+      "result": "Heartbeat viewport-contact skill now separates semantic selection, keyboard focus, visible contact, and TalkBack focus and marks owner visibility-gate consumption NO."
+    },
+    {
+      "name": "warm-wall vector art",
+      "advanced": true,
+      "result": "Existing SVG was mutated in place to expose OFFSCREEN SELECTED -> FOCUSED VISIBLE source policy and runtime-unproven scar."
+    },
+    {
+      "name": "evidence review",
+      "advanced": true,
+      "result": "Fresh plan, Regnet, Venice, She-Raw fault, and current-head CI boundary were preserved durably."
+    }
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: redirected unchanged CI failure into the visibility-truth seam.",
+    "Canon Auto-Select": "ACTIVE: reused heartbeat-viewport-contact and existing viewport organs.",
+    "Autocorrect Judgment Jar": "DARK: no material STT/autocorrect ambiguity.",
+    "Originality Tax": "ACTIVE: no unchanged-condition CI retry; materially different source front.",
+    "Hunger": "ACTIVE: wound propagated through policy, tests, doctrine, art, and receipts.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: code review separated semantic candidacy from geometry truth and preserved the remaining owner-consumption wound.",
+    "Operator Campaign": "ACTIVE: existing OperatorOverlayService remains sole Android UI owner.",
+    "Harroway operator discipline": "ACTIVE: capability membrane and exact boundary retained.",
+    "She-Raw adversarial motivation": "FAULT: authoritative connector returned account-connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "ACTIVE: same-worker repository Judgment Jar review grants bounded slice yield only and campaign CONTINUE_REQUIRED.",
+    "Regnet QA": "ACTIVE: bounded source claim passes; TESTED/runtime remain false.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: semantic selection, keyboard focus, visible contact, and TalkBack focus are distinct; partial intersection policy pinned.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero phone/P0 surface consumption.",
+    "deterministic routing": "ACTIVE: geometry-aware accepted anchor chooser is deterministic and fail-closed.",
+    "evidence/capability-state discipline": "ACTIVE: source policy YES; owner consumption NO; tested/runtime/deployed/delivered/accepted NO.",
+    "recovery/checkpointing/idempotence": "ACTIVE: existing generation ticket remains authoritative; geometry decision does not alter generation/evidence identity.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing SVG mutated in place; no raster or deployment claim.",
+    "warm walls": "ACTIVE: visible-contact scar updated.",
+    "Christmas-light scene graph": "ACTIVE: geometry-only policy earns no semantic announcement or decorative motion.",
+    "contact preservation": "ACTIVE: offscreen semantic selection is no longer treated as source-policy visible contact."
+  },
+  "cross_pollination": "viewport restore ownership -> semantic-selection/visible-contact contradiction -> pure geometry truth -> offscreen selection fallback policy -> hostile accessibility fixtures -> durable skill doctrine -> warm-wall scar -> Regnet/Venice capability membrane",
+  "test_boundary": {
+    "head_sha": "b7fb5f60955a91fa6077d268528fad91a7170db7",
+    "operator_overlay_run": 31951775252,
+    "job": 95176228528,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry": false
+  },
+  "p0_phone_mutation_count": 0,
+  "duplicate_architecture_created": false,
+  "next_exact_wound": "Wire the existing OperatorOverlayService capture path to compute live selected/focused control visibility and consume visibleViewportAnchorId before creating a restore ticket; do not touch P0 or claim TalkBack/runtime proof."
+}

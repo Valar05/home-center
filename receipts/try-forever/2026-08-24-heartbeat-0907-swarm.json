@@ -1,0 +1,143 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpoint": "2026-08-24T09:07:33-05:00",
+  "reviewedSourceHead": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+  "startingHead": "d0b1f785b154d9f972756569f30c631020e75284",
+  "frontsAdvanced": [
+    "operator receipt projection-derivation custody supporting source",
+    "existing v4 final-owner derivation wiring through audited Home Center GitHub-admin",
+    "hostile derivation regression source",
+    "owner-boundary regression converged from RED to SOURCE_WIRED shape",
+    "direct-owner AST evidence correction",
+    "durable derivation-custody repository skill",
+    "touchable non-raster derivation Warm Wall converged after owner wiring",
+    "exact-head workflow evidence plus Regnet/Venice durable reviews"
+  ],
+  "skillLights": [
+    {
+      "name": "Failure Is The Shovel",
+      "state": "LIT",
+      "changed": "Converted raw-SHA-linkage != bounded-projection-derivation into policy, hostile regression, then real existing-owner wiring."
+    },
+    {
+      "name": "Canon Auto-Select",
+      "state": "LIT",
+      "changed": "Harvested operator-receipt-derivation-custody because the wound generalized beyond one fixture."
+    },
+    {
+      "name": "Autocorrect Judgment Jar",
+      "state": "DARK",
+      "changed": "No material token ambiguity required interpretation."
+    },
+    {
+      "name": "Originality Tax",
+      "state": "LIT",
+      "changed": "Reused the existing self-integrity/projector and final v4 owner; replaced permissive AST evidence rather than creating a second projector or cosmetic retry."
+    },
+    {
+      "name": "Hunger / Eat Everything",
+      "state": "LIT",
+      "changed": "Propagated source truth through policy, two regression fronts, final owner, repository skill, touchable art, and durable reviews so no stale RED doctrine survived."
+    },
+    {
+      "name": "Ever-Polished Interpreter",
+      "state": "LIT",
+      "changed": "Separated final identity, raw-evidence linkage, and raw-to-bounded projection derivation into distinct proof obligations."
+    },
+    {
+      "name": "Operator Campaign / Harroway",
+      "state": "LIT",
+      "changed": "Existing final receipt owner remained sole owner and was mutated through audited Home Center GitHub-admin: commit 492db0348caab7307098ff2e487fae300943044b, blob b1da64ae3d50c26dd415d73e6000fb5ddda51183."
+    },
+    {
+      "name": "She-Raw",
+      "state": "FAULT",
+      "changed": "Authoritative consultation attempted; account connection returned HTTP 400. No synthetic reviewer substituted."
+    },
+    {
+      "name": "Venice Judgment Jars",
+      "state": "LIT",
+      "changed": "Pre-mutation PLAN_ALLOWED and bounded completion preserve regression/test/runtime/campaign continuation after owner wiring."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "LIT",
+      "changed": "Caught nested-function false-positive risk in the first owner fixture, then verified bounded source/readback after owner promotion without calling unexecuted regressions TESTED."
+    },
+    {
+      "name": "Accessibility / TalkBack / touch semantics",
+      "state": "LIT",
+      "changed": "A keyboard/touch-operable DOM+inline-SVG derivation throat now shows owner SOURCE_WIRED while runtime TalkBack remains NO."
+    },
+    {
+      "name": "Phone Runtime / Phone Hands recovery",
+      "state": "DARK_FIREWALLED",
+      "changed": "Consumption 0; mutation 0; no queue/relay/recovery/physical acceptance work."
+    },
+    {
+      "name": "Deterministic routing / evidence-capability discipline",
+      "state": "LIT",
+      "changed": "Exact raw schema, raw SHA linkage, exact recomputed upstream field parity, authenticated owner readback, and explicit source/test/runtime membrane."
+    },
+    {
+      "name": "Recovery / checkpointing / idempotence / contact preservation",
+      "state": "LIT",
+      "changed": "An earlier receipt can remain identity-valid while separately failing linkage or derivation; each proof obligation remains independently checkable."
+    },
+    {
+      "name": "Strange non-raster art / Warm Walls",
+      "state": "LIT",
+      "changed": "RAW -> SELF-AUDIT -> PROJECT -> DERIVE -> FINAL v4 is now touchable source truth with owner source-wired and runtime/deployment scars visible."
+    },
+    {
+      "name": "Christmas-light scene graph",
+      "state": "DARK",
+      "changed": "No runtime transition topology changed; evidence plumbing earned no decorative motion."
+    }
+  ],
+  "regnetCorrection": "Initial owner-boundary direct-call helper used ast.walk, which does not prune nested FunctionDef bodies. A custom direct-body AST visitor replaced it before owner promotion; the fixture was then converged to pin SOURCE_WIRED owner behavior.",
+  "sourceCustody": {
+    "base": "d0b1f785b154d9f972756569f30c631020e75284",
+    "head": "12d54abbbd98e5fbbc894a3b166eccadac0b1ff3",
+    "commits": 15,
+    "intendedPaths": 11,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "homeCenterCiRun": 32738207097,
+    "operatorOverlayRun": 32738207375,
+    "operatorOverlayJob": 97466077851,
+    "buildAndroidRun": 32738207393,
+    "status": "completed",
+    "conclusion": "failure",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "ownerDerivationIntegration": "SOURCE_WIRED",
+    "authenticatedOwnerReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "nextExactCut": "Review the final v4 derivation membrane for unexpected upstream fields that are not produced by the recomputed self-integrity/projector output but could still be carried into a self-consistent final receipt; any repair must stay in the existing final owner and must not create a second projector or touch phone/P0."
+}

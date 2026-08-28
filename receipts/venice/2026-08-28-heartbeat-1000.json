@@ -1,0 +1,63 @@
+{
+  "schema": "venice-heartbeat-judgment.v1",
+  "time_ct": "2026-08-28T10:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewed_source_head": "abfc44b3387a076d11a7653d6231b5a393102fe2",
+  "judgment": "CONTINUE_REQUIRED",
+  "accepted_now": [
+    "two new hostile source fixtures expose concrete evidence gaps without mutating native owners",
+    "Warm Wall now distinguishes invalid OVER_BUDGET from valid-but-unavailable empty input without live chatter",
+    "adam-mode-accessibility canon records immediate admission and policy-result data-flow custody",
+    "capability state was demoted where evidence became stricter rather than cosmetically preserved"
+  ],
+  "held_open": [
+    "request-admission probe repair",
+    "send-action classifier data-flow repair",
+    "actual Adam UI request-owner mutation",
+    "actual native accessibility-owner mutation",
+    "regression execution",
+    "TESTED status",
+    "Android runtime UI proof",
+    "TalkBack runtime proof",
+    "deployment, callability, delivery, acceptance"
+  ],
+  "contact_preservation": {
+    "legacy_explicit_adam_send_receipt": "PRESERVE",
+    "reason": "ADAM_REPEAT_SEND_RESULT_UNRESOLVED remains non-NONE; source-only semantics do not prove repeatable runtime receipt replacement"
+  },
+  "christmas_light_constraint": {
+    "automatic_detail_speech": "OFF",
+    "rejection_animation": "NONE",
+    "invalid_state": "PROGRAMMATIC_PLUS_TEXT_NOT_BLINK"
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute": false
+  },
+  "firewall": {
+    "phone_consumption": 0,
+    "phone_mutation": 0,
+    "p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_supporting_source": true,
+    "authenticated_repository_readback": true,
+    "request_probe_v9": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+    "send_action_probe": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+    "warm_wall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "adam_ui_request_owner": "REBASED_PROPOSED_NOT_APPLIED",
+    "adam_native_accessibility_owner": "REBASED_PROPOSED_NOT_APPLIED",
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

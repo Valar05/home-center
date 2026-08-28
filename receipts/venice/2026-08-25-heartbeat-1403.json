@@ -1,0 +1,23 @@
+{
+  "schema": "venice-judgment-receipt.v1",
+  "timestampLocal": "2026-08-25T14:03:00-05:00",
+  "reviewedSourceHead": "2710626a8137b530447f129fc6f6a50a537217b6",
+  "planGate": "PLAN_ALLOWED",
+  "completionGate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": [
+    "Mission fidelity PASS: source-only non-P0 work; no phone/P0 surface consumed or mutated.",
+    "Duplicate-architecture discipline PASS: existing snapshot custody, temporal policy, receipt-integrity gate, descriptor shadow, skills, and Warm Wall were composed in place.",
+    "Evidence truth PASS for source/readback: arbitrary caller Mapping capability was removed from the two temporal public boundaries and one-observation snapshot custody precedes semantic reads.",
+    "Accessibility/touch PASS for bounded source artifact: existing temporal Warm Wall now exposes caller-mapping rejection and exact snapshot custody without raster, autoplay, or Christmas blinking.",
+    "Regression execution UNKNOWN/NO: hostile fixture source exists but did not execute.",
+    "TESTED/runtime/deployed/callable/executed/delivered/accepted remain NO."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "status": "FAULT",
+    "boundary": "authoritative account connection returned HTTP 400; no synthetic verdict substituted"
+  },
+  "phoneP0Consumption": 0,
+  "phoneP0Mutation": 0,
+  "campaignContinueRequired": true
+}

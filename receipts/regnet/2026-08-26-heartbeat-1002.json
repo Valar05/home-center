@@ -1,0 +1,54 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T10:02:00-05:00",
+  "reviewedSourceHead": "90695b5c64779e16a7c092f2d81a9f30596ff900",
+  "verdict": "PASS_BOUNDED_SOURCE__LEGACY_V10_CONVERGED__DESCRIPTOR_FAILURE_EVIDENCE_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "legacyBroadCustodyFixture": {
+      "state": "CONVERGED_SOURCE_UNEXECUTED",
+      "checks": [
+        "schema v10",
+        "ownerWired=true",
+        "backend-conditional root custody",
+        "portableFallbackAttempted=false",
+        "runtime/TalkBack/phone delivery remain false"
+      ]
+    },
+    "descriptorFailureEvidenceParity": {
+      "state": "RED_SOURCE_UNEXECUTED",
+      "finding": "Selected descriptor inventory/artifact custody failures safely return zero promotion authority but can discard already-observed directory/candidate counts and collapse an already-identified artifact failure to descriptor_backend instead of retaining artifact path/kind.",
+      "requiredLaw": "ZERO PARTIAL PROMOTION AUTHORITY != ZERO OBSERVED-WORK EVIDENCE; IDENTIFIED ARTIFACT CUSTODY FAILURE != ANONYMOUS BACKEND FAILURE"
+    },
+    "accessibilityWarmWall": {
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "finding": "Existing native-radio Warm Wall now exposes descriptor failure-evidence parity as RED/NO and contact preservation as PARTIAL rather than claiming success-path evidence proves failure-path parity.",
+      "runtimeTalkBack": false
+    },
+    "skillDoctrine": {
+      "state": "CONVERGED_SOURCE",
+      "skill": "operator-owner-surgery-custody"
+    }
+  },
+  "adversarialReview": {
+    "sheRawAttempted": true,
+    "sheRawResult": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "executionTruth": {
+    "exactReviewedHeadWorkflowRunsObserved": 1,
+    "homeCenterCiRun": 32984509121,
+    "homeCenterCiConclusion": "failure",
+    "homeCenterCiJob": 98228580045,
+    "homeCenterCiJobSteps": 0,
+    "manualRetryFired": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

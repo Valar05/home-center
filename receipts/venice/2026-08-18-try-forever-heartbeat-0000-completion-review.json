@@ -1,0 +1,28 @@
+{
+  "schema": "venice.judgment-jar.completion-review.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "reviewedSourceHead": "d36dd8d41bbff2fb1cf8afd09ce135d813b7d4a1",
+  "codeReview": "PASS_BOUNDED_SOURCE",
+  "evidenceReview": "MIXED",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SEAM_CONTINUE_REQUIRED__CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The swarm discovered a stronger accessibility defect in its own proposed patch before owner application: TextView setMaxLines can bound StaticLayout itself, defeating full Evidence/Source scroll inspection.",
+    "The response was a real replan, not cosmetic patch churn: policy, hostile regression source, proposed owner delta, and durable skill doctrine now use a pixel-height viewport and preserve the full detail layout.",
+    "Primary Android framework evidence supports the movement-method ownership ordering and the max-lines versus pixel-height distinction, but it does not prove behavior on the target overlay runtime.",
+    "The actual OperatorOverlayService remains legacy and therefore existing-owner deep-detail wiring remains NO.",
+    "The safe non-phone patch-capable Computer Hands worker was observed offline; the available direct GitHub mutation surface is whole-file replacement. Refusing to reconstruct the large owner from partial context preserves evidence truth and the execution lane rather than manufacturing implementation.",
+    "No Swan Veil mutation was earned after the replan because no realized owner/runtime topology changed; leaving art and Christmas motion dark is more truthful than decorative progress."
+  ],
+  "gates": {
+    "missionBoundary": "PASS",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS",
+    "accessibilityFirst": "PASS",
+    "originalityTax": "PASS",
+    "sourceRuntimeCapabilityMembrane": "PASS",
+    "decorativeSkillLights": "PASS_DARK_WHEN_NO_CONSEQUENCE",
+    "tested": "NO"
+  },
+  "remainingOwnerSeam": "Corrected owner patch is PROPOSED_NOT_APPLIED. Apply only through an exact patch-capable non-phone lane to the existing OperatorOverlayService, then read back exact source."
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-2100",
+  "mission": "Make direct heartbeat scene ingress fail closed on duplicate material semantic IDs so direct source cannot silently bypass the canonical parser's duplicate-owner rejection.",
+  "selectedWound": "direct-source-duplicate-semantic-owner-ambiguity",
+  "plannedFronts": [
+    "Add a deterministic duplicate-material-ID detector to the existing HeartbeatSkillPolicy/HeartbeatSceneGraph path without changing canonical parser ownership.",
+    "Add hostile regression source proving canonical duplicate rejection parity and last-good contact preservation for direct duplicate material IDs.",
+    "Harvest/update durable repository skill doctrine and mutate an existing non-raster warm-wall specimen rather than creating a neighboring renderer.",
+    "Perform bounded Regnet and Venice Judgment-Jar review and record exact capability-state receipts."
+  ],
+  "evidenceBeforeMutation": {
+    "canonicalParserRejectsDuplicateIds": true,
+    "directMaterialSelectionSilentlyDedupesFirstWins": true,
+    "sourceRuntimePhoneStatesRemainSeparate": true
+  },
+  "constraints": {
+    "phoneOrP0Work": false,
+    "newRuntimeOwner": false,
+    "manualCiRetry": false,
+    "testedBeforeExecution": false,
+    "sheRawAuthoritativeSurface": "attempted; account connection HTTP 400; no substitute verdict"
+  }
+}

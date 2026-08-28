@@ -1,0 +1,78 @@
+{
+  "schema": "try-forever.swarm-receipt.v1",
+  "heartbeat": "2026-08-17-2200",
+  "pr": 329,
+  "frontsAdvanced": [
+    "corrective pre-owner replan",
+    "deep-detail post-layout scroll clamp policy",
+    "hostile detail-scroll regression source",
+    "executable unified-diff owner patch provenance",
+    "durable deep-detail skill doctrine",
+    "Regnet bounded source review",
+    "Venice bounded completion review",
+    "authorized mutation-lane evidence"
+  ],
+  "lights": {
+    "failureIsTheShovel": {"state":"ACTIVE","changed":"Refused blind application of the previous reviewed patch after code-first review exposed missing post-layout clamp/stale-restore ownership; converted the wound into corrected source."},
+    "canonAutoSelect": {"state":"ACTIVE","changed":"Selected the existing heartbeatDetail/OperatorOverlayService owner and HeartbeatDetailSurfacePolicy rather than inventing another UI body."},
+    "autocorrectJudgmentJar": {"state":"DARK","reason":"No STT/autocorrect ambiguity materially affected this source slice."},
+    "originalityTax": {"state":"ACTIVE","changed":"No repeated CI retry or phone substitution; strategy changed from apply-old-patch to correct-policy/tests/patch/doctrine first."},
+    "hungerEatEverything": {"state":"ACTIVE","changed":"Cross-pollinated policy, hostile fixtures, owner patch provenance, reusable skill, reviews, and capability ledger."},
+    "everPolishedInterpreter": {"state":"ACTIVE","changed":"Separated spatial viewport bounds from semantic detail and from runtime evidence; corrected the old promise that background refresh preservation was automatically safe."},
+    "operatorCampaign": {"state":"ACTIVE","changed":"Preserved sole existing Android owner and exact next owner seam."},
+    "harrowayDiscipline": {"state":"ACTIVE","changed":"Stopped at the actual authorized mutation boundary instead of routing around it."},
+    "sheRaw": {"state":"FAULT","boundary":"Authoritative she_raw_ambient returned account-connection HTTP 400; no substitute critique invented."},
+    "veniceJudgment": {"state":"ACTIVE","changed":"Source slice allowed to yield; owner seam/campaign remain CONTINUE_REQUIRED; no merge/runtime authority granted."},
+    "regnetQa": {"state":"ACTIVE","changed":"PASS only for corrected source/readback; owner wiring and TESTED remain NO."},
+    "accessibilityTalkBackTouch": {"state":"ACTIVE","changed":"Full explicit detail remains semantically available; proposed owner path removes destructive END ellipsis, keeps shared touch floor, and preserves/clamps background reading position."},
+    "phoneRuntimePhoneHands": {"state":"DARK_FIREWALLED","boundary":"windows-hands-01 was offline and was not queued/retasked; no primary-phone or P0 surface consumed."},
+    "deterministicRouting": {"state":"ACTIVE","changed":"Corrected delta owns explicit-selection reset vs background-preserve semantics and uses exact existing owner only."},
+    "evidenceCapabilityDiscipline": {"state":"ACTIVE","changed":"Policy/tests/patch/skill are source artifacts; actual OperatorOverlayService remains legacy; TESTED/runtime/deployed/callable/delivered/accepted remain false."},
+    "checkpointIdempotence": {"state":"ACTIVE","changed":"Proposed owner restore is generation-bound so stale deferred work cannot overwrite a newer detail presentation."},
+    "warmWallsSwanVeilArt": {"state":"DARK","reason":"No realized owner topology changed; mutating source art would be decorative heartbeat theater."},
+    "christmasLightSceneGraph": {"state":"DARK","reason":"Detail viewport/reading-position source work does not earn transition motion."},
+    "contactPreservation": {"state":"ACTIVE","changed":"Background evidence refresh preserves the reader's legal detail position; content shrink clamps instead of preserving an invalid old coordinate."}
+  },
+  "exactSource": {
+    "HeartbeatDetailSurfacePolicy.java": "c014d8e56706995932d9ff814bbe7a4b16b90258",
+    "HeartbeatDetailSurfacePolicyTest.java": "1fb0a36ae7773738f4343be97951c14166023e89",
+    "operator-overlay-heartbeat-detail-scroll-wiring.patch": "65c5e931f1ebb4874d11940b766a4d747d427bd3",
+    "skills/heartbeat-deep-detail-viewport/SKILL.md": "566cff03eaf2932b7566f3dbc602b7ceecc8330f",
+    "actual OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
+  "crossPollination": "old owner patch -> AOSP/source review questions reading-position guarantee -> corrective replan -> pure post-layout clamp -> hostile shrink/overflow fixtures -> generation-bound valid unified-diff provenance -> durable skill -> Regnet/Venice membrane -> current mutation-lane evidence prevents implementation laundering",
+  "authorizedLaneBoundary": {
+    "githubAdmin": "Current audited github_admin.files.upsert requires full content/contentBase64; it rejected a patch-only schema probe.",
+    "computerHands": "windows-hands-01 offline; no request created.",
+    "adjacentSubstitution": "NONE"
+  },
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "correctedOwnerPatch": "YES_PROPOSED_NOT_APPLIED",
+    "existingOwnerDeepDetailWiring": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SEAM_CONTINUE_REQUIRED__CAMPAIGN_CONTINUE_REQUIRED"
+}

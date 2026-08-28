@@ -1,0 +1,53 @@
+{
+  "schema": "regnet-source-review.v1",
+  "pulse": "2026-08-17-0200",
+  "scope": "PR #329 non-P0 heartbeat overlay source slice",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedSourceHead": "2f371f4a279d180606e4e6fa6be3954e44605b3b",
+  "artifactHead": "76831ff642d7c52ea5fbc5fda1ddcc6953a6b572",
+  "checks": {
+    "existingOwnerOnly": "PASS",
+    "summaryTruthOwnerConsumption": "PASS",
+    "preContactDetailTruth": "PASS",
+    "lastGoodContactDetailTruth": "PASS",
+    "zeroMaterialAcceptedContact": "PASS_SOURCE_FIXTURE",
+    "duplicateArchitecture": "PASS",
+    "p0PhoneFirewall": "PASS_ZERO_MUTATION",
+    "exactGitHubReadback": "PASS",
+    "tested": "BLOCKED_ACTIONS_BUDGET"
+  },
+  "evidence": {
+    "operatorOverlayServiceBlob": "294c6fd6ed38b3ac0730867d4e31cef7192645a4",
+    "heartbeatOverlayViewModelBlob": "3ae0aed87eff6a4b5e2978fd289c87a31d9837d4",
+    "heartbeatOverlayViewModelTestBlob": "c88003fe84f94e3d91048033f1bf4859b1b0c4d6",
+    "persistedPollSkillBlob": "fd3df0d57c2e37fed8075b2bbfc11b58a13ca142",
+    "warmWallSvgBlob": "e98636df009d6d58c48793adc6d407e3a6885ece",
+    "ownerCommit": "5eac99151c2ee2538e7701f3c9549014c9280728",
+    "ownerCommitDiff": "OperatorOverlayService removed 12 lines of duplicated chrome inference and added 2 model-owned calls only.",
+    "ciRun": 32005911211,
+    "ciJob": 95315222070,
+    "ciSteps": 0,
+    "ciBoundary": "The job was not started because an Actions budget is preventing further use."
+  },
+  "newNonP0Wound": {
+    "id": "WAITING_RECOVERY_STALE_PRECONTACT_WOUND",
+    "severity": "source-semantics",
+    "finding": "After a pre-contact coherent-read failure, a later successful fully-absent store classifies WAITING, but OperatorOverlayService only resets waiting chrome when heartbeatFrame == null. The preserved pre-contact wound makes heartbeatFrame non-null, so REFRESH BLOCKED/detail state can remain visible after storage has recovered to ordinary waiting.",
+    "nextAuthorizedCut": "Existing owner only: on WAITING with no visible last-good contact, clear the stale pre-contact interrupted scene/chrome exactly once without creating a new poller/controller and without turning every 200 ms WAITING poll into UI churn."
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "existingOwnerChromeWired": true,
+    "tested": false,
+    "runtimeObserved": false,
+    "talkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

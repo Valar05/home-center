@@ -1,0 +1,22 @@
+{
+  "schema": "venice-judgment-jar-review.v1",
+  "heartbeat": "2026-08-17-0900",
+  "review_mode": "SYNTHETIC_JUDGMENT_JAR",
+  "authority_boundary": "This is a same-worker repository Judgment Jar review, not a separate external reviewer or runtime proof.",
+  "verdict": "PLAN_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "why": [
+    "The Base64 canonicality seam is already closed and stays dark.",
+    "The new target is materially different: invisible non-directional semantic formatting controls in operator-facing text identity.",
+    "The proposed rule is deliberately narrow and preserves legitimate ZWJ/ZWNJ rather than banning Unicode FORMAT wholesale.",
+    "The work remains source/test/doctrine/art only and does not touch Phone Hands, P0 recovery, deployment, or physical acceptance.",
+    "No neighboring renderer/controller/poller is proposed."
+  ],
+  "required_review_checks": [
+    "Do not mislabel invisible-format rejection as a bidi-direction failure.",
+    "Do not rewrite or normalize poisoned text into an accepted identity.",
+    "Keep ZWJ and ZWNJ accepted in hostile fixtures.",
+    "Regression source must remain TESTED=NO until a real test lane executes it.",
+    "Art must remain non-raster, touchable, and explicitly source-only."
+  ],
+  "p0_phone_mutation_count": 0
+}

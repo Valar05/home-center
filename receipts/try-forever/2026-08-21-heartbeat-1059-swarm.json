@@ -1,0 +1,87 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "timestamp": "2026-08-21T11:12:00-05:00",
+  "pullRequest": 329,
+  "reviewedSourceHead": "2fdefb0be5878322163f9a92dbc1f7f799f028f0",
+  "frontCount": 6,
+  "fronts": [
+    {
+      "id": "adam-input-lifecycle",
+      "advanced": true,
+      "change": "READY/SENT now has mode/send/edit transitions; empty post-submit clear preserves SENT and real non-empty new input returns READY."
+    },
+    {
+      "id": "adam-owner-evidence-v3",
+      "advanced": true,
+      "change": "Owner probe now requires complete one-of-many selection refresh plus READY/SENT/edit recovery; partial state semantics are PARTIAL_UNSAFE."
+    },
+    {
+      "id": "owner-surgery-provenance",
+      "advanced": true,
+      "change": "One corrected base-blob-locked OperatorOverlayService patch proposal exists; review preserved richer per-mode descriptions; owner remains unapplied."
+    },
+    {
+      "id": "adam-warm-wall",
+      "advanced": true,
+      "change": "Existing non-raster source organism now makes SENT -> new edit -> READY touchable while retaining native radio keyboard flow."
+    },
+    {
+      "id": "skill-doctrine",
+      "advanced": true,
+      "change": "adam-mode-accessibility now carries lifecycle, PARTIAL_UNSAFE owner evidence, legacy-send-receipt preservation, and capability membrane."
+    },
+    {
+      "id": "review-evidence",
+      "advanced": true,
+      "change": "Fresh plan/Venice gate, Regnet review, She-Raw fault receipt, exact source compare, owner readback, and exact-head workflow evidence are durable."
+    }
+  ],
+  "lights": [
+    {"name": "Failure Is The Shovel", "state": "ACTIVE", "consequence": "Converted stale SENT semantics into an explicit lifecycle and used review failure to repair the owner proposal rather than polishing it."},
+    {"name": "Canon Auto-Select", "state": "ACTIVE", "consequence": "Selected the existing Adam policy/probe/warm-wall organs and the current OperatorOverlayService owner instead of adjacent architecture."},
+    {"name": "Autocorrect Judgment Jar", "state": "DARK", "consequence": "No material token ambiguity required resolution."},
+    {"name": "Originality Tax", "state": "ACTIVE", "consequence": "A partial READY/SENT setter was not accepted as progress; evidence strategy changed to require edit recovery. Rich per-mode description loss triggered a corrected patch rather than a retry of the same mistake."},
+    {"name": "Hunger", "state": "ACTIVE", "consequence": "Pushed the source beyond two static labels into a lifecycle with material consequences."},
+    {"name": "Ever-Polished Interpreter / Eat Everything", "state": "ACTIVE", "consequence": "Synchronized policy, regression, owner evidence, patch provenance, skill doctrine, and touchable source art around one lifecycle truth."},
+    {"name": "Operator Campaign", "state": "ACTIVE", "consequence": "Kept OperatorOverlayService as the sole native owner and preserved one exact owner surgery rather than spawning another controller."},
+    {"name": "Harroway operator discipline", "state": "ACTIVE", "consequence": "Stopped at the exact owner-mutation boundary when Command Center worker machinery proved retired instead of routing around it."},
+    {"name": "She-Raw adversarial motivation", "state": "FAULT", "consequence": "Authoritative pre-execution consultation attempted; account connection returned HTTP 400; no substitute reviewer invented."},
+    {"name": "Venice Judgment Jars", "state": "ACTIVE", "consequence": "PLAN_ALLOWED preceded source mutation; completion permits only the bounded source slice to yield while owner/test/runtime/campaign continue."},
+    {"name": "Regnet QA", "state": "ACTIVE", "consequence": "Caught the per-mode-description regression and prevents partial lifecycle source from becoming owner/test/runtime proof."},
+    {"name": "accessibility/TalkBack and touch semantics", "state": "ACTIVE", "consequence": "Editable text remains value, result context moves to state semantics, mode selection remains distinct from focus, warm wall preserves native radio keyboard behavior."},
+    {"name": "Phone Runtime / Phone Hands recovery", "state": "DARK_FIREWALLED", "consequence": "Consumption 0; mutation 0. No P0 or phone surface touched."},
+    {"name": "deterministic routing", "state": "ACTIVE", "consequence": "Exact canonical modes, explicit transition enum, base-blob-locked owner patch, direct-method lexical evidence, exact-head workflow readback."},
+    {"name": "evidence/capability-state discipline", "state": "ACTIVE", "consequence": "Supporting source YES; owner wiring NO; regressions UNEXECUTED; TESTED/runtime/deployed/callable/executed/delivered/accepted NO."},
+    {"name": "recovery/checkpointing/idempotence", "state": "ACTIVE", "consequence": "Programmatic empty clear after submit preserves SENT; only material new non-empty editing or mode selection advances back to READY."},
+    {"name": "strange non-raster vector/DOM/native UI art", "state": "ACTIVE", "consequence": "Existing Adam DOM/inline-SVG source organism mutated in place; no raster and no deployment claim."},
+    {"name": "warm walls", "state": "ACTIVE", "consequence": "Warm wall now exposes READY -> SENT -> EDIT -> READY as an operable source lifecycle."},
+    {"name": "Christmas-light scene graph", "state": "DARK", "consequence": "No scene-motion contract changed; lifecycle evidence earned no decorative blink."},
+    {"name": "contact preservation", "state": "ACTIVE", "consequence": "SENT survives the owner's programmatic empty clear; the state changes only when a new material request actually exists."},
+    {"name": "adam-mode-accessibility", "state": "ACTIVE", "consequence": "Repository skill materially updated with lifecycle, owner evidence v3, corrected owner patch boundary, and legacy send-receipt constraint."}
+  ],
+  "crossPollination": [
+    "Persistent result-state semantics exposed stale SENT on new input.",
+    "Contact preservation distinguished programmatic empty clear from material new editing.",
+    "That distinction hardened the direct-owner evidence probe so partial setters cannot false-green.",
+    "Owner-patch review then exposed a regression against richer existing per-mode descriptions; the corrected proposal preserves them while native selected state carries selection truth.",
+    "The same lifecycle became touchable in the existing Warm Wall and durable in the repository skill."
+  ],
+  "executionTruth": {
+    "exactHead": "2fdefb0be5878322163f9a92dbc1f7f799f028f0",
+    "operatorOverlayRun": 32501346008,
+    "operatorOverlayJob": 96831487497,
+    "buildAndroidRun": 32501346043,
+    "homeCenterCiRun": 32501346004,
+    "automaticRunsConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

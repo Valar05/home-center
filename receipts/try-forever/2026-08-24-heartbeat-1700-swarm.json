@@ -1,0 +1,72 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "reviewedSourceHead": "fb79bd5cf0664c323aa9548211c94f503e6d5464",
+  "frontsAdvanced": [
+    "bounded one-observation snapshot source",
+    "exact nested JSON-shape admission",
+    "hostile resource/normalization regression source",
+    "snapshot-custody skill doctrine",
+    "existing accessible non-raster Warm Wall",
+    "Regnet and Venice durable review",
+    "exact workflow failure readback"
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: moved from stateful-view custody to bounded exact evidence custody",
+    "Canon Auto-Select": "LIT: reused existing final-v4 owner, snapshot helper, skill and Warm Wall",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity",
+    "Originality Tax": "LIT: replaced JSON-normalizing snapshot strategy instead of adding another verifier",
+    "Hunger": "LIT: source, tests, doctrine and art converged",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: nested key/type normalization and resource drift were removed from the evidence path",
+    "Operator Campaign": "LIT: existing owner remained authoritative",
+    "Harroway operator discipline": "LIT: source/readback/test/runtime states stayed separate",
+    "She-Raw adversarial motivation": "FAULT: account-connection HTTP 400; no substitute reviewer",
+    "Venice Judgment Jars": "LIT: PLAN_ALLOWED before mutation; bounded source slice may yield",
+    "Regnet QA": "LIT: source/readback pass; regressions unexecuted; TESTED no",
+    "accessibility/TalkBack and touch semantics": "LIT: existing keyboard/radio/touch Warm Wall updated; runtime TalkBack not claimed",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: zero consumption and zero mutation",
+    "deterministic routing": "LIT: exact JSON types and deterministic resource ceilings",
+    "evidence/capability-state discipline": "LIT: implemented/source-wired does not become TESTED/runtime/deployed/delivered",
+    "recovery/checkpointing/idempotence": "LIT: one detached observation owns later verification",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing source specimen mutated in place",
+    "warm walls": "LIT: exact JSON and resource-throat states are touch-inspectable",
+    "Christmas-light scene graph": "DARK: evidence-custody changes earn no runtime motion",
+    "contact preservation": "LIT: nested evidence detaches once and cannot be rewritten by later caller mutation"
+  },
+  "sourceBlobs": {
+    "snapshot": "85c78ed8140ed36bb87a4e0dbd20da1533a7f793",
+    "regression": "a14bc22cc0f8aa8a7d7c2d08052890f9413c9c9d",
+    "skill": "8256491d5228a775d8aed0ae058eda43921d6ffd",
+    "warmWall": "9abe96a2a30bbb3781cb5d699850bdc46defbaa4"
+  },
+  "executionTruth": {
+    "Home Center CI": {"run": 32782865566, "conclusion": "failure"},
+    "Build Android": {"run": 32782865549, "conclusion": "failure"},
+    "Operator Overlay Android": {"run": 32782865547, "job": 97608491517, "conclusion": "failure", "steps": 0},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "existingOwnerSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "crossPollination": "stateful-Mapping custody exposed JSON normalization; exactness review exposed nested key/type drift; resource review forced pre-serialization budgets; the existing owner inherited both through the already-wired snapshot organ; skill and Warm Wall were then forced to match authenticated source truth without crossing the P0 or TESTED/runtime membrane."
+}

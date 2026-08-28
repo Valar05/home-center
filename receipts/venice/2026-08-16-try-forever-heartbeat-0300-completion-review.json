@@ -1,0 +1,60 @@
+{
+  "schema": "try-forever.venice-completion-review.v1",
+  "heartbeat": "2026-08-16T03:00:00-05:00",
+  "scope": "bounded non-phone viewport-contact source slice",
+  "code_review": "PASS_WITH_EXPLICIT_UNWIRED_SEAM",
+  "bounded_verdict": "STOP_ALLOWED_FOR_THIS_SOURCE_SLICE_ONLY",
+  "campaign_verdict": "CONTINUE_REQUIRED",
+  "why": [
+    "A fresh independent accessibility/contact defect was established from current source: stable Button object identity can coexist with horizontal viewport drift after width-changing in-place content refresh.",
+    "Pure deterministic anchored-scroll policy and hostile regression source were added without creating a second renderer/controller/service.",
+    "Existing refresh/native-ui skill doctrine and the existing warm-wall source organism were mutated in place to carry the new truth.",
+    "Code-first review caught and repaired an evidence overclaim in the first Javadoc before completion.",
+    "The exact existing-service consumption seam remains deliberately false rather than being narrated as implemented."
+  ],
+  "source_head_reviewed": "44c9e303972540f88d85b3a01f5cfa7119241891",
+  "ci": {
+    "workflow": "Operator Overlay Android",
+    "run_id": 31935663496,
+    "job_id": 95137045443,
+    "steps_executed": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manual_retry_fired": false,
+    "tested": "NO/BLOCKED_UNKNOWN"
+  },
+  "reviewer_state": {
+    "she_raw": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SYNTHETIC_REPLACEMENT",
+    "regnet": "PASS_FOR_BOUNDED_POLICY_SOURCE_ONLY",
+    "venice": "PASS_WITH_EXPLICIT_UNWIRED_SEAM"
+  },
+  "capability_membrane": {
+    "requested": true,
+    "implemented_source": true,
+    "exact_github_readback": true,
+    "regression_source": true,
+    "tested": false,
+    "existing_owner_stable_button_reconciliation_source_wired": true,
+    "viewport_anchor_policy_source": true,
+    "existing_operator_overlay_service_consumes_viewport_anchor_policy": false,
+    "runtime_viewport_preservation_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "ownership_firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "p0_recovery_mutations": 0,
+    "nightcore_actions": 0,
+    "pocket_tts_actions": 0,
+    "chromium_actions": 0,
+    "context_organ_actions": 0,
+    "duplicate_overlay_or_recovery_owners_created": 0
+  },
+  "next_real_seam": "Existing-owner viewport-anchor consumption only: store/use the existing HorizontalScrollView as an owner field, capture selected/direct-keyboard-focused semantic id plus viewport offset before stable-structure mutation, and restore after layout using anchoredScrollX. Do not claim TalkBack accessibility-focus ownership and do not touch P0/phone surfaces.",
+  "merge_gate": "DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}

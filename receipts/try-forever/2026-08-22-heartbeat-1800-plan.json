@@ -1,0 +1,35 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-22T18:00:42-05:00",
+  "scope": "non-P0 TRY FOREVER",
+  "reviewedPrHeadBeforeMutation": "5bfd4a6ad0f972b94873d8f4c222321b232cb336",
+  "planGate": "PLAN_ALLOWED",
+  "fronts": [
+    {
+      "name": "backend-owner-evidence-coherence",
+      "action": "Harden supporting backend result admission so unrelated authenticated owner custody cannot upgrade unverified promotion groups into owner evidence. Add hostile regression source."
+    },
+    {
+      "name": "canonical-zero-partial-authority",
+      "action": "Re-read canonical v10 owner and preserve exact prepared repair boundary; do not claim applied owner wiring without authenticated owner mutation/readback."
+    },
+    {
+      "name": "skill-doctrine-convergence",
+      "action": "Synchronize operator-owner-surgery-backend-selection doctrine with the new owner-evidence coverage rule while preserving owner/test/runtime membrane."
+    },
+    {
+      "name": "touchable-warm-wall",
+      "action": "Mutate the existing backend-selection DOM/inline-SVG source wall in place to expose authenticated-owner coverage versus unverified-owner authority."
+    },
+    {
+      "name": "review-evidence",
+      "action": "Perform Regnet-style code-first review, attempt authoritative She-Raw once, check exact-head workflow evidence without retries, and publish a compact durable swarm receipt."
+    }
+  ],
+  "bindingFirewalls": {
+    "p0PhoneConsumption": 0,
+    "p0PhoneMutation": 0,
+    "duplicateArchitecture": 0,
+    "phoneExecutionAllowed": false
+  }
+}

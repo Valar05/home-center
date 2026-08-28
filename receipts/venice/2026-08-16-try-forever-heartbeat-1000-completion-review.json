@@ -1,0 +1,26 @@
+{
+  "schema": "venice-judgment-jar.v1",
+  "time": "2026-08-16T10:00:00-05:00",
+  "scope": "bounded TRY FOREVER heartbeat visible-contact source slice",
+  "judgment": {
+    "mission_fidelity": "PASS",
+    "duplicate_architecture": "PASS",
+    "accessibility_truth": "PASS",
+    "contact_preservation": "PASS",
+    "evidence_truth": "PASS",
+    "p0_phone_firewall": "PASS",
+    "tested_runtime_delivery": "NOT_PROVEN"
+  },
+  "review_scar": "Code-first review rejected the tempting rule that a keyboard-derived viewport ticket must retain native keyboard focus after structural rebuild. Rebuild can itself destroy the old Button. Final source allows empty post-mutation direct focus without calling that focus preservation, while a different non-empty focused heartbeat id still cancels the ticket.",
+  "source_consequences": [
+    "Existing OperatorOverlayService now consumes live visible-contact geometry before viewport-ticket capture.",
+    "Offscreen durable selection may yield to a visible direct-keyboard-focus fallback.",
+    "Captured selection/focus context survives into after-layout owner revalidation without re-running mutation-caused geometry as user-intent evidence.",
+    "Viewport/native-UI skills and the existing warm-wall SVG were synchronized rather than creating neighboring architecture."
+  ],
+  "she_raw": "authoritative ambient consult attempted once; account connection returned HTTP 400; no synthetic replacement",
+  "test_boundary": "Corrected code/test head 5cce0fcd3da347ee5ee4a0f951da616eb9c2544c received automatic Operator Overlay Android job 95183659842 with zero executed steps; Actions budget prevented job start. No manual retry.",
+  "capability_membrane": "implemented source/readback/regression/source wiring YES; tested/runtime viewport/runtime keyboard focus/runtime TalkBack/deployed/callable/executed/delivered/accepted NO",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE_ONLY",
+  "campaign": "CONTINUE_REQUIRED"
+}

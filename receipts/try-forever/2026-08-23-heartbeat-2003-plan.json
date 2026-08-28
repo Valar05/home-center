@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-23T20:03:54-05:00",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching the shared phone/P0 execution chain.",
+  "reviewedStartingHead": "f5f42bc3e8dbfd2b696f1afcd39f3249f9b9c2ca",
+  "fronts": [
+    {
+      "name": "wound-evidence-phase-integrity",
+      "owner": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+      "intent": "Validate status-specific pre-comparison artifact/counter phase shape so a wound label cannot carry evidence from a pipeline stage that never completed. Preserve legitimate DESCRIPTOR_WOUND portable evidence."
+    },
+    {
+      "name": "hostile-regression-source",
+      "owner": "tools/test_try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+      "intent": "Pin counterfeit wound artifact/counter evidence and legitimate diagnostic contact. Source only; do not call it executed or tested."
+    },
+    {
+      "name": "doctrine-and-touchable-source",
+      "owner": "existing receipt-integrity skill + existing descriptor-shadow Warm Wall",
+      "intent": "Converge durable law and touchable non-raster source only if the new evidence phase changes operator semantics."
+    },
+    {
+      "name": "operator-receipt-independent-audit",
+      "owner": "existing operator receipt command",
+      "intent": "Inspect the raw-evidence/operator-receipt identity chain for a materially distinct defect; mutate only if source evidence establishes one."
+    },
+    {
+      "name": "review-and-execution-truth",
+      "owner": "Regnet/Venice receipts + exact-head GitHub workflow evidence",
+      "intent": "Keep source/readback/regression-execution/TESTED/runtime/deployed/delivered/accepted states separate; do not retry failed workflows without a changed condition."
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "firewall": {
+    "phoneP0ConsumptionAllowed": false,
+    "phoneP0MutationAllowed": false,
+    "duplicateArchitectureAllowed": false,
+    "p0FindingsReadOnly": true
+  }
+}

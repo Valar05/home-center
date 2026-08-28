@@ -1,0 +1,27 @@
+{
+  "schema": "try-forever-owner-delta.v1",
+  "status": "APPLIED_SOURCE",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "baseOwnerBlob": "1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d",
+  "appliedCommit": "94122a12714414686d34827321eaf7481d543424",
+  "appliedOwnerBlob": "60e85d95c484cee0ca5f637ac3d5763fd20d21cf",
+  "mission": "Bind each admitted single-artifact SKILL.md observation to the exact ordinary blob committed at the already-observed discovery HEAD before repository_skill authority can be emitted.",
+  "appliedContract": [
+    "The existing try_forever_skill_head_blob_observation and try_forever_skill_head_content_binding organs are composed into the sole provenance owner.",
+    "One bounded raw-HEAD blob observation is performed for the bounded candidate set before per-file authority work when an authority HEAD is available.",
+    "The owner compares content.git_blob_identity from the existing single-artifact observe_skill_content call; SKILL.md is not reopened to compute Git object identity.",
+    "Unavailable HEAD blob authority fails the repository-skill set closed before per-file content authority work.",
+    "Mismatch or unavailable exact content binding rejects the candidate before SkillRecord append.",
+    "Existing tracked-set, root, file-identity, content-custody, snapshot, expected-head, and final-emission custody gates remain in place.",
+    "No phone/P0 surface or duplicate provenance owner was introduced."
+  ],
+  "evidence": {
+    "authenticatedOwnerReadback": true,
+    "ownerSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "phoneP0Consumed": false
+  }
+}

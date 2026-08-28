@@ -1,0 +1,33 @@
+{
+  "schema": "regnet-review.v1",
+  "heartbeat": "2026-08-23T15:00:00-05:00",
+  "reviewedSourceHead": "62df8d2b85f7bdf39e94facecfe56fb215787323",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__OPERATOR_RECEIPT_SELF_INTEGRITY_SOURCE_WIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "operator receipt command composes existing raw shadow, self-integrity gate, and existing bounded projector without creating a second authority or projector",
+    "hostile owner-boundary regression rejects contradictory raw evidence and stale temporal proof",
+    "first command draft overclaimed run-level phone/P0 consumption and raw-evidence preservation; corrected source now states only owned authority/capability and separate raw-machine-evidence architecture",
+    "two existing repository skills and the existing descriptor-shadow Warm Wall were converged to current source truth",
+    "source diff from 800816729710f3b2d46d214d7644fbc991cebb8b to reviewed head contains seven intended paths and zero unexpected paths"
+  ],
+  "execution": {
+    "regressionExecuted": false,
+    "tested": false,
+    "operatorOverlayRun": 32663496849,
+    "operatorOverlayJob": 97253131540,
+    "operatorOverlayConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false
+  },
+  "capability": {
+    "operatorReceiptSelfIntegritySourceWired": true,
+    "androidRuntimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthorityIntegration": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

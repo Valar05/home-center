@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedSourceHead": "47250a6b22dd080582e8a8ca766281066c0158d2",
+  "timestamp": "2026-08-15T21:10:00Z",
+  "commission": "Run a broad material TRY FOREVER heartbeat swarm across independent non-phone fronts while the P0/primary-phone firewall remains binding.",
+  "frontsAdvanced": [
+    {
+      "front": "ingress Unicode integrity",
+      "change": "OperatorState now uses REPORT-mode strict UTF-8 encoding for heartbeat JSON before SharedPreferences mutation, preventing replacement encoding from erasing malformed UTF-16 evidence.",
+      "evidence": "OperatorState.java blob 57874058f04057926492bf74e9172a33fd8d27af; OperatorStateHeartbeatLightsEncodingTest.java blob c6ee86bffe8adc283cdff011af10b2e03a451c8b."
+    },
+    {
+      "front": "persisted byte-first projection",
+      "change": "HeartbeatPersistedEnvelopeProjection now accepts an exact byte snapshot, verifies declared byte count/SHA, strictly REPORT-decodes UTF-8, then and only then attempts the semantic parser; malformed UTF-8 preserves last-good contact and clamps motion.",
+      "evidence": "HeartbeatPersistedEnvelopeProjection.java blob 66260cfa89a38534054b5d46600eca54e0966d3c; projection regression blob ff0b22c3b76dd83b21da546ce1b0afdc01bfac43."
+    },
+    {
+      "front": "recovery/checkpoint regression",
+      "change": "Regression source now distinguishes raw identity mismatch from valid-identity malformed UTF-8, proves failure ordering, and requires contact/transition fingerprints to survive with frame/node motion disabled.",
+      "evidence": "HeartbeatPersistedEnvelopeProjectionTest.java blob ff0b22c3b76dd83b21da546ce1b0afdc01bfac43."
+    },
+    {
+      "front": "warm-wall accessible art",
+      "change": "The existing motion-clamp source organism grew an eighth strict-UTF-8 scar in place, with semantic native buttons, >=48px target contract, aria-pressed selection, one live status region, non-color tokens, reduced motion, no autoplay, and SOURCE ONLY scarring preserved.",
+      "evidence": "heartbeat-motion-clamp-source-specimen.html blob e7271b76bfa569e151ff3a0a392c579637011028."
+    },
+    {
+      "front": "evidence and adversarial review",
+      "change": "Fresh Venice plan and required replan captured a broken first assumption; Regnet passed only the bounded source/readback claim; Venice allowed this bounded slice to yield; automatic CI was inspected without a manual retry.",
+      "evidence": "1600 plan/replan/Regnet/Venice receipts; Operator Overlay Android run 31908532057 job 95070002807 executed zero steps because Actions budget prevents further use."
+    }
+  ],
+  "heartbeatLights": [
+    {"id":"failure-is-the-shovel","provenanceKind":"doctrine","state":"active","why":"The unchanged CI blocker was not retried; failure redirected effort into a different exact source integrity seam.","consequence":"A byte/encoding trust gap was repaired instead of relighting the same CI fault."},
+    {"id":"canon-auto-select","provenanceKind":"doctrine","state":"active","why":"Live repository skills were harvested and selected by mission fit.","consequence":"fortress-plan-gate, heartbeat-skill-lights, execution-truth, Regnet QA, and operator campaign discipline governed this pulse."},
+    {"id":"autocorrect-judgment-jar","provenanceKind":"jar","state":"dark","why":"No material ambiguous/autocorrect token required resolution.","consequence":"No activity manufactured."},
+    {"id":"originality-tax","provenanceKind":"doctrine","state":"active","why":"The first 1600 design proved incomplete after source archaeology.","consequence":"A fresh replan changed recovery strategy by repairing the upstream lossy encoder rather than cosmetically defending the downstream projection."},
+    {"id":"hunger","provenanceKind":"doctrine","state":"active","why":"The source semantics gained a new exact wound.","consequence":"The existing warm-wall specimen ate the new encoding state in place instead of spawning decorative artifact number nine thousand."},
+    {"id":"eat-everything","provenanceKind":"doctrine","state":"active","why":"Source review followed the trust chain both upstream and downstream of persistence.","consequence":"It found that projectBytes alone could not restore malformed-Unicode evidence already lost by OperatorState."},
+    {"id":"operator-campaign","provenanceKind":"repository_skill","provenanceLocator":"skills/operator-campaign/SKILL.md","state":"active","why":"The recurring campaign required durable remote receipts and continuation boundaries.","consequence":"Plan, replan, QA, completion, and swarm receipts are committed to the campaign branch."},
+    {"id":"harroway-operator-discipline","provenanceKind":"doctrine","state":"active","why":"Mission ownership and authorized lane were binding.","consequence":"All mutations stayed in GitHub source/receipt lanes; no local proof or adjacent runtime lane substituted."},
+    {"id":"she-raw","provenanceKind":"reviewer","state":"fault","why":"Authoritative adversarial review was attempted before execution.","consequence":"Exact boundary preserved: HTTP 400 account connection failure; no synthetic replacement reviewer."},
+    {"id":"venice-judgment-jars","provenanceKind":"reviewer","state":"active","why":"Fortress plan gate requires Venice before mutation and after Regnet.","consequence":"PLAN_ALLOWED, required REPLAN after a broken assumption, then STOP_ALLOWED only for the bounded source slice."},
+    {"id":"regnet-qa","provenanceKind":"repository_skill","provenanceLocator":"skills/renee-qa/SKILL.md","state":"active","why":"Integrity/recovery failure paths and capability truth required deterministic QA review.","consequence":"Bounded implemented-source/readback claim passed; TESTED remained BLOCKED_UNKNOWN."},
+    {"id":"accessibility-talkback-touch","provenanceKind":"doctrine","state":"active","why":"The changed source specimen had to remain usable without color, tiny targets, or motion dependence.","consequence":"Native controls, pressed selection, keyboard focus, >=48px targets, one live status region, and reduced-motion semantics were preserved while adding the encoding scar."},
+    {"id":"phone-runtime-phone-hands","provenanceKind":"runtime_boundary","state":"blocked","why":"P0 Fortress and shared-phone firewalls are binding.","consequence":"Zero phone commands, Phone Hands tickets, queue/device probes, recovery mutations, or physical acceptance actions were consumed."},
+    {"id":"deterministic-routing","provenanceKind":"doctrine","state":"active","why":"The trust order itself was the defect surface.","consequence":"Canonical source order is now ingress strict encode -> persisted exact bytes/SHA -> byte snapshot -> identity checks -> strict UTF-8 decode -> semantic parser -> fail-closed scene."},
+    {"id":"execution-truth","provenanceKind":"repository_skill","provenanceLocator":"skills/execution-truth/SKILL.md","state":"active","why":"Repository source could not be promoted into external capability.","consequence":"Requested/Implemented/Tested/Deployed/Callable/Executed/Delivered/Accepted states remained separate; source progress stopped below TESTED."},
+    {"id":"recovery-checkpoint-idempotence","provenanceKind":"doctrine","state":"active","why":"Encoding/storage wounds must not erase the last known good heartbeat.","consequence":"Regression source requires preserved contact/transition fingerprints and clamps both frame and node motion on malformed raw UTF-8."},
+    {"id":"strange-non-raster-art","provenanceKind":"doctrine","state":"active","why":"The commission permits source specimens when they teach real semantics.","consequence":"Existing DOM/vector warm wall gained one meaningful UTF-8 scar; no raster, autoplay, or deployment theater."},
+    {"id":"warm-walls","provenanceKind":"doctrine","state":"active","why":"Contact-preserving failure semantics needed a touchable teaching surface.","consequence":"Eight-state warm wall now distinguishes storage identity failure, encoding failure, protocol failure, contact collision, retry, interruption, accepted transition, and wall-clock witness."},
+    {"id":"christmas-light-scene-graph","provenanceKind":"doctrine","state":"active","why":"New failure paths had to obey motion truth.","consequence":"Malformed UTF-8 is explicitly a no-motion wound; only accepted material state/consequence transitions may pulse."},
+    {"id":"contact-preservation","provenanceKind":"doctrine","state":"active","why":"A malformed or corrupted incoming heartbeat must never wipe successful visible state.","consequence":"Byte-first regression source routes invalid encoding through the existing preservation organ and requires same visible contact plus motion clamp."},
+    {"id":"fortress-plan-gate","provenanceKind":"repository_skill","provenanceLocator":"skills/fortress-plan-gate/SKILL.md","state":"active","why":"Non-trivial GitHub mutations require researched plan/Jars/Venice receipt before execution.","consequence":"The initial plan was durably recorded before mutation and a second plan gate was performed when its assumption broke."}
+  ],
+  "crossPollination": [
+    "Byte-first persistence review exposed an upstream replacement-encoding wound in OperatorState, so downstream integrity work changed the ingress source contract rather than pretending the new verifier was sufficient.",
+    "Contact-preservation/checkpoint rules turned malformed UTF-8 from a parser detail into a visible no-motion recovery contract and a regression target.",
+    "Warm-wall accessibility constraints forced the new encoding state to be teachable by semantic controls and non-color tokens rather than a blinking decoration.",
+    "Regnet's evidence membrane kept all of this at implemented/regression-source state because CI executed zero steps."
+  ],
+  "deterministicTestBoundary": {
+    "workflow":"Operator Overlay Android",
+    "runId":31908532057,
+    "jobId":95070002807,
+    "headSha":"47250a6b22dd080582e8a8ca766281066c0158d2",
+    "stepsExecuted":0,
+    "exactBoundary":"The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued":false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "held": true,
+    "allMutationCounts": 0,
+    "p0Finding": null
+  },
+  "boundedSliceDirective": "STOP_ALLOWED",
+  "campaignState": "CONTINUE_REQUIRED"
+}

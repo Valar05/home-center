@@ -1,0 +1,29 @@
+{
+  "schema": "venice-judgment-review.v1",
+  "timestampLocal": "2026-08-25T15:00:00-05:00",
+  "reviewer": "current-authorized-chatgpt-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "repository": "Valar05/home-center",
+  "reviewedSourceHead": "fdd7944e85d6644bc02b29db12ffb11fe6dac644",
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "jar": "observable evidence outranks confidence; requested/implemented/tested/deployed/callable/delivered/accepted remain distinct; provenance survives transformation; hard gates outrank urgency",
+  "finding": "The bounded source slice repairs an exact evidenced callback/type wound in the existing canonical custody owner, adds hostile regression source, converges durable doctrine and the existing accessible Warm Wall, and preserves all phone/P0 and duplicate-architecture exclusions.",
+  "note": "STOP_ALLOWED applies only to this bounded source slice. The recurring TRY FOREVER campaign, regression execution, TESTED, runtime, deployment, delivery, and acceptance remain continue-required work and are not promoted by this judgment.",
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

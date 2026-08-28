@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1700",
+  "scope": "non-P0 provenance owner composition",
+  "owner": "tools/try_forever_skill_provenance_probe.py",
+  "expectedOwnerBlob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+  "fronts": [
+    "compose set-level case-insensitive skill identity ambiguity into existing owner",
+    "compose generated-index 1 MiB byte plus strict UTF-8 ingress into existing owner",
+    "compose generated-index typed alias consistency into existing owner",
+    "compose final skills-root revalidation after per-file authority work",
+    "add owner-integration regression source",
+    "synchronize provenance skill doctrine and accessible non-raster ambiguity wall",
+    "publish Regnet/Venice/capability receipts and exact GitHub readback"
+  ],
+  "constraints": {
+    "existingOwnerOnly": true,
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "patchExistenceIsNotImplementation": true,
+    "testSourceIsNotTestExecution": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "plannedCapability": {
+    "ownerSourceWiring": "TARGET",
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

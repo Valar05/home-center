@@ -1,0 +1,18 @@
+{
+  "schema": "venice-plan-review.v1",
+  "heartbeat": "2026-08-23T15:00:00-05:00",
+  "scope": "descriptor-shadow operator receipt self-integrity composition",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "the current gate explicitly leaves receipt self-integrity owner consumption open",
+    "the work composes existing raw shadow, temporal integrity, self-integrity, and display projector organs",
+    "the work is independent of the P0 recovery and primary-phone surfaces",
+    "the work keeps raw machine evidence separate from bounded operator display"
+  ],
+  "hardStops": [
+    "do not create a second receipt projector or descriptor authority",
+    "do not claim regressions executed merely because fixtures exist",
+    "do not claim Android/TalkBack runtime, deployment, delivery, or acceptance",
+    "do not consume Phone Hands or P0 execution surfaces"
+  ]
+}

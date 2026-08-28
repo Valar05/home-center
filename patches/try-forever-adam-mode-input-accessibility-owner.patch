@@ -1,0 +1,217 @@
+# TRY FOREVER — Adam mode/input/accessibility + Send availability owner surgery
+# Historical base owner blob: c5de1411a6b68087ae17aff83c032af754587150
+# Rebased exact current owner blob: 2935243f136359e3489a89108406e888b0ec2911
+# State: REBASED_PROPOSED_NOT_APPLIED
+# Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
+# Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
+# Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
+# Selection dependency: AdamModeSelectionAccessibilityPolicy blob 0ab827c07cca64ce29879c0d7a51d229835a9aeb.
+# Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
+# Result-state dependency: AdamInputResultAccessibilityPolicy blob cc09a2533fa487569ec0b3708f9dd00ace2a95da.
+# Review scars:
+# - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
+# - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
+# - the native mode row is horizontal: consume policy-owned 1-row x 5-column geometry; never transpose it into 5 rows x 1 column.
+# - collection/set-position source must not claim keyboard/accessibility focus ownership.
+# - editable EditText value must not be masked by a generic contentDescription; mode/result context is stateDescription.
+# - the compact Send button must name the exact selected mode in its semantic action and refresh with mode changes.
+# - Send action wording must snapshot current adamMode once, immediately derive the policy Decision from that snapshot,
+#   and project that Decision without arbitrary intervening work; direct decisionFor(adamMode) co-location is not
+#   temporal same-observation custody under owner-probe v10.
+# - Send availability belongs here, not in the collapsed-operational-contact patch: one Adam TextWatcher/field/mode owner.
+# - availability owns native enabled/disabled state only; exact mode-specific action wording remains owned by
+#   AdamSendActionAccessibilityPolicy to avoid duplicate semantic writers.
+# - one edit callback must reuse the bounded request classification for both Send availability and READY/SENT truth;
+#   the supporting decision owns hasUnsentText so the native owner does not reconstruct contact truth from rejection.
+# - OVER_BUDGET disables Send while hasUnsentText remains true, forcing READY rather than preserving a stale SENT claim.
+# - this rebase does not include the separate finite pre-trim submitAdamRequest() service throat; that remaining
+#   service-owner seam is tracked by patches/try-forever-adam-request-source-work-throat.patch.
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
+@@
+ import android.provider.Settings;
++import android.text.Editable;
+ import android.text.TextUtils;
++import android.text.TextWatcher;
+ import android.text.method.ScrollingMovementMethod;
+@@
+     private Button muteButton;
+     private Button controlButton;
++    private Button adamSendButton;
++    private LinearLayout adamModeRow;
+     private EditText adamInput;
+     private String adamMode = "terminal";
++    private AdamInputResultAccessibilityPolicy.ResultState adamInputResultState =
++            AdamInputResultAccessibilityPolicy.ResultState.READY;
+@@
+-        LinearLayout adamModeRow = new LinearLayout(this);
++        adamModeRow = new LinearLayout(this);
+         adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
+         adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+         adamModeRow.setPadding(0, dp(6), 0, dp(2));
+         adamModeRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+             @Override
+             public void onInitializeAccessibilityNodeInfo(
+                     View host,
+                     AccessibilityNodeInfo info) {
+                 super.onInitializeAccessibilityNodeInfo(host, info);
+                 info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
+-                        1,
+-                        AdamModeSelectionAccessibilityPolicy.SET_SIZE,
++                        AdamModeSelectionAccessibilityPolicy.ROW_COUNT,
++                        AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT,
+                         false,
+                         AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE));
+             }
+         });
+@@
+-        adamInput.setContentDescription("Adam input. Current mode terminal.");
++        adamInput.setContentDescription(null);
++        applyAdamInputResultState(adamInputResultState);
++        adamInput.addTextChangedListener(new TextWatcher() {
++            @Override
++            public void beforeTextChanged(CharSequence value, int start, int count, int after) {
++            }
++
++            @Override
++            public void onTextChanged(CharSequence value, int start, int before, int count) {
++            }
++
++            @Override
++            public void afterTextChanged(Editable editable) {
++                AdamSendAvailabilityAccessibilityPolicy.Decision availability =
++                        AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable);
++                if (adamSendButton != null) {
++                    adamSendButton.setEnabled(availability.enabled);
++                }
++                AdamInputResultAccessibilityPolicy.ResultState next =
++                        AdamInputResultAccessibilityPolicy.nextState(
++                                adamInputResultState,
++                                AdamInputResultAccessibilityPolicy.Transition.EDITED,
++                                availability.hasUnsentText);
++                if (next != adamInputResultState) applyAdamInputResultState(next);
++            }
++        });
+         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
+                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+ 
+-        Button adamSendButton = button("Send");
+-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
++        adamSendButton = button("Send");
++        refreshAdamSendAction();
++        refreshAdamSendAvailability();
+         adamSendButton.setOnClickListener(v -> submitAdamRequest());
+         adamInputRow.addView(adamSendButton);
+@@
+     private Button adamModeButton(String label, String mode, String description) {
+         Button value = button(label);
+-        value.setContentDescription(description);
++        value.setTag(mode);
++        AdamModeSelectionAccessibilityPolicy.Decision initial =
++                AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
++        value.setSelected(initial.selected);
++        value.setContentDescription(description);
++        value.setAccessibilityDelegate(new View.AccessibilityDelegate() {
++            @Override
++            public void onInitializeAccessibilityNodeInfo(
++                    View host,
++                    AccessibilityNodeInfo info) {
++                super.onInitializeAccessibilityNodeInfo(host, info);
++                AdamModeSelectionAccessibilityPolicy.Decision decision =
++                        AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
++                info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
++                        decision.rowIndex,
++                        decision.rowSpan,
++                        decision.columnIndex,
++                        decision.columnSpan,
++                        false,
++                        decision.selected));
++            }
++        });
+         value.setOnClickListener(v -> {
+-            adamMode = mode;
++            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
++            refreshAdamModeSelection();
++            refreshAdamSendAction();
++            refreshAdamSendAvailability();
++            AdamInputResultAccessibilityPolicy.ResultState next =
++                    AdamInputResultAccessibilityPolicy.nextState(
++                            adamInputResultState,
++                            AdamInputResultAccessibilityPolicy.Transition.MODE_SELECTED,
++                            false);
++            applyAdamInputResultState(next);
+             if (adamInput != null) {
+-                adamInput.setHint("Adam — " + mode);
+-                adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
+                 adamInput.requestFocus();
+             }
+         });
+         return value;
+     }
++
++    private void refreshAdamModeSelection() {
++        if (adamModeRow == null) return;
++        for (int index = 0; index < adamModeRow.getChildCount(); index++) {
++            View child = adamModeRow.getChildAt(index);
++            if (!(child instanceof Button)) continue;
++            Object tag = child.getTag();
++            if (tag == null) continue;
++            AdamModeSelectionAccessibilityPolicy.Decision decision =
++                    AdamModeSelectionAccessibilityPolicy.decisionFor(
++                            adamMode,
++                            tag.toString());
++            child.setSelected(decision.selected);
++        }
++    }
++
++    private void refreshAdamSendAction() {
++        if (adamSendButton == null) return;
++        String modeSnapshot = adamMode;
++        AdamSendActionAccessibilityPolicy.Decision decision =
++                AdamSendActionAccessibilityPolicy.decisionFor(modeSnapshot);
++        adamSendButton.setText(decision.visibleLabel);
++        adamSendButton.setContentDescription(decision.actionDescription);
++    }
++
++    private void refreshAdamSendAvailability() {
++        if (adamSendButton == null || adamInput == null) return;
++        AdamSendAvailabilityAccessibilityPolicy.Decision decision =
++                AdamSendAvailabilityAccessibilityPolicy.decisionFor(
++                        adamMode,
++                        adamInput.getText());
++        adamSendButton.setEnabled(decision.enabled);
++    }
++
++    private void applyAdamInputResultState(
++            AdamInputResultAccessibilityPolicy.ResultState resultState) {
++        adamInputResultState = resultState;
++        if (adamInput == null) return;
++        AdamInputResultAccessibilityPolicy.Decision decision =
++                AdamInputResultAccessibilityPolicy.decisionFor(adamMode, resultState);
++        adamInput.setContentDescription(null);
++        adamInput.setHint("Adam — " + decision.mode.wireValue
++                + (resultState == AdamInputResultAccessibilityPolicy.ResultState.SENT
++                        ? " • sent"
++                        : ""));
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
++            adamInput.setStateDescription(decision.stateDescription);
++        }
++    }
+ 
+     private void submitAdamRequest() {
+@@
+         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+         adamInput.setText("");
+-        adamInput.setHint("Adam — " + adamMode + " • sent");
++        AdamInputResultAccessibilityPolicy.ResultState next =
++                AdamInputResultAccessibilityPolicy.nextState(
++                        adamInputResultState,
++                        AdamInputResultAccessibilityPolicy.Transition.SUBMIT_SUCCEEDED,
++                        false);
++        applyAdamInputResultState(next);
++        // Deliberately retained: persistent SENT state is not a reviewed replacement for
++        // a repeatable identical-send event receipt.
+         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+     }

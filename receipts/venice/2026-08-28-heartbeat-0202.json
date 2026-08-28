@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "checkpoint": "2026-08-28-heartbeat-0202",
+  "correctedAtCheckpoint": "2026-08-28-heartbeat-0300",
+  "reviewedSourceHead": "d06dac9a152f77271922edecbd159e3d5e917e29",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_MUTATION_NATIVE_ACCESSIBILITY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowBoundedCheckpoint": true,
+  "correctionScar": "The earlier verdict required a native accessibility supporting-API rebase because a focused fixture encoded fabricated classifyEditable/sendEnabled names. Authenticated availability policy blob 2e15869d... and the staged patch show decisionFor/enabled/hasUnsentText are current. The fixture is repaired and blob-bound; no owner mutation or runtime capability is implied.",
+  "requiredContinuation": [
+    "apply exact current Adam UI request-owner throat only through sole OperatorOverlayService owner",
+    "apply the already-rebased native Adam accessibility proposal only through the sole existing OperatorOverlayService owner after exact-base revalidation",
+    "execute the corrected focused fixture and relevant regressions through a working authorized non-phone lane",
+    "preserve the explicit repeat-send receipt until repeatable event semantics are independently resolved",
+    "preserve TESTED/runtime/deployed/callable/delivered/accepted as NO until evidence exists"
+  ],
+  "phoneDeliveryClaim": false,
+  "p0Mutation": false
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedSourceHead": "9dfc2f54d6dad736edcebfc21317304ca4e60ddd",
+  "verdict": "PASS_BOUNDED_SOURCE__DIRECT_STRING_PREENCODE_SOURCE_WIRED__WARM_WALL_56PX_SOURCE_WIRED__ENVELOPE_PREPARSE_REVISE_REQUIRED__SEMANTIC_PARSER_CLEANUP_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "direct-persisted-string-preencode",
+      "state": "SOURCE_WIRED",
+      "evidence": "HeartbeatPersistedEnvelopeProjection.project(String, ...) rejects source length above MAX_DIRECT_STRING_SOURCE_CODE_UNITS before getBytes(UTF_8); exact-at-ceiling input still reaches existing byte-integrity semantics."
+    },
+    {
+      "front": "accessibility-warm-wall",
+      "state": "SOURCE_WIRED_SOURCE_ONLY",
+      "evidence": "Existing heartbeat-predecode-throat-source.html now uses >=56px native controls, visible focus, non-color role=status live text, SVG title/description, reduced-motion handling, and explicitly separates direct-String SOURCE_WIRED from parser preparse RED."
+    },
+    {
+      "front": "envelope-preparse",
+      "state": "REVISE_REQUIRED",
+      "evidence": "HeartbeatEnvelopeParser owner remains without the staged 32,768 UTF-16-code-unit preparse source-work throat; proposal and regression source exist but are unapplied/unexecuted."
+    },
+    {
+      "front": "single-semantic-parser-ownership",
+      "state": "REVISE_REQUIRED",
+      "evidence": "Canonical v10 delegates patch/delta semantics to parse_owner_surgery_observation(...), while dormant local parser-only imports/constants/helpers remain; cleanup proposal is corrected but unapplied."
+    }
+  ],
+  "execution": {
+    "regressionExecuted": false,
+    "tested": false,
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33025879707, "conclusion": "failure", "job": 98366947665, "steps": 0},
+      {"name": "Home Center CI", "id": 33025879715, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33025879725, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

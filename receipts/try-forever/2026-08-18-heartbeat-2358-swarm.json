@@ -1,0 +1,132 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-2358",
+  "missionResult": "ADVANCED_MULTIPLE_NON_P0_FRONTS",
+  "processScar": "No separate plan receipt preceded the queue/art mutations in this pulse; the standing commission plus the already-reviewed owner patch bounded the work. This is preserved rather than retroactively invented as a pre-mutation plan.",
+  "fronts": [
+    {
+      "name": "existing provenance owner promotion",
+      "state": "QUEUED_NOT_EXECUTED",
+      "ticketId": "hands-tf-provenance-report-owner-v4",
+      "laneId": "lane-try-forever-provenance-owner",
+      "workerId": "windows-hands-01",
+      "change": "Queued one non-phone, blob-locked shell surgery that may apply the already-reviewed report-boundary patch only if owner blob afe2b29e... still matches, git apply --check passes, four focused tests pass, the staged diff touches only the owner, and the remote branch has not moved."
+    },
+    {
+      "name": "Computer Hands execution boundary",
+      "state": "WORKER_OFFLINE_QUEUE_PERSISTS",
+      "change": "Fresh worker status reported online=false, status=idle, queueDepth=3 before this request. The new request remains queued at 0/1 steps; queue admission is not source implementation."
+    },
+    {
+      "name": "authenticated existing-owner readback",
+      "state": "EXACT_BOUNDARY_PROVEN",
+      "artifact": "tools/try_forever_skill_provenance_probe.py",
+      "ownerBlob": "afe2b29eb7f4daf2ebf79c483c2e7d3abac9ed6a",
+      "ownerSchema": "try-forever-skill-provenance.v3",
+      "change": "Current owner still does not consume portable report paths, final report-emission snapshot custody, or generated-index emission custody."
+    },
+    {
+      "name": "existing Warm Wall accessibility mutation",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "docs/try-forever/heartbeat-provenance-ambiguity-source-specimen.html",
+      "commit": "fca0c2a7c742d2ccd5beae3b53ea87e5a9d9d9db",
+      "blob": "a71a75fe89f39597a87ac18953c11084c918fc7d",
+      "change": "Mutated the existing DOM/inline-SVG wall in place with a touchable QUEUED versus OWNER UNWIRED membrane; native disclosure controls, >=48px targets, keyboard focus, non-color state and reduced-motion behavior remain."
+    },
+    {
+      "name": "fresh exact-head CI evidence",
+      "state": "TESTED_NO",
+      "head": "fca0c2a7c742d2ccd5beae3b53ea87e5a9d9d9db",
+      "homeCenterCiRun": 32218161438,
+      "buildAndroidRun": 32218161535,
+      "operatorOverlayRun": 32218161454,
+      "operatorOverlayJob": 95963447925,
+      "change": "All three automatic workflows concluded failure. The available authenticated run/job readback establishes no step-level cause; no older diagnosis was recycled and no manual retry was dispatched."
+    },
+    {
+      "name": "She-Raw adversarial review",
+      "state": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+      "change": "Authoritative She-Raw ambient consultation was attempted once and the connector could not connect the account. No synthetic She-Raw verdict was invented."
+    },
+    {
+      "name": "Regnet QA",
+      "state": "PASS_QUEUE_SAFETY__OWNER_EXECUTION_PENDING",
+      "change": "The queued command is fail-closed on owner blob drift, patch applicability, focused tests, unexpected staged files, and remote-branch movement. It cannot be promoted beyond QUEUED until Computer Hands completes and authenticated owner readback changes."
+    },
+    {
+      "name": "Venice Judgment",
+      "state": "SOURCE_AND_QUEUE_RECEIPT_STOP_ALLOWED__OWNER_EXECUTION_TEST_RUNTIME_CONTINUE_REQUIRED",
+      "change": "This bounded pulse may yield; the queued owner surgery, tests, runtime observation, deployment, delivery, and acceptance remain open."
+    }
+  ],
+  "crossPollination": [
+    "2300 owner-unwired receipt exposed that the reviewed patch had a real non-phone execution lane available even though the worker is offline",
+    "home-center-mutation-lane-truth forced queue admission to remain separate from execution and required stale-blob/branch-movement guards",
+    "the queued-vs-wired distinction became a touchable accessibility state in the existing Warm Wall rather than a new controller or specimen family",
+    "fresh CI evidence stayed exact-head and cause-agnostic instead of recycling an older failure story",
+    "Regnet and Venice keep the owner/runtime capability membrane shut until the queued worker produces receipts and GitHub readback proves the mutation"
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "ACTIVE_MOVED_FROM_UNWIRED_PATCH_TO_REAL_NON_PHONE_QUEUE",
+    "Canon Auto-Select": "ACTIVE_HOME_CENTER_MUTATION_LANE_TRUTH",
+    "Autocorrect Judgment Jar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "Originality Tax": "ACTIVE_NO_MANUAL_CI_RETRY_AND_NO_PHONE_SUBSTITUTION",
+    "Hunger": "ACTIVE_OWNER_PROMOTION_PLUS_TOUCHABLE_SOURCE",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE_QUEUE_VS_IMPLEMENTATION_SEMANTIC_CONVERGENCE",
+    "Operator Campaign": "ACTIVE_EXISTING_PROVENANCE_OWNER_ONLY",
+    "Harroway operator discipline": "ACTIVE_BLOB_LOCK_BRANCH_LOCK_AND_CAPABILITY_MEMBRANE",
+    "She-Raw adversarial motivation": "FAULT_ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+    "Venice Judgment Jars": "ACTIVE",
+    "Regnet QA": "ACTIVE",
+    "accessibility/TalkBack and touch semantics": "ACTIVE_EXISTING_WARM_WALL_QUEUE_STATE",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_DARK",
+    "deterministic routing": "ACTIVE_STABLE_COMPUTER_HANDS_REQUEST_LANE_AND_FAIL_CLOSED_PUSH",
+    "evidence/capability-state discipline": "ACTIVE",
+    "recovery/checkpointing/idempotence": "ACTIVE_STABLE_REQUEST_ID_AND_REMOTE_MOVEMENT_ABORT",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE_EXISTING_DOM_INLINE_SVG_MUTATED_IN_PLACE",
+    "warm walls": "ACTIVE_QUEUED_VS_WIRED_SCAR",
+    "Christmas-light scene graph": "DARK_QUEUE_BOOKKEEPING_EARNS_NO_MOTION",
+    "contact preservation": "ACTIVE_EXISTING_OWNER_REMAINS_AUTHORITATIVE_UNTIL_PROVEN_MUTATED",
+    "home-center-mutation-lane-truth": "ACTIVE_DISCOVERED_REPOSITORY_SKILL"
+  },
+  "executionTruth": {
+    "computerHandsTicket": "hands-tf-provenance-report-owner-v4",
+    "computerHandsState": "queued",
+    "computerHandsCompletedSteps": 0,
+    "ownerSourceWired": false,
+    "freshWorkflowHead": "fca0c2a7c742d2ccd5beae3b53ea87e5a9d9d9db",
+    "workflowConclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "existingOwnerPatchReviewed": true,
+    "ownerMutationQueued": true,
+    "ownerMutationExecuted": false,
+    "existingOwnerWiring": false,
+    "exactAuthenticatedOwnerReadback": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

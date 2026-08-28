@@ -1,0 +1,33 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-16-1200",
+  "mission": "Advance independent TRY FOREVER heartbeat skill-lights work without touching the P0/primary-phone recovery chain.",
+  "source_of_truth": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "observed_head": "d24dcc3a4aec6766306b50477cfcae9fde419cad"
+  },
+  "material_wound": "The existing OperatorOverlayService still calls the backward-compatible viewport-owner revalidation and only reports heartbeat-child keyboard focus. It therefore cannot distinguish a rebuild that may destroy the focused heartbeat Button from focus that moved to another direct-focus overlay control before the pending pre-draw restore runs.",
+  "authorized_fronts": [
+    "wire the existing OperatorOverlayService to the explicit focus-scope revalidation overload",
+    "propagate actual mutation class through the existing pre-draw viewport restore path",
+    "add overlay-wide direct-focus evidence without querying or claiming TalkBack accessibility focus",
+    "strengthen hostile source regression fixtures and existing viewport/native-ui skill doctrine",
+    "mutate the existing non-raster warm-wall viewport specimen in place",
+    "Regnet + Venice bounded source review receipts and PR capability ledger"
+  ],
+  "constraints": [
+    "No phone command, Phone Hands ticket, queue/device probe, P0 recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance action.",
+    "No neighboring overlay controller/renderer/state store.",
+    "OperatorOverlayService remains the sole Android UI owner.",
+    "Direct keyboard focus evidence must not be reported as TalkBack accessibility focus.",
+    "Keep requested/implemented/tested/runtime/deployed/callable/delivered/accepted distinct.",
+    "Do not manually retry unchanged Actions-budget CI failure."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  },
+  "plan_gate": "PLAN_ALLOWED_FOR_BOUNDED_NON_P0_SOURCE_SLICE"
+}

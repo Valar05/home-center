@@ -1,0 +1,48 @@
+{
+  "heartbeat": "2026-08-16-2200",
+  "theme": "Canonical pulse identity bounds must survive direct and pre-parser scene ingress",
+  "gate": "PLAN_ALLOWED",
+  "missionBoundary": {
+    "repository": "Valar05/home-center",
+    "pullRequest": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "p0Firewall": "READ_ONLY",
+    "phoneSurface": "DO_NOT_CONSUME",
+    "duplicateArchitecture": "FORBIDDEN"
+  },
+  "observedWound": {
+    "canonicalPath": "HeartbeatEnvelopeParser.requiredSemanticString(... pulseId, MAX_PULSE_ID_CHARS)",
+    "directPath": "HeartbeatSceneGraph.build(String pulseId, ...) checks safety and emptiness but not MAX_PULSE_ID_CHARS",
+    "preParserPath": "HeartbeatSceneGraph.preserveRejectedRefresh(...) can retain a safe but oversized attempted pulse id",
+    "risk": "Direct or pre-parser source can bypass the canonical root pulse-identity bound and create oversized checkpoint/diagnostic identity even though canonical wire ingress rejects it."
+  },
+  "fronts": [
+    "source parity: enforce canonical pulse-id bound in direct scene build and pre-parser attempted-id retention",
+    "regression source: exact-bound acceptance, max+1 fail-closed preservation, pre-parser oversize suppression",
+    "durable doctrine: extend heartbeat-source-bound-parity skill to root pulse identity",
+    "warm-wall art: mutate the existing viewport/contact scar with a pulse-identity bound scar, source-only",
+    "review/evidence: Regnet and Venice receipts with requested/implemented/tested/runtime/deployed/callable/delivered/accepted separation"
+  ],
+  "constraints": [
+    "No Phone Hands, primary-phone command, queue/device probe, P0 recovery mutation, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance work.",
+    "No neighboring overlay controller, renderer, state store, recovery daemon, or P0 coordinator.",
+    "Do not call regression source TESTED unless deterministic Android execution actually runs.",
+    "Preserve last-good contact and clamp one-shot motion on rejected oversized pulse identity.",
+    "Do not truncate an oversized pulse id into a counterfeit accepted identity."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "capabilityBefore": {
+    "requested": true,
+    "implementedSource": false,
+    "tested": false,
+    "runtimeObserved": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

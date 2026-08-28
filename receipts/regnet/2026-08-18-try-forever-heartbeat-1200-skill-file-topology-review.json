@@ -1,0 +1,75 @@
+{
+  "schema": "regnet-qa.v1",
+  "heartbeat": "2026-08-18-1200",
+  "verdict": "REVISE_REQUIRED",
+  "boundedPass": "SUPPORTING_SOURCE_AND_EXACT_READBACK_ONLY",
+  "reviewedHead": "65c3af4f5b809658cc494bf2528b9d0e8089c354",
+  "findings": [
+    {
+      "severity": "material",
+      "result": "CONFIRMED_WOUND",
+      "finding": "Authenticated owner readback still uses entry.is_file(follow_symlinks=True) for named SKILL.md candidates. An in-root file symlink can therefore be admitted under an alias path before later outside-root validation, and the current path collision check does not identify two different relative paths that resolve to one in-root target."
+    },
+    {
+      "severity": "pass",
+      "result": "REGRESSION_SOURCE_ADVANCED",
+      "finding": "tools/test_try_forever_skill_candidate_enumeration.py now pins in-root SKILL.md symlink alias rejection and named SKILL.md non-ordinary topology rejection, requiring zero partial records and zero title/hash work after the global candidate-set wound. The file was read back exactly as blob 1c0e6f053a8bcbeb75c21f8224eee5495f665b89."
+    },
+    {
+      "severity": "pass",
+      "result": "PATCH_PROVENANCE_ADVANCED",
+      "finding": "patches/try-forever-skill-file-topology.patch is base-blob locked to owner blob e3627e342150c48f38099bb68fb118b3c54f2bf4 and proposes no-follow ordinary-file admission plus a structured SkillCandidateTopologyError. Patch blob d55cedbb6a7030e9d855f42e7bdb706f42481530 is PROPOSED_NOT_APPLIED."
+    },
+    {
+      "severity": "pass",
+      "result": "ACCESSIBILITY_SOURCE_ADVANCED",
+      "finding": "The existing skill-provenance Warm Wall was mutated in place as blob 4ac1df5ed1c7b18b0f1b7377e524bb37c41d272c with a sixth SKILL.md REDIRECTOR BLOCKED state while preserving radio semantics, roving keyboard navigation, >=48px controls, non-color signaling, one polite live detail region, reduced motion, and explicit SOURCE ONLY scarring."
+    },
+    {
+      "severity": "boundary",
+      "result": "OWNER_NOT_WIRED",
+      "finding": "The existing provenance owner was not replaced in this run. Therefore the new regression source is intentionally red against current source, the candidate-topology doctrine is aspirational for that seam, and existing-owner topology consumption remains NO."
+    },
+    {
+      "severity": "boundary",
+      "result": "ATOMICITY_NOT_CLAIMED",
+      "finding": "Even the proposed no-follow directory-entry gate would not by itself prove per-file swap-and-restore immunity between candidate admission and later title/hash opens. This review does not claim atomic candidate-file binding or hard-link identity equivalence."
+    }
+  ],
+  "ci": {
+    "exactHead": "65c3af4f5b809658cc494bf2528b9d0e8089c354",
+    "operatorOverlayRun": 32163954720,
+    "operatorOverlayJob": 95799046086,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticReplacement": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "ownerPatch": "PROPOSED_NOT_APPLIED",
+    "existingOwnerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

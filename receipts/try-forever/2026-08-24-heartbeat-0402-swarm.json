@@ -1,0 +1,110 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "heartbeat": "2026-08-24T04:02:08-05:00",
+  "reviewedSourceHead": "08400842298c18d0616a76eeaa1220556539a027",
+  "previousCheckpointHead": "a82853c066bdfe63860c0a13625e6e2a0ecce18e",
+  "sourceDelta": {
+    "commits": 10,
+    "intendedPaths": 8,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "id": "raw-schema-custody",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Raw capability membrane v3 now requires exact descriptor-shadow v3 source identity before capability admission and reuses the raw shadow owner's schema constant instead of duplicating it.",
+      "regression": "tools/test_try_forever_shadow_raw_capability_membrane.py",
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "id": "operator-capability-closure",
+      "state": "SOURCE_WIRED",
+      "changed": "Bounded operator receipt v4 explicitly emits deployed/callable/executed/delivered/accepted=false and rejects contradictory upstream later-capability claims instead of sanitizing them.",
+      "regression": "tools/test_try_forever_descriptor_shadow_operator_receipt_capability_closure.py",
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "id": "skill-harvest",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Harvested operator-receipt-capability-closure and converged operator-owner-surgery-raw-capability-membrane doctrine to exact source-schema and capability-state truth."
+    },
+    {
+      "id": "warm-wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "changed": "Mutated the existing raw-capability DOM/inline-SVG organism in place to expose exact raw schema admission and final v4 capability closure with keyboard/radio/touch semantics and no autoplay/blink.",
+      "runtimeUi": false,
+      "runtimeTalkBack": false
+    },
+    {
+      "id": "execution-truth",
+      "state": "BLOCKED_UNKNOWN",
+      "changed": "Exact-head automatic Build Android, Home Center CI, and Operator Overlay Android all concluded failure. Operator job 97379531278 exposes zero steps and log retrieval returns 404 BlobNotFound; no step-level cause is established and no retry was fired.",
+      "tested": false
+    }
+  ],
+  "codeFirstReview": {
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY",
+    "correction": "The first raw-schema hardening duplicated the descriptor-shadow schema literal. Review replaced that copy with the existing raw shadow owner's schema constant so schema authority cannot drift between organs.",
+    "ownerOrRuntimePromotion": false
+  },
+  "venice": {
+    "planGate": "PLAN_ALLOWED__SOURCE_ONLY_NON_P0",
+    "completionGate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "state": "FAULT",
+    "boundary": "account connection HTTP 400",
+    "syntheticReplacementUsed": false
+  },
+  "skillLights": {
+    "active": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "Venice Judgment Jars",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "warm walls",
+      "contact preservation",
+      "operator-receipt-capability-closure",
+      "operator-owner-surgery-raw-capability-membrane"
+    ],
+    "dark": [
+      "Autocorrect Judgment Jar",
+      "Christmas-light scene graph",
+      "Phone Runtime / Phone Hands recovery"
+    ]
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "receiptCommitIsNotReviewedSource": true
+}

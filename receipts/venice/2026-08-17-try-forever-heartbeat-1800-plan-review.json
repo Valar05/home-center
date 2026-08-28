@@ -1,0 +1,19 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "pulse": "2026-08-17-1800",
+  "reviewerMode": "judgment_jar_emulation",
+  "verdict": "PLAN_ALLOWED",
+  "scope": "Bounded non-P0 source repair only.",
+  "findings": [
+    "The defect is real at the existing collapsed owner surface: correct heartbeat text lives under details, which becomes GONE.",
+    "The repair must compose the existing heartbeat model into a surviving existing control; it must not create a neighboring renderer/controller or new recovery lane.",
+    "A correct pure projection is insufficient unless OperatorOverlayService actually assigns it to a surviving collapsed accessibility surface.",
+    "Source success must not be promoted into Android runtime, TalkBack runtime, deployment, phone delivery, or acceptance."
+  ],
+  "hardGates": {
+    "p0Firewall": "PASS",
+    "phoneSurface": "UNTOUCHED_REQUIRED",
+    "duplicateArchitecture": "FORBIDDEN",
+    "runtimeClaimWithoutEvidence": "FORBIDDEN"
+  }
+}

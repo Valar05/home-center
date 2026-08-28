@@ -1,0 +1,15 @@
+{
+  "schema": "venice-judgment-plan-review.v1",
+  "checkpoint": "2026-08-23T21:02:08-05:00",
+  "verdict": "PLAN_ALLOWED",
+  "boundedReason": "The plan strengthens existing descriptor-shadow receipt self-integrity, hostile source fixtures, doctrine, and the existing non-raster source organism. It preserves the sole raw owner/projector chain, rejects contradictory capability claims rather than sanitizing them, keeps regression execution and TESTED false, and does not touch the gated phone/P0 chain.",
+  "mustPreserve": [
+    "Raw descriptor-shadow evidence remains separate machine evidence and is not rewritten into authority.",
+    "A contradictory raw capability claim must fail closed rather than be hidden by a bounded projector emitting false constants.",
+    "DESCRIPTOR_WOUND may preserve legitimate already-observed portable diagnostic contact.",
+    "No second descriptor authority, receipt projector, overlay controller, or recovery organ.",
+    "Regression source is not regression execution or TESTED evidence.",
+    "Phone/P0 consumption and mutation remain zero."
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_MUTATION_MAY_PROCEED"
+}

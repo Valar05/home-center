@@ -1,0 +1,78 @@
+{
+  "schema": "regnet-qa-source-review.v1",
+  "timestampLocal": "2026-08-24T22:00:00-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "05fbf7dbe54038726c5648d34dbf592e1acf8b5c",
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_READBACK__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "state": "PASS",
+      "claim": "The existing shared canonical-result fingerprint organ is already surrogate-safe through UTF-8 surrogatepass while preserving ordinary valid-Unicode digest identity.",
+      "evidence": "tools/try_forever_canonical_result_fingerprint.py blob 9f230a78c68ffffa6eb46269a678f6237f910363"
+    },
+    {
+      "state": "REVISE_REQUIRED",
+      "claim": "The existing final-v4 operator receipt digest still uses ordinary UTF-8 encoding through _deterministic_json_sha256(... ensure_ascii=false), so the surrogate-safe law is not yet owner-wired.",
+      "evidence": "authenticated final owner blob 82af7cc572d2a95624fb549c387946068483c7e3"
+    },
+    {
+      "state": "PASS_SOURCE_ONLY",
+      "claim": "The exact base-blob-locked owner surgery reuses the existing fingerprint organ rather than creating another receipt owner/digest implementation.",
+      "evidence": "patches/try-forever-operator-receipt-unicode-fingerprint-owner.patch blob 3b0fa933a9e421a8f72ba887bb4ecf0cb4da1f13"
+    },
+    {
+      "state": "RED_SOURCE_UNEXECUTED",
+      "claim": "Focused behavior and direct-owner regressions pin valid-Unicode parity, deterministic surrogate evidence, material drift, non-finite rejection, and direct owner consumption.",
+      "evidence": [
+        "tools/test_try_forever_operator_receipt_unicode_fingerprint.py blob 85361f567d24c304f435f9eaa75bd1698b0cee8e",
+        "tools/test_try_forever_operator_receipt_unicode_fingerprint_owner_boundary.py blob f25d171a6115e27776cda5b8a16bd3fca8223419"
+      ]
+    },
+    {
+      "state": "PASS",
+      "claim": "The canonical-result fingerprint source specimen no longer falsely says descriptor-shadow owner unwired; it now distinguishes descriptor-shadow SOURCE_WIRED from final-v4 owner RED.",
+      "evidence": "docs/try-forever/canonical-result-fingerprint-source-specimen.html blob b9e4d622e3ae2ea096e850e148fac055084b29e6"
+    }
+  ],
+  "delta": {
+    "base": "5faaec4f314ff233a3cb4bb3943db5e42c83f13a",
+    "head": "05fbf7dbe54038726c5648d34dbf592e1acf8b5c",
+    "commits": 8,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "exactReviewedHeadWorkflowRunsObserved": 0,
+    "intermediateHead": "f7ea677566330cf7f761147daf585c37bfc92f73",
+    "intermediateHomeCenterCi": {"run": 32804039869, "conclusion": "failure"},
+    "intermediateBuildAndroid": {"run": 32804039863, "conclusion": "failure"},
+    "intermediateOperatorOverlay": {"run": 32804039860, "job": 97670489666, "conclusion": "failure", "steps": 0, "logs": "404_BlobNotFound"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "descriptorShadowSharedFingerprintOwnerWired": true,
+    "finalOperatorReceiptSharedFingerprintOwnerWired": false,
+    "ownerSurgeryPrepared": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

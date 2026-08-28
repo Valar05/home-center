@@ -1,0 +1,25 @@
+{
+  "schema": "venice-completion-review.v1",
+  "pulse": "2026-08-17-0200",
+  "scope": "bounded non-P0 heartbeat chrome-truth source slice",
+  "codeReview": "PASS",
+  "evidenceReview": "PASS_WITH_TEST_BOUNDARY",
+  "sourceSliceGate": "STOP_ALLOWED",
+  "campaignGate": "CONTINUE_REQUIRED",
+  "reasons": [
+    "The existing OperatorOverlayService now consumes model-owned summary and interruption-detail truth; no neighboring renderer/controller was created.",
+    "Pre-contact interrupted refresh no longer claims CONTACT HELD or last-good preservation in visible/detail source semantics.",
+    "Accepted/preserved zero-material contact still legitimately reports CONTACT HELD because visiblePulseId, not control count, defines contact.",
+    "Regression source, durable skill doctrine, and the existing warm-wall SVG were synchronized to the same capability truth.",
+    "GitHub Actions executed zero steps because the Actions budget prevented job start; source progress is not TESTED/runtime/deployed/delivered evidence.",
+    "A new non-P0 wound remains: WAITING after a recovered pre-contact read failure can leave the preserved REFRESH BLOCKED scene visible because the owner only writes waiting chrome when heartbeatFrame is null."
+  ],
+  "nextAuthorizedCut": "Repair WAITING recovery inside the existing OperatorOverlayService so a stale pre-contact wound clears exactly once to ordinary waiting without 200 ms UI churn. Do not touch Phone Hands/P0 and do not create another poller.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "p0PhoneFirewall": "ZERO_MUTATION_ZERO_CONSUMPTION",
+  "mergeAsDeliveredInterface": false
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-23T13:01:16-05:00",
+  "project": "Valar05/home-center",
+  "pr": 329,
+  "startingHead": "453ce5988c4fb2e291bdf96a46b1fcccacddb5fe",
+  "reviewedSourceHead": "956e23fb482b11184c2fd048ffce09ae52e1d7bb",
+  "sourceSlice": {
+    "commits": 8,
+    "intendedPaths": 6,
+    "unexpectedPaths": 0
+  },
+  "materialFronts": [
+    "receipt comparison self-integrity supporting source",
+    "hostile self-integrity regression source",
+    "stale projection regression repair",
+    "shadow-receipt skill doctrine convergence",
+    "existing non-raster Warm Wall mutation",
+    "Regnet and Venice capability review"
+  ],
+  "review": {
+    "regnet": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__OWNER_CONSUMPTION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "sheRaw": "ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "executionTruth": {
+    "runs": [
+      {"name": "Operator Overlay Android", "id": 32657058179, "conclusion": "failure", "jobId": 97237354419, "stepsExposed": 0, "logs": "404_BlobNotFound"},
+      {"name": "Build Android", "id": 32657058176, "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 32657058170, "conclusion": "failure"}
+    ],
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "descriptorShadowTriStateOwnerWired": true,
+    "temporalReceiptContextOwnerWired": true,
+    "receiptSelfIntegritySupportingSource": true,
+    "receiptSelfIntegrityOwnerConsumption": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthorityIntegration": false,
+    "backendComposition": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

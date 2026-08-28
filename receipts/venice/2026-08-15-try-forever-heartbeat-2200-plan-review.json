@@ -1,0 +1,27 @@
+{
+  "schema": "try-forever.venice-plan-review.v1",
+  "heartbeat": "2026-08-15T22:00:00-05:00",
+  "reviewerMode": "judgment_jar_emulation",
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "mission": "Advance a source-only accessible view-model seam from the existing heartbeat scene without creating a second renderer or controller.",
+  "authorizedFronts": [
+    "pure HeartbeatOverlayViewModel source",
+    "pure JVM regression source",
+    "durable repository skill",
+    "exact GitHub readback and review receipts"
+  ],
+  "capabilityBoundary": "Source changes only. No runtime, deployment, delivery, or acceptance claim.",
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT",
+    "boundary": "account connection HTTP 400"
+  },
+  "ciBoundaryObservedBeforeMutation": {
+    "head": "f8c7c79b27888588eeae2ad49a39dd58bf31d12d",
+    "operatorOverlayRun": 31921141936,
+    "job": 95101087457,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  }
+}

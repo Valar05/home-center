@@ -1,0 +1,96 @@
+{
+  "schema": "regnet-source-review.v1",
+  "timestampLocal": "2026-08-24T19:10:30-05:00",
+  "pr": 329,
+  "reviewedSourceHead": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "fronts": [
+    {
+      "name": "descriptor-shadow serialized path owner wiring",
+      "state": "PASS_SOURCE_WIRED",
+      "evidence": {
+        "ownerPath": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+        "baseBlob": "4cc65f162f600e70a9771d7cf3edac94e45f5344",
+        "appliedCommit": "cad8d728efa14d8a20b229d1902896e9267d0e02",
+        "resultBlob": "10b88a9583274d498524b3082e252886be4335af",
+        "sharedPolicyPath": "tools/try_forever_provenance_report_path.py",
+        "sharedPolicyBlob": "b30add2b26511921817a97d42972a92dd24545ab"
+      },
+      "claim": "The existing descriptor-shadow projector now delegates serialized path display to project_serialized_report_path(); no second projector exists."
+    },
+    {
+      "name": "hostile owner-boundary regression",
+      "state": "PASS_REGRESSION_SOURCE_UNEXECUTED",
+      "evidence": {
+        "path": "tools/test_try_forever_descriptor_shadow_serialized_path_owner_boundary.py",
+        "blob": "c6ad65c36bc1433d6193cfe77f8d45574d141f02"
+      },
+      "coverage": [
+        "Windows drive absolute",
+        "UNC",
+        "Windows drive-relative",
+        "Windows rooted",
+        "POSIX absolute",
+        "already-authorized repository-relative Windows-looking identity"
+      ]
+    },
+    {
+      "name": "doctrine and source-art convergence",
+      "state": "PASS_SOURCE",
+      "evidence": {
+        "skillBlob": "246ec716ca54ea6f44788e34ad357f5999068b44",
+        "artBlob": "ef4840f47e35f77c640fcf46b1337c2363a3338e",
+        "patchProvenanceBlob": "5481e8921d03a8afb93b4e0e06d16d9d6288dad9"
+      },
+      "claim": "Skill doctrine, applied patch provenance, and the existing Warm Wall now match authenticated owner SOURCE_WIRED truth without claiming runtime delivery."
+    }
+  ],
+  "evidenceDelta": {
+    "priorPublicationHead": "5038b4dc5d74f6968a6a21e20fe116883fd1a7a0",
+    "reviewedSourceHead": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+    "commits": 7,
+    "changedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "executionTruth": {
+    "head": "f8af48f1a8dec39bcf421decbe9841f08ed2d9ec",
+    "workflows": [
+      {"name": "Build Android", "runId": 32792443137, "conclusion": "failure"},
+      {"name": "Home Center CI", "runId": 32792443069, "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "runId": 32792443078, "jobId": 97636578503, "conclusion": "failure", "steps": 0}
+    ],
+    "operatorLogs": "empty/no usable step-level evidence",
+    "causeEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "descriptorShadowCrossHostOwnerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "reviewNotes": [
+    "Owner mutation matches the pre-reviewed base-blob patch and reuses the existing serialized-path projector.",
+    "Regression strengthening is source-only; zero-step workflow failure is not regression execution evidence.",
+    "No historical workflow failure diagnosis was recycled because the current run exposes no step-level cause.",
+    "No P0/phone surface was touched."
+  ]
+}

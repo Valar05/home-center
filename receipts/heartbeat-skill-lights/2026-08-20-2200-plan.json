@@ -1,0 +1,32 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-20-2200",
+  "mission": "Advance a materially different non-P0 Operator Overlay accessibility seam: preserve the changing latest-message TextView value while making its expand/collapse interaction state and click consequence explicitly discoverable to accessibility services.",
+  "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "firewall": {
+    "phoneHands": "READ_ONLY_NOT_CONSUMED",
+    "p0Recovery": "READ_ONLY_NOT_MUTATED",
+    "duplicateArchitecture": "FORBIDDEN"
+  },
+  "freshEvidence": [
+    "Current owner blob 44d4e273e79f8dc37227651ba11a31842169db18 preserves latest TextView changing text with contentDescription=null and toggles expandedText from an OnClickListener.",
+    "Current source does not expose the latest-message expanded/collapsed state or a labeled standard click action to accessibility node inspection.",
+    "Android AccessibilityAction supports overriding the standard ACTION_CLICK label, and stateDescription is available from API 30; the app minSdk is 26 and compileSdk is 35."
+  ],
+  "fronts": [
+    "Add a pure latest-message interaction policy with bounded state/action/confirmation strings.",
+    "Add hostile regression source for action labels, state descriptions, mute-aware confirmation, and preservation of native changing-text semantics.",
+    "Add a direct-owner source boundary regression that reuses the existing lexical/direct-owner evidence organ instead of creating another source parser.",
+    "Prepare or wire the exact existing-owner accessibility delegate only if the source mutation can be made without reconstructing the owner through an unsafe lane.",
+    "Converge dynamic TextView accessibility doctrine and add a touchable non-raster source specimen because this changes user-facing accessibility topology.",
+    "Run Regnet/Venice bounded review, preserve She-Raw connection failure as a reviewer fault, and inspect fresh automatic workflow evidence without manual retry."
+  ],
+  "capabilityTarget": {
+    "supportingSource": true,
+    "ownerWiring": "ONLY_IF_AUTHENTICATED_SAFE_WRITE_IS_AVAILABLE",
+    "regressionSource": true,
+    "tested": false,
+    "runtimeTalkBack": false,
+    "phoneDelivery": false
+  }
+}

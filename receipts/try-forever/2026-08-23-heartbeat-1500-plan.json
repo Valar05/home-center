@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-plan.v1",
+  "heartbeat": "2026-08-23T15:00:00-05:00",
+  "pr": 329,
+  "startingHead": "800816729710f3b2d46d214d7644fbc991cebb8b",
+  "mission": "Advance non-P0 TRY FOREVER source work through existing descriptor-shadow receipt organs; do not touch phone/P0 owners.",
+  "fronts": [
+    "compose receipt self-integrity into the existing descriptor-shadow operator/CLI surface without creating a second projector or authority",
+    "add direct owner-boundary regression source proving the operator surface consumes self-integrity and keeps raw audit evidence separate",
+    "converge operator-owner-surgery-shadow-receipt-integrity doctrine to authenticated source truth",
+    "mutate the existing descriptor-shadow Warm Wall in place so owner-consumed self-audit is touch-inspectable",
+    "perform Regnet/Venice bounded review and exact capability-state accounting"
+  ],
+  "constraints": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "manualWorkflowRetry": false,
+    "sourceDoesNotImplyTested": true,
+    "sourceDoesNotImplyRuntime": true
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteReviewer": false
+  },
+  "gate": "PLAN_ALLOWED"
+}

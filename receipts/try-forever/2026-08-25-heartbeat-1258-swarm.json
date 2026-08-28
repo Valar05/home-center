@@ -1,0 +1,61 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "timestampLocal": "2026-08-25T12:58:23-05:00",
+  "sourceHeadReviewed": "038db2287cb0909e5ea25ed6d7b2fb83e1583487",
+  "frontsAdvanced": 6,
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","change":"Closed the exact final-v4 public type-contract wound through the existing owner instead of repeating blocked execution."},
+    {"name":"Originality Tax","state":"ACTIVE","change":"Reused the prepared base-locked owner surgery; no new validator/receipt owner/projector."},
+    {"name":"Canon Auto-Select / Hunger / Eat Everything","state":"ACTIVE","change":"Converged patch provenance, regression wording, bounded-container doctrine, and a separate stale receipt-integrity v3 fossil after authenticated readback."},
+    {"name":"Operator Campaign / Harroway","state":"ACTIVE","change":"Used audited Home Center GitHub-admin source lane with exact blob custody; existing descriptor-shadow operator receipt owner remains sole owner."},
+    {"name":"Regnet QA","state":"ACTIVE","change":"PASS source/readback only; regression source UNEXECUTED; TESTED remains NO."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","change":"Authoritative ambient attempt returned account-connection HTTP 400; no synthetic verdict."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","change":"Bounded same-worker completion allows this source slice to yield while regression/test/runtime/campaign continue."},
+    {"name":"deterministic routing / evidence capability-state discipline","state":"ACTIVE","change":"Public API capability now matches exact-dict runtime admission; exact-head zero-step workflow failure not promoted into source/test diagnosis."},
+    {"name":"recovery/checkpointing/idempotence / contact preservation","state":"ACTIVE_CONSTRAINT","change":"Type-only public contract convergence preserves accepted receipt semantics and existing one-observation runtime custody; no behavior identity churn claimed."},
+    {"name":"accessibility/TalkBack / touch semantics","state":"DARK","change":"No user-facing topology changed; accessibility remained a non-regression constraint only."},
+    {"name":"strange non-raster art / Warm Walls / Christmas-light scene graph","state":"DARK","change":"No operator-state topology changed; decorative mutation rejected."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","change":"No material ambiguity."},
+    {"name":"Phone Runtime / Phone Hands / P0","state":"FIREWALLED_DARK","change":"Consumption 0; mutation 0; duplicate architecture 0; new P0 finding none."}
+  ],
+  "sourceChanges": {
+    "previousHead": "cb7f7c1fddab479d21af509694853613da37040a",
+    "reviewedHead": "038db2287cb0909e5ea25ed6d7b2fb83e1583487",
+    "commits": 6,
+    "paths": 6,
+    "unexpectedPaths": 0,
+    "ownerAppliedCommit": "04767647bcfc9ef29b6b867d5db7c7e6e8dbc66f",
+    "ownerBlob": "42cd1fceccfae861e9e5edd129b145b15969d401",
+    "regressionBlob": "bb3f55175179a95449a1cef9ababe709f901d39b",
+    "boundedContainerSkillBlob": "f1de7251fa2715d4518104bbc3b5c0cade1bc629",
+    "receiptIntegritySkillBlob": "20ee545bb43c58b4abfd225a92564e08a496f515"
+  },
+  "executionEvidence": {
+    "homeCenterCiRun": 32881658595,
+    "buildAndroidRun": 32881658592,
+    "operatorOverlayRun": 32881658588,
+    "operatorOverlayJob": 97912351406,
+    "operatorOverlaySteps": 0,
+    "conclusion": "failure",
+    "tested": false,
+    "manualRetry": false
+  },
+  "crossPollination": "Exact runtime snapshot admission exposed the final public Mapping overclaim; applying that repair made patch/regression/skill truth stale; Hunger forced convergence; the same review exposed an independent schema-v3 fossil in receipt-integrity doctrine; exact-head workflow evidence kept SOURCE_WIRED behind TESTED/runtime while the P0 firewall prevented a substitute execution path.",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "finalReceiptPublicTypeOwnerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

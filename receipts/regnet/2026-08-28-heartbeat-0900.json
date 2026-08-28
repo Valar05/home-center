@@ -1,0 +1,92 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-28T09:00:00-05:00",
+  "reviewed_source_head": "72c15feb210480aeead3572e5bfc3885c9b96923",
+  "prior_publication_head": "803361b5762ed6a557886d2563f27d8f3d20b9b7",
+  "verdict": "BOUNDED_SOURCE_PASS__CONTINUE_REQUIRED",
+  "material_review": {
+    "request_probe_v9": {
+      "status": "SOURCE_HARDENED_UNEXECUTED",
+      "changes": [
+        "counts simple and compound Java assignments to admitted editable/text bindings",
+        "requires exactly one total OperatorState.submitAdamRequest persistence sink carrying admitted text",
+        "closes the two v8 counterfeit-green shapes without promoting native owner capability"
+      ]
+    },
+    "hostile_fixtures": {
+      "status": "SOURCE_CONVERGED_UNEXECUTED",
+      "changes": [
+        "focused fixture pins compound text += rebinding to PARTIAL_UNSAFE",
+        "focused fixture pins any second request-persistence sink to PARTIAL_UNSAFE",
+        "broad fixture schema converged from v8 to v9"
+      ]
+    },
+    "warm_wall": {
+      "status": "SOURCE_UPDATED_NOT_RUNTIME",
+      "changes": [
+        "capability punctuation now has a visible text legend",
+        "capability wall is associated with the legend via aria-describedby",
+        "probe state converged to v9 SOURCE_HARDENED / UNEXECUTED",
+        "non-live automatic detail, one-row five-column geometry, >=56px controls, visible focus, reduced motion, and repeat-send hold remain preserved"
+      ]
+    },
+    "canon_harvest": {
+      "status": "DURABLE_SKILL_UPDATED",
+      "changes": [
+        "single-assignment custody explicitly includes compound Java assignment operators",
+        "exact persistence custody now means exactly one total request-persistence sink",
+        "non-color symbolic capability states require a visible associated text legend"
+      ]
+    }
+  },
+  "review_findings": [
+    "No duplicate overlay/controller/transport/recovery architecture was introduced.",
+    "Native OperatorOverlayService request owner remains REBASED_PROPOSED_NOT_APPLIED; source probe hardening is evidence, not owner mutation.",
+    "Native Adam accessibility owner remains REBASED_PROPOSED_NOT_APPLIED; Warm Wall is source specimen only.",
+    "Legacy repeatable Adam send receipt remains held; source state does not substitute for repeat-runtime evidence.",
+    "Exact-head GitHub workflows failed and Operator Overlay job exposed zero steps, so regression execution and TESTED remain NO."
+  ],
+  "execution_truth": {
+    "home_center_ci": {"run_id": 33179353785, "status": "completed", "conclusion": "failure"},
+    "operator_overlay_android": {"run_id": 33179353824, "job_id": 98876226722, "status": "completed", "conclusion": "failure", "step_count": 0},
+    "build_android": {"run_id": 33179353870, "status": "completed", "conclusion": "failure"},
+    "manual_retry": false,
+    "step_level_diagnosis_claimed": false
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute": false
+  },
+  "firewall": {
+    "phone_consumption": 0,
+    "phone_mutation": 0,
+    "p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null
+  },
+  "capability_membrane": {
+    "requested": true,
+    "supporting_source_progress": true,
+    "authenticated_readback": true,
+    "adam_state_request_owner": "SOURCE_WIRED",
+    "adam_ui_request_owner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "adam_native_accessibility_owner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "request_probe_v9": "SOURCE_HARDENED_UNEXECUTED",
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "continue_required": [
+    "native UI request-owner mutation through its existing exact-base surgery",
+    "native accessibility-owner mutation through its existing exact-base surgery",
+    "real regression execution",
+    "TESTED/runtime evidence"
+  ]
+}

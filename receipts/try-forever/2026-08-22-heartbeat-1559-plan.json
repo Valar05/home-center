@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "checkpoint": "2026-08-22T15:59:34-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without consuming Phone/P0 surfaces.",
+  "sourceHeadBefore": "349b95b73540be261a57ce3dcaf3a6af229aa8c5",
+  "venicePlanGate": "PLAN_ALLOWED",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "fronts": [
+    {
+      "name": "descriptor backend selection contract",
+      "target": "tools/try_forever_owner_surgery_backend_policy.py",
+      "constraint": "When descriptor primitives are admitted, a future owner composition may select the held-descriptor backend; once selected, a descriptor custody failure must fail closed rather than silently downgrade to pathname custody. Unsupported runtimes keep the existing portable v10 path as the primary backend."
+    },
+    {
+      "name": "owner-composition hostile regression source",
+      "target": "tools/test_try_forever_owner_surgery_backend_policy.py",
+      "constraint": "Pin backend selection, no-downgrade failure semantics, evidence-field preservation, and unknown-capability rejection. Source only; unexecuted."
+    },
+    {
+      "name": "canonical v10 regression drift scar",
+      "target": "tools/test_try_forever_owner_surgery_v10_contract.py",
+      "constraint": "Pin the current v10 public schema/capability membrane because the older broad custody fixture still contains stale v7 expectations. Do not call the old suite tested or repaired by implication."
+    },
+    {
+      "name": "backend-selection durable skill",
+      "target": "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "constraint": "Preserve portable fallback as a platform choice, forbid fallback after an admitted descriptor backend fails, and keep descriptor owner integration/test/runtime states separate."
+    },
+    {
+      "name": "touchable backend custody wall",
+      "target": "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "constraint": "Make PORTABLE / HELD FD / FAIL CLOSED inspectable with native DOM controls, no raster, no autoplay, no runtime or phone claim."
+    }
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

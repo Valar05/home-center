@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-plan-receipt.v1",
+  "heartbeat": "2026-08-16-1400",
+  "pr": 329,
+  "gate": "PLAN_ALLOWED",
+  "mission": "Advance a materially different non-P0 accessibility seam: automatic heartbeat speech must not fire when the heartbeat surface itself is collapsed/GONE even though the overlay root remains visible.",
+  "observed_source_wound": {
+    "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "evidence": "refreshUi currently calls refreshHeartbeatLights(muted, !hidden && root.getVisibility() == View.VISIBLE); panelCollapsed can be true while root is visible and details/heartbeat UI are GONE, so shouldAnnounce can permit speech from a hidden heartbeat surface.",
+    "risk": "TalkBack/speech can announce semantic heartbeat transitions the user deliberately collapsed out of presentation, violating presentation truth and making collapsed mode noisy."
+  },
+  "authorized_fronts": [
+    "existing-owner source fix only",
+    "pure announcement-policy regression source",
+    "refresh-deduplication/accessibility doctrine synchronization",
+    "existing non-raster warm-wall specimen mutation in place",
+    "Regnet/Venice/evidence receipts"
+  ],
+  "constraints": [
+    "Do not touch Phone Hands, primary-phone execution, queues, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance.",
+    "Do not create a neighboring overlay controller/renderer/state store.",
+    "Advance announcement identity while collapsed so expanding later cannot replay stale speech.",
+    "Keep requested/implemented/tested/runtime/deployed/callable/delivered/accepted distinct.",
+    "No manual CI retry while the Actions-budget condition is unchanged."
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_replacement": false
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "try-forever-regnet-source-review.v1",
+  "heartbeat": "2026-08-26T08:00:00-05:00",
+  "scope": "non-P0 Try Forever source review",
+  "reviewedSourceHead": "7dc4b7c9502156070c3fe90e4ef690fa9fc32762",
+  "verdict": "PASS_BOUNDED_SOURCE__CURRENT_OWNER_PARSER_AND_PRESENCE_WIRED__MAIN_ARGV_AND_LEGACY_FIXTURE_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "repeated current-owner parser custody",
+      "before": "_parse_owner_blob accepted arbitrary Iterable input and called caller-owned partition() before exact scalar admission, with no direct assignment source ceiling",
+      "after": "the existing parser requires one exact built-in list, exact built-in assignment strings, and a 4137-code-point source ceiling before partition()",
+      "state": "SOURCE_WIRED"
+    },
+    {
+      "front": "current-owner custody presence truth",
+      "before": "classify normalized omitted None and explicit empty dict to the same empty map and then derived currentOwnerCustodyProvided from map truthiness",
+      "after": "presence is captured before normalization, so omitted custody reports false and explicitly supplied empty custody reports true without inventing owner evidence",
+      "state": "SOURCE_WIRED"
+    },
+    {
+      "front": "focused v10 capability regression",
+      "after": "the current v10 contract fixture now pins parser capability fields, assignment ceiling, and custody-presence preservation",
+      "state": "SOURCE_UNEXECUTED"
+    },
+    {
+      "front": "direct programmatic main argv",
+      "boundary": "main(argv) still materializes arbitrary non-None Iterable input with list(argv) before argparse; a RED source fixture preserves the callback wound",
+      "state": "REVISE_REQUIRED"
+    },
+    {
+      "front": "legacy broad custody regression",
+      "boundary": "tools/test_try_forever_owner_surgery_custody_probe.py still asserts schema v7 and ownerWired=false while authenticated canonical source is v10 and ownerWired=true",
+      "state": "STALE_NONAUTHORITY_REVISE_REQUIRED"
+    }
+  ],
+  "authorityReview": {
+    "newAuthorityOwner": false,
+    "newParserOwner": false,
+    "newOverlayController": false,
+    "weakerFallbackIntroduced": false,
+    "ordinaryPromotionSemanticsIntentionallyChanged": false,
+    "capabilityPresenceSemanticsCorrected": true
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

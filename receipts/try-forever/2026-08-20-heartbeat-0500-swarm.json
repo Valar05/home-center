@@ -1,0 +1,96 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "reviewedSourceHead": "a5617a4bdd4dd7cbd0d6ea78ed03d8593e7cb5ce",
+  "frontsAdvanced": [
+    {
+      "front": "sole-owner strict JSON promotion",
+      "result": "SOURCE_WIRED",
+      "evidence": "owner commit 0c137eac3c84cfa6c9fba0b26615e5ddc8ba6628 / owner blob 1882ed3b6cf7fe7a9ab5c44862640a6f415bdd1d"
+    },
+    {
+      "front": "exact mutation evidence",
+      "result": "PASS",
+      "evidence": "commit diff changes one file and exactly three planned hunks"
+    },
+    {
+      "front": "delta provenance",
+      "result": "APPLIED_SOURCE",
+      "evidence": "patches/try-forever-generated-index-json-owner.delta.json"
+    },
+    {
+      "front": "repository skill doctrine",
+      "result": "SOURCE_WIRED truth synchronized",
+      "evidence": "skills/heartbeat-generated-index-json-contract/SKILL.md"
+    },
+    {
+      "front": "regression-source consistency",
+      "result": "stale RED/unwired prose removed; fixture remains UNEXECUTED",
+      "evidence": "tools/test_try_forever_generated_index_json_owner_boundary.py"
+    },
+    {
+      "front": "strict-policy ownership doctrine",
+      "result": "supporting organ now accurately records sole-owner consumption",
+      "evidence": "tools/try_forever_generated_index_json_policy.py"
+    },
+    {
+      "front": "execution evidence",
+      "result": "TESTED_NO",
+      "evidence": "Build Android 32357635485 failure; Home Center CI 32357635728 failure; Operator Overlay 32357635710 / job 96390167314 failure, zero exposed steps, logs 404 BlobNotFound; no cause claimed, no retry"
+    },
+    {
+      "front": "review/governance",
+      "result": "PLAN_ALLOWED -> REGNET bounded PASS -> VENICE source-slice stop allowed",
+      "evidence": "0500 plan, Venice plan, Regnet source review, Venice completion review"
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","changed":"converted a proven owner-unwired seam into exact sole-owner source wiring"},
+    {"name":"Canon Auto-Select","state":"ACTIVE","changed":"selected strict-JSON, plan-gate, Venice-memory, evidence-state and duplicate-architecture organs from current repository truth"},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","why":"no material STT/autocorrect ambiguity affected this slice"},
+    {"name":"Originality Tax","state":"ACTIVE","changed":"replaced repeated owner-unwired narration with an audited direct repository mutation after the safe base blob was proven"},
+    {"name":"Hunger","state":"ACTIVE","changed":"ate stale proposal and stale doctrine rather than creating new adjacent artifacts"},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","changed":"caught and repaired stale regression/policy ownership prose after the source promotion"},
+    {"name":"Operator Campaign / Harroway","state":"ACTIVE","changed":"kept the sole provenance owner and exact non-phone GitHub lane; no substitute architecture"},
+    {"name":"She-Raw","state":"FAULT","why":"authoritative connector attempt returned account-connection HTTP 400; no retry hammering or synthetic substitute"},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","changed":"fresh pre-mutation PLAN_ALLOWED and post-review source-slice stop gate are durable"},
+    {"name":"Regnet QA","state":"ACTIVE","changed":"code-first diff/readback review separates SOURCE_WIRED from REGRESSION_UNEXECUTED and TESTED_NO"},
+    {"name":"accessibility/TalkBack/touch","state":"DARK","why":"no user-facing topology changed; accessibility remains a non-regression constraint"},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"P0/phone surface not consumed or mutated"},
+    {"name":"deterministic routing","state":"ACTIVE","changed":"base-blob gate, exact three-hunk mutation, authenticated post-readback and exact source-head workflow evidence"},
+    {"name":"evidence/capability-state discipline","state":"ACTIVE","changed":"requested/source-wired/regression-source/tested/runtime/deployed/delivered states remain distinct"},
+    {"name":"recovery/checkpointing/idempotence","state":"ACTIVE","changed":"pre-mutation plan/base verification and no retry of zero-step workflows or failed She-Raw connector"},
+    {"name":"strange non-raster vector/DOM/native UI art","state":"DARK","why":"source ownership topology changed, not operator-visible topology; art would be decorative"},
+    {"name":"warm walls","state":"DARK","why":"no new visible state topology justified mutation"},
+    {"name":"Christmas-light scene graph","state":"DARK","why":"source promotion earns no decorative motion"},
+    {"name":"contact preservation","state":"DARK","why":"runtime heartbeat contact semantics were not changed"}
+  ],
+  "crossPollination": [
+    "Venice planning scar forced a real pre-mutation gate before owner surgery.",
+    "Exact delta provenance plus current owner readback converted Originality Tax from retry avoidance into a safe direct mutation.",
+    "Owner wiring made stale regression and policy prose observable; Eat Everything repaired both rather than leaving capability-state contradictions.",
+    "Exact-source workflow failure plus zero steps/log absence kept Regnet from laundering repository source into TESTED state."
+  ],
+  "capabilityBoundary": {
+    "requested": true,
+    "supportingSource": true,
+    "ownerWired": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

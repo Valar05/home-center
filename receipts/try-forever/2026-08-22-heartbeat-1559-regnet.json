@@ -1,0 +1,35 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-22T15:59:34-05:00",
+  "reviewedSourceHead": "d33b9ab4a8784a96227d1b8a4a4292f032ba7236",
+  "verdict": "PASS_BOUNDED_BACKEND_SELECTION_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__V10_DRIFT_FIXTURE_SOURCE_UNEXECUTED__CANONICAL_OWNER_UNWIRED__TESTED_NO",
+  "acceptedClaims": [
+    "backend-selection policy exists as supporting source",
+    "selected descriptor failure is explicitly fail-closed with no weaker portable retry",
+    "portable v10 remains the primary backend when descriptor primitives are unavailable",
+    "canonical evidence fields artifactDirectoryEntriesObserved and artifactCandidatesObserved are preserved by policy",
+    "focused current-v10 regression source exists",
+    "touchable non-raster backend-selection source organism exists"
+  ],
+  "rejectedPromotions": [
+    "canonical owner consumes backend-selection policy",
+    "canonical owner consumes descriptor backend",
+    "regression executed",
+    "TESTED",
+    "runtime UI",
+    "runtime TalkBack",
+    "deployed",
+    "phone delivered",
+    "accepted"
+  ],
+  "reviewScars": [
+    "The older broad custody regression still contains stale v7 schema expectations; the focused v10 fixture does not launder that historical fixture into repaired or executed status.",
+    "Descriptor custody is a stronger platform-selected backend, not a same-attempt fallback target after descriptor failure."
+  ],
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

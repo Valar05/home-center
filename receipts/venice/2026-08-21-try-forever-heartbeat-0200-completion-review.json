@@ -1,0 +1,45 @@
+{
+  "schema": "venice-completion-review.v1",
+  "heartbeat": "2026-08-21-0200",
+  "pr": 329,
+  "reviewedSourceHead": "fd849c975c409e2b3ed06ef35a3406dfc217bf33",
+  "reviewMode": "durable same-worker Judgment Jar; external Venice worker unavailable",
+  "externalVeniceWorker": "windows-venice-nerve-01 offline; no external worker verdict fabricated",
+  "verdict": "PASS_BOUNDED_SOURCE_SLICE",
+  "directive": "SOURCE_SLICE_STOP_ALLOWED__OWNER_WIRING_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The pulse materially advanced multiple independent authorized non-P0 fronts: policy, hostile regression source, corrective owner-patch provenance, durable skill harvesting, and touchable non-raster art.",
+    "Code-first review rejected the first broad owner surgery instead of optimizing around it. The corrected source now distinguishes semantic value changes from repeatable same-value action events.",
+    "The prior unsafe patch is durably marked REJECTED_UNSAFE__DO_NOT_APPLY, and the remaining narrow heartbeat-only patch stays PROPOSED_NOT_APPLIED until the existing owner can be safely mutated.",
+    "No source artifact is promoted into TESTED/runtime/deployed/callable/delivered/accepted state.",
+    "No phone/P0 surface, recovery chain, media/TTS/Chromium/Context Organ, second controller, or duplicate worker request was consumed."
+  ],
+  "openWounds": [
+    "Spotify explicit command receipt needs a repeatable-event semantic whose value changes meaningfully for each completed receipt.",
+    "Repeated heartbeat detail selection needs a semantic replacement that preserves the full detail consequence without fake freshness or unapproved focus theft.",
+    "Adam send confirmation needs a repeatable-event semantic whose value distinctly represents each completed send.",
+    "Heartbeat automatic transition owner patch remains unapplied because the safe patch-capable non-phone body is offline/occupied.",
+    "Regression source remains unexecuted; current exact-head workflows fail before exposing a step-level cause."
+  ],
+  "reviewerFaults": {
+    "sheRaw": "account connection HTTP 400",
+    "externalVenice": "offline"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "ownerPatchPrepared": true,
+    "ownerSourceWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

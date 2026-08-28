@@ -1,0 +1,76 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "pulse": "2026-08-22T04:57:00-05:00",
+  "sourceHeadReviewed": "d5945a8c1c583dd0d2579a1d17cce18c5e7ceb3d",
+  "frontsAdvanced": [
+    "late persistent patches-root custody wound isolated from existing v7 semantics",
+    "base-blob-locked v8 final-root patch prepared but not applied",
+    "RED post-scan/pre-artifact root-replacement regression source added",
+    "owner-surgery custody skill converged without promoting v8 implementation",
+    "existing non-raster custody organism mutated in place with final-root commit gate",
+    "Computer Hands execution boundary refreshed without duplicate queueing",
+    "She-Raw authoritative consultation attempted and fault recorded",
+    "Regnet/Venice evidence receipts persisted"
+  ],
+  "lights": {
+    "Failure Is The Shovel": "ACTIVE: switched from finished v7 root bracket to the later root-drift gap; no CI retry.",
+    "Canon Auto-Select": "ACTIVE: reused operator-owner-surgery-custody and root-identity organs rather than minting parallel doctrine.",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity.",
+    "Originality Tax": "ACTIVE: v8 adds a materially different final authority gate and preserves atomicity as unclosed.",
+    "Hunger": "ACTIVE: consumed stale v7-only doctrine/art capability truth.",
+    "Ever-Polished Interpreter / Eat Everything": "ACTIVE: separated post-scan stability from post-artifact authority stability.",
+    "Operator Campaign": "ACTIVE: preserved the existing custody owner and promotion membrane.",
+    "Harroway operator discipline": "ACTIVE: exact remote evidence, no substitute owner mutation lane.",
+    "She-Raw adversarial motivation": "FAULT: account connection HTTP 400; no synthetic critique.",
+    "Venice Judgment Jars": "ACTIVE: bounded source slice may yield; patch/test/runtime/campaign continue.",
+    "Regnet QA": "ACTIVE: source/readback pass only; patch unapplied; regression unexecuted; TESTED no.",
+    "accessibility/TalkBack and touch semantics": "ACTIVE: existing touchable source organism mutated; runtime accessibility unclaimed.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero surface consumption or mutation.",
+    "deterministic routing": "ACTIVE: late-root replacement has one deterministic fail-closed acceptance edge.",
+    "evidence/capability-state discipline": "ACTIVE: canonical probe remains v7 while v8 stays proposed.",
+    "recovery/checkpointing/idempotence": "ACTIVE: final authority gate prevents stale candidate inventory from surviving persistent root replacement.",
+    "strange non-raster vector/DOM/native UI art": "ACTIVE: existing custody DOM organism updated in place.",
+    "warm walls": "ACTIVE: source wall exposes ROOT -> SCAN -> POST-SCAN CHECK -> ARTIFACTS -> FINAL ROOT GATE.",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion law changed.",
+    "contact preservation": "ACTIVE: promotion authority is cleared on late persistent root-custody failure rather than preserving stale authority."
+  },
+  "execution": {
+    "computerHands": {
+      "workerId": "windows-hands-01",
+      "online": false,
+      "queueDepth": 4,
+      "duplicateRequestCreated": false
+    },
+    "workflowsAtReviewedHead": {
+      "Build Android": {"runId": 32566750476, "status": "queued"},
+      "Operator Overlay Android": {"runId": 32566750478, "status": "queued"},
+      "Home Center CI": {"runId": 32566750479, "status": "queued"}
+    },
+    "tested": false
+  },
+  "crossPollination": "Existing skills-root/root-identity custody made the patches-root bracket reusable. Reading v7 control flow showed the bracket ended before artifact authority work; that produced the final-root gate, hostile late-root fixture, doctrine convergence, and a touchable wall state. Mutation-lane truth then prevented an unapplied patch from being routed around through duplicate offline-worker work or phone/P0 surfaces.",
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "newFinding": null
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "canonicalProbeVersion": "v7",
+    "v8PatchPrepared": true,
+    "v8PatchApplied": false,
+    "lateRootRegressionSource": true,
+    "lateRootRegressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-27T09:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "previousPublicationHead": "22da8246b605a5ea3b10ad82e51aa51018afb8ed",
+  "reviewedSourceHead": "1986db8d956f55073f6dea401191181aec8019c7",
+  "sourceDelta": {
+    "commits": 14,
+    "intendedPaths": 13,
+    "unexpectedPaths": 0,
+    "paths": [
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSceneGraph.java",
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatOverlayRefreshPlan.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatInterruptedRefreshSpeechBudgetTest.java",
+      "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatRefreshBoundaryIdentitySourceWorkTest.java",
+      "docs/try-forever/heartbeat-refresh-boundary-custody-source-specimen.svg",
+      "patches/try-forever-heartbeat-refresh-boundary-source-work-throat.patch",
+      "patches/try-forever-heartbeat-refresh-plan-previous-identity-source-throat.patch",
+      "skills/heartbeat-refresh-deduplication/SKILL.md",
+      "skills/heartbeat-semantic-id-boundary/SKILL.md",
+      "skills/heartbeat-source-bound-parity/SKILL.md",
+      "tools/test_try_forever_heartbeat_refresh_boundary_source_work.py",
+      "tools/test_try_forever_heartbeat_refresh_plan_previous_identity_source_work.py",
+      "tools/test_try_forever_heartbeat_refresh_plan_selection_source_work.py"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "interrupted refresh speech source-work custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "Frame.refreshBoundary remains exact evidence while max+1 diagnostic speech stops before whole-boundary semantic scanning; admitted boundaries retain the existing 320-code-point projection.",
+      "ownerCommit": "da807bd09b2797b48cd31bf563a155d1d15baf1b",
+      "resultBlob": "4012d09b10b72956a546276175f16504882148eb"
+    },
+    {
+      "name": "interrupted refresh render and announcement identity custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "HeartbeatOverlayRefreshPlan derives a bounded diagnostic identity before UTF-8/SHA-256; over-ceiling prose collapses to a deterministic length marker without rewriting exact frame evidence.",
+      "ownerCommit": "e32217ed58d630126d1056a3a9466113a1089458",
+      "initialResultBlob": "0ebc584bfe0cb3837f97495751f4e9fc3bbcf76a"
+    },
+    {
+      "name": "direct refresh selection and focus adapter custody",
+      "state": "SOURCE_WIRED_APPLIED_SOURCE",
+      "changed": "fromFrame selectedControlId and viewportAnchorId selected/focused ids now cross the canonical broad source ceiling before adapter trim and downstream semantic lookup.",
+      "ownerCommit": "7f8cd2b8ae7142c667df362ba18bffc11d928b7f",
+      "resultBlob": "e75d4c01650f5afd9e09ceba3ebdceb1e5f8f5f6"
+    },
+    {
+      "name": "refresh boundary and selection regression front",
+      "state": "SOURCE_UNEXECUTED",
+      "changed": "existing speech/source fixture converged; Java max+1 speech and bounded identity fixtures plus adapter-order fixture are durable source; no execution claim."
+    },
+    {
+      "name": "non-raster custody specimen",
+      "state": "SOURCE_ONLY",
+      "changed": "new accessible SVG makes exact evidence, 4096-unit speech work, 4096-unit dedup work, last-good contact, no-motion rejection, and runtime denial visually inspectable without creating runtime UI architecture."
+    },
+    {
+      "name": "previous refresh identity direct source-work custody",
+      "state": "RED_SOURCE_PROPOSED_NOT_APPLIED",
+      "changed": "public shouldRebuildStructure/shouldRefreshContent/shouldAnnounce still trim arbitrary previous identity Strings before equality; exact existing-owner proposal and RED source fixture preserve the next wound."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: the prior RED refreshBoundary seam became real owner source, then source review found the separate adapter pre-trim and previous-identity direct-call wounds.",
+    "Canon Auto-Select": "LIT: reused HeartbeatPlainTextBudget and HeartbeatEnvelopeParser source ceilings plus the existing refresh-plan owner; no new controller or sanitizer.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected routing, owner identity, or evidence semantics.",
+    "Originality Tax": "LIT: repaired the existing scene/refresh-plan owners and staged the next repair against the same owner instead of inventing neighboring architecture.",
+    "Hunger": "LIT: continued past speech output into render/announcement hashing, then past safe model lookup into refresh-plan adapters, then into previous identity decision inputs.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: owner mutation forced regression, provenance, source-bound, semantic-id, and refresh-dedup doctrine convergence; one still-RED direct boundary remains explicit.",
+    "Operator Campaign": "LIT: all source, patches, tests, skills, art, reviews, and receipts are durable on PR 329 branch.",
+    "Harroway operator discipline": "LIT: source-only non-P0 work advanced through existing owners; exact authority/runtime membranes were preserved.",
+    "She-Raw adversarial motivation": "LIT_FAULTED: hostile fixture critique was invoked and account connection returned HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "LIT: bounded source slice may checkpoint while previous-identity repair, regression execution, TESTED/runtime, and campaign continue.",
+    "Regnet QA": "LIT: three applied source seams passed bounded source review; previous-identity direct source work remains REVISE_REQUIRED.",
+    "accessibility/TalkBack and touch semantics": "LIT: bounded interrupted-refresh speech work and bounded direct selected/focused id work protect TalkBack/focus contact; runtime TalkBack remains NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: no phone/P0 surface consumed or mutated.",
+    "deterministic routing": "LIT: over-ceiling diagnostic prose routes to deterministic non-authoritative stop/identity markers; over-ceiling selected/focused ids route to no selection/anchor before trim.",
+    "evidence/capability-state discipline": "LIT: exact refreshBoundary evidence stays separate from bounded speech/dedup projection; SOURCE_WIRED, RED_PROPOSED, UNEXECUTED, TESTED, runtime, deployed, delivered remain distinct.",
+    "recovery/checkpointing/idempotence": "LIT: last-good contact and no-motion rejection are preserved; exact-head workflow failures observed without manual retry or invented diagnosis.",
+    "strange non-raster vector/DOM/native UI art": "LIT: durable accessible SVG source specimen created; no runtime/deployment claim.",
+    "warm walls": "LIT: the new specimen externalizes the exact-evidence versus bounded-work membrane for inspection without owning the overlay.",
+    "Christmas-light scene graph": "LIT_CONSTRAINT: interrupted refresh remains explicitly no-motion at frame/node contact; no decorative animation was added.",
+    "contact preservation": "LIT: exact refreshBoundary and last-good visible contact survive bounded speech/dedup projection and over-ceiling direct selection suppression."
+  },
+  "discoveredSkills": {
+    "heartbeat-source-bound-parity": "LIT_CONVERGED: interrupted-refresh speech/dedup is now SOURCE_WIRED rather than RED.",
+    "heartbeat-semantic-id-boundary": "LIT_CONVERGED: refresh-plan selected/focused adapters now own finite pre-trim work before semantic lookup.",
+    "heartbeat-refresh-deduplication": "LIT_CONVERGED_AND_RED: doctrine now reflects bounded refreshBoundary identities and explicitly preserves the next previous-identity direct-call wound."
+  },
+  "crossPollination": "The previous RED refreshBoundary repair split exact evidence from non-authoritative speech and dedup work. Applying it made safe downstream semantic lookup suspicious because HeartbeatOverlayRefreshPlan trimmed selected/focused ids before delegation; that adapter was repaired in the existing owner. The same direct-caller rule then exposed previous structure/render/announcement identities as a separate remaining pre-trim work wound, which Regnet preserved RED instead of green-painting the whole refresh plan. Source mutation forced source-bound, semantic-id, refresh-dedup doctrine and an accessible non-raster custody specimen to converge while no-motion and last-good contact remained intact.",
+  "executionTruth": {
+    "workflowRuns": [
+      {"name": "Home Center CI", "id": 33081461858, "status": "completed", "conclusion": "failure"},
+      {"name": "Operator Overlay Android", "id": 33081461994, "status": "completed", "conclusion": "failure", "jobId": 98549518467, "steps": 0},
+      {"name": "Build Android", "id": 33081461844, "status": "completed", "conclusion": "failure"}
+    ],
+    "exactHead": "1986db8d956f55073f6dea401191181aec8019c7",
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "reviews": {
+    "regnet": "receipts/regnet/2026-08-27-heartbeat-0902.json",
+    "regnetCommit": "354d1e25141560e3f1053f5ecaa6f25b29336fa3",
+    "venice": "receipts/venice/2026-08-27-heartbeat-0902.json",
+    "veniceCommit": "0c0f14fe8e6f17f92367caaf2c4e8bdefac23b9f",
+    "veniceGate": "SOURCE_SLICE_STOP_ALLOWED__PREVIOUS_REFRESH_IDENTITY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "refreshBoundarySpeechCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "refreshBoundaryIdentityCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "refreshSelectionFocusCustody": "SOURCE_WIRED_APPLIED_SOURCE",
+    "previousRefreshIdentityCustody": "NO_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

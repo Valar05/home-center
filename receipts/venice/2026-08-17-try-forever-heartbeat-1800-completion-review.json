@@ -1,0 +1,28 @@
+{
+  "schema": "venice-judgment-completion-review.v1",
+  "pulse": "2026-08-17-1800",
+  "reviewedSourceHead": "7c8aaa5767bd617a73c3702090a2113dda4ccd39",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED",
+  "campaign": "CONTINUE_REQUIRED",
+  "quality": "mixed_source_only",
+  "whyAllowed": [
+    "The previously correct zero-material semantics now reach the existing dragHandle that survives collapsed composition instead of stopping at a GONE descendant.",
+    "The same collapsed-owner projection distinguishes accepted zero-material contact, ordinary waiting, CONTACT HELD, and REFRESH BLOCKED.",
+    "Expanded mode returns to the ordinary overlay action description rather than duplicating heartbeat detail.",
+    "The repair composes existing scene/view-model truth and keeps OperatorOverlayService as sole Android owner.",
+    "The P0 and shared-phone firewalls remained untouched."
+  ],
+  "reviewScars": [
+    "An attempted Command Center Codex worker path failed because Codex agents/jobs/workers are permanently retired; Originality Tax changed recovery to the audited existing GitHub admin file-upsert lane instead of retrying the dead worker path.",
+    "Automatic CI failed on the reviewed head, but current readback did not expose a step-level failure annotation; no older Actions-budget annotation was copied forward. TESTED remains NO.",
+    "Repository source cannot prove the collapsed TextView is actually reached and spoken by TalkBack on Android runtime."
+  ],
+  "hardGates": {
+    "mergeAsDeliveredInterface": "DENY",
+    "runtimeClaim": "DENY",
+    "phoneDeliveryClaim": "DENY",
+    "duplicateArchitecture": "PASS_NONE_CREATED",
+    "p0Firewall": "PASS_UNTOUCHED"
+  },
+  "nextRule": "Order this collapsed-owner source seam dark unless new evidence changes it; the next heartbeat must choose a materially different non-P0 wound."
+}

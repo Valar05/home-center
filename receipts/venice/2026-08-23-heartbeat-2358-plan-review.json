@@ -1,0 +1,24 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "localCheckpoint": "2026-08-23T23:58:45-05:00",
+  "reviewer": "same_worker_judgment_jar",
+  "authoritativeExternalVeniceClaimed": false,
+  "pr": 329,
+  "verdict": "PLAN_ALLOWED",
+  "why": [
+    "both mutations target existing owners and authenticated current base blobs",
+    "both reuse already-existing supporting organs rather than creating adjacent architecture",
+    "phone/P0 surfaces remain untouched",
+    "owner source wiring will remain distinct from regression execution, TESTED, runtime, deployment, delivery, and acceptance",
+    "automatic workflow evidence may be observed but failed jobs will not be manually retried"
+  ],
+  "requiredChecks": [
+    "apply no mutation if an owner blob has moved",
+    "authenticated post-mutation owner readback",
+    "update stale provenance/doctrine only after owner readback",
+    "preserve She-Raw connector fault as a fault rather than synthesizing critique",
+    "preserve regressionExecuted=false and tested=false until execution evidence proves otherwise",
+    "do not merge or rebase PR #329"
+  ],
+  "gate": "PLAN_ALLOWED__SOURCE_OWNER_INTEGRATION_ONLY"
+}

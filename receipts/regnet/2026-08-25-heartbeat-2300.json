@@ -1,0 +1,66 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-25T23:00:00-05:00",
+  "reviewedSourceHead": "cd4d90d6c274e17bddc0eac85d84c30d288c3e15",
+  "verdict": "PASS_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "canonicalDescriptorComposition": {
+      "state": "SOURCE_WIRED",
+      "constraints": [
+        "canonical v10 performs one backend selection itself",
+        "descriptor-selected custody consumes HeldDirectoryCustody directly",
+        "descriptor wound does not retry portable custody",
+        "portable remains primary only when descriptor primitives are unavailable",
+        "existing semantic producer consumes exact observations from both paths",
+        "promotion authority remains zero whenever discoveryErrors is non-empty"
+      ]
+    },
+    "classificationExactInputs": {
+      "state": "SOURCE_WIRED",
+      "constraints": [
+        "root exact platform Path admitted before backend dispatch",
+        "candidate and entry budgets exact built-in integers admitted before comparison",
+        "hostile Path/int subclass fixture exists but is unexecuted"
+      ]
+    },
+    "contactPreservation": {
+      "state": "SOURCE_REVIEW_PASS",
+      "preservedFields": [
+        "artifactDirectoryEntriesObserved",
+        "artifactCandidatesObserved",
+        "artifactContentWitnesses",
+        "discoveryErrors",
+        "currentOwnerBlobs",
+        "collisionSets",
+        "staleBaseGroups",
+        "unverifiedBaseGroups"
+      ]
+    },
+    "v10ContractFixture": {
+      "state": "CONVERGED_SOURCE_UNEXECUTED",
+      "note": "stale portable-only and ownerWired=false expectations were removed; backend-conditional capability assertions now match canonical selection"
+    }
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "CONNECTOR_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

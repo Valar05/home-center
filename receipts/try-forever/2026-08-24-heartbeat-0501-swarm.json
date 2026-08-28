@@ -1,0 +1,133 @@
+{
+  "schema": "try-forever-heartbeat-swarm-receipt.v1",
+  "checkpointLocal": "2026-08-24 05:01 CT",
+  "pr": 329,
+  "reviewedSourceHead": "54b73bfec37e3ce8c84f32ab79dbd192db7f74a0",
+  "previousCheckpointHead": "ec4339a53386767b0093cac9280a774db2abde72",
+  "sourceDelta": {
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "docs/try-forever/heartbeat-20260824-0501-plan.md",
+      "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "tools/test_try_forever_descriptor_shadow_operator_receipt_capability_closure.py",
+      "skills/operator-receipt-capability-closure/SKILL.md",
+      "docs/try-forever/operator-owner-surgery-raw-capability-membrane-source-specimen.html"
+    ]
+  },
+  "fronts": [
+    {
+      "name": "final-receipt-full-capability-closure",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "blob": "55137caf323023075cf6b6831038d285615d0db9",
+      "change": "Final v4 receipt now requires every core bounded capability field to already be exact false, closes later deployed/callable/executed/delivered/accepted to explicit false, and will not invent missing core evidence."
+    },
+    {
+      "name": "final-operator-namespace-custody",
+      "state": "SOURCE_WIRED",
+      "owner": "tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py",
+      "change": "Upstream bounded projection may not pre-populate final operator-owned receipt schema, raw-evidence linkage/digest, architecture declarations, phone/P0 authority declaration, or final receipt digest and rely on dictionary overwrite."
+    },
+    {
+      "name": "hostile-regression",
+      "state": "SOURCE_UNEXECUTED",
+      "path": "tools/test_try_forever_descriptor_shadow_operator_receipt_capability_closure.py",
+      "blob": "c2df266588580b639a16191afceca25ffb277b64",
+      "change": "Fixture attacks missing and positive core state, positive later state, exact-false compatibility, and operator-owned namespace collisions."
+    },
+    {
+      "name": "skill-and-warm-wall-convergence",
+      "state": "SOURCE",
+      "skillBlob": "b6bb45c969a7767a91421ed665198ce1a045c59e",
+      "artBlob": "ab282fdd8d5691ba3f165836114c66234df67a17",
+      "change": "Existing capability-closure skill and existing DOM/inline-SVG Warm Wall now expose full core+later closure and final namespace custody without raster, autoplay, decorative blink, runtime, or phone claims."
+    },
+    {
+      "name": "native-heartbeat-selection-owner-boundary",
+      "state": "CURRENT_BASE_REVIEW_READY_NOT_APPLIED",
+      "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+      "ownerBlob": "c5de1411a6b68087ae17aff83c032af754587150",
+      "patch": "patches/try-forever-heartbeat-selection-announcement-owner-combined.patch",
+      "patchBlob": "2711576ae045b561ceae663184f705beb4c6d468",
+      "change": "Authenticated owner still lacks native collection/item semantics and still uses legacy heartbeat announceForAccessibility. The canonical combined surgery still exactly matches the current owner base, but was not promoted through an unsafe substitute lane."
+    },
+    {
+      "name": "non-phone-mutation-lane-boundary",
+      "state": "BLOCKED_WORKER_OFFLINE_NO_DUPLICATE",
+      "worker": "windows-hands-01",
+      "online": false,
+      "queueDepth": 4,
+      "change": "Patch-capable non-phone worker is offline with existing TRY FOREVER lanes; no duplicate request and no phone-shaped substitute were created."
+    },
+    {
+      "name": "execution-evidence",
+      "state": "TESTED_NO",
+      "sourceHead": "54b73bfec37e3ce8c84f32ab79dbd192db7f74a0",
+      "runs": {
+        "homeCenterCi": {"id": 32715185055, "conclusion": "failure"},
+        "buildAndroid": {"id": 32715185070, "conclusion": "failure"},
+        "operatorOverlayAndroid": {"id": 32715185078, "jobId": 97394792350, "conclusion": "failure"}
+      },
+      "change": "Fresh exact-head automatic workflows failed. Authenticated run readback exposes no step-level cause; no historical diagnosis was recycled and no manual retry was fired."
+    }
+  ],
+  "skillLights": {
+    "lit": [
+      "Failure Is The Shovel",
+      "Canon Auto-Select",
+      "Originality Tax",
+      "Hunger",
+      "Ever-Polished Interpreter / Eat Everything",
+      "Operator Campaign",
+      "Harroway operator discipline",
+      "Regnet QA",
+      "accessibility/TalkBack and touch semantics",
+      "deterministic routing",
+      "evidence/capability-state discipline",
+      "recovery/checkpointing/idempotence",
+      "strange non-raster vector/DOM/native UI art",
+      "warm walls",
+      "contact preservation",
+      "operator-receipt-capability-closure",
+      "heartbeat-native-selection-collection"
+    ],
+    "fault": {
+      "She-Raw adversarial motivation": "Authoritative attempt returned account-connection HTTP 400; no substitute reviewer."
+    },
+    "dark": {
+      "Autocorrect Judgment Jar": "No material ambiguity required resolution.",
+      "Christmas-light scene graph": "No new transition/motion law changed; no decorative blink earned.",
+      "Phone Runtime / Phone Hands recovery": "Binding P0/phone firewall; no surface consumed or mutated."
+    }
+  },
+  "review": {
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_CLAIMS_ONLY__REGRESSION_UNEXECUTED__TESTED_NO",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+    "veniceWorker": "OFFLINE_NO_EXTERNAL_VERDICT_FABRICATED"
+  },
+  "crossPollination": "The previous later-capability closure made the final envelope itself suspicious: if final false values can be added safely, could missing core state or counterfeit final-command metadata be silently repaired by the same merge? That exposed two distinct integrity wounds. The existing operator receipt now requires explicit core denial and owns its final metadata namespace. Hostile fixtures, durable skill doctrine, and the existing Warm Wall inherited the repair. Revalidating the neighboring native heartbeat-selection seam showed its combined surgery still matches the exact current owner blob, but the safe patch-capable worker is offline; Execution Truth therefore kept that front at review-ready/not-applied rather than routing through phone/P0 or manufacturing duplicate queue work.",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_NATIVE_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

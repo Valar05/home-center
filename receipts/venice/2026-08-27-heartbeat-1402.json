@@ -1,0 +1,24 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-27-heartbeat-1402",
+  "reviewedSourceHead": "6be3b987d874a23cbfffaf4f426ce6481ad3dadc",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "reasons": [
+    "direct persisted Base64 canonicality equality now has the same finite text ceiling as canonical persisted custody without changing exact admitted identity",
+    "the exact current accessibility owner and canonical combined heartbeat migration surgery were revalidated without pretending proposed source is owner wiring",
+    "repeatable Spotify/detail/Adam accessibility blockers remain unresolved and their legacy receipts remain untouched",
+    "no new renderer, accessibility-event controller, phone lane, recovery daemon, or P0 coordinator was created",
+    "exact-head workflows failed before useful step evidence, so source work remains untested"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0,
+    "finding": null
+  }
+}

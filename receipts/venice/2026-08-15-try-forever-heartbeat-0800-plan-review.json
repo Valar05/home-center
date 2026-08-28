@@ -1,0 +1,88 @@
+{
+  "schema": "venice-plan-review.v1",
+  "reviewId": "try-forever-heartbeat-2026-08-15-0800-source-slice",
+  "reviewerRole": "venice-judgment-jar",
+  "commissionIdentity": "TRY FOREVER heartbeat broad-skill source-only swarm under binding P0/phone firewalls",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "evidenceIdentity": {
+    "pr": 329,
+    "headSha": "d8b7d6b7e8fae5decbae01f88a023c9f648b5a5e",
+    "heartbeatSkillPolicyBlob": "f663863b90691833fe50ad9ee6073d3122ac2de1",
+    "heartbeatEnvelopeParserBlob": "67cbd5105f8d710a3f104ca83bf4d923e10fd6c1",
+    "heartbeatSceneGraphBlob": "44e07685dd1a23aae12b7c9887dc17dc43bd32c8",
+    "domSpecimenBlob": "9f799026cb2f88f6a798b89bf51bd029cf1978ba",
+    "skillDoctrineBlob": "9a03f1ab6fb0f77b917c27b042c76f87fc809377"
+  },
+  "research": [
+    "Loaded current PR #329 state and exact head.",
+    "Loaded HeartbeatEnvelopeParser, HeartbeatSkillPolicy, HeartbeatSceneGraph, DOM specimen, heartbeat skill doctrine, Execution Truth, Regnet QA, Fortress Plan Gate, Venice Review Memory, and relevant Judgment Jars.",
+    "Authoritative She-Raw ambient critique was attempted and returned HTTP 400 because the account could not be connected; no synthetic She-Raw critique is substituted.",
+    "Current deterministic test state remains NO/BLOCKED_UNKNOWN because GitHub Actions cannot start jobs while the Actions budget prevents further use."
+  ],
+  "missionBoundary": {
+    "outcome": "Advance several independent TRY FOREVER source fronts that make heartbeat telemetry safer, more accessible, more recoverable, and more visually/tactually demonstrable without touching the gated phone/P0 execution chain.",
+    "owner": "TRY FOREVER source swarm; P0 Fortress Swarm Scheduler retains sole recovery/phone ownership.",
+    "authorizedLane": "GitHub repository source/review/readback only.",
+    "excluded": [
+      "primary-phone execution",
+      "Phone Hands or queue mutation",
+      "P0 recovery coordination or retasking",
+      "Nightcore, Pocket TTS, Chromium, Context Organs",
+      "new overlay controller or recovery daemon",
+      "deployment, phone callability, physical acceptance claims"
+    ],
+    "evidenceStandard": "Exact GitHub source/readback may prove implemented source only. Tests require an actually executed deterministic test lane; runtime/device states require their own authorized evidence.",
+    "deliverySurface": "Existing PR #329 branch and durable repository receipts/source specimens."
+  },
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "The binding P0/phone firewall makes lane ownership the primary correctness constraint."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "why": "Source/readback/test/runtime capability states must remain separate."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "The current PR is already large; this pulse must use small inspectable additions rather than a parallel architecture."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "why": "CI is deterministically budget-blocked, so the pulse must change recovery/evidence strategy instead of retrying unchanged CI."
+    },
+    {
+      "path": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "why": "Any code/config mutation requires code-first Venice completion review before yielding the slice."
+    }
+  ],
+  "antagonism": [
+    "Do not let source art become status-without-capability; every specimen must label itself source-only.",
+    "Do not use the phone surface to compensate for GitHub Actions failure.",
+    "Do not add a second parser, renderer, controller, ingress path, daemon, or P0 conductor.",
+    "The current parser has only one broad 8192-character string limit; field-specific bounds and decoded-text safety are missing, which can make TalkBack/evidence surfaces pathological even when JSON syntax is valid.",
+    "The current scene exposes node-level content descriptions but no frame-derived collapsed description tied to the exact preserved visible scene; accessibility should consume scene truth, especially on interrupted refresh.",
+    "The current static DOM specimen proves touchable source controls but does not demonstrate contact preservation across complete -> interrupted -> recovered frames. A separate source-only contact sheet may demonstrate this without claiming runtime rendering.",
+    "Because deterministic tests cannot currently execute, regression source may be added but TESTED must stay NO/BLOCKED_UNKNOWN.",
+    "She-Raw is unavailable through the authoritative connector; do not puppet or invent her critique."
+  ],
+  "plan": [
+    "Front A — Parser resilience/accessibility: add small field-specific semantic bounds and reject decoded control/unpaired-surrogate text that would poison human-facing semantics; add focused regression source.",
+    "Front B — Scene accessibility/contact preservation: derive collapsed TalkBack text from the actual Frame nodes and include interrupted-refresh boundary without exposing discarded attempted content; add focused regression source.",
+    "Front C — Warm-wall contact-sheet art: add one source-only DOM/vector specimen showing complete, interrupted-preserved, and recovered frames with keyboard/touch frame selection, non-color state tokens, no raster, and no automatic blinking.",
+    "Front D — Durability: update heartbeat skill doctrine and a compact source-hardening receipt with exact capability membrane and She-Raw/CI boundaries.",
+    "Review actual diff/source readback after mutation. Do not manually retry unchanged CI; inspect any automatic run on the new head only. Perform Regnet evidence synthesis, then a fresh Venice code/completion review."
+  ],
+  "venicePlanReview": {
+    "directive": "PLAN_ALLOWED",
+    "critique": "The slice stays inside the commissioned source-only lane, advances three genuinely independent fronts, reuses the existing parser/policy/scene organs, and explicitly refuses phone/P0 substitution. Keep the patches narrow. The main danger is turning source specimens into fake delivery evidence; preserve the capability membrane in code comments, docs, and receipts.",
+    "conditions": [
+      "No P0/phone mutation or read-write queue action.",
+      "No duplicate controller/daemon/ingress architecture.",
+      "No TESTED or runtime state promotion while Actions jobs do not execute.",
+      "Fresh code-first Venice completion review before yielding this slice."
+    ]
+  },
+  "timestamp": "2026-08-15T08:00:58-05:00"
+}

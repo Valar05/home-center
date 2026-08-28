@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-venice-heartbeat.v1",
+  "heartbeat": "2026-08-28T10:58:34-05:00",
+  "reviewedSourceHead": "4e617be60d3aa7458f6bc7200fd678fa61afbc60",
+  "verdict": "CONTINUE_REQUIRED",
+  "allows": [
+    "bounded source-only evidence probe repair",
+    "existing Warm Wall accessibility/source truth convergence",
+    "durable non-P0 receipts"
+  ],
+  "holds": [
+    "native Adam UI request-owner mutation",
+    "native Adam accessibility-owner mutation",
+    "fixture/regression execution",
+    "Android runtime UI evidence",
+    "runtime TalkBack evidence",
+    "deployment",
+    "callability",
+    "phone delivery",
+    "acceptance"
+  ],
+  "contactPreservation": {
+    "legacyExplicitAdamSendReceipt": "PRESERVE",
+    "reason": "Repeatable READY/SENT runtime ownership remains unresolved; source evidence repair does not authorize announcement removal."
+  },
+  "artJudgment": {
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "nonRaster": true,
+    "automaticSpeech": "OFF",
+    "christmasBlink": false,
+    "capabilityPunctuation": "VISUAL_ONLY_ARIA_HIDDEN_WITH_TEXTUAL_STATE"
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

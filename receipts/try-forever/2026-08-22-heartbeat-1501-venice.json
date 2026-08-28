@@ -1,0 +1,26 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "checkpoint": "2026-08-22T15:01:32-05:00",
+  "reviewedSourceHead": "570ae4b31403e75de1a969fe27784d7b28793d68",
+  "reviewMode": "same-worker-judgment-jar",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__DESCRIPTOR_OWNER_INTEGRATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The requested non-P0 cleanup-close source wound materially advanced without touching the P0/phone surface.",
+    "The source now distinguishes primary cleanup failure from cleanup that occurs while another custody wound is already propagating.",
+    "Hostile regression source exists for root, scan, and artifact cleanup but remains unexecuted.",
+    "The canonical portable v10 owner remains unchanged and descriptor owner integration is still NO.",
+    "Automatic workflows on the exact reviewed source head concluded failure, but no authenticated step-level cause is available; TESTED remains NO.",
+    "No duplicate controller, custody owner, recovery daemon, or phone execution path was created."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "substituteVerdict": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

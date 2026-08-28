@@ -1,0 +1,136 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-25-heartbeat-1900",
+  "mission": "Advance independent non-P0 TRY FOREVER source work on PR #329 while preserving the P0/phone firewall, existing owners, duplicate-architecture law, and capability-state membrane.",
+  "previousPublicationHead": "505531ae734dba0e11a56a392c8c0aa623df15bc",
+  "reviewedSourceHead": "b3f1d3a71368d8a906a33e3b5264b43361bb9bec",
+  "fronts": [
+    {
+      "name": "default-owner exact scalar custody",
+      "state": "SOURCE_WIRED",
+      "paths": [
+        "tools/try_forever_owner_surgery_default_owner_binding.py",
+        "tools/test_try_forever_owner_surgery_default_owner_exact_input_boundary.py",
+        "skills/operator-owner-surgery-default-owner-binding/SKILL.md"
+      ],
+      "result": "The canonical fallback-owner policy now rejects caller-owned string subclasses before regex, formatting, or equality work. Ordinary exact built-in patch/default-owner strings retain the existing exact diff-target semantics. The hostile fixture is source only and remains UNEXECUTED.",
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "exact-observation semantic production",
+      "state": "SUPPORTING_SOURCE",
+      "paths": [
+        "tools/try_forever_owner_surgery_semantic_parser.py",
+        "tools/test_try_forever_owner_surgery_semantic_parser.py"
+      ],
+      "result": "A pure producer now turns already-custodied exact UTF-8 patch/delta evidence into semantic fields without any filesystem re-read. It requires exact built-in observation inputs, recomputes byte-count/SHA-256 agreement before parsing, preserves exact patch/default-owner admission, and rejects duplicate/non-standard delta JSON. Canonical v10 does not consume it yet.",
+      "canonicalOwnerConsumption": false,
+      "regressionExecuted": false,
+      "tested": false
+    },
+    {
+      "name": "backend doctrine and accessible Warm Wall convergence",
+      "state": "SOURCE_WIRED",
+      "paths": [
+        "skills/operator-owner-surgery-backend-selection/SKILL.md",
+        "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html"
+      ],
+      "result": "Existing doctrine and existing keyboard/touch DOM+inline-SVG Warm Wall now distinguish semantic-producer SUPPORTING SOURCE from canonical owner composition NO. The specimen keeps native radios, 56px touch rows, focus indication, non-color text state, role=status detail, and reduced-motion behavior; runtime TalkBack remains unclaimed."
+    },
+    {
+      "name": "canonical descriptor composition boundary",
+      "state": "EXACT_BOUNDARY_PROVEN",
+      "paths": [
+        "tools/try_forever_owner_surgery_custody_probe.py",
+        "tools/try_forever_posix_directory_handle_custody.py",
+        "tools/try_forever_owner_surgery_backend_policy.py",
+        "tools/try_forever_owner_surgery_semantic_parser.py"
+      ],
+      "result": "The previous missing semantic-producer organ now exists as supporting source, but canonical v10 still reads/parses through the portable pathname path and does not consume backend selection, descriptor observations, or the producer. The next valid mutation must occur inside the existing canonical owner; calling the producer beside v10 would create an authority-shaped side path and selecting descriptor then calling portable classify would still violate no-weaker-fallback.",
+      "canonicalOwnerConsumesBackendSelection": false,
+      "canonicalOwnerConsumesSemanticProducer": false,
+      "canonicalOwnerConsumesDescriptorBackend": false
+    },
+    {
+      "name": "Regnet and Venice review",
+      "state": "DURABLE_REVIEW",
+      "paths": [
+        "receipts/regnet/2026-08-25-heartbeat-1900.json",
+        "receipts/venice/2026-08-25-heartbeat-1900.json"
+      ],
+      "result": "Regnet passes the bounded default-owner and semantic-producer source slice but requires canonical composition revision. Venice permits stop for this bounded source slice only while canonical composition, regression execution, TESTED, runtime, and campaign remain continue-required."
+    },
+    {
+      "name": "exact-head execution truth",
+      "state": "TESTED_NO",
+      "reviewedSourceHead": "b3f1d3a71368d8a906a33e3b5264b43361bb9bec",
+      "workflowRuns": [
+        {"name": "Operator Overlay Android", "id": 32913639067, "conclusion": "failure", "jobId": 98012594946, "stepsObserved": 0},
+        {"name": "Home Center CI", "id": 32913639134, "conclusion": "failure"},
+        {"name": "Build Android", "id": 32913639072, "conclusion": "failure"}
+      ],
+      "manualRetry": false,
+      "stepLevelCauseEstablished": false
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: the prior descriptor semantic-producer absence was attacked directly; parser archaeology also exposed a separate exact-input lie in fallback-owner binding.",
+    "Canon Auto-Select": "LIT: remote GitHub source/doctrine/specimen lanes were selected because they are independent of the gated phone/P0 surface; no substitute runtime lane was invented.",
+    "Autocorrect Judgment Jar": "DARK: no material ambiguous token affected routing or evidence this pulse.",
+    "Originality Tax": "LIT: did not repeat platform/backend exact-input hardening cosmetically; advanced the missing bytes-to-semantics seam and a separate fallback-owner scalar boundary.",
+    "Hunger": "LIT: source mutations forced hostile regression, skill doctrine, Warm Wall, Regnet, Venice, and durable swarm evidence to converge rather than leaving stale surfaces.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: parser review carried exact scalar, byte-count, SHA-256, patch metadata, default owner, duplicate JSON, delta alias, and no-filesystem-reread constraints into one supporting semantic path.",
+    "Operator Campaign": "LIT: PR #329 branch advanced through seven intended source/doctrine/art commits before review receipts and this durable checkpoint.",
+    "Harroway operator discipline": "LIT: existing canonical owner remains sole authority; the new semantic producer owns parsing only and cannot group/promote, so no second custody owner or controller exists.",
+    "She-Raw adversarial motivation": "LIT/FAULTED: authoritative ambient attempt returned account-connection HTTP 400; no synthetic She-Raw verdict substituted.",
+    "Venice Judgment Jars": "LIT: durable bounded judgment permits this source slice to stop while canonical composition, regression execution, TESTED, runtime, and campaign remain continue-required.",
+    "Regnet QA": "LIT: durable source review passes exact scalar/source parser work but explicitly marks canonical descriptor composition REVISE_REQUIRED and regressions UNEXECUTED.",
+    "accessibility/TalkBack and touch semantics": "LIT: the existing source-only Warm Wall was mutated in place with native radio/touch/focus/non-color/status/reduced-motion semantics; runtime TalkBack remains NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK/FIREWALLED: no phone/P0 surface was read for mutation or consumed; zero phone actions.",
+    "deterministic routing": "LIT: exact machine inputs fail closed before callbacks; semantic production is now separated from backend selection and authority grouping so routing provenance is explicit.",
+    "evidence/capability-state discipline": "LIT: SUPPORTING_SOURCE, SOURCE_WIRED, regression source, regression executed, canonical owner composition, TESTED, runtime, deployed, callable, executed, delivered, accepted remain separate.",
+    "recovery/checkpointing/idempotence": "LIT: no manual workflow retry, no duplicate worker/phone request, and exact previous-publication→source change custody is remotely inspectable.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing inline-SVG/DOM backend source organism was mutated in place rather than duplicated.",
+    "warm walls": "LIT: existing backend-selection Warm Wall now shows exact-observation semantic producer SUPPORTING SOURCE and canonical composition NO.",
+    "Christmas-light scene graph": "DARK: no runtime transition/motion contract changed; decorative blinking adds no authority evidence.",
+    "contact preservation": "LIT: accepted ordinary built-in patch/default-owner and semantic evidence retains existing meaning; only callback-capable or witness-inconsistent shapes are newly fail-closed."
+  },
+  "crossPollination": "Descriptor-owner archaeology identified the missing exact bytes-to-semantics seam; building that pure producer forced reuse of metadata/default-owner laws and exposed the fallback-owner policy's stale isinstance boundary. Exact-scalar hardening then fed hostile fixtures. Hunger propagated both changes into backend doctrine and the accessible Warm Wall. Regnet separated supporting semantic production from canonical authority, Venice preserved the stop/continue boundary, and exact-head zero-step workflow evidence kept all source claims behind TESTED/runtime.",
+  "changeCustody": {
+    "base": "505531ae734dba0e11a56a392c8c0aa623df15bc",
+    "head": "b3f1d3a71368d8a906a33e3b5264b43361bb9bec",
+    "commits": 7,
+    "intendedPaths": 7,
+    "unexpectedPaths": 0
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "touched": []
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "defaultOwnerExactInputCustody": "SOURCE_WIRED",
+    "semanticProducer": "SUPPORTING_SOURCE",
+    "semanticProducerRegression": "SOURCE_UNEXECUTED",
+    "canonicalOwnerConsumesBackendSelection": false,
+    "canonicalOwnerConsumesSemanticProducer": false,
+    "canonicalOwnerConsumesDescriptorBackend": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED__CANONICAL_OWNER_DESCRIPTOR_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "venice-completion-review.v1",
+  "local_slot": "2026-08-16-2300",
+  "subject": "TRY FOREVER persisted-poll contact source slice",
+  "verdict": "STOP_ALLOWED_FOR_BOUNDED_SOURCE_SLICE",
+  "campaign": "CONTINUE_REQUIRED",
+  "code_first_review": {
+    "result": "PASS_AFTER_CORRECTION",
+    "scar": "The first policy draft accepted a caller-provided hasVisibleLastGoodContact boolean without a canonical frame predicate. That would invite node-count heuristics and misclassify a valid zero-material pulse. The source was corrected before completion with hasVisibleLastGoodContact(frame) based on non-empty visiblePulseId, plus regression and skill updates."
+  },
+  "mission_fidelity": {
+    "result": "PASS",
+    "detail": "Multiple independent non-P0 fronts advanced through GitHub: pure poll policy, regression source, durable repository skill, existing warm-wall SVG mutation, and evidence/review."
+  },
+  "accessibility_review": {
+    "result": "PASS_SOURCE",
+    "detail": "The policy prevents a disappeared persisted heartbeat from silently presenting stale last-good contact as current and prevents unchanged 200ms polls from earning repeated projection/UI/speech work. Runtime TalkBack behavior remains unproven."
+  },
+  "art_review": {
+    "result": "PASS_SOURCE",
+    "detail": "The existing vector warm wall was mutated in place with WAITING != CONTACT LOST and timestamp-churn != semantic-work semantics; no raster or decorative autoplay was added."
+  },
+  "architecture_review": {
+    "result": "PASS",
+    "detail": "No duplicate overlay/poller/cache controller or P0/phone recovery organ was created. The intended owner remains OperatorOverlayService."
+  },
+  "evidence_review": {
+    "result": "MIXED_BY_DESIGN",
+    "detail": "Durable GitHub source and readback are real. Regression execution and existing-owner consumption are not. Automatic CI executed zero steps because the Actions budget prevented the job from starting."
+  },
+  "she_raw": {
+    "result": "FAULT",
+    "detail": "Authoritative ambient consultation returned account-connection HTTP 400; no synthetic She-Raw review was substituted."
+  },
+  "p0_phone_firewall": "PASS_ZERO_CONSUMPTION",
+  "next_exact_wound": "Wire the existing OperatorOverlayService to construct one HeartbeatPersistedPollPolicy.Snapshot per poll, classify against the last processed snapshot and heartbeatFrame, preserve missing-after-contact with HeartbeatSceneGraph.preserveRejectedRefresh, retain the processed snapshot only after the decision is applied, and skip unchanged projection. Do not create another polling owner and do not touch Phone Hands/P0.",
+  "merge_authority": "WITHHELD",
+  "runtime_authority": "WITHHELD",
+  "delivery_authority": "WITHHELD"
+}

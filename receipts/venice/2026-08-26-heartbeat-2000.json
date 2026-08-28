@@ -1,0 +1,31 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "heartbeat": "2026-08-26-2000",
+  "reviewedSourceHead": "bfe46ada6a12773707cafa7aa2c8dbfd1872939a",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__SEMANTIC_PARSER_CLEANUP_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The direct HeartbeatEnvelopeParser source-work throat is now implemented in the existing owner before trim and JSON traversal.",
+    "The envelope regression and predecode Warm Wall were converged to the new source state without claiming execution or runtime TalkBack.",
+    "Canonical owner-surgery v10 still delegates semantics to the shared producer while dormant local parser-only machinery remains; the exact cleanup proposal still matches the current owner blob and remains unapplied.",
+    "Exact-head workflows failed before useful step evidence; no retry or diagnosis was invented.",
+    "P0 and primary-phone surfaces were not consumed or mutated."
+  ],
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "envelopePreparseSourceWired": true,
+    "semanticParserCleanupApplied": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0Firewall": "UNTOUCHED"
+}

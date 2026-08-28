@@ -1,0 +1,21 @@
+{
+  "schema": "venice.plan-review.v1",
+  "heartbeat": "2026-08-17T11:00:00-05:00",
+  "reviewType": "same-worker Judgment Jar plan review",
+  "target": "Retire HeartbeatSceneGraph.Node.detailContentDescription legacy raw-detail cache",
+  "verdict": "PLAN_ALLOWED",
+  "reasons": [
+    "The legacy field duplicates a newer collision-safe bounded explicit-detail projection and creates two definitions of detail.",
+    "Known source consumers already use HeartbeatEvidenceDetailProjection directly or through HeartbeatOverlayViewModel.LightControl.",
+    "Removing the duplicate field reduces future bypass risk without changing compact/routine speech.",
+    "The cut composes existing organs and creates no neighboring renderer, controller, poller, phone ingress, or P0 owner."
+  ],
+  "requiredChecks": [
+    "Preserved-node copy construction must not reference the removed field.",
+    "Checkpoint/contact identity must continue hashing exact source semantic fields, not projected speech text.",
+    "Explicit detail by view-model and frame-accessibility paths must still reveal collision-safe bounded invisible-semantic markers.",
+    "No runtime/deployment/phone claims may be inferred from source mutation."
+  ],
+  "sheRawBoundary": "Authoritative She-Raw consultation was attempted and faulted at account connection; no substitute She-Raw verdict is represented here.",
+  "p0Firewall": "PASS_READ_ONLY"
+}

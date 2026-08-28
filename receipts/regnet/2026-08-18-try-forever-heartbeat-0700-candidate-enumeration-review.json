@@ -1,0 +1,63 @@
+{
+  "schema": "regnet-review.v1",
+  "heartbeat": "2026-08-18-0700",
+  "subject": "TRY FOREVER repository-skill candidate enumeration resource throat",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewed": {
+    "sourceCommit": "0a3e7d7a4377e77aa50022543dcedaab147d9934",
+    "sourceBlob": "e26b65d1939b55ee72e0f71807a3957c4694a950",
+    "regressionCommit": "407c98430c282bcb9cbfccb309081855e76f068c",
+    "regressionBlob": "d65af3379877487b1c0c4494810df73d5c87f56c",
+    "candidateSkillCommit": "89ead0c37caac97968dacd0103ade56e1c88a0c0",
+    "candidateSkillBlob": "582f149cdda035fa233132ae2704b833f3fae209",
+    "provenanceSkillCommit": "307c062323f04e1d31e03b3c2276e4abf60b10cc",
+    "provenanceSkillBlob": "2ed502759ac368fad1fd760ab2e5343177e529fd",
+    "warmWallCommit": "fa16f6c10576d2dfdf7bc907dac696f24c905c34",
+    "warmWallBlob": "9c2099d022c3a66f8ec412bee4f6b161b854b46b"
+  },
+  "passes": [
+    "Candidate path storage is bounded to limit+1 before sort.",
+    "Sorting happens only after bounded candidate admission.",
+    "Max+1 fails closed before per-file title/hash authority.",
+    "Overflow returns no partial SkillRecord authority.",
+    "The regression source explicitly pins no title/hash calls after overflow.",
+    "The new doctrine preserves candidate admission, title admission, exact whole-file SHA, snapshot stability, and later capability states as distinct evidence.",
+    "The existing Warm Wall was mutated in place with keyboard/radio/touch semantics and an explicit SOURCE ONLY membrane.",
+    "No neighboring provenance probe, skill registry, overlay controller, scheduler, phone lane, recovery daemon, or P0 coordinator was created."
+  ],
+  "boundedClaimsOnly": [
+    "The repair bounds candidate count and stored candidate-path list memory.",
+    "It does not prove arbitrary non-candidate filesystem traversal or directory enumeration work is bounded.",
+    "Regression files are source only and were not observed executing under an authorized runner.",
+    "Repository/source progress does not prove Android UI, TalkBack runtime, deployment, phone delivery, or physical acceptance."
+  ],
+  "freshExecutionBoundary": {
+    "reviewedHead": "fa16f6c10576d2dfdf7bc907dac696f24c905c34",
+    "operatorOverlayRun": 32134997977,
+    "operatorOverlayJob": 95704120561,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "stepLevelCauseEstablished": false,
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "p0PhoneFirewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateArchitecture": 0
+  },
+  "nextIndependentWound": "Path.rglob can still traverse arbitrarily many non-candidate filesystem entries/directories before candidate overflow is observed. Candidate-count/list-memory policy must not be reported as a full filesystem traversal budget."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-22T15:01:32-05:00",
+  "reviewedSourceHead": "570ae4b31403e75de1a969fe27784d7b28793d68",
+  "verdict": "PASS_BOUNDED_SUPPORTING_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSIONS_UNEXECUTED__DESCRIPTOR_OWNER_UNINTEGRATED__TESTED_NO",
+  "findings": [
+    "Root, fresh-scan, and artifact explicit close failures are now typed when cleanup is the primary failure.",
+    "Cleanup close failure cannot mask a body, inventory, or artifact exception already propagating.",
+    "Held-root ownership is retired before explicit close so failure cannot invite a retry against a possibly recycled descriptor number.",
+    "The four-file source slice after the plan is exactly: descriptor source, cleanup regression source, descriptor skill doctrine, and existing custody Warm Wall.",
+    "Regression fixtures are source only; no authorized execution receipt exists.",
+    "Descriptor canonical-owner integration and atomic root/candidate binding remain NO.",
+    "Secondary cleanup failure is intentionally suppressed when another failure already owns the path; this slice does not claim separate secondary-cleanup telemetry."
+  ],
+  "capability": {
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "cleanupCloseTyped": true,
+    "primaryFailurePreserved": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorOwnerIntegrated": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

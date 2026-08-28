@@ -1,0 +1,45 @@
+# STATUS: APPLIED_SOURCE
+# OWNER: android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+# OWNER BASE BLOB: a0cfad7ce47455d06d83607f4e5ebdf71b9aada5
+# APPLIED COMMIT: 3e5aa33a11fef2fa8ba3cf224b6844aa4cbecde2
+# OWNER RESULT BLOB: fad085133d55d6c154ee591ffc66d28ce4507223
+# PURPOSE: Bound direct public selection-list observation to canonical MAX_LIGHTS before material/dedupe traversal.
+# LAW: CANONICAL PARSER LIGHT COUNT != UNBOUNDED DIRECT POLICY LIST; ONE SIZE OBSERVATION + <=MAX_LIGHTS INDEXED READS -> DETACHED SNAPSHOT BEFORE SEMANTIC TRAVERSAL.
+# FAILURE: >MAX_LIGHTS direct public selection throws a typed IllegalArgumentException instead of returning a false empty/no-material result.
+# LIMIT: Java List.size()/get() remain caller-interface calls; this source bounds their count but does not claim callback-free arbitrary-List admission.
+# CAPABILITY: DIRECT_POLICY_SELECTION_LIST_CUSTODY_SOURCE_WIRED / APPLIED_SOURCE / REGRESSION_UNEXECUTED / TESTED_NO
+# P0/PHONE: UNTOUCHED
+
+diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+--- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
++++ b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatSkillPolicy.java
+@@
+     public static List<Candidate> selectMaterialLights(List<Candidate> candidates) {
+-        if (candidates == null || candidates.isEmpty()) return Collections.emptyList();
++        List<Candidate> boundedCandidates = snapshotDirectSelectionCandidates(candidates);
++        if (boundedCandidates.isEmpty()) return Collections.emptyList();
+ 
+         List<Candidate> selected = new ArrayList<>();
+         Set<String> seenIds = new HashSet<>();
+-        for (Candidate candidate : candidates) {
++        for (Candidate candidate : boundedCandidates) {
+             if (!isMaterial(candidate)) continue;
+             String dedupeKey = candidate.id.toLowerCase(Locale.ROOT);
+             if (!seenIds.add(dedupeKey)) continue;
+             selected.add(candidate);
+         }
+         return Collections.unmodifiableList(selected);
+     }
++
++    private static List<Candidate> snapshotDirectSelectionCandidates(List<Candidate> candidates) {
++        if (candidates == null) return Collections.emptyList();
++        int size = candidates.size();
++        if (size < 0 || size > HeartbeatEnvelopeParser.MAX_LIGHTS) {
++            throw new IllegalArgumentException(
++                    "Direct heartbeat selection exceeds canonical light-count ceiling.");
++        }
++        if (size == 0) return Collections.emptyList();
++        List<Candidate> detached = new ArrayList<>(size);
++        for (int index = 0; index < size; index++) detached.add(candidates.get(index));
++        return Collections.unmodifiableList(detached);
++    }

@@ -1,0 +1,62 @@
+{
+  "schema": "regnet-review.v1",
+  "pulse": "2026-08-21T21:01:00-05:00",
+  "subject": "TRY FOREVER heartbeat native persistent-selection owner lifecycle",
+  "sourceHeadReviewed": "0fe0cf9df4e01949c4dd34c77165213610cac469",
+  "startHead": "1f6a5556f6afae13d67119e0732e273fed9e39ef",
+  "owner": {
+    "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "blob": "c5de1411a6b68087ae17aff83c032af754587150",
+    "mutated": false,
+    "nativeCollectionOwnerWiring": "NO_PARTIAL_UNSAFE"
+  },
+  "review": {
+    "missionFidelity": "PASS",
+    "duplicateArchitecture": "PASS",
+    "accessibilitySourceContract": "PASS_BOUNDED",
+    "ownerEvidenceContract": "PASS_BOUNDED",
+    "contactPreservation": "PASS_BOUNDED",
+    "runtimeTalkBack": "UNPROVEN",
+    "regressionExecution": "UNEXECUTED",
+    "tested": false
+  },
+  "findings": [
+    "The previous owner probe treated collection semantics as a per-light construction side effect. That shape could rewrite collection delegates repeatedly while building children and did not prove selected CollectionItemInfo metadata refreshed after later selection changes.",
+    "Probe v2 correctly moves source proof to collection lifecycle owners: after row construction and after persistent selection refresh. A per-light-only counterfeit is explicitly PARTIAL_UNSAFE.",
+    "The proposed owner patch composes the existing HeartbeatSelectionAccessibilityPolicy into the sole OperatorOverlayService and does not request keyboard or accessibility focus.",
+    "The patch uses the already accepted model plus semantic selected id, so discarded attempted heartbeat controls are not promoted into current collection items.",
+    "CollectionInfo/CollectionItemInfo source shapes are compatible with the current minSdk contract, but their presence is not runtime TalkBack evidence.",
+    "No operator-visible topology changed in this pulse; mutating Warm Walls/Christmas motion would be decorative theater and correctly stayed dark."
+  ],
+  "sourceArtifacts": {
+    "plan": "operator-evidence/try-forever-heartbeat-20260821T2101-plan.md",
+    "ownerProbeBlob": "08d2a0978e557a7eee8154c50dda0fff8fcf71fd",
+    "ownerProbeRegressionBlob": "c9bd69065693c601502da52315c881d380ce68d9",
+    "ownerPatchBlob": "ee4408e14d4dc0323344e0fb66166ff889a987da",
+    "skillBlob": "f7f701564dc798a25853a14b5c901119b7f9112d"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "verdict": "PASS_SUPPORTING_SOURCE_AND_OWNER_LIFECYCLE_EVIDENCE__OWNER_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "ownerPatchPrepared": true,
+    "ownerPatchApplied": false,
+    "ownerCollectionWiring": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "phoneCallable": false,
+    "phoneExecuted": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

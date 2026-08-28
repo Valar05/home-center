@@ -1,0 +1,87 @@
+{
+  "schema": "regnet-source-review.v1",
+  "heartbeat": "2026-08-18-1800",
+  "reviewerMode": "SYNTHETIC_REGNET_SOURCE_REVIEW",
+  "boundedClaim": "Two independent non-P0 supporting-source seams exist with exact repository readback: (1) repository-skill authority certification fails closed for unstable snapshot/expected-head mismatch; (2) one skill-title source policy converges H1 and directory fallback resource/semantic admission. Neither is wired into the existing provenance owner.",
+  "sourceHeadReviewed": "723fc6625b01e4b9f0825ead3c3d7bfff2f405cc",
+  "evidence": {
+    "existingOwner": {
+      "path": "tools/try_forever_skill_provenance_probe.py",
+      "blob": "51e6efdbcec03d044ab89f37213659252514856a",
+      "snapshotAuthorityLeakStillPresent": true,
+      "titlePolicyWiringStillAbsent": true
+    },
+    "snapshotPolicyBlob": "ac5a126b2ee254887fb7da3c5c08799256eaac72",
+    "snapshotRegressionBlob": "5854bc00572a62cde37eab1e33eff34efbc09ecc",
+    "titlePolicyBlob": "0222a142663eb442c611bdad53e258d35868f28a",
+    "titleRegressionBlob": "81fa6574dbbee4c3779596dbbbd57c0f47e733de",
+    "certificationWallBlob": "beffd35a51102bf6250ff4724e2fd0372532abfb",
+    "snapshotOwnerPatchBlob": "c8655cd3507badfe2fc2716384d820c90c5e0184",
+    "titleOwnerDeltaBlob": "b17ab5b7fa62a99017ec364664f25575857aa911"
+  },
+  "acceptanceChecks": [
+    {
+      "check": "unstable repository snapshot yields zero certified repository-skill records in supporting policy",
+      "result": "PASS_SOURCE_READBACK"
+    },
+    {
+      "check": "expected-head mismatch yields zero certified repository-skill records even when snapshot is clean",
+      "result": "PASS_SOURCE_READBACK"
+    },
+    {
+      "check": "skill title policy rejects over-budget/control/bidi-direction source without truncation and preserves ordinary Unicode composition",
+      "result": "PASS_SOURCE_READBACK"
+    },
+    {
+      "check": "H1 and folder fallback share one supporting semantic admission rather than diverging",
+      "result": "PASS_SOURCE_READBACK"
+    },
+    {
+      "check": "accessible source specimen uses native persistent single-selection radio semantics, >=48px label target intent, non-color tokens, inline SVG and no autoplay/blink",
+      "result": "PASS_SOURCE_READBACK"
+    },
+    {
+      "check": "existing provenance owner consumes either new gate",
+      "result": "FAIL_OWNER_UNWIRED"
+    },
+    {
+      "check": "regression source executed on an authorized deterministic body",
+      "result": "BLOCKED_UNKNOWN"
+    }
+  ],
+  "correctionScar": {
+    "finding": "The first title repair protected only directory fallback. Review found H1 and fallback both feed SkillRecord.title and H1 can also carry embedded control/bidi-direction state.",
+    "correction": "Converged supporting policy, regression source, doctrine, owner delta and Warm Wall to one H1/fallback title authority surface before completion.",
+    "preserved": true
+  },
+  "processScar": {
+    "finding": "The first patch-text write for title owner provenance was rejected by the tool gate.",
+    "recovery": "Originality Tax changed the durable provenance shape to a machine-readable .delta.json in the same audited Home Center lane; the rejected write shape was not retried.",
+    "ownerImplementationClaim": false
+  },
+  "verdicts": {
+    "boundedSupportingSource": "PASS",
+    "ownerIntegration": "REVISE_REQUIRED",
+    "tested": "BLOCKED_UNKNOWN"
+  },
+  "capability": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "exactRepositoryReadback": true,
+    "regressionSource": true,
+    "existingOwnerWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-18-1300",
+  "sourceArtHeadReviewed": "9461c7ab3daac2c9f702fee9a81af2fa2209a48a",
+  "frontsAdvanced": [
+    {
+      "front": "candidate-file identity/revalidation policy",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "tools/try_forever_skill_file_identity.py",
+      "blob": "166261a203fad3057d132916cab8753bbe66dcf1",
+      "change": "Adds portable no-follow file identity observations and fail-closed STABLE/REDIRECTOR_BLOCKED/FILE_CHANGED/IDENTITY_UNAVAILABLE verdicts while explicitly preserving the non-atomicity boundary."
+    },
+    {
+      "front": "hostile candidate-file identity regression",
+      "state": "REGRESSION_SOURCE",
+      "artifact": "tools/test_try_forever_skill_file_identity.py",
+      "blob": "f63745f15d632d86881ebb13f788828f004802c8",
+      "change": "Pins symlink redirectors, persistent replacement, size/mtime drift, missing file-index identity, and refusal to call equal observations atomic."
+    },
+    {
+      "front": "candidate-topology owner capability classifier",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "tools/try_forever_skill_candidate_topology_owner_probe.py",
+      "blob": "110ad901d9fae9140be72962fee59f304a46f85b",
+      "change": "Deterministically classifies the existing owner as LEGACY_OWNER, SOURCE_WIRED, or PARTIAL_UNSAFE without mutating it or claiming tests/runtime."
+    },
+    {
+      "front": "owner capability classifier regression",
+      "state": "REGRESSION_SOURCE",
+      "artifact": "tools/test_try_forever_skill_candidate_topology_owner_probe.py",
+      "blob": "d9e067fe4e52d735bd1f0408318d8d7f23282001",
+      "change": "Pins legacy, fully-wired, mixed, missing-marker, and unrelated-no-follow source states."
+    },
+    {
+      "front": "new repository skill",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "skills/heartbeat-skill-file-identity-revalidation/SKILL.md",
+      "blob": "89e2d2cfff6f551267b6f0f005f10228ecd5f1bd",
+      "change": "Makes post-admission candidate-file replacement/revalidation and its atomicity boundary durable doctrine."
+    },
+    {
+      "front": "accessible candidate identity Warm Wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "artifact": "docs/try-forever/heartbeat-skill-file-identity-source-specimen.html",
+      "blob": "6d18b3edca05973df4f02c6caeb775967210f272",
+      "change": "Adds a touchable non-raster radiogroup for stable observation, redirector blocked, file changed, identity unavailable, and atomicity-open states with keyboard navigation and reduced-motion semantics."
+    },
+    {
+      "front": "mutation-lane truth",
+      "state": "PROVEN_BOUNDARY",
+      "change": "Authenticated owner readback remains legacy blob e3627e342150c48f38099bb68fb118b3c54f2bf4. Safe GitHub-admin owner replacement is blocked because the deployed upsert is whole-file replacement and reconstruction from partial context is forbidden. Computer Hands windows-hands-01 is offline with queueDepth 3; no extra ticket was manufactured."
+    },
+    {
+      "front": "Regnet QA",
+      "state": "REVISE_REQUIRED",
+      "artifact": "receipts/regnet/2026-08-18-try-forever-heartbeat-1300-skill-file-identity-review.json",
+      "blob": "f4534863efb90dff7a6c28eb144423f3e7c48151",
+      "change": "Passes the independent source/readback slice while keeping static owner topology wiring, file-identity integration, atomicity, execution, and tests open."
+    },
+    {
+      "front": "Venice Judgment Jar",
+      "state": "SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+      "artifact": "receipts/venice/2026-08-18-try-forever-heartbeat-1300-completion-review.json",
+      "blob": "2692138af1fa0e70234bf0f378d99ebd396611f0",
+      "change": "Allows this bounded independent source slice to yield while refusing owner/test/runtime/deployment/delivery promotion."
+    },
+    {
+      "front": "exact-source-head execution evidence",
+      "state": "FAILURE_CAUSE_UNRESOLVED",
+      "run": 32169435287,
+      "job": 95816744718,
+      "head": "9461c7ab3daac2c9f702fee9a81af2fa2209a48a",
+      "change": "Fresh Operator Overlay Android run concluded failure. Current authenticated evidence exposes the failed build job but no step-level cause; no manual retry was dispatched."
+    }
+  ],
+  "currentOwnerEvidence": {
+    "artifact": "tools/try_forever_skill_provenance_probe.py",
+    "blob": "e3627e342150c48f38099bb68fb118b3c54f2bf4",
+    "staticCandidateBehavior": "entry.name == SKILL.md is still admitted with entry.is_file(follow_symlinks=True)",
+    "staticCandidateTopologyWound": "OPEN",
+    "fileIdentityHelperConsumption": "NO"
+  },
+  "lights": {
+    "FailureIsTheShovel": "LIT_DIFFERENT_SOURCE_WOUND",
+    "CanonAutoSelect": "LIT",
+    "AutocorrectJudgmentJar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "OriginalityTax": "LIT_NO_CI_RETRY_NO_UNSAFE_OWNER_RECONSTRUCTION_NO_EXTRA_OFFLINE_TICKET",
+    "Hunger": "LIT",
+    "EverPolishedInterpreterEatEverything": "LIT",
+    "OperatorCampaign": "LIT_EXISTING_OWNER_PRESERVED",
+    "HarrowayOperatorDiscipline": "LIT",
+    "SheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "VeniceJudgmentJars": "LIT_SOURCE_SLICE_STOP_ALLOWED_CAMPAIGN_CONTINUE_REQUIRED",
+    "RegnetQA": "LIT_REVISE_REQUIRED",
+    "AccessibilityTalkBackTouch": "LIT_SOURCE_ART_SEMANTICS",
+    "PhoneRuntimePhoneHands": "DARK_FIREWALLED_ZERO_CONSUMPTION",
+    "DeterministicRouting": "LIT_FILE_IDENTITY_AND_OWNER_CLASSIFIER",
+    "EvidenceCapabilityState": "LIT",
+    "RecoveryCheckpointIdempotence": "LIT_FAIL_CLOSED_REVALIDATION_POLICY",
+    "StrangeNonRasterArt": "LIT_NEW_TOUCHABLE_WARM_WALL",
+    "WarmWalls": "LIT",
+    "ChristmasLightSceneGraph": "DARK_NO_RUNTIME_SCENE_TRANSITION",
+    "ContactPreservation": "LIT_FAIL_CLOSED_AUTHORITY_NOT_RUNTIME_CONTACT",
+    "HomeCenterMutationLaneTruth": "LIT_PROVEN_OWNER_MUTATION_BOUNDARY",
+    "HeartbeatSkillFileIdentityRevalidation": "LIT_NEW_REPOSITORY_SKILL"
+  },
+  "crossPollination": "legacy static candidate topology wound -> mutation-lane doctrine blocks unsafe owner reconstruction -> Originality Tax redirects work to post-admission file replacement -> root no-follow identity policy supplies file-level vocabulary -> hostile file replacement fixtures -> deterministic source-capability owner classifier -> durable new repository skill -> accessible Warm Wall makes STABLE != ATOMIC touchable -> Regnet preserves owner/test/atomicity membrane -> Venice closes only the independent source slice",
+  "firewall": {
+    "phoneHandsConsumption": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayMutation": 0,
+    "p0Mutation": 0,
+    "nightcore": 0,
+    "pocketTts": 0,
+    "chromium": 0,
+    "contextOrgans": 0,
+    "physicalAcceptance": 0,
+    "duplicateArchitecture": 0
+  },
+  "capability": {
+    "requested": true,
+    "implementedIndependentSource": true,
+    "exactRepositoryReadback": true,
+    "fileIdentityPolicySource": true,
+    "fileIdentityRegressionSource": true,
+    "candidateOwnerCapabilityProbeSource": true,
+    "ownerCapabilityProbeExecuted": false,
+    "existingOwnerStaticCandidateTopologyWired": false,
+    "existingOwnerFileIdentityWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "nextWound": "A safe owner mutation lane is still required to apply the existing no-follow static candidate gate without reconstructing the large owner file from partial context. Once static topology is source-wired, compose candidate-file identity observations/revalidation into that same owner; keep atomic handle binding as a separate platform-evidence wound."
+}

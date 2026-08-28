@@ -1,0 +1,94 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewer": "Regnet QA",
+  "provenance": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "reviewedHead": "6e1bc6a98c456298ad75aefc28903aeedb48144e",
+  "timestamp": "2026-08-15T20:05:00Z",
+  "boundedClaim": "The 1500 heartbeat source removes the duplicated numeric 32768 ingress ceiling from HeartbeatPersistedEnvelopeProjection by aliasing the existing OperatorState ceiling; it also makes explicit that updatedMs is positive wall-clock observation metadata, not a monotonic replay sequence. Regression and warm-wall source encode that distinction. This is IMPLEMENTED_SOURCE + EXACT_GITHUB_READBACK only.",
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGithubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "testedState": "BLOCKED_UNKNOWN",
+    "persistedRuntimePayloadDecodedAndVerifiedByExistingOverlayOwner": false,
+    "persistedRuntimePayloadConsumedBySemanticParser": false,
+    "uiRendered": false,
+    "talkBackRuntimeExercised": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "acceptanceReview": [
+    {
+      "criterion": "Ingress payload byte ceiling cannot drift between OperatorState persistence and pure persisted projection by duplicated numeric literal.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeProjection.MAX_PAYLOAD_BYTES aliases OperatorState.MAX_HEARTBEAT_LIGHTS_BYTES; the projection contains no independent 32768 literal.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Wall-clock observation metadata is not promoted into unproven monotonic replay identity.",
+      "sourceEvidence": "OverlayUpdateReceiver obtains now from System.currentTimeMillis(). Final HeartbeatPersistedEnvelopeProjection requires updatedMs > 0 but performs no less-than/equality replay ordering. Its source comment names this boundary explicitly.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "Regression source preserves the distinction between content identity and observation time.",
+      "sourceEvidence": "HeartbeatPersistedEnvelopeObservationTest verifies canonical ceiling aliasing, acceptance at a minimal positive timestamp, and identical byte/SHA/contact identity across different positive wall-clock magnitudes.",
+      "state": "regression_source_only"
+    },
+    {
+      "criterion": "Warm-wall art teaches the repaired rule without claiming runtime deployment.",
+      "sourceEvidence": "heartbeat-motion-clamp-source-specimen.html has a seventh wall-clock witness state: byte/SHA identity may remain valid while wall time changes; timestamp ordering is blocked as a verdict, no raster/autoplay/runtime claim is introduced.",
+      "state": "implemented_source"
+    },
+    {
+      "criterion": "No duplicate controller/runtime/P0 owner is introduced.",
+      "sourceEvidence": "Only existing OperatorState/projection/test/specimen surfaces were composed. No phone, queue, recovery, renderer, transport, controller, or P0 owner was created or invoked.",
+      "state": "pass_for_source_scope"
+    }
+  ],
+  "codeFirstFinding": {
+    "severity": "major_then_repaired_before_completion",
+    "finding": "The first 1500 implementation attempted to reject updatedMs rollback/equality collisions. Source review of OverlayUpdateReceiver proved updatedMs comes from System.currentTimeMillis(), so monotonic ordering and unique timestamp identity were unsupported assumptions that could reject legitimate updates after wall-clock correction or same-millisecond broadcasts.",
+    "repair": "A fresh Venice replan preceded repair. The rollback overload and collision logic were removed, the regression fixture was renamed from Freshness to Observation, and the warm-wall rollback fault became a wall-clock witness. The abandoned design remains visible only in durable plan/replan history, not final source semantics."
+  },
+  "accessibilityReview": {
+    "state": "dark_no_material_change",
+    "sourceInspected": "HeartbeatFrameAccessibility.java",
+    "finding": "No separate concrete TalkBack/touch defect was established in this pulse; the existing attention-first bounded speech, stable-id detail lookup, and visible-scene-only semantics were left unchanged rather than manufacturing activity."
+  },
+  "deterministicExecution": {
+    "workflow": "Operator Overlay Android",
+    "runId": 31905644148,
+    "jobId": 95062863616,
+    "headSha": "6e1bc6a98c456298ad75aefc28903aeedb48144e",
+    "stepsExecuted": 0,
+    "conclusion": "failure",
+    "exactBoundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "sheRaw": {
+    "surface": "She-Raw.she_raw_ambient",
+    "state": "fault",
+    "boundary": "HTTP 400 account connection failure: We couldn't connect your account. Please try again.",
+    "syntheticReplacement": false
+  },
+  "p0PhoneFirewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbesOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedVerdict": "BLOCKED_UNKNOWN",
+  "mergeVerdict": "NOT_GRANTED"
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "reviewedSourceHead": "884ee2ffa0c14d9cd3107368795ef40469c6ff2b",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__CURRENT_OWNER_INPUT_REVISE_REQUIRED__REGRESSIONS_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "artifactBaseIdentity": {
+      "ownerSourceWired": true,
+      "appliedCommit": "2ba4254f8e9b736fe47dbe0f5192fe270397359a",
+      "ownerBlob": "d5c22feac7b3f71045cc139e120b2ae45a3b1c37",
+      "review": "PASS_SOURCE_ONLY"
+    },
+    "currentOwnerInputIdentity": {
+      "ownerSourceWired": false,
+      "regressionSource": true,
+      "regressionExecuted": false,
+      "review": "REVISE_REQUIRED",
+      "boundary": "_parse_owner_blob/classify still normalize authenticated current-owner blob values before authority comparison"
+    },
+    "currentInventory": {
+      "regressionSource": true,
+      "regressionExecuted": false,
+      "newConstraint": "every admitted surgery base_blob must already be exact lowercase SHA evidence"
+    },
+    "descriptorCustody": {
+      "supportingSource": true,
+      "canonicalOwnerIntegration": false,
+      "regressionSource": true,
+      "regressionExecuted": false,
+      "newConstraints": [
+        "unrelated directory-entry max+1 rejects the entire descriptor inventory",
+        "matching-candidate max+1 rejects the entire descriptor inventory"
+      ],
+      "atomicRootBinding": false,
+      "atomicCandidateBinding": false
+    },
+    "warmWall": {
+      "sourceUpdated": true,
+      "runtimeUi": false,
+      "runtimeTalkBack": false
+    }
+  },
+  "execution": {
+    "operatorRun": 32583808857,
+    "operatorJob": 97057031450,
+    "conclusion": "failure",
+    "stepsExposed": 0,
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "tested": false
+  },
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

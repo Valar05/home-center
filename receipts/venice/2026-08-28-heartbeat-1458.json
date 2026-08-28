@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-28T14:58:00-05:00",
+  "reviewedSourceHead": "645dbabc133ca3e0e4191918f63a9572f0052db7",
+  "verdict": "CONTINUE_REQUIRED",
+  "acceptedSourceProgress": [
+    "Existing Adam accessibility owner-probe repaired in place as v11; no neighboring probe/controller/evidence authority was created.",
+    "v11 now requires persistent Send-owner assignment before create-time semantic refresh and mode mutation before the mode-change refresh, while retaining same-snapshot Decision-to-description custody.",
+    "Temporal and broad owner fixtures are converged to v11 source; Warm Wall and its source-truth fixture are synchronized to v11 SOURCE REPAIRED / UNEXECUTED.",
+    "Temporal lifecycle doctrine carries the owner-local ordering scar durably."
+  ],
+  "holds": [
+    "Fixture source presence is not fixture execution or TESTED capability.",
+    "Native UI request owner and native accessibility owner remain proposed-not-applied.",
+    "Legacy explicit repeat-send accessibility receipt remains preserved until native READY/SENT ownership and repeat-runtime evidence resolve it.",
+    "Runtime UI, TalkBack, deployment, callability, execution, delivery, and acceptance remain NO."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "BOUNDARY_HTTP_400_ACCOUNT_CONNECTION",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "operatorOverlayAndroidRun": 33207669529,
+    "homeCenterCiRun": 33207669496,
+    "buildAndroidRun": 33207669493,
+    "operatorJob": 98972767018,
+    "operatorSteps": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

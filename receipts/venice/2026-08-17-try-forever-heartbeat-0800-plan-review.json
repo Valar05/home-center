@@ -1,0 +1,16 @@
+{
+  "receipt": "venice-plan-review",
+  "pulse": "2026-08-17-0800",
+  "mode": "same-worker-separate-judgment-pass",
+  "verdict": "PLAN_ALLOWED",
+  "checks": {
+    "missionFidelity": "PASS",
+    "p0Firewall": "PASS",
+    "duplicateArchitecture": "PASS",
+    "evidenceMembrane": "PASS",
+    "accessibilityRelevance": "PASS",
+    "originalityTax": "PASS"
+  },
+  "review": "Apply the already-defined exact Base64 declaration policy only through OperatorOverlayService's existing persisted-heartbeat PROJECT branch. Decode with the existing platform codec, re-encode with the exact writer flags, compare the raw stored declaration without trim/repair, and route mismatch through existing fail-closed scene preservation. Do not create another decoder, poller, controller, or phone path. Source wiring may become YES only after exact GitHub readback; Android runtime, TalkBack runtime, deployment, delivery, and acceptance remain separate and unproven.",
+  "gate": "PLAN_ALLOWED_SOURCE_ONLY"
+}

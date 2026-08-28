@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-18-1500",
+  "mission": "Close the preserved late skills-root persistent-replacement window in the existing provenance owner without claiming atomic binding or touching P0/phone surfaces.",
+  "constraints": {
+    "p0FortressFirewall": true,
+    "phoneSurfaceConsumption": 0,
+    "duplicateArchitecture": 0,
+    "existingOwner": "tools/try_forever_skill_provenance_probe.py",
+    "authorizedLane": "authenticated Home Center GitHub branch mutation only",
+    "ownerRule": "Compose the existing root identity helper into the existing provenance probe; do not create a second probe, registry, controller, scheduler, recovery daemon, or phone lane.",
+    "atomicityRule": "Final path-level revalidation may detect persistent late drift but must not be reported as atomic handle binding, swap-and-restore exclusion, identity-token non-reuse, or same-token rewrite protection.",
+    "capabilityMembrane": "requested -> implemented source -> exact readback -> regression source -> probe executed -> tested -> runtime -> deployed -> callable -> executed -> delivered -> accepted"
+  },
+  "preExecutionEvidence": {
+    "ownerBlob": "532a5a004dbca1f99caab6e230ef565dd61bf258",
+    "ownerBehavior": "skills root is captured before traversal and revalidated after candidate enumeration, but discover_skills returns after per-file authority without one final root revalidation",
+    "integrationTestBlob": "52d987404ec3837e70847f5d5ebbc175bbe3008d",
+    "rootSkillBlob": "1b040ac935f1194458f619dc9f9c13bac2027873",
+    "warmWallBlob": "87b0a139a3ac3aa9c046577fd7ffa8e8538adfbf",
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "fronts": [
+    "existing-owner final root revalidation after all per-file authority",
+    "hostile integration regression for persistent late drift, unavailable final identity, and stable final root",
+    "root-identity doctrine convergence with explicit non-atomicity boundary",
+    "existing accessible non-raster Warm Wall mutation in place",
+    "Regnet bounded source review",
+    "Venice code-first completion review",
+    "fresh exact-head GitHub execution evidence without manual retry",
+    "durable PR capability-state synchronization"
+  ],
+  "reviewGate": "PLAN_ALLOWED__FINAL_ROOT_REVALIDATION_SOURCE_SLICE__ATOMICITY_UNCLAIMED__P0_FIREWALL_HELD"
+}

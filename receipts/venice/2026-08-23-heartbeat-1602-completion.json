@@ -1,0 +1,23 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewer": "try-forever-automation-worker",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "jar": "observable-evidence-hard-gates-capability-membrane",
+  "finding": null,
+  "note": "The bounded source slice may yield: completed comparison work is now operator-auditable, the bounded operator payload has deterministic source identity, direct hostile source fixtures cover the new semantics, and the existing Warm Wall/doctrine agree with authenticated GitHub readback. Regression execution, TESTED, runtime, deployment, delivery, acceptance, descriptor authority integration, and the recurring campaign remain open and are not promoted by this verdict.",
+  "evidence": {
+    "sourceHead": "7ec93c22b8be130c28f49a007c2c1281ce78e9f5",
+    "regnetReceipt": "receipts/regnet/2026-08-23-heartbeat-1602.json",
+    "operatorOverlayRun": 32666626000,
+    "operatorOverlayJob": 97260909498,
+    "operatorStepsExposed": 0,
+    "operatorLogs": "404 BlobNotFound",
+    "tested": false,
+    "sheRaw": "ATTEMPTED__ACCOUNT_CONNECTION_HTTP_400"
+  },
+  "capabilityBoundary": "SOURCE_SLICE_ONLY",
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

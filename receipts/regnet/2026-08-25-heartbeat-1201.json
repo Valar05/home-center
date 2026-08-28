@@ -1,0 +1,44 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "heartbeat": "2026-08-25T12:01:34-05:00",
+  "reviewedHead": "98b517078dbfeac01c031dc208a77e7c24229d02",
+  "verdict": "PASS_SUPPORTING_SOURCE__OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "final-v4-public-type-contract",
+      "state": "RED_OWNER_BOUNDARY",
+      "evidence": "Runtime snapshot custody rejects arbitrary Mapping before callbacks, but final v4 public reverification annotations still advertise Mapping[str, object].",
+      "regressionBlob": "388a240b5c5acb83ffbf7b73587c812ff7de77f6",
+      "ownerPatchBlob": "06af0301116666a8ab48a4e55513a5a65eb4cfa1",
+      "ownerPatchState": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "front": "bounded-container-doctrine",
+      "state": "CONVERGED",
+      "evidence": "Projector and self-integrity exact-dict source wiring are now reflected; only final-v4 public type parity remains RED.",
+      "skillBlob": "d0f3a74d9bcfb8cb66f1200ba954b34ca8466fa7"
+    },
+    {
+      "front": "shadow-receipt-integrity-doctrine",
+      "state": "NEXT_WOUND",
+      "evidence": "Existing skill still names the operator receipt owner as schema v3 even though authenticated owner source is v4; not silently rewritten in this pulse."
+    }
+  ],
+  "executionEvidence": {
+    "head": "98b517078dbfeac01c031dc208a77e7c24229d02",
+    "homeCenterCi": 32876132843,
+    "buildAndroid": 32876132835,
+    "operatorOverlay": 32876132823,
+    "operatorJob": 97894336335,
+    "operatorSteps": 0,
+    "tested": false,
+    "causeEstablished": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "venice-judgment-jar-review.v1",
+  "checkpoint": "2026-08-25T09:00:00-05:00",
+  "reviewedSourceHead": "9142d4ab262370168fea3a2430b3d97e568e1bbf",
+  "reviewMode": "bounded_same_worker_judgment_jar",
+  "externalWorkerVerdictClaimed": false,
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__WHOLE_STACK_CONVERGENCE_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "two independent receipt evidence surfaces materially advanced through existing organs",
+    "authenticated GitHub readback proves durable source changes and does not prove test/runtime capability",
+    "the hostile regression exists but GitHub workflow jobs again executed zero steps",
+    "neighboring self-integrity/final-verifier Mapping contracts remain an explicit source boundary rather than being green-painted",
+    "P0 and phone execution surfaces were not consumed or mutated"
+  ],
+  "qualityGate": {
+    "duplicateArchitecture": "PASS",
+    "evidenceMembrane": "PASS",
+    "sourceFidelity": "PASS",
+    "regressionExecution": "NO",
+    "tested": "NO",
+    "runtime": "NO",
+    "delivery": "NO",
+    "acceptance": "NO"
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

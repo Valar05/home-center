@@ -1,0 +1,119 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "timestamp": "2026-08-15T15:12:00Z",
+  "commission": "Advance a broad material heartbeat skill constellation across multiple independent non-phone fronts while P0 and the shared primary-phone surface remain firewalled.",
+  "sourceHeadReviewed": "f279412d5954fcb04140ef002cf205824d235f41",
+  "fronts": [
+    {
+      "id": "attention-first-talkback",
+      "state": "implemented_source",
+      "changed": "Collapsed scene speech now names FAULT/BLOCKED identities before non-attention identities inside the twelve-name ceiling while retaining exact state totals and leaving actual scene/focus order unchanged.",
+      "evidence": "HeartbeatFrameAccessibility.java blob ab1598cd3618e9cc36e3d2f07b8c1d090b2792a1"
+    },
+    {
+      "id": "compact-focus-speech",
+      "state": "implemented_source",
+      "changed": "Compact per-light consequence speech is bounded to 160 Unicode code points without splitting a code point; fully typed explicit detail remains unabridged.",
+      "evidence": "HeartbeatSkillPolicy.java blob f99570be4e2355537eca6c2e00c2db16cb922ae2"
+    },
+    {
+      "id": "regression-source",
+      "state": "implemented_source_unexecuted",
+      "changed": "Regression source covers late-fault attention priority, stable attention-group order, unchanged focus identity, broad summary bounds, Unicode-safe label/consequence truncation, and full detail retention.",
+      "evidence": "HeartbeatFrameAccessibilityTest.java blob 2a61d045f23bb639d9f3404a40da7f06fece56ea + HeartbeatSkillPolicyTest.java blob caa2a99fd4cd6daa1d46b78de5c951e426ecc3ff"
+    },
+    {
+      "id": "warm-wall-attention-art",
+      "state": "implemented_source",
+      "changed": "A new touchable DOM/vector attention-map specimen contrasts scene order with attention-first speech using native buttons, non-color state tokens, visible focus, pressed selection, live semantic detail, no raster, and no decorative motion loop.",
+      "evidence": "heartbeat-attention-map-source-specimen.html blob 5d311de83eb633261b28ae71af2986743cd20a04"
+    },
+    {
+      "id": "code-first-repair",
+      "state": "implemented_source",
+      "changed": "Regnet-style code-first inspection rejected the first art draft for repeating innerHTML and lighting two prompt-favorite concepts without a current consequence; the source was repaired before completion review.",
+      "evidence": "receipts/regnet/2026-08-15-try-forever-heartbeat-1000-source-review.json"
+    },
+    {
+      "id": "judgment-evidence",
+      "state": "implemented_source",
+      "changed": "A fresh Venice PLAN_ALLOWED receipt preceded mutation; synthetic Regnet source review and Venice completion review preserve the exact source/test/runtime capability membrane.",
+      "evidence": "1000 Venice plan + Regnet source review + Venice completion review receipts"
+    }
+  ],
+  "heartbeatLights": [
+    {"label":"Heartbeat Skill Lights","state":"active","provenance":"skills/heartbeat-skill-lights/SKILL.md","changed":"The broad constellation is material telemetry; the source specimen was corrected when two named-but-noncontributing concepts tried to glow anyway."},
+    {"label":"Canon Auto-Select","state":"active","provenance":"doctrine:Canon Auto-Select","changed":"Selection followed current source consequences and exact boundaries rather than a fixed favorites list."},
+    {"label":"Execution Truth","state":"active","provenance":"skills/execution-truth/SKILL.md","changed":"Implemented/readback stayed separate from TESTED/UI/deployed/callable/delivered/accepted."},
+    {"label":"Operator Campaign","state":"active","provenance":"skills/operator-campaign/SKILL.md","changed":"All mutation remained on the existing PR/source campaign; no neighboring controller or runtime body was created."},
+    {"label":"Harroway Operator Discipline","state":"active","provenance":"doctrine:Harroway operator discipline","changed":"The operator lane constrained substitution and kept the swarm on authorized non-phone source work."},
+    {"label":"Fortress Plan Gate","state":"active","provenance":"skills/fortress-plan-gate/SKILL.md","changed":"Fresh research/jar selection/antagonism/Venice PLAN_ALLOWED receipt was durable before mutation."},
+    {"label":"Mission Boundary","state":"active","provenance":"jar:.continue/rules/00-judgement-jar-mission-boundary.md","changed":"P0/phone ownership and delivery-surface exclusions remained binding through every source front."},
+    {"label":"Repository Truth","state":"active","provenance":"jar:.continue/rules/20-judgement-jar-repository-truth.md","changed":"Current branch source and exact GitHub blob identities governed edits and review."},
+    {"label":"Change Discipline","state":"active","provenance":"jar:.continue/rules/30-judgement-jar-change-discipline.md","changed":"Targeted compatibility-preserving edits were used instead of a new accessibility/renderer architecture."},
+    {"label":"Venice Judgment Jars","state":"active","provenance":"reviewer:venice-judgment-jar","changed":"Venice allowed the bounded source plan, then approved yielding only the source slice with test/runtime caveats intact."},
+    {"label":"Venice Review Memory","state":"active","provenance":"skills/venice-review-memory/SKILL.md","changed":"Prior scars against status theater, evidence laundering, planning bypass, dead review, and grand-plan inflation shaped the plan and completion review."},
+    {"label":"Regnet QA","state":"blocked","provenance":"skills/renee-qa/SKILL.md","changed":"Source/readback passes; TESTED remains BLOCKED_UNKNOWN because the exact automatic job executed zero steps."},
+    {"label":"She-Raw","state":"fault","provenance":"reviewer:She-Raw.she_raw_consult","changed":"Authoritative adversarial consultation was attempted once; HTTP 400 account-connection failure was preserved and not replaced or hammered."},
+    {"label":"Accessibility / TalkBack","state":"active","provenance":"doctrine:Accessibility/TalkBack","changed":"A late serious fault/blocker can no longer be unnamed behind twelve earlier active lights; ordinary focus consequence speech is now bounded."},
+    {"label":"Embodied Communication / Touch","state":"active","provenance":"skills/embodied-communication/SKILL.md","changed":"The new source specimen is touch/keyboard reachable with native >=48px controls and explicit semantic detail."},
+    {"label":"Deterministic Routing","state":"active","provenance":"doctrine:deterministic routing","changed":"Attention projection is deterministic and preserves original scene order inside attention/non-attention groups; focus identity remains unchanged."},
+    {"label":"Failure Is The Shovel","state":"recovered","provenance":"doctrine:Failure Is The Shovel","changed":"The unchanged Actions-budget failure was converted into different accessibility, regression, art, and review fronts instead of another retry."},
+    {"label":"Originality Tax","state":"active","provenance":"doctrine:Originality Tax","changed":"No unchanged-condition manual workflow retry was used as fake activity."},
+    {"label":"Ever-Polished Interpreter / Eat Everything","state":"active","provenance":"doctrine:Ever-Polished Interpreter / Eat Everything","changed":"Code-first review consumed the first art draft as evidence, found innerHTML plus decorative-light regressions, and repaired both before the slice was allowed to yield."},
+    {"label":"Hunger","state":"active","provenance":"doctrine:Hunger","changed":"The pulse produced a materially different touchable attention-map artifact rather than another status poster."},
+    {"label":"Warm Walls","state":"active","provenance":"doctrine:warm walls","changed":"Warm-wall spatial art now demonstrates the same scene-order versus attention-projection contract as the accessibility source."},
+    {"label":"Christmas-Light Scene Graph","state":"active","provenance":"doctrine:Christmas-light scene graph","changed":"No decorative blink/motion was introduced; state remains semantic and consequence-bearing."},
+    {"label":"Contact Preservation","state":"active","provenance":"doctrine:Contact Preservation","changed":"Attention-first speech is derived from the preserved visible Frame and does not mutate/reorder the scene or discarded refresh content."},
+    {"label":"P0 Fortress Firewall","state":"blocked","provenance":"runtime_boundary:P0 FORTRESS FIREWALL","changed":"Zero phone/queue/P0/recovery/physical-chain mutations; the shared surface remained reserved for canonical owners."}
+  ],
+  "consideredDark": [
+    {"label":"Autocorrect Judgment Jar","whyDark":"No ambiguous speech/autocorrect token required branching or resolution in this pulse; lighting it would be decorative."},
+    {"label":"Phone Runtime / Phone Hands recovery","whyDark":"The exact shared phone surface is owned by P0 and was not read, mutated, probed, or consumed by this swarm."},
+    {"label":"Recovery / checkpoint / idempotence mutation","whyDark":"Existing contact/checkpoint contracts constrained the design, but this pulse did not change checkpoint source or runtime state."}
+  ],
+  "crossPollination": [
+    "Broad skill-light accessibility exposed a hidden-attention defect: exact fault counts were present but a late fault identity could still fall outside the twelve-name speech budget.",
+    "Fixing collapsed speech exposed a second load path in per-node focus consequence speech, so compact consequence output gained a separate Unicode-safe bound while full explicit detail stayed intact.",
+    "Regnet-style code-first review then caught the art front repeating innerHTML and glowing prompt-favorite concepts without current consequences; both were repaired before completion review.",
+    "Failure Is The Shovel plus Originality Tax converted the unchanged Actions-budget blocker into independent source work rather than retry theater.",
+    "Mission Boundary plus Fortress Plan Gate kept all of that useful work outside the P0/primary-phone ownership chain and prevented duplicate architecture."
+  ],
+  "deterministicBoundary": {
+    "head": "f279412d5954fcb04140ef002cf205824d235f41",
+    "workflow": "Operator Overlay Android",
+    "run": 31891813186,
+    "job": 95029099894,
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryIssued": false
+  },
+  "p0Firewall": {
+    "primaryPhoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "duplicateControllersOrDaemons": 0
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSourcePresent": true,
+    "tested": false,
+    "persistedRuntimePayloadConsumedByParser": false,
+    "uiRendered": false,
+    "talkBackExercisedOnRuntimeUi": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

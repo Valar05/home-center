@@ -1,0 +1,22 @@
+{
+  "schema": "try-forever.heartbeat-replan.v1",
+  "heartbeat": "2026-08-18-0000",
+  "pr": 329,
+  "trigger": "Primary AOSP TextView source invalidated the proposed five-line scroll-well implementation before owner application.",
+  "finding": "TextView setMaxLines(n) sets line-mode maximum, and StaticLayout.Builder receives that maximum as setMaxLines(...). A five-line max can therefore bound the text layout itself, contradicting the promise that later Evidence/Source remains available by vertical scrolling. Pixel-height mode instead leaves the StaticLayout line budget unbounded while capping measured view height.",
+  "strategyChange": "Do not apply the 2300 owner patch. Replace line-count layout truncation with a pixel-height viewport derived from five line heights plus vertical padding; keep ellipsis off and ScrollingMovementMethod/passive ownership. Repair policy, hostile regression source, proposed owner patch provenance, skill doctrine, and Swan Veil scar before any owner mutation.",
+  "fronts": [
+    "add overflow-safe viewport-height policy derived from line height and padding",
+    "add regression source proving five-line spatial height is a pixel cap rather than a layout max-lines cap",
+    "correct proposed OperatorOverlayService patch to use setMaxHeight and preserve full layout",
+    "synchronize deep-detail skill with AOSP maxLines/maxHeight distinction",
+    "mutate existing Swan Veil in place because the operator topology materially changes from truncated layout to full-layout scroll well",
+    "Regnet/Venice source review and exact GitHub readback"
+  ],
+  "capability": {
+    "ownerPatchApplied": false,
+    "tested": false,
+    "runtimeScrolling": false,
+    "phoneOrP0Touched": false
+  }
+}

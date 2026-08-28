@@ -1,0 +1,48 @@
+{
+  "slice": "2026-08-17-2100",
+  "reviewer": "Regnet QA",
+  "phase": "code-first source review",
+  "source_head": "f9b1b85beffaa11cf4229dc78b5c02d024e0a6a6",
+  "verdict": "REVISE_REQUIRED",
+  "bounded_pass": [
+    "HeartbeatDetailSurfacePolicy preserves the full already-projected explicit detail while separating semantic content from a five-line visible viewport policy.",
+    "The detail touch floor now aliases OverlayUiPolicy.MIN_TOUCH_TARGET_DP instead of introducing a drifting duplicate 48dp literal.",
+    "Regression source preserves exact detail/contentDescription, no destructive ellipsis, scroll-inspectable overflow, empty fallback, and interior Unicode/evidence identity.",
+    "heartbeat-deep-detail-viewport is a durable repository skill and explicitly preserves the source/test/runtime/phone capability membrane.",
+    "Swan Veil was mutated in place because the interaction topology changed; it explicitly labels the owner patch proposed and runtime unproven.",
+    "The exact owner patch was corrected so only an explicit new light selection resets the detail scroll to top; background model/evidence refresh does not deliberately yank an operator's reading position."
+  ],
+  "review_corrections": [
+    "Initial detail policy duplicated the 48dp touch literal; corrected to alias OverlayUiPolicy.MIN_TOUCH_TARGET_DP.",
+    "Initial proposed owner patch reset detail scroll on every showHeartbeatDetail call; corrected so the existing explicit-selection boolean owns reset/announcement while background refresh preserves scroll position."
+  ],
+  "blocking_gap": "OperatorOverlayService still contains heartbeatDetail.setMaxLines(5) plus TextUtils.TruncateAt.END and still uses the legacy showHeartbeatDetail implementation. docs/try-forever/operator-overlay-heartbeat-detail-scroll-wiring.patch is an exact proposed owner delta, not applied owner source. Therefore sighted/touch full-detail inspection is not yet existing-owner implemented.",
+  "platform_note": "Android primary documentation confirms maxLines bounds TextView height, setEllipsize(null) disables ellipsizing, and ScrollingMovementMethod handles text-buffer scrolling/touch navigation. This supports the proposed source shape but is not runtime proof in this app.",
+  "execution_boundary": {
+    "operator_overlay_run": 32090882716,
+    "operator_overlay_job": 95572642775,
+    "conclusion": "failure",
+    "steps": 0,
+    "logs": "404 BlobNotFound",
+    "manual_retry": false,
+    "tested": false
+  },
+  "capability": {
+    "detail_surface_policy_source": true,
+    "hostile_regression_source": true,
+    "durable_skill": true,
+    "non_raster_art_mutation": true,
+    "exact_owner_patch_artifact": true,
+    "existing_owner_consumes_policy": false,
+    "tested": false,
+    "runtime_ui_observed": false,
+    "runtime_talkback_exercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0_phone_mutations": 0,
+  "next_exact_cut": "Apply the preserved existing-owner patch to OperatorOverlayService through the authorized GitHub write lane, then re-read exact owner source. Do not create a neighboring detail renderer/controller."
+}

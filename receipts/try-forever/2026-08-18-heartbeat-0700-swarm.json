@@ -1,0 +1,106 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-18-0700",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts around the proven candidate-enumeration resource wound while preserving exact capability states and all ownership firewalls.",
+  "frontsAdvanced": [
+    {
+      "front": "candidate_enumeration_source",
+      "result": "IMPLEMENTED_SOURCE",
+      "evidence": "0a3e7d7a4377e77aa50022543dcedaab147d9934 / e26b65d1939b55ee72e0f71807a3957c4694a950",
+      "change": "Bound candidate path accumulation to limit+1; fail closed at max+1 before title/hash work; no partial records."
+    },
+    {
+      "front": "hostile_regression_source",
+      "result": "REGRESSION_SOURCE",
+      "evidence": "407c98430c282bcb9cbfccb309081855e76f068c / d65af3379877487b1c0c4494810df73d5c87f56c",
+      "change": "Pinned exact limit, max+1, no partial authority/no title-hash calls, zero and negative budgets."
+    },
+    {
+      "front": "new_repository_skill",
+      "result": "IMPLEMENTED_SOURCE",
+      "evidence": "89ead0c37caac97968dacd0103ade56e1c88a0c0 / 582f149cdda035fa233132ae2704b833f3fae209",
+      "change": "Harvested heartbeat-skill-candidate-enumeration with explicit partial-authority ban and full-traversal non-claim."
+    },
+    {
+      "front": "existing_provenance_doctrine",
+      "result": "IMPLEMENTED_SOURCE",
+      "evidence": "307c062323f04e1d31e03b3c2276e4abf60b10cc / 2ed502759ac368fad1fd760ab2e5343177e529fd",
+      "change": "Made bounded candidate admission the first current-tree authority throat and synchronized evidence/capability doctrine."
+    },
+    {
+      "front": "accessible_warm_wall",
+      "result": "SOURCE_ART",
+      "evidence": "fa16f6c10576d2dfdf7bc907dac696f24c905c34 / 9c2099d022c3a66f8ec412bee4f6b161b854b46b",
+      "change": "Mutated existing radiogroup Warm Wall in place with a touchable CANDIDATE SET BLOCKED state and no runtime/phone claim."
+    },
+    {
+      "front": "regnet_review",
+      "result": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+      "change": "Confirmed count/list-memory repair while preserving arbitrary filesystem traversal as a separate open wound."
+    },
+    {
+      "front": "venice_review",
+      "result": "SOURCE_SLICE_STOP_ALLOWED__CAMPAIGN_CONTINUE_REQUIRED",
+      "change": "Orders completed candidate-count/list seam dark unless evidence changes; next independent wound is arbitrary non-candidate traversal work."
+    },
+    {
+      "front": "fresh_execution_evidence",
+      "result": "TESTED_NO",
+      "change": "Operator Overlay Android run 32134997977/job 95704120561 failed with zero exposed steps; logs 404 BlobNotFound; no cause invented and no retry fired."
+    }
+  ],
+  "skillLights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","why":"Blocked/opaque CI was not retried; the swarm advanced a different proven source wound."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","why":"Selected the existing provenance probe/skill/Warm Wall owners; no adjacent architecture."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","why":"No ambiguous STT/autocorrect token materially affected this pulse."},
+    {"name":"Originality Tax","state":"ACTIVE","why":"Completed title/hash work stayed dark; candidate enumeration was a different repair."},
+    {"name":"Hunger","state":"ACTIVE","why":"Converted the next preserved wound into source, fixtures, doctrine, art, and reviews."},
+    {"name":"Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"Propagated the new boundary through code, regression source, durable skills, and source art without capability laundering."},
+    {"name":"Operator Campaign / Harroway","state":"ACTIVE","why":"Preserved owner, lane, evidence states, P0 firewall, and duplicate-architecture law."},
+    {"name":"She-Raw","state":"FAULT","why":"Authoritative ambient call returned account-connection HTTP 400; no synthetic verdict."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","why":"Bounded source slice may yield; campaign continues at the next independent wound."},
+    {"name":"Regnet QA","state":"ACTIVE","why":"Passed bounded count/list-memory claim only and kept TESTED/runtime/full-traversal claims shut."},
+    {"name":"Accessibility / TalkBack / touch","state":"ACTIVE","why":"Existing source organism gained a keyboard/touchable radio state with >=48px targets, non-color tokens, live detail, and reduced-motion behavior."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"Shared phone/P0 surface was not consumed or mutated."},
+    {"name":"Deterministic routing","state":"ACTIVE","why":"Bounded set is sorted only after admission; overflow produces one deterministic fail-closed repository error."},
+    {"name":"Evidence / capability-state discipline","state":"ACTIVE","why":"Source/readback/regression/art/test/runtime/deployment/delivery states remain separate."},
+    {"name":"Recovery / checkpointing / idempotence","state":"DARK","why":"No heartbeat-frame/checkpoint semantics changed; lighting it would be decorative."},
+    {"name":"Warm walls / strange non-raster art","state":"ACTIVE","why":"Existing DOM source organism was materially mutated in place."},
+    {"name":"Christmas-light scene graph","state":"DARK","why":"Repository provenance topology earned no runtime animation or blink rule."},
+    {"name":"Contact preservation","state":"DARK","why":"No runtime heartbeat contact/frame preservation semantics changed in this slice."},
+    {"name":"heartbeat-skill-candidate-enumeration","state":"NEW_ACTIVE","why":"New repository skill harvested from a materially distinct candidate count/list resource boundary."},
+    {"name":"heartbeat-skill-provenance-freshness","state":"ACTIVE","why":"Existing provenance authority order and regression doctrine were synchronized."}
+  ],
+  "crossPollination": "whole-file hash throat -> preserved candidate-list wound -> bounded candidate admission -> no-partial-authority collision reasoning -> hostile fixtures -> new reusable skill -> existing provenance doctrine -> touchable Warm Wall -> Regnet/Venice isolate the still-open arbitrary filesystem traversal seam",
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkills": true,
+    "sourceArt": true,
+    "probeExecutedByAuthorizedRunner": false,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "phoneHandsTickets": 0,
+    "primaryPhoneCommands": 0,
+    "queueRelayReadsOrMutations": 0,
+    "p0RecoveryMutations": 0,
+    "nightcoreActions": 0,
+    "pocketTtsActions": 0,
+    "chromiumActions": 0,
+    "contextOrganActions": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateArchitecture": 0
+  },
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED__FILESYSTEM_TRAVERSAL_WOUND_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "nextIndependentWound": "Path.rglob still permits unbounded non-candidate filesystem traversal before max+1 actual SKILL.md candidates are observed; investigate this separately without weakening current candidate/title/hash evidence or creating a second probe."
+}

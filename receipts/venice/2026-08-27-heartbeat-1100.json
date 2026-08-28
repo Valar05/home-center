@@ -1,0 +1,37 @@
+{
+  "kind": "venice_judgment",
+  "heartbeat": "2026-08-27-1100",
+  "repository": "Valar05/home-center",
+  "pullRequest": 329,
+  "reviewedSourceHead": "c35cd39d4a984063a459517a81749804c5d8cd7c",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__DIRECT_POLICY_SELECTION_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "basis": [
+    "Existing HeartbeatSceneGraph owner now has canonical MAX_LIGHTS direct collection custody with detached semantic traversal.",
+    "Overflow contact/no-motion/accessibility semantics are pinned in source regression but remain unexecuted; owner-order source now requires exactly one candidates.size() occurrence in the helper.",
+    "Direct HeartbeatSkillPolicy selection remains a distinct public collection-work boundary and is only proposed, not applied.",
+    "Exact-head workflows failed with Operator job exposing zero steps; no manual retry or fabricated diagnosis was allowed.",
+    "Phone/P0 surfaces and duplicate architecture remain untouched."
+  ],
+  "continueRequired": [
+    "direct_policy_selection_owner_mutation",
+    "regression_execution",
+    "tested_runtime_evidence",
+    "campaign"
+  ],
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "directSceneCandidateSnapshot": "SOURCE_WIRED_APPLIED_SOURCE",
+    "directPolicySelectionList": "NO_PROPOSED_NOT_APPLIED",
+    "regressionSource": "YES_UNEXECUTED",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

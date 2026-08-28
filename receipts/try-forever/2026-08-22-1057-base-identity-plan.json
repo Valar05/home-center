@@ -1,0 +1,29 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestampLocal": "2026-08-22T10:57:47-05:00",
+  "scope": "non-P0 owner-surgery custody base-identity exactness",
+  "planGate": "PLAN_ALLOWED",
+  "owner": "tools/try_forever_owner_surgery_custody_probe.py",
+  "authenticatedOwnerBlobBefore": "fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f",
+  "intendedMutation": [
+    "reject normalization-dependent textual patch base-owner blob evidence",
+    "reject normalization-dependent structured-delta base-owner blob evidence",
+    "preserve header-name compatibility while requiring exact lowercase SHA evidence token"
+  ],
+  "reviewConstraints": [
+    "no phone or P0 surfaces",
+    "no second custody probe or neighboring controller",
+    "regression source remains unexecuted unless independently executed",
+    "source/readback must not be promoted to TESTED/runtime/deployed/delivered/accepted"
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

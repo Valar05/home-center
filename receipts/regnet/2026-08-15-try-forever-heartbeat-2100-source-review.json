@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever.regnet-source-review.v1",
+  "heartbeat": "2100",
+  "reviewed_source_head": "d0caf63875d4a2275c07c5a0b0b19c87b198a735",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "review": {
+    "source_progress": "PASS",
+    "exact_github_readback": "PASS",
+    "regression_source_present": "PASS",
+    "tested": "BLOCKED_UNKNOWN",
+    "runtime_ui": "NOT_PROVEN",
+    "phone_delivery": "NOT_PROVEN"
+  },
+  "findings": [
+    "Focused TalkBack speech previously bounded consequence fields but not direct-source candidate labels; source now bounds spoken labels by Unicode code point without mutating Candidate.label.",
+    "Interrupted refresh prose previously exposed direct scene pulse ids and pre-parser rejection boundaries without an independent speech budget; source now bounds the projection while retaining Frame evidence fields.",
+    "Code-first review found the first boundary projection cleaned before safety inspection and Frame construction cleaned the evidence boundary, recreating an edge-control trim wound. The repair now retains raw refreshBoundary and checks raw semantic safety before trim used only for speech formatting.",
+    "Existing warm-wall DOM specimen was modified in place with a speech-projection scar; no renderer/controller/daemon or phone lane was created."
+  ],
+  "source_blobs": {
+    "HeartbeatSkillPolicy.java": "e4ba5afa4babf1a2c6aebc24e2d901ba9d3a6917",
+    "HeartbeatSceneGraph.java": "3f9db76d36622b32f7e1fef4795d2fd2fdda49e4",
+    "HeartbeatSpeechProjectionBoundsTest.java": "bc3883735270d174f9ecdc38e0bff102d91a28ac",
+    "semantic-text-safety/SKILL.md": "00d8ab0b56ca60789ca3b1927d8c0e1715414aa2",
+    "heartbeat-motion-clamp-source-specimen.html": "008fdb91182ca54d0906fe5520e9d3e002898b22"
+  },
+  "deterministic_test_boundary": {
+    "workflow_run": 31921097767,
+    "job": 95100985091,
+    "executed_steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "p0_firewall": {
+    "phone_commands": 0,
+    "phone_hands_tickets": 0,
+    "queue_or_device_probes": 0,
+    "recovery_mutations": 0,
+    "duplicate_architecture": false
+  }
+}

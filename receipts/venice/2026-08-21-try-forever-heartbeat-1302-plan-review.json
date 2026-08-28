@@ -1,0 +1,26 @@
+{
+  "schema": "venice-judgment-jar-plan-review.v1",
+  "timestamp": "2026-08-21T13:03:30-05:00",
+  "pullRequest": 329,
+  "verdict": "PLAN_ALLOWED",
+  "scope": "bounded non-P0 Adam accessibility source/owner slice",
+  "allowed": [
+    "apply the existing base-blob-locked Adam mode/input/send owner surgery only if authenticated owner blob matches",
+    "strengthen existing Adam mode one-of-many source semantics without creating a second owner",
+    "update existing owner probe, regression source, adam-mode-accessibility skill, and existing Adam Warm Wall when source truth changes",
+    "publish authenticated readback and exact capability membrane"
+  ],
+  "forbidden": [
+    "Phone Hands or primary-phone execution",
+    "P0 recovery/queue/relay mutation",
+    "second accessibility or overlay owner",
+    "duplicate Computer Hands request while worker is offline/lanes are occupied",
+    "manual CI corpse-kick",
+    "removing the legacy repeatable Adam send receipt without a separately solved event contract",
+    "promoting source/readback/regression source into TESTED/runtime/deployed/delivered/accepted"
+  ],
+  "sheRaw": "ATTEMPTED_PRE_EXECUTION__ACCOUNT_CONNECTION_HTTP_400",
+  "owner": "OperatorOverlayService",
+  "capabilityBoundary": "owner source wiring may advance only by authenticated exact-base mutation and readback; testing/runtime remain separate",
+  "campaign": "CONTINUE_REQUIRED"
+}

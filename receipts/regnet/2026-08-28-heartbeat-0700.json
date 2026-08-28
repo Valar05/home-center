@@ -1,0 +1,84 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-28T07:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewedSourceHead": "87f9841a64b8134f2dc05224f918447e2a946f56",
+  "verdict": "BOUNDED_SOURCE_PROGRESS_PASS__OWNER_RUNTIME_REQUIRED",
+  "fronts": {
+    "requestAdmissionEvidence": {
+      "state": "SOURCE_HARDENED_UNEXECUTED",
+      "probeBlob": "1dfd32e575c6b565a2a02c84778fe4353b2072ef",
+      "schema": "try-forever-adam-accessibility-owner-probe.v8",
+      "changed": "SOURCE_WIRED now requires a single-assignment editable observation, one unconditional top-level fully-qualified canonical fail-closed guard, one single-assignment detached trim materialization, and exact persistence of admitted text.",
+      "hostileCases": [
+        "nested canonical guard",
+        "rebound editable source",
+        "rebound admitted text",
+        "wrong persistence argument",
+        "ignored or assigned-but-unenforced canonical call",
+        "shadow/other-owner helper",
+        "duplicate source/gate/materialization"
+      ]
+    },
+    "focusedFixture": {
+      "state": "SOURCE_HARDENED_UNEXECUTED",
+      "blob": "cab7bfa5981c5840b2773c0d360b3f09054ad1fd"
+    },
+    "broadFixture": {
+      "state": "SOURCE_CONVERGED_UNEXECUTED",
+      "blob": "a82b3bf526336b33e0eb7ffa7f33e670de4ad1c1"
+    },
+    "warmWall": {
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "blob": "687cb15353427ad0ac0f3a78cbafd2a8c21762dc",
+      "changed": "Continuously rewritten detail no longer uses implicit role=status live-region semantics; it is role=note with aria-live=off. Probe copy is v8. Existing non-wrapping 1x5 geometry, >=56px targets, focus visibility, non-color state, reduced motion, and repeat-send hold remain preserved."
+    },
+    "skillCanon": {
+      "state": "CONVERGED",
+      "blob": "bbaf71b82d0d676e882e668084f965e8ac6e9bf8",
+      "changed": "Harvested exact control-flow/binding/persistence custody and implicit-live-region speech scars into existing adam-mode-accessibility doctrine."
+    }
+  },
+  "nativeOwner": {
+    "operatorOverlayServiceBlob": "2935243f136359e3489a89108406e888b0ec2911",
+    "uiRequestOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "nativeAccessibilityOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "stateRequestOwner": "SOURCE_WIRED"
+  },
+  "execution": {
+    "reviewedHead": "87f9841a64b8134f2dc05224f918447e2a946f56",
+    "operatorOverlayAndroid": {"runId": 33169839670, "conclusion": "failure", "jobId": 98844002469, "steps": 0},
+    "homeCenterCI": {"runId": 33169839675, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33169839674, "conclusion": "failure"},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "diagnosis": "No step-level cause claimed because the exact Operator job exposed zero steps."
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSourceProgress": true,
+    "authenticatedReadback": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

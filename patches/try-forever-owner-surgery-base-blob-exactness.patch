@@ -1,0 +1,32 @@
+# TRY FOREVER — owner-surgery base blob exactness
+# OWNER: tools/try_forever_owner_surgery_custody_probe.py
+# BASE OWNER BLOB: fa8dfa5ea510f187d9d613d733a33b0a0bf4fb0f
+# STATUS: APPLIED_SOURCE
+# APPLIED COMMIT: 2ba4254f8e9b736fe47dbe0f5192fe270397359a
+# RESULT OWNER BLOB: d5c22feac7b3f71045cc139e120b2ae45a3b1c37
+# PURPOSE: base-owner blob is authority evidence; reject normalization-dependent uppercase text.
+# CAPABILITY: OWNER_SOURCE_WIRED__REGRESSION_SOURCE_UNEXECUTED__TESTED_NO__RUNTIME_NO__PHONE_P0_UNTOUCHED
+
+--- a/tools/try_forever_owner_surgery_custody_probe.py
++++ b/tools/try_forever_owner_surgery_custody_probe.py
+@@
+ def inspect_patch(path: Path) -> tuple[Surgery | None, DiscoveryError | None]:
+@@
+         else:
+             owner = owner_match.group(1)
+ 
++        base_blob = base.group(1)
++        if SHA1_RE.fullmatch(base_blob) is None:
++            raise ArtifactAdmissionError(
++                "patch base owner blob must be 40 lowercase hexadecimal characters"
++            )
++
+         state_admission = admit_owner_surgery_state(state.group(1))
+@@
+-            base_blob=base.group(1).lower(),
++            base_blob=base_blob,
+@@
+-        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob").lower()
++        base_blob = _consistent_delta_string(payload, DELTA_BASE_KEYS, "base owner blob")
+         if SHA1_RE.fullmatch(base_blob) is None:
+             raise ValueError("base owner blob must be 40 lowercase hexadecimal characters")

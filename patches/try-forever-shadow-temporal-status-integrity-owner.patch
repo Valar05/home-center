@@ -1,0 +1,23 @@
+# OWNER: tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
+# BASE_BLOB: bd25082da9c7644fd48301a43e91ac53bc389b9d
+# STATUS: APPLIED_SOURCE
+# APPLIED_COMMIT: 1a2aaa95d8e19946769d4a63166638d62e76cbec
+# RESULT_BLOB: 8bbed4e2e2d12fe9292d94bd400e2e0f3905b085
+# PURPOSE: require exact temporal-binding status admission before proof/status consistency and bounded operator projection.
+
+diff --git a/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py b/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
+--- a/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
++++ b/tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py
+@@
+ from try_forever_shadow_raw_capability_membrane import (
+     require_raw_shadow_capability_membrane,
+ )
++from try_forever_shadow_temporal_status_contract import admit_temporal_status
+@@
+-    status = temporal.get("status")
+-    if not isinstance(status, str) or not status:
+-        raise ShadowReceiptSelfIntegrityError(
+-            "temporalContentBinding status must be one non-empty string"
+-        )
++    status = admit_temporal_status(temporal.get("status"))
+     proven = temporal.get("temporalBindingProven")

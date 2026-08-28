@@ -1,0 +1,64 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-27T22:02:26-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "ce78266ebc850d00c8f8e051ad40c180e3e03fe7",
+  "verdict": "PASS_BOUNDED_SOURCE__HORIZONTAL_GEOMETRY_CONVERGED__NATIVE_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "adamModeHorizontalGeometry": {
+      "state": "SOURCE_WIRED_SUPPORTING_POLICY",
+      "policyBlob": "0ab827c07cca64ce29879c0d7a51d229835a9aeb",
+      "law": "horizontal mode row => rowCount=1, columnCount=5, rowIndex=0, columnIndex=canonical ordinal, one-cell spans",
+      "regressionBlob": "8fad334e627a9bc13c6fb417e48f7e99b884706c",
+      "regressionExecuted": false
+    },
+    "nativeOwnerProposal": {
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "patchBlob": "3937d4b6c699076c314dd475c7154f14d5baa4f9",
+      "review": "proposal now consumes policy-owned collection and item geometry instead of copying row/column constants; native owner remains unchanged"
+    },
+    "ownerProbe": {
+      "state": "SOURCE_UPDATED_UNEXECUTED",
+      "probeBlob": "a48008dc9d5028e50a7b726d192de7beeb438888",
+      "fixtureBlob": "3c22cd7834ce212d3868bc73d4d20ded0dba6998",
+      "review": "probe now rejects copied/manual geometry and requires policy-owned horizontal collection/item geometry in the direct owner methods"
+    },
+    "warmWall": {
+      "state": "SOURCE_ONLY",
+      "blob": "98cfbd04227e93b52651a5380b6b32abb27b3af9",
+      "runtimeTalkBack": false,
+      "deployed": false
+    },
+    "adamUiRequestOwner": {
+      "state": "NO_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "reason": "submitAdamRequest still materializes and trims editable source before the supporting request-work gate"
+    }
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "workflowRunsObserved": [
+      {"name": "Operator Overlay Android", "id": 33138112431, "status": "completed", "conclusion": "failure", "jobId": 98742625474, "steps": 0},
+      {"name": "Home Center CI", "id": 33138112353, "status": "completed", "conclusion": "failure"},
+      {"name": "Build Android", "id": 33138112413, "status": "completed", "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetryFired": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

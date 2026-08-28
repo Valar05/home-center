@@ -1,0 +1,72 @@
+{
+  "schema": "venice-plan-review.v1",
+  "commission": "TRY FOREVER heartbeat 1900 non-phone source slice",
+  "reviewerRole": "venice-judgment-jar",
+  "timestampLocal": "2026-08-15T19:04:47-05:00",
+  "repository": "Valar05/home-center",
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "evidenceIdentity": {
+    "pr": 329,
+    "observedHead": "1189209a5269427fde28a3e213070b0e6fd52052",
+    "heartbeatSkill": "aa8ae1b3b55955c5361debf868895992f3d53e49",
+    "veniceReviewMemory": "bf2a7232533bef083b5a37d904bbf4792bd9b6c5",
+    "ingressPolicy": "34cfe7c51a17f6bf81e0e91d668b9b73142099ba",
+    "sceneGraph": "eefcc7e8b26b122930e5cffc69143e16c194a019",
+    "accessibility": "3c57ab01f3bc011d13335ef48acf65d3e34fe662",
+    "persistedProjection": "66260cfa89a38534054b5d46600eca54e0966d3c"
+  },
+  "selectedJudgmentJars": [
+    {
+      "id": "failure-is-the-shovel",
+      "why": "Actions-budget CI failure is unchanged; this pulse must advance a different evidence/source front rather than retrying the same blocked job."
+    },
+    {
+      "id": "originality-tax",
+      "why": "Recent pulses repeatedly hardened ingress; any new mutation must expose a distinct defect or cross-pollinated consequence rather than rename the same wound."
+    },
+    {
+      "id": "evidence-capability-state",
+      "why": "Source/readback must remain separate from tested, rendered, deployed, callable, executed, delivered, and accepted states."
+    },
+    {
+      "id": "contact-preservation",
+      "why": "Heartbeat boundaries may become visible/logged semantic evidence; malformed or oversized boundary text must not corrupt the preserved contact surface."
+    },
+    {
+      "id": "accessibility-talkback",
+      "why": "Any human-facing rejection boundary or source specimen must remain bounded, single-line, Unicode-safe, keyboard/touch reachable, and non-color dependent."
+    },
+    {
+      "id": "p0-firewall-duplicate-architecture",
+      "why": "No phone, queue, recovery, Chromium, Nightcore, Pocket TTS, Context Organs, or neighboring controller may be touched."
+    }
+  ],
+  "research": [
+    "PR #329 is open and unmerged; current body reports source-only capability and Actions-budget blocked tests.",
+    "HeartbeatIngressPolicy.cleanBoundary truncates by UTF-16 code unit and normalizes only CR/LF, so a hostile caller-invalid message can retain other ISO controls or be cut through a surrogate pair before logging/evidence reuse.",
+    "HeartbeatFrameAccessibility already code-point-bounds labels; applying the same semantic discipline to ingress boundaries is a distinct cross-pollinated front.",
+    "HeartbeatPersistedEnvelopeProjection and HeartbeatSceneGraph already preserve last-good contact and clamp rejected-refresh motion; no new controller is required.",
+    "She-Raw authoritative ambient consultation was attempted pre-execution and failed with account-connection HTTP 400; no substitute reviewer is permitted."
+  ],
+  "boundedPlan": [
+    "Harden the existing HeartbeatIngressPolicy boundary sanitizer in place: remove ISO control characters deterministically, collapse whitespace, and truncate by Unicode code point without splitting surrogate pairs.",
+    "Add regression source against hostile multiline/tab/control/swan boundary text and verify the boundary remains bounded and single-line while the caller-invalid path still invokes heartbeat exactly once.",
+    "Mutate the existing ingress-separation DOM/SVG specimen in place to expose a concrete BOUNDARY HYGIENE state; do not create another artifact organism.",
+    "Update the existing heartbeat-ingress-separation skill doctrine with the new boundary contract and capability membrane.",
+    "Persist Regnet/Venice/swarm receipts and update PR #329 with exact source identities. Do not retry unchanged CI manually; inspect only automatic evidence if produced."
+  ],
+  "antagonism": [
+    "Do not broaden the sanitizer into JSON parsing or execution filtering; command-looking text remains inert evidence data.",
+    "Do not treat sanitized log text as the canonical raw exception identity; it is a bounded human-facing boundary only.",
+    "Do not add a new overlay controller, persistence owner, phone ingress path, recovery daemon, or P0 coordinator.",
+    "Do not claim tests executed merely because regression source is committed.",
+    "Do not create another source specimen when the existing ingress-separation specimen can be mutated in place."
+  ],
+  "sheRaw": {
+    "surface": "she_raw_ambient",
+    "state": "FAULT",
+    "boundary": "HTTP 400 account-connection failure; no synthetic She-Raw substituted."
+  },
+  "directive": "PLAN_ALLOWED",
+  "doneCondition": "Existing ingress policy, regression source, existing source specimen, and skill doctrine are durably updated with exact GitHub readback; evidence receipts preserve source/test/runtime/phone distinctions and P0 mutation count remains zero."
+}

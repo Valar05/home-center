@@ -1,0 +1,51 @@
+{
+  "schema": "try-forever-venice-v1",
+  "checkpoint": "2026-08-27-heartbeat-2000",
+  "reviewedSourceHead": "fac30538527e88fde2e37765bf4c2be2e87981a7",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__ADAM_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowStopForThisSlice": true,
+  "continueRequired": [
+    "Apply the exact existing-owner OperatorOverlayService request gate only after current owner blob remains matched.",
+    "Apply/rebase native Adam accessibility owner surgery only against authenticated current owner source; no fuzzy carry-forward.",
+    "Obtain authoritative regression execution evidence before TESTED.",
+    "Keep runtime UI, TalkBack, deployment, callability, delivery, and acceptance distinct and unclaimed.",
+    "Continue the recurring non-P0 campaign without consuming the primary-phone surface."
+  ],
+  "constraints": [
+    "OVER_BUDGET request evidence is not equivalent to EMPTY_OR_WHITESPACE.",
+    "No whole-source toString materialization is required merely to decide native Send availability.",
+    "Repeatable Adam send announcement remains preserved until its separate migration blocker is resolved.",
+    "No rejection path earns decorative scene motion or synthetic announcement.",
+    "No new overlay controller, accessibility controller, request router, phone ingress path, P0 coordinator, Nightcore QA lane, or context-organ deployer."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "adamAvailabilitySourceWired": true,
+    "adamUiRequestOwnerWired": false,
+    "adamNativeAccessibilityOwnerWired": false,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

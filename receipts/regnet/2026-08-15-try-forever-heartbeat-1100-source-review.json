@@ -1,0 +1,66 @@
+{
+  "schema": "regnet-source-review.v1",
+  "reviewerRole": "SYNTHETIC_REGNET",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedCodeArtHead": "3a98c8e260d722e44a8835424432244b25b0b61d",
+  "boundedClaim": "Heartbeat scene source now preserves last-good semantic contact while clamping node-level transition motion on interrupted/rejected refreshes, rejects same-pulse semantic identity collisions, and provides regression/source-art coverage without phone/P0 mutation.",
+  "capabilityState": "implemented_source",
+  "acceptance": [
+    "Interrupted/rejected refresh keeps the prior visible semantic contact but every preserved node transitionMotion is false.",
+    "Contact and transition checkpoint identities remain unchanged across rejected refreshes.",
+    "Exact same-pulse retry is accepted without motion; same-pulse different-contact collision fails closed and preserves last-good contact.",
+    "Regression source covers the stale-node-motion failure and pulse identity collision.",
+    "Touchable non-raster source specimen encodes accepted/interrupted/retry/collision states and labels itself non-runtime proof.",
+    "No phone/P0/runtime controller mutation occurs.",
+    "TESTED is not promoted unless deterministic Android execution actually runs."
+  ],
+  "exactReadback": {
+    "HeartbeatSceneGraph.java": "45e2cefd76819205cb026d4e32e0c4d8af85ea0a",
+    "HeartbeatSceneGraphTest.java": "30345adde9eb28d4122e317092aaa942343e75b0",
+    "heartbeat-motion-clamp-source-specimen.html": "f984c3459f6c567562c7bbd54adde0e5071eb23b",
+    "venicePlanReceipt": "0ba66029209c309d033862ab9a7067fce9c431ff"
+  },
+  "reviewFindings": [
+    {
+      "severity": "high",
+      "state": "repaired",
+      "finding": "preserveLastGood previously reused lastGood.nodes verbatim. A node that had transitionMotion=true in the accepted frame therefore remained true inside a later interrupted frame while frame.transitionMotionAllowed=false. The source contract contradicted itself and a renderer consulting node-level motion could animate preserved contact during failure.",
+      "repair": "Re-materialize preserved nodes with identical semantic/touch/TalkBack fields and transitionMotion=false; regression source now asserts semantic checkpoint equality instead of Java object identity."
+    },
+    {
+      "severity": "medium",
+      "state": "repaired",
+      "finding": "Pulse identity could be reused with different visible contact semantics, weakening checkpoint/idempotence meaning.",
+      "repair": "Same visible pulseId is now accepted only when HeartbeatFrameCheckpoint.sameVisibleContact is exact; semantic collision fails closed with an explicit boundary."
+    },
+    {
+      "severity": "low",
+      "state": "repaired",
+      "finding": "The first motion-clamp DOM specimen targeted a .token animation selector that no rendered element actually used.",
+      "repair": "The selector now targets the real .light strong nodes; reduced-motion uses the same real selector."
+    }
+  ],
+  "deterministicExecution": {
+    "state": "BLOCKED_UNKNOWN",
+    "reviewedJavaHead": "a46e2deeb940015094600fd5a1f1d722b2788c7d",
+    "workflow": "Operator Overlay Android",
+    "runId": 31894346632,
+    "jobId": 95035201047,
+    "executedSteps": 0,
+    "boundary": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetryFired": false
+  },
+  "scopeAttack": [
+    "No new overlay controller, renderer, phone ingress path, recovery daemon, P0 coordinator, Nightcore lane, Pocket TTS lane, Chromium lane, or Context Organs deployer was created.",
+    "Source/art/readback evidence does not establish runtime parsing, UI rendering, TalkBack exercise, deployment, phone callability, execution, delivery, or acceptance.",
+    "The pulse-id rule is a targeted fail-closed semantic identity hardening inside the existing scene/checkpoint organs, not a new retry coordinator."
+  ],
+  "verdict": {
+    "implementedSource": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+    "exactReadback": "PASS",
+    "tested": "BLOCKED_UNKNOWN",
+    "runtime": "NOT_PROVEN",
+    "mergeAsDeliveredInterface": "STOP_SHIP"
+  }
+}

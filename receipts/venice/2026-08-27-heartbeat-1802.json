@@ -1,0 +1,27 @@
+{
+  "schema": "try-forever-venice-v1",
+  "heartbeat": "2026-08-27T18:02:00-05:00",
+  "reviewedSourceHead": "eb0fdc56907fc2b7ae07ec5f7d55ce8c31fcc351",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__ADAM_REQUEST_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "A real supporting-source resource wound was closed without creating a new controller or transport: Adam Send availability now stops over-ceiling direct editable source before whole-source materialization/trim.",
+    "The actual UI submit and OperatorState request owners do not yet consume that gate, so capability remains partial and owner mutation is continue-required.",
+    "The staged request-owner surgery is exact-base-locked, preserves routing destinations and the repeatable Adam send receipt, and remains proposed-not-applied.",
+    "The stale historical Adam accessibility patch was demoted to rebase-required evidence instead of being fuzzily applied after current owner mutation.",
+    "The existing Warm Wall gained 56px touch semantics and truthful source/owner states in place; no neighboring specimen/controller was created.",
+    "All exact-source workflows failed and the Operator job exposes zero steps, so regression execution and TESTED remain NO.",
+    "Phone/P0 resources were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "continueRequired": [
+    "apply finite Adam request source-work custody in the existing UI and state owners through an authorized safe owner lane",
+    "rebase the broader Adam accessibility owner surgery against authenticated current owner source before any application",
+    "execute regression source through an authoritative test lane",
+    "obtain Android/TalkBack runtime evidence without crossing the P0 phone firewall",
+    "continue the commissioned Try Forever campaign"
+  ]
+}

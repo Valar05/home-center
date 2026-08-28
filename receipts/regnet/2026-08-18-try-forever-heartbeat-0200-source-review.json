@@ -1,0 +1,73 @@
+{
+  "heartbeat": "2026-08-18-0200",
+  "reviewer": "Regnet QA",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "reviewedSourceHead": "5fb973b7a3eff5890bb98e4f13d19b9b6147eb2e",
+  "boundedClaim": "Current-tree skill provenance/freshness probe, regression source, durable skill doctrine, and touchable source-only provenance specimen exist with exact GitHub readback. None of those claims imply executed tests, Android runtime, deployment, phone delivery, or acceptance.",
+  "exactReadback": {
+    "tools/try_forever_skill_provenance_probe.py": "61172d93fbdd97f5fc25097c682db062b3fbe780",
+    "tools/test_try_forever_skill_provenance_probe.py": "04a6cd9baca7f1645e4989108107ea5e99022f85",
+    "skills/heartbeat-skill-provenance-freshness/SKILL.md": "250f3d780891fbf889689d1b0fe40558ac01a3d2",
+    "docs/try-forever/heartbeat-skill-provenance-source-specimen.html": "1dba2f248fb46beffddbe18cf025bd4b940938c9",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java": "c266e66a8004623efadab1933de4e429e677c6a5"
+  },
+  "sourceReview": {
+    "directCurrentTreeAuthority": "PASS",
+    "generatedIndexDiscoveryOnly": "PASS",
+    "cleanHeadFreshnessGate": "PASS",
+    "dirtyOrUnknownCheckoutFailClosed": "PASS",
+    "futureTimestampFailClosed": "PASS",
+    "repoRelativeIndexResolution": "PASS",
+    "caseInsensitiveSkillPathCollision": "PASS",
+    "runnerStableTestImport": "PASS",
+    "accessibilitySourceSemantics": "PASS",
+    "duplicateArchitecture": "PASS",
+    "phoneP0Firewall": "PASS"
+  },
+  "correctionScars": [
+    "Initial probe resolved relative generated-index paths against caller cwd; corrected to resolve them under --repo-root.",
+    "Initial probe could verify when current checkout cleanliness was unavailable; corrected to UNRESOLVED.",
+    "Initial age calculation could make a future timestamp look zero-hours old; corrected with an explicit future-skew rejection.",
+    "Initial strict mode failed only STALE indexes; corrected so any supplied non-VERIFIED_CURRENT index fails strict mode.",
+    "Regression source initially relied on direct-script sys.path behavior; corrected to add its sibling tools directory explicitly."
+  ],
+  "ownerBoundary": {
+    "deepDetailOwnerMutationThisPulse": false,
+    "ownerState": "LEGACY_OWNER",
+    "evidence": "OperatorOverlayService still contains heartbeatDetail.setMaxLines(5) and END ellipsis at reviewed source head.",
+    "reason": "Do not race the unresolved prior Computer Hands owner request."
+  },
+  "testBoundary": {
+    "operatorOverlayRunId": 32110450008,
+    "jobId": 95628498629,
+    "conclusion": "failure",
+    "exposedSteps": 0,
+    "jobLogReadback": "404 BlobNotFound",
+    "establishedCause": "",
+    "manualRetryDispatched": false,
+    "tested": false
+  },
+  "reviewerBoundary": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstituteUsed": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "phoneP0": {
+    "consumption": 0,
+    "mutation": 0
+  }
+}

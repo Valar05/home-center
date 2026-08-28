@@ -1,0 +1,86 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-16-2100",
+  "selectedWound": "direct-source-duplicate-semantic-owner-ambiguity",
+  "fronts": [
+    {
+      "front": "scene ownership",
+      "skills": ["Failure Is The Shovel", "Originality Tax", "Canon Auto-Select", "deterministic routing"],
+      "state": "ACTIVE",
+      "change": "HeartbeatSceneGraph direct Candidate ingress now rejects competing case-insensitive material IDs before display-ready projection; no arbitrary first-wins native owner is selected."
+    },
+    {
+      "front": "contact and idempotence",
+      "skills": ["contact preservation", "recovery/checkpointing/idempotence", "Christmas-light scene graph"],
+      "state": "ACTIVE",
+      "change": "Duplicate-owner rejection composes the existing last-good preservation organ and clamps frame/node motion, so ambiguity cannot earn a blink or mutate checkpoint-visible contact."
+    },
+    {
+      "front": "accessibility regression",
+      "skills": ["accessibility/TalkBack", "Regnet QA"],
+      "state": "ACTIVE",
+      "change": "Regression source covers canonical parser duplicate rejection, direct duplicate material rejection, last-good/no-motion preservation, and one non-material alias plus one material owner. Ambiguous ownership cannot become a Button, selection target, viewport anchor, or TalkBack detail source."
+    },
+    {
+      "front": "durable skill harvest",
+      "skills": ["Ever-Polished Interpreter / Eat Everything", "Operator Campaign", "Harroway operator discipline"],
+      "state": "ACTIVE",
+      "change": "Added heartbeat-duplicate-owner-fail-closed skill doctrine while preserving legacy summary dedupe and the single existing overlay architecture."
+    },
+    {
+      "front": "warm-wall art",
+      "skills": ["Hunger", "strange non-raster vector/DOM/native UI art", "warm walls"],
+      "state": "ACTIVE",
+      "change": "Mutated the existing SVG in place with ONE MATERIAL ID = ONE OWNER; duplicate material aliases are visibly rejected with contact held and no motion."
+    },
+    {
+      "front": "adversarial review",
+      "skills": ["She-Raw adversarial motivation", "Venice Judgment Jars", "Regnet QA", "evidence/capability-state discipline"],
+      "state": "MIXED",
+      "change": "She-Raw authoritative surface faulted at account connection HTTP 400 and was not impersonated. Regnet and Venice pass only the bounded source/readback claim; TESTED remains blocked."
+    }
+  ],
+  "darkOrFirewalled": {
+    "Autocorrect Judgment Jar": "DARK: no STT/autocorrect ambiguity materially affected this source slice.",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED: zero gated phone surface consumption and zero P0 mutations."
+  },
+  "crossPollination": "Canonical parser duplicate rejection exposed a direct-scene first-wins ownership drift; accessibility made that a concrete native focus/touch/TalkBack hazard; contact preservation supplied the fail-closed consequence; Hunger made the ownership invariant visible in the existing warm wall; Regnet/Venice kept source progress behind the runtime/test membrane.",
+  "testBoundary": {
+    "tested": false,
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "workflowRun": 31986853612,
+    "job": 95263242695,
+    "head": "2d054ac63d85843c46858b276bfc1dede5335a8f",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "nonRasterSourceArt": true,
+    "tested": false,
+    "runtimeConsumed": false,
+    "uiRenderedObserved": false,
+    "runtimeTalkBackExercised": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0": {
+    "mutationCount": 0,
+    "phoneCommands": 0,
+    "phoneHandsTickets": 0,
+    "queueOrDeviceProbes": 0,
+    "recoveryMutations": 0,
+    "nightcorePocketTtsChromiumContextOrgans": 0,
+    "physicalAcceptanceActions": 0,
+    "duplicateOwners": 0
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

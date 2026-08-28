@@ -1,0 +1,38 @@
+{
+  "schema": "venice-heartbeat-judgment.v1",
+  "heartbeat": "2026-08-27T08:02:00-05:00",
+  "repository": "Valar05/home-center",
+  "pr": 329,
+  "reviewedSourceHead": "c1d10d352b292f71f4b4e96186f7b247ba3e9979",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REFRESH_BOUNDARY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "Direct semantic lookup source-work custody is now applied inside the existing accessibility/model owners with exact source provenance and no duplicate controller.",
+    "The independent interrupted-refresh diagnostic work wound remains exactly proven and unapplied; exact evidence is preserved while non-authoritative speech/hash work still needs the existing-owner repair.",
+    "All focused regressions remain source-only and unexecuted; exact-head workflows failed without step-level execution evidence, so TESTED cannot be claimed.",
+    "Phone/P0 surfaces were not consumed or mutated."
+  ],
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "directSemanticLookupOwnerWiring": "SOURCE_WIRED_APPLIED_SOURCE",
+    "refreshBoundarySourceWorkOwnerWiring": "NO_CORRECTED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

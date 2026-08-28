@@ -1,0 +1,37 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-25T23:00:00-05:00",
+  "reviewedSourceHead": "cd4d90d6c274e17bddc0eac85d84c30d288c3e15",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "the previously staged exact canonical descriptor composition is now applied to the existing v10 owner and authenticated by GitHub readback",
+    "the owner now selects exactly one backend and forbids same-attempt portable retry after descriptor selection",
+    "classification root and resource-budget controls now fail closed before callback-capable Python semantics",
+    "the descriptor composition boundary and v10 contract fixtures were converged to current source truth but remain unexecuted",
+    "skill doctrine and the existing accessible Warm Wall were converged in place rather than creating neighboring owners or specimens",
+    "no phone/P0 surface was consumed or mutated"
+  ],
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "canonicalBackendSelectionSourceWired": true,
+    "canonicalDescriptorConsumptionSourceWired": true,
+    "exactClassificationInputSourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "continueRequired": [
+    "execute the descriptor/exact-input/v10 regression set through an authorized execution lane when one exists",
+    "retain exact-head CI truth without manual retry theater",
+    "continue independent non-P0 swarm fronts"
+  ]
+}

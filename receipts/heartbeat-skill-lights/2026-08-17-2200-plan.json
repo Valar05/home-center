@@ -1,0 +1,38 @@
+{
+  "schema": "try-forever.heartbeat-plan.v1",
+  "heartbeat": "2026-08-17-2200",
+  "mission": "Apply the already-reviewed deep-detail viewport delta to the existing OperatorOverlayService only, then verify exact GitHub source and synchronize durable capability truth.",
+  "pr": 329,
+  "branch": "feat/heartbeat-skill-lights-20260815",
+  "preMutationHeadSha": "334e1a9828af7ddc19b323fab1cdad2389286d29",
+  "preMutationOperatorOverlayServiceBlob": "c266e66a8004623efadab1933de4e429e677c6a5",
+  "reviewedPatchBlob": "aece3c2c2b43fd2128c105fd64e20145ceee748d",
+  "constraints": {
+    "existingOwnerOnly": true,
+    "noNeighborRendererController": true,
+    "resetDetailScrollOnlyOnExplicitSelection": true,
+    "preserveBackgroundReadingPosition": true,
+    "fullContentDescription": true,
+    "sharedTouchTargetAuthority": true,
+    "noPhoneOrP0Surface": true,
+    "noMergeAsDeliveredInterface": true
+  },
+  "skillLights": {
+    "failureIsTheShovel": "ACTIVE: move from proposed patch to exact owner source instead of another CI retry",
+    "canonAutoSelect": "ACTIVE: existing OperatorOverlayService + HeartbeatDetailSurfacePolicy",
+    "autocorrectJudgmentJar": "DARK: no ambiguous STT/autocorrect token",
+    "originalityTax": "ACTIVE: no repeated dead-CI strategy",
+    "hungerEatEverything": "ACTIVE: synchronize owner, skill, provenance, receipt after verified write",
+    "sheRaw": "FAULT: authoritative ambient consultation attempted; account connection returned HTTP 400",
+    "veniceRegnet": "ACTIVE: source-first evidence membrane; runtime claims remain blocked without execution",
+    "accessibilityTouch": "ACTIVE: non-destructive deep detail, full contentDescription, touch target, reading-position preservation",
+    "phoneRuntimePhoneHands": "DARK/FIREWALLED",
+    "checkpointIdempotence": "ACTIVE: explicit-selection reset versus background refresh preservation",
+    "warmWallsArt": "CONSIDER AFTER OWNER READBACK; mutate only if source/runtime topology truth changes",
+    "contactPreservation": "ACTIVE: background evidence refresh must not destroy the reader's current detail position"
+  },
+  "preExecutionEvidence": {
+    "computerHandsWorker": "offline; not queued or used",
+    "p0PhoneMutations": 0
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "heartbeat": "2026-08-21-0811",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts from the authenticated PR #329 state without touching the gated phone/P0 chain or creating a second overlay/accessibility owner.",
+  "preconditions": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "branchHeadObserved": "2cbacbb4c1937149bd030e32af0cc5e56e59ef64",
+    "owner": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "ownerBlobObserved": "c5de1411a6b68087ae17aff83c032af754587150",
+    "p0PhoneConsumptionAuthorized": false,
+    "duplicateArchitectureAuthorized": false,
+    "commandCenterWorkers": "permanently retired; no worker job will be created",
+    "sheRaw": "attempted pre-execution; account connection HTTP 400; no substitute verdict"
+  },
+  "freshEvidence": {
+    "ownerAnnouncementCalls": 4,
+    "heartbeatMigrationPolicy": "HEARTBEAT_MATERIAL_TRANSITION is ownerMigrationReady=true; Spotify/detail/Adam remain typed-blocked",
+    "narrowHeartbeatPatch": "CORRECTED_PROPOSED_NOT_APPLIED but blob-locked to stale owner d8cad8c...",
+    "inventoryRegression": "incorrectly requires rejected broad historical patch to track the current owner blob",
+    "ownerRuntimeState": "source only; TESTED/runtime/deployed/callable/delivered/accepted remain unproven"
+  },
+  "fronts": [
+    {
+      "name": "owner-surgery provenance re-lock",
+      "action": "Re-lock the narrow heartbeat-only accessibility patch to the authenticated current owner blob without changing its consequence scope or promoting it to implementation.",
+      "stateTarget": "CORRECTED_PROPOSED_NOT_APPLIED"
+    },
+    {
+      "name": "rejected-archaeology regression repair",
+      "action": "Repair the source inventory so rejected historical broad surgery is required to stay rejected/historical, not continuously re-based onto the current owner.",
+      "stateTarget": "REGRESSION_SOURCE_UNEXECUTED"
+    },
+    {
+      "name": "skill/doctrine convergence",
+      "action": "Update semantic-announcement and repeatable-event skills with the authenticated current owner blob and corrected patch/inventory truth.",
+      "stateTarget": "IMPLEMENTED_SOURCE"
+    },
+    {
+      "name": "execution/evidence refresh",
+      "action": "Read exact-head automatic workflow evidence after source mutations; do not manually retry or recycle an older failure cause.",
+      "stateTarget": "EVIDENCE_ONLY"
+    },
+    {
+      "name": "Regnet/Venice completion",
+      "action": "Review changed source for scope drift and capability laundering, then publish a compact durable PR checkpoint.",
+      "stateTarget": "EVIDENCE_ONLY"
+    }
+  ],
+  "darkByDesign": [
+    "Phone Runtime / Phone Hands",
+    "P0 recovery chain",
+    "Nightcore",
+    "Pocket TTS",
+    "Chromium",
+    "Context Organs",
+    "Autocorrect unless a real ambiguous token appears",
+    "Warm Walls/Christmas motion unless operator-visible topology changes"
+  ],
+  "gate": "PLAN_ALLOWED__NON_P0_SOURCE_AND_EVIDENCE_ONLY__NO_OWNER_PROMOTION_WITHOUT_EXACT_SAFE_MUTATION"
+}

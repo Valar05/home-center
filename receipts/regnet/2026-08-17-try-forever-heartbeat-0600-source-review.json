@@ -1,0 +1,61 @@
+{
+  "receipt": "regnet-source-review",
+  "pulse": "2026-08-17-0600",
+  "verdict": "PASS_FOR_BOUNDED_SOURCE_CLAIM_ONLY",
+  "testedState": "NO_BLOCKED_UNKNOWN_UNTIL_AUTHORIZED_RUNNER_EXECUTES",
+  "reviewed": {
+    "policy": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/HeartbeatPersistedBase64Canonicality.java",
+    "regressionSource": "android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/HeartbeatPersistedBase64CanonicalityTest.java",
+    "skill": "skills/heartbeat-persisted-base64-canonicality/SKILL.md",
+    "warmWall": "docs/try-forever/heartbeat-refresh-gate-source-specimen.html",
+    "ownerDelta": "docs/try-forever/operator-overlay-base64-canonicality.patch"
+  },
+  "findings": [
+    {
+      "severity": "PASS",
+      "finding": "The new policy does not normalize persisted declaration text. It accepts only non-empty exact equality against a caller-supplied canonical writer-equivalent re-encoding."
+    },
+    {
+      "severity": "PASS",
+      "finding": "The source target is materially different from the closed SHA-metadata whitespace seam: the new wound is aliasing introduced by tolerant Base64 decoding before exact decoded-byte SHA verification."
+    },
+    {
+      "severity": "PASS",
+      "finding": "The regression source pins canonical, whitespace, omitted-padding, pad-bit-alias, and missing-declaration cases at the pure comparison boundary."
+    },
+    {
+      "severity": "BOUNDARY",
+      "finding": "The regression source does not prove which alias forms the Android runtime decoder accepts. That integration remains untested; do not report the pad-bit fixture as Android runtime evidence."
+    },
+    {
+      "severity": "BOUNDARY",
+      "finding": "OperatorOverlayService still decodes and immediately projects persisted bytes; it does not yet canonical re-encode and consume HeartbeatPersistedBase64Canonicality. The owner patch is durable PROPOSED_NOT_APPLIED evidence only."
+    },
+    {
+      "severity": "PASS",
+      "finding": "The proposed owner consequence reuses HeartbeatSceneGraph.preserveRejectedRefresh and HeartbeatOverlayRefreshPlan.fromFrame, preserving existing contact/motion semantics and avoiding duplicate architecture."
+    },
+    {
+      "severity": "PASS",
+      "finding": "The warm wall remains touch/keyboard semantic and non-raster, and visibly marks policy source YES while owner/runtime proof stays NO."
+    }
+  ],
+  "capability": {
+    "policySource": "YES",
+    "regressionSource": "YES",
+    "skillSource": "YES",
+    "warmWallMutation": "YES",
+    "proposedOwnerDelta": "YES_NOT_APPLIED",
+    "existingOwnerConsumesGate": "NO",
+    "tested": "NO",
+    "runtimeObserved": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "p0PhoneMutationCount": 0,
+  "gate": "SOURCE_CLAIM_PASS_OWNER_WIRING_OPEN"
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "reviewedSourceHead": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+  "frontsAdvanced": [
+    {
+      "front": "authenticated-current-owner-identity",
+      "state": "SOURCE_WIRED",
+      "change": "canonical v10 custody owner now rejects normalization-dependent current-owner blob evidence in CLI and programmatic paths",
+      "ownerCommit": "bbc13531816eb48353d01c201b2ef4e8d3715563",
+      "ownerBlob": "f3457f82f5ea135e303c6ca7b93491511a471dd7"
+    },
+    {
+      "front": "hostile-regression-source",
+      "state": "IMPLEMENTED_SOURCE_UNEXECUTED",
+      "change": "exact lowercase acceptance and uppercase/padded rejection now cover artifact, CLI, and programmatic current-owner evidence"
+    },
+    {
+      "front": "skill-doctrine-convergence",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "operator-owner-surgery-base-identity now records both artifact and authenticated current-owner exactness as source-wired"
+    },
+    {
+      "front": "warm-wall-contact",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "existing non-raster custody organism now exposes exact current-owner authority separately from artifact base identity and descriptor supporting source"
+    },
+    {
+      "front": "descriptor-custody-cross-review",
+      "state": "EXACT_BOUNDARY",
+      "change": "held-directory supporting source reviewed; no fresh safe canonical-owner composition established; universal atomicity and Windows parity remain unclaimed"
+    },
+    {
+      "front": "review-and-execution-evidence",
+      "state": "DURABLE",
+      "change": "pre-mutation plan/Venice gate, Regnet review, Venice completion, exact workflow evidence, She-Raw fault, and firewall states recorded"
+    }
+  ],
+  "skillLights": {
+    "FailureIsTheShovel": {"state": "lit", "consequence": "converted the prior RED current-owner normalization wound into exact owner source wiring instead of repeating artifact-base work"},
+    "CanonAutoSelect": {"state": "lit", "consequence": "selected owner-surgery-base-identity and descriptor custody as materially relevant repository organs"},
+    "AutocorrectJudgmentJar": {"state": "dark", "reason": "no material ambiguity or STT/autocorrect token affected this slice"},
+    "OriginalityTax": {"state": "lit", "consequence": "did not reopen the closed artifact-base seam or fabricate descriptor integration; repaired the separate current-owner authority channel"},
+    "HungerEatEverything": {"state": "lit", "consequence": "forced owner source, regression source, skill doctrine, Warm Wall, and receipts to converge on one capability truth"},
+    "OperatorCampaignHarroway": {"state": "lit", "consequence": "kept the existing custody probe as sole owner and used the audited Home Center GitHub lane"},
+    "SheRaw": {"state": "fault", "consequence": "authoritative pre-execution attempt returned account-connection HTTP 400; no synthetic substitute"},
+    "Venice": {"state": "lit", "consequence": "PLAN_ALLOWED before mutation; completion permits bounded source slice only"},
+    "Regnet": {"state": "lit", "consequence": "bounded source/readback PASS while regressions remain unexecuted and TESTED remains NO"},
+    "AccessibilityTouch": {"state": "lit", "consequence": "existing DOM/SVG custody wall remains keyboard/touch inspectable with explicit source/runtime membrane"},
+    "PhoneRuntimePhoneHands": {"state": "dark-firewalled", "reason": "P0/phone firewall binding; no shared execution surface consumed"},
+    "DeterministicRouting": {"state": "lit", "consequence": "exact lowercase SHA identity is admitted before current/stale/collision routing"},
+    "EvidenceCapabilityDiscipline": {"state": "lit", "consequence": "source-wired, regression-source, TESTED, runtime, phone, delivery, and acceptance remain separate"},
+    "RecoveryCheckpointIdempotence": {"state": "lit", "consequence": "malformed current-owner evidence fails before it can donate current-base authority; no normalization recovery path"},
+    "NonRasterWarmWalls": {"state": "lit", "consequence": "existing custody organism mutated in place; no raster or neighboring controller"},
+    "ChristmasMotion": {"state": "dark", "reason": "authority-evidence surgery did not earn a runtime transition/blink"},
+    "ContactPreservation": {"state": "lit", "consequence": "authenticated owner identity is preserved exactly rather than rewritten before authority comparison"}
+  },
+  "crossPollination": [
+    "exact artifact base identity exposed normalized authenticated current-owner identity as a separate authority channel",
+    "current-owner repair forced CLI and programmatic custody paths to share one exact admission law",
+    "owner readback forced stale RED skill doctrine and Warm Wall truth to converge",
+    "descriptor review prevented current-owner exactness from being overclaimed as descriptor integration or atomic custody"
+  ],
+  "executionEvidence": {
+    "sourceHead": "b219d717cf7d738a671952a74a24e08b6c48aee2",
+    "operatorOverlayAndroid": {"runId": 32586826330, "jobId": 97064363984, "conclusion": "failure", "stepLevelCauseEstablished": false},
+    "homeCenterCI": {"runId": 32586826450, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32586826338, "conclusion": "failure"},
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedRemoteReadback": true,
+    "artifactBaseIdentityOwnerWired": true,
+    "currentOwnerExactIdentityOwnerWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "descriptorSupportingSource": true,
+    "descriptorOwnerIntegrated": false,
+    "atomicFilesystemBinding": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

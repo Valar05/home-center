@@ -1,0 +1,34 @@
+{
+  "schema": "try-forever-owner-delta.v1",
+  "status": "APPLIED_SOURCE",
+  "target": "tools/try_forever_skill_provenance_probe.py",
+  "baseBlob": "cd94af837245f6c9d6c64ad4f4620699acbb19fb",
+  "appliedCommit": "52e47781f5e9c11a17bc59c3b842700fcc784127",
+  "appliedOwnerBlob": "2f3ebd530f46283a59bd6ff34149042a1b825d89",
+  "purpose": "Compose existing single-artifact SKILL.md content custody and exact generated-index timestamp admission into the sole provenance owner without creating a second probe.",
+  "appliedChanges": [
+    "Owner imports try_forever_generated_index_timestamp_policy and delegates parse_timestamp without broad strip normalization.",
+    "Owner imports try_forever_skill_content_custody and uses one observe_skill_content call for title+SHA under existing byte/title resource authorities.",
+    "Owner retains pre-I/O and post-content skill file identity revalidation.",
+    "Separate title = markdown_title(path) and sha256 = sha256_file(path) calls are absent from the authority path."
+  ],
+  "acceptance": [
+    "tools/test_try_forever_skill_content_custody_owner_boundary.py source contract is satisfied by authenticated owner source",
+    "tools/test_try_forever_generated_index_timestamp_owner_boundary.py source contract is satisfied by authenticated owner source",
+    "no Phone Hands, P0, renderer, scheduler, or second provenance owner is introduced"
+  ],
+  "capabilityBoundary": {
+    "deltaSource": true,
+    "ownerWired": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtime": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false,
+    "phoneOrP0": false
+  }
+}

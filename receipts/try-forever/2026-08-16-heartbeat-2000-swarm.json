@@ -1,0 +1,84 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-16-2000",
+  "theme": "parser/direct-source bound parity",
+  "fronts": [
+    {
+      "name": "typed-source-policy",
+      "state": "advanced",
+      "change": "HeartbeatSkillPolicy display-ready gate now enforces the existing HeartbeatEnvelopeParser candidate-field bounds."
+    },
+    {
+      "name": "regression-source",
+      "state": "advanced_unexecuted",
+      "change": "Added direct-source at-bound/+1 fixtures plus oversized-source last-good contact and motion-clamp assertions."
+    },
+    {
+      "name": "skill-harvest",
+      "state": "advanced",
+      "change": "Added heartbeat-source-bound-parity doctrine with one parser limit authority and explicit capability membrane."
+    },
+    {
+      "name": "warm-wall-art",
+      "state": "advanced_source_only",
+      "change": "Mutated existing SVG in place with a parser=direct source-bound scar; no raster or neighboring runtime owner."
+    },
+    {
+      "name": "review-evidence",
+      "state": "advanced",
+      "change": "Regnet/Venice receipts preserve exact readback, She-Raw fault, zero-step CI, and source/runtime separation."
+    }
+  ],
+  "skillLights": {
+    "failure_is_the_shovel": "active: changed strategy from blocked CI to a distinct source-contract wound",
+    "canon_auto_select": "active: current parser/policy source selected the relevant boundary",
+    "autocorrect_judgment_jar": "dark: no ambiguity required resolution",
+    "originality_tax": "active: did not repeat semantic-id or CI-retry failure modes",
+    "hunger": "active: carried the bound rule across policy, regression, skill, art, and review",
+    "ever_polished_interpreter_eat_everything": "active: distinguished source bounds from speech projection bounds",
+    "operator_campaign": "active: advanced existing organs only",
+    "harroway_operator_discipline": "active: preserved owner/lane/evidence boundaries",
+    "she_raw": "fault: authoritative connector returned account-connection HTTP 400",
+    "venice_judgment": "active: bounded source slice may yield; campaign continues",
+    "regnet_qa": "blocked_runtime: source review passes; tests did not execute",
+    "accessibility_talkback_touch": "active: oversized source is blocked before native/touch/hash work; speech remains independently bounded",
+    "phone_runtime_phone_hands": "dark_firewalled: zero consumption",
+    "deterministic_routing": "active: parser and direct display-ready ingress now share field bounds",
+    "evidence_capability_state": "active: implemented/readback/regression/test/runtime/deployment states remain separate",
+    "recovery_checkpoint_idempotence": "active: oversized direct source preserves last-good contact and forbids motion",
+    "strange_non_raster_art": "active: existing SVG mutated in place",
+    "warm_walls": "active: source-bound scar added",
+    "christmas_light_scene_graph": "active: rejected oversized source earns no transition motion",
+    "contact_preservation": "active: direct-source rejection holds last-good frame"
+  },
+  "crossPollination": "Parser field-limit archaeology exposed a direct-source bypass; evidence discipline kept exact source intact rather than truncating it; contact preservation supplied fail-closed behavior; accessibility separated source bounds from speech bounds; warm-wall art made that distinction visible; Regnet/Venice kept source work behind the runtime membrane.",
+  "testBoundary": {
+    "state": "BLOCKED_ACTIONS_BUDGET",
+    "run": 31984126767,
+    "job": 95256039347,
+    "steps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "regressionSource": true,
+    "tested": false,
+    "runtimeUiObserved": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneSurface": {
+    "mutations": 0,
+    "commands": 0,
+    "tickets": 0,
+    "queueOrDeviceProbes": 0
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED"
+}

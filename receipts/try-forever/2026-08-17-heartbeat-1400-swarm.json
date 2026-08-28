@@ -1,0 +1,92 @@
+{
+  "schema": "try-forever-swarm-receipt.v1",
+  "heartbeat": "2026-08-17-1400",
+  "pr": 329,
+  "sourceHeadReviewed": "bed8d828e14829b51d360738c8f4af1fbf35b6c6",
+  "fronts": [
+    {
+      "front": "shared routine/plain text budget",
+      "change": "Added HeartbeatPlainTextBudget so an ellipsis consumes part of the same hard returned code-point budget rather than becoming a hidden extra code point."
+    },
+    {
+      "front": "compact focused TalkBack speech",
+      "change": "HeartbeatSkillPolicy compact label/consequence projections now consume the shared hard-returned-budget helper; exact Candidate fields remain unchanged."
+    },
+    {
+      "front": "collapsed accessibility speech",
+      "change": "HeartbeatFrameAccessibility collapsed per-light labels now reserve one code point for the ellipsis inside the 64-code-point returned cap."
+    },
+    {
+      "front": "native visible label source",
+      "change": "HeartbeatOverlayViewModel visible per-light labels now reserve the ellipsis inside the 72-code-point label cap before state framing."
+    },
+    {
+      "front": "hostile regression source",
+      "change": "Added shared-helper Unicode/tiny-budget fixtures and repaired stale compact/collapsed expectations; code review also repaired a 90-swan ViewModel fixture that exceeded the typed source label bound before it could test visible truncation."
+    },
+    {
+      "front": "durable skill harvesting",
+      "change": "Added heartbeat-hard-returned-text-budgets to preserve hard returned caps, source-vs-projection truth, and the plain-speech-versus-explicit-evidence distinction."
+    },
+    {
+      "front": "warm walls / Swan Veil",
+      "change": "Mutated the existing accessible DOM/inline-SVG Swan Veil in place with a touchable '64 means 64' state; no new renderer/controller/specimen family was created."
+    },
+    {
+      "front": "Regnet / Venice / evidence",
+      "change": "Persisted pre-mutation plan and Venice gate, She-Raw fault, code-first correction scar, Regnet review, Venice completion gate, current-head zero-step CI blocker, capability membrane, and zero-P0 ledger."
+    }
+  ],
+  "lights": [
+    {"name":"Failure Is The Shovel","state":"ACTIVE","why":"Source archaeology found a new routine/plain hard-budget defect instead of reopening the completed explicit-detail seam.","changed":"Converted three max-plus-ellipsis paths into one hard returned-budget contract."},
+    {"name":"Canon Auto-Select","state":"ACTIVE","why":"Existing SkillPolicy, FrameAccessibility, ViewModel, and Swan Veil owned the affected surfaces.","changed":"Composed those organs through one pure helper; no adjacent architecture."},
+    {"name":"Autocorrect Judgment Jar","state":"DARK","why":"No ambiguous speech-to-text/autocorrect token materially affected this pulse.","changed":"None."},
+    {"name":"Originality Tax","state":"ACTIVE","why":"Three independent truncators repeated the same max-plus-suffix failure shape.","changed":"Replaced duplication with one plain projection helper rather than three local patches."},
+    {"name":"Hunger / Ever-Polished Interpreter / Eat Everything","state":"ACTIVE","why":"The invariant had to propagate through source, stale tests, skill doctrine, art, and evidence.","changed":"Eight independent fronts converged on hard returned-budget truth."},
+    {"name":"Operator Campaign / Harroway discipline","state":"ACTIVE","why":"Mission boundary requires existing owners and strict source/runtime separation.","changed":"No renderer/controller/poller/transport/P0 owner was duplicated."},
+    {"name":"She-Raw adversarial motivation","state":"FAULT","why":"Authoritative pre-execution ambient call returned account-connection HTTP 400.","changed":"Fault preserved exactly; no substitute reviewer invented."},
+    {"name":"Venice Judgment Jars","state":"ACTIVE","why":"Plan and completion review checked mission fidelity, accessibility discrimination, and capability truth.","changed":"STOP_ALLOWED only for this bounded source slice; campaign remains CONTINUE_REQUIRED."},
+    {"name":"Regnet QA","state":"ACTIVE","why":"Source/test coherence and evidence sufficiency needed code-first review.","changed":"Caught the invalid 90-swan typed-source fixture and preserved TESTED=NO."},
+    {"name":"Accessibility / TalkBack / touch semantics","state":"ACTIVE","why":"Named speech/display caps must bound returned projections, including ellipsis.","changed":"Compact consequence, collapsed label, and native visible-label source now obey hard returned code-point budgets."},
+    {"name":"Phone Runtime / Phone Hands recovery","state":"DARK_FIREWALLED","why":"P0 conductor and shared-phone firewall retain exclusive ownership.","changed":"Zero consumption or mutation."},
+    {"name":"Deterministic routing","state":"ACTIVE","why":"The same plain truncation invariant was drifting across three existing consumers.","changed":"One deterministic helper now owns routine/plain ellipsis budgeting."},
+    {"name":"Evidence / capability-state discipline","state":"ACTIVE","why":"Source/readback/regression/test/runtime/deployment/acceptance are distinct states.","changed":"Exact blobs and fresh zero-step CI boundary recorded; no capability promotion."},
+    {"name":"Recovery / checkpointing / idempotence","state":"DARK_UNCHANGED","why":"This pulse changed no scene/contact recovery or checkpoint identity.","changed":"None; canonical semantic fields remain unchanged by projection."},
+    {"name":"Warm walls / strange non-raster vector-DOM art","state":"ACTIVE","why":"The operator-visible resource rule materially changed from max-plus-suffix to a true hard returned cap.","changed":"Existing Swan Veil gained one touchable hard-budget scar in place."},
+    {"name":"Christmas-light scene graph","state":"DARK_UNCHANGED","why":"Text truncation resource repair is not a semantic scene transition and earns no motion.","changed":"None."},
+    {"name":"Contact preservation","state":"ACTIVE_CONSTRAINT","why":"Projection must never rewrite canonical Candidate/Node fields or last-good scene identity.","changed":"Routine projections changed while canonical source/contact semantics remained untouched."},
+    {"name":"Heartbeat Hard Returned Text Budgets","state":"ACTIVE_NEW_SKILL","why":"The max-plus-suffix failure was reusable across compact speech, collapsed speech, and native labels.","changed":"New repository skill harvested the hard returned cap and plain-vs-evidence projection doctrine."}
+  ],
+  "crossPollination": "Completed explicit evidence budgets exposed the contrasting routine/plain max-plus-ellipsis defect -> accessibility made the hidden +1 a real resource-contract failure -> Originality Tax forced one shared helper -> consumer wiring exposed stale regression expectations -> code-first review discovered the 90-swan fixture exceeded typed source bounds -> fixture repair sharpened source-vs-projection truth -> skill doctrine and Swan Veil inherited the corrected invariant -> Regnet/Venice kept source success behind the runtime membrane.",
+  "testBoundary": {
+    "workflow": "Operator Overlay Android",
+    "runId": 32058862776,
+    "jobId": 95475229405,
+    "head": "bed8d828e14829b51d360738c8f4af1fbf35b6c6",
+    "executedSteps": 0,
+    "annotation": "The job was not started because an Actions budget is preventing further use.",
+    "manualRetry": false
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "sharedPlainBudgetSource": true,
+    "compactSpeechWired": true,
+    "collapsedLabelWired": true,
+    "nativeVisibleLabelWired": true,
+    "regressionSource": true,
+    "durableSkill": true,
+    "touchableNonRasterSource": true,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0Firewall": "PASS_ZERO_PHONE_P0_MUTATIONS_OR_SURFACE_CONSUMPTION",
+  "currentGate": "SOURCE_SLICE_STOP_ALLOWED / CAMPAIGN_CONTINUE_REQUIRED / DO_NOT_MERGE_AS_DELIVERED_INTERFACE"
+}

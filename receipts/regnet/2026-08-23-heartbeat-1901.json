@@ -1,0 +1,59 @@
+{
+  "schema": "regnet-source-review.v1",
+  "checkpoint": "2026-08-23T19:01:59-05:00",
+  "reviewedSourceHead": "48cb45dad1c672dc89d5f43037bb3c91fd2a078b",
+  "scope": [
+    "descriptor-shadow receipt self-integrity canonical result identity",
+    "focused hostile regression source",
+    "shadow receipt integrity doctrine",
+    "existing descriptor-shadow Warm Wall"
+  ],
+  "findings": [
+    {
+      "severity": "material",
+      "state": "repaired_source",
+      "finding": "Completed self-integrity previously compared canonicalResultSha256 for equality but did not admit the identity itself as exact lowercase 64-hex SHA-256. A malformed value repeated consistently in nested temporal fields could satisfy equality."
+    },
+    {
+      "severity": "bounded",
+      "state": "source_only",
+      "finding": "New hostile fixture attacks missing, non-string, short, long, uppercase, leading-space, and trailing-space result identities while repeating the counterfeit through nested temporal evidence. Regression has not executed."
+    }
+  ],
+  "sourceDiffCustody": {
+    "base": "ff3dd30da669c38de61b594fd7c31ded55845bd8",
+    "head": "48cb45dad1c672dc89d5f43037bb3c91fd2a078b",
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0
+  },
+  "executionEvidence": {
+    "operatorOverlayRunId": 32675779459,
+    "operatorOverlayJobId": 97283513176,
+    "operatorOverlayConclusion": "failure",
+    "exposedSteps": 0,
+    "logReadback": "404 BlobNotFound",
+    "buildAndroidRunId": 32675779427,
+    "homeCenterCiRunId": 32675779466,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelCauseEstablished": false
+  },
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "canonicalResultIdentitySourceWired": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

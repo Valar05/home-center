@@ -1,0 +1,42 @@
+{
+  "schema": "regnet-heartbeat-review.v1",
+  "checkpoint": "2026-08-23T20:03:54-05:00",
+  "reviewedSourceHead": "1864ef93f03d3d0f7e12541625c1f72fc4987899",
+  "verdict": "PASS_BOUNDED_SOURCE_AND_AUTHENTICATED_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    "The existing receipt self-integrity owner now validates wound evidence phase in addition to wound label/context and null comparison semantics.",
+    "Early wounds cannot carry portable/descriptor artifacts from stages they did not reach; descriptor counters remain unavailable on all non-comparison states.",
+    "DESCRIPTOR_WOUND deliberately preserves already-observed portable artifact contact, but requires exact artifact shape/cardinality and no descriptor artifact/counter evidence.",
+    "The existing operator receipt command has hostile source fixtures proving it consumes the phase gate; no second projector or descriptor authority was created.",
+    "The source slice from prior publication head to reviewed head is 7 commits / 7 intended paths / 0 unexpected paths.",
+    "Regression sources exist but have not executed; automatic workflow failure is not regression execution or TESTED evidence."
+  ],
+  "executionTruth": {
+    "operatorOverlayAndroid": {"runId": 32678875836, "jobId": 97291882340, "status": "completed", "conclusion": "failure", "exposedSteps": 0, "logReadback": "404 BlobNotFound"},
+    "buildAndroid": {"runId": 32678875879, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 32678875826, "status": "completed", "conclusion": "failure"},
+    "stepLevelCauseEstablished": false,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "woundContextIntegritySourceWired": true,
+    "woundEvidencePhaseIntegritySourceWired": true,
+    "operatorReceiptConsumesPhaseGateSource": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "descriptorAuthority": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {"phoneP0Consumption": 0, "phoneP0Mutation": 0, "duplicateArchitecture": 0, "newP0Finding": null}
+}

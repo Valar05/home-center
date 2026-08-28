@@ -1,0 +1,21 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "reviewedSourceHead": "9dfc2f54d6dad736edcebfc21317304ca4e60ddd",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__ENVELOPE_PREPARSE_SEMANTIC_PARSER_CLEANUP_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "The direct persisted-String pre-encode resource throat is real existing-owner source wiring with authenticated readback and exact-at-ceiling contact preservation.",
+    "The existing Warm Wall was improved in place rather than duplicated, including a real 48px-to-56px touch-target correction and explicit source/runtime state separation.",
+    "The direct envelope parser preparse throat remains an exact unapplied owner proposal; do not call it implemented.",
+    "Dormant canonical-v10 local parser machinery remains an exact unapplied ownership cleanup; active shared semantic delegation does not erase the fossil.",
+    "Exact-head workflows failed with the Operator job exposing zero steps, so there is no regression-execution or TESTED evidence and no defensible step-level diagnosis."
+  ],
+  "continueRequired": [
+    "envelope-preparse-owner-mutation",
+    "single-semantic-parser-cleanup-owner-mutation",
+    "regression-execution",
+    "tested-evidence",
+    "runtime-and-talkback-evidence",
+    "campaign"
+  ],
+  "firewall": "P0_AND_PHONE_UNTOUCHED"
+}

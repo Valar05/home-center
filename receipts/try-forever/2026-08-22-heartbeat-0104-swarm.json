@@ -1,0 +1,75 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "checkpoint": "2026-08-22T01:04:46-05:00",
+  "reviewedSourceHead": "d5fbb2faf2854e1a2861760c6263ddb69b46052f",
+  "priorCheckpointHead": "1a824965e99df1137a6208863a42a843908d811e",
+  "mission": "Close the owner-surgery custody evidence blind spot without touching the P0/phone execution chain or creating duplicate architecture.",
+  "fronts": [
+    {
+      "name": "owner-surgery custody artifact family",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Custody probe v3 now inspects both try-forever-*.patch and try-forever-*.delta.json provenance, records artifact kind, and refuses to call malformed recognized delta evidence complete."
+    },
+    {
+      "name": "hostile regression source",
+      "state": "REGRESSION_SOURCE_UNEXECUTED",
+      "change": "Fixtures cover mixed patch+delta current/stale collision sets, all historical base-key spellings, rejected/applied exclusion, conflicting aliases, and duplicate JSON members. Regnet caught and repaired one source-level syntax defect before publication."
+    },
+    {
+      "name": "durable custody skill",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "operator-owner-surgery-custody now treats patch and structured delta as one promotion-custody family and marks discovery errors as non-exhaustive evidence."
+    },
+    {
+      "name": "touchable non-raster custody wall",
+      "state": "IMPLEMENTED_SOURCE",
+      "change": "Existing owner-surgery custody DOM specimen now exposes PATCH + DELTA, fail-closed evidence-complete semantics, authenticated owner binding, and promotion separation."
+    },
+    {
+      "name": "exact remote evidence",
+      "state": "AUTHENTICATED_READBACK",
+      "change": "Compare from prior checkpoint to reviewed source head contains exactly five intended paths; OperatorOverlayService owner blob remains c5de1411a6b68087ae17aff83c032af754587150 and was not mutated."
+    }
+  ],
+  "review": {
+    "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "regnet": "PASS_FOR_BOUNDED_SOURCE_AND_READBACK__REGRESSION_UNEXECUTED__TESTED_NO",
+    "regnetCorrection": "Initial v3 regression source omitted one list terminator; code-first readback caught it and the source was repaired before this receipt.",
+    "venice": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_OWNER_PROMOTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+  },
+  "executionTruth": {
+    "operatorOverlayAndroidRun": 32556231924,
+    "operatorOverlayJob": 96990709851,
+    "operatorOverlayJobSteps": 0,
+    "homeCenterCiRun": 32556231904,
+    "buildAndroidRun": 32556231986,
+    "conclusion": "failure",
+    "stepLevelCauseEstablished": false,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "crossPollination": "PR file inventory exposed structured owner deltas outside the v2 patch-only scan; evidence discipline turned that into a unified custody family; hostile fixtures exposed a syntax wound in their own first draft; the corrected contract propagated into skill doctrine and the existing touchable custody wall.",
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingSource": true,
+    "authenticatedReadback": true,
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "ownerMutation": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callableOnPhone": false,
+    "executedOnPhone": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

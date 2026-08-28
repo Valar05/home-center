@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-venice-review.v1",
+  "localCheckpoint": "2026-08-22T17:01:33-05:00",
+  "reviewedSourceHead": "4fe4614de490dd307ad386bae1783ef7d3ec02a8",
+  "missionFidelity": "PASS",
+  "duplicateArchitecture": "PASS_ZERO_NEW_OWNERS",
+  "accessibilityTouch": "PASS_SOURCE_ONLY_WARM_WALL",
+  "evidenceTruth": "PASS_WITH_OWNER_WOUND_PRESERVED",
+  "sourceSlice": "STOP_ALLOWED",
+  "continueRequired": [
+    "apply or otherwise resolve canonical v10 zero-partial-promotion-authority owner wound through the existing owner only",
+    "execute regressions through an authorized test lane",
+    "compose backend selection/descriptor custody into canonical owner only when evidence membrane remains intact",
+    "runtime UI/TalkBack verification",
+    "deployment/delivery/acceptance"
+  ],
+  "explicitNonClaims": [
+    "owner repair applied",
+    "descriptor owner integration",
+    "regression executed",
+    "TESTED",
+    "runtime UI",
+    "runtime TalkBack",
+    "phone delivery",
+    "accepted"
+  ],
+  "sheRaw": "ACCOUNT_CONNECTION_HTTP_400_NO_SUBSTITUTE",
+  "executionTruth": {
+    "reviewedSourceHeadWorkflows": "FAILED",
+    "operatorExposedSteps": 0,
+    "operatorLogs": "404_BlobNotFound",
+    "causeEstablished": false,
+    "manualRetry": false
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ZERO_PARTIAL_OWNER_REPAIR_BACKEND_OWNER_COMPOSITION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

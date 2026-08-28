@@ -1,0 +1,21 @@
+{
+  "schema": "try-forever-plan.v1",
+  "timestampLocal": "2026-08-23T22:01:25-05:00",
+  "mission": "Advance independent non-P0 TRY FOREVER fronts without consuming phone/P0 surfaces.",
+  "fronts": [
+    "Apply the already-reviewed raw descriptor-shadow capability membrane to the existing self-integrity owner, exact-base locked.",
+    "Converge owner-boundary regression, patch provenance, and durable skill truth after authenticated owner readback.",
+    "Review raw capability coverage for a materially different adjacent source wound without creating a second projector/authority.",
+    "Preserve regression execution, TESTED, runtime, deployment, delivery, and acceptance as separate unproven states.",
+    "Keep Phone Runtime / Phone Hands / P0 Fortress read-only and untouched."
+  ],
+  "constraints": {
+    "duplicateArchitecture": "FORBIDDEN",
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "ownerPath": "tools/try_forever_owner_surgery_shadow_receipt_self_integrity.py",
+    "expectedOwnerBlob": "ae76c2d7db2b71cd1b1c2518e62625bf5483538d",
+    "testedClaimAllowed": false,
+    "runtimeClaimAllowed": false
+  }
+}

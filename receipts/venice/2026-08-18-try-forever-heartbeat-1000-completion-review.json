@@ -1,0 +1,48 @@
+{
+  "schema": "try-forever-venice-completion.v1",
+  "heartbeat": "2026-08-18-1000",
+  "reviewer": "venice-judgment-jar",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__OWNER_INTEGRATION_AND_ATOMICITY_WOUNDS_OPEN__CAMPAIGN_CONTINUE_REQUIRED",
+  "quality": "mixed-pass",
+  "why": [
+    "A pre-mutation Venice plan existed, and platform evidence triggered a corrective replan before the helper source was written.",
+    "The pulse did not force a Unix-only directory-fd strategy into Windows support; it narrowed the claim to portable no-follow identity observations.",
+    "Code review caught and repaired a false identity token rule: filesystem device alone no longer counts as one-directory identity.",
+    "Code review also narrowed an overbroad persistent-replacement claim to observed identity/type drift and preserved identity-reuse and swap-and-restore limits.",
+    "A proposed integration patch exists but is plainly NOT APPLIED; owner integration is not promoted into implementation.",
+    "The accessible Warm Wall makes stable/redirector/changed/open-atomicity states touchable without claiming runtime delivery.",
+    "Phone Hands/P0 and duplicate architecture remained untouched."
+  ],
+  "stopAllowedFor": [
+    "root identity helper source",
+    "hostile regression source",
+    "root identity durable skill",
+    "source-only accessible Warm Wall",
+    "exact proposed existing-owner integration patch"
+  ],
+  "continueRequiredFor": [
+    "apply/review the integration delta in the existing provenance probe through an authorized source-mutation lane",
+    "preserve the stronger atomic swap-and-restore / identity-reuse boundary unless a platform-specific handle-relative proof is commissioned and evidenced",
+    "obtain authorized probe/test execution before TESTED",
+    "continue the broader Try Forever campaign on independent non-P0 fronts"
+  ],
+  "capabilityMembrane": {
+    "implementedSource": true,
+    "exactGitHubReadback": true,
+    "ownerIntegrationApplied": false,
+    "probeExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "p0PhoneFirewall": {
+    "consumption": 0,
+    "mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

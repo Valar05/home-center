@@ -1,0 +1,62 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "localTime": "2026-08-24T19:04:26-05:00",
+  "commission": "Advance a broad non-P0 TRY FOREVER swarm without touching the P0/primary-phone chain.",
+  "sourceCheckpoint": {
+    "pr": 329,
+    "branch": "feat/heartbeat-skill-lights-20260815",
+    "head": "5038b4dc5d74f6968a6a21e20fe116883fd1a7a0",
+    "ownerPath": "tools/try_forever_owner_surgery_shadow_receipt_projection.py",
+    "ownerBlob": "4cc65f162f600e70a9771d7cf3edac94e45f5344"
+  },
+  "activeFronts": [
+    {
+      "front": "descriptor-shadow cross-host display owner wiring",
+      "action": "Compose the existing project_serialized_report_path() organ into the existing descriptor-shadow receipt owner; do not create a second projector.",
+      "acceptance": "Windows drive/UNC/root/drive-relative serialized host context projects EXTERNAL/<external-path>; already-authorized repository-relative identities remain repository display evidence."
+    },
+    {
+      "front": "hostile owner boundary",
+      "action": "Keep the existing owner-boundary regression as source evidence and update its provenance from RED/UNWIRED to SOURCE_WIRED/UNEXECUTED only after authenticated owner readback."
+    },
+    {
+      "front": "durable doctrine and art convergence",
+      "action": "Update the existing portable-path skill and existing cross-host Warm Wall in place; no new controller or specimen family."
+    },
+    {
+      "front": "evidence and capability membrane",
+      "action": "Create Regnet/Venice/swarm receipts, refresh exact-head workflow evidence, and keep requested/source/tested/runtime/deployed/callable/executed/delivered/accepted distinct."
+    }
+  ],
+  "review": {
+    "sheRawAttempt": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "originalityTax": "Use the existing projector and owner; no adjacent implementation.",
+    "regnetIntent": "Source/readback only until regressions actually execute.",
+    "veniceIntent": "Plan review before mutation; completion review after authenticated readback."
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "p0Finding": null,
+    "forbidden": [
+      "Phone Hands / primary-phone execution",
+      "P0 recovery coordination",
+      "Nightcore/Pocket TTS/Chromium/Context Organs",
+      "neighboring path projector or descriptor owner"
+    ]
+  },
+  "capabilityBefore": {
+    "supportingPathPolicy": "SOURCE",
+    "descriptorShadowOwnerWiring": "NO_RED",
+    "regressionSource": "YES_UNEXECUTED",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

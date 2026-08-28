@@ -1,0 +1,54 @@
+# STATUS: APPLIED_SOURCE
+# OWNER: tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+# BASE_BLOB_SHA: 34eee8e633356b012d773712ad14179b77baa3c2
+# APPLIED_COMMIT_SHA: 312b6443a016804ab90d42dc1a34ff67b46579f2
+# RESULT_BLOB_SHA: 82af7cc572d2a95624fb549c387946068483c7e3
+# PURPOSE: One caller-owned Mapping observation feeds semantic, digest, raw-linkage, and derivation verification.
+# CAPABILITY: OWNER_SOURCE_WIRED__REGRESSION_UNEXECUTED__TESTED_NO__RUNTIME_NO__PHONE_P0_UNTOUCHED
+
+diff --git a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+--- a/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
++++ b/tools/try_forever_owner_surgery_descriptor_shadow_operator_receipt.py
+@@
+ from try_forever_operator_receipt_identity_fieldset import (
+     require_exact_final_receipt_fieldset,
+ )
++from try_forever_operator_receipt_snapshot_custody import (
++    snapshot_verification_inputs,
++)
+@@
+ def verify_operator_receipt_identity(receipt: Mapping[str, object]) -> bool:
+@@
+-    if not isinstance(receipt, Mapping):
+-        raise ValueError("operator receipt must be one mapping")
++    snapshot = snapshot_verification_inputs(receipt)
++    receipt = snapshot["receipt"]
+@@
+ def verify_operator_receipt_against_raw_evidence(
+     receipt: Mapping[str, object],
+     raw_result: Mapping[str, object],
+ ) -> bool:
+@@
+-    verify_operator_receipt_identity(receipt)
+-    if not isinstance(raw_result, Mapping) or raw_result.get("schema") != RAW_SHADOW_SCHEMA:
++    snapshot = snapshot_verification_inputs(receipt, raw_result)
++    receipt = snapshot["receipt"]
++    raw_result = snapshot["rawMachineEvidence"]
++    verify_operator_receipt_identity(receipt)
++    if raw_result.get("schema") != RAW_SHADOW_SCHEMA:
+@@
+ def verify_operator_receipt_derivation_against_raw_evidence(
+     repo_root: Path,
+     receipt: Mapping[str, object],
+     raw_result: Mapping[str, object],
+ ) -> bool:
+@@
+-    verify_operator_receipt_against_raw_evidence(receipt, raw_result)
++    snapshot = snapshot_verification_inputs(receipt, raw_result)
++    receipt = snapshot["receipt"]
++    raw_result = snapshot["rawMachineEvidence"]
++    verify_operator_receipt_against_raw_evidence(receipt, raw_result)
+     require_operator_receipt_projection_derivation(
+         repo_root,
+         receipt,
+         raw_result,

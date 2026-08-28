@@ -1,0 +1,53 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "timestamp": "2026-08-20T08:04:08-05:00",
+  "scope": "bounded non-P0 source swarm",
+  "pr": 329,
+  "startingHead": "ee99d47d4ec5014222c9356b77ad5468ac0b29b5",
+  "fronts": [
+    {
+      "name": "skill-content-head-owner-boundary",
+      "action": "strengthen the existing RED owner boundary and prepared delta around one bounded raw-HEAD observation plus content.git_blob_identity; do not reconstruct the sole owner through a risky whole-file substitution",
+      "capabilityTarget": "supporting source / owner-unwired unless authenticated owner mutation occurs"
+    },
+    {
+      "name": "generated-index-source-head-admission",
+      "action": "add exact canonical Git object-ID admission for generated-index sourceHead so malformed/normalization-dependent source identity fails UNRESOLVED instead of being misclassified as ordinary STALE",
+      "capabilityTarget": "supporting policy + hostile regression + owner boundary"
+    },
+    {
+      "name": "skill-harvest",
+      "action": "record materially reusable sourceHead admission doctrine and update existing head-content doctrine only if source truth changes",
+      "capabilityTarget": "repository skill source"
+    },
+    {
+      "name": "accessible-non-raster-art",
+      "action": "mutate or create one bounded DOM/inline-SVG source specimen only if the new evidence states create real inspectable topology; no runtime/deployment claim",
+      "capabilityTarget": "source art only"
+    }
+  ],
+  "requiredLightsConsidered": {
+    "failureIsTheShovel": "lit: choose fresh evidence defects instead of CI retry",
+    "canonAutoSelect": "lit: use current repository organs and discovered skills",
+    "autocorrectJudgmentJar": "dark unless ambiguity appears",
+    "originalityTax": "lit: no repeated dead worker/CI path",
+    "hunger": "lit: require remote durable artifacts",
+    "everPolishedInterpreterEatEverything": "lit: cross-check owner, fixtures, skill doctrine, art",
+    "operatorCampaignHarroway": "lit: sole-owner and lane discipline",
+    "sheRaw": "attempted pre-execution; connector account fault preserved",
+    "venice": "plan gate required before substantive source mutation",
+    "regnet": "completion code-first review required",
+    "accessibilityTalkBackTouch": "active non-regression; art only if semantics materially change",
+    "phoneRuntimePhoneHands": "dark by binding firewall",
+    "deterministicRouting": "lit: exact Git identity and fail-closed states",
+    "evidenceCapabilityStates": "lit: requested/implemented/tested/runtime/deployed/delivered/accepted remain separate",
+    "recoveryCheckpointIdempotence": "lit where fail-closed evidence must not mint partial authority",
+    "strangeNonRasterArtWarmWallsChristmas": "conditional; no decorative blink",
+    "contactPreservation": "active constraint; no runtime contact mutation"
+  },
+  "firewall": {
+    "phoneP0Consumption": 0,
+    "phoneP0Mutation": 0,
+    "duplicateArchitecture": 0
+  }
+}

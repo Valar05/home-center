@@ -1,0 +1,23 @@
+{
+  "schema": "venice.completion-review.v1",
+  "heartbeat": "2026-08-17-2200",
+  "pr": 329,
+  "verdict": "PASS_SOURCE_SLICE_ONLY",
+  "directive": "SOURCE_SLICE_STOP_ALLOWED__OWNER_SEAM_CONTINUE_REQUIRED__CAMPAIGN_CONTINUE_REQUIRED",
+  "review": {
+    "missionFidelity": "PASS: existing OperatorOverlayService remains sole intended native owner; no neighboring controller/renderer/state store was created",
+    "failureIsTheShovel": "PASS: code-first review refused to blindly apply the prior patch and converted its reading-position ambiguity into an explicit pure clamp + corrected owner delta",
+    "originalityTax": "PASS: no repeated dead-CI retry and no phone/P0 substitution",
+    "accessibility": "PASS_SOURCE: full explicit detail remains semantically intact, destructive END ellipsis is removed by proposed owner delta, touch floor remains shared, and background reader position gets an explicit post-layout bound",
+    "contactAndIdempotence": "PASS_SOURCE: proposed owner delta generation-binds deferred restoration so newer detail presentation defeats stale work",
+    "evidenceTruth": "PASS: owner implementation remains NO; regression source remains unexecuted; runtime/deployment/delivery states remain NO",
+    "ownerExecution": "CONTINUE_REQUIRED: actual OperatorOverlayService blob remains c266e66a8004623efadab1933de4e429e677c6a5 with legacy ellipsis/showHeartbeatDetail path"
+  },
+  "processScar": "The 2100 patch was durable and reviewed, but this heartbeat discovered that merely preserving scrollY across background refresh had no explicit content-shrink clamp or stale deferred-restore ownership. The patch was corrected before owner mutation rather than retroactively claiming the old plan was complete.",
+  "laneBoundary": "The current audited Home Center GitHub Admin file upsert accepts complete content/contentBase64, not patch payloads. The independent Computer Hands worker was offline and was not queued. No adjacent browser/phone lane was substituted.",
+  "sheRaw": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+  "p0PhoneMutations": 0,
+  "mergeAuthority": "NO",
+  "runtimeAuthority": "NO",
+  "deliveryAuthority": "NO"
+}

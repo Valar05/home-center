@@ -1,0 +1,54 @@
+{
+  "schema": "regnet-heartbeat-review.v1",
+  "heartbeat": "2026-08-27-0300",
+  "pr": 329,
+  "reviewedSourceHead": "02c7759d60ec75f09b571d903f6c4ce03af8073c",
+  "verdict": "PASS_BOUNDED_SOURCE__DIAGNOSTIC_SOURCE_WORK_AND_SHARED_CALLBACK_HELPER_SOURCE_WIRED__CANONICAL_CALLBACK_CONSUMER_AND_DIRECT_CANDIDATE_PRETRIM_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "sourcePass": [
+    "owner-surgery diagnostic projector now has a 4096-code-point source-work throat before whole-input encode/hash",
+    "shared owner-surgery exception diagnostic helper is callback-free and bounded to eight base args",
+    "plain TalkBack projection now has a finite UTF-16 source-work window before code-point/grapheme traversal",
+    "existing owner-custody Warm Wall reflects dependency-vs-consumer capability split without duplicate UI architecture",
+    "semantic-text-safety, hard-returned-text-budget, and source-bound-parity doctrine were converged to current source truth"
+  ],
+  "reviseRequired": [
+    "canonical owner-surgery _error still calls str(exc) instead of consuming the shared callback-free exception projector",
+    "direct HeartbeatSkillPolicy.Candidate construction still scans/trims raw caller Strings before an independent pre-trim resource throat"
+  ],
+  "regressions": {
+    "ownerSurgeryDiscoveryProjection": "SOURCE_UNEXECUTED_PARTIAL_RED_CANONICAL_CALLBACK_CONSUMER",
+    "plainTextBudget": "SOURCE_UNEXECUTED",
+    "directCandidatePretrim": "RED_SOURCE_UNEXECUTED"
+  },
+  "executionTruth": {
+    "homeCenterCi": {"run": 33053351967, "conclusion": "failure"},
+    "buildAndroid": {"run": 33053351950, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"run": 33053352000, "job": 98453972406, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "stepLevelCauseEstablished": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "accessibility": {
+    "plainSpeechFiniteSourceWorkSourceWired": true,
+    "warmWallNative56pxControls": true,
+    "visibleKeyboardFocus": true,
+    "nonColorLiveStatus": true,
+    "svgTitleDescription": true,
+    "reducedMotion": true,
+    "blinkOrAutoplayAdded": false,
+    "runtimeTalkBack": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}

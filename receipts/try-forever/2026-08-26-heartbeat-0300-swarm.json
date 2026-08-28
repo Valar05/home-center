@@ -1,0 +1,127 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-26T03:00:00-05:00",
+  "sourceHead": "f572fae6820001ac5cdc7d55f9dfec70708cad81",
+  "previousPublicationHead": "40f1019fab36d068676a63ef7ffa1ac93c36b21a",
+  "changeCustody": {
+    "commits": 9,
+    "intendedPaths": 9,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_owner_surgery_state_policy.py",
+      "tools/test_try_forever_owner_surgery_state_policy.py",
+      "tools/try_forever_owner_surgery_backend_policy.py",
+      "tools/test_try_forever_owner_surgery_backend_policy_exact_input_boundary.py",
+      "docs/try-forever/operator-owner-surgery-backend-selection-source-specimen.html",
+      "tools/test_try_forever_owner_surgery_backend_selection_source_specimen.py",
+      "skills/operator-owner-surgery-backend-selection/SKILL.md",
+      "tools/try_forever_directory_handle_binding_capability.py",
+      "tools/test_try_forever_directory_handle_binding_capability.py"
+    ]
+  },
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Canon Auto-Select", "Originality Tax", "Deterministic Routing"],
+      "state": "LIT",
+      "change": "repaired direct owner-surgery state custody in the existing policy: exact built-in str before caller callbacks plus 128-code-point source throat; then propagated the same exact-but-bounded law upstream to platform os_name at 64 code points"
+    },
+    {
+      "skills": ["Regnet QA", "Ever-Polished Interpreter / Eat Everything", "Contact Preservation"],
+      "state": "LIT",
+      "change": "added hostile source fixtures for state subclasses/max+1, backend control max+1, and platform os_name max+1 while preserving admitted exact text and ordinary semantics; regressions remain unexecuted"
+    },
+    {
+      "skills": ["Hunger", "Operator Campaign", "Harroway operator discipline", "Evidence/capability-state discipline"],
+      "state": "LIT",
+      "change": "converged existing backend-selection doctrine around exact-versus-unbounded machine controls; source/readback/regression/TESTED/runtime states remain separated and no neighboring authority was created"
+    },
+    {
+      "skills": ["Accessibility/TalkBack and touch semantics", "Strange non-raster vector/DOM/native UI art", "Warm Walls"],
+      "state": "LIT",
+      "change": "mutated the existing DOM/SVG Warm Wall in place to expose bounded control throats through native radio interaction; source fixture pins 56px touch rows, keyboard focus, non-color live status, SVG semantics, reduced motion, runtime TalkBack NO, and phone/P0 untouched"
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "RED_BOUNDARY",
+      "change": "authoritative consultation attempted against callback leakage, unbounded control evidence, capability inflation, accessibility regression, and duplicate architecture; account connection returned HTTP 400; no synthetic substitute"
+    },
+    {
+      "skills": ["Venice Judgment Jars", "Recovery/checkpointing/idempotence"],
+      "state": "LIT",
+      "change": "bounded source slice may stop; regression execution, TESTED, runtime, and campaign continue; exact-head automatic workflow failures were observed without manual retry or invented diagnosis"
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar", "Christmas-light scene graph"],
+      "state": "DARK",
+      "change": "no material token ambiguity or runtime transition law justified mutation; no decorative blink/autoplay/timer work"
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "FIREWALLED_DARK",
+      "change": "phone consumption 0; phone mutation 0; P0 mutation 0; duplicate architecture 0; new P0 finding none"
+    }
+  ],
+  "fronts": [
+    {
+      "name": "state-token exact bounded admission",
+      "state": "SOURCE_WIRED",
+      "detail": "exact built-in str, max 128 code points, no normalization-created authority"
+    },
+    {
+      "name": "backend machine-control bounded custody",
+      "state": "SOURCE_WIRED",
+      "detail": "capability status max 128; fail-closed boundary max 4096; accepted text preserved exact"
+    },
+    {
+      "name": "platform capability bounded custody",
+      "state": "SOURCE_WIRED",
+      "detail": "direct os_name exact built-in str with 64-code-point ceiling before comparison"
+    },
+    {
+      "name": "accessibility Warm Wall contract",
+      "state": "SOURCE_WIRED_SOURCE_ONLY",
+      "detail": "existing non-raster interactive specimen and source regression converged; runtime TalkBack NO"
+    },
+    {
+      "name": "repository skill doctrine",
+      "state": "SOURCE_CONVERGED",
+      "detail": "existing backend-selection skill records bounded-control laws without creating neighboring ownership"
+    }
+  ],
+  "crossPollination": "Exact-container and typed-scalar doctrine made the direct state policy's isinstance(str) boundary suspicious; closing that callback seam exposed exact-but-unbounded backend capability/failure controls. Bounded downstream controls then made the upstream platform os_name boundary suspicious, producing a third finite throat. Those source changes made the existing backend skill and Warm Wall incomplete, so Hunger forced doctrine plus accessible source-art convergence. Exact-head zero-step CI kept every source success behind TESTED/runtime.",
+  "executionTruth": {
+    "homeCenterCi": {"runId": 32946111889, "conclusion": "failure"},
+    "buildAndroid": {"runId": 32946111873, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 32946111867, "jobId": 98107051825, "conclusion": "failure", "stepsObserved": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "stateExactBoundedAdmission": "SOURCE_WIRED",
+    "backendBoundedControlThroats": "SOURCE_WIRED",
+    "platformOsNameBoundedAdmission": "SOURCE_WIRED",
+    "accessibilityWarmWall": "SOURCE_WIRED_SOURCE_ONLY",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}

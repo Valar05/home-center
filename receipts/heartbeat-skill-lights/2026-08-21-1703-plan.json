@@ -1,0 +1,41 @@
+{
+  "schema": "try-forever-heartbeat-plan.v1",
+  "slice": "2026-08-21-1703",
+  "mission": "Advance multiple independent non-P0 TRY FOREVER fronts without touching the P0/phone execution chain.",
+  "current_pr": 329,
+  "starting_head": "80a302ce9575c3725272fd9907a80d97a697da97",
+  "owner_path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+  "authenticated_owner_blob": "c5de1411a6b68087ae17aff83c032af754587150",
+  "fronts": [
+    {
+      "name": "collapsed operational truth refresh",
+      "reason": "The collapsed accessibility projection can include Home Center operational truth, but owner calls are heartbeat-model-driven. HEARTBEAT SKIP_UNCHANGED can therefore leave dragHandle semantics stale while HC state changes.",
+      "target": "owner-boundary regression + exact sole-owner patch + durable skill + existing source organism"
+    },
+    {
+      "name": "Adam Send availability",
+      "reason": "submitAdamRequest trims and silently returns on empty input while Send stays enabled/focusable.",
+      "target": "owner-boundary regression + exact sole-owner patch using existing AdamSendAvailabilityAccessibilityPolicy"
+    },
+    {
+      "name": "cross-front owner evidence",
+      "reason": "Patch/helper existence must not be promoted to owner wiring; one direct-owner regression should pin both seams against the authenticated owner blob.",
+      "target": "deterministic source-only acceptance gate"
+    }
+  ],
+  "she_raw": {
+    "attempted": true,
+    "result": "FAULT_ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute": false
+  },
+  "p0_firewall": {
+    "phone_hands": "UNTOUCHED",
+    "primary_phone": "UNTOUCHED",
+    "recovery_queue": "UNTOUCHED",
+    "nightcore": "UNTOUCHED",
+    "pocket_tts": "UNTOUCHED",
+    "chromium": "UNTOUCHED",
+    "context_organs": "UNTOUCHED"
+  },
+  "capability_gate": "SOURCE_WORK_ALLOWED__OWNER_RUNTIME_TEST_DELIVERY_UNPROVEN"
+}
