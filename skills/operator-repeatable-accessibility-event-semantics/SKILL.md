@@ -22,9 +22,12 @@ A live region is a semantic **value-change** surface. A native control exposes a
    - Blocker: `DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED`.
    - Persistent selection/detail semantics exist, but repeated explicit selection has not earned receipt removal.
 
-4. **Adam send confirmation — migration blocked.**
-   - Blocker: `ADAM_REPEAT_SEND_RESULT_UNRESOLVED`.
-   - Keep the existing explicit send receipt.
+4. **Adam send confirmation — migration blocked, repeat-cycle contract sharpened.**
+   - Blocker remains `ADAM_REPEAT_SEND_RESULT_UNRESOLVED`.
+   - Source policy now explicitly requires an intervening READY state before a later successful SENT state can stand in for a repeatable result receipt.
+   - The intended lifecycle is: successful send → SENT; the field is cleared; any newer unsent source, including rejected OVER_BUDGET contact, drives SENT → READY; only a later successful submit may drive READY → SENT again.
+   - This prevents a permanently true SENT sticker from masquerading as evidence of repeated successful sends.
+   - Native Adam result-state ownership is still not wired, so keep the existing explicit send receipt. Supporting lifecycle design is not permission to remove it.
 
 ## Applied owner custody
 The canonical combined selection + material-transition surgery is **APPLIED_SOURCE**:
@@ -48,12 +51,15 @@ The same mutation composes `HeartbeatSelectionAccessibilityPolicy` into the nati
 8. Compose `OperatorOverlayService`; never create a neighboring accessibility-event controller.
 9. Capability membrane: `policy source → owner source wired → regression source → regression executed → tested → runtime TalkBack → deployed → delivered → accepted`.
 10. P0 firewall: no Phone Hands, recovery orchestration, Nightcore, Pocket TTS, Chromium, Context Organs, PR317/PR318 mutation, or physical acceptance.
+11. A persistent success state may replace a repeatable explicit receipt only if source truth guarantees that another material attempt must leave that success state before a later success can re-enter it. For Adam Send, that means READY must intervene before a later SENT; OVER_BUDGET unsent contact must also break stale SENT.
+12. Supporting repeat-cycle semantics do not green-paint native owner wiring. Until `OperatorOverlayService` actually owns the READY/SENT lifecycle and its source/runtime evidence converges, the legacy Adam send receipt stays present.
 
 ## Current truth
 - heartbeat horizontal collection policy: **SOURCE_WIRED / ROWS=1 / COLUMNS=N**;
 - heartbeat material-transition migration: **SOURCE_WIRED / APPLIED_SOURCE**;
 - Spotify receipt migration: **NO / blocker non-NONE**;
 - repeated detail-selection receipt migration: **NO / blocker non-NONE**;
-- Adam send receipt migration: **NO / blocker non-NONE**;
+- Adam repeat-result cycle contract: **SUPPORTING SOURCE YES / READY MUST INTERVENE BEFORE REPEATED SENT**;
+- Adam send receipt migration: **NO / blocker non-NONE / NATIVE RESULT OWNER UNWIRED**;
 - owner-convergence regression source: **YES / UNEXECUTED**;
 - TESTED / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO absent fresh evidence**.
