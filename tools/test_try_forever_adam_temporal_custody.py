@@ -12,9 +12,8 @@ It pins four independent temporal custody failures and their positive counterpar
 3. the persistent Send owner must exist before createOverlay refreshes its semantics; and
 4. a mode mutation must occur before the mode-change path refreshes Send semantics.
 
-The last two cases are intentionally RED against owner-probe v10. Their existence demotes the
-optimistic Send-action evidence label until the existing probe is repaired; source presence is
-not regression execution or TESTED capability.
+Owner-probe v11 consumes all four source-evidence witnesses. This fixture remains SOURCE /
+UNEXECUTED; source convergence is not regression execution or TESTED capability.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -145,7 +144,7 @@ def main() -> int:
     ))
     assert send_wired["sendAction"]["status"] == "SOURCE_WIRED"
 
-    assert send_wired["schema"] == "try-forever-adam-accessibility-owner-probe.v10"
+    assert send_wired["schema"] == "try-forever-adam-accessibility-owner-probe.v11"
     capability = send_wired["capability"]
     assert capability["sourceInspection"] is True
     for key in (
@@ -159,7 +158,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Adam temporal-custody source regression: PASS")
+    print("Adam temporal-custody source regression v11: PASS")
     return 0
 
 
