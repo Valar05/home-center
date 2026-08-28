@@ -43,22 +43,27 @@ Use when the overlay exposes multiple Adam modes, when selecting a mode moves fo
 31. Sendability and unsent-contact truth are distinct. `enabled=false` may mean empty input or rejected over-budget source; only the bounded classifier's `hasUnsentText` decides whether persistent SENT contact is stale.
 32. Existing-owner surgery must preserve unrelated source exactly enough for review. A broad whole-file rewrite that changes unrelated comments/formatting is a failed surgery even when intended semantics are present; revert it before treating owner capability as changed.
 33. Rendered-axis geometry is authority-bearing accessibility context. The existing Adam mode row is horizontal, so canonical source geometry is `rowCount=1`, `columnCount=5`, every item has `rowIndex=0`, and `columnIndex=positionInSet-1`; row/column spans are one. Do not transpose a horizontal set into five rows by one column, and do not hand-copy this geometry into the native owner when `AdamModeSelectionAccessibilityPolicy` can own it once for both regression and owner surgery.
+34. A source probe must prove that an admission policy result controls admission, not merely that the right policy name occurs before persistence. For the current Adam service surgery, SOURCE_WIRED requires exactly one fully-qualified `AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)` result to be used as a fail-closed return guard before whole-source materialization. An ignored return value, assigned-but-unenforced boolean, shadow helper, duplicate gate, or policy call in an unrelated owner method is not custody.
+35. A source specimen that claims horizontal 1×5 geometry must not visually wrap the five mode choices into multiple rows at narrow widths. Preserve the one-row topology and use bounded horizontal scrolling rather than making visual geometry contradict the native accessibility contract. This is specimen truth only; it does not claim Android runtime behavior.
 
-## Current PR #329 source truth — 2026-08-27 22:02 CT
+## Current PR #329 source truth — 2026-08-28 06:00 CT
 
 - Selection policy: `AdamModeSelectionAccessibilityPolicy` — **IMPLEMENTED SOURCE YES** at blob `0ab827c07cca64ce29879c0d7a51d229835a9aeb`. It owns exact five-mode identity, stable one-based positions, horizontal one-row/five-column collection geometry, a 64-code-unit direct source throat, and bounded invalid-mode diagnostics.
-- Selection regression source: `AdamModeSelectionAccessibilityPolicyTest` — **YES / UNEXECUTED** at blob `8fad334e627a9bc13c6fb417e48f7e99b884706c`; it now pins `1 row × 5 columns`, row zero, zero-based columns, one-cell spans, and the independent one-based set positions.
+- Selection regression source: `AdamModeSelectionAccessibilityPolicyTest` — **YES / UNEXECUTED** at blob `8fad334e627a9bc13c6fb417e48f7e99b884706c`; it pins `1 row × 5 columns`, row zero, zero-based columns, one-cell spans, and the independent one-based set positions.
 - Input-result policy: `AdamInputResultAccessibilityPolicy` — **IMPLEMENTED SOURCE YES** at blob `cc09a2533fa487569ec0b3708f9dd00ace2a95da`; doctrine and parameter semantics explicitly treat rejected OVER_BUDGET source as unsent contact rather than sendability.
 - Input-result regression source: `AdamInputResultAccessibilityPolicyTest` — **YES / UNEXECUTED** at blob `6034131edf868504efee5885d7b4f0ba17fa7294`; it cross-pins OVER_BUDGET availability contact into READY/SENT lifecycle truth.
 - Send-action policy: `AdamSendActionAccessibilityPolicy` — **IMPLEMENTED SOURCE YES** at blob `1c1f6a3b5f27c66e95fc44fe5e747da93c70d386`.
 - Send-availability policy: `AdamSendAvailabilityAccessibilityPolicy` — **IMPLEMENTED SOURCE YES** at blob `2e15869dcab81995fbac849c98596a6cf2cd50c5`. It owns the 32,768-code-unit source throat, bounded in-place ASCII-trim-equivalent scan, explicit `EMPTY_OR_WHITESPACE / MATERIAL / OVER_BUDGET` state, and separate `hasUnsentText` contact truth.
 - Send-availability hostile regression source: `AdamSendAvailabilityAccessibilityPolicyTest` — **YES / UNEXECUTED** at blob `2f7727f1b0c00c4785ea7d00fe36e50c41371d02`.
-- Current authenticated native UI owner blob remains `2935243f136359e3489a89108406e888b0ec2911`. It still lacks the finite pre-materialization service gate and rebased Adam mode/input/result/action/availability wiring.
+- Current authenticated native UI owner blob remains `2935243f136359e3489a89108406e888b0ec2911`. It still lacks the finite pre-materialization service guard and rebased Adam mode/input/result/action/availability wiring.
 - A broad attempted owner rewrite at commit `82fd5003...` was rejected by self-review because its 224-line diff included unrelated comment/format churn. Commit `69511efc...` restored the exact pre-attempt tree before further source work. **No native owner capability is claimed from the rejected attempt.**
 - Current authenticated request-state owner blob: `3870272863878cd7eaef69d24b31a6c8de1bbef9` — **REQUEST SOURCE-WORK SOURCE_WIRED**.
-- Adam accessibility surgery: `patches/try-forever-adam-mode-input-accessibility-owner.patch` — **REBASED_PROPOSED_NOT_APPLIED** at blob `3937d4b6c699076c314dd475c7154f14d5baa4f9`, exact-base locked to UI owner blob `2935243f...`, and now consumes policy-owned horizontal collection geometry instead of duplicating row/column constants.
+- Adam accessibility surgery: `patches/try-forever-adam-mode-input-accessibility-owner.patch` — **REBASED_PROPOSED_NOT_APPLIED** at blob `3937d4b6c699076c314dd475c7154f14d5baa4f9`, exact-base locked to UI owner blob `2935243f...`, and consumes policy-owned horizontal collection geometry instead of duplicating row/column constants.
 - Finite request-work surgery: `patches/try-forever-adam-request-source-work-throat.patch` — **PARTIAL_APPLIED_SOURCE__SERVICE_PROPOSED_NOT_APPLIED**; the service seam remains exact-base-locked to blob `2935243f...`.
-- Deterministic Adam owner source probe: `tools/try_forever_adam_accessibility_owner_probe.py` — **SOURCE YES / NOT EXECUTED**.
+- Deterministic Adam owner source probe: `tools/try_forever_adam_accessibility_owner_probe.py` — **SOURCE HARDENED / NOT EXECUTED** at blob `8d8db1b37f3d39c6e14c6ac13d4b3e7dbfb13942`. The requestAdmission seam now requires the canonical policy result to be an actual fail-closed return guard; ignored or merely assigned policy calls cannot green-light owner custody.
+- Broad owner probe fixture: `tools/test_try_forever_adam_accessibility_owner_probe.py` — **SOURCE REPAIRED / NOT EXECUTED** at blob `fcbabccad9091929b5d787313ee59ed059e9ee82`; its schema assertion now matches probe v7.
+- Focused request-admission fixture: `tools/test_try_forever_adam_request_admission_owner_probe.py` — **SOURCE HARDENED / NOT EXECUTED** at blob `8aee7f21d013dc402c438356f1b23df0f77823e7`; it pins ignored and assigned-but-unenforced canonical policy calls as PARTIAL_UNSAFE.
+- Warm Wall source specimen: `docs/try-forever/adam-mode-accessibility-warm-wall-source.html` — **SOURCE UPDATED / NOT RUNTIME** at blob `55d5208f78692fada0718537e7000c304ac58067`; five mode choices remain a real non-wrapping row with horizontal overflow at narrow viewports, and request-probe copy now distinguishes a controlling fail-closed guard from a decorative policy call.
 - Legacy repeatable Adam send announcement remains present because `ADAM_REPEAT_SEND_RESULT_UNRESOLVED` is not resolved by this source work.
 - TESTED / Android runtime UI / runtime TalkBack / deployed / callable / executed / delivered / accepted: **NO**.
 
@@ -69,6 +74,7 @@ At minimum prove:
 - exactly one canonical Adam mode is selected;
 - canonical modes expose stable one-based positions 1..5 with set size 5;
 - the horizontal native mode row exposes one row by five columns, every item at row zero with its zero-based canonical column, and the owner proposal consumes policy geometry rather than independently transposing/copying it;
+- the source specimen keeps that five-choice horizontal topology visually non-wrapping at narrow viewports rather than contradicting its own 1×5 claim;
 - mode input exactly at the 64-code-unit policy throat still reaches exact identity comparison; max+1 stops before repeated identity/diagnostic work;
 - case/whitespace drift fails closed and `OperatorState` does not independently normalize it into authority;
 - selected-only owner wiring is `PARTIAL_UNSAFE` until collection and per-mode position semantics are both present;
@@ -80,6 +86,7 @@ At minimum prove:
 - direct availability source exactly at the broad work ceiling reaches the historical ASCII trim predicate without `toString()`; max+1 stops after the length observation with zero element reads and is classified OVER_BUDGET;
 - direct state request source max+1 stops before trim/alias/UTF-8/Base64/SHA;
 - native UI submit max+1 stops before editable `toString()`/trim before service request-work custody can be called SOURCE_WIRED;
+- request-admission evidence rejects canonical policy calls whose result does not actually govern a fail-closed return before materialization;
 - valid availability wiring can remain SOURCE_WIRED without duplicating action-description ownership;
 - persistent SENT state does not claim announcement migration is ready;
 - proposed owner patches and rejected owner attempts cannot be reported as Android or TalkBack runtime proof.
