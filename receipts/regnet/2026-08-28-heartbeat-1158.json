@@ -1,0 +1,80 @@
+{
+  "schema": "try-forever-regnet-heartbeat.v1",
+  "heartbeat": "2026-08-28T11:58:39-05:00",
+  "reviewedSourceHead": "14dbffc7ab8a4b9a69cfa6d7a5132d51b2dc75ce",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "fronts": {
+    "requestAdmissionTemporalCustody": {
+      "state": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+      "change": "New hostile source fixture pins executable post-admission/pre-materialization work as unsafe because the admitted CharSequence may alias mutable Editable content. Probe v9 currently lacks same-observation temporal content binding across that gap.",
+      "fixture": "tools/test_try_forever_adam_temporal_custody.py",
+      "fixtureState": "RED_SOURCE_UNEXECUTED"
+    },
+    "sendActionTemporalCustody": {
+      "state": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+      "change": "The same hostile fixture pins current-mode mutation between decisionFor(adamMode) and setContentDescription(decision.actionDescription). Lexical data flow without temporal binding can describe a stale action.",
+      "fixture": "tools/test_try_forever_adam_temporal_custody.py",
+      "fixtureState": "RED_SOURCE_UNEXECUTED"
+    },
+    "warmWallAccessibility": {
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "change": "Existing Warm Wall now separates READY/SENT result state from bounded Send availability, eliminating contradictory empty/over-budget wording such as Ready to send while the native-style Send control is disabled. It also truthfully demotes both v9 evidence seams to revision-required."
+    }
+  },
+  "skillsActivated": [
+    "Failure Is The Shovel",
+    "Originality Tax",
+    "Canon Auto-Select",
+    "Hunger",
+    "Ever-Polished Interpreter / Eat Everything",
+    "operator-owner-surgery-temporal-content-binding",
+    "adam-mode-accessibility",
+    "operator-repeatable-accessibility-event-semantics",
+    "deterministic routing",
+    "evidence/capability-state discipline",
+    "recovery/checkpointing/idempotence",
+    "strange non-raster vector/DOM/native UI art",
+    "warm walls",
+    "Christmas-light scene graph",
+    "contact preservation"
+  ],
+  "executionTruth": {
+    "reviewedSourceHead": "14dbffc7ab8a4b9a69cfa6d7a5132d51b2dc75ce",
+    "operatorOverlayRun": 33192943600,
+    "buildAndroidRun": 33192943480,
+    "homeCenterCiRun": 33192943534,
+    "conclusions": "failure",
+    "operatorJob": 98922764964,
+    "operatorJobSteps": 0,
+    "regressionExecuted": false,
+    "tested": false,
+    "diagnosisClaimed": false
+  },
+  "nativeOwners": {
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "runtimeTalkBack": false
+  },
+  "sheRaw": {
+    "consulted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "continueRequired": [
+    "request-admission temporal-custody probe repair",
+    "Send-action temporal-custody probe repair",
+    "fixture execution through an authorized non-phone regression lane",
+    "native UI request-owner mutation through its existing owner lane",
+    "native accessibility-owner mutation through its existing owner lane",
+    "runtime TalkBack evidence",
+    "deployment/delivery/acceptance"
+  ]
+}
