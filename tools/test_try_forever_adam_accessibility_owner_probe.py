@@ -205,7 +205,7 @@ def main() -> int:
     assert result["sendAction"]["status"] == "SOURCE_WIRED"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v8"
+    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v9"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
