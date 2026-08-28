@@ -6,10 +6,12 @@ TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 
 The hostile cases pin policy custody plus single-observation, control-flow, binding, and persistence
 custody: a consumer must not earn SOURCE_WIRED from a shadow helper, an ignored/nested canonical
-policy call, rebound admitted source/text, wrong persistence arguments, repeated observations/work,
-compound text rebinding, or a second request-persistence sink. Probe v9 closes the two v8 evidence
-wounds by counting simple/compound binding assignments and all request-persistence sinks. This
-fixture remains source only until an execution lane supplies a test receipt.
+policy call, executable request work before the canonical admission guard, rebound admitted
+source/text, wrong persistence arguments, repeated observations/work, compound text rebinding, or
+a second request-persistence sink. Probe v9 closes the two v8 evidence wounds around compound
+binding and duplicate persistence, but the new pre-gate-work case intentionally pins a remaining
+v9 evidence gap for repair. This fixture remains source only until an execution lane supplies a
+test receipt.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -115,6 +117,18 @@ def main() -> int:
     assert nested_guard["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
     assert nested_guard["requestAdmission"]["owner_policy_reference"] is False
     assert "unconditional top-level" in nested_guard["requestAdmission"]["reason"]
+
+    pre_gate_work = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "auditRequestLength(editable.length());\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert pre_gate_work["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "immediate canonical fail-closed admission after source observation" in (
+        pre_gate_work["requestAdmission"]["reason"]
+    )
 
     rebound_editable = classify(wrap(
         "CharSequence editable = adamInput.getText();\n"
