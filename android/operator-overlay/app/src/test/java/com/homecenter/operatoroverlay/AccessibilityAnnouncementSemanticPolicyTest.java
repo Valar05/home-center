@@ -25,6 +25,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.requiresMaterialTransition);
         assertFalse(decision.repeatableIdenticalValuePossible);
         assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertFalse(decision.requiresInterveningReadyStateForRepeatReceipt);
         assertTrue(decision.ownerMigrationReady);
         assertEquals(
                 AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.NONE,
@@ -69,6 +70,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.requiresMaterialTransition);
         assertTrue(decision.repeatableIdenticalValuePossible);
         assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertFalse(decision.requiresInterveningReadyStateForRepeatReceipt);
         assertFalse(decision.ownerMigrationReady);
         assertEquals(
                 AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED,
@@ -97,6 +99,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.requiresExplicitUserAction);
         assertTrue(decision.repeatableIdenticalValuePossible);
         assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertFalse(decision.requiresInterveningReadyStateForRepeatReceipt);
         assertFalse(decision.ownerMigrationReady);
         assertEquals(
                 AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED,
@@ -111,7 +114,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
     }
 
     @Test
-    public void adamSendDesignExistsButOwnerMigrationFailsClosed() {
+    public void adamSendDesignPinsReadyBeforeRepeatedSentButOwnerMigrationFailsClosed() {
         AccessibilityAnnouncementSemanticPolicy.Decision decision =
                 AccessibilityAnnouncementSemanticPolicy.decisionFor(
                         AccessibilityAnnouncementSemanticPolicy.Consequence.ADAM_SEND_CONFIRMATION);
@@ -125,6 +128,7 @@ public class AccessibilityAnnouncementSemanticPolicyTest {
         assertTrue(decision.requiresExplicitUserAction);
         assertTrue(decision.repeatableIdenticalValuePossible);
         assertFalse(decision.syntheticRepeatReceiptRequired);
+        assertTrue(decision.requiresInterveningReadyStateForRepeatReceipt);
         assertFalse(decision.ownerMigrationReady);
         assertEquals(
                 AccessibilityAnnouncementSemanticPolicy.MigrationBlocker.ADAM_REPEAT_SEND_RESULT_UNRESOLVED,
