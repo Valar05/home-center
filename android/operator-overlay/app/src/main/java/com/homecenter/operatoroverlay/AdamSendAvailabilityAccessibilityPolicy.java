@@ -15,6 +15,10 @@ package com.homecenter.operatoroverlay;
  * {@link CharSequence} admission; it bounds the number of source observations owned by this
  * policy.</p>
  *
+ * <p>Sendability and contact truth are intentionally separate. {@code OVER_BUDGET} is not sendable,
+ * but it still proves that newer unsent source exists, so a native READY/SENT owner must fail closed
+ * away from stale SENT rather than treating rejection as an empty field.</p>
+ *
  * <p>This policy owns no View, TextWatcher, announcement, controller, transport, phone execution,
  * or P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.</p>
  */
@@ -32,6 +36,7 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
         public final AdamModeSelectionAccessibilityPolicy.Mode mode;
         public final RequestState requestState;
         public final boolean enabled;
+        public final boolean hasUnsentText;
         public final String visibleLabel;
         public final String actionDescription;
         public final boolean requiresSyntheticAnnouncement;
@@ -43,6 +48,7 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
             this.mode = mode;
             this.requestState = requestState;
             this.enabled = requestState == RequestState.MATERIAL;
+            this.hasUnsentText = requestState != RequestState.EMPTY_OR_WHITESPACE;
             this.visibleLabel = "Send";
             this.actionDescription = actionDescription;
             this.requiresSyntheticAnnouncement = false;
