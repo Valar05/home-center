@@ -8,8 +8,8 @@ runtime, deployed, delivered, or accepted capability.
 Comments and literals are blanked first. Positive owner evidence must then occur in the
 direct OperatorOverlayService methods that own the Adam mode, send, edit, and request-admission
 lifecycle; unrelated state setters elsewhere in the large owner cannot counterfeit wiring.
-Version 10 additionally requires temporal same-observation custody where mutable UI state is
-classified and then consumed.
+Version 11 additionally requires temporal same-observation custody where mutable UI state is
+classified and then consumed, plus owner-local lifecycle ordering for Send semantic refresh.
 """
 
 from __future__ import annotations
@@ -240,15 +240,38 @@ def classify_input_result(source: str) -> SeamVerdict:
 
 
 def classify_send_action(source: str) -> SeamVerdict:
-    """Prove current-mode action wording from one mutation-free mode snapshot."""
+    """Prove Send semantics plus owner-local lifecycle ordering from one mode snapshot."""
     owner = _owner_surface(source)
     create_method = _direct_method_surface(owner, "createOverlay")
     mode_method = _direct_method_surface(owner, "adamModeButton")
     refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
     policy = "AdamSendActionAccessibilityPolicy"
 
-    created_owner = "adamSendButton" in create_method and "refreshAdamSendAction(" in create_method
-    mode_refresh = "refreshAdamSendAction(" in mode_method
+    create_owner_pattern = re.compile(
+        r"\b(?:this\.)?adamSendButton\s*=\s*[^;]+;"
+    )
+    mode_mutation_pattern = re.compile(
+        r"\b(?:this\.)?adamMode\s*=\s*mode\s*;"
+    )
+    lifecycle_refresh_pattern = re.compile(
+        r"\brefreshAdamSendAction\s*\(\s*\)\s*;"
+    )
+
+    create_owner_assignments = list(create_owner_pattern.finditer(create_method))
+    create_refreshes = list(lifecycle_refresh_pattern.finditer(create_method))
+    mode_mutations = list(mode_mutation_pattern.finditer(mode_method))
+    mode_refreshes = list(lifecycle_refresh_pattern.finditer(mode_method))
+
+    create_lifecycle_ordered = (
+        len(create_owner_assignments) == 1
+        and len(create_refreshes) == 1
+        and create_owner_assignments[0].end() <= create_refreshes[0].start()
+    )
+    mode_lifecycle_ordered = (
+        len(mode_mutations) == 1
+        and len(mode_refreshes) == 1
+        and mode_mutations[0].end() <= mode_refreshes[0].start()
+    )
 
     snapshot_pattern = re.compile(
         r"\b(?:final\s+)?String\s+modeSnapshot\s*=\s*adamMode\s*;"
@@ -302,12 +325,12 @@ def classify_send_action(source: str) -> SeamVerdict:
         and snapshots[0].start() < decisions[0].start() < descriptions[0].start()
         and len(visible_pattern.findall(refresh_method)) <= 1
     )
-    policy_reference = created_owner and mode_refresh and exact_temporal_data_flow
+    policy_reference = create_lifecycle_ordered and mode_lifecycle_ordered and exact_temporal_data_flow
 
     if policy_reference:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam Send owner snapshots current mode once, immediately derives one policy Decision from that snapshot, and projects its current visible/semantic action without intervening owner-state mutation or arbitrary executable work",
+            "direct Adam Send owner assigns the persistent button before create-time refresh, mutates current mode before mode-change refresh, snapshots that mode once, immediately derives one policy Decision, and projects its current visible/semantic action without intervening owner-state mutation or arbitrary executable work",
             policy,
             True,
             True,
@@ -318,12 +341,14 @@ def classify_send_action(source: str) -> SeamVerdict:
         or "refreshAdamSendAction(" in create_method
         or "refreshAdamSendAction(" in mode_method
         or "adamSendButton.setContentDescription(" in refresh_method
+        or "adamSendButton" in create_method
+        or "adamMode" in mode_method
     ):
         missing = []
-        if not created_owner:
-            missing.append("shared native Send owner initialization")
-        if not mode_refresh:
-            missing.append("mode-change semantic refresh")
+        if not create_lifecycle_ordered:
+            missing.append("one persistent Send-owner assignment before create-time semantic refresh")
+        if not mode_lifecycle_ordered:
+            missing.append("one current-mode mutation before the mode-change semantic refresh")
         if not exact_temporal_data_flow:
             missing.append("one mutation-free current-mode snapshot whose exact policy result drives the action description")
         return SeamVerdict(
@@ -331,7 +356,7 @@ def classify_send_action(source: str) -> SeamVerdict:
             "Adam Send owner is incomplete: missing " + ", ".join(missing),
             policy,
             policy in create_method or policy in refresh_method,
-            exact_temporal_data_flow,
+            exact_temporal_data_flow and create_lifecycle_ordered and mode_lifecycle_ordered,
         )
     return SeamVerdict(
         "LEGACY_OWNER",
@@ -487,7 +512,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v10",
+        "schema": "try-forever-adam-accessibility-owner-probe.v11",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
