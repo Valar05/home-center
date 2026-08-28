@@ -4,10 +4,10 @@
 This test exercises deterministic source classification only. It does not execute Android,
 TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 
-The final three cases are intentionally RED against probe v6: a consumer must not earn
-SOURCE_WIRED by observing the editable source, request-admission policy, or whole-source
-materialization more than once. They preserve the next exact evidence-owner wound without
-pretending the current probe already enforces single-observation custody.
+The final three cases pin single-observation custody: a consumer must not earn SOURCE_WIRED by
+observing the editable source, request-admission policy, or whole-source materialization more than
+once. Probe v6 now rejects those counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source
+only until an execution lane supplies a test receipt.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -67,9 +67,9 @@ def main() -> int:
         "String text = editable.toString().trim();\n"
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
-    assert duplicate_source_observation["requestAdmission"]["status"] == "PARTIAL_UNSAFE", (
-        "RED: probe v6 currently allows repeated adamInput.getText() observations to counterfeit "
-        "single-owner request custody"
+    assert duplicate_source_observation["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "exactly one detached editable source observation" in (
+        duplicate_source_observation["requestAdmission"]["reason"]
     )
 
     duplicate_policy_gate = classify(wrap(
@@ -79,8 +79,9 @@ def main() -> int:
         "String text = editable.toString().trim();\n"
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
-    assert duplicate_policy_gate["requestAdmission"]["status"] == "PARTIAL_UNSAFE", (
-        "RED: probe v6 currently allows duplicated bounded policy work to counterfeit one gate"
+    assert duplicate_policy_gate["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "exactly one bounded request-admission policy gate" in (
+        duplicate_policy_gate["requestAdmission"]["reason"]
     )
 
     duplicate_materialization = classify(wrap(
@@ -90,9 +91,9 @@ def main() -> int:
         "String text = editable.toString().trim();\n"
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
-    assert duplicate_materialization["requestAdmission"]["status"] == "PARTIAL_UNSAFE", (
-        "RED: probe v6 currently allows repeated whole-source materialization to counterfeit "
-        "bounded request admission"
+    assert duplicate_materialization["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "exactly one post-gate detached request materialization" in (
+        duplicate_materialization["requestAdmission"]["reason"]
     )
 
     capability = wired["capability"]
@@ -108,7 +109,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Adam UI request-admission owner probe ordering: PASS")
+    print("Adam UI request-admission owner probe single-observation custody: PASS")
     return 0
 
 
