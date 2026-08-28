@@ -1,0 +1,178 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "time_ct": "2026-08-28T10:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewed_source_head": "abfc44b3387a076d11a7653d6231b5a393102fe2",
+  "prior_publication_head": "7f515426917f292bbaa342fdcbf262867ecc8aa8",
+  "source_delta": {
+    "commits": 4,
+    "intended_paths": 4,
+    "unexpected_paths": 0,
+    "paths": [
+      "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "skills/adam-mode-accessibility/SKILL.md"
+    ]
+  },
+  "heartbeat_lights": {
+    "Failure Is The Shovel": {
+      "lit": true,
+      "changed": "converted two optimistic evidence seams into explicit hostile RED source cases rather than preserving stale green"
+    },
+    "Canon Auto-Select": {
+      "lit": true,
+      "changed": "selected existing adam-mode-accessibility, owner-surgery custody, and repeatable-event doctrine; no adjacent controller or transport"
+    },
+    "Autocorrect Judgment Jar": {
+      "lit": false,
+      "why_dark": "no authority-bearing ambiguous token appeared"
+    },
+    "Originality Tax": {
+      "lit": true,
+      "changed": "did not repeat v9 green-polish; introduced materially different adversarial shapes: pre-gate executable work and stale send-action data flow"
+    },
+    "Hunger": {
+      "lit": true,
+      "changed": "continued from request persistence custody into pre-admission side effects and from policy co-location into exact result binding"
+    },
+    "Ever-Polished Interpreter / Eat Everything": {
+      "lit": true,
+      "changed": "cross-checked source specimen, deterministic evidence, accessibility semantics, and durable doctrine for contradictions"
+    },
+    "Operator Campaign": {
+      "lit": true,
+      "changed": "advanced four independent repository paths plus durable Regnet/Venice/swarm receipts through the existing PR branch"
+    },
+    "Harroway operator discipline": {
+      "lit": true,
+      "changed": "kept existing owners authoritative and preserved proposed/applied/runtime distinctions"
+    },
+    "She-Raw adversarial motivation": {
+      "lit": true,
+      "changed": "authoritative consultation attempted against evidence leakage, stale semantics, duplicate architecture, and P0 overlap; connection returned HTTP 400; no synthetic substitute"
+    },
+    "Venice Judgment Jars": {
+      "lit": true,
+      "changed": "CONTINUE_REQUIRED; holds probe repairs, native owner mutations, execution, TESTED/runtime, delivery, and acceptance open"
+    },
+    "Regnet QA": {
+      "lit": true,
+      "changed": "accepted bounded source progress while demoting request-admission and send-action evidence to REVISE_REQUIRED"
+    },
+    "accessibility/TalkBack and touch semantics": {
+      "lit": true,
+      "changed": "OVER_BUDGET now exposes aria-invalid=true with human-readable non-live reason; empty remains valid-but-unavailable; runtime TalkBack still NO"
+    },
+    "Phone Runtime / Phone Hands recovery": {
+      "lit": false,
+      "why_dark": "binding phone resource firewall; exact shared execution predicate was not reopened by fresh P0 evidence"
+    },
+    "deterministic routing": {
+      "lit": true,
+      "changed": "new fixtures demand immediate canonical admission and exact AdamSendActionAccessibilityPolicy.Decision-to-description data flow"
+    },
+    "evidence/capability-state discipline": {
+      "lit": true,
+      "changed": "probe v9 and send-action classifier are EVIDENCE_REVISE_REQUIRED / UNEXECUTED; native capability remains unchanged"
+    },
+    "recovery/checkpointing/idempotence": {
+      "lit": true,
+      "changed": "all mutations stayed on the existing PR branch; previous publication is explicit and source delta is exactly enumerated"
+    },
+    "strange non-raster vector/DOM/native UI art": {
+      "lit": true,
+      "changed": "existing DOM/SVG Warm Wall updated in place; no raster or neighboring overlay"
+    },
+    "warm walls": {
+      "lit": true,
+      "changed": "specimen truth now displays evidence demotions and bounded invalid-state semantics instead of stale green"
+    },
+    "Christmas-light scene graph": {
+      "lit": true,
+      "changed": "invalid state is programmatic plus text, not blink/motion/live-region chatter; reduced-motion/no-rejection-animation constraints preserved"
+    },
+    "contact preservation": {
+      "lit": true,
+      "changed": "legacy explicit Adam send announcement remains preserved because repeat-runtime replacement is unresolved"
+    },
+    "operator-owner-surgery-custody": {
+      "lit": true,
+      "changed": "native UI request and accessibility surgeries remain exact-base PROPOSED_NOT_APPLIED; no fuzzy application"
+    },
+    "operator-repeatable-accessibility-event-semantics": {
+      "lit": true,
+      "changed": "source-only invalid-state and evidence work did not erase the repeat-send receipt"
+    }
+  },
+  "fronts": [
+    {
+      "name": "request_admission_evidence",
+      "advanced": true,
+      "state": "RED_SOURCE_UNEXECUTED__PROBE_REVISE_REQUIRED",
+      "finding": "v9 still permits executable request work between the detached editable observation and canonical fail-closed admission"
+    },
+    {
+      "name": "send_action_evidence",
+      "advanced": true,
+      "state": "RED_SOURCE_UNEXECUTED__PROBE_REVISE_REQUIRED",
+      "finding": "current send-action classifier proves policy co-location but not exact Decision result custody"
+    },
+    {
+      "name": "warm_wall_accessibility",
+      "advanced": true,
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "finding": "OVER_BUDGET is now programmatically invalid while empty remains valid-but-unavailable; associated reason text remains non-live"
+    },
+    {
+      "name": "durable_skill_harvest",
+      "advanced": true,
+      "state": "SOURCE_UPDATED",
+      "finding": "immediate admission, data-flow custody, invalid-vs-unavailable, and evidence-demotion law are now durable"
+    }
+  ],
+  "cross_pollination": "request-work custody review exposed pre-gate side-effect false green -> hostile focused fixture demoted request evidence -> send-action review exposed policy co-location without data-flow custody -> broad hostile fixture demoted that seam -> accessibility review converted OVER_BUDGET from only disabled to programmatically invalid with non-live reason -> all scars harvested into existing adam-mode-accessibility doctrine -> repeatable-event doctrine preserved the explicit send receipt -> capability membrane prevents source work from laundering into runtime",
+  "execution_truth": {
+    "exact_reviewed_source_head_workflow_runs_observed": 0,
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "capability_membrane": {
+    "requested": true,
+    "supporting_source_progress": true,
+    "authenticated_repository_readback": true,
+    "adam_state_request_owner": "SOURCE_WIRED",
+    "adam_ui_request_owner": "REBASED_PROPOSED_NOT_APPLIED",
+    "adam_native_accessibility_owner": "REBASED_PROPOSED_NOT_APPLIED",
+    "request_probe_v9": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+    "send_action_probe": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+    "focused_fixture": "RED_SOURCE_UNEXECUTED",
+    "broad_fixture": "RED_SOURCE_UNEXECUTED",
+    "warm_wall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phone_consumption": 0,
+    "phone_mutation": 0,
+    "p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "p0_receipts_used_as": "READ_ONLY_EVIDENCE_ONLY",
+    "new_p0_finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__REQUEST_PROBE_REPAIR_SEND_ACTION_PROBE_REPAIR_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
