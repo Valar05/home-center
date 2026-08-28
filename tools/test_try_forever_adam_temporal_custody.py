@@ -4,11 +4,17 @@
 This fixture exercises deterministic source classification only. It does not run Android,
 TalkBack, phone/P0 work, request transport, or owner surgery.
 
-It pins two independent temporal custody failures and their positive counterparts:
+It pins four independent temporal custody failures and their positive counterparts:
 1. admitted mutable Editable source cannot have executable work between canonical admission
-   and detached materialization; and
+   and detached materialization;
 2. Send-action semantics must derive from one current-mode snapshot with no intervening owner
-   mutation or arbitrary executable work before the action description is written.
+   mutation or arbitrary executable work before the action description is written;
+3. the persistent Send owner must exist before createOverlay refreshes its semantics; and
+4. a mode mutation must occur before the mode-change path refreshes Send semantics.
+
+The last two cases are intentionally RED against owner-probe v10. Their existence demotes the
+optimistic Send-action evidence label until the existing probe is repaired; source presence is
+not regression execution or TESTED capability.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -81,9 +87,53 @@ def main() -> int:
     ))
     assert arbitrary_send_work["sendAction"]["status"] == "PARTIAL_UNSAFE"
 
+    create_refresh_before_owner = classify(wrap(
+        "private void createOverlay() {\n"
+        "  refreshAdamSendAction();\n"
+        "  adamSendButton = button(\"Send\");\n"
+        "}\n"
+        "private Button adamModeButton() {\n"
+        "  adamMode = mode;\n"
+        "  refreshAdamSendAction();\n"
+        "  return button;\n"
+        "}\n"
+        "private void refreshAdamSendAction() {\n"
+        "  String modeSnapshot = adamMode;\n"
+        "  AdamSendActionAccessibilityPolicy.Decision decision = "
+        "AdamSendActionAccessibilityPolicy.decisionFor(modeSnapshot);\n"
+        "  adamSendButton.setContentDescription(decision.actionDescription);\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
+    ))
+    assert create_refresh_before_owner["sendAction"]["status"] == "PARTIAL_UNSAFE", (
+        "Send-action evidence must reject createOverlay refresh before persistent Send owner assignment"
+    )
+
+    mode_refresh_before_mutation = classify(wrap(
+        "private void createOverlay() {\n"
+        "  adamSendButton = button(\"Send\");\n"
+        "  refreshAdamSendAction();\n"
+        "}\n"
+        "private Button adamModeButton() {\n"
+        "  refreshAdamSendAction();\n"
+        "  adamMode = mode;\n"
+        "  return button;\n"
+        "}\n"
+        "private void refreshAdamSendAction() {\n"
+        "  String modeSnapshot = adamMode;\n"
+        "  AdamSendActionAccessibilityPolicy.Decision decision = "
+        "AdamSendActionAccessibilityPolicy.decisionFor(modeSnapshot);\n"
+        "  adamSendButton.setContentDescription(decision.actionDescription);\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
+    ))
+    assert mode_refresh_before_mutation["sendAction"]["status"] == "PARTIAL_UNSAFE", (
+        "Send-action evidence must reject semantic refresh that precedes the mode mutation it claims to expose"
+    )
+
     send_wired = classify(wrap(
         "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
-        "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
+        "private Button adamModeButton() { adamMode = mode; refreshAdamSendAction(); return button; }\n"
         "private void refreshAdamSendAction() {\n"
         "  String modeSnapshot = adamMode;\n"
         "  AdamSendActionAccessibilityPolicy.Decision decision = "
