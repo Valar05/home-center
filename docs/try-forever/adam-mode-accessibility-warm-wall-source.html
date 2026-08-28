@@ -12,7 +12,7 @@
   .scar { margin: 0 0 18px; font-weight: 700; }
   fieldset { border: 1px solid #737b8f; border-radius: 16px; padding: 12px; }
   legend { padding: 0 8px; font-weight: 700; }
-  .modes { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 8px; }
+  .modes { display: grid; grid-template-columns: repeat(5,minmax(120px,1fr)); gap: 8px; overflow-x: auto; padding-bottom: 2px; }
   .choice { min-height: 56px; display: flex; align-items: center; gap: 8px; border: 1px solid #737b8f; border-radius: 12px; padding: 4px 10px; cursor: pointer; }
   .choice:has(input:checked) { outline: 3px solid currentColor; }
   input[type="radio"] { inline-size: 24px; block-size: 24px; }
@@ -53,13 +53,13 @@
 
   <div class="wall" aria-label="Source capability states">
     <section class="cell"><div class="token">●</div><strong>EXACT MODE IDENTITY</strong><br>Five canonical values only. Direct policy work stops above 64 UTF-16 code units; whitespace/case drift does not normalize into authority.</section>
-    <section class="cell"><div class="token">●</div><strong>HORIZONTAL COLLECTION GEOMETRY</strong><br>Source owns 1 row × 5 columns; every item is row 0, column = canonical ordinal. Stable set position remains 1..5. No vertical transposition.</section>
+    <section class="cell"><div class="token">●</div><strong>HORIZONTAL COLLECTION GEOMETRY</strong><br>Source owns 1 row × 5 columns; every item is row 0, column = canonical ordinal. The visual specimen also remains one non-wrapping row and scrolls horizontally when the viewport is narrower than the five touch targets. Stable set position remains 1..5.</section>
     <section class="cell"><div class="token">●</div><strong>AVAILABILITY SOURCE THROAT</strong><br>32,768 UTF-16 code units before whole-source materialization/trim; max+1 means unavailable, never truncated into a request.</section>
     <section class="cell"><div class="token">●</div><strong>ASCII TRIM PARITY</strong><br>The specimen scans admitted source with the native historical predicate <code>char &gt; U+0020</code>. Unicode spaces such as U+2003 remain material; JavaScript <code>trim()</code> is not allowed to silently broaden authority.</section>
     <section class="cell"><div class="token">●</div><strong>MULTILINE EDITABLE PARITY</strong><br>The source specimen uses a real multiline <code>textarea</code> with four visible rows rather than a single-line text field, matching the native Adam editable surface without claiming Android runtime equivalence.</section>
     <section class="cell"><div class="token">●</div><strong>STATE REQUEST OWNER</strong><br><code>OperatorState</code> gates request text before trim/terminal alias/UTF-8/Base64/SHA and delegates mode admission to the exact mode policy.</section>
     <section class="cell"><div class="token">□</div><strong>UI REQUEST OWNER</strong><br><code>OperatorOverlayService.submitAdamRequest()</code> still materializes/trims editable text before consuming the finite supporting gate.</section>
-    <section class="cell"><div class="token">□</div><strong>REQUEST OWNER PROBE v7</strong><br>Deterministic source evidence has an independent <code>requestAdmission</code> seam. Green requires one source observation, one fully-qualified canonical policy gate, policy-before-materialization ordering, and materialization-before-state persistence. Shadow helpers cannot counterfeit policy custody. Current native owner remains RED; the probe fixture is source-only and unexecuted.</section>
+    <section class="cell"><div class="token">□</div><strong>REQUEST OWNER PROBE v7</strong><br>Deterministic source evidence has an independent <code>requestAdmission</code> seam. Green requires one source observation, one fully-qualified canonical policy result used as a fail-closed return guard, policy-before-materialization ordering, and materialization-before-state persistence. An ignored policy call or shadow helper cannot counterfeit admission custody. Current native owner remains RED; the probe fixture is source-only and unexecuted.</section>
     <section class="cell"><div class="token">●</div><strong>SET POSITION SOURCE</strong><br>Canonical TERM/CHAT/CONT/VLAD/RADIO order carries stable positions 1..5 and source geometry 1×5.</section>
     <section class="cell"><div class="token">△</div><strong>ACCESSIBILITY OWNER SURGERY</strong><br>Rebased exactly to current owner blob <code>2935243f…</code>; consumes policy-owned geometry but remains PROPOSED_NOT_APPLIED and forbidden from fuzzy carry-forward.</section>
     <section class="cell"><div class="token">□</div><strong>NATIVE SET CONTEXT</strong><br><code>setSelected(...)</code> alone is PARTIAL_UNSAFE until collection and item-position geometry are actually present in the native owner.</section>
@@ -123,7 +123,7 @@
     send.disabled = requestState !== MATERIAL;
     state.textContent = `${label} mode. ${result} Request ${requestState}.`;
     send.setAttribute('aria-label', `Send request to Adam using ${label} mode`);
-    detail.textContent = `${label} selected, position ${position} of ${order.length}; row 1 of 1, column ${position} of ${order.length}. ${result} Request ${requestState}. Exact horizontal collection geometry, ASCII-trim parity, multiline editable parity, and direct state request custody are source wired; request-admission probe v7 independently keeps the native UI request owner red until its finite pre-materialization gate is applied. Selection does not own keyboard or accessibility focus.`;
+    detail.textContent = `${label} selected, position ${position} of ${order.length}; row 1 of 1, column ${position} of ${order.length}. ${result} Request ${requestState}. Exact horizontal collection geometry, ASCII-trim parity, multiline editable parity, and direct state request custody are source wired; request-admission probe v7 independently keeps the native UI request owner red until a canonical fail-closed pre-materialization guard is applied. Selection does not own keyboard or accessibility focus.`;
   };
   group.addEventListener('change', () => { result = 'Ready to send.'; render(); });
   send.addEventListener('click', () => {
