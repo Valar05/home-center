@@ -19,22 +19,19 @@
 # Direct state owner is SOURCE_WIRED. The remaining service seam is exact-base-locked below and remains NOT_APPLIED.
 # Over-ceiling editable source must fail closed; it is never truncated or normalized into a smaller request.
 # The service gate consumes the exact AdamSendAvailabilityAccessibilityPolicy material-request predicate that owns native availability before calling toString().
-# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v8 has a separate
-# requestAdmission seam. Its intended SOURCE_WIRED contract requires one editable-source observation, one
-# unconditional top-level fully-qualified AdamSendAvailabilityAccessibilityPolicy guard, one post-gate detached
-# trim materialization, and persistence of exactly the admitted text. Shadow/ignored/nested guards, direct rebinding,
-# wrong persistence arguments, and duplicate source/gate/materialization work are rejected.
-#
-# Evidence caveat discovered 2026-08-28 08:00 CT: current v8 source still has two counterfeit-green holes that
-# focused RED fixture source now pins: compound reassignment of the admitted `text` (for example `text += suffix`)
-# and a second OperatorState.submitAdamRequest(...) persistence sink can hide behind one canonical admitted-text
-# submit. Until the existing probe rejects both, request-admission evidence is EVIDENCE_REVISE_REQUIRED and must
-# not be promoted to SOURCE_WIRED even if this exact service hunk is later applied.
-# Supporting-policy safety must not green-paint the consumer.
-#
+# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v10 has a separate
+# requestAdmission seam. SOURCE_WIRED requires one editable-source observation, immediate unconditional top-level
+# fully-qualified AdamSendAvailabilityAccessibilityPolicy admission, immediate detached trim materialization from
+# that same aliased Editable observation, and exactly one request-persistence sink carrying the admitted text.
+# Shadow/ignored/nested guards, pre-gate work, post-gate/pre-materialization executable work, source/text rebinding,
+# wrong persistence arguments, duplicate observations/gates/materialization, and duplicate persistence sinks fail closed.
+# Temporal scar: Android Editable is mutable aliased state. A policy decision followed by arbitrary executable work
+# and only then toString() does not prove that the bytes/text materialized are the content that was admitted.
+# This staged hunk keeps the canonical guard and materialization adjacent, so it satisfies the v10 source shape,
+# but the native owner remains REBASED_PROPOSED_NOT_APPLIED until this exact-base surgery is actually applied.
+# Supporting-policy safety and a repaired evidence probe must not green-paint the consumer.
 # Rebase scar: an older version of this artifact described a different submitAdamRequest() body/signature.
-# That hunk was stale despite naming the right owner blob. This version is rebuilt from authenticated current owner
-# source and MUST NOT be fuzzy-applied to any later blob.
+# This hunk is rebuilt from authenticated current owner source and MUST NOT be fuzzy-applied to any later blob.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
