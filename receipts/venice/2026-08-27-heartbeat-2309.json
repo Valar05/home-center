@@ -1,0 +1,36 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "localCheckpoint": "2026-08-27T23:09:03-05:00",
+  "reviewedSourceHead": "b862fcdfaea84f043090795de59ecd09592bdd89",
+  "judgment": {
+    "sourceSliceMayCheckpoint": true,
+    "reason": "The swarm advanced deterministic request-owner evidence and repaired stale accessibility doctrine without mutating the gated phone/P0 chain or inventing a neighboring owner. Authenticated source, applied provenance, and proposed owner seams are now separated more sharply.",
+    "continueRequired": [
+      "ADAM_UI_REQUEST_OWNER_MUTATION",
+      "ADAM_NATIVE_ACCESSIBILITY_OWNER_MUTATION",
+      "REGRESSION_EXECUTION",
+      "TEST",
+      "RUNTIME_TALKBACK",
+      "CAMPAIGN"
+    ]
+  },
+  "constraints": {
+    "supportingPolicyDoesNotGreenPaintConsumer": true,
+    "staleDoctrineDoesNotOverrideAuthenticatedSource": true,
+    "repeatableAdamSendReceiptPreserved": true,
+    "selectionDoesNotOwnFocus": true,
+    "noDecorativeMotionOnRejectedInput": true,
+    "duplicateArchitectureCreated": false,
+    "phoneOrP0Touched": false
+  },
+  "sheRaw": {"attempted": true, "result": "ACCOUNT_CONNECTION_HTTP_400", "syntheticSubstitute": false},
+  "execution": {
+    "exactHead": "b862fcdfaea84f043090795de59ecd09592bdd89",
+    "workflowsCompletedFailure": [33140965577, 33140965586, 33140965585],
+    "operatorJobId": 98751525364,
+    "operatorJobSteps": 0,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
