@@ -4,10 +4,10 @@
 This test exercises deterministic source classification only. It does not execute Android,
 TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 
-The hostile cases pin policy custody plus single-observation and control-flow custody: a consumer
-must not earn SOURCE_WIRED from a shadow helper, an ignored canonical policy call, or by observing
-the editable source, request-admission policy, or whole-source materialization more than once.
-Probe v7 rejects those counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source only until
+The hostile cases pin policy custody plus single-observation, control-flow, binding, and persistence
+custody: a consumer must not earn SOURCE_WIRED from a shadow helper, an ignored/nested canonical
+policy call, rebound admitted source/text, wrong persistence arguments, or repeated observations/work.
+Probe v8 rejects those counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source only until
 an execution lane supplies a test receipt.
 """
 
@@ -52,7 +52,7 @@ def main() -> int:
     assert wired["requestAdmission"]["status"] == "SOURCE_WIRED"
     assert wired["requestAdmission"]["owner_policy_reference"] is True
     assert wired["requestAdmission"]["owner_semantic_state"] is True
-    assert wired["schema"] == "try-forever-adam-accessibility-owner-probe.v7"
+    assert wired["schema"] == "try-forever-adam-accessibility-owner-probe.v8"
 
     counterfeit_literal = classify(wrap(
         "String note = \"AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)\";\n"
@@ -103,6 +103,53 @@ def main() -> int:
     assert observed_but_unenforced["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
     assert observed_but_unenforced["requestAdmission"]["owner_policy_reference"] is False
 
+    nested_guard = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (debugChecks) {\n"
+        "  if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "}\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert nested_guard["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert nested_guard["requestAdmission"]["owner_policy_reference"] is False
+    assert "unconditional top-level" in nested_guard["requestAdmission"]["reason"]
+
+    rebound_editable = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "editable = replacementSource;\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert rebound_editable["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "single-assignment detached editable source observation" in (
+        rebound_editable["requestAdmission"]["reason"]
+    )
+
+    rebound_text = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "String text = editable.toString().trim();\n"
+        "text = replacementText;\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert rebound_text["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "single-assignment post-gate detached trim materialization" in (
+        rebound_text["requestAdmission"]["reason"]
+    )
+
+    wrong_persistence_argument = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, replacementText, now);"
+    ))
+    assert wrong_persistence_argument["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "exact persistence of the admitted text variable" in (
+        wrong_persistence_argument["requestAdmission"]["reason"]
+    )
+
     duplicate_source_observation = classify(wrap(
         "CharSequence editable = adamInput.getText();\n"
         "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
@@ -111,7 +158,7 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
     assert duplicate_source_observation["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
-    assert "exactly one detached editable source observation" in (
+    assert "single-assignment detached editable source observation" in (
         duplicate_source_observation["requestAdmission"]["reason"]
     )
 
@@ -135,7 +182,7 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
     assert duplicate_materialization["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
-    assert "exactly one post-gate detached request materialization" in (
+    assert "post-gate detached trim materialization" in (
         duplicate_materialization["requestAdmission"]["reason"]
     )
 
@@ -152,7 +199,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Adam UI request-admission owner probe control-flow, canonical-policy, and single-observation custody: PASS")
+    print("Adam UI request-admission owner probe control-flow, binding, canonical-policy, and exact-persistence custody: PASS")
     return 0
 
 
