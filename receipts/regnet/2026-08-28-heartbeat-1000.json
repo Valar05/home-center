@@ -1,0 +1,79 @@
+{
+  "schema": "regnet-heartbeat-review.v1",
+  "time_ct": "2026-08-28T10:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewed_source_head": "abfc44b3387a076d11a7653d6231b5a393102fe2",
+  "verdict": "PASS_BOUNDED_SOURCE_PROGRESS__EVIDENCE_REPAIR_REQUIRED",
+  "fronts": {
+    "request_admission_evidence": {
+      "status": "REVISE_REQUIRED",
+      "finding": "probe v9 permits executable request work between the single editable observation and the canonical fail-closed admission guard",
+      "fixture": "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "fixture_blob": "f224828b800d91b3d986387d91b4ddeb7efb4a5a",
+      "execution": "NO"
+    },
+    "send_action_evidence": {
+      "status": "REVISE_REQUIRED",
+      "finding": "send-action classifier proves policy co-location but not that the exact current policy Decision drives setContentDescription",
+      "fixture": "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "fixture_blob": "e418de7bc34ff09416d863b1aedad9b5c096aabb",
+      "execution": "NO"
+    },
+    "warm_wall_accessibility": {
+      "status": "SOURCE_UPDATED_NOT_RUNTIME",
+      "artifact": "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "blob": "acd989d381f47abfe06f41df974f7172a0d6f5e4",
+      "changes": [
+        "OVER_BUDGET alone maps to aria-invalid=true",
+        "empty or ASCII-whitespace remains valid-but-unavailable",
+        "human-readable bounded request state remains associated through non-live text",
+        "no automatic live-region chatter or rejection animation"
+      ]
+    },
+    "canon_harvest": {
+      "status": "SOURCE_UPDATED",
+      "artifact": "skills/adam-mode-accessibility/SKILL.md",
+      "blob": "8fb49ed71cf4ac546eea33043c558560e068ce67",
+      "laws_added": [
+        "immediate admission before executable request work",
+        "send-action policy-result data-flow custody",
+        "invalid is distinct from merely unavailable",
+        "new hostile fixtures may demote optimistic evidence without changing native capability"
+      ]
+    }
+  },
+  "she_raw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "synthetic_substitute": false
+  },
+  "execution_truth": {
+    "exact_head_workflow_runs_observed": 0,
+    "regression_executed": false,
+    "tested": false,
+    "runtime_ui": false,
+    "runtime_talkback": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "owners": {
+    "adam_state_request_owner": "SOURCE_WIRED",
+    "adam_ui_request_owner": "REBASED_PROPOSED_NOT_APPLIED",
+    "adam_native_accessibility_owner": "REBASED_PROPOSED_NOT_APPLIED"
+  },
+  "firewall": {
+    "phone_consumption": 0,
+    "phone_mutation": 0,
+    "p0_mutation": 0,
+    "duplicate_architecture": 0,
+    "new_p0_finding": null
+  },
+  "regnet_hold": [
+    "repair request-admission evidence before SOURCE_HARDENED can return",
+    "repair send-action data-flow evidence before SOURCE_WIRED can be trusted for that seam",
+    "native owner mutations remain unapplied",
+    "regression execution and runtime acceptance remain absent"
+  ]
+}
