@@ -1,36 +1,23 @@
 package com.homecenter.operatoroverlay;
 
 /**
- * Pure source policy for whether the existing Adam Send button has a real action.
+ * Pure accessibility policy for native Adam Send availability.
  *
- * <p>The native owner currently trims the editable request and silently returns when
- * the result is empty. A focusable enabled button whose activation is guaranteed to
- * no-op is misleading for touch, keyboard, and accessibility users. Prefer native
- * enabled/disabled semantics tied to the exact request-admission rule over inventing
- * a new repeated announcement receipt.</p>
+ * <p>The visible Send button remains the existing native owner. This policy only answers whether
+ * the current editable request is materially sendable under the owner's established trim
+ * contract, and exposes the already-owned mode-specific action wording.</p>
  *
- * <p>Small post-trim request semantics do not authorize unbounded work before trim.
- * This policy reuses the overlay's existing broad direct-source ceiling before
- * materializing/trimming the editable value. Oversized direct input is unavailable;
- * it is not truncated, normalized, or converted into a smaller request. The bounded
- * length observation does not claim callback-free admission for arbitrary custom
- * CharSequence implementations.</p>
+ * <p>Direct editable values cross the same broad source-work ceiling used by the heartbeat
+ * envelope before whole-source work. Admitted values are scanned in-place using the exact
+ * historical {@link String#trim()} emptiness predicate ({@code char <= U+0020}) rather than being
+ * materialized through {@code toString()}. Over-ceiling values fail closed instead of being
+ * truncated or normalized. This does not claim callback-free arbitrary {@link CharSequence}
+ * admission; it bounds the number of source observations owned by this policy.</p>
  *
- * <p>This source intentionally mirrors the owner's current {@link String#trim()}
- * admission boundary for admitted values instead of silently broadening whitespace
- * semantics. Any future request-normalization change must update owner admission and
- * availability together. Mode-specific action wording remains owned by
- * {@link AdamSendActionAccessibilityPolicy}. Editable value and READY/SENT context
- * remain owned by {@link AdamInputResultAccessibilityPolicy}. This policy owns no
- * Button, TextWatcher, request transport, announcement, controller, phone execution,
- * or P0 recovery surface. {@link OperatorOverlayService} remains the sole native
- * owner.</p>
+ * <p>This policy owns no View, TextWatcher, announcement, controller, transport, phone execution,
+ * or P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.</p>
  */
 public final class AdamSendAvailabilityAccessibilityPolicy {
-    /**
-     * Broad finite direct-source work budget. Reuse the existing overlay envelope
-     * ceiling rather than growing an Adam-only magic number table.
-     */
     public static final int MAX_REQUEST_SOURCE_CODE_UNITS =
             HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
@@ -63,13 +50,32 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
         return new Decision(action.mode, enabled, action.actionDescription);
     }
 
+    /**
+     * Return whether direct source is within the finite work throat before whole-source work.
+     *
+     * <p>This intentionally performs only the caller's {@code length()} observation. It does not
+     * materialize, trim, truncate, or otherwise rewrite evidence.</p>
+     */
     public static boolean sourceWithinWorkBudget(CharSequence editableValue) {
         return editableValue == null
                 || editableValue.length() <= MAX_REQUEST_SOURCE_CODE_UNITS;
     }
 
+    /**
+     * Match the existing owner's {@code String.trim().isEmpty()} admission without materializing
+     * the whole {@link CharSequence}.
+     */
     public static boolean hasMaterialRequest(CharSequence editableValue) {
-        if (editableValue == null || !sourceWithinWorkBudget(editableValue)) return false;
-        return !editableValue.toString().trim().isEmpty();
+        if (editableValue == null) return false;
+
+        int sourceLength = editableValue.length();
+        if (sourceLength > MAX_REQUEST_SOURCE_CODE_UNITS) return false;
+
+        for (int index = 0; index < sourceLength; index++) {
+            if (editableValue.charAt(index) > ' ') {
+                return true;
+            }
+        }
+        return false;
     }
 }
