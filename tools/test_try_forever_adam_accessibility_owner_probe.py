@@ -17,27 +17,30 @@ def main() -> int:
     assert result["modeSelection"]["status"] == "LEGACY_OWNER"
     assert result["inputResult"]["status"] == "LEGACY_OWNER"
     assert result["sendAction"]["status"] == "LEGACY_OWNER"
+    assert result["requestAdmission"]["status"] == "LEGACY_OWNER"
 
     counterfeit = wrap(
-        "// AdamModeSelectionAccessibilityPolicy AdamInputResultAccessibilityPolicy AdamSendActionAccessibilityPolicy setSelected setStateDescription addTextChangedListener refreshAdamSendAction AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain decision.rowIndex decision.columnIndex\n"
+        "// AdamModeSelectionAccessibilityPolicy AdamInputResultAccessibilityPolicy AdamSendActionAccessibilityPolicy AdamSendAvailabilityAccessibilityPolicy setSelected setStateDescription addTextChangedListener refreshAdamSendAction AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain decision.rowIndex decision.columnIndex\n"
         "private void createOverlay() { String x = \"AdamInputResultAccessibilityPolicy Transition.EDITED adamInput.addTextChangedListener applyAdamInputResultState AdamSendActionAccessibilityPolicy AccessibilityNodeInfo.CollectionInfo.obtain AdamModeSelectionAccessibilityPolicy.ROW_COUNT AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT\"; }\n"
         "private Button adamModeButton() { String x = \"AdamInputResultAccessibilityPolicy setSelected setStateDescription refreshAdamSendAction AccessibilityNodeInfo.CollectionItemInfo.obtain decision.rowIndex decision.rowSpan decision.columnIndex decision.columnSpan\"; return button; }\n"
-        "private void submitAdamRequest() { String x = \"AdamInputResultAccessibilityPolicy adamInput.setStateDescription\"; }"
+        "private void submitAdamRequest() { String x = \"AdamInputResultAccessibilityPolicy AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable) adamInput.setStateDescription\"; }"
     )
     result = classify(counterfeit)
     assert result["modeSelection"]["status"] == "LEGACY_OWNER"
     assert result["inputResult"]["status"] == "LEGACY_OWNER"
     assert result["sendAction"]["status"] == "LEGACY_OWNER"
+    assert result["requestAdmission"]["status"] == "LEGACY_OWNER"
 
     wrong_method_counterfeit = wrap(
         "private void createOverlay() { }\n"
         "private Button adamModeButton() { return button; }\n"
-        "private void unrelated() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); button.setSelected(true); refreshAdamModeSelection(); AccessibilityNodeInfo.CollectionInfo.obtain(AdamModeSelectionAccessibilityPolicy.ROW_COUNT, AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE); AccessibilityNodeInfo.CollectionItemInfo.obtain(decision.rowIndex, decision.rowSpan, decision.columnIndex, decision.columnSpan, false, decision.selected); AdamSendActionAccessibilityPolicy.decisionFor(mode); adamSendButton.setContentDescription(x); refreshAdamSendAction(); }\n"
+        "private void unrelated() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); button.setSelected(true); refreshAdamModeSelection(); AccessibilityNodeInfo.CollectionInfo.obtain(AdamModeSelectionAccessibilityPolicy.ROW_COUNT, AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE); AccessibilityNodeInfo.CollectionItemInfo.obtain(decision.rowIndex, decision.rowSpan, decision.columnIndex, decision.columnSpan, false, decision.selected); AdamSendActionAccessibilityPolicy.decisionFor(mode); adamSendButton.setContentDescription(x); refreshAdamSendAction(); AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable); }\n"
         "private void submitAdamRequest() { }"
     )
     result = classify(wrong_method_counterfeit)
     assert result["modeSelection"]["status"] == "LEGACY_OWNER"
     assert result["sendAction"]["status"] == "LEGACY_OWNER"
+    assert result["requestAdmission"]["status"] == "LEGACY_OWNER"
 
     mode_partial = wrap(
         "private void createOverlay() { }\n"
@@ -202,7 +205,7 @@ def main() -> int:
     assert result["sendAction"]["status"] == "SOURCE_WIRED"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v5"
+    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v6"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
