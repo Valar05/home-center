@@ -19,9 +19,9 @@ def main() -> int:
     assert result["sendAction"]["status"] == "LEGACY_OWNER"
 
     counterfeit = wrap(
-        "// AdamModeSelectionAccessibilityPolicy AdamInputResultAccessibilityPolicy AdamSendActionAccessibilityPolicy setSelected setStateDescription addTextChangedListener refreshAdamSendAction AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain positionInSet\n"
-        "private void createOverlay() { String x = \"AdamInputResultAccessibilityPolicy Transition.EDITED adamInput.addTextChangedListener applyAdamInputResultState AdamSendActionAccessibilityPolicy AccessibilityNodeInfo.CollectionInfo.obtain\"; }\n"
-        "private Button adamModeButton() { String x = \"AdamInputResultAccessibilityPolicy setSelected setStateDescription refreshAdamSendAction AccessibilityNodeInfo.CollectionItemInfo.obtain positionInSet\"; return button; }\n"
+        "// AdamModeSelectionAccessibilityPolicy AdamInputResultAccessibilityPolicy AdamSendActionAccessibilityPolicy setSelected setStateDescription addTextChangedListener refreshAdamSendAction AccessibilityNodeInfo.CollectionInfo.obtain AccessibilityNodeInfo.CollectionItemInfo.obtain decision.rowIndex decision.columnIndex\n"
+        "private void createOverlay() { String x = \"AdamInputResultAccessibilityPolicy Transition.EDITED adamInput.addTextChangedListener applyAdamInputResultState AdamSendActionAccessibilityPolicy AccessibilityNodeInfo.CollectionInfo.obtain AdamModeSelectionAccessibilityPolicy.ROW_COUNT AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT\"; }\n"
+        "private Button adamModeButton() { String x = \"AdamInputResultAccessibilityPolicy setSelected setStateDescription refreshAdamSendAction AccessibilityNodeInfo.CollectionItemInfo.obtain decision.rowIndex decision.rowSpan decision.columnIndex decision.columnSpan\"; return button; }\n"
         "private void submitAdamRequest() { String x = \"AdamInputResultAccessibilityPolicy adamInput.setStateDescription\"; }"
     )
     result = classify(counterfeit)
@@ -32,7 +32,7 @@ def main() -> int:
     wrong_method_counterfeit = wrap(
         "private void createOverlay() { }\n"
         "private Button adamModeButton() { return button; }\n"
-        "private void unrelated() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); button.setSelected(true); refreshAdamModeSelection(); AccessibilityNodeInfo.CollectionInfo.obtain(1, AdamModeSelectionAccessibilityPolicy.SET_SIZE, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE); AccessibilityNodeInfo.CollectionItemInfo.obtain(0, 1, positionInSet - 1, 1, false, selected); AdamSendActionAccessibilityPolicy.decisionFor(mode); adamSendButton.setContentDescription(x); refreshAdamSendAction(); }\n"
+        "private void unrelated() { AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate); button.setSelected(true); refreshAdamModeSelection(); AccessibilityNodeInfo.CollectionInfo.obtain(AdamModeSelectionAccessibilityPolicy.ROW_COUNT, AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE); AccessibilityNodeInfo.CollectionItemInfo.obtain(decision.rowIndex, decision.rowSpan, decision.columnIndex, decision.columnSpan, false, decision.selected); AdamSendActionAccessibilityPolicy.decisionFor(mode); adamSendButton.setContentDescription(x); refreshAdamSendAction(); }\n"
         "private void submitAdamRequest() { }"
     )
     result = classify(wrong_method_counterfeit)
@@ -63,10 +63,10 @@ def main() -> int:
     )
     result = classify(selected_only)
     assert result["modeSelection"]["status"] == "PARTIAL_UNSAFE"
-    assert "single-selection collection context" in result["modeSelection"]["reason"]
-    assert "per-mode position-in-set context" in result["modeSelection"]["reason"]
+    assert "policy-owned single-selection collection geometry" in result["modeSelection"]["reason"]
+    assert "policy-owned per-mode item geometry" in result["modeSelection"]["reason"]
 
-    mode_wired = wrap(
+    copied_geometry_is_not_policy_geometry = wrap(
         "private void createOverlay() {\n"
         "  adamModeRow.setAccessibilityDelegate(delegate);\n"
         "  AccessibilityNodeInfo.CollectionInfo.obtain(1, AdamModeSelectionAccessibilityPolicy.SET_SIZE, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
@@ -85,8 +85,33 @@ def main() -> int:
         "}\n"
         "private void submitAdamRequest() { }"
     )
+    result = classify(copied_geometry_is_not_policy_geometry)
+    assert result["modeSelection"]["status"] == "PARTIAL_UNSAFE"
+    assert "policy-owned single-selection collection geometry" in result["modeSelection"]["reason"]
+    assert "policy-owned per-mode item geometry" in result["modeSelection"]["reason"]
+
+    mode_wired = wrap(
+        "private void createOverlay() {\n"
+        "  adamModeRow.setAccessibilityDelegate(delegate);\n"
+        "  AccessibilityNodeInfo.CollectionInfo.obtain(AdamModeSelectionAccessibilityPolicy.ROW_COUNT, AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT, false, AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE);\n"
+        "}\n"
+        "private Button adamModeButton() {\n"
+        "  AdamModeSelectionAccessibilityPolicy.Decision decision = AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate);\n"
+        "  button.setSelected(decision.selected);\n"
+        "  button.setAccessibilityDelegate(delegate);\n"
+        "  AccessibilityNodeInfo.CollectionItemInfo.obtain(decision.rowIndex, decision.rowSpan, decision.columnIndex, decision.columnSpan, false, decision.selected);\n"
+        "  refreshAdamModeSelection();\n"
+        "  return button;\n"
+        "}\n"
+        "private void refreshAdamModeSelection() {\n"
+        "  AdamModeSelectionAccessibilityPolicy.Decision decision = AdamModeSelectionAccessibilityPolicy.decisionFor(active, candidate);\n"
+        "  button.setSelected(decision.selected);\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
+    )
     result = classify(mode_wired)
     assert result["modeSelection"]["status"] == "SOURCE_WIRED"
+    assert "policy-owned horizontal collection/item geometry" in result["modeSelection"]["reason"]
 
     input_state_without_edit_recovery = wrap(
         "private void createOverlay() { }\n"
@@ -177,7 +202,7 @@ def main() -> int:
     assert result["sendAction"]["status"] == "SOURCE_WIRED"
 
     capability = result["capability"]
-    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v4"
+    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v5"
     assert capability["sourceInspection"] is True
     for key in (
         "regressionExecuted",
