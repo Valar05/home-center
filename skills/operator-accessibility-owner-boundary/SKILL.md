@@ -27,53 +27,47 @@ Use when repository source shows one of these shapes:
 5. Full explicit Why / Consequence / Evidence / Source detail must stay semantically inspectable. A five-line spatial target is not permission to amputate the TextView layout with `setMaxLines(5)` plus `END` ellipsis.
 6. Deep-detail owner wiring is complete only when the existing owner method scopes compose policy text projection, pixel-height viewport, vertical scrollability, passive focus/click ownership after movement-method installation, generation-bound post-layout scroll restoration, explicit-selection top reset, and explicit-detail semantics. Helper calls in another method or nested class are counterfeit evidence.
 7. Accessibility text budgets describe the returned projection, not UTF-16 code units. Do not use `substring(0, N)` as a Unicode safety contract. A speech-budget marker must live in the direct method that owns the speech consequence, not merely somewhere in the file.
-8. For non-interactive dynamic `TextView` status surfaces, prefer the framework's native text semantics. Android accessibility guidance says TextView text is already announced; a non-null `contentDescription` that replaces changing Spotify or Home Center status text is stale/duplicated semantics.
-9. A changing interactive TextView keeps the changing text as semantic value while exposing action/state separately. Label the standard click action; on API 30+ use semantic `stateDescription`. Do not reintroduce `announceForAccessibility` merely to confirm a simple expand/collapse action; Android 16 / API 36 deprecates announcement APIs in favor of semantic UI state.
+8. For non-interactive dynamic `TextView` status surfaces, prefer the framework's native text semantics. A non-null `contentDescription` that replaces changing Spotify or Home Center status text is stale/duplicated semantics.
+9. A changing interactive TextView keeps the changing text as semantic value while exposing action/state separately. Label the standard click action; on API 30+ use semantic `stateDescription`. Do not reintroduce `announceForAccessibility` merely to confirm a simple expand/collapse action.
 10. A dynamic Button's semantic label must describe the action that will happen now. Safety-critical states such as `Confirm disable` cannot remain behind a generic `Disable or enable` description. Compact visual text may stay terse only when the accessibility label carries the exact full action.
 11. A patch artifact is proposed source until authenticated owner mutation/readback proves application. After that point, mark it `APPLIED_SOURCE`; neither state is TESTED/runtime proof.
 12. When multiple independent accessibility wounds overlap the same owner file/base blob, prefer one base-blob-locked composed surgery over racing multiple patches.
 13. Retired or unavailable worker machinery is not a reason to create duplicate queue sludge or route through the phone. Use an authorized existing non-phone mutation lane when it can preserve exact owner identity; otherwise stop at the exact boundary.
 14. Source wiring, regression-source existence, regression execution, Android runtime UI, TalkBack behavior, deployment, phone delivery, and acceptance are distinct capability states.
 15. The P0/phone firewall is binding. No Phone Hands, primary-phone execution, P0 recovery, Nightcore, Pocket TTS, Chromium, Context Organs, or physical acceptance may be consumed by this skill.
+16. Supporting-policy safety must never green-paint its consumer. If a helper is bounded but the native method performs whole-source work before calling it, the owner seam remains `LEGACY_OWNER` or `PARTIAL_UNSAFE` until direct-owner ordering proves otherwise.
+17. Deterministic evidence must prove ordering when ordering is the capability. Correct helper names in comments/literals, or a helper call placed after the unsafe operation, are not owner wiring.
 
-## Current PR #329 source truth
+## Current PR #329 source truth — 2026-08-27 22:58 CT
 
-Authenticated **current branch** readback now reports `OperatorOverlayService` blob `44d4e273e79f8dc37227651ba11a31842169db18`. Historical owner commit `aafece5e8e1d8d2631ade85ba9c1bec3e4e6089f` / blob `5dc7f2f52db7e2b7cff867ee6b82cc1492e1b835` remains valid provenance for an earlier four-wound surgery, but it is **not** the current owner blob and must not be presented as current-head custody.
+Authenticated current branch readback reports `OperatorOverlayService` blob `2935243f136359e3489a89108406e888b0ec2911`. The former `44d4e273...` current-owner claim was stale doctrine and is retired as current-head evidence.
 
-Current owner source still contains those four completed repairs:
+Current owner source retains the previously applied generic accessibility repairs:
 
 - deep detail composes `HeartbeatDetailSurfacePolicy`, a bounded pixel-height viewport, vertical scrolling, passive focus/click ownership, generation-bound post-layout scroll restoration, explicit-selection top reset, and current detail semantics;
 - Spotify receipt speech uses `HeartbeatPlainTextBudget.boundedWithEllipsis(summary, 160)` instead of UTF-16 substring;
-- Spotify dynamic status keeps its changing TextView text as semantic value with `contentDescription=null`;
-- Home Center dynamic status likewise keeps current TextView text as semantic value with `contentDescription=null`.
+- Spotify dynamic status keeps changing TextView text as semantic value with `contentDescription=null`;
+- Home Center dynamic status likewise keeps current TextView text as semantic value with `contentDescription=null`;
+- latest-message interaction semantics are **SOURCE_WIRED**: the changing message text remains value, ACTION_CLICK has a policy label, and API-30+ `stateDescription` tracks expanded/collapsed state;
+- dynamic mute/full/compact control semantics are **SOURCE_WIRED**: `refreshUi()` synchronizes content descriptions to the exact current action, including `Confirm disable`.
 
-Two additional owner seams remain deliberately unwired at current blob `44d4e273...`:
+`patches/try-forever-operator-interaction-accessibility-owner-combined.patch` is **APPLIED_SOURCE / DO_NOT_APPLY** provenance. It records base blob `44d4e273...`, applied commit `a87d21b48eba28433688b40860f9befeb6347278`, and result blob `d8cad8c2931c688d0c6fad6f67626fae75e044d1`; later owner evolution does not turn that applied provenance back into a pending patch.
 
-- **latest-message interaction semantics — OWNER_WIRED NO / LEGACY:** changing message text is correctly native semantic value, but the clickable TextView still lacks a labeled standard click action and expanded/collapsed state description;
-- **dynamic action-button semantics — OWNER_WIRED NO / LEGACY:** `muteButton`, `controlButton`, and `compactControlButton` change their real current actions in `refreshUi()` while static generic content descriptions remain.
+The currently open Adam owner seams are governed by `adam-mode-accessibility`, not by creating another generic accessibility owner:
 
-Current supporting source for those two seams:
-
-- `LatestMessageAccessibilityPolicy` now owns labeled click action + expanded/collapsed state only; it explicitly avoids deprecated simple-action confirmation announcements;
-- latest policy + direct-owner RED regression: **YES / UNEXECUTED**;
-- dynamic action direct-owner RED regression: **YES / UNEXECUTED**;
-- `patches/try-forever-operator-interaction-accessibility-owner-combined.patch`: **YES / PROPOSED_NOT_APPLIED**, base-blob locked to `44d4e273...`, composing both seams in one surgery;
-- the former standalone latest-message and dynamic-action patches are **SUPERSEDED_DO_NOT_APPLY_INDEPENDENTLY** because they target the same owner/base and could create stale-base partial state.
+- Adam state request owner: **SOURCE_WIRED**;
+- Adam UI request admission: **NO / PROPOSED_NOT_APPLIED** on current owner blob `2935243f...`;
+- Adam native mode/input/result/action accessibility owner: **REBASED_PROPOSED_NOT_APPLIED** on current owner blob `2935243f...`;
+- `tools/try_forever_adam_accessibility_owner_probe.py` schema v6 now has an independent `requestAdmission` evidence seam; source exists, execution remains **NO**.
 
 Current capability membrane:
 
-- deterministic source probe: **YES / SUPPORTING_SOURCE**;
-- lexical literal/comment exclusion: **YES / SUPPORTING_SOURCE**;
-- named owner-class + direct owner-method evidence gates: **YES / SUPPORTING_SOURCE**;
-- regression source for historical/current accessibility seams: **YES / UNEXECUTED**;
-- deep-detail owner wiring: **YES / SOURCE_WIRED**;
-- Spotify speech-budget owner wiring: **YES / SOURCE_WIRED**;
-- Spotify native TextView focused-status owner wiring: **YES / SOURCE_WIRED**;
-- Home Center native TextView dynamic-status owner wiring: **YES / SOURCE_WIRED**;
-- latest-message value semantics: **YES / SOURCE_WIRED**;
-- latest-message interaction action/state: **NO / OWNER_UNWIRED**;
-- dynamic action-button exact current action semantics: **NO / OWNER_UNWIRED**;
-- combined exact owner surgery: **YES / PROPOSED_NOT_APPLIED**;
+- deterministic source probes: **YES / SUPPORTING_SOURCE**;
+- lexical literal/comment exclusion and direct-owner-method evidence gates: **YES / SUPPORTING_SOURCE**;
+- generic deep-detail/status/latest-message/dynamic-action repairs: **YES / SOURCE_WIRED**;
+- Adam UI request owner: **NO / PROPOSED_NOT_APPLIED**;
+- Adam native accessibility owner: **NO / REBASED_PROPOSED_NOT_APPLIED**;
+- regression source: **YES / UNEXECUTED**;
 - Java control-flow proof: **NO**;
 - TESTED: **NO**;
 - runtime UI / TalkBack: **NO**;
@@ -88,6 +82,7 @@ Source-capability evidence should prove:
 - helper-only or mixed/incomplete surgery classifies `PARTIAL_UNSAFE`;
 - comments, block comments, string literals, char literals, text blocks, unrelated methods, and identically named nested-class methods cannot earn wiring authority;
 - a missing named `OperatorOverlayService` class fails closed;
+- an ordering-sensitive seam remains unsafe when the policy appears only after the unsafe whole-source operation;
 - the probe itself reports source custody but no control-flow, TESTED, runtime, or phone capability.
 
 Owner repair review should additionally prove:
@@ -100,9 +95,9 @@ Owner repair review should additionally prove:
 - latest-message TextView keeps changing text as value, labels ACTION_CLICK, exposes API-30+ stateDescription, and does not use deprecated explicit confirmation announcement;
 - mute/full/compact control semantics track the exact current action on every refresh, with `Confirm disable` distinct;
 - no second owner/controller is introduced;
-- exact remote owner readback is required before changing either remaining owner-wiring state to YES;
+- exact remote owner readback is required before changing any remaining owner-wiring state to YES;
 - passing source checks still does not prove Android runtime rendering or TalkBack behavior.
 
 ## Evidence membrane
 
-`requested → policy/doctrine → RED owner regression → exact combined owner surgery → authenticated existing-owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
+`requested → policy/doctrine → RED owner regression → exact existing-owner surgery → authenticated owner source wiring → regression executed → tested → runtime UI → runtime TalkBack → deployed → callable → executed → delivered → accepted`
