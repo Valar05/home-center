@@ -18,10 +18,11 @@
 # Broad work ceiling: HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS (32768 UTF-16 code units).
 # Direct state owner is SOURCE_WIRED. The remaining service seam is exact-base-locked below and remains NOT_APPLIED.
 # Over-ceiling editable source must fail closed; it is never truncated or normalized into a smaller request.
-# The service gate consumes the same material-request predicate that owns native availability before calling toString().
-# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v6 has a separate
-# requestAdmission seam. SOURCE_WIRED requires exactly one editable-source observation + exactly one bounded
-# availability gate + materialization only after admission + OperatorState persistence only after materialization.
+# The service gate consumes the exact AdamSendAvailabilityAccessibilityPolicy material-request predicate that owns native availability before calling toString().
+# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v7 has a separate
+# requestAdmission seam. SOURCE_WIRED requires exactly one editable-source observation + exactly one fully-qualified
+# AdamSendAvailabilityAccessibilityPolicy gate + materialization only after admission + OperatorState persistence
+# only after materialization. A shadow helper with the same method name cannot counterfeit policy custody.
 # Supporting-policy safety must not green-paint the consumer.
 #
 # Rebase scar: an older version of this artifact described a different submitAdamRequest() body/signature.
