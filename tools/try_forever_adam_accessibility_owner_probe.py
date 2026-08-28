@@ -262,10 +262,11 @@ def classify_send_action(source: str) -> SeamVerdict:
 def classify_request_admission(source: str) -> SeamVerdict:
     """Classify the native UI request-work throat independently from supporting policy safety.
 
-    SOURCE_WIRED requires one detached editable observation, one canonical fully-qualified bounded
-    policy gate, and one whole-source materialization, in that order, before request persistence.
-    A shadow helper with the same method name is not policy custody. Merely placing one correct gate
-    before the first materialization must not hide repeated observations/work later in the owner.
+    SOURCE_WIRED requires one detached editable observation, exactly one canonical fully-qualified
+    bounded admission call used as a fail-closed return guard, and one whole-source materialization,
+    in that order, before request persistence. Merely calling the right policy and ignoring its
+    result is not admission custody. A shadow helper with the same method name is not policy custody,
+    and one correct guard must not hide repeated observations/work later in the owner.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
@@ -278,20 +279,20 @@ def classify_request_admission(source: str) -> SeamVerdict:
     )
     single_detached_source_observation = detached_source and direct_source_observation_count == 1
 
-    gate_patterns = (
+    policy_call_patterns = (
         "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)",
         "AdamSendAvailabilityAccessibilityPolicy.classifyRequest(editable)",
         "AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable)",
     )
-    gate_count = sum(send_method.count(pattern) for pattern in gate_patterns)
-    gate_indices = [
-        send_method.find(pattern)
-        for pattern in gate_patterns
-        if send_method.find(pattern) >= 0
-    ]
-    policy_gate_index = min(gate_indices) if gate_indices else -1
-    single_policy_gate = gate_count == 1
-    canonical_policy_reference = policy in send_method and single_policy_gate
+    policy_call_count = sum(send_method.count(pattern) for pattern in policy_call_patterns)
+    admission_guard_pattern = re.compile(
+        r"if\s*\(\s*!\s*AdamSendAvailabilityAccessibilityPolicy\.hasMaterialRequest\s*"
+        r"\(\s*editable\s*\)\s*\)\s*(?:\{\s*)?return\s*;(?:\s*\})?"
+    )
+    admission_guards = list(admission_guard_pattern.finditer(send_method))
+    single_controlling_guard = len(admission_guards) == 1 and policy_call_count == 1
+    policy_gate_index = admission_guards[0].start() if single_controlling_guard else -1
+    canonical_policy_reference = policy in send_method and single_controlling_guard
 
     direct_materialization_count = send_method.count("adamInput.getText().toString()")
     detached_materialization_count = send_method.count("editable.toString()")
@@ -317,7 +318,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once, consumes one canonical bounded request-admission policy gate, materializes once afterward, and persists only after materialization",
+            "direct Adam UI request owner observes editable source once, uses one canonical bounded policy result as a fail-closed admission guard, materializes once afterward, and persists only after materialization",
             policy,
             True,
             True,
@@ -328,7 +329,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
         if not single_detached_source_observation:
             missing.append("exactly one detached editable source observation")
         if not canonical_policy_reference:
-            missing.append("one canonical fully-qualified request-admission policy gate")
+            missing.append("one canonical fully-qualified fail-closed request-admission policy guard")
         if not single_detached_materialization:
             missing.append("exactly one post-gate detached request materialization")
         if (
