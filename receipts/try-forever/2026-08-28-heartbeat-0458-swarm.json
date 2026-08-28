@@ -1,0 +1,86 @@
+{
+  "schema": "try-forever.heartbeat-lights.v1",
+  "checkpoint": "2026-08-28T04:58-05:00",
+  "reviewedSourceHead": "33e84ee83beb6801bdd97dbffaef9d64f2c3641d",
+  "commission": "broad non-P0 Harroway operator-mode swarm with exact capability-state custody",
+  "heartbeatLights": [
+    {"skill": "Failure Is The Shovel", "lit": true, "why": "found two evidence wounds", "changed": "closed unqualified policy-gate counterfeit and repaired stale RED-fixture provenance"},
+    {"skill": "Canon Auto-Select", "lit": true, "why": "request-admission evidence and multiline specimen fidelity were current material seams", "changed": "selected existing probe/test/patch/Warm Wall owners instead of unrelated fixed work"},
+    {"skill": "Originality Tax", "lit": true, "why": "prior owner-rewrite churn is a known failed strategy", "changed": "did not retry broad OperatorOverlayService replacement; advanced exact supporting organs and preserved native RED boundary"},
+    {"skill": "Hunger", "lit": true, "why": "one counterfeit fix exposed a second stale fixture", "changed": "continued from probe custody into source-work fixture provenance and specimen fidelity"},
+    {"skill": "Ever-Polished Interpreter / Eat Everything", "lit": true, "why": "bare method-name evidence was semantically weaker than canonical owner evidence", "changed": "probe v7 requires fully-qualified AdamSendAvailabilityAccessibilityPolicy consumption"},
+    {"skill": "Operator Campaign", "lit": true, "why": "existing PR #329 remains campaign surface", "changed": "five source paths advanced before judgment receipts"},
+    {"skill": "Harroway operator discipline", "lit": true, "why": "same-owner surgery and capability states must stay exact", "changed": "kept OperatorOverlayService request/accessibility owners unapplied and exact-base locked"},
+    {"skill": "She-Raw adversarial motivation", "lit": true, "why": "authority leakage and evidence counterfeit needed hostile review", "changed": "authoritative consultation attempted; exact HTTP 400 account boundary recorded; no synthetic reviewer"},
+    {"skill": "Venice Judgment Jars", "lit": true, "why": "source progress required stop/continue judgment", "changed": "bounded source checkpoint accepted while owner mutation/test/runtime remain continue-required"},
+    {"skill": "Regnet QA", "lit": true, "why": "source/evidence claims needed capability audit", "changed": "recorded source-only PASS and exact runtime/test NO membrane"},
+    {"skill": "accessibility/TalkBack and touch semantics", "lit": true, "why": "Warm Wall did not mirror native multiline EditText", "changed": "existing specimen now uses four-row multiline textarea, >=56px controls, visible focus, aria-live off; runtime TalkBack still NO"},
+    {"skill": "deterministic routing", "lit": true, "why": "admission authority could be counterfeited by a same-name helper", "changed": "canonical policy class is now authority-bearing in probe v7"},
+    {"skill": "evidence/capability-state discipline", "lit": true, "why": "source tests and specimens are not execution", "changed": "SOURCE/UNEXECUTED/TESTED NO preserved throughout"},
+    {"skill": "recovery/checkpointing/idempotence", "lit": true, "why": "stale artifact wording caused failure before intended RED owner boundary", "changed": "fixture converged to current patch state/base vocabulary and explicit schema v7"},
+    {"skill": "strange non-raster vector/DOM/native UI art", "lit": true, "why": "existing source specimen had a real interaction-shape mismatch", "changed": "multiline DOM editable parity added in place; semantic inline SVG retained"},
+    {"skill": "warm walls", "lit": true, "why": "existing Adam wall is the authorized visual evidence surface", "changed": "updated in place; no neighboring specimen family"},
+    {"skill": "Christmas-light scene graph", "lit": true, "why": "source specimen state changes could accidentally become announcement/motion theater", "changed": "automatic state remains aria-live off, reduced-motion retained, no blink/rejection motion added"},
+    {"skill": "contact preservation", "lit": true, "why": "request/source truth and repeatable send receipt must survive evidence hardening", "changed": "legacy explicit Adam send receipt preserved; no stale SENT or runtime migration claim introduced"},
+    {"skill": "operator-owner-surgery-custody", "lit": true, "why": "same exact owner/base already has staged surgeries and a prior broad-rewrite scar", "changed": "current owner blob 2935243f remains untouched; supporting artifacts converged without fuzzy promotion"},
+    {"skill": "Autocorrect Judgment Jar", "lit": false, "why": "no authority-affecting token ambiguity"},
+    {"skill": "Phone Runtime / Phone Hands recovery", "lit": false, "why": "binding phone/P0 resource firewall"}
+  ],
+  "crossPollination": [
+    "request-admission policy custody review exposed the bare-helper counterfeit hole",
+    "probe v7 then made the staged request surgery comment/provenance stale, so the existing artifact was converged",
+    "source-work fixture review exposed stale state/base wording that would fail before the intended native RED boundary",
+    "accessibility review compared native EditText topology with the existing DOM wall and exposed single-line specimen drift",
+    "execution truth kept every source improvement behind regression-executed/TESTED/runtime boundaries"
+  ],
+  "sourceDeltaFromPriorPublication": {
+    "base": "be1223ae273bbc8477905e59ee5a13500dc9f78b",
+    "head": "33e84ee83beb6801bdd97dbffaef9d64f2c3641d",
+    "commits": 5,
+    "paths": 5,
+    "unexpectedPaths": 0,
+    "changedPaths": [
+      "tools/try_forever_adam_accessibility_owner_probe.py",
+      "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "patches/try-forever-adam-request-source-work-throat.patch",
+      "tools/test_try_forever_adam_request_source_work.py"
+    ]
+  },
+  "executionTruth": {
+    "Build Android": {"runId": 33162165626, "conclusion": "failure"},
+    "Home Center CI": {"runId": 33162165621, "conclusion": "failure"},
+    "Operator Overlay Android": {"runId": 33162165637, "conclusion": "failure", "jobId": 98818961637, "steps": 0},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSupportingSource": true,
+    "authenticatedReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "probeV7": "SOURCE_HARDENED_UNEXECUTED",
+    "redFixture": "SOURCE_REPAIRED_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
