@@ -1,10 +1,10 @@
 # TRY FOREVER — Adam mode/input/accessibility + Send availability owner surgery
 # Historical base owner blob: c5de1411a6b68087ae17aff83c032af754587150
-# Current observed owner blob at 2026-08-27 18:02 CT: 2935243f136359e3489a89108406e888b0ec2911
-# State: STALE_BASE_REBASE_REQUIRED / NOT_APPLIED
+# Rebased exact current owner blob: 2935243f136359e3489a89108406e888b0ec2911
+# State: REBASED_PROPOSED_NOT_APPLIED
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
-# IMPORTANT: This artifact remains design/provenance evidence for the older exact base. Do not apply it to the current owner by fuzzy hunk matching. Rebase all intended Adam mutations against authenticated current source first.
+# Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
@@ -14,6 +14,8 @@
 # - Send availability belongs here, not in the collapsed-operational-contact patch: one Adam TextWatcher/field/mode owner.
 # - availability owns native enabled/disabled state only; exact mode-specific action wording remains owned by
 #   AdamSendActionAccessibilityPolicy to avoid duplicate semantic writers.
+# - this rebase does not include the separate finite pre-trim submitAdamRequest() service throat; that remaining
+#   service-owner seam is tracked by patches/try-forever-adam-request-source-work-throat.patch.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
