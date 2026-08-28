@@ -1,0 +1,56 @@
+{
+  "schema": "try-forever-regnet-v1",
+  "checkpoint": "2026-08-27-heartbeat-2000",
+  "reviewedSourceHead": "fac30538527e88fde2e37765bf4c2be2e87981a7",
+  "verdict": "PASS_SUPPORTING_SOURCE__ADAM_AVAILABILITY_SCAN_SOURCE_WIRED__UI_REQUEST_OWNER_REVISE_REQUIRED__NATIVE_ACCESSIBILITY_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "fronts": {
+    "adamAvailability": {
+      "state": "SOURCE_WIRED",
+      "policyBlob": "73a44a78236d8852f74f7aedda267f2ba905ac45",
+      "regressionBlob": "a39b699ea941bd5c4e08e6f5baa4e9da18da4d6e",
+      "law": "Observe length once; reject over-budget before element reads; admitted request emptiness uses bounded charAt scan with historical ASCII trim predicate; do not materialize whole CharSequence.",
+      "states": ["EMPTY_OR_WHITESPACE", "MATERIAL", "OVER_BUDGET"]
+    },
+    "adamUiRequestOwner": {
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "patchBlob": "28462fa8755bbbcc24a610e348d0050e5da67ba5",
+      "boundaryFixtureBlob": "99c6cf45d40efcbd69941891a026e481dda150f5",
+      "finding": "OperatorOverlayService.submitAdamRequest still materializes/trims editable source before consuming bounded availability policy."
+    },
+    "adamNativeAccessibilityOwner": {
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "ownerBlob": "2935243f136359e3489a89108406e888b0ec2911",
+      "patchBlob": "af09520781199559ab6e618e3dab4ed990e1dadc",
+      "finding": "One bounded request classification should drive edit-time Send availability and READY/SENT truth; OVER_BUDGET disables Send and fails closed to READY instead of preserving stale SENT."
+    }
+  },
+  "selfReview": [
+    "A finite enabled/disabled result did not prove finite source work; whole-source toString materialization was removed from the supporting policy.",
+    "Availability rejection and edit-state truth are not identical: OVER_BUDGET is unavailable but still cannot justify retaining a stale SENT claim.",
+    "The RED service fixture was sharpened to an explicit assertion rather than relying on an accidental substring/index failure.",
+    "No supporting policy or patch artifact was promoted to native owner capability."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "HTTP_400_ACCOUNT_CONNECTION_FAILURE",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33131853248, "conclusion": "failure", "jobId": 98722937293, "steps": 0},
+      {"name": "Home Center CI", "id": 33131853249, "conclusion": "failure"},
+      {"name": "Build Android", "id": 33131853243, "conclusion": "failure"}
+    ],
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
