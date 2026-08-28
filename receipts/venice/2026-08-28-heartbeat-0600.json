@@ -1,0 +1,35 @@
+{
+  "schema": "venice.try-forever-heartbeat.v1",
+  "checkpoint": "2026-08-28T06:00",
+  "reviewedSourceHead": "673181c62ca975230c8d5aef2d70cf865bdbec51",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "accept": [
+      "existing requestAdmission evidence now distinguishes a controlling fail-closed policy guard from a decorative canonical policy call",
+      "broad owner probe fixture no longer carries a stale schema-v6 assertion against probe v7",
+      "existing Warm Wall preserves one-row five-choice geometry on narrow viewports instead of visually wrapping its claimed 1x5 topology",
+      "adam-mode-accessibility canon converged on those two scars without creating another controller or phone lane"
+    ],
+    "hold": [
+      "OperatorOverlayService request admission remains legacy/unapplied at authenticated owner blob 2935243f136359e3489a89108406e888b0ec2911",
+      "native Adam accessibility owner surgery remains rebased/proposed/not applied",
+      "regression sources remain unexecuted because exact-head workflows fail before exposing steps",
+      "Android UI and TalkBack runtime remain unproven",
+      "explicit repeat-send receipt remains preserved under ADAM_REPEAT_SEND_RESULT_UNRESOLVED"
+    ],
+    "reject": [
+      "treating policy-name occurrence or an ignored policy return value as admission authority",
+      "letting a visual specimen claim one-row accessibility geometry while its CSS wraps into multiple rows",
+      "inventing a CI cause from zero steps or a missing log blob",
+      "phone/P0 work, duplicate controller architecture, or source-to-runtime green painting"
+    ]
+  },
+  "sheRawBoundary": "authoritative consultation attempted; account connection HTTP 400; no synthetic substitute",
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
