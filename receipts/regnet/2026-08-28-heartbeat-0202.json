@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "2026-08-28-heartbeat-0202",
+  "reviewedSourceHead": "a0ecdd4ee5f6fabb2dc650ff9d3230dd80970220",
+  "verdict": "PASS_BOUNDED_SOURCE__REQUEST_SURGERY_REBASED__NATIVE_ACCESSIBILITY_API_DRIFT_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "findings": [
+    {
+      "front": "adam_ui_request_owner",
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "change": "existing request-owner surgery was rebuilt against authenticated current OperatorOverlayService blob 2935243f136359e3489a89108406e888b0ec2911 and now stages one editable observation, bounded hasMaterialRequest gate, then whole-source materialization and persistence"
+    },
+    {
+      "front": "adam_native_accessibility_owner",
+      "state": "REVISE_REQUIRED",
+      "change": "authenticated staged patch still references obsolete AdamSendAvailabilityAccessibilityPolicy.decisionFor/enabled API instead of current classifyEditable/sendEnabled/hasUnsentText contract; focused RED source fixture added and corrected to current AdamInputResultAccessibilityPolicy.nextState/Transition API"
+    },
+    {
+      "front": "repeat_send_contact",
+      "state": "PRESERVED",
+      "change": "explicit adamInput.announceForAccessibility send receipt remains required while repeatable send-result semantics are unresolved"
+    }
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "workflowEvidence": {
+    "homeCenterCi": {"runId": 33150852060, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33150852078, "conclusion": "failure"},
+    "operatorOverlay": {"runId": 33150852054, "conclusion": "failure", "jobId": 98782228192, "steps": null},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumed": false,
+    "phoneMutated": false,
+    "p0Mutated": false,
+    "duplicateArchitecture": false,
+    "newP0Finding": null
+  }
+}
