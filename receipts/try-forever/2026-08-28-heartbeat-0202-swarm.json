@@ -1,63 +1,77 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "checkpoint": "2026-08-28-heartbeat-0202",
+  "correctedAtCheckpoint": "2026-08-28-heartbeat-0300",
   "commission": "active Harroway operator-mode non-P0 Try Forever swarm",
-  "reviewedSourceHead": "a0ecdd4ee5f6fabb2dc650ff9d3230dd80970220",
+  "reviewedSourceHead": "d06dac9a152f77271922edecbd159e3d5e917e29",
+  "correctionScar": "The earlier version treated decisionFor/enabled as obsolete and classifyEditable/sendEnabled as current. Authenticated AdamSendAvailabilityAccessibilityPolicy blob 2e15869dcab81995fbac849c98596a6cf2cd50c5 proves that was inverted. Git history preserves the wound; this receipt corrects the capability ledger without mutating implementation to satisfy a false fixture.",
   "fronts": [
     {
-      "name": "Adam UI request-owner source-work custody",
+      "name": "Evidence self-correction",
       "advanced": true,
-      "state": "REBASED_PROPOSED_NOT_APPLIED",
-      "evidence": "patches/try-forever-adam-request-source-work-throat.patch",
-      "change": "stale staged method body was rebuilt against exact current OperatorOverlayService blob 2935243f136359e3489a89108406e888b0ec2911; staged order is one editable observation -> bounded supporting gate -> materialize/trim -> existing OperatorState persistence"
+      "state": "AUTHENTICATED_SOURCE_OVERRIDES_STALE_RECEIPT",
+      "evidence": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/AdamSendAvailabilityAccessibilityPolicy.java",
+      "change": "verified current policy API is decisionFor/enabled/hasUnsentText/classifyRequest/hasMaterialRequest; fabricated classifyEditable/sendEnabled names are absent"
     },
     {
       "name": "Adam native accessibility proposal API custody",
       "advanced": true,
-      "state": "RED_SOURCE_UNEXECUTED",
-      "evidence": "tools/try_forever_adam_accessibility_patch_api_fixture.py",
-      "change": "new focused fixture detects that the staged owner proposal still consumes obsolete availability API names; fixture itself was corrected after self-review to current AdamInputResultAccessibilityPolicy.nextState/Transition contract"
+      "state": "SOURCE_PROPOSAL_CURRENT_API__UNEXECUTED",
+      "evidence": "patches/try-forever-adam-mode-input-accessibility-owner.patch",
+      "change": "proposal already consumes current availability and result-state APIs and preserves the repeat-send announcement; no supporting-API rebase is required, but native owner remains REBASED_PROPOSED_NOT_APPLIED"
     },
     {
-      "name": "Adversarial review",
+      "name": "Focused deterministic fixture",
       "advanced": true,
-      "state": "EXACT_BOUNDARY",
-      "change": "authoritative She-Raw invocation returned account-connection HTTP 400; no synthetic substitute"
+      "state": "SOURCE_REPAIRED__BLOB_BOUND__UNEXECUTED",
+      "evidence": "tools/try_forever_adam_accessibility_patch_api_fixture.py",
+      "change": "schema v4 computes the actual Git blob of the supporting policy, requires exact blob 2e15869d..., verifies real API definitions plus proposal consumption, and rejects the fabricated API shape"
+    },
+    {
+      "name": "Judgment and continuation gate",
+      "advanced": true,
+      "state": "CORRECTED",
+      "change": "Regnet and Venice receipts were corrected in place with Git history preserving the superseded evidence; She-Raw authoritative consultation again hit account-connection HTTP 400 and no synthetic substitute was used"
     },
     {
       "name": "Execution truth",
       "advanced": true,
       "state": "TESTED_NO",
-      "change": "exact reviewed source produced three failed workflows; Operator job exposes no steps; no retry and no step-level diagnosis"
+      "change": "exact reviewed source d06dac9a... produced three failed workflows; Operator job 98792067582 has zero steps; no retry and no step-level diagnosis"
     }
   ],
   "lights": {
-    "Failure Is The Shovel": "lit: caught stale request surgery body and an initially wrong fixture API assumption; corrected both remote artifacts",
-    "Canon Auto-Select": "lit: composed sole existing OperatorOverlayService plus existing supporting policies",
-    "Autocorrect Judgment Jar": "dark: no material token ambiguity affected authority",
-    "Originality Tax": "lit: stale broad/native-owner repair was not retried as another broad rewrite; recovery moved to exact-base proposal and focused fixture",
-    "Hunger": "lit: supporting-policy safety was traced through both native consumers instead of stopping at helper capability",
-    "Ever-Polished Interpreter / Eat Everything": "lit: authenticated current source, proposal, policy API, fixture, workflows, and PR state were cross-checked",
-    "Operator Campaign": "lit: durable GitHub artifacts and receipts advanced",
-    "Harroway operator discipline": "lit: owner/lane/firewall constraints held",
-    "She-Raw adversarial motivation": "lit: authoritative consultation attempted; HTTP 400 boundary preserved",
-    "Venice Judgment Jars": "lit: bounded-source checkpoint allowed with explicit continuation gate",
-    "Regnet QA": "lit: native accessibility proposal marked REVISE_REQUIRED for supporting-API drift",
-    "accessibility/TalkBack and touch semantics": "lit: repeat-send receipt preserved; no runtime TalkBack claim",
+    "Failure Is The Shovel": "lit: authenticated source disproved the prior heartbeat's API diagnosis; the false fixture and dependent receipts were corrected rather than defended",
+    "Canon Auto-Select": "lit: current authenticated policy/patch source outranked stale receipt prose and selected correction instead of implementation churn",
+    "Autocorrect Judgment Jar": "dark: no speech/autocorrect ambiguity affected authority",
+    "Originality Tax": "lit: did not repeat broad native-owner surgery and did not mutate working policy to make a false fixture pass; repaired the evidence organ itself",
+    "Hunger": "lit: traced the contradiction through policy blob, staged patch, fixture, Regnet, Venice, workflow evidence, and PR command surface",
+    "Ever-Polished Interpreter / Eat Everything": "lit: cross-checked exact source APIs and blob identity instead of trusting the previous summary",
+    "Operator Campaign": "lit: durable GitHub fixture and judgment surfaces advanced",
+    "Harroway operator discipline": "lit: sole-owner, evidence membrane, and P0/phone boundaries held",
+    "She-Raw adversarial motivation": "lit: authoritative consultation attempted on the correction path; HTTP 400 boundary preserved",
+    "Venice Judgment Jars": "lit: removed the false API-rebase requirement while preserving owner mutation/test/runtime continuation",
+    "Regnet QA": "lit: capability verdict corrected to current-source API custody and UNEXECUTED status",
+    "accessibility/TalkBack and touch semantics": "lit: explicit repeat-send accessibility receipt was re-verified in the staged patch; runtime TalkBack remains NO",
     "Phone Runtime / Phone Hands recovery": "dark/firewalled: zero phone consumption or mutation",
-    "deterministic routing": "lit: staged request order is explicit and sole-owner routed",
-    "evidence/capability-state discipline": "lit: SOURCE, PROPOSED, UNEXECUTED, TESTED, runtime, and delivery states remain separate",
-    "recovery/checkpointing/idempotence": "lit: stale patch corrected instead of fuzzy-applied; no workflow retry",
-    "strange non-raster vector/DOM/native UI art": "dark: no visible topology mutation justified",
-    "warm walls": "dark: existing wall remains truthful; no proposed capability painted as applied",
-    "Christmas-light scene graph": "lit constraint: rejection/over-budget paths earn no synthetic announcement or decorative motion",
-    "contact preservation": "lit: explicit repeat-send event receipt retained while persistent-state replacement remains unresolved"
+    "deterministic routing": "lit: fixture now binds proposal API evidence to an exact supporting-policy Git blob rather than names copied from prose",
+    "evidence/capability-state discipline": "lit: corrected source/proposal/fixture/TESTED/runtime/delivery distinctions and recorded the prior false claim as a scar",
+    "recovery/checkpointing/idempotence": "lit: corrected existing fixture and receipt surfaces; no workflow retry and no fuzzy native-owner application",
+    "strange non-raster vector/DOM/native UI art": "dark: no visible topology change was justified",
+    "warm walls": "dark: existing wall was not repainted because native capability did not change",
+    "Christmas-light scene graph": "dark: no scene-graph or motion semantic changed this pulse",
+    "contact preservation": "lit: repeat-send event receipt remains preserved; persistent READY/SENT state is not promoted into repeat-event authority"
   },
-  "crossPollination": "supporting availability safety exposed stale native consumer order; exact current owner read exposed the request surgery's stale body; native accessibility audit then exposed supporting-API drift; self-review caught the new fixture's own first incorrect transition API assumption; Regnet/Venice and exact workflow evidence keep those source improvements behind TESTED/runtime delivery",
+  "crossPollination": "authenticated source contradicted the prior fixture -> Failure Is The Shovel moved the repair to the evidence organ -> exact policy blob binding hardened deterministic proof -> that correction propagated into Regnet and Venice without applying native owner code -> repeat-send contact law stayed preserved -> workflow evidence kept corrected source behind TESTED/runtime",
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
   "workflowEvidence": {
-    "homeCenterCi": {"runId": 33150852060, "conclusion": "failure"},
-    "buildAndroid": {"runId": 33150852078, "conclusion": "failure"},
-    "operatorOverlay": {"runId": 33150852054, "conclusion": "failure", "jobId": 98782228192, "steps": null},
+    "homeCenterCi": {"runId": 33153909284, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33153909347, "conclusion": "failure"},
+    "operatorOverlay": {"runId": 33153909322, "conclusion": "failure", "jobId": 98792067582, "steps": []},
     "manualRetry": false
   },
   "membrane": {
@@ -66,8 +80,8 @@
     "authenticatedReadback": true,
     "adamStateRequestOwner": "SOURCE_WIRED",
     "adamUiRequestOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
-    "adamNativeAccessibilityOwner": "NO__SUPPORTING_API_REBASE_REQUIRED",
-    "focusedFixture": "SOURCE__UNEXECUTED",
+    "adamNativeAccessibilityOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "focusedFixture": "SOURCE_REPAIRED__BLOB_BOUND__UNEXECUTED",
     "regressionExecuted": false,
     "tested": false,
     "runtimeUi": false,
