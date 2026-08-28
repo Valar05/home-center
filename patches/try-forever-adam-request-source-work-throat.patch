@@ -6,7 +6,7 @@
 # OperatorState finite request source-work custody applied at commit f3e0eac397e8ba524ee21e0aa1b6d3ee31ad02bd.
 # OperatorState mode routing then converged through exact AdamModeSelectionAccessibilityPolicy admission at commit 322f18c867e5c2c28c0116e3b2250ae115606317.
 # OperatorState current/result blob: 3870272863878cd7eaef69d24b31a6c8de1bbef9
-# AdamModeSelectionAccessibilityPolicy current blob: 0a9ccb88059ab3688913285136d144e3c7ebc693
+# AdamModeSelectionAccessibilityPolicy current blob: 0ab827c07cca64ce29879c0d7a51d229835a9aeb
 # Supporting availability policy is SOURCE_WIRED at blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
 # Availability bounds admitted CharSequence scanning without whole-source toString materialization and distinguishes
 # EMPTY_OR_WHITESPACE / MATERIAL / OVER_BUDGET. Its separate hasUnsentText contact truth is owned by the
@@ -18,6 +18,11 @@
 # Direct state owner is SOURCE_WIRED. The remaining service seam is exact-base-locked below and remains NOT_APPLIED.
 # Over-ceiling editable source must fail closed; it is never truncated or normalized into a smaller request.
 # The service gate consumes the same material-request predicate that owns native availability before calling toString().
+# Deterministic evidence owner: tools/try_forever_adam_accessibility_owner_probe.py schema v6 now has a separate
+# requestAdmission seam. SOURCE_WIRED requires detached editable source + AdamSendAvailabilityAccessibilityPolicy
+# gate + policy-before-toString/trim ordering + materialization-before-OperatorState.submitAdamRequest ordering.
+# Current native owner remains LEGACY/RED under that seam until this exact surgery is applied; supporting-policy safety
+# must not green-paint the consumer. The focused probe-ordering fixture is source-only and UNEXECUTED.
 
 diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java b/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
 --- a/android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java
