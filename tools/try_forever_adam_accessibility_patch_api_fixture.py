@@ -21,14 +21,14 @@ def main() -> int:
         "current_availability_classifier": "AdamSendAvailabilityAccessibilityPolicy.classifyEditable(editable)",
         "send_enabled_field": "availability.sendEnabled",
         "unsent_contact_field": "availability.hasUnsentText",
-        "result_transition_owner": "AdamInputResultAccessibilityPolicy.transition(",
-        "edited_event": "AdamInputResultAccessibilityPolicy.Event.EDITED",
+        "result_transition_owner": "AdamInputResultAccessibilityPolicy.nextState(",
+        "edited_transition": "AdamInputResultAccessibilityPolicy.Transition.EDITED",
         "repeat_send_receipt": 'adamInput.announceForAccessibility("Sent to Adam " + adamMode)',
     }
     forbidden = {
         "obsolete_decision_for": "AdamSendAvailabilityAccessibilityPolicy.decisionFor(",
-        "obsolete_enabled_field": "decision.enabled",
-        "obsolete_embedded_next_state": "decision.nextResultState",
+        "obsolete_enabled_field": "availability.enabled",
+        "obsolete_embedded_next_state": "availability.nextResultState",
     }
 
     required_state = {name: needle in text for name, needle in required.items()}
@@ -37,7 +37,7 @@ def main() -> int:
 
     print(json.dumps({
         "fixture": "try_forever_adam_accessibility_patch_api_fixture",
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "state": "PASS" if passed else "RED",
         "proposalPath": str(PATCH.relative_to(ROOT)),
         "required": required_state,
