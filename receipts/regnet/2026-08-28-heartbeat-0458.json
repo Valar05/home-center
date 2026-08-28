@@ -1,0 +1,64 @@
+{
+  "schema": "regnet.try-forever-heartbeat.v1",
+  "checkpoint": "2026-08-28T04:58-05:00",
+  "reviewedSourceHead": "33e84ee83beb6801bdd97dbffaef9d64f2c3641d",
+  "verdict": "PASS_BOUNDED_SOURCE__NATIVE_OWNERS_CONTINUE_REQUIRED",
+  "fronts": {
+    "requestAdmissionEvidence": {
+      "status": "SOURCE_HARDENED_UNEXECUTED",
+      "change": "try_forever_adam_accessibility_owner_probe schema v7 now requires one fully-qualified AdamSendAvailabilityAccessibilityPolicy gate; a bare or other-owner hasMaterialRequest helper cannot counterfeit policy custody",
+      "fixture": "tools/test_try_forever_adam_request_admission_owner_probe.py adds shadow-helper and other-owner hostile cases"
+    },
+    "requestSourceWorkRedFixture": {
+      "status": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "stale patch-state and base-label assertions were corrected so the fixture reaches the deliberate OperatorOverlayService RED boundary instead of failing on obsolete provenance wording"
+    },
+    "requestOwnerSurgery": {
+      "status": "SERVICE_REBASED_PROPOSED_NOT_APPLIED",
+      "change": "existing surgery converged on probe v7 and explicitly requires the canonical fully-qualified availability gate; native OperatorOverlayService blob 2935243f136359e3489a89108406e888b0ec2911 remains unchanged"
+    },
+    "warmWall": {
+      "status": "SOURCE_SPECIMEN_UPDATED_NOT_RUNTIME",
+      "change": "existing non-raster Adam Warm Wall now uses a multiline textarea with four visible rows, preserves >=56px targets and visible focus, keeps aria-live off for automatic state, and exposes probe v7 without claiming Android parity"
+    },
+    "sheRaw": {
+      "status": "AUTHORITATIVE_CONSULTATION_UNAVAILABLE",
+      "boundary": "account connection returned HTTP 400; no synthetic She-Raw substituted"
+    }
+  },
+  "executionTruth": {
+    "exactReviewedSourceWorkflowRuns": {
+      "Build Android": {"runId": 33162165626, "conclusion": "failure"},
+      "Home Center CI": {"runId": 33162165621, "conclusion": "failure"},
+      "Operator Overlay Android": {"runId": 33162165637, "conclusion": "failure", "jobId": 98818961637, "steps": 0}
+    },
+    "regressionExecuted": false,
+    "tested": false,
+    "diagnosis": "NO_STEP_LEVEL_CAUSE_CLAIMED"
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "supportingSourceImplemented": true,
+    "authenticatedReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
