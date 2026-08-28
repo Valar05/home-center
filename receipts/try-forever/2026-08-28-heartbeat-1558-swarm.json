@@ -1,0 +1,105 @@
+{
+  "schema": "try-forever-heartbeat-lights.v1",
+  "checkpoint": "2026-08-28T15:58:00-05:00",
+  "priorPublicationHead": "f136ffeec851c34217fb6801497490557ce0d6b2",
+  "reviewedSourceHead": "d43bfd58b2bc329c0be732ab4482654940d353c5",
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Originality Tax", "Hunger", "Ever-Polished Interpreter / Eat Everything", "deterministic routing"],
+      "why": "Owner-probe v11 lifecycle regexes were still lexical enough for method-local declarations to counterfeit persistent Send-owner or mode-field mutation.",
+      "changed": "Pinned local adamSendButton and adamMode shadow declarations as hostile PARTIAL_UNSAFE cases in the existing temporal fixture and demoted Send lifecycle evidence to EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED instead of inventing another classifier."
+    },
+    {
+      "skills": ["Canon Auto-Select", "Operator Campaign", "Harroway operator discipline", "recovery/checkpointing/idempotence", "operator-owner-surgery-temporal-content-binding", "dynamic-action-button-semantic-value"],
+      "why": "The recovery needed persistent-field custody and current consequential action semantics without changing owner or architecture.",
+      "changed": "Hardened the existing temporal-content-binding canon with local-shadow fail-closed laws and reused the existing dynamic-action semantic doctrine to bind Send to current non-live mode/result/availability context."
+    },
+    {
+      "skills": ["accessibility/TalkBack and touch semantics", "strange non-raster vector/DOM/native UI art", "warm walls", "Christmas-light scene graph", "contact preservation", "operator-repeatable-accessibility-event-semantics"],
+      "why": "The source specimen had to tell the demoted evidence truth while keeping the actionable control understandable without live-region chatter or contact loss.",
+      "changed": "Truth-demoted the existing Warm Wall Send evidence, added aria-describedby from Send to the current non-live inputState, and converged its source-truth fixture while preserving horizontal non-wrapping 1x5 geometry, >=56px controls, visible focus, reduced motion, semantic SVG, explicit repeat-send hold, and no rejection blink."
+    },
+    {
+      "skills": ["She-Raw adversarial motivation", "Regnet QA", "Venice Judgment Jars", "evidence/capability-state discipline"],
+      "why": "Independent hostile review and promotion resistance were required for the new field-custody wound.",
+      "changed": "Authoritative She-Raw critique was attempted and hit the account-connection HTTP 400 boundary with no synthetic substitute. Regnet grants bounded source progress only; Venice remains CONTINUE_REQUIRED and holds probe repair, fixture execution, native owners, runtime, delivery, and acceptance."
+    }
+  ],
+  "dark": {
+    "Autocorrect Judgment Jar": "No authority-bearing ambiguous token appeared in this pulse.",
+    "Phone Runtime / Phone Hands recovery": "Binding P0 and phone-surface firewall; exact consumption and mutation remain zero."
+  },
+  "frontsAdvanced": [
+    {
+      "front": "Send persistent-field custody evidence",
+      "artifact": "tools/test_try_forever_adam_temporal_custody.py",
+      "state": "RED_SOURCE_UNEXECUTED"
+    },
+    {
+      "front": "Temporal field-custody canon",
+      "artifact": "skills/operator-owner-surgery-temporal-content-binding/SKILL.md",
+      "state": "SOURCE_HARDENED"
+    },
+    {
+      "front": "Warm Wall action context and capability truth",
+      "artifact": "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "state": "SOURCE_UPDATED_NOT_RUNTIME"
+    },
+    {
+      "front": "Warm Wall source-truth regression",
+      "artifact": "tools/test_try_forever_adam_warm_wall_truth.py",
+      "state": "SOURCE_CONVERGED_UNEXECUTED"
+    },
+    {
+      "front": "Authoritative adversarial review",
+      "state": "BOUNDARY_HTTP_400_ACCOUNT_CONNECTION_NO_SYNTHETIC_SUBSTITUTE"
+    },
+    {
+      "front": "Exact reviewed-source execution truth",
+      "state": "THREE_WORKFLOWS_FAILURE_OPERATOR_ZERO_STEPS_TESTED_NO"
+    }
+  ],
+  "crossPollination": "v11 lifecycle-regex review -> local-shadow persistent-field counterfeits -> temporal fixture RED and Send evidence demotion -> field-custody law harvested into the existing temporal skill -> dynamic-action semantic doctrine binds the Warm Wall Send control to current non-live availability context -> Warm Wall truth fixture converges -> repeat-event doctrine preserves the explicit send receipt -> exact-head zero-step CI keeps all source progress behind TESTED/runtime.",
+  "delta": {
+    "base": "f136ffeec851c34217fb6801497490557ce0d6b2",
+    "sourceHead": "d43bfd58b2bc329c0be732ab4482654940d353c5",
+    "commits": 4,
+    "paths": [
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "skills/operator-owner-surgery-temporal-content-binding/SKILL.md",
+      "tools/test_try_forever_adam_temporal_custody.py",
+      "tools/test_try_forever_adam_warm_wall_truth.py"
+    ],
+    "unexpectedPaths": 0
+  },
+  "membrane": {
+    "requested": "YES",
+    "supportingSourceProgress": "YES",
+    "authenticatedRemoteReadback": "YES",
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "requestProbeV11": "SOURCE_REPAIRED_UNEXECUTED",
+    "sendActionProbeV11": "EVIDENCE_REVISE_REQUIRED_RED_SOURCE_UNEXECUTED",
+    "temporalFixtureV11": "RED_SOURCE_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "warmWallTruthFixture": "SOURCE_CONVERGED_UNEXECUTED",
+    "regressionExecution": "NO",
+    "tested": "NO",
+    "runtimeUi": "NO",
+    "runtimeTalkBack": "NO",
+    "deployed": "NO",
+    "callable": "NO",
+    "executed": "NO",
+    "delivered": "NO",
+    "accepted": "NO"
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SEND_FIELD_CUSTODY_PROBE_REPAIR_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
