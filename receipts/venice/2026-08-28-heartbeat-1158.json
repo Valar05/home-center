@@ -1,0 +1,50 @@
+{
+  "schema": "try-forever-venice-heartbeat.v1",
+  "heartbeat": "2026-08-28T11:58:39-05:00",
+  "reviewedSourceHead": "14dbffc7ab8a4b9a69cfa6d7a5132d51b2dc75ce",
+  "verdict": "CONTINUE_REQUIRED",
+  "allows": [
+    "hostile source fixture exposing temporal-custody false greens",
+    "truthful evidence demotion without native capability mutation",
+    "existing Warm Wall result-state/sendability semantic repair",
+    "durable non-P0 receipts"
+  ],
+  "holds": [
+    "request-admission temporal-custody probe repair",
+    "Send-action temporal-custody probe repair",
+    "native Adam UI request-owner mutation",
+    "native Adam accessibility-owner mutation",
+    "fixture/regression execution",
+    "Android runtime UI evidence",
+    "runtime TalkBack evidence",
+    "deployment",
+    "callability",
+    "phone delivery",
+    "acceptance"
+  ],
+  "contactPreservation": {
+    "legacyExplicitAdamSendReceipt": "PRESERVE",
+    "reason": "Repeatable READY/SENT runtime ownership remains unresolved; evidence demotion and source-specimen wording repair do not authorize announcement removal."
+  },
+  "artJudgment": {
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "nonRaster": true,
+    "resultStateSeparatedFromSendability": true,
+    "automaticSpeech": "OFF",
+    "christmasBlink": false,
+    "capabilityState": "TEXTUAL_AND_NON_COLOR",
+    "evidenceTruth": "REQUEST_AND_SEND_ACTION_REVISE_REQUIRED"
+  },
+  "sheRaw": {
+    "consulted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
