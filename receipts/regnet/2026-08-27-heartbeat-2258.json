@@ -1,0 +1,63 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "localCheckpoint": "2026-08-27T22:58:46-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewedSourceHead": "1c1e1e87bff255d419f18f200ea972284d090f4b",
+  "previousPublicationHead": "009046c840c734fd2321227d5c6328b687fad60f",
+  "delta": {
+    "commits": 5,
+    "intendedPaths": 5,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_adam_accessibility_owner_probe.py",
+      "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "patches/try-forever-adam-request-source-work-throat.patch",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html"
+    ]
+  },
+  "fronts": {
+    "deterministicOwnerEvidence": {
+      "status": "SOURCE_UPDATED_UNEXECUTED",
+      "detail": "Adam owner probe schema v6 adds independent requestAdmission classification. SOURCE_WIRED requires detached editable source, bounded AdamSendAvailabilityAccessibilityPolicy admission before whole-source materialization/trim, then request persistence after materialization."
+    },
+    "focusedProbeRegression": {
+      "status": "SOURCE_UNEXECUTED",
+      "detail": "Focused synthetic fixture distinguishes legacy, wrong-order, source-wired, and comment/string counterfeit request-admission shapes. Broad owner-probe regression converged to schema v6."
+    },
+    "requestOwner": {
+      "status": "NO_PROPOSED_NOT_APPLIED",
+      "detail": "Authenticated OperatorOverlayService blob 2935243f136359e3489a89108406e888b0ec2911 still materializes adamInput.getText().toString().trim() before the supporting finite gate. Existing owner surgery remains exact-base-locked and unapplied."
+    },
+    "warmWall": {
+      "status": "SOURCE_UPDATED_RUNTIME_NO",
+      "detail": "Existing non-raster Adam Warm Wall now exposes request probe v6 and the red native request-admission boundary while retaining 56px targets, visible focus, non-color status, reduced-motion behavior, no autoplay/blink, and runtime TalkBack NO."
+    },
+    "repeatableAdamReceipt": {
+      "status": "PRESERVED",
+      "detail": "ADAM_REPEAT_SEND_RESULT_UNRESOLVED remains non-NONE; the legacy explicit send receipt remains present."
+    }
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionTruth": {
+    "buildAndroid": {"runId": 33140852603, "status": "completed", "conclusion": "failure"},
+    "homeCenterCI": {"runId": 33140852696, "status": "completed", "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 33140852581, "jobId": 98751164939, "status": "completed", "conclusion": "failure", "steps": 0},
+    "manualRetryFired": false,
+    "stepLevelDiagnosisClaimed": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "verdict": "PASS_BOUNDED_SOURCE__REQUEST_ADMISSION_EVIDENCE_HARDENED__UI_REQUEST_OWNER_REVISE_REQUIRED__NATIVE_ACCESSIBILITY_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO"
+}
