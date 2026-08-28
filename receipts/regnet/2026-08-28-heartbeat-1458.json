@@ -1,32 +1,35 @@
 {
   "schema": "try-forever-regnet-review.v1",
   "checkpoint": "2026-08-28T14:58:00-05:00",
-  "reviewedSourceHead": "991a8a06526f7c8ef9450cacaa600b1817c6571f",
+  "reviewedSourceHead": "645dbabc133ca3e0e4191918f63a9572f0052db7",
   "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
   "fronts": {
-    "warmWallTruthSync": "PASS_SOURCE_ONLY",
-    "temporalLifecycleDoctrine": "PASS_SOURCE_ONLY",
-    "warmWallTruthFixture": "PASS_SOURCE_PRESENT_UNEXECUTED",
-    "sendLifecycleProbeRepair": "CONTINUE_REQUIRED",
+    "sendLifecycleProbeV11": "PASS_SOURCE_REPAIRED_UNEXECUTED",
+    "temporalFixtureV11": "PASS_SOURCE_CONVERGED_UNEXECUTED",
+    "broadOwnerFixtureV11": "PASS_SOURCE_CONVERGED_UNEXECUTED",
+    "warmWallTruthSyncV11": "PASS_SOURCE_ONLY_NOT_RUNTIME",
+    "temporalLifecycleDoctrine": "PASS_SOURCE_HARDENED",
+    "warmWallTruthFixtureV11": "PASS_SOURCE_CONVERGED_UNEXECUTED",
     "nativeUiRequestOwner": "REBASED_PROPOSED_NOT_APPLIED",
     "nativeAccessibilityOwner": "REBASED_PROPOSED_NOT_APPLIED",
     "runtimeTalkBack": "NO",
     "tested": "NO"
   },
   "findings": [
-    "Warm Wall no longer green-paints Send-action probe v10; it states EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED.",
-    "Temporal doctrine now rejects token co-location as lifecycle custody and requires owner-local ordered assignment/mutation witnesses.",
-    "New source-only Warm Wall fixture pins non-live detail, horizontal 1x5 topology, editable naming, invalid-vs-unavailable semantics, repeat-contact visibility, and firewall truth.",
-    "Existing owner-probe v10 still does not consume create-owner-before-refresh and mode-mutation-before-refresh ordering witnesses; native capability remains unchanged."
+    "Existing Adam owner-probe advanced to v11 and now requires one persistent Send-owner assignment before create-time refresh plus one current-mode mutation before the mode-change refresh, in addition to the prior mutation-free current-mode snapshot data flow.",
+    "Temporal and broad owner fixtures are converged to v11 source and retain hostile refresh-before-owner and refresh-before-mode counterfeits; source existence is not execution.",
+    "Warm Wall now truthfully shows request and Send probes v11 as SOURCE REPAIRED / UNEXECUTED while preserving non-live detail, horizontal 1x5 topology, touch sizing, editable naming, invalid-vs-unavailable semantics, and repeat-contact visibility.",
+    "Temporal doctrine records the repaired owner-local lifecycle witness without promoting native owner capability."
   ],
   "execution": {
-    "operatorOverlayAndroidRun": 33206764349,
-    "homeCenterCiRun": 33206764313,
-    "buildAndroidRun": 33206764377,
+    "operatorOverlayAndroidRun": 33207669529,
+    "homeCenterCiRun": 33207669496,
+    "buildAndroidRun": 33207669493,
     "conclusions": "failure/failure/failure",
-    "operatorJob": 98969677070,
+    "operatorJob": 98972767018,
     "operatorSteps": 0,
     "manualRetry": false,
+    "fixtureExecution": false,
     "regressionExecuted": false
   },
   "firewall": {
