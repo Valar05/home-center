@@ -60,6 +60,12 @@ public final class AccessibilityAnnouncementSemanticPolicy {
         public final boolean requiresMaterialTransition;
         public final boolean repeatableIdenticalValuePossible;
         public final boolean syntheticRepeatReceiptRequired;
+        /**
+         * A repeatable result receipt is only coherent when another successful action cannot leave
+         * the same persistent result state continuously true. Adam Send therefore requires an
+         * intervening READY state after newer unsent input and before the next SENT transition.
+         */
+        public final boolean requiresInterveningReadyStateForRepeatReceipt;
         public final boolean ownerMigrationReady;
         public final MigrationBlocker migrationBlocker;
         public final boolean legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring;
@@ -73,6 +79,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                 boolean requiresMaterialTransition,
                 boolean repeatableIdenticalValuePossible,
                 boolean syntheticRepeatReceiptRequired,
+                boolean requiresInterveningReadyStateForRepeatReceipt,
                 boolean ownerMigrationReady,
                 MigrationBlocker migrationBlocker) {
             this.channel = channel;
@@ -83,6 +90,8 @@ public final class AccessibilityAnnouncementSemanticPolicy {
             this.requiresMaterialTransition = requiresMaterialTransition;
             this.repeatableIdenticalValuePossible = repeatableIdenticalValuePossible;
             this.syntheticRepeatReceiptRequired = syntheticRepeatReceiptRequired;
+            this.requiresInterveningReadyStateForRepeatReceipt =
+                    requiresInterveningReadyStateForRepeatReceipt;
             this.ownerMigrationReady = ownerMigrationReady;
             this.migrationBlocker = migrationBlocker;
             this.legacyAnnouncementMayBeRemovedOnlyAfterOwnerWiring = true;
@@ -111,6 +120,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         false,
                         false,
+                        false,
                         true,
                         MigrationBlocker.NONE);
             case SPOTIFY_COMMAND_RECEIPT:
@@ -122,6 +132,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         true,
                         true,
+                        false,
                         false,
                         false,
                         MigrationBlocker.SPOTIFY_REPEATABLE_RECEIPT_UNRESOLVED);
@@ -136,6 +147,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         true,
                         false,
                         false,
+                        false,
                         MigrationBlocker.DETAIL_REPEAT_SELECTION_RECEIPT_UNRESOLVED);
             case ADAM_SEND_CONFIRMATION:
                 return new Decision(
@@ -147,6 +159,7 @@ public final class AccessibilityAnnouncementSemanticPolicy {
                         false,
                         true,
                         false,
+                        true,
                         false,
                         MigrationBlocker.ADAM_REPEAT_SEND_RESULT_UNRESOLVED);
             default:
@@ -161,8 +174,9 @@ public final class AccessibilityAnnouncementSemanticPolicy {
      *
      * <p>The repeatable Spotify/detail/Adam consequence shapes remain deliberately
      * migration-unready until their existing-owner event semantics are reviewed as a
-     * complete contract. Supporting design is not permission to remove a working legacy
-     * receipt.</p>
+     * complete contract. For Adam Send, the supporting contract now additionally pins an
+     * intervening READY state before a later successful SENT result; that supporting law is not
+     * permission to remove the explicit receipt before native owner wiring exists.</p>
      */
     public static int liveRegionModeFor(
             Consequence consequence,
