@@ -56,6 +56,35 @@ public class AdamModeSelectionAccessibilityPolicyTest {
         }
     }
 
+    @Test
+    public void modeSourceWorkThroatRejectsMaxPlusOneWithoutNormalization() {
+        StringBuilder max = new StringBuilder();
+        for (int i = 0; i < AdamModeSelectionAccessibilityPolicy.MAX_MODE_SOURCE_CODE_UNITS; i++) {
+            max.append('x');
+        }
+        try {
+            AdamModeSelectionAccessibilityPolicy.requireMode(max.toString());
+        } catch (IllegalArgumentException expectedUnknownAtExactCeiling) {
+            assertEquals("unsupported Adam mode", expectedUnknownAtExactCeiling.getMessage());
+        }
+
+        max.append('x');
+        try {
+            AdamModeSelectionAccessibilityPolicy.requireMode(max.toString());
+        } catch (IllegalArgumentException expectedOverBudget) {
+            assertEquals(
+                    "Adam mode source exceeds finite work budget",
+                    expectedOverBudget.getMessage());
+            return;
+        }
+        throw new AssertionError("max+1 Adam mode source must fail closed");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullModeFailsClosed() {
+        AdamModeSelectionAccessibilityPolicy.requireMode(null);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void whitespaceModeDoesNotNormalizeIntoAuthority() {
         AdamModeSelectionAccessibilityPolicy.requireMode(" terminal ");
