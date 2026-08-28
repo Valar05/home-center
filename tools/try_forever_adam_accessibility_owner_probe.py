@@ -244,17 +244,33 @@ def classify_send_action(source: str) -> SeamVerdict:
     refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
     policy = "AdamSendActionAccessibilityPolicy"
 
-    # Creation owns the native button, but the shared refresh method owns semantic projection.
-    # Requiring a direct policy reference in createOverlay would reject the intended DRY owner shape.
+    # Creation owns the native button, while refreshAdamSendAction owns the semantic projection.
     created_owner = "adamSendButton" in create_method and "refreshAdamSendAction(" in create_method
-    refresh_policy = policy in refresh_method and "adamSendButton.setContentDescription(" in refresh_method
     mode_refresh = "refreshAdamSendAction(" in mode_method
-    policy_reference = created_owner and refresh_policy and mode_refresh
+    decision_pattern = re.compile(
+        r"\bAdamSendActionAccessibilityPolicy\.Decision\s+decision\s*=\s*"
+        r"AdamSendActionAccessibilityPolicy\.decisionFor\s*\(\s*adamMode\s*\)\s*;"
+    )
+    description_pattern = re.compile(
+        r"\badamSendButton\.setContentDescription\s*\(\s*decision\.actionDescription\s*\)\s*;"
+    )
+    decisions = list(decision_pattern.finditer(refresh_method))
+    descriptions = list(description_pattern.finditer(refresh_method))
+    policy_call_count = len(re.findall(r"\bAdamSendActionAccessibilityPolicy\.decisionFor\s*\(", refresh_method))
+    decision_assignment_count = _binding_assignment_count(refresh_method, "decision")
+    exact_data_flow = (
+        len(decisions) == 1
+        and len(descriptions) == 1
+        and policy_call_count == 1
+        and decision_assignment_count == 1
+        and decisions[0].start() < descriptions[0].start()
+    )
+    policy_reference = created_owner and mode_refresh and exact_data_flow
 
     if policy_reference:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam Send owner initializes and refreshes the exact current-mode action consequence through one shared policy method",
+            "direct Adam Send owner initializes and refreshes the exact current-mode action consequence through one shared policy method whose Decision result drives the current action description",
             policy,
             True,
             True,
@@ -264,13 +280,21 @@ def classify_send_action(source: str) -> SeamVerdict:
         or policy in refresh_method
         or "refreshAdamSendAction(" in create_method
         or "refreshAdamSendAction(" in mode_method
+        or "adamSendButton.setContentDescription(" in refresh_method
     ):
+        missing = []
+        if not created_owner:
+            missing.append("shared native Send owner initialization")
+        if not mode_refresh:
+            missing.append("mode-change semantic refresh")
+        if not exact_data_flow:
+            missing.append("exact policy result drives the current action description")
         return SeamVerdict(
             "PARTIAL_UNSAFE",
-            "Adam Send owner contains only part of the mode-specific action-semantic lifecycle",
+            "Adam Send owner is incomplete: missing " + ", ".join(missing),
             policy,
             policy in create_method or policy in refresh_method,
-            "adamSendButton.setContentDescription(" in refresh_method,
+            exact_data_flow,
         )
     return SeamVerdict(
         "LEGACY_OWNER",
@@ -284,13 +308,13 @@ def classify_send_action(source: str) -> SeamVerdict:
 def classify_request_admission(source: str) -> SeamVerdict:
     """Classify the native UI request-work throat independently from supporting policy safety.
 
-    SOURCE_WIRED requires one single-assignment detached editable observation, exactly one canonical
-    fully-qualified bounded admission call used as an unconditional top-level fail-closed return guard,
+    SOURCE_WIRED requires one single-assignment detached editable observation, immediate canonical
+    fully-qualified bounded admission used as an unconditional top-level fail-closed return guard,
     one exact detached materialization/trim assignment, and exactly one request-persistence sink carrying
     that admitted `text`, in order. Merely calling the right policy and ignoring its result is not admission
     custody. A shadow helper with the same method name is not policy custody, a nested conditional guard is
-    not unconditional custody, and one correct guard must not hide simple/compound source or text rebinding,
-    repeated observations/work, or a second persistence sink later in the owner.
+    not unconditional custody, and one correct guard must not hide executable pre-gate request work,
+    simple/compound source or text rebinding, repeated observations/work, or a second persistence sink.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
@@ -325,7 +349,13 @@ def classify_request_admission(source: str) -> SeamVerdict:
     ]
     single_controlling_guard = len(top_level_admission_guards) == 1 and policy_call_count == 1
     policy_gate_index = top_level_admission_guards[0].start() if single_controlling_guard else -1
-    canonical_policy_reference = policy in send_method and single_controlling_guard
+    immediate_admission = (
+        single_detached_source_observation
+        and single_controlling_guard
+        and source_declarations[0].end() <= policy_gate_index
+        and send_method[source_declarations[0].end():policy_gate_index].strip() == ""
+    )
+    canonical_policy_reference = policy in send_method and single_controlling_guard and immediate_admission
 
     direct_materialization_count = send_method.count("adamInput.getText().toString()")
     detached_materialization_count = send_method.count("editable.toString()")
@@ -366,7 +396,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once into a single-assignment binding, uses one canonical policy result as an unconditional top-level fail-closed guard, materializes/trims exactly once afterward, and has exactly one request-persistence sink carrying that admitted text",
+            "direct Adam UI request owner observes editable source once into a single-assignment binding, immediately consumes one canonical policy result as an unconditional top-level fail-closed guard before any other request work, materializes/trims exactly once afterward, and has exactly one request-persistence sink carrying that admitted text",
             policy,
             True,
             True,
@@ -376,14 +406,16 @@ def classify_request_admission(source: str) -> SeamVerdict:
         missing = []
         if not single_detached_source_observation:
             missing.append("exactly one single-assignment detached editable source observation")
-        if not canonical_policy_reference:
+        if single_detached_source_observation and single_controlling_guard and not immediate_admission:
+            missing.append("immediate canonical fail-closed admission after source observation")
+        elif not canonical_policy_reference:
             missing.append("one unconditional top-level canonical fully-qualified fail-closed request-admission policy guard")
         if not single_detached_materialization:
             missing.append("exactly one single-assignment post-gate detached trim materialization")
         if not exact_text_persistence:
             missing.append("exactly one request-persistence sink carrying the admitted text variable")
         if (
-            canonical_policy_reference
+            single_controlling_guard
             and single_detached_materialization
             and policy_gate_index >= 0
             and materialization_index >= 0
