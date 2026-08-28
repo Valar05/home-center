@@ -1,0 +1,73 @@
+{
+  "schema": "try-forever-heartbeat-lights-receipt.v1",
+  "date": "2026-08-28",
+  "reviewedSourceHead": "b427a4147a453290e71be91ef27e4bd27737dcba",
+  "previousPublicationHead": "d29b5e22f9994eaa8c4e4ef4ea80659119c736a4",
+  "sourceDelta": {
+    "commits": 7,
+    "paths": 6,
+    "unexpectedPaths": 0
+  },
+  "heartbeatLights": {
+    "Failure Is The Shovel": "caught request-probe counterfeit greens and Warm Wall JS trim semantic drift",
+    "Canon Auto-Select": "reused existing request probe, announcement policy, repeatable-event skill, and Warm Wall",
+    "Originality Tax": "converted the initially RED single-observation fixture into a hardened existing probe rather than leaving the same failure mode open",
+    "Hunger": "continued past supporting request safety into repeat-result and specimen-authority seams",
+    "Ever-Polished Interpreter / Eat Everything": "separated bounded result semantics from source-work multiplicity and JavaScript-vs-native whitespace authority",
+    "Operator Campaign": "durable repo source plus Regnet/Venice/swarm receipts",
+    "Harroway operator discipline": "no adjacent controller, daemon, transport, or phone workaround",
+    "She-Raw adversarial motivation": "authoritative call attempted; HTTP 400 account connection failure; no substitute",
+    "Venice Judgment Jars": "bounded source checkpoint allowed; native owner/test/runtime campaign continues",
+    "Regnet QA": "source pass only; native owner seams remain revise-required; zero-step CI is not test evidence",
+    "accessibility/TalkBack and touch semantics": "repeat result contract requires READY before later SENT; Warm Wall suppresses automatic live-region chatter and preserves 56px/focus/non-color semantics",
+    "deterministic routing": "request probe requires one source observation, one gate, one materialization, ordered before persistence",
+    "evidence/capability-state discipline": "source/proposed/executed/tested/runtime/deployed/delivered/accepted remain separated",
+    "recovery/checkpointing/idempotence": "no workflow retry from zero-step failures; exact reviewed source and publication split retained",
+    "strange non-raster vector/DOM/native UI art": "existing Warm Wall corrected in place; no new specimen family",
+    "warm walls": "ASCII trim parity and OVER_BUDGET representability corrected",
+    "Christmas-light scene graph": "rejection and state inspection remain motionless; no decorative blink or synthetic announcement",
+    "contact preservation": "OVER_BUDGET remains unsent contact and repeated successful send semantics require READY to intervene",
+    "Autocorrect Judgment Jar": "DARK_NO_MATERIAL_AMBIGUITY",
+    "Phone Runtime / Phone Hands recovery": "FIREWALLED_ZERO_CONSUMPTION"
+  },
+  "frontsAdvanced": [
+    "Adam request-admission deterministic evidence",
+    "repeatable Adam send result semantics",
+    "accessible non-raster Warm Wall semantic parity"
+  ],
+  "crossPollination": "bounded request custody exposed counterfeit multi-observation proof; repeatable result doctrine supplied READY-before-SENT contact law; that law and native ASCII trim semantics forced the existing Warm Wall to stop using broader JavaScript trim authority",
+  "capability": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "requestProbeSingleObservationCustody": "SOURCE_WIRED",
+    "adamRepeatReadyBeforeSentContract": "SUPPORTING_SOURCE_WIRED",
+    "warmWallAsciiTrimParity": "SOURCE_WIRED",
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "executionTruth": {
+    "operatorOverlayAndroid": {"run": 33143997481, "conclusion": "failure", "job": 98760932142, "steps": 0},
+    "buildAndroid": {"run": 33143997502, "conclusion": "failure"},
+    "homeCenterCi": {"run": 33143997484, "conclusion": "failure"},
+    "manualRetry": false
+  },
+  "p0Firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
