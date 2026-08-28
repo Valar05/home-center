@@ -10,6 +10,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
     private static final class CountingCharSequence implements CharSequence {
         private final String value;
         int lengthCalls;
+        int charAtCalls;
         int toStringCalls;
 
         CountingCharSequence(String value) {
@@ -24,6 +25,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
 
         @Override
         public char charAt(int index) {
+            charAtCalls++;
             return value.charAt(index);
         }
 
@@ -84,6 +86,26 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
     }
 
     @Test
+    public void admittedMaterialScanIsBoundedAndNeverMaterializesWholeSource() {
+        CountingCharSequence hostile = new CountingCharSequence("   xignored");
+
+        assertTrue(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(hostile));
+        assertEquals(1, hostile.lengthCalls);
+        assertEquals(4, hostile.charAtCalls);
+        assertEquals(0, hostile.toStringCalls);
+    }
+
+    @Test
+    public void admittedWhitespaceScanIsBoundedAndNeverMaterializesWholeSource() {
+        CountingCharSequence hostile = new CountingCharSequence(" \t\r\n");
+
+        assertFalse(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(hostile));
+        assertEquals(1, hostile.lengthCalls);
+        assertEquals(4, hostile.charAtCalls);
+        assertEquals(0, hostile.toStringCalls);
+    }
+
+    @Test
     public void exactBroadSourceCeilingStillReachesExistingTrimSemantics() {
         StringBuilder source = new StringBuilder(
                 AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS);
@@ -98,7 +120,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
     }
 
     @Test
-    public void maxPlusOneStopsBeforeWholeSourceMaterializationAndTrim() {
+    public void maxPlusOneStopsBeforeElementReadsOrWholeSourceMaterialization() {
         StringBuilder source = new StringBuilder(
                 AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1);
         for (int index = 0;
@@ -110,6 +132,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
 
         assertFalse(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(hostile));
         assertEquals(1, hostile.lengthCalls);
+        assertEquals(0, hostile.charAtCalls);
         assertEquals(0, hostile.toStringCalls);
     }
 
