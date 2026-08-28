@@ -90,6 +90,17 @@ def _brace_depth_at(surface: str, index: int) -> int:
     return depth
 
 
+def _binding_assignment_count(surface: str, identifier: str) -> int:
+    """Count Java simple and compound assignments to one local binding."""
+    assignment_operator = r"(?:>>>=|>>=|<<=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|=(?!=))"
+    return len(
+        re.findall(
+            rf"\b{re.escape(identifier)}\s*{assignment_operator}",
+            surface,
+        )
+    )
+
+
 def classify_mode_selection(source: str) -> SeamVerdict:
     owner = _owner_surface(source)
     create_method = _direct_method_surface(owner, "createOverlay")
@@ -275,11 +286,11 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
     SOURCE_WIRED requires one single-assignment detached editable observation, exactly one canonical
     fully-qualified bounded admission call used as an unconditional top-level fail-closed return guard,
-    one exact detached materialization/trim assignment, and exact persistence of that admitted `text`,
-    in order. Merely calling the right policy and ignoring its result is not admission custody. A shadow
-    helper with the same method name is not policy custody, a nested conditional guard is not unconditional
-    custody, and one correct guard must not hide source/text rebinding or repeated observations/work later
-    in the owner.
+    one exact detached materialization/trim assignment, and exactly one request-persistence sink carrying
+    that admitted `text`, in order. Merely calling the right policy and ignoring its result is not admission
+    custody. A shadow helper with the same method name is not policy custody, a nested conditional guard is
+    not unconditional custody, and one correct guard must not hide simple/compound source or text rebinding,
+    repeated observations/work, or a second persistence sink later in the owner.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
@@ -290,7 +301,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     )
     source_declarations = list(source_declaration_pattern.finditer(send_method))
     direct_source_observation_count = send_method.count("adamInput.getText()")
-    editable_assignment_count = len(re.findall(r"\beditable\s*=(?!=)", send_method))
+    editable_assignment_count = _binding_assignment_count(send_method, "editable")
     single_detached_source_observation = (
         len(source_declarations) == 1
         and direct_source_observation_count == 1
@@ -322,7 +333,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
         r"\bString\s+text\s*=\s*editable\.toString\s*\(\s*\)\.trim\s*\(\s*\)\s*;"
     )
     materializations = list(materialization_pattern.finditer(send_method))
-    text_assignment_count = len(re.findall(r"\btext\s*=(?!=)", send_method))
+    text_assignment_count = _binding_assignment_count(send_method, "text")
     single_detached_materialization = (
         direct_materialization_count == 0
         and detached_materialization_count == 1
@@ -331,12 +342,14 @@ def classify_request_admission(source: str) -> SeamVerdict:
     )
     materialization_index = materializations[0].start() if len(materializations) == 1 else -1
 
-    persistence_pattern = re.compile(
-        r"OperatorState\.submitAdamRequest\s*\(\s*this\s*,\s*adamMode\s*,\s*text\s*,"
+    persistence_sink_pattern = re.compile(r"\bOperatorState\.submitAdamRequest\s*\(")
+    persistence_sinks = list(persistence_sink_pattern.finditer(send_method))
+    exact_persistence_pattern = re.compile(
+        r"\bOperatorState\.submitAdamRequest\s*\(\s*this\s*,\s*adamMode\s*,\s*text\s*,"
     )
-    persistence_calls = list(persistence_pattern.finditer(send_method))
-    exact_text_persistence = len(persistence_calls) == 1
-    submit_index = persistence_calls[0].start() if exact_text_persistence else -1
+    exact_persistence_calls = list(exact_persistence_pattern.finditer(send_method))
+    exact_text_persistence = len(persistence_sinks) == 1 and len(exact_persistence_calls) == 1
+    submit_index = exact_persistence_calls[0].start() if exact_text_persistence else -1
 
     ordered = (
         single_detached_source_observation
@@ -353,7 +366,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once into a single-assignment binding, uses one canonical policy result as an unconditional top-level fail-closed guard, materializes/trims exactly once afterward, and persists exactly that admitted text",
+            "direct Adam UI request owner observes editable source once into a single-assignment binding, uses one canonical policy result as an unconditional top-level fail-closed guard, materializes/trims exactly once afterward, and has exactly one request-persistence sink carrying that admitted text",
             policy,
             True,
             True,
@@ -368,7 +381,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
         if not single_detached_materialization:
             missing.append("exactly one single-assignment post-gate detached trim materialization")
         if not exact_text_persistence:
-            missing.append("exact persistence of the admitted text variable")
+            missing.append("exactly one request-persistence sink carrying the admitted text variable")
         if (
             canonical_policy_reference
             and single_detached_materialization
@@ -398,7 +411,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v8",
+        "schema": "try-forever-adam-accessibility-owner-probe.v9",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
