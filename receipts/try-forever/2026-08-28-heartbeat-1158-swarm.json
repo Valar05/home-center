@@ -1,0 +1,121 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "heartbeat": "2026-08-28T11:58:39-05:00",
+  "reviewedSourceHead": "14dbffc7ab8a4b9a69cfa6d7a5132d51b2dc75ce",
+  "previousPublicationHead": "5aab8d03eafddfbfd9fa7d98a50f6ac43ed14268",
+  "commission": "Harroway operator-mode non-P0 Try Forever swarm",
+  "frontsAdvanced": [
+    {
+      "front": "request admission temporal custody",
+      "state": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+      "artifact": "tools/test_try_forever_adam_temporal_custody.py",
+      "change": "Pinned a false green where executable work mutates aliased editable source after canonical admission but before materialization. Probe v9 currently accepts the shape, so evidence was demoted rather than green-painted."
+    },
+    {
+      "front": "Send action temporal custody",
+      "state": "EVIDENCE_REVISE_REQUIRED_UNEXECUTED",
+      "artifact": "tools/test_try_forever_adam_temporal_custody.py",
+      "change": "Pinned a false green where adamMode changes after decisionFor(adamMode) but before decision.actionDescription reaches the Send button. Lexical data flow is insufficient without same-mode temporal binding."
+    },
+    {
+      "front": "Warm Wall accessibility semantics",
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "artifact": "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "change": "Separated READY/SENT result state from bounded Send availability, removed contradictory Ready-to-send wording for empty or over-budget source, and surfaced both evidence demotions without adding live-region chatter, wrapping the 1x5 row, or creating raster/rejection motion."
+    },
+    {
+      "front": "judgment and evidence membrane",
+      "state": "DURABLE_REVIEW",
+      "artifacts": [
+        "receipts/regnet/2026-08-28-heartbeat-1158.json",
+        "receipts/venice/2026-08-28-heartbeat-1158.json"
+      ],
+      "change": "Regnet accepts bounded source progress with continuation required; Venice preserves the explicit Adam send receipt and holds runtime/native-owner claims."
+    }
+  ],
+  "heartbeatLights": {
+    "Failure Is The Shovel": "LIT: adversarial source review found two temporal false greens and demoted evidence instead of preserving a flattering status.",
+    "Canon Auto-Select": "LIT: reused existing Adam owner, Warm Wall, evidence probe semantics, and existing temporal-content-binding doctrine; no adjacent runtime owner was invented.",
+    "Autocorrect Judgment Jar": "DARK: no authority-bearing ambiguous token required resolution.",
+    "Originality Tax": "LIT: recovery path changed from repeated local pattern-count hardening to same-observation temporal-custody hostile fixtures.",
+    "Hunger": "LIT: followed admitted content and semantic decision values through time rather than stopping at lexical co-location.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: cross-read owner probe, native owner, Warm Wall, accessibility skill, temporal-content-binding skill, workflow evidence, and prior receipts.",
+    "Operator Campaign": "LIT: durable changes stayed on PR #329 branch and preserved exact capability states.",
+    "Harroway operator discipline": "LIT: exact owner/transport/firewall boundaries preserved; no phone/P0 substitution.",
+    "She-Raw adversarial motivation": "LIT_BOUNDED: authoritative consultation attempted on the two temporal hypotheses; connector returned account-connection HTTP 400 and no synthetic substitute was used.",
+    "Venice Judgment Jars": "LIT: CONTINUE_REQUIRED; source art accepted only as source, contact receipt preserved.",
+    "Regnet QA": "LIT: PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED with both v9 evidence seams revision-required.",
+    "accessibility/TalkBack and touch semantics": "LIT: result state and Send availability are now separate readable truths; no runtime TalkBack claim.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: zero phone consumption or mutation.",
+    "deterministic routing": "LIT: exact current owner and existing PR branch retained.",
+    "evidence/capability-state discipline": "LIT: RED source fixture does not equal execution; source specimen does not equal runtime.",
+    "recovery/checkpointing/idempotence": "LIT: previous publication head, reviewed source head, exact source delta, and immutable receipt paths recorded.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing DOM/SVG Warm Wall advanced without raster or runtime claim.",
+    "warm walls": "LIT: existing source specimen repaired in place.",
+    "Christmas-light scene graph": "LIT: no blinking/rejection animation/live-region fanout; capability changes remain textual/non-color.",
+    "contact preservation": "LIT: explicit Adam repeat-send announcement remains held.",
+    "operator-owner-surgery-temporal-content-binding": "LIT_DISCOVERED: same-observation temporal binding doctrine was applied to mutable request content and current-mode action semantics without creating another owner."
+  },
+  "crossPollination": [
+    "temporal-content-binding doctrine -> post-admission mutable Editable false green",
+    "same-observation content rule -> current-mode Send action semantic drift",
+    "READY/SENT lifecycle doctrine -> Warm Wall result-state/sendability separation",
+    "evidence demotion -> Warm Wall capability membrane and Regnet/Venice receipts",
+    "repeatable-event doctrine -> explicit send announcement preserved"
+  ],
+  "executionTruth": {
+    "reviewedSourceHead": "14dbffc7ab8a4b9a69cfa6d7a5132d51b2dc75ce",
+    "operatorOverlayRun": 33192943600,
+    "buildAndroidRun": 33192943480,
+    "homeCenterCiRun": 33192943534,
+    "allThreeConclusions": "failure",
+    "operatorJob": 98922764964,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "diagnosisClaimed": false,
+    "fixtureExecuted": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "delta": {
+    "previousPublicationToReviewedSource": {
+      "commits": 2,
+      "paths": 2,
+      "unexpectedPaths": 0,
+      "pathsChanged": [
+        "tools/test_try_forever_adam_temporal_custody.py",
+        "docs/try-forever/adam-mode-accessibility-warm-wall-source.html"
+      ]
+    }
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "durableRepositoryProgress": true,
+    "authenticatedReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "requestAdmissionProbeV9": "EVIDENCE_REVISE_REQUIRED",
+    "sendActionProbeV9": "EVIDENCE_REVISE_REQUIRED",
+    "temporalHostileFixture": "RED_SOURCE_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "p0ReadOnlyEvidenceOnly": true
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__TEMPORAL_CUSTODY_PROBE_REPAIR_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
