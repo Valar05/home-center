@@ -6,6 +6,7 @@
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
 # Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
 # Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
+# Result-state dependency: AdamInputResultAccessibilityPolicy blob cc09a2533fa487569ec0b3708f9dd00ace2a95da.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
