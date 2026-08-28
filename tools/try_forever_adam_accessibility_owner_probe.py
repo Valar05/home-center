@@ -262,10 +262,10 @@ def classify_send_action(source: str) -> SeamVerdict:
 def classify_request_admission(source: str) -> SeamVerdict:
     """Classify the native UI request-work throat independently from supporting policy safety.
 
-    SOURCE_WIRED requires one detached editable observation, one bounded policy gate, and one
-    whole-source materialization, in that order, before request persistence. Merely placing one
-    correct gate before the first materialization must not hide repeated observations/work later in
-    the same owner method.
+    SOURCE_WIRED requires one detached editable observation, one canonical fully-qualified bounded
+    policy gate, and one whole-source materialization, in that order, before request persistence.
+    A shadow helper with the same method name is not policy custody. Merely placing one correct gate
+    before the first materialization must not hide repeated observations/work later in the owner.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
@@ -279,9 +279,9 @@ def classify_request_admission(source: str) -> SeamVerdict:
     single_detached_source_observation = detached_source and direct_source_observation_count == 1
 
     gate_patterns = (
-        "hasMaterialRequest(editable)",
-        "classifyRequest(editable)",
-        "decisionFor(adamMode, editable)",
+        "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)",
+        "AdamSendAvailabilityAccessibilityPolicy.classifyRequest(editable)",
+        "AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable)",
     )
     gate_count = sum(send_method.count(pattern) for pattern in gate_patterns)
     gate_indices = [
@@ -291,6 +291,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     ]
     policy_gate_index = min(gate_indices) if gate_indices else -1
     single_policy_gate = gate_count == 1
+    canonical_policy_reference = policy in send_method and single_policy_gate
 
     direct_materialization_count = send_method.count("adamInput.getText().toString()")
     detached_materialization_count = send_method.count("editable.toString()")
@@ -305,7 +306,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     submit_index = send_method.find("OperatorState.submitAdamRequest(")
     ordered = (
         single_detached_source_observation
-        and single_policy_gate
+        and canonical_policy_reference
         and single_detached_materialization
         and policy_gate_index >= 0
         and materialization_index >= 0
@@ -316,7 +317,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once, consumes one bounded request-admission gate, materializes once afterward, and persists only after materialization",
+            "direct Adam UI request owner observes editable source once, consumes one canonical bounded request-admission policy gate, materializes once afterward, and persists only after materialization",
             policy,
             True,
             True,
@@ -326,12 +327,12 @@ def classify_request_admission(source: str) -> SeamVerdict:
         missing = []
         if not single_detached_source_observation:
             missing.append("exactly one detached editable source observation")
-        if not single_policy_gate:
-            missing.append("exactly one bounded request-admission policy gate")
+        if not canonical_policy_reference:
+            missing.append("one canonical fully-qualified request-admission policy gate")
         if not single_detached_materialization:
             missing.append("exactly one post-gate detached request materialization")
         if (
-            single_policy_gate
+            canonical_policy_reference
             and single_detached_materialization
             and policy_gate_index >= 0
             and materialization_index >= 0
@@ -344,7 +345,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
             "PARTIAL_UNSAFE",
             "Adam UI request owner is incomplete: missing " + ", ".join(missing),
             policy,
-            policy in send_method,
+            canonical_policy_reference,
             False,
         )
 
@@ -359,7 +360,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v6",
+        "schema": "try-forever-adam-accessibility-owner-probe.v7",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
