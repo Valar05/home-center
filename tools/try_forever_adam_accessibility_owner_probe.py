@@ -6,8 +6,8 @@ exercise TalkBack, touch the phone/P0 chain, or promote source evidence into TES
 runtime, deployed, delivered, or accepted capability.
 
 Comments and literals are blanked first. Positive owner evidence must then occur in the
-direct OperatorOverlayService methods that own the Adam mode, send, and edit lifecycle;
-unrelated state setters elsewhere in the large owner cannot counterfeit wiring.
+direct OperatorOverlayService methods that own the Adam mode, send, edit, and request-admission
+lifecycle; unrelated state setters elsewhere in the large owner cannot counterfeit wiring.
 """
 
 from __future__ import annotations
@@ -259,12 +259,87 @@ def classify_send_action(source: str) -> SeamVerdict:
     )
 
 
+def classify_request_admission(source: str) -> SeamVerdict:
+    """Classify the native UI request-work throat independently from supporting policy safety."""
+    owner = _owner_surface(source)
+    send_method = _direct_method_surface(owner, "submitAdamRequest")
+    policy = "AdamSendAvailabilityAccessibilityPolicy"
+
+    policy_index = send_method.find(policy)
+    direct_materialization_index = send_method.find("adamInput.getText().toString()")
+    detached_materialization_index = send_method.find("editable.toString()")
+    materialization_candidates = [
+        index
+        for index in (direct_materialization_index, detached_materialization_index)
+        if index >= 0
+    ]
+    materialization_index = min(materialization_candidates) if materialization_candidates else -1
+    submit_index = send_method.find("OperatorState.submitAdamRequest(")
+    detached_source = (
+        "CharSequence editable = adamInput.getText()" in send_method
+        or "CharSequence editable=adamInput.getText()" in send_method
+    )
+    policy_gate = (
+        policy_index >= 0
+        and (
+            "hasMaterialRequest(editable)" in send_method
+            or "classifyRequest(editable)" in send_method
+            or "decisionFor(adamMode, editable)" in send_method
+        )
+    )
+    ordered = (
+        detached_source
+        and policy_gate
+        and materialization_index >= 0
+        and submit_index >= 0
+        and policy_index < materialization_index < submit_index
+    )
+
+    if ordered:
+        return SeamVerdict(
+            "SOURCE_WIRED",
+            "direct Adam UI request owner consumes bounded request admission before whole-source materialization/trim and before request persistence",
+            policy,
+            True,
+            True,
+        )
+
+    if policy_index >= 0 or detached_source:
+        missing = []
+        if not detached_source:
+            missing.append("detached editable source")
+        if not policy_gate:
+            missing.append("bounded request-admission policy gate")
+        if materialization_index < 0:
+            missing.append("post-gate request materialization")
+        elif policy_index < 0 or policy_index > materialization_index:
+            missing.append("policy-before-materialization ordering")
+        if submit_index < 0 or (materialization_index >= 0 and submit_index < materialization_index):
+            missing.append("materialization-before-request-persistence ordering")
+        return SeamVerdict(
+            "PARTIAL_UNSAFE",
+            "Adam UI request owner is incomplete: missing " + ", ".join(missing),
+            policy,
+            policy_index >= 0,
+            False,
+        )
+
+    return SeamVerdict(
+        "LEGACY_OWNER",
+        "direct Adam UI request owner materializes/trims editable text before consuming the bounded request-admission policy",
+        policy,
+        False,
+        False,
+    )
+
+
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v5",
+        "schema": "try-forever-adam-accessibility-owner-probe.v6",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
+        "requestAdmission": asdict(classify_request_admission(source)),
         "capability": {
             "sourceInspection": True,
             "regressionExecuted": False,
