@@ -8,6 +8,8 @@ runtime, deployed, delivered, or accepted capability.
 Comments and literals are blanked first. Positive owner evidence must then occur in the
 direct OperatorOverlayService methods that own the Adam mode, send, edit, and request-admission
 lifecycle; unrelated state setters elsewhere in the large owner cannot counterfeit wiring.
+Version 10 additionally requires temporal same-observation custody where mutable UI state is
+classified and then consumed.
 """
 
 from __future__ import annotations
@@ -91,7 +93,7 @@ def _brace_depth_at(surface: str, index: int) -> int:
 
 
 def _binding_assignment_count(surface: str, identifier: str) -> int:
-    """Count Java simple and compound assignments to one local binding."""
+    """Count Java simple and compound assignments to one local/field binding."""
     assignment_operator = r"(?:>>>=|>>=|<<=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|=(?!=))"
     return len(
         re.findall(
@@ -238,39 +240,74 @@ def classify_input_result(source: str) -> SeamVerdict:
 
 
 def classify_send_action(source: str) -> SeamVerdict:
+    """Prove current-mode action wording from one mutation-free mode snapshot."""
     owner = _owner_surface(source)
     create_method = _direct_method_surface(owner, "createOverlay")
     mode_method = _direct_method_surface(owner, "adamModeButton")
     refresh_method = _direct_method_surface(owner, "refreshAdamSendAction")
     policy = "AdamSendActionAccessibilityPolicy"
 
-    # Creation owns the native button, while refreshAdamSendAction owns the semantic projection.
     created_owner = "adamSendButton" in create_method and "refreshAdamSendAction(" in create_method
     mode_refresh = "refreshAdamSendAction(" in mode_method
+
+    snapshot_pattern = re.compile(
+        r"\b(?:final\s+)?String\s+modeSnapshot\s*=\s*adamMode\s*;"
+    )
     decision_pattern = re.compile(
         r"\bAdamSendActionAccessibilityPolicy\.Decision\s+decision\s*=\s*"
-        r"AdamSendActionAccessibilityPolicy\.decisionFor\s*\(\s*adamMode\s*\)\s*;"
+        r"AdamSendActionAccessibilityPolicy\.decisionFor\s*\(\s*modeSnapshot\s*\)\s*;"
     )
     description_pattern = re.compile(
         r"\badamSendButton\.setContentDescription\s*\(\s*decision\.actionDescription\s*\)\s*;"
     )
+    visible_pattern = re.compile(
+        r"\badamSendButton\.setText\s*\(\s*decision\.visibleLabel\s*\)\s*;"
+    )
+
+    snapshots = list(snapshot_pattern.finditer(refresh_method))
     decisions = list(decision_pattern.finditer(refresh_method))
     descriptions = list(description_pattern.finditer(refresh_method))
-    policy_call_count = len(re.findall(r"\bAdamSendActionAccessibilityPolicy\.decisionFor\s*\(", refresh_method))
+    policy_call_count = len(re.findall(
+        r"\bAdamSendActionAccessibilityPolicy\.decisionFor\s*\(",
+        refresh_method,
+    ))
+    snapshot_assignment_count = _binding_assignment_count(refresh_method, "modeSnapshot")
     decision_assignment_count = _binding_assignment_count(refresh_method, "decision")
-    exact_data_flow = (
-        len(decisions) == 1
+    owner_mode_assignment_count = _binding_assignment_count(refresh_method, "adamMode")
+
+    immediate_snapshot_decision = False
+    bounded_projection = False
+    if len(snapshots) == 1 and len(decisions) == 1:
+        immediate_snapshot_decision = (
+            snapshots[0].end() <= decisions[0].start()
+            and refresh_method[snapshots[0].end():decisions[0].start()].strip() == ""
+        )
+    if len(decisions) == 1 and len(descriptions) == 1:
+        projection = refresh_method[decisions[0].end():descriptions[0].start()]
+        bounded_projection = re.fullmatch(
+            r"\s*(?:adamSendButton\.setText\s*\(\s*decision\.visibleLabel\s*\)\s*;\s*)?",
+            projection,
+        ) is not None
+
+    exact_temporal_data_flow = (
+        len(snapshots) == 1
+        and len(decisions) == 1
         and len(descriptions) == 1
         and policy_call_count == 1
+        and snapshot_assignment_count == 1
         and decision_assignment_count == 1
-        and decisions[0].start() < descriptions[0].start()
+        and owner_mode_assignment_count == 0
+        and immediate_snapshot_decision
+        and bounded_projection
+        and snapshots[0].start() < decisions[0].start() < descriptions[0].start()
+        and len(visible_pattern.findall(refresh_method)) <= 1
     )
-    policy_reference = created_owner and mode_refresh and exact_data_flow
+    policy_reference = created_owner and mode_refresh and exact_temporal_data_flow
 
     if policy_reference:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam Send owner initializes and refreshes the exact current-mode action consequence through one shared policy method whose Decision result drives the current action description",
+            "direct Adam Send owner snapshots current mode once, immediately derives one policy Decision from that snapshot, and projects its current visible/semantic action without intervening owner-state mutation or arbitrary executable work",
             policy,
             True,
             True,
@@ -287,14 +324,14 @@ def classify_send_action(source: str) -> SeamVerdict:
             missing.append("shared native Send owner initialization")
         if not mode_refresh:
             missing.append("mode-change semantic refresh")
-        if not exact_data_flow:
-            missing.append("exact policy result drives the current action description")
+        if not exact_temporal_data_flow:
+            missing.append("one mutation-free current-mode snapshot whose exact policy result drives the action description")
         return SeamVerdict(
             "PARTIAL_UNSAFE",
             "Adam Send owner is incomplete: missing " + ", ".join(missing),
             policy,
             policy in create_method or policy in refresh_method,
-            exact_data_flow,
+            exact_temporal_data_flow,
         )
     return SeamVerdict(
         "LEGACY_OWNER",
@@ -310,11 +347,9 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
     SOURCE_WIRED requires one single-assignment detached editable observation, immediate canonical
     fully-qualified bounded admission used as an unconditional top-level fail-closed return guard,
-    one exact detached materialization/trim assignment, and exactly one request-persistence sink carrying
-    that admitted `text`, in order. Merely calling the right policy and ignoring its result is not admission
-    custody. A shadow helper with the same method name is not policy custody, a nested conditional guard is
-    not unconditional custody, and one correct guard must not hide executable pre-gate request work,
-    simple/compound source or text rebinding, repeated observations/work, or a second persistence sink.
+    immediate exact detached materialization/trim from that admitted alias, and exactly one request-
+    persistence sink carrying that admitted `text`, in order. The admission guard and materialization
+    must form one mutation-free observation window because Android Editable is aliased mutable state.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
@@ -371,6 +406,12 @@ def classify_request_admission(source: str) -> SeamVerdict:
         and text_assignment_count == 1
     )
     materialization_index = materializations[0].start() if len(materializations) == 1 else -1
+    immediate_materialization = (
+        single_controlling_guard
+        and single_detached_materialization
+        and top_level_admission_guards[0].end() <= materializations[0].start()
+        and send_method[top_level_admission_guards[0].end():materializations[0].start()].strip() == ""
+    )
 
     persistence_sink_pattern = re.compile(r"\bOperatorState\.submitAdamRequest\s*\(")
     persistence_sinks = list(persistence_sink_pattern.finditer(send_method))
@@ -385,6 +426,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
         single_detached_source_observation
         and canonical_policy_reference
         and single_detached_materialization
+        and immediate_materialization
         and exact_text_persistence
         and source_declaration_index >= 0
         and policy_gate_index >= 0
@@ -396,7 +438,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once into a single-assignment binding, immediately consumes one canonical policy result as an unconditional top-level fail-closed guard before any other request work, materializes/trims exactly once afterward, and has exactly one request-persistence sink carrying that admitted text",
+            "direct Adam UI request owner observes editable source once, immediately applies one canonical fail-closed admission guard, immediately materializes/trims the same admitted alias before any executable work can mutate it, and has exactly one persistence sink carrying that admitted text",
             policy,
             True,
             True,
@@ -412,6 +454,8 @@ def classify_request_admission(source: str) -> SeamVerdict:
             missing.append("one unconditional top-level canonical fully-qualified fail-closed request-admission policy guard")
         if not single_detached_materialization:
             missing.append("exactly one single-assignment post-gate detached trim materialization")
+        elif single_controlling_guard and not immediate_materialization:
+            missing.append("immediate materialization after canonical admission to preserve same-observation content custody")
         if not exact_text_persistence:
             missing.append("exactly one request-persistence sink carrying the admitted text variable")
         if (
@@ -443,7 +487,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v9",
+        "schema": "try-forever-adam-accessibility-owner-probe.v10",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
