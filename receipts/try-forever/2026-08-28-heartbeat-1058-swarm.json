@@ -1,0 +1,96 @@
+{
+  "schema": "try-forever-heartbeat-lights.v1",
+  "heartbeat": "2026-08-28T10:58:34-05:00",
+  "commission": "Harroway operator-mode non-P0 swarm",
+  "priorPublicationHead": "09fd5f998cd56472be15a67b1d7de7d169185b42",
+  "reviewedSourceHead": "4e617be60d3aa7458f6bc7200fd678fa61afbc60",
+  "sourceDelta": {
+    "commits": 2,
+    "intendedPaths": 2,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/try_forever_adam_accessibility_owner_probe.py",
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html"
+    ]
+  },
+  "lights": {
+    "Failure Is The Shovel": "Repaired two previously pinned false-green evidence shapes instead of restating them.",
+    "Canon Auto-Select": "Reused the existing Adam owner probe, hostile fixtures, Warm Wall, owner-surgery custody, and repeatable-event doctrine; no parallel architecture.",
+    "Originality Tax": "Converted prior evidence demotions into stricter control/data-flow proof rather than another receipt-only heartbeat.",
+    "Hunger": "Followed both known wounds through source, fixtures, artifact truth, workflow evidence, and durable receipts.",
+    "Ever-Polished Interpreter / Eat Everything": "Cross-checked supporting policy semantics, native-owner boundary, hostile fixture wording, Warm Wall semantics, and exact workflow state.",
+    "Operator Campaign / Harroway discipline": "Stayed on PR #329 branch and preserved existing owners and exact capability membrane.",
+    "She-Raw adversarial motivation": "Authoritative connector attempted; account connection returned HTTP 400, no synthetic substitute.",
+    "Venice Judgment Jars": "CONTINUE_REQUIRED; source work allowed, native owner/runtime/delivery claims held.",
+    "Regnet QA": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED; source repairs accepted only as unexecuted evidence.",
+    "accessibility/TalkBack and touch semantics": "Warm Wall capability punctuation is now visual-only aria-hidden with explicit textual state; existing 56px/focus/multiline/non-live constraints preserved.",
+    "deterministic routing": "Request admission requires immediate canonical guard; Send action requires exact current Decision-to-description data flow.",
+    "evidence/capability-state discipline": "SOURCE_REPAIRED is separated from fixture execution, TESTED, runtime, deployment, delivery, and acceptance.",
+    "recovery/checkpointing/idempotence": "Two-path source delta verified from prior durable publication; receipts are append-only checkpoint artifacts.",
+    "strange non-raster vector/DOM/native UI art": "Existing DOM/SVG Warm Wall advanced in place; no raster or neighboring specimen family.",
+    "warm walls": "Artifact truth converged to source-repaired/unexecuted evidence states.",
+    "Christmas-light scene graph": "No blink/rejection animation/automatic announcement added; symbolic state is textual and non-color-reliant.",
+    "contact preservation": "Legacy explicit Adam send receipt remains held pending repeatable runtime proof.",
+    "Autocorrect Judgment Jar": "DARK_NO_AUTHORITY_BEARING_AMBIGUITY",
+    "Phone Runtime / Phone Hands recovery": "BLOCKED_BY_BINDING_FIREWALL_NO_PHONE_CONSUMPTION"
+  },
+  "fronts": {
+    "requestAdmissionEvidence": {
+      "from": "EVIDENCE_REVISE_REQUIRED",
+      "to": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "Immediate canonical fail-closed admission is now required after the sole detached source observation; arbitrary executable pre-gate request work cannot earn SOURCE_WIRED."
+    },
+    "sendActionEvidence": {
+      "from": "EVIDENCE_REVISE_REQUIRED",
+      "to": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "The current AdamSendActionAccessibilityPolicy.Decision must be single-assignment and its actionDescription must be the value written to the Send button."
+    },
+    "warmWall": {
+      "from": "SOURCE_UPDATED_NOT_RUNTIME",
+      "to": "SOURCE_UPDATED_NOT_RUNTIME",
+      "change": "Evidence labels converged; capability punctuation is hidden from assistive technology and textual capability states are explicit."
+    },
+    "executionTruth": {
+      "state": "BOUNDARY_PROVEN",
+      "runs": {
+        "Build Android": 33188320700,
+        "Operator Overlay Android": 33188320671,
+        "Home Center CI": 33188320748
+      },
+      "conclusion": "failure",
+      "operatorJob": 98906998849,
+      "operatorJobSteps": 0,
+      "regressionExecuted": false,
+      "tested": false
+    }
+  },
+  "crossPollination": "Hostile request fixture -> immediate-admission proof; hostile Send fixture -> exact policy-result data-flow proof; those evidence repairs -> Warm Wall truth convergence and screen-reader punctuation cleanup; repeatable-event doctrine -> explicit send receipt preserved; zero-step workflow boundary -> no TESTED/runtime laundering.",
+  "capabilityMembrane": {
+    "requested": true,
+    "durableRepositoryProgress": true,
+    "authenticatedReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "requestProbeV9": "SOURCE_REPAIRED_UNEXECUTED",
+    "sendActionProbe": "SOURCE_REPAIRED_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
