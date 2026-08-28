@@ -1,0 +1,105 @@
+{
+  "schema": "try-forever-heartbeat-lights.v1",
+  "checkpoint": "2026-08-28T14:58:00-05:00",
+  "priorPublicationHead": "cd7099ea0a99241f9697846f59cc3b2b2a726852",
+  "reviewedSourceHead": "991a8a06526f7c8ef9450cacaa600b1817c6571f",
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Originality Tax", "Hunger", "Ever-Polished Interpreter / Eat Everything", "deterministic routing"],
+      "why": "The prior heartbeat proved a lifecycle-ordering false green in Send-action evidence.",
+      "changed": "Refused to re-green owner-probe v10; truth-synchronized the existing Warm Wall to EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED and pinned that state in a source-only fixture."
+    },
+    {
+      "skills": ["Canon Auto-Select", "Operator Campaign", "Harroway operator discipline", "recovery/checkpointing/idempotence", "operator-owner-surgery-temporal-content-binding"],
+      "why": "Lifecycle custody must reuse existing owners and evidence organs.",
+      "changed": "Existing temporal skill now explicitly states owner-token presence is not ordering and requires singular owner-local assignment/mutation before corresponding refresh; no neighboring controller/probe/transport was created."
+    },
+    {
+      "skills": ["accessibility/TalkBack and touch semantics", "strange non-raster vector/DOM/native UI art", "warm walls", "Christmas-light scene graph", "contact preservation", "operator-repeatable-accessibility-event-semantics"],
+      "why": "The source specimen itself was carrying stale capability semantics and must remain quiet, touch-safe, and contact-preserving.",
+      "changed": "Warm Wall now exposes truthful RED Send evidence while retaining native radio semantics, non-wrapping 1x5 geometry, >=56px controls, explicit multiline editable name, non-live detail, reduced motion, textual non-color state, semantic SVG, no rejection blink, and the explicit repeat-send hold. New fixture pins these source truths."
+    },
+    {
+      "skills": ["She-Raw adversarial motivation", "Regnet QA", "Venice Judgment Jars", "evidence/capability-state discipline"],
+      "why": "Independent hostile review and promotion resistance were required.",
+      "changed": "Authoritative She-Raw critique was attempted and hit HTTP 400 account-connection boundary; no synthetic substitute. Regnet grants bounded source progress only; Venice remains CONTINUE_REQUIRED and holds native owners/runtime/test promotion."
+    }
+  ],
+  "dark": {
+    "Autocorrect Judgment Jar": "No authority-bearing ambiguous token appeared in this pulse.",
+    "Phone Runtime / Phone Hands recovery": "Binding P0/phone surface firewall; exact consumption and mutation remain zero."
+  },
+  "frontsAdvanced": [
+    {
+      "front": "Warm Wall capability truth",
+      "artifact": "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "state": "SOURCE_UPDATED_NOT_RUNTIME"
+    },
+    {
+      "front": "Temporal lifecycle doctrine",
+      "artifact": "skills/operator-owner-surgery-temporal-content-binding/SKILL.md",
+      "state": "SOURCE_HARDENED"
+    },
+    {
+      "front": "Accessibility/source-truth regression fixture",
+      "artifact": "tools/test_try_forever_adam_warm_wall_truth.py",
+      "state": "SOURCE_ADDED_UNEXECUTED"
+    },
+    {
+      "front": "Authoritative adversarial review",
+      "state": "PROVEN_BOUNDARY_HTTP_400_NO_SUBSTITUTE"
+    },
+    {
+      "front": "Remote execution observation",
+      "state": "THREE_WORKFLOWS_FAILURE_OPERATOR_ZERO_STEPS_TESTED_NO"
+    }
+  ],
+  "crossPollination": "Send lifecycle false-green -> evidence demotion -> Warm Wall truth correction -> accessibility truth fixture -> temporal doctrine converts token co-location into explicit ordered owner-local witnesses -> repeat-contact doctrine preserves the explicit send receipt -> remote zero-step CI keeps all source work behind TESTED/runtime.",
+  "delta": {
+    "base": "cd7099ea0a99241f9697846f59cc3b2b2a726852",
+    "sourceHead": "991a8a06526f7c8ef9450cacaa600b1817c6571f",
+    "commits": 3,
+    "paths": [
+      "docs/try-forever/adam-mode-accessibility-warm-wall-source.html",
+      "skills/operator-owner-surgery-temporal-content-binding/SKILL.md",
+      "tools/test_try_forever_adam_warm_wall_truth.py"
+    ],
+    "unexpectedPaths": 0
+  },
+  "execution": {
+    "operatorOverlayAndroid": {"run": 33206764349, "conclusion": "failure", "job": 98969677070, "steps": 0},
+    "homeCenterCi": {"run": 33206764313, "conclusion": "failure"},
+    "buildAndroid": {"run": 33206764377, "conclusion": "failure"},
+    "manualRetry": false,
+    "fixtureExecution": false,
+    "regressionExecution": false,
+    "tested": false
+  },
+  "capability": {
+    "requested": true,
+    "durableRepositoryProgress": true,
+    "authenticatedReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "requestProbeV10": "SOURCE_REPAIRED_UNEXECUTED",
+    "sendActionProbeV10": "EVIDENCE_REVISE_REQUIRED_RED_SOURCE_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "warmWallTruthFixture": "SOURCE_UNEXECUTED",
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SEND_LIFECYCLE_PROBE_REPAIR_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
