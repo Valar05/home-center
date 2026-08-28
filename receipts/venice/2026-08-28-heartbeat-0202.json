@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "2026-08-28-heartbeat-0202",
+  "reviewedSourceHead": "a0ecdd4ee5f6fabb2dc650ff9d3230dd80970220",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__NATIVE_ACCESSIBILITY_API_REBASE_UI_REQUEST_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "allowBoundedCheckpoint": true,
+  "requiredContinuation": [
+    "rebase staged native Adam accessibility proposal to current supporting APIs without deleting repeat-send receipt",
+    "apply exact current Adam UI request-owner throat only through sole OperatorOverlayService owner",
+    "execute relevant regressions through a working authorized non-phone lane",
+    "preserve TESTED/runtime/deployed/callable/delivered/accepted as NO until evidence exists"
+  ],
+  "phoneDeliveryClaim": false,
+  "p0Mutation": false
+}
