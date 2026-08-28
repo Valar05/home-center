@@ -47,6 +47,9 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
                 AdamSendAvailabilityAccessibilityPolicy.decisionFor("terminal", "   ");
 
         assertFalse(decision.enabled);
+        assertEquals(
+                AdamSendAvailabilityAccessibilityPolicy.RequestState.EMPTY_OR_WHITESPACE,
+                decision.requestState);
         assertEquals("Send", decision.visibleLabel);
         assertEquals(
                 "Send request to Adam using Terminal mode",
@@ -62,6 +65,9 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
                         "  inspect this boundary  ");
 
         assertTrue(decision.enabled);
+        assertEquals(
+                AdamSendAvailabilityAccessibilityPolicy.RequestState.MATERIAL,
+                decision.requestState);
         assertEquals(
                 AdamModeSelectionAccessibilityPolicy.Mode.VLAD,
                 decision.mode);
@@ -130,7 +136,13 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
         }
         CountingCharSequence hostile = new CountingCharSequence(source.toString());
 
-        assertFalse(AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(hostile));
+        AdamSendAvailabilityAccessibilityPolicy.Decision decision =
+                AdamSendAvailabilityAccessibilityPolicy.decisionFor("terminal", hostile);
+
+        assertFalse(decision.enabled);
+        assertEquals(
+                AdamSendAvailabilityAccessibilityPolicy.RequestState.OVER_BUDGET,
+                decision.requestState);
         assertEquals(1, hostile.lengthCalls);
         assertEquals(0, hostile.charAtCalls);
         assertEquals(0, hostile.toStringCalls);
