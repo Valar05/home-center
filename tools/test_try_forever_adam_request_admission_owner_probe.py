@@ -6,9 +6,10 @@ TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 
 The hostile cases pin policy custody plus single-observation, control-flow, binding, and persistence
 custody: a consumer must not earn SOURCE_WIRED from a shadow helper, an ignored/nested canonical
-policy call, rebound admitted source/text, wrong persistence arguments, or repeated observations/work.
-Probe v8 rejects those counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source only until
-an execution lane supplies a test receipt.
+policy call, rebound admitted source/text, wrong persistence arguments, repeated observations/work,
+compound text rebinding, or a second request-persistence sink. Probe v8 currently misses the last two
+counterfeits; those assertions are deliberately RED source until the existing probe is repaired. This
+fixture remains source only until an execution lane supplies a test receipt.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -185,6 +186,24 @@ def main() -> int:
     assert "post-gate detached trim materialization" in (
         duplicate_materialization["requestAdmission"]["reason"]
     )
+
+    compound_rebound_text = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "String text = editable.toString().trim();\n"
+        "text += suffix;\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert compound_rebound_text["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+
+    duplicate_persistence_sink = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "if (!AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)) return;\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);\n"
+        "OperatorState.submitAdamRequest(this, adamMode, replacementText, now);"
+    ))
+    assert duplicate_persistence_sink["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
 
     capability = wired["capability"]
     assert capability["sourceInspection"] is True
