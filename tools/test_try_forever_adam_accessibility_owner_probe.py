@@ -3,8 +3,8 @@
 
 Focused request and temporal fixtures carry the exhaustive hostile matrices. This fixture keeps
 cross-seam convergence: lexical counterfeits fail, selection requires native 1x5 context, editable
-value/result state remain distinct, Send action requires current-mode temporal custody, and source
-evidence never promotes TESTED/runtime/phone capability.
+value/result state remain distinct, Send action requires current-mode temporal and lifecycle custody,
+and source evidence never promotes TESTED/runtime/phone capability.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -198,7 +198,7 @@ def main() -> int:
 
     send_wired = wrap(
         "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
-        "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
+        "private Button adamModeButton() { adamMode = mode; refreshAdamSendAction(); return button; }\n"
         "private void refreshAdamSendAction() {\n"
         "  String modeSnapshot = adamMode;\n"
         "  AdamSendActionAccessibilityPolicy.Decision decision = AdamSendActionAccessibilityPolicy.decisionFor(modeSnapshot);\n"
@@ -223,7 +223,7 @@ def main() -> int:
     result = classify(request_wired)
     assert result["requestAdmission"]["status"] == "SOURCE_WIRED"
 
-    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v10"
+    assert result["schema"] == "try-forever-adam-accessibility-owner-probe.v11"
     capability = result["capability"]
     assert capability["sourceInspection"] is True
     for key in (
@@ -237,7 +237,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Adam accessibility owner evidence boundaries v10: PASS")
+    print("Adam accessibility owner evidence boundaries v11: PASS")
     return 0
 
 
