@@ -1,0 +1,43 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "checkpoint": "2026-08-28T15:58:00-05:00",
+  "reviewedSourceHead": "d43bfd58b2bc329c0be732ab4482654940d353c5",
+  "verdict": "CONTINUE_REQUIRED",
+  "acceptedSourceProgress": [
+    "The existing Adam temporal fixture now pins local adamSendButton and adamMode shadow declarations as hostile persistent-field-custody counterfeits.",
+    "The existing temporal-content-binding skill now fails closed on local shadows instead of treating unqualified owner tokens as field custody.",
+    "The existing Warm Wall is truth-demoted to Send-action EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED and adds non-live current availability context to the Send action through aria-describedby.",
+    "The existing Warm Wall truth fixture is converged to the demoted evidence state without claiming browser, Android, or TalkBack runtime proof."
+  ],
+  "holds": [
+    "Existing Adam owner-probe v11 must reject local shadow declarations or otherwise prove persistent field custody before Send lifecycle evidence can return SOURCE_REPAIRED or SOURCE_WIRED.",
+    "Fixture source presence is not fixture execution or TESTED capability.",
+    "Native UI request owner and native accessibility owner remain REBASED_PROPOSED_NOT_APPLIED.",
+    "Legacy explicit repeat-send accessibility receipt remains preserved until native READY/SENT ownership and repeat-runtime evidence resolve it.",
+    "Runtime TalkBack, deployment, phone delivery, and acceptance remain NO."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "BOUNDARY_HTTP_400_ACCOUNT_CONNECTION",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "operatorOverlayAndroidRun": 33210934970,
+    "homeCenterCiRun": 33210934953,
+    "buildAndroidRun": 33210934932,
+    "conclusions": "failure/failure/failure",
+    "operatorJob": 98983699276,
+    "operatorSteps": 0,
+    "manualRetry": false,
+    "fixtureExecution": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
