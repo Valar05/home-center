@@ -5,6 +5,7 @@
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
 # Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
+# Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 73a44a78236d8852f74f7aedda267f2ba905ac45.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
@@ -14,6 +15,8 @@
 # - Send availability belongs here, not in the collapsed-operational-contact patch: one Adam TextWatcher/field/mode owner.
 # - availability owns native enabled/disabled state only; exact mode-specific action wording remains owned by
 #   AdamSendActionAccessibilityPolicy to avoid duplicate semantic writers.
+# - one edit callback must reuse the bounded request classification for both Send availability and READY/SENT truth;
+#   OVER_BUDGET disables Send and fails closed to READY rather than preserving a stale SENT claim.
 # - this rebase does not include the separate finite pre-trim submitAdamRequest() service throat; that remaining
 #   service-owner seam is tracked by patches/try-forever-adam-request-source-work-throat.patch.
 
@@ -65,18 +68,22 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +
 +            @Override
 +            public void onTextChanged(CharSequence value, int start, int before, int count) {
-+                refreshAdamSendAvailability();
 +            }
 +
 +            @Override
 +            public void afterTextChanged(Editable editable) {
-+                boolean hasNonWhitespaceText = editable != null
-+                        && !editable.toString().trim().isEmpty();
++                AdamSendAvailabilityAccessibilityPolicy.Decision availability =
++                        AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable);
++                if (adamSendButton != null) {
++                    adamSendButton.setEnabled(availability.enabled);
++                }
++                boolean hasUnsentText = availability.requestState
++                        != AdamSendAvailabilityAccessibilityPolicy.RequestState.EMPTY_OR_WHITESPACE;
 +                AdamInputResultAccessibilityPolicy.ResultState next =
 +                        AdamInputResultAccessibilityPolicy.nextState(
 +                                adamInputResultState,
 +                                AdamInputResultAccessibilityPolicy.Transition.EDITED,
-+                                hasNonWhitespaceText);
++                                hasUnsentText);
 +                if (next != adamInputResultState) applyAdamInputResultState(next);
 +            }
 +        });
