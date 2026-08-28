@@ -192,6 +192,19 @@ def main() -> int:
     result = classify(send_partial)
     assert result["sendAction"]["status"] == "PARTIAL_UNSAFE"
 
+    send_action_binding_counterfeit = wrap(
+        "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
+        "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
+        "private void refreshAdamSendAction() {\n"
+        "  AdamSendActionAccessibilityPolicy.Decision ignored = AdamSendActionAccessibilityPolicy.decisionFor(adamMode);\n"
+        "  adamSendButton.setContentDescription(stale.actionDescription);\n"
+        "}\n"
+        "private void submitAdamRequest() { }"
+    )
+    result = classify(send_action_binding_counterfeit)
+    assert result["sendAction"]["status"] == "PARTIAL_UNSAFE"
+    assert "policy result drives the current action description" in result["sendAction"]["reason"]
+
     send_wired = wrap(
         "private void createOverlay() { adamSendButton = button(\"Send\"); refreshAdamSendAction(); }\n"
         "private Button adamModeButton() { refreshAdamSendAction(); return button; }\n"
