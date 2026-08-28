@@ -1,0 +1,120 @@
+{
+  "schema": "try-forever-swarm-v1",
+  "heartbeat": "2026-08-27T19:00:00-05:00",
+  "commission": "Harroway operator-mode broad non-P0 swarm",
+  "previousPublicationHead": "05efda4d76d49f23c60d16dbba9577d0b174f624",
+  "reviewedSourceHead": "900845ef5740219f2f4ef13803eac9e5f8875546",
+  "sourceDelta": {
+    "commits": 9,
+    "intendedPaths": 8,
+    "unexpectedPaths": 0
+  },
+  "fronts": [
+    {
+      "name": "Adam request persistence owner",
+      "state": "SOURCE_WIRED",
+      "advance": "OperatorState bounds request text before trim/terminal-alias/UTF-8/Base64/SHA and consumes exact canonical Adam mode admission.",
+      "ownerBlob": "3870272863878cd7eaef69d24b31a6c8de1bbef9"
+    },
+    {
+      "name": "Adam mode identity",
+      "state": "SOURCE_WIRED",
+      "advance": "AdamModeSelectionAccessibilityPolicy owns a 64-code-unit direct mode throat, exact five-mode authority, stable 1..5 positions, focus non-ownership, and bounded rejection diagnostics.",
+      "ownerBlob": "0a9ccb88059ab3688913285136d144e3c7ebc693"
+    },
+    {
+      "name": "Adam UI request owner",
+      "state": "RED_PROPOSED_NOT_APPLIED",
+      "advance": "Exact boundary preserved: OperatorOverlayService still performs editable toString/trim before the supporting finite gate; the remaining service patch is exact-base-locked to blob 2935243f136359e3489a89108406e888b0ec2911."
+    },
+    {
+      "name": "Adam native accessibility owner",
+      "state": "REBASED_PROPOSED_NOT_APPLIED",
+      "advance": "Historical accessibility surgery was exactly rebased from c5de1411... to current UI owner 2935243f... without fuzzy application. It preserves the repeatable Adam send receipt and leaves finite UI request custody to its separate owner seam."
+    },
+    {
+      "name": "Adam accessibility Warm Wall",
+      "state": "SOURCE_UPDATED",
+      "advance": "Existing source specimen now distinguishes exact mode, availability, state owner, UI owner, rebased accessibility owner, repeat receipt, runtime denial, and P0 firewall with 56px controls/focus/non-color/SVG/reduced-motion semantics."
+    },
+    {
+      "name": "Execution truth",
+      "state": "FAILED_INFRASTRUCTURE_SHAPED__TESTED_NO",
+      "advance": "Exact reviewed source workflows 33128938924, 33128938932, and 33128938925 all failed; Operator job 98713660025 exposes zero steps; no manual retry or diagnosis was invented."
+    }
+  ],
+  "skillLights": {
+    "Failure Is The Shovel": "LIT: first state-owner repair exposed independent mode normalization drift; repair then forced fixture/provenance/doctrine/art convergence.",
+    "Canon Auto-Select": "LIT: reused existing OperatorState, AdamModeSelectionAccessibilityPolicy, OperatorOverlayService, and Adam Warm Wall owners.",
+    "Autocorrect Judgment Jar": "DARK: no material token ambiguity affected owner identity, routing, or evidence.",
+    "Originality Tax": "LIT: no new request controller, mode controller, accessibility controller, transport, or P0 architecture was created.",
+    "Hunger": "LIT: followed availability custody into state owner, then mode identity, stale patch base, regression, skill doctrine, and visual capability truth.",
+    "Ever-Polished Interpreter / Eat Everything": "LIT: rejected independent mode trim/lowercase authority and split state-owner capability from still-RED UI owner capability.",
+    "Operator Campaign": "LIT: all changes and reviews are durable on PR #329 branch with exact commit/blob custody.",
+    "Harroway operator discipline": "LIT: exact existing-owner mutations only; unapplied seams remain explicitly unapplied.",
+    "She-Raw adversarial motivation": "LIT_ATTEMPTED_RED: authoritative consultation attempted; account connection HTTP 400; no synthetic substitute.",
+    "Venice Judgment Jars": "LIT: source slice may checkpoint while UI owner/accessibility owner mutation, regression execution, test/runtime, and campaign continue.",
+    "Regnet QA": "LIT: PASS bounded source only; UI request owner remains REVISE_REQUIRED; regressions remain UNEXECUTED.",
+    "accessibility/TalkBack and touch semantics": "LIT: exact mode identity/set positions/focus non-ownership plus 56px Warm Wall semantics; runtime TalkBack remains NO.",
+    "Phone Runtime / Phone Hands recovery": "DARK_FIREWALLED: consumption 0, mutation 0; canonical P0 owners retain the surface.",
+    "deterministic routing": "LIT: OperatorState delegates mode authority to one exact canonical policy instead of normalizing a second way.",
+    "evidence/capability-state discipline": "LIT: state owner SOURCE_WIRED, UI owner RED, accessibility patch REBASED_NOT_APPLIED, regressions UNEXECUTED, TESTED/runtime/deployed/delivered NO.",
+    "recovery/checkpointing/idempotence": "LIT: stale accessibility patch was rebased exactly; fuzzy carry-forward and CI retry theater were refused.",
+    "strange non-raster vector/DOM/native UI art": "LIT: existing interactive HTML/SVG Warm Wall was updated in place; no raster or duplicate specimen family.",
+    "warm walls": "LIT: capability wall now displays the actual state/state-owner/UI-owner/accessibility-owner split.",
+    "Christmas-light scene graph": "LIT_CONSTRAINT: rejection and owner-state changes earn no decorative animation or live-region motion; reduced-motion/no-blink retained.",
+    "contact preservation": "LIT: exact admitted request text, canonical mode identity, and the legacy repeatable Adam send receipt are preserved; no replacement selection/receipt invented.",
+    "adam-mode-accessibility": "LIT_DISCOVERED: doctrine converged to exact mode finite custody, split request-owner capability, exact rebase custody, and P0 firewall."
+  },
+  "crossPollination": [
+    "Availability source-work law -> direct OperatorState request work -> exact mode authority drift -> canonical mode policy resource throat.",
+    "State-owner mutation -> request boundary fixture/provenance stale -> split convergence instead of green-painting OperatorOverlayService.",
+    "Current UI owner authentication -> historical accessibility patch stale -> exact rebase without fuzzy application.",
+    "Capability-state changes -> adam-mode-accessibility doctrine + existing accessible Warm Wall convergence.",
+    "Exact-head workflow evidence -> SOURCE_WIRED remains distinct from regression execution, TESTED, runtime, deployment, delivery, and acceptance."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "executionEvidence": {
+    "workflowRuns": [
+      {"name": "Operator Overlay Android", "id": 33128938924, "conclusion": "failure", "jobId": 98713660025, "steps": 0},
+      {"name": "Build Android", "id": 33128938932, "conclusion": "failure"},
+      {"name": "Home Center CI", "id": 33128938925, "conclusion": "failure"}
+    ],
+    "commitStatuses": 0,
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "implementedSource": true,
+    "authenticatedReadback": true,
+    "adamAvailabilitySourceWorkThroat": "SOURCE_WIRED",
+    "adamModeIdentityFiniteCustody": "SOURCE_WIRED",
+    "adamRequestStateOwnerThroat": "SOURCE_WIRED",
+    "adamRequestUiOwnerThroat": "NO_PROPOSED_NOT_APPLIED",
+    "adamAccessibilityOwnerPatch": "REBASED_PROPOSED_NOT_APPLIED",
+    "regressionSource": true,
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__ADAM_UI_REQUEST_OWNER_ACCESSIBILITY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
