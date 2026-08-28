@@ -5,11 +5,13 @@
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
 # Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
+# Selection dependency: AdamModeSelectionAccessibilityPolicy blob 0ab827c07cca64ce29879c0d7a51d229835a9aeb.
 # Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
 # Result-state dependency: AdamInputResultAccessibilityPolicy blob cc09a2533fa487569ec0b3708f9dd00ace2a95da.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
+# - the native mode row is horizontal: consume policy-owned 1-row x 5-column geometry; never transpose it into 5 rows x 1 column.
 # - collection/set-position source must not claim keyboard/accessibility focus ownership.
 # - editable EditText value must not be masked by a generic contentDescription; mode/result context is stateDescription.
 # - the compact Send button must name the exact selected mode in its semantic action and refresh with mode changes.
@@ -46,19 +48,21 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
          adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
          adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
          adamModeRow.setPadding(0, dp(6), 0, dp(2));
-+        adamModeRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-+            @Override
-+            public void onInitializeAccessibilityNodeInfo(
-+                    View host,
-+                    AccessibilityNodeInfo info) {
-+                super.onInitializeAccessibilityNodeInfo(host, info);
-+                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
-+                        1,
-+                        AdamModeSelectionAccessibilityPolicy.SET_SIZE,
-+                        false,
-+                        AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE));
-+            }
-+        });
+         adamModeRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+             @Override
+             public void onInitializeAccessibilityNodeInfo(
+                     View host,
+                     AccessibilityNodeInfo info) {
+                 super.onInitializeAccessibilityNodeInfo(host, info);
+                 info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
+-                        1,
+-                        AdamModeSelectionAccessibilityPolicy.SET_SIZE,
++                        AdamModeSelectionAccessibilityPolicy.ROW_COUNT,
++                        AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT,
+                         false,
+                         AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE));
+             }
+         });
 @@
 -        adamInput.setContentDescription("Adam input. Current mode terminal.");
 +        adamInput.setContentDescription(null);
@@ -115,10 +119,10 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                AdamModeSelectionAccessibilityPolicy.Decision decision =
 +                        AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
 +                info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
-+                        0,
-+                        1,
-+                        decision.positionInSet - 1,
-+                        1,
++                        decision.rowIndex,
++                        decision.rowSpan,
++                        decision.columnIndex,
++                        decision.columnSpan,
 +                        false,
 +                        decision.selected));
 +            }
