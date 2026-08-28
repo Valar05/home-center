@@ -16,9 +16,12 @@ package com.homecenter.operatoroverlay;
  * <p>The owner should expose selection through a native selected/checked semantic state. Do not
  * duplicate that same state into a generic custom stateDescription merely to make the source look
  * more accessible. Mode wire identities are exact; whitespace or case drift fails closed instead
- * of being normalized into a different source identity. This policy owns no View, RadioGroup,
- * controller, renderer, phone surface, transport, or P0 recovery path.
- * {@link OperatorOverlayService} remains the sole native owner. Source policy is not
+ * of being normalized into a different source identity. Direct callers also cross a finite source
+ * work throat before repeated equality checks or rejection diagnostics; oversized mode evidence is
+ * rejected without echoing the raw value into an authority-facing exception message.</p>
+ *
+ * <p>This policy owns no View, RadioGroup, controller, renderer, phone surface, transport, or P0
+ * recovery path. {@link OperatorOverlayService} remains the sole native owner. Source policy is not
  * Android/TalkBack runtime proof.</p>
  */
 public final class AdamModeSelectionAccessibilityPolicy {
@@ -39,6 +42,7 @@ public final class AdamModeSelectionAccessibilityPolicy {
     }
 
     public static final int SET_SIZE = Mode.values().length;
+    public static final int MAX_MODE_SOURCE_CODE_UNITS = 64;
 
     public static final class Decision {
         public final Mode mode;
@@ -66,10 +70,14 @@ public final class AdamModeSelectionAccessibilityPolicy {
     }
 
     public static Mode requireMode(String value) {
+        if (value == null) throw new IllegalArgumentException("Adam mode is required");
+        if (value.length() > MAX_MODE_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException("Adam mode source exceeds finite work budget");
+        }
         for (Mode mode : Mode.values()) {
             if (mode.wireValue.equals(value)) return mode;
         }
-        throw new IllegalArgumentException("unsupported Adam mode: " + value);
+        throw new IllegalArgumentException("unsupported Adam mode");
     }
 
     public static Decision decisionFor(String activeMode, String candidateMode) {
