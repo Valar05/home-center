@@ -5,7 +5,7 @@
 # Scope: existing OperatorOverlayService only; no transport/phone/P0 changes.
 # Preserve: legacy Adam send announceForAccessibility receipt until repeatable-event semantics are separately resolved.
 # Rebase evidence: current owner imports, fields, Adam mode/input creation, adamModeButton(...), and submitAdamRequest() contexts were authenticated against blob 2935243f... before this artifact was rewritten. Do not fuzzy-apply to any later owner blob.
-# Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 73a44a78236d8852f74f7aedda267f2ba905ac45.
+# Availability dependency: AdamSendAvailabilityAccessibilityPolicy blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
 # Review scars:
 # - preserve the existing richer per-mode content descriptions; native selected state carries selection truth.
 # - expose the five choices as one single-selection accessibility collection with stable positions 1..5.
@@ -16,7 +16,8 @@
 # - availability owns native enabled/disabled state only; exact mode-specific action wording remains owned by
 #   AdamSendActionAccessibilityPolicy to avoid duplicate semantic writers.
 # - one edit callback must reuse the bounded request classification for both Send availability and READY/SENT truth;
-#   OVER_BUDGET disables Send and fails closed to READY rather than preserving a stale SENT claim.
+#   the supporting decision owns hasUnsentText so the native owner does not reconstruct contact truth from rejection.
+# - OVER_BUDGET disables Send while hasUnsentText remains true, forcing READY rather than preserving a stale SENT claim.
 # - this rebase does not include the separate finite pre-trim submitAdamRequest() service throat; that remaining
 #   service-owner seam is tracked by patches/try-forever-adam-request-source-work-throat.patch.
 
@@ -77,13 +78,11 @@ diff --git a/android/operator-overlay/app/src/main/java/com/homecenter/operatoro
 +                if (adamSendButton != null) {
 +                    adamSendButton.setEnabled(availability.enabled);
 +                }
-+                boolean hasUnsentText = availability.requestState
-+                        != AdamSendAvailabilityAccessibilityPolicy.RequestState.EMPTY_OR_WHITESPACE;
 +                AdamInputResultAccessibilityPolicy.ResultState next =
 +                        AdamInputResultAccessibilityPolicy.nextState(
 +                                adamInputResultState,
 +                                AdamInputResultAccessibilityPolicy.Transition.EDITED,
-+                                hasUnsentText);
++                                availability.hasUnsentText);
 +                if (next != adamInputResultState) applyAdamInputResultState(next);
 +            }
 +        });
