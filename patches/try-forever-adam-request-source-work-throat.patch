@@ -7,8 +7,10 @@
 # OperatorState mode routing then converged through exact AdamModeSelectionAccessibilityPolicy admission at commit 322f18c867e5c2c28c0116e3b2250ae115606317.
 # OperatorState current/result blob: 3870272863878cd7eaef69d24b31a6c8de1bbef9
 # AdamModeSelectionAccessibilityPolicy current blob: 0a9ccb88059ab3688913285136d144e3c7ebc693
-# Supporting availability policy is SOURCE_WIRED at blob 73a44a78236d8852f74f7aedda267f2ba905ac45.
-# Availability now bounds admitted CharSequence scanning without whole-source toString materialization and distinguishes OVER_BUDGET from EMPTY_OR_WHITESPACE.
+# Supporting availability policy is SOURCE_WIRED at blob 2e15869dcab81995fbac849c98596a6cf2cd50c5.
+# Availability bounds admitted CharSequence scanning without whole-source toString materialization and distinguishes
+# EMPTY_OR_WHITESPACE / MATERIAL / OVER_BUDGET. Its separate hasUnsentText contact truth is owned by the
+# native accessibility lifecycle and is not request-admission authority.
 # P0/phone execution, routing destinations, queue/relay, recovery, and transport ownership are untouched.
 # Preserve: exact admitted request text after existing UI trim semantics; legacy Adam repeat-send accessibility receipt remains present.
 # Law: a small post-trim semantic request does not authorize unbounded pre-trim / regex / UTF-8 / Base64 / SHA work.
