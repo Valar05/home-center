@@ -79,6 +79,17 @@ def _direct_method_surface(class_surface: str, method_name: str) -> str:
     return ""
 
 
+def _brace_depth_at(surface: str, index: int) -> int:
+    """Return lexical brace depth immediately before index on an already-blanked code surface."""
+    depth = 0
+    for char in surface[:max(0, index)]:
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth = max(0, depth - 1)
+    return depth
+
+
 def classify_mode_selection(source: str) -> SeamVerdict:
     owner = _owner_surface(source)
     create_method = _direct_method_surface(owner, "createOverlay")
@@ -262,22 +273,30 @@ def classify_send_action(source: str) -> SeamVerdict:
 def classify_request_admission(source: str) -> SeamVerdict:
     """Classify the native UI request-work throat independently from supporting policy safety.
 
-    SOURCE_WIRED requires one detached editable observation, exactly one canonical fully-qualified
-    bounded admission call used as a fail-closed return guard, and one whole-source materialization,
-    in that order, before request persistence. Merely calling the right policy and ignoring its
-    result is not admission custody. A shadow helper with the same method name is not policy custody,
-    and one correct guard must not hide repeated observations/work later in the owner.
+    SOURCE_WIRED requires one single-assignment detached editable observation, exactly one canonical
+    fully-qualified bounded admission call used as an unconditional top-level fail-closed return guard,
+    one exact detached materialization/trim assignment, and exact persistence of that admitted `text`,
+    in order. Merely calling the right policy and ignoring its result is not admission custody. A shadow
+    helper with the same method name is not policy custody, a nested conditional guard is not unconditional
+    custody, and one correct guard must not hide source/text rebinding or repeated observations/work later
+    in the owner.
     """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
     policy = "AdamSendAvailabilityAccessibilityPolicy"
 
-    direct_source_observation_count = send_method.count("adamInput.getText()")
-    detached_source = (
-        "CharSequence editable = adamInput.getText()" in send_method
-        or "CharSequence editable=adamInput.getText()" in send_method
+    source_declaration_pattern = re.compile(
+        r"\bCharSequence\s+editable\s*=\s*adamInput\.getText\s*\(\s*\)\s*;"
     )
-    single_detached_source_observation = detached_source and direct_source_observation_count == 1
+    source_declarations = list(source_declaration_pattern.finditer(send_method))
+    direct_source_observation_count = send_method.count("adamInput.getText()")
+    editable_assignment_count = len(re.findall(r"\beditable\s*=(?!=)", send_method))
+    single_detached_source_observation = (
+        len(source_declarations) == 1
+        and direct_source_observation_count == 1
+        and editable_assignment_count == 1
+    )
+    source_declaration_index = source_declarations[0].start() if len(source_declarations) == 1 else -1
 
     policy_call_patterns = (
         "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)",
@@ -290,48 +309,66 @@ def classify_request_admission(source: str) -> SeamVerdict:
         r"\(\s*editable\s*\)\s*\)\s*(?:\{\s*)?return\s*;(?:\s*\})?"
     )
     admission_guards = list(admission_guard_pattern.finditer(send_method))
-    single_controlling_guard = len(admission_guards) == 1 and policy_call_count == 1
-    policy_gate_index = admission_guards[0].start() if single_controlling_guard else -1
+    top_level_admission_guards = [
+        match for match in admission_guards if _brace_depth_at(send_method, match.start()) == 1
+    ]
+    single_controlling_guard = len(top_level_admission_guards) == 1 and policy_call_count == 1
+    policy_gate_index = top_level_admission_guards[0].start() if single_controlling_guard else -1
     canonical_policy_reference = policy in send_method and single_controlling_guard
 
     direct_materialization_count = send_method.count("adamInput.getText().toString()")
     detached_materialization_count = send_method.count("editable.toString()")
-    materialization_count = direct_materialization_count + detached_materialization_count
-    materialization_index = send_method.find("editable.toString()")
+    materialization_pattern = re.compile(
+        r"\bString\s+text\s*=\s*editable\.toString\s*\(\s*\)\.trim\s*\(\s*\)\s*;"
+    )
+    materializations = list(materialization_pattern.finditer(send_method))
+    text_assignment_count = len(re.findall(r"\btext\s*=(?!=)", send_method))
     single_detached_materialization = (
         direct_materialization_count == 0
         and detached_materialization_count == 1
-        and materialization_count == 1
+        and len(materializations) == 1
+        and text_assignment_count == 1
     )
+    materialization_index = materializations[0].start() if len(materializations) == 1 else -1
 
-    submit_index = send_method.find("OperatorState.submitAdamRequest(")
+    persistence_pattern = re.compile(
+        r"OperatorState\.submitAdamRequest\s*\(\s*this\s*,\s*adamMode\s*,\s*text\s*,"
+    )
+    persistence_calls = list(persistence_pattern.finditer(send_method))
+    exact_text_persistence = len(persistence_calls) == 1
+    submit_index = persistence_calls[0].start() if exact_text_persistence else -1
+
     ordered = (
         single_detached_source_observation
         and canonical_policy_reference
         and single_detached_materialization
+        and exact_text_persistence
+        and source_declaration_index >= 0
         and policy_gate_index >= 0
         and materialization_index >= 0
         and submit_index >= 0
-        and policy_gate_index < materialization_index < submit_index
+        and source_declaration_index < policy_gate_index < materialization_index < submit_index
     )
 
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner observes editable source once, uses one canonical bounded policy result as a fail-closed admission guard, materializes once afterward, and persists only after materialization",
+            "direct Adam UI request owner observes editable source once into a single-assignment binding, uses one canonical policy result as an unconditional top-level fail-closed guard, materializes/trims exactly once afterward, and persists exactly that admitted text",
             policy,
             True,
             True,
         )
 
-    if policy in send_method or detached_source or direct_source_observation_count > 0:
+    if policy in send_method or source_declarations or direct_source_observation_count > 0:
         missing = []
         if not single_detached_source_observation:
-            missing.append("exactly one detached editable source observation")
+            missing.append("exactly one single-assignment detached editable source observation")
         if not canonical_policy_reference:
-            missing.append("one canonical fully-qualified fail-closed request-admission policy guard")
+            missing.append("one unconditional top-level canonical fully-qualified fail-closed request-admission policy guard")
         if not single_detached_materialization:
-            missing.append("exactly one post-gate detached request materialization")
+            missing.append("exactly one single-assignment post-gate detached trim materialization")
+        if not exact_text_persistence:
+            missing.append("exact persistence of the admitted text variable")
         if (
             canonical_policy_reference
             and single_detached_materialization
@@ -361,7 +398,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v7",
+        "schema": "try-forever-adam-accessibility-owner-probe.v8",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
