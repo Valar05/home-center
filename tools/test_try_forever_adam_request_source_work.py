@@ -2,7 +2,7 @@
 """Split source contract for finite Adam request work before trim/alias/encoding.
 
 SOURCE ONLY / UNEXECUTED. OperatorState request custody is now SOURCE_WIRED;
-OperatorOverlayService pre-trim custody remains the deliberate RED boundary.
+OperatorOverlayService pre-materialization custody remains the deliberate RED boundary.
 This fixture must not be cited as TESTED until an authoritative execution receipt exists.
 """
 from pathlib import Path
@@ -43,6 +43,12 @@ assert "OperatorState current/result blob: 3870272863878cd7eaef69d24b31a6c8de1bb
 assert "Direct state owner is SOURCE_WIRED" in patch
 assert "P0/phone execution" in patch and "untouched" in patch
 
+# The staged service surgery must consume the same bounded material-request
+# classification before materializing/trimming admitted source.
+patch_gate = patch.index("AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)")
+patch_materialize = patch.index("editable.toString().trim()")
+assert patch_gate < patch_materialize
+
 service_start = service.index("    private void submitAdamRequest()")
 service_end = service.index("    private void recomputeExpandedWidth()", service_start)
 service_submit = service[service_start:service_end]
@@ -51,11 +57,15 @@ service_submit = service[service_start:service_end]
 # separate migration blocker is unresolved.
 assert 'adamInput.announceForAccessibility("Sent to Adam " + adamMode)' in service_submit
 
-# Remaining RED owner boundary: the UI must stop over-ceiling editable source
-# before toString()/trim(). This intentionally fails until the exact service-owner
-# surgery is applied.
+# Remaining RED owner boundary: authenticated native source must itself consume
+# the bounded availability predicate before toString()/trim(). Keep the failure
+# precise and compile-valid instead of relying on an accidental substring error.
+assert "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)" in service_submit, (
+    "RED: OperatorOverlayService.submitAdamRequest still materializes editable source "
+    "before the bounded Adam availability gate"
+)
 service_gate = service_submit.index(
-    "AdamSendAvailabilityAccessibilityPolicy.sourceWithinWorkBudget(editable)")
+    "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)")
 service_materialize = service_submit.index("editable.toString().trim()")
 assert service_gate < service_materialize
 
