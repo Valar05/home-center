@@ -1,0 +1,89 @@
+{
+  "schema": "try-forever-heartbeat-swarm.v1",
+  "localCheckpoint": "2026-08-27T22:58:46-05:00",
+  "reviewedSourceHead": "1c1e1e87bff255d419f18f200ea972284d090f4b",
+  "previousPublicationHead": "009046c840c734fd2321227d5c6328b687fad60f",
+  "materialFronts": [
+    {
+      "front": "deterministic_adam_owner_evidence",
+      "status": "SOURCE_UPDATED_UNEXECUTED",
+      "change": "Adam owner probe advanced to schema v6 with an independent requestAdmission seam that proves policy-before-materialization ordering instead of inferring UI request safety from supporting policy source."
+    },
+    {
+      "front": "request_owner_provenance",
+      "status": "NO_PROPOSED_NOT_APPLIED",
+      "change": "Existing Adam request surgery is now explicitly bound to probe v6 evidence and remains exact-base-locked to OperatorOverlayService blob 2935243f136359e3489a89108406e888b0ec2911."
+    },
+    {
+      "front": "probe_regression",
+      "status": "SOURCE_UNEXECUTED",
+      "change": "Focused ordering fixture distinguishes legacy, wrong-order, source-wired, and lexical-counterfeit owner shapes; broad probe fixture converged on schema v6."
+    },
+    {
+      "front": "accessible_warm_wall",
+      "status": "SOURCE_UPDATED_RUNTIME_NO",
+      "change": "Existing non-raster Adam Warm Wall exposes request probe v6 and current UI owner RED state while preserving 56px touch, focus visibility, non-color state, reduced motion, no blink, repeat-send receipt, and P0/phone denial."
+    },
+    {
+      "front": "execution_truth",
+      "status": "TESTED_NO",
+      "change": "Exact reviewed source produced three workflow failures; Operator job has zero steps. No retry or invented source-level diagnosis."
+    }
+  ],
+  "skillLights": {
+    "failureIsTheShovel": "LIT: supporting-policy safety was treated as suspicion against the still-unsafe consumer, exposing the missing deterministic request-admission proof.",
+    "canonAutoSelect": "LIT: reused existing Adam policies, owner probe, owner patch, Warm Wall, and sole native owner boundary.",
+    "autocorrectJudgmentJar": "DARK: no material token ambiguity affected routing or authority.",
+    "originalityTax": "LIT: did not repeat the prior broad OperatorOverlayService rewrite; advanced evidence/provenance/art without fuzzy owner mutation.",
+    "hunger": "LIT: source mutation forced broad owner-probe regression, focused ordering fixture, provenance patch, and existing Warm Wall to converge.",
+    "everPolishedInterpreterEatEverything": "LIT: lexical counterfeit and wrong-order owner shapes were added so comments/literals or late policy calls cannot green-light wiring.",
+    "operatorCampaign": "LIT: remote repository source and receipts advanced; PR remains the durable campaign surface.",
+    "harrowayOperatorDiscipline": "LIT: existing owners only; capability membrane preserved.",
+    "sheRaw": "LIT/FAULTED: authoritative consultation attempted; account connection HTTP 400; no synthetic substitute.",
+    "venice": "LIT: bounded source checkpoint allowed; owner mutation/test/runtime/campaign continue-required.",
+    "regnet": "LIT: UI request owner and native accessibility owner remain revise-required; regression execution and TESTED remain NO.",
+    "accessibilityTalkBackTouch": "LIT: owner evidence now includes the request-admission seam while the existing Warm Wall preserves 56px/focus/non-color/reduced-motion semantics; runtime TalkBack remains NO.",
+    "phoneRuntimePhoneHandsRecovery": "DARK_FIREWALLED: consumption 0, mutation 0.",
+    "deterministicRouting": "LIT: request admission requires direct submitAdamRequest ordering, not transitive supporting-policy inference.",
+    "evidenceCapabilityState": "LIT: SOURCE_UPDATED, PROPOSED_NOT_APPLIED, UNEXECUTED, TESTED_NO, RUNTIME_NO remain distinct.",
+    "recoveryCheckpointingIdempotence": "LIT: no manual retry on zero-step CI; remote receipts checkpoint the exact code-bearing source head.",
+    "strangeNonRasterArt": "LIT: existing Warm Wall mutated in place; no new specimen family.",
+    "warmWalls": "LIT: request probe v6 and RED native seam made inspectable without deployment claim.",
+    "christmasLightSceneGraph": "LIT_CONSTRAINT_ONLY: rejected/over-budget input earns no synthetic announcement or decorative motion; no blink added.",
+    "contactPreservation": "LIT: exact request text and legacy repeat-send receipt remain preserved; supporting rejection is not rewritten into accepted authority."
+  },
+  "crossPollination": "Supporting availability safety made the consumer boundary suspicious; deterministic routing turned that into a direct owner-order probe; lexical-counterfeit review hardened the evidence mechanism; the exact owner surgery and existing Warm Wall then inherited the same RED/SOURCE split; execution truth kept repository progress behind TESTED/runtime while the P0/phone firewall stayed untouched.",
+  "executionTruth": {
+    "buildAndroid": {"runId": 33140852603, "conclusion": "failure"},
+    "homeCenterCI": {"runId": 33140852696, "conclusion": "failure"},
+    "operatorOverlayAndroid": {"runId": 33140852581, "jobId": 98751164939, "conclusion": "failure", "steps": 0},
+    "manualRetryFired": false,
+    "stepLevelDiagnosisClaimed": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "capability": {
+    "requested": true,
+    "supportingImplementation": true,
+    "authenticatedReadback": true,
+    "requestAdmissionEvidenceSource": true,
+    "requestAdmissionEvidenceExecuted": false,
+    "adamStateRequestOwnerSourceWired": true,
+    "adamUiRequestOwnerSourceWired": false,
+    "adamNativeAccessibilityOwnerSourceWired": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
