@@ -1,0 +1,39 @@
+{
+  "schema": "try-forever-regnet-review.v1",
+  "checkpoint": "2026-08-28T14:58:00-05:00",
+  "reviewedSourceHead": "991a8a06526f7c8ef9450cacaa600b1817c6571f",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "fronts": {
+    "warmWallTruthSync": "PASS_SOURCE_ONLY",
+    "temporalLifecycleDoctrine": "PASS_SOURCE_ONLY",
+    "warmWallTruthFixture": "PASS_SOURCE_PRESENT_UNEXECUTED",
+    "sendLifecycleProbeRepair": "CONTINUE_REQUIRED",
+    "nativeUiRequestOwner": "REBASED_PROPOSED_NOT_APPLIED",
+    "nativeAccessibilityOwner": "REBASED_PROPOSED_NOT_APPLIED",
+    "runtimeTalkBack": "NO",
+    "tested": "NO"
+  },
+  "findings": [
+    "Warm Wall no longer green-paints Send-action probe v10; it states EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED.",
+    "Temporal doctrine now rejects token co-location as lifecycle custody and requires owner-local ordered assignment/mutation witnesses.",
+    "New source-only Warm Wall fixture pins non-live detail, horizontal 1x5 topology, editable naming, invalid-vs-unavailable semantics, repeat-contact visibility, and firewall truth.",
+    "Existing owner-probe v10 still does not consume create-owner-before-refresh and mode-mutation-before-refresh ordering witnesses; native capability remains unchanged."
+  ],
+  "execution": {
+    "operatorOverlayAndroidRun": 33206764349,
+    "homeCenterCiRun": 33206764313,
+    "buildAndroidRun": 33206764377,
+    "conclusions": "failure/failure/failure",
+    "operatorJob": 98969677070,
+    "operatorSteps": 0,
+    "manualRetry": false,
+    "regressionExecuted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
