@@ -1,0 +1,40 @@
+{
+  "schema": "try-forever-venice-judgment.v1",
+  "localCheckpoint": "2026-08-27T22:58:46-05:00",
+  "reviewedSourceHead": "1c1e1e87bff255d419f18f200ea972284d090f4b",
+  "judgment": {
+    "sourceSliceMayCheckpoint": true,
+    "reason": "Deterministic owner evidence materially advanced without mutating phone/P0 or duplicating ownership. The new probe makes the native Adam request-admission seam independently falsifiable and keeps supporting-policy capability separate from consumer capability.",
+    "continueRequired": [
+      "ADAM_UI_REQUEST_OWNER_MUTATION",
+      "ADAM_NATIVE_ACCESSIBILITY_OWNER_MUTATION",
+      "REGRESSION_EXECUTION",
+      "TEST",
+      "RUNTIME_TALKBACK",
+      "CAMPAIGN"
+    ]
+  },
+  "constraints": {
+    "repeatableAdamSendReceiptPreserved": true,
+    "selectionDoesNotOwnFocus": true,
+    "overBudgetRequestNeverTruncatedIntoAuthority": true,
+    "noSyntheticAnnouncementOnRejectedInput": true,
+    "noDecorativeMotionOnRejectedInput": true,
+    "duplicateArchitectureCreated": false,
+    "phoneOrP0Touched": false
+  },
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "execution": {
+    "exactHead": "1c1e1e87bff255d419f18f200ea972284d090f4b",
+    "workflowsCompletedFailure": [33140852603, 33140852696, 33140852581],
+    "operatorJobId": 98751164939,
+    "operatorJobSteps": 0,
+    "manualRetryFired": false,
+    "tested": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
