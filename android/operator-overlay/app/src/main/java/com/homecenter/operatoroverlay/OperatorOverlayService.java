@@ -18,9 +18,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.view.Gravity;
@@ -80,12 +78,8 @@ public class OperatorOverlayService extends Service {
     private Button compactControlButton;
     private Button muteButton;
     private Button controlButton;
-    private Button adamSendButton;
-    private LinearLayout adamModeRow;
     private EditText adamInput;
     private String adamMode = "terminal";
-    private AdamInputResultAccessibilityPolicy.ResultState adamInputResultState =
-            AdamInputResultAccessibilityPolicy.ResultState.READY;
     private String heartbeatSelectedId = "";
     private String heartbeatStructureIdentity = "";
     private String heartbeatRenderIdentity = "";
@@ -331,6 +325,8 @@ public class OperatorOverlayService extends Service {
 
         spotifyStatus = textView(12f, false);
         spotifyStatus.setText(OperatorState.spotifySummary(this));
+        // TextView text is the focused semantic value; do not override it with a stale
+        // generic description. Explicit command receipts still use bounded announcements.
         spotifyStatus.setContentDescription(null);
         spotifyStatus.setSingleLine(true);
         spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
@@ -373,6 +369,8 @@ public class OperatorOverlayService extends Service {
 
         status = textView(14f, true);
         status.setText("HOME CENTER • OFFLINE");
+        // This status text changes continuously; let TextView expose its current text
+        // instead of replacing it with a generic description that can mask the state.
         status.setContentDescription(null);
         statusRow.addView(status, new LinearLayout.LayoutParams(
                 0,
@@ -437,6 +435,8 @@ public class OperatorOverlayService extends Service {
         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
         latest.setVerticalScrollBarEnabled(true);
         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
+        // TextView text is the semantic value; a static description would mask the
+        // changing Home Center message for accessibility services.
         latest.setContentDescription(null);
         latest.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -459,23 +459,10 @@ public class OperatorOverlayService extends Service {
             applyExpandedTextState();
         });
 
-        adamModeRow = new LinearLayout(this);
+        LinearLayout adamModeRow = new LinearLayout(this);
         adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
         adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         adamModeRow.setPadding(0, dp(6), 0, dp(2));
-        adamModeRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-            @Override
-            public void onInitializeAccessibilityNodeInfo(
-                    View host,
-                    AccessibilityNodeInfo info) {
-                super.onInitializeAccessibilityNodeInfo(host, info);
-                info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
-                        1,
-                        AdamModeSelectionAccessibilityPolicy.SET_SIZE,
-                        false,
-                        AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE));
-            }
-        });
         adamModeRow.addView(adamModeButton("TERM", "terminal", "Adam terminal executor mode"));
         adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
         adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
@@ -497,38 +484,12 @@ public class OperatorOverlayService extends Service {
         adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
         adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
-        adamInput.setContentDescription(null);
-        applyAdamInputResultState(adamInputResultState);
-        adamInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence value, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence value, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                AdamSendAvailabilityAccessibilityPolicy.Decision availability =
-                        AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable);
-                if (adamSendButton != null) {
-                    adamSendButton.setEnabled(availability.enabled);
-                }
-                AdamInputResultAccessibilityPolicy.ResultState next =
-                        AdamInputResultAccessibilityPolicy.nextState(
-                                adamInputResultState,
-                                AdamInputResultAccessibilityPolicy.Transition.EDITED,
-                                availability.hasUnsentText);
-                if (next != adamInputResultState) applyAdamInputResultState(next);
-            }
-        });
+        adamInput.setContentDescription("Adam input. Current mode terminal.");
         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        adamSendButton = button("Send");
-        refreshAdamSendAction();
-        refreshAdamSendAvailability();
+        Button adamSendButton = button("Send");
+        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
 
@@ -1065,6 +1026,7 @@ public class OperatorOverlayService extends Service {
     private void rebuildHeartbeatLights(HeartbeatOverlayViewModel.Model model) {
         if (model == null || heartbeatLights == null || heartbeatSummary == null) return;
         heartbeatLights.removeAllViews();
+
         for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
             heartbeatLights.addView(createHeartbeatLight(control));
         }
@@ -1077,6 +1039,7 @@ public class OperatorOverlayService extends Service {
     private boolean refreshHeartbeatLightsInPlace(HeartbeatOverlayViewModel.Model model) {
         if (model == null || heartbeatLights == null || heartbeatSummary == null) return false;
         if (heartbeatLights.getChildCount() != model.controls.size()) return false;
+
         for (int index = 0; index < model.controls.size(); index++) {
             View child = heartbeatLights.getChildAt(index);
             if (!(child instanceof Button)) return false;
@@ -1084,6 +1047,7 @@ public class OperatorOverlayService extends Service {
             Object tag = child.getTag();
             if (tag == null || !tag.toString().equalsIgnoreCase(control.id)) return false;
         }
+
         for (int index = 0; index < model.controls.size(); index++) {
             Button light = (Button) heartbeatLights.getChildAt(index);
             applyHeartbeatLight(light, model.controls.get(index));
@@ -1197,9 +1161,13 @@ public class OperatorOverlayService extends Service {
         return light;
     }
 
-    private void applyHeartbeatLight(Button light, HeartbeatOverlayViewModel.LightControl control) {
+    private void applyHeartbeatLight(
+            Button light,
+            HeartbeatOverlayViewModel.LightControl control) {
         if (light == null || control == null) return;
-        int targetDp = Math.max(OverlayUiPolicy.MIN_TOUCH_TARGET_DP, control.minTouchTargetDp);
+        int targetDp = Math.max(
+                OverlayUiPolicy.MIN_TOUCH_TARGET_DP,
+                control.minTouchTargetDp);
         light.setText(control.visibleLabel);
         light.setMinHeight(dp(targetDp));
         light.setMinimumHeight(dp(targetDp));
@@ -1220,9 +1188,12 @@ public class OperatorOverlayService extends Service {
         if (heartbeatLights == null || model == null) return;
         HeartbeatSelectionAccessibilityPolicy.CollectionDecision decision =
                 HeartbeatSelectionAccessibilityPolicy.fromModel(model, heartbeatSelectedId);
+
         heartbeatLights.setAccessibilityDelegate(new View.AccessibilityDelegate() {
             @Override
-            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+            public void onInitializeAccessibilityNodeInfo(
+                    View host,
+                    AccessibilityNodeInfo info) {
                 super.onInitializeAccessibilityNodeInfo(host, info);
                 info.setCollectionInfo(AccessibilityNodeInfo.CollectionInfo.obtain(
                         decision.rowCount,
@@ -1233,13 +1204,16 @@ public class OperatorOverlayService extends Service {
                                 : AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_NONE));
             }
         });
+
         for (HeartbeatSelectionAccessibilityPolicy.ItemDecision item : decision.items) {
             View child = heartbeatChildById(item.id);
             if (child == null) continue;
             final HeartbeatSelectionAccessibilityPolicy.ItemDecision itemDecision = item;
             child.setAccessibilityDelegate(new View.AccessibilityDelegate() {
                 @Override
-                public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+                public void onInitializeAccessibilityNodeInfo(
+                        View host,
+                        AccessibilityNodeInfo info) {
                     super.onInitializeAccessibilityNodeInfo(host, info);
                     info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
                             itemDecision.rowIndex,
@@ -1270,6 +1244,7 @@ public class OperatorOverlayService extends Service {
         heartbeatSummary.setText(model.summaryVisibleLabel());
         heartbeatSummary.setContentDescription(model.collapsedContentDescription);
         applyHeartbeatCollapsedOwnerAccessibility(model);
+
         HeartbeatOverlayViewModel.LightControl selected = model.controlById(heartbeatSelectedId);
         if (selected != null) {
             showHeartbeatDetail(selected.detailContentDescription, false);
@@ -1282,6 +1257,13 @@ public class OperatorOverlayService extends Service {
         }
     }
 
+    /**
+     * Clear one stale pre-contact interruption after storage has recovered to the
+     * canonical fully-absent WAITING shape. Repeated healthy empty polls see a null
+     * frame and therefore do no further UI work. Accepted/preserved contact cannot
+     * reach this helper because the poll policy's contact predicate keeps it out of
+     * WAITING recovery.
+     */
     private void clearHeartbeatPreContactWoundToWaiting() {
         invalidateHeartbeatViewportRestore();
         resetHeartbeatNativeMotion();
@@ -1297,7 +1279,8 @@ public class OperatorOverlayService extends Service {
                 "Heartbeat skill lights waiting for a material pulse.");
         applyHeartbeatCollapsedOwnerAccessibility(null);
         showHeartbeatDetail(
-                "Touch a heartbeat light for Why, Consequence, Evidence, and Source.", false);
+                "Touch a heartbeat light for Why, Consequence, Evidence, and Source.",
+                false);
     }
 
     private void applyHeartbeatNativeMotion(
@@ -1312,23 +1295,32 @@ public class OperatorOverlayService extends Service {
             resetHeartbeatNativeMotion();
             return;
         }
+
         for (HeartbeatOverlayViewModel.LightControl control : model.controls) {
             View light = heartbeatChildById(control.id);
             if (light == null) continue;
             resetHeartbeatNativeMotionView(light);
             HeartbeatNativeMotionPolicy.Decision decision = model.motionDecisionFor(
-                    control.id, heartbeatSurfacePresented, platformAnimatorsEnabled);
+                    control.id,
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
             if (decision.animate) animateHeartbeatNativeView(light, decision);
         }
+
         if (heartbeatSummary != null) {
             resetHeartbeatNativeMotionView(heartbeatSummary);
             HeartbeatNativeMotionPolicy.Decision summaryDecision = model.summaryMotionDecision(
-                    heartbeatSurfacePresented, platformAnimatorsEnabled);
-            if (summaryDecision.animate) animateHeartbeatNativeView(heartbeatSummary, summaryDecision);
+                    heartbeatSurfacePresented,
+                    platformAnimatorsEnabled);
+            if (summaryDecision.animate) {
+                animateHeartbeatNativeView(heartbeatSummary, summaryDecision);
+            }
         }
     }
 
-    private void animateHeartbeatNativeView(View view, HeartbeatNativeMotionPolicy.Decision decision) {
+    private void animateHeartbeatNativeView(
+            View view,
+            HeartbeatNativeMotionPolicy.Decision decision) {
         if (view == null || decision == null || !decision.animate) return;
         view.animate().cancel();
         view.setScaleX(decision.startScale);
@@ -1369,7 +1361,8 @@ public class OperatorOverlayService extends Service {
         for (int index = 0; index < heartbeatLights.getChildCount(); index++) {
             View child = heartbeatLights.getChildAt(index);
             Object tag = child.getTag();
-            child.setSelected(tag != null && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
+            child.setSelected(tag != null
+                    && tag.toString().equalsIgnoreCase(heartbeatSelectedId));
         }
         applyHeartbeatSelectionAccessibility(currentHeartbeatModel());
     }
@@ -1378,10 +1371,12 @@ public class OperatorOverlayService extends Service {
         if (heartbeatDetail == null) return;
         long presentationGeneration = ++heartbeatDetailPresentationGeneration;
         int preservedScrollY = explicitSelection ? 0 : heartbeatDetail.getScrollY();
-        HeartbeatDetailSurfacePolicy.Presentation presentation = HeartbeatDetailSurfacePolicy.fromDetail(detail);
+        HeartbeatDetailSurfacePolicy.Presentation presentation =
+                HeartbeatDetailSurfacePolicy.fromDetail(detail);
         heartbeatDetail.setText(presentation.text);
         heartbeatDetail.setContentDescription(presentation.contentDescription);
-        heartbeatDetail.setEllipsize(presentation.ellipsizeEnd ? TextUtils.TruncateAt.END : null);
+        heartbeatDetail.setEllipsize(
+                presentation.ellipsizeEnd ? TextUtils.TruncateAt.END : null);
         heartbeatDetail.setMinHeight(dp(presentation.minTouchTargetDp));
         heartbeatDetail.setMinimumHeight(dp(presentation.minTouchTargetDp));
         heartbeatDetail.setMaxHeight(HeartbeatDetailSurfacePolicy.maxViewportHeightPx(
@@ -1389,14 +1384,18 @@ public class OperatorOverlayService extends Service {
                 heartbeatDetail.getTotalPaddingTop() + heartbeatDetail.getTotalPaddingBottom()));
         heartbeatDetail.setVerticalScrollBarEnabled(presentation.verticallyScrollable);
         heartbeatDetail.setMovementMethod(
-                presentation.verticallyScrollable ? ScrollingMovementMethod.getInstance() : null);
+                presentation.verticallyScrollable
+                        ? ScrollingMovementMethod.getInstance()
+                        : null);
         heartbeatDetail.setFocusable(presentation.keyboardFocusable);
         heartbeatDetail.setClickable(presentation.clickable);
         heartbeatDetail.setLongClickable(presentation.longClickable);
         if (explicitSelection) {
             heartbeatDetail.scrollTo(0, 0);
         } else {
-            restoreHeartbeatDetailScrollAfterLayout(preservedScrollY, presentationGeneration);
+            restoreHeartbeatDetailScrollAfterLayout(
+                    preservedScrollY,
+                    presentationGeneration);
         }
         if (explicitSelection && !OperatorState.muted(this)) {
             heartbeatDetail.announceForAccessibility(presentation.contentDescription);
@@ -1414,7 +1413,9 @@ public class OperatorOverlayService extends Service {
             public boolean onPreDraw() {
                 ViewTreeObserver current = heartbeatDetail.getViewTreeObserver();
                 if (current.isAlive()) current.removeOnPreDrawListener(this);
-                if (presentationGeneration != heartbeatDetailPresentationGeneration) return true;
+                if (presentationGeneration != heartbeatDetailPresentationGeneration) {
+                    return true;
+                }
                 android.text.Layout layout = heartbeatDetail.getLayout();
                 int contentHeightPx = layout == null ? 0 : layout.getHeight();
                 int viewportHeightPx = Math.max(
@@ -1423,7 +1424,9 @@ public class OperatorOverlayService extends Service {
                                 - heartbeatDetail.getTotalPaddingTop()
                                 - heartbeatDetail.getTotalPaddingBottom());
                 int targetScrollY = HeartbeatDetailSurfacePolicy.clampScrollY(
-                        preservedScrollY, contentHeightPx, viewportHeightPx);
+                        preservedScrollY,
+                        contentHeightPx,
+                        viewportHeightPx);
                 if (heartbeatDetail.getScrollY() != targetScrollY) {
                     heartbeatDetail.scrollTo(0, targetScrollY);
                 }
@@ -1435,100 +1438,25 @@ public class OperatorOverlayService extends Service {
 
     private Button adamModeButton(String label, String mode, String description) {
         Button value = button(label);
-        value.setTag(mode);
-        AdamModeSelectionAccessibilityPolicy.Decision initial =
-                AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
-        value.setSelected(initial.selected);
         value.setContentDescription(description);
-        value.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-            @Override
-            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
-                super.onInitializeAccessibilityNodeInfo(host, info);
-                AdamModeSelectionAccessibilityPolicy.Decision decision =
-                        AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, mode);
-                info.setCollectionItemInfo(AccessibilityNodeInfo.CollectionItemInfo.obtain(
-                        0,
-                        1,
-                        decision.positionInSet - 1,
-                        1,
-                        false,
-                        decision.selected));
-            }
-        });
         value.setOnClickListener(v -> {
-            adamMode = AdamModeSelectionAccessibilityPolicy.requireMode(mode).wireValue;
-            refreshAdamModeSelection();
-            refreshAdamSendAction();
-            refreshAdamSendAvailability();
-            AdamInputResultAccessibilityPolicy.ResultState next =
-                    AdamInputResultAccessibilityPolicy.nextState(
-                            adamInputResultState,
-                            AdamInputResultAccessibilityPolicy.Transition.MODE_SELECTED,
-                            false);
-            applyAdamInputResultState(next);
-            if (adamInput != null) adamInput.requestFocus();
+            adamMode = mode;
+            if (adamInput != null) {
+                adamInput.setHint("Adam — " + mode);
+                adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
+                adamInput.requestFocus();
+            }
         });
         return value;
     }
 
-    private void refreshAdamModeSelection() {
-        if (adamModeRow == null) return;
-        for (int index = 0; index < adamModeRow.getChildCount(); index++) {
-            View child = adamModeRow.getChildAt(index);
-            if (!(child instanceof Button)) continue;
-            Object tag = child.getTag();
-            if (tag == null) continue;
-            AdamModeSelectionAccessibilityPolicy.Decision decision =
-                    AdamModeSelectionAccessibilityPolicy.decisionFor(adamMode, tag.toString());
-            child.setSelected(decision.selected);
-        }
-    }
-
-    private void refreshAdamSendAction() {
-        if (adamSendButton == null) return;
-        AdamSendActionAccessibilityPolicy.Decision decision =
-                AdamSendActionAccessibilityPolicy.decisionFor(adamMode);
-        adamSendButton.setText(decision.visibleLabel);
-        adamSendButton.setContentDescription(decision.actionDescription);
-    }
-
-    private void refreshAdamSendAvailability() {
-        if (adamSendButton == null || adamInput == null) return;
-        AdamSendAvailabilityAccessibilityPolicy.Decision decision =
-                AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, adamInput.getText());
-        adamSendButton.setEnabled(decision.enabled);
-    }
-
-    private void applyAdamInputResultState(
-            AdamInputResultAccessibilityPolicy.ResultState resultState) {
-        adamInputResultState = resultState;
-        if (adamInput == null) return;
-        AdamInputResultAccessibilityPolicy.Decision decision =
-                AdamInputResultAccessibilityPolicy.decisionFor(adamMode, resultState);
-        adamInput.setContentDescription(null);
-        adamInput.setHint("Adam — " + decision.mode.wireValue
-                + (resultState == AdamInputResultAccessibilityPolicy.ResultState.SENT ? " • sent" : ""));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            adamInput.setStateDescription(decision.stateDescription);
-        }
-    }
-
     private void submitAdamRequest() {
         if (adamInput == null) return;
-        CharSequence editable = adamInput.getText();
-        AdamSendAvailabilityAccessibilityPolicy.Decision availability =
-                AdamSendAvailabilityAccessibilityPolicy.decisionFor(adamMode, editable);
-        if (!availability.enabled) return;
-        String text = editable.toString().trim();
+        String text = adamInput.getText().toString().trim();
         if (text.isEmpty()) return;
         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
         adamInput.setText("");
-        AdamInputResultAccessibilityPolicy.ResultState next =
-                AdamInputResultAccessibilityPolicy.nextState(
-                        adamInputResultState,
-                        AdamInputResultAccessibilityPolicy.Transition.SUBMIT_SUCCEEDED,
-                        false);
-        applyAdamInputResultState(next);
+        adamInput.setHint("Adam — " + adamMode + " • sent");
         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
     }
 
