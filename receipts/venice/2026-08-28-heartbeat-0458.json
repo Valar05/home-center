@@ -1,0 +1,35 @@
+{
+  "schema": "venice.try-forever-heartbeat.v1",
+  "checkpoint": "2026-08-28T04:58-05:00",
+  "reviewedSourceHead": "33e84ee83beb6801bdd97dbffaef9d64f2c3641d",
+  "verdict": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "judgment": {
+    "accept": [
+      "probe v7 closes shadow-helper policy-custody counterfeit at repository source level",
+      "request RED fixture now fails only at the intended native owner boundary rather than stale provenance assertions",
+      "existing Warm Wall gains multiline editable parity without inventing phone/runtime evidence",
+      "existing request surgery is converged rather than duplicated"
+    ],
+    "hold": [
+      "OperatorOverlayService request admission remains legacy/unapplied",
+      "native Adam accessibility owner surgery remains proposed/not applied",
+      "regression sources are unexecuted",
+      "Android UI and TalkBack runtime remain unproven",
+      "explicit repeat-send receipt remains preserved"
+    ],
+    "reject": [
+      "treating a bare hasMaterialRequest token as proof of canonical policy ownership",
+      "using source specimen fidelity as Android deployment evidence",
+      "manual CI diagnosis from a zero-step workflow job",
+      "phone/P0 work or duplicate controller architecture"
+    ]
+  },
+  "sheRawBoundary": "authoritative consultation attempted; account connection HTTP 400; no synthetic substitute",
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  }
+}
