@@ -1,0 +1,113 @@
+{
+  "schema": "try-forever-heartbeat-lights.v1",
+  "checkpoint": "2026-08-28T07:00:00-05:00",
+  "scope": "TRY_FOREVER_NON_P0",
+  "reviewedSourceHead": "87f9841a64b8134f2dc05224f918447e2a946f56",
+  "lights": [
+    {
+      "skills": ["Failure Is The Shovel", "Hunger", "Ever-Polished Interpreter / Eat Everything", "deterministic routing"],
+      "state": "LIT",
+      "changed": "Probe v8 closes nested-guard, admitted-source rebinding, admitted-text rebinding, and wrong-persistence-argument counterfeit-green paths while retaining exact one-observation/one-gate/one-materialization custody."
+    },
+    {
+      "skills": ["Canon Auto-Select", "Originality Tax", "Operator Campaign", "Harroway operator discipline"],
+      "state": "LIT",
+      "changed": "Existing probe, fixtures, Warm Wall, and adam-mode-accessibility skill were hardened in place; no Probe II, controller, transport, or neighboring architecture was created."
+    },
+    {
+      "skills": ["accessibility/TalkBack and touch semantics", "contact preservation", "operator-repeatable-accessibility-event-semantics"],
+      "state": "LIT",
+      "changed": "The continuously rewritten Warm Wall detail lost implicit role=status live-region speech and became role=note plus aria-live=off. >=56px targets, visible focus, editable value semantics, and the explicit repeat-send announcement hold remain preserved; runtime TalkBack is still NO."
+    },
+    {
+      "skills": ["evidence/capability-state discipline", "recovery/checkpointing/idempotence", "Regnet QA", "Venice Judgment Jars"],
+      "state": "LIT",
+      "changed": "Probe/fixture schema and blob custody converged on v8; Regnet permits bounded source progress only and Venice keeps owner mutation, regression execution, TESTED/runtime, and campaign continuation required."
+    },
+    {
+      "skills": ["strange non-raster vector/DOM/native UI art", "warm walls", "Christmas-light scene graph"],
+      "state": "LIT",
+      "changed": "Existing HTML/SVG Warm Wall was mutated in place to expose v8 custody and quiet automatic detail chatter without adding blink, rejection motion, raster art, or a second specimen family."
+    },
+    {
+      "skills": ["She-Raw adversarial motivation"],
+      "state": "LIT_BOUNDARY",
+      "changed": "Authoritative consultation was attempted against authority leakage, false source-wired evidence, accessibility/contact loss, duplicate architecture, and P0 overlap; account connection returned HTTP 400 and no synthetic She-Raw was substituted."
+    },
+    {
+      "skills": ["Autocorrect Judgment Jar"],
+      "state": "DARK",
+      "why": "No authority-affecting token ambiguity appeared in this pulse."
+    },
+    {
+      "skills": ["Phone Runtime / Phone Hands recovery"],
+      "state": "BLOCKED_BY_FIREWALL",
+      "why": "No fresh P0 evidence reopened the gated shared phone surface; canonical P0 owners retain first claim."
+    }
+  ],
+  "frontsAdvanced": {
+    "requestAdmissionEvidence": {
+      "state": "SOURCE_HARDENED_UNEXECUTED",
+      "probeBlob": "1dfd32e575c6b565a2a02c84778fe4353b2072ef",
+      "focusedFixtureBlob": "cab7bfa5981c5840b2773c0d360b3f09054ad1fd",
+      "broadFixtureBlob": "a82b3bf526336b33e0eb7ffa7f33e670de4ad1c1"
+    },
+    "warmWallAccessibility": {
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "blob": "687cb15353427ad0ac0f3a78cbafd2a8c21762dc"
+    },
+    "skillCanon": {
+      "state": "CONVERGED",
+      "blob": "bbaf71b82d0d676e882e668084f965e8ac6e9bf8"
+    },
+    "judgment": {
+      "regnet": "BOUNDED_SOURCE_PROGRESS_PASS__OWNER_RUNTIME_REQUIRED",
+      "venice": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+    }
+  },
+  "crossPollination": "Exact request-persistence review exposed false-green binding/control-flow shapes -> the existing probe became v8 -> hostile fixtures inherited nested/rebinding/wrong-argument cases -> accessibility review of the same continuously changing state exposed implicit role=status speech in the Warm Wall -> the existing specimen was quieted in place -> both scars were harvested into the existing Adam accessibility skill -> exact-head zero-step CI keeps every source advance behind regression-executed/TESTED/runtime.",
+  "deltaFromPriorPublication": {
+    "base": "d08270015745c6971d0e74d0f9f9fd9c8be2007f",
+    "reviewedSourceHead": "87f9841a64b8134f2dc05224f918447e2a946f56",
+    "commits": 5,
+    "intendedSourcePaths": 5,
+    "unexpectedPaths": 0
+  },
+  "execution": {
+    "operatorOverlayAndroid": {"runId": 33169839670, "conclusion": "failure", "jobId": 98844002469, "steps": 0},
+    "homeCenterCI": {"runId": 33169839675, "conclusion": "failure"},
+    "buildAndroid": {"runId": 33169839674, "conclusion": "failure"},
+    "manualRetry": false,
+    "regressionExecuted": false,
+    "tested": false,
+    "stepLevelDiagnosis": null
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "membrane": {
+    "requested": true,
+    "supportingSourceImplemented": true,
+    "authenticatedReadback": true,
+    "stateRequestOwner": "SOURCE_WIRED",
+    "uiRequestOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "nativeAccessibilityOwner": "NO__REBASED_PROPOSED_NOT_APPLIED",
+    "probeV8": "SOURCE_HARDENED_UNEXECUTED",
+    "fixtures": "SOURCE_UNEXECUTED",
+    "warmWall": "SOURCE_UPDATED_NOT_RUNTIME",
+    "regressionExecuted": false,
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
