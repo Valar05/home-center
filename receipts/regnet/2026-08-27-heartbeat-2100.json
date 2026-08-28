@@ -1,0 +1,15 @@
+{
+  "schema":"try-forever-regnet-v1",
+  "checkpoint":"2026-08-27T21:00:00-05:00",
+  "reviewedSourceHead":"d96219e72f46ee2c929bd7c22334ec0373cab31b",
+  "verdict":"PASS_BOUNDED_SOURCE__CONTACT_LIFECYCLE_CONVERGED__UI_OWNER_REVISE_REQUIRED__REGRESSION_UNEXECUTED__TESTED_NO",
+  "supportingContactLifecycle":"SOURCE_WIRED",
+  "uiRequestOwner":"PROPOSED_NOT_APPLIED",
+  "nativeAccessibilityOwner":"REBASED_PROPOSED_NOT_APPLIED",
+  "rejectedBroadRewrite":"82fd5003c00a8273d47e57bab406b2f3f4e49574",
+  "restorationCommit":"69511efccf79427241fe6e9a25875af451fd0d51",
+  "operatorWorkflowJob":98734243654,
+  "operatorWorkflowSteps":0,
+  "regressionExecuted":false,
+  "tested":false
+}
