@@ -36,12 +36,16 @@ assert mode_admission < request_source
 assert ".trim().toLowerCase" not in state_submit
 
 # The durable surgery artifact records partial application rather than pretending
-# the service and state owners share one capability state.
-assert "State: PARTIAL_APPLIED_SOURCE__SERVICE_PROPOSED_NOT_APPLIED" in patch
-assert "Service current/base blob: 2935243f136359e3489a89108406e888b0ec2911" in patch
+# the service and state owners share one capability state. These assertions must
+# track the exact current artifact vocabulary so they do not fail before the
+# deliberate native-owner RED boundary below.
+assert "State: PARTIAL_APPLIED_SOURCE__SERVICE_REBASED_PROPOSED_NOT_APPLIED" in patch
+assert "Service exact current/base blob: 2935243f136359e3489a89108406e888b0ec2911" in patch
 assert "OperatorState current/result blob: 3870272863878cd7eaef69d24b31a6c8de1bbef9" in patch
 assert "Direct state owner is SOURCE_WIRED" in patch
 assert "P0/phone execution" in patch and "untouched" in patch
+assert "schema v7" in patch
+assert "fully-qualified" in patch
 
 # The staged service surgery must consume the same bounded material-request
 # classification before materializing/trimming admitted source.
@@ -59,7 +63,7 @@ assert 'adamInput.announceForAccessibility("Sent to Adam " + adamMode)' in servi
 
 # Remaining RED owner boundary: authenticated native source must itself consume
 # the bounded availability predicate before toString()/trim(). Keep the failure
-# precise and compile-valid instead of relying on an accidental substring error.
+# precise instead of relying on stale artifact wording or an accidental substring error.
 assert "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)" in service_submit, (
     "RED: OperatorOverlayService.submitAdamRequest still materializes editable source "
     "before the bounded Adam availability gate"
