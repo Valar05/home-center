@@ -14,10 +14,11 @@ WALL = Path("docs/try-forever/adam-mode-accessibility-warm-wall-source.html")
 def main() -> int:
     source = WALL.read_text(encoding="utf-8")
 
-    # The wall must not green-paint the known lifecycle-ordering evidence gap.
-    assert "SEND ACTION PROBE v10 △ EVIDENCE REVISE REQUIRED / RED SOURCE / UNEXECUTED" in source
-    assert "SEND ACTION PROBE v10 △ SOURCE REPAIRED / UNEXECUTED" not in source
-    assert "SEND ACTION PROBE v10 — EVIDENCE REVISE REQUIRED / RED SOURCE / UNEXECUTED" in source
+    # The wall must track current probe evidence without stale green or stale RED labels.
+    assert "REQUEST PROBE v11 △ SOURCE REPAIRED / UNEXECUTED" in source
+    assert "SEND ACTION PROBE v11 △ SOURCE REPAIRED / UNEXECUTED" in source
+    assert "SEND ACTION PROBE v10 △ EVIDENCE REVISE REQUIRED" not in source
+    assert "SEND ACTION PROBE v10 △ SOURCE REPAIRED" not in source
 
     # Automatic changing detail stays explicitly non-live; no implicit status-region chatter.
     assert 'id="detail" role="note" aria-live="off"' in source
@@ -38,7 +39,7 @@ def main() -> int:
     assert "PHONE/P0 UNTOUCHED" in source
     assert "RUNTIME TALKBACK ×" in source
 
-    print("Adam Warm Wall source-truth fixture: PASS")
+    print("Adam Warm Wall source-truth fixture v11: PASS")
     return 0
 
 
