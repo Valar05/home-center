@@ -39,6 +39,9 @@ final class OperatorState {
     static final String KEY_SPOTIFY_SUMMARY = "spotify_summary";
     static final String KEY_SPOTIFY_UPDATED_MS = "spotify_updated_ms";
     static final int MAX_HEARTBEAT_LIGHTS_BYTES = 32768;
+    static final int MAX_ADAM_REQUEST_SOURCE_CODE_UNITS =
+            HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
+    static final int MAX_ADAM_MODE_SOURCE_CODE_UNITS = 64;
 
     private OperatorState() {}
 
@@ -161,9 +164,16 @@ final class OperatorState {
     }
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
-        String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
+        String rawMode = mode == null ? "terminal" : mode;
+        if (rawMode.length() > MAX_ADAM_MODE_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException("Adam mode source exceeds finite work budget");
+        }
+        String cleanMode = rawMode.trim().toLowerCase(Locale.ROOT);
         if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
         String exact = text == null ? "" : text;
+        if (exact.length() > MAX_ADAM_REQUEST_SOURCE_CODE_UNITS) {
+            throw new IllegalArgumentException("Adam request source exceeds finite work budget");
+        }
         if (exact.trim().isEmpty()) return;
         if (cleanMode.equals("terminal")) exact = deterministicTerminalAlias(exact);
         byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
