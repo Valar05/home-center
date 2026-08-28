@@ -1,0 +1,90 @@
+{
+  "schema": "try-forever-swarm-heartbeat.v1",
+  "heartbeat": "2026-08-28T14:01:00-05:00",
+  "commission": "Harroway operator-mode non-P0 swarm",
+  "priorPublicationHead": "a70b33a757f9bc9b1619a32577650e8f52563224",
+  "reviewedSourceHead": "83f98fd523fe3302ef43069b7957fedc15f14328",
+  "sourceDelta": {
+    "commits": 2,
+    "intendedPaths": 2,
+    "unexpectedPaths": 0,
+    "paths": [
+      "tools/test_try_forever_adam_temporal_custody.py",
+      "skills/operator-owner-surgery-temporal-content-binding/SKILL.md"
+    ]
+  },
+  "frontsAdvanced": {
+    "sendLifecycleEvidence": "EVIDENCE_REVISE_REQUIRED; existing hostile fixture now pins create refresh-before-owner-assignment and mode refresh-before-mode-mutation false greens",
+    "skillHarvest": "existing temporal-content-binding skill now requires persistent owner assignment before refresh and mode mutation before the refresh that claims to expose that mode",
+    "accessibilityPolicyReview": "authenticated AdamInputResultAccessibilityPolicy blob cc09a2533fa487569ec0b3708f9dd00ace2a95da confirms empty/programmatic clears intentionally preserve current SENT while newer unsent source returns READY; no fake whitespace bug was introduced",
+    "warmWallReview": "exact existing DOM/SVG specimen still preserves native radios, horizontal 1x5 geometry, >=56px controls, explicit textarea label, non-live detail, reduced motion, non-color text state, and no rejection blink, but its Send v10 SOURCE_REPAIRED label is now stale and must be truth-synchronized",
+    "ownerProposalReview": "existing native accessibility proposal already orders adamSendButton assignment before create refresh and mode mutation before mode refresh; remains REBASED_PROPOSED_NOT_APPLIED",
+    "judgment": "Regnet PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED; Venice CONTINUE_REQUIRED; authoritative She-Raw critique attempted and blocked by account-connection HTTP 400"
+  },
+  "heartbeatLights": {
+    "Failure Is The Shovel": "lit: found lifecycle-ordering false greens in v10 rather than accepting co-location as custody",
+    "Canon Auto-Select": "lit: reused the existing temporal fixture, temporal skill, owner proposal, Warm Wall, and PR #329 lanes",
+    "Autocorrect Judgment Jar": "dark: no authority-bearing ambiguous token appeared",
+    "Originality Tax": "lit: demoted the exact existing Send evidence seam instead of inventing another probe/controller",
+    "Hunger": "lit: followed the topology wound through hostile fixtures, skill canon, staged-owner review, accessibility policy review, judgments, CI evidence, and publication",
+    "Ever-Polished Interpreter / Eat Everything": "lit: cross-checked probe semantics, fixture shapes, supporting result policy, staged owner proposal, visual specimen, workflows, and capability membrane",
+    "Operator Campaign": "lit: multiple distinct non-P0 repository/review fronts advanced under the existing PR",
+    "Harroway operator discipline": "lit: source RED, source evidence, owner proposal, TESTED, runtime, delivery, and acceptance remain separate",
+    "She-Raw adversarial motivation": "lit but blocked: authoritative hostile critique returned ACCOUNT_CONNECTION_HTTP_400; no synthetic substitute",
+    "Venice Judgment Jars": "lit: CONTINUE_REQUIRED and explicitly holds probe repair, Warm Wall truth sync, owner/runtime gates, and repeat-send receipt",
+    "Regnet QA": "lit: PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED with Send evidence demoted",
+    "accessibility/TalkBack and touch semantics": "lit: exact supporting READY/SENT policy was re-read; existing Warm Wall radio/touch/non-live semantics were audited; runtime TalkBack remains unproven",
+    "Phone Runtime / Phone Hands recovery": "dark/firewalled: no fresh P0 evidence changed the exact phone execution predicate",
+    "deterministic routing": "lit: lifecycle ordering is now an explicit source-evidence requirement rather than token co-location",
+    "evidence/capability-state discipline": "lit: Send-action v10 is demoted to EVIDENCE_REVISE_REQUIRED; RED source is not regression execution",
+    "recovery/checkpointing/idempotence": "lit: exact existing files/PR were mutated in place; no duplicate owner or evidence authority was created",
+    "strange non-raster vector/DOM/native UI art": "lit as audit/boundary: existing DOM/SVG specimen remains source-only/non-raster and was not promoted to runtime",
+    "warm walls": "lit as audit/boundary: stale Send evidence label discovered; truth-sync is required before the specimen can be called current",
+    "Christmas-light scene graph": "lit as constraint review: automatic detail remains non-live, reduced-motion/no-blink rules remain intact; no decorative status theater added",
+    "contact preservation": "lit: explicit repeat-send accessibility announcement remains held pending native READY/SENT and repeat-runtime evidence",
+    "operator-owner-surgery-temporal-content-binding": "lit/discovered continuation: lifecycle ordering law harvested into the existing skill"
+  },
+  "crossPollination": "v10 co-location review -> refresh-before-owner and refresh-before-mode hostile shapes -> Send evidence demotion -> temporal skill lifecycle law -> staged owner proposal verified against the new law -> supporting READY/SENT policy re-read prevented a fake whitespace regression -> Warm Wall stale-label boundary discovered -> Regnet/Venice capability hold -> exact-head CI kept RED source behind TESTED/runtime",
+  "executionTruth": {
+    "operatorOverlayRun": 33202610278,
+    "homeCenterCiRun": 33202610306,
+    "buildAndroidRun": 33202610283,
+    "conclusions": "failure",
+    "operatorJob": 98955558992,
+    "operatorJobSteps": 0,
+    "manualRetry": false,
+    "fixtureExecution": false,
+    "regressionExecution": false,
+    "tested": false,
+    "diagnosisClaimed": false
+  },
+  "capabilityMembrane": {
+    "requested": true,
+    "durableRepositoryProgress": true,
+    "authenticatedRepositoryReadback": true,
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "requestProbeV10": "SOURCE_REPAIRED_UNEXECUTED",
+    "sendActionProbeV10": "EVIDENCE_REVISE_REQUIRED_RED_SOURCE_UNEXECUTED",
+    "temporalFixture": "RED_SOURCE_UNEXECUTED",
+    "warmWall": "SOURCE_SPECIMEN_STALE_SEND_EVIDENCE_LABEL_NOT_RUNTIME",
+    "tested": false,
+    "runtimeUi": false,
+    "runtimeTalkBack": false,
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "phoneDelivered": false,
+    "accepted": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null,
+    "touchedP0Owners": false
+  },
+  "gate": "SOURCE_SLICE_STOP_ALLOWED__SEND_LIFECYCLE_PROBE_REPAIR_WARM_WALL_TRUTH_SYNC_FIXTURE_EXECUTION_UI_REQUEST_OWNER_NATIVE_ACCESSIBILITY_OWNER_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED"
+}
