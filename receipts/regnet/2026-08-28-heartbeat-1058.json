@@ -1,0 +1,56 @@
+{
+  "schema": "try-forever-regnet-heartbeat.v1",
+  "heartbeat": "2026-08-28T10:58:34-05:00",
+  "reviewedSourceHead": "4e617be60d3aa7458f6bc7200fd678fa61afbc60",
+  "verdict": "PASS_BOUNDED_SOURCE__CONTINUE_REQUIRED",
+  "fronts": {
+    "requestAdmissionEvidence": {
+      "state": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "Existing v9 owner probe now requires the canonical fail-closed admission guard immediately after the sole detached editable observation; executable pre-gate request work is PARTIAL_UNSAFE.",
+      "fixture": "tools/test_try_forever_adam_request_admission_owner_probe.py",
+      "fixtureState": "SOURCE_PRESENT_UNEXECUTED"
+    },
+    "sendActionEvidence": {
+      "state": "SOURCE_REPAIRED_UNEXECUTED",
+      "change": "Existing owner probe now requires exactly one current AdamSendActionAccessibilityPolicy.Decision and exact decision.actionDescription data flow into adamSendButton.setContentDescription(...); stale-description co-location is PARTIAL_UNSAFE.",
+      "fixture": "tools/test_try_forever_adam_accessibility_owner_probe.py",
+      "fixtureState": "SOURCE_PRESENT_UNEXECUTED"
+    },
+    "warmWallAccessibility": {
+      "state": "SOURCE_UPDATED_NOT_RUNTIME",
+      "change": "Existing Warm Wall converged evidence labels to source-repaired/unexecuted, hides visual capability punctuation from assistive technology, and carries explicit textual capability states while preserving non-live detail, 56px touch targets, visible focus, horizontal 1x5 topology, multiline request semantics, reduced-motion behavior, and no rejection blink."
+    }
+  },
+  "executionTruth": {
+    "buildAndroidRun": 33188320700,
+    "operatorOverlayRun": 33188320671,
+    "homeCenterCiRun": 33188320748,
+    "conclusions": "failure",
+    "operatorJob": 98906998849,
+    "operatorJobSteps": 0,
+    "regressionExecuted": false,
+    "tested": false,
+    "diagnosisClaimed": false
+  },
+  "nativeOwners": {
+    "adamStateRequestOwner": "SOURCE_WIRED",
+    "adamUiRequestOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "adamNativeAccessibilityOwner": "NO_REBASED_PROPOSED_NOT_APPLIED",
+    "runtimeTalkBack": false
+  },
+  "firewall": {
+    "phoneConsumption": 0,
+    "phoneMutation": 0,
+    "p0Mutation": 0,
+    "duplicateArchitecture": 0,
+    "newP0Finding": null
+  },
+  "continueRequired": [
+    "fixture execution",
+    "native UI request-owner mutation through its existing owner lane",
+    "native accessibility-owner mutation through its existing owner lane",
+    "regression execution",
+    "runtime TalkBack evidence",
+    "deployment/delivery/acceptance"
+  ]
+}
