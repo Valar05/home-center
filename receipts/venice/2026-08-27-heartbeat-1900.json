@@ -1,0 +1,28 @@
+{
+  "schema": "try-forever-venice-v1",
+  "heartbeat": "2026-08-27T19:00:00-05:00",
+  "reviewedSourceHead": "900845ef5740219f2f4ef13803eac9e5f8875546",
+  "judgment": "SOURCE_SLICE_STOP_ALLOWED__ADAM_UI_REQUEST_OWNER_ACCESSIBILITY_OWNER_MUTATION_REGRESSION_EXECUTION_TEST_RUNTIME_CAMPAIGN_CONTINUE_REQUIRED",
+  "why": [
+    "Direct OperatorState Adam request custody is now real existing-owner source: request work is finite before trim/alias/encoding and mode authority delegates to the exact canonical mode policy.",
+    "The canonical mode policy now bounds direct identity work and rejection diagnostics without normalizing whitespace/case drift into authority.",
+    "OperatorOverlayService still materializes/trims editable request text before consuming the finite availability throat, so the UI request seam remains an exact RED owner boundary.",
+    "The broader Adam mode/input/result/action/availability accessibility surgery is now exactly rebased to the authenticated current UI owner but remains PROPOSED_NOT_APPLIED; patch rebase is not owner capability.",
+    "The repeatable Adam send announcement is deliberately preserved because identical-send replacement semantics remain unresolved.",
+    "The existing Warm Wall was updated in place rather than duplicated and distinguishes policy/state owner/source from unapplied UI/accessibility owner states with 56px touch, visible focus, non-color state, SVG semantics, reduced motion, and runtime TalkBack NO.",
+    "All exact-reviewed-source workflows failed and the Operator job exposes zero steps, so regression execution and TESTED remain NO.",
+    "Phone/P0 resources were not consumed or mutated."
+  ],
+  "sheRaw": {
+    "attempted": true,
+    "result": "ACCOUNT_CONNECTION_HTTP_400",
+    "syntheticSubstitute": false
+  },
+  "continueRequired": [
+    "apply the finite pre-trim Adam request gate in the existing OperatorOverlayService owner through an exact authorized owner mutation",
+    "apply or further review the exactly rebased Adam native accessibility owner surgery without fuzzy carry-forward",
+    "execute regression source through an authoritative test lane",
+    "obtain Android/TalkBack runtime evidence only through a non-P0-authority-safe lane; do not consume the gated phone surface",
+    "continue the commissioned Try Forever campaign"
+  ]
+}
