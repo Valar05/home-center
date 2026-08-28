@@ -16,9 +16,13 @@ Bind descriptor-shadow content comparison to the **same artifact bytes that prod
 
 `SEMANTIC REFRESH CO-LOCATION != LIFECYCLE CUSTODY`.
 
+`OWNER TOKEN PRESENCE != OWNER ASSIGNMENT ORDERING`.
+
 `PERSISTENT OWNER ASSIGNMENT MUST PRECEDE OWNER REFRESH`.
 
 `MODE MUTATION MUST PRECEDE THE REFRESH THAT CLAIMS TO EXPOSE THAT MODE`.
+
+`LIFECYCLE ORDERING WITNESSES MUST BE OWNER-LOCAL, SINGULAR, AND ORDERED; A MATCH ANYWHERE IN THE METHOD IS NOT CUSTODY`.
 
 `LEXICAL DATA FLOW ALONE != TEMPORAL CUSTODY`.
 
@@ -39,7 +43,7 @@ The existing descriptor shadow consumes `evaluate_temporal_content_binding_with_
 
 `tools/try_forever_owner_surgery_shadow_temporal_binding.py` remains the evidence policy. It snapshots caller-owned inputs through the existing bounded exact-JSON snapshot organ **before** schema, canonical-result identity, witness, status, comparison, or artifact reads, then requires exact canonical custody and exact content identity.
 
-The Adam accessibility evidence organ reuses this law without becoming a second temporal owner. For request admission, `CharSequence editable = adamInput.getText()` → canonical fail-closed admission → `editable.toString().trim()` must be an adjacent mutation-free observation window because Android `Editable` is aliased mutable state. For Send action semantics, one `modeSnapshot = adamMode` must immediately feed the policy Decision and that Decision must reach the button action projection without intervening owner-state mutation or arbitrary executable work. Lifecycle topology is a separate required witness: the persistent Send owner must be assigned before create-time semantic refresh, and the mode mutation must precede the mode-change refresh that claims to expose that mode. These are **source-evidence constraints only**; they do not execute Android or grant runtime authority.
+The Adam accessibility evidence organ reuses this law without becoming a second temporal owner. For request admission, `CharSequence editable = adamInput.getText()` → canonical fail-closed admission → `editable.toString().trim()` must be an adjacent mutation-free observation window because Android `Editable` is aliased mutable state. For Send action semantics, one `modeSnapshot = adamMode` must immediately feed the policy Decision and that Decision must reach the button action projection without intervening owner-state mutation or arbitrary executable work. Lifecycle topology is a separate required witness: the persistent Send owner assignment must occur before the create-time `refreshAdamSendAction()` call, and the `adamMode` mutation must occur before the mode-change refresh that claims to expose that mode. Merely finding both tokens in the same method is explicitly insufficient. These are **source-evidence constraints only**; they do not execute Android or grant runtime authority.
 
 ## Regression source
 - `tools/test_try_forever_owner_surgery_shadow_temporal_binding.py`: **SOURCE / UNEXECUTED**; includes missing/malformed witness, result mismatch, empty-set fail-closed, exact binding, and divergence cases.
@@ -58,6 +62,7 @@ Do not create a second custody owner, temporal validator, descriptor-audit contr
 - temporal receipt-integrity exact-container custody: **YES / SOURCE_WIRED**;
 - Adam mutable-request temporal evidence policy: **YES / SOURCE_REPAIRED / UNEXECUTED**;
 - Adam current-mode semantic temporal evidence policy: **EVIDENCE_REVISE_REQUIRED / RED SOURCE / UNEXECUTED**;
+- Adam lifecycle-ordering evidence witness: **REQUIRED / NOT YET CONSUMED BY OWNER-PROBE v10**;
 - focused/convergence regression source: **YES / UNEXECUTED**;
 - regression execution: **NO**;
 - temporal promotion authority: **NO**;
@@ -70,7 +75,7 @@ The 2026-08-25 14:03 review found the broader receipt exact-container doctrine h
 
 The 2026-08-28 Harroway review found the same category of split-view evidence in mutable UI state: Adam request admission could classify one aliased `Editable` observation and materialize a later mutated value, while Send action evidence could derive a Decision from one mode state and publish it after mode drift. Owner-probe v10 closes those source-evidence holes by demanding mutation-free same-observation windows. This improves evidence custody only; native owner surgery, regression execution, TESTED, runtime, phone delivery, and acceptance remain separate.
 
-The 2026-08-28 follow-up review found v10 still treated lifecycle **co-location** as lifecycle **ordering**: `createOverlay()` could mention the Send owner and refresh in the wrong order, while the mode path could refresh stale semantics before mutating `adamMode`. The existing temporal fixture now pins both shapes as RED source. Until the existing probe consumes those ordering witnesses, Send-action source evidence is demoted to `EVIDENCE_REVISE_REQUIRED`; this is an evidence correction, not a claim that the staged native owner proposal has the defect.
+The 2026-08-28 follow-up review found v10 still treated lifecycle **co-location** as lifecycle **ordering**: `createOverlay()` could mention the Send owner and refresh in the wrong order, while the mode path could refresh stale semantics before mutating `adamMode`. The existing temporal fixture now pins both shapes as RED source. The doctrine now makes the missing witness exact: owner-local singular assignment/mutation must precede the corresponding refresh call; token presence anywhere in the same method is not evidence. Until the existing probe consumes those ordering witnesses, Send-action source evidence remains `EVIDENCE_REVISE_REQUIRED`; this is an evidence correction, not a claim that the staged native owner proposal has the defect.
 
 ## P0 / phone firewall
 This skill owns no phone or P0 capability. Phone Runtime, Phone Hands, recovery queues/relays, Nightcore, Pocket TTS, Chromium, Context Organs, and physical acceptance remain untouched.
