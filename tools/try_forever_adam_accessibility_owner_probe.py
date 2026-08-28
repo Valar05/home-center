@@ -96,20 +96,24 @@ def classify_mode_selection(source: str) -> SeamVerdict:
         "adamModeRow.setAccessibilityDelegate(" in create_method
         and "AccessibilityNodeInfo.CollectionInfo.obtain(" in create_method
         and "AccessibilityNodeInfo.CollectionInfo.SELECTION_MODE_SINGLE" in create_method
-        and "AdamModeSelectionAccessibilityPolicy.SET_SIZE" in create_method
+        and "AdamModeSelectionAccessibilityPolicy.ROW_COUNT" in create_method
+        and "AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT" in create_method
     )
     item_set_context = (
         "setAccessibilityDelegate(" in mode_method
         and "AccessibilityNodeInfo.CollectionItemInfo.obtain(" in mode_method
-        and "positionInSet" in mode_method
-        and "selected" in mode_method
+        and "decision.rowIndex" in mode_method
+        and "decision.rowSpan" in mode_method
+        and "decision.columnIndex" in mode_method
+        and "decision.columnSpan" in mode_method
+        and "decision.selected" in mode_method
     )
     has_native_set_context = row_set_context and item_set_context
 
     if policy_reference and has_persistent_state and has_native_set_context:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam mode owner initializes and refreshes one-of-many native selection and exposes stable single-selection set-position context through the same policy",
+            "direct Adam mode owner initializes and refreshes one-of-many native selection and consumes policy-owned horizontal collection/item geometry",
             policy,
             True,
             True,
@@ -127,9 +131,9 @@ def classify_mode_selection(source: str) -> SeamVerdict:
         if not has_persistent_state:
             missing.append("persistent selected-state lifecycle")
         if not row_set_context:
-            missing.append("single-selection collection context")
+            missing.append("policy-owned single-selection collection geometry")
         if not item_set_context:
-            missing.append("per-mode position-in-set context")
+            missing.append("policy-owned per-mode item geometry")
         return SeamVerdict(
             "PARTIAL_UNSAFE",
             "Adam mode owner is incomplete: missing " + ", ".join(missing),
@@ -139,7 +143,7 @@ def classify_mode_selection(source: str) -> SeamVerdict:
         )
     return SeamVerdict(
         "LEGACY_OWNER",
-        "direct Adam mode owner changes mode/focus but exposes no persistent selected/checked semantic lifecycle or native one-of-many set-position context",
+        "direct Adam mode owner changes mode/focus but exposes no persistent selected/checked semantic lifecycle or native one-of-many collection geometry",
         policy,
         False,
         False,
@@ -257,7 +261,7 @@ def classify_send_action(source: str) -> SeamVerdict:
 
 def classify(source: str) -> dict[str, object]:
     return {
-        "schema": "try-forever-adam-accessibility-owner-probe.v4",
+        "schema": "try-forever-adam-accessibility-owner-probe.v5",
         "modeSelection": asdict(classify_mode_selection(source)),
         "inputResult": asdict(classify_input_result(source)),
         "sendAction": asdict(classify_send_action(source)),
