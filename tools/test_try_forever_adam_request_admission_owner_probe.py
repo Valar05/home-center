@@ -7,8 +7,8 @@ TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 The hostile cases pin policy custody plus single-observation, control-flow, binding, and persistence
 custody: a consumer must not earn SOURCE_WIRED from a shadow helper, an ignored/nested canonical
 policy call, rebound admitted source/text, wrong persistence arguments, repeated observations/work,
-compound text rebinding, or a second request-persistence sink. Probe v8 currently misses the last two
-counterfeits; those assertions are deliberately RED source until the existing probe is repaired. This
+compound text rebinding, or a second request-persistence sink. Probe v9 closes the two v8 evidence
+wounds by counting simple/compound binding assignments and all request-persistence sinks. This
 fixture remains source only until an execution lane supplies a test receipt.
 """
 
@@ -53,7 +53,7 @@ def main() -> int:
     assert wired["requestAdmission"]["status"] == "SOURCE_WIRED"
     assert wired["requestAdmission"]["owner_policy_reference"] is True
     assert wired["requestAdmission"]["owner_semantic_state"] is True
-    assert wired["schema"] == "try-forever-adam-accessibility-owner-probe.v8"
+    assert wired["schema"] == "try-forever-adam-accessibility-owner-probe.v9"
 
     counterfeit_literal = classify(wrap(
         "String note = \"AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable)\";\n"
@@ -147,7 +147,7 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, replacementText, now);"
     ))
     assert wrong_persistence_argument["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
-    assert "exact persistence of the admitted text variable" in (
+    assert "exactly one request-persistence sink carrying the admitted text variable" in (
         wrong_persistence_argument["requestAdmission"]["reason"]
     )
 
@@ -195,6 +195,9 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
     assert compound_rebound_text["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "single-assignment post-gate detached trim materialization" in (
+        compound_rebound_text["requestAdmission"]["reason"]
+    )
 
     duplicate_persistence_sink = classify(wrap(
         "CharSequence editable = adamInput.getText();\n"
@@ -204,6 +207,9 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, replacementText, now);"
     ))
     assert duplicate_persistence_sink["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert "exactly one request-persistence sink carrying the admitted text variable" in (
+        duplicate_persistence_sink["requestAdmission"]["reason"]
+    )
 
     capability = wired["capability"]
     assert capability["sourceInspection"] is True
