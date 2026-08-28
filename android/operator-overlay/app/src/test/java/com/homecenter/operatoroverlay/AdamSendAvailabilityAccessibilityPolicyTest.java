@@ -47,6 +47,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
                 AdamSendAvailabilityAccessibilityPolicy.decisionFor("terminal", "   ");
 
         assertFalse(decision.enabled);
+        assertFalse(decision.hasUnsentText);
         assertEquals(
                 AdamSendAvailabilityAccessibilityPolicy.RequestState.EMPTY_OR_WHITESPACE,
                 decision.requestState);
@@ -65,6 +66,7 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
                         "  inspect this boundary  ");
 
         assertTrue(decision.enabled);
+        assertTrue(decision.hasUnsentText);
         assertEquals(
                 AdamSendAvailabilityAccessibilityPolicy.RequestState.MATERIAL,
                 decision.requestState);
@@ -140,12 +142,33 @@ public class AdamSendAvailabilityAccessibilityPolicyTest {
                 AdamSendAvailabilityAccessibilityPolicy.decisionFor("terminal", hostile);
 
         assertFalse(decision.enabled);
+        assertTrue(decision.hasUnsentText);
         assertEquals(
                 AdamSendAvailabilityAccessibilityPolicy.RequestState.OVER_BUDGET,
                 decision.requestState);
         assertEquals(1, hostile.lengthCalls);
         assertEquals(0, hostile.charAtCalls);
         assertEquals(0, hostile.toStringCalls);
+    }
+
+    @Test
+    public void unavailableOverBudgetContactIsNotMisreportedAsEmpty() {
+        StringBuilder source = new StringBuilder(
+                AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1);
+        for (int index = 0;
+                index < AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1;
+                index++) {
+            source.append(' ');
+        }
+
+        AdamSendAvailabilityAccessibilityPolicy.Decision decision =
+                AdamSendAvailabilityAccessibilityPolicy.decisionFor("chat", source);
+
+        assertFalse(decision.enabled);
+        assertTrue(decision.hasUnsentText);
+        assertEquals(
+                AdamSendAvailabilityAccessibilityPolicy.RequestState.OVER_BUDGET,
+                decision.requestState);
     }
 
     @Test(expected = IllegalArgumentException.class)
