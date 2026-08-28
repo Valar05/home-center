@@ -53,13 +53,39 @@ public class AdamInputResultAccessibilityPolicyTest {
     }
 
     @Test
-    public void realNewEditingAfterSentReturnsReady() {
+    public void newerUnsentContactAfterSentReturnsReady() {
         assertEquals(
                 AdamInputResultAccessibilityPolicy.ResultState.READY,
                 AdamInputResultAccessibilityPolicy.nextState(
                         AdamInputResultAccessibilityPolicy.ResultState.SENT,
                         AdamInputResultAccessibilityPolicy.Transition.EDITED,
                         true));
+    }
+
+    @Test
+    public void overBudgetRejectedSourceStillInvalidatesStaleSentContact() {
+        StringBuilder source = new StringBuilder(
+                AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1);
+        for (int index = 0;
+                index < AdamSendAvailabilityAccessibilityPolicy.MAX_REQUEST_SOURCE_CODE_UNITS + 1;
+                index++) {
+            source.append(' ');
+        }
+
+        AdamSendAvailabilityAccessibilityPolicy.Decision availability =
+                AdamSendAvailabilityAccessibilityPolicy.decisionFor("terminal", source);
+
+        assertFalse(availability.enabled);
+        assertTrue(availability.hasUnsentText);
+        assertEquals(
+                AdamSendAvailabilityAccessibilityPolicy.RequestState.OVER_BUDGET,
+                availability.requestState);
+        assertEquals(
+                AdamInputResultAccessibilityPolicy.ResultState.READY,
+                AdamInputResultAccessibilityPolicy.nextState(
+                        AdamInputResultAccessibilityPolicy.ResultState.SENT,
+                        AdamInputResultAccessibilityPolicy.Transition.EDITED,
+                        availability.hasUnsentText));
     }
 
     @Test
