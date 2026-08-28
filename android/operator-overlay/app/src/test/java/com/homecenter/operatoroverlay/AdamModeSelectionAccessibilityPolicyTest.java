@@ -24,8 +24,10 @@ public class AdamModeSelectionAccessibilityPolicyTest {
     }
 
     @Test
-    public void canonicalOrderProvidesStableOneBasedSetPositions() {
+    public void canonicalOrderProvidesStableSetPositionsAndHorizontalGeometry() {
         assertEquals(5, AdamModeSelectionAccessibilityPolicy.SET_SIZE);
+        assertEquals(1, AdamModeSelectionAccessibilityPolicy.ROW_COUNT);
+        assertEquals(5, AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT);
         int expectedPosition = 1;
         for (AdamModeSelectionAccessibilityPolicy.Mode mode
                 : AdamModeSelectionAccessibilityPolicy.Mode.values()) {
@@ -33,6 +35,12 @@ public class AdamModeSelectionAccessibilityPolicyTest {
                     AdamModeSelectionAccessibilityPolicy.decisionFor("terminal", mode.wireValue);
             assertEquals(expectedPosition, decision.positionInSet);
             assertEquals(AdamModeSelectionAccessibilityPolicy.SET_SIZE, decision.setSize);
+            assertEquals(0, decision.rowIndex);
+            assertEquals(1, decision.rowSpan);
+            assertEquals(expectedPosition - 1, decision.columnIndex);
+            assertEquals(1, decision.columnSpan);
+            assertEquals(AdamModeSelectionAccessibilityPolicy.ROW_COUNT, decision.rowCount);
+            assertEquals(AdamModeSelectionAccessibilityPolicy.COLUMN_COUNT, decision.columnCount);
             expectedPosition++;
         }
     }
