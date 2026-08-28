@@ -10,9 +10,10 @@ package com.homecenter.operatoroverlay;
  * <p>Direct editable values cross the same broad source-work ceiling used by the heartbeat
  * envelope before whole-source work. Admitted values are scanned in-place using the exact
  * historical {@link String#trim()} emptiness predicate ({@code char <= U+0020}) rather than being
- * materialized through {@code toString()}. Over-ceiling values fail closed instead of being
- * truncated or normalized. This does not claim callback-free arbitrary {@link CharSequence}
- * admission; it bounds the number of source observations owned by this policy.</p>
+ * materialized through {@code toString()}. Over-ceiling values fail closed as a distinct state;
+ * they are not truncated or normalized. This does not claim callback-free arbitrary
+ * {@link CharSequence} admission; it bounds the number of source observations owned by this
+ * policy.</p>
  *
  * <p>This policy owns no View, TextWatcher, announcement, controller, transport, phone execution,
  * or P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.</p>
@@ -21,8 +22,15 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
     public static final int MAX_REQUEST_SOURCE_CODE_UNITS =
             HeartbeatEnvelopeParser.MAX_ENVELOPE_SOURCE_CODE_UNITS;
 
+    public enum RequestState {
+        EMPTY_OR_WHITESPACE,
+        MATERIAL,
+        OVER_BUDGET
+    }
+
     public static final class Decision {
         public final AdamModeSelectionAccessibilityPolicy.Mode mode;
+        public final RequestState requestState;
         public final boolean enabled;
         public final String visibleLabel;
         public final String actionDescription;
@@ -30,10 +38,11 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
 
         private Decision(
                 AdamModeSelectionAccessibilityPolicy.Mode mode,
-                boolean enabled,
+                RequestState requestState,
                 String actionDescription) {
             this.mode = mode;
-            this.enabled = enabled;
+            this.requestState = requestState;
+            this.enabled = requestState == RequestState.MATERIAL;
             this.visibleLabel = "Send";
             this.actionDescription = actionDescription;
             this.requiresSyntheticAnnouncement = false;
@@ -46,8 +55,7 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
     public static Decision decisionFor(String mode, CharSequence editableValue) {
         AdamSendActionAccessibilityPolicy.Decision action =
                 AdamSendActionAccessibilityPolicy.decisionFor(mode);
-        boolean enabled = hasMaterialRequest(editableValue);
-        return new Decision(action.mode, enabled, action.actionDescription);
+        return new Decision(action.mode, classifyRequest(editableValue), action.actionDescription);
     }
 
     /**
@@ -62,20 +70,25 @@ public final class AdamSendAvailabilityAccessibilityPolicy {
     }
 
     /**
-     * Match the existing owner's {@code String.trim().isEmpty()} admission without materializing
-     * the whole {@link CharSequence}.
+     * Classify request material under bounded source work without materializing the whole
+     * {@link CharSequence}.
      */
-    public static boolean hasMaterialRequest(CharSequence editableValue) {
-        if (editableValue == null) return false;
+    public static RequestState classifyRequest(CharSequence editableValue) {
+        if (editableValue == null) return RequestState.EMPTY_OR_WHITESPACE;
 
         int sourceLength = editableValue.length();
-        if (sourceLength > MAX_REQUEST_SOURCE_CODE_UNITS) return false;
+        if (sourceLength > MAX_REQUEST_SOURCE_CODE_UNITS) return RequestState.OVER_BUDGET;
 
         for (int index = 0; index < sourceLength; index++) {
             if (editableValue.charAt(index) > ' ') {
-                return true;
+                return RequestState.MATERIAL;
             }
         }
-        return false;
+        return RequestState.EMPTY_OR_WHITESPACE;
+    }
+
+    /** Match the existing owner's {@code String.trim().isEmpty()} material-request admission. */
+    public static boolean hasMaterialRequest(CharSequence editableValue) {
+        return classifyRequest(editableValue) == RequestState.MATERIAL;
     }
 }
