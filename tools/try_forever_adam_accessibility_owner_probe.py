@@ -260,59 +260,83 @@ def classify_send_action(source: str) -> SeamVerdict:
 
 
 def classify_request_admission(source: str) -> SeamVerdict:
-    """Classify the native UI request-work throat independently from supporting policy safety."""
+    """Classify the native UI request-work throat independently from supporting policy safety.
+
+    SOURCE_WIRED requires one detached editable observation, one bounded policy gate, and one
+    whole-source materialization, in that order, before request persistence. Merely placing one
+    correct gate before the first materialization must not hide repeated observations/work later in
+    the same owner method.
+    """
     owner = _owner_surface(source)
     send_method = _direct_method_surface(owner, "submitAdamRequest")
     policy = "AdamSendAvailabilityAccessibilityPolicy"
 
-    policy_index = send_method.find(policy)
-    direct_materialization_index = send_method.find("adamInput.getText().toString()")
-    detached_materialization_index = send_method.find("editable.toString()")
-    materialization_candidates = [
-        index
-        for index in (direct_materialization_index, detached_materialization_index)
-        if index >= 0
-    ]
-    materialization_index = min(materialization_candidates) if materialization_candidates else -1
-    submit_index = send_method.find("OperatorState.submitAdamRequest(")
+    direct_source_observation_count = send_method.count("adamInput.getText()")
     detached_source = (
         "CharSequence editable = adamInput.getText()" in send_method
         or "CharSequence editable=adamInput.getText()" in send_method
     )
-    policy_gate = (
-        policy_index >= 0
-        and (
-            "hasMaterialRequest(editable)" in send_method
-            or "classifyRequest(editable)" in send_method
-            or "decisionFor(adamMode, editable)" in send_method
-        )
+    single_detached_source_observation = detached_source and direct_source_observation_count == 1
+
+    gate_patterns = (
+        "hasMaterialRequest(editable)",
+        "classifyRequest(editable)",
+        "decisionFor(adamMode, editable)",
     )
+    gate_count = sum(send_method.count(pattern) for pattern in gate_patterns)
+    gate_indices = [
+        send_method.find(pattern)
+        for pattern in gate_patterns
+        if send_method.find(pattern) >= 0
+    ]
+    policy_gate_index = min(gate_indices) if gate_indices else -1
+    single_policy_gate = gate_count == 1
+
+    direct_materialization_count = send_method.count("adamInput.getText().toString()")
+    detached_materialization_count = send_method.count("editable.toString()")
+    materialization_count = direct_materialization_count + detached_materialization_count
+    materialization_index = send_method.find("editable.toString()")
+    single_detached_materialization = (
+        direct_materialization_count == 0
+        and detached_materialization_count == 1
+        and materialization_count == 1
+    )
+
+    submit_index = send_method.find("OperatorState.submitAdamRequest(")
     ordered = (
-        detached_source
-        and policy_gate
+        single_detached_source_observation
+        and single_policy_gate
+        and single_detached_materialization
+        and policy_gate_index >= 0
         and materialization_index >= 0
         and submit_index >= 0
-        and policy_index < materialization_index < submit_index
+        and policy_gate_index < materialization_index < submit_index
     )
 
     if ordered:
         return SeamVerdict(
             "SOURCE_WIRED",
-            "direct Adam UI request owner consumes bounded request admission before whole-source materialization/trim and before request persistence",
+            "direct Adam UI request owner observes editable source once, consumes one bounded request-admission gate, materializes once afterward, and persists only after materialization",
             policy,
             True,
             True,
         )
 
-    if policy_index >= 0 or detached_source:
+    if policy in send_method or detached_source or direct_source_observation_count > 0:
         missing = []
-        if not detached_source:
-            missing.append("detached editable source")
-        if not policy_gate:
-            missing.append("bounded request-admission policy gate")
-        if materialization_index < 0:
-            missing.append("post-gate request materialization")
-        elif policy_index < 0 or policy_index > materialization_index:
+        if not single_detached_source_observation:
+            missing.append("exactly one detached editable source observation")
+        if not single_policy_gate:
+            missing.append("exactly one bounded request-admission policy gate")
+        if not single_detached_materialization:
+            missing.append("exactly one post-gate detached request materialization")
+        if (
+            single_policy_gate
+            and single_detached_materialization
+            and policy_gate_index >= 0
+            and materialization_index >= 0
+            and policy_gate_index > materialization_index
+        ):
             missing.append("policy-before-materialization ordering")
         if submit_index < 0 or (materialization_index >= 0 and submit_index < materialization_index):
             missing.append("materialization-before-request-persistence ordering")
@@ -320,7 +344,7 @@ def classify_request_admission(source: str) -> SeamVerdict:
             "PARTIAL_UNSAFE",
             "Adam UI request owner is incomplete: missing " + ", ".join(missing),
             policy,
-            policy_index >= 0,
+            policy in send_method,
             False,
         )
 
