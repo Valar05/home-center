@@ -14,8 +14,9 @@ package com.homecenter.operatoroverlay;
  *
  * <p>SENT is persistent only while there is no newer unsent request. Selecting another mode makes
  * the field READY. A successful submit makes it SENT. Programmatic clearing after submit does not
- * erase SENT, while real new non-empty editing does return the field to READY. That distinction
- * prevents the send-result state from lying about newly typed, unsent text.</p>
+ * erase SENT, while evidence of newer unsent source returns the field to READY. The caller owns
+ * classification of that source: a bounded-but-unsendable OVER_BUDGET edit is still unsent contact
+ * and must therefore fail closed away from stale SENT rather than being misreported as empty.</p>
  *
  * <p>This class owns no View, TextWatcher, announcement surface, controller, phone execution, or
  * P0 recovery path. {@link OperatorOverlayService} remains the sole native owner.</p>
@@ -68,14 +69,16 @@ public final class AdamInputResultAccessibilityPolicy {
     /**
      * Return the next persistent result state for one material owner transition.
      *
-     * <p>For {@link Transition#EDITED}, {@code hasNonWhitespaceText} means the user-visible field
-     * now contains a real unsent request. An empty edit intentionally preserves the current state;
-     * this is what lets the owner's programmatic {@code setText("")} after submit retain SENT.</p>
+     * <p>For {@link Transition#EDITED}, {@code hasUnsentText} is contact truth supplied by the
+     * bounded request classifier, not a claim that the source is currently sendable. Empty source
+     * intentionally preserves the current state so the owner's programmatic {@code setText("")}
+     * after submit retains SENT. Any newer unsent source—including OVER_BUDGET source—returns the
+     * field to READY.</p>
      */
     public static ResultState nextState(
             ResultState current,
             Transition transition,
-            boolean hasNonWhitespaceText) {
+            boolean hasUnsentText) {
         if (current == null) throw new IllegalArgumentException("current state is required");
         if (transition == null) throw new IllegalArgumentException("transition is required");
         switch (transition) {
@@ -84,7 +87,7 @@ public final class AdamInputResultAccessibilityPolicy {
             case SUBMIT_SUCCEEDED:
                 return ResultState.SENT;
             case EDITED:
-                return hasNonWhitespaceText ? ResultState.READY : current;
+                return hasUnsentText ? ResultState.READY : current;
             default:
                 throw new IllegalArgumentException("unsupported transition: " + transition);
         }
