@@ -4,11 +4,11 @@
 This test exercises deterministic source classification only. It does not execute Android,
 TalkBack, phone/P0 work, request transport, or the staged owner surgery.
 
-The hostile cases pin policy custody plus single-observation custody: a consumer must not earn
-SOURCE_WIRED from a shadow helper with the right method name, or by observing the editable source,
-request-admission policy, or whole-source materialization more than once. Probe v7 rejects those
-counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source only until an execution lane
-supplies a test receipt.
+The hostile cases pin policy custody plus single-observation and control-flow custody: a consumer
+must not earn SOURCE_WIRED from a shadow helper, an ignored canonical policy call, or by observing
+the editable source, request-admission policy, or whole-source materialization more than once.
+Probe v7 rejects those counterfeit shapes as PARTIAL_UNSAFE; this fixture remains source only until
+an execution lane supplies a test receipt.
 """
 
 from try_forever_adam_accessibility_owner_probe import classify
@@ -69,7 +69,7 @@ def main() -> int:
     ))
     assert shadow_gate["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
     assert shadow_gate["requestAdmission"]["owner_policy_reference"] is False
-    assert "canonical fully-qualified request-admission policy gate" in (
+    assert "canonical fully-qualified fail-closed request-admission policy guard" in (
         shadow_gate["requestAdmission"]["reason"]
     )
 
@@ -81,6 +81,27 @@ def main() -> int:
     ))
     assert other_owner_gate["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
     assert other_owner_gate["requestAdmission"]["owner_policy_reference"] is False
+
+    ignored_canonical_call = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable);\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert ignored_canonical_call["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert ignored_canonical_call["requestAdmission"]["owner_policy_reference"] is False
+    assert "fail-closed request-admission policy guard" in (
+        ignored_canonical_call["requestAdmission"]["reason"]
+    )
+
+    observed_but_unenforced = classify(wrap(
+        "CharSequence editable = adamInput.getText();\n"
+        "boolean admitted = AdamSendAvailabilityAccessibilityPolicy.hasMaterialRequest(editable);\n"
+        "String text = editable.toString().trim();\n"
+        "OperatorState.submitAdamRequest(this, adamMode, text, now);"
+    ))
+    assert observed_but_unenforced["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
+    assert observed_but_unenforced["requestAdmission"]["owner_policy_reference"] is False
 
     duplicate_source_observation = classify(wrap(
         "CharSequence editable = adamInput.getText();\n"
@@ -102,7 +123,7 @@ def main() -> int:
         "OperatorState.submitAdamRequest(this, adamMode, text, now);"
     ))
     assert duplicate_policy_gate["requestAdmission"]["status"] == "PARTIAL_UNSAFE"
-    assert "canonical fully-qualified request-admission policy gate" in (
+    assert "canonical fully-qualified fail-closed request-admission policy guard" in (
         duplicate_policy_gate["requestAdmission"]["reason"]
     )
 
@@ -131,7 +152,7 @@ def main() -> int:
     ):
         assert capability[key] is False
 
-    print("Adam UI request-admission owner probe canonical-policy and single-observation custody: PASS")
+    print("Adam UI request-admission owner probe control-flow, canonical-policy, and single-observation custody: PASS")
     return 0
 
 
