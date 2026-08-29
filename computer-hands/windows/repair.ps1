@@ -79,16 +79,16 @@ Remove-Item -LiteralPath $StartupLog -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $WorkerLog -Force -ErrorAction SilentlyContinue
 
 $ps = (Get-Command powershell.exe -ErrorAction Stop).Source
-$arg = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$LaunchPath`" -ConfigPath `"$ConfigPath`""
+$arg = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$LaunchPath`" -ConfigPath `"$ConfigPath`""
 $action = New-ScheduledTaskAction -Execute $ps -Argument $arg
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden
 Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 Start-ScheduledTask -TaskName $TaskName
 
-$watchdogArg = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$WatchdogPath`" -ConfigPath `"$ConfigPath`" -TaskName `"$TaskName`""
+$watchdogArg = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$WatchdogPath`" -ConfigPath `"$ConfigPath`" -TaskName `"$TaskName`""
 $watchdogAction = New-ScheduledTaskAction -Execute $ps -Argument $watchdogArg
 Stop-ScheduledTask -TaskName $WatchdogTaskName -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $WatchdogTaskName -Action $watchdogAction -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
