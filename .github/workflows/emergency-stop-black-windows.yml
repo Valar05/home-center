@@ -1,0 +1,175 @@
+name: Emergency Stop Black Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: emergency-stop-black-windows-thecauldron
+  cancel-in-progress: true
+
+jobs:
+  stop-black-windows:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Stop popup launchers on THECAULDRON
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $ProgressPreference = 'SilentlyContinue'
+
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing to run on $env:COMPUTERNAME; this emergency workflow is scoped to THECAULDRON."
+          }
+
+          $popupPattern = '(?i)venice|home[_ .-]?center|homecenter|computer[_ .-]?hands|browser[_ .-]?nerve|command[_ .-]?center|chat[_ .-]?mode[_ .-]?mcp|try[_ .-]?forever|spotify[_ .-]?radio|reality[_ .-]?membrane'
+          $terminalPattern = '(?i)^(powershell|pwsh|cmd|conhost|wt|windowsterminal|python|node)(\.exe)?$'
+          $actions = [System.Collections.Generic.List[object]]::new()
+          $failures = [System.Collections.Generic.List[object]]::new()
+
+          function Record-Action([string]$Kind, [string]$Target) {
+            $actions.Add([pscustomobject]@{ kind = $Kind; target = $Target })
+          }
+          function Record-Failure([string]$Kind, [string]$Target, [string]$Message) {
+            $failures.Add([pscustomobject]@{ kind = $Kind; target = $Target; error = $Message })
+          }
+          function Try-Op([string]$Kind, [string]$Target, [scriptblock]$Body) {
+            try { & $Body; Record-Action $Kind $Target }
+            catch { Record-Failure $Kind $Target $_.Exception.Message }
+          }
+
+          $protectedPids = [System.Collections.Generic.HashSet[int]]::new()
+          $cursor = $PID
+          while ($cursor -gt 0 -and $protectedPids.Add([int]$cursor)) {
+            $row = Get-CimInstance Win32_Process -Filter ("ProcessId={0}" -f $cursor) -ErrorAction SilentlyContinue
+            if (-not $row) { break }
+            $cursor = [int]$row.ParentProcessId
+          }
+
+          $tasks = @(Get-ScheduledTask -ErrorAction SilentlyContinue | ForEach-Object {
+            $task = $_
+            $actionText = (($task.Actions | ForEach-Object { '{0} {1} {2}' -f $_.Execute, $_.Arguments, $_.WorkingDirectory }) -join ' | ')
+            if ($task.TaskName -match $popupPattern -or $task.TaskPath -match $popupPattern -or $actionText -match $popupPattern) {
+              [pscustomobject]@{ Task = $task; ActionText = $actionText }
+            }
+          })
+          foreach ($entry in $tasks) {
+            $task = $entry.Task
+            $qualified = '{0}{1}' -f $task.TaskPath, $task.TaskName
+            Try-Op 'STOP_TASK' $qualified { Stop-ScheduledTask -TaskName $task.TaskName -TaskPath $task.TaskPath -ErrorAction SilentlyContinue }
+            Try-Op 'DISABLE_TASK' $qualified { Disable-ScheduledTask -TaskName $task.TaskName -TaskPath $task.TaskPath -ErrorAction Stop | Out-Null }
+          }
+
+          $services = @(Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -match $popupPattern -or $_.DisplayName -match $popupPattern -or $_.PathName -match $popupPattern
+          })
+          foreach ($service in $services) {
+            $name = [string]$service.Name
+            Try-Op 'STOP_SERVICE' $name { Stop-Service -Name $name -Force -ErrorAction SilentlyContinue }
+            Try-Op 'DISABLE_SERVICE' $name { Set-Service -Name $name -StartupType Disabled -ErrorAction Stop }
+          }
+
+          $runKeys = @(
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run',
+            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Run',
+            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run'
+          )
+          foreach ($key in $runKeys) {
+            if (-not (Test-Path $key)) { continue }
+            $item = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
+            foreach ($property in @($item.PSObject.Properties | Where-Object { $_.Name -notmatch '^PS' })) {
+              $value = [string]$property.Value
+              if ($property.Name -match $popupPattern -or $value -match $popupPattern) {
+                $target = '{0}::{1}' -f $key, $property.Name
+                Try-Op 'REMOVE_RUN_ENTRY' $target { Remove-ItemProperty -Path $key -Name $property.Name -ErrorAction Stop }
+              }
+            }
+          }
+
+          $quarantine = Join-Path $env:ProgramData ('THECAULDRON_BLACK_WINDOWS\' + (Get-Date -Format 'yyyyMMdd_HHmmss'))
+          New-Item -ItemType Directory -Path $quarantine -Force | Out-Null
+          $startupFolders = @(
+            (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup'),
+            (Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\Startup')
+          )
+          foreach ($folder in $startupFolders) {
+            if (-not (Test-Path $folder)) { continue }
+            foreach ($item in @(Get-ChildItem -LiteralPath $folder -Force -ErrorAction SilentlyContinue)) {
+              $match = $item.Name -match $popupPattern
+              if (-not $match -and $item.Extension -ieq '.lnk') {
+                try {
+                  $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($item.FullName)
+                  $match = (('{0} {1}' -f $shortcut.TargetPath, $shortcut.Arguments) -match $popupPattern)
+                } catch { }
+              }
+              if ($match) {
+                $destination = Join-Path $quarantine $item.Name
+                Try-Op 'QUARANTINE_STARTUP_ITEM' $item.FullName { Move-Item -LiteralPath $item.FullName -Destination $destination -Force }
+              }
+            }
+          }
+
+          $allProcesses = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)
+          $killPids = [System.Collections.Generic.HashSet[int]]::new()
+          foreach ($process in $allProcesses) {
+            if ($protectedPids.Contains([int]$process.ProcessId)) { continue }
+            if ([string]$process.Name -notmatch $terminalPattern) { continue }
+            if ([string]$process.CommandLine -match $popupPattern) { [void]$killPids.Add([int]$process.ProcessId) }
+          }
+          $changed = $true
+          while ($changed) {
+            $changed = $false
+            foreach ($process in $allProcesses) {
+              if ($killPids.Contains([int]$process.ParentProcessId) -and -not $killPids.Contains([int]$process.ProcessId) -and -not $protectedPids.Contains([int]$process.ProcessId)) {
+                [void]$killPids.Add([int]$process.ProcessId)
+                $changed = $true
+              }
+            }
+          }
+          foreach ($processId in @($killPids) | Sort-Object -Descending) {
+            Try-Op 'STOP_PROCESS' ([string]$processId) { Stop-Process -Id $processId -Force -ErrorAction Stop }
+          }
+
+          Start-Sleep -Seconds 2
+          $remainingTasks = @(Get-ScheduledTask -ErrorAction SilentlyContinue | ForEach-Object {
+            $task = $_
+            $actionText = (($task.Actions | ForEach-Object { '{0} {1}' -f $_.Execute, $_.Arguments }) -join ' | ')
+            if (($task.TaskName -match $popupPattern -or $task.TaskPath -match $popupPattern -or $actionText -match $popupPattern) -and $task.State -ne 'Disabled') {
+              [pscustomobject]@{ name = ('{0}{1}' -f $task.TaskPath, $task.TaskName); state = [string]$task.State; actions = $actionText }
+            }
+          })
+          $remainingServices = @(Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object {
+            ($_.Name -match $popupPattern -or $_.DisplayName -match $popupPattern -or $_.PathName -match $popupPattern) -and $_.State -ne 'Stopped'
+          } | Select-Object Name, DisplayName, State, StartMode, PathName)
+          $remainingProcesses = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+            -not $protectedPids.Contains([int]$_.ProcessId) -and [string]$_.Name -match $terminalPattern -and [string]$_.CommandLine -match $popupPattern
+          } | Select-Object ProcessId, ParentProcessId, Name, CommandLine)
+
+          $receipt = [ordered]@{
+            schema = 'thecauldron.black-windows-emergency.v1'
+            computer = $env:COMPUTERNAME
+            user = $env:USERNAME
+            at = (Get-Date).ToUniversalTime().ToString('o')
+            actionCount = $actions.Count
+            failureCount = $failures.Count
+            actions = @($actions)
+            failures = @($failures)
+            remainingTaskCount = $remainingTasks.Count
+            remainingTasks = $remainingTasks
+            remainingServiceCount = $remainingServices.Count
+            remainingServices = $remainingServices
+            remainingProcessCount = $remainingProcesses.Count
+            remainingProcesses = $remainingProcesses
+          }
+          $receiptRoot = Join-Path $env:ProgramData 'THECAULDRON_BLACK_WINDOWS'
+          New-Item -ItemType Directory -Path $receiptRoot -Force | Out-Null
+          $receiptPath = Join-Path $receiptRoot 'latest.json'
+          $receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
+          $receipt | ConvertTo-Json -Depth 8 -Compress | Write-Host
+
+          if ($remainingTasks.Count -or $remainingServices.Count -or $remainingProcesses.Count) {
+            throw "Black-window cleanup incomplete. Receipt: $receiptPath"
+          }
