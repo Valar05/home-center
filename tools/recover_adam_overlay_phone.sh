@@ -1,6 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+# The operator overlay is retired in the clean-slate phone architecture. Preserve
+# the recovery implementation only behind an explicit archaeology opt-in so no
+# old campaign can silently re-enable SYSTEM_ALERT_WINDOW or restart the service.
+if [ "${HC_ENABLE_LEGACY_OPERATOR_OVERLAY:-0}" != "1" ]; then
+  ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+  if [ -x "$ROOT/tools/decommission_termux_legacy.sh" ]; then
+    exec "$ROOT/tools/decommission_termux_legacy.sh"
+  fi
+  printf 'LEGACY_OPERATOR_OVERLAY_RETIRED set HC_ENABLE_LEGACY_OPERATOR_OVERLAY=1 only for archaeology\n' >&2
+  exit 78
+fi
+
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 PROJECT="$ROOT/android/operator-overlay"
 PACKAGE="com.homecenter.operatoroverlay"
@@ -37,7 +49,7 @@ verify_overlay() {
 }
 
 start_overlay() {
-  rish "appops set $PACKAGE SYSTEM_ALERT_WINDOW allow" >/dev/null
+  rish "pm enable --user 0 $PACKAGE 2>/dev/null || true; appops set $PACKAGE SYSTEM_ALERT_WINDOW allow" >/dev/null
   rish "pm grant $PACKAGE android.permission.POST_NOTIFICATIONS 2>/dev/null || true" >/dev/null || true
   rish "am force-stop $PACKAGE 2>/dev/null || true; am start-foreground-service -n $PACKAGE/.OperatorOverlayService >/dev/null 2>&1 || am start -n $PACKAGE/.MainActivity >/dev/null" >/dev/null
   sleep 2
@@ -67,18 +79,9 @@ INSTALL_OUT="$(rish "pm install -r '$STAGED'" 2>&1)"; INSTALL_RC=$?
 set -e
 printf '%s\n' "$INSTALL_OUT" > "$STATE/adam-overlay-recovery-install.txt"
 if [ $INSTALL_RC -ne 0 ] || ! printf '%s\n' "$INSTALL_OUT" | grep -q 'Success'; then
-  if printf '%s\n' "$INSTALL_OUT" | grep -Eqi 'UPDATE_INCOMPATIBLE|signatures do not match|incompatible'; then
-    # Fail closed. Never uninstall the user's working overlay merely to make a
-    # candidate signer fit. Preserve the installed APK and surface the exact
-    # signer mismatch for a deliberate migration path.
-    rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
-    record 0 signer_mismatch 'Candidate APK signer differs from installed overlay; existing package preserved. Re-sign with the installed key or use an explicitly approved migration.'
-    exit 7
-  else
-    rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
-    record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"
-    exit 8
-  fi
+  rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
+  record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"
+  exit 8
 fi
 start_overlay
 rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
