@@ -1,5 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
+
+# The old Home Center status menu was an always-on Termux notification whose
+# button actions launched login shells. It is retired for the clean-slate phone
+# architecture. Keep the implementation opt-in for archaeology only.
+if [ "${HC_ENABLE_LEGACY_STATUS_MENU:-0}" != "1" ]; then
+  if command -v termux-notification-remove >/dev/null 2>&1; then
+    termux-notification-remove 6410 >/dev/null 2>&1 || true
+  fi
+  exit 0
+fi
+
 ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 CAMPAIGN_STATE="$STATE/fortress-campaign/state.json"
@@ -90,79 +101,20 @@ INTAKE_STATUS="python3 tools/campaign_intake_shera.py status >\"$STATE/campaign-
 INTAKE_CANCEL="python3 tools/campaign_intake_shera.py cancel >\"$STATE/campaign-intake/menu-cancel.log\" 2>&1; $SELF main"
 
 case "$MODE" in
-  main)
-    title='Fortress'
-    content="$campaign_summary — $adam_summary — $intake_summary"
-    b1='New campaign'; a1="$(action "$INTAKE")"
-    b2='Adam'; a2="$(action "$SELF adam")"
-    b3='Recovery'; a3="$(action "$SELF recovery")"
-    ;;
-  status)
-    title='Fortress status'
-    content="$campaign_summary — $adam_summary — $intake_summary — $ssh_summary — $forge_summary — $review_summary"
-    b1='Refresh'; a1="$(action "$SELF status")"
-    b2='Intake'; a2="$(action "$SELF intake")"
-    b3='Back'; a3="$(action "$SELF main")"
-    ;;
-  intake)
-    title='She-Ra campaign intake'
-    content="$intake_summary — she interrogates until the real commission is exposed"
-    b1='Continue'; a1="$(action "$INTAKE")"
-    b2='Status'; a2="$(action "$INTAKE_STATUS")"
-    b3='Cancel'; a3="$(action "$INTAKE_CANCEL")"
-    ;;
-  adam)
-    title='Adam operator'
-    content="$adam_summary"
-    b1='Status'; a1="$(action "$ADAM_STATUS")"
-    b2='STOP'; a2="$(action "$ADAM_STOP")"
-    b3='More'; a3="$(action "$SELF adam-more")"
-    ;;
-  adam-more)
-    title='Adam operator · more'
-    content="$adam_summary"
-    b1='Resume'; a1="$(action "$ADAM_RESUME")"
-    b2='Receipts'; a2="$(action "$ADAM_RECEIPTS")"
-    b3='Back'; a3="$(action "$SELF adam")"
-    ;;
-  forge)
-    title='Home Center forge'
-    content="$forge_summary — always-online free-tier body"
-    b1='Resume forge'; a1="$(action "$FORGE")"
-    b2='Refresh'; a2="$(action "$FORGE_STATUS")"
-    b3='Back'; a3="$(action "$SELF status")"
-    ;;
-  receipts)
-    title='Fortress receipts'
-    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) adam=$([ -f "$STATE/adam-do/last.json" ] && echo yes || echo no) intake=$([ -f "$INTAKE_STATE" ] && echo yes || echo no)"
-    b1='Adam'; a1="$(action "$SELF adam")"
-    b2='Intake'; a2="$(action "$SELF intake")"
-    b3='Back'; a3="$(action "$SELF main")"
-    ;;
-  recovery)
-    title='Fortress recovery'
-    content="Persistent body recovery — $ssh_summary — $forge_summary"
-    b1='SSH repair'; a1="$(action "$SSH")"
-    b2='Forge repair'; a2="$(action "$FORGE")"
-    b3='More'; a3="$(action "$SELF recovery-more")"
-    ;;
-  recovery-more)
-    title='Fortress recovery · more'
-    content='Phone Hands, overlay, and full deterministic repair'
-    b1='Phone Hands'; a1="$(action "$HANDS")"
-    b2='Overlay on'; a2="$(action "$OVERLAY")"
-    b3='Repair all'; a3="$(action "$REPAIR")"
-    ;;
+  main) title='Fortress'; content="$campaign_summary — $adam_summary — $intake_summary"; b1='New campaign'; a1="$(action "$INTAKE")"; b2='Adam'; a2="$(action "$SELF adam")"; b3='Recovery'; a3="$(action "$SELF recovery")" ;;
+  status) title='Fortress status'; content="$campaign_summary — $adam_summary — $intake_summary — $ssh_summary — $forge_summary — $review_summary"; b1='Refresh'; a1="$(action "$SELF status")"; b2='Intake'; a2="$(action "$SELF intake")"; b3='Back'; a3="$(action "$SELF main")" ;;
+  intake) title='She-Ra campaign intake'; content="$intake_summary"; b1='Continue'; a1="$(action "$INTAKE")"; b2='Status'; a2="$(action "$INTAKE_STATUS")"; b3='Cancel'; a3="$(action "$INTAKE_CANCEL")" ;;
+  adam) title='Adam operator'; content="$adam_summary"; b1='Status'; a1="$(action "$ADAM_STATUS")"; b2='STOP'; a2="$(action "$ADAM_STOP")"; b3='More'; a3="$(action "$SELF adam-more")" ;;
+  adam-more) title='Adam operator · more'; content="$adam_summary"; b1='Resume'; a1="$(action "$ADAM_RESUME")"; b2='Receipts'; a2="$(action "$ADAM_RECEIPTS")"; b3='Back'; a3="$(action "$SELF adam")" ;;
+  forge) title='Home Center forge'; content="$forge_summary"; b1='Resume forge'; a1="$(action "$FORGE")"; b2='Refresh'; a2="$(action "$FORGE_STATUS")"; b3='Back'; a3="$(action "$SELF status")" ;;
+  receipts) title='Fortress receipts'; content='legacy menu'; b1='Adam'; a1="$(action "$SELF adam")"; b2='Intake'; a2="$(action "$SELF intake")"; b3='Back'; a3="$(action "$SELF main")" ;;
+  recovery) title='Fortress recovery'; content="$ssh_summary — $forge_summary"; b1='SSH repair'; a1="$(action "$SSH")"; b2='Forge repair'; a2="$(action "$FORGE")"; b3='More'; a3="$(action "$SELF recovery-more")" ;;
+  recovery-more) title='Fortress recovery · more'; content='legacy compatibility'; b1='Phone Hands'; a1="$(action "$HANDS")"; b2='Overlay on'; a2="$(action "$OVERLAY")"; b3='Repair all'; a3="$(action "$REPAIR")" ;;
   *) exec bash "$0" main ;;
 esac
 
 set +e
-termux-notification \
-  --id "$ID" \
-  --title "$title" \
-  --content "$content" \
-  --priority default \
-  --ongoing true \
+termux-notification --id "$ID" --title "$title" --content "$content" --priority default --ongoing true \
   --button1 "$b1" --button1-action "$a1" \
   --button2 "$b2" --button2-action "$a2" \
   --button3 "$b3" --button3-action "$a3" >/dev/null 2>&1
