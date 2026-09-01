@@ -4,16 +4,14 @@ set -euo pipefail
 STATE_ROOT="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 STAMP="$(date '+%Y%m%d-%H%M%S')"
 ARCHIVE_ROOT="/sdcard/Fortress-Graveyard/Termux/legacy-decommission-$STAMP"
+OVERLAY_PACKAGE="com.homecenter.operatoroverlay"
 mkdir -p "$ARCHIVE_ROOT"/{state,boot,receipts}
 
-# Preserve evidence before touching resurrection machinery.
 cp -a "$STATE_ROOT/." "$ARCHIVE_ROOT/state/" 2>/dev/null || true
 cp -a "$HOME/.termux/boot/." "$ARCHIVE_ROOT/boot/" 2>/dev/null || true
 ps -A -o USER,PID,PPID,NAME,ARGS > "$ARCHIVE_ROOT/receipts/processes-before.txt" 2>&1 || true
 command -v termux-job-scheduler >/dev/null 2>&1 && termux-job-scheduler --pending > "$ARCHIVE_ROOT/receipts/jobs-before.txt" 2>&1 || true
 
-# Stop Home Center/Phone Hands legacy user-space supervisors. Keep sshd and
-# fortress-sshd-guardian: SSH is the break-glass maintenance lane.
 for pattern in \
   'phone-hands-watchdog' \
   'fortress_status_relay.py' \
@@ -36,7 +34,6 @@ for pattern in \
   done
 done
 
-# Remove only Home Center-owned Termux:Boot resurrection entries.
 for f in \
   "$HOME/.termux/boot/20-phone-hands-watchdog" \
   "$HOME/.termux/boot/30-home-center" \
@@ -45,20 +42,28 @@ for f in \
   [ -e "$f" ] && rm -f "$f"
 done
 
-# Cancel the known persisted watchdog job. Do not blanket-cancel unrelated jobs.
 if command -v termux-job-scheduler >/dev/null 2>&1; then
   termux-job-scheduler --cancel --job-id 6405 >/dev/null 2>&1 || true
 fi
 
-# Remove Home Center's persistent notifications. Best-effort only.
 if command -v termux-notification-remove >/dev/null 2>&1; then
   for id in 6404 6405 6410; do
     termux-notification-remove "$id" >/dev/null 2>&1 || true
   done
 fi
 
-# The old watchdog leaked a wake lock on every pass. Release it once after all
-# legacy workers have been stopped. sshd does not require Termux's global lock.
+# Disable the Android overlay without uninstalling it. The APK remains on the
+# device for archaeology, but it cannot draw over apps or restart its service.
+RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
+if [ -n "$RISH_BIN" ] && [ -x "$RISH_BIN" ]; then
+  "$RISH_BIN" -c "pm list packages $OVERLAY_PACKAGE; appops get $OVERLAY_PACKAGE SYSTEM_ALERT_WINDOW 2>/dev/null || true" \
+    > "$ARCHIVE_ROOT/receipts/operator-overlay-before.txt" 2>&1 || true
+  "$RISH_BIN" -c "am force-stop $OVERLAY_PACKAGE 2>/dev/null || true; cmd appops set $OVERLAY_PACKAGE SYSTEM_ALERT_WINDOW deny 2>/dev/null || true; pm disable-user --user 0 $OVERLAY_PACKAGE 2>/dev/null || true" \
+    > "$ARCHIVE_ROOT/receipts/operator-overlay-disable.txt" 2>&1 || true
+  "$RISH_BIN" -c "pm list packages -d $OVERLAY_PACKAGE; appops get $OVERLAY_PACKAGE SYSTEM_ALERT_WINDOW 2>/dev/null || true" \
+    > "$ARCHIVE_ROOT/receipts/operator-overlay-after.txt" 2>&1 || true
+fi
+
 command -v termux-wake-unlock >/dev/null 2>&1 && termux-wake-unlock >/dev/null 2>&1 || true
 
 rm -f \
@@ -76,9 +81,10 @@ legacy_watchdog=disabled
 legacy_persisted_job_6405=cancelled
 legacy_notifications=removed
 legacy_global_wakelock=released
+operator_overlay=disabled_if_rish_available
 ssh_guardian=preserved
 sshd=preserved
 result=CLEAN_SLATE_PENDING_OBSERVATION
 EOF
 
-printf 'TERMUX_LEGACY_DECOMMISSIONED archive=%s ssh=preserved\n' "$ARCHIVE_ROOT"
+printf 'TERMUX_LEGACY_DECOMMISSIONED archive=%s ssh=preserved overlay=disabled_if_authorized\n' "$ARCHIVE_ROOT"
