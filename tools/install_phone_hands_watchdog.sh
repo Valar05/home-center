@@ -1,7 +1,21 @@
 #!/data/data/com.termux/files/usr/bin/bash
-set -eu
+set -euo pipefail
 
 REPO_ROOT="${1:-/storage/emulated/0/Documents/GodotProjects/home-center}"
+DECOMMISSION="$REPO_ROOT/tools/decommission_termux_legacy.sh"
+
+# This installer created three overlapping resurrection mechanisms:
+# Termux:Boot, a persisted Termux JobScheduler job, and a permanent loop.
+# That architecture is retired. It may only be restored deliberately for
+# archaeology/testing with an explicit opt-in.
+if [ "${HC_ENABLE_LEGACY_PHONE_HANDS_WATCHDOG:-0}" != "1" ]; then
+  if [ -x "$DECOMMISSION" ]; then
+    exec "$DECOMMISSION"
+  fi
+  printf 'LEGACY_PHONE_HANDS_WATCHDOG_RETIRED set HC_ENABLE_LEGACY_PHONE_HANDS_WATCHDOG=1 only for archaeology\n' >&2
+  exit 78
+fi
+
 SRC="$REPO_ROOT/tools/phone_hands_watchdog.sh"
 BIN="$HOME/bin/phone-hands-watchdog"
 BOOT_DIR="$HOME/.termux/boot"
@@ -15,9 +29,9 @@ mkdir -p "$HOME/bin" "$BOOT_DIR" "$STATE_DIR"
 cp "$SRC" "$BIN"
 chmod 700 "$BIN"
 
+# Archaeology-only compatibility path. No global wake lock is taken here.
 cat > "$BOOT" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
-termux-wake-lock >/dev/null 2>&1 || true
 nohup "$BIN" loop >"$STATE_DIR/phone-hands-watchdog-boot.log" 2>&1 &
 EOF
 chmod 700 "$BOOT"
@@ -39,4 +53,4 @@ if [ "$alive" -eq 0 ]; then
 fi
 
 "$BIN" once >/dev/null 2>&1 || true
-printf 'PHONE_HANDS_WATCHDOG_INSTALLED bin=%s boot=%s job_id=%s loop_already_alive=%s\n' "$BIN" "$BOOT" "$JOB_ID" "$alive"
+printf 'LEGACY_PHONE_HANDS_WATCHDOG_INSTALLED archaeology_only=1 bin=%s boot=%s job_id=%s\n' "$BIN" "$BOOT" "$JOB_ID"
