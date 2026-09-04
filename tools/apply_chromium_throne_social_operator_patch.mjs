@@ -48,6 +48,13 @@ if (!api.includes('browserSocialOperationRunOperation({admin, user, operation, a
 }
 write(apiPath, api);
 
+const homePath = 'functions/home_center_mcp.js';
+let home = read(homePath);
+const previousRevision = "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-09-04.browser-nerve-action-surface-v1';";
+const socialRevision = "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-09-04.chromium-throne-social-operator-v1';";
+if (!home.includes(socialRevision)) home = replaceOnce(home, previousRevision, socialRevision, 'Home Center connector revision');
+write(homePath, home);
+
 const actionPath = 'browser-nerve/windows/browser-action.mjs';
 let action = read(actionPath);
 if (!action.includes('readHref: read.href')) {
@@ -75,4 +82,4 @@ write(skillPath, skill);
 
 if (fs.existsSync(stagingDir)) fs.rmSync(stagingDir, {recursive: true, force: true});
 
-console.log(JSON.stringify({ok: true, patched: [socialModule, 'functions/browser_social_operator.test.js', apiPath, actionPath, skillPath]}));
+console.log(JSON.stringify({ok: true, patched: [socialModule, 'functions/browser_social_operator.test.js', apiPath, homePath, actionPath, skillPath]}));
