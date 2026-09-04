@@ -1,0 +1,201 @@
+name: Recover Chromium Throne Browser Nerve Online v1
+
+on:
+  push:
+    branches:
+      - recovery/chromium-throne-browser-nerve-online-v1
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: recover-chromium-throne-browser-nerve-online-v1
+  cancel-in-progress: true
+
+jobs:
+  start-existing-worker:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact deployed main
+        uses: actions/checkout@v4
+        with:
+          ref: f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef
+          fetch-depth: 1
+      - name: Start existing Browser Nerve process without scheduler
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $expected = 'f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef'
+          if ((git rev-parse HEAD).Trim() -ne $expected) { throw 'Unexpected source commit on THECAULDRON recovery runner.' }
+
+          $root = Join-Path $env:LOCALAPPDATA 'HomeCenter\BrowserNerve'
+          $workerPath = Join-Path $root 'home-center-browser-nerve.ps1'
+          $executorPath = Join-Path $root 'browser-action.mjs'
+          $configPath = Join-Path $root 'config.json'
+          $logPath = Join-Path $root 'worker.log'
+          $progressPath = Join-Path $root 'progress.json'
+          $receiptPath = Join-Path $env:RUNNER_TEMP 'chromium-throne-browser-nerve-recovery.json'
+
+          $missing = @($workerPath, $executorPath, $configPath) | Where-Object { -not (Test-Path -LiteralPath $_ -PathType Leaf) }
+          if ($missing.Count -gt 0) {
+            [ordered]@{
+              ok = $false
+              state = 'INSTALLATION_INCOMPLETE'
+              missing = @($missing | ForEach-Object { Split-Path -Leaf $_ })
+              rootExists = Test-Path -LiteralPath $root -PathType Container
+              mutationPerformed = $false
+              schedulerUsed = $false
+            } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
+            Get-Content -LiteralPath $receiptPath
+            throw 'Existing Browser Nerve installation is incomplete; no alternate architecture was installed.'
+          }
+
+          $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
+          if ([string]::IsNullOrWhiteSpace([string]$config.workerId)) { throw 'Browser Nerve config has no workerId.' }
+          if ([string]::IsNullOrWhiteSpace([string]$config.origin)) { throw 'Browser Nerve config has no origin.' }
+          if (-not (Test-Path -LiteralPath ([string]$config.tokenPath) -PathType Leaf)) { throw 'Browser Nerve DPAPI token file is missing.' }
+
+          $health = Invoke-RestMethod -Method Get -Uri (([string]$config.origin).TrimEnd('/') + '/browser-nerve/v1/health') -TimeoutSec 30
+          if (-not $health.ok -or $health.contractVersion -ne 'home-center.browser-nerve-contract.v1') { throw 'Browser Nerve cloud health contract mismatch.' }
+
+          $existing = @(Get-CimInstance Win32_Process | Where-Object {
+            $_.CommandLine -and $_.CommandLine -like ('*' + [IO.Path]::GetFileName($workerPath) + '*') -and $_.CommandLine -like '*-ConfigPath*'
+          })
+          $started = $false
+          $pid = 0
+          if ($existing.Count -eq 0) {
+            $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
+            $savedTracking = $env:RUNNER_TRACKING_ID
+            Remove-Item Env:RUNNER_TRACKING_ID -ErrorAction SilentlyContinue
+            try {
+              $process = Start-Process -FilePath $powershell -ArgumentList @(
+                '-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden',
+                '-File', ('"' + $workerPath + '"'), '-ConfigPath', ('"' + $configPath + '"')
+              ) -WindowStyle Hidden -PassThru
+              $pid = $process.Id
+              $started = $true
+            } finally {
+              if ($null -ne $savedTracking) { $env:RUNNER_TRACKING_ID = $savedTracking }
+            }
+          } else {
+            $pid = [int]$existing[0].ProcessId
+          }
+
+          $deadline = (Get-Date).AddSeconds(45)
+          $observed = $null
+          do {
+            Start-Sleep -Seconds 3
+            $running = @(Get-CimInstance Win32_Process -Filter ('ProcessId=' + $pid))
+            if ($running.Count -eq 0) { break }
+            if (Test-Path -LiteralPath $progressPath -PathType Leaf) {
+              try { $observed = Get-Content -LiteralPath $progressPath -Raw | ConvertFrom-Json } catch {}
+            }
+            if ($observed -and ([string]$observed.state -in @('idle','polling','leased','running'))) { break }
+          } while ((Get-Date) -lt $deadline)
+
+          $stillRunning = @(Get-CimInstance Win32_Process -Filter ('ProcessId=' + $pid)).Count -gt 0
+          $task = Get-ScheduledTask -TaskName 'HomeCenterBrowserNerve' -ErrorAction SilentlyContinue
+          $receipt = [ordered]@{
+            ok = $stillRunning
+            state = if ($stillRunning) { 'PROCESS_RUNNING' } else { 'PROCESS_EXITED' }
+            workerId = [string]$config.workerId
+            origin = [string]$config.origin
+            processId = $pid
+            processStartedByThisRun = $started
+            processRunning = $stillRunning
+            progressState = if ($observed) { [string]$observed.state } else { '' }
+            progressPhase = if ($observed) { [string]$observed.phase } else { '' }
+            configuredRepository = [string]$config.repository
+            configuredRef = [string]$config.ref
+            cloudContractVersion = [string]$health.contractVersion
+            scheduledTaskPresent = $null -ne $task
+            scheduledTaskState = if ($task) { [string]$task.State } else { '' }
+            schedulerUsed = $false
+            sourceCommit = $expected
+            observedAt = (Get-Date).ToUniversalTime().ToString('o')
+          }
+          $receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
+          Get-Content -LiteralPath $receiptPath
+          if (-not $stillRunning) { throw 'Browser Nerve worker process did not remain running.' }
+      - name: Upload THECAULDRON recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-throne-browser-nerve-thecauldron-recovery
+          path: ${{ runner.temp }}\chromium-throne-browser-nerve-recovery.json
+          if-no-files-found: warn
+
+  verify-cloud-heartbeat:
+    needs: start-existing-worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PROJECT: home-center-dclar
+      OWNER_EMAIL: dclarke1005@gmail.com
+      WORKER_ID: windows-browser-nerve-01
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Firestore client
+        run: npm install --no-save --ignore-scripts firebase-admin@13.5.0
+      - name: Read actual Browser Nerve heartbeat
+        run: |
+          mkdir -p heartbeat-evidence
+          node <<'NODE' | tee heartbeat-evidence/browser-nerve-heartbeat.json
+          const crypto = require('node:crypto');
+          const admin = require('firebase-admin');
+          const hash = (value) => crypto.createHash('sha256').update(String(value || '')).digest('hex');
+          const ownerKey = 'owner_' + hash(process.env.OWNER_EMAIL.toLowerCase()).slice(0, 32);
+          const docId = hash(ownerKey + '\n' + process.env.WORKER_ID);
+          (async () => {
+            admin.initializeApp({projectId: process.env.PROJECT});
+            let row = null;
+            for (let attempt = 1; attempt <= 12; attempt += 1) {
+              const snap = await admin.firestore().collection('browserNerveWorkers').doc(docId).get();
+              row = snap.exists ? (snap.data() || {}) : null;
+              const lastSeenAtMs = Number(row?.lastSeenAtMs || 0);
+              const ageMs = lastSeenAtMs ? Date.now() - lastSeenAtMs : null;
+              if (row && ageMs !== null && ageMs >= 0 && ageMs < 45_000) break;
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+            const lastSeenAtMs = Number(row?.lastSeenAtMs || 0);
+            const ageMs = lastSeenAtMs ? Date.now() - lastSeenAtMs : null;
+            const online = Boolean(row && ageMs !== null && ageMs >= 0 && ageMs < 45_000);
+            const result = {
+              ok: online,
+              workerId: process.env.WORKER_ID,
+              ownerPartition: ownerKey,
+              registered: Boolean(row),
+              state: row?.state || 'not_registered',
+              online,
+              lastSeenAtMs,
+              heartbeatAgeMs: ageMs,
+              updatedAtMs: Number(row?.updatedAtMs || 0),
+              workerVersion: row?.workerVersion || '',
+              machine: row?.machine || null,
+              browser: row?.browser || null,
+              capabilities: Array.isArray(row?.capabilities) ? row.capabilities : [],
+              selectorPolicy: row?.selectorPolicy || '',
+              source: 'production Firestore browserNerveWorkers',
+              mutationPerformed: false,
+              observedAt: new Date().toISOString(),
+            };
+            console.log(JSON.stringify(result, null, 2));
+            if (!online) process.exitCode = 1;
+          })().catch((error) => { console.error(error); process.exit(1); });
+          NODE
+      - name: Upload cloud heartbeat evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-throne-browser-nerve-cloud-heartbeat
+          path: heartbeat-evidence/browser-nerve-heartbeat.json
+          if-no-files-found: warn
