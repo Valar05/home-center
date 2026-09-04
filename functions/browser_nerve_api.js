@@ -1,6 +1,7 @@
 'use strict';
 
 const {createHash, randomBytes} = require('node:crypto');
+const {browserSocialOperationEntries, browserSocialOperationRunOperation} = require('./browser_social_operator');
 
 const API_VERSION = 'home-center.browser-nerve-api.v1';
 const CONTRACT_VERSION = 'home-center.browser-nerve-contract.v1';
@@ -300,11 +301,13 @@ function browserNerveOperationEntries() {
   return {
     'browser_nerve.worker.register': {summary: 'Mint a ten-minute bootstrap code for the dedicated outbound Windows Browser Nerve selector worker.', write: true, requiresRequestId: true, requiredScopes: [], input: {requestId: 'stable id', workerId: 'optional windows-browser-nerve-01'}},
     'browser_nerve.worker.status': {summary: 'Read Browser Nerve worker heartbeat, selector capability, and queued browser work.', write: false, requiresRequestId: false, requiredScopes: [], input: {workerId: 'optional windows-browser-nerve-01'}},
+    ...browserSocialOperationEntries(),
   };
 }
 async function browserNerveOperationRunOperation({admin, user, operation, args = {}}) {
   if (operation === 'browser_nerve.worker.register') return registerWorkerOperation({admin, user, args});
   if (operation === 'browser_nerve.worker.status') return workerStatusOperation({admin, user, args});
+  if (browserSocialOperationEntries()[operation]) return browserSocialOperationRunOperation({admin, user, operation, args, dependencies: {ownerKey, collections: COLLECTIONS, ticketDocId, enqueueBrowserNerveTicket}});
   throw Object.assign(new Error('Unsupported Browser Nerve operation.'), {status: 400});
 }
 

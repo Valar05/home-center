@@ -250,3 +250,20 @@ When Drew says things such as:
 ChatGPT should use the connected Home Center / Command Center browser tools and this skill rather than instructing Drew to manually cross-post, manually check notifications, or paste replies back into ChatGPT.
 
 The operator carries the clipboard. Drew supplies the thought and judgment.
+
+
+## Callable Home Center operations
+
+The implementation surface is the existing Home Center `drive_operation` dispatcher. Do not create another transport.
+
+- `browser_nerve.social.recon`: queue public same-origin semantic reconnaissance.
+- `browser_nerve.social.publish`: queue one explicitly commissioned public post as a finite semantic step plan.
+- `browser_nerve.social.advance`: reconcile the current step, refuse blind mutation retries, and queue the next step.
+- `browser_nerve.social.get`: inspect the durable job, current Browser Nerve ticket, and watch without advancing.
+- `browser_nerve.social.replies`: inspect a previously verified public post and return only newly observed public reply fragments.
+
+A publication workflow must capture the authenticated account before mutation and capture the resulting post plus permalink after mutation. A submit/click receipt alone remains UNKNOWN. Reply workflows cannot type, select, submit, or enter messages, inbox, account, settings, billing, advertising, or payment surfaces.
+
+### Capability state
+
+Repository implementation and deterministic contract tests establish IMPLEMENTED/TESTED only. DEPLOYED requires the Home Center/Browser Nerve deployment receipt. CALLABLE requires a fresh worker heartbeat and successful operation canary. DELIVERED requires a verified public permalink or returned reply briefing. HUMAN-ACCEPTED remains Drew's decision.

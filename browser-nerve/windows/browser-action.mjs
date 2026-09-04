@@ -230,9 +230,9 @@ async function execute(ticket) {
     } else if (action === 'find' || action === 'read') {
       const {handle, resolved} = await locatedHandle(page, target);
       locatorUsed = `${resolved.strategy}:${resolved.selector}`;
-      const read = await handle.evaluate((el) => ({text: (el.innerText || el.textContent || '').trim().slice(0, 8000), value: 'value' in el ? String(el.value || '').slice(0, 8000) : ''}));
+      const read = await handle.evaluate((el) => ({text: (el.innerText || el.textContent || '').trim().slice(0, 8000), value: 'value' in el ? String(el.value || '').slice(0, 8000) : '', href: el.href ? String(el.href).slice(0, 1000) : ''}));
       await handle.dispose();
-      actionResult = action === 'find' ? {found: true, hasText: !!read.text, hasValue: !!read.value} : {readText: read.text, readValue: read.value};
+      actionResult = action === 'find' ? {found: true, hasText: !!read.text, hasValue: !!read.value, hasHref: !!read.href} : {readText: read.text, readValue: read.value, readHref: read.href};
     } else if (action === 'click') {
       const {locator, handle, resolved} = await locatedHandle(page, target);
       locatorUsed = `${resolved.strategy}:${resolved.selector}`;
