@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "fortress.progress-receipt.v1",
+  "commission": "Chromium Throne public social posting and public reply retrieval through Home Center and existing Browser Nerve",
+  "branch": "fortress/chromium-throne-social-operator-v2",
+  "baseMain": "15982b67fc1040d68ecaecbe2f9e07913b4f1283",
+  "baseIncludes": "merged PR 335 hardened Home Center Browser Nerve operation surface",
+  "firstRun": {
+    "runId": 33930879984,
+    "result": "failed_harness_before_contracts",
+    "sourcePatchAppliedTwice": true,
+    "failure": "Manifest generator could not load @google-cloud/storage because the workflow omitted npm ci --prefix functions.",
+    "classification": "test harness dependency setup; not a social operator contract failure"
+  },
+  "correction": {
+    "commit": "eacad39dca9e7bf26fb0075695991bac16fd8506",
+    "change": "Install functions dependencies before manifest generation and contracts"
+  },
+  "capabilityState": {
+    "REQUESTED": true,
+    "IMPLEMENTED_ON_BRANCH": false,
+    "TESTED_ON_CURRENT_MAIN_BASE": false,
+    "DEPLOYED": false,
+    "CALLABLE": false,
+    "DELIVERED": false,
+    "HUMAN_ACCEPTED": false
+  }
+}
