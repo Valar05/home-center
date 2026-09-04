@@ -34,12 +34,16 @@ jobs:
           cache-dependency-path: functions/package-lock.json
       - name: Install Home Center function dependencies
         run: npm ci --prefix functions --ignore-scripts
-      - name: Apply the bounded action-surface patch twice
+      - name: Apply the bounded action surface and hardening twice
         run: |
           node tools/apply_chromium_throne_social_surface_patch.mjs
+          node tools/apply_chromium_throne_social_surface_hardening.mjs
           node tools/apply_chromium_throne_social_surface_patch.mjs
+          node tools/apply_chromium_throne_social_surface_hardening.mjs
       - name: Validate syntax
         run: |
+          node --check tools/apply_chromium_throne_social_surface_patch.mjs
+          node --check tools/apply_chromium_throne_social_surface_hardening.mjs
           node --check functions/browser_nerve_api.js
           node --check functions/browser_nerve_home_center_ops.test.js
           node --check functions/home_center_mcp.js
@@ -55,6 +59,8 @@ jobs:
           grep -q "'browser_nerve.action.enqueue'" functions/browser_nerve_api.js
           grep -q "'browser_nerve.ticket.status'" functions/browser_nerve_api.js
           grep -q "'browser_nerve.ticket.cancel'" functions/browser_nerve_api.js
+          grep -q 'requestFingerprint' functions/browser_nerve_api.js
+          grep -q 'browser_nerve_navigate_url_invalid' functions/browser_nerve_api.js
           grep -q '\.\.\.browserNerveOperationEntries()' functions/home_center_mcp.js
           grep -q 'browserNerveOperationRunOperation' functions/home_center_mcp.js
           ! grep -q "server.registerTool('social" functions/home_center_mcp.js
@@ -66,7 +72,7 @@ jobs:
           if [ -n "$changed" ]; then
             echo "$changed"
             git add functions/browser_nerve_api.js functions/browser_nerve_home_center_ops.test.js functions/home_center_mcp.js contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
-            git commit -m 'Expose bounded Browser Nerve actions through Home Center'
+            git commit -m 'Harden bounded Browser Nerve actions through Home Center'
             git push origin HEAD:feature/chromium-throne-social-surface-v1
           else
             echo 'Candidate already generated and verified.'
