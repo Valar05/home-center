@@ -1,0 +1,100 @@
+name: Deploy Chromium Throne Social Surface v1
+
+on:
+  push:
+    branches:
+      - deploy/chromium-throne-social-surface-v1
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-home-center-mcp
+  cancel-in-progress: true
+
+jobs:
+  deploy-and-canary:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+      EXPECTED_SOURCE_COMMIT: f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef
+      HOME_CENTER_MCP_URL: https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
+      HOME_CENTER_EXPECTED_SOURCE_COMMIT: f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef
+    steps:
+      - name: Check out the exact main release source
+        uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main identity
+        run: |
+          actual=$(git rev-parse HEAD)
+          test "$actual" = "$EXPECTED_SOURCE_COMMIT"
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install Home Center function dependencies
+        run: npm --prefix functions ci
+      - name: Revalidate the bounded Browser Nerve surface
+        run: |
+          node --check functions/browser_nerve_api.js
+          node --check functions/home_center_mcp.js
+          node --check tools/home_center_browser_nerve_production_canary.mjs
+          node --test functions/browser_nerve_api.test.js functions/browser_nerve_home_center_ops.test.js
+          node tools/generate_home_center_public_manifest.mjs --check
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy only Home Center MCP
+        env:
+          GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
+          COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
+          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+      - name: Verify deployed function exists
+        run: gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+      - name: Verify production release, registry, and Browser Nerve worker state
+        env:
+          HOME_CENTER_MCP_BEARER_TOKEN: ${{ secrets.HOME_CENTER_MCP_BEARER_TOKEN }}
+          HOME_CENTER_MCP_REFRESH_TOKEN: ${{ secrets.HOME_CENTER_MCP_REFRESH_TOKEN }}
+        run: |
+          mkdir -p deployment-evidence
+          success=0
+          for attempt in $(seq 1 18); do
+            echo "production canary attempt $attempt"
+            if [ -n "$HOME_CENTER_MCP_REFRESH_TOKEN" ]; then unset HOME_CENTER_MCP_BEARER_TOKEN; fi
+            if node tools/home_center_production_catalog_test.mjs >deployment-evidence/production-catalog.json 2>deployment-evidence/production-catalog.err; then
+              if node tools/home_center_browser_nerve_production_canary.mjs >deployment-evidence/browser-nerve-canary.json 2>deployment-evidence/browser-nerve-canary.err; then
+                success=1
+                break
+              fi
+            fi
+            cat deployment-evidence/production-catalog.err || true
+            cat deployment-evidence/browser-nerve-canary.err || true
+            sleep 10
+          done
+          cat deployment-evidence/production-catalog.json || true
+          cat deployment-evidence/browser-nerve-canary.json || true
+          test "$success" = 1
+          {
+            echo '## Chromium Throne social surface production canary'
+            echo
+            echo '```json'
+            cat deployment-evidence/browser-nerve-canary.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-throne-social-surface-v1-production-evidence
+          path: deployment-evidence
+          if-no-files-found: warn
