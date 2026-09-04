@@ -1,0 +1,93 @@
+name: Diagnose Fortress Worker Heartbeats v1
+
+on:
+  push:
+    branches:
+      - diagnostic/fortress-worker-heartbeats-v1
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  read-production-heartbeats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PROJECT: home-center-dclar
+      OWNER_EMAIL: dclarke1005@gmail.com
+      BROWSER_WORKER_ID: windows-browser-nerve-01
+      HANDS_WORKER_ID: windows-hands-01
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Firestore client
+        run: npm install --no-save --ignore-scripts firebase-admin@13.5.0
+      - name: Read sanitized worker state
+        run: |
+          mkdir -p heartbeat-evidence
+          node <<'NODE' | tee heartbeat-evidence/fortress-worker-heartbeats.json
+          const crypto = require('node:crypto');
+          const admin = require('firebase-admin');
+          const hash = (value) => crypto.createHash('sha256').update(String(value || '')).digest('hex');
+          const ownerKey = 'owner_' + hash(process.env.OWNER_EMAIL.toLowerCase()).slice(0, 32);
+          const docId = (workerId) => hash(ownerKey + '\n' + workerId);
+          const sanitize = (kind, workerId, row) => {
+            const lastSeenAtMs = Number(row?.lastSeenAtMs || 0);
+            const updatedAtMs = Number(row?.updatedAtMs || 0);
+            const state = row?.state || 'not_registered';
+            const freshnessMs = ['running', 'leased'].includes(state) ? 195000 : 30000;
+            const heartbeatAtMs = Math.max(lastSeenAtMs, ['running', 'leased'].includes(state) ? updatedAtMs : 0);
+            const heartbeatAgeMs = heartbeatAtMs ? Date.now() - heartbeatAtMs : null;
+            return {
+              kind,
+              workerId,
+              registered: Boolean(row),
+              state,
+              online: Boolean(row && heartbeatAgeMs !== null && heartbeatAgeMs >= 0 && heartbeatAgeMs < freshnessMs),
+              lastSeenAtMs,
+              updatedAtMs,
+              heartbeatAgeMs,
+              freshnessMs,
+              workerVersion: row?.workerVersion || '',
+              machine: row?.machine || null,
+              browser: row?.browser || null,
+              capabilities: Array.isArray(row?.capabilities) ? row.capabilities : [],
+              selectorPolicy: row?.selectorPolicy || '',
+              fileLayer: row?.fileLayer || '',
+            };
+          };
+          (async () => {
+            admin.initializeApp({projectId: process.env.PROJECT});
+            const db = admin.firestore();
+            const [browserSnap, handsSnap] = await Promise.all([
+              db.collection('browserNerveWorkers').doc(docId(process.env.BROWSER_WORKER_ID)).get(),
+              db.collection('computerHandsWorkers').doc(docId(process.env.HANDS_WORKER_ID)).get(),
+            ]);
+            const result = {
+              ok: true,
+              ownerPartition: ownerKey,
+              source: 'production Firestore worker documents',
+              observedAt: new Date().toISOString(),
+              mutationPerformed: false,
+              workers: {
+                browserNerve: sanitize('browser_nerve', process.env.BROWSER_WORKER_ID, browserSnap.exists ? browserSnap.data() : null),
+                computerHands: sanitize('computer_hands', process.env.HANDS_WORKER_ID, handsSnap.exists ? handsSnap.data() : null),
+              },
+            };
+            console.log(JSON.stringify(result, null, 2));
+          })().catch((error) => { console.error(error); process.exit(1); });
+          NODE
+      - name: Upload heartbeat evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fortress-worker-heartbeats-v1
+          path: heartbeat-evidence/fortress-worker-heartbeats.json
+          if-no-files-found: warn
