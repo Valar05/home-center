@@ -1,0 +1,89 @@
+{
+  "schema": "fortress.runtime-recovery.receipt.v1",
+  "recordedAt": "2026-09-04T23:55:00Z",
+  "owner": "Drew Clarke",
+  "commission": "Fortress online",
+  "requestedExecutionLane": "Fortress Online / Home Center / Chromium Throne / existing Browser Nerve desktop worker",
+  "sourceRepository": "Valar05/home-center",
+  "socialSurfaceMainCommit": "f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef",
+  "cloud": {
+    "homeCenterMcpDeployed": true,
+    "deploymentWorkflowRunId": 33930063222,
+    "deploymentSourceCommit": "f3179ba62ef882ad7c3f8ffcde2399b0cecc29ef",
+    "functionDescribePassed": true,
+    "authenticatedProductionCanaryReachedMcp": false,
+    "canaryBoundary": "The stored GitHub Actions Home Center refresh credential returned HTTP 401 before the MCP request. The deployed function itself completed successfully."
+  },
+  "physicalBodies": {
+    "browserNerve": {
+      "workerId": "windows-browser-nerve-01",
+      "registered": true,
+      "state": "idle",
+      "online": false,
+      "lastSeenAtMs": 1786755249657,
+      "diagnosticWorkflowRunId": 33930832959,
+      "machine": "THECAULDRON",
+      "workerVersion": "1.0.0",
+      "browser": "chrome-cdp"
+    },
+    "computerHands": {
+      "workerId": "windows-hands-01",
+      "registered": true,
+      "state": "idle",
+      "online": false,
+      "lastSeenAtMs": 1786755246782,
+      "diagnosticWorkflowRunId": 33930832959
+    },
+    "primaryPhone": {
+      "deviceId": "primary-phone",
+      "label": "Drew Android Phone",
+      "registered": true,
+      "storedStatus": "online",
+      "freshHeartbeatOnline": false,
+      "lastSeenAtMs": 1786702699477,
+      "diagnosticWorkflowRunId": 33931022763,
+      "capabilitiesInclude": [
+        "phone_hands",
+        "termux_shell",
+        "phone_diagnostics_readonly"
+      ]
+    },
+    "selfHostedRunner": {
+      "target": "THECAULDRON",
+      "online": false,
+      "evidence": "The exact-label Windows recovery job remains queued with no runner assignment.",
+      "recoveryWorkflowRunId": 33930751749
+    }
+  },
+  "recoveryPrepared": {
+    "workflowBranch": "recovery/chromium-throne-browser-nerve-online-v1",
+    "workflowRunId": 33930751749,
+    "schedulerUsed": false,
+    "behaviorWhenRunnerReturns": "Inspect the existing Browser Nerve installation, validate its cloud contract and local token/configuration, start the existing Browser Nerve process directly if absent, and verify a fresh production Firestore heartbeat.",
+    "alternateBrowserStackCreated": false
+  },
+  "wakePathExcavation": {
+    "repositoryWakeOnLanMechanismLocated": false,
+    "repositoryGitHubHostedTailscaleJoinCredentialPathLocated": false,
+    "androidPushWakeMechanismLocated": false,
+    "classification": "No existing remotely callable wake path was located. This is not proof that the hardware lacks Wake-on-LAN support; it is a capability-state boundary for the current Fortress architecture."
+  },
+  "state": {
+    "socialOperatorSkillImplemented": true,
+    "browserActionSurfaceImplemented": true,
+    "browserActionSurfaceTested": true,
+    "browserActionSurfaceMerged": true,
+    "homeCenterMcpDeployed": true,
+    "chromiumThroneDesktopWorkerCallable": false,
+    "fortressCloudOnline": true,
+    "fortressPhysicalBodyOnline": false,
+    "socialPostPublished": false,
+    "repliesRetrieved": false,
+    "humanAccepted": false
+  },
+  "exactRemainingBoundary": {
+    "type": "physical_machine_wake",
+    "action": "Wake or power on THECAULDRON. No shell command, scheduler, architecture substitution, or repeated setup is requested.",
+    "continuation": "The already-queued self-hosted recovery job is prepared to take over if the registered runner starts when THECAULDRON wakes."
+  }
+}
