@@ -36,6 +36,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install Home Center function dependencies
+        run: npm ci --prefix functions
       - name: Apply bounded source patch twice
         run: |
           node tools/apply_chromium_throne_social_operator_patch.mjs
