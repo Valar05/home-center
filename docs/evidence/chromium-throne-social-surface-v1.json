@@ -1,0 +1,137 @@
+{
+  "schema": "fortress.chromium-throne-social-surface.receipt.v1",
+  "recordedAt": "2026-09-04T23:32:00Z",
+  "owner": "Drew Clarke",
+  "commission": "Expose the existing Home Center Browser Nerve queue through the Chromium Throne social operator lane so approved social posts can be published, verified, watched, and returned with replies without making Drew the clipboard.",
+  "repository": "Valar05/home-center",
+  "baseCommit": "b62f1894f9ff60cb8636c9b57565def192dae667",
+  "candidateImplementationHead": "2a2f78a7cc0e84436c36934cc664ac2fac44088f",
+  "branch": "feature/chromium-throne-social-surface-v1",
+  "pullRequest": 335,
+  "requestedLane": "Fortress Online / Home Center / Chromium Throne / existing Browser Nerve desktop worker",
+  "implementedOperations": [
+    "browser_nerve.worker.register",
+    "browser_nerve.worker.status",
+    "browser_nerve.session.create",
+    "browser_nerve.session.status",
+    "browser_nerve.action.enqueue",
+    "browser_nerve.ticket.status",
+    "browser_nerve.ticket.cancel"
+  ],
+  "existingActionVocabularyPreserved": [
+    "navigate",
+    "observe",
+    "find",
+    "read",
+    "click",
+    "type",
+    "select",
+    "submit",
+    "scroll",
+    "wait_for"
+  ],
+  "hardening": [
+    "Owner-scoped sessions and tickets",
+    "Deterministic session and action identifiers from stable request identifiers",
+    "Full action fingerprint covers session, action, worker, target, typed value, and reason",
+    "A reused request identifier with a changed draft or target fails with an idempotency conflict",
+    "Ticket status and session readback do not return typed input values",
+    "Initial and navigate URLs are restricted to absolute HTTP(S)",
+    "Queued tickets can be cancelled; active work receives a cancellation request",
+    "No second browser automation stack or platform-specific social bot was added"
+  ],
+  "remoteEvidence": [
+    {
+      "kind": "github-actions",
+      "runId": 33929407627,
+      "conclusion": "success",
+      "proved": [
+        "base patch applies twice",
+        "JavaScript syntax",
+        "Browser Nerve contracts",
+        "Home Center public manifest generation and check",
+        "bounded integration guards"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929618384,
+      "conclusion": "success",
+      "proved": [
+        "base patch and hardening apply twice",
+        "full-payload idempotency hardening",
+        "HTTP(S)-only browser navigation boundary",
+        "Firestore lifecycle contract"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929793010,
+      "conclusion": "success",
+      "proved": [
+        "production canary source parses",
+        "hardened operation surface remains deterministic",
+        "manifest remains current"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929467095,
+      "conclusion": "success",
+      "proved": [
+        "adjacent Android debug build remains green on the candidate"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929467161,
+      "conclusion": "success",
+      "proved": [
+        "Venice Nerve source contract remains green"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929467088,
+      "conclusion": "success",
+      "proved": [
+        "Venice Nerve manifest contract remains green"
+      ]
+    },
+    {
+      "kind": "github-actions",
+      "runId": 33929467316,
+      "conclusion": "success",
+      "proved": [
+        "Cauldron voice contract remains green"
+      ]
+    }
+  ],
+  "knownBaselineFailure": {
+    "check": "Home Center CI / worker profile contract",
+    "message": "AGENTS.md must name CI as the enforcement authority",
+    "candidateRunId": 33929467150,
+    "mainBaselineRunId": 33928370656,
+    "classification": "pre-existing on the exact base commit; not introduced or repaired by this bounded commission"
+  },
+  "state": {
+    "requested": true,
+    "implementedOnCandidateBranch": true,
+    "targetedRemoteTestsPassed": true,
+    "adjacentRemoteChecksPassed": true,
+    "mergedToMain": false,
+    "deployed": false,
+    "productionRegistryVerified": false,
+    "browserWorkerOnline": "UNKNOWN",
+    "socialPostPublished": false,
+    "repliesRetrieved": false,
+    "humanAccepted": false
+  },
+  "nextRequiredEvidence": [
+    "Merge the tested candidate to main",
+    "Deploy homeCenterMcp from the exact immutable main commit",
+    "Run the authenticated production Browser Nerve canary against that deployed commit",
+    "Read the actual Browser Nerve worker status",
+    "Do not publish until Drew supplies or approves the exact platform, account, and post content"
+  ]
+}
