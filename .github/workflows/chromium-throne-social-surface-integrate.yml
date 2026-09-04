@@ -1,0 +1,73 @@
+name: Chromium Throne Social Surface Integration
+
+on:
+  push:
+    branches:
+      - feature/chromium-throne-social-surface-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chromium-throne-social-surface-v1
+  cancel-in-progress: true
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feature/chromium-throne-social-surface-v1
+      - name: Merge current main into candidate
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install Home Center function dependencies
+        run: npm ci --prefix functions --ignore-scripts
+      - name: Apply the bounded action-surface patch twice
+        run: |
+          node tools/apply_chromium_throne_social_surface_patch.mjs
+          node tools/apply_chromium_throne_social_surface_patch.mjs
+      - name: Validate syntax
+        run: |
+          node --check functions/browser_nerve_api.js
+          node --check functions/browser_nerve_home_center_ops.test.js
+          node --check functions/home_center_mcp.js
+      - name: Run Browser Nerve contracts
+        run: node --test functions/browser_nerve_api.test.js functions/browser_nerve_home_center_ops.test.js
+      - name: Regenerate and verify the public MCP manifest
+        run: |
+          node tools/generate_home_center_public_manifest.mjs
+          node tools/generate_home_center_public_manifest.mjs --check
+      - name: Enforce bounded integration
+        run: |
+          grep -q "'browser_nerve.session.create'" functions/browser_nerve_api.js
+          grep -q "'browser_nerve.action.enqueue'" functions/browser_nerve_api.js
+          grep -q "'browser_nerve.ticket.status'" functions/browser_nerve_api.js
+          grep -q "'browser_nerve.ticket.cancel'" functions/browser_nerve_api.js
+          grep -q '\.\.\.browserNerveOperationEntries()' functions/home_center_mcp.js
+          grep -q 'browserNerveOperationRunOperation' functions/home_center_mcp.js
+          ! grep -q "server.registerTool('social" functions/home_center_mcp.js
+          ! grep -q "SUPPORTED_ACTIONS.*follow\|SUPPORTED_ACTIONS.*message\|SUPPORTED_ACTIONS.*purchase" functions/browser_nerve_api.js
+          git diff --check
+      - name: Commit generated candidate if needed
+        run: |
+          changed=$(git status --porcelain -- functions/browser_nerve_api.js functions/browser_nerve_home_center_ops.test.js functions/home_center_mcp.js contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json)
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            git add functions/browser_nerve_api.js functions/browser_nerve_home_center_ops.test.js functions/home_center_mcp.js contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
+            git commit -m 'Expose bounded Browser Nerve actions through Home Center'
+            git push origin HEAD:feature/chromium-throne-social-surface-v1
+          else
+            echo 'Candidate already generated and verified.'
+          fi
