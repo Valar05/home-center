@@ -44,6 +44,7 @@ jobs:
         run: |
           node --check tools/apply_chromium_throne_social_surface_patch.mjs
           node --check tools/apply_chromium_throne_social_surface_hardening.mjs
+          node --check tools/home_center_browser_nerve_production_canary.mjs
           node --check functions/browser_nerve_api.js
           node --check functions/browser_nerve_home_center_ops.test.js
           node --check functions/home_center_mcp.js
@@ -63,6 +64,7 @@ jobs:
           grep -q 'browser_nerve_navigate_url_invalid' functions/browser_nerve_api.js
           grep -q '\.\.\.browserNerveOperationEntries()' functions/home_center_mcp.js
           grep -q 'browserNerveOperationRunOperation' functions/home_center_mcp.js
+          grep -q 'browser_nerve.worker.status' tools/home_center_browser_nerve_production_canary.mjs
           ! grep -q "server.registerTool('social" functions/home_center_mcp.js
           ! grep -q "SUPPORTED_ACTIONS.*follow\|SUPPORTED_ACTIONS.*message\|SUPPORTED_ACTIONS.*purchase" functions/browser_nerve_api.js
           git diff --check
