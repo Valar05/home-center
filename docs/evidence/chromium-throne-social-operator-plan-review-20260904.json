@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "fortress.plan-review.v1",
+  "commission": {
+    "owner": "Drew Clarke",
+    "outcome": "Make Home Center able to publish an explicitly commissioned public social post through Chromium Throne's existing Browser Nerve lane and later retrieve, deduplicate, and return public replies without making Drew operate the social site.",
+    "executionLane": "Home Center MCP -> Command Center social operator -> Browser Nerve -> persistent authenticated desktop Chromium profile",
+    "forbiddenSubstitutions": [
+      "Phone Hands as the normal browser actuator",
+      "a second browser automation stack",
+      "a third-party social scheduling service",
+      "manual clipboard or screenshot work by Drew",
+      "private-message access inferred from public-post authority"
+    ],
+    "evidenceStandard": "Repository changes and deterministic tests prove implementation only; a fresh Browser Nerve worker/status receipt and a verified public post plus later reply readback are required for callable/delivered acceptance.",
+    "deliverySurface": "Home Center callable operations exposed to ChatGPT; public post and reply briefing returned in ChatGPT."
+  },
+  "research": {
+    "baseCommit": "b62f1894f9ff60cb8636c9b57565def192dae667",
+    "existingFacts": [
+      "Home Center already exposes command_center_operation as a bridge.",
+      "Command Center already persists browser sessions and queues Browser Nerve tickets.",
+      "Browser Nerve already executes semantic navigate, observe, find, read, click, type, select, submit, scroll, and wait_for actions in a persistent Chrome profile.",
+      "The missing capability is a bounded durable social job/watch state machine and a multi-step semantic execution packet; the prior skill file was doctrine only."
+    ]
+  },
+  "boundedPlan": [
+    "Add a bounded Browser Nerve workflow action composed only of the existing semantic primitives, with same-origin enforcement, finite step count, per-step evidence, and fail-closed assertions.",
+    "Add durable social post/watch records and Command Center operations for reconnaissance, publish request, job status/reconciliation, reply request, and reply status/deduplication.",
+    "Expose those operations through the existing Home Center command_center_operation bridge rather than creating another transport.",
+    "Add deterministic contract tests for authority boundaries, idempotency, workflow limits, and capability-state claims.",
+    "Do not claim deployment, worker callability, publication, reply retrieval, or human acceptance without runtime receipts."
+  ],
+  "selectedJudgmentJars": [
+    {"jar": "Mission Boundary", "reason": "Preserve Chromium Throne/Home Center/Browser Nerve lane and public-post scope."},
+    {"jar": "Repository Truth", "reason": "Separate existing implementation, proposed integration, deployment, and acceptance."},
+    {"jar": "Change Discipline", "reason": "Keep the edit bounded and regression-test the actual gap."},
+    {"jar": "Failure Recovery", "reason": "Reconcile ambiguous submit outcomes before retrying and prevent duplicate posts."},
+    {"jar": "Originality Tax", "reason": "Do not repeat the failed doctrine-only response or connector-status narration."},
+    {"jar": "Noodle Queen", "reason": "The user-facing post and returned replies, not architecture, are the eventual product."}
+  ],
+  "antagonism": [
+    "A generic unrestricted browser macro would enlarge authority and become a new remote-control surface; therefore workflows are finite, same-origin, semantic, and primitive-allowlisted.",
+    "A successful submit click is not publication; reconciliation must inspect the external page and retain a permalink or explicit unknown state.",
+    "Polling forever would create an invisible daemon; reply checks remain explicitly commissioned or separately authorized.",
+    "DOM selectors age; reconnaissance and recorded playbooks are evidence, not eternal truth.",
+    "Public posting authority must not expose DMs, contacts, drafts, payment, or account settings.",
+    "Adding source without deployment/runtime proof must remain IMPLEMENTED, not CALLABLE or DELIVERED."
+  ],
+  "venicePlanReview": {
+    "reviewerMode": "same-worker separate Judgment-Jar pass",
+    "directive": "PLAN_ALLOWED",
+    "constraints": [
+      "Use the existing Command Center and Browser Nerve bodies.",
+      "No autonomous content generation beyond the commissioned thought.",
+      "No private inbox scope.",
+      "No duplicate submit after unknown transport outcome.",
+      "Stop claims at the exact evidenced capability state."
+    ]
+  }
+}
