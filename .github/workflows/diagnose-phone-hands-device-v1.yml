@@ -1,0 +1,44 @@
+name: Diagnose Phone Hands Device v1
+
+on:
+  push:
+    branches:
+      - diagnostic/fortress-worker-heartbeats-v1
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  read-phone-device-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PROJECT: home-center-dclar
+      OWNER_EMAIL: dclarke1005@gmail.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: diagnostic/fortress-worker-heartbeats-v1
+          fetch-depth: 1
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Firestore client
+        run: npm install --no-save --ignore-scripts firebase-admin@13.5.0
+      - name: Read sanitized Phone Hands device state
+        run: |
+          mkdir -p phone-evidence
+          node tools/diagnose_phone_hands_device_state.mjs | tee phone-evidence/phone-hands-devices.json
+      - name: Upload phone evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-hands-device-state-v1
+          path: phone-evidence/phone-hands-devices.json
+          if-no-files-found: warn
