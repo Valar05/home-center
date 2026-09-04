@@ -190,19 +190,21 @@ async function enqueueBrowserNerveTicket({admin, caller = {}, args = {}, nowMs =
   const target = safeObject(args.target);
   const value = args.value == null ? '' : String(args.value).slice(0, 12000);
   const reason = safeText(args.reason, 2000);
+  const requestFingerprint = hash(JSON.stringify({sessionId, actionId, action, workerId, target, value, reason}));
   const ref = admin.firestore().collection(COLLECTIONS.tickets).doc(ticketDocId(owner, ticketId));
   let idempotent = false;
   await admin.firestore().runTransaction(async (tx) => {
     const existing = await tx.get(ref);
     if (existing.exists) {
       const old = existing.data() || {};
-      if (old.actionId !== actionId || old.sessionId !== sessionId || old.action !== action) throw Object.assign(new Error('Browser Nerve ticket idempotency conflict.'), {status: 409});
+      const oldFingerprint = safeText(old.requestFingerprint, 128) || hash(JSON.stringify({sessionId: old.sessionId, actionId: old.actionId, action: old.action, workerId: old.workerId, target: safeObject(old.target), value: old.value == null ? '' : String(old.value), reason: safeText(old.reason, 2000)}));
+      if (oldFingerprint !== requestFingerprint) throw Object.assign(new Error('Browser Nerve ticket idempotency conflict.'), {status: 409, failureKind: 'browser_nerve_ticket_idempotency_conflict'});
       idempotent = true;
       return;
     }
     tx.create(ref, {
       apiVersion: API_VERSION, contractVersion: CONTRACT_VERSION, ticketId, actionId, sessionId, ownerKey: owner, ownerEmail,
-      workerId, action, target, value, reason, status: 'queued', cancelRequested: false,
+      workerId, action, target, value, reason, requestFingerprint, status: 'queued', cancelRequested: false,
       progress: {phase: 'queued', message: action, updatedAtMs: nowMs}, lease: null, result: null,
       createdAtMs: nowMs, updatedAtMs: nowMs,
     });
@@ -266,7 +268,9 @@ async function createBrowserSessionOperation({admin, user, args = {}, nowMs = Da
   const intent = safeText(args.intent, 2000);
   if (!intent) throw Object.assign(new Error('Browser Nerve session intent is required.'), {status: 400, failureKind: 'browser_nerve_intent_required'});
   const startUrl = safeText(args.startUrl, 1000);
-  if (startUrl && !safeOrigin(startUrl)) throw Object.assign(new Error('Browser Nerve startUrl must be an absolute URL.'), {status: 400, failureKind: 'browser_nerve_start_url_invalid'});
+  let parsedStartUrl = null;
+  try { if (startUrl) parsedStartUrl = new URL(startUrl); } catch {}
+  if (startUrl && (!parsedStartUrl || !['http:', 'https:'].includes(parsedStartUrl.protocol))) throw Object.assign(new Error('Browser Nerve startUrl must be an absolute HTTP(S) URL.'), {status: 400, failureKind: 'browser_nerve_start_url_invalid'});
   const workerId = safeId(args.workerId || 'windows-browser-nerve-01', 'workerId');
   const ref = admin.firestore().collection(COLLECTIONS.sessions).doc(sessionId);
   let idempotent = false;
@@ -333,6 +337,12 @@ async function enqueueBrowserActionOperation({admin, user, args = {}, nowMs = Da
   const actionId = args.actionId ? safeId(args.actionId, 'actionId') : browserActionId(owned.owner, requestId);
   const workerId = safeId(args.workerId || owned.row.workerId || safeObject(owned.row.surface).workerId || 'windows-browser-nerve-01', 'workerId');
   const target = safeObject(args.target);
+  if (action === 'navigate') {
+    const navigateUrl = safeText(target.url, 1000);
+    let parsedNavigateUrl = null;
+    try { if (navigateUrl) parsedNavigateUrl = new URL(navigateUrl); } catch {}
+    if (!parsedNavigateUrl || !['http:', 'https:'].includes(parsedNavigateUrl.protocol)) throw Object.assign(new Error('Browser Nerve navigate target.url must be an absolute HTTP(S) URL.'), {status: 400, failureKind: 'browser_nerve_navigate_url_invalid'});
+  }
   const reason = safeText(args.reason, 2000) || safeText(owned.row.intent, 2000);
   const execution = await enqueueBrowserNerveTicket({
     admin,
