@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "fortress.completion-review.v1",
+  "commission": {
+    "owner": "Drew Clarke",
+    "outcome": "Home Center can orchestrate explicitly commissioned public social posting through Chromium Throne's existing Browser Nerve lane and later retrieve and deduplicate public replies without making Drew operate the social site.",
+    "executionLane": "Home Center MCP -> browser_nerve.social.* -> Browser Nerve -> persistent authenticated desktop Chromium profile",
+    "deliverySurface": "Home Center operations callable from ChatGPT; verified public permalink and reply briefing returned to Drew"
+  },
+  "implementation": {
+    "branch": "fortress/chromium-throne-social-operator-v1",
+    "implementationCommit": "7e0c5ff1f3feb47071b41bd34136fb9fba84368f",
+    "planReceipt": "docs/evidence/chromium-throne-social-operator-plan-review-20260904.json",
+    "changedCapabilities": [
+      "browser_nerve.social.recon",
+      "browser_nerve.social.publish",
+      "browser_nerve.social.replies",
+      "browser_nerve.social.advance",
+      "browser_nerve.social.get"
+    ],
+    "durableState": ["browserSocialJobs", "browserSocialWatches"],
+    "existingActuatorPreserved": "Browser Nerve semantic actions; no second browser automation stack"
+  },
+  "remoteEvidence": {
+    "provider": "GitHub Actions",
+    "workflowRunId": 33930617254,
+    "jobId": 101208280038,
+    "result": "success",
+    "staticChecks": "passed",
+    "tests": {"passed": 11, "failed": 0},
+    "contractResult": {"ok": true, "contract": "chromium-throne-social-operator-v1"}
+  },
+  "enforcedBoundaries": [
+    "public HTTPS origins only",
+    "private IPs and localhost rejected",
+    "messages, inbox, DM, settings, account, admin, billing, payment, and advertising paths rejected",
+    "semantic selectors only; coordinate targeting rejected",
+    "recon and reply retrieval are read-only",
+    "publish types only the exact commissioned content",
+    "account identity is captured before the sole publish mutation",
+    "post text and permalink are captured after mutation",
+    "ambiguous failure after the publish mutation becomes UNKNOWN and cannot blind-retry",
+    "reply fragments are bounded and deduplicated by stable hash"
+  ],
+  "capabilityState": {
+    "REQUESTED": true,
+    "IMPLEMENTED": {"state": true, "surface": "feature branch"},
+    "TESTED": {"state": true, "surface": "remote GitHub Actions", "runId": 33930617254},
+    "DEPLOYED": {"state": false, "reason": "No Home Center or Browser Nerve deployment receipt has been produced for this branch."},
+    "CALLABLE": {"state": false, "reason": "No fresh Home Center operation readback or Browser Nerve worker heartbeat has exercised the new operations."},
+    "DELIVERED": {"state": false, "reason": "No commissioned public post or reply briefing has been produced."},
+    "HUMAN_ACCEPTED": {"state": false, "reason": "Drew has not yet accepted a live end-to-end canary."}
+  },
+  "completionReview": {
+    "directive": "STOP_ALLOWED_FOR_REPOSITORY_IMPLEMENTATION_SLICE_ONLY",
+    "remainingOpen": [
+      "merge reviewed implementation to main",
+      "deploy through the existing authorized Home Center and Browser Nerve deployment lanes",
+      "read back the operation registry and worker health",
+      "run one explicitly commissioned public-post canary",
+      "retrieve public replies in a later commissioned check",
+      "obtain Drew's human acceptance"
+    ]
+  }
+}
