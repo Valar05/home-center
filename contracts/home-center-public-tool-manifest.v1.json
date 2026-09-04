@@ -7484,8 +7484,8 @@
       }
     }
   ],
-  "manifestSha256": "213f9ee91e739f38545b7abacbb8d9257b136c6000370784697a5c47f243b5e0",
-  "registryRevision": "2026-08-03.voice-tiers-host-file-v1",
+  "manifestSha256": "3a4036820a5deecc02347884616036876b3652f4353c72d15f1135fd555ea421",
+  "registryRevision": "2026-09-04.browser-nerve-action-surface-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 62
 }
