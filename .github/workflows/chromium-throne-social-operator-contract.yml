@@ -1,0 +1,60 @@
+name: Chromium Throne social operator contract
+
+on:
+  push:
+    branches:
+      - fortress/chromium-throne-social-operator-v1
+  pull_request:
+    paths:
+      - 'functions/browser_social_operator.js'
+      - 'functions/browser_social_operator.test.js'
+      - 'functions/browser_nerve_api.js'
+      - 'browser-nerve/windows/browser-action.mjs'
+      - 'skills/chromium-throne-social-operator/SKILL.md'
+      - 'tools/apply_chromium_throne_social_operator_patch.mjs'
+      - 'tools/chromium_throne_social_operator_contract_test.mjs'
+      - '.github/workflows/chromium-throne-social-operator-contract.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chromium-throne-social-operator-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply bounded source patch
+        run: node tools/apply_chromium_throne_social_operator_patch.mjs
+      - name: Static checks
+        run: |
+          node --check functions/browser_social_operator.js
+          node --check functions/browser_nerve_api.js
+          node --check browser-nerve/windows/browser-action.mjs
+          node --check tools/chromium_throne_social_operator_contract_test.mjs
+          git diff --check
+      - name: Contract tests
+        run: |
+          node --test functions/browser_social_operator.test.js functions/browser_nerve_api.test.js
+          node tools/chromium_throne_social_operator_contract_test.mjs
+      - name: Commit generated bounded patch to implementation branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        run: |
+          if git diff --quiet; then
+            echo 'Source already patched.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Wire Chromium Throne social operator into Browser Nerve'
+          git push origin HEAD:${{ github.ref_name }}
