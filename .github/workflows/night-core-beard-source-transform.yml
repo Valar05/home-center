@@ -1,0 +1,64 @@
+name: Night Core Beard Source Transform
+
+on:
+  push:
+    branches:
+      - fortress/night-core-beard
+
+permissions:
+  contents: write
+
+jobs:
+  transform-and-contracts:
+    if: ${{ !contains(github.event.head_commit.message, 'receipt Beard transform and source contracts') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Execute deterministic Beard transform and source contracts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PRE='a936d6221297b56e47c90c3d46fd56c513c698cc'
+          TRANSFORM_COMMIT='af32f80e7f5bf0952b45d38a3d22ebbe609409ab'
+          SERVICE='android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java'
+          git merge-base --is-ancestor "$TRANSFORM_COMMIT" HEAD
+          CURRENT="$(mktemp)"
+          cp "$SERVICE" "$CURRENT"
+          git show "$PRE:$SERVICE" > "$SERVICE"
+          python3 tools/port_android_beard_ui.py "$SERVICE"
+          cmp -s "$SERVICE" "$CURRENT" || { echo 'BEARD_PORT_BLOCKED transformed output differs from reviewed branch service'; exit 31; }
+          git diff --exit-code -- "$SERVICE"
+          python3 tools/test_adam_overlay_contract.py
+          python3 tools/test_night_core_contract.py
+          python3 tools/test_adam_auto_router_contract.py
+          SERVICE_SHA="$(sha256sum "$SERVICE" | awk '{print $1}')"
+          STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+          RECEIPT="receipts/fortress/${STAMP}-night-core-beard-source-transform.json"
+          mkdir -p receipts/fortress
+          cat > "$RECEIPT" <<EOF
+          {
+            "schema": "fortress.night-core-beard.source-transform.v1",
+            "status": "PASS",
+            "preTransformCommit": "$PRE",
+            "transformCommit": "$TRANSFORM_COMMIT",
+            "reviewedHead": "${GITHUB_SHA}",
+            "transform": "tools/port_android_beard_ui.py",
+            "service": "$SERVICE",
+            "serviceSha256": "$SERVICE_SHA",
+            "exactMatchToReviewedService": true,
+            "tests": [
+              "tools/test_adam_overlay_contract.py",
+              "tools/test_night_core_contract.py",
+              "tools/test_adam_auto_router_contract.py"
+            ],
+            "executionLane": "github-actions"
+          }
+          EOF
+          git config user.name 'Fortress Source Executor'
+          git config user.email 'fortress-source@users.noreply.github.com'
+          git add "$RECEIPT"
+          git commit -m 'test(phone): receipt Beard transform and source contracts'
+          git push origin HEAD:fortress/night-core-beard

@@ -1,0 +1,55 @@
+{
+  "schema": "fortress.beard-transform.boundary.v1",
+  "status": "BLOCKED_UNEXECUTED",
+  "accepted": false,
+  "branch": "fortress/night-core-beard",
+  "pullRequest": 318,
+  "transform": {
+    "path": "tools/port_android_beard_ui.py",
+    "knownCommit": "af32f80e7f5bf0952b45d38a3d22ebbe609409ab",
+    "servicePath": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+    "serviceBlobBefore": "83995345bd736728d022d5f7eb69d8eb947c82a2"
+  },
+  "contractLock": {
+    "commit": "a6616674eb21a327e5988e9d54d6f2ec2160fc3b",
+    "path": "tools/test_adam_overlay_contract.py",
+    "asserts": [
+      "adamMode = auto",
+      "Talk to Adam input",
+      "Ask button",
+      "Restart/Night/Chrome/Canary quick buttons",
+      "no visible adamModeRow",
+      "no visible spotifyRow",
+      "touchGuard preserved",
+      "syncTouchGuard preserved",
+      "OverlayUiPolicy.touchGuardActive preserved",
+      "FLAG_NOT_TOUCH_MODAL preserved",
+      "Chromium v2 assertions preserved",
+      "signer-preserving recovery preserved"
+    ]
+  },
+  "repoExecutionAttempt": {
+    "temporaryHarnessCommit": "6f2afadb2673dd57edfedc58ef084c88403df0b6",
+    "workflowRunId": 31773799585,
+    "workflowName": "Fortress Beard source transform (one-shot)",
+    "jobId": 94684946493,
+    "result": "failure",
+    "executedSteps": 0,
+    "classification": "infrastructure execution unavailable; transform and tests did not run",
+    "temporaryHarnessRemovedBy": "408e441556cd974135a9de6c91a8c14b3f4ef13a"
+  },
+  "currentSourceTruth": {
+    "serviceTransformed": false,
+    "sourceContractsPassing": false,
+    "reason": "contract now intentionally requires the generated Beard service, but no authorized execution lane actually ran the transform",
+    "physicalPhoneAccepted": false
+  },
+  "nextExactAction": "When an authorized repo execution lane is callable, run python3 tools/port_android_beard_ui.py on this branch, then python3 tools/test_adam_overlay_contract.py && python3 tools/test_night_core_contract.py && python3 tools/test_adam_auto_router_contract.py, commit the generated OperatorOverlayService.java to this same branch, then proceed to primary-phone sync/build/install/physical receipts only after ingress queue recovery.",
+  "forbiddenSubstitutions": [
+    "do not hand-edit the service",
+    "do not create a second UI",
+    "do not delete dormant Spotify/mode plumbing merely for cleanliness",
+    "do not treat repository state as physical acceptance",
+    "do not ask Drew to ferry commands"
+  ]
+}

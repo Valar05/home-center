@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 service = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java").read_text(encoding="utf-8")
 state = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java").read_text(encoding="utf-8")
+receiver = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OverlayUpdateReceiver.java").read_text(encoding="utf-8")
 provider = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorStateProvider.java").read_text(encoding="utf-8")
 daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
@@ -11,8 +12,14 @@ core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
+chromium = (ROOT / "tools/android_chromium_control.py").read_text(encoding="utf-8")
 recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
+relay_recovery = (ROOT / "tools/home_center_phone_relay_recover.sh").read_text(encoding="utf-8")
+relay = (ROOT / "tools/android_phone_home_center_relay.py").read_text(encoding="utf-8")
+overlay_helper = (ROOT / "tools/android_operator_overlay.py").read_text(encoding="utf-8")
 
+# Dormant explicit-mode plumbing is deliberately preserved for minimum-risk surgery,
+# but the visible Beard surface is one natural-language input with AUTO routing.
 for token in [
     'adamModeButton("TERM", "terminal"',
     'adamModeButton("CHAT", "chat"',
@@ -23,31 +30,163 @@ for token in [
     'Latest Home Center or Adam message',
     'FLAG_NOT_TOUCH_MODAL',
 ]:
-    assert token in service, f"overlay missing {token}"
+    assert token in service, f"overlay missing preserved contract {token}"
+for token in [
+    'private String adamMode = "auto";',
+    'adamInput.setHint("Talk to Adam…");',
+    'Button adamSendButton = button("Ask");',
+    'quickRequestButton("Restart", "restart"',
+    'quickRequestButton("Night", "night"',
+    'quickRequestButton("Chrome", "chrome"',
+    'quickRequestButton("Canary", "canary"',
+    'OperatorState.submitAdamRequest(this, "auto", request, System.currentTimeMillis())',
+    'private View touchGuard;',
+    'private void syncTouchGuard(boolean active)',
+    'OverlayUiPolicy.touchGuardActive(',
+    'FLAG_NOT_TOUCH_MODAL',
+]:
+    assert token in service, f"one-input Beard overlay missing {token}"
+for forbidden in [
+    'details.addView(adamModeRow);',
+    'root.addView(spotifyRow);',
+]:
+    assert forbidden not in service, f"one-input Beard overlay still exposes {forbidden}"
+
+# The main/compact control is sovereign HC recovery while control is enabled but
+# the relay-derived heartbeat is stale. Recovery request feedback must never mint
+# its own heartbeat; a genuine online state keeps the Disable/STOP semantics.
+for token in [
+    'private static final long RECOVERY_FEEDBACK_MS = 8000L;',
+    'private long homeCenterRecoveryRequestedAtMs;',
+    'compactControlButton.setOnClickListener(v -> handleMainControlButton(v));',
+    'controlButton.setOnClickListener(v -> handleMainControlButton(v));',
+    'private boolean homeCenterOnline(long now)',
+    'private void handleMainControlButton(View source)',
+    'enabled && !homeCenterOnline(now)',
+    'OperatorState.submitAdamRequest(this, "auto", "restart hc", now);',
+    'Home Center recovery requested; waiting for fresh heartbeat.',
+    'Still offline until a fresh heartbeat arrives.',
+    'fullControlLabel = "TURN HC ON";',
+    'compactControlLabel = "RESTART HC";',
+    'fullControlLabel = "Recovery requested";',
+    'compactControlLabel = "REQUESTED";',
+    'fullControlLabel = "Disable control";',
+    'compactControlLabel = "STOP";',
+    'Request Home Center recovery. Home Center remains offline until a fresh heartbeat arrives.',
+]:
+    assert token in service, f"HC offline recovery control missing {token}"
+main_control_start = service.index('private void handleMainControlButton(View source)')
+legacy_control_start = service.index('private void handleControlButton()', main_control_start)
+main_control_body = service[main_control_start:legacy_control_start]
+assert 'OperatorState.heartbeat' not in main_control_body
+assert 'OperatorState.setControlEnabled' not in main_control_body
+assert 'OperatorState.updateText(' in main_control_body
+refresh_start = service.index('private void refreshUi()')
+quick_request_start = service.index('private Button quickRequestButton(', refresh_start)
+refresh_body = service[refresh_start:quick_request_start]
+assert 'boolean online = homeCenterOnline(now);' in refresh_body
+assert 'OverlayUiPolicy.touchGuardActive(' in refresh_body
+assert 'if (!enabled || online) homeCenterRecoveryRequestedAtMs = 0L;' in refresh_body
+assert 'if (recoveryRequested) state += " • RECOVERY REQUESTED";' in refresh_body
+assert 'OperatorState.heartbeat' not in refresh_body
+assert 'quickRequestButton("Restart", "restart", "Request Home Center relay recovery")' in service
+
 for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_PAYLOAD_B64", "Base64.NO_WRAP"]:
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
 
-# Deterministic, no-inference quick ops available through the existing TERM input.
+# General status/message updates are not Home Center liveness. Only the dedicated
+# relay-derived heartbeat may advance last_heartbeat_ms.
+update_text_start = state.index('static void updateText(')
+heartbeat_start = state.index('static void heartbeat(', update_text_start)
+update_text_body = state[update_text_start:heartbeat_start]
+assert 'KEY_LAST_HEARTBEAT_MS' not in update_text_body
+assert 'KEY_LAST_HEARTBEAT_MS' in state[heartbeat_start:]
+for token in [
+    'ACTION_HOME_CENTER_HEARTBEAT',
+    'com.homecenter.operatoroverlay.HOME_CENTER_HEARTBEAT',
+    'OperatorState.heartbeat(context, now)',
+    'Deliberately no-op: process/worker liveness is not Home Center relay liveness.',
+]:
+    assert token in receiver, f"receiver missing HC heartbeat truth contract {token}"
+assert "ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HOME_CENTER_HEARTBEAT'" in overlay_helper
+pull_idx = relay.index("pulled=http('/pull'")
+relay_heartbeat_idx = relay.index('overlay_heartbeat()', pull_idx)
+assert relay_heartbeat_idx > pull_idx
+assert 'Only a successful Home Center pull earns the UI\'s HC-online heartbeat.' in relay
+
+# Deterministic, no-inference quick ops available through the existing overlay request path.
+# Home Center relay recovery and overlay package recovery are distinct operations.
 for token in [
     'deterministicTerminalAlias',
+    'bash tools/fortress_phone_ops.sh home-center-recover',
     'bash tools/fortress_phone_ops.sh overlay-restart',
+    'key.equals("turn hc on")',
     'bash tools/fortress_phone_ops.sh status',
     'bash tools/fortress_phone_ops.sh chrome-open',
     'bash tools/fortress_phone_ops.sh chrome-reload',
     'bash tools/fortress_phone_ops.sh canary',
 ]:
     assert token in state, f"state missing deterministic quick op {token}"
+
+# Phone-ops v2 delegates recovery and Chromium truth to their established bounded bodies.
 for token in [
-    'fortress.phone-ops.v1',
+    'fortress.phone-ops.v2',
+    'android_chromium_control.py',
+    'home_center_recover()',
+    'RELAY_RECOVER="$ROOT/tools/home_center_phone_relay_recover.sh"',
+    'home-center-recover|restart-hc|turn-hc-on|restart',
     'chrome_open()',
     'chrome_reload()',
+    'chrome_back()',
     'overlay_restart()',
-    'dumpsys activity activities',
-    'accept_adam_cli_phone.sh',
+    'exec python3 "$CHROMIUM" canary',
 ]:
     assert token in phone_ops, f"phone ops missing {token}"
+for token in [
+    'home-center-phone-relay-recovery-v1',
+    'phone-relay-recovery-receipts.jsonl',
+    'phone-relay-recovery-latest.json',
+    'fresh_home_center_heartbeat',
+    'stale_or_unproven_existing_relay',
+    'wait_for_heartbeat',
+]:
+    assert token in relay_recovery, f"relay recovery missing receipt-backed contract {token}"
+for token in [
+    'fortress.android-chromium-control.v1',
+    'fortress.android-chromium-canary.v1',
+    'dumpsys activity activities',
+    'browserWasForceStopped',
+    'secondExplicitNavigationObserved',
+    'finalChromiumStateObserved',
+    'requested browser state was not independently observed',
+]:
+    assert token in chromium, f"chromium controller missing {token}"
+
+# Night Core is a cheap, deterministic phone policy surface: battery + overlay + relay,
+# with no inference and no Chromium screenshot/UI dump.
+for token in [
+    'night_status()',
+    'dumpsys battery',
+    'fortress.night-core.status.v1',
+    'CHARGE_RECOVERY',
+    'POWERED_ACTIVE',
+    'BATTERY_ACTIVE',
+    'BATTERY_BALANCED',
+    'BATTERY_CONSERVE',
+    'recommendedPollSeconds',
+    'heavyWorkAllowed',
+    'night-status|night|night-core',
+]:
+    assert token in phone_ops, f"Night Core phone policy missing {token}"
+night_start = phone_ops.index('night_status()')
+night_end = phone_ops.index('home_center_recover()', night_start)
+night_body = phone_ops[night_start:night_end]
+assert 'android_chromium_control.py' not in night_body
+assert 'screencap' not in night_body
+assert 'ui_dump' not in night_body
+
 # Overlay recovery must never destroy a working install to force a signer migration.
 assert 'existing package preserved' in recovery
 assert 'pm uninstall $PACKAGE' not in recovery
@@ -114,4 +253,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / deterministic quick ops / planned + Venice-reviewed durable-delivery contract: PASS")
+print("Adam one-input Beard / sovereign HC offline recovery / relay truth / Chromium v2 / Night Core / durable-delivery contract: PASS")

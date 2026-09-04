@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 STATE="$HOME/.local/state/home-center"
 CHROMIUM="$ROOT/tools/android_chromium_control.py"
+NIGHT_STATUS="$ROOT/tools/fortress_night_status.py"
+RELAY_RECOVER="$ROOT/tools/home_center_phone_relay_recover.sh"
 mkdir -p "$STATE"
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
 [ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
@@ -66,6 +68,16 @@ print(json.dumps({
 PY
 }
 
+night_status() {
+  [ -f "$NIGHT_STATUS" ] || { json_receipt 0 night-status "fortress_night_status.py missing"; exit 3; }
+  exec python3 "$NIGHT_STATUS"
+}
+
+home_center_recover() {
+  [ -f "$RELAY_RECOVER" ] || { json_receipt 0 home-center-recover "home_center_phone_relay_recover.sh missing"; exit 3; }
+  exec bash "$RELAY_RECOVER"
+}
+
 overlay_restart() {
   exec bash "$ROOT/tools/recover_adam_overlay_phone.sh"
 }
@@ -114,6 +126,8 @@ help_text() {
   cat <<'EOF'
 fortress-phone-ops commands:
   status
+  night-status
+  home-center-recover
   overlay-restart
   chrome-open [https://url]
   chrome-open-b64 <base64-url>
@@ -128,7 +142,9 @@ EOF
 op="${1:-help}"; shift || true
 case "$op" in
   status) status "$@" ;;
-  overlay-restart|restart|restart-overlay) overlay_restart "$@" ;;
+  night-status|night|night-core) night_status "$@" ;;
+  home-center-recover|restart-hc|turn-hc-on|restart) home_center_recover "$@" ;;
+  overlay-restart|restart-overlay) overlay_restart "$@" ;;
   chrome-open|chrome|chromium) chrome_open "$@" ;;
   chrome-open-b64) chrome_open_b64 "$@" ;;
   chrome-navigate|navigate) chrome_navigate "$@" ;;
