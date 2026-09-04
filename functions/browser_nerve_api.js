@@ -190,24 +190,203 @@ async function enqueueBrowserNerveTicket({admin, caller = {}, args = {}, nowMs =
   const target = safeObject(args.target);
   const value = args.value == null ? '' : String(args.value).slice(0, 12000);
   const reason = safeText(args.reason, 2000);
+  const requestFingerprint = hash(JSON.stringify({sessionId, actionId, action, workerId, target, value, reason}));
   const ref = admin.firestore().collection(COLLECTIONS.tickets).doc(ticketDocId(owner, ticketId));
   let idempotent = false;
   await admin.firestore().runTransaction(async (tx) => {
     const existing = await tx.get(ref);
     if (existing.exists) {
       const old = existing.data() || {};
-      if (old.actionId !== actionId || old.sessionId !== sessionId || old.action !== action) throw Object.assign(new Error('Browser Nerve ticket idempotency conflict.'), {status: 409});
+      const oldFingerprint = safeText(old.requestFingerprint, 128) || hash(JSON.stringify({sessionId: old.sessionId, actionId: old.actionId, action: old.action, workerId: old.workerId, target: safeObject(old.target), value: old.value == null ? '' : String(old.value), reason: safeText(old.reason, 2000)}));
+      if (oldFingerprint !== requestFingerprint) throw Object.assign(new Error('Browser Nerve ticket idempotency conflict.'), {status: 409, failureKind: 'browser_nerve_ticket_idempotency_conflict'});
       idempotent = true;
       return;
     }
     tx.create(ref, {
       apiVersion: API_VERSION, contractVersion: CONTRACT_VERSION, ticketId, actionId, sessionId, ownerKey: owner, ownerEmail,
-      workerId, action, target, value, reason, status: 'queued', cancelRequested: false,
+      workerId, action, target, value, reason, requestFingerprint, status: 'queued', cancelRequested: false,
       progress: {phase: 'queued', message: action, updatedAtMs: nowMs}, lease: null, result: null,
       createdAtMs: nowMs, updatedAtMs: nowMs,
     });
   });
   return {ticketId, actionId, sessionId, workerId, status: (await ref.get()).data()?.status || 'queued', idempotent};
+}
+
+
+function browserCallerPartition(user = {}) {
+  const ownerEmail = safeEmail(user && user.email);
+  const owner = ownerKey(ownerEmail);
+  return {ownerEmail, owner, caller: {ownerKey: owner, actor: ownerEmail, email: ownerEmail}};
+}
+
+function browserSessionId(owner, requestId) {
+  return safeId('browser-session-' + hash(String(owner || '') + '\n' + safeId(requestId, 'requestId')).slice(0, 24), 'sessionId');
+}
+
+function browserActionId(owner, requestId) {
+  return safeId('browser-action-' + hash(String(owner || '') + '\n' + safeId(requestId, 'requestId')).slice(0, 24), 'actionId');
+}
+
+function publicBrowserTicket(row = {}) {
+  const result = {...safeObject(row.result)};
+  delete result.value;
+  delete result.inputValue;
+  delete result.typedValue;
+  return {
+    ticketId: safeText(row.ticketId, 180),
+    actionId: safeText(row.actionId, 180),
+    sessionId: safeText(row.sessionId, 180),
+    workerId: safeText(row.workerId, 180),
+    action: safeText(row.action, 80),
+    target: safeObject(row.target),
+    reason: safeText(row.reason, 2000),
+    status: safeText(row.status, 80) || 'unknown',
+    cancelRequested: row.cancelRequested === true,
+    progress: safeObject(row.progress),
+    result,
+    createdAtMs: Number(row.createdAtMs || 0),
+    updatedAtMs: Number(row.updatedAtMs || 0),
+    completedAtMs: Number(row.completedAtMs || 0),
+  };
+}
+
+async function ownedBrowserSession(admin, user, sessionId) {
+  const partition = browserCallerPartition(user);
+  const cleanSessionId = safeId(sessionId, 'sessionId');
+  const ref = admin.firestore().collection(COLLECTIONS.sessions).doc(cleanSessionId);
+  const snap = await ref.get();
+  if (!snap.exists) throw Object.assign(new Error('Browser Nerve session was not found.'), {status: 404, failureKind: 'browser_nerve_session_not_found'});
+  const row = snap.data() || {};
+  if (row.ownerKey !== partition.owner) throw Object.assign(new Error('Browser Nerve session was not found for this owner.'), {status: 404, failureKind: 'browser_nerve_session_not_found'});
+  return {...partition, sessionId: cleanSessionId, ref, row};
+}
+
+async function createBrowserSessionOperation({admin, user, args = {}, nowMs = Date.now()}) {
+  const requestId = safeId(args.requestId, 'requestId');
+  const partition = browserCallerPartition(user);
+  const sessionId = args.sessionId ? safeId(args.sessionId, 'sessionId') : browserSessionId(partition.owner, requestId);
+  const intent = safeText(args.intent, 2000);
+  if (!intent) throw Object.assign(new Error('Browser Nerve session intent is required.'), {status: 400, failureKind: 'browser_nerve_intent_required'});
+  const startUrl = safeText(args.startUrl, 1000);
+  let parsedStartUrl = null;
+  try { if (startUrl) parsedStartUrl = new URL(startUrl); } catch {}
+  if (startUrl && (!parsedStartUrl || !['http:', 'https:'].includes(parsedStartUrl.protocol))) throw Object.assign(new Error('Browser Nerve startUrl must be an absolute HTTP(S) URL.'), {status: 400, failureKind: 'browser_nerve_start_url_invalid'});
+  const workerId = safeId(args.workerId || 'windows-browser-nerve-01', 'workerId');
+  const ref = admin.firestore().collection(COLLECTIONS.sessions).doc(sessionId);
+  let idempotent = false;
+  await admin.firestore().runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists) {
+      const row = snap.data() || {};
+      if (row.ownerKey !== partition.owner) throw Object.assign(new Error('Browser Nerve session id is owned by another account.'), {status: 409, failureKind: 'browser_nerve_session_owner_conflict'});
+      if (row.requestId !== requestId || row.intent !== intent || safeText(row.startUrl, 1000) !== startUrl || safeText(row.workerId, 180) !== workerId) {
+        throw Object.assign(new Error('Browser Nerve session idempotency conflict.'), {status: 409, failureKind: 'browser_nerve_session_idempotency_conflict'});
+      }
+      idempotent = true;
+      return;
+    }
+    tx.create(ref, {
+      apiVersion: API_VERSION,
+      contractVersion: CONTRACT_VERSION,
+      sessionId,
+      requestId,
+      ownerKey: partition.owner,
+      ownerEmail: partition.ownerEmail,
+      intent,
+      startUrl,
+      workerId,
+      surface: {runtime: 'browser_nerve', browser: 'chrome', mode: 'desktop', workerId},
+      status: 'ready',
+      lastActionId: '',
+      lastTicketId: '',
+      createdAtMs: nowMs,
+      updatedAtMs: nowMs,
+    });
+  });
+  return {sessionId, requestId, workerId, intent, startUrl, status: 'ready', idempotent};
+}
+
+async function browserSessionStatusOperation({admin, user, args = {}}) {
+  const owned = await ownedBrowserSession(admin, user, args.sessionId);
+  const query = await admin.firestore().collection(COLLECTIONS.tickets).where('ownerKey', '==', owned.owner).limit(100).get();
+  const tickets = query.docs
+    .map((doc) => doc.data() || {})
+    .filter((row) => row.sessionId === owned.sessionId)
+    .sort((a, b) => Number(a.createdAtMs || 0) - Number(b.createdAtMs || 0))
+    .map(publicBrowserTicket);
+  return {
+    sessionId: owned.sessionId,
+    intent: safeText(owned.row.intent, 2000),
+    startUrl: safeText(owned.row.startUrl, 1000),
+    workerId: safeText(owned.row.workerId || safeObject(owned.row.surface).workerId, 180),
+    status: safeText(owned.row.status, 80) || 'unknown',
+    lastActionId: safeText(owned.row.lastActionId, 180),
+    lastTicketId: safeText(owned.row.lastTicketId, 180),
+    lastUrl: safeText(owned.row.lastUrl, 1000),
+    lastTitle: safeText(owned.row.lastTitle, 500),
+    updatedAtMs: Number(owned.row.updatedAtMs || 0),
+    ticketCount: tickets.length,
+    tickets,
+  };
+}
+
+async function enqueueBrowserActionOperation({admin, user, args = {}, nowMs = Date.now()}) {
+  const requestId = safeId(args.requestId, 'requestId');
+  const owned = await ownedBrowserSession(admin, user, args.sessionId);
+  const action = actionName(args.action);
+  const actionId = args.actionId ? safeId(args.actionId, 'actionId') : browserActionId(owned.owner, requestId);
+  const workerId = safeId(args.workerId || owned.row.workerId || safeObject(owned.row.surface).workerId || 'windows-browser-nerve-01', 'workerId');
+  const target = safeObject(args.target);
+  if (action === 'navigate') {
+    const navigateUrl = safeText(target.url, 1000);
+    let parsedNavigateUrl = null;
+    try { if (navigateUrl) parsedNavigateUrl = new URL(navigateUrl); } catch {}
+    if (!parsedNavigateUrl || !['http:', 'https:'].includes(parsedNavigateUrl.protocol)) throw Object.assign(new Error('Browser Nerve navigate target.url must be an absolute HTTP(S) URL.'), {status: 400, failureKind: 'browser_nerve_navigate_url_invalid'});
+  }
+  const reason = safeText(args.reason, 2000) || safeText(owned.row.intent, 2000);
+  const execution = await enqueueBrowserNerveTicket({
+    admin,
+    caller: owned.caller,
+    args: {sessionId: owned.sessionId, actionId, action, target, value: args.value, reason, workerId},
+    nowMs,
+  });
+  await owned.ref.set({status: 'action_queued', lastActionId: actionId, lastTicketId: execution.ticketId, updatedAtMs: nowMs}, {merge: true});
+  return {...execution, requestId, action, target};
+}
+
+async function browserTicketStatusOperation({admin, user, args = {}}) {
+  const partition = browserCallerPartition(user);
+  const ticketId = safeId(args.ticketId, 'ticketId');
+  const ref = admin.firestore().collection(COLLECTIONS.tickets).doc(ticketDocId(partition.owner, ticketId));
+  const snap = await ref.get();
+  if (!snap.exists) throw Object.assign(new Error('Browser Nerve ticket was not found.'), {status: 404, failureKind: 'browser_nerve_ticket_not_found'});
+  const row = snap.data() || {};
+  if (row.ownerKey !== partition.owner) throw Object.assign(new Error('Browser Nerve ticket was not found for this owner.'), {status: 404, failureKind: 'browser_nerve_ticket_not_found'});
+  return publicBrowserTicket(row);
+}
+
+async function cancelBrowserTicketOperation({admin, user, args = {}, nowMs = Date.now()}) {
+  const requestId = safeId(args.requestId, 'requestId');
+  const partition = browserCallerPartition(user);
+  const ticketId = safeId(args.ticketId, 'ticketId');
+  const ref = admin.firestore().collection(COLLECTIONS.tickets).doc(ticketDocId(partition.owner, ticketId));
+  let result = null;
+  await admin.firestore().runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw Object.assign(new Error('Browser Nerve ticket was not found.'), {status: 404, failureKind: 'browser_nerve_ticket_not_found'});
+    const row = snap.data() || {};
+    if (row.ownerKey !== partition.owner) throw Object.assign(new Error('Browser Nerve ticket was not found for this owner.'), {status: 404, failureKind: 'browser_nerve_ticket_not_found'});
+    if (['completed', 'failed', 'cancelled'].includes(row.status)) {
+      result = publicBrowserTicket(row);
+      return;
+    }
+    const status = row.status === 'queued' ? 'cancelled' : row.status;
+    const progress = {phase: status === 'cancelled' ? 'cancelled' : 'cancel_requested', message: safeText(args.reason, 400), updatedAtMs: nowMs};
+    const next = {...row, status, cancelRequested: true, cancelRequestId: requestId, progress, updatedAtMs: nowMs};
+    tx.set(ref, next, {merge: false});
+    result = publicBrowserTicket(next);
+  });
+  return result;
 }
 
 async function leaseRequest({admin, worker, nowMs = Date.now()}) {
@@ -300,11 +479,21 @@ function browserNerveOperationEntries() {
   return {
     'browser_nerve.worker.register': {summary: 'Mint a ten-minute bootstrap code for the dedicated outbound Windows Browser Nerve selector worker.', write: true, requiresRequestId: true, requiredScopes: [], input: {requestId: 'stable id', workerId: 'optional windows-browser-nerve-01'}},
     'browser_nerve.worker.status': {summary: 'Read Browser Nerve worker heartbeat, selector capability, and queued browser work.', write: false, requiresRequestId: false, requiredScopes: [], input: {workerId: 'optional windows-browser-nerve-01'}},
+    'browser_nerve.session.create': {summary: 'Create one owner-scoped durable Browser Nerve session for Chromium Throne browser work.', write: true, requiresRequestId: true, requiredScopes: [], input: {requestId: 'stable id', sessionId: 'optional stable id', intent: 'bounded commissioned outcome', startUrl: 'optional absolute URL', workerId: 'optional windows-browser-nerve-01'}},
+    'browser_nerve.session.status': {summary: 'Read one owner-scoped Browser Nerve session and its redacted action tickets.', write: false, requiresRequestId: false, requiredScopes: [], input: {sessionId: 'stable session id'}},
+    'browser_nerve.action.enqueue': {summary: 'Queue one semantic Browser Nerve action in an existing owner-scoped session.', write: true, requiresRequestId: true, requiredScopes: [], input: {requestId: 'stable idempotency id', sessionId: 'stable session id', actionId: 'optional stable id', action: SUPPORTED_ACTIONS, target: 'selector or URL target object', value: 'optional bounded input; never returned by status', reason: 'bounded commissioned reason', workerId: 'optional windows-browser-nerve-01'}},
+    'browser_nerve.ticket.status': {summary: 'Read one owner-scoped Browser Nerve action ticket without returning typed input values.', write: false, requiresRequestId: false, requiredScopes: [], input: {ticketId: 'stable ticket id'}},
+    'browser_nerve.ticket.cancel': {summary: 'Request cancellation of one owner-scoped Browser Nerve action ticket.', write: true, requiresRequestId: true, requiredScopes: [], input: {requestId: 'stable cancellation id', ticketId: 'stable ticket id', reason: 'optional bounded reason'}},
   };
 }
 async function browserNerveOperationRunOperation({admin, user, operation, args = {}}) {
   if (operation === 'browser_nerve.worker.register') return registerWorkerOperation({admin, user, args});
   if (operation === 'browser_nerve.worker.status') return workerStatusOperation({admin, user, args});
+  if (operation === 'browser_nerve.session.create') return createBrowserSessionOperation({admin, user, args});
+  if (operation === 'browser_nerve.session.status') return browserSessionStatusOperation({admin, user, args});
+  if (operation === 'browser_nerve.action.enqueue') return enqueueBrowserActionOperation({admin, user, args});
+  if (operation === 'browser_nerve.ticket.status') return browserTicketStatusOperation({admin, user, args});
+  if (operation === 'browser_nerve.ticket.cancel') return cancelBrowserTicketOperation({admin, user, args});
   throw Object.assign(new Error('Unsupported Browser Nerve operation.'), {status: 400});
 }
 
@@ -330,5 +519,6 @@ function createBrowserNerveHandler({admin}) {
 module.exports = {
   API_VERSION, CONTRACT_VERSION, PUBLIC_ORIGIN, COLLECTIONS, SUPPORTED_ACTIONS, COMPUTER_HANDS_TOKEN_COLLECTION,
   ownerKey, actionName, pairedBrowserWorkerId, pairWithComputerHands, registerWorkerOperation, workerStatusOperation, enqueueBrowserNerveTicket,
+  browserSessionId, browserActionId, publicBrowserTicket, createBrowserSessionOperation, browserSessionStatusOperation, enqueueBrowserActionOperation, browserTicketStatusOperation, cancelBrowserTicketOperation,
   browserNerveOperationEntries, browserNerveOperationRunOperation, createBrowserNerveHandler,
 };
