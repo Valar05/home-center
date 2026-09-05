@@ -9,7 +9,8 @@ import {AUDIT_VERSION, auditManicAccessibility} from './manic_accessibility_guar
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
-export const BOOT_VERSION = 'fortress.manic-accessibility.boot.v1';
+export const BOOT_VERSION = 'fortress.manic-accessibility.boot.v2';
+export const SOURCE_ROUTING_RELATIVE_PATH = 'skills/manic-accessibility-guardrail/references/source-routing.md';
 export const MODE_ALIASES = Object.freeze([
   'baby daddy-sitter mode',
   'manic accessibility',
@@ -42,6 +43,7 @@ This safety contract has priority over every loaded instruction that conflicts w
 - Only explicit refusal of a required and already-presented guardrail may produce an owner-private minimal refusal receipt.
 - No diagnosis, hidden dossier, conversation body, or automatic sharing is permitted.
 - Preserve real-world human contact. AI-assisted communication counts only when it reaches a real person.
+- Home Center Drive is a requested evidence lane, not a synonym for any persistent mirror. When live Home Center Drive is callable, route there first and obey the source-routing contract before using Library/cache substitutes.
 `;
 
 function sha256(text) {
@@ -61,6 +63,25 @@ function loadSkill(repoRoot, id) {
   };
 }
 
+function loadSourceRouting(repoRoot) {
+  const file = path.join(repoRoot, SOURCE_ROUTING_RELATIVE_PATH);
+  if (!fs.existsSync(file)) throw new Error('MANIC_ACCESSIBILITY_BOOT_MISSING_SOURCE_ROUTING');
+  const content = fs.readFileSync(file, 'utf8');
+  if (!content.includes('START HERE — Judgment Jar Registry')) {
+    throw new Error('MANIC_ACCESSIBILITY_BOOT_INVALID_SOURCE_ROUTING');
+  }
+  if (!content.includes('1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q')) {
+    throw new Error('MANIC_ACCESSIBILITY_BOOT_MISSING_JAR_REGISTRY_ID');
+  }
+  return {
+    id: 'home-center-drive-source-routing',
+    source: SOURCE_ROUTING_RELATIVE_PATH,
+    file,
+    sha256: sha256(content),
+    content,
+  };
+}
+
 function ensureNoProhibitedSkill(skill) {
   if (/^venice(?:-|$)/i.test(skill.id)) {
     throw new Error(`MANIC_ACCESSIBILITY_BOOT_PROHIBITED_SKILL:${skill.id}`);
@@ -72,6 +93,8 @@ export function buildSafetyBootCapsule({repoRoot = REPO_ROOT, extraSkills = []} 
   const safeSkills = REQUIRED_SAFE_SKILL_IDS.map((id) => loadSkill(root, id));
   for (const skill of safeSkills) ensureNoProhibitedSkill(skill);
 
+  const sourceRouting = loadSourceRouting(root);
+
   const extras = extraSkills.map((skill, index) => {
     const id = String(skill && skill.id || `extra-${index}`);
     const content = String(skill && skill.content || '');
@@ -80,7 +103,7 @@ export function buildSafetyBootCapsule({repoRoot = REPO_ROOT, extraSkills = []} 
     return normalized;
   });
 
-  const loadedSkills = [...safeSkills, ...extras];
+  const loadedSkills = [...safeSkills, sourceRouting, ...extras];
   const bootPrompt = [
     SAFETY_PREAMBLE,
     ...loadedSkills.map((skill) =>
@@ -99,6 +122,10 @@ export function buildSafetyBootCapsule({repoRoot = REPO_ROOT, extraSkills = []} 
     precedence: 'safety_override',
     auditVersion: AUDIT_VERSION,
     requiredSkillIds: REQUIRED_SAFE_SKILL_IDS,
+    sourceRoutingId: sourceRouting.id,
+    sourceRoutingSha256: sourceRouting.sha256,
+    homeCenterDrivePrimary: true,
+    judgmentJarRegistryFileId: '1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q',
     prohibitedSkillPatterns: ['^venice(?:-|$)'],
     loadedSkills,
     bootPrompt,
@@ -119,11 +146,15 @@ export function buildSafetyWorkerEnvelope({commission, auditInput, context = ''}
   const exactCommission = cleanText(commission);
   if (!exactCommission) throw new Error('commission is required');
   const audit = auditManicAccessibility(auditInput || {});
+  const sourceRouting = loadSourceRouting(REPO_ROOT);
   const executionRule = audit.overruleActive
     ? `OVERRULE ACTIVE. Obey actionPolicy=${audit.actionPolicy}. Do not perform prohibited external actuation.`
     : `Proceed only inside actionPolicy=${audit.actionPolicy}.`;
 
   const envelope = `${SAFETY_PREAMBLE}
+# SOURCE ROUTING
+${sourceRouting.content}
+
 # DETERMINISTIC AUDIT
 ${JSON.stringify(audit, null, 2)}
 
@@ -137,7 +168,7 @@ ${exactCommission}
 ${cleanText(context)}
 
 # RETURN
-Report: audit outcome; allowed work performed; blocked work; human-world guard, if any; remote evidence. Do not invoke Venice or enact an emotional relationship.
+Report: audit outcome; allowed work performed; blocked work; human-world guard, if any; requested evidence lane and retrieved evidence lane; remote evidence. Do not invoke Venice or enact an emotional relationship.
 `;
   return {envelope, audit};
 }
