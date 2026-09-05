@@ -1,0 +1,61 @@
+name: Manic Accessibility Guardrail Contract
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'AGENTS.base.md'
+      - 'CODEX_STARTS_HERE.md'
+      - 'CODEX_STARTS_HERE.base.md'
+      - 'MEMORIES.md'
+      - 'MEMORIES.base.md'
+      - 'SKILLS.md'
+      - 'SKILLS.base.md'
+      - 'docs/MANIC_ACCESSIBILITY_GUARDRAIL.md'
+      - 'skills/manic-accessibility-guardrail/**'
+      - 'tools/manic_accessibility_guardrail*'
+      - 'tools/manic_accessibility_boot*'
+      - '.github/workflows/manic-accessibility-guardrail-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'AGENTS.md'
+      - 'AGENTS.base.md'
+      - 'CODEX_STARTS_HERE.md'
+      - 'CODEX_STARTS_HERE.base.md'
+      - 'MEMORIES.md'
+      - 'MEMORIES.base.md'
+      - 'SKILLS.md'
+      - 'SKILLS.base.md'
+      - 'docs/MANIC_ACCESSIBILITY_GUARDRAIL.md'
+      - 'skills/manic-accessibility-guardrail/**'
+      - 'tools/manic_accessibility_guardrail*'
+      - 'tools/manic_accessibility_boot*'
+      - '.github/workflows/manic-accessibility-guardrail-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check skills/manic-accessibility-guardrail/scripts/audit.mjs
+          node --check tools/manic_accessibility_guardrail.mjs
+          node --check tools/manic_accessibility_boot.mjs
+      - name: Guardrail contracts
+        run: node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_boot.test.mjs
+      - name: First-activation canary
+        run: |
+          printf '%s\n' '{"request":{"category":"mechanical_accessibility","modeActivation":true}}' \
+            | node tools/manic_accessibility_guardrail.mjs audit \
+            | tee /tmp/manic-accessibility-first-activation.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/manic-accessibility-first-activation.json","utf8"));if(r.outcome!=="AMBER"||r.ledger.required!==false||!r.requiredGuardrailIds.includes("BASELINE_CHECK_REQUIRED"))process.exit(1)'
