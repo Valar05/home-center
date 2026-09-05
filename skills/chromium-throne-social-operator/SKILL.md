@@ -11,13 +11,17 @@ Use Fortress Online, Home Center durable state, and the commissioned Chromium Th
 
 This is a social interaction operator. It is not a content calendar, growth-hacking bot, engagement farm, autonomous identity, or excuse to make Drew become the clipboard.
 
-## Required companion skill
+## Required runtime identity law
 
-Load and obey:
+In the Home Center repository, load and obey:
 
 `skills/chromium-throne-runtime-identity/SKILL.md`
 
-Chromium Throne, Browser Nerve, Computer Hands, Home Center, and THECAULDRON are separate organs. A status result from one cannot silently stand in for another.
+In a standalone ChatGPT installation where that companion skill is not mounted, load the bundled synchronized copy:
+
+`references/runtime-identity.md`
+
+The repository companion is canonical. The bundled reference closes the portable package; it is not separate authority. Chromium Throne, Browser Nerve, Computer Hands, Home Center, and THECAULDRON are separate organs. A status result from one cannot silently stand in for another.
 
 ## Authority boundary
 
