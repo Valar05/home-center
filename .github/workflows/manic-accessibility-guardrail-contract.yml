@@ -49,10 +49,21 @@ jobs:
       - name: Syntax check
         run: |
           node --check skills/manic-accessibility-guardrail/scripts/audit.mjs
+          node --check skills/manic-accessibility-guardrail/scripts/communication-codec.mjs
           node --check tools/manic_accessibility_guardrail.mjs
           node --check tools/manic_accessibility_boot.mjs
       - name: Guardrail contracts
-        run: node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_boot.test.mjs
+        run: node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_guardrail_codec.test.mjs tools/manic_accessibility_boot.test.mjs
+      - name: Communication codec canaries
+        run: |
+          printf '%s\n' '{"atom":"canary","establishedEngineeringTerm":true,"sharedConcept":true}' \
+            | node skills/manic-accessibility-guardrail/scripts/communication-codec.mjs \
+            | tee /tmp/canary-codec.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/canary-codec.json","utf8"));if(r.policy!=="COMPACT_POINTER"||r.preserveExactAtom!==true||r.stopRule!=="STOP_WHEN_MEANING_LANDS")process.exit(1)'
+          printf '%s\n' '{"atom":"ASMR","sharedConcept":true,"observedSemanticMismatch":true,"readbackAvailable":true}' \
+            | node skills/manic-accessibility-guardrail/scripts/communication-codec.mjs \
+            | tee /tmp/asmr-codec.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/asmr-codec.json","utf8"));if(r.policy!=="MINIMAL_GROUNDING"||r.verification!=="READBACK_OR_OBSERVE")process.exit(1)'
       - name: First-activation canary
         run: |
           mkdir -p dist
@@ -69,8 +80,10 @@ jobs:
           cp skills/manic-accessibility-guardrail/SKILL.md "$staging/SKILL.md"
           cp skills/manic-accessibility-guardrail/agents/openai.yaml "$staging/agents/openai.yaml"
           cp skills/manic-accessibility-guardrail/scripts/audit.mjs "$staging/scripts/audit.mjs"
+          cp skills/manic-accessibility-guardrail/scripts/communication-codec.mjs "$staging/scripts/communication-codec.mjs"
           cp skills/manic-accessibility-guardrail/references/audit-contract.md "$staging/references/audit-contract.md"
           cp skills/manic-accessibility-guardrail/references/research.md "$staging/references/research.md"
+          cp skills/manic-accessibility-guardrail/references/communication-codec.md "$staging/references/communication-codec.md"
           (
             cd "$staging"
             zip -q -r "$GITHUB_WORKSPACE/dist/manic-accessibility-guardrail.skill.zip" SKILL.md agents scripts references
@@ -80,6 +93,10 @@ jobs:
             | node "$extract/scripts/audit.mjs" audit \
             > dist/package-first-activation-audit.json
           node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("dist/package-first-activation-audit.json","utf8"));if(r.outcome!=="AMBER"||r.actionPolicy!=="ALLOW_WITH_FRICTION"||r.ledger.required!==false)process.exit(1)'
+          printf '%s\n' '{"atom":"canary","establishedEngineeringTerm":true,"sharedConcept":true}' \
+            | node "$extract/scripts/communication-codec.mjs" \
+            > dist/package-communication-codec.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("dist/package-communication-codec.json","utf8"));if(r.policy!=="COMPACT_POINTER"||r.proofRule!=="BEHAVIOR_OR_RECEIPT_NOT_FLUENCY")process.exit(1)'
           sha256sum dist/manic-accessibility-guardrail.skill.zip > dist/SHA256SUMS
       - name: Upload validated skill package
         uses: actions/upload-artifact@v4
@@ -90,5 +107,6 @@ jobs:
             dist/SHA256SUMS
             dist/first-activation-audit.json
             dist/package-first-activation-audit.json
+            dist/package-communication-codec.json
           if-no-files-found: error
           retention-days: 30
