@@ -1,0 +1,113 @@
+name: Recover Cauldron Chromium Throne
+
+on:
+  workflow_dispatch:
+    inputs:
+      verify_only:
+        description: Only inspect the Cauldron services
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Join the Home Center tailnet
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:home-center-recovery
+
+      - name: Resolve the Cauldron
+        id: cauldron
+        shell: bash
+        run: |
+          set -euo pipefail
+          ip="$(tailscale status --json | jq -r '.Peer | to_entries[] | select((.value.HostName // "" | ascii_downcase) == "thecauldron" or (.value.DNSName // "" | ascii_downcase | startswith("thecauldron."))) | .value.TailscaleIPs[0]' | head -n1)"
+          test -n "$ip"
+          echo "ip=$ip" >> "$GITHUB_OUTPUT"
+          tailscale ping --timeout=10s "$ip"
+
+      - name: Configure scoped SSH
+        shell: bash
+        env:
+          CAULDRON_SSH_PRIVATE_KEY: ${{ secrets.CAULDRON_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$CAULDRON_SSH_PRIVATE_KEY" > ~/.ssh/cauldron
+          chmod 600 ~/.ssh/cauldron
+          ssh-keyscan -T 10 -H "${{ steps.cauldron.outputs.ip }}" >> ~/.ssh/known_hosts
+
+      - name: Revive Browser Nerve
+        if: ${{ inputs.verify_only != 'true' }}
+        shell: bash
+        env:
+          CAULDRON_SSH_USER: ${{ secrets.CAULDRON_SSH_USER }}
+        run: |
+          set -euo pipefail
+          user="${CAULDRON_SSH_USER:-drew}"
+          ssh -i ~/.ssh/cauldron "$user@${{ steps.cauldron.outputs.ip }}" powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command - <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $started = @()
+
+          Get-ScheduledTask -ErrorAction SilentlyContinue |
+            Where-Object { $_.TaskName -match '(?i)(browser.?nerve|chromium.?throne)' } |
+            ForEach-Object {
+              Start-ScheduledTask -TaskName $_.TaskName -TaskPath $_.TaskPath
+              $started += "task:$($_.TaskPath)$($_.TaskName)"
+            }
+
+          Get-Service -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match '(?i)(browser.?nerve|chromium.?throne)' -or $_.DisplayName -match '(?i)(browser.?nerve|chromium.?throne)' } |
+            ForEach-Object {
+              if ($_.Status -ne 'Running') { Start-Service -Name $_.Name }
+              $started += "service:$($_.Name)"
+            }
+
+          if ($started.Count -eq 0) {
+            $roots = @(
+              "$env:USERPROFILE\Documents\GodotProjects\home-center",
+              "$env:USERPROFILE\home-center",
+              "C:\GodotProjects\home-center"
+            ) | Where-Object { Test-Path $_ }
+
+            $launcher = $roots |
+              ForEach-Object {
+                Get-ChildItem -Path $_ -Recurse -File -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Name -match '(?i)^(start|run).*(browser.?nerve|chromium.?throne).*(ps1|cmd|bat)$' }
+              } |
+              Select-Object -First 1
+
+            if (-not $launcher) { throw 'No installed Browser Nerve task, service, or launcher found.' }
+
+            if ($launcher.Extension -eq '.ps1') {
+              Start-Process powershell.exe -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',$launcher.FullName) -WindowStyle Hidden
+            } else {
+              Start-Process cmd.exe -ArgumentList @('/c',$launcher.FullName) -WindowStyle Hidden
+            }
+            $started += "launcher:$($launcher.FullName)"
+          }
+
+          Start-Sleep -Seconds 8
+          [pscustomobject]@{
+            machine = $env:COMPUTERNAME
+            started = $started
+            chrome = @(Get-Process chrome -ErrorAction SilentlyContinue).Count
+            node = @(Get-Process node -ErrorAction SilentlyContinue).Count
+          } | ConvertTo-Json -Compress
+          POWERSHELL
+
+      - name: Verify Cauldron process state
+        shell: bash
+        env:
+          CAULDRON_SSH_USER: ${{ secrets.CAULDRON_SSH_USER }}
+        run: |
+          set -euo pipefail
+          user="${CAULDRON_SSH_USER:-drew}"
+          ssh -i ~/.ssh/cauldron "$user@${{ steps.cauldron.outputs.ip }}" powershell.exe -NoProfile -NonInteractive -Command "Get-CimInstance Win32_Process | Where-Object { \$_.Name -match '^(node|chrome|chromium)\\.exe$' } | Select-Object Name,ProcessId,CommandLine | ConvertTo-Json -Compress"
