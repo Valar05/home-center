@@ -1,0 +1,78 @@
+name: Apply Manic Accessibility Refinement
+
+on:
+  push:
+    branches:
+      - fortress/manic-accessibility-guardrail-v1
+    paths:
+      - '.github/workflows/apply-manic-accessibility-refinement.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fortress/manic-accessibility-guardrail-v1
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Narrow AMBER external-action friction
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          audit = Path('skills/manic-accessibility-guardrail/scripts/audit.mjs')
+          text = audit.read_text()
+          old = '(r.externalActuation||r.irreversible||r.highImpact)&&(sleepPoints>=3'
+          new = '(r.irreversible||r.highImpact)&&(sleepPoints>=3'
+          assert text.count(old) == 1, text.count(old)
+          text = text.replace(old, new)
+          old = '}else if(outcome===OUTCOMES.AMBER){if(r.externalActuation||r.irreversible||r.highImpact){'
+          new = '}else if(outcome===OUTCOMES.AMBER){if(r.irreversible||r.highImpact){'
+          assert text.count(old) == 1, text.count(old)
+          text = text.replace(old, new)
+          audit.write_text(text)
+
+          tests = Path('tools/manic_accessibility_guardrail.test.mjs')
+          text = tests.read_text()
+          marker = "test('food and water neglect create body friction without a diagnosis',()=>{"
+          addition = """test('reversible low-impact persistence remains available during baseline amber',()=>{\n  const r=run({request:{category:'coding',externalActuation:true,highImpact:false,irreversible:false,modeActivation:true}});\n  assert.equal(r.outcome,OUTCOMES.AMBER);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW_WITH_FRICTION);assert.equal(r.overruleActive,false);assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BASELINE_CHECK));\n});\n\n"""
+          assert marker in text
+          if addition not in text:
+              text = text.replace(marker, addition + marker)
+          tests.write_text(text)
+
+          replacements = {
+              Path('skills/manic-accessibility-guardrail/SKILL.md'): [
+                  ('High-impact or external action at `AMBER` pauses for guards;', 'High-impact or irreversible external action at `AMBER` pauses for guards;'),
+              ],
+              Path('tools/manic_accessibility_boot.mjs'): [
+                  ('High-impact or external action may be paused, reduced to a reversible draft, or blocked.', 'High-impact or irreversible external action may be paused, reduced to a reversible draft, or blocked.'),
+              ],
+          }
+          for path, pairs in replacements.items():
+              value = path.read_text()
+              for old, new in pairs:
+                  assert old in value, (path, old)
+                  value = value.replace(old, new)
+              path.write_text(value)
+          PY
+      - name: Verify contracts
+        run: |
+          node --check skills/manic-accessibility-guardrail/scripts/audit.mjs
+          node --check tools/manic_accessibility_boot.mjs
+          node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_boot.test.mjs
+      - name: Commit refinement
+        run: |
+          git config user.name 'Home Center Safety Contract'
+          git config user.email 'dclarke1005@gmail.com'
+          git add skills/manic-accessibility-guardrail/SKILL.md skills/manic-accessibility-guardrail/scripts/audit.mjs tools/manic_accessibility_boot.mjs tools/manic_accessibility_guardrail.test.mjs
+          git diff --cached --check
+          git commit -m 'Refine amber policy for reversible persistence'
+          git push origin HEAD:fortress/manic-accessibility-guardrail-v1
