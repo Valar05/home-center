@@ -1,0 +1,7 @@
+interface:
+  display_name: "Chromium Throne Social Operator"
+  short_description: "Publish ideas and return public replies"
+  default_prompt: "Use $chromium-throne-social-operator to publish this through the commissioned Chromium Throne lane, verify the external post, and bring back substantive public replies."
+
+policy:
+  allow_implicit_invocation: true
