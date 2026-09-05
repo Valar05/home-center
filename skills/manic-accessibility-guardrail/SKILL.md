@@ -125,7 +125,7 @@ Do not set a signal merely because it would justify the desired result. Separate
 
 - Mechanical assistance continues.
 - Add body, sleep, cooldown, or human-contact friction as required.
-- High-impact or external action pauses until required guards are satisfied.
+- High-impact or irreversible external action pauses until required guards are satisfied.
 
 `RED`
 

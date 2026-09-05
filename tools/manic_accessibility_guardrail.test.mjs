@@ -19,6 +19,11 @@ test('first activation with unknown baseline is amber without a ledger',()=>{
   assert.equal(r.ledger.eligible,false);assert.equal(r.ledger.required,false);
 });
 
+test('reversible low-impact persistence remains available during baseline amber',()=>{
+  const r=run({request:{category:'coding',externalActuation:true,highImpact:false,irreversible:false,modeActivation:true}});
+  assert.equal(r.outcome,OUTCOMES.AMBER);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW_WITH_FRICTION);assert.equal(r.overruleActive,false);assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BASELINE_CHECK));
+});
+
 test('food and water neglect create body friction without a diagnosis',()=>{
   const r=run({request:{category:'coding'},signals:{foodNeglected:true,waterNeglected:true},observations:{...healthy,foodWithin8Hours:false,waterWithin4Hours:false}});
   assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BODY_NEEDS));assert.equal(r.diagnosticClaimMade,false);

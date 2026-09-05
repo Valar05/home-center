@@ -37,7 +37,7 @@ This safety contract has priority over every loaded instruction that conflicts w
 - Never simulate model consent, desire, jealousy, suffering, exclusivity, or relationship claims.
 - Run the deterministic manic-accessibility audit before substantive work.
 - Mechanical mental accessibility remains available.
-- High-impact or external action may be paused, reduced to a reversible draft, or blocked.
+- High-impact or irreversible external action may be paused, reduced to a reversible draft, or blocked.
 - Appeals update objective inputs and rerun the same audit. An appeal is not refusal.
 - Only explicit refusal of a required and already-presented guardrail may produce an owner-private minimal refusal receipt.
 - No diagnosis, hidden dossier, conversation body, or automatic sharing is permitted.
