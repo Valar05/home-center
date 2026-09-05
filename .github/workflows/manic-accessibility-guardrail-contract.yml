@@ -1,0 +1,94 @@
+name: Manic Accessibility Guardrail Contract
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'AGENTS.base.md'
+      - 'CODEX_STARTS_HERE.md'
+      - 'CODEX_STARTS_HERE.base.md'
+      - 'MEMORIES.md'
+      - 'MEMORIES.base.md'
+      - 'SKILLS.md'
+      - 'SKILLS.base.md'
+      - 'docs/MANIC_ACCESSIBILITY_GUARDRAIL.md'
+      - 'skills/manic-accessibility-guardrail/**'
+      - 'tools/manic_accessibility_guardrail*'
+      - 'tools/manic_accessibility_boot*'
+      - '.github/workflows/manic-accessibility-guardrail-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'AGENTS.md'
+      - 'AGENTS.base.md'
+      - 'CODEX_STARTS_HERE.md'
+      - 'CODEX_STARTS_HERE.base.md'
+      - 'MEMORIES.md'
+      - 'MEMORIES.base.md'
+      - 'SKILLS.md'
+      - 'SKILLS.base.md'
+      - 'docs/MANIC_ACCESSIBILITY_GUARDRAIL.md'
+      - 'skills/manic-accessibility-guardrail/**'
+      - 'tools/manic_accessibility_guardrail*'
+      - 'tools/manic_accessibility_boot*'
+      - '.github/workflows/manic-accessibility-guardrail-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check skills/manic-accessibility-guardrail/scripts/audit.mjs
+          node --check tools/manic_accessibility_guardrail.mjs
+          node --check tools/manic_accessibility_boot.mjs
+      - name: Guardrail contracts
+        run: node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_boot.test.mjs
+      - name: First-activation canary
+        run: |
+          mkdir -p dist
+          printf '%s\n' '{"request":{"category":"coding","externalActuation":true,"highImpact":false,"irreversible":false,"modeActivation":true},"signals":{},"observations":{},"guardrailResponse":{"status":"not_presented","presentedGuardrailIds":[],"refusedGuardrailIds":[]}}' \
+            | node tools/manic_accessibility_guardrail.mjs audit \
+            | tee dist/first-activation-audit.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("dist/first-activation-audit.json","utf8"));if(r.outcome!=="AMBER"||r.actionPolicy!=="ALLOW_WITH_FRICTION"||r.overruleActive!==false||r.ledger.required!==false||!r.requiredGuardrailIds.includes("BASELINE_CHECK_REQUIRED"))process.exit(1)'
+      - name: Package ChatGPT skill
+        run: |
+          set -euo pipefail
+          staging="$RUNNER_TEMP/manic-accessibility-guardrail"
+          extract="$RUNNER_TEMP/manic-accessibility-guardrail-extract"
+          mkdir -p "$staging/agents" "$staging/scripts" "$staging/references" "$extract"
+          cp skills/manic-accessibility-guardrail/SKILL.md "$staging/SKILL.md"
+          cp skills/manic-accessibility-guardrail/agents/openai.yaml "$staging/agents/openai.yaml"
+          cp skills/manic-accessibility-guardrail/scripts/audit.mjs "$staging/scripts/audit.mjs"
+          cp skills/manic-accessibility-guardrail/references/audit-contract.md "$staging/references/audit-contract.md"
+          cp skills/manic-accessibility-guardrail/references/research.md "$staging/references/research.md"
+          (
+            cd "$staging"
+            zip -q -r "$GITHUB_WORKSPACE/dist/manic-accessibility-guardrail.skill.zip" SKILL.md agents scripts references
+          )
+          unzip -q dist/manic-accessibility-guardrail.skill.zip -d "$extract"
+          printf '%s\n' '{"request":{"category":"coding","externalActuation":true,"highImpact":false,"irreversible":false,"modeActivation":true}}' \
+            | node "$extract/scripts/audit.mjs" audit \
+            > dist/package-first-activation-audit.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("dist/package-first-activation-audit.json","utf8"));if(r.outcome!=="AMBER"||r.actionPolicy!=="ALLOW_WITH_FRICTION"||r.ledger.required!==false)process.exit(1)'
+          sha256sum dist/manic-accessibility-guardrail.skill.zip > dist/SHA256SUMS
+      - name: Upload validated skill package
+        uses: actions/upload-artifact@v4
+        with:
+          name: manic-accessibility-guardrail-skill
+          path: |
+            dist/manic-accessibility-guardrail.skill.zip
+            dist/SHA256SUMS
+            dist/first-activation-audit.json
+            dist/package-first-activation-audit.json
+          if-no-files-found: error
+          retention-days: 30
