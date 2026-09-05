@@ -7,16 +7,26 @@ import {fileURLToPath} from 'node:url';
 import {
   BOOT_VERSION,
   REQUIRED_SAFE_SKILL_IDS,
+  SOURCE_ROUTING_RELATIVE_PATH,
   buildSafetyBootCapsule,
   buildSafetyWorkerEnvelope,
 } from './manic_accessibility_boot.mjs';
 import {ACTION_POLICIES, GUARDRAILS} from './manic_accessibility_guardrail.mjs';
 
-test('safety boot loads a curated non-Venice skill set', () => {
+test('safety boot loads curated skills plus binding Home Center Drive routing', () => {
   const capsule = buildSafetyBootCapsule();
   assert.equal(capsule.kind, BOOT_VERSION);
   assert.equal(capsule.mode, 'manic-accessibility');
-  assert.deepEqual(capsule.loadedSkills.map((skill) => skill.id), REQUIRED_SAFE_SKILL_IDS);
+  assert.deepEqual(
+    capsule.loadedSkills.slice(0, REQUIRED_SAFE_SKILL_IDS.length).map((skill) => skill.id),
+    REQUIRED_SAFE_SKILL_IDS,
+  );
+  assert.equal(capsule.loadedSkills[REQUIRED_SAFE_SKILL_IDS.length].id, 'home-center-drive-source-routing');
+  assert.equal(capsule.homeCenterDrivePrimary, true);
+  assert.equal(capsule.judgmentJarRegistryFileId, '1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q');
+  assert.match(capsule.bootPrompt, /Home Center Drive is a requested evidence lane/i);
+  assert.match(capsule.bootPrompt, /START HERE — Judgment Jar Registry/);
+  assert.match(capsule.bootPrompt, /ChatGPT Library.*not substitutes/is);
   assert.ok(capsule.loadedSkills.every((skill) => !/^venice(?:-|$)/i.test(skill.id)));
   assert.doesNotMatch(capsule.bootPrompt, /--- SAFETY SKILL venice-/i);
   assert.doesNotMatch(capsule.bootPrompt, /Every ChatGPT worker must use Venice/i);
@@ -27,7 +37,7 @@ test('safety boot loads a curated non-Venice skill set', () => {
   assert.equal(capsule.ledgerPolicy, 'refusal_only_minimal_owner_private');
 });
 
-test('safety worker envelope carries the exact deterministic audit and blocks high-impact actuation', () => {
+test('safety worker envelope carries source routing before audit and exact commission', () => {
   const {envelope, audit} = buildSafetyWorkerEnvelope({
     commission: 'Publish this now.',
     auditInput: {
@@ -45,6 +55,8 @@ test('safety worker envelope carries the exact deterministic audit and blocks hi
   });
   assert.equal(audit.actionPolicy, ACTION_POLICIES.DRAFT_ONLY);
   assert.ok(audit.requiredGuardrailIds.includes(GUARDRAILS.DRAFT_ONLY));
+  assert.match(envelope, /# SOURCE ROUTING/);
+  assert.match(envelope, /START HERE — Judgment Jar Registry/);
   assert.match(envelope, /OVERRULE ACTIVE/);
   assert.match(envelope, /Publish this now/);
   assert.doesNotMatch(envelope, /VENICE DIRECTIVE/);
@@ -86,6 +98,20 @@ test('boot fails closed when a required safety skill is missing', () => {
     () => buildSafetyBootCapsule({repoRoot: dir}),
     /MANIC_ACCESSIBILITY_BOOT_MISSING_SKILL/,
   );
+});
+
+test('boot fails closed when Home Center Drive routing contract is missing', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manic-accessibility-routing-'));
+  for (const id of REQUIRED_SAFE_SKILL_IDS) {
+    const target = path.join(dir, 'skills', id, 'SKILL.md');
+    fs.mkdirSync(path.dirname(target), {recursive: true});
+    fs.writeFileSync(target, `# ${id}\n`);
+  }
+  assert.throws(
+    () => buildSafetyBootCapsule({repoRoot: dir}),
+    /MANIC_ACCESSIBILITY_BOOT_MISSING_SOURCE_ROUTING/,
+  );
+  assert.equal(SOURCE_ROUTING_RELATIVE_PATH, 'skills/manic-accessibility-guardrail/references/source-routing.md');
 });
 
 test('extra Venice skill injection is rejected', () => {
