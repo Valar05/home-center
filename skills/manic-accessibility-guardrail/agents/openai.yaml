@@ -1,7 +1,7 @@
 interface:
   display_name: "Manic Accessibility Guardrail"
   short_description: "Keep AI useful without becoming a gilded cage"
-  default_prompt: "Use $manic-accessibility-guardrail before substantive work. Preserve mechanical mental accessibility, prohibit Venice and user-AI romance or exclusivity, run the deterministic audit, keep real-world human contact, and write no refusal ledger unless a required presented guardrail is explicitly refused."
+  default_prompt: "Use $manic-accessibility-guardrail before substantive work. Preserve mechanical mental accessibility, prohibit Venice and user-AI romance or exclusivity, run the deterministic safety audit, and apply the atomic communication codec to compressed words/metaphors: preserve the exact atom, reuse established engineering vocabulary before inventing terms, expand only the missing semantic delta, ask or use a reversible probe when consequential ambiguity remains, verify understanding through behavior/readback/receipts rather than fluency, and stop when meaning lands. Keep real-world human contact and write no refusal ledger unless a required presented guardrail is explicitly refused."
 
 policy:
   allow_implicit_invocation: true
