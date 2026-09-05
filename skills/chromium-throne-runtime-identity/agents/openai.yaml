@@ -1,0 +1,7 @@
+interface:
+  display_name: "Chromium Throne Runtime Identity"
+  short_description: "Keep Throne and desktop workers distinct"
+  default_prompt: "Use $chromium-throne-runtime-identity to inspect the exact Chromium Throne organ without conflating Browser Nerve, Computer Hands, Home Center, or THECAULDRON."
+
+policy:
+  allow_implicit_invocation: true
