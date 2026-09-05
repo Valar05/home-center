@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Narrow AMBER external-action friction
+      - name: Refine policy and preserve repository compatibility
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -50,7 +50,7 @@ jobs:
 
           replacements = {
               Path('skills/manic-accessibility-guardrail/SKILL.md'): [
-                  ('High-impact or external action at `AMBER` pauses for guards;', 'High-impact or irreversible external action at `AMBER` pauses for guards;'),
+                  ('High-impact or external action pauses until required guards are satisfied.', 'High-impact or irreversible external action pauses until required guards are satisfied.'),
               ],
               Path('tools/manic_accessibility_boot.mjs'): [
                   ('High-impact or external action may be paused, reduced to a reversible draft, or blocked.', 'High-impact or irreversible external action may be paused, reduced to a reversible draft, or blocked.'),
@@ -62,17 +62,33 @@ jobs:
                   assert old in value, (path, old)
                   value = value.replace(old, new)
               path.write_text(value)
+
+          sentinel = '## Preserved ordinary doctrine body (inactive where safety conflicts)'
+          for target_name, base_name in [
+              ('AGENTS.md', 'AGENTS.base.md'),
+              ('SKILLS.md', 'SKILLS.base.md'),
+              ('MEMORIES.md', 'MEMORIES.base.md'),
+              ('CODEX_STARTS_HERE.md', 'CODEX_STARTS_HERE.base.md'),
+          ]:
+              target = Path(target_name)
+              value = target.read_text()
+              if sentinel not in value:
+                  value += f'\n\n{sentinel}\n\nThe following preserved body remains active only where it does not conflict with Manic Accessibility safety precedence.\n\n' + Path(base_name).read_text()
+                  target.write_text(value)
           PY
-      - name: Verify contracts
+      - name: Verify focused and compatibility contracts
         run: |
           node --check skills/manic-accessibility-guardrail/scripts/audit.mjs
           node --check tools/manic_accessibility_boot.mjs
           node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_boot.test.mjs
+          node tools/worker_profile_contract_test.mjs
+          python3 tools/test_adam_venice_review_gate.py
+          node --test tools/fortress_online_v2_boot.test.mjs
       - name: Commit refinement
         run: |
           git config user.name 'Home Center Safety Contract'
           git config user.email 'dclarke1005@gmail.com'
-          git add skills/manic-accessibility-guardrail/SKILL.md skills/manic-accessibility-guardrail/scripts/audit.mjs tools/manic_accessibility_boot.mjs tools/manic_accessibility_guardrail.test.mjs
+          git add AGENTS.md SKILLS.md MEMORIES.md CODEX_STARTS_HERE.md skills/manic-accessibility-guardrail/SKILL.md skills/manic-accessibility-guardrail/scripts/audit.mjs tools/manic_accessibility_boot.mjs tools/manic_accessibility_guardrail.test.mjs
           git diff --cached --check
-          git commit -m 'Refine amber policy for reversible persistence'
+          git commit -m 'Refine amber policy and preserve repository compatibility'
           git push origin HEAD:fortress/manic-accessibility-guardrail-v1
