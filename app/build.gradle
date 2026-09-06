@@ -40,13 +40,13 @@ android {
         applicationId 'com.dclar.homecenter'
         minSdk 26
         targetSdk 33
-        versionCode 63
-        versionName '0.2.59'
+        versionCode 64
+        versionName '0.2.60-pocket-resurrection'
 
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'OPENAI_API_KEY', "\"${openAiApiKey.replace('\\', '\\\\').replace('\"', '\\"')}\""
         buildConfigField 'String', 'GEMINI_MODEL', "\"${geminiModel.replace('\\', '\\\\').replace('\"', '\\\"')}\""
-        buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\"')}\""
+        buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\\"')}\""
     }
 }
 
