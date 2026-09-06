@@ -27,6 +27,7 @@ const {
   driveBinaryReadStatusOperation,
   completeDriveBinaryReadOperation,
 } = require('./drive_binary_read_service');
+const {driveTextPatchOperation} = require('./drive_text_patch_service');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
@@ -5060,6 +5061,13 @@ function driveOperationRegistry() {
           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
         },
       },
+      drive_text_patch: {
+        summary: 'Patch bounded UTF-8 bytes in place on an existing stored Drive file with expected SHA-256, exact or marker-bounded replacements, protected-region invariants, audit, and whole-file readback verification.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', expectedSha256: '64-char SHA-256', expectedMimeType: 'optional MIME type', approved: 'boolean true', replacements: 'array of exact|between patch objects', protectedRegions: 'optional marker-region array', requestId: 'string', callerNote: 'optional string'},
+      },
       drive_binary_read_begin: {
         summary: 'Open an owner-bound, hash-verified read session for one stored Drive binary without changing the top-level MCP catalog.',
         write: false,
@@ -5989,6 +5997,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (veniceNerveOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'drive_text_patch') {
+    const result = await driveTextPatchOperation({google, admin, auth, user, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'drive_binary_read_begin') {
