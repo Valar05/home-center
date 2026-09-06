@@ -3432,7 +3432,7 @@
       "openWorldHint": false,
       "readOnlyHint": false
     },
-    "description": "Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.",
+    "description": "Record the basic durable unit of commissioned Home Center work. First invocation records exactly one Punnett-routed She-Raw interrogation question and must stop in AWAITING_ANSWER without executing. Resume the same taskId with interrogationAnswer to permit execution. Use route=fortress_session_probe for the continuity test capability path.",
     "execution": {
       "taskSupport": "forbidden"
     },
@@ -3445,6 +3445,25 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "interrogationAnswer": {
+          "description": "The user answer when resuming the same taskId. An answer supplied on first creation cannot bypass the required turn boundary.",
+          "type": "string"
+        },
+        "interrogationDomain": {
+          "description": "User-owned domain for the one interrogation question. Failure modes, implementation, regressions, and verification strategy are intentionally excluded.",
+          "enum": [
+            "intent",
+            "constraint",
+            "acceptance",
+            "authority",
+            "taste"
+          ],
+          "type": "string"
+        },
+        "interrogationQuestion": {
+          "description": "Exactly one pre-execution question selected through She-Raw with requestedPerspective=Punnett. Required on first task creation by the operation. It may ask only for user-owned intent, constraint, acceptance, authority, or taste.",
+          "type": "string"
         },
         "projectId": {
           "description": "Optional project id hint when creating a fresh session.",
@@ -3459,7 +3478,7 @@
           "type": "string"
         },
         "requestText": {
-          "description": "The work request to record and route.",
+          "description": "The work request to record and route. Repeat the unchanged commission when resuming an existing taskId.",
           "type": "string"
         },
         "route": {

@@ -6809,7 +6809,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('home_center_work_request', {
     title: 'Home Center work request',
-    description: 'Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.',
+    description: 'Record the basic durable unit of commissioned Home Center work. First invocation records exactly one Punnett-routed She-Raw interrogation question and must stop in AWAITING_ANSWER without executing. Resume the same taskId with interrogationAnswer to permit execution. Use route=fortress_session_probe for the continuity test capability path.',
     inputSchema: {
       requestId: z.string().optional().describe('Optional stable request id for provenance.'),
       projectId: z.string().optional().describe('Optional project id hint when creating a fresh session.'),
@@ -6818,7 +6818,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       taskId: z.string().optional().describe('Optional stable task id override.'),
       taskKind: z.string().optional().describe('Optional task kind label.'),
       route: z.string().optional().describe('Optional execution route. Use fortress_session_probe for the supported continuity test lane; unrouted work remains durably requested.'),
-      requestText: z.string().describe('The work request to record and route.'),
+      requestText: z.string().describe('The work request to record and route. Repeat the unchanged commission when resuming an existing taskId.'),
+      interrogationQuestion: z.string().optional().describe('Exactly one pre-execution question selected through She-Raw with requestedPerspective=Punnett. Required on first task creation by the operation. It may ask only for user-owned intent, constraint, acceptance, authority, or taste.'),
+      interrogationDomain: z.enum(['intent', 'constraint', 'acceptance', 'authority', 'taste']).optional().describe('User-owned domain for the one interrogation question. Failure modes, implementation, regressions, and verification strategy are intentionally excluded.'),
+      interrogationAnswer: z.string().optional().describe('The user answer when resuming the same taskId. An answer supplied on first creation cannot bypass the required turn boundary.'),
       artifactRefs: z.array(z.string()).optional().describe('Optional artifact or receipt refs already associated with this request.'),
       subsystemRefs: z.array(z.string()).optional().describe('Optional subsystem-specific refs or receipt ids.'),
     },

@@ -1,5 +1,5 @@
 {
-  "canonicalToolsSha256": "db882595ec9aadcc0caa57ff457e2c5d20bd9dae43b121038d84409a0a9561f7",
+  "canonicalToolsSha256": "87c46c9237fb10153d29fa793f3a3694cc265b11281e6b6f993cf5216c660944",
   "entries": [
     {
       "annotations": {
@@ -5520,7 +5520,7 @@
         "openWorldHint": false,
         "readOnlyHint": false
       },
-      "description": "Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.",
+      "description": "Record the basic durable unit of commissioned Home Center work. First invocation records exactly one Punnett-routed She-Raw interrogation question and must stop in AWAITING_ANSWER without executing. Resume the same taskId with interrogationAnswer to permit execution. Use route=fortress_session_probe for the continuity test capability path.",
       "fileBearingFields": [],
       "inputSchema": {
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -5531,6 +5531,25 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "interrogationAnswer": {
+            "description": "The user answer when resuming the same taskId. An answer supplied on first creation cannot bypass the required turn boundary.",
+            "type": "string"
+          },
+          "interrogationDomain": {
+            "description": "User-owned domain for the one interrogation question. Failure modes, implementation, regressions, and verification strategy are intentionally excluded.",
+            "enum": [
+              "intent",
+              "constraint",
+              "acceptance",
+              "authority",
+              "taste"
+            ],
+            "type": "string"
+          },
+          "interrogationQuestion": {
+            "description": "Exactly one pre-execution question selected through She-Raw with requestedPerspective=Punnett. Required on first task creation by the operation. It may ask only for user-owned intent, constraint, acceptance, authority, or taste.",
+            "type": "string"
           },
           "projectId": {
             "description": "Optional project id hint when creating a fresh session.",
@@ -5545,7 +5564,7 @@
             "type": "string"
           },
           "requestText": {
-            "description": "The work request to record and route.",
+            "description": "The work request to record and route. Repeat the unchanged commission when resuming an existing taskId.",
             "type": "string"
           },
           "route": {
@@ -5578,7 +5597,7 @@
         "type": "object"
       },
       "name": "home_center_work_request",
-      "schemaHash": "f6e2b4a5b59c01f002ac5ee41705f6621942cf6180d71656a82af763606032b5",
+      "schemaHash": "abe19dc531e3f05473a9bdecb2a525560dc001c1d1c337b0331253bf70a7b2da",
       "tool": {
         "_meta": {
           "securitySchemes": [
@@ -5600,7 +5619,7 @@
           "openWorldHint": false,
           "readOnlyHint": false
         },
-        "description": "Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.",
+        "description": "Record the basic durable unit of commissioned Home Center work. First invocation records exactly one Punnett-routed She-Raw interrogation question and must stop in AWAITING_ANSWER without executing. Resume the same taskId with interrogationAnswer to permit execution. Use route=fortress_session_probe for the continuity test capability path.",
         "execution": {
           "taskSupport": "forbidden"
         },
@@ -5613,6 +5632,25 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            "interrogationAnswer": {
+              "description": "The user answer when resuming the same taskId. An answer supplied on first creation cannot bypass the required turn boundary.",
+              "type": "string"
+            },
+            "interrogationDomain": {
+              "description": "User-owned domain for the one interrogation question. Failure modes, implementation, regressions, and verification strategy are intentionally excluded.",
+              "enum": [
+                "intent",
+                "constraint",
+                "acceptance",
+                "authority",
+                "taste"
+              ],
+              "type": "string"
+            },
+            "interrogationQuestion": {
+              "description": "Exactly one pre-execution question selected through She-Raw with requestedPerspective=Punnett. Required on first task creation by the operation. It may ask only for user-owned intent, constraint, acceptance, authority, or taste.",
+              "type": "string"
             },
             "projectId": {
               "description": "Optional project id hint when creating a fresh session.",
@@ -5627,7 +5665,7 @@
               "type": "string"
             },
             "requestText": {
-              "description": "The work request to record and route.",
+              "description": "The work request to record and route. Repeat the unchanged commission when resuming an existing taskId.",
               "type": "string"
             },
             "route": {
@@ -7484,7 +7522,7 @@
       }
     }
   ],
-  "manifestSha256": "3a4036820a5deecc02347884616036876b3652f4353c72d15f1135fd555ea421",
+  "manifestSha256": "91617e301b8021d9d365d495ab0fa1e9a13e467b0a143b5d41e652332cd5c142",
   "registryRevision": "2026-09-04.browser-nerve-action-surface-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 62

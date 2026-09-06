@@ -13,7 +13,8 @@ const HOME_CENTER_FORTRESS_COLLECTIONS = Object.freeze({
   workItems: 'homeCenterWorkItems',
 });
 
-const WORK_STATES = new Set(['REQUESTED', 'QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'UNKNOWN']);
+const WORK_STATES = new Set(['REQUESTED', 'AWAITING_ANSWER', 'QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'UNKNOWN']);
+const WORK_INTERROGATION_DOMAINS = new Set(['intent', 'constraint', 'acceptance', 'authority', 'taste']);
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -72,6 +73,67 @@ function mergeUniqueStrings(values, additions, maxItems = 20) {
 function normalizeWorkState(value) {
   const state = safeText(value, 40).toUpperCase();
   return WORK_STATES.has(state) ? state : 'UNKNOWN';
+}
+
+function normalizeInterrogationDomain(value) {
+  const domain = safeText(value, 40).toLowerCase();
+  if (WORK_INTERROGATION_DOMAINS.has(domain)) return domain;
+  const err = new Error('interrogationDomain must be one of intent, constraint, acceptance, authority, or taste. Failure analysis, implementation, regressions, and verification belong to Fortress, not the user.');
+  err.status = 400;
+  err.code = 'invalid_interrogation_domain';
+  throw err;
+}
+
+function publicInterrogation(value = {}) {
+  const interrogation = safeObject(value);
+  return {
+    required: interrogation.required !== false,
+    questionCount: 1,
+    source: safeText(interrogation.source, 80) || 'she-raw',
+    perspective: safeText(interrogation.perspective, 80) || 'punnett',
+    domain: safeText(interrogation.domain, 40),
+    question: safeText(interrogation.question, 600),
+    answered: Boolean(safeText(interrogation.answer, 2000)),
+    askedAtMs: Number(interrogation.askedAtMs || 0) || 0,
+    answeredAtMs: Number(interrogation.answeredAtMs || 0) || 0,
+  };
+}
+
+function interrogationForNewWork(args = {}, timeMs = nowMs()) {
+  const question = safeText(args.interrogationQuestion, 600);
+  if (!question) {
+    const err = new Error('Exactly one Punnett-routed She-Raw interrogationQuestion is required before Home Center may execute a work commission.');
+    err.status = 400;
+    err.code = 'interrogation_question_required';
+    throw err;
+  }
+  if ((question.match(/\?/g) || []).length > 1) {
+    const err = new Error('interrogationQuestion must contain exactly one question, not a questionnaire.');
+    err.status = 400;
+    err.code = 'multiple_interrogation_questions';
+    throw err;
+  }
+  return {
+    required: true,
+    questionCount: 1,
+    source: 'she-raw',
+    perspective: 'punnett',
+    domain: normalizeInterrogationDomain(args.interrogationDomain),
+    question,
+    answer: '',
+    askedAtMs: timeMs,
+    answeredAtMs: 0,
+  };
+}
+
+async function loadWorkItem(admin, caller, taskId) {
+  const cleanTaskId = safeText(taskId, 120);
+  if (!cleanTaskId) return null;
+  const snap = await collection(admin, HOME_CENTER_FORTRESS_COLLECTIONS.workItems).doc(cleanTaskId).get();
+  if (!snap.exists) return null;
+  const work = {taskId: cleanTaskId, ...(snap.data() || {})};
+  assertOwnerAccess(work, caller, 'Home Center work item');
+  return work;
 }
 
 function callerFromHomeCenterUser(user = {}, agentId = 'Venice') {
@@ -145,6 +207,7 @@ function summarizeWorkItem(work = {}) {
     taskKind: safeText(work.taskKind, 120),
     route: safeText(work.route, 120),
     normalizedState: normalizeWorkState(work.normalizedState || work.status),
+    interrogation: publicInterrogation(work.interrogation),
     receiptRefs: safeList(work.receiptRefs, 10, 800),
     artifactRefs: safeList(work.artifactRefs, 10, 800),
     updatedAtMs: Number(work.updatedAtMs || 0) || 0,
@@ -423,6 +486,7 @@ function workReceiptForItem(work) {
     taskId: safeText(work.taskId, 120),
     taskKind: safeText(work.taskKind, 120),
     summary: safeText(work.resultSummary || work.requestText, 400),
+    interrogation: publicInterrogation(work.interrogation),
     updatedAtMs: Number(work.updatedAtMs || 0) || 0,
   };
 }
@@ -441,6 +505,7 @@ function stagedWorkItem(caller = {}, session = {}, args = {}, timeMs = nowMs()) 
     taskKind: safeText(args.taskKind, 120) || 'general_work_request',
     route,
     requestText: safeText(args.requestText, 2000),
+    interrogation: interrogationForNewWork(args, timeMs),
     normalizedState: 'REQUESTED',
     status: 'REQUESTED',
     receiptRefs: [],
@@ -503,9 +568,52 @@ function activeWithoutRef(refs, ref) {
 async function homeCenterWorkRequestOperation({admin, caller, args = {}, now: nowFn = nowMs, executeWork = null} = {}) {
   const timeMs = nowFn();
   const active = await ensureActiveSession(admin, caller, args, {nowMs: timeMs});
-  let work = stagedWorkItem(caller, active.session, args, timeMs);
-  const executor = typeof executeWork === 'function' ? executeWork : defaultFortressWorkExecutor;
-  work = await executor({admin, caller, session: active.session, project: active.project, work, args, now: nowFn});
+  const requestedTaskId = safeText(args.taskId, 120);
+  let work = requestedTaskId ? await loadWorkItem(admin, caller, requestedTaskId) : null;
+
+  if (!work) {
+    work = stagedWorkItem(caller, active.session, args, timeMs);
+    work = advanceWorkItem(work, 'AWAITING_ANSWER', 'Exactly one Punnett-routed She-Raw question must be answered before execution.', timeMs + 1);
+  } else {
+    const requestText = safeText(args.requestText, 2000);
+    if (requestText && requestText !== safeText(work.requestText, 2000)) {
+      const err = new Error('A work item cannot change commissions while resuming its interrogation.');
+      err.status = 409;
+      err.code = 'work_request_changed';
+      throw err;
+    }
+    const suppliedQuestion = safeText(args.interrogationQuestion, 600);
+    if (suppliedQuestion && suppliedQuestion !== safeText(work.interrogation && work.interrogation.question, 600)) {
+      const err = new Error('The one interrogation question is immutable after it is recorded.');
+      err.status = 409;
+      err.code = 'interrogation_question_changed';
+      throw err;
+    }
+    const suppliedDomain = safeText(args.interrogationDomain, 40).toLowerCase();
+    if (suppliedDomain && suppliedDomain !== safeText(work.interrogation && work.interrogation.domain, 40)) {
+      const err = new Error('The interrogation domain is immutable after it is recorded.');
+      err.status = 409;
+      err.code = 'interrogation_domain_changed';
+      throw err;
+    }
+    if (normalizeWorkState(work.status) === 'AWAITING_ANSWER') {
+      const answer = safeText(args.interrogationAnswer, 2000);
+      if (answer) {
+        work = {
+          ...work,
+          interrogation: {
+            ...safeObject(work.interrogation),
+            answer,
+            answeredAtMs: timeMs,
+          },
+          updatedAtMs: timeMs,
+        };
+        const executor = typeof executeWork === 'function' ? executeWork : defaultFortressWorkExecutor;
+        work = await executor({admin, caller, session: active.session, project: active.project, work, args, now: nowFn});
+      }
+    }
+  }
+
   work.receiptRefs = mergeUniqueStrings(work.receiptRefs, [workReceiptForItem(work).receiptRef], 10);
   await collection(admin, HOME_CENTER_FORTRESS_COLLECTIONS.workItems).doc(work.taskId).set(work, {merge: false});
   const nextSession = await persistSessionWorkLink(admin, active.session, work, Number(work.updatedAtMs || timeMs) || timeMs);
@@ -516,6 +624,7 @@ async function homeCenterWorkRequestOperation({admin, caller, args = {}, now: no
       normalizedState: normalizeWorkState(work.status),
       route: work.route,
       requestText: work.requestText,
+      interrogation: publicInterrogation(work.interrogation),
       receipt: workReceiptForItem(work),
       statusHistory: safeObjectList(work.statusHistory, 20),
     },
@@ -564,6 +673,7 @@ async function homeCenterWorkStatusOperation({admin, caller, args = {}} = {}) {
       taskKind: safeText(work.taskKind, 120),
       route: safeText(work.route, 120),
       normalizedState: normalizeWorkState(work.status),
+      interrogation: publicInterrogation(work.interrogation),
       statusHistory: safeObjectList(work.statusHistory, 20),
       receipt: workReceiptForItem(work),
       artifactRefs: safeList(work.artifactRefs, 20, 800),

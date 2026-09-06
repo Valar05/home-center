@@ -124,34 +124,69 @@ test('Fortress Online reconstructs the durable objective after a fresh Home Cent
   );
 });
 
-test('Home Center work receipts survive restart and stay readable through session status', async () => {
+test('Home Center work receipts survive restart and enforce one Punnett interrogation before execution', async () => {
   const admin = fakeAdmin();
   const auth = extraAuth();
   const serverA = createServer(admin);
+  const taskId = 'fortress-interrogation-probe';
+  const requestText = 'Patch it.';
+  const question = 'Which acceptance surface owns completion?';
 
   parseToolResult(await callRegisteredHomeCenterTool(serverA, 'fortress_online', {}, auth));
   const requested = parseToolResult(await callRegisteredHomeCenterTool(serverA, 'home_center_work_request', {
-    requestText: 'Patch it.',
+    taskId,
+    requestText,
     taskKind: 'code_patch_request',
     route: 'fortress_session_probe',
+    interrogationQuestion: question,
+    interrogationDomain: 'acceptance',
+    interrogationAnswer: 'This early answer must not bypass the turn boundary.',
   }, auth));
 
   assert.equal(requested.ok, true);
-  assert.equal(requested.work.normalizedState, 'SUCCEEDED');
-  assert.deepEqual(
-    requested.work.statusHistory.map((entry) => entry.state),
-    ['REQUESTED', 'QUEUED', 'RUNNING', 'SUCCEEDED'],
-  );
+  assert.equal(requested.work.normalizedState, 'AWAITING_ANSWER');
+  assert.deepEqual(requested.work.statusHistory.map((entry) => entry.state), ['REQUESTED', 'AWAITING_ANSWER']);
+  assert.equal(requested.work.interrogation.questionCount, 1);
+  assert.equal(requested.work.interrogation.source, 'she-raw');
+  assert.equal(requested.work.interrogation.perspective, 'punnett');
+  assert.equal(requested.work.interrogation.domain, 'acceptance');
+  assert.equal(requested.work.interrogation.question, question);
+  assert.equal(requested.work.interrogation.answered, false);
   assert.match(requested.work.receipt.receiptRef, /^firestore:\/\/homeCenterWorkItems\//);
 
   const serverB = createServer(admin);
-  const workStatus = parseToolResult(await callRegisteredHomeCenterTool(serverB, 'home_center_work_status', {}, auth));
+  const waitingStatus = parseToolResult(await callRegisteredHomeCenterTool(serverB, 'home_center_work_status', {taskId}, auth));
+  assert.equal(waitingStatus.found, true);
+  assert.equal(waitingStatus.work.normalizedState, 'AWAITING_ANSWER');
+  assert.equal(waitingStatus.work.interrogation.answered, false);
+  const waitingSession = parseToolResult(await callRegisteredHomeCenterTool(serverB, 'home_center_session_status', {}, auth));
+  assert.equal(waitingSession.orientation.pending_work.length, 1);
+  assert.equal(waitingSession.orientation.pending_work[0].interrogation.questionCount, 1);
+
+  const completed = parseToolResult(await callRegisteredHomeCenterTool(serverB, 'home_center_work_request', {
+    taskId,
+    requestText,
+    taskKind: 'code_patch_request',
+    route: 'fortress_session_probe',
+    interrogationAnswer: 'The durable Home Center receipt.',
+  }, auth));
+
+  assert.equal(completed.work.normalizedState, 'SUCCEEDED');
+  assert.equal(completed.work.interrogation.answered, true);
+  assert.deepEqual(
+    completed.work.statusHistory.map((entry) => entry.state),
+    ['REQUESTED', 'AWAITING_ANSWER', 'QUEUED', 'RUNNING', 'SUCCEEDED'],
+  );
+  assert.equal(completed.work.receipt.receiptRef, requested.work.receipt.receiptRef);
+
+  const serverC = createServer(admin);
+  const workStatus = parseToolResult(await callRegisteredHomeCenterTool(serverC, 'home_center_work_status', {taskId}, auth));
   assert.equal(workStatus.found, true);
   assert.equal(workStatus.work.normalizedState, 'SUCCEEDED');
-  assert.equal(workStatus.work.receipt.receiptRef, requested.work.receipt.receiptRef);
+  assert.equal(workStatus.work.interrogation.answered, true);
 
-  const sessionStatus = parseToolResult(await callRegisteredHomeCenterTool(serverB, 'home_center_session_status', {}, auth));
+  const sessionStatus = parseToolResult(await callRegisteredHomeCenterTool(serverC, 'home_center_session_status', {}, auth));
   assert.equal(sessionStatus.active, true);
   assert.equal(sessionStatus.orientation.pending_work.length, 0);
-  assert.equal(sessionStatus.orientation.recent_completed_work[0].taskId, requested.work.taskId);
+  assert.equal(sessionStatus.orientation.recent_completed_work[0].taskId, taskId);
 });
