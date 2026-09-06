@@ -24,15 +24,10 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
       - name: Build installable debug APK
         run: |
+          java -version
+          test -f gradlew
           chmod +x gradlew
           ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
