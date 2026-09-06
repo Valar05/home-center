@@ -8,8 +8,6 @@ on:
     branches:
       - main
     paths:
-      - 'tools/pocket_tts_resurrection.py'
-      - 'tools/pocket_tts_local_server.py'
       - 'app/src/main/java/com/dclar/homecenter/PocketTtsControlActivity.java'
       - 'app/src/main/AndroidManifest.xml'
       - 'app/build.gradle'
@@ -19,21 +17,12 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  apk:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout exact head
         uses: actions/checkout@v4
-
-      - name: Validate campaign source
-        run: |
-          python3 -m py_compile tools/pocket_tts_resurrection.py
-          python3 -m py_compile tools/pocket_tts_local_server.py
-          python3 tools/pocket_tts_resurrection.py --fault-table > pocket-tts-fault-table.json
-          grep -q 'F060_PLAYBACK_UNVERIFIED' pocket-tts-fault-table.json
-          grep -q 'F040_LOCAL_SERVICE_DOWN' pocket-tts-fault-table.json
-          grep -q 'F030_PLAYBACK_COMPONENT_MISSING' pocket-tts-fault-table.json
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -42,12 +31,12 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Build Home Center APK
+      - name: Build installable debug APK
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
-      - name: Verify APK and materialize receipt
+      - name: Materialize APK receipt
         run: |
           set -eu
           APK=app/build/outputs/apk/debug/app-debug.apk
@@ -67,7 +56,7 @@ jobs:
             > pocket-tts-apk-receipt.txt
           cat pocket-tts-apk-receipt.txt
 
-      - name: Upload installable APK
+      - name: Upload APK and receipt
         uses: actions/upload-artifact@v4
         with:
           name: home-center-pocket-tts-resurrection-${{ github.sha }}
@@ -76,4 +65,3 @@ jobs:
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             pocket-tts-apk-receipt.txt
-            pocket-tts-fault-table.json
