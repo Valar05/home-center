@@ -54,7 +54,7 @@ jobs:
 
       - name: Verify doctrine anchors
         run: |
-          grep -q "Fortress Online is always active" skills/dru-simulation-trap/SKILL.md
+          grep -q "## Standing Fortress" skills/dru-simulation-trap/SKILL.md
           grep -q "home_center_work_request" .continue/rules/05-judgement-jar-simulation-trap.md
           grep -q "AWAITING_ANSWER" functions/home_center_fortress.js
 
