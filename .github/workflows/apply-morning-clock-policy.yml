@@ -1,0 +1,53 @@
+name: Apply Morning Clock Policy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-morning-clock-policy
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install function dependencies
+        run: npm --prefix functions ci
+      - name: Apply clock-linked morning doctrine
+        run: node tools/patch_morning_clock_doctrine.js
+      - name: Validate deterministic policy source
+        run: node --check functions/morning_brief_policy.js && node --check functions/morning_brief_policy.test.js && node --check tools/patch_morning_clock_doctrine.js
+      - name: Run deterministic morning regressions
+        run: npm --prefix functions run test:morning-clock
+      - name: Run function lint
+        run: npm --prefix functions run lint
+      - name: Verify doctrine anchors
+        run: |
+          grep -F "dru.morning-clock.v1" .continue/rules/05-judgement-jar-simulation-trap.md
+          grep -F "MORNING_CLOCK_BYPASS" .continue/rules/05-judgement-jar-simulation-trap.md
+          grep -F "dru.morning-clock.v1" skills/dru-simulation-trap/SKILL.md
+          grep -F "stateful question: **is the morning wrapper relevant now?**" .continue/rules/05-judgement-jar-simulation-trap.md
+      - name: Verify clean diff
+        run: git diff --check
+      - name: Commit doctrine integration
+        run: |
+          git config user.name "home-center-dru-patcher"
+          git config user.email "actions@users.noreply.github.com"
+          git add .continue/rules/05-judgement-jar-simulation-trap.md skills/dru-simulation-trap/SKILL.md
+          if git diff --cached --quiet; then
+            echo "Morning doctrine already integrated"
+          else
+            git commit -m "Tie morning brief to always-on clock"
+            git push origin HEAD:main
+          fi
