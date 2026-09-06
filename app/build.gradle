@@ -46,7 +46,7 @@ android {
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'OPENAI_API_KEY', "\"${openAiApiKey.replace('\\', '\\\\').replace('\"', '\\"')}\""
         buildConfigField 'String', 'GEMINI_MODEL', "\"${geminiModel.replace('\\', '\\\\').replace('\"', '\\\"')}\""
-        buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+        buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\"')}\""
     }
 }
 
