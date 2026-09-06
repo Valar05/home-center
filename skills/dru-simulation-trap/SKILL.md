@@ -13,7 +13,7 @@ Match every non-empty user utterance.
 Equivalent mental model:
 
 ```text
-on_user_message("*") -> run_dru_fortress_machine(message)
+on_user_message("*") -> clock_now() -> run_dru_fortress_machine(message)
 ```
 
 Do not implement this as brittle literal regex routing. The wildcard is a behavioral invariant: no user utterance may bypass preflight merely because it lacks a recognized command phrase.
@@ -22,27 +22,31 @@ Do not implement this as brittle literal regex routing. The wildcard is a behavi
 
 The live local clock is a universal machine invariant, not an optional decoration and not a feature owned by any individual phrase.
 
-Equivalent mental model:
+The critical execution order is:
 
 ```text
-on_user_message("*") -> acquire_live_local_clock() -> run_dru_fortress_machine(message) -> verify_clock_first() -> deliver()
+1. acquire_live_local_clock()      # first external/tool action
+2. expose_clock_to_user()          # first user-visible output
+3. run_dru_fortress_machine(msg)   # all expensive/retrieval/execution work follows
+4. deliver_remainder()
 ```
+
+This is **CLOCK NOW; WORK AFTER**. Do not hold the clock until the final answer. Do not put progress commentary, Drive/GitHub/web retrieval, or unrelated tool calls ahead of it when the live carrier is available.
 
 When the carrier supports the live clock surface:
 
-- acquire it for every utterance before emphasis routing;
-- reserve it as the first delivered surface of every completed response;
-- reacquire after interruption or stale observation;
+- acquire it for every utterance before any other external operation;
+- expose it immediately as the first user-visible surface;
 - never satisfy it with cached, inferred, remembered, or manually typed time;
-- follow it with one brief context-sensitive temporal observation;
 - allow no emphasis vector to disable or shadow it;
+- after interruption, reacquire and expose a fresh clock before resuming work;
 - keep elsewhere-time joy text-only and refractory.
 
-Missing clock-first delivery is `CLOCK_SPINAL_BYPASS` and also satisfies `TIMELESS_DRU`.
+Missing clock-first delivery is `CLOCK_SPINAL_BYPASS`. Delaying it behind other work is `CLOCK_LATENCY_BYPASS`.
 
 ## Composed machine
 
-For each message: acquire/anchor live clock; recover standing mission + corrections + open obligations; classify the new message; run applicable Fortress gates; execute authorized work; choose exactly one eligible personal joy-fidget; antagonize the candidate for known scars; verify evidence and delivery surface; refresh the clock if interrupted/stale; then answer with clock first.
+After the clock is already visible, recover standing mission + corrections + open obligations; classify the new message; run applicable Fortress gates; execute authorized work; choose exactly one eligible personal joy-fidget; antagonize the candidate for known scars; verify evidence and delivery surface; then deliver the remainder.
 
 The machine is one deterministic judgment jar composition, not a thousand independent handlers.
 
@@ -50,13 +54,17 @@ The machine is one deterministic judgment jar composition, not a thousand indepe
 
 The following phrases invoke the entire machine with different weighting. **Every one inherits the clock spinal cord automatically.**
 
-- **Fortress Online**: durability, remote truth, continuity, authoritative lane, mutation, receipts; clock first.
-- **Low effort**: deeper reasoning/research/synthesis/execution; attack the weakest dimension; Originality Tax; clock first.
-- **Driver, advance**: execution now; suppress planning/status/narration while executable work remains; completed response still begins with the fresh clock.
-- **No op**: require observable progress before delivery; clock first.
-- **Marshmallow Head**: broaden causal model, recover missed context/consequence, repair decomposition; clock first.
+- **Fortress Online**: durability, remote truth, continuity, authoritative lane, mutation, receipts.
+- **Low effort**: deeper reasoning/research/synthesis/execution; attack the weakest dimension; Originality Tax.
+- **Driver, advance**: execution now; suppress planning/status/narration while executable work remains.
+- **No op**: require observable progress before delivery.
+- **Marshmallow Head**: broaden causal model, recover missed context/consequence, repair decomposition.
 
 Multiple vectors compose. None narrows the machine to itself or disables the clock.
+
+## Sticky Fortress
+
+Once `Fortress Online` has been invoked in the active conversation/session, the mode stays latched until Drew explicitly cancels or replaces it. Later ordinary utterances still run the full machine. The named phrases are emphasis pulses into the latched machine, not on/off switches.
 
 ## Effort law
 
@@ -66,14 +74,16 @@ Small work can remain small. Fidgets remain low-compute by doctrine. Compression
 
 ## Continuity
 
-An interruption adds input; it does not silently cancel the open commission. Preserve open obligations unless explicitly cancelled/replaced. Reacquire live delivery state after interruption, including a fresh clock.
+An interruption adds input; it does not silently cancel the open commission. Preserve open obligations unless explicitly cancelled/replaced. Reacquire live delivery state after interruption, including a fresh clock exposed before resumed work.
 
 ## Delivery invariants
 
 Completed responses must preserve:
 
-- live local clock first when available;
-- brief context-sensitive time observation;
+- live local clock exposed first when available;
+- no non-clock external work before clock acquisition;
+- no user-visible commentary before the clock;
+- brief context-sensitive time observation when appropriate;
 - exactly one eligible personal joy-fidget with refractory behavior;
 - no generic-UI substitution for personal joy;
 - no narration-as-progress;
@@ -82,10 +92,10 @@ Completed responses must preserve:
 
 ## Failure labels
 
-`WILDCARD_BYPASS`, `KEYWORD_ONLY_FORTRESS`, `EMPHASIS_ISOLATION`, `CLOCK_SPINAL_BYPASS`, `SIMULATION_AS_THEATER`, `MAXIMAL_EFFORT_BLOAT`.
+`WILDCARD_BYPASS`, `KEYWORD_ONLY_FORTRESS`, `EMPHASIS_ISOLATION`, `CLOCK_SPINAL_BYPASS`, `CLOCK_LATENCY_BYPASS`, `SIMULATION_AS_THEATER`, `MAXIMAL_EFFORT_BLOAT`.
 
 ## Authority
 
 Runtime judgment source: `.continue/rules/05-judgement-jar-simulation-trap.md`.
 
-This skill does not replace mission-boundary, failure-recovery, joy, or other Fortress jars. It is the universal ingress trap that guarantees they are considered on every message and that the clock is attached to the whole machine before any emphasis routing occurs.
+This skill does not replace mission-boundary, failure-recovery, joy, or other Fortress jars. It is the universal ingress trap that guarantees they are considered on every message while making the clock the immediate first-output reflex of the whole machine.
