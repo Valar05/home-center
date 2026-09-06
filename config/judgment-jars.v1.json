@@ -19,6 +19,7 @@
   "runtime": {
     "defaultPhoneJarIds": [
       "mission-boundary",
+      "simulation-trap",
       "home-center-vlad-receipts",
       "repository-truth",
       "change-discipline",
