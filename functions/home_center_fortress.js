@@ -16,6 +16,7 @@ const HOME_CENTER_FORTRESS_COLLECTIONS = Object.freeze({
 const WORK_STATES = new Set(['REQUESTED', 'AWAITING_ANSWER', 'QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'UNKNOWN']);
 const WORK_INTERROGATION_DOMAINS = new Set(['intent', 'constraint', 'acceptance', 'authority', 'taste']);
 const FULL_PERSPECTIVE_VERSION = 'dru.punnett-regnet-reneqa.v1';
+const INTENT_IDEMPOTENCE_VERSION = 'dru.intent-idempotence.v1';
 const INTERROGATION_AGENT_WORK_PATTERNS = Object.freeze([
   {code: 'USER_FAILURE_TAX', pattern: /\b(failure modes?|pre-?mortem|risk analysis|regressions?|verification strategy|test strategy|test plan)\b/i},
   {code: 'IMPLEMENTATION_TAX', pattern: /\b(implementation|architecture|internal mechanics?|engine structure|distinct passes?|separate passes?|merge(?:d|s|ing)?|split(?:ting)?|refactor(?:ing)?)\b/i},
@@ -92,6 +93,19 @@ function safeObjectList(value, maxItems = 20) {
 
 function hashText(value, length = 16) {
   return createHash('sha256').update(String(value || '')).digest('hex').slice(0, length);
+}
+
+function idempotentActionPolicy(taskId) {
+  const stableTaskId = safeText(taskId, 120);
+  return {
+    version: INTENT_IDEMPOTENCE_VERSION,
+    mode: 'state_convergence',
+    intentModel: 'desired_state_not_repeated_imperative',
+    questionModel: 'state_before_imperative',
+    retryPolicy: 'same_task_id_no_duplicate_execution',
+    idempotencyKey: 'home-center-work:' + hashText(stableTaskId, 32),
+    law: 'Observe the state predicate; perform the smallest deterministic transition toward the desired state; once satisfied, repeating the same work item is a no-op.',
+  };
 }
 
 function slug(value, fallback = 'item') {
@@ -267,6 +281,7 @@ function summarizeWorkItem(work = {}) {
     route: safeText(work.route, 120),
     normalizedState: normalizeWorkState(work.normalizedState || work.status),
     interrogation: publicInterrogation(work.interrogation),
+    actionPolicy: safeObject(work.actionPolicy),
     receiptRefs: safeList(work.receiptRefs, 10, 800),
     artifactRefs: safeList(work.artifactRefs, 10, 800),
     updatedAtMs: Number(work.updatedAtMs || 0) || 0,
@@ -546,6 +561,7 @@ function workReceiptForItem(work) {
     taskKind: safeText(work.taskKind, 120),
     summary: safeText(work.resultSummary || work.requestText, 400),
     interrogation: publicInterrogation(work.interrogation),
+    actionPolicy: safeObject(work.actionPolicy),
     updatedAtMs: Number(work.updatedAtMs || 0) || 0,
   };
 }
@@ -553,6 +569,7 @@ function workReceiptForItem(work) {
 function stagedWorkItem(caller = {}, session = {}, args = {}, timeMs = nowMs()) {
   const taskId = safeText(args.taskId, 120) || `work-${timeMs}-${randomUUID().slice(0, 8)}`;
   const route = safeText(args.route, 120) || 'manual_followup';
+  const actionPolicy = idempotentActionPolicy(taskId);
   return {
     taskId,
     ownerKey: caller.ownerKey,
@@ -563,6 +580,7 @@ function stagedWorkItem(caller = {}, session = {}, args = {}, timeMs = nowMs()) 
     workspaceId: safeText(session.workspaceId, 120),
     taskKind: safeText(args.taskKind, 120) || 'general_work_request',
     route,
+    actionPolicy,
     requestText: safeText(args.requestText, 2000),
     interrogation: interrogationForNewWork(args, timeMs),
     normalizedState: 'REQUESTED',
@@ -684,6 +702,7 @@ async function homeCenterWorkRequestOperation({admin, caller, args = {}, now: no
       route: work.route,
       requestText: work.requestText,
       interrogation: publicInterrogation(work.interrogation),
+      actionPolicy: safeObject(work.actionPolicy),
       receipt: workReceiptForItem(work),
       statusHistory: safeObjectList(work.statusHistory, 20),
     },
@@ -733,6 +752,7 @@ async function homeCenterWorkStatusOperation({admin, caller, args = {}} = {}) {
       route: safeText(work.route, 120),
       normalizedState: normalizeWorkState(work.status),
       interrogation: publicInterrogation(work.interrogation),
+      actionPolicy: safeObject(work.actionPolicy),
       statusHistory: safeObjectList(work.statusHistory, 20),
       receipt: workReceiptForItem(work),
       artifactRefs: safeList(work.artifactRefs, 20, 800),

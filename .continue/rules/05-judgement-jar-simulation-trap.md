@@ -96,6 +96,23 @@ Failure labels:
 
 Acceptance requires a valid user-owned question to persist `fullPerspective.version=dru.punnett-regnet-reneqa.v1`, `mode=punnett_full_perspective`, Regnet PASS, and Rene QA PASS. The exact rejected architecture question “Should the engine make Regnet and Rene QA two distinct passes or merge them into one judgment pass?” must fail as `interrogation_implementation_tax`.
 
+## Intentional action is idempotent state convergence
+
+Drew's stronger form of “everything I do should be on purpose” is operational rather than moralistic: **actions must converge idempotently on intended state**.
+
+- Ask for the state that determines the action, not repeated permission for a mechanism whose policy is already known.
+- Drew's canonical example: do not ask “should I close the outer door?” Ask “is it hot?” If hot, close the outer door. Once closed under the same hot-state policy, repeating the operation does nothing.
+- Prefer state setters over blind imperative repetition.
+- Every Home Center work item carries a stable idempotency identity derived from its task identity. Retrying the same completed work item must not execute the transition again.
+- For inherently non-idempotent provider actions such as sending, purchasing, creating, charging, or appending, the implementation must supply a stable provider idempotency key, precondition/readback guard, or durable receipt before retry is considered safe.
+- “I did not do it on purpose” does not become “consciously deliberate every muscle twitch.” It becomes: consequential operations have a desired state and a retry-safe convergence rule.
+
+Failure labels:
+
+- `NON_IDEMPOTENT_ACTION`: retrying the same commissioned operation can create additional consequence after the desired state is already satisfied.
+- `IMPERATIVE_REASK`: the system asks the user whether to perform a known deterministic action instead of retrieving the state predicate needed to apply the policy.
+
+Acceptance: the atomic Home Center work receipt exposes `actionPolicy.version=dru.intent-idempotence.v1`, `mode=state_convergence`, `questionModel=state_before_imperative`, and a stable idempotency key. Replaying the same completed taskId must preserve the completed status history and receipt without a second execution.
 ## Maximal effort law
 
 "Maximal effort" means **maximal useful effort for the actual mission**, not maximal token count, tool count, latency, architecture, or ceremony.

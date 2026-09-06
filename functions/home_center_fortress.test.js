@@ -246,3 +246,45 @@ test('Home Center full-perspective Punnett records ownership QA and rejects agen
     },
   );
 });
+
+test('Home Center work unit converges idempotently from state instead of repeated imperative', async () => {
+  const admin = fakeAdmin();
+  const auth = extraAuth();
+  const server = createServer(admin);
+  const taskId = 'outer-door-state-convergence-probe';
+  const requestText = 'Apply the known outer-door policy.';
+
+  const waiting = parseToolResult(await callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+    taskId,
+    requestText,
+    taskKind: 'state_convergence_probe',
+    route: 'fortress_session_probe',
+    interrogationQuestion: 'Is it hot?',
+    interrogationDomain: 'constraint',
+  }, auth));
+  assert.equal(waiting.work.normalizedState, 'AWAITING_ANSWER');
+  assert.equal(waiting.work.actionPolicy.version, 'dru.intent-idempotence.v1');
+  assert.equal(waiting.work.actionPolicy.mode, 'state_convergence');
+  assert.equal(waiting.work.actionPolicy.questionModel, 'state_before_imperative');
+  assert.equal(waiting.work.actionPolicy.retryPolicy, 'same_task_id_no_duplicate_execution');
+  assert.match(waiting.work.actionPolicy.idempotencyKey, /^home-center-work:[a-f0-9]{32}$/);
+
+  const completed = parseToolResult(await callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+    taskId,
+    requestText,
+    interrogationAnswer: 'Yes. It is hot.',
+  }, auth));
+  assert.equal(completed.work.normalizedState, 'SUCCEEDED');
+  const completedHistory = completed.work.statusHistory;
+  const completedReceipt = completed.work.receipt.receiptRef;
+
+  const retried = parseToolResult(await callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+    taskId,
+    requestText,
+    interrogationAnswer: 'Yes. It is hot.',
+  }, auth));
+  assert.equal(retried.work.normalizedState, 'SUCCEEDED');
+  assert.deepEqual(retried.work.statusHistory, completedHistory);
+  assert.equal(retried.work.receipt.receiptRef, completedReceipt);
+  assert.equal(retried.work.actionPolicy.idempotencyKey, completed.work.actionPolicy.idempotencyKey);
+});
