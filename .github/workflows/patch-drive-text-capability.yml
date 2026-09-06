@@ -18,25 +18,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Patch and capture structural evidence
-        id: patcher
+      - name: Register drive_text_patch from proven source anchors
         shell: bash
         run: |
-          mkdir -p diagnostics
           python3 - <<'PY'
           from pathlib import Path
           import re
 
           path = Path('functions/home_center_mcp.js')
           source = path.read_text(encoding='utf-8')
-          lines = source.splitlines()
-          hits = [i for i, line in enumerate(lines) if 'drive_binary_read_begin' in line or 'beginDriveBinaryReadOperation' in line]
-          evidence = []
-          for hit in hits:
-              lo, hi = max(0, hit - 4), min(len(lines), hit + 5)
-              evidence.append(f'--- hit line {hit + 1} ---')
-              evidence.extend(f'{i + 1}: {lines[i]}' for i in range(lo, hi))
-          Path('diagnostics/drive-text-patch-source-context.txt').write_text('\n'.join(evidence) + '\n', encoding='utf-8')
 
           import_line = "const {driveTextPatchOperation} = require('./drive_text_patch_service');"
           if import_line not in source:
@@ -45,33 +35,41 @@ jobs:
                   raise SystemExit(f'drive binary import marker count was {source.count(marker)}, expected 1')
               source = source.replace(marker, marker + "\n" + import_line, 1)
 
-          if not re.search(r"(?m)^[ \t]*['\"]?drive_text_patch['\"]?[ \t]*:", source):
-              binary_entry = re.search(r"(?m)^(?P<indent>[ \t]*)['\"]?drive_binary_read_begin['\"]?[ \t]*:", source)
+          if not re.search(r"(?m)^[ \t]*drive_text_patch[ \t]*:", source):
+              binary_entry = re.search(r"(?m)^(?P<indent>[ \t]*)drive_binary_read_begin[ \t]*:", source)
               if not binary_entry:
                   raise SystemExit('drive_binary_read_begin registry entry not found')
               indent = binary_entry.group('indent')
               entry = (
                   indent
-                  + "drive_text_patch: {summary: 'Patch bounded UTF-8 bytes in place on an existing stored Drive file with expected SHA-256, exact or marker-bounded replacements, protected-region invariants, audit, and whole-file readback verification.', write: true, requiresRequestId: true, input: {fileId: 'string', expectedSha256: '64-char SHA-256', expectedMimeType: 'optional MIME type', approved: 'boolean true', replacements: 'array of exact|between patch objects', protectedRegions: 'optional marker-region array', requestId: 'string', callerNote: 'optional string'}},\n"
+                  + "drive_text_patch: {\n"
+                  + indent + "  summary: 'Patch bounded UTF-8 bytes in place on an existing stored Drive file with expected SHA-256, exact or marker-bounded replacements, protected-region invariants, audit, and whole-file readback verification.',\n"
+                  + indent + "  write: true,\n"
+                  + indent + "  requiresRequestId: true,\n"
+                  + indent + "  requiredScopes: ['https://www.googleapis.com/auth/drive'],\n"
+                  + indent + "  input: {fileId: 'string', expectedSha256: '64-char SHA-256', expectedMimeType: 'optional MIME type', approved: 'boolean true', replacements: 'array of exact|between patch objects', protectedRegions: 'optional marker-region array', requestId: 'string', callerNote: 'optional string'},\n"
+                  + indent + "},\n"
               )
               source = source[:binary_entry.start()] + entry + source[binary_entry.start():]
 
-          if not re.search(r"operation[ \t]*===[ \t]*['\"]drive_text_patch['\"]", source):
-              binary_dispatch = re.search(r"operation[ \t]*===[ \t]*['\"]drive_binary_read_begin['\"]", source)
-              if not binary_dispatch:
-                  raise SystemExit('drive_binary_read_begin dispatcher not found')
-              statement_start = source.rfind('\n', 0, binary_dispatch.start()) + 1
-              statement_end = source.find(';', binary_dispatch.end())
-              if statement_end < 0:
-                  raise SystemExit('drive_binary_read_begin dispatcher terminator not found')
-              statement_end += 1
-              if statement_end < len(source) and source[statement_end] == '\n':
-                  statement_end += 1
-              statement = source[statement_start:statement_end]
-              if 'beginDriveBinaryReadOperation' not in statement:
-                  raise SystemExit('drive binary dispatcher statement did not contain beginDriveBinaryReadOperation')
-              clone = statement.replace('drive_binary_read_begin', 'drive_text_patch').replace('beginDriveBinaryReadOperation', 'driveTextPatchOperation')
-              source = source[:statement_start] + clone + source[statement_start:]
+          if "if (operation === 'drive_text_patch')" not in source:
+              marker = "  if (operation === 'drive_binary_read_begin') {\n"
+              if source.count(marker) != 1:
+                  raise SystemExit(f'drive binary dispatcher marker count was {source.count(marker)}, expected 1')
+              block = (
+                  "  if (operation === 'drive_text_patch') {\n"
+                  "    const result = await driveTextPatchOperation({google, admin, auth, user, args: operationArgs});\n"
+                  "    return {operation, registryVersion: registry.version, completed: true, result};\n"
+                  "  }\n"
+              )
+              source = source.replace(marker, block + marker, 1)
+
+          if source.count(import_line) != 1:
+              raise SystemExit('driveTextPatchOperation import is not unique')
+          if source.count("if (operation === 'drive_text_patch')") != 1:
+              raise SystemExit('drive_text_patch dispatcher is not unique')
+          if len(re.findall(r"(?m)^[ \t]*drive_text_patch[ \t]*:", source)) != 1:
+              raise SystemExit('drive_text_patch registry entry is not unique')
 
           path.write_text(source, encoding='utf-8')
           PY
@@ -83,10 +81,9 @@ jobs:
           node --check drive_text_patch_service.js
           node --check home_center_mcp.js
           node --test drive_text_patch_service.test.js
-          grep -n "drive_text_patch" home_center_mcp.js
+          grep -n -A6 -B2 "drive_text_patch" home_center_mcp.js
 
       - name: Commit registration and remove one-use scaffolding
-        if: success()
         shell: bash
         run: |
           git config user.name "Home Center"
@@ -99,19 +96,3 @@ jobs:
           fi
           git commit -m "Register audited in-place Drive text patch"
           git push origin HEAD:main
-
-      - name: Persist diagnostic context without failed edits
-        if: failure()
-        shell: bash
-        run: |
-          cp diagnostics/drive-text-patch-source-context.txt /tmp/drive-text-patch-source-context.txt || true
-          git reset --hard HEAD
-          mkdir -p diagnostics
-          cp /tmp/drive-text-patch-source-context.txt diagnostics/drive-text-patch-source-context.txt || true
-          git config user.name "Home Center"
-          git config user.email "home-center@users.noreply.github.com"
-          git add diagnostics/drive-text-patch-source-context.txt
-          if ! git diff --cached --quiet; then
-            git commit -m "Record Drive text patch bootstrap diagnostics"
-            git push origin HEAD:main
-          fi
