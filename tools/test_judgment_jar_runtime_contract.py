@@ -25,17 +25,26 @@ assert skill_path.exists(), f"missing DRU simulation trap skill: {skill_path}"
 trap = trap_path.read_text(encoding="utf-8")
 skill = skill_path.read_text(encoding="utf-8")
 
-required_trap_fragments = [
-    "every user utterance as a simulation input",
-    "conceptually `*`",
-    "Always take the bait",
+emphasis_triggers = [
     "Fortress Online",
     "Low effort",
     "Driver, advance",
     "No op",
     "Marshmallow Head",
+]
+
+required_trap_fragments = [
+    "every user utterance as a simulation input",
+    "conceptually `*`",
+    "Always take the bait",
+    *emphasis_triggers,
     "not separate machines",
     "maximal useful effort",
+    "Clock spinal reflex",
+    "attached to DRU's spinal cord",
+    "Every completed DRU response begins with the freshly observed live local clock surface",
+    "No emphasis vector may disable, defer, shadow, or replace the clock reflex",
+    "CLOCK_SPINAL_BYPASS",
     "WILDCARD_BYPASS",
     "KEYWORD_ONLY_FORTRESS",
     "EMPHASIS_ISOLATION",
@@ -47,12 +56,28 @@ required_skill_fragments = [
     "wildcard catcher",
     'on_user_message("*")',
     "Named phrases do not turn the system on",
+    "Clock spinal cord",
+    "acquire_live_local_clock()",
+    "verify_clock_first()",
+    "Every one inherits the clock spinal cord automatically",
     "Multiple vectors compose",
     "exactly one eligible personal joy-fidget",
     "live local clock first",
+    "CLOCK_SPINAL_BYPASS",
 ]
 for fragment in required_skill_fragments:
     assert fragment in skill, f"simulation trap skill missing required fragment: {fragment!r}"
+
+for trigger in emphasis_triggers:
+    assert trigger in trap, f"trap missing emphasis trigger: {trigger!r}"
+    assert trigger in skill, f"skill missing emphasis trigger: {trigger!r}"
+
+# Clock must be centralized in wildcard/spinal logic, not conditionally attached to one phrase.
+clock_anchor = trap.index("## Clock spinal reflex")
+emphasis_anchor = trap.index("## Emphasis triggers")
+assert clock_anchor < emphasis_anchor, "clock spinal reflex must precede emphasis routing"
+assert "wildcard trigger and clock spinal reflex remain active even when none is spoken" in trap
+assert "reacquire a fresh clock" in trap
 
 with tempfile.TemporaryDirectory(prefix="judgment-jar-runtime-") as temp:
     cache = Path(temp) / "judgment-jars.json"
@@ -64,27 +89,22 @@ with tempfile.TemporaryDirectory(prefix="judgment-jar-runtime-") as temp:
     assert len(packet) <= limit, f"configured Jar packet is too large: {len(packet)} > {limit}"
     for fragment in [
         "every user utterance as a simulation input",
-        "Fortress Online",
-        "Low effort",
-        "Driver, advance",
-        "No op",
-        "Marshmallow Head",
+        *emphasis_triggers,
+        "Clock spinal reflex",
+        "Every completed DRU response begins with the freshly observed live local clock surface",
+        "CLOCK_SPINAL_BYPASS",
     ]:
         assert fragment in packet, f"default runtime packet failed to carry simulation trap fragment: {fragment!r}"
 
 print(json.dumps({
     "ok": True,
-    "schema": "judgment-jar-runtime-contract.v2",
+    "schema": "judgment-jar-runtime-contract.v3",
     "selected": selected,
     "maxPhonePromptCharacters": limit,
     "fullCabinetOnDemand": True,
     "simulationTrap": True,
     "wildcardTrigger": "*",
-    "emphasisTriggers": [
-        "Fortress Online",
-        "Low effort",
-        "Driver, advance",
-        "No op",
-        "Marshmallow Head",
-    ],
+    "clockSpinalInvariant": True,
+    "clockBeforeEmphasisRouting": True,
+    "emphasisTriggers": emphasis_triggers,
 }, sort_keys=True))
