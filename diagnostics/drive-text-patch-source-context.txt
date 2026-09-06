@@ -1,0 +1,40 @@
+--- hit line 25 ---
+21: const voiceTierPolicy = require('./voice_tier_policy');
+22: const {preflightArtifactEnvelope} = require('./artifact_transport');
+23: const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
+24: const {
+25:   beginDriveBinaryReadOperation,
+26:   readDriveBinarySessionChunkOperation,
+27:   driveBinaryReadStatusOperation,
+28:   completeDriveBinaryReadOperation,
+29: } = require('./drive_binary_read_service');
+--- hit line 5063 ---
+5059:           prefer: 'Call drive_operation repeatedly with operation=drive_read_binary_chunk, preserving nextOffset until eof=true, then decode and concatenate the bounded Base64 chunks in order.',
+5060:           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
+5061:         },
+5062:       },
+5063:       drive_binary_read_begin: {
+5064:         summary: 'Open an owner-bound, hash-verified read session for one stored Drive binary without changing the top-level MCP catalog.',
+5065:         write: false,
+5066:         requiresRequestId: true,
+5067:         requiredScopes: ['https://www.googleapis.com/auth/drive'],
+--- hit line 5994 ---
+5990:     requireCreditGatedEmail(user && user.email, operation);
+5991:     const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});
+5992:     return {operation, registryVersion: registry.version, completed: true, result};
+5993:   }
+5994:   if (operation === 'drive_binary_read_begin') {
+5995:     const result = await beginDriveBinaryReadOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+5996:     return {operation, registryVersion: registry.version, completed: true, result};
+5997:   }
+5998:   if (operation === 'drive_binary_read_chunk') {
+--- hit line 5995 ---
+5991:     const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});
+5992:     return {operation, registryVersion: registry.version, completed: true, result};
+5993:   }
+5994:   if (operation === 'drive_binary_read_begin') {
+5995:     const result = await beginDriveBinaryReadOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+5996:     return {operation, registryVersion: registry.version, completed: true, result};
+5997:   }
+5998:   if (operation === 'drive_binary_read_chunk') {
+5999:     const result = await readDriveBinarySessionChunkOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
