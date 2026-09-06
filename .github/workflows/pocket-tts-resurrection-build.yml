@@ -1,0 +1,89 @@
+name: Pocket TTS Resurrection Build
+
+on:
+  push:
+    branches:
+      - fortress/pocket-tts-resurrection-v1
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/pocket_tts_resurrection.py'
+      - 'tools/pocket_tts_local_server.py'
+      - 'app/src/main/java/com/dclar/homecenter/PocketTtsControlActivity.java'
+      - 'app/src/main/AndroidManifest.xml'
+      - 'app/build.gradle'
+      - '.github/workflows/pocket-tts-resurrection-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Validate deterministic campaign
+        run: |
+          python -m py_compile tools/pocket_tts_resurrection.py tools/pocket_tts_local_server.py
+          python tools/pocket_tts_resurrection.py --fault-table > pocket-tts-fault-table.json
+          python - <<'PY'
+          import json
+          p=json.load(open('pocket-tts-fault-table.json', encoding='utf-8'))
+          required={'F001_READER_MISSING','F010_POCKET_EXEC_MISSING','F020_RISH_MISSING','F030_PLAYBACK_COMPONENT_MISSING','F040_LOCAL_SERVICE_DOWN','F050_DOCTOR_FAILED','F052_SPEECH_TIMEOUT','F060_PLAYBACK_UNVERIFIED','OK'}
+          missing=sorted(required-set(p))
+          if missing:
+              raise SystemExit(f'missing deterministic faults: {missing}')
+          print('fault table ok:', ','.join(sorted(required)))
+          PY
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Build Home Center APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Verify APK and materialize receipt
+        run: |
+          set -eu
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          SHA=$(sha256sum "$APK" | awk '{print $1}')
+          BYTES=$(wc -c < "$APK" | tr -d ' ')
+          printf '%s\n' \
+            'schema=fortress.pocket-tts-resurrection-apk.v1' \
+            "commit=${GITHUB_SHA}" \
+            'package=com.dclar.homecenter' \
+            'versionName=0.2.60-pocket-resurrection' \
+            'versionCode=64' \
+            "apkBytes=${BYTES}" \
+            "apkSha256=${SHA}" \
+            'controlActivity=com.dclar.homecenter.PocketTtsControlActivity' \
+            'playbackActivity=com.dclar.homecenter.PocketTtsPlaybackActivity' \
+            > pocket-tts-apk-receipt.txt
+          cat pocket-tts-apk-receipt.txt
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-center-pocket-tts-resurrection-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            pocket-tts-apk-receipt.txt
+            pocket-tts-fault-table.json
