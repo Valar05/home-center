@@ -22,6 +22,15 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="false">
         <activity
+            android:name=".PocketTtsControlActivity"
+            android:exported="true"
+            android:label="Pocket TTS">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PocketTtsPlaybackActivity"
             android:exported="true"
             android:excludeFromRecents="true"

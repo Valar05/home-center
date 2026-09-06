@@ -1,0 +1,43 @@
+name: Pocket TTS Script Validation
+
+on:
+  push:
+    branches:
+      - fortress/pocket-tts-resurrection-v1
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/pocket_tts_resurrection.py'
+      - 'tools/pocket_tts_local_server.py'
+      - '.github/workflows/pocket-tts-script-validate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  campaign-controller:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile controller
+        run: python3 -m py_compile tools/pocket_tts_resurrection.py
+      - name: Verify deterministic fault table
+        run: |
+          python3 tools/pocket_tts_resurrection.py --fault-table > faults.json
+          grep -q 'F010_POCKET_EXEC_MISSING' faults.json
+          grep -q 'F020_RISH_MISSING' faults.json
+          grep -q 'F030_PLAYBACK_COMPONENT_MISSING' faults.json
+          grep -q 'F040_LOCAL_SERVICE_DOWN' faults.json
+          grep -q 'F052_SPEECH_TIMEOUT' faults.json
+          grep -q 'F060_PLAYBACK_UNVERIFIED' faults.json
+          grep -q '"OK"' faults.json
+
+  localhost-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile localhost server
+        run: python3 -m py_compile tools/pocket_tts_local_server.py
