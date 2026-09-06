@@ -1,0 +1,49 @@
+name: Patch Idempotent Intent
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-idempotent-intent
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install function dependencies
+        run: npm --prefix functions ci
+      - name: Apply idempotent intent patch
+        run: node .github/scripts/patch-idempotent-intent.js
+      - name: Validate source syntax
+        run: node --check functions/home_center_fortress.js && node --check functions/home_center_fortress.test.js
+      - name: Test Fortress Home Center
+        run: npm --prefix functions run test:fortress-home-center
+      - name: Run function lint
+        run: npm --prefix functions run lint
+      - name: Verify doctrine anchors
+        run: |
+          grep -F "dru.intent-idempotence.v1" functions/home_center_fortress.js
+          grep -F "state_before_imperative" functions/home_center_fortress.js
+          grep -F "NON_IDEMPOTENT_ACTION" .continue/rules/05-judgement-jar-simulation-trap.md
+      - name: Verify clean diff
+        run: git diff --check
+      - name: Commit engine update
+        run: |
+          git config user.name "home-center-dru-patcher"
+          git config user.email "actions@users.noreply.github.com"
+          git add functions/home_center_fortress.js functions/home_center_fortress.test.js .continue/rules/05-judgement-jar-simulation-trap.md
+          git diff --cached --stat
+          git commit -m "Make intentional work idempotent state convergence"
+          git push origin HEAD:main
