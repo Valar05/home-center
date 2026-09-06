@@ -37,18 +37,29 @@ jobs:
       - name: Refresh public MCP contracts
         run: node tools/generate_home_center_public_manifest.mjs
 
-      - name: Validate doctrine and work primitive
+      - name: Validate patcher syntax
+        run: python -m py_compile tools/patch_dru_work_commission_gate.py
+
+      - name: Validate JavaScript syntax
         run: |
-          python -m py_compile tools/patch_dru_work_commission_gate.py
           node --check functions/home_center_fortress.js
           node --check functions/home_center_mcp.js
           node --check functions/index.js
-          node --test functions/home_center_fortress.test.js
-          node tools/generate_home_center_public_manifest.mjs --check
+
+      - name: Test atomic work gate
+        run: node --test functions/home_center_fortress.test.js
+
+      - name: Verify generated MCP contracts
+        run: node tools/generate_home_center_public_manifest.mjs --check
+
+      - name: Verify doctrine anchors
+        run: |
           grep -q "Fortress Online is always active" skills/dru-simulation-trap/SKILL.md
           grep -q "home_center_work_request" .continue/rules/05-judgement-jar-simulation-trap.md
           grep -q "AWAITING_ANSWER" functions/home_center_fortress.js
-          git diff --check
+
+      - name: Verify clean patch
+        run: git diff --check
 
       - name: Commit DRU commission gate
         run: |
