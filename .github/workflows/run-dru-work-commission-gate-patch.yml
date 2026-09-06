@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/run-dru-work-commission-gate-patch.yml'
+      - 'tools/patch_dru_work_commission_gate.py'
   workflow_dispatch:
 
 permissions:
@@ -30,26 +31,15 @@ jobs:
 
       - run: npm --prefix functions ci
 
-      - name: Execute deterministic patch blocks
-        run: |
-          python - <<'PY'
-          import pathlib, re, subprocess, textwrap
-          source = pathlib.Path('.github/workflows/patch-dru-work-commission-gate.yml').read_text()
-          blocks = re.findall(r"^\s*node <<'NODE'\s*$\n(.*?)^\s*NODE\s*$", source, flags=re.MULTILINE | re.DOTALL)
-          if len(blocks) != 5:
-              raise SystemExit(f'expected 5 deterministic NODE patch blocks, found {len(blocks)}')
-          for index, block in enumerate(blocks, 1):
-              program = textwrap.dedent(block)
-              path = pathlib.Path(f'/tmp/dru-patch-{index}.js')
-              path.write_text(program)
-              subprocess.run(['node', str(path)], check=True)
-          PY
+      - name: Apply deterministic DRU patch
+        run: python tools/patch_dru_work_commission_gate.py
 
       - name: Refresh public MCP contracts
         run: node tools/generate_home_center_public_manifest.mjs
 
       - name: Validate doctrine and work primitive
         run: |
+          python -m py_compile tools/patch_dru_work_commission_gate.py
           node --check functions/home_center_fortress.js
           node --check functions/home_center_mcp.js
           node --check functions/index.js
