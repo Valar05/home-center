@@ -15,6 +15,61 @@ const HOME_CENTER_FORTRESS_COLLECTIONS = Object.freeze({
 
 const WORK_STATES = new Set(['REQUESTED', 'AWAITING_ANSWER', 'QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'UNKNOWN']);
 const WORK_INTERROGATION_DOMAINS = new Set(['intent', 'constraint', 'acceptance', 'authority', 'taste']);
+const FULL_PERSPECTIVE_VERSION = 'dru.punnett-regnet-reneqa.v1';
+const INTERROGATION_AGENT_WORK_PATTERNS = Object.freeze([
+  {code: 'USER_FAILURE_TAX', pattern: /\b(failure modes?|pre-?mortem|risk analysis|regressions?|verification strategy|test strategy|test plan)\b/i},
+  {code: 'IMPLEMENTATION_TAX', pattern: /\b(implementation|architecture|internal mechanics?|engine structure|distinct passes?|separate passes?|merge(?:d|s|ing)?|split(?:ting)?|refactor(?:ing)?)\b/i},
+  {code: 'ENGINE_CHOICE_TAX', pattern: /\bshould (?:the )?(?:engine|agent|system|fortress)\s+(?:use|make|merge|split|replace|implement|structure)\b/i},
+  {code: 'IMPLEMENTER_QUESTION', pattern: /\bhow should (?:i|we)\s+(?:implement|architect|structure|merge|split|refactor|test|verify)\b/i},
+]);
+
+function fullPerspectiveInterrogationReview(question, domain) {
+  const hits = INTERROGATION_AGENT_WORK_PATTERNS
+    .filter((entry) => entry.pattern.test(question))
+    .map((entry) => entry.code);
+  if (hits.length) {
+    const failureKind = hits.includes('USER_FAILURE_TAX') ? 'user_failure_tax' : 'interrogation_implementation_tax';
+    const err = new Error('Punnett interrogation failed Regnet + Rene QA ownership review: the question pushes agent-owned implementation, failure analysis, regression, or verification work onto Drew.');
+    err.status = 400;
+    err.code = failureKind;
+    err.failureKind = failureKind;
+    err.details = {
+      version: FULL_PERSPECTIVE_VERSION,
+      mode: 'punnett_full_perspective',
+      verdict: 'FAIL',
+      domain,
+      hits,
+      regnet: 'The person is not the machinery. Ask for an affected-person need or user-owned constraint, not the mechanism the system can own.',
+      reneQa: 'A user-owned domain label cannot launder implementation, failure, regression, risk, test, or verification work into a valid interrogation.',
+    };
+    throw err;
+  }
+  return {
+    version: FULL_PERSPECTIVE_VERSION,
+    mode: 'punnett_full_perspective',
+    verdict: 'PASS',
+    domain,
+    passes: {
+      punnett: {
+        status: 'declared',
+        source: 'she-raw',
+        perspective: 'punnett',
+        executionClaim: 'not_proven_by_engine',
+        law: 'Exactly one question may request a user-owned variable.',
+      },
+      regnet: {
+        status: 'PASS',
+        law: 'The person is not the machinery; challenge respectable-looking questions that merely offload the system mechanism.',
+        check: 'No agent-owned implementation/failure/verification work was detected in the proposed question.',
+      },
+      reneQa: {
+        status: 'PASS',
+        law: 'Scope fidelity applies to interrogation itself; intent/constraint/acceptance/authority/taste labels do not excuse wrong-owner work.',
+        check: 'Question stayed inside the declared user-owned domain and passed the agent-work tax screen.',
+      },
+    },
+  };
+}
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -96,6 +151,7 @@ function publicInterrogation(value = {}) {
     answered: Boolean(safeText(interrogation.answer, 2000)),
     askedAtMs: Number(interrogation.askedAtMs || 0) || 0,
     answeredAtMs: Number(interrogation.answeredAtMs || 0) || 0,
+    fullPerspective: safeObject(interrogation.fullPerspective),
   };
 }
 
@@ -113,13 +169,16 @@ function interrogationForNewWork(args = {}, timeMs = nowMs()) {
     err.code = 'multiple_interrogation_questions';
     throw err;
   }
+  const domain = normalizeInterrogationDomain(args.interrogationDomain);
+  const fullPerspective = fullPerspectiveInterrogationReview(question, domain);
   return {
     required: true,
     questionCount: 1,
     source: 'she-raw',
     perspective: 'punnett',
-    domain: normalizeInterrogationDomain(args.interrogationDomain),
+    domain,
     question,
+    fullPerspective,
     answer: '',
     askedAtMs: timeMs,
     answeredAtMs: 0,

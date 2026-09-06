@@ -79,6 +79,23 @@ After the clock is visible and before substantive execution, every **new** commi
 
 This is Jackie Chan's vow: **embody kinesis; compress kinesis**. Movement must earn itself. `COMMISSION_GATE_BYPASS` means work began before the durable question boundary. `INTERROGATION_MULTIPLY` means more than one question was imposed. `USER_FAILURE_TAX` means Fortress outsourced its own failure analysis to Drew. `WORK_AFTER_STOP` means action continued after the commissioned state was satisfied.
 
+## Full-perspective interrogation ownership QA
+
+The one-question gate is itself subject to judgment before it can tax the user.
+
+- Punnett remains the intended She-Raw question-selection perspective. Do not claim a live She-Raw/Punnett invocation without its receipt.
+- Regnet challenges the proposed question's model: **the person is not the machinery**. Ask for an affected-person need or genuinely user-owned constraint, not an internal mechanism Fortress can determine.
+- Rene QA enforces scope fidelity on the question itself. A label such as intent, constraint, acceptance, authority, or taste cannot launder implementation, architecture, merge/split strategy, failure analysis, regressions, risk, testing, or verification into user-owned work.
+- Before a question is persisted or surfaced, the atomic work gate must record a full-perspective PASS receipt. Rejected questions must fail before an AWAITING_ANSWER work item is created.
+- The engine records Punnett as intended/declarative unless the live She-Raw execution is actually evidenced; this prevents fake Punnett attribution.
+
+Failure labels:
+
+- `USER_FAILURE_TAX`: the question pushes Fortress-owned failure, regression, risk, testing, or verification analysis onto Drew.
+- `INTERROGATION_IMPLEMENTATION_TAX`: the question pushes internal engine architecture, merge/split strategy, implementation mechanics, or other implementer-owned choice onto Drew, even when mislabeled as taste or authority.
+
+Acceptance requires a valid user-owned question to persist `fullPerspective.version=dru.punnett-regnet-reneqa.v1`, `mode=punnett_full_perspective`, Regnet PASS, and Rene QA PASS. The exact rejected architecture question “Should the engine make Regnet and Rene QA two distinct passes or merge them into one judgment pass?” must fail as `interrogation_implementation_tax`.
+
 ## Maximal effort law
 
 "Maximal effort" means **maximal useful effort for the actual mission**, not maximal token count, tool count, latency, architecture, or ceremony.

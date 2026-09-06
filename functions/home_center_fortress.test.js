@@ -190,3 +190,59 @@ test('Home Center work receipts survive restart and enforce one Punnett interrog
   assert.equal(sessionStatus.orientation.pending_work.length, 0);
   assert.equal(sessionStatus.orientation.recent_completed_work[0].taskId, taskId);
 });
+
+
+test('Home Center full-perspective Punnett records ownership QA and rejects agent-work tax', async () => {
+  const admin = fakeAdmin();
+  const auth = extraAuth();
+  const server = createServer(admin);
+
+  const valid = parseToolResult(await callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+    taskId: 'full-perspective-valid-probe',
+    requestText: 'Build the commissioned thing.',
+    taskKind: 'general_work_request',
+    route: 'fortress_session_probe',
+    interrogationQuestion: 'Which acceptance surface do you want to own completion?',
+    interrogationDomain: 'acceptance',
+  }, auth));
+  assert.equal(valid.work.normalizedState, 'AWAITING_ANSWER');
+  assert.equal(valid.work.interrogation.fullPerspective.version, 'dru.punnett-regnet-reneqa.v1');
+  assert.equal(valid.work.interrogation.fullPerspective.mode, 'punnett_full_perspective');
+  assert.equal(valid.work.interrogation.fullPerspective.verdict, 'PASS');
+  assert.equal(valid.work.interrogation.fullPerspective.passes.regnet.status, 'PASS');
+  assert.equal(valid.work.interrogation.fullPerspective.passes.reneQa.status, 'PASS');
+  assert.equal(valid.work.interrogation.fullPerspective.passes.punnett.executionClaim, 'not_proven_by_engine');
+
+  await assert.rejects(
+    () => callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+      taskId: 'implementation-tax-probe',
+      requestText: 'Update Regnet QA full perspective Punnett on the engine.',
+      taskKind: 'engine_patch_request',
+      route: 'fortress_session_probe',
+      interrogationQuestion: 'Should the engine make Regnet and Rene QA two distinct passes or merge them into one judgment pass?',
+      interrogationDomain: 'authority',
+    }, auth),
+    (error) => {
+      assert.equal(error.code, 'interrogation_implementation_tax');
+      assert.equal(error.details.verdict, 'FAIL');
+      assert.equal(error.details.mode, 'punnett_full_perspective');
+      return true;
+    },
+  );
+
+  await assert.rejects(
+    () => callRegisteredHomeCenterTool(server, 'home_center_work_request', {
+      taskId: 'failure-tax-probe',
+      requestText: 'Build the thing.',
+      taskKind: 'general_work_request',
+      route: 'fortress_session_probe',
+      interrogationQuestion: 'What failure modes and regression risks should I anticipate?',
+      interrogationDomain: 'taste',
+    }, auth),
+    (error) => {
+      assert.equal(error.code, 'user_failure_tax');
+      assert.equal(error.details.verdict, 'FAIL');
+      return true;
+    },
+  );
+});
