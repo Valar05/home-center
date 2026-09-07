@@ -96,14 +96,14 @@ def ascii_sheet(data):
 
 
 def render_png(text, path, label):
-    im=Image.new('RGB',(896,504),'black')
+    im=Image.new('RGB',(640,360),'black')
     draw=ImageDraw.Draw(im)
     try:
-        font=ImageFont.truetype('DejaVuSansMono.ttf',18)
+        font=ImageFont.truetype('DejaVuSansMono.ttf',14)
     except Exception:
         font=ImageFont.load_default()
-    draw.text((18,12),label,fill='white',font=font)
-    draw.multiline_text((18,44),text,fill='white',font=font,spacing=1)
+    draw.text((12,8),label,fill='white',font=font)
+    draw.multiline_text((12,34),text,fill='white',font=font,spacing=1)
     im.save(path)
 
 
@@ -122,7 +122,7 @@ def compile_video(data):
         subprocess.run([
             'ffmpeg','-hide_banner','-loglevel','error','-y',
             '-framerate',str(data['compile']['fps']),'-i',str(td/'frame-%04d.png'),
-            '-map_metadata','-1','-c:v','libx264','-preset','veryslow','-crf','34',
+            '-map_metadata','-1','-c:v','libx264','-preset','veryslow','-crf','38',
             '-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)
         ],check=True)
     return len(semantic), len(frames)
@@ -133,7 +133,36 @@ def esc(text):
 
 
 def make_page(data, sheet, media_b64):
-    payload=json.dumps(data,indent=2,sort_keys=True)
+    payload_obj={
+        'schema':data['schema'],
+        'experiment_id':data['experiment_id'],
+        'rig':data['rig'],
+        'keys':data['keys'],
+        'clock_channels':data['clock_channels'],
+        'timing_classes':data['timing_doctrine'],
+        'timing_provenance':{
+            'decisive_key_classes':'INFERRED',
+            'source_preview_measurements':'OBSERVED_TSR_PREVIEW',
+            'original_runtime_authenticity_claim':False,
+        },
+        'source_rights':{
+            'site':data['source']['site'],
+            'asset_id':data['source']['asset_id'],
+            'name':data['source']['name'],
+            'game':data['source']['game'],
+            'platform':data['source']['platform'],
+            'page_url':data['source']['page_url'],
+            'sheet':data['source']['sheet'],
+            'preview_timing_observations':data['source']['preview_timing_observations'],
+            'timing_scope_note':data['source']['timing_scope_note'],
+            'rights_note':data['source']['rights_note'],
+        },
+        'compatibility':data['compatibility'],
+        'manifest':data['manifest'],
+        'media_sha256':data['compile']['media_sha256'],
+        'media_bytes':data['compile']['media_bytes'],
+    }
+    payload=json.dumps(payload_obj,separators=(',',':'),sort_keys=True)
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Timing 002 — Observed Variant Profile Reuse</title><style>:root{{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1180px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:82ch;line-height:1.45}}</style></head><body><h1>Observed Variant Profile Reuse</h1><p class="note">The copyrighted sheet is evidence only and is not embedded. The measured TSR run-left and run-right preview schedules are equal, but the shipped ONES/TWOS/FOURS schedule is an independent INFERRED compilation over an abstract biped rig. LEFT/RIGHT are presentation variants over one temporal key list.</p><nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" role="tabpanel"><pre>{esc(sheet)}</pre></section><section id="json" role="tabpanel" hidden><pre>{esc(payload)}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,{media_b64}" type="video/mp4"></video><p class="note">Real embedded MP4 compiled solely from the abstract ASCII rig, explicit ONES/TWOS/FOURS holds, and a fail-closed zero-connector policy. Variant switching is labeled as presentation rather than turn chronology.</p></section><script>const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const tab of tabs)tab.addEventListener('click',()=>{{for(const b of tabs)b.setAttribute('aria-selected',b===tab?'true':'false');for(const p of panels)p.hidden=p.id!==tab.dataset.view;}});</script></body></html>'''
 
 
