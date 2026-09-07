@@ -1,0 +1,259 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Timing 004</title><style>:root{color-scheme:dark}body{font-family:system-ui;margin:1rem}nav{display:flex;gap:.5rem;flex-wrap:wrap}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0;white-space:pre;overflow:auto;line-height:1}video{max-width:100%;height:auto}</style></head><body><h1>Clock Rendezvous / Reacquire</h1><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre>ASCII KINESIS V2 TIMING 004 — CLOCK RENDEZVOUS / REACQUIRE
+SOURCE ART: NOT EMBEDDED. ABSTRACT RIG ONLY. SOURCE TIMING: NONE OBSERVED.
+TEMPORAL AXIS IS SEPARATE FROM CONFIGURATION AND DETACHED-OBJECT AXES.
+
+[B00] READY_DOCKED | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; tool is docked configuration, not an independent clock
+root/arc=root centered; no travel
+timing=FOURS provenance=INFERRED | role=establish body/base and docked config
+
+
+
+                    O
+                    |
+                   -+-
+                l-- | --r
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[B01] LOAD_RELEASE | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; rear bias
+root/arc=root shifts slightly rear; hand prepares release
+timing=FOURS provenance=INFERRED | role=anticipation before clock fork
+
+
+
+                  O
+                  |  --r
+                 -+--
+               l- |
+                   |
+                   @
+                 L/ \R
+                 /   \
+                |/   \|
+                o     o
+             [=============]
+
+
+[B02] RELEASE_FORK | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; releasing hand loses object contact
+root/arc=root arrests; hand reaches outward
+timing=ONES provenance=INFERRED | role=causal fork: detached object clock begins
+
+
+
+                     O
+                     |  ---r
+                    -+--
+                 l-- |
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[B03] BODY_RECOIL | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; no object contact
+root/arc=root returns under torso; release arm retracts
+timing=TWOS provenance=INFERRED | role=body consequence after fork
+
+
+
+                     O
+                     |
+                    -+
+                 l-- |\r
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[B04] READY_FOR_RETURN | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; catch hand available; no object contact
+root/arc=root stable; hand offers a future rendezvous target
+timing=FOURS provenance=INFERRED | role=body settles while object clock continues independently
+
+
+
+                    O
+                    |
+                   -+----r
+                l-- |
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[B05] REACQUIRE_JOIN | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; object contact reacquired at hand
+root/arc=root remains stable; hand/object positions coincide
+timing=ONES provenance=INFERRED | role=causal rendezvous join; object clock terminates into config
+
+
+
+                    O
+                    |  ---r
+                   -+--
+                l-- |
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[B06] RESTACK_DOCKED | clock=BODY_CLOCK | rig=generic_humanoid_9_joint
+support/contact=both feet planted; tool docked configuration restored
+root/arc=root centered; no travel
+timing=FOURS provenance=INFERRED | role=post-rendezvous stable state
+
+
+
+                    O
+                    |
+                   -+-
+                l-- | --r
+                    |
+                    @
+                  L/ \R
+                  /   \
+                 |/   \|
+                 o     o
+             [=============]
+
+
+[O01] OBJECT_LAUNCH | clock=OBJECT_CLOCK | rig=generic_single_ctrl_object
+support/contact=detached/free immediately after release
+root/arc=object leaves hand on short outward arc
+timing=ONES provenance=INFERRED | role=object clock first sample after fork
+
+
+
+                                .
+                          + *
+                              .
+                                   .
+
+
+
+
+
+
+
+
+
+[O02] OBJECT_OUTBOUND | clock=OBJECT_CLOCK | rig=generic_single_ctrl_object
+support/contact=detached/free
+root/arc=object continues outward while body clock recovers
+timing=TWOS provenance=INFERRED | role=independent travel
+
+
+
+                                *
+                          + .
+                              .
+                                   .
+
+
+
+
+
+
+
+
+
+[O03] OBJECT_TURN | clock=OBJECT_CLOCK | rig=generic_single_ctrl_object
+support/contact=detached/free
+root/arc=object reaches far arc and changes travel direction
+timing=TWOS provenance=INFERRED | role=independent turn state; no body rekey required
+
+
+
+                                .
+                          + .
+                              .
+                                   *
+
+
+
+
+
+
+
+
+
+[O04] OBJECT_RETURN | clock=OBJECT_CLOCK | rig=generic_single_ctrl_object
+support/contact=detached/free
+root/arc=object returns toward offered catch contact
+timing=TWOS provenance=INFERRED | role=approach rendezvous
+
+
+
+                                .
+                          + .
+                              *
+                                   .
+
+
+
+
+
+
+
+
+
+[O05] OBJECT_REACQUIRE | clock=OBJECT_CLOCK | rig=generic_single_ctrl_object
+support/contact=hand contact reacquired
+root/arc=object reaches authored catch point
+timing=ONES provenance=INFERRED | role=causal rendezvous with B05; object clock folds back into config
+
+
+
+                                .
+                          * .
+                              .
+                                   .
+
+
+
+
+
+
+
+
+
+COMPOSITE DISPLAY SCHEDULE (authored; all timing INFERRED):
+frames 00-03  B00 + CONFIG TOOL_DOCKED
+frames 04-07  B01 + CONFIG TOOL_DOCKED
+frame  08     B02 + O01   RELEASE_FORK
+frames 09-10  B03 + O02
+frames 11-12  B04 + O03
+frames 13-14  B04 + O04   (BODY KEY REUSED; no body rekey)
+frame  15     B05 + O05   REACQUIRE_RENDEZVOUS
+frames 16-19  B06 + CONFIG TOOL_DOCKED
+
+AXES: temporal=BODY/OBJECT causal states | config=tool attached/absent | effect=separate unless causally joined.
+ONES=1 display frame; TWOS=2; FOURS=4. At nominal 24fps ≈24/12/6 samples/s.
+1s/2s/4s means ONES/TWOS/FOURS, never seconds.
+STREET_FIGHTER/CAPCOM=nonuniform authored gameplay timing; INFERRED timing is not source-authentic.
+RULE EXERCISED: CLOCKS MAY FORK, RUN INDEPENDENTLY, AND REJOIN ONLY AT AN AUTHORED CAUSAL CONTACT.</pre></section><section id="json" hidden><pre>{&quot;axis_separation&quot;:{&quot;effect_object_axis&quot;:&quot;detached ring/boomerang-like source elements are a separate object/effect channel; exact source synchronization is unknown&quot;,&quot;sheet_order&quot;:&quot;non-chronological product space unless source evidence proves otherwise&quot;,&quot;temporal_axis&quot;:&quot;causal body/support/contact states and detached-object trajectory states&quot;,&quot;variant_configuration_axis&quot;:&quot;horn/tool-present versus source-sheet &#x27;Without horns&#x27; homologs; configuration alone does not buy time&quot;},&quot;clock_channels&quot;:{&quot;BODY_CLOCK&quot;:{&quot;fork_event&quot;:&quot;B02 RELEASE_FORK&quot;,&quot;keys&quot;:[&quot;B00&quot;,&quot;B01&quot;,&quot;B02&quot;,&quot;B03&quot;,&quot;B04&quot;,&quot;B05&quot;,&quot;B06&quot;],&quot;ownership&quot;:&quot;support/root/body task&quot;,&quot;rendezvous_event&quot;:&quot;B05 REACQUIRE_JOIN&quot;},&quot;CONFIG_STATE&quot;:{&quot;note&quot;:&quot;Attached/detached presentation is configuration except where release/reacquisition causally changes contact.&quot;,&quot;states&quot;:[&quot;TOOL_DOCKED&quot;,&quot;TOOL_ABSENT_WHILE_DETACHED&quot;],&quot;temporal&quot;:false},&quot;OBJECT_CLOCK&quot;:{&quot;keys&quot;:[&quot;O01&quot;,&quot;O02&quot;,&quot;O03&quot;,&quot;O04&quot;,&quot;O05&quot;],&quot;ownership&quot;:&quot;detached object trajectory&quot;,&quot;starts_at&quot;:&quot;O01 via B02 release&quot;,&quot;terminates_at&quot;:&quot;O05 via B05 reacquisition&quot;}},&quot;compatibility&quot;:{&quot;ascii_kinesis_contract&quot;:&quot;V2/V2.1&quot;,&quot;backward_compatible&quot;:true,&quot;older_v1_untouched&quot;:true,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;]},&quot;compile&quot;:{&quot;ascii_only_frame_render&quot;:true,&quot;ascii_sheet_sha256&quot;:&quot;77ec7f0188024f1c3ca9233f35c95445e382f6efa34c181c541644974b7c7ba0&quot;,&quot;connective_frames_per_cycle&quot;:0,&quot;connective_policy&quot;:&quot;No invented intermediates; direct deterministic transitions between authored decisive states. Unchanged channel states are reused.&quot;,&quot;display_frames_total&quot;:20,&quot;fps&quot;:24,&quot;media_bytes&quot;:2767,&quot;media_sha256&quot;:&quot;251172077c99740685105c3511b271315a6f8268788acf056534699497fd4c6d&quot;,&quot;timeline&quot;:[{&quot;body&quot;:&quot;B00&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B00&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B00&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B00&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B01&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B01&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B01&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B01&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B02&quot;,&quot;event&quot;:&quot;RELEASE_FORK&quot;,&quot;object&quot;:&quot;O01&quot;},{&quot;body&quot;:&quot;B03&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O02&quot;},{&quot;body&quot;:&quot;B03&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O02&quot;},{&quot;body&quot;:&quot;B04&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O03&quot;},{&quot;body&quot;:&quot;B04&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O03&quot;},{&quot;body&quot;:&quot;B04&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O04&quot;},{&quot;body&quot;:&quot;B04&quot;,&quot;event&quot;:null,&quot;object&quot;:&quot;O04&quot;},{&quot;body&quot;:&quot;B05&quot;,&quot;event&quot;:&quot;REACQUIRE_RENDEZVOUS&quot;,&quot;object&quot;:&quot;O05&quot;},{&quot;body&quot;:&quot;B06&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B06&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B06&quot;,&quot;event&quot;:null,&quot;object&quot;:null},{&quot;body&quot;:&quot;B06&quot;,&quot;event&quot;:null,&quot;object&quot;:null}]},&quot;correction_hooks&quot;:[&quot;KEEP&quot;,&quot;REJECT&quot;,&quot;EXAGGERATE&quot;,&quot;COMPRESS&quot;,&quot;RETIME&quot;,&quot;CHANGE SOURCE&quot;,&quot;PROMOTE&quot;,&quot;SPAWN VARIANT&quot;,&quot;FIX BLOCKER&quot;,&quot;RERUN&quot;],&quot;experiment_id&quot;:&quot;v2-timing-004-clock-rendezvous-reacquire&quot;,&quot;format_version&quot;:2,&quot;keys&quot;:[{&quot;causal_role&quot;:&quot;establish body/base and docked config&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B00&quot;,&quot;motion_arc_root_note&quot;:&quot;root centered; no travel&quot;,&quot;name&quot;:&quot;READY_DOCKED&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,5],[20,3],[16,6],[24,6],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; tool is docked configuration, not an independent clock&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;anticipation before clock fork&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B01&quot;,&quot;motion_arc_root_note&quot;:&quot;root shifts slightly rear; hand prepares release&quot;,&quot;name&quot;:&quot;LOAD_RELEASE&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[19,8],[18,5],[18,3],[15,6],[23,4],[16,12],[22,12],[17,9],[21,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; rear bias&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;causal fork: detached object clock begins&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B02&quot;,&quot;motion_arc_root_note&quot;:&quot;root arrests; hand reaches outward&quot;,&quot;name&quot;:&quot;RELEASE_FORK&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[21,5],[21,3],[17,6],[27,4],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; releasing hand loses object contact&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;body consequence after fork&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B03&quot;,&quot;motion_arc_root_note&quot;:&quot;root returns under torso; release arm retracts&quot;,&quot;name&quot;:&quot;BODY_RECOIL&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[21,5],[21,3],[17,6],[23,6],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; no object contact&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;body settles while object clock continues independently&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B04&quot;,&quot;motion_arc_root_note&quot;:&quot;root stable; hand offers a future rendezvous target&quot;,&quot;name&quot;:&quot;READY_FOR_RETURN&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,5],[20,3],[16,6],[25,5],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; catch hand available; no object contact&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;causal rendezvous join; object clock terminates into config&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B05&quot;,&quot;motion_arc_root_note&quot;:&quot;root remains stable; hand/object positions coincide&quot;,&quot;name&quot;:&quot;REACQUIRE_JOIN&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,5],[20,3],[16,6],[26,4],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; object contact reacquired at hand&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;post-rendezvous stable state&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;B06&quot;,&quot;motion_arc_root_note&quot;:&quot;root centered; no travel&quot;,&quot;name&quot;:&quot;RESTACK_DOCKED&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,5],[20,3],[16,6],[24,6],[17,12],[23,12],[18,9],[22,9]],&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;support_contact&quot;:&quot;both feet planted; tool docked configuration restored&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;object clock first sample after fork&quot;,&quot;clock_channel&quot;:&quot;OBJECT_CLOCK&quot;,&quot;key_id&quot;:&quot;O01&quot;,&quot;motion_arc_root_note&quot;:&quot;object leaves hand on short outward arc&quot;,&quot;name&quot;:&quot;OBJECT_LAUNCH&quot;,&quot;pose_rig&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;ctrl&quot;:[[28,4]],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;support_contact&quot;:&quot;detached/free immediately after release&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;independent travel&quot;,&quot;clock_channel&quot;:&quot;OBJECT_CLOCK&quot;,&quot;key_id&quot;:&quot;O02&quot;,&quot;motion_arc_root_note&quot;:&quot;object continues outward while body clock recovers&quot;,&quot;name&quot;:&quot;OBJECT_OUTBOUND&quot;,&quot;pose_rig&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;ctrl&quot;:[[32,3]],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;support_contact&quot;:&quot;detached/free&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;independent turn state; no body rekey required&quot;,&quot;clock_channel&quot;:&quot;OBJECT_CLOCK&quot;,&quot;key_id&quot;:&quot;O03&quot;,&quot;motion_arc_root_note&quot;:&quot;object reaches far arc and changes travel direction&quot;,&quot;name&quot;:&quot;OBJECT_TURN&quot;,&quot;pose_rig&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;ctrl&quot;:[[35,6]],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;support_contact&quot;:&quot;detached/free&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;approach rendezvous&quot;,&quot;clock_channel&quot;:&quot;OBJECT_CLOCK&quot;,&quot;key_id&quot;:&quot;O04&quot;,&quot;motion_arc_root_note&quot;:&quot;object returns toward offered catch contact&quot;,&quot;name&quot;:&quot;OBJECT_RETURN&quot;,&quot;pose_rig&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;ctrl&quot;:[[30,5]],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;support_contact&quot;:&quot;detached/free&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;causal rendezvous with B05; object clock folds back into config&quot;,&quot;clock_channel&quot;:&quot;OBJECT_CLOCK&quot;,&quot;key_id&quot;:&quot;O05&quot;,&quot;motion_arc_root_note&quot;:&quot;object reaches authored catch point&quot;,&quot;name&quot;:&quot;OBJECT_REACQUIRE&quot;,&quot;pose_rig&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;ctrl&quot;:[[26,4]],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;support_contact&quot;:&quot;hand contact reacquired&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;}],&quot;lane&quot;:&quot;timing&quot;,&quot;manifest&quot;:{&quot;format_version&quot;:2,&quot;media_bytes&quot;:2767,&quot;media_sha256&quot;:&quot;251172077c99740685105c3511b271315a6f8268788acf056534699497fd4c6d&quot;,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;schema&quot;:&quot;ascii-kinesis.swarm-manifest.v2&quot;,&quot;status&quot;:&quot;BUILT&quot;,&quot;video_source&quot;:&quot;abstract_ascii_rig_only&quot;},&quot;principle&quot;:&quot;A detached task/object clock may fork from the body, run independently, and phase-lock again only at an authored reacquisition contact. Variant/configuration state is not a timing sample.&quot;,&quot;rig&quot;:{&quot;body&quot;:{&quot;joint_order&quot;:[&quot;pelvis&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;],&quot;rig_id&quot;:&quot;generic_humanoid_9_joint&quot;},&quot;object&quot;:{&quot;control_order&quot;:[&quot;object&quot;],&quot;rig_id&quot;:&quot;generic_single_ctrl_object&quot;},&quot;render&quot;:&quot;ASCII-only line/control rig; no source art&quot;},&quot;schema&quot;:&quot;ascii-kinesis.motion.v2&quot;,&quot;source&quot;:{&quot;asset_id&quot;:3116,&quot;asset_name&quot;:&quot;Boomer Kuwanger&quot;,&quot;game&quot;:&quot;Mega Man X&quot;,&quot;inferred&quot;:[&quot;The abstract BODY_CLOCK/OBJECT_CLOCK fork-and-rendezvous model, all rig coordinates, clock ownership, event semantics, and all ONES/TWOS/FOURS assignments are authored compilation hypotheses.&quot;,&quot;The catch/reacquisition example is a transferable timing test, not a reconstruction of source choreography.&quot;],&quot;observed&quot;:[&quot;The complete sheet contains multiple rows of full-body character-state cells rather than one single chronological strip.&quot;,&quot;A visibly labeled &#x27;Without horns&#x27; band repeats full-body organizations with the horn/tool presentation removed, establishing a configuration/variant axis distinct from body-time.&quot;,&quot;Detached ring/boomerang-like object elements appear separately near the lower sheet, establishing an object/effect axis distinct from the body cells.&quot;,&quot;The source page reports a 410x420 PNG and Animations (0).&quot;],&quot;page_url&quot;:&quot;https://www.spriters-resource.com/snes/mmx/asset/3116/&quot;,&quot;platform&quot;:&quot;SNES&quot;,&quot;rights_note&quot;:&quot;Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, costume, exact silhouette, frame layout, tracing, redistribution, or close imitation are embedded. The specimen contains only a generic ASCII rig and general timing principles.&quot;,&quot;sheet&quot;:{&quot;format&quot;:&quot;PNG&quot;,&quot;height&quot;:420,&quot;page_reported_size&quot;:&quot;28.35 KB&quot;,&quot;raw_sha256&quot;:null,&quot;width&quot;:410},&quot;site&quot;:&quot;The Spriters Resource&quot;,&quot;source_art_embedded&quot;:false,&quot;source_timing_available&quot;:false,&quot;unknown&quot;:[&quot;Source playback chronology, per-cell exposure, exact move labels for every cell, source object flight path, return/catch timing, phase relationship, hit-stop, and runtime implementation.&quot;],&quot;whole_sheet_evidence&quot;:&quot;Complete TSR-rendered sheet image inspected as one 410x420 source surface; source page metadata separately read.&quot;,&quot;whole_sheet_inspected&quot;:true},&quot;timing_doctrine&quot;:{&quot;FOURS&quot;:&quot;one drawing/key held four display frames&quot;,&quot;ONES&quot;:&quot;new drawing/key sample every display frame&quot;,&quot;TWOS&quot;:&quot;one drawing/key held two display frames&quot;,&quot;nominal_24fps_samples_per_second&quot;:{&quot;FOURS&quot;:6,&quot;ONES&quot;:24,&quot;TWOS&quot;:12},&quot;policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;policy_note&quot;:&quot;nonuniform authored gameplay timing; anticipation holds, fast transitions, impact/contact emphasis, recoil/recovery holds, silhouette exaggeration, selective sampling; all durations here are INFERRED, not source-authentic&quot;,&quot;user_shorthand&quot;:&quot;1s/2s/4s means ONES/TWOS/FOURS, never seconds&quot;},&quot;title&quot;:&quot;Clock Rendezvous / Reacquire&quot;}</pre></section><section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAPkbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAA0IAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAw90cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA0IAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAUAAAAC0AAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAANCAAAEAAABAAAAAAKHbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAwAAAAKABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAACMm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAfJzdGJsAAAAsnN0c2QAAAAAAAAAAQAAAKJhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAUAAtABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDEgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAOGF2Y0MBZAAV/+EAGmdkABWscgRBQZ+eEAAAAwAQAAADAwDxYthGAQAHaOhDgQSyLP34+AAAAAAUYnRydAAAAAAAAECcAAAAAAAAABhzdHRzAAAAAAAAAAEAAAAUAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAeGN0dHMAAAAAAAAADQAAAAEAAAQAAAAAAQAAFAAAAAABAAAIAAAAAAMAAAAAAAAABAAAAgAAAAABAAAMAAAAAAEAAAQAAAAAAQAAAAAAAAACAAACAAAAAAEAAAwAAAAAAQAABAAAAAABAAAAAAAAAAIAAAIAAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAAUAAAAAQAAAGRzdHN6AAAAAAAAAAAAAAAUAAAERAAAAEgAAAA7AAAAIwAAACcAAAAkAAAAGwAAABwAAAAdAAAAJgAAACoAAAAdAAAAGAAAABQAAAAVAAAAIAAAABoAAAAnAAAAEQAAABIAAAAUc3RjbwAAAAAAAAABAAAEFAAAAGF1ZHRhAAAAWW1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALGlsc3QAAAAkqXRvbwAAABxkYXRhAAAAAQAAAABMYXZmNjEuNy4xMDMAAAAIZnJlZQAABsNtZGF0AAACsAYF//+s3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzEwOCAzMWUxOWY5IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTE2IGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDM6MHgxMzMgbWU9dW1oIHN1Ym1lPTEwIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MjQgY2hyb21hX21lPTEgdHJlbGxpcz0yIDh4OGRjdD0xIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9NiBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTggYl9weXJhbWlkPTIgYl9hZGFwdD0yIGJfYmlhcz0wIGRpcmVjdD0zIHdlaWdodGI9MSBvcGVuX2dvcD0wIHdlaWdodHA9MiBrZXlpbnQ9MjUwIGtleWludF9taW49MjQgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD02MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTQyLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAGMZYiBABv/0KmnA6Uoc+wYb1nrZbz47ZpEWtQks8JvbfP1uGoahdnyCU0wXhBm9voT+Ya1ikEc7KrpL6NF9BeCVgTbkakt3YPEXGmd5TabZVpA59ZFVakhnOflmLekGRLRH2j3ZknSXg8QAAADAANiCF2A3HIMUZyqiH9EQXtkcBzO0tKn8ZPvKN5RCq0oc0+MAxyOEiIykX4AZlbXzMD8rrlHyr8D7tQq+Rl3bbCrcwB8AYxPI9CjxdW0SBKUpHC98rq78eNV39gzgeoqfCJ7hTZvTPaH4B8+FYsNXb0+5v7Y7I6ZvcxvY8HL//Q38nhmwAfDf/78jR7/g1KcnrE7XVc193f72vecLB4cMGRole1/g4WJ4JgzUi7utybp24Khvo18+VT3EyMBje6yQDBmTK+YaQ3gQYgzGQ8k8DIaI4cFijgHoaHZxUczTG8UsCr8SZxDMVOGlSy9T4iXM/wOkZaMTaJvFMfpzXCRaSC98GwIoAkJWpDyxmCq8wLlqy3/WX7aGaAAAAMAAArZAAAAREGaCS2Iz+GBwjzfmXC0qzq/3rUzPeXrQAAAhTd7FUPy5q346VSR/BWcGjrhN19ZNYccVKOwAFLPA/PFgKE0Xue9GVmIAAAAN0GeEIcQh/I9On9U7mn3VqaFD+aoak3x2P8JhfDES0opxIDz3/Sxkvb2WHqmNTn8HC8szshMrwcAAAAfAZ4YJohL//YWMRTQPk52ODhsntg0oaVPicEkwmgwoAAAACMBnhhGiEv/9iPN9M7DULkCQ4MAOJbTseYdHbkl6rOz5KhOwQAAACABnhhmiEv/9eTbO74gs5JNgrm+QqvMs9zut4DlfVARcQAAABcBnhitSEv/44DlqtFIJrBvIsnFxD41MQAAABgBnhjNSEv/44Du8mvx7n7Bju5NJi28xIEAAAAZAZ4Y7UhL/+OEXeYxjcbzyGvItMYwZKGYJAAAACIBnhkNSEv/2uj7z3GKbGq0YOxSxKGLniq1b9I/qmpFa2fMAAAAJkGaGck1AgLRMpgRn/po0Sb/vOFDuvV07G7ZmL9SwFydaV2odyPhAAAAGUGeIW3Ed/FHgBaFhnGyUvK5k0DGZZuSRqQAAAAUAZ4pTaIS//YNBtgNrcZAZ/8yApIAAAAQAZ4pjJIS/ysRGKpgQeaEfQAAABEBnimskhL/4kVHxygt2xHBlQAAABxBmipptQIC2tEymAEJf/s3JJSUbBjB/Pf6iKCBAAAAFkGeMgyxCH/5lEuRFM0ngNZfVx+WodMAAAAjAZ457KiEv/wjx18t6u7w/SmsqACpSmDKGHgApQZc8YSbSYEAAAANAZ46LNIS/+hpKpQHpQAAAA4BnjpM0hL/9cpk6s+K2A==" type="video/mp4"></video></section><script>let b=[...document.querySelectorAll("button[data-view]")],s=[...document.querySelectorAll("section")];b.forEach(x=>x.onclick=()=>s.forEach(y=>y.hidden=y.id!==x.dataset.view));</script></body></html>

@@ -1,0 +1,168 @@
+{
+  "ascii_sheet_sha256": "77ec7f0188024f1c3ca9233f35c95445e382f6efa34c181c541644974b7c7ba0",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-timing-004-clock-rendezvous-reacquire",
+  "key_timings": [
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B00",
+      "name": "READY_DOCKED",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B01",
+      "name": "LOAD_RELEASE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B02",
+      "name": "RELEASE_FORK",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B03",
+      "name": "BODY_RECOIL",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B04",
+      "name": "READY_FOR_RETURN",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B05",
+      "name": "REACQUIRE_JOIN",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "BODY_CLOCK",
+      "key_id": "B06",
+      "name": "RESTACK_DOCKED",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "OBJECT_CLOCK",
+      "key_id": "O01",
+      "name": "OBJECT_LAUNCH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "OBJECT_CLOCK",
+      "key_id": "O02",
+      "name": "OBJECT_OUTBOUND",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "OBJECT_CLOCK",
+      "key_id": "O03",
+      "name": "OBJECT_TURN",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "OBJECT_CLOCK",
+      "key_id": "O04",
+      "name": "OBJECT_RETURN",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "clock_channel": "OBJECT_CLOCK",
+      "key_id": "O05",
+      "name": "OBJECT_REACQUIRE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "media_bytes": 2767,
+  "media_sha256": "251172077c99740685105c3511b271315a6f8268788acf056534699497fd4c6d",
+  "observation_inference_split": {
+    "INFERRED": [
+      "The abstract BODY_CLOCK/OBJECT_CLOCK fork-and-rendezvous model, all rig coordinates, clock ownership, event semantics, and all ONES/TWOS/FOURS assignments are authored compilation hypotheses.",
+      "The catch/reacquisition example is a transferable timing test, not a reconstruction of source choreography."
+    ],
+    "OBSERVED": [
+      "The complete sheet contains multiple rows of full-body character-state cells rather than one single chronological strip.",
+      "A visibly labeled 'Without horns' band repeats full-body organizations with the horn/tool presentation removed, establishing a configuration/variant axis distinct from body-time.",
+      "Detached ring/boomerang-like object elements appear separately near the lower sheet, establishing an object/effect axis distinct from the body cells.",
+      "The source page reports a 410x420 PNG and Animations (0)."
+    ],
+    "UNKNOWN": [
+      "Source playback chronology, per-cell exposure, exact move labels for every cell, source object flight path, return/catch timing, phase relationship, hit-stop, and runtime implementation."
+    ]
+  },
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
+  "repo_readback": "PENDING",
+  "repo_wide_contract_test_boundary": "PENDING",
+  "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, costume, exact silhouette, frame layout, tracing, redistribution, or close imitation are embedded. The specimen contains only a generic ASCII rig and general timing principles.",
+  "schema": "ascii-kinesis.v2-receipt",
+  "ship_commit": null,
+  "skill_mutation": {
+    "owner": "POSE LAB v1 \u2014 Street Fighter II Temporal Kinesis",
+    "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "performed": false,
+    "reason": "No new reusable timing doctrine earned. This specimen applies existing v1.4 causal joins, v1.5 configuration separation, v1.9 independent clocks, and v1.10 scoped synchronization."
+  },
+  "source": {
+    "asset_id": 3116,
+    "asset_name": "Boomer Kuwanger",
+    "game": "Mega Man X",
+    "inferred": [
+      "The abstract BODY_CLOCK/OBJECT_CLOCK fork-and-rendezvous model, all rig coordinates, clock ownership, event semantics, and all ONES/TWOS/FOURS assignments are authored compilation hypotheses.",
+      "The catch/reacquisition example is a transferable timing test, not a reconstruction of source choreography."
+    ],
+    "observed": [
+      "The complete sheet contains multiple rows of full-body character-state cells rather than one single chronological strip.",
+      "A visibly labeled 'Without horns' band repeats full-body organizations with the horn/tool presentation removed, establishing a configuration/variant axis distinct from body-time.",
+      "Detached ring/boomerang-like object elements appear separately near the lower sheet, establishing an object/effect axis distinct from the body cells.",
+      "The source page reports a 410x420 PNG and Animations (0)."
+    ],
+    "page_url": "https://www.spriters-resource.com/snes/mmx/asset/3116/",
+    "platform": "SNES",
+    "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, costume, exact silhouette, frame layout, tracing, redistribution, or close imitation are embedded. The specimen contains only a generic ASCII rig and general timing principles.",
+    "sheet": {
+      "format": "PNG",
+      "height": 420,
+      "page_reported_size": "28.35 KB",
+      "raw_sha256": null,
+      "width": 410
+    },
+    "site": "The Spriters Resource",
+    "source_art_embedded": false,
+    "source_timing_available": false,
+    "unknown": [
+      "Source playback chronology, per-cell exposure, exact move labels for every cell, source object flight path, return/catch timing, phase relationship, hit-stop, and runtime implementation."
+    ],
+    "whole_sheet_evidence": "Complete TSR-rendered sheet image inspected as one 410x420 source surface; source page metadata separately read.",
+    "whole_sheet_inspected": true
+  },
+  "status": "RENDERED_AWAITING_REPO_VERIFICATION",
+  "target_contract_test": "PENDING",
+  "verification_commit": null
+}
