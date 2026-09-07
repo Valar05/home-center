@@ -24,7 +24,7 @@
     "drag-capture-descent.motion.html"
   ],
   "format_version": 2,
-  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py executed on primary-phone against main clone HEAD d1671e301a013ea0f1b0c0e178613127b2183604 after generating this specimens SPA; exit 1 at pre-existing v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA. Airborne 004 sorts before defense and did not trigger a contract failure; embedded MP4 independently decoded with ffprobe.",
+  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py executed on primary-phone against exact commit 984e0aaa47a39baebbf090456a117aaddbaedc9c; exit 1 at pre-existing v2-contact-004-latent-contact-eligibility: expected exactly one tracked *.motion.html SPA. Airborne 004 sorted before that blocker and did not trigger a contract failure. Exact commit readback confirmed five tracked files, exactly one *.motion.html, ASCII/JSON/VIDEO tabs, literal preformatted text, 14 decisive keys, and embedded MP4 identity/decode.",
   "lane": "airborne",
   "ligatures_disabled": true,
   "media_bytes": 12534,
@@ -54,7 +54,7 @@
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "ship_commit": "a41539b6fa171f0cfbe8e7c2c474cec73a7f56cc",
+  "ship_commit": "984e0aaa47a39baebbf090456a117aaddbaedc9c",
   "source": {
     "asset_id": 500827,
     "game": "Toy Story",

@@ -38,8 +38,8 @@ Motion Dungeon: authored ASCII keys -> explicit holds/timing -> semantics-preser
 Compiled embedded MP4: 12534 bytes, H.264 yuv420p 480×270, 24 fps, 90 frames, 3.75 s, SHA-256 `69dff6beeb6ce0cbdefdc3cdd228b57a19f02380f0f7372b7fc782caf1f91acd`.
 ASCII authority SHA-256: `6c0fad394953a4f1cee1bc96385c95d2604134215576e3cf64f50b720d0f33d0`.
 Repository path: `experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/`
-Ship commit: `a41539b6fa171f0cfbe8e7c2c474cec73a7f56cc`
+Ship commit: `984e0aaa47a39baebbf090456a117aaddbaedc9c`
 
-Test boundary: `tools/test_ascii_kinesis_swarm_contract_v2.py` executed on `primary-phone` against main clone HEAD `d1671e301a013ea0f1b0c0e178613127b2183604` after generating this SPA; exit 1 at pre-existing `v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`. Airborne 004 sorts before defense and did not trigger a contract failure. Its embedded MP4 independently decoded with ffprobe as H.264 yuv420p 480×270, 24 fps, 90 frames, 3.75 s.
+Test boundary: tools/test_ascii_kinesis_swarm_contract_v2.py executed on primary-phone against exact commit 984e0aaa47a39baebbf090456a117aaddbaedc9c; exit 1 at pre-existing v2-contact-004-latent-contact-eligibility: expected exactly one tracked *.motion.html SPA. Airborne 004 sorted before that blocker and did not trigger a contract failure. Exact commit readback confirmed five tracked files, exactly one *.motion.html, ASCII/JSON/VIDEO tabs, literal preformatted text, 14 decisive keys, and embedded MP4 identity/decode.
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
