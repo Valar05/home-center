@@ -1,0 +1,33 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "entry": "v2-video-motion-001-black-pirate-compression-release",
+  "source": {
+    "title": "He'll walk the plank.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm",
+    "origin": "Extract from The Black Pirate (1926)",
+    "rights_status": "PUBLIC_DOMAIN_US",
+    "rights_note": "Wikimedia Commons marks the work public domain in the United States (PD-US-expired). No source pixels or footage are embedded or redistributed in this repo example.",
+    "source_sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
+    "source_bytes": 1281353,
+    "source_duration_s": 19.017,
+    "source_dimensions": [640,480],
+    "selected_segment_s": [15.0,18.75],
+    "whole_action_inspection": "OBSERVED in prior durable Video Motion Pass 010 before decisive keys were chosen; historical bridge receipt is evidence only, this V2 repo specimen is the product."
+  },
+  "rights_status": "PUBLIC_DOMAIN_US",
+  "observed_key_times_s": {"K0":15.0,"K1":16.0,"K2":17.0,"K3":17.75,"K4":17.917,"K5":18.25,"K6":18.75},
+  "observed_summary": ["long compression 15.000–17.750 s","peak native-frame change ~17.917 s","overlap/pass-through 18.000–18.250 s","counter-arc recovery onset by 18.750 s"],
+  "inferred": ["connective geometry","compile hold allocation"],
+  "unknown": ["exact B support side","exact hand/prop endpoints","discrete impact event"],
+  "media_sha256": "b8a9cf74768cebc5a063d0bcbdfecb660b0d8dbb8628dd4eeb0ce3c1799a8328",
+  "media_bytes": 11526,
+  "media_frame_count": 102,
+  "media_source": "abstract_ascii_rig_only",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "repo_readback_verified": true,
+  "contract_test_exact_readback": true,
+  "contract_test": {"path":"tools/test_ascii_kinesis_swarm_contract_v2.py","expected_result":{"entries_checked":["v2-video-motion-001-black-pirate-compression-release"],"ok":true},"verification_method":"exact GitHub repository readback mirrored into the test boundary before issue receipt"},
+  "status": "VERIFIED_AFTER_POSTWRITE_READBACK",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "verification_assertion": "Valid only after this run performs exact GitHub readback and posts the final commit on issue #343."
+}
