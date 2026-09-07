@@ -3,7 +3,7 @@
 Status: implementation contract  
 Owner: Drew Clarke  
 Mode alias: **Baby daddy-sitter mode**  
-Audit version: `manic-accessibility-guardrail.audit.v1`
+Audit version: `manic-accessibility-guardrail.audit.v2`
 
 ## Problem statement
 
@@ -25,6 +25,9 @@ The target is not prohibition. The target is a one-way accessibility instrument 
 10. Compliance and appeal create no evidence ledger.
 11. Only explicit refusal of an exact required and presented guardrail can create a minimal owner-private refusal receipt.
 12. No transcript, diagnosis, intimate detail, speculative motive, or automatic disclosure belongs in that receipt.
+13. Hunger and thirst are body-needs inputs, not psychiatric-style score inputs.
+14. Hyperbolic language is style, not telemetry: it contributes zero risk points and cannot change action authority.
+15. Body-care friction preserves the cognitive task instead of erasing it.
 
 ## Execution surfaces
 
@@ -83,7 +86,7 @@ Immediate danger produces `EMERGENCY`.
 
 ### Weighted context
 
-The audit also weighs:
+The numeric risk score may weigh:
 
 - reduced need for sleep or prolonged wakefulness;
 - racing thoughts;
@@ -92,11 +95,29 @@ The audit also weighs:
 - irritability at limits;
 - high energy;
 - overspending, unsafe sex, substance escalation, or unsupervised medication-change intent;
-- food and water neglect;
 - time since direct human contact;
 - prolonged open-ended session duration.
 
-Hyperbole scores zero unless at least two independent activation signals are already present.
+Food and water neglect are deliberately outside that numeric score. They create a `BODY_NEEDS_CHECK_REQUIRED` workflow guard instead. Hyperbole is also outside the score and may not alter outcome or action policy.
+
+### Body-needs branch
+
+The governing rule is **BODY BEFORE BIOGRAPHY**:
+
+- food or water neglect contributes zero numeric risk points;
+- low-impact mechanical work remains available with `ALLOW_WITH_FRICTION` when body needs are active and no stronger outcome applies;
+- high-impact or irreversible actuation pauses at `PAUSE_FOR_GUARDS` until the body-needs check is satisfied when no stronger outcome applies;
+- a body-needs guard alone does not invent a human-contact requirement, diagnosis, or punishment;
+- handling the need must preserve the live task and allow re-entry rather than discarding the thread.
+
+### Style branch
+
+The governing rule is **STYLE IS NOT TELEMETRY**:
+
+- `hyperbolicLanguage` contributes zero numeric risk points under all circumstances;
+- profanity, metaphor, theatrical phrasing, creative intensity, and baseline rhetorical style do not receive a hidden safety tax;
+- hyperbole may not change score, outcome, or action policy;
+- independent behavioral and functional facts carry safety authority.
 
 ### High-impact actions
 
@@ -147,9 +168,10 @@ node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibili
 The contract proves:
 
 - mechanical accessibility remains available;
-- hyperbole alone does not trigger a mania claim;
+- hyperbole never changes score, outcome, or action policy;
 - first activation with unknown baseline is amber;
-- body neglect creates a body gate;
+- body neglect creates a body gate without adding numeric risk points;
+- low-impact body-needs state uses friction while high-impact body-needs state pauses actuation;
 - sleep activation plus high-impact action blocks actuation;
 - Venice is prohibited;
 - romantic/exclusive AI framing is prohibited;
@@ -165,3 +187,7 @@ The contract proves:
 ## Evidence limits
 
 This implementation is a protective engineering contract, not a medical device and not a diagnosis. Its chosen thresholds are versioned defaults informed by emerging evidence. They should be reviewed with a qualified clinician rather than weakened ad hoc during a conflict.
+
+The extended body-state/language argument and its adversarial review are preserved in `docs/THESIS_HUNGER_THIRST_HYPERBOLE.md`.
+
+**Feed the body. Ignore the typography. Judge the action. Preserve the thought.**
