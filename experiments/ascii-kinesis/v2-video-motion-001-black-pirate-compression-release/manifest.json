@@ -10,50 +10,12 @@
   "source_art_embedded": false,
   "backward_compatible": true,
   "offline_spa": true,
-  "source": {
-    "title": "He'll walk the plank.webm",
-    "url": "https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm",
-    "rights_status": "PUBLIC_DOMAIN_US",
-    "source_sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
-    "selected_segment_s": [15.0, 18.75]
-  },
-  "media": {
-    "mime": "video/mp4",
-    "sha256": "f4d70d075ae3b9a4daefca101b9ecdc165dfbb8252a293a8234f9b352cc68e37",
-    "bytes": 14396,
-    "frame_count": 102,
-    "embedded_in_spa": true,
-    "source_pixels_used": false
-  },
-  "builder": {
-    "path": "build_motion.py",
-    "method": "Motion Dungeon",
-    "input": "motion.json + contact_sheet.txt",
-    "source_video_dependency": false,
-    "ffmpeg_version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
-  },
-  "files": [
-    "contact_sheet.txt",
-    "motion.json",
-    "build_motion.py",
-    "manifest.json",
-    "receipt.json",
-    "black-pirate-compression-release.motion.html"
-  ],
-  "compatibility": {
-    "v1_untouched": true,
-    "v2_three_tab_read_path": true,
-    "network_required": false
-  },
-  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"],
+  "source": {"title":"He'll walk the plank.webm","url":"https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm","rights_status":"PUBLIC_DOMAIN_US","source_sha1":"249a58eaf8ea1c3fe2c4232e23184f757a1ad80c","selected_segment_s":[15.0,18.75]},
+  "media": {"mime":"video/mp4","sha256":"b8a9cf74768cebc5a063d0bcbdfecb660b0d8dbb8628dd4eeb0ce3c1799a8328","bytes":11526,"frame_count":102,"embedded_in_spa":true,"source_pixels_used":false,"render_dimensions":[384,160],"duration_s":4.25},
+  "builder": {"path":"build_motion.py","method":"Motion Dungeon","input":"motion.json + contact_sheet.txt","source_video_dependency":false,"ffmpeg_version":"ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"},
+  "files": ["contact_sheet.txt","motion.json","build_motion.py","manifest.json","receipt.json","black-pirate-compression-release.motion.html"],
+  "compatibility": {"v1_untouched":true,"v2_three_tab_read_path":true,"network_required":false},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
   "status": "VERIFIED_AFTER_POSTWRITE_READBACK",
-  "verification": {
-    "required_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "construction_test_result": {
-      "entries_checked": ["v2-video-motion-001-black-pirate-compression-release"],
-      "ok": true
-    },
-    "postwrite_readback": "must match exact repository blobs before issue receipt",
-    "final_commit_carried_by": "issue_343_receipt"
-  }
+  "verification": {"required_test":"tools/test_ascii_kinesis_swarm_contract_v2.py","construction_test_result":{"entries_checked":["v2-video-motion-001-black-pirate-compression-release"],"ok":true},"postwrite_readback":"must match exact repository blobs before issue receipt","final_commit_carried_by":"issue_343_receipt"}
 }
