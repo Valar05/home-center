@@ -1,0 +1,46 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-contact-001-scoped-sync-grapple",
+  "lane": "contact",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "video_packaging": "embedded MP4 data URI in scoped-sync-grapple.motion.html",
+  "media_sha256": "9b12ad677b3eaa0af0624fad979b54861176659e7ae053d5edb190269097b15e",
+  "media_bytes": 15652,
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "motion_dungeon": {
+    "authored_ascii_keys": 9,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "semantic_frames_per_loop": 24,
+    "loop_repetitions": 4,
+    "video_frames_total": 96
+  },
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 30327,
+    "page_url": "https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/",
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false
+  },
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "scoped-sync-grapple.motion.html"
+  ],
+  "reconstruction": "python3 build.py",
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
+}
