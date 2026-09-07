@@ -24,6 +24,7 @@
     "apex-spacing-window.motion.html"
   ],
   "format_version": 2,
+  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py invoked; global failure is pre-existing v2-defense-001-guard-support-fork expected exactly one tracked *.motion.html SPA",
   "lane": "airborne",
   "ligatures_disabled": true,
   "media_bytes": 8624,
@@ -52,6 +53,7 @@
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-003-apex-spacing-window/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
+  "ship_commit": "b5073a3476c88657b9e5fcdf2be74bf31ffc8806",
   "source": {
     "asset_id": 154243,
     "exact_source_bytes": 320243,
@@ -67,7 +69,7 @@
     "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/151/154243.png?updated=1755483919"
   },
   "source_art_embedded": false,
-  "status": "BUILT_PENDING_REPO_WRITE",
+  "status": "REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
   "video_packaging": "embedded MP4 data URI in tracked SPA; builder reconstructs apex-spacing-window.mp4 from motion.json",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",

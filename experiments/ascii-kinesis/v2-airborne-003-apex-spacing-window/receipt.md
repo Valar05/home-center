@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 — Airborne 003 — Apex Spacing Window
 
-Status: DELIVERABLE_READY_PENDING_REPO_WRITE
+Status: REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY
 
 Source: The Spriters Resource — Sonic — Sonic Advance 2 — Game Boy Advance — asset 154243  
 Source page: https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154243/  
@@ -35,8 +35,8 @@ Motion Dungeon: authored ASCII keys -> explicit holds -> semantics-preserving mi
 Compiled embedded MP4: 8624 bytes, H.264 yuv420p, 480×270, 24 fps, 80 frames, 3.333333 s, SHA-256 `158d73990a420574bcc13b3f10667f1b822d7b8dd2508ba6724050a1c9fc264e`.  
 ASCII authority SHA-256: `b31a8ebe742ea7dbefd1d88e261b60701ddd6acb44dab1616856ddc472b2813d`.  
 Repository path: `experiments/ascii-kinesis/v2-airborne-003-apex-spacing-window/`  
-Ship commit: recorded in the issue #343 verification receipt after persistence.
+Ship commit: `b5073a3476c88657b9e5fcdf2be74bf31ffc8806`.
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
 
-Local construction checks: the specimen-only V2 structural validator passed; ffprobe decoded the compiled MP4 as H.264/yuv420p 640×360 at 24 fps with 80 frames. These are construction checks only; repository readback remains the completion authority.
+Local construction checks: the specimen-only V2 structural validator passed; ffprobe decoded the compiled MP4 as H.264/yuv420p 480×270 at 24 fps with 80 frames. GitHub repository readback at the ship commit confirmed exactly the five required tracked files. Global contract test boundary: pre-existing `v2-defense-001-guard-support-fork` still lacks exactly one tracked `*.motion.html` SPA; this specimen itself passed its structural/media checks.
