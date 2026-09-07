@@ -1,0 +1,1411 @@
+{
+  "ascii_sheet_sha256": "e821d4b5a9c3332b999268ea1695112bca672989dee4b0b72ea853183448c93a",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, support_B, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 13396,
+    "media_sha256": "1c4c8730625e083ff2dccd58f28ed0f789fbadae2aeb58b598da71bbb499750e",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "semantic_frames_per_loop": 23,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 92
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "generic carrier/passenger relationship frame",
+      "support-anchor transfer grammar",
+      "shared-center/load-offset path",
+      "partner lag behavior",
+      "all decisive timing and connective geometry"
+    ],
+    "observed": [
+      "complete 484x421 static PNG",
+      "Mario/Jumpman movement and climb families",
+      "Pauline idle/grabbed material",
+      "Donkey Kong idle, chest-beat, barrel-throw, fall/defeat and climb material",
+      "distinct Climbing with Lady multi-body family",
+      "separate objects/effects including barrel, hammer, purse, umbrella, fireball and ladder components"
+    ],
+    "unknown": [
+      "source-authentic exposure/order",
+      "exact hand/foot support ownership in source playback",
+      "source force magnitude and shared COM",
+      "exact contact pressure",
+      "hit-stop or gameplay hold duration"
+    ]
+  },
+  "experiment_id": "v2-contact-003-persistent-relationship-support-transfer",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          23,
+          9
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          13
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          25,
+          10
+        ],
+        "head": [
+          27,
+          6
+        ],
+        "knee_l": [
+          29,
+          12
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            9
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "readable loaded relation before travel",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K0",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "LOCKED_CARRY_SET",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        11
+      ],
+      "support_A": "HAND_PAIR_A",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          23,
+          9
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          14
+        ],
+        "foot_r": [
+          31,
+          16
+        ],
+        "hand_l": [
+          22,
+          10
+        ],
+        "hand_r": [
+          25,
+          11
+        ],
+        "head": [
+          27,
+          7
+        ],
+        "knee_l": [
+          29,
+          13
+        ],
+        "knee_r": [
+          29,
+          15
+        ],
+        "pelvis": [
+          27,
+          12
+        ],
+        "shoulder_l": [
+          25,
+          9
+        ],
+        "shoulder_r": [
+          28,
+          9
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            9
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "partner lags while carrier prepares support",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K1",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "LOAD_SHIFT",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        12
+      ],
+      "support_A": "HAND_PAIR_A",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          23,
+          14
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          24,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          13
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          25,
+          10
+        ],
+        "head": [
+          27,
+          6
+        ],
+        "knee_l": [
+          29,
+          12
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            8
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            6
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            14
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "new upper anchor without relationship release",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K2",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "HAND_ANCHOR_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        11
+      ],
+      "support_A": "MIXED_A",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          23,
+          14
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          24,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          12
+        ],
+        "foot_r": [
+          31,
+          14
+        ],
+        "hand_l": [
+          22,
+          8
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          29,
+          11
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            8
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            6
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            14
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "root follows trusted support while partner trails",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K3",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "ROOT_FOLLOWS_HAND",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        10
+      ],
+      "support_A": "MIXED_A",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          11
+        ],
+        "foot_r": [
+          23,
+          13
+        ],
+        "hand_l": [
+          15,
+          7
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          11
+        ],
+        "knee_r": [
+          21,
+          11
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          20,
+          5
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          11
+        ],
+        "foot_r": [
+          31,
+          13
+        ],
+        "hand_l": [
+          22,
+          7
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          27,
+          4
+        ],
+        "knee_l": [
+          29,
+          10
+        ],
+        "knee_r": [
+          29,
+          12
+        ],
+        "pelvis": [
+          27,
+          9
+        ],
+        "shoulder_l": [
+          25,
+          6
+        ],
+        "shoulder_r": [
+          28,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            14,
+            11
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            13
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "lower anchor advances; relation stays locked",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K4",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "FOOT_ANCHOR_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "MIXED_B",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          11
+        ],
+        "foot_r": [
+          23,
+          13
+        ],
+        "hand_l": [
+          15,
+          7
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          11
+        ],
+        "knee_r": [
+          21,
+          11
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          20,
+          5
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          12
+        ],
+        "foot_r": [
+          31,
+          14
+        ],
+        "hand_l": [
+          22,
+          8
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          29,
+          11
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            14,
+            11
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            13
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "partner mass settles after root transfer",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K5",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "PARTNER_LAG_SETTLE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        10
+      ],
+      "support_A": "MIXED_B",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          12
+        ],
+        "foot_r": [
+          23,
+          12
+        ],
+        "hand_l": [
+          14,
+          3
+        ],
+        "hand_r": [
+          23,
+          6
+        ],
+        "head": [
+          19,
+          2
+        ],
+        "knee_l": [
+          17,
+          10
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          19,
+          8
+        ],
+        "shoulder_l": [
+          18,
+          4
+        ],
+        "shoulder_r": [
+          20,
+          4
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          11
+        ],
+        "foot_r": [
+          31,
+          13
+        ],
+        "hand_l": [
+          22,
+          7
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          27,
+          4
+        ],
+        "knee_l": [
+          29,
+          10
+        ],
+        "knee_r": [
+          29,
+          12
+        ],
+        "pelvis": [
+          27,
+          9
+        ],
+        "shoulder_l": [
+          25,
+          6
+        ],
+        "shoulder_r": [
+          28,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            6
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            14,
+            3
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            15,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "next upper anchor acquires under carried load",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K6",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "SECOND_HAND_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "MIXED_C",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          12
+        ],
+        "foot_r": [
+          23,
+          12
+        ],
+        "hand_l": [
+          14,
+          3
+        ],
+        "hand_r": [
+          23,
+          6
+        ],
+        "head": [
+          19,
+          2
+        ],
+        "knee_l": [
+          17,
+          10
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          19,
+          8
+        ],
+        "shoulder_l": [
+          18,
+          4
+        ],
+        "shoulder_r": [
+          20,
+          4
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          10
+        ],
+        "foot_r": [
+          31,
+          12
+        ],
+        "hand_l": [
+          22,
+          6
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          27,
+          3
+        ],
+        "knee_l": [
+          29,
+          9
+        ],
+        "knee_r": [
+          29,
+          11
+        ],
+        "pelvis": [
+          27,
+          8
+        ],
+        "shoulder_l": [
+          25,
+          5
+        ],
+        "shoulder_r": [
+          28,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            6
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            14,
+            3
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            15,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "carrier root catches support; lag decays",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K7",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "ROOT_FOLLOWS_SECOND",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        8
+      ],
+      "support_A": "MIXED_C",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          11
+        ],
+        "foot_r": [
+          23,
+          11
+        ],
+        "hand_l": [
+          15,
+          5
+        ],
+        "hand_r": [
+          23,
+          5
+        ],
+        "head": [
+          19,
+          1
+        ],
+        "knee_l": [
+          17,
+          9
+        ],
+        "knee_r": [
+          21,
+          9
+        ],
+        "pelvis": [
+          19,
+          7
+        ],
+        "shoulder_l": [
+          18,
+          3
+        ],
+        "shoulder_r": [
+          20,
+          3
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          9
+        ],
+        "foot_r": [
+          31,
+          11
+        ],
+        "hand_l": [
+          22,
+          5
+        ],
+        "hand_r": [
+          25,
+          6
+        ],
+        "head": [
+          27,
+          2
+        ],
+        "knee_l": [
+          29,
+          8
+        ],
+        "knee_r": [
+          29,
+          10
+        ],
+        "pelvis": [
+          27,
+          7
+        ],
+        "shoulder_l": [
+          25,
+          4
+        ],
+        "shoulder_r": [
+          28,
+          4
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            5
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            5
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            5
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            5
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "restack around persistent relationship",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K8",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "CARRY_RESTACK",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        7
+      ],
+      "support_A": "HAND_PAIR_B",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "principle": "RELATIONSHIP FRAME CAN PERSIST ACROSS SUPPORT TRANSFERS.",
+  "rig": {
+    "actors": [
+      "A_CARRIER",
+      "B_PARTNER"
+    ],
+    "relationship_frame": {
+      "anchors": [
+        "A.hand_r<->B.shoulder_l",
+        "A.shoulder_r<->B.hand_l"
+      ],
+      "owner": "A_CARRIER",
+      "shared_center": "abstract X marker",
+      "state": "LOCKED_CARRY"
+    },
+    "support_frame": {
+      "join_rule": "support changes only at decisive keys",
+      "owner": "A_CARRIER_TO_ENVIRONMENT",
+      "partner_support": "NONE"
+    }
+  },
+  "source": {
+    "asset_id": 46026,
+    "game": "Donkey Kong",
+    "name": "Characters, Enemies & Objects",
+    "page_url": "https://www.spriters-resource.com/nes/dk/asset/46026/",
+    "raw_bytes": 25826,
+    "raw_dimensions": [
+      484,
+      421
+    ],
+    "raw_sha256": "a42d8a37c07e65abbb75c1b10f06212e88b59238ba2cdcb091f8c0fe88540c8a",
+    "raw_url": "https://www.spriters-resource.com/media/assets/43/46026.png?updated=1755472913",
+    "rights_note": "Copyright-restricted game sprite sheet used only as whole-sheet evidence. No source pixels, palette, exact silhouette, layout, tracing, redistribution, or close imitation enters this specimen. Drew work not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "system": "NES",
+    "whole_sheet_inspected": true
+  }
+}

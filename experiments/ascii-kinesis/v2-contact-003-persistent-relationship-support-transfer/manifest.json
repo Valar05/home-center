@@ -1,0 +1,67 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-003-persistent-relationship-support-transfer",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "persistent-relationship-support-transfer.motion.html",
+    "persistent-relationship-support-transfer.mp4"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media_bytes": 13396,
+  "media_sha256": "1c4c8730625e083ff2dccd58f28ed0f789fbadae2aeb58b598da71bbb499750e",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 9,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 23,
+    "video_frames_total": 92
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "PATH=\"$HOME/bin:$PATH\" python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 46026,
+    "page_url": "https://www.spriters-resource.com/nes/dk/asset/46026/",
+    "raw_bytes": 25826,
+    "raw_dimensions": [
+      484,
+      421
+    ],
+    "raw_sha256": "a42d8a37c07e65abbb75c1b10f06212e88b59238ba2cdcb091f8c0fe88540c8a",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in persistent-relationship-support-transfer.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

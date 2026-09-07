@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Contact 003 — Persistent Relationship / Support Transfer</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:72ch;line-height:1.45}
+</style></head><body>
+<h1>Persistent Relationship / Support Transfer</h1>
+<p class="note">Copyright-safe abstract rig. Source art is evidence only and is not embedded. Transferable rule: a locked carrier-partner relationship frame can persist while the carrier changes support anchors. The partner loads the solver but does not become the support owner.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[C003-K0] LOCKED_CARRY_SET | FOURS INFERRED | contact=LOCKED_CARRY | A_support=HAND_PAIR_A | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                   A
+                  / \      B
+                  o-o     / \
+                //| |\\ -o--o
+               *   |  **  //|
+                   |     o\|
+                   @   X   &amp;
+                  / \       \o
+                 o   o      \ \o
+                /     \      o
+               o       o      \o
+
+
+
+[C003-K1] LOAD_SHIFT | TWOS INFERRED | contact=LOCKED_CARRY | A_support=HAND_PAIR_A | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                   A
+                  / \
+                  o-o      B
+                //| |\\   / \
+               *   |  **-o--o
+                   |  o-  //|
+                   @     o\|
+                  / \  X   &amp;
+                 o   o      \o
+                /     \     \ \o
+               o       o     o
+                              \o
+
+
+[C003-K2] HAND_ANCHOR_ADVANCE | ONES INFERRED | contact=LOCKED_CARRY | A_support=MIXED_A | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                   A
+                  / \
+                  o-o--**  B
+                //| |     / \
+               *   |  * -o--o
+                   |  o-  //|
+                   @     o\|
+                  / \  X   &amp;
+                 o   o      \o
+                /     \     \ \o
+               o       *     o
+                              \o
+
+
+
+[C003-K3] ROOT_FOLLOWS_HAND | TWOS INFERRED | contact=LOCKED_CARRY | A_support=MIXED_A | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                   A
+                  / \      B
+                  o-o--** / \
+                //| |   -o--o
+               *   |  *-  //|
+                   |     o\|
+                   @   X   &amp;
+                  / \       \o
+                 o   o      \ \o
+                /     \      o
+               o       *      \o
+
+
+
+
+[C003-K4] FOOT_ANCHOR_ADVANCE | ONES INFERRED | contact=LOCKED_CARRY | A_support=MIXED_B | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+                   A
+                  / \      B
+                  o-o     / \
+                //| |\\ -o--o
+               o   |  **  //|
+                   |     o\|
+                   @   X   &amp;
+                  / \       \o
+              *--o   o      \ \o
+                      \      o
+                       *      \o
+
+
+
+
+
+[C003-K5] PARTNER_LAG_SETTLE | TWOS INFERRED | contact=LOCKED_CARRY | A_support=MIXED_B | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+                   A
+                  / \
+                  o-o      B
+                //| |\\   / \
+               o   |  **-o--o
+                   |  o-  //|
+                   @     o\|
+                  / \  X   &amp;
+              *--o   o      \o
+                      \     \ \o
+                       *     o
+                              \o
+
+
+
+
+[C003-K6] SECOND_HAND_ADVANCE | ONES INFERRED | contact=LOCKED_CARRY | A_support=MIXED_C | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                   A
+              *-- / \
+                 -o-o      B
+                  | |\\   / \
+                   |  **-o--o
+                   |  o-  //|
+                   @     o\|
+                  / \  X   &amp;
+                 o   o      \o
+                /     \     \ \o
+               *       *     o
+                              \o
+
+
+
+
+
+[C003-K7] ROOT_FOLLOWS_SECOND | TWOS INFERRED | contact=LOCKED_CARRY | A_support=MIXED_C | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                   A
+              *-- / \      B
+                 -o-o     / \
+                  | |\\ -o--o
+                   |  **  //|
+                   |     o\|
+                   @   X   &amp;
+                  / \       \o
+                 o   o      \ \o
+                /     \      o
+               *       *      \o
+
+
+
+
+
+
+[C003-K8] CARRY_RESTACK | FOURS INFERRED | contact=LOCKED_CARRY | A_support=HAND_PAIR_B | B_support=NONE | root=A_SUPPORT_FRAME | custody=A_CARRIES_B
+
+                   A &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                  / \      B
+                  o-o     / \
+                //| |\\ -o--o
+               *   |  **  //|
+                   |     o\|
+                   @   X   &amp;
+                  / \       \o
+                 o   o      \ \o
+                /     \      o
+               o       o      \o
+
+
+
+
+
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "e821d4b5a9c3332b999268ea1695112bca672989dee4b0b72ea853183448c93a",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, support_B, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 13396,
+    "media_sha256": "1c4c8730625e083ff2dccd58f28ed0f789fbadae2aeb58b598da71bbb499750e",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA",
+    "semantic_frames_per_loop": 23,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 92
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "generic carrier/passenger relationship frame",
+      "support-anchor transfer grammar",
+      "shared-center/load-offset path",
+      "partner lag behavior",
+      "all decisive timing and connective geometry"
+    ],
+    "observed": [
+      "complete 484x421 static PNG",
+      "Mario/Jumpman movement and climb families",
+      "Pauline idle/grabbed material",
+      "Donkey Kong idle, chest-beat, barrel-throw, fall/defeat and climb material",
+      "distinct Climbing with Lady multi-body family",
+      "separate objects/effects including barrel, hammer, purse, umbrella, fireball and ladder components"
+    ],
+    "unknown": [
+      "source-authentic exposure/order",
+      "exact hand/foot support ownership in source playback",
+      "source force magnitude and shared COM",
+      "exact contact pressure",
+      "hit-stop or gameplay hold duration"
+    ]
+  },
+  "experiment_id": "v2-contact-003-persistent-relationship-support-transfer",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          23,
+          9
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          13
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          25,
+          10
+        ],
+        "head": [
+          27,
+          6
+        ],
+        "knee_l": [
+          29,
+          12
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            9
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "readable loaded relation before travel",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K0",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "LOCKED_CARRY_SET",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        11
+      ],
+      "support_A": "HAND_PAIR_A",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          23,
+          9
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          14
+        ],
+        "foot_r": [
+          31,
+          16
+        ],
+        "hand_l": [
+          22,
+          10
+        ],
+        "hand_r": [
+          25,
+          11
+        ],
+        "head": [
+          27,
+          7
+        ],
+        "knee_l": [
+          29,
+          13
+        ],
+        "knee_r": [
+          29,
+          15
+        ],
+        "pelvis": [
+          27,
+          12
+        ],
+        "shoulder_l": [
+          25,
+          9
+        ],
+        "shoulder_r": [
+          28,
+          9
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            9
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            9
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "partner lags while carrier prepares support",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K1",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "LOAD_SHIFT",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        12
+      ],
+      "support_A": "HAND_PAIR_A",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          23,
+          14
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          24,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          13
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          25,
+          10
+        ],
+        "head": [
+          27,
+          6
+        ],
+        "knee_l": [
+          29,
+          12
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            8
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            6
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            14
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "new upper anchor without relationship release",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K2",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "HAND_ANCHOR_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        11
+      ],
+      "support_A": "MIXED_A",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          23,
+          14
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          24,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          12
+        ],
+        "foot_r": [
+          31,
+          14
+        ],
+        "hand_l": [
+          22,
+          8
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          29,
+          11
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            8
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            6
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            14
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "root follows trusted support while partner trails",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K3",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "ROOT_FOLLOWS_HAND",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        10
+      ],
+      "support_A": "MIXED_A",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          11
+        ],
+        "foot_r": [
+          23,
+          13
+        ],
+        "hand_l": [
+          15,
+          7
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          11
+        ],
+        "knee_r": [
+          21,
+          11
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          20,
+          5
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          11
+        ],
+        "foot_r": [
+          31,
+          13
+        ],
+        "hand_l": [
+          22,
+          7
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          27,
+          4
+        ],
+        "knee_l": [
+          29,
+          10
+        ],
+        "knee_r": [
+          29,
+          12
+        ],
+        "pelvis": [
+          27,
+          9
+        ],
+        "shoulder_l": [
+          25,
+          6
+        ],
+        "shoulder_r": [
+          28,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            14,
+            11
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            13
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "lower anchor advances; relation stays locked",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K4",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "FOOT_ANCHOR_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "MIXED_B",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          11
+        ],
+        "foot_r": [
+          23,
+          13
+        ],
+        "hand_l": [
+          15,
+          7
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          11
+        ],
+        "knee_r": [
+          21,
+          11
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          20,
+          5
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          12
+        ],
+        "foot_r": [
+          31,
+          14
+        ],
+        "hand_l": [
+          22,
+          8
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          29,
+          11
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            7
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            14,
+            11
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            13
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "partner mass settles after root transfer",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K5",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "PARTNER_LAG_SETTLE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        10
+      ],
+      "support_A": "MIXED_B",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          12
+        ],
+        "foot_r": [
+          23,
+          12
+        ],
+        "hand_l": [
+          14,
+          3
+        ],
+        "hand_r": [
+          23,
+          6
+        ],
+        "head": [
+          19,
+          2
+        ],
+        "knee_l": [
+          17,
+          10
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          19,
+          8
+        ],
+        "shoulder_l": [
+          18,
+          4
+        ],
+        "shoulder_r": [
+          20,
+          4
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          11
+        ],
+        "foot_r": [
+          31,
+          13
+        ],
+        "hand_l": [
+          22,
+          7
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          27,
+          4
+        ],
+        "knee_l": [
+          29,
+          10
+        ],
+        "knee_r": [
+          29,
+          12
+        ],
+        "pelvis": [
+          27,
+          9
+        ],
+        "shoulder_l": [
+          25,
+          6
+        ],
+        "shoulder_r": [
+          28,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            6
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            14,
+            3
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            15,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "next upper anchor acquires under carried load",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K6",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "SECOND_HAND_ADVANCE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "MIXED_C",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          12
+        ],
+        "foot_r": [
+          23,
+          12
+        ],
+        "hand_l": [
+          14,
+          3
+        ],
+        "hand_r": [
+          23,
+          6
+        ],
+        "head": [
+          19,
+          2
+        ],
+        "knee_l": [
+          17,
+          10
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          19,
+          8
+        ],
+        "shoulder_l": [
+          18,
+          4
+        ],
+        "shoulder_r": [
+          20,
+          4
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          10
+        ],
+        "foot_r": [
+          31,
+          12
+        ],
+        "hand_l": [
+          22,
+          6
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          27,
+          3
+        ],
+        "knee_l": [
+          29,
+          9
+        ],
+        "knee_r": [
+          29,
+          11
+        ],
+        "pelvis": [
+          27,
+          8
+        ],
+        "shoulder_l": [
+          25,
+          5
+        ],
+        "shoulder_r": [
+          28,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            6
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            6
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            14,
+            3
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_l",
+          "at": [
+            15,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.foot_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "carrier root catches support; lag decays",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K7",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "ROOT_FOLLOWS_SECOND",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        8
+      ],
+      "support_A": "MIXED_C",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          11
+        ],
+        "foot_r": [
+          23,
+          11
+        ],
+        "hand_l": [
+          15,
+          5
+        ],
+        "hand_r": [
+          23,
+          5
+        ],
+        "head": [
+          19,
+          1
+        ],
+        "knee_l": [
+          17,
+          9
+        ],
+        "knee_r": [
+          21,
+          9
+        ],
+        "pelvis": [
+          19,
+          7
+        ],
+        "shoulder_l": [
+          18,
+          3
+        ],
+        "shoulder_r": [
+          20,
+          3
+        ]
+      },
+      "B": {
+        "foot_l": [
+          31,
+          9
+        ],
+        "foot_r": [
+          31,
+          11
+        ],
+        "hand_l": [
+          22,
+          5
+        ],
+        "hand_r": [
+          25,
+          6
+        ],
+        "head": [
+          27,
+          2
+        ],
+        "knee_l": [
+          29,
+          8
+        ],
+        "knee_r": [
+          29,
+          10
+        ],
+        "pelvis": [
+          27,
+          7
+        ],
+        "shoulder_l": [
+          25,
+          4
+        ],
+        "shoulder_r": [
+          28,
+          4
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            5
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            5
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            15,
+            5
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            5
+          ],
+          "b": "ENVIRONMENT_RUNG",
+          "kind": "SUPPORT"
+        }
+      ],
+      "causal_role": "restack around persistent relationship",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C003-K8",
+      "motion_arc_root_note": "Relationship constraint persists; support ownership changes only at authored anchor joins. Partner local offset may lag after carrier root transfer.",
+      "name": "CARRY_RESTACK",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        23,
+        7
+      ],
+      "support_A": "HAND_PAIR_B",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "principle": "RELATIONSHIP FRAME CAN PERSIST ACROSS SUPPORT TRANSFERS.",
+  "rig": {
+    "actors": [
+      "A_CARRIER",
+      "B_PARTNER"
+    ],
+    "relationship_frame": {
+      "anchors": [
+        "A.hand_r&lt;-&gt;B.shoulder_l",
+        "A.shoulder_r&lt;-&gt;B.hand_l"
+      ],
+      "owner": "A_CARRIER",
+      "shared_center": "abstract X marker",
+      "state": "LOCKED_CARRY"
+    },
+    "support_frame": {
+      "join_rule": "support changes only at decisive keys",
+      "owner": "A_CARRIER_TO_ENVIRONMENT",
+      "partner_support": "NONE"
+    }
+  },
+  "source": {
+    "asset_id": 46026,
+    "game": "Donkey Kong",
+    "name": "Characters, Enemies &amp; Objects",
+    "page_url": "https://www.spriters-resource.com/nes/dk/asset/46026/",
+    "raw_bytes": 25826,
+    "raw_dimensions": [
+      484,
+      421
+    ],
+    "raw_sha256": "a42d8a37c07e65abbb75c1b10f06212e88b59238ba2cdcb091f8c0fe88540c8a",
+    "raw_url": "https://www.spriters-resource.com/media/assets/43/46026.png?updated=1755472913",
+    "rights_note": "Copyright-restricted game sprite sheet used only as whole-sheet evidence. No source pixels, palette, exact silhouette, layout, tracing, redistribution, or close imitation enters this specimen. Drew work not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "system": "NES",
+    "whole_sheet_inspected": true
+  }
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled only from the abstract rig coordinates, generated ASCII frames, explicit holds, and topology-safe connectors recorded in JSON.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script>
+</body></html>
