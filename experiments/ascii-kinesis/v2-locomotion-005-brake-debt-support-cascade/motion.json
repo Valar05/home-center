@@ -1,0 +1,58 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "format_version": 2,
+  "id": "v2-locomotion-005-brake-debt-support-cascade",
+  "title": "ASCII Kinesis V2 Locomotion 005 — Brake-Debt Support Cascade",
+  "lane": "locomotion",
+  "principle": "A braking contact can acquire support before it has canceled root velocity. Root momentum is repaid across successive support catches; first contact must not teleport the root to rest.",
+  "source": {
+    "provider": "The Spriters Resource",
+    "identity": "Sonic the Hedgehog — Sonic the Hedgehog — Sega Genesis — asset 21628",
+    "asset_id": 21628,
+    "url": "https://www.spriters-resource.com/sega_genesis/sonicth1/asset/21628/",
+    "sheet_image_url": "https://www.spriters-resource.com/resources/sheets/20/21628.png?updated=1682625909",
+    "whole_sheet_evidence": "The entire 690x1558 PNG was visually inspected as one evidence corpus, including its labeled Basic Motion, Basic Motion (Angled), Full Speed, Full Speed (Angled), Skidding, Balance, Rolling / Jumping, Pushing, pipe/tunnel, hurt/death/continue, ending, and unused/prototype regions. The extraction uses only the general contrast between fast travel, braking/skid posture, and recovery/support organization; non-locomotion regions were context only.",
+    "rights_boundary": "Copyright-restricted commercial-game sprite art used as study evidence only. No source pixels, palette, contours, costume, character proportions, sheet layout, frame arrangement, tracing, redistribution, or close imitation is embedded in this specimen. Every pose, rig mark, ground line, transition, and video frame is independently authored abstract ASCII.",
+    "source_art_embedded": false
+  },
+  "evidence": {
+    "OBSERVED": [
+      "TSR identifies asset 21628 as Sonic the Hedgehog from the Sega Genesis game Sonic the Hedgehog and gives the sheet size as 690x1558 PNG.",
+      "Whole-sheet inspection shows distinct fast-travel/full-speed and skidding/braking families alongside ordinary/angled locomotion and recovery-context families.",
+      "The static sheet does not establish source-authentic exposure timing for decisive keys."
+    ],
+    "INFERRED": [
+      "The brake-debt support cascade, all abstract pose geometry, root spacing, support ownership, contact confidence, weight transfer, anticipation, absorption, and recovery sequencing.",
+      "Every ONES/TWOS/FOURS timing assignment under STREET_FIGHTER/CAPCOM policy."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame exposure, engine playback cadence, exact in-game root coordinates, exact source force distribution, and exact chronology between sheet cells."
+    ]
+  },
+  "rig": {
+    "space": "2D ASCII Blender-style schematic",
+    "canvas": [34,14],
+    "joints": ["head","chest","pelvis","l_shoulder","l_elbow","l_hand","r_shoulder","r_elbow","r_hand","l_knee","l_foot","r_knee","r_foot"],
+    "bones": [["head","chest"],["chest","pelvis"],["chest","l_shoulder"],["l_shoulder","l_elbow"],["l_elbow","l_hand"],["chest","r_shoulder"],["r_shoulder","r_elbow"],["r_elbow","r_hand"],["pelvis","l_knee"],["l_knee","l_foot"],["pelvis","r_knee"],["r_knee","r_foot"]],
+    "legend": {"O":"head","+":"chest/pelvis","o":"joint","!":"trusted support contact","?":"touch/probe contact","=":"ground"},
+    "axis": {"x":"travel direction","y":"screen vertical","root":"pelvis"}
+  },
+  "timing_policy": "STREET_FIGHTER/CAPCOM",
+  "timing_note": "ONES/TWOS/FOURS are display-frame hold classes, never seconds. All decisive timings in this specimen are inferred because the static source sheet does not establish exposure timing.",
+  "state_sequence": ["FAST_CARRY","COUNTERLEAN_PREP","BRAKE_CATCH_A","ROOT_OVERRUN_A","BRAKE_CATCH_B","DUAL_SUPPORT_ABSORB","SETTLE_RECOVERY","RESTACK"],
+  "keys": [
+    {"key_id":"K0","name":"FAST_CARRY","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"stable high-speed entry / readable carry","support_contact":"LEFT_SUPPORT_RIGHT_FREE","root_owner":"LEFT_GROUND_SUPPORT","root_travel_units":0.0,"root_velocity_class":"FAST","motion_arc_root_note":"Root enters with established forward velocity; no braking claim yet.","pose_rig":"\n\n         O  o\n        |  o\n      o-+-o\n     o |\n    o  +\n      | \\\n      o  o\n     |    --\n     |      o\n    !\n=================================="},
+    {"key_id":"K1","name":"COUNTERLEAN_PREP","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"anticipation / braking posture before new support","support_contact":"LEFT_SUPPORT_RIGHT_FREE","root_owner":"LEFT_GROUND_SUPPORT","root_travel_units":3.0,"root_velocity_class":"FAST","motion_arc_root_note":"Counterlean begins while root keeps traveling; anticipation does not erase velocity.","pose_rig":"\n\n           O\n          |\n        o-+-o\n       o  |  o\n      o   +   o\n         | \\\n         o  o\n         |   \\\n        |     o\n        !\n=================================="},
+    {"key_id":"K2","name":"BRAKE_CATCH_A","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"first braking contact / support acquisition","support_contact":"RIGHT_SUPPORT_LEFT_FREE","root_owner":"RIGHT_BRAKE_SUPPORT","root_travel_units":6.0,"root_velocity_class":"FAST","motion_arc_root_note":"First braking foot earns support, but root still carries substantial forward velocity.","pose_rig":"\n\n              O\n             |\n           o-+-o\n          o  |  o\n         o   +   o\n            / \\\n           o   o\n          |     |\n          o     |\n                 !\n=================================="},
+    {"key_id":"K3","name":"ROOT_OVERRUN_A","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"momentum debt made visible after support acquisition","support_contact":"RIGHT_SUPPORT_LEFT_FREE","root_owner":"RIGHT_BRAKE_SUPPORT","root_travel_units":8.7,"root_velocity_class":"FAST_DECAYING","motion_arc_root_note":"Root advances beyond first catch while support stays trusted; this is the anti-teleport key.","pose_rig":"\n\n                O\n                |\n              o-+-o\n             o   | o\n            o    +  o\n                |\n               oo\n              |  |\n              o  |\n                 !\n=================================="},
+    {"key_id":"K4","name":"BRAKE_CATCH_B","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"second catch / support handoff","support_contact":"LEFT_SUPPORT_RIGHT_FREE","root_owner":"LEFT_BRAKE_SUPPORT","root_travel_units":10.7,"root_velocity_class":"DECELERATING","motion_arc_root_note":"Second catch takes ownership after the first support has reduced but not canceled root travel.","pose_rig":"\n\n                  O\n                  |\n                o-+-o\n               o   | o\n              o    +  o\n                  / |\n                 o  o\n                |    |\n                o    |\n                      !\n=================================="},
+    {"key_id":"K5","name":"DUAL_SUPPORT_ABSORB","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"absorption / widen base / dissipate remaining travel","support_contact":"BOTH_SUPPORT","root_owner":"DUAL_GROUND_SUPPORT","root_travel_units":12.0,"root_velocity_class":"SLOW_DECAYING","motion_arc_root_note":"Dual support broadens the braking base; forward spacing shrinks but remains nonzero.","pose_rig":"\n\n\n                    O\n                    |\n                  o-+-o\n                 o   | o\n                o    +  o\n                    / \\\n                   o   o\n                  |     \\\n                  !      !\n=================================="},
+    {"key_id":"K6","name":"SETTLE_RECOVERY","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"recovery / final velocity shedding","support_contact":"RIGHT_SUPPORT_LEFT_TOUCH","root_owner":"RIGHT_GROUND_SUPPORT","root_travel_units":12.7,"root_velocity_class":"NEAR_ZERO","motion_arc_root_note":"Root spacing compresses to a small final drift while posture rises toward neutral.","pose_rig":"\n\n                    O\n                    |\n                  o-+-o\n                 o   | o\n                o    +  o\n                    | |\n                    o o\n                    | |\n                   |   |\n                   ?   !\n=================================="},
+    {"key_id":"K7","name":"RESTACK","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"stable stop / recovery hold","support_contact":"BOTH_SUPPORT","root_owner":"DUAL_GROUND_SUPPORT","root_travel_units":12.9,"root_velocity_class":"ZERO","motion_arc_root_note":"Root comes to rest only after the cascade of braking catches; both supports are trustworthy.","pose_rig":"\n\n                      O\n                      |\n                    o-+-o\n                   o  |  o\n                   |  +  |\n                   o | | o\n                     o o\n                     | |\n                    |   |\n                    !   !\n=================================="}
+  ],
+  "compile": {"method":"Motion Dungeon","fps":24,"loop_repetitions":4,"hold_frames":{"ONES":1,"TWOS":2,"FOURS":4},"connective_policy":"Fail-closed authored-key cuts. No synthetic interstitial pose is emitted because each decisive change in this specimen carries support/root causal meaning. The cut itself is deterministic and has zero semantic duration; all visible frames are authored ASCII keys held by explicit timing classes.","unsupported_state_policy":"fail_closed","renderer":"ASCII-only frame rasterization from literal pose_rig text; no source sprite pixels","codec":"H.264 yuv420p MP4","media_packaging":"embedded data:video/mp4 URI in the SPA is authoritative; standalone MP4 is reconstruction output and is not required as a tracked repository file","media_sha256":"81063e642d84a83a411c1c32ad985811dca38f57727e96d62d5b7dcf60c414e3","media_bytes":5420,"semantic_frames_per_loop":17,"video_frames_total":68},
+  "compatibility": {"backward_compatible":true,"v1_read_path_unchanged":true,"v2_primary_tabs":["ASCII","JSON","VIDEO"]},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "receipt": {"status":"RENDERED_CONSTRUCTION_CHECKED_AWAITING_REPO_READBACK","repo_path":"experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/","repository":"Valar05/home-center","media_sha256":"81063e642d84a83a411c1c32ad985811dca38f57727e96d62d5b7dcf60c414e3","media_bytes":5420},
+  "ascii_sheet_sha256": "1536186d239bf82b9a4ddc36a1ad6dd4a4b8f93b77e9c5272745476d960a464e"
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "ascii-kinesis.swarm-receipt.v2",
+  "experiment_id": "v2-locomotion-005-brake-debt-support-cascade",
+  "status": "RENDERED_CONSTRUCTION_CHECKED_AWAITING_REPO_READBACK",
+  "repo_path": "experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/",
+  "source": {
+    "identity": "Sonic the Hedgehog — Sonic the Hedgehog — Sega Genesis — asset 21628",
+    "url": "https://www.spriters-resource.com/sega_genesis/sonicth1/asset/21628/"
+  },
+  "rights_note": "Copyright-restricted commercial-game sprite art used as study evidence only. No source pixels, palette, contours, costume, character proportions, sheet layout, frame arrangement, tracing, redistribution, or close imitation is embedded in this specimen. Every pose, rig mark, ground line, transition, and video frame is independently authored abstract ASCII.",
+  "timing_split": {
+    "OBSERVED": 0,
+    "INFERRED": 8
+  },
+  "per_key_timing": [
+    {
+      "key_id": "K0",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K1",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K2",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K3",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K4",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K5",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K6",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K7",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "media_sha256": "81063e642d84a83a411c1c32ad985811dca38f57727e96d62d5b7dcf60c414e3",
+  "media_bytes": 5420,
+  "test_boundary": "Builder and equivalent isolated structural checks may run in construction space; only exact remote repository persistence/readback can satisfy the completion gate. No full-repository runtime-suite pass is claimed by this file.",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
