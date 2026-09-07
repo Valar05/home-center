@@ -4,25 +4,27 @@
 
 Remove the human copy/paste bridge and the desktop runtime dependency.
 
-Authorized path:
+Authoritative path:
 
-`ChatGPT / Command Center MCP -> Home Center cloud relay -> Android phone relay agent -> Phone Hands -> Shizuku/rish -> Android`
+`ChatGPT -> Home Center MCP -> Home Center cloud relay -> Android phone relay agent -> Phone Hands -> Shizuku/rish -> Android`
 
 Tailscale remains the direct peer-to-phone lane for devices already on the tailnet. The Home Center relay is the cloud rendezvous that allows ChatGPT to reach the phone without requiring the desktop to stay online.
 
-## Command Center tools
+## Home Center compatibility operations
 
-- `command_center.phone_hands.devices` — list owner-scoped registered phones and last-seen state.
-- `command_center.phone_hands.enqueue` — enqueue one bounded Phone Hands action with idempotency and TTL.
-- `command_center.phone_hands.get` — read command status/result/failure.
+The deployed API still contains historical `command_center.*` identifiers. Those names are compatibility debt inside Home Center; they do not establish a separate Command Center product, owner, queue, control plane, or operator surface.
+
+- `command_center.phone_hands.devices` — Home Center compatibility operation that lists owner-scoped registered phones and last-seen state.
+- `command_center.phone_hands.enqueue` — Home Center compatibility operation that enqueues one bounded Phone Hands action with idempotency and TTL.
+- `command_center.phone_hands.get` — Home Center compatibility operation that reads command status/result/failure.
 
 The relay action allowlist includes `phone_shell` for bounded Termux commands as well as observe, tap, swipe, text, keyevent, home, back, recents, launch, force_stop, local_ask, dungeon_run, and the other explicitly registered Phone Hands actions. `phone_shell` executes through the phone-local Termux shell adapter; it is not equivalent to granting arbitrary Android/root authority.
 
 ### ChatGPT ingress is mandatory
 
-If a ChatGPT worker needs a Termux command executed, it must attempt the existing Command Center `phone_shell` lane before asking Drew to paste anything. A manual Termux handoff is legal only after durable evidence shows the authorized phone execution lane is unavailable or requires operator-only authority.
+If a ChatGPT worker needs a Termux command executed, it must attempt the existing Home Center Phone Hands ingress first. Where the deployed operation registry exposes only the historical compatibility name, invoke `command_center.phone_hands.enqueue` with the bounded `phone_shell` action through Home Center. A manual Termux handoff is legal only after durable evidence shows the authorized Home Center phone execution lane is unavailable or requires operator-only authority.
 
-If the current ChatGPT surface does not expose/connect Command Center at all, classify that as a **ChatGPT phone-ingress failure**. Repair or reconnect the ingress. Do not reinterpret connector absence as proof that Phone Hands or `phone_shell` does not exist, and do not route around the missing ingress by turning Drew into the command transport.
+If the current ChatGPT surface does not expose or connect the required Home Center ingress operation, classify that as a **ChatGPT phone-ingress failure**. Repair or reconnect the Home Center ingress. Do not reinterpret connector or compatibility-operation absence as proof that Phone Hands or `phone_shell` does not exist, and do not route around the missing ingress by turning Drew into the command transport.
 
 Any manual fallback that genuinely survives that exhaustion must be a fenced, immediately copy-pasteable command block.
 
@@ -30,11 +32,11 @@ Any manual fallback that genuinely survives that exhaustion must be a fenced, im
 
 The phone reuses its existing Home Center Termux pairing (`~/.config/home-center/codex-hub.json`). Expired short-lived access tokens are refreshed with the existing `termuxTokenRefresh` endpoint. A separate random device secret is generated locally during registration; only its SHA-256 digest is stored in Firestore.
 
-The device secret is never returned by Command Center tools and must not be copied into chat, Drive, GitHub, or logs.
+The device secret is never returned by Home Center Phone Hands operations and must not be copied into chat, Drive, GitHub, or logs.
 
 ## Owner isolation
 
-ChatGPT commands are owner-scoped using the existing Command Center OAuth caller identity. Phone registration maps the same Home Center bearer identity to the same owner key. Reads across owners return not-found semantics.
+ChatGPT commands are owner-scoped using the existing Home Center OAuth caller identity. Phone registration maps the same Home Center bearer identity to the same owner key. Reads across owners return not-found semantics.
 
 ## Phone agent
 
@@ -51,11 +53,15 @@ This capability is **implemented** when the relay module, MCP wiring, phone agen
 It is **deployed** only when all of the following are observed through the authorized lane:
 
 1. `phoneHandsRelay` Cloud Function is ACTIVE.
-2. Command Center MCP advertises the three `command_center.phone_hands.*` tools.
+2. Home Center advertises the three historical compatibility operations `command_center.phone_hands.devices`, `command_center.phone_hands.enqueue`, and `command_center.phone_hands.get` (or their explicitly superseding Home Center names).
 3. Android registers `primary-phone` and reports a recent `lastSeenAtMs`.
-4. ChatGPT enqueues a bounded `phone_shell` canary; the phone executes it; ChatGPT reads the actual stdout/exit receipt back.
-5. ChatGPT enqueues `observe`; the phone executes it; ChatGPT reads the actual foreground state back.
-6. ChatGPT enqueues `home`; the phone changes to Home; a second `observe` confirms the mutation.
+4. ChatGPT enqueues a bounded `phone_shell` canary through Home Center; the phone executes it; ChatGPT reads the actual stdout/exit receipt back.
+5. ChatGPT enqueues `observe` through Home Center; the phone executes it; ChatGPT reads the actual foreground state back.
+6. ChatGPT enqueues `home` through Home Center; the phone changes to Home; a second `observe` confirms the mutation.
 7. Desktop is not part of the path during the test.
 
 Repository files or local-only tests are not deployment proof.
+
+## Stewardship provenance
+
+2026-09-07 archaeology reconciliation: this document previously described the compatibility namespace as an active “Command Center” surface and told workers to reconnect “Command Center.” Current Fortress doctrine preserves the exact `command_center.*` strings only where required to invoke deployed compatibility operations. Home Center is the authoritative integration and delivery surface. This reconciliation changes naming/routing doctrine only; it does not claim any runtime deployment state changed.
