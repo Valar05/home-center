@@ -1,0 +1,59 @@
+{
+  "schema": "fortress.loopscore.v1",
+  "id": "asmr-punch-beard-brush-v1",
+  "mode": "punch",
+  "seed": "asmr-punch-beard-brush-v1",
+  "defaultCrossfadeMs": 32,
+  "tracks": {
+    "beard-brush": {
+      "takes": [
+        {
+          "id": "brush-a1",
+          "source": "asmr/beard-brush/brush-a1.wav",
+          "durationMs": 1240
+        },
+        {
+          "id": "brush-a2",
+          "source": "asmr/beard-brush/brush-a2.wav",
+          "durationMs": 1310
+        },
+        {
+          "id": "brush-a3",
+          "source": "asmr/beard-brush/brush-a3.wav",
+          "durationMs": 1190
+        }
+      ]
+    }
+  },
+  "score": [
+    {
+      "kind": "silence",
+      "durationMs": 650,
+      "reason": "arrive"
+    },
+    {
+      "kind": "loop",
+      "track": "beard-brush",
+      "repeats": 3,
+      "gapMs": 0,
+      "crossfadeMs": 32
+    },
+    {
+      "kind": "silence",
+      "durationMs": 320,
+      "reason": "negative-space"
+    },
+    {
+      "kind": "speech",
+      "id": "permission-1",
+      "forge": "pocket-tts",
+      "text": "Nothing here needs a response.",
+      "durationMs": 1700
+    },
+    {
+      "kind": "silence",
+      "durationMs": 700,
+      "reason": "stop"
+    }
+  ]
+}
