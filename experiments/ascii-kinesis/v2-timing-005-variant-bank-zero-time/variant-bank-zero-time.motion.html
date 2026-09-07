@@ -1,0 +1,171 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Timing 005</title><style>:root{color-scheme:dark}body{font-family:system-ui;margin:1rem}nav{display:flex;gap:.5rem;flex-wrap:wrap}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0;white-space:pre;overflow:auto;line-height:1}video{max-width:100%;height:auto}</style></head><body><h1>Variant Bank / Zero-Time Configuration</h1><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre>ASCII KINESIS V2 TIMING 005 — VARIANT BANK / ZERO-TIME CONFIGURATION
+SOURCE ART: NOT EMBEDDED. ABSTRACT GENERIC RIG ONLY.
+SOURCE TIMING: NONE OBSERVED. ALL AUTHORED CADENCE BELOW IS INFERRED.
+AXIS NORMALIZATION: BODY_CLOCK = temporal; CONFIG_AXIS = NON-TEMPORAL; EFFECT_AXIS = unbound.
+
+[T50] READY | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=BOTH_FEET_STABLE
+root/motion-arc=root centered; no travel; readable neutral load
+timing=FOURS | provenance=INFERRED | causal_role=stable information-bearing hold
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                    O
+                    |
+                   -+-
+                 l- | -r
+                    @
+                  o/ \o
+                  |   |
+                 |     |
+                 L     R
+             [==============]
+
+
+[T51] UNWEIGHT | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=BOTH_FEET_LIGHT
+root/motion-arc=root lowers one row and drifts left; preparation arc begins
+timing=TWOS | provenance=INFERRED | causal_role=anticipation / load
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+
+                    O
+                    |
+                   -+-
+                 l- / -r
+                   @
+                  o \o
+                 /    \
+                L      R
+             [==============]
+
+
+[T52] DRIVE | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=LEFT_SUPPORT_DOMINANT
+root/motion-arc=root commits right; chest leads; support narrows
+timing=ONES | provenance=INFERRED | causal_role=fast causal release
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                        O
+                        /
+                   l---+--r
+                      /
+                     @
+                    o o
+                   /   \
+                   /    R
+                  L
+             [==============]
+
+
+[T53] CROSS | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=RIGHT_SUPPORT_ACQUIRING
+root/motion-arc=root crosses support line on a shallow rightward arc
+timing=TWOS | provenance=INFERRED | causal_role=travel / transfer
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                        O
+                        |
+                     l--+-
+                        / -r
+                       @
+                      o o
+                      |  \
+                     |   \
+                     L    R
+             [==============]
+
+
+[T54] CATCH | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=RIGHT_SUPPORT_STABLE
+root/motion-arc=root checks forward travel at new support; no extra in-between
+timing=ONES | provenance=INFERRED | causal_role=contact / constraint change
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                       O
+                       |
+                      -+--r
+                    l- \
+                        @
+                       o o
+                       | |
+                      |   |
+                      L   R
+             [==============]
+
+
+[T55] SETTLE | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=BOTH_FEET_STABLE
+root/motion-arc=root recenters over broadened support; consequence decays
+timing=TWOS | provenance=INFERRED | causal_role=recovery / load redistribution
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                      O
+                      |
+                     -+-
+                   l- | -r
+                      @
+                    o/ \o
+                    |   |
+                   |     |
+                   L     R
+             [==============]
+
+
+[T56] READY_RETURN | rig=GENERIC_BIPED_9J | clock=BODY_CLOCK
+support/contact=BOTH_FEET_STABLE
+root/motion-arc=root centered; same causal role as ready after completed transfer
+timing=FOURS | provenance=INFERRED | causal_role=re-established readable hold
+config applicability=CFG_A,CFG_B,CFG_C,CFG_D (NO EXTRA TIME KEYS)
+
+
+
+
+                    O
+                    |
+                   -+-
+                 l- | -r
+                    @
+                  o/ \o
+                  |   |
+                 |     |
+                 L     R
+             [==============]
+
+
+NON-TEMPORAL CONFIGURATION BANK:
+  CFG_A   CFG_B   CFG_C   CFG_D
+  selection changes presentation state only in this specimen; it does not advance BODY_CLOCK.
+
+COMPILED BODY_CLOCK:
+  T50 FOURS -&gt; T51 TWOS -&gt; T52 ONES -&gt; T53 TWOS -&gt; T54 ONES -&gt; T55 TWOS -&gt; T56 FOURS
+  total authored display frames at nominal 24 fps: 16
+  compiled configuration: CFG_A; alternate configurations reuse the identical key/timing graph.
+
+ONES = new drawing/key sample every display frame.
+TWOS = one drawing/key held two display frames.
+FOURS = one drawing/key held four display frames.
+At nominal 24 fps these correspond to ~24/~12/~6 samples per second.
+User shorthand 1s/2s/4s means ONES/TWOS/FOURS, never seconds.
+STREET_FIGHTER/CAPCOM = nonuniform authored gameplay timing; INFERRED timing is not source-authentic.
+
+TRANSFERABLE RULE EXERCISED:
+  COLLAPSE CONFIGURATION MULTIPLICITY BEFORE CADENCE.
+  A VARIANT BANK SPENDS ZERO TEMPORAL BANDWIDTH UNTIL A CAUSAL EVENT MAKES CONFIGURATION ITSELF TEMPORAL.</pre></section><section id="json" hidden><pre>{&quot;axis_separation&quot;:{&quot;effect_axis&quot;:&quot;not compiled; whole-sheet auxiliary/reference material does not create BODY_CLOCK samples&quot;,&quot;rule&quot;:&quot;CONFIGURATION MULTIPLICITY != TEMPORAL MULTIPLICITY&quot;,&quot;temporal_axis&quot;:&quot;support/contact/root/causal body-state changes only&quot;,&quot;variant_configuration_axis&quot;:&quot;four abstract labels CFG_A/CFG_B/CFG_C/CFG_D are timing-equivalent; no palette, costume, or source appearance is represented&quot;},&quot;clock_channels&quot;:[{&quot;authority&quot;:&quot;decisive authored ASCII keys&quot;,&quot;clock_id&quot;:&quot;BODY_CLOCK&quot;,&quot;kind&quot;:&quot;TEMPORAL&quot;,&quot;policy&quot;:&quot;STREET_FIGHTER/CAPCOM nonuniform exposure&quot;},{&quot;authority&quot;:&quot;configuration bank&quot;,&quot;clock_id&quot;:&quot;CONFIG_AXIS&quot;,&quot;kind&quot;:&quot;NON_TEMPORAL_STATE_AXIS&quot;,&quot;policy&quot;:&quot;No exposure budget; selecting A/B/C/D does not create a key unless an explicit causal configuration event is authored.&quot;},{&quot;authority&quot;:&quot;none in specimen&quot;,&quot;clock_id&quot;:&quot;EFFECT_AXIS&quot;,&quot;kind&quot;:&quot;UNBOUND_AUXILIARY&quot;,&quot;policy&quot;:&quot;Separated before cadence; no effect timing invented.&quot;}],&quot;compatibility&quot;:{&quot;ascii_kinesis_contract&quot;:&quot;V2&quot;,&quot;backward_compatible&quot;:true,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;uapl_uat_boundary&quot;:&quot;ASCII decisive keys are semantic authority; timing is an explicit compilation opinion; no source timing is promoted from static-sheet layout.&quot;},&quot;compile&quot;:{&quot;configuration_bank&quot;:[&quot;CFG_A&quot;,&quot;CFG_B&quot;,&quot;CFG_C&quot;,&quot;CFG_D&quot;],&quot;configuration_keys_consumed&quot;:0,&quot;connective_motion&quot;:&quot;none; decisive keys + explicit holds only&quot;,&quot;fps&quot;:24,&quot;frames_total&quot;:16,&quot;media_bytes&quot;:2765,&quot;media_sha256&quot;:&quot;8afebb0d4dfc74e6b62dff4428c2a89c762b17eba5e7152b2e22ed82324ab4ea&quot;,&quot;sequence&quot;:[&quot;T50:FOURS&quot;,&quot;T51:TWOS&quot;,&quot;T52:ONES&quot;,&quot;T53:TWOS&quot;,&quot;T54:ONES&quot;,&quot;T55:TWOS&quot;,&quot;T56:FOURS&quot;]},&quot;correction_hooks&quot;:[&quot;KEEP&quot;,&quot;REJECT&quot;,&quot;EXAGGERATE&quot;,&quot;COMPRESS&quot;,&quot;RETIME&quot;,&quot;CHANGE SOURCE&quot;,&quot;PROMOTE&quot;,&quot;SPAWN VARIANT&quot;,&quot;FIX BLOCKER&quot;,&quot;RERUN&quot;],&quot;experiment_id&quot;:&quot;v2-timing-005-variant-bank-zero-time&quot;,&quot;format_version&quot;:2,&quot;keys&quot;:[{&quot;causal_role&quot;:&quot;stable information-bearing hold&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T50&quot;,&quot;motion_arc_root_note&quot;:&quot;root centered; no travel; readable neutral load&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,6],[20,4],[17,7],[23,7],[18,9],[22,9],[17,12],[23,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;BOTH_FEET_STABLE&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;anticipation / load&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T51&quot;,&quot;motion_arc_root_note&quot;:&quot;root lowers one row and drifts left; preparation arc begins&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[19,9],[20,7],[20,5],[17,8],[23,8],[18,10],[21,10],[16,12],[23,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;BOTH_FEET_LIGHT&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;fast causal release&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T52&quot;,&quot;motion_arc_root_note&quot;:&quot;root commits right; chest leads; support narrows&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[21,8],[23,6],[24,4],[19,6],[26,6],[20,9],[22,9],[18,12],[24,11]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;LEFT_SUPPORT_DOMINANT&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;travel / transfer&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T53&quot;,&quot;motion_arc_root_note&quot;:&quot;root crosses support line on a shallow rightward arc&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[23,8],[24,6],[24,4],[21,6],[27,7],[22,9],[24,9],[21,12],[26,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;RIGHT_SUPPORT_ACQUIRING&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;contact / constraint change&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T54&quot;,&quot;motion_arc_root_note&quot;:&quot;root checks forward travel at new support; no extra in-between&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[24,8],[23,6],[23,4],[20,7],[26,6],[23,9],[25,9],[22,12],[26,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;RIGHT_SUPPORT_STABLE&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;recovery / load redistribution&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T55&quot;,&quot;motion_arc_root_note&quot;:&quot;root recenters over broadened support; consequence decays&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[22,8],[22,6],[22,4],[19,7],[25,7],[20,9],[24,9],[19,12],[25,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;BOTH_FEET_STABLE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;},{&quot;causal_role&quot;:&quot;re-established readable hold&quot;,&quot;clock_channel&quot;:&quot;BODY_CLOCK&quot;,&quot;key_id&quot;:&quot;T56&quot;,&quot;motion_arc_root_note&quot;:&quot;root centered; same causal role as ready after completed transfer&quot;,&quot;pose_rig&quot;:{&quot;j&quot;:[[20,8],[20,6],[20,4],[17,7],[23,7],[18,9],[22,9],[17,12],[23,12]],&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;support_contact&quot;:&quot;BOTH_FEET_STABLE&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;}],&quot;lane&quot;:&quot;timing&quot;,&quot;manifest&quot;:{&quot;format_version&quot;:2,&quot;media_bytes&quot;:2765,&quot;media_sha256&quot;:&quot;8afebb0d4dfc74e6b62dff4428c2a89c762b17eba5e7152b2e22ed82324ab4ea&quot;,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;schema&quot;:&quot;ascii-kinesis.swarm-manifest.v2&quot;,&quot;status&quot;:&quot;BUILT&quot;,&quot;video_source&quot;:&quot;abstract_ascii_rig_only&quot;},&quot;principle&quot;:&quot;Visual configuration multiplicity does not expand a temporal clock. Collapse configuration-only variants before cadence; compile one causal BODY_CLOCK and keep CONFIG_AXIS non-temporal unless an authored event changes configuration.&quot;,&quot;rig&quot;:{&quot;copyright_safe&quot;:true,&quot;joint_order&quot;:[&quot;root&quot;,&quot;chest&quot;,&quot;head&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;hip_l&quot;,&quot;hip_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;],&quot;links&quot;:[[0,1],[1,2],[1,3],[1,4],[0,5],[0,6],[5,7],[6,8]],&quot;notation&quot;:&quot;Integer 2D Blender-style control points projected to an ASCII grid; generic rig authored independently of source art.&quot;,&quot;rig_id&quot;:&quot;GENERIC_BIPED_9J&quot;},&quot;schema&quot;:&quot;ascii-kinesis.motion.v2&quot;,&quot;source_rights&quot;:{&quot;asset_id&quot;:&quot;41182&quot;,&quot;identity&quot;:&quot;Gemini Man — Mega Man Soccer — SNES — Playable Characters&quot;,&quot;page_url&quot;:&quot;https://www.spriters-resource.com/snes/mmsoccer/asset/41182/&quot;,&quot;rights_note&quot;:&quot;copyrighted whole-sheet evidence only; no source pixels/palette/contours/layout/tracing/redistribution/close imitation/choreography embedded&quot;,&quot;site&quot;:&quot;The Spriters Resource&quot;,&quot;whole_sheet_inspected&quot;:true},&quot;timing_doctrine&quot;:{&quot;FOURS&quot;:&quot;one drawing/key held four display frames&quot;,&quot;ONES&quot;:&quot;new drawing/key sample every display frame&quot;,&quot;STREET_FIGHTER/CAPCOM&quot;:&quot;nonuniform authored gameplay timing that may mix anticipation holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, and selective sampling; no inferred duration is source-authentic&quot;,&quot;TWOS&quot;:&quot;one drawing/key held two display frames&quot;,&quot;nominal_24fps_samples_per_second&quot;:{&quot;FOURS&quot;:6,&quot;ONES&quot;:24,&quot;TWOS&quot;:12},&quot;shorthand&quot;:&quot;1s/2s/4s means ONES/TWOS/FOURS, never seconds&quot;},&quot;timing_provenance&quot;:{&quot;INFERRED&quot;:[&quot;generic rig/causal roles&quot;,&quot;all ONES/TWOS/FOURS&quot;,&quot;BODY_CLOCK and zero-time CFG_A/B/C/D equivalence&quot;],&quot;OBSERVED&quot;:[&quot;TSR identity/422x414 PNG/full-sheet visual inspection&quot;,&quot;many full-body action families&quot;,&quot;lower repeated configuration/color rows&quot;,&quot;separate head/reference sprites&quot;,&quot;Animations(0)&quot;],&quot;UNKNOWN&quot;:[&quot;source chronology/exposures/cadence/hit-stop&quot;,&quot;runtime configuration semantics&quot;,&quot;source cross-channel synchronization&quot;]},&quot;title&quot;:&quot;Variant Bank / Zero-Time Configuration&quot;}</pre></section><section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAPkbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAApsAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAw90cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAApsAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAUAAAAC0AAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAKbAAAEAAABAAAAAAKHbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAwAAAAIABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAACMm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAfJzdGJsAAAAsnN0c2QAAAAAAAAAAQAAAKJhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAUAAtABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDEgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAOGF2Y0MBZAAV/+EAGmdkABWscgRBQZ+eEAAAAwAQAAADAwDxYthGAQAHaOhDgQSyLP34+AAAAAAUYnRydAAAAAAAAFCsAAAAAAAAABhzdHRzAAAAAAAAAAEAAAAQAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAiGN0dHMAAAAAAAAADwAAAAEAAAQAAAAAAQAABgAAAAABAAACAAAAAAEAAAoAAAAAAQAABAAAAAABAAAAAAAAAAEAAAIAAAAAAQAADAAAAAABAAAEAAAAAAEAAAAAAAAAAgAAAgAAAAABAAAKAAAAAAEAAAQAAAAAAQAAAAAAAAABAAACAAAAABxzdHNjAAAAAAAAAAEAAAABAAAAEAAAAAEAAABUc3RzegAAAAAAAAAAAAAAEAAABCsAAAA1AAAAGAAAAHYAAAAyAAAAIgAAAB0AAABHAAAALwAAABsAAAAgAAAAFgAAADsAAAAkAAAAGgAAABoAAAAUc3RjbwAAAAAAAAABAAAEFAAAAGF1ZHRhAAAAWW1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALGlsc3QAAAAkqXRvbwAAABxkYXRhAAAAAQAAAABMYXZmNjEuNy4xMDMAAAAIZnJlZQAABsFtZGF0AAACsAYF//+s3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzEwOCAzMWUxOWY5IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTE2IGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDM6MHgxMzMgbWU9dW1oIHN1Ym1lPTEwIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MjQgY2hyb21hX21lPTEgdHJlbGxpcz0yIDh4OGRjdD0xIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9NiBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTggYl9weXJhbWlkPTIgYl9hZGFwdD0yIGJfYmlhcz0wIGRpcmVjdD0zIHdlaWdodGI9MSBvcGVuX2dvcD0wIHdlaWdodHA9MiBrZXlpbnQ9MjUwIGtleWludF9taW49MjQgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD02MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTQyLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAFzZYiBAAj/z3jIYW2zQwhEvVJ0bGV2FEiyr6W6zMr8Y8t4SAD0n54ZaPXQ/nBlV/W2BSvrRN3q76KjXTl3MbJEJeaAFloRAIv44p3vAkMzZ/9dKHeWQCody5dusO3Lu7pgNC71mj2SJUJP3vOFS1XnbxjYruhG3JrjtwYiv9AnaHkjk2izpcO/814iv8CLk6exKp1y8rfRPdF4uY/nTrbrQQffpU6Jjsph9zHIlhhebqoAAAMAU2Y/DkPmNKoM9wIBTIrG+WaU/xRXO9dNAyGvuA+NKiMDoVUCHuFktu4bkBN2p4vOZ71Sn3joIgxt9CpKloDzMs8niEn95/IyXPbIe0DobOywn6yzToOjQKPQAbGymk70WOp3UX8KAnyrMFww/Rbwz/Ny3S+npb8HTppj9cP8D+jMkMGqbDOI6suZfvP7bdli6x9/Q2UhZ1NATge6YIMeyUf6ENCJy0FWUVLD8MKVtuCeiP+I+ChAIAAAAwAAlYEAAAAxQZoITYiP7r128IuhBfUZklwDViIHnCwyegAVjmzejJQpoiUzAa00lsZ9CHOiJGFCoAAAABQBnhAnIS/5WZ3FBfn1DmRFgdDhqwAAAHJBmhDL8CBkymEV//kEQxKmtACYaWmRPYz++9bGY/hqdhkysRxpYzsCU7OwS0MAAAsyTwNYJkLC9V4zVOKHvvNVMx/0YiypNc8kbFfWyr3RfdIlYswMhBWHaaoqerlOVuZGwpqLLjke5j4nl4NtnF++iuAAAAAuQZ4YhUQl//Dj7qG5o49jP3gBhBM3FXM2GsodKHSPruQ4iv7jaj3/HBzZUvFLZQAAAB4BniBlIhL//QWPPG6zRuWDLf3KZmSbw8EOyyWEUUkAAAAZAZ4grchL/+7bZYRKMCtmCym7/J2FEXcPgQAAAENBmiFpdQIC1kymARn/+otpLptVa8KUb7NQxVbI5uj+PeTbeogai6Wjy5YP/xJW4sF8WPMjjKoMg6cQ3JCAS+e+pjDxAAAAK0GeKQSRHf9J6btSFZSL4z4n4RSGTkKczIZq1oBL0snHkP1oJ5rcJqM7ZOwAAAAXAZ4w5IiEvy4JdWiVv1oujp1Ai99xQ8AAAAAcAZ4xLLIS/y6Ge809eOTHPpf2X8yH2xa1cPUWHwAAABIBnjFMshL/LOpOrNhFLoBLdPgAAAA3QZox6fUCAtrWTKYAEJf9AohMbJZd35xQFWABGs32AERsKUrLVU3CuoRkLI+5abyqjZMtZ2dSbAAAACBBnjms0Qh/8D5G2S9rG7e+rJiVLO+V32Y3if4m8ejMgQAAABYBnkGMyIS/65+eOKJMVSmVGftTTumBAAAAFgGeQczyEv/u22uqqT6VJN5VoCZbjKk=" type="video/mp4"></video></section><script>const b=[...document.querySelectorAll("button[data-view]")],s=[...document.querySelectorAll("section")];b.forEach(x=>x.onclick=()=>s.forEach(y=>y.hidden=y.id!==x.dataset.view));</script></body></html>
