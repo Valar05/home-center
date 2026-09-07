@@ -1,0 +1,93 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "builder": {
+    "ffmpeg_version": "ffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "input": "motion.json only; contact sheet, MP4, manifest, receipt, SPA are deterministic outputs",
+    "method": "Motion Dungeon",
+    "path": "build_motion.py",
+    "source_video_dependency": false
+  },
+  "compatibility": {
+    "network_required": false,
+    "v1_untouched": true,
+    "v2_three_tab_read_path": true
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "entry": "v2-video-motion-005-throw-release-force-chain",
+  "files": [
+    "contact_sheet.txt",
+    "motion.json",
+    "motion.mp4",
+    "build_motion.py",
+    "manifest.json",
+    "receipt.json",
+    "throw-release-force-chain.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "video-motion",
+  "media": {
+    "bytes": 9341,
+    "compile_fps": 24,
+    "embedded_in_spa": true,
+    "embedded_matches_tracked_mp4": true,
+    "frame_count": 59,
+    "mime": "video/mp4",
+    "render_dimensions": [
+      576,
+      288
+    ],
+    "sha256": "ff17ac62835a952b2e241c2562ea0d7a8e980ca0e128fdc51c5df9b9eea0cb7c",
+    "source_pixels_used": false,
+    "tracked_mp4": "motion.mp4"
+  },
+  "offline_spa": true,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "schema": "ascii-kinesis.v2-manifest",
+  "source": {
+    "author": "Nesnad",
+    "license_id": "CC BY 4.0",
+    "rights_status": "CC_BY_4_0",
+    "selected_action_segment_s": [
+      6.0,
+      12.0
+    ],
+    "source_sha256": "bcb20541112226cccd9f4e123ba7af69dcdb2333b4d5ac8b018f6cc4639e639c",
+    "title": "Throwing-slowmotion-man2013-stabilized.webm",
+    "url": "https://commons.wikimedia.org/wiki/File:Throwing-slowmotion-man2013-stabilized.webm",
+    "whole_action_inspection": "OBSERVED: the entire 13.746 s source was decoded and inspected in order as a 1 fps 14-frame whole-clip sheet before keys were chosen. The coherent throw segment 6.000\u201312.000 s was then inspected at ordered 2 fps, and the release/forward-arc window 8.000\u201310.000 s at ordered 4 fps. Source pixels remained analysis-only."
+  },
+  "source_art_embedded": false,
+  "status": "REPO_CANDIDATE_TESTED_WITH_GLOBAL_BOUNDARY",
+  "validation": {
+    "contract_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "contract_test_boundary": "v2-airborne-005-side-support-gates-second-impulse: expected exactly one tracked *.motion.html SPA",
+    "contract_test_result": "GLOBAL_FAIL_UNRELATED_ENTRY",
+    "embedded_mp4_identity": "PASS",
+    "entry_scoped_equivalent_check": "PASS",
+    "exact_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "source_pixels_used_in_output": false,
+    "tracked_mp4_full_decode": "PASS"
+  },
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}

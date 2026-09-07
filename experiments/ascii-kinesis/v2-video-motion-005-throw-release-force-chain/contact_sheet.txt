@@ -1,0 +1,217 @@
+ASCII KINESIS V2 · VIDEO MOTION 005 · THROW RELEASE FORCE CHAIN
+Source: Throwing-slowmotion-man2013-stabilized.webm · selected action 6.000–12.000 s presentation time
+Rights: Nesnad · CC BY 4.0 · analysis only; NO SOURCE PIXELS IN THIS OUTPUT
+Legend: O=head  @=root/pelvis proxy  /\-|=segments  _=ground  ?=support/contact side unresolved  X=line overlap
+Timing: source timestamps OBSERVED; compile cadence INFERRED FOURS/TWOS/ONES because source presentation is slow motion.
+
+K0 · 6.000 s source presentation · OBSERVED · PRELOAD_AND_GROUND_STACK · compile FOURS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                    X           
+                                    /           
+                                   X            
+                                  /X            
+                                 //\            
+                                / X \           
+                               / / \\           
+                                /   \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Root proxy low and grounded; distal throwing channel quiet before lift.
+
+K1 · 7.000 s source presentation · OBSERVED · RISE_AND_ORGANIZE · compile FOURS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                   X            
+                                   /            
+                                  X/            
+                                 /X             
+                                / /\            
+                                / X\            
+                               / / \            
+                                /   \           
+                                /   \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Root rises modestly while torso/limb organization begins; support remains ground-adjacent.
+
+K2 · 8.000 s source presentation · OBSERVED · THROW_ARM_LIFT · compile TWOS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                   X            
+                                   /            
+                                  X/            
+                                 //             
+                                / /             
+                                / X             
+                               / / \            
+                              / /   \           
+                                /   \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Distal throwing channel climbs rapidly while root remains comparatively stable.
+
+K3 · 8.500 s source presentation · OBSERVED · HIGH_COCK_APEX · compile TWOS (INFERRED)
+                                                
+                                                
+                                 \              
+                                 \              
+                                 \              
+                                  \X            
+                                  \/            
+                                  X/            
+                                 //             
+                                / /             
+                                / X             
+                               / / \            
+                              / /   \           
+                                /   \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Throwing-hand proxy reaches the clearest overhead/high-cock sample; root travel remains small.
+
+K4 · 8.750 s source presentation · OBSERVED · FORWARD_ACCELERATION_ARC · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                           --      X            
+                             ----  /            
+                                 -X             
+                                 //             
+                                //              
+                                /X              
+                               // \             
+                              / /  \            
+                               /    \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Distal hand begins the steep overhead-to-forward arc; exact ball release remains unresolved.
+
+K5 · 9.000 s source presentation · OBSERVED · MAX_FORWARD_REACH_WINDOW · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                  X             
+                                  /             
+                            -----X/             
+                      ------    //              
+                                //              
+                               / X              
+                               // \             
+                              / /  \            
+                               /    \           
+                               /     \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Distal hand reaches near-horizontal forward extension; source object relation remains UNKNOWN.
+
+K6 · 9.500 s source presentation · OBSERVED · FOLLOW_THROUGH_EXTENSION · compile TWOS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                  X             
+                                  /             
+                           ------X              
+                    -------     //              
+                                /               
+                               /X               
+                              / /\\             
+                               /   \            
+                              /     \\          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Root/torso fold modestly as the long distal reach continues into deceleration.
+
+K7 · 10.500 s source presentation · OBSERVED · ARM_DROP_AND_DECELERATION · compile TWOS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                 X              
+                                 /              
+                                //              
+                               //               
+                               //               
+                              / X               
+                             // /\\             
+                             / /   \            
+                            / /     \\          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Distal throwing channel drops while root begins to re-center; no new contact state appears.
+
+K8 · 12.000 s source presentation · OBSERVED · RECOVER_TO_NEUTRAL · compile FOURS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                  X             
+                                  /             
+                                 X/             
+                                 X              
+                                /X              
+                                /X\             
+                               // \             
+                               // \\\           
+                               /  \  \          
+______________________________/_______\_________
+                              ?       ?         
+                                                
+support: GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN
+contact: Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.
+root/force: Root returns toward neutral grounded stack; arm settles down after the follow-through.
+
+CAUSAL BRACKETS
+release: exact ball/hand separation frame is unresolved; no source object pixels or inferred contact switch are authored.
+support: ground contact remains visible at inspected scale; exact foot weighting/step ownership is unresolved and not invented.
+real-time cadence: UNKNOWN; the Commons source is slow-motion presentation, so compile exposure classes are INFERRED.
