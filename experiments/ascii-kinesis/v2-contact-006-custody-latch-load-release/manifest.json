@@ -1,0 +1,78 @@
+{
+  "format_version": 2,
+  "experiment_id": "v2-contact-006-custody-latch-load-release",
+  "lane": "contact",
+  "sequence": 6,
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "timing_policy": "STREET_FIGHTER/CAPCOM",
+  "all_key_timing_provenance": "INFERRED",
+  "source": {
+    "archive_bytes": null,
+    "archive_sha256": "339c0d3308fe51ce303ae4673798d3015e0022b9291fbfcd1fcba1209d7a2443",
+    "game": "Mina the Hollower",
+    "name": "Buffo",
+    "platform": "PC / Computer",
+    "rights_note": "Copyrighted source sprites were inspected only as evidence. No source pixels, palette, contours, traced geometry, or copied layout are embedded or redistributed. Output is an independently authored abstract ASCII rig.",
+    "tsr_asset_id": 566037,
+    "url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566037/",
+    "whole_sheet_items": 18,
+    "whole_sheet_nonpalette_pngs": 16
+  },
+  "principle": "OBJECT CUSTODY IS A DISCRETE LATCH: body/object geometry may move continuously, but ownership changes only at authored grip and release events.",
+  "artifacts": {
+    "builder": "build.py",
+    "motion": "motion.json",
+    "spa": "custody-latch-load-release.motion.html",
+    "video": "MP4 embedded in the self-contained SPA; build.py deterministically emits custody-latch-load-release.mp4 during reconstruction"
+  },
+  "motion_dungeon": {
+    "connector_rule": "Interpolate geometry only when contact_state, custody, support_A and root_owner are identical. Topology changes hard-cut on authored decisive keys.",
+    "connector_subframes": 2,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "media_bytes": 22029,
+    "media_sha256": "2761c64802e31bd5597877d78f44aa22424b3555754306171c331f31b250a7c1",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "preview_time_scale": 3,
+    "semantic_frames_per_loop": 68,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 136
+  },
+  "quality_gates": {
+    "tango": {
+      "status": "SATISFIED",
+      "first_visible_defect": "Payload silhouette was too small and the load/follow-through did not carry enough visible leverage/cost.",
+      "bounded_correction": "Widened the abstract payload glyph; increased rear-foot counterlean at LOAD_MAX; extended throwing arm and torso lag at FOLLOW_THROUGH_LAG.",
+      "rerender_result": "SILHOUETTE CLEAR; LOAD TRANSFER VISIBLE; CONTACT READABLE; FOLLOW THROUGH present; RECOVERY present; COST CARRIED. No material topology or floatiness defect remained."
+    },
+    "noodle_queen": {
+      "candidate_state_before_verdict": "CANDIDATE — NOT APPROVED",
+      "status": "PASS",
+      "verdict": "PASS",
+      "taste": "Specific custody-latch performance rather than generic object tweening; free, acquired, loaded, released, follow-through and recovery silhouettes are distinct.",
+      "function": "Contact ownership is readable at the anchor, support stays grounded through load/release, free-object lag occurs only after authored release, and recovery visibly pays the throw.",
+      "contempt": "Rejects tween sludge: connectors are permitted only inside unchanged contact/custody/support/root topology; causal joins hard-cut on authored keys."
+    }
+  },
+  "verification": {
+    "deterministic_media_rebuild": "PASS",
+    "candidate_scoped_v2_contract_test": "PASS",
+    "repo_global_v2_contract_test": "NOT_RUN_IN_THIS_CARRIER",
+    "repo_readback": "PENDING",
+    "issue_343_receipt": "PENDING",
+    "tango": "SATISFIED",
+    "noodle_queen": "PASS"
+  },
+  "sha256": {
+    "build.py": "0e5a4ce7713e1c100efb57d3fdb643c1375a2be852a548c85e05b604fbc4084d",
+    "embedded_media_sha256": "2761c64802e31bd5597877d78f44aa22424b3555754306171c331f31b250a7c1",
+    "ascii_sheet_sha256": "4af192e700672082ea6d417d48f86fff45912967f664b72269179e89f785d55d"
+  },
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
+}

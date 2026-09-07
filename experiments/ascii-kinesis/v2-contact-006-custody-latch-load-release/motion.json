@@ -1,0 +1,99 @@
+{
+  "ascii_sheet_sha256": "4af192e700672082ea6d417d48f86fff45912967f664b72269179e89f785d55d",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_rule": "Interpolate geometry only when contact_state, custody, support_A and root_owner are identical. Topology changes hard-cut on authored decisive keys.",
+    "connector_subframes": 2,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "media_bytes": 22029,
+    "media_sha256": "2761c64802e31bd5597877d78f44aa22424b3555754306171c331f31b250a7c1",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "preview_time_scale": 3,
+    "semantic_frames_per_loop": 68,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 136
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "Pickup approach and grip acquisition because source shows with-object and without-object states but no source-authentic pickup timing.",
+      "Shared center/force path, leverage/counterlean, release recoil, object lag, recovery, and every decisive-key exposure class."
+    ],
+    "observed": [
+      "Entire 18-item TSR archive fetched and enumerated; 16 non-palette PNGs plus 2 palette files.",
+      "Whole-sheet families include Freakout, Idle (8), Idle No Jug, Jug Eat Closed/Open, Jug Throw, Jug Throw Ready, Keeled, Transform.",
+      "Idle-with-jug frames are wider than Idle No Jug; Jug Throw Ready and Jug Throw materially change the object-side silhouette, supporting explicit held/load/release relationship states."
+    ],
+    "unknown": [
+      "Source-authentic playback order/durations outside family naming.",
+      "Exact grip point, object mass/velocity, hit-stop, impact target, and any off-sheet landing behavior."
+    ]
+  },
+  "experiment_id": "v2-contact-006-custody-latch-load-release",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [14,18], "foot_r": [22,18], "hand_l": [14,10], "hand_r": [22,10], "head": [18,4], "knee_l": [16,15], "knee_r": [20,15], "pelvis": [18,12], "shoulder_l": [16,7], "shoulder_r": [20,7]
+      },
+      "anchors": [], "causal_role": "object exists independently; carrier owns support", "contact_state": "NONE", "custody": "FREE", "force_axis": "NONE", "key_id": "C006-K0", "motion_arc_root_note": "Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.", "name": "SEPARATE_READY", "object_center": [34,16], "object_grip": [32,16], "relationship_frame": {"contact":"NONE","custody":"FREE","force_axis":"NONE","shared_center":null}, "root_owner": "A", "shared_center": null, "support_A": "BOTH", "timing_class": "FOURS", "timing_policy": "STREET_FIGHTER/CAPCOM", "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {"foot_l":[14,18],"foot_r":[24,18],"hand_l":[17,11],"hand_r":[28,13],"head":[20,5],"knee_l":[17,15],"knee_r":[22,16],"pelvis":[20,13],"shoulder_l":[18,8],"shoulder_r":[22,8]},
+      "anchors": [], "causal_role":"approach closes distance without granting custody","contact_state":"NONE","custody":"FREE","force_axis":"A_TO_OBJECT","key_id":"C006-K1","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"APPROACH_REACH","object_center":[34,16],"object_grip":[32,16],"relationship_frame":{"contact":"NONE","custody":"FREE","force_axis":"A_TO_OBJECT","shared_center":null},"root_owner":"A","shared_center":null,"support_A":"BOTH","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[14,18],"foot_r":[24,18],"hand_l":[17,11],"hand_r":[31,15],"head":[20,5],"knee_l":[17,15],"knee_r":[22,16],"pelvis":[20,13],"shoulder_l":[18,8],"shoulder_r":[22,8]},
+      "anchors":[{"a":"A.hand_r","at":[31,15],"b":"OBJECT.grip","kind":"CUSTODY"}],"causal_role":"custody changes only at explicit grip event","contact_state":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"GROUND_TO_A_TO_OBJECT","key_id":"C006-K2","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"GRIP_ACQUIRE","object_center":[34,16],"object_grip":[31,15],"relationship_frame":{"contact":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"GROUND_TO_A_TO_OBJECT","shared_center":[27,14]},"root_owner":"A","shared_center":[27,14],"support_A":"BOTH","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[14,18],"foot_r":[22,18],"hand_l":[14,10],"hand_r":[24,11],"head":[18,4],"knee_l":[16,15],"knee_r":[20,15],"pelvis":[18,12],"shoulder_l":[16,7],"shoulder_r":[20,7]},
+      "anchors":[{"a":"A.hand_r","at":[24,11],"b":"OBJECT.grip","kind":"CUSTODY"}],"causal_role":"load settles into support base before throw preparation","contact_state":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"GROUND_TO_A_TO_OBJECT","key_id":"C006-K3","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"CARRY_SETTLE","object_center":[27,12],"object_grip":[24,11],"relationship_frame":{"contact":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"GROUND_TO_A_TO_OBJECT","shared_center":[22,12]},"root_owner":"A","shared_center":[22,12],"support_A":"BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[11,18],"foot_r":[23,18],"hand_l":[11,11],"hand_r":[26,7],"head":[14,5],"knee_l":[13,15],"knee_r":[20,16],"pelvis":[16,13],"shoulder_l":[13,8],"shoulder_r":[17,8]},
+      "anchors":[{"a":"A.hand_r","at":[26,7],"b":"OBJECT.grip","kind":"CUSTODY"}],"causal_role":"rear-foot counterlean and raised payload create visible leverage while custody stays locked","contact_state":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"REAR_FOOT_TO_HAND_TO_OBJECT","key_id":"C006-K4","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"LOAD_MAX","object_center":[31,6],"object_grip":[26,7],"relationship_frame":{"contact":"ONE_ANCHOR_LOCKED","custody":"A_OWNS","force_axis":"REAR_FOOT_TO_HAND_TO_OBJECT","shared_center":[21,10]},"root_owner":"A","shared_center":[21,10],"support_A":"BOTH","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[13,18],"foot_r":[24,18],"hand_l":[15,11],"hand_r":[30,8],"head":[18,5],"knee_l":[16,15],"knee_r":[22,16],"pelvis":[19,13],"shoulder_l":[17,8],"shoulder_r":[21,8]},
+      "anchors":[],"causal_role":"release destroys custody latch; object and carrier clocks fork","contact_state":"RELEASED","custody":"FREE","force_axis":"A_TO_FREE_OBJECT","key_id":"C006-K5","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"RELEASE_FORK","object_center":[34,7],"object_grip":[32,7],"relationship_frame":{"contact":"RELEASED","custody":"FREE","force_axis":"A_TO_FREE_OBJECT","shared_center":null},"root_owner":"A","shared_center":null,"support_A":"BOTH","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[13,18],"foot_r":[27,18],"hand_l":[16,12],"hand_r":[36,10],"head":[21,6],"knee_l":[17,16],"knee_r":[24,16],"pelvis":[20,14],"shoulder_l":[19,9],"shoulder_r":[23,9]},
+      "anchors":[],"causal_role":"payload continues ahead while carrier overshoots through the arm and drags the torso behind it","contact_state":"NONE","custody":"FREE","force_axis":"OBJECT_CONTINUES_A_RECOILS","key_id":"C006-K6","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"FOLLOW_THROUGH_LAG","object_center":[46,8],"object_grip":[43,8],"relationship_frame":{"contact":"NONE","custody":"FREE","force_axis":"OBJECT_CONTINUES_A_RECOILS","shared_center":null},"root_owner":"A","shared_center":null,"support_A":"BOTH","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    },
+    {
+      "A": {"foot_l":[15,18],"foot_r":[23,18],"hand_l":[15,11],"hand_r":[25,11],"head":[19,5],"knee_l":[17,15],"knee_r":[21,16],"pelvis":[19,13],"shoulder_l":[17,8],"shoulder_r":[21,8]},
+      "anchors":[],"causal_role":"carrier visibly re-centers after object exits custody","contact_state":"NONE","custody":"FREE","force_axis":"RECENTER","key_id":"C006-K7","motion_arc_root_note":"Authored key is semantic authority; connective geometry is permitted only while contact/custody/support/root topology is unchanged.","name":"RECOVERY_COST","object_center":[51,8],"object_grip":[49,8],"relationship_frame":{"contact":"NONE","custody":"FREE","force_axis":"RECENTER","shared_center":null},"root_owner":"A","shared_center":null,"support_A":"BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED"
+    }
+  ],
+  "principle": "OBJECT CUSTODY IS A DISCRETE LATCH: body/object geometry may move continuously, but ownership changes only at authored grip and release events.",
+  "quality_gates": {
+    "noodle_queen": {"candidate_state_before_verdict":"CANDIDATE — NOT APPROVED","contempt":"Rejects tween sludge: connectors are permitted only inside unchanged contact/custody/support/root topology; causal joins hard-cut on authored keys.","function":"Contact ownership is readable at the anchor, support stays grounded through load/release, free-object lag occurs only after authored release, and recovery visibly pays the throw.","status":"PASS","taste":"Specific custody-latch performance rather than generic object tweening; free, acquired, loaded, released, follow-through and recovery silhouettes are distinct.","verdict":"PASS","worth_attention":"Demonstrates a reusable object-custody subrig that can be attached/detached without baking object ownership into the carrier pose."},
+    "tango": {"bounded_correction":"Widened the abstract payload glyph; increased rear-foot counterlean at LOAD_MAX; extended throwing arm and torso lag at FOLLOW_THROUGH_LAG.","first_visible_defect":"Payload silhouette was too small and the load/follow-through did not carry enough visible leverage/cost.","inspection":"Rendered MP4 inspected as a sampled motion sheet after first compile, then revised and re-rendered.","rerender_result":"SILHOUETTE CLEAR; LOAD TRANSFER VISIBLE; CONTACT READABLE; FOLLOW THROUGH present; RECOVERY present; COST CARRIED. No material topology or floatiness defect remained.","status":"SATISFIED"}
+  },
+  "rig": {"actor":"A","actor_joints":["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"anchor_semantics":"CUSTODY anchor is present only while A owns object; it is destroyed at RELEASE_FORK.","grid":[56,20],"object":"OBJECT","object_markers":["center","grip"]},
+  "source": {"archive_bytes":null,"archive_sha256":"339c0d3308fe51ce303ae4673798d3015e0022b9291fbfcd1fcba1209d7a2443","game":"Mina the Hollower","name":"Buffo","platform":"PC / Computer","rights_note":"Copyrighted source sprites were inspected only as evidence. No source pixels, palette, contours, traced geometry, or copied layout are embedded or redistributed. Output is an independently authored abstract ASCII rig.","tsr_asset_id":566037,"url":"https://www.spriters-resource.com/pc_computer/minathehollower/asset/566037/","whole_sheet_items":18,"whole_sheet_nonpalette_pngs":16}
+}
