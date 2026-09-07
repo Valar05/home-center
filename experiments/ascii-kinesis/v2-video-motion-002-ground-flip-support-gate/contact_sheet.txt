@@ -1,0 +1,174 @@
+K0  PREP_STACK  |  1.000s OBSERVED  |  SUPPORT=GROUNDED
+ROLE=PREPARE
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                    O                   
+                    |                   
+                    |                   
+                   /|\                  
+                  / | \                 
+                  / | \                 
+                 /  @  \                
+                   / \                  
+                  /   \                 
+                  |   |                 
+                 |     |                
+________________________________________
+                                        
+                                        
+CONTACT: Ground contact visible; exact load split between feet unresolved.
+ROOT/ARC: Root low-to-neutral; performer settles before stronger extension.
+
+K1  ARM_SWEEP_EXTENSION  |  1.500s OBSERVED  |  SUPPORT=GROUNDED
+ROLE=ANTICIPATION_TO_TAKEOFF
+                                        
+                                        
+                                        
+                                        
+                \       /               
+                 \  O  /                
+                  \\|//                 
+                    |                   
+                    |                   
+                    |                   
+                    |                   
+                    @                   
+                   / \                  
+                   / \                  
+                  /   \                 
+                  |   |                 
+                 |     |                
+________________________________________
+                                        
+                                        
+CONTACT: Ground support still visible at this sampled pose; exact foot dominance unresolved.
+ROOT/ARC: Root rises while both upper limbs sweep high; body lengthens.
+
+K2  AIRBORNE_EXTENSION  |  2.000s OBSERVED  |  SUPPORT=AIRBORNE
+ROLE=FLIGHT_ENTRY
+                                        
+                                        
+                                        
+                    O                   
+                    |                   
+                ----|----               
+                    |                   
+                    |                   
+                    |                   
+                    @                   
+                   / \                  
+                   / \                  
+                  /   \                 
+                  |   |                 
+                 |     |                
+                                        
+                                        
+________________________________________
+                                        
+                                        
+CONTACT: No ground support visible at the sampled pose.
+ROOT/ARC: Root has traveled upward; body remains relatively extended as rotation develops.
+
+K3  COMPACT_TUCK  |  2.500s OBSERVED  |  SUPPORT=AIRBORNE
+ROLE=ROTATION_COMPRESSION
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+               ----@----O               
+                  | - |                 
+                 -|  |                  
+                -                       
+                                        
+                                        
+                                        
+                                        
+                                        
+________________________________________
+                                        
+                                        
+CONTACT: No ground support visible at the sampled pose.
+ROOT/ARC: Body compacts strongly in flight while root remains above ground; rotation is concentrated around the compact mass.
+
+K4  OPEN_FOR_LANDING  |  anchor 2.750s INFERRED ONES  |  SUPPORT=AIRBORNE
+ROLE=AIRBORNE_OPENING
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                      O                 
+                     /                  
+                  ---|--                
+                 -  |                   
+                    @                   
+                   / \                  
+                  /   \                 
+                  |   |                 
+                 |     |                
+                 |     |                
+                                        
+________________________________________
+                                        
+                                        
+CONTACT: Authored fail-closed airborne state; exact opening pose/timestamp not source-measured.
+ROOT/ARC: Authored connective decisive key: unfold from tuck before support reacquisition; root remains airborne.
+
+K5  LANDING_COMPRESSION  |  3.000s OBSERVED  |  SUPPORT=GROUNDED
+ROLE=SUPPORT_REACQUISITION_AND_ABSORB
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                    O                   
+                    |                   
+                    |                   
+                   /|\                  
+                 // | \\                
+                /   @   \               
+                   / \                  
+                  /   \                 
+                  |   |                 
+________________________________________
+                                        
+                                        
+CONTACT: Ground contact is visible in a deep crouched sampled pose; first-contact instant and exact foot sequence remain UNKNOWN.
+ROOT/ARC: Root is low after return to ground; knees/hips compress to absorb residual descent/rotation.
+
+K6  RECOVERY_RISE  |  3.500s OBSERVED  |  SUPPORT=GROUNDED
+ROLE=RECOVERY
+                                        
+                                        
+                                        
+                                        
+                                        
+                    O                   
+                    |                   
+                    |                   
+                   /|\                  
+                   /|\                  
+                  / | \                 
+                  / @ \                 
+                 / / \ \                
+                   / \                  
+                  /   \                 
+                  |   |                 
+                 |     |                
+________________________________________
+                                        
+                                        
+CONTACT: Ground support remains visible while the performer rises.
+ROOT/ARC: Root rises out of landing compression toward a stable stack.
