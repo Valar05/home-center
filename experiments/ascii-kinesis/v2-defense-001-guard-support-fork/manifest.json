@@ -10,15 +10,11 @@
   "experiment_id": "v2-defense-001-guard-support-fork",
   "format_version": 2,
   "lane": "defense",
-  "media_bytes": 11653,
+  "media_bytes": 4599,
   "media_container": "identical MP4 bytes embedded as a data URI in the tracked SPA; build.py also emits guard-support-fork.mp4 on reconstruction",
-  "media_sha256": "8b0cde408e9b3597b875beb37d2d52a62704f4ec93b636b4d7e595bf57c2eef9",
+  "media_sha256": "42d934f032b841bf188595e2fb8e3b5a43dfd70b2c1d5088f8c9de79a8555de1",
   "motion_json": "motion.json",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "receipt": "receipt.md",
   "source_art_embedded": false,
   "spa": "guard-support-fork.motion.html",
