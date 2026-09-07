@@ -1,0 +1,30 @@
+{
+  "format_version": 2,
+  "schema": "ascii-kinesis.manifest.v2",
+  "id": "v2-strikes-002-contact-pin-disengage",
+  "lane": "strikes",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "delivery_artifact": "contact-pin-disengage.motion.html",
+  "structured_source": "motion.json",
+  "builder": "build.py",
+  "receipt": "receipt.json",
+  "media": {
+    "container": "mp4",
+    "codec": "h264",
+    "fps": 24,
+    "frames": 28,
+    "bytes": 2346,
+    "sha256": "e120b0a97c49c50d7d9c9ee3eb57ebe582a0d911bd01c06fb512cdc29c6c6bda",
+    "embedded_as_data_uri": true
+  },
+  "status": "RENDERED_AWAITING_REPO_PERSISTENCE"
+}
