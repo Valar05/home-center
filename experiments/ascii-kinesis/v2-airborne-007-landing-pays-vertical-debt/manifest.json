@@ -1,0 +1,100 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "386235e18270c620aff0111919cd1e2992d85e0e5cac5edcaec8692ba620144f",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compiled_media_tracked_separately": false,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-007-landing-pays-vertical-debt",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "landing-pays-vertical-debt.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 18192,
+  "media_filename": "landing-pays-vertical-debt.mp4",
+  "media_hash_policy": "The authoritative media identity is the exact MP4 embedded by this builder and committed in the SPA. Cross-runtime ffmpeg bitstream identity is not assumed; the committed SPA pins the media bytes.",
+  "media_sha256": "071201641fe85b243403b7287a24572a61109f9d035a8c65735869d4faa672a1",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 13,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "semantic_frames_per_loop": 40,
+    "video_dimensions": [480,270],
+    "video_frames_total": 80
+  },
+  "primary_tabs": ["ASCII","JSON","VIDEO"],
+  "quality_gates": {
+    "noodle_queen": "PASS_FINAL_RENDER",
+    "tango": "SATISFIED_FINAL_RENDER"
+  },
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/",
+  "repo_readback": {"verified": false},
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "ship_commit": "PENDING",
+  "source": {
+    "asset_id": 154243,
+    "game": "Sonic Advance 2",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154243/",
+    "platform": "Game Boy Advance",
+    "reported_dimensions": [1268,1348],
+    "reported_format": "PNG",
+    "reported_size": "312.74 KB",
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Sonic",
+    "uploaded_by": "IceisNice",
+    "whole_sheet_evidence_boundary": "The complete sheet was inspected as a single corpus through the TSR whole-sheet image surfaced by Standard Chat web retrieval. The source page also exposes a Jump preview and comments identifying idle/walk/jog/run/dash/jump/roll families. No source playback timing was measured.",
+    "whole_sheet_evidence_mode": "FRESH_WHOLE_SHEET_VISUAL_INSPECTION"
+  },
+  "source_art_embedded": false,
+  "source_rights": {
+    "boundary": "No source pixels, palette, character contour, costume/facial detail, exact silhouette, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  },
+  "status": "QUALITY_PASS_PENDING_REPO",
+  "test_invocation": {
+    "candidate_entries_checked": ["v2-airborne-007-landing-pays-vertical-debt"],
+    "candidate_isolated_status": "PASS",
+    "global_status": "BLOCKED_UPSTREAM_PREEXISTING_005",
+    "global_test_boundary": "v2-airborne-005-side-support-gates-second-impulse currently has no *.motion.html on main; repository-wide runner will stop there before 007.",
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
+  "video_packaging": "exact compiled MP4 bytes embedded as a data URI in tracked SPA; build.py reconstructs landing-pays-vertical-debt.mp4 from motion.json",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
