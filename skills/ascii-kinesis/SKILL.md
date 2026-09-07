@@ -12,7 +12,7 @@ In this context, "make ASCII art" does NOT mean paste a code block into chat and
 
 The commissioned delivery surface is a **new repository-backed, user-openable single-page application example** under the ASCII Kinesis anthology. Research, source mining, Drive notes, timing analysis, and GitHub issue receipts are supporting evidence only.
 
-A worker has not completed a pass until the requested example exists in the repository and survives repository readback.
+A worker has not completed a pass until the requested example exists in the repository, survives repository readback, **and the actual resulting animation is surfaced in the visible chat that reports the run**.
 
 ## Swarm deliverable contract v2 — hard lock
 
@@ -99,6 +99,21 @@ A v2 swarm entry should durably contain, directly or through deterministic recon
 - manifest/receipt;
 - the self-contained three-tab `*.motion.html` delivery artifact or a deterministic repository builder that regenerates the exact envelope.
 
+## Chat-surface delivery law
+
+Repository persistence is not the final user-facing surface.
+
+For every successful new animation specimen:
+
+- the same reporting chat MUST surface the **actual animation media** in the visible conversation;
+- attach/embed the real generated GIF/MP4 bytes when possible;
+- a deterministic chat render from the exact persisted `motion.json`/rig/timing is acceptable when direct byte extraction is unavailable, but it MUST be explicitly labeled as a chat render rather than byte-identical repository media;
+- a commit hash, media hash, repo path, Drive/GitHub/SPA link, screenshot, thumbnail, or prose statement that a video exists is NOT sufficient;
+- the copyable ASCII contact sheet must also appear directly in chat or remain immediately available through the delivered SPA, but the animation media itself is still mandatory;
+- if the repo specimen exists but the animation is absent from chat, classify the run `PERSISTED_NOT_DELIVERED` and surface that same specimen immediately rather than mining another source.
+
+The UX rule is simple: **if Drew cannot see the animation in the conversation, do not report it as delivered.**
+
 ## Source-before-presentation law
 
 The raw ASCII/pose source is authoritative. Contact sheet and video may reveal or interpolate that source but may not silently invent motion semantics.
@@ -118,14 +133,15 @@ DONE for a new v2 ASCII Kinesis swarm pass requires ALL of the following:
 - reconstruction/build source and manifest/receipt exist;
 - repository readback proves the durable entry exists;
 - the relevant campaign/issue receipt points to the repository example;
+- the actual new animation media is visibly surfaced in the reporting chat;
 - old anthology artifacts remain readable;
 - human acceptance remains distinct from machine completion.
 
-A Drive document, a timing study, an issue comment, a static image, a generated-but-unpersisted file, or chat prose cannot satisfy this gate.
+A Drive document, a timing study, an issue comment, a static image, a generated-but-unpersisted file, metadata-only report, repo link without visible media, or chat prose cannot satisfy this gate.
 
 ## Swarm-manager rule
 
-The animation swarm manager owns output shape, uniqueness, sequencing, compatibility, and correction propagation across workers. Workers own their assigned motion lanes, but they do not get to redefine completion.
+The animation swarm manager owns output shape, uniqueness, sequencing, compatibility, **chat-surface delivery**, and correction propagation across workers. Workers own their assigned motion lanes, but they do not get to redefine completion.
 
 When the manager says restart from the beginning, existing historical research remains evidence but does not count as the restarted deliverable series. Restarted workers create fresh v2 repo examples from Example 001 onward under an explicit restart namespace/sequence so historical specimens are not overwritten.
 
