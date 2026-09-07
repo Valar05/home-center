@@ -6,7 +6,7 @@ K0 ROLL_READY [FOURS/INFERRED]             K1 COIL [FOURS/INFERRED]
                   O                                                                
                   |                                                                
                   |                                         O                      
-                //|\                                       \                      
+                //|\\                                       \                      
               +-  |  -+                                     \\                     
                   @                                        / |\\                   
                   /                                       /  |  -+                 

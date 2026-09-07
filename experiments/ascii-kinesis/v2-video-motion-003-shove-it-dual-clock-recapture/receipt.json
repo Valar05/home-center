@@ -23,33 +23,73 @@
   },
   "experiment_id": "v2-video-motion-003-shove-it-dual-clock-recapture",
   "lane": "video-motion",
-  "manifest_sha256": "6c2bf2ae5653ff393d7e78153cfdd836ff3db151549c64434ff6cfb2cf017a00",
   "media": {
-    "bytes": 9123,
+    "bytes": 9133,
     "codec": "H.264",
-    "dimensions": [320, 180],
+    "dimensions": [
+      320,
+      180
+    ],
     "duration_s": 1.666667,
     "embedded_in_spa": true,
     "fps": 24,
     "frames": 40,
-    "git_lfs_oid_sha256": "05ded8146414bd8be19915926e99c7c7d512a5905e3d1a873fa44f1b7eedc277",
-    "git_lfs_pointer_sha256": "780dc05057031acdb175a32551f50f5cc0f9aa4347dff83ee4816b34ef615639",
     "pixel_format": "yuv420p",
-    "sha256": "05ded8146414bd8be19915926e99c7c7d512a5905e3d1a873fa44f1b7eedc277",
+    "sha256": "33ad57b86b67e8b14db610bdd4403624ca1544314f487a785497f196bf7f7e50",
     "source": "abstract_ascii_rig_only",
-    "tracked_motion_mp4_form": "git_lfs_pointer"
+    "tracked_motion_mp4_form": "git_lfs"
   },
   "per_key_timing": [
-    {"compile_frame":0,"key_id":"K0","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"compile_frame":8,"key_id":"K1","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"compile_frame":14,"key_id":"K2","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"compile_frame":16,"key_id":"K3","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"compile_frame":19,"key_id":"K4","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"compile_frame":23,"key_id":"K5","timing_class":"TWOS","timing_provenance":"INFERRED"},
-    {"compile_frame":28,"key_id":"K6","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"compile_frame":36,"key_id":"K7","timing_class":"FOURS","timing_provenance":"INFERRED"}
+    {
+      "compile_frame": 0,
+      "key_id": "K0",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 8,
+      "key_id": "K1",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 14,
+      "key_id": "K2",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 16,
+      "key_id": "K3",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 19,
+      "key_id": "K4",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 23,
+      "key_id": "K5",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 28,
+      "key_id": "K6",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "compile_frame": 36,
+      "key_id": "K7",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
   ],
-  "repo_commit": null,
+  "repo_commit_authority": "issue_343_receipt_after_exact_readback",
   "repo_path": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
   "schema": "ascii-kinesis.v2.receipt",
   "source_identity": {
@@ -59,7 +99,7 @@
     "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3",
     "title": "Shove it.webm"
   },
-  "status": "BUILT_PENDING_REPO_READBACK",
-  "test_boundary": "PENDING exact GitHub readback + commissioned test invocation",
+  "status": "BUILT_TESTED_PENDING_REPO_READBACK",
+  "test_boundary": "Candidate-only exact V2 contract PASS; global current-main invocation stops on unrelated existing v2-contact-004 missing *.motion.html.",
   "tracked_motion_mp4_form": "git_lfs_pointer"
 }

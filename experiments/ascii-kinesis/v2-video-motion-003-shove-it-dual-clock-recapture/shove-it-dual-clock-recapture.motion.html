@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shove-it · body/board dual clock → recapture</title><style>
+:root{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;background:#f4f4f1;color:#151515}body{margin:0;min-height:100vh}header{padding:1rem;border-bottom:1px solid #bbb}h1{font-size:1rem;margin:.1rem 0}nav{display:flex;gap:.4rem;padding:.6rem 1rem;border-bottom:1px solid #bbb;position:sticky;top:0;background:#f4f4f1}button{font:inherit;padding:.45rem .8rem}main{padding:1rem}section[hidden]{display:none}pre{font:12px/1.1 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;tab-size:2}video{display:block;max-width:100%;height:auto;border:1px solid #999;background:#fff}.note{max-width:72ch;line-height:1.4}
+</style></head><body><header><h1>Shove-it · body/board dual clock → recapture</h1><div class="note">ASCII Kinesis V2 · Video Motion 003 · source pixels excluded from output</div></header>
+<nav aria-label="Primary views"><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<main><section id="ascii"><pre>K0 ROLL_READY [FOURS/INFERRED]             K1 COIL [FOURS/INFERRED]                
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                  O                                                                
+                  |                                                                
+                  |                                         O                      
+                //|\\                                       \                      
+              +-  |  -+                                     \\                     
+                  @                                        / |\\                   
+                  /                                       /  |  -+                 
+                 / \                                     +   @                     
+                 / \                                        / \                    
+                |   |                                       / \                    
+                +   +                                      +   +                   
+             =====#=====                                =====#=====                
+________________________________________   ________________________________________
+                                                                                   
+SUP:BOARD_TO_GROUND_STABLE                 SUP:BOARD_TO_GROUND_STABLE              
+ROOT:Root tall and centered over the rol   ROOT:Root drops and trails slightly; ant
+
+K2 POP_AND_RELEASE [ONES/INFERRED]         K3 AIRBORNE_SEPARATION [ONES/INFERRED]  
+                                                                                   
+                                                                                   
+                                                             O                     
+                  O                                          |                     
+                  |                                         /|\                    
+                //|----+                                  // | \\                  
+             +--  |                                     +-   |   -+                
+                  |                                          @                     
+                  @                                         / \                    
+                 / \                                       /   \                   
+                 / \                                      \/   \                   
+                |   |                                     +\    +                  
+                +   +                                       \                      
+             ==                                             \                      
+               ==                                            #                     
+                 =#=                                          \                    
+________________________________________   ________________________________________
+                      ==                                       \                   
+SUP:SUPPORT_RELEASE_AUTHORED               SUP:AIRBORNE_NO_GROUND_SUPPORT          
+ROOT:Root accelerates upward; hands coun   ROOT:Root continues upward while board o
+
+K4 BOARD_CLOCK_LEADS [ONES/INFERRED]       K5 RECAPTURE_WINDOW [TWOS/INFERRED]     
+                                                                                   
+                                                                                   
+                   O                                                               
+                   |                                           O                   
+                 //|                                           |                   
+              +--  |\\                                        /|\                  
+                   |  \\                                    // | \\                
+                   @    +                                 +-   |   -+              
+                  / \                                          @                   
+                 / \ \                                         /                   
+                +  \  +                                       / \                  
+                   \                                          / \                  
+                   \                                         |   | \\              
+                   \                                         +   +\                
+                   #                                          \#\                  
+                   \                                        \\                     
+________________________________________   ________________________________________
+                   \                                                               
+SUP:AIRBORNE_NO_GROUND_SUPPORT             SUP:BOARD_CONTACT_REACQUIRED_GROUND_NOT_
+ROOT:Root reaches a shallow apex; board    ROOT:Root descends; board orientation co
+
+K6 LAND_COMPRESSION [FOURS/INFERRED]       K7 RIDE_AWAY [FOURS/INFERRED]           
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                  O                
+                     O                                            |                
+                     |                                            |                
+                     |                                          //|\\              
+                   //|\\                                      +-  |  -+            
+                 +-  |  -+                                        @                
+                     @                                            /                
+                    / \                                          / \               
+                    / \                                          / \               
+                   |   |                                        |   |              
+                   +   +                                        +   +              
+                =====#=====                                  =====#=====           
+________________________________________   ________________________________________
+                                                                                   
+SUP:BOARD_TO_GROUND_STABLE                 SUP:BOARD_TO_GROUND_STABLE              
+ROOT:Root catches low; knees bend while    ROOT:Root re-stacks over the board and e
+</pre></section><section id="json" hidden><pre>{
+  "compatibility": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_motion_spa_compatible_read_path": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence_boundary": {
+    "inferred": [
+      "The specimen abstracts the shove-it as two temporarily decoupled clocks: body root/support travel and board yaw/orientation, followed by a deliberate recapture synchronization event.",
+      "Exact body pose, board angle, foot-to-board contact instant, support side, and compile cadence are authored abstractions using PoseLab timing classes because the available evidence did not resolve those details safely.",
+      "Connective motion interpolates geometry only within an unchanged semantic group; across support/contact state boundaries the builder holds the prior key and snaps to the next authored key rather than inventing a new causal state."
+    ],
+    "observed": [
+      "Wikimedia Commons identifies the source action as a shove-it in which the skateboard spins 180 degrees or more under the skateboarder's feet.",
+      "The authorized phone download exactly matched Commons SHA-1 102cd768e940a7ccdf3349d26ebea479ae9e1a0b and decoded as 1920x1080 VP8 at 30 fps with 6.570 s duration.",
+      "Ordered whole-clip and 2.5\u20135.5 s motion-mask inspection shows a concentrated high-change action burst in the selected segment rather than a static/title-only assumption."
+    ],
+    "unknown": [
+      "Exact source-frame toe-off / board-release instant",
+      "Exact source-frame foot-to-board recapture instant",
+      "Exact source-frame board angle at each body pose",
+      "Exact left/right support ownership during the trick"
+    ]
+  },
+  "experiment_id": "v2-video-motion-003-shove-it-dual-clock-recapture",
+  "format_version": 2,
+  "keys": [
+    {
+      "board": {
+        "angle_deg": 0,
+        "center": [
+          18,
+          15
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": false,
+      "causal_role": "ROLL_READY",
+      "compile_frame": 0,
+      "compile_hold_frames": 4,
+      "contact_note": "Both abstract feet are authored on the board; board is authored on ground support.",
+      "joints": {
+        "head": [
+          18,
+          4
+        ],
+        "left_foot": [
+          16,
+          14
+        ],
+        "left_hand": [
+          14,
+          8
+        ],
+        "right_foot": [
+          20,
+          14
+        ],
+        "right_hand": [
+          22,
+          8
+        ],
+        "root": [
+          18,
+          9
+        ]
+      },
+      "key_id": "K0",
+      "root_arc_note": "Root tall and centered over the rolling board; low vertical energy.",
+      "semantic_group": "ground_prep",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 0,
+        "center": [
+          18,
+          15
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": true,
+      "causal_role": "COIL",
+      "compile_frame": 8,
+      "compile_hold_frames": 4,
+      "contact_note": "Feet remain authored on board while hips/knees compress.",
+      "joints": {
+        "head": [
+          17,
+          6
+        ],
+        "left_foot": [
+          16,
+          14
+        ],
+        "left_hand": [
+          14,
+          11
+        ],
+        "right_foot": [
+          20,
+          14
+        ],
+        "right_hand": [
+          22,
+          10
+        ],
+        "root": [
+          18,
+          11
+        ]
+      },
+      "key_id": "K1",
+      "root_arc_note": "Root drops and trails slightly; anticipation stores vertical and rotational intent.",
+      "semantic_group": "ground_prep",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 20,
+        "center": [
+          18,
+          15
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": true,
+      "causal_role": "POP_AND_RELEASE",
+      "compile_frame": 14,
+      "compile_hold_frames": 1,
+      "contact_note": "This is the authored causal boundary: body/board cease stable ground-supported coupling; exact real foot/board release frame is UNKNOWN.",
+      "joints": {
+        "head": [
+          18,
+          3
+        ],
+        "left_foot": [
+          16,
+          12
+        ],
+        "left_hand": [
+          13,
+          6
+        ],
+        "right_foot": [
+          20,
+          12
+        ],
+        "right_hand": [
+          23,
+          5
+        ],
+        "root": [
+          18,
+          8
+        ]
+      },
+      "key_id": "K2",
+      "root_arc_note": "Root accelerates upward; hands counter-swing; board clock is permitted to diverge after this key.",
+      "semantic_group": "release",
+      "support_state": "SUPPORT_RELEASE_AUTHORED",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 55,
+        "center": [
+          18,
+          14
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": false,
+      "causal_role": "AIRBORNE_SEPARATION",
+      "compile_frame": 16,
+      "compile_hold_frames": 1,
+      "contact_note": "Feet are authored clear of the board; no contact is implied during connective motion.",
+      "joints": {
+        "head": [
+          18,
+          2
+        ],
+        "left_foot": [
+          15,
+          11
+        ],
+        "left_hand": [
+          13,
+          6
+        ],
+        "right_foot": [
+          21,
+          11
+        ],
+        "right_hand": [
+          23,
+          6
+        ],
+        "root": [
+          18,
+          7
+        ]
+      },
+      "key_id": "K3",
+      "root_arc_note": "Root continues upward while board orientation advances faster than body translation.",
+      "semantic_group": "airborne_spin",
+      "support_state": "AIRBORNE_NO_GROUND_SUPPORT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 95,
+        "center": [
+          19,
+          14
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": false,
+      "causal_role": "BOARD_CLOCK_LEADS",
+      "compile_frame": 19,
+      "compile_hold_frames": 1,
+      "contact_note": "Body remains authored off the board while board yaw/orientation advances independently.",
+      "joints": {
+        "head": [
+          19,
+          2
+        ],
+        "left_foot": [
+          16,
+          10
+        ],
+        "left_hand": [
+          14,
+          5
+        ],
+        "right_foot": [
+          22,
+          10
+        ],
+        "right_hand": [
+          24,
+          7
+        ],
+        "root": [
+          19,
+          7
+        ]
+      },
+      "key_id": "K4",
+      "root_arc_note": "Root reaches a shallow apex; board orientation changes substantially with little extra root travel.",
+      "semantic_group": "airborne_spin",
+      "support_state": "AIRBORNE_NO_GROUND_SUPPORT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 155,
+        "center": [
+          20,
+          14
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": true,
+      "causal_role": "RECAPTURE_WINDOW",
+      "compile_frame": 23,
+      "compile_hold_frames": 2,
+      "contact_note": "Feet-to-board contact is authored here as a synchronization event; exact real source contact frame remains UNKNOWN.",
+      "joints": {
+        "head": [
+          20,
+          3
+        ],
+        "left_foot": [
+          18,
+          13
+        ],
+        "left_hand": [
+          15,
+          7
+        ],
+        "right_foot": [
+          22,
+          13
+        ],
+        "right_hand": [
+          25,
+          7
+        ],
+        "root": [
+          20,
+          8
+        ]
+      },
+      "key_id": "K5",
+      "root_arc_note": "Root descends; board orientation converges toward the landing orientation before ground support is declared stable.",
+      "semantic_group": "recapture",
+      "support_state": "BOARD_CONTACT_REACQUIRED_GROUND_NOT_YET_STABLE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 180,
+        "center": [
+          21,
+          15
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": false,
+      "causal_role": "LAND_COMPRESSION",
+      "compile_frame": 28,
+      "compile_hold_frames": 4,
+      "contact_note": "Board-ground support and feet-board contact are both authored stable; compression absorbs the returned support load.",
+      "joints": {
+        "head": [
+          21,
+          5
+        ],
+        "left_foot": [
+          19,
+          14
+        ],
+        "left_hand": [
+          17,
+          9
+        ],
+        "right_foot": [
+          23,
+          14
+        ],
+        "right_hand": [
+          25,
+          9
+        ],
+        "root": [
+          21,
+          10
+        ]
+      },
+      "key_id": "K6",
+      "root_arc_note": "Root catches low; knees bend while horizontal travel continues modestly.",
+      "semantic_group": "recover",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {
+        "angle_deg": 180,
+        "center": [
+          23,
+          15
+        ],
+        "half_length": 5
+      },
+      "causal_boundary_to_next": false,
+      "causal_role": "RIDE_AWAY",
+      "compile_frame": 36,
+      "compile_hold_frames": 4,
+      "contact_note": "Stable object/body/ground chain persists; no new contact state is invented.",
+      "joints": {
+        "head": [
+          23,
+          4
+        ],
+        "left_foot": [
+          21,
+          14
+        ],
+        "left_hand": [
+          19,
+          8
+        ],
+        "right_foot": [
+          25,
+          14
+        ],
+        "right_hand": [
+          27,
+          8
+        ],
+        "root": [
+          23,
+          9
+        ]
+      },
+      "key_id": "K7",
+      "root_arc_note": "Root re-stacks over the board and exits the trick with restored travel authority.",
+      "semantic_group": "recover",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "video-motion",
+  "manifest_facts": {
+    "media_hash_field": "media.sha256",
+    "repo_commit_authority": "issue_343_receipt",
+    "required_files": [
+      "motion.json",
+      "contact_sheet.txt",
+      "motion.mp4",
+      "build_motion.py",
+      "manifest.json",
+      "receipt.json",
+      "shove-it-dual-clock-recapture.motion.html"
+    ]
+  },
+  "media": {
+    "bytes": 9133,
+    "codec": "H.264",
+    "fps": 24,
+    "frame_count": 40,
+    "height": 180,
+    "path": "motion.mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "33ad57b86b67e8b14db610bdd4403624ca1544314f487a785497f196bf7f7e50",
+    "source": "abstract_ascii_rig_only",
+    "width": 320
+  },
+  "motion_dungeon": {
+    "connective_rule": "Interpolate joints/board geometry only when adjacent keys share semantic_group. Across causal/support/contact state changes hold the prior key until the next authored key; unsupported states fail closed.",
+    "pipeline": [
+      "authored ASCII keys",
+      "explicit holds/timing",
+      "deterministic connective geometry",
+      "ASCII-only frame render",
+      "H.264 MP4",
+      "self-contained SPA"
+    ],
+    "source_audio_in_output": false,
+    "source_pixels_in_output": false
+  },
+  "rig": {
+    "coordinate_space": "40x18 character grid",
+    "glyph_semantics": {
+      "#": "board center",
+      "+": "hands/feet",
+      "/\\-|": "limb/torso segments",
+      "= / \\": "board orientation",
+      "@": "root/pelvis proxy",
+      "O": "head",
+      "_": "ground plane"
+    },
+    "joints": [
+      "head",
+      "root_proxy",
+      "left_hand",
+      "right_hand",
+      "left_foot",
+      "right_foot",
+      "board_center"
+    ],
+    "source_art_dependency": false,
+    "type": "abstract_ascii_biped_plus_board"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "author": "TheContreOfficial",
+    "license_id": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "media_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Shove_it.webm",
+    "origin": "YouTube source archived on Wikimedia Commons",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Shove_it.webm",
+    "rights_note": "Wikimedia Commons records that the YouTube upload was reviewed on 2014-11-24 and confirmed under CC BY 3.0. Source frames were analysis-only. No source pixels, copied frames, source audio, costume, face, or source layout enter this repository example or its video.",
+    "rights_status": "CC_BY_3_0_REVIEWED",
+    "selected_action_segment_s": [
+      2.5,
+      5.5
+    ],
+    "source_bytes": 7240110,
+    "source_date": "2013-07-06",
+    "source_dimensions": [
+      1920,
+      1080
+    ],
+    "source_duration_s": 6.57,
+    "source_sha1": "102cd768e940a7ccdf3349d26ebea479ae9e1a0b",
+    "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3",
+    "stream_fps": "30/1",
+    "title": "Shove it.webm",
+    "whole_action_inspection": "OBSERVED evidence boundary: the entire 6.57 s source was decoded through the authorized primary-phone. Ordered downsampled source-frame representations were inspected across the whole clip; the selected coherent action segment 2.5\u20135.5 s was inspected at 0.5 s ordered intervals using nonpersistent 0.12 s frame-difference masks. The masks establish where motion concentrates but are not detailed enough to promote exact foot/board contact frames. Decisive body/board semantics below are therefore INFERRED from the licensed source's stated shove-it action identity and general mechanics, not rounded up to source-authentic pose timing."
+  },
+  "timing": {
+    "compile_fps": 24,
+    "compile_sequence": [
+      "FOURS ready",
+      "FOURS coil",
+      "ONES release",
+      "ONES airborne separation",
+      "ONES board-clock lead",
+      "TWOS recapture",
+      "FOURS compression",
+      "FOURS ride-away"
+    ],
+    "key_timing_policy": "ALL decisive-key exposure classes are INFERRED; no source-authentic frame duration is claimed.",
+    "pose_lab_vocabulary_note": "FOURS/TWOS/ONES are PoseLab exposure classes. User shorthand 4s/2s/1s means those classes, never seconds. STREET_FIGHTER/CAPCOM describes the nonuniform authored compile policy, not source timing."
+  },
+  "title": "Shove-it \u00b7 body/board dual clock \u2192 recapture",
+  "transferable_principle": "A task object may carry an orientation clock that diverges from the body's root/support clock during airborne separation. Landing is not only vertical descent; it is a synchronization event where body trajectory, object orientation, foot/object contact, and ground support must converge before stable ride-away."
+}</pre></section><section id="video" hidden><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,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"></video><p class="note">Motion Dungeon compile: abstract ASCII rig only. No source frames, pixels, or audio are embedded.</p></section></main>
+<script>const buttons=[...document.querySelectorAll('[data-view]')];const sections=[...document.querySelectorAll('main>section')];buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.setAttribute('aria-selected',String(x===b)));sections.forEach(s=>s.hidden=s.id!==b.dataset.view)}));</script></body></html>
