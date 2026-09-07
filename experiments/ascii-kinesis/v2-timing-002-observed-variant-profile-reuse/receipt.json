@@ -1,0 +1,83 @@
+{
+  "ascii_sheet_sha256": "77de561172b8fedbbe8ba848d74fa538303362eb1d45b2f682c4828c9075853d",
+  "contract_test": "PENDING_EXTERNAL_RUN",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "experiment_id": "v2-timing-002-observed-variant-profile-reuse",
+  "key_timings": [
+    {"key_id":"K20","name":"READY","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"K21","name":"LEFT_CONTACT","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K22","name":"AIR_A","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K23","name":"RIGHT_CONTACT","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K24","name":"AIR_B","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K25","name":"SETTLE","timing_class":"FOURS","timing_provenance":"INFERRED"}
+  ],
+  "media_bytes": 22620,
+  "media_sha256": "ee54242b8b77bd1af48dcbd59bfc57fd47e27093a3cabd3f1ed982eb119f96e2",
+  "observation_inference_split": {
+    "INFERRED": "All decisive ASCII rig geometry, semantic compression, ONES/TWOS/FOURS classes, 24 fps holds, variant presentation compilation, and causal roles.",
+    "OBSERVED": [
+      "TSR identifies the asset as a 1456x599 PNG and exposes three named animated previews: Arm rise, Run (left), and Run (right).",
+      "Exact full-sheet PNG SHA-256 and dimensions were verified through the authorized phone lane before extraction.",
+      "The complete sheet was inspected as one source surface and presents a dense product space of repeated character-state cells rather than one self-evident linear timeline.",
+      "Run (left) and Run (right) TSR preview GIFs each contain 8 frames, each held 60 ms, for 480 ms total.",
+      "Arm rise TSR preview GIF contains 5 frames with measured durations 500/150/100/500/100 ms, demonstrating a different nonuniform preview schedule."
+    ],
+    "UNKNOWN": [
+      "Whether TSR preview GIF delays reproduce original Pac-Slot runtime timing exactly.",
+      "Original game display refresh, hit-stop, game-state windows, cancel windows, or input cadence.",
+      "A one-to-one mapping from every static sheet cell to the three TSR preview frames.",
+      "Chronology of cells not established by a named preview."
+    ]
+  },
+  "observed_preview_timing": [
+    {"dimensions":[96,96],"frame_count":5,"frame_durations_ms":[500,150,100,500,100],"name":"Arm rise","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"75046d5ef266b4423b8ea1b64ed342e524703decc6e8734d77f883431710741a","total_duration_ms":1350},
+    {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (left)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"1e4e4ca828e2afe170a11ae432228c4f57eefebbadbbb803a64db4391ddcbcec","total_duration_ms":480},
+    {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (right)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"ddd6eae8557c54aefbd3b6856d4ea82c08fad4168740b018aab313706cfd2f60","total_duration_ms":480}
+  ],
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-002-observed-variant-profile-reuse/",
+  "repo_readback": "PENDING",
+  "rights_note": "Copyrighted source sheet and preview GIFs were used only as analysis evidence. No source pixels, palette, contours, layout, animation frames, tracing, redistribution, or close imitation are stored in this specimen. The shipped rig and video are abstract ASCII geometry authored independently.",
+  "schema": "ascii-kinesis.v2-receipt",
+  "skill_mutation": {
+    "performed": false,
+    "reason": "No new reusable rule earned. Specimen concretely exercises existing PoseLab v1.3 temporal-equivalence and v1.8 orientation-space separation, with v1.1 provenance discipline."
+  },
+  "source": {
+    "asset_id": 100529,
+    "game": "Pac-Slot (JPN)",
+    "name": "Pac-Man",
+    "observed": [
+      "TSR identifies the asset as a 1456x599 PNG and exposes three named animated previews: Arm rise, Run (left), and Run (right).",
+      "Exact full-sheet PNG SHA-256 and dimensions were verified through the authorized phone lane before extraction.",
+      "The complete sheet was inspected as one source surface and presents a dense product space of repeated character-state cells rather than one self-evident linear timeline.",
+      "Run (left) and Run (right) TSR preview GIFs each contain 8 frames, each held 60 ms, for 480 ms total.",
+      "Arm rise TSR preview GIF contains 5 frames with measured durations 500/150/100/500/100 ms, demonstrating a different nonuniform preview schedule."
+    ],
+    "page_url": "https://www.spriters-resource.com/arcade/pacslotjpn/asset/100529/",
+    "platform": "Arcade",
+    "preview_timing_observations": [
+      {"dimensions":[96,96],"frame_count":5,"frame_durations_ms":[500,150,100,500,100],"name":"Arm rise","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"75046d5ef266b4423b8ea1b64ed342e524703decc6e8734d77f883431710741a","total_duration_ms":1350},
+      {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (left)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"1e4e4ca828e2afe170a11ae432228c4f57eefebbadbbb803a64db4391ddcbcec","total_duration_ms":480},
+      {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (right)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"ddd6eae8557c54aefbd3b6856d4ea82c08fad4168740b018aab313706cfd2f60","total_duration_ms":480}
+    ],
+    "rights_note": "Copyrighted source sheet and preview GIFs were used only as analysis evidence. No source pixels, palette, contours, layout, animation frames, tracing, redistribution, or close imitation are stored in this specimen. The shipped rig and video are abstract ASCII geometry authored independently.",
+    "sheet": {
+      "format": "PNG",
+      "height": 599,
+      "inspection_note": "Exact full sheet bytes were fetched through the authorized Home Center -> primary-phone lane; a transient reduced whole-sheet visual canary was inspected only for analysis and is not tracked or embedded.",
+      "raw_sha256": "0ca9fb56f96862294fc1c62fcbb391a9a47d755e61cd5e8d7ab4c7ec64c265f6",
+      "whole_sheet_inspected": true,
+      "width": 1456
+    },
+    "site": "The Spriters Resource",
+    "timing_scope_note": "OBSERVED timing here means measured TSR preview GIF exposure, not a claim of original game-runtime authenticity.",
+    "unknown": [
+      "Whether TSR preview GIF delays reproduce original Pac-Slot runtime timing exactly.",
+      "Original game display refresh, hit-stop, game-state windows, cancel windows, or input cadence.",
+      "A one-to-one mapping from every static sheet cell to the three TSR preview frames.",
+      "Chronology of cells not established by a named preview."
+    ]
+  },
+  "status": "RENDERED_AWAITING_REPO_VERIFICATION"
+}
