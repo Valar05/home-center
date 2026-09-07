@@ -1,0 +1,53 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-002-contact-pin-disengage",
+  "lane": "strikes",
+  "status": "RENDERED_AWAITING_REPO_PERSISTENCE",
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 4064,
+    "identity": "Stanley Decker (Chainsaw) — Zombies Ate My Neighbors — SNES",
+    "url": "https://www.spriters-resource.com/snes/zombiesneighbours/asset/4064/"
+  },
+  "rights": "Whole source sheet used only as copyright-restricted evidence; no source pixels, palette, exact contours, costume, frame layout, tracing, redistribution, or character-specific choreography are embedded.",
+  "timing": {
+    "provenance": "INFERRED",
+    "keys": "K0 FOURS -> K1 FOURS -> K2 TWOS -> K3 ONES -> K4 ONES -> K5 TWOS -> K6 ONES -> K7 TWOS -> K8 FOURS",
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "source_authentic_timing": "UNKNOWN"
+  },
+  "media": {
+    "authoritative_form": "embedded data:video/mp4 in contact-pin-disengage.motion.html",
+    "sha256": "e120b0a97c49c50d7d9c9ee3eb57ebe582a0d911bd01c06fb512cdc29c6c6bda",
+    "bytes": 2346,
+    "fps": 24,
+    "frames": 28,
+    "codec": "h264",
+    "dimensions": "160x120",
+    "source": "abstract_ascii_rig_only"
+  },
+  "construction_validation": {
+    "builder_rerun_same_hash": true,
+    "embedded_media_base64_roundtrip_same_hash": true,
+    "ffprobe_decode": "PASS",
+    "three_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "ascii_literal_pre": true,
+    "repo_contract_test": "NOT_EXECUTED_NO_REPO_EXECUTION_LANE"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
