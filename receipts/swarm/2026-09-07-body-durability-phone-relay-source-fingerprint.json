@@ -1,0 +1,52 @@
+{
+  "schema": "fortress-morning-swarm-body-durability-v1",
+  "date": "2026-09-07",
+  "owner": "Drew",
+  "lane": "PHYSICAL_BODY_DURABILITY",
+  "commission": {
+    "dispatchDocumentId": "1Gv6Qicoh2KZloQ1FqiozW_lAMYuud0A-zucB2UyWmp8",
+    "fortressBibleDocumentId": "1UVl-_NYi9OSqjGmJfCL-WkIFiBBcdTY28RDd5n4-1E4",
+    "minimalMaximalUnit": "Make Phone Hands relay recovery reject a fresh heartbeat from stale loaded relay source and restart exactly one current-source relay without Drew acting as command transport.",
+    "constraints": [
+      "Reuse existing Phone Hands relay, heartbeat, recovery, and receipt lanes.",
+      "No new daemon or control plane.",
+      "No Pro-only worker, Codex, Work mode, paid API/provider, or hidden metered inference.",
+      "Repository evidence is not physical runtime proof."
+    ]
+  },
+  "repositoryEvidence": {
+    "repository": "Valar05/home-center",
+    "branch": "main",
+    "relayPath": "tools/android_phone_home_center_relay.py",
+    "relayImplementationCommit": "4bb4eba6e064d91dc8d786d3f18f3362a1f26d42",
+    "relayBlobAfter": "7761686cc0280d9216736ec3b6839fb53074b36d",
+    "recoveryPath": "tools/home_center_phone_relay_recover.sh",
+    "recoveryImplementationCommit": "e53a5cd6b4ae726432c722b3802cad4bb1d09f69",
+    "recoveryBlobAfter": "fd82970a1d8f5046b750b940d8024c725d9741bc",
+    "readback": {
+      "relay": "The relay computes SHA-256 of its loaded source at process start and emits sourceSha256 in each successful Home Center heartbeat.",
+      "recovery": "Recovery computes the current on-disk relay SHA-256, accepts healthy only when PID, freshness, device, state, and sourceSha256 all match, and otherwise performs the existing bounded single-relay recovery. Recovery receipts now expose desiredSourceSha256 and heartbeat.sourceSha256."
+    }
+  },
+  "capabilityTruth": {
+    "REQUESTED": true,
+    "INTENDED": true,
+    "IMPLEMENTED": true,
+    "TESTED": "Repository write/readback verified. No primary-phone runtime execution was available in this automation carrier, so behavioral/runtime testing is not claimed.",
+    "DEPLOYED": "UNKNOWN for primary-phone",
+    "CALLABLE": "UNKNOWN for the new current-source recovery seam",
+    "DELIVERED": "GitHub main repository artifact delivered",
+    "ACCEPTED": false
+  },
+  "runtimeBlocker": {
+    "state": "BLOCKED",
+    "exact": "This automation carrier exposes no Home_Center tool namespace. api_tool.list_resources(paths=[\"Home_Center\"]) returned: No tool was defined under the given paths. Valid namespaces do not include Home_Center. Therefore this worker cannot read live Home Center body/worker truth, enqueue command_center.phone_hands.* work, obtain the primary-phone recovery receipt, or write the blocker through Home Center Drive without silently substituting another lane.",
+    "failureClosure": "Do not claim deployment or physical acceptance. Do not ask Drew to type the recovery command while an authorized Home Center body is the intended execution lane. Preserve the implementation and exact next transition."
+  },
+  "smallestExecutableUnblocker": {
+    "precondition": "Expose the existing Home Center command_center.phone_hands.* operations to this automation carrier; no new service or daemon is required.",
+    "action": "Through Home Center, enqueue one primary-phone phone_shell command that fast-forwards the existing phone repo to origin/main, syntax-checks the two canonical files, and runs HC_PHONE_REPO=$PWD sh tools/home_center_phone_relay_recover.sh. Then read the Home Center command receipt and phone-relay-recovery-latest.json; require status healthy or recovered and heartbeat.sourceSha256 == desiredSourceSha256. Follow with one harmless phone_shell canary to prove command consumption.",
+    "operatorTransport": "NONE; Drew should not be used as the command courier."
+  },
+  "nextRealBoundary": "Primary-phone deployment and physical Home Center receipt proving the running relay is the current canonical source and can consume a fresh harmless phone_shell command."
+}
