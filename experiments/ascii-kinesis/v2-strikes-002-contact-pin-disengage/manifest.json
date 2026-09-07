@@ -3,11 +3,7 @@
   "schema": "ascii-kinesis.manifest.v2",
   "id": "v2-strikes-002-contact-pin-disengage",
   "lane": "strikes",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -26,5 +22,12 @@
     "sha256": "e120b0a97c49c50d7d9c9ee3eb57ebe582a0d911bd01c06fb512cdc29c6c6bda",
     "embedded_as_data_uri": true
   },
-  "status": "RENDERED_AWAITING_REPO_PERSISTENCE"
+  "repo_readback": {
+    "path": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "spa_blob_sha": "7dd6fc13249f90242bf32ec0e8ef25c5d321300f",
+    "spa_creation_commit": "ce4f723e9ee0c8108075b6a4e559afe9eb5322b2",
+    "files_seen": ["build.py", "contact-pin-disengage.motion.html", "manifest.json", "motion.json", "receipt.json"]
+  },
+  "test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py NOT EXECUTED: no authorized repository execution lane exposed in this Standard Chat run. Constructor ffprobe/decode and deterministic rebuild are supporting construction evidence; GitHub contents readback is persistence evidence.",
+  "status": "REPO_VERIFIED"
 }
