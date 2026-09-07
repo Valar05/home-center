@@ -4,7 +4,11 @@
     "backward_compatible": true,
     "offline_playback": true,
     "v1_artifacts_untouched": true,
-    "v2_primary_tabs": ["ASCII", "JSON", "VIDEO"]
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
   },
   "compile": {
     "ascii_only_frame_render": true,
@@ -12,9 +16,17 @@
     "connector_rule": "interpolate joint geometry only when support_contact, contact_state, constraint_state, root_state, and readiness are identical across adjacent decisive keys; otherwise hard-cut at causal joins",
     "fps": 24,
     "loop_repetitions": 4,
-    "media_bytes": 11704,
-    "media_decode_preflight": {"codec":"h264","duration_seconds":3.333333,"fps":"24/1","frames":80,"height":360,"tool":"ffprobe","width":640},
-    "media_sha256": "bcea6a6042bfa4dd8514141d9cd19ce4bf82d234eabb5eb1f303e84403419a82",
+    "media_bytes": 11683,
+    "media_decode_preflight": {
+      "codec": "h264",
+      "duration_seconds": 3.333333,
+      "fps": "24/1",
+      "frames": 80,
+      "height": 360,
+      "tool": "ffprobe",
+      "width": 640
+    },
+    "media_sha256": "93c1b47a0f80b4e739e17b0d81407105df4e8ae286bfe4aa3d8585be6d97e93f",
     "method": "Motion Dungeon",
     "pipeline": "authored decisive ASCII keys -> explicit holds/timing -> deterministic connective motion -> ASCII-only frame render -> MP4 -> self-contained SPA",
     "semantic_frames_per_loop": 20,
@@ -22,7 +34,18 @@
     "transitions_invent_semantics": false,
     "video_frames_total": 80
   },
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "evidence": {
     "INFERRED": [
       "The abstract wall is modeled as a root-axis constraint: incoming recoil may continue as torso/pelvis compression while root retreat is clamped.",
@@ -45,20 +68,550 @@
   "experiment_id": "v2-defense-003-wall-debt-lateral-slip",
   "format_version": 2,
   "keys": [
-    {"key_id":"D003-K0","name":"READY","timing_class":"FOURS","timing_provenance":"INFERRED","pose_rig":"upright staggered base with open recovery space behind root","support_contact":"BOTH","contact_state":"NONE","constraint_state":"FREE","root_state":"STACKED","readiness":"READY","motion_arc_root_note":"root stable before incoming consequence; wall is behind but not yet binding","causal_role":"pre-impact state anchor","joints":{"head":[20,3],"shoulder_l":[18,5],"shoulder_r":[22,5],"hand_l":[16,7],"hand_r":[25,7],"pelvis":[20,9],"knee_l":[18,12],"knee_r":[23,12],"foot_l":[17,15],"foot_r":[25,15]}},
-    {"key_id":"D003-K1","name":"RECOIL_INBOUND","timing_class":"TWOS","timing_provenance":"INFERRED","pose_rig":"torso and pelvis translating toward wall while rear support begins to load","support_contact":"REAR_DOMINANT","contact_state":"NONE","constraint_state":"WALL_PENDING","root_state":"RECOILING","readiness":"INTERRUPTED","motion_arc_root_note":"root travels right toward wall; upper line lags and begins counter-arc","causal_role":"balance loss and recoil travel before environmental contact","joints":{"head":[24,4],"shoulder_l":[22,6],"shoulder_r":[26,6],"hand_l":[20,8],"hand_r":[29,8],"pelvis":[24,10],"knee_l":[21,13],"knee_r":[27,13],"foot_l":[20,15],"foot_r":[29,15]}},
-    {"key_id":"D003-K2","name":"WALL_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED","pose_rig":"root reaches wall constraint while torso is still driven into the contact side","support_contact":"REAR_DOMINANT","contact_state":"WALL_CONTACT","constraint_state":"WALL_BOUND","root_state":"CLAMPED","readiness":"INTERRUPTED","motion_arc_root_note":"root-x retreat is denied at wall; contact direction remains rightward into constraint","causal_role":"environmental contact / forbidden recoil degree of freedom","joints":{"head":[27,5],"shoulder_l":[24,7],"shoulder_r":[28,7],"hand_l":[22,9],"hand_r":[30,9],"pelvis":[27,11],"knee_l":[23,13],"knee_r":[29,13],"foot_l":[22,15],"foot_r":[31,15]}},
-    {"key_id":"D003-K3","name":"COMPRESSION_BANK","timing_class":"FOURS","timing_provenance":"INFERRED","pose_rig":"root remains clamped while knees/spine fold and silhouette widens away from contact","support_contact":"BOTH","contact_state":"WALL_CONTACT","constraint_state":"WALL_BOUND","root_state":"COMPRESSED","readiness":"LOCKED_OUT","motion_arc_root_note":"no further root-x travel; residual recoil is stored as lower root height, spine shear, and widened base","causal_role":"held hit reaction / recoil debt converted into compression","joints":{"head":[26,7],"shoulder_l":[23,8],"shoulder_r":[28,8],"hand_l":[20,10],"hand_r":[30,10],"pelvis":[26,12],"knee_l":[22,14],"knee_r":[29,14],"foot_l":[20,15],"foot_r":[31,15]}},
-    {"key_id":"D003-K4","name":"LATERAL_PROBE","timing_class":"ONES","timing_provenance":"INFERRED","pose_rig":"one support preserves the compressed root while the free foot probes down-left for an escape line","support_contact":"REAR_ONLY","contact_state":"WALL_CONTACT","constraint_state":"WALL_BOUND","root_state":"SHEARING","readiness":"PARTIAL","motion_arc_root_note":"root begins vertical/lateral shear without violating the wall clamp; no new support is claimed yet","causal_role":"recovery choice before wall release","joints":{"head":[25,6],"shoulder_l":[22,8],"shoulder_r":[27,8],"hand_l":[18,10],"hand_r":[29,10],"pelvis":[25,12],"knee_l":[20,14],"knee_r":[28,14],"foot_l":[17,15],"foot_r":[30,15]}},
-    {"key_id":"D003-K5","name":"LATERAL_PLANT","timing_class":"TWOS","timing_provenance":"INFERRED","pose_rig":"probe foot earns support at offset address and root begins to peel away from wall","support_contact":"BOTH_OFFSET","contact_state":"NONE","constraint_state":"WALL_RELEASING","root_state":"CATCHING","readiness":"REBINDING","motion_arc_root_note":"new plant absorbs lateral shear; wall contact releases only after support exists","causal_role":"first trustworthy recovery support / contact release","joints":{"head":[22,5],"shoulder_l":[19,7],"shoulder_r":[24,7],"hand_l":[16,9],"hand_r":[27,9],"pelvis":[22,11],"knee_l":[18,13],"knee_r":[26,13],"foot_l":[15,15],"foot_r":[28,15]}},
-    {"key_id":"D003-K6","name":"WALL_RELEASE_RESTACK","timing_class":"TWOS","timing_provenance":"INFERRED","pose_rig":"torso rises over the new support base while the wall is no longer a constraint","support_contact":"BOTH","contact_state":"NONE","constraint_state":"FREE","root_state":"RESTACKING","readiness":"REBINDING","motion_arc_root_note":"root moves left and upward from wall, preserving displacement rather than snapping to the original address","causal_role":"recovery path and action-authority restoration","joints":{"head":[19,4],"shoulder_l":[17,6],"shoulder_r":[21,6],"hand_l":[14,8],"hand_r":[24,8],"pelvis":[19,10],"knee_l":[16,13],"knee_r":[22,13],"foot_l":[14,15],"foot_r":[24,15]}},
-    {"key_id":"D003-K7","name":"READY_OFFSET","timing_class":"FOURS","timing_provenance":"INFERRED","pose_rig":"ready silhouette rebuilt at a new address clear of the wall","support_contact":"BOTH","contact_state":"NONE","constraint_state":"FREE","root_state":"STACKED","readiness":"READY","motion_arc_root_note":"state re-entry completes at displaced root address; recoil consequence remains spatially legible","causal_role":"state re-entry after hit reaction and constraint escape","joints":{"head":[16,3],"shoulder_l":[14,5],"shoulder_r":[18,5],"hand_l":[12,7],"hand_r":[21,7],"pelvis":[16,9],"knee_l":[14,12],"knee_r":[19,12],"foot_l":[13,15],"foot_r":[21,15]}}
+    {
+      "causal_role": "pre-impact state anchor",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          16,
+          7
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          20,
+          3
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          20,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          22,
+          5
+        ]
+      },
+      "key_id": "D003-K0",
+      "motion_arc_root_note": "root stable before incoming consequence; wall is behind but not yet binding",
+      "name": "READY",
+      "pose_rig": "upright staggered base with open recovery space behind root",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "balance loss and recoil travel before environmental contact",
+      "constraint_state": "WALL_PENDING",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          20,
+          15
+        ],
+        "foot_r": [
+          29,
+          15
+        ],
+        "hand_l": [
+          20,
+          8
+        ],
+        "hand_r": [
+          29,
+          8
+        ],
+        "head": [
+          24,
+          4
+        ],
+        "knee_l": [
+          21,
+          13
+        ],
+        "knee_r": [
+          27,
+          13
+        ],
+        "pelvis": [
+          24,
+          10
+        ],
+        "shoulder_l": [
+          22,
+          6
+        ],
+        "shoulder_r": [
+          26,
+          6
+        ]
+      },
+      "key_id": "D003-K1",
+      "motion_arc_root_note": "root travels right toward wall; upper line lags and begins counter-arc",
+      "name": "RECOIL_INBOUND",
+      "pose_rig": "torso and pelvis translating toward wall while rear support begins to load",
+      "readiness": "INTERRUPTED",
+      "root_state": "RECOILING",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "environmental contact / forbidden recoil degree of freedom",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          22,
+          15
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          30,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          23,
+          13
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          24,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "key_id": "D003-K2",
+      "motion_arc_root_note": "root-x retreat is denied at wall; contact direction remains rightward into constraint",
+      "name": "WALL_CONTACT",
+      "pose_rig": "root reaches wall constraint while torso is still driven into the contact side",
+      "readiness": "INTERRUPTED",
+      "root_state": "CLAMPED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "held hit reaction / recoil debt converted into compression",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          20,
+          15
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          20,
+          10
+        ],
+        "hand_r": [
+          30,
+          10
+        ],
+        "head": [
+          26,
+          7
+        ],
+        "knee_l": [
+          22,
+          14
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          26,
+          12
+        ],
+        "shoulder_l": [
+          23,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "key_id": "D003-K3",
+      "motion_arc_root_note": "no further root-x travel; residual recoil is stored as lower root height, spine shear, and widened base",
+      "name": "COMPRESSION_BANK",
+      "pose_rig": "root remains clamped while knees/spine fold and silhouette widens away from contact",
+      "readiness": "LOCKED_OUT",
+      "root_state": "COMPRESSED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery choice before wall release",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          30,
+          15
+        ],
+        "hand_l": [
+          18,
+          10
+        ],
+        "hand_r": [
+          29,
+          10
+        ],
+        "head": [
+          25,
+          6
+        ],
+        "knee_l": [
+          20,
+          14
+        ],
+        "knee_r": [
+          28,
+          14
+        ],
+        "pelvis": [
+          25,
+          12
+        ],
+        "shoulder_l": [
+          22,
+          8
+        ],
+        "shoulder_r": [
+          27,
+          8
+        ]
+      },
+      "key_id": "D003-K4",
+      "motion_arc_root_note": "root begins vertical/lateral shear without violating the wall clamp; no new support is claimed yet",
+      "name": "LATERAL_PROBE",
+      "pose_rig": "one support preserves the compressed root while the free foot probes down-left for an escape line",
+      "readiness": "PARTIAL",
+      "root_state": "SHEARING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy recovery support / contact release",
+      "constraint_state": "WALL_RELEASING",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          27,
+          9
+        ],
+        "head": [
+          22,
+          5
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          26,
+          13
+        ],
+        "pelvis": [
+          22,
+          11
+        ],
+        "shoulder_l": [
+          19,
+          7
+        ],
+        "shoulder_r": [
+          24,
+          7
+        ]
+      },
+      "key_id": "D003-K5",
+      "motion_arc_root_note": "new plant absorbs lateral shear; wall contact releases only after support exists",
+      "name": "LATERAL_PLANT",
+      "pose_rig": "probe foot earns support at offset address and root begins to peel away from wall",
+      "readiness": "REBINDING",
+      "root_state": "CATCHING",
+      "support_contact": "BOTH_OFFSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery path and action-authority restoration",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          14,
+          8
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
+      },
+      "key_id": "D003-K6",
+      "motion_arc_root_note": "root moves left and upward from wall, preserving displacement rather than snapping to the original address",
+      "name": "WALL_RELEASE_RESTACK",
+      "pose_rig": "torso rises over the new support base while the wall is no longer a constraint",
+      "readiness": "REBINDING",
+      "root_state": "RESTACKING",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry after hit reaction and constraint escape",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          12,
+          7
+        ],
+        "hand_r": [
+          21,
+          7
+        ],
+        "head": [
+          16,
+          3
+        ],
+        "knee_l": [
+          14,
+          12
+        ],
+        "knee_r": [
+          19,
+          12
+        ],
+        "pelvis": [
+          16,
+          9
+        ],
+        "shoulder_l": [
+          14,
+          5
+        ],
+        "shoulder_r": [
+          18,
+          5
+        ]
+      },
+      "key_id": "D003-K7",
+      "motion_arc_root_note": "state re-entry completes at displaced root address; recoil consequence remains spatially legible",
+      "name": "READY_OFFSET",
+      "pose_rig": "ready silhouette rebuilt at a new address clear of the wall",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
   ],
-  "lane":"defense",
-  "manifest_facts":{"ascii_literal_text":true,"authoritative_media":"embedded MP4 data URI in wall-debt-lateral-slip.motion.html","backward_compatible":true,"format_version":2,"ligatures_disabled":true,"primary_tabs":["ASCII","JSON","VIDEO"],"schema":"ascii-kinesis.swarm-manifest.v2","source_art_embedded":false,"video_required":true,"video_source":"abstract_ascii_rig_only","whitespace_preserved":true},
-  "manifest_receipt":{"manifest":"manifest.json","receipt":"receipt.md","repo_path":"experiments/ascii-kinesis/v2-defense-003-wall-debt-lateral-slip/","status_before_persistence":"RENDERED_STRUCTURALLY_TESTED","tracked_spa":"wall-debt-lateral-slip.motion.html"},
-  "principle":"Denied recoil translation does not erase recoil debt: clamp the root at the wall, spend the remaining force as local compression, then earn lateral escape through a new support plant before state re-entry.",
-  "rig":{"canvas_cells":[48,18],"channels":["root","spine","arms","legs","support","wall_constraint","contact","readiness"],"constraint_states":["FREE","WALL_PENDING","WALL_BOUND","WALL_RELEASING"],"joints":["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"schema":"ascii-biped-wall-rig.v1","support_states":["BOTH","REAR_DOMINANT","REAR_ONLY","BOTH_OFFSET"]},
-  "rights":{"drew_work_used":false,"forbidden_carryover":["source pixels","palette","exact contour","sheet layout","tracing","redistribution","close imitation","source choreography"],"output":"independently authored abstract ASCII biped + wall/support constraint rig","source_art_embedded":false,"source_art_policy":"copyright-restricted evidence only"},
-  "source":{"asset_id":602122,"category":"PC / Computer — Enemies","format":"ZIP","game":"Chasm","name":"Meatman","page_url":"https://www.spriters-resource.com/pc_computer/chasm/asset/602122/","raw_bytes":111688,"raw_sha256":"7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f","site":"The Spriters Resource","source_timing_available":false,"whole_sheet_evidence_basis":"Fresh TSR page verification plus campaign-preserved exact-byte whole-archive audit: 61 archive items / 52 PNGs including Sheet.png and 51 numbered animation frames; all numbered PNG alpha geometry scanned before extraction. Families: Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2.","whole_sheet_inspected":true}
+  "lane": "defense",
+  "manifest_facts": {
+    "ascii_literal_text": true,
+    "authoritative_media": "embedded MP4 data URI in wall-debt-lateral-slip.motion.html",
+    "backward_compatible": true,
+    "format_version": 2,
+    "ligatures_disabled": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only",
+    "whitespace_preserved": true
+  },
+  "manifest_receipt": {
+    "manifest": "manifest.json",
+    "receipt": "receipt.md",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-003-wall-debt-lateral-slip/",
+    "status_before_persistence": "RENDERED_STRUCTURALLY_TESTED",
+    "tracked_spa": "wall-debt-lateral-slip.motion.html"
+  },
+  "principle": "Denied recoil translation does not erase recoil debt: clamp the root at the wall, spend the remaining force as local compression, then earn lateral escape through a new support plant before state re-entry.",
+  "rig": {
+    "canvas_cells": [
+      48,
+      18
+    ],
+    "channels": [
+      "root",
+      "spine",
+      "arms",
+      "legs",
+      "support",
+      "wall_constraint",
+      "contact",
+      "readiness"
+    ],
+    "constraint_states": [
+      "FREE",
+      "WALL_PENDING",
+      "WALL_BOUND",
+      "WALL_RELEASING"
+    ],
+    "joints": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "schema": "ascii-biped-wall-rig.v1",
+    "support_states": [
+      "BOTH",
+      "REAR_DOMINANT",
+      "REAR_ONLY",
+      "BOTH_OFFSET"
+    ]
+  },
+  "rights": {
+    "drew_work_used": false,
+    "forbidden_carryover": [
+      "source pixels",
+      "palette",
+      "exact contour",
+      "sheet layout",
+      "tracing",
+      "redistribution",
+      "close imitation",
+      "source choreography"
+    ],
+    "output": "independently authored abstract ASCII biped + wall/support constraint rig",
+    "source_art_embedded": false,
+    "source_art_policy": "copyright-restricted evidence only"
+  },
+  "source": {
+    "asset_id": 602122,
+    "category": "PC / Computer \u2014 Enemies",
+    "format": "ZIP",
+    "game": "Chasm",
+    "name": "Meatman",
+    "page_url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "raw_bytes": 111688,
+    "raw_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "Fresh TSR page verification plus campaign-preserved exact-byte whole-archive audit: 61 archive items / 52 PNGs including Sheet.png and 51 numbered animation frames; all numbered PNG alpha geometry scanned before extraction. Families: Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2.",
+    "whole_sheet_inspected": true
+  }
 }

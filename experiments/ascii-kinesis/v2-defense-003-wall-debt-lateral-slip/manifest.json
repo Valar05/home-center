@@ -1,0 +1,72 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-defense-003-wall-debt-lateral-slip",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "wall-debt-lateral-slip.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "defense",
+  "ligatures_disabled": true,
+  "media_bytes": 11683,
+  "media_decode_preflight": {
+    "codec": "h264",
+    "duration_seconds": 3.333333,
+    "fps": "24/1",
+    "frames": 80,
+    "height": 360,
+    "tool": "ffprobe",
+    "width": 640
+  },
+  "media_sha256": "93c1b47a0f80b4e739e17b0d81407105df4e8ae286bfe4aa3d8585be6d97e93f",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 8,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 20,
+    "video_frames_total": 80
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 602122,
+    "page_url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "raw_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "Fresh TSR page verification plus campaign-preserved exact-byte whole-archive audit: 61 archive items / 52 PNGs including Sheet.png and 51 numbered animation frames; all numbered PNG alpha geometry scanned before extraction. Families: Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2.",
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "tracked_media_sidecar": false,
+  "video_packaging": "authoritative embedded MP4 data URI in wall-debt-lateral-slip.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

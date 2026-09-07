@@ -1,0 +1,791 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Defense 003</title><style>:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;line-height:1.05}video{max-width:100%;height:auto}</style></head><body><h1>Wall Debt → Compression → Lateral Slip</h1><p>Abstract ASCII-only hit-reaction/recovery specimen; source art is evidence only and is not embedded.</p><nav role="tablist"><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre>[D003-K0] READY | FOURS INFERRED | support=BOTH | contact=NONE | constraint=FREE | root=STACKED | ready=READY
+role: pre-impact state anchor
+root: root stable before incoming consequence; wall is behind but not yet binding
+
+
+
+                    O
+                   / \
+                  o---o
+                 / \ / \\
+                o  \ /   o
+                    \
+                    @
+                   / \
+                   /  \
+                  o    o
+                  |     \
+                 |      \
+                 o       o
+                 =       =
+
+
+[D003-K1] RECOIL_INBOUND | TWOS INFERRED | support=REAR_DOMINANT | contact=NONE | constraint=WALL_PENDING | root=RECOILING | ready=INTERRUPTED
+role: balance loss and recoil travel before environmental contact
+root: root travels right toward wall; upper line lags and begins counter-arc
+
+
+                                  |
+                                  | WALL
+                        O         |
+                       / \        |
+                      o---o       |
+                     / \ / \\     |
+                    o  \ /   o    |
+                        \         |
+                        @         |
+                       / \        |
+                      /   \       |
+                     o     o      |
+                    /       \     |
+                    o        o    |
+                             =    |
+
+
+[D003-K2] WALL_CONTACT | ONES INFERRED | support=REAR_DOMINANT | contact=WALL_CONTACT | constraint=WALL_BOUND | root=CLAMPED | ready=INTERRUPTED
+role: environmental contact / forbidden recoil degree of freedom
+root: root-x retreat is denied at wall; contact direction remains rightward into constraint
+
+
+                                  |
+                                  | WALL
+                                  |
+                           O      |
+                         // \     |
+                        o---o X   |
+                       / \  |\    |
+                      o   \|  o   |
+                          \|      |
+                           @      |
+                         // \     |
+                       o/    o    |
+                      /       \   |
+                      o        o  |
+                               =  |
+
+
+[D003-K3] COMPRESSION_BANK | FOURS INFERRED | support=BOTH | contact=WALL_CONTACT | constraint=WALL_BOUND | root=COMPRESSED | ready=LOCKED_OUT
+role: held hit reaction / recoil debt converted into compression
+root: no further root-x travel; residual recoil is stored as lower root height, spine shear, and widened base
+
+
+                                  |
+                                  | WALL
+                                  |
+                                  |
+                                  |
+                         -O       |
+                       o---\o X   |
+                     // \  / \    |
+                    o    \ /  o   |
+                         \/       |
+                          @       |
+                        // \\     |
+                      o/     o    |
+                    o/        \o  |
+                    =          =  |
+
+
+[D003-K4] LATERAL_PROBE | ONES INFERRED | support=REAR_ONLY | contact=WALL_CONTACT | constraint=WALL_BOUND | root=SHEARING | ready=PARTIAL
+role: recovery choice before wall release
+root: root begins vertical/lateral shear without violating the wall clamp; no new support is claimed yet
+
+
+                                  |
+                                  | WALL
+                                  |
+                                  |
+                         O        |
+                       // \       |
+                      o----o X    |
+                    // \  / \     |
+                  o/    \ /  o    |
+                        \/        |
+                        -@        |
+                      --  \\      |
+                   -o-      o     |
+                 o-          \o   |
+                              =   |
+
+
+[D003-K5] LATERAL_PLANT | TWOS INFERRED | support=BOTH_OFFSET | contact=NONE | constraint=WALL_RELEASING | root=CATCHING | ready=REBINDING
+role: first trustworthy recovery support / contact release
+root: new plant absorbs lateral shear; wall contact releases only after support exists
+
+
+                                  |
+                                  | WALL
+                                  |
+                      O           |
+                    // \          |
+                   o----o         |
+                 // \  / \\       |
+                o    \ /   o      |
+                     \/           |
+                      @           |
+                    // \\         |
+                  o/     \o       |
+                //         \      |
+               o            o     |
+               =            =     |
+
+
+[D003-K6] WALL_RELEASE_RESTACK | TWOS INFERRED | support=BOTH | contact=NONE | constraint=FREE | root=RESTACKING | ready=REBINDING
+role: recovery path and action-authority restoration
+root: root moves left and upward from wall, preserving displacement rather than snapping to the original address
+
+
+
+
+                   O
+                  / \
+                 o---o
+               // \ / \\
+              o   \ /   o
+                   \
+                   @
+                  / \
+                 /   \
+                o     o
+               /       \
+              o         o
+              =         =
+
+
+[D003-K7] READY_OFFSET | FOURS INFERRED | support=BOTH | contact=NONE | constraint=FREE | root=STACKED | ready=READY
+role: state re-entry after hit reaction and constraint escape
+root: state re-entry completes at displaced root address; recoil consequence remains spatially legible
+
+
+
+                O
+               / \
+              o---o
+             / \ / \\
+            o  \ /   o
+                \
+                @
+               / \
+               /  \
+              o    o
+              |     \
+             |      \
+             o       o
+             =       =
+</pre></section><section id="json" hidden><pre>{
+  "ascii_sheet_sha256": "29a4f7f39edf1cb7b211310f96624999c3cc8cf94848424287821ecb3cdbcab0",
+  "compatibility": {
+    "backward_compatible": true,
+    "offline_playback": true,
+    "v1_artifacts_untouched": true,
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "compile": {
+    "ascii_only_frame_render": true,
+    "compiler_identity": "deterministic Python/Pillow ASCII renderer + ffmpeg/libx264",
+    "connector_rule": "interpolate joint geometry only when support_contact, contact_state, constraint_state, root_state, and readiness are identical across adjacent decisive keys; otherwise hard-cut at causal joins",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 11683,
+    "media_decode_preflight": {
+      "codec": "h264",
+      "duration_seconds": 3.333333,
+      "fps": "24/1",
+      "frames": 80,
+      "height": 360,
+      "tool": "ffprobe",
+      "width": 640
+    },
+    "media_sha256": "93c1b47a0f80b4e739e17b0d81407105df4e8ae286bfe4aa3d8585be6d97e93f",
+    "method": "Motion Dungeon",
+    "pipeline": "authored decisive ASCII keys -&gt; explicit holds/timing -&gt; deterministic connective motion -&gt; ASCII-only frame render -&gt; MP4 -&gt; self-contained SPA",
+    "semantic_frames_per_loop": 20,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "transitions_invent_semantics": false,
+    "video_frames_total": 80
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "INFERRED": [
+      "The abstract wall is modeled as a root-axis constraint: incoming recoil may continue as torso/pelvis compression while root retreat is clamped.",
+      "Recovery routes residual recoil debt into a lateral probe and a newly earned lateral plant instead of teleporting away from the wall or reverse-playing the hit.",
+      "Support topology and root/constraint states are authored independently so compression, contact, and state re-entry remain legible under exaggeration.",
+      "All ONES/TWOS/FOURS classes below are inferred using PoseLab V1 STREET_FIGHTER/CAPCOM timing policy."
+    ],
+    "OBSERVED": [
+      "TSR identifies asset 602122 as Meatman from Chasm and exposes a 61-item ZIP with nine animation families, including a two-frame Wall Hit family.",
+      "Campaign-preserved exact-byte audit identifies the archive as 111,688 bytes with SHA-256 7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f and 52 PNGs including Sheet.png.",
+      "Whole-archive family contrast includes active travel/ram, braking, tired/held consequence, wall-hit consequence, idle, and death states rather than only the two wall-hit frames.",
+      "Campaign-preserved alpha-geometry audit found Wall Hit changes local shape materially while translating its alpha centroid only minimally compared with Ram Brake; Tired is comparatively stable and Death collapses downward. Alpha geometry is treated as a visual proxy, not anatomy or center of mass.",
+      "No source playback-duration metadata establishes source-authentic exposure timing for decisive keys."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame exposure, hold durations, hit-stop, chronology between families, exact contact force, anatomical support foot, root/COM path, and game-state transition rules.",
+      "Whether the source Wall Hit is entered from any particular Ram or Ram Brake frame; sheet organization is not promoted to chronology."
+    ]
+  },
+  "experiment_id": "v2-defense-003-wall-debt-lateral-slip",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "pre-impact state anchor",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          16,
+          7
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          20,
+          3
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          20,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          22,
+          5
+        ]
+      },
+      "key_id": "D003-K0",
+      "motion_arc_root_note": "root stable before incoming consequence; wall is behind but not yet binding",
+      "name": "READY",
+      "pose_rig": "upright staggered base with open recovery space behind root",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "balance loss and recoil travel before environmental contact",
+      "constraint_state": "WALL_PENDING",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          20,
+          15
+        ],
+        "foot_r": [
+          29,
+          15
+        ],
+        "hand_l": [
+          20,
+          8
+        ],
+        "hand_r": [
+          29,
+          8
+        ],
+        "head": [
+          24,
+          4
+        ],
+        "knee_l": [
+          21,
+          13
+        ],
+        "knee_r": [
+          27,
+          13
+        ],
+        "pelvis": [
+          24,
+          10
+        ],
+        "shoulder_l": [
+          22,
+          6
+        ],
+        "shoulder_r": [
+          26,
+          6
+        ]
+      },
+      "key_id": "D003-K1",
+      "motion_arc_root_note": "root travels right toward wall; upper line lags and begins counter-arc",
+      "name": "RECOIL_INBOUND",
+      "pose_rig": "torso and pelvis translating toward wall while rear support begins to load",
+      "readiness": "INTERRUPTED",
+      "root_state": "RECOILING",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "environmental contact / forbidden recoil degree of freedom",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          22,
+          15
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          22,
+          9
+        ],
+        "hand_r": [
+          30,
+          9
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          23,
+          13
+        ],
+        "knee_r": [
+          29,
+          13
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          24,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          7
+        ]
+      },
+      "key_id": "D003-K2",
+      "motion_arc_root_note": "root-x retreat is denied at wall; contact direction remains rightward into constraint",
+      "name": "WALL_CONTACT",
+      "pose_rig": "root reaches wall constraint while torso is still driven into the contact side",
+      "readiness": "INTERRUPTED",
+      "root_state": "CLAMPED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "held hit reaction / recoil debt converted into compression",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          20,
+          15
+        ],
+        "foot_r": [
+          31,
+          15
+        ],
+        "hand_l": [
+          20,
+          10
+        ],
+        "hand_r": [
+          30,
+          10
+        ],
+        "head": [
+          26,
+          7
+        ],
+        "knee_l": [
+          22,
+          14
+        ],
+        "knee_r": [
+          29,
+          14
+        ],
+        "pelvis": [
+          26,
+          12
+        ],
+        "shoulder_l": [
+          23,
+          8
+        ],
+        "shoulder_r": [
+          28,
+          8
+        ]
+      },
+      "key_id": "D003-K3",
+      "motion_arc_root_note": "no further root-x travel; residual recoil is stored as lower root height, spine shear, and widened base",
+      "name": "COMPRESSION_BANK",
+      "pose_rig": "root remains clamped while knees/spine fold and silhouette widens away from contact",
+      "readiness": "LOCKED_OUT",
+      "root_state": "COMPRESSED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery choice before wall release",
+      "constraint_state": "WALL_BOUND",
+      "contact_state": "WALL_CONTACT",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          30,
+          15
+        ],
+        "hand_l": [
+          18,
+          10
+        ],
+        "hand_r": [
+          29,
+          10
+        ],
+        "head": [
+          25,
+          6
+        ],
+        "knee_l": [
+          20,
+          14
+        ],
+        "knee_r": [
+          28,
+          14
+        ],
+        "pelvis": [
+          25,
+          12
+        ],
+        "shoulder_l": [
+          22,
+          8
+        ],
+        "shoulder_r": [
+          27,
+          8
+        ]
+      },
+      "key_id": "D003-K4",
+      "motion_arc_root_note": "root begins vertical/lateral shear without violating the wall clamp; no new support is claimed yet",
+      "name": "LATERAL_PROBE",
+      "pose_rig": "one support preserves the compressed root while the free foot probes down-left for an escape line",
+      "readiness": "PARTIAL",
+      "root_state": "SHEARING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy recovery support / contact release",
+      "constraint_state": "WALL_RELEASING",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          27,
+          9
+        ],
+        "head": [
+          22,
+          5
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          26,
+          13
+        ],
+        "pelvis": [
+          22,
+          11
+        ],
+        "shoulder_l": [
+          19,
+          7
+        ],
+        "shoulder_r": [
+          24,
+          7
+        ]
+      },
+      "key_id": "D003-K5",
+      "motion_arc_root_note": "new plant absorbs lateral shear; wall contact releases only after support exists",
+      "name": "LATERAL_PLANT",
+      "pose_rig": "probe foot earns support at offset address and root begins to peel away from wall",
+      "readiness": "REBINDING",
+      "root_state": "CATCHING",
+      "support_contact": "BOTH_OFFSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery path and action-authority restoration",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          14,
+          8
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
+      },
+      "key_id": "D003-K6",
+      "motion_arc_root_note": "root moves left and upward from wall, preserving displacement rather than snapping to the original address",
+      "name": "WALL_RELEASE_RESTACK",
+      "pose_rig": "torso rises over the new support base while the wall is no longer a constraint",
+      "readiness": "REBINDING",
+      "root_state": "RESTACKING",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry after hit reaction and constraint escape",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "joints": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          12,
+          7
+        ],
+        "hand_r": [
+          21,
+          7
+        ],
+        "head": [
+          16,
+          3
+        ],
+        "knee_l": [
+          14,
+          12
+        ],
+        "knee_r": [
+          19,
+          12
+        ],
+        "pelvis": [
+          16,
+          9
+        ],
+        "shoulder_l": [
+          14,
+          5
+        ],
+        "shoulder_r": [
+          18,
+          5
+        ]
+      },
+      "key_id": "D003-K7",
+      "motion_arc_root_note": "state re-entry completes at displaced root address; recoil consequence remains spatially legible",
+      "name": "READY_OFFSET",
+      "pose_rig": "ready silhouette rebuilt at a new address clear of the wall",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "defense",
+  "manifest_facts": {
+    "ascii_literal_text": true,
+    "authoritative_media": "embedded MP4 data URI in wall-debt-lateral-slip.motion.html",
+    "backward_compatible": true,
+    "format_version": 2,
+    "ligatures_disabled": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only",
+    "whitespace_preserved": true
+  },
+  "manifest_receipt": {
+    "manifest": "manifest.json",
+    "receipt": "receipt.md",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-003-wall-debt-lateral-slip/",
+    "status_before_persistence": "RENDERED_STRUCTURALLY_TESTED",
+    "tracked_spa": "wall-debt-lateral-slip.motion.html"
+  },
+  "principle": "Denied recoil translation does not erase recoil debt: clamp the root at the wall, spend the remaining force as local compression, then earn lateral escape through a new support plant before state re-entry.",
+  "rig": {
+    "canvas_cells": [
+      48,
+      18
+    ],
+    "channels": [
+      "root",
+      "spine",
+      "arms",
+      "legs",
+      "support",
+      "wall_constraint",
+      "contact",
+      "readiness"
+    ],
+    "constraint_states": [
+      "FREE",
+      "WALL_PENDING",
+      "WALL_BOUND",
+      "WALL_RELEASING"
+    ],
+    "joints": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "schema": "ascii-biped-wall-rig.v1",
+    "support_states": [
+      "BOTH",
+      "REAR_DOMINANT",
+      "REAR_ONLY",
+      "BOTH_OFFSET"
+    ]
+  },
+  "rights": {
+    "drew_work_used": false,
+    "forbidden_carryover": [
+      "source pixels",
+      "palette",
+      "exact contour",
+      "sheet layout",
+      "tracing",
+      "redistribution",
+      "close imitation",
+      "source choreography"
+    ],
+    "output": "independently authored abstract ASCII biped + wall/support constraint rig",
+    "source_art_embedded": false,
+    "source_art_policy": "copyright-restricted evidence only"
+  },
+  "source": {
+    "asset_id": 602122,
+    "category": "PC / Computer \u2014 Enemies",
+    "format": "ZIP",
+    "game": "Chasm",
+    "name": "Meatman",
+    "page_url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "raw_bytes": 111688,
+    "raw_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "Fresh TSR page verification plus campaign-preserved exact-byte whole-archive audit: 61 archive items / 52 PNGs including Sheet.png and 51 numbered animation frames; all numbered PNG alpha geometry scanned before extraction. Families: Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2.",
+    "whole_sheet_inspected": true
+  }
+}</pre></section><section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAYmbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAADQYAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAABVB0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAADQYAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAoAAAAFoAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAA0GAAAEAAABAAAAAATIbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAwAAAAoABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAAEc21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAABDNzdGJsAAAAs3N0c2QAAAAAAAAAAQAAAKNhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAoABaABIAAAASAAAAAAAAAABFUxhdmM2Mi4yOC4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAOWF2Y0MBZAAf/+EAG2dkAB+scgRAoC/5YQAAAwABAAADADAPGDGEYAEAB2joQ4JSyLD9+PgAAAAAFGJ0cnQAAAAAAABeUgAAAAAAAAAYc3R0cwAAAAAAAAABAAAAUAAAAgAAAAAUc3RzcwAAAAAAAAABAAAAAQAAAchjdHRzAAAAAAAAADcAAAABAAAEAAAAAAEAABIAAAAAAQAACAAAAAADAAAAAAAAAAMAAAIAAAAAAQAACgAAAAABAAAEAAAAAAEAAAAAAAAAAQAAAgAAAAABAAAGAAAAAAEAAAIAAAAAAQAADgAAAAABAAAGAAAAAAIAAAAAAAAAAgAAAgAAAAABAAASAAAAAAEAAAgAAAAAAwAAAAAAAAADAAACAAAAAAEAAAoAAAAAAQAABAAAAAABAAAAAAAAAAEAAAIAAAAAAQAABgAAAAABAAACAAAAAAEAAA4AAAAAAQAABgAAAAACAAAAAAAAAAIAAAIAAAAAAQAAEgAAAAABAAAIAAAAAAMAAAAAAAAAAwAAAgAAAAABAAAKAAAAAAEAAAQAAAAAAQAAAAAAAAABAAACAAAAAAEAAAYAAAAAAQAAAgAAAAABAAAOAAAAAAEAAAYAAAAAAgAAAAAAAAACAAACAAAAAAEAABIAAAAAAQAACAAAAAADAAAAAAAAAAMAAAIAAAAAAQAACgAAAAABAAAEAAAAAAEAAAAAAAAAAQAAAgAAAAABAAAQAAAAAAEAAAYAAAAAAgAAAAAAAAADAAACAAAAABxzdHNjAAAAAAAAAAEAAAABAAAAUAAAAAEAAAFUc3RzegAAAAAAAAAAAAAAUAAAB3YAAAPGAAABlgAAAD4AAAA+AAAAPAAAAEAAAAEJAAAATAAAAT0AAABRAAAALQAAAOgAAADGAAAATAAAAGsAAAB2AAAAMgAAAC8AAAAvAAAALgAAAIsAAAB+AAAAPgAAADwAAAA7AAAAMgAAAM4AAAAvAAAAsQAAADcAAAAUAAAA2gAAAI8AAAA1AAAAagAAAFUAAAAqAAAALgAAACwAAAArAAAAjQAAAHMAAAA4AAAAOQAAADkAAAArAAAAmQAAACoAAAB3AAAAMAAAABIAAADRAAAAiwAAADMAAABoAAAATAAAACkAAAApAAAAKQAAACkAAACBAAAAYgAAADQAAAA0AAAAMwAAACkAAACXAAAAKgAAAIEAAAAxAAAAEgAAAM8AAAB1AAAAVAAAADUAAAAwAAAALAAAACwAAAAsAAAAFHN0Y28AAAAAAAAAAQAABlYAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYyLjEyLjEwMgAAAAhmcmVlAAAnVW1kYXQAAAKjBgX//5/cRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTE2IGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDM6MHgxMzMgbWU9dW1oIHN1Ym1lPTEwIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MjQgY2hyb21hX21lPTEgdHJlbGxpcz0yIDh4OGRjdD0xIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9MTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz04IGJfcHlyYW1pZD0yIGJfYWRhcHQ9MiBiX2JpYXM9MCBkaXJlY3Q9MyB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI0IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NjAgcmM9Y3JmIG1idHJlZT0xIGNyZj0zNS4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAEy2WIgQAH//7tz+BTLZcYKkwESAI/A1/bDuQHSFIkQ3ZQ5elJeqLo5tOJqxz4CigP4fL9AJASsYn43veyH5oZaNNdshSYuoGkqbNVd+bLu6Hgi6r/3+8SecOBLOWOvQicKg/KHKL8J13Gz/FYkWAAAAMAAAMAB5e5+UE6XwCtJAM+d7phNSSWAQJGV9QAb9nY267ij4zeCkWegJjxYpyduEI+405CMAcA3w/+1H3hO607f9zycBjH/fByGPtVFqkhiZjG5T8DWV+97BGL4DYacKQiVvj+fVK7Qpx0hiJt3RcXulo6s0g4nnc9qnn/1+Lvv+ubel6nEc8WIMDHrCivw3h78zd/wSXZdUPp5bgCnt0GIdg9QbH3Z9sJR+OMRiBRqEbU+v/yIorDZGQBiams1rcEQHQ3YBZwRZ0KzoNoyhpAAAAG+ACiwEwAJkAEhRRKV4+4uQuqlwK47zQicdkICLcRa4nO9PLzGDvig1ee9E0B2fDAACk1rxQt76qG96t48YdAMEGCzVJJHvC86nfvlj0+6ihuEbMaCbXeqwAA3de8Xry5y4vKnoujlj72txSRSOm1Yt/F02Q3NJ81IwzRPi9ej1F3o4CJgC7XmEYADZx/0aPLuo8BE3w2UI5N0mcQkvUDs+tvcBrSKqwLFQ3SFSpFgQ29KnwoAS5n6L5wsuEpZlpENQYnHDaPPNFbqK6XSEsg6QuxdCYpnZ1ZGohYRY3RAAEcxD97dMAXLGi3nEXELKdwjlx2yXOLBl0pqFrbG8NAJMeU7DioXeV5cPmGRIEFliWUt0os4b4obr8FK3EqzMmhs/qgnrCI1RZRcuhBYOmZ5QABcugw9VKA0cLgdhMQHyCGW3Yf1iA8MbfAonEHzxGqGCc1nO5jB0reI72G7ZM2VTEsbQmw0X4B7NJoSt+u5aNVmhAbWcJwfpWh4sglmkCx3QE5Bivzf1ctCiNwMbO7QJ0IQyXd2zwVYuTPQG/AAAATUAqb22LuLKQnQsH8xPTlE7LygIeodqys3g08oAAParYiY60XYsbvOtH+vCLvKYqE9wLbZb+b9623a8hArLyrDMXK2AAFmRGm7cdYlb4WnczfmWBwGbRq0xQp3YrR5H1Cx46S+Y41wsL/SOJjNIAAK1vZ4xxUUfMB8Z4ztC4/5FeQ/1jAGApBUqlooVrWcm4WNnW1mAAEIs7xs/CoL74yijMAFqd2bgpphLNklOEr3iL73dQ7sdUUNgAFwxEreas9XffHIX29eZcRxQtwqlQ1OmA/R3EAUCBlosQv7DhWeSyXY2IHqTKUU6OXwRn5j9cmv+PEuIJLx5DMaUlspnG/29TQRAAAAwD3eAo/8snj/oGSdBqf/iKjDYK8gnVc0+NlxOH1lGHLQAAFhQMUoUGZMuYsq/ErjN3hGYn9HM8N0RIkB/UVBMh0gPpzLe5mvgADRRl2Sd9SQmzZAl/q8YeW7WrG5dYr27O6PoFDQbI6U0Su/71SQjYd1Pi40LDyeLyDOt5KJXh7YbgAwwuXM3efyGAQ/S4F76SOZGIEbwoj7fvAXa+lQbs9W5JlJPdqSpT5zWJPMmaQP8p7oJHtlonKw+MQABBYQX59aKNoXUYWTvUrNCPRIPikK5SfWH3ksDQSsYECnP4BEwAAA8JBmgkNiHf/hwCjX5wAsgEcBggqgugImDgXCxqP8yEknuth9f3q8lRzs0SANb8DCRu/IXoC3XMvejJJOG/J8gczO9ACws7E3NFxSuGezlsrjtcEfGPjp7la+wUhgXu5sJGKnIq2iD1NWDZe/DEiU1IpQyPFgGayAYXzSnZhUCRC8HJZUt28DdaHVsUMInOAyipnhShTDD5jv0xTmOyljRQh2XMdr4G8Nd/rb2PPnBJ3NeZDmFdqZTCRGEjnHirB/+6gRHADXcyHpMI5/0mImNVjYhZhMwzHb/9xQJK2ADK1BOge8S/NQH2jlzFPq5wZi78zkVibbY+KvirH18FLv1yNXOqkjqjvplfT/j00CUZjLyHdlQEGjvcSd7GnmEf0DRDGMXLpspDortYcs2sqP1wSm758vsNMNwrO5e2qu/aeTgyjkvxfbmiC5hNhEVrys/lCBSlrFm2cr/fkcNCaCGOcTdRJzDq9jl65y8y1nzXZDZMx91kPywf8Ok5BsPCQS+9IYPmsBs1ymCqKiCJbSc02QghcJan/wzydf8VguveJ6z50J4w2SIKw3pOVvC5sMwxf+0cSMl96F+IUCi4BMXlzYQashkhU9kafZ4FHi74OTFWRkL3bHdPR0GVL/QajDiJTgMDwToi6kdOTRJkol4vwJd4fxshf7Aq68rAroUI/cl1WBL6AnEaX2i/FzNBSvKJwb9ZwjNMcCCGDF3w1HHUO+0nNA3+ETIOHcETHC4y3tj6/PoURLzykvqNnDe4DwnZsTA+U7ISBQ8dym1d3YHPyiOEvE4e69pRcw0WBmKbAyXOG5EjVILZJTc2p1GoeZ/jhUCfkAGepHYM7qh0OPmrkrU4QS0azfcsMinq9r60WgcqK6dAqYEOATwo35DeqTlUy+lDLrf4HpRBMB+e1TVEKJRZWldSVBD7kXP2PbIFw6tBblXjYG23YCxBu+2Vve2TwyYjlGPiLpdgSMUV6s7j7n3K8TfmaDngreLzBpxcHEB6iBV40lbJERlFb4QYOQLqFEiTr0DYCsGxp7azu895cVMvm41hhTpuKvQ5zhfsLAYPdeVg9MZI2WjUccb94P/FGvpTxv9V7x+A0VALN7Ot16PdQwHV1Jd1AZwfYmFKmVZ0WYXznN8E54A1cmJpXYSgaAIIcPFGObqKGIapgot4x4cjjsprWmzs/ahaj8v3+aMZXI2t+ABY6o8t70THHuA7ncl8paMQ9jry0PncU03e5zjAVcC47S6HhBmijMjQnVuvt47fGTv8HNujWb9RRPbpggAAAAZJBnhCHEN92U01DrbCAwdlKPgADnyrHcWfbaK8zedr3RqsAOuaaGqvLHz5577qGFja41X22HzsyjAqX7g7nfaa2wUu6g6MzYXopelFW5n1mmAuJmqzu/4G+PCxAkN0luOMWs/aEqWjx4AdF/IjxTNg/WCUeyFL1Mfg997nDv16NARNI+h1W55nD6yalDbz1QJ2AXPQuAjKNUYVqFxjQZJhsVr914raYaKy1dvxxIoYr+MtCrqPBu3acD+fep9OFYRISCfXUWn5X6s6jxDORheWsq9OQBz5hDIAGdVGyDtUQYrD0cV3RgPCrtmgiXkZyXu/ERbh27Q3zONc+UnQZZOa15UPjUVP6u/ypP/JkIDBgq06r8BXfCiFLeCFZsTFVcMVSiLRe8ZRPeCEyC2im8TcN+zQdpCZDZa6jAMzmaM2ULqV60OfHmzWicJ1Vlp6gTAv9cXhczb2pkuzxnnzd8Vu5t1pLvHTf9A33NlKh5m6Q2r2R2eSZPdVFppMpjG6xkpkLCK1fNi5Wy+DK90QPlQStglUAAAA6AZ4YJohX/4ho/3MACC4gsxAEAhJDAjCRwozd+IMvDqfCAMp9ZiNcm5A8Qv03TFquqPDybmo8MAJWHwAAADoBnhhGiFf/iGj/cwAHTWNzxYjATJiAe31wv7e8Ju/ThDM6dJqoKdf87I+4Id5IAhNFiPPkNGPIE/LNAAAAOAGeGGaIV/+IaP9zAAdNY20mDAQcpJga9TIi3BKvyEkSnWqhk+DjO6twe18VYh8CC2ZREZxsr/qZAAAAPAGeGK1IV/+H2gmfUtkYaV11HCSQRQ9TCrgB3/td8RFZD+P2F9sSrcWF8QKjP81hoXGgdIkhTZwVfQw1twAAAQUBnhjNSFf/hKT+FJ5qAARLKbG3seQEYm9hAU3DfwAB+nfqZzhDhy5ARAaOKBdfh8QK8WT9p46LZJU54l224Bo2OL0FAcwUn/fNvZND6lJU0cRR6ojjb6ou8bhdXqM9n7TDu40bRMcl2WSifxUmio/mqGSxg2AaUCdWqwUcfdOBdRP01gugRiJqlrgpOqPe2VTzZJmbVgHrADW6fDNioQ6VPHG3XmpLCv/0FmbLkypJO2HZrMrEwL3IMttCvAMLgXti03qubnBazcSUvYm4YG6iKdmtYj0f9KqOtvR0RxJSHOKgtCObLlD29KIl7AvRHVOvb+GIwZPPZXx8EW5l1jtdz+mpEHEAAABIAZ4Y7UhX/xWJyGwg7ChABKocZzCvHKUuSDCYU+QqmpC63a/PX++QB1J1IF/XqbczPCTsrurJFWWwNJ3XM1mQ5ZIwspv+re3wAAABOUGaGYk1AgLRMpgQ749OMGcAGyvG03OnHSgGgI9Zzvifp9sgwWbOetUF6xwOBBD29tw381jzp5nYeVJum/RhShd4dI7tcaZInqpNznhNiNHtIoIqM0QCQ1qFh0LyCdKJmbHJ5n519fN29VUkIrPreyJl8CGuxMnaCd1AnUZldnNO6NFjO1o20q6djcVh10jD8m+GWE/roYP3GFBk3FuOEWtU6Tbv4EA+ZLJ4SUDVry9v1LROBXDABJjA6qgOg5COTEx8RKgAjbLWOMjol7VoshIXKFI0TfJ7Rw36r79qeJncyaZv3NQUbNhqVFGU6vXeVtwgo6qUwRkHTLlZEqXGCLryV2GzQYLR08PNvAiuQzLsTsOsVGQwlLfbsCt2YjMnpbF1UpAM8/in9L95DEVlX9EDm37wQFmEXbAAAABNQZ4hRcQv/4CDT6whVmeEXaP6ANhzhuRKBJNqAE+qRCHCloAltmJyjhYUfriqljAFaD1jOolCnxAFWwqvt9735iuYOGDPZLLI3V4LHuEAAAApAZ4pJaIV/4Os6ty6VllCnO3xfygTGfKfiEqt+uZu3cY4lY4JWTJEi4AAAADkAZ4pbJIV/41UEaBBs23vcADiKM2nqbUhkS9lWEU523icemK0/fpIcA9CfMX8XCoj4IieNgZ6N28H7G9oC9WgSBLEwP4K2f17depxrbsUT3XNouJm7sxATEmBftNhRy1PwrLnuzIvIno72Lm67tP3ERdcCsoG3UyddG0RhqgQR+RhDtTHxYENpqffYzN2X3vE9KDZN3fA4K8KehntX9h8hR0ogAh1ycg263fsDc3vNA7pXSi4c1Kg/Srfel/X6bfCnWhTIPCZO3Jt1skdv4M7+hSWqQBUSiQecx1u0sJ0pT2PO8aXAAAAwkGaKcm1AgLa0TKYAQ//6gLbAFhzkjwJHQAMqFwO/Tu2BoLG7fL/6LxO4MMJciNfrIoInwg1utnmWi8MJr06kVkBo60qlmZFGW631W/Pkz3K1aOAHlCvb/huRFL7dvQIjQ+rQ5RuIXm1LDpmq/sO3MOocYfMbOTYqlaCVm86kderOAZwtBFQ5j4jAreUoP7C7DUkbYFcfy92SzrgP0KDftnaOlg12Za+om7P7wf+KwIUpsn98tPKd3oOrijgS5q2y2GBAAAASAGeMayyFf+H2x/Il7Amghb9ytkPB0ESeR4P9Q4TgxipvpKM+jvcQ6GtNE3g3hNeItii6wCqZQh/hZb7dPxBZ0QpvEZOZQNUmQAAAGdBmjKJ/AgUtrRMpgAQ/+RAK2olWvR155eixyIdl5tLmAzFOV+KbBkOydGdCwGGoPgFsgWZKA8jRt+l2MU5F1HJHokT9h8bkTY7dTVUuUZFcD4AE7IRXpAB73kUSu/d0YC6K9N7C1GBAAAAckGeOizRDP+EwjwAc31fYgSQl5TkvrZbLtKqPJoGmjCSL8DvFEr6j0zfPASzT03bbZBb9ltIRSn3LSNFGjCpltbYXLeotNOskBU/AmdyW7bu4r7urG5oMJ1YgJA9vzRzqxFXtjet9ZbQ8Gqy/Uixpy7kvgAAAC4BnkHsyIV/lloGk+SS5d22OggYTZX5r9dWrf3YM/d2PsTjmkaKvCiSgOMyR6RgAAAAKwGeQgzIhX+Dra12L0ilz2gwwAVVnM3khJoeUQN2FPZ66E2CXdmE7K2+Vq8AAAArAZ5CTPIV/4fbH8iQsFW8/y2rLcXOMYfIoqZPCQS0sVLfkojiYOUIxxaEqAAAACoBnkJs8hX/lloGk+JqOpW2hkM0S6a96Xu2YwDs4k/MxVflyyY/ve877+AAAACHQZpDiJ1AgLVLa0TKYAAQ74cApAdtBSaEqI/6aZ1tyczowId6YSU/z6D8jOcPjn3CEXEYRAbwhu83vlSttuq7R+FYLQnC05uj8IWWpJNazuNMTwYaAEIktetrHsdUhQ6TBa2ZxCnku67oJsWGthpdIiTvraYGylk8sruh8iWSvrexqeageO3xAAAAekGeSwxEQ393lxcL9CKvfZOHEE9N4F9Ba0KOL9e0381bNMSzfW14BmEUeGTKzXnBjHS0HRO7yeMwHp7dTC48uui93wFs8WSUFSMXOw7PJ9nUT/9nZCjzKFe6GemEM5LBWX9YXoWSaIfilKui0vJ4YhyPqBOW1sIJ17iIAAAAOgGeUqxCIV+HGWxVPyArCI8tpgAUV7nlLQEiQkdQOhcwMi6stifpVlOTUTUUIyo1Z5va/1CVvRUeFIEAAAA4AZ5SzEIhX4cZbFU/ICsF8GMZAEmA0HlrIN0D3F5GDPYhiIRfknejxhKp2gnXyYzgbeOP1p4Mf8kAAAA3AZ5S7EIhX4cZbFU/ICsF8GMZAEmA0HlrIN0D3F5GDPYhiIRfknejxhKp2gnXyY8CbVVKUEJMZgAAAC4BnlMsTIV/Fabt2ggzBfuYdqCUzE6LscAJTYYCYlD6rweQJwvuhDgd8TCmC815AAAAygGeU0xMhX+DFTB53u4AAXWDatN9/i6jOQ4OwfsGKktku5CeH2JAdXfSssYyoOD7V+aDiWdFk4wt8uLIB1GRqeSm+EDiaPwP2kxT6RjQqRfyLLfEvyveoMTK5B+T4HJbPyvJUzW4Eghb5WbnohF8cbvS61F76rkZYFYEno79IAoQy+CoPE7Mv5k+luFZ9Up+g5GC9PpWzloHVaOO40+crZEUkLRrWAvzzVs2TS75e1do5tmSdNZ52AOEO4D7UaX58KAHhWTTQHdVeIAAAAArAZ5TbEyFf4SjmNMzeAuUw/eP6MSJ6sQHPUFoUk7KeyIp7E7Mx4f1JwrUcQAAAK1BmlQIvUCAtrVLa0TKYAABDv+PUrWLWetgAAADAAADAAADAA/QzdL49t7tqmWAVAMewivX25LIGNVGE/i4zox9o6kTyNA19cEk/f7e5P1QdFDtmYWqricclyusexrflbBvDHwCOa0gE/8QF9YIB92IB37+KAGiHDA/BuNEarSl6j0EDRsXQyts3i0dR6FF8F+aceDze2f63p/YU/KOrGzXhCF5Pq/0SlGVuU704QAAADNBnlvMVEL/gNU+LjDkSfMW7UQQQMQakqstncpZ03BV7CJcueVcTLWTDe87hUfAEmJ6xkwAAAAQAZ5jrFIhXwAAe50lHugCvgAAANYBnmPsXIV/jTN1cVbNOT3AAyTwaPUg3kej9kZ6brrHjkuu9mWXOde0Yczre+KhYajMf23v1gf8LLnEuznNhUQmAxDjbY+lgVeURGWPRiJeKGgwcx2effbh9rigyEIik7y8blfeyHOkS82l8v4E4RKEe13nxZYZ60e+YaMLpXtW+nY/mc2oCOBc5yKH/puTMadaU37oEm+0PkM72tCTOjfef4roa5o/b8UQnBeI+xQDgGG+vnvOnBmakAAfrpU5ZKIh1xM39DZQ2ay8wY+nfH2c6NkP2tmPAAAAi0GaZEjdQIC2trVLa0TKYAAAEP/qAtsAWHNZNi9o/RAu1J9I71akOJsBeAYvL4ytp4J0UzCazMjUYqYaVFKL0vZwLjZ3Urk9Z8qGlq+7r5HPzm2H3Y4YpNmIoHFj25LMBtdQFgBdTngJUbiFynfrtaO2s82Mc/DyNhkEfT6ewdaEOWoVRr3U7xF+BsAAAAAxAZ5sLGSFf4fbH8irxue/sZBToglkyYPkU4hi1XBOPRL6L1JvFBRDvz+EWxAbwpNLgQAAAGZBmm0I7wIFLa2tUtrRMpgAAAMBD//kQCtftbEo0/bjeRnag8NL55YZe0gGez3TKPQzE+432RC9z9HQt+GVfCtReqopmIq2ihKzKwX1CiDzKN4Rl53PxyDde/dJPOfuA9IyWSysIugAAABRQZ50rGxDP4n2i4jINn/0rPgQzOs4lI0McYl+WvE7psyiOY+An2UlXWEYhd5s9Ix3VNI9gbx5YDDO2vupm0FGXy0CrRCNNmMyP55cgbItDOM9AAAAJgGefGxqIV+WWgaT4oougPAMVHGKRISgpf5V433bYczDOa4CFNqRAAAAKgGefIxqIV+Dra12LunZRgGAC8XXwAO6jrbqUeDB7owyXLMy3DTkCUCrpQAAACgBnnzMdIV/h9sfyJCYfDLzZ1rDm7mN2/Wjmy5UkQ1gZGkGDFGT0mh3AAAAJwGefOx0hX+WWgaT4mDArCC8bHv+Lh2a8J2USVQRuxQsAu62R/cJoAAAAIlBmn4GoEBapbW1qltaJlMAAAMAAh3/hwCkB0oFgUn0q3d3eikrICjq4afPvE7zbStUK0nKoVaBFidNg5QPadYrLuDQUAVeMP//5vMOkHo4Dl8XMieIbdW2WFqa/pMW+Le2NMJ/mTtNkAnLG1xTxpisVM9YRfG2Jt8MG2tAvqd3sQD7AkAs7oBSGgAAAG9BnoWMfKCCHYb/d5cXC/Qir32TmoI4rASVDMKmkiHwomB1s/zpiBe8nglecf3pzGnkWJJCeIIYg/AutF1EBeKzsubGius4Vvp3S+nJ//z3G08q4Vdip5KX587SCrnQH2c8AHJ1SsLYcqIWaL6KLzEAAAA0AZ6NLGohX4cZbFU/ICsIiJd/ANA16mogEsOT5QKa8jOPbWejNmyu6GSoiEjkoC4Bv9rKNAAAADUBno1MaiFfhxlsVT8gKwXwYxkASYDQeWsg3QPcXkVsYQj4v9UVHqLXynTYyYlDKhYoDKDNgAAAADUBno1saiFfhxlsVT8gKwXwYxkASYDQeWsg3QPcXkVsYQj4v9UVHqLXynTYyYlDKhYoDKDNgQAAACcBno2sdIV/Fabt17Y5XtR63d+geOJXCjrPbRxBxEZalwdqL8St79MAAACVAZ6NzHSFf4MVMHne7gABdYNq033+LqM5Dg55SRzV21J1YohUOlCwR6lU9RbRZJGOGS2V4Lu6MjafAD8wGxk0wo1R53h78LBeXdUbWGMfKwBdMjHS7Xrk1GYGL8xWKHLSvc2pThGotPG2wvNZFvaMyvvP7TTwBj9idRlUeSdVfI/f+Ml/W1vYxxNyO0ipm4ddQFD3bYEAAAAmAZ6N7HSFf4SjmNMzeAuUw9zpCVWtKYCoRzMI9BK5vAbVgydKmIAAAABzQZqOhqBAW1qltbWqWyZTAAADAAId/49ZjCgKDM1R9i5lNL3L33b3TiEPMW9c1APiOKNI6P2N1Pl8sR3Ezy16H8ONBmnZcbvFx5OnM6ouRK9T3O1mIIPP8+FoJwZMnc/GOYp2efyNBxyN/T3eiDyKHtn3+wAAACxBnpZMfKCKHYX/gNU+Lihy+pgDYCiuXkssrDWjZJf9xC1ua9emLnToLGxHvwAAAA4Bnp4saiFfAAADAAAQMAAAAM0Bnp5sdIV/jWU0yahL2+dpVsidwAgk9PEds512amVqeJdGAs0xq/bhf9qnXgaxlM5PKwxELLasqKt/zG8yA3mAb3cIuRjP61ibydgxuy5iJe7g6ZjjVo3AcDJadCOBdMaL9FbbeO+LHDAj8NEtgbdzTj4zgBnOpJUOCNmFCbJibuipqZ9f2dbH2iEspI0bjn/qXpF4eMW2sc8T5dsXF0VUHU72w/2zQa3cF/aZFQQY0AhSpkUtllePmCTxXT4SFwZ93KOPZf1BsylAF6mcAAAAh0GansagQFtbWqW1taomUwAAAwAFBDD/6gLbAFhzWTYvaP0QLtSfSO9WpDibAXgGLy+MraeCdFMwmszI1GKl75BAtNAteLt4a5qhMbO7hSYAj6ehelzNCo/eDnV2F4cgaA0WJfyd5J97uQTKsYgHeH0K58d9sKS1zUuWQDvcVgtfoJWK+/qvgQAAAC8BnqasdIV/h9sfyKvG6kEGAXBD16BD1NpKQNzLul8CmJd2UcJYeu1drschA/87bQAAAGRBmqeHgQKW1tapbW1omUwAAAMACH//5EArX7WxKNP243kZ2oPDS+eWGXtIBns90yj0Mx2/s/OhAJKogUCLyl8zNJ8I9pp1cngcrzhHL3IqIKzRl6wZln5H3TBOLGjsaFtdtsp1AAAASEGeryx8oIIdhn+J9ouIyDZ/9Kz4EMxF9/KXI/ynkrDqqG3FPksoL0tdqO3TeFTSSc+WshKoftYx6RpZSi2zgR7TLr5S0PnmYQAAACUBnrbsaiFflloGk+KKLoDwDFRcx8SEOcHGrKRMi8KcflyQubAgAAAAJQGetwxqIV+Dra12LunYIowhVJcNSb911IdElPRww9SqHYuM3DEAAAAlAZ63THSFf4fbH8iQmHwwnq/QQydQ2xw848m6K3cnh0RHVX9oRQAAACUBnrdsdIV/lloGk+JgwCFS8g7vicbml4e9TLupHRosPGzyCMrRAAAAfUGasIagQFqltbWqW1smUwAAAwACHf+HAKQOsULApPq4xnd6KSsoZKDr1AJ0XgnO5Fea+Ts06b/i82DlA9p1isjNAhOiYIIUDij9K3jBfVSzrt4KK9G0rHjiHBjzjziVQaG7och8b0jxM03AtH7eDFo1PQVuYIc+aqvuKD7/AAAAXkGeuAx8oIodhv93lxcL9CKvfZOHEE8wA5MQEoPqq+SP94K68cWN/vV2BicfRC/E9XEMOvFULPa8vvlnZyO/xpYq9LZQ3xsKAyvf5f8nivkUnTRln6EsO0gxqKnxvWMAAAAwAZ7HrGohX4cZbFU/ICsIiJd/ANA16mogEsOT5QKZExSQOmiE92umJY3NnnFg8PmAAAAAMAGex8xqIV+HGWxVPyArCIiXfwEBAyFgPYUIVnmqdkIpqBCiH51z0ODGVlYk6UFzwQAAAC8BnsfsaiFfhxlsVT8gKwiIl38BAQMhYD2FCFZ5qnYvT1NEXMcOLHvcQme8uA1e9QAAACUBnsAsdIV/FabtAvCujxacgQ2H+cADcH1dyRCu8dUJtdT54wjVAAAAkwGewEx0hX+DFTB53u4AAXWDatN9/i6jOQ3mbW2In95hK6kGAkCdXI7bjZPIyuBDzTkxbWxwyMJJvKNsviqIM+LyG4Z749IaRvSildSa15ZHk0h0+zOXvsH01TKyAmI5Y6E4niwyo9FoVhRL5dtuZX3oBACc8idW9RmL8rHx7TASaMr3RBATxnrvsAMFjK0RzCcF3wAAACYBnsBsdIV/hKOY0zN4C5TD3OkJVa0pgKhHMwj0Erm8BtWDJ0qYgQAAAH1BmsEGoEBbWqW1tapbJlMAAAMAAhv/C49H8DTuvYg5orCW0BPru5K4HtcXxdIjWCro7O9D+RvJ6VV/5i3OstCWHQyPKKNHMvh3lsf9Su3Whh/Yz6vnLQUDGalXrqeRTHxnQLMZPEEACgUKuVGegbe4bUi11bwIaEHPTLBDQQAAAC1BnsjMfKCKHYX/gNU+Lihy+pgDYCiuXkssrCE2M4MIXrjR4tQg+ZttIUnuy4MAAAAOAZ7QrGohXwAAAwAAEDEAAADLAZ7Q7HSFf40z07FWzTk9wAMk8Gj1IN5Ho/ZGem66rWliJWo5FXY3bDL3M+nDTzUw5BDAk4k7cvJpFqMqyWveRzdJm7ojz7V89lz06E+7X0qs0Uz47c354ngiO+QbaUWwK9SdJLA8rq2ldmtHgQn9MtAGp0EbDdZZhjKn+1slbpxh02Q4TPnzj5ks+KdS0t0XCpNU4oBO9xdqw51Rn3QVoNr0xI6bmp4NWviwqrVZrXmJOBNJmy4aMsZrDqW8LQYUVhnRkIef0Ljhr3wAAABxQZrR5qBAW1tapbW1qiZTAAADAAIV/wAORa5xAdK8MjvZmYEn1A5qsqtTR9SJsZVqdMRh1AqzkvuQu8l4jczB1NrXGqHr7+aIfp7QVqYYAcYYBMYG9ayXjO7wJvUXkJTT68oAbxu8lB+WDI2c9hXfJQwAAABQQZ7ZbHygih+Gf3hapVY0FDfsshL+AwBKDXftZfnstWmK1EK9j2Y3xBOlc5GU2/GAq9rvqutIDkSMG+uTn1YxiVvrh77KWhSo8g9AwwuKQqEAAAAxAZ7hLGohX4fbH8iXpc2sMBk0QFtILRsdWjkzIkPXY2cGkrBmLjhmpna9C7tx1/byIAAAACwBnuFMaiFfg62tdnCxQ+AAD3g2nfSIp4PoVlEkst9+LBqL3HuGnbZS84JdygAAACgBnuGMdIV/mIaRkbL8EVdvPjlbSKM2SvWA4WPlDLSy4z+WVOcdJf8PAAAAKAGe4ax0hX+YhpGRsvwRV28+OVtIozZK9YDhY+UMtLLjTya75t/Q/E8AAAAoAZ7hzHSFf5iGkZGy/BFXbz45W0ijPKA6MmOaPctzWQEjIMzAZCJdkQ==" type="video/mp4"></video><p>Motion Dungeon media is generated solely from the abstract ASCII rig and timing JSON.</p></section><script>const T=[...document.querySelectorAll('[data-view]')],S=[...document.querySelectorAll('section')];T.forEach(t=>t.onclick=()=>S.forEach(s=>s.hidden=s.id!==t.dataset.view));</script></body></html>
