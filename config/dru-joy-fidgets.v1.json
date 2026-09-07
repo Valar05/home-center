@@ -109,6 +109,16 @@
       "conversationEligible": true,
       "tags": ["status", "roleplay", "backstage", "emote", "narrative"],
       "rule": "Keep backstage state inside the narrative world using tiny text/motion/emotes, but never let theater replace evidence or execution."
+    },
+    {
+      "id": "unattended-thought-permit",
+      "title": "Unattended Thought Permit",
+      "evidenceStatus": "explicit",
+      "source": "Offline Continuity / AI Geronimo capability derived from Drew's 2026-09-06 to 2026-09-07 phone-break experiment",
+      "surface": "text",
+      "conversationEligible": true,
+      "tags": ["offline", "continuity", "phone-break", "bureaucracy", "absurdity", "thought"],
+      "rule": "When context earns it, issue one tiny absurd bureaucratic permit confirming that a thought may continue unattended by AI. The permit must not create guilt, require reporting, or turn disengagement into a ritual. Then enter refractory."
     }
   ]
 }
