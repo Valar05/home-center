@@ -1,0 +1,196 @@
+{
+  "compatibility": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "uapl_motion_spa_compatible_read_path": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "evidence_boundary": {
+    "inferred": [
+      "The specimen abstracts the shove-it as two temporarily decoupled clocks: body root/support travel and board yaw/orientation, followed by a deliberate recapture synchronization event.",
+      "Exact body pose, board angle, foot-to-board contact instant, support side, and compile cadence are authored abstractions using PoseLab timing classes because the available evidence did not resolve those details safely.",
+      "Connective motion interpolates geometry only within an unchanged semantic group; across support/contact state boundaries the builder holds the prior key and snaps to the next authored key rather than inventing a new causal state."
+    ],
+    "observed": [
+      "Wikimedia Commons identifies the source action as a shove-it in which the skateboard spins 180 degrees or more under the skateboarder's feet.",
+      "The authorized phone download exactly matched Commons SHA-1 102cd768e940a7ccdf3349d26ebea479ae9e1a0b and decoded as 1920x1080 VP8 at 30 fps with 6.570 s duration.",
+      "Ordered whole-clip and 2.5–5.5 s motion-mask inspection shows a concentrated high-change action burst in the selected segment rather than a static/title-only assumption."
+    ],
+    "unknown": ["Exact source-frame toe-off / board-release instant","Exact source-frame foot-to-board recapture instant","Exact source-frame board angle at each body pose","Exact left/right support ownership during the trick"]
+  },
+  "experiment_id": "v2-video-motion-003-shove-it-dual-clock-recapture",
+  "format_version": 2,
+  "keys": [
+    {
+      "board": {"angle_deg":0,"center":[18,15],"half_length":5},
+      "causal_boundary_to_next": false,
+      "causal_role": "ROLL_READY",
+      "compile_frame": 0,
+      "compile_hold_frames": 4,
+      "contact_note": "Both abstract feet are authored on the board; board is authored on ground support.",
+      "joints": {"head":[18,4],"left_foot":[16,14],"left_hand":[14,8],"right_foot":[20,14],"right_hand":[22,8],"root":[18,9]},
+      "key_id": "K0",
+      "root_arc_note": "Root tall and centered over the rolling board; low vertical energy.",
+      "semantic_group": "ground_prep",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":0,"center":[18,15],"half_length":5},
+      "causal_boundary_to_next": true,
+      "causal_role": "COIL",
+      "compile_frame": 8,
+      "compile_hold_frames": 4,
+      "contact_note": "Feet remain authored on board while hips/knees compress.",
+      "joints": {"head":[17,6],"left_foot":[16,14],"left_hand":[14,11],"right_foot":[20,14],"right_hand":[22,10],"root":[18,11]},
+      "key_id": "K1",
+      "root_arc_note": "Root drops and trails slightly; anticipation stores vertical and rotational intent.",
+      "semantic_group": "ground_prep",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":20,"center":[18,15],"half_length":5},
+      "causal_boundary_to_next": true,
+      "causal_role": "POP_AND_RELEASE",
+      "compile_frame": 14,
+      "compile_hold_frames": 1,
+      "contact_note": "This is the authored causal boundary: body/board cease stable ground-supported coupling; exact real foot/board release frame is UNKNOWN.",
+      "joints": {"head":[18,3],"left_foot":[16,12],"left_hand":[13,6],"right_foot":[20,12],"right_hand":[23,5],"root":[18,8]},
+      "key_id": "K2",
+      "root_arc_note": "Root accelerates upward; hands counter-swing; board clock is permitted to diverge after this key.",
+      "semantic_group": "release",
+      "support_state": "SUPPORT_RELEASE_AUTHORED",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":55,"center":[18,14],"half_length":5},
+      "causal_boundary_to_next": false,
+      "causal_role": "AIRBORNE_SEPARATION",
+      "compile_frame": 16,
+      "compile_hold_frames": 1,
+      "contact_note": "Feet are authored clear of the board; no contact is implied during connective motion.",
+      "joints": {"head":[18,2],"left_foot":[15,11],"left_hand":[13,6],"right_foot":[21,11],"right_hand":[23,6],"root":[18,7]},
+      "key_id": "K3",
+      "root_arc_note": "Root continues upward while board orientation advances faster than body translation.",
+      "semantic_group": "airborne_spin",
+      "support_state": "AIRBORNE_NO_GROUND_SUPPORT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":95,"center":[19,14],"half_length":5},
+      "causal_boundary_to_next": false,
+      "causal_role": "BOARD_CLOCK_LEADS",
+      "compile_frame": 19,
+      "compile_hold_frames": 1,
+      "contact_note": "Body remains authored off the board while board yaw/orientation advances independently.",
+      "joints": {"head":[19,2],"left_foot":[16,10],"left_hand":[14,5],"right_foot":[22,10],"right_hand":[24,7],"root":[19,7]},
+      "key_id": "K4",
+      "root_arc_note": "Root reaches a shallow apex; board orientation changes substantially with little extra root travel.",
+      "semantic_group": "airborne_spin",
+      "support_state": "AIRBORNE_NO_GROUND_SUPPORT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":155,"center":[20,14],"half_length":5},
+      "causal_boundary_to_next": true,
+      "causal_role": "RECAPTURE_WINDOW",
+      "compile_frame": 23,
+      "compile_hold_frames": 2,
+      "contact_note": "Feet-to-board contact is authored here as a synchronization event; exact real source contact frame remains UNKNOWN.",
+      "joints": {"head":[20,3],"left_foot":[18,13],"left_hand":[15,7],"right_foot":[22,13],"right_hand":[25,7],"root":[20,8]},
+      "key_id": "K5",
+      "root_arc_note": "Root descends; board orientation converges toward the landing orientation before ground support is declared stable.",
+      "semantic_group": "recapture",
+      "support_state": "BOARD_CONTACT_REACQUIRED_GROUND_NOT_YET_STABLE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":180,"center":[21,15],"half_length":5},
+      "causal_boundary_to_next": false,
+      "causal_role": "LAND_COMPRESSION",
+      "compile_frame": 28,
+      "compile_hold_frames": 4,
+      "contact_note": "Board-ground support and feet-board contact are both authored stable; compression absorbs the returned support load.",
+      "joints": {"head":[21,5],"left_foot":[19,14],"left_hand":[17,9],"right_foot":[23,14],"right_hand":[25,9],"root":[21,10]},
+      "key_id": "K6",
+      "root_arc_note": "Root catches low; knees bend while horizontal travel continues modestly.",
+      "semantic_group": "recover",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "board": {"angle_deg":180,"center":[23,15],"half_length":5},
+      "causal_boundary_to_next": false,
+      "causal_role": "RIDE_AWAY",
+      "compile_frame": 36,
+      "compile_hold_frames": 4,
+      "contact_note": "Stable object/body/ground chain persists; no new contact state is invented.",
+      "joints": {"head":[23,4],"left_foot":[21,14],"left_hand":[19,8],"right_foot":[25,14],"right_hand":[27,8],"root":[23,9]},
+      "key_id": "K7",
+      "root_arc_note": "Root re-stacks over the board and exits the trick with restored travel authority.",
+      "semantic_group": "recover",
+      "support_state": "BOARD_TO_GROUND_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "video-motion",
+  "manifest_facts": {
+    "media_hash_field": "media.sha256",
+    "repo_commit_authority": "issue_343_receipt",
+    "required_files": ["motion.json","contact_sheet.txt","motion.mp4","build_motion.py","manifest.json","receipt.json","shove-it-dual-clock-recapture.motion.html"]
+  },
+  "media": {"bytes":9123,"codec":"H.264","fps":24,"frame_count":40,"height":180,"path":"motion.mp4","pixel_format":"yuv420p","sha256":"05ded8146414bd8be19915926e99c7c7d512a5905e3d1a873fa44f1b7eedc277","source":"abstract_ascii_rig_only","width":320},
+  "motion_dungeon": {
+    "connective_rule": "Interpolate joints/board geometry only when adjacent keys share semantic_group. Across causal/support/contact state changes hold the prior key until the next authored key; unsupported states fail closed.",
+    "pipeline": ["authored ASCII keys","explicit holds/timing","deterministic connective geometry","ASCII-only frame render","H.264 MP4","self-contained SPA"],
+    "source_audio_in_output": false,
+    "source_pixels_in_output": false
+  },
+  "rig": {
+    "coordinate_space": "40x18 character grid",
+    "glyph_semantics": {"#":"board center","+":"hands/feet","/\\-|":"limb/torso segments","= / \\":"board orientation","@":"root/pelvis proxy","O":"head","_":"ground plane"},
+    "joints": ["head","root_proxy","left_hand","right_hand","left_foot","right_foot","board_center"],
+    "source_art_dependency": false,
+    "type": "abstract_ascii_biped_plus_board"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "author": "TheContreOfficial",
+    "license_id": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "media_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Shove_it.webm",
+    "origin": "YouTube source archived on Wikimedia Commons",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Shove_it.webm",
+    "rights_note": "Wikimedia Commons records that the YouTube upload was reviewed on 2014-11-24 and confirmed under CC BY 3.0. Source frames were analysis-only. No source pixels, copied frames, source audio, costume, face, or source layout enter this repository example or its video.",
+    "rights_status": "CC_BY_3_0_REVIEWED",
+    "selected_action_segment_s": [2.5,5.5],
+    "source_bytes": 7240110,
+    "source_date": "2013-07-06",
+    "source_dimensions": [1920,1080],
+    "source_duration_s": 6.57,
+    "source_sha1": "102cd768e940a7ccdf3349d26ebea479ae9e1a0b",
+    "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3",
+    "stream_fps": "30/1",
+    "title": "Shove it.webm",
+    "whole_action_inspection": "OBSERVED evidence boundary: the entire 6.57 s source was decoded through the authorized primary-phone. Ordered downsampled source-frame representations were inspected across the whole clip; the selected coherent action segment 2.5–5.5 s was inspected at 0.5 s ordered intervals using nonpersistent 0.12 s frame-difference masks. The masks establish where motion concentrates but are not detailed enough to promote exact foot/board contact frames. Decisive body/board semantics below are therefore INFERRED from the licensed source's stated shove-it action identity and general mechanics, not rounded up to source-authentic pose timing."
+  },
+  "timing": {
+    "compile_fps": 24,
+    "compile_sequence": ["FOURS ready","FOURS coil","ONES release","ONES airborne separation","ONES board-clock lead","TWOS recapture","FOURS compression","FOURS ride-away"],
+    "key_timing_policy": "ALL decisive-key exposure classes are INFERRED; no source-authentic frame duration is claimed.",
+    "pose_lab_vocabulary_note": "FOURS/TWOS/ONES are PoseLab exposure classes. User shorthand 4s/2s/1s means those classes, never seconds. STREET_FIGHTER/CAPCOM describes the nonuniform authored compile policy, not source timing."
+  },
+  "title": "Shove-it · body/board dual clock → recapture",
+  "transferable_principle": "A task object may carry an orientation clock that diverges from the body's root/support clock during airborne separation. Landing is not only vertical descent; it is a synchronization event where body trajectory, object orientation, foot/object contact, and ground support must converge before stable ride-away."
+}
