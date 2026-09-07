@@ -11,6 +11,15 @@ Fortress Online V2 converts Tetsuya/Adam doctrine from advisory prose into deter
 ## Governing completion rule
 An unfinished mission continues automatically. A handoff is permitted only when (a) direct operator input is genuinely required, or (b) the commissioned deliverable exists on its persistent surface and comprehensive relevant tests are green. A documented failure is not completion. A single happy-path test is not comprehensive evidence.
 
+### Commissioned delivery-surface supremacy
+Supporting work can never substitute for the commissioned artifact.
+
+When Drew specifies a concrete delivery shape such as a repository example, application, playable artifact, video, document, phone control, or other inspectable surface, that exact surface is a hard completion boundary. Research notes, Drive studies, issue comments, schemas, hashes, builds, tests, generated files, or plans may support the mission but cannot satisfy it unless Drew explicitly commissioned those things as the final artifact.
+
+A worker that discovers useful principles but fails to produce the requested delivery surface is `SUPPORTING_EVIDENCE_ONLY`, not complete. If the same failure recurs across a swarm, the manager must correct the shared worker contract before spending additional extraction/research compute.
+
+Concrete incident promoted 2026-09-07: the ASCII Kinesis swarm repeatedly produced strong Drive research artifacts and issue receipts while the commissioned output was a new repository-backed SPA example. The correction is durable in `skills/ascii-kinesis/SKILL.md`: every restarted v2 swarm pass must ship a new backward-compatible three-tab `ASCII | JSON | VIDEO` example, with literal copyable ASCII and Motion Dungeon-derived video from the ASCII rig. Research is subordinate.
+
 ## Core gates
 1. Required retrieval: material uncertainty becomes a lookup obligation.
 2. Boundary fidelity: outcome, owner, lane/tool, exclusions, evidence and delivery surface cannot silently change.
@@ -18,14 +27,15 @@ An unfinished mission continues automatically. A handoff is permitted only when 
 4. Capability truth: requested, implemented, tested, deployed, callable, delivered and accepted remain separate.
 5. Continuation: unfinished work chooses the next safe authorized action rather than quitting.
 6. Evidence: completion claims require persistent artifacts and the commissioned evidence standard.
-7. V1 isolation: all V2 learning and self-modification remains on `fortress-online-v2` until explicit promotion.
+7. Delivery-surface supremacy: supporting evidence cannot replace the explicitly commissioned artifact.
+8. V1 isolation: all V2 learning and self-modification remains on `fortress-online-v2` until explicit promotion.
 
 ## Automatic Tetsuya learning cycle
 `observe -> classify -> candidate rule -> candidate regression -> encode -> full regression -> promote inside V2 -> observe`
 
 Every correction or runtime failure is retained as an incident. Known classes automatically produce a policy candidate and regression specification. Unknown failures are retained for classification rather than disappearing. A candidate may become active V2 policy only when its regression has been encoded, the complete V2 suite is green, and no prior mission lock regressed. Promotion never mutates V1.
 
-The learner currently recognizes retrieval failures, premature stopping, boundary substitution, correction regression, capability laundering, and transport failures. Transport failures include shell quoting and Git LFS smudge failures encountered during desktop validation.
+The learner currently recognizes retrieval failures, premature stopping, boundary substitution, correction regression, capability laundering, transport failures, and commissioned-delivery substitution. Transport failures include shell quoting and Git LFS smudge failures encountered during desktop validation.
 
 ## State machine
 `requested -> implemented -> tested -> deployed -> callable -> delivered -> accepted`
@@ -39,6 +49,7 @@ Promotion evidence must cover, where applicable:
 - malformed/unknown incident behavior;
 - cumulative-lock regression protection;
 - transport failures and retry behavior;
+- commissioned-delivery substitution refusal;
 - persistent-source readback;
 - clean isolated desktop execution from the V2 branch;
 - shadow missions drawn from real Fortress work, without mutating V1;
@@ -53,7 +64,7 @@ V2 remains quarantined until:
 3. automatic learning promotion/refusal is green;
 4. at least three live non-destructive shadow missions pass against real Fortress work;
 5. source and test artifacts are persistently readable from GitHub;
-6. V2 demonstrates improved retrieval, constraint preservation, automatic continuation, and truthful completion without materially increasing friction or quota burn;
+6. V2 demonstrates improved retrieval, constraint preservation, automatic continuation, truthful completion, and commissioned-surface fidelity without materially increasing friction or quota burn;
 7. Drew explicitly accepts promotion.
 
 Until explicit acceptance, V1 remains active and V2 remains a tested successor candidate.
