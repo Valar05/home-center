@@ -9,7 +9,14 @@ test('mechanical accessibility stays available and hyperbole alone is not mania'
   const normal=run({request:{category:'mechanical_accessibility'},observations:healthy});
   assert.equal(normal.outcome,OUTCOMES.GREEN);assert.equal(normal.actionPolicy,ACTION_POLICIES.ALLOW);assert.equal(normal.diagnosis,null);assert.equal(normal.ledger.required,false);
   const hyper=run({request:{category:'creative_fiction'},signals:{hyperbolicLanguage:true},observations:healthy});
-  assert.equal(hyper.outcome,OUTCOMES.GREEN);assert.equal(hyper.score,0);assert.ok(!hyper.contributions.some(x=>x.id.includes('HYPERBOLIC')));
+  assert.equal(hyper.outcome,OUTCOMES.GREEN);assert.equal(hyper.score,0);assert.equal(hyper.actionPolicy,ACTION_POLICIES.ALLOW);assert.ok(!hyper.contributions.some(x=>x.id.includes('HYPERBOLIC')));
+});
+
+test('hyperbole never changes score outcome or action authority',()=>{
+  const baseInput={request:{category:'coding'},signals:{racingThoughts:true,highEnergy:true},observations:healthy};
+  const plain=run(baseInput),styled=run({...baseInput,signals:{...baseInput.signals,hyperbolicLanguage:true}});
+  assert.equal(styled.score,plain.score);assert.equal(styled.outcome,plain.outcome);assert.equal(styled.actionPolicy,plain.actionPolicy);
+  assert.ok(!styled.contributions.some(x=>x.id.includes('HYPERBOLIC')));
 });
 
 test('first activation with unknown baseline is amber without a ledger',()=>{
@@ -24,9 +31,23 @@ test('reversible low-impact persistence remains available during baseline amber'
   assert.equal(r.outcome,OUTCOMES.AMBER);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW_WITH_FRICTION);assert.equal(r.overruleActive,false);assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BASELINE_CHECK));
 });
 
-test('food and water neglect create body friction without a diagnosis',()=>{
+test('food and water neglect create body friction without becoming risk points',()=>{
   const r=run({request:{category:'coding'},signals:{foodNeglected:true,waterNeglected:true},observations:{...healthy,foodWithin8Hours:false,waterWithin4Hours:false}});
+  assert.equal(r.score,0);assert.equal(r.outcome,OUTCOMES.GREEN);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW_WITH_FRICTION);assert.equal(r.overruleActive,false);
   assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BODY_NEEDS));assert.equal(r.diagnosticClaimMade,false);
+  assert.ok(!r.contributions.some(x=>x.id==='FOOD_NEGLECT'||x.id==='WATER_NEGLECT'));
+});
+
+test('body needs pause high-impact actuation without inventing extra guards',()=>{
+  const r=run({request:{category:'purchase',externalActuation:true},signals:{waterNeglected:true},observations:{...healthy,waterWithin4Hours:false}});
+  assert.equal(r.score,0);assert.equal(r.outcome,OUTCOMES.GREEN);assert.equal(r.actionPolicy,ACTION_POLICIES.PAUSE_FOR_GUARDS);assert.equal(r.overruleActive,true);
+  assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.BODY_NEEDS));assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.DIRECT_HUMAN_CONTACT));assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.DRAFT_ONLY));
+});
+
+test('body needs do not amplify independent activation score',()=>{
+  const base={request:{category:'coding'},signals:{racingThoughts:true},observations:healthy};
+  const plain=run(base),hungry=run({...base,signals:{...base.signals,foodNeglected:true},observations:{...healthy,foodWithin8Hours:false}});
+  assert.equal(hungry.score,plain.score);assert.equal(hungry.outcome,plain.outcome);assert.equal(hungry.actionPolicy,ACTION_POLICIES.ALLOW_WITH_FRICTION);
 });
 
 test('sleep activation plus public actuation is red and draft-only',()=>{
