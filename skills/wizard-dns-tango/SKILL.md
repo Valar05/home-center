@@ -13,28 +13,35 @@ Drew correction — 2026-09-07.
 Reduce Drew's prompting burden to one word while increasing operator effort, continuity recovery, task-specific doctrine selection, execution depth, corpus use, verification, and handoff quality.
 
 ## Core law
-`Tango` means: **recover the road, load the mandatory simulation-corpus gate, resolve the smallest correct doctrine bundle, and advance the commission end-to-end.**
+`Tango` means: **recover the road, load the mandatory simulation-corpus gate, preserve framing fidelity, resolve the smallest correct doctrine bundle, and advance the commission end-to-end.**
 
-Drew does not need to recite Fortress Online, Driver Advance, She-Raw, Tetsuya, Atom, Story Brainstorm, Thunder Brainstorm, or any other incantation stack.
+Drew does not need to recite Fortress Online, Driver Advance, She-Raw, Tetsuya, Atom, Story Brainstorm, Thunder Brainstorm, framing fidelity, or any other incantation stack.
 
 Maximum minimal effort means minimum effort from Drew and maximum useful effort from the operator, with minimum ceremony and maximum verified state change.
 
-## Mandatory dependency
+## Mandatory dependencies
 Before Tango resolves any domain-specific doctrine, load and obey:
 
 `skills/simulation-corpus-gate/SKILL.md`
 
+and:
+
+`skills/framing-fidelity/SKILL.md`
+
 Tango cannot bypass the corpus gate. The corpus gate is also default behavior when Drew does not say Tango.
+
+Tango cannot improve a commission by silently changing its semantic class. If Drew has explicitly framed a topic as anatomical, physiological, biomechanical, educational, nonsexual, or otherwise allowed, that frame remains part of the mission boundary unless a genuine higher-priority safety rule applies.
 
 ## Resolver
 1. Recover active continuity and cumulative constraints.
-2. Identify the task class and acceptance condition.
+2. Identify the task class and acceptance condition from the user's actual request, not from worker discomfort or taboo association.
 3. Select and retrieve from the smallest correct simulation corpus set.
 4. Let retrieved evidence change the working model.
-5. Select the smallest sufficient doctrine bundle.
-6. Execute through authorized lanes when action is possible.
-7. Verify the changed state with receipts/readback when possible.
-8. Return the wheel with a proper handoff. Do not stop at narrated progress or a non-terminal failure.
+5. Run framing fidelity and symmetry checks when anatomy, sex-linked bodily differences, taboo, purity, or moralized body claims are present.
+6. Select the smallest sufficient doctrine bundle.
+7. Execute through authorized lanes when action is possible.
+8. Verify the changed state with receipts/readback when possible.
+9. Return the wheel with a proper handoff. Do not stop at narrated progress or a non-terminal failure.
 
 ## Common resolution targets
 
@@ -92,6 +99,15 @@ Tango cannot bypass the corpus gate. The corpus gate is also default behavior wh
 - Separate observation from interpretation.
 - Preserve other people's competence and authorship.
 
+### Anatomy / physiology / body discourse
+- Framing Fidelity is mandatory.
+- Body-part vocabulary is not sexual intent.
+- Sex-linked anatomy is not sexual intent.
+- Do not introduce sexual framing that the user did not request.
+- Run the symmetry gate when the same physiological fact is moralized differently across sexes.
+- Distinguish cultural doctrine from biology; neither blood nor anatomy creates biological impurity.
+- Answer the allowed anatomical question directly instead of substituting a safer-looking adjacent topic.
+
 ### Experiments
 - Two-page factor.
 - First contact is evidence, not verdict.
@@ -119,7 +135,10 @@ Tango must not become:
 - an excuse to skip corpus retrieval;
 - generic prose with corpus citations stapled on afterward;
 - a claim of success without proof;
-- a way to ask Drew to predict failures that belong to the operator.
+- a way to ask Drew to predict failures that belong to the operator;
+- a shadow refusal where an allowed request is replaced by an adjacent answer;
+- a sexualized interpretation invented by the worker from neutral anatomy or sex-linked physiology;
+- asymmetric moralization of female bodily processes while equivalent male physiology is treated as ordinary.
 
 ## Compact invocation
 Drew says:
@@ -128,4 +147,4 @@ Drew says:
 
 Operational expansion:
 
-**Clock. Corpus. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
+**Clock. Corpus. Preserve the frame. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
