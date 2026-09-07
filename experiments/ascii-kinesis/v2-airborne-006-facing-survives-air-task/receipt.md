@@ -66,6 +66,7 @@ SPA primary tabs are exactly `ASCII | JSON | VIDEO`; ASCII is literal `<pre>` te
 ## Persistence fields
 
 Repository readback: VERIFIED
-Issue #343 receipt: PENDING
+Issue #343 receipt: VERIFIED — comment `5576606663` — https://github.com/Valar05/home-center/issues/343#issuecomment-5576606663
+Issue receipt readback: VERIFIED
 Blocker: NONE local to specimen 006; repository-wide contract suite is blocked upstream by v2-airborne-005.
 Correction hooks: KEEP, REJECT, EXAGGERATE, COMPRESS, RETIME, CHANGE SOURCE, PROMOTE, SPAWN VARIANT, FIX BLOCKER, RERUN
