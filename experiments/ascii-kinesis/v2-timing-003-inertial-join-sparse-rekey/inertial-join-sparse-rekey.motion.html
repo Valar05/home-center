@@ -1,0 +1,141 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Timing 003</title><style>:root{color-scheme:dark}body{font-family:system-ui;margin:1rem}nav{display:flex;gap:.5rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0;white-space:pre;overflow:auto;line-height:1}video{max-width:100%}</style></head><body><h1>Inertial Join Sparse Rekey</h1><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre>ASCII KINESIS V2 TIMING 003 — INERTIAL JOIN SPARSE REKEY
+SOURCE ART: NOT EMBEDDED. ABSTRACT RIG ONLY. SOURCE TIMING: NONE OBSERVED.
+PARENT TRANSFORM MAY MOVE INSIDE A HELD CHILD KEY; LOAD CHANGE EARNS LOCAL REKEY.
+
+[T003-K0] CRUISE_NEUTRAL | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=local root neutral; parent +X constant velocity; distance alone buys no child key
+timing=FOURS provenance=INFERRED | role=stable parent-travel hold
+
+
+
+                  O
+                  |
+                  |
+                 -+-
+              l-- | --r
+                  @
+                 / \
+                o   o
+               /     \
+               L     R
+           [=============]
+
+
+[T003-K1] BRAKE_ONSET | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=same contacts; authored decel changes shear load; torso counterleans
+timing=TWOS provenance=INFERRED | role=INERTIAL_JOIN onset
+
+
+
+                O
+                |
+                 |
+                -+---r
+             l-- \
+                  @
+                 / \
+                o   o
+               /     \
+               L     R
+           [=============]
+
+
+[T003-K2] BRAKE_PEAK | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=peak counterlean with bilateral contact unchanged
+timing=ONES provenance=INFERRED | role=transient load spike
+
+
+
+               O
+                \
+                \  --r
+            l----+-
+                  \
+                   @
+                  / \
+                 o   o
+                /    |
+               L     R
+           [=============]
+
+
+[T003-K3] BRAKE_HOLD | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=decel persists; hold readable resistance instead of adding in-betweens
+timing=TWOS provenance=INFERRED | role=sustained load consequence
+
+
+
+                O
+                |
+                 |
+               --+---r
+            l--   \
+                   @
+                  / \
+                 o   o
+                /    |
+               L     R
+           [=============]
+
+
+[T003-K4] BRAKE_RELEASE | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=acceleration returns zero; load normalizes before full restack
+timing=ONES provenance=INFERRED | role=load release
+
+
+
+                 O
+                 |
+                  |
+                --+-
+             l--  \ --r
+                   @
+                  / \
+                 o   o
+                /    |
+               L     R
+           [=============]
+
+
+[T003-K5] RECOVER | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=local root restacks while parent resumes constant velocity
+timing=TWOS provenance=INFERRED | role=recovery
+
+
+
+                 O
+                 |
+                  |
+                 -+-
+              l-- | --r
+                  @
+                 / \
+                o   o
+               /     \
+               L     R
+           [=============]
+
+
+[T003-K6] CRUISE_RESTORED | rig=platform_passenger_C2 | support=BILATERAL_PLATFORM_CONTACT
+root/arc=neutral local pose reused while parent continues +X travel
+timing=FOURS provenance=INFERRED | role=stable restored hold
+
+
+
+                  O
+                  |
+                  |
+                 -+-
+              l-- | --r
+                  @
+                 / \
+                o   o
+               /     \
+               L     R
+           [=============]
+
+
+AXES: temporal=LOCAL load state | parent=PLATFORM transform | variant/config≠time | effect=fail-closed
+ONES=1 display frame; TWOS=2; FOURS=4. At nominal 24fps ≈24/12/6 samples/s.
+1s/2s/4s means ONES/TWOS/FOURS, never seconds.
+STREET_FIGHTER/CAPCOM=nonuniform authored gameplay timing; INFERRED timing is not source-authentic.</pre></section><section id="json" hidden><pre>{"axis_separation":{"effect":"none promoted; fail closed","parent_transform":"platform world motion is independent and may update inside a held local key","temporal":"passenger local load-bearing state","variant_config":"source presentation differences do not buy time without chronology"},"clock_channels":[{"clock_id":"PLATFORM","kind":"PARENT_TRANSFORM","timing_provenance":"INFERRED"},{"clock_id":"LOCAL","kind":"PASSENGER_LOCAL","timing_provenance":"INFERRED"},{"clock_id":"CONTACT","kind":"STATE_AXIS_NOT_CLOCK","timing_provenance":"INFERRED","value":"BILATERAL_PLATFORM_CONTACT"}],"compatibility":{"backward_compatible":true,"contract":"ASCII_KINESIS_SWARM_CONTRACT_V2","primary_tabs":["ASCII","JSON","VIDEO"],"source_art_embedded":false,"video_source":"abstract_ascii_rig_only"},"experiment_id":"v2-timing-003-inertial-join-sparse-rekey","keys":[{"causal_role":"stable parent-travel hold","clock":{"LOAD":"NEUTRAL","LOCAL":"NEUTRAL","PLATFORM":"CRUISE"},"key_id":"T003-K0","motion_arc_root_note":"local root neutral; parent +X constant velocity; distance alone buys no child key","name":"CRUISE_NEUTRAL","parent_step":[0,1,2,3],"pose_rig":{"j":[[18,8],[18,6],[18,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"FOURS","timing_provenance":"INFERRED"},{"causal_role":"INERTIAL_JOIN onset","clock":{"LOAD":"FORWARD_SHEAR","LOCAL":"LEAN_ONSET","PLATFORM":"DECEL_ONSET"},"key_id":"T003-K1","motion_arc_root_note":"same contacts; authored decel changes shear load; torso counterleans","name":"BRAKE_ONSET","parent_step":[4,5],"pose_rig":{"j":[[18,8],[17,6],[16,3],[13,7],[21,6],[16,10],[20,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"transient load spike","clock":{"LOAD":"SHEAR_PEAK","LOCAL":"LEAN_PEAK","PLATFORM":"DECEL_PEAK"},"key_id":"T003-K2","motion_arc_root_note":"peak counterlean with bilateral contact unchanged","name":"BRAKE_PEAK","parent_step":[6],"pose_rig":{"j":[[19,8],[17,6],[15,3],[12,6],[21,5],[17,10],[21,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED"},{"causal_role":"sustained load consequence","clock":{"LOAD":"FORWARD_SHEAR","LOCAL":"LEAN_HOLD","PLATFORM":"DECEL_HOLD"},"key_id":"T003-K3","motion_arc_root_note":"decel persists; hold readable resistance instead of adding in-betweens","name":"BRAKE_HOLD","parent_step":[7,7],"pose_rig":{"j":[[19,8],[17,6],[16,3],[12,7],[21,6],[17,10],[21,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"load release","clock":{"LOAD":"NEUTRALIZING","LOCAL":"LEAN_RELEASE","PLATFORM":"ZERO_ACCEL"},"key_id":"T003-K4","motion_arc_root_note":"acceleration returns zero; load normalizes before full restack","name":"BRAKE_RELEASE","parent_step":[8],"pose_rig":{"j":[[19,8],[18,6],[17,3],[13,7],[22,7],[17,10],[21,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED"},{"causal_role":"recovery","clock":{"LOAD":"NEUTRAL","LOCAL":"RECOVER","PLATFORM":"CRUISE"},"key_id":"T003-K5","motion_arc_root_note":"local root restacks while parent resumes constant velocity","name":"RECOVER","parent_step":[9,10],"pose_rig":{"j":[[18,8],[18,6],[17,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"stable restored hold","clock":{"LOAD":"NEUTRAL","LOCAL":"NEUTRAL","PLATFORM":"CRUISE"},"key_id":"T003-K6","motion_arc_root_note":"neutral local pose reused while parent continues +X travel","name":"CRUISE_RESTORED","parent_step":[11,12,13,14],"pose_rig":{"j":[[18,8],[18,6],[18,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]],"rig_id":"platform_passenger_C2"},"support_contact":"BILATERAL_PLATFORM_CONTACT","timing_class":"FOURS","timing_provenance":"INFERRED"}],"manifest":{"format_version":2,"media_bytes":3025,"media_sha256":"10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613","primary_tabs":["ASCII","JSON","VIDEO"],"schema":"ascii-kinesis.swarm-manifest.v2","status":"BUILT","video_source":"abstract_ascii_rig_only"},"media_bytes":3025,"media_sha256":"10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613","rig":{"description":"independently authored generic Blender-style ASCII biped on abstract moving platform","joint_order":["root","spine","head","lh","rh","lk","rk","lf","rf"],"rig_id":"platform_passenger_C2"},"schema":"ascii-kinesis.motion.v2","source":{"asset_id":191044,"game":"Sunky's Schoolhouse","name":"Dr Robuttnik (Elevator)","observed":["TSR identity and 4480x360 static PNG metadata","PoseLab v1.7 exact-custody record: full-sheet bytes/hash; seven equal 640px cells inspected; common lower boundary with changing local occupied extent"],"page_url":"https://www.spriters-resource.com/pc_computer/sunkysschoolhouse/asset/191044/","platform":"PC / Computer","rights_note":"Copyrighted sheet is analysis evidence only; no source pixels, palette, contours, layout, tracing, redistribution, or close imitation are stored/rendered.","sheet":{"bytes":32657,"format":"PNG","height":360,"raw_sha256":"1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca","whole_sheet_inspected":true,"width":4480},"site":"The Spriters Resource","source_timing_observed":"NONE","unknown":["source playback order","per-cell exposure","source velocity/acceleration","support-force vector","root path","cadence/hit-stop"]},"timing_doctrine":{"FOURS":"hold key 4 display frames","ONES":"new key every display frame","STREET_FIGHTER/CAPCOM":"nonuniform authored gameplay timing; may mix holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, selective sampling; INFERRED durations are never source-authentic","TWOS":"hold key 2 display frames","nominal_24fps_samples_per_second":{"FOURS":6,"ONES":24,"TWOS":12},"shorthand":"1s/2s/4s = ONES/TWOS/FOURS, never seconds"}}</pre></section><section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAPcbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAApsAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAwd0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAApsAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAUAAAAC0AAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAKbAAAEAAABAAAAAAJ/bWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAwAAAAIABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAACKm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAepzdGJsAAAAsnN0c2QAAAAAAAAAAQAAAKJhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAUAAtABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDEgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAOGF2Y0MBZAAV/+EAGmdkABWscgRBQZ+eEAAAAwAQAAADAwDxYthGAQAHaOhDgQSyLP34+AAAAAAUYnRydAAAAAAAAF08AAAAAAAAABhzdHRzAAAAAAAAAAEAAAAQAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAgGN0dHMAAAAAAAAADgAAAAEAAAQAAAAAAQAACAAAAAACAAACAAAAAAEAAAoAAAAAAQAABAAAAAABAAAAAAAAAAEAAAIAAAAAAQAABgAAAAABAAACAAAAAAIAAAQAAAAAAQAACgAAAAABAAAEAAAAAAEAAAAAAAAAAQAAAgAAAAAcc3RzYwAAAAAAAAABAAAAAQAAABAAAAABAAAAVHN0c3oAAAAAAAAAAAAAABAAAAQyAAAASwAAACQAAAAlAAAAjwAAADIAAAAsAAAALAAAAFUAAAAiAAAAYgAAADQAAABIAAAAQAAAACkAAAAoAAAAFHN0Y28AAAAAAAAAAQAABAwAAABhdWR0YQAAAFltZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAACxpbHN0AAAAJKl0b28AAAAcZGF0YQAAAAEAAAAATGF2ZjYxLjcuMTAzAAAACGZyZWUAAAfNbWRhdAAAArAGBf//rNxF6b3m2Ui3lizYINkj7u94MjY0IC0gY29yZSAxNjQgcjMxMDggMzFlMTlmOSAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjMgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0xIHJlZj0xNiBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgzOjB4MTMzIG1lPXVtaCBzdWJtZT0xMCBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTI0IGNocm9tYV9tZT0xIHRyZWxsaXM9MiA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTYgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz04IGJfcHlyYW1pZD0yIGJfYWRhcHQ9MiBiX2JpYXM9MCBkaXJlY3Q9MyB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI0IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NjAgcmM9Y3JmIG1idHJlZT0xIGNyZj00Mi4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAABemWIgQAT/9GgFWdLwbhtNUq83mzoPfdXgtgyV9ELlG8Q/nGS7uW5l3kHtu9f4ID5468jGgvsMYmz5mkggfRF4PkjRGE55ZjXRAzj86ZE3fxbhLX03WPuhdzM9QfyraYO8OTFUXIotKyrdX+th5bvuNcvjy1aqEwrSswj2rcQ4/GJUz8N+znhFRTcHgY9ocG51w6dh8wUMK/Qwk9Z6bsuzU9ZJQVVfTCRYsLq0mYpPnBOsGZ/GpjDttydkYSrJe7L3gWG+WQAADvnSSJmzq3p8FDdBJ44NxLi1V5dAR0Ya09MxaZl+Tp0OavnWxpPBVPJ6jPdGuC7t6EI4Rura/lobgFCI69JeZ+myhv+uOL+nyGSucXco3CmA7ldTgi5nl6gAEBNsDcrOfFgF6vGezkppGWsnT2HWBvIGpaAtgFdzIO7t8QaY+jf+Mz9hLteB5v2KJ3tdsu/hepGox7tNQjj06Jw8/gACB+1UAob7mgETrk/Umzpgrg9AAAGJQAAAEdBmghtib9wbW5ZXwAKqpQ2YAIZy0VeOMxVUR8bLfFFwyJ2rOgwkQ7lumycLOuP1IIJCj4shzUDLfQo335Tro6SJIl9/Wa4gAAAACBBnhAnEJfSJpz/1ZY9wJ5b1jwte6nKq2XqLe33s9jKdwAAACEBnhhNSEv/gUUQZJZk7fLZ99ij6t9Qv+PUtkgt0R6vznAAAACLQZoY6TUCAtEymBEfv+iCtmjW9pl1cLLh0pnL/4R72IgAAAMAhvICRWKrupp9yBO+S9jRZtP0ug93T1gGULEdugIAtVODaT477Ut8TuBXyzcjD6qZmP2tx94/9hxHKtHr6t5/+OTD7NDf/aOeMrkPkpukotIRI26nmvkEK2mJP2FR2Cea0oEjAcpJrQAAAC5BniClxCH/4t+IjklGPMML7YpK+tkh5dPl3ppOxt7UGE7SFLb1Wv5RGdUMK9XxAAAAKAGeKIWiEv/ffsjGN5fCaNLNrpdRa3W/bv0kouTkzKXgQtGfSkhIzSUAAAAoAZ4ozJIS/922m91MPskS68fEZJhEyTHl80fRC3P/8beTiDI3b0i/gQAAAFFBmikptQIC2tEymAEV/9GxVZ6cD9C9WIQYEEcKGJAAAgGQQAYLkLVior5Uwpd8jNbCiYnO9Duya+K3sFDQvvKBfufEDRqyZ+J1LYT7jvmkxqgAAAAeAZ4xDLIS/9eQ5cIePmPTt8Jh1iG+GxcxJFZqgptwAAAAXkGaMUn8CBS2tEymABFfxWh97QaTvtVNtcP0c/cgRqAAAFoeIVXeeaAGav2dbWJ9p2XoDDYTbkZ01hOUs8XcQyAKeqeQFB1BgklrveYpPtjpuUY63PDbak94bg0Rn2EAAAAwQZo5aI8CB0trRMpgAEZ/LZ1m9yaPWmtSJE0QjXKl2QX0J5VHxeTkXXO0tD2MEpf0AAAAREGaQeifAgfS2tEymAAEJf/IXohC4ce4bp1wRfnqja8LNgBBu6jvUrbMq2qa++TiHMl2EcUaO+9yVX3CHRhT2NcdCiWqAAAAPEGeSaxEQh/wN+n/wXU7AJtNRc/8bz2fcEOqrTANGq1vwcMi5grXWz35+mOoyxlyVE7wztgpq06vk//mgQAAACUBnlGMQiEv65FFrgu4K0/FjBYeb0qwV1tVf9ox/3JznvBXlNsxAAAAJAGeUcxMhL/u26/eMI/x5qw0DT6ESzqcjEUl9sEhU0bayhSpgQ==" type="video/mp4"></video></section><script>let b=[...document.querySelectorAll("button[data-view]")],s=[...document.querySelectorAll("section")];b.forEach(x=>x.onclick=()=>s.forEach(y=>y.hidden=y.id!==x.dataset.view));</script></body></html>
