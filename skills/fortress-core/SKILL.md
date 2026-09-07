@@ -100,7 +100,16 @@ Automatic learning may never mutate Fortress V1 or alter the user's mission boun
 
 Venice review memory is reviewer precedent, not self-modifying authority. It may strengthen planning/antagonism/review but cannot silently change the user's mission boundary.
 
+## 18. Commissioned delivery-surface supremacy
+When the user explicitly names the product or acceptance surface, that surface is part of the mission boundary and outranks convenient supporting artifacts.
+
+Research notes, Drive studies, issue comments, plans, schemas, source patches, hashes, tests, builds, generated files, scheduler state, or other evidence may prove their own states only. They cannot substitute for a commissioned repository example, application, playable artifact, video, document, phone control, deployed runtime, or other explicitly named surface.
+
+If a worker produces valuable supporting evidence but the commissioned artifact does not exist on its authorized persistent surface, classify the result `SUPPORTING_EVIDENCE_ONLY` and continue. If the same substitution repeats across a swarm, stop spending additional extraction/research compute long enough to correct the shared worker contract and encode a regression for the failure class.
+
+The 2026-09-07 ASCII Kinesis incident is the canonical fixture: Drive research artifacts and issue receipts did not satisfy a commission for new repository-backed three-tab `ASCII | JSON | VIDEO` examples with literal copyable ASCII and real Motion-Dungeon-derived video. Future Fortress workers must preserve this distinction.
+
 ## Boot invariant
 Fortress V2 boot must load the complete body of this file and every other discovered `SKILL.md`, including `skills/phone-runtime/SKILL.md`, `skills/fortress-plan-gate/SKILL.md`, `skills/venice-stop-gate/SKILL.md`, and `skills/venice-review-memory/SKILL.md`. First-match loading is forbidden. Missing canonical Fortress skill documents are a boot failure, not a warning.
 
-Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; and response boundaries as non-terminal.
+Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; and response boundaries as non-terminal.
