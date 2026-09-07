@@ -1,32 +1,27 @@
 {
-  "ascii_sheet_sha256": "e1428e38fdd02f8d4b43c0107af068097e8fc05bdf0fa20cfa6b683a93772154",
+  "ascii_sheet_sha256": "9025f79ffa9f50db62faf921cf7b4f5d1fb0d4cbf60f18dd70a366a285e82970",
   "axis_separation": {
-    "effect_axis": "no separate effect clock is promoted from this source; unsupported effect timing fails closed",
-    "parent_transform_axis": "external platform world translation is a separate deterministic channel and may advance while a passenger-local key is held",
-    "temporal_axis": "passenger-local load-bearing states: neutral, counterlean onset, peak, hold, release, recovery",
-    "variant_configuration_axis": "source-cell presentation/local-extent differences are product-space evidence until chronology is established; they are not counted as timing samples"
+    "effect": "none promoted; fail closed",
+    "parent_transform": "platform world motion is independent and may update inside a held local key",
+    "temporal": "passenger local load-bearing state",
+    "variant_config": "source presentation differences do not buy time without chronology"
   },
   "clock_channels": [
     {
-      "authority": "authored compile profile",
-      "clock_id": "PLATFORM_CLOCK",
-      "kind": "TEMPORAL_PARENT_TRANSFORM",
-      "note": "world translation/deceleration profile; parent displacement may update without a passenger-local key",
+      "clock_id": "PLATFORM",
+      "kind": "PARENT_TRANSFORM",
       "timing_provenance": "INFERRED"
     },
     {
-      "authority": "decisive ASCII keys",
-      "clock_id": "PASSENGER_LOCAL_CLOCK",
-      "kind": "TEMPORAL_LOCAL_RIG",
-      "note": "re-keys only when local support-load/root constraints change",
+      "clock_id": "LOCAL",
+      "kind": "PASSENGER_LOCAL",
       "timing_provenance": "INFERRED"
     },
     {
-      "authority": "decisive key metadata",
-      "clock_id": "CONTACT_TOPOLOGY",
+      "clock_id": "CONTACT",
       "kind": "STATE_AXIS_NOT_CLOCK",
-      "note": "BILATERAL_PLATFORM_CONTACT remains constant for all decisive keys; it is intentionally distinct from support load",
-      "timing_provenance": "INFERRED"
+      "timing_provenance": "INFERRED",
+      "value": "BILATERAL_PLATFORM_CONTACT"
     }
   ],
   "compatibility": {
@@ -43,7 +38,7 @@
   "compile": {
     "authored_hold_frames_per_cycle": 16,
     "connective_frames_per_cycle": 0,
-    "connective_policy": "FAIL_CLOSED_NONE for passenger semantics; platform world offset updates deterministically inside declared holds and cannot alter passenger contacts/root meaning",
+    "connective_policy": "FAIL_CLOSED_NONE for passenger semantics; deterministic parent transform may update inside holds",
     "fps": 24,
     "hold_frames_by_class": {
       "FOURS": 4,
@@ -51,226 +46,149 @@
       "TWOS": 2
     },
     "loop_repetitions": 1,
-    "media_bytes": 4828,
-    "media_sha256": "2f514bc6ff6ac48aa7cd1aa789ef6752868eb9da53726fd897a6386e9eb0c0fe",
-    "parent_transform_updates_are_not_child_keys": true,
+    "media_bytes": 3025,
+    "media_sha256": "10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613",
     "semantic_frames_per_cycle": 16,
-    "video_frames_total": 16,
-    "video_source": "abstract_ascii_rig_only"
+    "video_frames_total": 16
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ],
   "experiment_id": "v2-timing-003-inertial-join-sparse-rekey",
   "format_version": 2,
   "keys": [
     {
-      "causal_role": "stable local state / prove parent travel can occur during one held child key",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "NEUTRAL",
-        "PLATFORM_CLOCK": "CONSTANT_VELOCITY",
-        "SUPPORT_LOAD": "NEUTRAL"
+      "causal_role": "stable parent-travel hold",
+      "clock": {
+        "LOAD": "NEUTRAL",
+        "LOCAL": "NEUTRAL",
+        "PLATFORM": "CRUISE"
       },
       "key_id": "T003-K0",
-      "motion_arc_root_note": "passenger local root centered; external platform translates +X at constant authored velocity; parent displacement alone does not create a child key",
+      "motion_arc_root_note": "local root neutral; parent +X constant velocity; distance alone buys no child key",
       "name": "CRUISE_NEUTRAL",
-      "parent_world_step_cols": [0,1,2,3],
+      "parent_step": [
+        0,
+        1,
+        2,
+        3
+      ],
       "pose_rig": {
-        "joints": {
-          "head": [26,5],
-          "left_foot": [22,16],
-          "left_hand": [21,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [31,10],
-          "right_knee": [29,13],
-          "root": [26,11],
-          "spine": [26,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [
+          [18,8],[18,6],[18,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]
+        ],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "FOURS",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "INERTIAL_JOIN onset / load change earns local re-key without contact change",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "COUNTERLEAN_ONSET",
-        "PLATFORM_CLOCK": "DECEL_ONSET",
-        "SUPPORT_LOAD": "FORWARD_SHEAR"
+      "causal_role": "INERTIAL_JOIN onset",
+      "clock": {
+        "LOAD": "FORWARD_SHEAR",
+        "LOCAL": "LEAN_ONSET",
+        "PLATFORM": "DECEL_ONSET"
       },
       "key_id": "T003-K1",
-      "motion_arc_root_note": "same contact graph; authored platform deceleration introduces +X shear demand; torso counterleans -X while feet remain planted",
+      "motion_arc_root_note": "same contacts; authored decel changes shear load; torso counterleans",
       "name": "BRAKE_ONSET",
-      "parent_world_step_cols": [4,5],
+      "parent_step": [4,5],
       "pose_rig": {
-        "joints": {
-          "head": [24,5],
-          "left_foot": [22,16],
-          "left_hand": [20,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [30,9],
-          "right_knee": [29,13],
-          "root": [26,11],
-          "spine": [25,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[18,8],[17,6],[16,3],[13,7],[21,6],[16,10],[20,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "TWOS",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "transient information spike / peak inertial response",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "COUNTERLEAN_PEAK",
-        "PLATFORM_CLOCK": "DECEL_PEAK",
-        "SUPPORT_LOAD": "FORWARD_SHEAR_PEAK"
+      "causal_role": "transient load spike",
+      "clock": {
+        "LOAD": "SHEAR_PEAK",
+        "LOCAL": "LEAN_PEAK",
+        "PLATFORM": "DECEL_PEAK"
       },
       "key_id": "T003-K2",
-      "motion_arc_root_note": "maximum authored counterlean while contact topology remains bilateral; root relationship shifts locally against the load vector",
+      "motion_arc_root_note": "peak counterlean with bilateral contact unchanged",
       "name": "BRAKE_PEAK",
-      "parent_world_step_cols": [6],
+      "parent_step": [6],
       "pose_rig": {
-        "joints": {
-          "head": [23,5],
-          "left_foot": [22,16],
-          "left_hand": [19,9],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [29,8],
-          "right_knee": [29,13],
-          "root": [27,11],
-          "spine": [25,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[19,8],[17,6],[15,3],[12,6],[21,5],[17,10],[21,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "ONES",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "sustained load-bearing consequence / dwell on resistance",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "COUNTERLEAN_HOLD",
-        "PLATFORM_CLOCK": "DECEL_HOLD",
-        "SUPPORT_LOAD": "FORWARD_SHEAR"
+      "causal_role": "sustained load consequence",
+      "clock": {
+        "LOAD": "FORWARD_SHEAR",
+        "LOCAL": "LEAN_HOLD",
+        "PLATFORM": "DECEL_HOLD"
       },
       "key_id": "T003-K3",
-      "motion_arc_root_note": "deceleration persists; passenger retains a readable counterlean rather than receiving decorative in-betweens",
+      "motion_arc_root_note": "decel persists; hold readable resistance instead of adding in-betweens",
       "name": "BRAKE_HOLD",
-      "parent_world_step_cols": [7,7],
+      "parent_step": [7,7],
       "pose_rig": {
-        "joints": {
-          "head": [24,5],
-          "left_foot": [22,16],
-          "left_hand": [19,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [29,9],
-          "right_knee": [29,13],
-          "root": [27,11],
-          "spine": [25,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[19,8],[17,6],[16,3],[12,7],[21,6],[17,10],[21,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "TWOS",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "release event / load vector changes again without contact topology change",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "RELEASED_LEAN",
-        "PLATFORM_CLOCK": "ZERO_ACCEL_RETURN",
-        "SUPPORT_LOAD": "NEUTRALIZING"
+      "causal_role": "load release",
+      "clock": {
+        "LOAD": "NEUTRALIZING",
+        "LOCAL": "LEAN_RELEASE",
+        "PLATFORM": "ZERO_ACCEL"
       },
       "key_id": "T003-K4",
-      "motion_arc_root_note": "platform acceleration returns to zero; support load normalizes before the passenger has fully restacked",
+      "motion_arc_root_note": "acceleration returns zero; load normalizes before full restack",
       "name": "BRAKE_RELEASE",
-      "parent_world_step_cols": [8],
+      "parent_step": [8],
       "pose_rig": {
-        "joints": {
-          "head": [25,5],
-          "left_foot": [22,16],
-          "left_hand": [20,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [30,9],
-          "right_knee": [29,13],
-          "root": [27,11],
-          "spine": [26,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[19,8],[18,6],[17,3],[13,7],[22,7],[17,10],[21,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "ONES",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "recovery / restore neutral load-bearing organization",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "RECOVERING",
-        "PLATFORM_CLOCK": "CONSTANT_VELOCITY",
-        "SUPPORT_LOAD": "NEUTRAL"
+      "causal_role": "recovery",
+      "clock": {
+        "LOAD": "NEUTRAL",
+        "LOCAL": "RECOVER",
+        "PLATFORM": "CRUISE"
       },
       "key_id": "T003-K5",
-      "motion_arc_root_note": "local root restacks toward neutral while platform resumes constant-velocity travel",
+      "motion_arc_root_note": "local root restacks while parent resumes constant velocity",
       "name": "RECOVER",
-      "parent_world_step_cols": [9,10],
+      "parent_step": [9,10],
       "pose_rig": {
-        "joints": {
-          "head": [25,5],
-          "left_foot": [22,16],
-          "left_hand": [21,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [31,10],
-          "right_knee": [29,13],
-          "root": [26,11],
-          "spine": [26,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[18,8],[18,6],[17,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "TWOS",
       "timing_provenance": "INFERRED"
     },
     {
-      "causal_role": "stable end state / expose restored phase and reuse",
-      "clock_state": {
-        "PASSENGER_LOCAL_CLOCK": "NEUTRAL",
-        "PLATFORM_CLOCK": "CONSTANT_VELOCITY",
-        "SUPPORT_LOAD": "NEUTRAL"
+      "causal_role": "stable restored hold",
+      "clock": {
+        "LOAD": "NEUTRAL",
+        "LOCAL": "NEUTRAL",
+        "PLATFORM": "CRUISE"
       },
       "key_id": "T003-K6",
-      "motion_arc_root_note": "neutral passenger local pose reused while parent continues +X travel; no child re-key for distance alone",
+      "motion_arc_root_note": "neutral local pose reused while parent continues +X travel",
       "name": "CRUISE_RESTORED",
-      "parent_world_step_cols": [11,12,13,14],
+      "parent_step": [11,12,13,14],
       "pose_rig": {
-        "joints": {
-          "head": [26,5],
-          "left_foot": [22,16],
-          "left_hand": [21,10],
-          "left_knee": [23,13],
-          "right_foot": [30,16],
-          "right_hand": [31,10],
-          "right_knee": [29,13],
-          "root": [26,11],
-          "spine": [26,8]
-        },
-        "rig_id": "abstract_platform_passenger_C1"
+        "j": [[18,8],[18,6],[18,3],[14,7],[22,7],[16,10],[20,10],[15,12],[21,12]],
+        "rig_id": "platform_passenger_C2"
       },
       "support_contact": "BILATERAL_PLATFORM_CONTACT",
       "timing_class": "FOURS",
@@ -280,18 +198,17 @@
   "lane": "timing",
   "manifest": {
     "format_version": 2,
-    "media_bytes": 4828,
-    "media_sha256": "2f514bc6ff6ac48aa7cd1aa789ef6752868eb9da53726fd897a6386e9eb0c0fe",
+    "media_bytes": 3025,
+    "media_sha256": "10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613",
     "primary_tabs": ["ASCII","JSON","VIDEO"],
     "schema": "ascii-kinesis.swarm-manifest.v2",
     "status": "BUILT",
     "video_source": "abstract_ascii_rig_only"
   },
   "rig": {
-    "description": "generic Blender-style ASCII biped parented to an abstract moving platform; no source-character silhouette",
-    "joints": ["root","spine","head","left_hand","right_hand","left_knee","right_knee","left_foot","right_foot"],
-    "parent": "abstract_platform",
-    "rig_id": "abstract_platform_passenger_C1"
+    "description": "independently authored generic Blender-style ASCII biped on abstract moving platform",
+    "joint_order": ["root","spine","head","lh","rh","lk","rk","lf","rf"],
+    "rig_id": "platform_passenger_C2"
   },
   "schema": "ascii-kinesis.motion.v2",
   "source": {
@@ -299,44 +216,39 @@
     "game": "Sunky's Schoolhouse",
     "name": "Dr Robuttnik (Elevator)",
     "observed": [
-      "TSR currently identifies the source as Dr Robuttnik (Elevator), Sunky's Schoolhouse, PC / Computer, a 4480x360 PNG.",
-      "The owning PoseLab v1.7 exact-custody record establishes the full source as a 32,657-byte RGBA PNG with SHA-256 1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca.",
-      "That full-sheet custody record inspected the whole 4480x360 sheet as seven equal 640-pixel cells.",
-      "Across the inspected cells, opaque material reaches a common lower sheet boundary while local occupied extent changes.",
-      "The source is a static sheet; spatial cell order is not treated as playback chronology."
+      "TSR identity and 4480x360 static PNG metadata",
+      "PoseLab v1.7 exact-custody record: full-sheet bytes/hash; seven equal 640px cells inspected; common lower boundary with changing local occupied extent"
     ],
     "page_url": "https://www.spriters-resource.com/pc_computer/sunkysschoolhouse/asset/191044/",
     "platform": "PC / Computer",
-    "rights_note": "Copyrighted source sheet is analysis evidence only. No source pixels, palette, contours, layout, frame drawings, tracing, redistribution, or close imitation are stored or rendered. The specimen preserves only abstract timing/reference-frame/support-load principles in an independently authored ASCII rig.",
+    "rights_note": "Copyrighted sheet is analysis evidence only; no source pixels, palette, contours, layout, tracing, redistribution, or close imitation are stored/rendered.",
     "sheet": {
       "bytes": 32657,
       "format": "PNG",
       "height": 360,
-      "inspection_note": "Current run re-read the owning PoseLab v1.7 exact whole-sheet custody/inspection record and refreshed the TSR source-page metadata. Historical pass is evidence only; this repo SPA is the V2 product.",
       "raw_sha256": "1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca",
       "whole_sheet_inspected": true,
       "width": 4480
     },
     "site": "The Spriters Resource",
-    "source_timing_available": false,
     "source_timing_observed": "NONE",
     "unknown": [
       "source playback order",
-      "per-cell exposure duration",
-      "source velocity or acceleration",
-      "support-force magnitude or direction",
-      "source root path",
-      "source cadence or hit-stop"
+      "per-cell exposure",
+      "source velocity/acceleration",
+      "support-force vector",
+      "root path",
+      "cadence/hit-stop"
     ]
   },
-  "thesis": "Parent translation does not spend passenger-local timing bandwidth. With unchanged bilateral contact, only a material authored support-load change earns a new local key.",
+  "thesis": "Parent translation does not spend passenger-local timing bandwidth; unchanged bilateral contact may persist while a support-load change earns a local re-key.",
   "timing_doctrine": {
-    "FOURS": "one drawing/key held four display frames",
-    "ONES": "new drawing/key sample every display frame",
-    "STREET_FIGHTER/CAPCOM": "nonuniform gameplay timing may mix anticipation holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, and selective sampling; inferred timing is never reported as source-authentic",
-    "TWOS": "one drawing/key held two display frames",
+    "FOURS": "hold key 4 display frames",
+    "ONES": "new key every display frame",
+    "STREET_FIGHTER/CAPCOM": "nonuniform authored gameplay timing; may mix holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, selective sampling; INFERRED durations are never source-authentic",
+    "TWOS": "hold key 2 display frames",
     "nominal_24fps_samples_per_second": {"FOURS":6,"ONES":24,"TWOS":12},
-    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+    "shorthand": "1s/2s/4s = ONES/TWOS/FOURS, never seconds"
   },
   "title": "Inertial Join Sparse Rekey"
 }
