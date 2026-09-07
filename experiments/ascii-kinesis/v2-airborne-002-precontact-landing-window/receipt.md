@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 — Airborne 002 — Precontact Landing Window
 
-Status: RENDERED_PHONE_CANONICAL / PENDING_REPOSITORY_SPA_PERSISTENCE
+Status: REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY
 
 Source: The Spriters Resource — Sonic the Hedgehog — Sonic Battle — Game Boy Advance — asset 10039
 Source page: https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/
@@ -33,8 +33,10 @@ Motion Dungeon: authored ASCII keys -> explicit holds/timing -> semantics-preser
 Canonical Standard-Chat phone compile: embedded MP4 (builder output name `precontact-landing-window.mp4`) — 51386 bytes — SHA-256 `b59b6af02263ab1341e93ac0146d1f7b8b8e4000068ecb9ecdba02d56d0d9436` — 72 frames @ 24 fps.
 ASCII authority SHA-256: `c548bc67e92053438ac781cbb8e6bfb6ae1722c347226c8c5b5183d4ba6794c7`.
 Repository path: `experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/`
-Ship commit: PENDING_FIRST_PERSISTENCE
+Ship commit: ea3cc2501beb03b09a85a897b783ff884a024b67
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
 
 Packaging note: the MP4 is authoritative inside the tracked self-contained SPA; `build.py` deterministically reconstructs the standalone MP4 from `motion.json`. No source pixels enter either render.
+
+Contract test boundary: `tools/test_ascii_kinesis_swarm_contract_v2.py` executed at ship commit ea3cc2501beb03b09a85a897b783ff884a024b67 and stopped on pre-existing `v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`. This airborne entry itself has exactly one tracked `*.motion.html`; the global red is outside this lane.

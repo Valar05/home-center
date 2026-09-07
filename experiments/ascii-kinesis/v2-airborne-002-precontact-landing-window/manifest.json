@@ -3,24 +3,71 @@
   "ascii_sheet_sha256": "c548bc67e92053438ac781cbb8e6bfb6ae1722c347226c8c5b5183d4ba6794c7",
   "ascii_surface": "real preformatted DOM text",
   "backward_compatible": true,
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "experiment_id": "v2-airborne-002-precontact-landing-window",
-  "files": ["build.py","manifest.json","motion.json","receipt.md","precontact-landing-window.motion.html"],
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "precontact-landing-window.motion.html"
+  ],
   "format_version": 2,
   "lane": "airborne",
   "ligatures_disabled": true,
   "media_bytes": 51386,
   "media_filename": "precontact-landing-window.mp4",
   "media_sha256": "b59b6af02263ab1341e93ac0146d1f7b8b8e4000068ecb9ecdba02d56d0d9436",
-  "motion_dungeon": {"ascii_only_frame_render":true,"authored_ascii_keys":11,"connector_semantics_fail_closed":true,"deterministic_connective_motion":true,"explicit_holds":true,"fps":24,"loop_repetitions":2,"semantic_frames_per_loop":36,"video_dimensions":[640,360],"video_frames_total":72},
-  "primary_tabs": ["ASCII","JSON","VIDEO"],
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "semantic_frames_per_loop": 36,
+    "video_dimensions": [
+      640,
+      360
+    ],
+    "video_frames_total": 72
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "ship_commit": "PENDING_FIRST_PERSISTENCE",
-  "source": {"asset_id":10039,"page_url":"https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/","reported_dimensions":[1150,2660],"reported_size":"268.03 KB","site":"The Spriters Resource","source_timing_available":false,"whole_sheet_inspected":true,"whole_sheet_visual_url":"https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454"},
+  "ship_commit": "ea3cc2501beb03b09a85a897b783ff884a024b67",
+  "source": {
+    "asset_id": 10039,
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
+    "reported_dimensions": [
+      1150,
+      2660
+    ],
+    "reported_size": "268.03 KB",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true,
+    "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454"
+  },
   "source_art_embedded": false,
-  "status": "RENDERED_PHONE_CANONICAL",
+  "status": "REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
   "video_packaging": "embedded MP4 data URI in tracked SPA; builder deterministically reconstructs precontact-landing-window.mp4",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
