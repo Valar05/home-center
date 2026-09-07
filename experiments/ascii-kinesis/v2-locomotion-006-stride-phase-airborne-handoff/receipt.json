@@ -1,0 +1,48 @@
+{
+  "schema": "ascii-kinesis.swarm-receipt.v2",
+  "experiment_id": "v2-locomotion-006-stride-phase-airborne-handoff",
+  "status": "QUALITY_GATES_PASS_AWAITING_REPO_READBACK",
+  "repo_path": "experiments/ascii-kinesis/v2-locomotion-006-stride-phase-airborne-handoff/",
+  "source": {"identity": "Mario & Luigi — Super Mario Bros. 3 — NES — asset 4230", "url": "https://www.spriters-resource.com/nes/supermariobros3/asset/4230/"},
+  "rights_note": "Copyright-restricted commercial-game sprite art used as study evidence only. No source pixels, palette, contours, costume, character proportions, sheet layout, frame arrangement, tracing, redistribution, or close imitation is embedded. Every pose, joint coordinate, ASCII mark, contact state, root path, timing choice, transition, and video frame is independently authored abstract rig data.",
+  "timing_split": {"OBSERVED": 0, "INFERRED": 9},
+  "per_key_timing": [
+    {"key_id":"K0","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K1","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K2","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K3","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K4","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K5","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K6","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"K7","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K8","timing_class":"FOURS","timing_provenance":"INFERRED"}
+  ],
+  "media_sha256": "f4c1d2b3b628c98d1ed0f312e330f83810816e01e7884b729c53f1e90500304a",
+  "media_bytes": 15422,
+  "tango": {
+    "status": "SATISFIED",
+    "criteria": ["SILHOUETTE_CLEAR","LOAD_TRANSFER_VISIBLE","CONTACT_SUPPORT_READABLE","FOLLOW_THROUGH_WHERE_APPLICABLE","RECOVERY","COST_CARRIED"],
+    "inspection_history": [
+      {"iteration":1,"inspect":"Rendered 3x3 decisive-key montage from the actual ASCII-rig MP4.","highest_value_visible_defect":"K3/K4 airborne silhouettes were too bilateral and K4 read as a generic T-pose tuck; travel intent and carried momentum weakened at the apex.","bounded_correction":"Re-authored only K3/K4 arm and leg asymmetry while preserving root coordinates, NO_SUPPORT truth, timing classes, and ballistic state sequence.","verdict":"RERENDER_REQUIRED"},
+      {"iteration":2,"inspect":"Rerendered the actual MP4 after the K3/K4 asymmetry correction and inspected the complete decisive-key sequence as extracted video frames.","highest_value_visible_defect":"No material defect remained: support marks are legible, root arc rises/falls continuously, K5 reach remains NO_SUPPORT, K6 catch visibly acquires left support without stopping root travel, K7 pays landing cost through compression, and K8 recovers before the next stride.","bounded_correction":"None; further edits would add detail rather than repair locomotion truth.","verdict":"SATISFIED"}
+    ]
+  },
+  "noodle_queen": {
+    "status": "INSPECT_CONSIDER_COMPLETE",
+    "verdict": "PASS",
+    "taste_function_contempt": {
+      "TASTE": "PASS — the specimen has a specific support-handoff idea rather than a generic jump loop; the asymmetric airborne keys carry direction and intent.",
+      "FUNCTION": "PASS — takeoff contact, unsupported travel, landing probe, catch, absorption, and recovery are causally readable; root movement does not teleport at either ownership boundary.",
+      "CONTEMPT": "PASS — no decorative tween sludge, no source-derived costume/silhouette, no fake contact, and no free recovery; the landing visibly costs posture and time."
+    },
+    "visible_reasons": [
+      "K1 lowers and advances the pelvis over the same planted right support, making anticipation/load visible.",
+      "K2 keeps right support until the final release key; K3 begins airborne only after that contact is gone.",
+      "K5 places the reaching left foot near ground while still explicitly NO_SUPPORT, separating reach from ownership.",
+      "K6 acquires left support while the root continues forward; K7 compresses on that same support before K8 re-stacks.",
+      "The root path and spacing carry momentum through the full chain, so the motion reads as travel rather than pose swapping."
+    ]
+  },
+  "test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py was inspected. Construction-space isolated equivalent checks are recorded separately; VERIFIED additionally requires exact remote repository persistence/readback. Full-repository suite is not claimed unless an authorized repository runtime is actually invoked.",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
+}
