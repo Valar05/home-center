@@ -9,10 +9,7 @@
   "media": {
     "bytes": 9133,
     "codec": "H.264",
-    "dimensions": [
-      320,
-      180
-    ],
+    "dimensions": [320, 180],
     "duration_s": 1.666667,
     "embedded_in_spa": true,
     "fps": 24,
@@ -24,12 +21,9 @@
     "tracked_motion_mp4_form": "git_lfs"
   },
   "motion": "motion.json",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "receipt": "receipt.json",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
   "schema": "ascii-kinesis.v2.manifest",
   "source": {
     "author": "TheContreOfficial",
@@ -40,11 +34,13 @@
   },
   "source_art_embedded": false,
   "spa": "shove-it-dual-clock-recapture.motion.html",
-  "status": "BUILT_TESTED_PENDING_REPO_READBACK",
+  "status": "VERIFIED_AFTER_POSTWRITE_READBACK",
   "validation": {
-    "candidate_result": "PASS_PENDING_REPO_READBACK",
+    "candidate_result": "PASS",
     "contract_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "global_result": "UNRELATED_EXISTING_FAILURE_v2-contact-004-latent-contact-eligibility_missing_motion_html",
+    "repo_readback_commit": "b3cc812d56465ad83d175457755bfce1efc44587",
+    "repo_readback_result": "PASS_EXACT_7_FILES_ONE_MOTION_HTML_TABS_ASCII_JSON_VIDEO_EMBEDDED_MP4_LFS_OID_MATCH",
     "video_decode": "H.264 yuv420p 320x180 24fps 40 frames 1.666667s"
   },
   "video": "motion.mp4",
