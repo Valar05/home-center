@@ -1,0 +1,87 @@
+K0 ROLL_READY [FOURS/INFERRED]             K1 COIL [FOURS/INFERRED]                
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                  O                                                                
+                  |                                                                
+                  |                                         O                      
+                //|\                                       \                      
+              +-  |  -+                                     \\                     
+                  @                                        / |\\                   
+                  /                                       /  |  -+                 
+                 / \                                     +   @                     
+                 / \                                        / \                    
+                |   |                                       / \                    
+                +   +                                      +   +                   
+             =====#=====                                =====#=====                
+________________________________________   ________________________________________
+                                                                                   
+SUP:BOARD_TO_GROUND_STABLE                 SUP:BOARD_TO_GROUND_STABLE              
+ROOT:Root tall and centered over the rol   ROOT:Root drops and trails slightly; ant
+
+K2 POP_AND_RELEASE [ONES/INFERRED]         K3 AIRBORNE_SEPARATION [ONES/INFERRED]  
+                                                                                   
+                                                                                   
+                                                             O                     
+                  O                                          |                     
+                  |                                         /|\                    
+                //|----+                                  // | \\                  
+             +--  |                                     +-   |   -+                
+                  |                                          @                     
+                  @                                         / \                    
+                 / \                                       /   \                   
+                 / \                                      \/   \                   
+                |   |                                     +\    +                  
+                +   +                                       \                      
+             ==                                             \                      
+               ==                                            #                     
+                 =#=                                          \                    
+________________________________________   ________________________________________
+                      ==                                       \                   
+SUP:SUPPORT_RELEASE_AUTHORED               SUP:AIRBORNE_NO_GROUND_SUPPORT          
+ROOT:Root accelerates upward; hands coun   ROOT:Root continues upward while board o
+
+K4 BOARD_CLOCK_LEADS [ONES/INFERRED]       K5 RECAPTURE_WINDOW [TWOS/INFERRED]     
+                                                                                   
+                                                                                   
+                   O                                                               
+                   |                                           O                   
+                 //|                                           |                   
+              +--  |\\                                        /|\                  
+                   |  \\                                    // | \\                
+                   @    +                                 +-   |   -+              
+                  / \                                          @                   
+                 / \ \                                         /                   
+                +  \  +                                       / \                  
+                   \                                          / \                  
+                   \                                         |   | \\              
+                   \                                         +   +\                
+                   #                                          \#\                  
+                   \                                        \\                     
+________________________________________   ________________________________________
+                   \                                                               
+SUP:AIRBORNE_NO_GROUND_SUPPORT             SUP:BOARD_CONTACT_REACQUIRED_GROUND_NOT_
+ROOT:Root reaches a shallow apex; board    ROOT:Root descends; board orientation co
+
+K6 LAND_COMPRESSION [FOURS/INFERRED]       K7 RIDE_AWAY [FOURS/INFERRED]           
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                  O                
+                     O                                            |                
+                     |                                            |                
+                     |                                          //|\\              
+                   //|\\                                      +-  |  -+            
+                 +-  |  -+                                        @                
+                     @                                            /                
+                    / \                                          / \               
+                    / \                                          / \               
+                   |   |                                        |   |              
+                   +   +                                        +   +              
+                =====#=====                                  =====#=====           
+________________________________________   ________________________________________
+                                                                                   
+SUP:BOARD_TO_GROUND_STABLE                 SUP:BOARD_TO_GROUND_STABLE              
+ROOT:Root catches low; knees bend while    ROOT:Root re-stacks over the board and e
