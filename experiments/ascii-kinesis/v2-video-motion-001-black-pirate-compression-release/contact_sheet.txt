@@ -1,0 +1,70 @@
+ASCII KINESIS V2 · VIDEO MOTION 001 · COMPRESSION → RELEASE → COUNTER-ARC
+Source evidence: He'll walk the plank.webm · coherent segment 15.000–18.750 s
+Legend: O=head  |=spine  @=root/pelvis proxy  = long prop/constraint axis  ?=unresolved support/contact
+        << root travel toward screen-left   ----> trailing upper-limb counter-arc
+
+K0 · 15.000 s · OBSERVED · SET / TENSION
+      OA                         OB
+      |\=======================/|
+      @                         @
+     / \                       / ?
+____/___\_____________________/___?____
+A root quiet; B low/right; wide spacing.
+
+K1 · 16.000 s · OBSERVED · RISE / CLOSE
+      OA                    OB
+      |\===================/|
+      @                    @  <<
+     / \                  / ?
+____/___\________________/___?________
+B root rises + travels left; A remains anchor-like.
+
+K2 · 17.000 s · OBSERVED · COMPRESSION
+      OA              OB
+      |\==============/|
+      @               @ <<
+     / \             / ?
+____/___\___________/___?____________
+Spacing collapses; B support side remains unresolved.
+
+K3 · 17.750 s · OBSERVED · MAX COMPRESSION
+      OA          OB
+      |\==========/|
+      @           @
+     / \         / ?
+____/___\_______/___?________________
+Near-maximum compression before the fast transition.
+
+K4 · ~17.917 s · OBSERVED · BURST MARKER
+      OA       OB
+      |\======/|
+      @ <<<<  @
+____/___\__?_________________________
+Measured native-frame image-change peak; no discrete collision is claimed.
+
+K5 · 18.250 s · OBSERVED · PASS-THROUGH / OVERLAP
+      OAO B
+      |X| 
+      @ <@  <<
+____/___?____________________________
+Silhouettes overlap/cross; B continues leftward through compressed spacing.
+
+K6 · 18.750 s · OBSERVED · FOLLOW-THROUGH
+    OB  OA  ---->
+    |\  /|
+    @    @
+___?____/ \__________________________
+B has crossed left of A; trailing upper limb counter-arcs screen-right.
+Recovery has begun but is incomplete.
+
+TIMING PROVENANCE
+K0 15.000 OBSERVED · ordered visual sample
+K1 16.000 OBSERVED · ordered visual sample
+K2 17.000 OBSERVED · ordered visual sample
+K3 17.750 OBSERVED · ordered visual sample
+K4 ~17.917 OBSERVED · native-frame numeric change peak, visually bracketed
+K5 18.250 OBSERVED · ordered visual sample
+K6 18.750 OBSERVED · ordered visual sample
+
+UNRESOLVED BY DESIGN
+Exact B foot support side · exact hand/prop contact endpoints · actor driving/yielding role · discrete impact event.
