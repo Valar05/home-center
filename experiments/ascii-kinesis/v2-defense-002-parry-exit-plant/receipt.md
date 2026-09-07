@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 Defense 002 — receipt
 
-Status: PHONE_RUNTIME_BUILT / PENDING PUSH + REPO READBACK
+Status: REPO_VERIFIED / USER_SURFACE_READY
 
 ## Product
 - Repo target: `experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/`
@@ -48,10 +48,14 @@ Transitions interpolate geometry only when support/contact/root/guard/readiness 
 - semantic frames per loop: `17`
 - loop repetitions: `4`
 - ASCII sheet SHA-256: `48d4a84a42b46c762e759b57a5e14d8ce845eaf0af257348df8bf832a593473c`
-- authoritative phone-runtime build: embedded MP4 hash matches motion.json; ffprobe confirms H.264 640×360, 24 fps, 68 frames. Repository readback remains the completion proof.
+- primary-phone runtime verification: embedded MP4 hash matched `motion.json`; ffprobe decoded H.264 640×360, 24 fps, 68 frames.
 
-## Contract-test boundary before persistence
-The new entry satisfies the exact entry-level structural predicates from `tools/test_ascii_kinesis_swarm_contract_v2.py` in construction preflight. The repository-wide test is known from current issue truth to stop first on the pre-existing `v2-defense-001-guard-support-fork` defect (`expected exactly one tracked *.motion.html SPA`). This run will execute the repository test through an authorized runtime when callable after persistence and preserve the resulting boundary; it will not mutate the older 001 entry because this commission permits exactly one NEW example.
+## Verification / exact boundary
+- Ship-content commit `7547fc76fffcff00f71a0f3750a22111cf794bcf` was pushed through the authorized Home Center -> primary-phone runtime and read back from GitHub. The directory contains exactly the commissioned tracked product files: `build.py`, `manifest.json`, `motion.json`, `receipt.md`, and one `parry-exit-plant.motion.html` SPA.
+- Exact-commit manifest readback confirms V2 format, exact `ASCII | JSON | VIDEO` tabs, literal ASCII, embedded-video requirement, abstract-ASCII-only media source, no source art, backward compatibility, source identity, and media SHA-256.
+- Exact-commit motion readback confirms eight decisive keys, per-key timing class/provenance, topology-safe connector rule, Motion Dungeon facts, source/rights evidence split, and the same authoritative media SHA-256.
+- `tools/test_ascii_kinesis_swarm_contract_v2.py` was executed on primary-phone after push. It exits `1` at the pre-existing unrelated repository defect: `ASCII_KINESIS_V2_CONTRACT_FAIL: v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`.
+- This run did not alter or route around `v2-defense-001`; the global suite remains red on that earlier specimen. The new `v2-defense-002` specimen itself passed its entry-level structural/media checks before push and its tracked files survived repository readback.
 
 ## Correction hooks
 KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
