@@ -1,0 +1,284 @@
+UAPL 1
+NAME backward_stairs_diagonal_hip_shift
+AXES X=right Y=up Z=forward
+RIG human_noodle
+JOINT pelvis ROOT
+JOINT chest pelvis
+JOINT head chest
+JOINT head_tip head
+JOINT l_shoulder chest
+JOINT l_hand l_shoulder
+JOINT r_shoulder chest
+JOINT r_hand r_shoulder
+JOINT l_knee pelvis
+JOINT l_foot l_knee
+JOINT r_knee pelvis
+JOINT r_foot r_knee
+POSE DESC_LOOK
+pelvis 23 -7 0
+chest 22 -4 0
+head 21 -2 0
+head_tip 23 -2 0
+l_shoulder 20 -4 -1
+l_hand 18 -7 -2
+r_shoulder 24 -4 1
+r_hand 26 -7 2
+l_knee 21 -9 -1
+l_foot 20 -11 -1
+r_knee 25 -9 1
+r_foot 26 -11 1
+ENDPOSE
+POSE DESC_PROBE_1
+pelvis 26 -8 0
+chest 24 -5 0
+head 23 -3 0
+head_tip 22 -4 0
+l_shoulder 22 -5 -1
+l_hand 20 -8 -2
+r_shoulder 26 -5 1
+r_hand 28 -8 2
+l_knee 24 -10 -1
+l_foot 23 -12 -1
+r_knee 28 -11 1
+r_foot 31 -15 1
+ENDPOSE
+POSE DESC_LOAD_1
+pelvis 31 -11 0
+chest 29 -8 0
+head 28 -6 0
+head_tip 27 -7 0
+l_shoulder 27 -8 -1
+l_hand 25 -11 -2
+r_shoulder 31 -8 1
+r_hand 33 -11 2
+l_knee 29 -13 -1
+l_foot 29 -15 -1
+r_knee 33 -14 1
+r_foot 34 -16 1
+ENDPOSE
+POSE DESC_RECOVER_1
+pelvis 34 -11 0
+chest 32 -8 0
+head 31 -6 0
+head_tip 30 -7 0
+l_shoulder 30 -8 -1
+l_hand 28 -11 -2
+r_shoulder 34 -8 1
+r_hand 36 -11 2
+l_knee 32 -13 -1
+l_foot 32 -15 -1
+r_knee 36 -13 1
+r_foot 37 -15 1
+ENDPOSE
+POSE DESC_PROBE_2
+pelvis 37 -12 0
+chest 35 -9 0
+head 34 -7 0
+head_tip 33 -8 0
+l_shoulder 33 -9 -1
+l_hand 31 -12 -2
+r_shoulder 37 -9 1
+r_hand 39 -12 2
+l_knee 35 -14 -1
+l_foot 34 -16 -1
+r_knee 39 -15 1
+r_foot 43 -19 1
+ENDPOSE
+POSE DESC_LOAD_2
+pelvis 42 -15 0
+chest 40 -12 0
+head 39 -10 0
+head_tip 38 -11 0
+l_shoulder 38 -12 -1
+l_hand 36 -15 -2
+r_shoulder 42 -12 1
+r_hand 44 -15 2
+l_knee 40 -17 -1
+l_foot 40 -19 -1
+r_knee 44 -18 1
+r_foot 45 -20 1
+ENDPOSE
+POSE DESC_PROBE_3
+pelvis 47 -16 0
+chest 45 -13 0
+head 44 -11 0
+head_tip 43 -12 0
+l_shoulder 43 -13 -1
+l_hand 41 -16 -2
+r_shoulder 47 -13 1
+r_hand 49 -16 2
+l_knee 45 -18 -1
+l_foot 44 -20 -1
+r_knee 49 -19 1
+r_foot 55 -23 1
+ENDPOSE
+POSE BOTTOM_HOLD
+pelvis 53 -20 0
+chest 51 -17 0
+head 50 -15 0
+head_tip 49 -16 0
+l_shoulder 49 -17 -1
+l_hand 47 -20 -2
+r_shoulder 53 -17 1
+r_hand 55 -20 2
+l_knee 51 -22 -1
+l_foot 50 -24 -1
+r_knee 55 -22 1
+r_foot 56 -24 1
+ENDPOSE
+POSE TURN
+pelvis 54 -20 0
+chest 54 -17 0
+head 55 -15 0
+head_tip 57 -15 0
+l_shoulder 52 -17 -1
+l_hand 50 -20 -2
+r_shoulder 56 -17 1
+r_hand 58 -20 2
+l_knee 52 -22 -1
+l_foot 51 -24 -1
+r_knee 56 -22 1
+r_foot 57 -24 1
+ENDPOSE
+POSE ASC_HIP_SHIFT_1
+pelvis 56 -19 0
+chest 55 -16 0
+head 56 -14 0
+head_tip 58 -14 0
+l_shoulder 53 -16 -1
+l_hand 51 -19 -2
+r_shoulder 57 -16 1
+r_hand 59 -19 2
+l_knee 54 -21 -1
+l_foot 53 -24 -1
+r_knee 57 -21 1
+r_foot 58 -24 1
+ENDPOSE
+POSE ASC_PROBE_1
+pelvis 53 -18 0
+chest 54 -15 0
+head 55 -13 0
+head_tip 57 -13 0
+l_shoulder 52 -15 -1
+l_hand 50 -18 -2
+r_shoulder 56 -15 1
+r_hand 58 -18 2
+l_knee 51 -20 -1
+l_foot 46 -19 -1
+r_knee 56 -20 1
+r_foot 57 -24 1
+ENDPOSE
+POSE ASC_LOAD_1
+pelvis 48 -15 0
+chest 49 -12 0
+head 50 -10 0
+head_tip 52 -10 0
+l_shoulder 47 -12 -1
+l_hand 45 -15 -2
+r_shoulder 51 -12 1
+r_hand 53 -15 2
+l_knee 46 -17 -1
+l_foot 44 -20 -1
+r_knee 50 -17 1
+r_foot 50 -20 1
+ENDPOSE
+POSE ASC_RECOVER_1
+pelvis 44 -15 0
+chest 45 -12 0
+head 46 -10 0
+head_tip 48 -10 0
+l_shoulder 43 -12 -1
+l_hand 41 -15 -2
+r_shoulder 47 -12 1
+r_hand 49 -15 2
+l_knee 42 -17 -1
+l_foot 41 -20 -1
+r_knee 46 -17 1
+r_foot 47 -20 1
+ENDPOSE
+POSE ASC_HIP_SHIFT_2
+pelvis 44 -14 0
+chest 45 -11 0
+head 46 -9 0
+head_tip 48 -9 0
+l_shoulder 43 -11 -1
+l_hand 41 -14 -2
+r_shoulder 47 -11 1
+r_hand 49 -14 2
+l_knee 42 -16 -1
+l_foot 41 -20 -1
+r_knee 46 -16 1
+r_foot 47 -20 1
+ENDPOSE
+POSE ASC_PROBE_2
+pelvis 41 -13 0
+chest 42 -10 0
+head 43 -8 0
+head_tip 45 -8 0
+l_shoulder 40 -10 -1
+l_hand 38 -13 -2
+r_shoulder 44 -10 1
+r_hand 46 -13 2
+l_knee 39 -15 -1
+l_foot 34 -15 -1
+r_knee 44 -15 1
+r_foot 45 -20 1
+ENDPOSE
+POSE ASC_LOAD_2
+pelvis 35 -11 0
+chest 36 -8 0
+head 37 -6 0
+head_tip 39 -6 0
+l_shoulder 34 -8 -1
+l_hand 32 -11 -2
+r_shoulder 38 -8 1
+r_hand 40 -11 2
+l_knee 33 -13 -1
+l_foot 31 -16 -1
+r_knee 37 -13 1
+r_foot 38 -16 1
+ENDPOSE
+POSE ASC_RECOVER_2
+pelvis 31 -11 0
+chest 32 -8 0
+head 33 -6 0
+head_tip 35 -6 0
+l_shoulder 30 -8 -1
+l_hand 28 -11 -2
+r_shoulder 34 -8 1
+r_hand 36 -11 2
+l_knee 29 -13 -1
+l_foot 29 -15 -1
+r_knee 33 -13 1
+r_foot 34 -15 1
+ENDPOSE
+POSE ASC_HIP_SHIFT_3
+pelvis 30 -10 0
+chest 31 -7 0
+head 32 -5 0
+head_tip 34 -5 0
+l_shoulder 29 -7 -1
+l_hand 27 -10 -2
+r_shoulder 33 -7 1
+r_hand 35 -10 2
+l_knee 28 -12 -1
+l_foot 28 -15 -1
+r_knee 32 -12 1
+r_foot 34 -15 1
+ENDPOSE
+POSE ASC_TOP
+pelvis 24 -7 0
+chest 25 -4 0
+head 26 -2 0
+head_tip 28 -2 0
+l_shoulder 23 -4 -1
+l_hand 21 -7 -2
+r_shoulder 27 -4 1
+r_hand 29 -7 2
+l_knee 22 -9 -1
+l_foot 21 -12 -1
+r_knee 26 -9 1
+r_foot 27 -12 1
+ENDPOSE
+ORDER DESC_LOOK DESC_PROBE_1 DESC_LOAD_1 DESC_RECOVER_1 DESC_PROBE_2 DESC_LOAD_2 DESC_PROBE_3 BOTTOM_HOLD TURN ASC_HIP_SHIFT_1 ASC_PROBE_1 ASC_LOAD_1 ASC_RECOVER_1 ASC_HIP_SHIFT_2 ASC_PROBE_2 ASC_LOAD_2 ASC_RECOVER_2 ASC_HIP_SHIFT_3 ASC_TOP
+ENDUAPL

@@ -1,0 +1,39 @@
+{
+  "artifacts": [
+    "backward-stairs.motion.html",
+    "contact-sheet.txt",
+    "motion.json",
+    "motion.uapl",
+    "motion.uat",
+    "backward-stairs-ascii.mp4"
+  ],
+  "tracked_artifacts": [
+    "backward-stairs.motion.html",
+    "motion.json",
+    "motion.uapl",
+    "motion.uat",
+    "backward-stairs-ascii.mp4",
+    "build.py"
+  ],
+  "generated_artifacts": [
+    "contact-sheet.txt"
+  ],
+  "embedded_views": [
+    "animation",
+    "raw ASCII contact sheet",
+    "raw JSON",
+    "UAPL/UAT source",
+    "manifest"
+  ],
+  "backward_compatibility": "Readers must accept all earlier anthology-entry versions; new fields/views are additive unless a future major version explicitly provides a lossless adapter.",
+  "format_version": 1,
+  "generalized_learning_candidates": [
+    "Backward ascent and descent are not symmetric reversed motions.",
+    "A preparatory pelvis shift can be the load-bearing movement atom even when the visible footstep appears to be the action.",
+    "Contact/load should follow environmental test rather than precede it.",
+    "Animation/prose compression should preserve anticipation, contact, and recovery when deleting intermediate motion."
+  ],
+  "id": "2026-09-07-backward-stairs-diagonal-hip-shift",
+  "schema": "ascii-kinesis.anthology-entry.v1",
+  "status": "specimen; generalized learnings remain candidates until repeated across experiments"
+}
