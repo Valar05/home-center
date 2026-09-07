@@ -16,3 +16,5 @@ jobs:
           node-version: '22'
       - name: Run UAPL deterministic contract
         run: node functions/uapl_pose_language.test.js
+      - name: Run UAPL motion SPA contract
+        run: node functions/uapl_motion_spa.test.js
