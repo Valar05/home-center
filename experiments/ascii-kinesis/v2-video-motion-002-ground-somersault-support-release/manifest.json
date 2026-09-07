@@ -75,5 +75,33 @@
     "FIX BLOCKER",
     "RERUN"
   ],
-  "status": "RENDERED_PENDING_REPO_READBACK"
+  "verification": {
+    "repo_readback_verified": true,
+    "readback_head": "8043eeacca9d147dde47033a7f4e1382e4bab31b",
+    "global_contract_test": {
+      "invoked": true,
+      "ok": false,
+      "boundary": "Unrelated existing v2-defense-001-guard-support-fork fails global test: expected exactly one tracked *.motion.html SPA."
+    },
+    "scoped_exact_contract_test": {
+      "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+      "entry": "v2-video-motion-002-ground-somersault-support-release",
+      "ok": true
+    },
+    "deterministic_builder_replay": {
+      "ok": true,
+      "all_seven_artifact_hashes_match_repo_readback": true,
+      "media_sha256": "fcf4c9ab4b598e565cc3f7584fc1b91f75d48dc1df1d06c53591d92c8272dffd"
+    },
+    "media_probe": {
+      "codec": "h264",
+      "width": 576,
+      "height": 288,
+      "pix_fmt": "yuv420p",
+      "fps": "24/1",
+      "duration_s": 1.708333,
+      "bytes": 10362
+    }
+  },
+  "status": "VERIFIED"
 }
