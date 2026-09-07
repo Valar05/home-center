@@ -1,0 +1,135 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Locomotion 004 — Support-Height Handoff</title><style>:root{color-scheme:dark}body{margin:0;background:#101114;color:#f3f3f3;font:15px system-ui,sans-serif}header,nav,main{max-width:980px;margin:auto;padding:12px}header h1{font-size:1.05rem;margin:.2rem 0}nav{display:flex;gap:8px;position:sticky;top:0;background:#101114}button{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;tab-size:2;line-height:1.05;background:#090a0c;padding:12px;border-radius:8px}video{display:block;max-width:100%;width:640px;background:#000;margin:auto}.note{opacity:.78}</style></head><body><header><h1>ASCII Kinesis V2 Locomotion 004 — Support-Height Handoff</h1><div class="note">Abstract ASCII rig only · source art not embedded · Motion Dungeon compile</div></header><nav aria-label="Primary views"><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><main><section id="ascii"><pre id="asciiSurface">[K0] TOP_APPROACH | FOURS | INFERRED
+SUPPORT=BOTH_HIGH_SUPPORT | ROOT_OWNER=HIGH_STEP
+pelvis holds high-step height; root spacing is small before the edge
+
+
+          O
+          |
+        o-+-o
+       o  |  o
+       |  +  |
+       oo- -oo
+       |     |
+_______!_____!_
+               |
+               _______________
+
+
+[K1] EDGE_UNWEIGHT | TWOS | INFERRED
+SUPPORT=LEFT_HIGH_SUPPORT_RIGHT_FREE | ROOT_OWNER=HIGH_STEP
+pelvis advances toward edge without dropping; trailing/high foot still owns root
+
+
+            O
+            |
+          o-+-o
+         o  |  o
+         |  +  |
+         oo- -oo
+         |     \
+_________!_____ o
+               |
+               _______________
+
+
+[K2] LOWER_PROBE | TWOS | INFERRED
+SUPPORT=LEFT_HIGH_SUPPORT_RIGHT_LOW_TOUCH | ROOT_OWNER=HIGH_STEP
+pelvis still holds high while the leading foot reaches the lower plane; touch is not yet root ownership
+
+
+             O
+             |
+           o-+-o
+          o  |  o
+          |  +  |
+          oo- \ o
+          |    o
+__________!____ |
+               ||
+               __?____________
+
+
+[K3] LOWER_ACCEPT | ONES | INFERRED
+SUPPORT=LEFT_HIGH_PLUS_RIGHT_LOW_SUPPORT | ROOT_OWNER=MIXED_HEIGHT_SUPPORT
+lower foot earns support before root descent; brief mixed-height dual support is explicit
+
+
+              O
+              |
+            o-+-o
+           o  |  o
+           |  +  |
+           oo- \ o
+           |    o
+___________!___  |
+               | |
+               ___!___________
+
+
+[K4] ROOT_DROP | TWOS | INFERRED
+SUPPORT=RIGHT_LOW_SUPPORT_LEFT_HIGH_TOUCH | ROOT_OWNER=LOW_STEP
+pelvis descends only after K3 support acquisition; acceleration is downward then arrested by low support
+
+
+
+
+                O
+                |
+              o-+-o
+             o  |  o
+             |o-+  |
+____________?o_  o o
+               |  |
+               ___!___________
+
+
+[K5] TRAIL_RELEASE | ONES | INFERRED
+SUPPORT=RIGHT_LOW_SUPPORT_LEFT_FREE | ROOT_OWNER=LOW_STEP
+root remains low while the old high foot releases; no rebound to the old support height
+
+
+
+
+                 O
+                 |
+               o-+-o
+              o  |  o
+              |  +  |
+______________o o o o
+               o   |
+               ____!__________
+
+
+[K6] LOW_REACQUIRE | TWOS | INFERRED
+SUPPORT=RIGHT_LOW_SUPPORT_LEFT_LOW_TOUCH | ROOT_OWNER=LOW_STEP
+trailing foot reaches the low plane while root travel decelerates into a stable base
+
+
+
+
+                   O
+                   |
+                 o-+-o
+                o  |  o
+                |  +  |
+_______________ o o o o
+               | |   |
+               __?___!________
+
+
+[K7] BOTTOM_RESTACK | FOURS | INFERRED
+SUPPORT=BOTH_LOW_SUPPORT | ROOT_OWNER=LOW_STEP
+pelvis remains at low-step height; both feet support and root spacing settles
+
+
+
+
+                     O
+                     |
+                   o-+-o
+                  o  |  o
+                  |  +  |
+_______________   oo- -oo
+               |  |     |
+               ___!_____!_____
+</pre></section><section id="json" hidden><pre id="jsonSurface">loading…</pre></section><section id="video" hidden><video controls loop muted playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video></section></main><script>const packed='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';async function loadJson(){const a=Uint8Array.from(atob(packed),c=>c.charCodeAt(0));const s=new DecompressionStream('gzip');const t=await new Response(new Blob([a]).stream().pipeThrough(s)).text();document.getElementById('jsonSurface').textContent=t}loadJson();for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>{for(const s of document.querySelectorAll('main>section'))s.hidden=s.id!==b.dataset.view});</script></body></html>
