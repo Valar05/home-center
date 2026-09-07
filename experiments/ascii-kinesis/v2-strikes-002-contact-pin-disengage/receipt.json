@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-002-contact-pin-disengage",
   "lane": "strikes",
-  "status": "RENDERED_AWAITING_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED",
   "source": {
     "provider": "The Spriters Resource",
     "asset_id": 4064,
@@ -10,11 +10,29 @@
     "url": "https://www.spriters-resource.com/snes/zombiesneighbours/asset/4064/"
   },
   "rights": "Whole source sheet used only as copyright-restricted evidence; no source pixels, palette, exact contours, costume, frame layout, tracing, redistribution, or character-specific choreography are embedded.",
+  "observed": [
+    "compact/retracted and strongly extended tool envelopes coexist across the sheet",
+    "forward attack drawings materially change arm/torso configuration while the tool remains committed forward",
+    "overhead and forward attack families spend different surrounding negative space",
+    "non-attack and consequence states coexist with attack families"
+  ],
+  "inferred": [
+    "generic short pinned-contact interval",
+    "body compression behind a temporarily stable tool endpoint",
+    "explicit disengagement before recoil/restack",
+    "all support/bracing topology and ONES/TWOS/FOURS timing"
+  ],
+  "unknown": [
+    "source-authentic chronology",
+    "source-authentic exposure timing",
+    "target contact instant",
+    "sustained-contact duration",
+    "hit-stop duration"
+  ],
   "timing": {
     "provenance": "INFERRED",
-    "keys": "K0 FOURS -> K1 FOURS -> K2 TWOS -> K3 ONES -> K4 ONES -> K5 TWOS -> K6 ONES -> K7 TWOS -> K8 FOURS",
-    "policy": "STREET_FIGHTER/CAPCOM",
-    "source_authentic_timing": "UNKNOWN"
+    "keys": "K0 READY FOURS -> K1 ANTICIPATE FOURS -> K2 BRACE TWOS -> K3 ENTRY ONES -> K4 ENGAGE ONES -> K5 PRESS TWOS -> K6 DISENGAGE ONES -> K7 RECOIL TWOS -> K8 RECOVER FOURS",
+    "policy": "STREET_FIGHTER/CAPCOM"
   },
   "media": {
     "authoritative_form": "embedded data:video/mp4 in contact-pin-disengage.motion.html",
@@ -26,28 +44,22 @@
     "dimensions": "160x120",
     "source": "abstract_ascii_rig_only"
   },
+  "repository": {
+    "path": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "spa": "contact-pin-disengage.motion.html",
+    "spa_blob_sha": "7dd6fc13249f90242bf32ec0e8ef25c5d321300f",
+    "spa_creation_commit": "ce4f723e9ee0c8108075b6a4e559afe9eb5322b2",
+    "motion_source_correction_commit": "d708ad46706efeee3e5e6059be3ab920af0fe6f4",
+    "manifest_verification_commit": "832565910517d14031ce59de5ffcca5635c8e041"
+  },
   "construction_validation": {
     "builder_rerun_same_hash": true,
     "embedded_media_base64_roundtrip_same_hash": true,
     "ffprobe_decode": "PASS",
-    "three_primary_tabs": [
-      "ASCII",
-      "JSON",
-      "VIDEO"
-    ],
+    "three_primary_tabs": ["ASCII", "JSON", "VIDEO"],
     "ascii_literal_pre": true,
-    "repo_contract_test": "NOT_EXECUTED_NO_REPO_EXECUTION_LANE"
+    "repo_contract_test": "NOT_EXECUTED_NO_AUTHORIZED_REPO_EXECUTION_LANE"
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ]
+  "home_center_campaign_read": "BLOCKED_CURRENT_CONNECTOR_REGISTRY: Home_Center was briefly discoverable but not invokable; rediscovery then reported no Home_Center namespace. Google Drive was not substituted.",
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
 }
