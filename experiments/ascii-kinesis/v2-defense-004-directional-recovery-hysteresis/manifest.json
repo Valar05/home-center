@@ -6,25 +6,91 @@
     "backward_compatible": true,
     "offline_playback": true,
     "v1_artifacts_untouched": true,
-    "v2_primary_tabs": ["ASCII", "JSON", "VIDEO"]
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
   },
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "experiment_id": "v2-defense-004-directional-recovery-hysteresis",
-  "files": ["build.py","manifest.json","motion.json","receipt.md","directional-recovery-hysteresis.motion.html"],
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "directional-recovery-hysteresis.motion.html"
+  ],
   "format_version": 2,
   "lane": "defense",
   "ligatures_disabled": true,
-  "media_bytes": 13148,
-  "media_decode_preflight": {"codec":"h264","duration_seconds":4.0,"fps":"24/1","frames":96,"height":360,"tool":"ffprobe","width":640},
-  "media_sha256": "fbe28a76c0553646a7efe59a8f613b45f15c63804f285fcaefc74297ce00097e",
-  "motion_dungeon": {"ascii_only_frame_render":true,"authored_ascii_keys":10,"connector_semantics_fail_closed":true,"deterministic_connective_motion":true,"explicit_holds":true,"fps":24,"loop_repetitions":4,"semantic_frames_per_loop":24,"video_frames_total":96},
-  "primary_tabs": ["ASCII","JSON","VIDEO"],
+  "media_bytes": 13123,
+  "media_decode_preflight": {
+    "codec": "h264",
+    "duration_seconds": 4.0,
+    "fps": "24/1",
+    "frames": 96,
+    "height": 360,
+    "tool": "ffprobe",
+    "width": 640
+  },
+  "media_sha256": "b60727937b4bb50cea18ee04910bb621356edb5822c9019764df16809bd9b05d",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 10,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 24,
+    "video_frames_total": 96
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "principle": "RECOVERY HAS DIRECTIONAL MEMORY: the same READY silhouette can be re-entered through different support/root histories; recovery is not reverse playback or blind mirroring.",
   "receipt_status": "RENDERED / STRUCTURALLY_TESTED / READY_FOR_REPO_READBACK",
   "reconstruction": "python3 build.py",
-  "rights": {"close_imitation":false,"drew_work_used":false,"preserved":"general motion principles and source/provenance facts only","redistribution":false,"source_art_role":"copyright-restricted evidence only","source_pixels_in_output":false,"tracing":false},
+  "rights": {
+    "close_imitation": false,
+    "drew_work_used": false,
+    "preserved": "general motion principles and source/provenance facts only",
+    "redistribution": false,
+    "source_art_role": "copyright-restricted evidence only",
+    "source_pixels_in_output": false,
+    "tracing": false
+  },
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "source": {"asset_id":"53676","dimensions":[1262,1047],"game":"Mischief Makers","name":"Lunar","page_url":"https://www.spriters-resource.com/nintendo_64/mischiefmakers/asset/53676/","raw_bytes":298605,"raw_sha256":"af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317","site":"The Spriters Resource","source_timing_available":false,"whole_sheet_evidence_basis":"Current pass inspected the complete TSR sheet as one image and re-fetched/hash-verified the exact 1262x1047 PNG through Home Center primary-phone. Campaign history supplies prior named-family audit (Hurt Forward / Thrown Backward / Recovery Back / Recovery Front); current extraction uses only general directional consequence/recovery structure, not sprite expression.","whole_sheet_inspected":true},
+  "source": {
+    "asset_id": "53676",
+    "dimensions": [
+      1262,
+      1047
+    ],
+    "game": "Mischief Makers",
+    "name": "Lunar",
+    "page_url": "https://www.spriters-resource.com/nintendo_64/mischiefmakers/asset/53676/",
+    "raw_bytes": 298605,
+    "raw_sha256": "af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "Current pass inspected the complete TSR sheet as one image and re-fetched/hash-verified the exact 1262x1047 PNG through Home Center primary-phone. Campaign history supplies prior named-family audit (Hurt Forward / Thrown Backward / Recovery Back / Recovery Front); current extraction uses only general directional consequence/recovery structure, not sprite expression.",
+    "whole_sheet_inspected": true
+  },
   "source_art_embedded": false,
   "timing_provenance_required": true,
   "tracked_media_sidecar": false,

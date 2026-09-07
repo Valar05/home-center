@@ -29,10 +29,10 @@ All decisive keys are INFERRED under STREET_FIGHTER/CAPCOM. `1s/2s/4s` means ONE
 
 ## Compile
 Motion Dungeon: authored decisive ASCII keys -> explicit holds/timing -> deterministic connective motion -> ASCII-only frame render -> MP4 -> SPA. Connector tuple support/contact/constraint/root/readiness/impact_memory fails closed; causal joins hard-cut.
-MP4 SHA-256 `fbe28a76c0553646a7efe59a8f613b45f15c63804f285fcaefc74297ce00097e`; 13148 bytes; H.264 640×360 24/1 96 frames 4.000000s. ASCII SHA-256 `727631cd1d9a8654e42c70283fe933c29838dd921ab0eba64fbdc5099d54a50e`.
+MP4 SHA-256 `b60727937b4bb50cea18ee04910bb621356edb5822c9019764df16809bd9b05d`; 13123 bytes; H.264 640×360 24/1 96 frames 4.000000s. ASCII SHA-256 `727631cd1d9a8654e42c70283fe933c29838dd921ab0eba64fbdc5099d54a50e`.
 
 ## Test boundary
-Candidate-level V2 validator is run when callable. Repository-wide validator may still stop on the unrelated pre-existing `v2-defense-001-guard-support-fork` missing its required tracked `.motion.html`; this run does not mutate 001.
+Candidate-level V2 validator is run when callable. Repository-wide validator is callable and is run after build; because concurrent swarm entries can change the first unrelated failure, the exact run boundary is recorded in the verified issue #343 receipt.
 
 ## Correction hooks
 KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN

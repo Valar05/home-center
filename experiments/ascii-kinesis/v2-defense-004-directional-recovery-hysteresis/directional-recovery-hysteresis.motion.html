@@ -1,0 +1,219 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Defense 004</title><style>:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:78ch;line-height:1.45}</style></head><body><h1>Directional Recovery Hysteresis</h1><p class="note">Abstract ASCII-only hit-reaction/recovery specimen. Source art is evidence only and is not embedded. Impact direction stays as recovery memory until support, root stack, and readiness rebind.</p><nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" role="tabpanel"><pre>[D004-K0] READY | FOURS INFERRED | support=BOTH | contact=NONE | root=STACKED | ready=READY | memory=NONE
+role: pre-impact state anchor
+root: root stable at address x=20 before force direction is known
+
+
+
+                    O
+                   / \
+                  o---o
+                 / \ / \\
+                o  \ /   o
+                    \
+                    @
+                   / \
+                   /  \
+                  o    o
+                  |     \
+                 |      \
+                 o       o
+                 =       =
+
+
+[D004-K1] PRE_IMPACT_BRACE | TWOS INFERRED | support=BOTH | contact=INCOMING_RIGHT | root=BRACED | ready=BRACED | memory=RIGHT
+role: brace / pre-impact compression
+root: root lowers without translating; support widens before rightward impact
+
+
+
+
+                    O
+                   / \\
+                  o----o-          &lt;&lt;&lt;&lt;&lt;&lt;
+                 / \  /  --o
+                o  \ /
+                    \/
+                    @
+                   / \
+                   /  \\
+                  o     o
+                 /       \\
+                o          o
+                =          =
+
+
+[D004-K2] CONTACT_SIGN | ONES INFERRED | support=REAR_DOMINANT | contact=IMPACT_RIGHT | root=CONTACTED | ready=INTERRUPTED | memory=RIGHT
+role: decisive contact direction join
+root: contact injects +x recoil; upper line shifts before full root travel
+
+
+
+
+
+                       O
+                     // \
+                    o----o-X      &lt;&lt;&lt;&lt;&lt;&lt;
+                   / \  /  --o
+                  o  \ /
+                      \/
+                      @
+                     / \\
+                    o    \o
+                   /       \
+                  o         o
+                            =
+
+
+[D004-K3] SHEAR_COMPRESSION | TWOS INFERRED | support=REAR_DOMINANT | contact=POST_CONTACT | root=COMPRESSED | ready=LOCKED_OUT | memory=RIGHT
+role: compression after contact
+root: root begins +x travel while torso bends away from force line
+
+
+
+
+
+
+                        -O
+                      o-- \
+                     /|  --o
+                    o  |  / \\
+                       | /    o
+                        |/
+                        @
+                       / \\
+                      o    o
+                    o/      \o
+                             =
+
+
+[D004-K4] SUPPORT_BREAK | ONES INFERRED | support=NONE | contact=NONE | root=UNSUPPORTED | ready=LOCKED_OUT | memory=RIGHT
+role: balance loss / support topology break
+root: root travels +x and slightly down; no foot owns the root
+
+
+                                           &gt;
+
+
+
+                            O
+                          // \
+                         o----o
+                       // \  / \\
+                      o   \ /    o
+                           \/
+                           @
+                          / \\
+                         o    o
+                       o/      \o
+
+
+
+[D004-K5] RECOIL_ARC | TWOS INFERRED | support=NONE | contact=NONE | root=RECOILING | ready=LOCKED_OUT | memory=RIGHT
+role: knockback arc / silhouette exaggeration
+root: root peaks near x=31; limb counter-arcs preserve contact direction readability
+
+
+                                           &gt;
+
+
+                                O
+                              // \ -o
+                            o/---o-
+                          // \  /
+                        o/    \ /
+                              \/
+                               @
+                             // \\
+                           o/     o
+                          /        \o
+                         o
+
+
+
+[D004-K6] CONSEQUENCE_HOLD | FOURS INFERRED | support=NONE | contact=NONE | root=RECOILING | ready=LOCKED_OUT | memory=RIGHT
+role: held stagger/down consequence
+root: root remains displaced near x=31; hold lets recoil direction read before recovery begins
+
+
+                                           &gt;
+
+
+
+
+
+
+                              -O
+                           o----\o
+                         // \   / \\
+                        o    \\ /   o
+                              -@-
+                           o--   -o-
+                         o/         -o
+
+
+
+[D004-K7] TRUSTWORTHY_PLANT | ONES INFERRED | support=REAR_ONLY | contact=NONE | root=CATCHING | ready=REBINDING | memory=RIGHT
+role: first trustworthy recovery plant
+root: right-side plant arrests further +x drift; recovery begins before upright posture
+
+
+                                           &gt;
+
+
+
+
+                               O
+                             // \
+                            o----o
+                           / \  / \o
+                          o   \ /
+                               @
+                             // \
+                            o    o
+                          o/      o
+                                  =
+
+
+[D004-K8] COUNTER_TRAVEL_RESTACK | TWOS INFERRED | support=BOTH_OFFSET | contact=NONE | root=RESTACKING | ready=REBINDING | memory=RIGHT
+role: recovery path / support transfer
+root: root moves back only partway to x=27; support history remains visible in offset base
+
+
+                                           &gt;
+
+                            O
+                           / \
+                          o---o
+                         / \ / \\
+                        o  \ /   o
+                            \
+                            @
+                           / \
+                           / \
+                          o   o
+                         /     \\
+                        o        o
+                        =        =
+
+
+[D004-K9] READY_REENTRY | FOURS INFERRED | support=BOTH | contact=NONE | root=STACKED | ready=READY | memory=RIGHT_RESOLVED
+role: state re-entry with directional history paid
+root: root stabilizes at x=27 rather than teleporting to initial x=20; readiness returns after support and stack
+
+
+                                           &gt;
+                           O
+                          / \
+                         o---o
+                        / \ / \\
+                       o  \ /   o
+                           \
+                           @
+                          / \
+                          /  \
+                         o    o
+                         |     \
+                        |      \
+                        o       o
+                        =       =
+</pre></section><section id="json" role="tabpanel" hidden><pre>{"ascii_sheet_sha256":"727631cd1d9a8654e42c70283fe933c29838dd921ab0eba64fbdc5099d54a50e","compatibility":{"backward_compatible":true,"offline_playback":true,"v1_artifacts_untouched":true,"v2_primary_tabs":["ASCII","JSON","VIDEO"]},"compile":{"ascii_only_frame_render":true,"compiler_identity":"deterministic Python/Pillow ASCII renderer + ffmpeg/libx264","connector_rule":"interpolate joint geometry only when support_contact, contact_state, constraint_state, root_state, readiness, and impact_memory are identical; otherwise hard-cut at causal joins","fps":24,"loop_repetitions":4,"media_bytes":13123,"media_decode_preflight":{"codec":"h264","duration_seconds":4.0,"fps":"24/1","frames":96,"height":360,"tool":"ffprobe","width":640},"media_sha256":"b60727937b4bb50cea18ee04910bb621356edb5822c9019764df16809bd9b05d","method":"Motion Dungeon","pipeline":"authored decisive ASCII keys -&gt; explicit holds/timing -&gt; deterministic connective motion -&gt; ASCII-only frame render -&gt; MP4 -&gt; self-contained SPA","semantic_frames_per_loop":24,"timing_policy":"STREET_FIGHTER/CAPCOM","transitions_invent_semantics":false,"video_frames_total":96},"correction_hooks":["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],"evidence":{"INFERRED":["Impact direction should remain a latent recovery-memory channel after visible contact ends.","Balance loss, recoil arc, first trustworthy plant, and counter-travel should preserve that directional history until state re-entry.","A ready silhouette at the end does not erase displacement or support history; the root returns to readiness at a new address rather than teleporting to the initial root.","All decisive timing classes are authored with PoseLab V1 STREET_FIGHTER/CAPCOM policy because source timing is unavailable."],"OBSERVED":["The complete Lunar sheet contains multiple upright action/ready clusters, strongly displaced hit/knockback silhouettes, horizontal and inverted consequence poses, ground/down states, and distinct return-to-upright material across the sheet rather than one isolated reaction strip.","Directional consequence/recovery material uses materially different body-axis and support arrangements before converging on upright readability; the sheet is not well-described as one pose simply mirrored and reversed.","TSR identifies the asset as Lunar / Mischief Makers / Nintendo 64 / Bosses, 1262x1047 PNG, and reports Animations (0).","The exact current source PNG is 298605 bytes with SHA-256 af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317.","No source-authentic decisive-key exposure timing is established by the static sheet."],"UNKNOWN":["Source-authentic chronology, exposure duration, hit-stop, exact contact force, anatomical support foot, root/COM trajectory, and game-state transition rules.","Whether any spatially adjacent source poses are consecutive in gameplay; sheet layout is not promoted to a timeline."]},"experiment_id":"v2-defense-004-directional-recovery-hysteresis","format_version":2,"keys":[{"causal_role":"pre-impact state anchor","constraint_state":"FREE","contact_state":"NONE","impact_memory":"NONE","joints":{"foot_l":[17,15],"foot_r":[25,15],"hand_l":[16,7],"hand_r":[25,7],"head":[20,3],"knee_l":[18,12],"knee_r":[23,12],"pelvis":[20,9],"shoulder_l":[18,5],"shoulder_r":[22,5]},"key_id":"D004-K0","motion_arc_root_note":"root stable at address x=20 before force direction is known","name":"READY","pose_rig":"upright asymmetric base before impact","readiness":"READY","root_state":"STACKED","support_contact":"BOTH","timing_class":"FOURS","timing_provenance":"INFERRED"},{"causal_role":"brace / pre-impact compression","constraint_state":"FREE","contact_state":"INCOMING_RIGHT","impact_memory":"RIGHT","joints":{"foot_l":[16,15],"foot_r":[27,15],"hand_l":[16,8],"hand_r":[27,7],"head":[20,4],"knee_l":[18,13],"knee_r":[24,13],"pelvis":[20,10],"shoulder_l":[18,6],"shoulder_r":[23,6]},"key_id":"D004-K1","motion_arc_root_note":"root lowers without translating; support widens before rightward impact","name":"PRE_IMPACT_BRACE","pose_rig":"lowered root and widened base with contact side presented","readiness":"BRACED","root_state":"BRACED","support_contact":"BOTH","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"decisive contact direction join","constraint_state":"FREE","contact_state":"IMPACT_RIGHT","impact_memory":"RIGHT","joints":{"foot_l":[18,15],"foot_r":[28,15],"hand_l":[18,9],"hand_r":[29,8],"head":[23,5],"knee_l":[20,13],"knee_r":[26,13],"pelvis":[22,11],"shoulder_l":[20,7],"shoulder_r":[25,7]},"key_id":"D004-K2","motion_arc_root_note":"contact injects +x recoil; upper line shifts before full root travel","name":"CONTACT_SIGN","pose_rig":"contact-side shoulder leads while pelvis lags","readiness":"INTERRUPTED","root_state":"CONTACTED","support_contact":"REAR_DOMINANT","timing_class":"ONES","timing_provenance":"INFERRED"},{"causal_role":"compression after contact","constraint_state":"FREE","contact_state":"POST_CONTACT","impact_memory":"RIGHT","joints":{"foot_l":[20,15],"foot_r":[29,15],"hand_l":[20,9],"hand_r":[30,10],"head":[25,6],"knee_l":[22,14],"knee_r":[27,14],"pelvis":[24,12],"shoulder_l":[22,7],"shoulder_r":[27,8]},"key_id":"D004-K3","motion_arc_root_note":"root begins +x travel while torso bends away from force line","name":"SHEAR_COMPRESSION","pose_rig":"torso/pelvis shear with lowered root and rear support load","readiness":"LOCKED_OUT","root_state":"COMPRESSED","support_contact":"REAR_DOMINANT","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"balance loss / support topology break","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT","joints":{"foot_l":[23,15],"foot_r":[32,15],"hand_l":[22,10],"hand_r":[33,10],"head":[28,6],"knee_l":[25,14],"knee_r":[30,14],"pelvis":[27,12],"shoulder_l":[25,8],"shoulder_r":[30,8]},"key_id":"D004-K4","motion_arc_root_note":"root travels +x and slightly down; no foot owns the root","name":"SUPPORT_BREAK","pose_rig":"root leaves trustworthy foot support while recoil continues","readiness":"LOCKED_OUT","root_state":"UNSUPPORTED","support_contact":"NONE","timing_class":"ONES","timing_provenance":"INFERRED"},{"causal_role":"knockback arc / silhouette exaggeration","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT","joints":{"foot_l":[25,15],"foot_r":[36,14],"hand_l":[24,9],"hand_r":[36,6],"head":[32,5],"knee_l":[27,13],"knee_r":[34,13],"pelvis":[31,11],"shoulder_l":[28,7],"shoulder_r":[33,7]},"key_id":"D004-K5","motion_arc_root_note":"root peaks near x=31; limb counter-arcs preserve contact direction readability","name":"RECOIL_ARC","pose_rig":"exaggerated diagonal recoil with limbs trailing opposite root travel","readiness":"LOCKED_OUT","root_state":"RECOILING","support_contact":"NONE","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"held stagger/down consequence","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT","joints":{"foot_l":[25,15],"foot_r":[37,15],"hand_l":[24,12],"hand_r":[36,12],"head":[31,9],"knee_l":[27,14],"knee_r":[34,14],"pelvis":[31,13],"shoulder_l":[27,10],"shoulder_r":[33,10]},"key_id":"D004-K6","motion_arc_root_note":"root remains displaced near x=31; hold lets recoil direction read before recovery begins","name":"CONSEQUENCE_HOLD","pose_rig":"low consequence state with root displacement preserved","readiness":"LOCKED_OUT","root_state":"RECOILING","support_contact":"NONE","timing_class":"FOURS","timing_provenance":"INFERRED"},{"causal_role":"first trustworthy recovery plant","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT","joints":{"foot_l":[26,15],"foot_r":[34,15],"hand_l":[26,11],"hand_r":[35,10],"head":[31,7],"knee_l":[28,14],"knee_r":[33,14],"pelvis":[31,12],"shoulder_l":[28,9],"shoulder_r":[33,9]},"key_id":"D004-K7","motion_arc_root_note":"right-side plant arrests further +x drift; recovery begins before upright posture","name":"TRUSTWORTHY_PLANT","pose_rig":"first support reacquired on displaced side before torso is upright","readiness":"REBINDING","root_state":"CATCHING","support_contact":"REAR_ONLY","timing_class":"ONES","timing_provenance":"INFERRED"},{"causal_role":"recovery path / support transfer","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT","joints":{"foot_l":[24,15],"foot_r":[33,15],"hand_l":[24,8],"hand_r":[33,8],"head":[28,4],"knee_l":[26,13],"knee_r":[30,13],"pelvis":[28,10],"shoulder_l":[26,6],"shoulder_r":[30,6]},"key_id":"D004-K8","motion_arc_root_note":"root moves back only partway to x=27; support history remains visible in offset base","name":"COUNTER_TRAVEL_RESTACK","pose_rig":"torso rises while root counter-travels slightly against recoil history","readiness":"REBINDING","root_state":"RESTACKING","support_contact":"BOTH_OFFSET","timing_class":"TWOS","timing_provenance":"INFERRED"},{"causal_role":"state re-entry with directional history paid","constraint_state":"FREE","contact_state":"NONE","impact_memory":"RIGHT_RESOLVED","joints":{"foot_l":[24,15],"foot_r":[32,15],"hand_l":[23,7],"hand_r":[32,7],"head":[27,3],"knee_l":[25,12],"knee_r":[30,12],"pelvis":[27,9],"shoulder_l":[25,5],"shoulder_r":[29,5]},"key_id":"D004-K9","motion_arc_root_note":"root stabilizes at x=27 rather than teleporting to initial x=20; readiness returns after support and stack","name":"READY_REENTRY","pose_rig":"ready silhouette restored at a new root address","readiness":"READY","root_state":"STACKED","support_contact":"BOTH","timing_class":"FOURS","timing_provenance":"INFERRED"}],"lane":"defense","principle":"RECOVERY HAS DIRECTIONAL MEMORY: the same READY silhouette can be re-entered through different support/root histories; recovery is not reverse playback or blind mirroring.","rig":{"coordinate_space":"48x18 character grid","copyright_safe":true,"joints":["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"kind":"abstract ASCII Blender-style humanoid","semantic_channels":["root","support","contact","readiness","impact_memory"]},"rights":{"close_imitation":false,"drew_work_used":false,"preserved":"general motion principles and source/provenance facts only","redistribution":false,"source_art_role":"copyright-restricted evidence only","source_pixels_in_output":false,"tracing":false},"source":{"animations_reported":0,"asset_id":"53676","dimensions":[1262,1047],"format":"PNG","game":"Mischief Makers","name":"Lunar","page_url":"https://www.spriters-resource.com/nintendo_64/mischiefmakers/asset/53676/","platform":"Nintendo 64","raw_bytes":298605,"raw_sha256":"af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317","raw_url":"https://www.spriters-resource.com/media/assets/51/53676.png?updated=1755473089","section":"Bosses","site":"The Spriters Resource","whole_sheet_evidence_basis":"Current pass inspected the complete TSR sheet as one image and re-fetched/hash-verified the exact 1262x1047 PNG through Home Center primary-phone. Campaign history supplies prior named-family audit (Hurt Forward / Thrown Backward / Recovery Back / Recovery Front); current extraction uses only general directional consequence/recovery structure, not sprite expression.","whole_sheet_inspected":true},"timing_vocabulary":{"FOURS":"one drawing/key held for four display frames","ONES":"new drawing/key sample every display frame","TWOS":"one drawing/key held for two display frames","policy":"STREET_FIGHTER/CAPCOM","policy_note":"nonuniform authored gameplay timing; inferred here, never source-authentic","shorthand":"1s/2s/4s means ONES/TWOS/FOURS, never seconds"}}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">Motion Dungeon media is generated solely from the independently authored ASCII rig coordinates, explicit holds, and topology-safe connective geometry.</p></section><script>const T=[...document.querySelectorAll('[data-view]')],S=[...document.querySelectorAll('section[role=tabpanel]')];T.forEach(t=>t.onclick=()=>{T.forEach(b=>b.setAttribute('aria-selected',b===t?'true':'false'));S.forEach(s=>s.hidden=s.id!==t.dataset.view)});</script></body></html>

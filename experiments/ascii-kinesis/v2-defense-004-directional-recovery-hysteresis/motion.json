@@ -4,7 +4,11 @@
     "backward_compatible": true,
     "offline_playback": true,
     "v1_artifacts_untouched": true,
-    "v2_primary_tabs": ["ASCII", "JSON", "VIDEO"]
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
   },
   "compile": {
     "ascii_only_frame_render": true,
@@ -12,9 +16,17 @@
     "connector_rule": "interpolate joint geometry only when support_contact, contact_state, constraint_state, root_state, readiness, and impact_memory are identical; otherwise hard-cut at causal joins",
     "fps": 24,
     "loop_repetitions": 4,
-    "media_bytes": 13148,
-    "media_decode_preflight": {"codec":"h264","duration_seconds":4.0,"fps":"24/1","frames":96,"height":360,"tool":"ffprobe","width":640},
-    "media_sha256": "fbe28a76c0553646a7efe59a8f613b45f15c63804f285fcaefc74297ce00097e",
+    "media_bytes": 13123,
+    "media_decode_preflight": {
+      "codec": "h264",
+      "duration_seconds": 4.0,
+      "fps": "24/1",
+      "frames": 96,
+      "height": 360,
+      "tool": "ffprobe",
+      "width": 640
+    },
+    "media_sha256": "b60727937b4bb50cea18ee04910bb621356edb5822c9019764df16809bd9b05d",
     "method": "Motion Dungeon",
     "pipeline": "authored decisive ASCII keys -> explicit holds/timing -> deterministic connective motion -> ASCII-only frame render -> MP4 -> self-contained SPA",
     "semantic_frames_per_loop": 24,
@@ -22,7 +34,18 @@
     "transitions_invent_semantics": false,
     "video_frames_total": 96
   },
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "evidence": {
     "INFERRED": [
       "Impact direction should remain a latent recovery-memory channel after visible contact ends.",
@@ -45,21 +68,638 @@
   "experiment_id": "v2-defense-004-directional-recovery-hysteresis",
   "format_version": 2,
   "keys": [
-    {"key_id":"D004-K0","name":"READY","pose_rig":"upright asymmetric base before impact","support_contact":"BOTH","contact_state":"NONE","constraint_state":"FREE","root_state":"STACKED","readiness":"READY","impact_memory":"NONE","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"pre-impact state anchor","motion_arc_root_note":"root stable at address x=20 before force direction is known","joints":{"head":[20,3],"shoulder_l":[18,5],"shoulder_r":[22,5],"hand_l":[16,7],"hand_r":[25,7],"pelvis":[20,9],"knee_l":[18,12],"knee_r":[23,12],"foot_l":[17,15],"foot_r":[25,15]}},
-    {"key_id":"D004-K1","name":"PRE_IMPACT_BRACE","pose_rig":"lowered root and widened base with contact side presented","support_contact":"BOTH","contact_state":"INCOMING_RIGHT","constraint_state":"FREE","root_state":"BRACED","readiness":"BRACED","impact_memory":"RIGHT","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"brace / pre-impact compression","motion_arc_root_note":"root lowers without translating; support widens before rightward impact","joints":{"head":[20,4],"shoulder_l":[18,6],"shoulder_r":[23,6],"hand_l":[16,8],"hand_r":[27,7],"pelvis":[20,10],"knee_l":[18,13],"knee_r":[24,13],"foot_l":[16,15],"foot_r":[27,15]}},
-    {"key_id":"D004-K2","name":"CONTACT_SIGN","pose_rig":"contact-side shoulder leads while pelvis lags","support_contact":"REAR_DOMINANT","contact_state":"IMPACT_RIGHT","constraint_state":"FREE","root_state":"CONTACTED","readiness":"INTERRUPTED","impact_memory":"RIGHT","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"decisive contact direction join","motion_arc_root_note":"contact injects +x recoil; upper line shifts before full root travel","joints":{"head":[23,5],"shoulder_l":[20,7],"shoulder_r":[25,7],"hand_l":[18,9],"hand_r":[29,8],"pelvis":[22,11],"knee_l":[20,13],"knee_r":[26,13],"foot_l":[18,15],"foot_r":[28,15]}},
-    {"key_id":"D004-K3","name":"SHEAR_COMPRESSION","pose_rig":"torso/pelvis shear with lowered root and rear support load","support_contact":"REAR_DOMINANT","contact_state":"POST_CONTACT","constraint_state":"FREE","root_state":"COMPRESSED","readiness":"LOCKED_OUT","impact_memory":"RIGHT","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"compression after contact","motion_arc_root_note":"root begins +x travel while torso bends away from force line","joints":{"head":[25,6],"shoulder_l":[22,7],"shoulder_r":[27,8],"hand_l":[20,9],"hand_r":[30,10],"pelvis":[24,12],"knee_l":[22,14],"knee_r":[27,14],"foot_l":[20,15],"foot_r":[29,15]}},
-    {"key_id":"D004-K4","name":"SUPPORT_BREAK","pose_rig":"root leaves trustworthy foot support while recoil continues","support_contact":"NONE","contact_state":"NONE","constraint_state":"FREE","root_state":"UNSUPPORTED","readiness":"LOCKED_OUT","impact_memory":"RIGHT","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"balance loss / support topology break","motion_arc_root_note":"root travels +x and slightly down; no foot owns the root","joints":{"head":[28,6],"shoulder_l":[25,8],"shoulder_r":[30,8],"hand_l":[22,10],"hand_r":[33,10],"pelvis":[27,12],"knee_l":[25,14],"knee_r":[30,14],"foot_l":[23,15],"foot_r":[32,15]}},
-    {"key_id":"D004-K5","name":"RECOIL_ARC","pose_rig":"exaggerated diagonal recoil with limbs trailing opposite root travel","support_contact":"NONE","contact_state":"NONE","constraint_state":"FREE","root_state":"RECOILING","readiness":"LOCKED_OUT","impact_memory":"RIGHT","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"knockback arc / silhouette exaggeration","motion_arc_root_note":"root peaks near x=31; limb counter-arcs preserve contact direction readability","joints":{"head":[32,5],"shoulder_l":[28,7],"shoulder_r":[33,7],"hand_l":[24,9],"hand_r":[36,6],"pelvis":[31,11],"knee_l":[27,13],"knee_r":[34,13],"foot_l":[25,15],"foot_r":[36,14]}},
-    {"key_id":"D004-K6","name":"CONSEQUENCE_HOLD","pose_rig":"low consequence state with root displacement preserved","support_contact":"NONE","contact_state":"NONE","constraint_state":"FREE","root_state":"RECOILING","readiness":"LOCKED_OUT","impact_memory":"RIGHT","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"held stagger/down consequence","motion_arc_root_note":"root remains displaced near x=31; hold lets recoil direction read before recovery begins","joints":{"head":[31,9],"shoulder_l":[27,10],"shoulder_r":[33,10],"hand_l":[24,12],"hand_r":[36,12],"pelvis":[31,13],"knee_l":[27,14],"knee_r":[34,14],"foot_l":[25,15],"foot_r":[37,15]}},
-    {"key_id":"D004-K7","name":"TRUSTWORTHY_PLANT","pose_rig":"first support reacquired on displaced side before torso is upright","support_contact":"REAR_ONLY","contact_state":"NONE","constraint_state":"FREE","root_state":"CATCHING","readiness":"REBINDING","impact_memory":"RIGHT","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"first trustworthy recovery plant","motion_arc_root_note":"right-side plant arrests further +x drift; recovery begins before upright posture","joints":{"head":[31,7],"shoulder_l":[28,9],"shoulder_r":[33,9],"hand_l":[26,11],"hand_r":[35,10],"pelvis":[31,12],"knee_l":[28,14],"knee_r":[33,14],"foot_l":[26,15],"foot_r":[34,15]}},
-    {"key_id":"D004-K8","name":"COUNTER_TRAVEL_RESTACK","pose_rig":"torso rises while root counter-travels slightly against recoil history","support_contact":"BOTH_OFFSET","contact_state":"NONE","constraint_state":"FREE","root_state":"RESTACKING","readiness":"REBINDING","impact_memory":"RIGHT","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"recovery path / support transfer","motion_arc_root_note":"root moves back only partway to x=27; support history remains visible in offset base","joints":{"head":[28,4],"shoulder_l":[26,6],"shoulder_r":[30,6],"hand_l":[24,8],"hand_r":[33,8],"pelvis":[28,10],"knee_l":[26,13],"knee_r":[30,13],"foot_l":[24,15],"foot_r":[33,15]}},
-    {"key_id":"D004-K9","name":"READY_REENTRY","pose_rig":"ready silhouette restored at a new root address","support_contact":"BOTH","contact_state":"NONE","constraint_state":"FREE","root_state":"STACKED","readiness":"READY","impact_memory":"RIGHT_RESOLVED","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"state re-entry with directional history paid","motion_arc_root_note":"root stabilizes at x=27 rather than teleporting to initial x=20; readiness returns after support and stack","joints":{"head":[27,3],"shoulder_l":[25,5],"shoulder_r":[29,5],"hand_l":[23,7],"hand_r":[32,7],"pelvis":[27,9],"knee_l":[25,12],"knee_r":[30,12],"foot_l":[24,15],"foot_r":[32,15]}}
+    {
+      "causal_role": "pre-impact state anchor",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "NONE",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          16,
+          7
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          20,
+          3
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          20,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          22,
+          5
+        ]
+      },
+      "key_id": "D004-K0",
+      "motion_arc_root_note": "root stable at address x=20 before force direction is known",
+      "name": "READY",
+      "pose_rig": "upright asymmetric base before impact",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "brace / pre-impact compression",
+      "constraint_state": "FREE",
+      "contact_state": "INCOMING_RIGHT",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          27,
+          15
+        ],
+        "hand_l": [
+          16,
+          8
+        ],
+        "hand_r": [
+          27,
+          7
+        ],
+        "head": [
+          20,
+          4
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "pelvis": [
+          20,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          23,
+          6
+        ]
+      },
+      "key_id": "D004-K1",
+      "motion_arc_root_note": "root lowers without translating; support widens before rightward impact",
+      "name": "PRE_IMPACT_BRACE",
+      "pose_rig": "lowered root and widened base with contact side presented",
+      "readiness": "BRACED",
+      "root_state": "BRACED",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "decisive contact direction join",
+      "constraint_state": "FREE",
+      "contact_state": "IMPACT_RIGHT",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          18,
+          15
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          18,
+          9
+        ],
+        "hand_r": [
+          29,
+          8
+        ],
+        "head": [
+          23,
+          5
+        ],
+        "knee_l": [
+          20,
+          13
+        ],
+        "knee_r": [
+          26,
+          13
+        ],
+        "pelvis": [
+          22,
+          11
+        ],
+        "shoulder_l": [
+          20,
+          7
+        ],
+        "shoulder_r": [
+          25,
+          7
+        ]
+      },
+      "key_id": "D004-K2",
+      "motion_arc_root_note": "contact injects +x recoil; upper line shifts before full root travel",
+      "name": "CONTACT_SIGN",
+      "pose_rig": "contact-side shoulder leads while pelvis lags",
+      "readiness": "INTERRUPTED",
+      "root_state": "CONTACTED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "compression after contact",
+      "constraint_state": "FREE",
+      "contact_state": "POST_CONTACT",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          20,
+          15
+        ],
+        "foot_r": [
+          29,
+          15
+        ],
+        "hand_l": [
+          20,
+          9
+        ],
+        "hand_r": [
+          30,
+          10
+        ],
+        "head": [
+          25,
+          6
+        ],
+        "knee_l": [
+          22,
+          14
+        ],
+        "knee_r": [
+          27,
+          14
+        ],
+        "pelvis": [
+          24,
+          12
+        ],
+        "shoulder_l": [
+          22,
+          7
+        ],
+        "shoulder_r": [
+          27,
+          8
+        ]
+      },
+      "key_id": "D004-K3",
+      "motion_arc_root_note": "root begins +x travel while torso bends away from force line",
+      "name": "SHEAR_COMPRESSION",
+      "pose_rig": "torso/pelvis shear with lowered root and rear support load",
+      "readiness": "LOCKED_OUT",
+      "root_state": "COMPRESSED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "balance loss / support topology break",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          23,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          22,
+          10
+        ],
+        "hand_r": [
+          33,
+          10
+        ],
+        "head": [
+          28,
+          6
+        ],
+        "knee_l": [
+          25,
+          14
+        ],
+        "knee_r": [
+          30,
+          14
+        ],
+        "pelvis": [
+          27,
+          12
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          30,
+          8
+        ]
+      },
+      "key_id": "D004-K4",
+      "motion_arc_root_note": "root travels +x and slightly down; no foot owns the root",
+      "name": "SUPPORT_BREAK",
+      "pose_rig": "root leaves trustworthy foot support while recoil continues",
+      "readiness": "LOCKED_OUT",
+      "root_state": "UNSUPPORTED",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "knockback arc / silhouette exaggeration",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          25,
+          15
+        ],
+        "foot_r": [
+          36,
+          14
+        ],
+        "hand_l": [
+          24,
+          9
+        ],
+        "hand_r": [
+          36,
+          6
+        ],
+        "head": [
+          32,
+          5
+        ],
+        "knee_l": [
+          27,
+          13
+        ],
+        "knee_r": [
+          34,
+          13
+        ],
+        "pelvis": [
+          31,
+          11
+        ],
+        "shoulder_l": [
+          28,
+          7
+        ],
+        "shoulder_r": [
+          33,
+          7
+        ]
+      },
+      "key_id": "D004-K5",
+      "motion_arc_root_note": "root peaks near x=31; limb counter-arcs preserve contact direction readability",
+      "name": "RECOIL_ARC",
+      "pose_rig": "exaggerated diagonal recoil with limbs trailing opposite root travel",
+      "readiness": "LOCKED_OUT",
+      "root_state": "RECOILING",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "held stagger/down consequence",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          25,
+          15
+        ],
+        "foot_r": [
+          37,
+          15
+        ],
+        "hand_l": [
+          24,
+          12
+        ],
+        "hand_r": [
+          36,
+          12
+        ],
+        "head": [
+          31,
+          9
+        ],
+        "knee_l": [
+          27,
+          14
+        ],
+        "knee_r": [
+          34,
+          14
+        ],
+        "pelvis": [
+          31,
+          13
+        ],
+        "shoulder_l": [
+          27,
+          10
+        ],
+        "shoulder_r": [
+          33,
+          10
+        ]
+      },
+      "key_id": "D004-K6",
+      "motion_arc_root_note": "root remains displaced near x=31; hold lets recoil direction read before recovery begins",
+      "name": "CONSEQUENCE_HOLD",
+      "pose_rig": "low consequence state with root displacement preserved",
+      "readiness": "LOCKED_OUT",
+      "root_state": "RECOILING",
+      "support_contact": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy recovery plant",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          34,
+          15
+        ],
+        "hand_l": [
+          26,
+          11
+        ],
+        "hand_r": [
+          35,
+          10
+        ],
+        "head": [
+          31,
+          7
+        ],
+        "knee_l": [
+          28,
+          14
+        ],
+        "knee_r": [
+          33,
+          14
+        ],
+        "pelvis": [
+          31,
+          12
+        ],
+        "shoulder_l": [
+          28,
+          9
+        ],
+        "shoulder_r": [
+          33,
+          9
+        ]
+      },
+      "key_id": "D004-K7",
+      "motion_arc_root_note": "right-side plant arrests further +x drift; recovery begins before upright posture",
+      "name": "TRUSTWORTHY_PLANT",
+      "pose_rig": "first support reacquired on displaced side before torso is upright",
+      "readiness": "REBINDING",
+      "root_state": "CATCHING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery path / support transfer",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT",
+      "joints": {
+        "foot_l": [
+          24,
+          15
+        ],
+        "foot_r": [
+          33,
+          15
+        ],
+        "hand_l": [
+          24,
+          8
+        ],
+        "hand_r": [
+          33,
+          8
+        ],
+        "head": [
+          28,
+          4
+        ],
+        "knee_l": [
+          26,
+          13
+        ],
+        "knee_r": [
+          30,
+          13
+        ],
+        "pelvis": [
+          28,
+          10
+        ],
+        "shoulder_l": [
+          26,
+          6
+        ],
+        "shoulder_r": [
+          30,
+          6
+        ]
+      },
+      "key_id": "D004-K8",
+      "motion_arc_root_note": "root moves back only partway to x=27; support history remains visible in offset base",
+      "name": "COUNTER_TRAVEL_RESTACK",
+      "pose_rig": "torso rises while root counter-travels slightly against recoil history",
+      "readiness": "REBINDING",
+      "root_state": "RESTACKING",
+      "support_contact": "BOTH_OFFSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry with directional history paid",
+      "constraint_state": "FREE",
+      "contact_state": "NONE",
+      "impact_memory": "RIGHT_RESOLVED",
+      "joints": {
+        "foot_l": [
+          24,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          23,
+          7
+        ],
+        "hand_r": [
+          32,
+          7
+        ],
+        "head": [
+          27,
+          3
+        ],
+        "knee_l": [
+          25,
+          12
+        ],
+        "knee_r": [
+          30,
+          12
+        ],
+        "pelvis": [
+          27,
+          9
+        ],
+        "shoulder_l": [
+          25,
+          5
+        ],
+        "shoulder_r": [
+          29,
+          5
+        ]
+      },
+      "key_id": "D004-K9",
+      "motion_arc_root_note": "root stabilizes at x=27 rather than teleporting to initial x=20; readiness returns after support and stack",
+      "name": "READY_REENTRY",
+      "pose_rig": "ready silhouette restored at a new root address",
+      "readiness": "READY",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
   ],
   "lane": "defense",
   "principle": "RECOVERY HAS DIRECTIONAL MEMORY: the same READY silhouette can be re-entered through different support/root histories; recovery is not reverse playback or blind mirroring.",
-  "rig": {"coordinate_space":"48x18 character grid","copyright_safe":true,"joints":["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"kind":"abstract ASCII Blender-style humanoid","semantic_channels":["root","support","contact","readiness","impact_memory"]},
-  "rights": {"close_imitation":false,"drew_work_used":false,"preserved":"general motion principles and source/provenance facts only","redistribution":false,"source_art_role":"copyright-restricted evidence only","source_pixels_in_output":false,"tracing":false},
-  "source": {"animations_reported":0,"asset_id":"53676","dimensions":[1262,1047],"format":"PNG","game":"Mischief Makers","name":"Lunar","page_url":"https://www.spriters-resource.com/nintendo_64/mischiefmakers/asset/53676/","platform":"Nintendo 64","raw_bytes":298605,"raw_sha256":"af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317","raw_url":"https://www.spriters-resource.com/media/assets/51/53676.png?updated=1755473089","section":"Bosses","site":"The Spriters Resource","whole_sheet_evidence_basis":"Current pass inspected the complete TSR sheet as one image and re-fetched/hash-verified the exact 1262x1047 PNG through Home Center primary-phone. Campaign history supplies prior named-family audit (Hurt Forward / Thrown Backward / Recovery Back / Recovery Front); current extraction uses only general directional consequence/recovery structure, not sprite expression.","whole_sheet_inspected":true},
-  "timing_vocabulary": {"FOURS":"one drawing/key held for four display frames","ONES":"new drawing/key sample every display frame","TWOS":"one drawing/key held for two display frames","policy":"STREET_FIGHTER/CAPCOM","policy_note":"nonuniform authored gameplay timing; inferred here, never source-authentic","shorthand":"1s/2s/4s means ONES/TWOS/FOURS, never seconds"}
+  "rig": {
+    "coordinate_space": "48x18 character grid",
+    "copyright_safe": true,
+    "joints": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "kind": "abstract ASCII Blender-style humanoid",
+    "semantic_channels": [
+      "root",
+      "support",
+      "contact",
+      "readiness",
+      "impact_memory"
+    ]
+  },
+  "rights": {
+    "close_imitation": false,
+    "drew_work_used": false,
+    "preserved": "general motion principles and source/provenance facts only",
+    "redistribution": false,
+    "source_art_role": "copyright-restricted evidence only",
+    "source_pixels_in_output": false,
+    "tracing": false
+  },
+  "source": {
+    "animations_reported": 0,
+    "asset_id": "53676",
+    "dimensions": [
+      1262,
+      1047
+    ],
+    "format": "PNG",
+    "game": "Mischief Makers",
+    "name": "Lunar",
+    "page_url": "https://www.spriters-resource.com/nintendo_64/mischiefmakers/asset/53676/",
+    "platform": "Nintendo 64",
+    "raw_bytes": 298605,
+    "raw_sha256": "af37c31099aba54a122d6b66c53310e205b36cef41afaff7e776aeabf0e32317",
+    "raw_url": "https://www.spriters-resource.com/media/assets/51/53676.png?updated=1755473089",
+    "section": "Bosses",
+    "site": "The Spriters Resource",
+    "whole_sheet_evidence_basis": "Current pass inspected the complete TSR sheet as one image and re-fetched/hash-verified the exact 1262x1047 PNG through Home Center primary-phone. Campaign history supplies prior named-family audit (Hurt Forward / Thrown Backward / Recovery Back / Recovery Front); current extraction uses only general directional consequence/recovery structure, not sprite expression.",
+    "whole_sheet_inspected": true
+  },
+  "timing_vocabulary": {
+    "FOURS": "one drawing/key held for four display frames",
+    "ONES": "new drawing/key sample every display frame",
+    "TWOS": "one drawing/key held for two display frames",
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "policy_note": "nonuniform authored gameplay timing; inferred here, never source-authentic",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  }
 }
