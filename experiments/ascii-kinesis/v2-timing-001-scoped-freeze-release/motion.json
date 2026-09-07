@@ -1,0 +1,184 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "format_version": 2,
+  "experiment_id": "v2-timing-001-scoped-freeze-release",
+  "lane": "timing",
+  "title": "Scoped Freeze / Release Clock Grammar",
+  "principle": "A scoped FREEZE_UNTIL_RELEASE pauses only the named local clock; nonparticipants retain phase and unchanged support/root is not re-keyed.",
+  "timing_policy": {
+    "name": "STREET_FIGHTER/CAPCOM",
+    "nominal_fps": 24,
+    "classes": {
+      "ONES": {"hold_display_frames": 1, "nominal_samples_per_second": 24},
+      "TWOS": {"hold_display_frames": 2, "nominal_samples_per_second": 12},
+      "FOURS": {"hold_display_frames": 4, "nominal_samples_per_second": 6}
+    },
+    "shorthand_normalization": {"1s": "ONES", "2s": "TWOS", "4s": "FOURS"},
+    "note": "Nonuniform gameplay timing vocabulary may mix holds, fast transitions, impact/hit-stop, recoil/recovery holds, silhouette exaggeration, and selective sampling. Every timing assignment in this specimen is INFERRED, not source-authentic."
+  },
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 97821,
+    "name": "Robot",
+    "game": "Nuclear Throne",
+    "category": "PC / Computer",
+    "section": "Playable Characters",
+    "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
+    "format": "PNG",
+    "dimensions": [445, 554],
+    "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
+    "whole_sheet_inspected": true,
+    "whole_sheet_evidence_origin": "Current run re-read of campaign evidence from the prior full-sheet custody/inspection; historical timing pass is evidence only and is not the V2 product.",
+    "source_timing_available": false,
+    "observed": [
+      "The source is one complete static 445x554 PNG sheet.",
+      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
+      "A second B-skin family repeats comparable idle/walk/hurt organization.",
+      "Large portions of body organization recur while local presentation changes."
+    ],
+    "unknown": [
+      "source playback order within every row",
+      "per-cell exposure",
+      "runtime subclock ownership",
+      "source reset/freeze/release policy",
+      "source synchronization event timing",
+      "hit-stop and source cadence"
+    ],
+    "rights_note": "Copyrighted source sprites are evidence only. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this specimen. Only abstract timing/channel principles are retained."
+  },
+  "axis_partition": {
+    "temporal_axis": "Only authored abstract clock-state changes and causal sync events become decisive keys.",
+    "variant_configuration_axis": "The observed B-skin/repeated presentation families are collapsed as configuration/equivalence evidence and consume no time keys.",
+    "effect_axis": "Local/effect-like presentation is treated as an independent channel unless causality explicitly joins it.",
+    "rule": "Separate axes before cadence. Sheet adjacency or visual multiplicity is not chronology."
+  },
+  "rig_schema": {
+    "space": "integer ASCII grid",
+    "grid": [49, 19],
+    "joints": ["root", "mast", "head", "left_pivot", "left_tip", "right_pivot", "right_tip"],
+    "links": [["root", "mast"], ["mast", "head"], ["mast", "left_pivot"], ["left_pivot", "left_tip"], ["mast", "right_pivot"], ["right_pivot", "right_tip"]],
+    "support_marker": "base line under root",
+    "clock_markers": {"SIGNAL_A": "A at left_tip", "SIGNAL_B": "B at right_tip", "GATE": "g/F/R above head"}
+  },
+  "clock_channels": [
+    {"clock_id": "BASE", "owner": "root/support", "policy": "PRESERVE_PHASE", "note": "Static support/root for entire specimen; never duplicated merely because local clocks change."},
+    {"clock_id": "SIGNAL_A", "owner": "left local arm", "policy": "FREE_RUN", "note": "Continues during SIGNAL_B freeze."},
+    {"clock_id": "SIGNAL_B", "owner": "right local arm", "policy": "FREE_RUN -> FREEZE_UNTIL_RELEASE -> FREE_RUN", "note": "Freezes at its authored phase until release."},
+    {"clock_id": "GATE", "owner": "external sync event", "policy": "SCOPED_EVENT", "sync_scope": ["SIGNAL_B"], "note": "Never resets BASE or SIGNAL_A."}
+  ],
+  "keys": [
+    {
+      "key_id": "T001-K0",
+      "name": "FREE_RUN_ZERO",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,5], "right_tip": [35,13]}, "signal_A_phase": "UP", "signal_B_phase": "DOWN", "gate_state": "OPEN"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "BASE root/support held; local A/B phases differ; no causal join.",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "causal_role": "establish independent local phases",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"UP","SIGNAL_B":"DOWN","GATE":"OPEN"},
+      "sync_scope": [], "event": null
+    },
+    {
+      "key_id": "T001-K1",
+      "name": "A_PHASE_ADVANCE",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,13], "right_tip": [35,13]}, "signal_A_phase": "DOWN", "signal_B_phase": "DOWN", "gate_state": "OPEN"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "Left local arc descends; right local phase and root/support remain unchanged.",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "causal_role": "advance A without spending a B or BASE key",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"DOWN","SIGNAL_B":"DOWN","GATE":"OPEN"},
+      "sync_scope": [], "event": null
+    },
+    {
+      "key_id": "T001-K2",
+      "name": "B_PHASE_ADVANCE",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,13], "right_tip": [35,5]}, "signal_A_phase": "DOWN", "signal_B_phase": "UP", "gate_state": "OPEN"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "Right local arc rises; A and BASE retain authored state.",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "causal_role": "advance B as a transient local information spike",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"DOWN","SIGNAL_B":"UP","GATE":"OPEN"},
+      "sync_scope": [], "event": null
+    },
+    {
+      "key_id": "T001-K3",
+      "name": "FREEZE_B",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,5], "right_tip": [35,5]}, "signal_A_phase": "UP", "signal_B_phase": "UP", "gate_state": "FREEZE_B"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "External event freezes SIGNAL_B at UP; SIGNAL_A may advance; BASE stays planted.",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "causal_role": "scoped freeze acquisition",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"UP","SIGNAL_B":"UP","GATE":"FREEZE_B"},
+      "sync_scope": ["SIGNAL_B"], "event": "FREEZE_UNTIL_RELEASE"
+    },
+    {
+      "key_id": "T001-K4",
+      "name": "A_CONTINUES_B_HELD",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,13], "right_tip": [35,5]}, "signal_A_phase": "DOWN", "signal_B_phase": "UP", "gate_state": "FREEZE_B"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "Left local arc advances while right local arc is explicitly held; root/support unchanged.",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "causal_role": "prove nonparticipant phase continuity during freeze",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"DOWN","SIGNAL_B":"UP","GATE":"FREEZE_B"},
+      "sync_scope": ["SIGNAL_B"], "event": null
+    },
+    {
+      "key_id": "T001-K5",
+      "name": "RELEASE_B",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,13], "right_tip": [35,5]}, "signal_A_phase": "DOWN", "signal_B_phase": "UP", "gate_state": "RELEASE_B"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "SIGNAL_B is released without hidden in-between or BASE reset; it resumes from held phase.",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "causal_role": "named release event",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"DOWN","SIGNAL_B":"UP","GATE":"RELEASE_B"},
+      "sync_scope": ["SIGNAL_B"], "event": "RELEASE"
+    },
+    {
+      "key_id": "T001-K6",
+      "name": "B_RESUMES",
+      "pose_rig": {"rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL", "joints": {"root": [24,15], "mast": [24,10], "head": [24,5], "left_pivot": [20,9], "right_pivot": [28,9], "left_tip": [13,5], "right_tip": [35,13]}, "signal_A_phase": "UP", "signal_B_phase": "DOWN", "gate_state": "OPEN"},
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "motion_arc_root_note": "Right local arc advances only after release; BASE remains the same support key throughout.",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "causal_role": "post-release readable recurrence",
+      "clock_state": {"BASE":"HOLD","SIGNAL_A":"UP","SIGNAL_B":"DOWN","GATE":"OPEN"},
+      "sync_scope": [], "event": null
+    }
+  ],
+  "compile": {
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
+    "fps": 24,
+    "loop_repetitions": 8,
+    "connector_frames": 1,
+    "connector_rule": "One midpoint connector is permitted only when gate_state is unchanged and no endpoint is a causal event; interpolate only local tip coordinates. Event boundaries hard-cut. Connectors cannot change support/root/clock authority.",
+    "renderer": "Python/Pillow renders literal generated ASCII frames; ffmpeg libx264 yuv420p.",
+    "source_sprite_pixels_used": false,
+    "media_sha256": "",
+    "media_bytes": 0,
+    "authored_hold_frames_per_loop": 15,
+    "connective_frames_per_loop": 0,
+    "semantic_frames_per_loop": 0,
+    "video_frames_total": 0
+  },
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "uapl_v1_read_path_preserved": true
+  },
+  "manifest": {
+    "required_primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "ascii_literal_text": true,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only",
+    "source_art_embedded": false
+  },
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
+}
