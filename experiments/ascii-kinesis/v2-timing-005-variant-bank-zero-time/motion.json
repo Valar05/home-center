@@ -1,0 +1,227 @@
+{
+  "axis_separation": {
+    "effect_axis": "not compiled; whole-sheet auxiliary/reference material does not create BODY_CLOCK samples",
+    "rule": "CONFIGURATION MULTIPLICITY != TEMPORAL MULTIPLICITY",
+    "temporal_axis": "support/contact/root/causal body-state changes only",
+    "variant_configuration_axis": "four abstract labels CFG_A/CFG_B/CFG_C/CFG_D are timing-equivalent; no palette, costume, or source appearance is represented"
+  },
+  "clock_channels": [
+    {
+      "authority": "decisive authored ASCII keys",
+      "clock_id": "BODY_CLOCK",
+      "kind": "TEMPORAL",
+      "policy": "STREET_FIGHTER/CAPCOM nonuniform exposure"
+    },
+    {
+      "authority": "configuration bank",
+      "clock_id": "CONFIG_AXIS",
+      "kind": "NON_TEMPORAL_STATE_AXIS",
+      "policy": "No exposure budget; selecting A/B/C/D does not create a key unless an explicit causal configuration event is authored."
+    },
+    {
+      "authority": "none in specimen",
+      "clock_id": "EFFECT_AXIS",
+      "kind": "UNBOUND_AUXILIARY",
+      "policy": "Separated before cadence; no effect timing invented."
+    }
+  ],
+  "compatibility": {
+    "ascii_kinesis_contract": "V2",
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_uat_boundary": "ASCII decisive keys are semantic authority; timing is an explicit compilation opinion; no source timing is promoted from static-sheet layout."
+  },
+  "compile": {
+    "ascii_sheet_sha256": "45c465619f34d84750d12514beff73365a4f8da174450a8d891996c92ff748b7",
+    "configuration_bank": [
+      "CFG_A",
+      "CFG_B",
+      "CFG_C",
+      "CFG_D"
+    ],
+    "configuration_keys_consumed": 0,
+    "configuration_selected": "CFG_A",
+    "connective_motion": "NONE: decisive keys are shown directly with explicit holds; no transition frame is permitted to invent semantics.",
+    "fps": 24,
+    "media_bytes": 2765,
+    "media_sha256": "8afebb0d4dfc74e6b62dff4428c2a89c762b17eba5e7152b2e22ed82324ab4ea",
+    "timeline": [
+      {"body":"T50","configuration":"CFG_A","frame":0,"hold_index":1,"hold_total":4},
+      {"body":"T50","configuration":"CFG_A","frame":1,"hold_index":2,"hold_total":4},
+      {"body":"T50","configuration":"CFG_A","frame":2,"hold_index":3,"hold_total":4},
+      {"body":"T50","configuration":"CFG_A","frame":3,"hold_index":4,"hold_total":4},
+      {"body":"T51","configuration":"CFG_A","frame":4,"hold_index":1,"hold_total":2},
+      {"body":"T51","configuration":"CFG_A","frame":5,"hold_index":2,"hold_total":2},
+      {"body":"T52","configuration":"CFG_A","frame":6,"hold_index":1,"hold_total":1},
+      {"body":"T53","configuration":"CFG_A","frame":7,"hold_index":1,"hold_total":2},
+      {"body":"T53","configuration":"CFG_A","frame":8,"hold_index":2,"hold_total":2},
+      {"body":"T54","configuration":"CFG_A","frame":9,"hold_index":1,"hold_total":1},
+      {"body":"T55","configuration":"CFG_A","frame":10,"hold_index":1,"hold_total":2},
+      {"body":"T55","configuration":"CFG_A","frame":11,"hold_index":2,"hold_total":2},
+      {"body":"T56","configuration":"CFG_A","frame":12,"hold_index":1,"hold_total":4},
+      {"body":"T56","configuration":"CFG_A","frame":13,"hold_index":2,"hold_total":4},
+      {"body":"T56","configuration":"CFG_A","frame":14,"hold_index":3,"hold_total":4},
+      {"body":"T56","configuration":"CFG_A","frame":15,"hold_index":4,"hold_total":4}
+    ],
+    "timing_policy": "STREET_FIGHTER/CAPCOM"
+  },
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "experiment_id": "v2-timing-005-variant-bank-zero-time",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "stable information-bearing hold",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T50",
+      "motion_arc_root_note": "root centered; no travel; readable neutral load",
+      "name": "READY",
+      "pose_rig": {"j":[[20,8],[20,6],[20,4],[17,7],[23,7],[18,9],[22,9],[17,12],[23,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "BOTH_FEET_STABLE",
+      "timing_class": "FOURS",
+      "timing_equivalence_class": "T50",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "anticipation / load",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T51",
+      "motion_arc_root_note": "root lowers one row and drifts left; preparation arc begins",
+      "name": "UNWEIGHT",
+      "pose_rig": {"j":[[19,9],[20,7],[20,5],[17,8],[23,8],[18,10],[21,10],[16,12],[23,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "BOTH_FEET_LIGHT",
+      "timing_class": "TWOS",
+      "timing_equivalence_class": "T51",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "fast causal release",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T52",
+      "motion_arc_root_note": "root commits right; chest leads; support narrows",
+      "name": "DRIVE",
+      "pose_rig": {"j":[[21,8],[23,6],[24,4],[19,6],[26,6],[20,9],[22,9],[18,12],[24,11]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "LEFT_SUPPORT_DOMINANT",
+      "timing_class": "ONES",
+      "timing_equivalence_class": "T52",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "travel / transfer",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T53",
+      "motion_arc_root_note": "root crosses support line on a shallow rightward arc",
+      "name": "CROSS",
+      "pose_rig": {"j":[[23,8],[24,6],[24,4],[21,6],[27,7],[22,9],[24,9],[21,12],[26,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "RIGHT_SUPPORT_ACQUIRING",
+      "timing_class": "TWOS",
+      "timing_equivalence_class": "T53",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "contact / constraint change",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T54",
+      "motion_arc_root_note": "root checks forward travel at new support; no extra in-between",
+      "name": "CATCH",
+      "pose_rig": {"j":[[24,8],[23,6],[23,4],[20,7],[26,6],[23,9],[25,9],[22,12],[26,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "RIGHT_SUPPORT_STABLE",
+      "timing_class": "ONES",
+      "timing_equivalence_class": "T54",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery / load redistribution",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T55",
+      "motion_arc_root_note": "root recenters over broadened support; consequence decays",
+      "name": "SETTLE",
+      "pose_rig": {"j":[[22,8],[22,6],[22,4],[19,7],[25,7],[20,9],[24,9],[19,12],[25,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "BOTH_FEET_STABLE",
+      "timing_class": "TWOS",
+      "timing_equivalence_class": "T55",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "re-established readable hold",
+      "clock_channel": "BODY_CLOCK",
+      "configuration_applicability": ["CFG_A","CFG_B","CFG_C","CFG_D"],
+      "key_id": "T56",
+      "motion_arc_root_note": "root centered; same causal role as ready after completed transfer",
+      "name": "READY_RETURN",
+      "pose_rig": {"j":[[20,8],[20,6],[20,4],[17,7],[23,7],[18,9],[22,9],[17,12],[23,12]],"rig_id":"GENERIC_BIPED_9J"},
+      "support_contact": "BOTH_FEET_STABLE",
+      "timing_class": "FOURS",
+      "timing_equivalence_class": "T56",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "timing",
+  "manifest": {
+    "format_version": 2,
+    "media_bytes": 2765,
+    "media_sha256": "8afebb0d4dfc74e6b62dff4428c2a89c762b17eba5e7152b2e22ed82324ab4ea",
+    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "status": "BUILT",
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "principle": "Visual configuration multiplicity does not expand a temporal clock. Collapse configuration-only variants before cadence; compile one causal BODY_CLOCK and keep CONFIG_AXIS non-temporal unless an authored event changes configuration.",
+  "rig": {
+    "copyright_safe": true,
+    "joint_order": ["root","chest","head","hand_l","hand_r","hip_l","hip_r","foot_l","foot_r"],
+    "links": [[0,1],[1,2],[1,3],[1,4],[0,5],[0,6],[5,7],[6,8]],
+    "notation": "Integer 2D Blender-style control points projected to an ASCII grid; generic rig authored independently of source art.",
+    "rig_id": "GENERIC_BIPED_9J"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": "41182",
+    "identity": "Gemini Man — Mega Man Soccer — SNES — Playable Characters",
+    "inferred": [
+      "BODY_CLOCK decomposition and the seven-key synthetic transfer grammar.",
+      "All ONES/TWOS/FOURS assignments and the 16-display-frame compilation.",
+      "CFG_A/CFG_B/CFG_C/CFG_D labels and their timing-equivalence treatment in this specimen.",
+      "Causal roles, root notes, and support/load interpretations of the generic ASCII rig."
+    ],
+    "observed": [
+      "TSR identifies one 422x414 PNG sheet for Gemini Man in Mega Man Soccer, SNES, Playable Characters.",
+      "The complete sheet visibly contains many full-body pose/action families rather than one linear strip.",
+      "The lower portion visibly repeats comparable full-body organizations across multiple color/configuration presentations.",
+      "Separate head/reference sprites are present apart from the full-body families.",
+      "TSR reports Animated GIFs (0), so the sheet does not itself establish playback exposure."
+    ],
+    "page_animations_count": 0,
+    "page_url": "https://www.spriters-resource.com/snes/mmsoccer/asset/41182/",
+    "rights_note": "Copyrighted commercial-game sprites were inspected only as whole-sheet evidence. This repository specimen contains no source pixels, palette, costume, contours, exact silhouette, sheet layout, tracing, redistribution, close imitation, or source choreography; only abstract timing/equivalence principles and source identity are retained.",
+    "sheet_dimensions": "422x414",
+    "sheet_format": "PNG",
+    "site": "The Spriters Resource",
+    "unknown": [
+      "Source playback order for sheet cells.",
+      "Source per-cell exposure, cadence, cycle rate, hit-stop, and phase relationships.",
+      "Which source visual variants are runtime-selectable, palette-driven, precomposed, or merely reference material.",
+      "Any source-authentic synchronization between body, configuration, or auxiliary material."
+    ],
+    "whole_sheet_evidence_boundary": "The entire rendered 422x414 sheet was inspected as one evidence surface. The upper area contains many full-body pose/action families; the lower area contains conspicuous repeated full-body color/configuration rows plus separate head/reference sprites. Spatial adjacency is not chronology.",
+    "whole_sheet_inspected": true
+  },
+  "timing_doctrine": {
+    "FOURS": "one drawing/key held four display frames",
+    "ONES": "new drawing/key sample every display frame",
+    "STREET_FIGHTER/CAPCOM": "nonuniform authored gameplay timing that may mix anticipation holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, and selective sampling; no inferred duration is source-authentic",
+    "TWOS": "one drawing/key held two display frames",
+    "nominal_24fps_samples_per_second": {"FOURS":6,"ONES":24,"TWOS":12},
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Variant Bank / Zero-Time Configuration"
+}
