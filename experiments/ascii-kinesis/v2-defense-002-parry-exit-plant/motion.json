@@ -1,0 +1,332 @@
+{
+  "ascii_sheet_sha256": "48d4a84a42b46c762e759b57a5e14d8ce845eaf0af257348df8bf832a593473c",
+  "compatibility": {
+    "backward_compatible": true,
+    "offline_playback": true,
+    "v1_artifacts_untouched": true,
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "compile": {
+    "ascii_only_frame_render": true,
+    "connector_rule": "interpolate joint geometry only when support_contact, contact_state, root_state, guard_state, and readiness are identical across adjacent decisive keys; otherwise hard-cut at the causal join",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 9023,
+    "media_sha256": "4b8be05c83f40bdd39946edd1952098be94d9caa39f14907034ca4756e4cb6c3",
+    "method": "Motion Dungeon",
+    "pipeline": "authored decisive ASCII keys -> explicit holds/timing -> deterministic connective motion -> ASCII-only frame render -> MP4 -> self-contained SPA",
+    "semantic_frames_per_loop": 17,
+    "transitions_invent_semantics": false,
+    "video_frames_total": 68
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "INFERRED": [
+      "Synthetic parry-to-sidestep ordering and the incoming contact direction used by this abstract rig.",
+      "An overlap window in which guard authority remains bound while the original support becomes rear-dominant and the exit foot probes laterally.",
+      "Recovery begins at the first trustworthy lateral plant and finishes when task readiness is rebound at the new address.",
+      "All ONES/TWOS/FOURS timing classes use PoseLab V1 STREET_FIGHTER/CAPCOM compilation policy."
+    ],
+    "OBSERVED": [
+      "Exact TSR archive identity, byte count, SHA-256, 1,724 PNG count, and 588 top-level animation-family count are preserved in the campaign receipt.",
+      "The archive contains shield/defense and hit/consequence families alongside travel and recovery families.",
+      "Whole-archive alpha-geometry and decisive-family pixel inspections were completed in the preserved source audit.",
+      "No playback-duration metadata established source-authentic exposure timing."
+    ],
+    "UNKNOWN": [
+      "Source-authentic chronology and display exposure.",
+      "Anatomical support foot for every source drawing.",
+      "Exact source contact vector, hitbox, force magnitude, and hit-stop duration.",
+      "Source-authentic root path or authored cancel window."
+    ]
+  },
+  "experiment_id": "v2-defense-002-parry-exit-plant",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "pre-impact readable ready anchor",
+      "contact_state": "NONE",
+      "guard_state": "READY",
+      "joints": {
+        "foot_l": [17,15],
+        "foot_r": [24,15],
+        "hand_l": [16,7],
+        "hand_r": [25,6],
+        "head": [20,3],
+        "knee_l": [18,12],
+        "knee_r": [23,12],
+        "pelvis": [20,9],
+        "shoulder_l": [18,5],
+        "shoulder_r": [22,5]
+      },
+      "key_id": "D002-K0",
+      "motion_arc_root_note": "root stable at original address; facing preserved",
+      "name": "TRACK_READY",
+      "pose_rig": "neutral staggered base with guard hand forward",
+      "readiness": "BOUND",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "pre-contact brace and support bias",
+      "contact_state": "NONE",
+      "guard_state": "BRACED",
+      "joints": {
+        "foot_l": [17,15],
+        "foot_r": [24,15],
+        "hand_l": [16,8],
+        "hand_r": [26,7],
+        "head": [20,4],
+        "knee_l": [18,13],
+        "knee_r": [23,13],
+        "pelvis": [20,10],
+        "shoulder_l": [18,6],
+        "shoulder_r": [22,6]
+      },
+      "key_id": "D002-K1",
+      "motion_arc_root_note": "pelvis lowers one cell; rear support becomes primary without root travel",
+      "name": "BRACE_PRELOAD",
+      "pose_rig": "compressed guard with lead side free to redirect",
+      "readiness": "BOUND",
+      "root_state": "COILED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "deflect contact without surrendering guard authority",
+      "contact_state": "DEFLECT_CONTACT",
+      "guard_state": "CONTACT",
+      "joints": {
+        "foot_l": [16,15],
+        "foot_r": [23,15],
+        "hand_l": [15,8],
+        "hand_r": [28,6],
+        "head": [19,4],
+        "knee_l": [17,13],
+        "knee_r": [22,13],
+        "pelvis": [19,10],
+        "shoulder_l": [17,6],
+        "shoulder_r": [21,6]
+      },
+      "key_id": "D002-K2",
+      "motion_arc_root_note": "root still near original address; upper channel redirects incoming line",
+      "name": "REDIRECT_CONTACT",
+      "pose_rig": "guard arm meets inferred incoming vector while pelvis stays compressed",
+      "readiness": "BOUND",
+      "root_state": "COILED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "release contact and open lateral root route",
+      "contact_state": "NONE",
+      "guard_state": "OPENING",
+      "joints": {
+        "foot_l": [15,15],
+        "foot_r": [22,15],
+        "hand_l": [16,8],
+        "hand_r": [27,7],
+        "head": [19,4],
+        "knee_l": [16,13],
+        "knee_r": [21,13],
+        "pelvis": [18,10],
+        "shoulder_l": [17,6],
+        "shoulder_r": [21,6]
+      },
+      "key_id": "D002-K3",
+      "motion_arc_root_note": "lead foot unloads; pelvis begins lateral translation without reversing facing",
+      "name": "RELEASE_TURN",
+      "pose_rig": "rear-leg support with torso opening away from contact line",
+      "readiness": "PARTIAL",
+      "root_state": "YAW_RELEASE",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "probe next address before full commitment",
+      "contact_state": "NONE",
+      "guard_state": "HALF_BOUND",
+      "joints": {
+        "foot_l": [13,15],
+        "foot_r": [23,15],
+        "hand_l": [14,8],
+        "hand_r": [24,7],
+        "head": [17,4],
+        "knee_l": [14,13],
+        "knee_r": [20,13],
+        "pelvis": [16,10],
+        "shoulder_l": [15,6],
+        "shoulder_r": [19,6]
+      },
+      "key_id": "D002-K4",
+      "motion_arc_root_note": "root travels left while free foot searches laterally; no new support claimed yet",
+      "name": "LATERAL_PROBE",
+      "pose_rig": "one-foot support, free foot extended toward exit",
+      "readiness": "PARTIAL",
+      "root_state": "TRAVERSING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy support at new address",
+      "contact_state": "NONE",
+      "guard_state": "BOUND",
+      "joints": {
+        "foot_l": [10,15],
+        "foot_r": [20,15],
+        "hand_l": [12,8],
+        "hand_r": [22,7],
+        "head": [15,4],
+        "knee_l": [12,13],
+        "knee_r": [18,13],
+        "pelvis": [14,10],
+        "shoulder_l": [13,6],
+        "shoulder_r": [17,6]
+      },
+      "key_id": "D002-K5",
+      "motion_arc_root_note": "lateral foot earns support; root decelerates into widened base",
+      "name": "EXIT_PLANT",
+      "pose_rig": "new lead support catches while rear foot remains connected",
+      "readiness": "REBINDING",
+      "root_state": "CATCHING",
+      "support_contact": "BOTH_OFFSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "re-center guard and support authority after catch",
+      "contact_state": "NONE",
+      "guard_state": "BOUND",
+      "joints": {
+        "foot_l": [11,15],
+        "foot_r": [19,15],
+        "hand_l": [11,7],
+        "hand_r": [21,6],
+        "head": [14,3],
+        "knee_l": [12,12],
+        "knee_r": [17,12],
+        "pelvis": [14,9],
+        "shoulder_l": [12,5],
+        "shoulder_r": [16,5]
+      },
+      "key_id": "D002-K6",
+      "motion_arc_root_note": "root settles over new base; no teleport back to original address",
+      "name": "GUARD_REBIND",
+      "pose_rig": "torso restacks while guard remains action-capable",
+      "readiness": "BOUND",
+      "root_state": "RESTACKING",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry at displaced root address",
+      "contact_state": "NONE",
+      "guard_state": "READY",
+      "joints": {
+        "foot_l": [10,15],
+        "foot_r": [17,15],
+        "hand_l": [9,7],
+        "hand_r": [18,6],
+        "head": [13,3],
+        "knee_l": [11,12],
+        "knee_r": [16,12],
+        "pelvis": [13,9],
+        "shoulder_l": [11,5],
+        "shoulder_r": [15,5]
+      },
+      "key_id": "D002-K7",
+      "motion_arc_root_note": "same task-ready grammar as K0, but root is laterally displaced",
+      "name": "READY_NEW_ADDRESS",
+      "pose_rig": "ready base reconstructed at new address",
+      "readiness": "BOUND",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "defense",
+  "manifest_facts": {
+    "ascii_literal_text": true,
+    "authoritative_media": "embedded MP4 data URI in parry-exit-plant.motion.html",
+    "backward_compatible": true,
+    "format_version": 2,
+    "ligatures_disabled": true,
+    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only",
+    "whitespace_preserved": true
+  },
+  "manifest_receipt": {
+    "manifest": "manifest.json",
+    "receipt": "receipt.md",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/",
+    "tracked_spa": "parry-exit-plant.motion.html"
+  },
+  "principle": "A defensive redirect should reserve the next trustworthy support plant before guard authority fully releases; recovery is complete only when support and readiness rebind at the new address.",
+  "receipt_facts": {
+    "all_decisive_key_timing_provenance": "INFERRED",
+    "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+    "issue": "Valar05/home-center#343",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/",
+    "source_timing_observed": false,
+    "status": "BUILT_PENDING_REPO_PERSISTENCE"
+  },
+  "rig": {
+    "channels": ["root","support","guard","contact","facing","readiness"],
+    "coordinate_space": "48x18 character cells",
+    "independent_authorship": true,
+    "joints": ["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],
+    "kind": "generic_ascii_biped_v2"
+  },
+  "rights": {
+    "drew_work_used": false,
+    "note": "Copyright-restricted source art is evidence only. This specimen reproduces no source pixels, palette, costume, face, exact silhouette, layout, tracing, choreography, or close imitation. The shipped performance is an independently authored generic ASCII biped.",
+    "source_art_embedded": false
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 565619,
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/565619/",
+    "raw_sha256": "41b28692c8c79929a8044a13942e3be8a549e660cf6d1a317c03ec51a6a238ff",
+    "site": "The Spriters Resource",
+    "source_bytes": 1154726,
+    "source_container": "TSR ZIP",
+    "source_timing_available": false,
+    "title": "Mina — Mina the Hollower — PC / Computer — Playable Characters",
+    "whole_sheet_evidence_basis": "Campaign-preserved exact-byte audit: 1,724 PNGs / 588 top-level animation families; all PNG alpha geometry scanned; decisive shield/hit families inspected pixelwise before this V2 specimen was authored.",
+    "whole_sheet_inspected": true
+  },
+  "timing_vocabulary": {
+    "FOURS": "one authored sample held for four display frames",
+    "ONES": "new authored sample every display frame",
+    "TWOS": "one authored sample held for two display frames",
+    "policy": "STREET_FIGHTER/CAPCOM nonuniform authored gameplay timing; INFERRED here, never source-authentic",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Parry Exit-Plant / Guarded Re-entry"
+}
