@@ -125,15 +125,48 @@ def render_video(data):
         ],check=True)
 
 def make_page(data, ascii_text, media):
-    payload={k:data[k] for k in [
-      "schema","format_version","experiment_id","lane","title","principle","rig","keys",
-      "clock_channels","axis_separation","timing_doctrine","source","compile",
-      "compatibility","manifest","correction_hooks"
-    ]}
+    audit_keys=[{
+      "key_id":k["key_id"],
+      "pose_rig":k["pose_rig"],
+      "support_contact":k["support_contact"],
+      "motion_arc_root_note":k["motion_arc_root_note"],
+      "timing_class":k["timing_class"],
+      "timing_provenance":k["timing_provenance"],
+      "causal_role":k["causal_role"],
+      "clock_channel":k["clock_channel"]
+    } for k in data["keys"]]
+    payload={
+      "schema":data["schema"],"format_version":data["format_version"],
+      "experiment_id":data["experiment_id"],"lane":data["lane"],"title":data["title"],
+      "principle":data["principle"],"rig":data["rig"],"keys":audit_keys,
+      "clock_channels":data["clock_channels"],"axis_separation":data["axis_separation"],
+      "timing_doctrine":data["timing_doctrine"],
+      "timing_provenance":{
+        "OBSERVED":["TSR identity/422x414 PNG/full-sheet visual inspection","many full-body action families","lower repeated configuration/color rows","separate head/reference sprites","Animations(0)"],
+        "INFERRED":["generic rig/causal roles","all ONES/TWOS/FOURS","BODY_CLOCK and zero-time CFG_A/B/C/D equivalence"],
+        "UNKNOWN":["source chronology/exposures/cadence/hit-stop","runtime configuration semantics","source cross-channel synchronization"]
+      },
+      "source_rights":{
+        "site":data["source"]["site"],"identity":data["source"]["identity"],
+        "asset_id":data["source"]["asset_id"],"page_url":data["source"]["page_url"],
+        "whole_sheet_inspected":True,"rights_note":"copyrighted whole-sheet evidence only; no source pixels/palette/contours/layout/tracing/redistribution/close imitation/choreography embedded"
+      },
+      "compile":{
+        "fps":data["compile"]["fps"],
+        "sequence":[f"{k['key_id']}:{k['timing_class']}" for k in data["keys"]],
+        "frames_total":len(data["compile"]["timeline"]),
+        "configuration_bank":data["compile"]["configuration_bank"],
+        "configuration_keys_consumed":0,
+        "connective_motion":"none; decisive keys + explicit holds only",
+        "media_sha256":data["compile"]["media_sha256"],
+        "media_bytes":data["compile"]["media_bytes"]
+      },
+      "compatibility":data["compatibility"],
+      "manifest":data["manifest"],
+      "correction_hooks":data["correction_hooks"]
+    }
     compact=json.dumps(payload,separators=(",",":"),sort_keys=True)
-    a=html.escape(ascii_text)
-    j=html.escape(compact)
-    b64=base64.b64encode(media).decode("ascii")
+    a=html.escape(ascii_text); j=html.escape(compact); b64=base64.b64encode(media).decode("ascii")
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Timing 005</title><style>:root{{color-scheme:dark}}body{{font-family:system-ui;margin:1rem}}nav{{display:flex;gap:.5rem;flex-wrap:wrap}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0;white-space:pre;overflow:auto;line-height:1}}video{{max-width:100%;height:auto}}</style></head><body><h1>Variant Bank / Zero-Time Configuration</h1><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre>{a}</pre></section><section id="json" hidden><pre>{j}</pre></section><section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section><script>const b=[...document.querySelectorAll("button[data-view]")],s=[...document.querySelectorAll("section")];b.forEach(x=>x.onclick=()=>s.forEach(y=>y.hidden=y.id!==x.dataset.view));</script></body></html>'''
 
 def main():
