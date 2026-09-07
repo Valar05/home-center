@@ -2,7 +2,7 @@
 
 ## Purpose
 
-ASCII Kinesis is an anthology of embodied-motion experiments. Each experiment keeps its own source, contact sheet, structured data, compiled media, delivery SPA, and receipt. Reusable lessons are promoted separately from specimens.
+ASCII Kinesis is an anthology of embodied-motion experiments. Each experiment keeps its own durable source, structured data, compiled media, build path, provenance boundary, and receipt. Reusable lessons are promoted separately from specimens.
 
 This extends, but does not replace, the existing UAPL lineage:
 
@@ -20,18 +20,21 @@ A specimen is evidence, not generalized doctrine. Generalized learnings live in 
 
 Do not overwrite old experiments to make a new theory look cleaner. Append a new experiment or new manifest version.
 
-## Complete experiment bundle
+## Repository specimen vs delivery artifact
 
-A complete current entry contains:
+The durable repository is the reconstruction and provenance home. A current experiment directory tracks enough material to reproduce and inspect the commissioned artifact without the original chat:
 
-1. self-contained `*.motion.html` that a human can open directly;
-2. raw ASCII contact sheet as selectable text;
-3. raw structured JSON data;
-4. authoritative UAPL pose source where a rig/pose model is used;
-5. UAT timing opinion when timing is modeled;
-6. actual compiled motion media (`.gif`, `.mp4`, or a later backward-compatible media type);
-7. manifest with schema/version, hashes, source-evidence boundary, status, and candidate learnings;
-8. build/reconstruction source when the entry was procedurally assembled.
+1. raw structured motion JSON;
+2. authoritative UAPL pose source where a rig/pose model is used;
+3. UAT timing opinion when timing is modeled;
+4. actual compiled motion media (`.gif`, `.mp4`, or a later backward-compatible media type);
+5. manifest with schema/version, source-evidence boundary, status, compatibility policy, and candidate learnings;
+6. deterministic build/reconstruction source;
+7. human-readable experiment README.
+
+The **human delivery artifact** is an actual openable self-contained `*.motion.html` attachment. It contains the assembled animation/video, raw selectable ASCII contact sheet, raw JSON, source, and manifest. The repository builder may generate that envelope rather than tracking a second copy of a large embedded-media file.
+
+A convenience `contact-sheet.txt` may likewise be generated deterministically from the tracked source. The raw contact sheet remains durable because its literal text is embedded in the generated delivery envelope and reproducible from the tracked source.
 
 Chat code blocks are not the delivery surface. Local scratch is not persistence proof.
 
@@ -42,7 +45,7 @@ The format may evolve aggressively but must remain backward compatible.
 - New readers/builders MUST accept older anthology entry versions.
 - New versions are additive by default.
 - Existing UAPL 1 / UAT 1 sources remain interpretable without migration.
-- An old self-contained HTML artifact must continue to open without a network dependency.
+- Any previously delivered self-contained HTML artifact must continue to open without a network dependency.
 - New views or richer JSON may not make old required fields ambiguous.
 - If a future representation cannot preserve an old field directly, it must provide a lossless adapter/read path rather than declaring the old entry obsolete.
 - Existing experiments are immutable evidence; corrections are appended as new evidence or new versions.
@@ -65,6 +68,8 @@ At minimum the human-facing SPA must expose:
 - raw ASCII contact sheet;
 - raw JSON;
 - source/manifest.
+
+Repository persistence and user delivery are separate proof surfaces. A repository commit does not prove the user received an attachment; an attachment in chat does not prove the experiment is durable.
 
 ## Current anthology
 
