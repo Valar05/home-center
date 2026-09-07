@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 · Video Motion 001</title><style>:root{color-scheme:dark;background:#0a0a0a;color:#f2f2f2;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0a0a0a;color:#f2f2f2}header{position:sticky;top:0;background:#111;border-bottom:1px solid #444;padding:.75rem;z-index:2}nav{display:flex;gap:.5rem}button{font:inherit;padding:.6rem .9rem;background:#1c1c1c;color:#eee;border:1px solid #555;border-radius:.35rem;cursor:pointer}button[aria-selected="true"]{background:#eee;color:#111}main{padding:1rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;tab-size:2;overflow:auto;line-height:1.15;margin:0;padding:1rem;border:1px solid #333;background:#0d0d0d;max-width:100%}video{display:block;width:min(100%,960px);height:auto;border:1px solid #333;background:#000}.small{max-width:70rem;margin:0 0 1rem 0;line-height:1.5}</style></head><body><header><nav aria-label="Primary views"><button type="button" data-view="ascii" aria-selected="true">ASCII</button><button type="button" data-view="json" aria-selected="false">JSON</button><button type="button" data-view="video" aria-selected="false">VIDEO</button></nav></header><main><section id="view-ascii"><p class="small">Literal selectable/copyable contact sheet. No source pixels are present.</p><pre id="ascii-sheet">ASCII KINESIS V2 · VIDEO MOTION 001 · COMPRESSION → RELEASE → COUNTER-ARC
+Source evidence: He'll walk the plank.webm · coherent segment 15.000–18.750 s
+Legend: O=head  |=spine  @=root/pelvis proxy  = long prop/constraint axis  ?=unresolved support/contact
+        &lt;&lt; root travel toward screen-left   ----&gt; trailing upper-limb counter-arc
+
+K0 · 15.000 s · OBSERVED · SET / TENSION
+      OA                         OB
+      |\=======================/|
+      @                         @
+     / \                       / ?
+____/___\_____________________/___?____
+A root quiet; B low/right; wide spacing.
+
+K1 · 16.000 s · OBSERVED · RISE / CLOSE
+      OA                    OB
+      |\===================/|
+      @                    @  &lt;&lt;
+     / \                  / ?
+____/___\________________/___?________
+B root rises + travels left; A remains anchor-like.
+
+K2 · 17.000 s · OBSERVED · COMPRESSION
+      OA              OB
+      |\==============/|
+      @               @ &lt;&lt;
+     / \             / ?
+____/___\___________/___?____________
+Spacing collapses; B support side remains unresolved.
+
+K3 · 17.750 s · OBSERVED · MAX COMPRESSION
+      OA          OB
+      |\==========/|
+      @           @
+     / \         / ?
+____/___\_______/___?________________
+Near-maximum compression before the fast transition.
+
+K4 · ~17.917 s · OBSERVED · BURST MARKER
+      OA       OB
+      |\======/|
+      @ &lt;&lt;&lt;&lt;  @
+____/___\__?_________________________
+Measured native-frame image-change peak; no discrete collision is claimed.
+
+K5 · 18.250 s · OBSERVED · PASS-THROUGH / OVERLAP
+      OAO B
+      |X|
+      @ &lt;@  &lt;&lt;
+____/___?____________________________
+Silhouettes overlap/cross; B continues leftward through compressed spacing.
+
+K6 · 18.750 s · OBSERVED · FOLLOW-THROUGH
+    OB  OA  ----&gt;
+    |\  /|
+    @    @
+___?____/ \__________________________
+B has crossed left of A; trailing upper limb counter-arcs screen-right.
+Recovery has begun but is incomplete.
+
+TIMING PROVENANCE
+K0 15.000 OBSERVED · ordered visual sample
+K1 16.000 OBSERVED · ordered visual sample
+K2 17.000 OBSERVED · ordered visual sample
+K3 17.750 OBSERVED · ordered visual sample
+K4 ~17.917 OBSERVED · native-frame numeric change peak, visually bracketed
+K5 18.250 OBSERVED · ordered visual sample
+K6 18.750 OBSERVED · ordered visual sample
+
+UNRESOLVED BY DESIGN
+Exact B foot support side · exact hand/prop contact endpoints · actor driving/yielding role · discrete impact event.</pre></section><section id="view-json" hidden><p class="small">Structured rig, keys, timing, provenance, rights, compatibility, manifest, and media hash.</p><pre id="json-audit">{"schema":"ascii-kinesis.motion.v2","experiment_id":"v2-video-motion-001-black-pirate-compression-release","lane":"video-motion","source":{"title":"He'll walk the plank.webm","url":"https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm","origin":"The Black Pirate (1926) extract","rights_status":"PUBLIC_DOMAIN_US","source_sha1":"249a58eaf8ea1c3fe2c4232e23184f757a1ad80c","source_bytes":1281353,"duration_s":19.017,"selected_segment_s":[15.0,18.75]},"rights":{"source_pixels_embedded":false,"output_video_source":"abstract_ascii_rig_only"},"evidence":{"OBSERVED":["A comparatively root-stable while B closes left/up","long compression 15.000–17.750 s","native-frame change peak ~17.917 s","silhouette overlap/pass-through 18.000–18.250 s","counter-arc recovery onset by 18.750 s"],"INFERRED":["connective geometry","compile hold allocation"],"UNKNOWN":["exact B foot support side","exact hand/prop endpoints","discrete physical impact","driver/yielder role"]},"rig":{"type":"abstract_two_actor_ascii_biped","coordinate_space":"64x20 character grid","joints":["head","spine","root_proxy","left_leg","right_leg","upper_limb_axis"],"glyphs":{"O":"head","|":"spine","@":"root/pelvis proxy","/\\":"limbs","=":"unresolved prop/constraint","?":"unresolved support/contact","X":"silhouette overlap only"}},"keys":[{"key_id":"K0","source_time_s":15.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":5,"compile_timing_provenance":"INFERRED","causal_role":"SET_TENSION","support_contact":"A stable; B support unresolved","root_note":"B low/right; wide spacing"},{"key_id":"K1","source_time_s":16.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":5,"compile_timing_provenance":"INFERRED","causal_role":"RISE_CLOSE","support_contact":"A stable; B support unresolved","root_note":"B rises + travels left"},{"key_id":"K2","source_time_s":17.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":4,"compile_timing_provenance":"INFERRED","causal_role":"COMPRESSION","support_contact":"B support unresolved","root_note":"spacing strongly compressed"},{"key_id":"K3","source_time_s":17.75,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":1,"compile_timing_provenance":"INFERRED","causal_role":"MAX_COMPRESSION","support_contact":"exact contact unresolved","root_note":"near-max compression"},{"key_id":"K4","source_time_s":17.917,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":7,"compile_timing_provenance":"INFERRED","causal_role":"BURST_MARKER","support_contact":"no discrete impact promoted","root_note":"leftward release underway","causal_boundary_to_next":true},{"key_id":"K5","source_time_s":18.25,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":2,"compile_timing_provenance":"INFERRED","causal_role":"PASS_THROUGH_OVERLAP","support_contact":"silhouette overlap only","root_note":"B crosses left through A space"},{"key_id":"K6","source_time_s":18.75,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_hold_frames":12,"compile_timing_provenance":"INFERRED","causal_role":"FOLLOW_THROUGH_RECOVERY_ONSET","support_contact":"support side unresolved","root_note":"B left of A; upper-limb counter-arc right"}],"timing":{"compile_fps":24,"source_timing":"OBSERVED timestamps","inferred_vocab":"ONES/TWOS/FOURS/STREET_FIGHTER-CAPCOM only when source timing is unavailable","shorthand":"1s/2s/4s are classes, not seconds","transport_cadence_firewall":true},"motion_dungeon":{"pipeline":["authored_ascii_keys","explicit_holds","deterministic_connective_motion","ascii_only_frame_render","mp4","embedded_spa"],"transition_rule":"geometry only; support/contact/root causal state stays authored; K4→K5 fails closed","source_pixels_used":false},"media":{"mime":"video/mp4","sha256":"b8a9cf74768cebc5a063d0bcbdfecb660b0d8dbb8628dd4eeb0ce3c1799a8328","bytes":11526,"frames":102,"fps":24,"dimensions":[384,160],"duration_s":4.25,"embedded":"data_uri"},"compatibility":{"backward_compatible":true,"primary_tabs":["ASCII","JSON","VIDEO"],"offline_spa":true,"v1_untouched":true},"manifest":{"format_version":2,"ascii_literal_text":true,"video_required":true,"video_source":"abstract_ascii_rig_only","source_art_embedded":false,"builder":"build_motion.py","motion":"motion.json","receipt":"receipt.json","contract_test":"tools/test_ascii_kinesis_swarm_contract_v2.py"}}</pre></section><section id="view-video" hidden><p class="small">Motion Dungeon MP4 rendered solely from the abstract ASCII rig and structured timing.</p><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,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...<BASE64_OMITTED_FOR_BREVITY>...AF0ehaC9BN1OjVwGBCCB"></video></section></main><script>const buttons=[...document.querySelectorAll('nav button')],sections={ascii:document.getElementById('view-ascii'),json:document.getElementById('view-json'),video:document.getElementById('view-video')};for(const b of buttons)b.addEventListener('click',()=>{for(const x of buttons)x.setAttribute('aria-selected',String(x===b));for(const [name,s] of Object.entries(sections))s.hidden=name!==b.dataset.view});</script></body></html>
