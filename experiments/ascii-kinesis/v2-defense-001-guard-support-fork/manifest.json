@@ -1,0 +1,27 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "b2c17db8202e639c6b5b465910b8795afe3803658987ebf6760ee77da77b3d9e",
+  "ascii_source": "contact-sheet.txt",
+  "backward_compatible": true,
+  "builder": "build.py",
+  "contract_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+  "contract_test_scope": "Exact repository test script logic executed locally against the new entry; repository-wide remote execution is not available through the current Standard Chat GitHub write connector.",
+  "contract_test_status": "PASS_ISOLATED_EXACT_SCRIPT",
+  "experiment_id": "v2-defense-001-guard-support-fork",
+  "format_version": 2,
+  "lane": "defense",
+  "media_bytes": 11653,
+  "media_container": "identical MP4 bytes embedded as a data URI in the tracked SPA; build.py also emits guard-support-fork.mp4 on reconstruction",
+  "media_sha256": "8b0cde408e9b3597b875beb37d2d52a62704f4ec93b636b4d7e595bf57c2eef9",
+  "motion_json": "motion.json",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "receipt": "receipt.md",
+  "source_art_embedded": false,
+  "spa": "guard-support-fork.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
