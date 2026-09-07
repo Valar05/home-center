@@ -1,5 +1,78 @@
 {
+  "schema": "ascii-kinesis.v2-receipt",
+  "experiment_id": "v2-timing-001-scoped-freeze-release",
+  "status": "VERIFIED_ENTRY_WITH_GLOBAL_TEST_BOUNDARY",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
+  "ship_commit": "c1d37829d24c16dce34fad827ad607ce4d6f4e1b",
+  "repo_readback": "PASS: exact GitHub readback at ship commit c1d37829d24c16dce34fad827ad607ce4d6f4e1b confirmed build.py, manifest.json, motion.json, receipt.json, and scoped-freeze-release.motion.html. Manifest readback confirms ASCII|JSON|VIDEO, embedded-MP4 packaging, abstract_ascii_rig_only, 7 authored keys, 15 authored hold frames + 2 deterministic connective frames per loop, 136 total video frames, and media SHA-256 21a1aa63e8300065da224eb75dfc555bbf4db9dadde3f786549a87e82fd76722. SPA readback confirms literal preformatted ASCII surface and exact primary tab order.",
   "contract_test": "GLOBAL_BOUNDARY_FAIL_PREEXISTING: python3 tools/test_ascii_kinesis_swarm_contract_v2.py -> ASCII_KINESIS_V2_CONTRACT_FAIL: v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA",
+  "contract_test_boundary": "The commissioned test is callable, but its all-v2 scan stops on the pre-existing unrelated v2-defense-001-guard-support-fork defect before it can report a green global result. This specimen was therefore checked separately against the same structural predicates; the unrelated failure was not edited or routed around.",
+  "targeted_entry_validation": "PASS: exact V2 structural predicates applied to v2-timing-001-scoped-freeze-release; 7/7 decisive keys include key id, pose/rig, support/contact, root/motion-arc note, timing class, timing provenance, and causal role.",
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 97821,
+    "name": "Robot",
+    "game": "Nuclear Throne",
+    "category": "PC / Computer",
+    "section": "Playable Characters",
+    "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
+    "format": "PNG",
+    "dimensions": [445, 554],
+    "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
+    "whole_sheet_inspected": true,
+    "whole_sheet_evidence_origin": "Current run re-read the campaign's prior exact whole-sheet custody/inspection evidence; the historical timing pass is evidence only and is not the V2 product.",
+    "source_timing_available": false,
+    "observed": [
+      "The source is one complete static 445x554 PNG sheet.",
+      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
+      "A second B-skin family repeats comparable idle/walk/hurt organization.",
+      "Large portions of body organization recur while local presentation changes."
+    ],
+    "unknown": [
+      "source playback order within every row",
+      "per-cell exposure",
+      "runtime subclock ownership",
+      "source reset/freeze/release policy",
+      "source synchronization event timing",
+      "hit-stop and source cadence"
+    ]
+  },
+  "rights_note": "Copyrighted source sprites are evidence only. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this specimen. Only abstract timing/channel principles are retained.",
+  "observation_inference_split": {
+    "OBSERVED": [
+      "The source is one complete static 445x554 PNG sheet.",
+      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
+      "A second B-skin family repeats comparable idle/walk/hurt organization.",
+      "Large portions of body organization recur while local presentation changes."
+    ],
+    "INFERRED": "All decisive-key timings, authored clock phases, freeze/release placement, connectors, and cadence.",
+    "UNKNOWN": [
+      "source playback order within every row",
+      "per-cell exposure",
+      "runtime subclock ownership",
+      "source reset/freeze/release policy",
+      "source synchronization event timing",
+      "hit-stop and source cadence"
+    ]
+  },
+  "key_timings": [
+    {"key_id": "T001-K0", "name": "FREE_RUN_ZERO", "timing_class": "FOURS", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K1", "name": "A_PHASE_ADVANCE", "timing_class": "TWOS", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K2", "name": "B_PHASE_ADVANCE", "timing_class": "ONES", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K3", "name": "FREEZE_B", "timing_class": "ONES", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K4", "name": "A_CONTINUES_B_HELD", "timing_class": "TWOS", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K5", "name": "RELEASE_B", "timing_class": "ONES", "timing_provenance": "INFERRED"},
+    {"key_id": "T001-K6", "name": "B_RESUMES", "timing_class": "FOURS", "timing_provenance": "INFERRED"}
+  ],
+  "media_sha256": "21a1aa63e8300065da224eb75dfc555bbf4db9dadde3f786549a87e82fd76722",
+  "media_bytes": 10951,
+  "reconstruction": "python3 build.py",
+  "skill_mutation": {
+    "performed": false,
+    "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
+    "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "reason": "This specimen exercises the existing PoseLab v1.10 scoped FREEZE_UNTIL_RELEASE rule; it did not earn a genuinely new reusable timing law."
+  },
   "correction_hooks": [
     "KEEP",
     "REJECT",
@@ -11,113 +84,5 @@
     "SPAWN VARIANT",
     "FIX BLOCKER",
     "RERUN"
-  ],
-  "experiment_id": "v2-timing-001-scoped-freeze-release",
-  "key_timings": [
-    {
-      "key_id": "T001-K0",
-      "name": "FREE_RUN_ZERO",
-      "timing_class": "FOURS",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K1",
-      "name": "A_PHASE_ADVANCE",
-      "timing_class": "TWOS",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K2",
-      "name": "B_PHASE_ADVANCE",
-      "timing_class": "ONES",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K3",
-      "name": "FREEZE_B",
-      "timing_class": "ONES",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K4",
-      "name": "A_CONTINUES_B_HELD",
-      "timing_class": "TWOS",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K5",
-      "name": "RELEASE_B",
-      "timing_class": "ONES",
-      "timing_provenance": "INFERRED"
-    },
-    {
-      "key_id": "T001-K6",
-      "name": "B_RESUMES",
-      "timing_class": "FOURS",
-      "timing_provenance": "INFERRED"
-    }
-  ],
-  "media_bytes": 10951,
-  "media_sha256": "21a1aa63e8300065da224eb75dfc555bbf4db9dadde3f786549a87e82fd76722",
-  "observation_inference_split": {
-    "INFERRED": "All decisive-key timings, authored clock phases, freeze/release placement, connectors, and cadence.",
-    "OBSERVED": [
-      "The source is one complete static 445x554 PNG sheet.",
-      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
-      "A second B-skin family repeats comparable idle/walk/hurt organization.",
-      "Large portions of body organization recur while local presentation changes."
-    ],
-    "UNKNOWN": [
-      "source playback order within every row",
-      "per-cell exposure",
-      "runtime subclock ownership",
-      "source reset/freeze/release policy",
-      "source synchronization event timing",
-      "hit-stop and source cadence"
-    ]
-  },
-  "reconstruction": "python3 build.py",
-  "repo_path": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
-  "repo_readback": "PENDING",
-  "rights_note": "Copyrighted source sprites are evidence only. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this specimen. Only abstract timing/channel principles are retained.",
-  "schema": "ascii-kinesis.v2-receipt",
-  "skill_mutation": {
-    "performed": false,
-    "reason": "Exercises existing PoseLab v1.10 scoped FREEZE_UNTIL_RELEASE; no new reusable rule earned."
-  },
-  "source": {
-    "asset_id": 97821,
-    "category": "PC / Computer",
-    "dimensions": [
-      445,
-      554
-    ],
-    "format": "PNG",
-    "game": "Nuclear Throne",
-    "name": "Robot",
-    "observed": [
-      "The source is one complete static 445x554 PNG sheet.",
-      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
-      "A second B-skin family repeats comparable idle/walk/hurt organization.",
-      "Large portions of body organization recur while local presentation changes."
-    ],
-    "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
-    "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
-    "rights_note": "Copyrighted source sprites are evidence only. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this specimen. Only abstract timing/channel principles are retained.",
-    "section": "Playable Characters",
-    "site": "The Spriters Resource",
-    "source_timing_available": false,
-    "unknown": [
-      "source playback order within every row",
-      "per-cell exposure",
-      "runtime subclock ownership",
-      "source reset/freeze/release policy",
-      "source synchronization event timing",
-      "hit-stop and source cadence"
-    ],
-    "whole_sheet_evidence_origin": "Current run re-read of campaign evidence from the prior full-sheet custody/inspection; historical timing pass is evidence only and is not the V2 product.",
-    "whole_sheet_inspected": true
-  },
-  "status": "BUILT_TARGETED_VALIDATED_AWAITING_REPO_READBACK",
-  "targeted_entry_validation": "PASS: exact V2 structural predicates applied to v2-timing-001-scoped-freeze-release"
+  ]
 }
