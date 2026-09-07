@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 Airborne 001 — Receipt
 
-Status: REPO_COMMIT_PENDING_READBACK
+Status: VERIFIED
 Experiment: `v2-airborne-001-air-task-rides-root-arc`
 Lane: `airborne` — JUMP / AIRBORNE / LANDING / VERTICAL FORCE
 Minimal-maximal unit: **AIR TASK RIDES THE ROOT ARC** — a local airborne pose/task change may alter limb organization while the authored ballistic root arc continues; it must not manufacture a second vertical launch.
@@ -28,6 +28,10 @@ INFERRED for the abstract specimen:
 - contact and compression are separate authored keys;
 - all cadence uses PoseLab V1 `STREET_FIGHTER/CAPCOM` because source timing is unavailable.
 
+UNKNOWN:
+- exact in-game frame exposures and ordering of every source-sheet drawing;
+- whether every visually adjacent source drawing belongs to the same runtime animation clip.
+
 ## Decisive-key timing
 
 | Key | Role | Timing | Provenance |
@@ -48,23 +52,27 @@ INFERRED for the abstract specimen:
 
 ## Artifact / Motion Dungeon
 
-Repository target: `experiments/ascii-kinesis/v2-airborne-001-air-task-rides-root-arc/`
+Repository path: `experiments/ascii-kinesis/v2-airborne-001-air-task-rides-root-arc/`
+Artifact ship commit: `6f9df326c9376326274e3844429353a3003fd750`
 SPA: `air-task-rides-root-arc.motion.html` with exactly `ASCII | JSON | VIDEO`.
-ASCII: complete literal selectable/copyable `<pre>` contact sheet.
+ASCII: complete literal selectable/copyable `<pre>` contact sheet; ligatures disabled; whitespace preserved.
 JSON: rig, keys, timing, evidence split, source/rights, compatibility, manifest/media identity.
 VIDEO: embedded H.264 MP4 compiled solely from abstract ASCII rig coordinates and explicit holds; source sprite pixels used: **false**.
-Media SHA-256: `a9439a4ffa480a40557d300604da4cae47cad7211699571922e66c63c570ea17`
-Media bytes: `25,808`; `960x540`; `24 fps`; `108` frames; `4.5s` compiled loop envelope.
+Embedded media SHA-256: `8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554`
+Embedded media bytes: `14,250`; `960x540`; `24 fps`; `108` frames; `4.5s` compiled loop envelope.
 ASCII sheet SHA-256: `1ace5032a86f478d46beb3a087287f3e28227f58577a08d2730ea5b7b283a154`
 Builder: `python3 build.py`.
 
-## QA before persistence
+The tracked standalone `.mp4` is LFS-managed in GitHub; the self-contained tracked SPA embeds the real 14,250-byte MP4 inline, which is the commissioned playback surface.
 
-- `tools/test_ascii_kinesis_swarm_contract_v2.py` callable against the constructed V2 entry: `ok=true`, entry checked `v2-airborne-001-air-task-rides-root-arc`.
-- `ffprobe`: H.264, `960x540`, `24/1`, `108` frames, `4.500000s`, `25,808` bytes.
-- Full `ffmpeg` decode to null sink: success, zero decode errors.
-- Embedded MP4 bytes == standalone MP4 bytes; SHA-256 matches manifest/motion JSON.
+## Verification / boundaries
 
-Repository ship commit and exact readback are required before this receipt may become VERIFIED.
+Exact GitHub readback at ship commit `6f9df326c9376326274e3844429353a3003fd750` confirmed the new directory and exactly these six files: builder, manifest, motion JSON, receipt, tracked `.motion.html`, and tracked `.mp4`. Manifest readback confirmed V2 format, exact primary tabs `ASCII | JSON | VIDEO`, literal ASCII text, embedded MP4 packaging, source-art exclusion, whole-sheet source identity/hash, 11 authored keys, and media SHA-256 `8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554`. SPA readback confirmed the three tab controls, `<pre>` ASCII surface, disabled ligatures, preserved whitespace, and an inline `data:video/mp4;base64,...` source.
+
+Phone-side reconstruction QA: builder completed; `ffprobe` reported H.264 `960x540`, `24/1`, `108` frames, `4.500000s`; full `ffmpeg` decode to null succeeded; extracted embedded MP4 SHA matched `motion.json` at `8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554`.
+
+Repo-wide `tools/test_ascii_kinesis_swarm_contract_v2.py` was callable and was run. It returned RC=1 on an unrelated pre-existing specimen: `v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`. This is the exact test boundary; it is not a failure of this new airborne entry. No source-evidence blocker remains for this specimen.
+
+Issue receipt: `Valar05/home-center#343` is the durable campaign receipt surface for this verified run.
 
 Correction hooks: `KEEP`, `REJECT`, `EXAGGERATE`, `COMPRESS`, `RETIME`, `CHANGE SOURCE`, `PROMOTE`, `SPAWN VARIANT`, `FIX BLOCKER`, `RERUN`.
