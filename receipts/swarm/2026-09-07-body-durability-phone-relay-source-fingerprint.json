@@ -23,19 +23,35 @@
     "recoveryPath": "tools/home_center_phone_relay_recover.sh",
     "recoveryImplementationCommit": "e53a5cd6b4ae726432c722b3802cad4bb1d09f69",
     "recoveryBlobAfter": "fd82970a1d8f5046b750b940d8024c725d9741bc",
+    "contractTestPath": "tools/phone_relay_source_fingerprint_contract_test.py",
+    "contractTestCommit": "342aff85fb3d0da0fd68d6fd3952645140ddbe4b",
+    "ciBindingCommit": "894273ff5ddfdf076d20298f587f4126bb59a35f",
     "readback": {
       "relay": "The relay computes SHA-256 of its loaded source at process start and emits sourceSha256 in each successful Home Center heartbeat.",
-      "recovery": "Recovery computes the current on-disk relay SHA-256, accepts healthy only when PID, freshness, device, state, and sourceSha256 all match, and otherwise performs the existing bounded single-relay recovery. Recovery receipts now expose desiredSourceSha256 and heartbeat.sourceSha256."
+      "recovery": "Recovery computes the current on-disk relay SHA-256, accepts healthy only when PID, freshness, device, state, and sourceSha256 all match, and otherwise performs the existing bounded single-relay recovery. Recovery receipts expose desiredSourceSha256 and heartbeat.sourceSha256."
     }
+  },
+  "testEvidence": {
+    "carrier": "GitHub Actions / existing Home Center CI",
+    "runId": 34108940725,
+    "headSha": "894273ff5ddfdf076d20298f587f4126bb59a35f",
+    "verifiedSteps": [
+      "python3 -m py_compile tools/android_phone_home_center_relay.py — PASS",
+      "sh -n tools/home_center_phone_relay_recover.sh — PASS",
+      "python3 tools/phone_relay_source_fingerprint_contract_test.py — PASS: phone relay source fingerprint contract: ok"
+    ],
+    "workflowConclusion": "FAILURE AFTER THESE PASSES",
+    "unrelatedExistingFailure": "worker profile contract: tools/deploy_gemini_free_worker.sh must be bound exactly once or explicitly exempt",
+    "interpretation": "The selected body-durability slice passed its external syntax and contract checks. The repository-wide workflow is not claimed green because a later unrelated worker-profile gate failed."
   },
   "capabilityTruth": {
     "REQUESTED": true,
     "INTENDED": true,
     "IMPLEMENTED": true,
-    "TESTED": "Repository write/readback verified. No primary-phone runtime execution was available in this automation carrier, so behavioral/runtime testing is not claimed.",
+    "TESTED": "YES for repository syntax and current-source recovery contract via external GitHub Actions run 34108940725; NO physical primary-phone behavioral test claimed.",
     "DEPLOYED": "UNKNOWN for primary-phone",
     "CALLABLE": "UNKNOWN for the new current-source recovery seam",
-    "DELIVERED": "GitHub main repository artifact delivered",
+    "DELIVERED": "GitHub main repository artifact and durable receipt delivered",
     "ACCEPTED": false
   },
   "runtimeBlocker": {
