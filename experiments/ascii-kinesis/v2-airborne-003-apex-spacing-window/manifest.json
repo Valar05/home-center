@@ -1,0 +1,75 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "b31a8ebe742ea7dbefd1d88e261b60701ddd6acb44dab1616856ddc472b2813d",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-003-apex-spacing-window",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "apex-spacing-window.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 8624,
+  "media_filename": "apex-spacing-window.mp4",
+  "media_sha256": "158d73990a420574bcc13b3f10667f1b822d7b8dd2508ba6724050a1c9fc264e",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 13,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "semantic_frames_per_loop": 40,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 80
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-003-apex-spacing-window/",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 154243,
+    "exact_source_bytes": 320243,
+    "exact_source_sha256": "28eb79323c1f7faf9b5635e18bc503d468a8bcca34e467f2e23bbdc85057bfa0",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154243/",
+    "reported_dimensions": [
+      1268,
+      1348
+    ],
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true,
+    "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/151/154243.png?updated=1755483919"
+  },
+  "source_art_embedded": false,
+  "status": "BUILT_PENDING_REPO_WRITE",
+  "video_packaging": "embedded MP4 data URI in tracked SPA; builder reconstructs apex-spacing-window.mp4 from motion.json",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

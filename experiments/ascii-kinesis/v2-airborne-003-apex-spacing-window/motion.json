@@ -1,0 +1,991 @@
+{
+  "ascii_sheet_sha256": "b31a8ebe742ea7dbefd1d88e261b60701ddd6acb44dab1616856ddc472b2813d",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Insert one geometry-only midpoint only when adjacent authored keys have identical support_contact and contact_state; otherwise hard cut. Connector inherits no new semantic state and cannot invent support/contact/root phase.",
+    "fps": 24,
+    "loop_repetitions": 2,
+    "media_bytes": 8624,
+    "media_filename": "apex-spacing-window.mp4",
+    "media_sha256": "158d73990a420574bcc13b3f10667f1b822d7b8dd2508ba6724050a1c9fc264e",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow renders literal ASCII rig frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 40,
+    "source_sprite_pixels_used": false,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 80
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-003-apex-spacing-window",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "stable grounded return state",
+      "contact_state": "GROUND",
+      "key_id": "A003-K0",
+      "motion_arc_root_note": "Root stacked over stable base; facing right.",
+      "name": "READY",
+      "pose_rig": {
+        "elbow_l": [
+          11,
+          15
+        ],
+        "elbow_r": [
+          19,
+          15
+        ],
+        "foot_l": [
+          12,
+          21
+        ],
+        "foot_r": [
+          18,
+          21
+        ],
+        "hand_l": [
+          11,
+          16
+        ],
+        "hand_r": [
+          20,
+          15
+        ],
+        "head": [
+          15,
+          11
+        ],
+        "knee_l": [
+          13,
+          19
+        ],
+        "knee_r": [
+          17,
+          19
+        ],
+        "neck": [
+          15,
+          12
+        ],
+        "pelvis": [
+          15,
+          17
+        ],
+        "shoulder_l": [
+          13,
+          13
+        ],
+        "shoulder_r": [
+          17,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "READY"
+    },
+    {
+      "causal_role": "crouch/load before support release",
+      "contact_state": "GROUND",
+      "key_id": "A003-K1",
+      "motion_arc_root_note": "Root lowers and base widens; no airborne state yet.",
+      "name": "LOAD",
+      "pose_rig": {
+        "elbow_l": [
+          12,
+          17
+        ],
+        "elbow_r": [
+          20,
+          17
+        ],
+        "foot_l": [
+          11,
+          21
+        ],
+        "foot_r": [
+          21,
+          21
+        ],
+        "hand_l": [
+          11,
+          18
+        ],
+        "hand_r": [
+          21,
+          18
+        ],
+        "head": [
+          16,
+          13
+        ],
+        "knee_l": [
+          13,
+          19
+        ],
+        "knee_r": [
+          19,
+          19
+        ],
+        "neck": [
+          16,
+          14
+        ],
+        "pelvis": [
+          16,
+          18
+        ],
+        "shoulder_l": [
+          14,
+          15
+        ],
+        "shoulder_r": [
+          18,
+          15
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LOAD"
+    },
+    {
+      "causal_role": "support break and upward impulse",
+      "contact_state": "NONE",
+      "key_id": "A003-K2",
+      "motion_arc_root_note": "Root leaves support and begins fast upward travel; facing remains right.",
+      "name": "LAUNCH",
+      "pose_rig": {
+        "elbow_l": [
+          15,
+          11
+        ],
+        "elbow_r": [
+          21,
+          11
+        ],
+        "foot_l": [
+          15,
+          19
+        ],
+        "foot_r": [
+          23,
+          18
+        ],
+        "hand_l": [
+          13,
+          11
+        ],
+        "hand_r": [
+          23,
+          10
+        ],
+        "head": [
+          18,
+          9
+        ],
+        "knee_l": [
+          16,
+          17
+        ],
+        "knee_r": [
+          21,
+          16
+        ],
+        "neck": [
+          18,
+          10
+        ],
+        "pelvis": [
+          18,
+          15
+        ],
+        "shoulder_l": [
+          16,
+          11
+        ],
+        "shoulder_r": [
+          20,
+          11
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAUNCH"
+    },
+    {
+      "causal_role": "fast early ascent",
+      "contact_state": "NONE",
+      "key_id": "A003-K3",
+      "motion_arc_root_note": "Large upward spacing makes launch force legible; limbs counterbalance.",
+      "name": "RISE_FAST",
+      "pose_rig": {
+        "elbow_l": [
+          17,
+          7
+        ],
+        "elbow_r": [
+          25,
+          8
+        ],
+        "foot_l": [
+          16,
+          14
+        ],
+        "foot_r": [
+          26,
+          15
+        ],
+        "hand_l": [
+          15,
+          6
+        ],
+        "hand_r": [
+          27,
+          8
+        ],
+        "head": [
+          21,
+          5
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "neck": [
+          21,
+          6
+        ],
+        "pelvis": [
+          21,
+          11
+        ],
+        "shoulder_l": [
+          19,
+          7
+        ],
+        "shoulder_r": [
+          23,
+          7
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RISE_FAST"
+    },
+    {
+      "causal_role": "ascent deceleration before apex",
+      "contact_state": "NONE",
+      "key_id": "A003-K4",
+      "motion_arc_root_note": "Upward root spacing contracts without becoming support or a freeze.",
+      "name": "RISE_EASE",
+      "pose_rig": {
+        "elbow_l": [
+          20,
+          6
+        ],
+        "elbow_r": [
+          28,
+          5
+        ],
+        "foot_l": [
+          18,
+          11
+        ],
+        "foot_r": [
+          29,
+          12
+        ],
+        "hand_l": [
+          18,
+          6
+        ],
+        "hand_r": [
+          31,
+          5
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          20,
+          10
+        ],
+        "knee_r": [
+          27,
+          10
+        ],
+        "neck": [
+          24,
+          4
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RISE_EASE"
+    },
+    {
+      "causal_role": "hang-time readability near velocity sign change",
+      "contact_state": "NONE",
+      "key_id": "A003-K5",
+      "motion_arc_root_note": "Root still advances through the apex window; silhouette opens while support stays NONE.",
+      "name": "APEX_WINDOW_OPEN",
+      "pose_rig": {
+        "elbow_l": [
+          22,
+          4
+        ],
+        "elbow_r": [
+          32,
+          4
+        ],
+        "foot_l": [
+          19,
+          10
+        ],
+        "foot_r": [
+          35,
+          10
+        ],
+        "hand_l": [
+          19,
+          4
+        ],
+        "hand_r": [
+          35,
+          4
+        ],
+        "head": [
+          27,
+          2
+        ],
+        "knee_l": [
+          22,
+          9
+        ],
+        "knee_r": [
+          32,
+          9
+        ],
+        "neck": [
+          27,
+          3
+        ],
+        "pelvis": [
+          27,
+          8
+        ],
+        "shoulder_l": [
+          25,
+          4
+        ],
+        "shoulder_r": [
+          29,
+          4
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "APEX_WINDOW_OPEN"
+    },
+    {
+      "causal_role": "aerial pose/task change inside apex window",
+      "contact_state": "NONE",
+      "key_id": "A003-K6",
+      "motion_arc_root_note": "Local limbs reorganize while root reaches the final upward sample; no second launch.",
+      "name": "APEX_TASK_CHANGE",
+      "pose_rig": {
+        "elbow_l": [
+          26,
+          6
+        ],
+        "elbow_r": [
+          35,
+          4
+        ],
+        "foot_l": [
+          23,
+          9
+        ],
+        "foot_r": [
+          37,
+          11
+        ],
+        "hand_l": [
+          25,
+          8
+        ],
+        "hand_r": [
+          39,
+          4
+        ],
+        "head": [
+          30,
+          1
+        ],
+        "knee_l": [
+          26,
+          8
+        ],
+        "knee_r": [
+          34,
+          9
+        ],
+        "neck": [
+          30,
+          2
+        ],
+        "pelvis": [
+          30,
+          7
+        ],
+        "shoulder_l": [
+          28,
+          3
+        ],
+        "shoulder_r": [
+          32,
+          3
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "APEX_TASK_CHANGE"
+    },
+    {
+      "causal_role": "first downward root sample",
+      "contact_state": "NONE",
+      "key_id": "A003-K7",
+      "motion_arc_root_note": "Root crosses the sign change with small downward spacing; facing persists.",
+      "name": "DESCENT_EASE",
+      "pose_rig": {
+        "elbow_l": [
+          29,
+          6
+        ],
+        "elbow_r": [
+          37,
+          6
+        ],
+        "foot_l": [
+          27,
+          12
+        ],
+        "foot_r": [
+          39,
+          11
+        ],
+        "hand_l": [
+          26,
+          6
+        ],
+        "hand_r": [
+          39,
+          7
+        ],
+        "head": [
+          33,
+          2
+        ],
+        "knee_l": [
+          29,
+          10
+        ],
+        "knee_r": [
+          37,
+          9
+        ],
+        "neck": [
+          33,
+          3
+        ],
+        "pelvis": [
+          33,
+          8
+        ],
+        "shoulder_l": [
+          31,
+          4
+        ],
+        "shoulder_r": [
+          35,
+          4
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT_EASE"
+    },
+    {
+      "causal_role": "accelerating descent",
+      "contact_state": "NONE",
+      "key_id": "A003-K8",
+      "motion_arc_root_note": "Downward spacing expands; limbs begin landing reorganization.",
+      "name": "DESCENT_FAST",
+      "pose_rig": {
+        "elbow_l": [
+          33,
+          10
+        ],
+        "elbow_r": [
+          39,
+          11
+        ],
+        "foot_l": [
+          31,
+          16
+        ],
+        "foot_r": [
+          41,
+          16
+        ],
+        "hand_l": [
+          31,
+          11
+        ],
+        "hand_r": [
+          41,
+          12
+        ],
+        "head": [
+          36,
+          6
+        ],
+        "knee_l": [
+          33,
+          14
+        ],
+        "knee_r": [
+          39,
+          14
+        ],
+        "neck": [
+          36,
+          7
+        ],
+        "pelvis": [
+          36,
+          12
+        ],
+        "shoulder_l": [
+          34,
+          8
+        ],
+        "shoulder_r": [
+          38,
+          8
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT_FAST"
+    },
+    {
+      "causal_role": "landing preparation before support exists",
+      "contact_state": "NONE",
+      "key_id": "A003-K9",
+      "motion_arc_root_note": "Feet widen toward the ground; support/contact remain NONE.",
+      "name": "PRECONTACT_OPEN",
+      "pose_rig": {
+        "elbow_l": [
+          35,
+          14
+        ],
+        "elbow_r": [
+          43,
+          14
+        ],
+        "foot_l": [
+          33,
+          20
+        ],
+        "foot_r": [
+          45,
+          20
+        ],
+        "hand_l": [
+          32,
+          15
+        ],
+        "hand_r": [
+          46,
+          15
+        ],
+        "head": [
+          39,
+          10
+        ],
+        "knee_l": [
+          35,
+          18
+        ],
+        "knee_r": [
+          43,
+          18
+        ],
+        "neck": [
+          39,
+          11
+        ],
+        "pelvis": [
+          39,
+          16
+        ],
+        "shoulder_l": [
+          37,
+          12
+        ],
+        "shoulder_r": [
+          41,
+          12
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "PRECONTACT_OPEN"
+    },
+    {
+      "causal_role": "first authored ground reacquisition",
+      "contact_state": "GROUND",
+      "key_id": "A003-K10",
+      "motion_arc_root_note": "Contact is authored here; no connector may invent it earlier.",
+      "name": "CONTACT",
+      "pose_rig": {
+        "elbow_l": [
+          37,
+          15
+        ],
+        "elbow_r": [
+          45,
+          15
+        ],
+        "foot_l": [
+          35,
+          21
+        ],
+        "foot_r": [
+          47,
+          21
+        ],
+        "hand_l": [
+          34,
+          16
+        ],
+        "hand_r": [
+          48,
+          16
+        ],
+        "head": [
+          41,
+          11
+        ],
+        "knee_l": [
+          37,
+          19
+        ],
+        "knee_r": [
+          45,
+          19
+        ],
+        "neck": [
+          41,
+          12
+        ],
+        "pelvis": [
+          41,
+          17
+        ],
+        "shoulder_l": [
+          39,
+          13
+        ],
+        "shoulder_r": [
+          43,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "CONTACT"
+    },
+    {
+      "causal_role": "landing force absorption",
+      "contact_state": "GROUND",
+      "key_id": "A003-K11",
+      "motion_arc_root_note": "Root continues downward after contact into compression.",
+      "name": "LAND_COMPRESSION",
+      "pose_rig": {
+        "elbow_l": [
+          38,
+          17
+        ],
+        "elbow_r": [
+          46,
+          17
+        ],
+        "foot_l": [
+          36,
+          21
+        ],
+        "foot_r": [
+          48,
+          21
+        ],
+        "hand_l": [
+          36,
+          18
+        ],
+        "hand_r": [
+          48,
+          18
+        ],
+        "head": [
+          42,
+          14
+        ],
+        "knee_l": [
+          38,
+          20
+        ],
+        "knee_r": [
+          46,
+          20
+        ],
+        "neck": [
+          42,
+          15
+        ],
+        "pelvis": [
+          42,
+          19
+        ],
+        "shoulder_l": [
+          40,
+          16
+        ],
+        "shoulder_r": [
+          44,
+          16
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAND_COMPRESSION"
+    },
+    {
+      "causal_role": "rebound and return-to-state handoff",
+      "contact_state": "GROUND",
+      "key_id": "A003-K12",
+      "motion_arc_root_note": "Root rises out of compression toward the reusable grounded stack.",
+      "name": "REBOUND_RETURN",
+      "pose_rig": {
+        "elbow_l": [
+          41,
+          14
+        ],
+        "elbow_r": [
+          47,
+          14
+        ],
+        "foot_l": [
+          39,
+          21
+        ],
+        "foot_r": [
+          49,
+          21
+        ],
+        "hand_l": [
+          39,
+          14
+        ],
+        "hand_r": [
+          50,
+          14
+        ],
+        "head": [
+          44,
+          11
+        ],
+        "knee_l": [
+          41,
+          19
+        ],
+        "knee_r": [
+          47,
+          19
+        ],
+        "neck": [
+          44,
+          12
+        ],
+        "pelvis": [
+          44,
+          17
+        ],
+        "shoulder_l": [
+          42,
+          13
+        ],
+        "shoulder_r": [
+          46,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "REBOUND_RETURN"
+    }
+  ],
+  "lane": "airborne",
+  "principle": "HANG TIME IS A SPACING WINDOW, NOT A ROOT STOP.",
+  "principle_matrix": {
+    "aerial_pose_change": "OBSERVED many distinct airborne silhouettes; generic task change is independently authored, not source choreography",
+    "apex": "INFERRED root sign-change window; source sprite cells do not encode world root Y",
+    "crouch_load": "INFERRED generic LOAD informed by observed grounded compression families",
+    "facing_preservation": "OBSERVED broad directional readability across many full-sheet families; generic rig preserves right-facing marker",
+    "hang_time_readability": "INFERRED from contracted root spacing + open silhouette",
+    "landing_compression": "INFERRED distinct post-contact force key",
+    "launch": "INFERRED support-break key; source timing/order unknown",
+    "limb_counterbalance": "INFERRED generic rig mechanism informed by varied aerial silhouettes",
+    "rebound": "INFERRED small post-compression recovery",
+    "return_to_state": "INFERRED return to stable grounded stack",
+    "root_arc": "INFERRED single continuous rise/apex/descent arc"
+  },
+  "rig": {
+    "facing_marker": ">",
+    "grid": [
+      60,
+      23
+    ],
+    "ground_row": 21,
+    "joints": [
+      "head",
+      "neck",
+      "shoulder_l",
+      "shoulder_r",
+      "elbow_l",
+      "elbow_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "kind": "copyright-safe abstract ASCII Blender-style humanoid"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 154243,
+    "dimensions": [
+      1268,
+      1348
+    ],
+    "exact_source_bytes": 320243,
+    "exact_source_sha256": "28eb79323c1f7faf9b5635e18bc503d468a8bcca34e467f2e23bbdc85057bfa0",
+    "game": "Sonic Advance 2",
+    "mode": "RGBA",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154243/",
+    "platform": "Game Boy Advance",
+    "rights_note": "Copyright-restricted commercial-game sprite art used as evidence only. No source pixels, palette, exact silhouette, sheet layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Sonic",
+    "whole_sheet_inspected": true,
+    "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/151/154243.png?updated=1755483919"
+  },
+  "timing_vocabulary": {
+    "FOURS": "one key/drawing held four display frames",
+    "ONES": "new key/drawing sample every display frame",
+    "TWOS": "one key/drawing held two display frames",
+    "inferred_policy": "STREET_FIGHTER/CAPCOM",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "whole_sheet_evidence": {
+    "INFERRED": [
+      "A generic vertical-force arc can make hang time readable by contracting root spacing near apex rather than freezing the root.",
+      "Local limb counterbalance and an aerial pose/task change can occur inside that apex spacing window without creating support or a second impulse.",
+      "Landing is authored as PRECONTACT_OPEN -> CONTACT -> LAND_COMPRESSION -> REBOUND_RETURN, keeping preparation, reacquisition, and force absorption distinct.",
+      "All decisive-key timing classes are inferred with PoseLab V1 STREET_FIGHTER/CAPCOM because source timing was not measured."
+    ],
+    "OBSERVED": [
+      "The exact 1268x1348 source raster was inspected as one complete sheet before key authoring.",
+      "The sheet contains grounded compressed/leaning states, many airborne/inverted/compact-spin silhouettes, extended aerial pose families, and grounded recovery/return anchors.",
+      "Across many action families, facing/movement direction remains broadly readable while local limb organization changes.",
+      "Body families and detached effect-only strips coexist on the sheet; effect material was not used as body-time evidence.",
+      "The static sheet does not establish source-authentic root positions, exposure durations, hit-stop, or runtime transition rules."
+    ],
+    "UNKNOWN": [
+      "Exact source chronology of every cell/family and exact in-game transitions.",
+      "Source-authentic frame exposure and any gameplay hit-stop.",
+      "Exact source root trajectory, anatomical support foot, and force magnitudes."
+    ]
+  }
+}
