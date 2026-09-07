@@ -1,0 +1,195 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "experiment_id": "v2-video-motion-001-black-pirate-compression-release",
+  "title": "Public-domain compression → release → counter-arc",
+  "lane": "video-motion",
+  "format_version": 2,
+  "source": {
+    "title": "He'll walk the plank.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm",
+    "origin": "Extract from The Black Pirate (1926)",
+    "rights_status": "PUBLIC_DOMAIN_US",
+    "rights_note": "Wikimedia Commons marks the work public domain in the United States (PD-US-expired). No source pixels or footage are embedded or redistributed in this repo example.",
+    "source_sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
+    "source_bytes": 1281353,
+    "source_duration_s": 19.017,
+    "source_dimensions": [640, 480],
+    "selected_segment_s": [15.0, 18.75],
+    "whole_action_inspection": "OBSERVED in prior durable Video Motion Pass 010 before decisive keys were chosen; historical bridge receipt is evidence only, this V2 repo specimen is the product."
+  },
+  "evidence_boundary": {
+    "observed": [
+      "Actor A remains comparatively root-stable while Actor B closes from screen-right toward A.",
+      "Long compression spans about 15.000–17.750 s.",
+      "Strongest measured native-frame image-change peak occurs at about 17.917 s, with motion energy already rising before 18.000 s.",
+      "Silhouettes overlap/cross around 18.000–18.250 s while B continues leftward.",
+      "By 18.500–18.750 s B shows a trailing upper-limb counter-arc toward screen-right while recovery begins."
+    ],
+    "inferred": [
+      "Motion Dungeon connective geometry and key-hold allocation used for the abstract compilation are authored/inferred and are not source-authentic exposure claims."
+    ],
+    "unknown": [
+      "Exact B foot support side",
+      "Exact hand-to-prop contact endpoints",
+      "Which actor is actively driving versus yielding",
+      "Whether silhouette overlap is a discrete physical impact"
+    ]
+  },
+  "rig": {
+    "type": "abstract_two_actor_ascii_biped",
+    "coordinate_space": "64x20 character grid",
+    "joints": ["head", "spine", "root_proxy", "left_leg", "right_leg", "upper_limb_axis"],
+    "actors": ["A", "B"],
+    "source_art_dependency": false,
+    "glyph_semantics": {
+      "O": "head",
+      "|": "spine",
+      "@": "root/pelvis proxy",
+      "/\\": "limbs",
+      "=": "unresolved long prop/constraint axis",
+      "?": "unresolved contact/support",
+      "X": "silhouette overlap only"
+    }
+  },
+  "keys": [
+    {
+      "key_id": "K0",
+      "source_time_s": 15.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 5,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "SET_TENSION",
+      "support_contact": "A comparatively stable; B support side unresolved; no impact claim",
+      "motion_arc_root_note": "B low/right, wide spacing; A root quiet",
+      "prop_relation": "bridged_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [50, 14], "head": [50, 10]},
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K1",
+      "source_time_s": 16.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 5,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "RISE_CLOSE",
+      "support_contact": "A comparatively stable; B support side unresolved",
+      "motion_arc_root_note": "B rises and travels left; spacing narrows",
+      "prop_relation": "bridged_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [44, 13], "head": [44, 9]},
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K2",
+      "source_time_s": 17.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 4,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "COMPRESSION",
+      "support_contact": "B support side unresolved",
+      "motion_arc_root_note": "spacing strongly compressed; B continues left/up",
+      "prop_relation": "bridged_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [36, 12], "head": [36, 8]},
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K3",
+      "source_time_s": 17.75,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 1,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "MAX_COMPRESSION",
+      "support_contact": "exact support/contact unresolved",
+      "motion_arc_root_note": "near-maximum compression before fast transition",
+      "prop_relation": "bridged_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [30, 11], "head": [30, 7]},
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K4",
+      "source_time_s": 17.917,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 7,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "BURST_MARKER",
+      "support_contact": "no discrete collision/contact endpoint promoted",
+      "motion_arc_root_note": "strongest measured native-frame image-change peak; leftward release underway",
+      "prop_relation": "bridged_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [27, 11], "head": [27, 7]},
+      "causal_boundary_to_next": true
+    },
+    {
+      "key_id": "K5",
+      "source_time_s": 18.25,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 2,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "PASS_THROUGH_OVERLAP",
+      "support_contact": "silhouette overlap only; exact physical impact unresolved",
+      "motion_arc_root_note": "B crosses left through A space",
+      "prop_relation": "occluded_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [16, 11], "head": [16, 7]},
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K6",
+      "source_time_s": 18.75,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_hold_frames": 12,
+      "compile_timing_provenance": "INFERRED",
+      "causal_role": "FOLLOW_THROUGH_RECOVERY_ONSET",
+      "support_contact": "exact support side unresolved",
+      "motion_arc_root_note": "B remains left of A; trailing upper limb counter-arcs screen-right; recovery incomplete",
+      "prop_relation": "occluded_unresolved",
+      "actor_a": {"root": [20, 11], "head": [20, 7]},
+      "actor_b": {"root": [13, 11], "head": [13, 7]},
+      "causal_boundary_to_next": false
+    }
+  ],
+  "timing": {
+    "key_timing_policy": "OBSERVED source timestamps; no decisive key substitutes ONES/TWOS/FOURS for measured source timing",
+    "pose_lab_vocabulary_note": "ONES/TWOS/FOURS remain available only when timing must be INFERRED. User shorthand 1s/2s/4s means classes, never seconds.",
+    "transport_cadence_firewall": "stream FPS/raw frame count is not treated as performance cadence",
+    "compile_fps": 24,
+    "compile_policy": "STREET_FIGHTER/CAPCOM-inspired key readability with explicit inferred holds inside measured key intervals; causal-boundary K4→K5 fails closed to a held K4 then a discrete K5 state change."
+  },
+  "motion_dungeon": {
+    "pipeline": ["authored_ascii_keys", "explicit_holds", "deterministic_geometry_only_connective_motion", "ascii_only_frame_render", "mp4_h264", "embedded_offline_spa"],
+    "transition_rule": "Interpolate only authored actor geometry while semantic support/contact/prop state remains the prior key until the next decisive key. If causal_boundary_to_next is true, hold the prior key and jump at the boundary.",
+    "source_pixels_used_in_output": false,
+    "render_grid": [64, 20],
+    "cell_pixels": [6, 8],
+    "scale": 2,
+    "final_hold_frames": 12
+  },
+  "compatibility": {
+    "backward_compatible": true,
+    "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "offline_spa": true,
+    "v1_artifacts_untouched": true
+  },
+  "media": {
+    "mime": "video/mp4",
+    "encoding": "H.264 yuv420p",
+    "embedded": "data_uri",
+    "sha256": "f4d70d075ae3b9a4daefca101b9ecdc165dfbb8252a293a8234f9b352cc68e37",
+    "bytes": 14396,
+    "frame_count": 102,
+    "compile_fps": 24,
+    "ffmpeg_version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"],
+  "status": "RENDERED"
+}
