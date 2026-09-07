@@ -1,0 +1,102 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "c957b076cb4231618478f2ff8da3a2cba3b198bfe9fa5e8562de8cc06f9ed7b6",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compiled_media_tracked_separately": false,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-006-facing-survives-air-task",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "facing-survives-air-task.motion.html"
+  ],
+  "format_version": 2,
+  "global_test_boundary": "Standard Chat has authenticated GitHub read/write but no authorized remote repository execution shell in this run. tools/test_ascii_kinesis_swarm_contract_v2.py will be read for presence; repository-wide execution is not callable through the authorized connector surface. Local construction checks are not used as completion proof.",
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 8170,
+  "media_filename": "facing-survives-air-task.mp4",
+  "media_sha256": "28ce2bdeb507a858a9da335f09b7158095a906d386b0e4fac4c3d8fce55dd12e",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 14,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "semantic_frames_per_loop": 46,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 92
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "ship_commit": "PENDING",
+  "source": {
+    "asset_id": 10039,
+    "fresh_source_page_metadata_reverified": true,
+    "game": "Sonic Battle",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
+    "platform": "Game Boy Advance",
+    "reported_dimensions": [
+      1150,
+      2660
+    ],
+    "reported_format": "PNG",
+    "reported_size": "268.03 KB",
+    "section": "Fighters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Sonic the Hedgehog",
+    "uploaded_by": "QuadFactor",
+    "whole_sheet_evidence_boundary": "Historical V2 pass 002 is used only as evidence: its complete-sheet inspection recorded named Jumping/Falling/Landing families, multiple aerial task/attack families, facing continuity across airborne body changes, grounded before/after anchors, and no source-authentic timing. This run does not reuse that pass as a deliverable and does not reuse source pixels.",
+    "whole_sheet_evidence_mode": "VERIFIED_HISTORICAL_EVIDENCE_REUSE",
+    "whole_sheet_evidence_origin": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/{motion.json,manifest.json}",
+    "whole_sheet_inspected_in_campaign": true,
+    "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454"
+  },
+  "source_art_embedded": false,
+  "source_rights": {
+    "boundary": "No source pixels, palette, contours, exact silhouettes, costume/facial detail, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  },
+  "status": "READY_TO_PERSIST",
+  "video_packaging": "exact compiled MP4 bytes embedded as a data URI in tracked SPA; build.py reconstructs facing-survives-air-task.mp4 from motion.json",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
