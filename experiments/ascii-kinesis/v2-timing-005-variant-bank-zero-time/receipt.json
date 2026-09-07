@@ -1,8 +1,19 @@
 {
   "ascii_sheet_sha256": "45c465619f34d84750d12514beff73365a4f8da174450a8d891996c92ff748b7",
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "experiment_id": "v2-timing-005-variant-bank-zero-time",
-  "issue_343_receipt": null,
+  "issue_343_receipt": "POSTED_AFTER_THIS_REPO_RECEIPT_COMMIT",
   "key_timings": [
     {"clock_channel":"BODY_CLOCK","key_id":"T50","name":"READY","timing_class":"FOURS","timing_provenance":"INFERRED"},
     {"clock_channel":"BODY_CLOCK","key_id":"T51","name":"UNWEIGHT","timing_class":"TWOS","timing_provenance":"INFERRED"},
@@ -37,11 +48,28 @@
   },
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/",
-  "repo_readback": "PENDING",
-  "repo_wide_contract_test_boundary": "PENDING",
+  "repo_readback": {
+    "branch": "main",
+    "exact_tracked_files": [
+      "build.py",
+      "manifest.json",
+      "motion.json",
+      "receipt.json",
+      "variant-bank-zero-time.motion.html"
+    ],
+    "file_count": 5,
+    "motion_html_count": 1,
+    "spa_blob_sha": "430e1bfc9737909828bbbe2d42d95690c395884c",
+    "spa_bytes": 19743,
+    "manifest_blob_sha": "1f78f877d91f1be36836689a7deb0ba121958c90",
+    "motion_blob_sha": "909178dfc9e8a7479e532605f74e0552db0d8043",
+    "builder_blob_sha": "b924069eed475552bae65f7ada114b843ba34fb7",
+    "result": "PASS: exact GitHub directory readback confirms the required five-file product and exactly one tracked motion SPA."
+  },
+  "repo_wide_contract_test_boundary": "KNOWN RED OUTSIDE THIS LANE: tools/test_ascii_kinesis_swarm_contract_v2.py scans every experiments/ascii-kinesis/v2-* directory; pre-existing v2-defense-001-guard-support-fork still has no tracked *.motion.html, so the repo-wide suite cannot be reported green without mutating another lane.",
   "rights_note": "Copyrighted commercial-game sprites were inspected only as whole-sheet evidence. This repository specimen contains no source pixels, palette, costume, contours, exact silhouette, sheet layout, tracing, redistribution, close imitation, or source choreography; only abstract timing/equivalence principles and source identity are retained.",
   "schema": "ascii-kinesis.v2-receipt",
-  "ship_commit": null,
+  "ship_commit": "8b7cc528628c9ecc73e5d4b724d1a615a24009a0",
   "skill_mutation": {
     "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
     "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
@@ -79,7 +107,7 @@
     "whole_sheet_evidence_boundary": "The entire rendered 422x414 sheet was inspected as one evidence surface. The upper area contains many full-body pose/action families; the lower area contains conspicuous repeated full-body color/configuration rows plus separate head/reference sprites. Spatial adjacency is not chronology.",
     "whole_sheet_inspected": true
   },
-  "status": "RENDERED_AWAITING_REPO_VERIFICATION",
-  "target_contract_test": "PENDING",
-  "verification_commit": null
+  "status": "VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
+  "target_contract_test": "PASS: the exact V2 structural predicates from tools/test_ascii_kinesis_swarm_contract_v2.py were run against the isolated target reconstruction; the target entry passes. The repo-wide invocation remains bounded by the unrelated pre-existing defense specimen described separately.",
+  "verification_commit": "RECORDED_BY_ISSUE_343_POST"
 }
