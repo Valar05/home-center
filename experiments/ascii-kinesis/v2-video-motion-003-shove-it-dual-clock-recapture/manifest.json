@@ -1,11 +1,4 @@
 {
-  "artifact_sha256": {
-    "build_motion.py": "9cdc0132316e4ff91f42bb43168e3a1ac6199f72309686e0b26c9bdf611072a7",
-    "contact_sheet.txt": "bd24aba3cedbffc28715448355c9551227e2dbf4b210d152c534a925e7b4dea1",
-    "motion.json": "be887d2a8b4ee69b7a234b755b027fdc9e972340203ab82ea70a519bcb705ffc",
-    "motion.mp4": "780dc05057031acdb175a32551f50f5cc0f9aa4347dff83ee4816b34ef615639",
-    "shove-it-dual-clock-recapture.motion.html": "e8e36fe0f12dc284db60d3a120c9f85187ef5e2e04f530103a9d8469eb6f7fa6"
-  },
   "ascii_literal_text": true,
   "backward_compatible": true,
   "builder": "build_motion.py",
@@ -14,22 +7,28 @@
   "format_version": 2,
   "lane": "video-motion",
   "media": {
-    "bytes": 9123,
+    "bytes": 9133,
     "codec": "H.264",
-    "dimensions": [320, 180],
+    "dimensions": [
+      320,
+      180
+    ],
     "duration_s": 1.666667,
     "embedded_in_spa": true,
     "fps": 24,
     "frames": 40,
-    "git_lfs_oid_sha256": "05ded8146414bd8be19915926e99c7c7d512a5905e3d1a873fa44f1b7eedc277",
-    "git_lfs_pointer_sha256": "780dc05057031acdb175a32551f50f5cc0f9aa4347dff83ee4816b34ef615639",
+    "path": "motion.mp4",
     "pixel_format": "yuv420p",
-    "sha256": "05ded8146414bd8be19915926e99c7c7d512a5905e3d1a873fa44f1b7eedc277",
+    "sha256": "33ad57b86b67e8b14db610bdd4403624ca1544314f487a785497f196bf7f7e50",
     "source": "abstract_ascii_rig_only",
-    "tracked_motion_mp4_form": "git_lfs_pointer"
+    "tracked_motion_mp4_form": "git_lfs"
   },
   "motion": "motion.json",
-  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "receipt": "receipt.json",
   "schema": "ascii-kinesis.v2.manifest",
   "source": {
@@ -41,11 +40,12 @@
   },
   "source_art_embedded": false,
   "spa": "shove-it-dual-clock-recapture.motion.html",
-  "status": "BUILT_PENDING_REPO_READBACK",
+  "status": "BUILT_TESTED_PENDING_REPO_READBACK",
   "validation": {
-    "candidate_result": "PENDING_EXACT_REPO_READBACK",
+    "candidate_result": "PASS_PENDING_REPO_READBACK",
     "contract_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "video_decode": "Construction decode: H.264 yuv420p 320x180 24fps 40 frames; tracked motion.mp4 is an LFS pointer to the same media oid; SPA embeds those actual MP4 bytes."
+    "global_result": "UNRELATED_EXISTING_FAILURE_v2-contact-004-latent-contact-eligibility_missing_motion_html",
+    "video_decode": "H.264 yuv420p 320x180 24fps 40 frames 1.666667s"
   },
   "video": "motion.mp4",
   "video_required": true,
