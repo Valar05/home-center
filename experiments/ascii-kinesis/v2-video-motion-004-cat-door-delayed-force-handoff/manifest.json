@@ -1,0 +1,58 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "builder": "build_motion.py",
+  "contact_sheet": "contact_sheet.txt",
+  "experiment_id": "v2-video-motion-004-cat-door-delayed-force-handoff",
+  "format_version": 2,
+  "hashes": {
+    "contact_sheet_sha256": "1caf22cb8003a7e759b17e6577d156edfdde79e65cce5ec86fee2a95cf81beec",
+    "spa_sha256": "6cc61573f88f911de15ecff68cad14bffbed53232a7a4e1d41f9a7acdc8765b2"
+  },
+  "lane": "video-motion",
+  "media": {
+    "bytes": 11571,
+    "codec": "H.264",
+    "duration_s": 1.833333,
+    "embedded_in_spa": true,
+    "fps": 24,
+    "frame_count": 44,
+    "height": 220,
+    "path": "motion.mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "fab50a7e670bbb7e2b71de46dad32060bc52f2ebda37e06a146a7ad7c6452981",
+    "source": "abstract_ascii_rig_only",
+    "width": 448
+  },
+  "motion": "motion.json",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "receipt": "receipt.json",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-004-cat-door-delayed-force-handoff/",
+  "schema": "ascii-kinesis.v2.manifest",
+  "source": {
+    "author": "Astropulse",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Cat_opening_door.webm",
+    "source_pixels_embedded": false,
+    "source_sha1": "1b8803c209b5e01d20c0df6b11758660108240dd",
+    "source_sha256": "1a1f420559b306574ba8a04aee0175c38c2e20815b1bd46a45aae86d17f3ad53",
+    "title": "Cat opening door.webm"
+  },
+  "source_art_embedded": false,
+  "spa": "cat-door-delayed-force-handoff.motion.html",
+  "status": "REPO_CANDIDATE_AWAITING_READBACK",
+  "validation": {
+    "candidate_result": "PASS_OFFICIAL_TEST_ISOLATED",
+    "contract_test": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "global_result": "FAIL_PREEXISTING_v2-contact-004-latent-contact-eligibility_expected_exactly_one_tracked_motion_html",
+    "repo_readback_result": "PENDING",
+    "video_decode": "PASS_H264_448x220_yuv420p_24fps_44frames_1.833333s"
+  },
+  "video": "motion.mp4",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}

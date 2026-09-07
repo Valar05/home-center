@@ -1,0 +1,133 @@
+{
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence_split": {
+    "inferred": "all exact paw/handle/support/door-angle anatomy plus PoseLab compile exposure classes",
+    "observed": "source identity/hash/decode; full selected-segment ordered luma/motion-mask inspection; measured 2 fps change timing",
+    "unknown": [
+      "Exact source frame of first paw-to-handle contact",
+      "Exact source frame of handle release",
+      "Exact paw support side/weight split during reach",
+      "Exact physical handle and door angles",
+      "Whether the late 21.0\u201321.5 s high-change interval includes camera motion in addition to door motion"
+    ]
+  },
+  "experiment_id": "v2-video-motion-004-cat-door-delayed-force-handoff",
+  "lane": "video-motion",
+  "media": {
+    "bytes": 11571,
+    "codec": "H.264",
+    "duration_s": 1.833333,
+    "embedded_in_spa": true,
+    "fps": 24,
+    "frame_count": 44,
+    "height": 220,
+    "path": "motion.mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "fab50a7e670bbb7e2b71de46dad32060bc52f2ebda37e06a146a7ad7c6452981",
+    "source": "abstract_ascii_rig_only",
+    "width": 448
+  },
+  "per_key_timing": [
+    {
+      "compile_frame": 0,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K0",
+      "source_time_s": 14.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 8,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K1",
+      "source_time_s": 15.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 14,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K2",
+      "source_time_s": 16.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 17,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K3",
+      "source_time_s": 16.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 22,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K4",
+      "source_time_s": 17.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 28,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K5",
+      "source_time_s": 20.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 36,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K6",
+      "source_time_s": 21.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "compile_frame": 40,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "key_id": "K7",
+      "source_time_s": 21.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    }
+  ],
+  "repo_commit_authority": "issue_343_receipt_after_exact_readback",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-004-cat-door-delayed-force-handoff/",
+  "schema": "ascii-kinesis.v2.receipt",
+  "source_identity": {
+    "author": "Astropulse",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Cat_opening_door.webm",
+    "source_sha1": "1b8803c209b5e01d20c0df6b11758660108240dd",
+    "source_sha256": "1a1f420559b306574ba8a04aee0175c38c2e20815b1bd46a45aae86d17f3ad53",
+    "title": "Cat opening door.webm"
+  },
+  "status": "REPO_CANDIDATE_AWAITING_READBACK",
+  "validation": {
+    "candidate_contract": "PASS_OFFICIAL_TEST_ISOLATED",
+    "global_contract": "FAIL_PREEXISTING_v2-contact-004-latent-contact-eligibility_expected_exactly_one_tracked_motion_html",
+    "repo_readback": "PENDING",
+    "video_decode": "PASS"
+  }
+}

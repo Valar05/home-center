@@ -1,0 +1,111 @@
+K0 t=14.0s OBS | FOURS/INFERRED                            K1 t=15.5s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             D                                                          D          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                          ---H                                                    O  ---H          
+                                             |                                                   /      |          
+                                             |                                                 //-+     |          
+                                     O       |                                                |/        |          
+                     ~~~           //        |                                               /          |          
+                        ~~~~    //|          |                                             //           |          
+                            ~@--  \          |                                  ~~~~~     /             |          
+                            /     \          |                                       ~~~~@              |          
+                           /       |         |                                          /               |          
+                           /       |         |                                         /                |          
+                          /        |         |                                        /                 |          
+                         +         +         |                                       +                  |          
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:FOUR_POINT_READY                                      ROLE:REAR_LOAD_AND_RISE_PREP                            
+SUP:GROUND_SUPPORT_MULTI_POINT_AUTHORED                    SUP:REAR_DOMINANT_SUPPORT_AUTHORED                      
+CONTACT:NO_HANDLE_CONTACT_AUTHORED                         CONTACT:HANDLE_APPROACH_AUTHORED                        
+FORCE:GROUND_SUPPORT                                       FORCE:BODY_SUPPORT_CHAIN                                
+
+K2 t=16.0s OBS | ONES/INFERRED                             K3 t=16.5s OBS | ONES/INFERRED                          
+                                                                                                                   
+                                                                                                                   
+                                             D                                                          D          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                        O    |                                                          |          
+                                       /     |                                                     O    |          
+                                     //---+--H                                                    /     |          
+                                    |//      |                                                  // ---+-H          
+                                   /         |                                                 |///     |          
+                      ~~~        //          |                                               //         |          
+                         ~~~~   /            |                                   ~~~~~     //           |          
+                             ~~@             |                                        ~~~~@             |          
+                              /              |                                           /              |          
+                              /              |                                           /              |          
+                             /               |                                          /               |          
+                            /                |                                         /                |          
+                            /                |                                         /                |          
+                           +                 |                                        +                 |          
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:BODY_BURST_TO_LEVER                                   ROLE:LEVER_ACTUATION                                    
+SUP:REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED                SUP:REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED             
+CONTACT:PAW_HANDLE_CONTACT_AUTHORED                        CONTACT:PAW_HANDLE_LOAD_AUTHORED                        
+FORCE:BODY_TO_LEVER                                        FORCE:LEVER_LATCH                                       
+
+K4 t=17.5s OBS | TWOS/INFERRED                             K5 t=20.0s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             D                                                         D|          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                           --H                                                       ---H          
+                                      O      |                                                          |          
+                                    //       |                                                         |           
+                                  |-         |                                                 O       |           
+                     ~~~         /\          |                                 ~~~           //        |           
+                        ~~~~   //  \         |                                    ~~~~     /|          |           
+                            ~~@    \         |                                        ~~@-- \          |           
+                             /     \         |                                         /    \          |           
+                            /       |        |                                        /      |         |           
+                           /        +        |                                       /       |         |           
+                          +                  |                                      +        +         |           
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:BODY_RELEASE_AND_DROP                                 ROLE:DELAYED_RESPONSE_HOLD                              
+SUP:GROUND_REACQUISITION_AUTHORED                          SUP:GROUND_SUPPORT_AUTHORED                             
+CONTACT:HANDLE_RELEASE_AUTHORED                            CONTACT:NO_HANDLE_CONTACT_AUTHORED                      
+FORCE:LATCH_RELEASED_DOOR_NOT_YET_MOVING                   FORCE:DOOR_INERTIA_PRE_SWING                            
+
+K6 t=21.0s OBS | ONES/INFERRED                             K7 t=21.5s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             |    D                                                     |        D 
+                                             |                                                           |         
+                                              |                                                          |         
+                                              |                                                           |        
+                                              |                                                           |        
+                                              |                                                            |       
+                                               |                                                           |       
+                                             H-|                                                        H---|-     
+                                               |                                                            |      
+                                                |                                                            |     
+                   ~~              O            |                                            O               |     
+                     ~~~         //             |                            ~~~           //                 |    
+                        ~~~    /|                |                              ~~~~     /|                   |    
+                           ~@-- \                |                                  ~~@-- \                    |   
+                           /    \                |                                   /    \                    |   
+                          /      |               |                                  /      |                    |  
+                         /       |                |                                /       |                    |  
+                        +        +                |                               +        +                     | 
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:DOOR_SWING_RESPONSE                                   ROLE:OPEN_STATE_SETTLE                                  
+SUP:GROUND_SUPPORT_AUTHORED                                SUP:GROUND_SUPPORT_AUTHORED                             
+CONTACT:NO_HANDLE_CONTACT_AUTHORED                         CONTACT:NO_HANDLE_CONTACT_AUTHORED                      
+FORCE:DOOR_ROTATION                                        FORCE:DOOR_ROTATION_DECAY

@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cat door lever · body burst → delayed environment response</title><style>
+:root{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;background:#f4f4f1;color:#151515}body{margin:0;min-height:100vh}header{padding:1rem;border-bottom:1px solid #bbb}h1{font-size:1rem;margin:.1rem 0}nav{display:flex;gap:.4rem;padding:.6rem 1rem;border-bottom:1px solid #bbb;position:sticky;top:0;background:#f4f4f1}button{font:inherit;padding:.45rem .8rem}main{padding:1rem}section[hidden]{display:none}pre{font:12px/1.1 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;tab-size:2}video{display:block;max-width:100%;height:auto;border:1px solid #999;background:#fff}.note{max-width:78ch;line-height:1.4}
+</style></head><body><header><h1>Cat door lever · body burst → delayed environment response</h1><div class="note">ASCII Kinesis V2 · Video Motion 004 · source pixels excluded · observed timestamps + inferred compile timing</div></header>
+<nav aria-label="Primary views"><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<main><section id="ascii"><pre>K0 t=14.0s OBS | FOURS/INFERRED                            K1 t=15.5s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             D                                                          D          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                          ---H                                                    O  ---H          
+                                             |                                                   /      |          
+                                             |                                                 //-+     |          
+                                     O       |                                                |/        |          
+                     ~~~           //        |                                               /          |          
+                        ~~~~    //|          |                                             //           |          
+                            ~@--  \          |                                  ~~~~~     /             |          
+                            /     \          |                                       ~~~~@              |          
+                           /       |         |                                          /               |          
+                           /       |         |                                         /                |          
+                          /        |         |                                        /                 |          
+                         +         +         |                                       +                  |          
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:FOUR_POINT_READY                                      ROLE:REAR_LOAD_AND_RISE_PREP                            
+SUP:GROUND_SUPPORT_MULTI_POINT_AUTHORED                    SUP:REAR_DOMINANT_SUPPORT_AUTHORED                      
+CONTACT:NO_HANDLE_CONTACT_AUTHORED                         CONTACT:HANDLE_APPROACH_AUTHORED                        
+FORCE:GROUND_SUPPORT                                       FORCE:BODY_SUPPORT_CHAIN                                
+
+K2 t=16.0s OBS | ONES/INFERRED                             K3 t=16.5s OBS | ONES/INFERRED                          
+                                                                                                                   
+                                                                                                                   
+                                             D                                                          D          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                        O    |                                                          |          
+                                       /     |                                                     O    |          
+                                     //---+--H                                                    /     |          
+                                    |//      |                                                  // ---+-H          
+                                   /         |                                                 |///     |          
+                      ~~~        //          |                                               //         |          
+                         ~~~~   /            |                                   ~~~~~     //           |          
+                             ~~@             |                                        ~~~~@             |          
+                              /              |                                           /              |          
+                              /              |                                           /              |          
+                             /               |                                          /               |          
+                            /                |                                         /                |          
+                            /                |                                         /                |          
+                           +                 |                                        +                 |          
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:BODY_BURST_TO_LEVER                                   ROLE:LEVER_ACTUATION                                    
+SUP:REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED                SUP:REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED             
+CONTACT:PAW_HANDLE_CONTACT_AUTHORED                        CONTACT:PAW_HANDLE_LOAD_AUTHORED                        
+FORCE:BODY_TO_LEVER                                        FORCE:LEVER_LATCH                                       
+
+K4 t=17.5s OBS | TWOS/INFERRED                             K5 t=20.0s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             D                                                         D|          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                             |                                                          |          
+                                           --H                                                       ---H          
+                                      O      |                                                          |          
+                                    //       |                                                         |           
+                                  |-         |                                                 O       |           
+                     ~~~         /\          |                                 ~~~           //        |           
+                        ~~~~   //  \         |                                    ~~~~     /|          |           
+                            ~~@    \         |                                        ~~@-- \          |           
+                             /     \         |                                         /    \          |           
+                            /       |        |                                        /      |         |           
+                           /        +        |                                       /       |         |           
+                          +                  |                                      +        +         |           
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:BODY_RELEASE_AND_DROP                                 ROLE:DELAYED_RESPONSE_HOLD                              
+SUP:GROUND_REACQUISITION_AUTHORED                          SUP:GROUND_SUPPORT_AUTHORED                             
+CONTACT:HANDLE_RELEASE_AUTHORED                            CONTACT:NO_HANDLE_CONTACT_AUTHORED                      
+FORCE:LATCH_RELEASED_DOOR_NOT_YET_MOVING                   FORCE:DOOR_INERTIA_PRE_SWING                            
+
+K6 t=21.0s OBS | ONES/INFERRED                             K7 t=21.5s OBS | FOURS/INFERRED                         
+                                                                                                                   
+                                                                                                                   
+                                             |    D                                                     |        D 
+                                             |                                                           |         
+                                              |                                                          |         
+                                              |                                                           |        
+                                              |                                                           |        
+                                              |                                                            |       
+                                               |                                                           |       
+                                             H-|                                                        H---|-     
+                                               |                                                            |      
+                                                |                                                            |     
+                   ~~              O            |                                            O               |     
+                     ~~~         //             |                            ~~~           //                 |    
+                        ~~~    /|                |                              ~~~~     /|                   |    
+                           ~@-- \                |                                  ~~@-- \                    |   
+                           /    \                |                                   /    \                    |   
+                          /      |               |                                  /      |                    |  
+                         /       |                |                                /       |                    |  
+                        +        +                |                               +        +                     | 
+________________________________________________________   ________________________________________________________
+                                                                                                                   
+ROLE:DOOR_SWING_RESPONSE                                   ROLE:OPEN_STATE_SETTLE                                  
+SUP:GROUND_SUPPORT_AUTHORED                                SUP:GROUND_SUPPORT_AUTHORED                             
+CONTACT:NO_HANDLE_CONTACT_AUTHORED                         CONTACT:NO_HANDLE_CONTACT_AUTHORED                      
+FORCE:DOOR_ROTATION                                        FORCE:DOOR_ROTATION_DECAY
+</pre></section><section id="json" hidden><pre>{
+  "compatibility": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_motion_spa_compatible_read_path": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence_boundary": {
+    "inferred": [
+      "Exact paw-to-handle contact, rear-vs-front support ownership, handle angle, door hinge angle, and individual joint poses are abstractly authored rather than claimed as pixel-resolved anatomy.",
+      "The transferable animation principle is a two-clock force handoff: body support/load and lever actuation happen first; large door motion follows after a readable lag rather than moving in lockstep with the body.",
+      "Compile cadence uses PoseLab STREET_FIGHTER/CAPCOM timing because the source observations establish presentation timestamps and change topology, not an authored animation exposure scheme.",
+      "Connective geometry is permitted only within unchanged semantic groups; contact/support/force-owner boundaries snap to authored keys and never emerge from interpolation."
+    ],
+    "observed": [
+      "Commons identifies the real action as a cat opening a human-designed door handle.",
+      "The downloaded source exactly matched Commons SHA-1 1b8803c209b5e01d20c0df6b11758660108240dd and decoded as VP9 1080x1920 at 30 fps, 22.204 s.",
+      "The selected 14.0\u201321.5 s segment was inspected in order before key authoring.",
+      "The strongest early body-region change is measured at 16.0 s (MAD 15.42) and remains high at 16.5 s (13.56), followed by lower change from 17.0\u201320.0 s.",
+      "A second large environment-scale change rises at 20.5 s (8.14), 21.0 s (11.00), and 21.5 s (12.04), creating a clear delayed-response phase after the earlier body burst.",
+      "The temporal masks show the early burst concentrated around the animal/lever region, while late motion expands across the tall door-plane region."
+    ],
+    "unknown": [
+      "Exact source frame of first paw-to-handle contact",
+      "Exact source frame of handle release",
+      "Exact paw support side/weight split during reach",
+      "Exact physical handle and door angles",
+      "Whether the late 21.0\u201321.5 s high-change interval includes camera motion in addition to door motion"
+    ]
+  },
+  "experiment_id": "v2-video-motion-004-cat-door-delayed-force-handoff",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "FOUR_POINT_READY",
+      "compile_frame": 0,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Generic quadruped is authored grounded near the door; exact source paw support distribution is unresolved.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "GROUND_SUPPORT",
+      "joints": {
+        "front_paw": [
+          35,
+          19
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          37,
+          11
+        ],
+        "rear_paw": [
+          25,
+          19
+        ],
+        "root": [
+          29,
+          14
+        ],
+        "shoulder": [
+          34,
+          13
+        ],
+        "tail_tip": [
+          21,
+          12
+        ]
+      },
+      "key_id": "K0",
+      "root_arc_note": "Root low and quiet; door is static; no environment response yet.",
+      "semantic_group": "ground_ready",
+      "source_time_s": 14.0,
+      "support_state": "GROUND_SUPPORT_MULTI_POINT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "REAR_LOAD_AND_RISE_PREP",
+      "compile_frame": 8,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Front body lifts toward lever while rear support is authored dominant; this support split is INFERRED, not source-frame-resolved.",
+      "contact_state": "HANDLE_APPROACH_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "BODY_SUPPORT_CHAIN",
+      "joints": {
+        "front_paw": [
+          39,
+          10
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          39,
+          8
+        ],
+        "rear_paw": [
+          26,
+          19
+        ],
+        "root": [
+          30,
+          15
+        ],
+        "shoulder": [
+          35,
+          11
+        ],
+        "tail_tip": [
+          21,
+          14
+        ]
+      },
+      "key_id": "K1",
+      "root_arc_note": "Root compresses then shifts upward toward the handle; anticipation is body-local.",
+      "semantic_group": "ground_ready",
+      "source_time_s": 15.5,
+      "support_state": "REAR_DOMINANT_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "BODY_BURST_TO_LEVER",
+      "compile_frame": 14,
+      "compile_hold_frames": 1,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Handle contact is authored as the causal bridge because Commons identifies the action as door-handle opening; exact real contact frame remains UNKNOWN.",
+      "contact_state": "PAW_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "BODY_TO_LEVER",
+      "joints": {
+        "front_paw": [
+          42,
+          8
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          40,
+          6
+        ],
+        "rear_paw": [
+          27,
+          19
+        ],
+        "root": [
+          31,
+          13
+        ],
+        "shoulder": [
+          36,
+          9
+        ],
+        "tail_tip": [
+          22,
+          11
+        ]
+      },
+      "key_id": "K2",
+      "root_arc_note": "Root rises sharply; observed source change reaches the first measured peak at 16.0 s.",
+      "semantic_group": "lever_contact",
+      "source_time_s": 16.0,
+      "support_state": "REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "LEVER_ACTUATION",
+      "compile_frame": 17,
+      "compile_hold_frames": 2,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Lever is authored depressed while paw contact persists; exact handle angle is INFERRED.",
+      "contact_state": "PAW_HANDLE_LOAD_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "LEVER_LATCH",
+      "joints": {
+        "front_paw": [
+          43,
+          9
+        ],
+        "handle_tip": [
+          43,
+          9
+        ],
+        "head": [
+          40,
+          7
+        ],
+        "rear_paw": [
+          27,
+          19
+        ],
+        "root": [
+          31,
+          13
+        ],
+        "shoulder": [
+          36,
+          10
+        ],
+        "tail_tip": [
+          22,
+          12
+        ]
+      },
+      "key_id": "K3",
+      "root_arc_note": "Body remains high while force transfers out of the body into the latch mechanism; observed change remains high at 16.5 s.",
+      "semantic_group": "lever_contact",
+      "source_time_s": 16.5,
+      "support_state": "REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "BODY_RELEASE_AND_DROP",
+      "compile_frame": 22,
+      "compile_hold_frames": 2,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Paw/handle separation and return toward ground are authored; exact real release frame is UNKNOWN.",
+      "contact_state": "HANDLE_RELEASE_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "LATCH_RELEASED_DOOR_NOT_YET_MOVING",
+      "joints": {
+        "front_paw": [
+          36,
+          18
+        ],
+        "handle_tip": [
+          43,
+          9
+        ],
+        "head": [
+          38,
+          10
+        ],
+        "rear_paw": [
+          26,
+          19
+        ],
+        "root": [
+          30,
+          15
+        ],
+        "shoulder": [
+          34,
+          12
+        ],
+        "tail_tip": [
+          21,
+          13
+        ]
+      },
+      "key_id": "K4",
+      "root_arc_note": "Root descends while door remains nearly static; this preserves a readable lag between actuation and environment response.",
+      "semantic_group": "release",
+      "source_time_s": 17.5,
+      "support_state": "GROUND_REACQUISITION_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "DELAYED_RESPONSE_HOLD",
+      "compile_frame": 28,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Actor is authored back on ground; no new contact is created during the lag hold.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 44,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_INERTIA_PRE_SWING",
+      "joints": {
+        "front_paw": [
+          34,
+          19
+        ],
+        "handle_tip": [
+          42,
+          9
+        ],
+        "head": [
+          36,
+          12
+        ],
+        "rear_paw": [
+          25,
+          19
+        ],
+        "root": [
+          29,
+          15
+        ],
+        "shoulder": [
+          33,
+          14
+        ],
+        "tail_tip": [
+          20,
+          13
+        ]
+      },
+      "key_id": "K5",
+      "root_arc_note": "Root settles before the large environment-scale motion burst; observed MAD is relatively low at 20.0 s (2.11).",
+      "semantic_group": "door_lag",
+      "source_time_s": 20.0,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "DOOR_SWING_RESPONSE",
+      "compile_frame": 36,
+      "compile_hold_frames": 1,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "No actor-door contact is added; door movement is treated as consequence of the prior authored latch event.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 50,
+        "handle_dx": 2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_ROTATION",
+      "joints": {
+        "front_paw": [
+          33,
+          19
+        ],
+        "handle_tip": [
+          47,
+          9
+        ],
+        "head": [
+          35,
+          12
+        ],
+        "rear_paw": [
+          24,
+          19
+        ],
+        "root": [
+          28,
+          15
+        ],
+        "shoulder": [
+          32,
+          14
+        ],
+        "tail_tip": [
+          19,
+          12
+        ]
+      },
+      "key_id": "K6",
+      "root_arc_note": "Actor root stays comparatively low while door-edge displacement becomes the dominant motion channel; observed MAD rises to 11.00 at 21.0 s.",
+      "semantic_group": "door_swing",
+      "source_time_s": 21.0,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "OPEN_STATE_SETTLE",
+      "compile_frame": 40,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Output settles with the door clearly displaced and the actor grounded; no passage-through-door claim is made.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 54,
+        "handle_dx": 5,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_ROTATION_DECAY",
+      "joints": {
+        "front_paw": [
+          32,
+          19
+        ],
+        "handle_tip": [
+          50,
+          9
+        ],
+        "head": [
+          34,
+          12
+        ],
+        "rear_paw": [
+          23,
+          19
+        ],
+        "root": [
+          27,
+          15
+        ],
+        "shoulder": [
+          31,
+          14
+        ],
+        "tail_tip": [
+          18,
+          13
+        ]
+      },
+      "key_id": "K7",
+      "root_arc_note": "Door carries the final large motion; observed MAD peaks late at 12.04 while body motion is authored secondary.",
+      "semantic_group": "door_swing",
+      "source_time_s": 21.5,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    }
+  ],
+  "lane": "video-motion",
+  "media": {
+    "bytes": 11571,
+    "codec": "H.264",
+    "duration_s": 1.833333,
+    "embedded_in_spa": true,
+    "fps": 24,
+    "frame_count": 44,
+    "height": 220,
+    "path": "motion.mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "fab50a7e670bbb7e2b71de46dad32060bc52f2ebda37e06a146a7ad7c6452981",
+    "source": "abstract_ascii_rig_only",
+    "width": 448
+  },
+  "motion_dungeon": {
+    "connective_rule": "Interpolate abstract geometry only when adjacent keys share semantic_group. Across support/contact/force-owner boundaries, hold the prior key until the next authored key and snap semantic state. Unsupported states fail closed.",
+    "pipeline": [
+      "authored ASCII keys",
+      "explicit holds/timing",
+      "deterministic connective geometry",
+      "ASCII-only frame render",
+      "H.264 MP4",
+      "self-contained SPA"
+    ],
+    "source_audio_in_output": false,
+    "source_pixels_in_output": false
+  },
+  "rig": {
+    "coordinate_space": "56x22 character grid",
+    "glyph_semantics": {
+      "+": "paw/contact point",
+      "-": "horizontal segment/lever",
+      "/\\": "diagonal segment",
+      "@": "root/pelvis proxy",
+      "D": "door free edge",
+      "H": "handle pivot",
+      "O": "head",
+      "_": "ground plane",
+      "|": "door/limb/torso segment",
+      "~": "tail segment"
+    },
+    "joints": [
+      "head",
+      "shoulder",
+      "root_proxy",
+      "front_paw",
+      "rear_paw",
+      "tail_tip",
+      "handle_tip",
+      "door_edge"
+    ],
+    "source_art_dependency": false,
+    "type": "abstract_ascii_quadruped_plus_door_lever"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "analysis_derivatives": {
+      "selected_action_change_metric": {
+        "observed_change_values": {
+          "15.0": 1.83,
+          "15.5": 3.54,
+          "16.0": 15.42,
+          "16.5": 13.56,
+          "17.0": 5.91,
+          "17.5": 6.37,
+          "18.0": 5.73,
+          "18.5": 3.33,
+          "19.0": 4.75,
+          "19.5": 3.45,
+          "20.0": 2.11,
+          "20.5": 8.14,
+          "21.0": 11.0,
+          "21.5": 12.04
+        },
+        "persisted": false,
+        "sampling": "2 fps ordered luma mean-absolute-difference, 48x86, through 21.5 s"
+      },
+      "selected_action_motion_masks": {
+        "persisted": false,
+        "sampling": "1 fps ordered temporal difference masks, 32x56, 15.0\u201321.0 s"
+      },
+      "whole_clip_luma_sheet": {
+        "persisted": false,
+        "sampling": "0.5 fps ordered grayscale, 24x42 per sample",
+        "scope": "0.0\u201320.0 s plus source duration/metadata readback"
+      }
+    },
+    "author": "Astropulse",
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "media_url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Cat_opening_door.webm",
+    "origin": "Own work uploaded to Wikimedia Commons",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Cat_opening_door.webm",
+    "rights_note": "The source is creator-published CC BY-SA 4.0. Source video and analysis derivatives were used only as evidence. No source pixels, frames, audio, color, face, fur pattern, room layout, or camera composition are embedded in this experiment or its MP4.",
+    "rights_status": "CC_BY_SA_4_0",
+    "selected_action_segment_s": [
+      14.0,
+      21.5
+    ],
+    "source_bytes": 2253125,
+    "source_date": "2025-03-03",
+    "source_dimensions": [
+      1080,
+      1920
+    ],
+    "source_duration_s": 22.204,
+    "source_sha1": "1b8803c209b5e01d20c0df6b11758660108240dd",
+    "source_sha256": "1a1f420559b306574ba8a04aee0175c38c2e20815b1bd46a45aae86d17f3ad53",
+    "stream_fps": "30/1",
+    "title": "Cat opening door.webm",
+    "whole_action_inspection": "OBSERVED: the full 14.0\u201321.5 s selected action was decoded in order from the rights-verified source. A 1 fps luma sequence and 1 fps temporal motion masks were inspected across the segment; a 2 fps 48x86 luma stream supplied measured frame-to-frame change through 21.5 s. The larger source clip was also sampled end-to-end at 0.5 fps before this segment was selected."
+  },
+  "timing": {
+    "compile_fps": 24,
+    "compile_sequence": [
+      "FOURS ready",
+      "FOURS load",
+      "ONES body burst",
+      "ONES lever actuation",
+      "TWOS drop/release",
+      "FOURS delayed response hold",
+      "ONES door swing",
+      "FOURS settle"
+    ],
+    "key_timing_policy": "OBSERVED source presentation timestamps identify evidence samples. Compile exposure classes are separately INFERRED.",
+    "pose_lab_vocabulary_note": "Compile cadence uses FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM. User shorthand 1s/2s/4s means these classes, never seconds."
+  },
+  "title": "Cat door lever \u00b7 body burst \u2192 delayed environment response"
+}</pre></section><section id="video" hidden><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,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"></video><p class="note">Motion Dungeon compile: authored abstract ASCII rig + explicit timing only. No source frames, pixels, audio, or artwork are embedded.</p></section></main>
+<script>const buttons=[...document.querySelectorAll('[data-view]')];const sections=[...document.querySelectorAll('main>section')];buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.setAttribute('aria-selected',String(x===b)));sections.forEach(s=>s.hidden=s.id!==b.dataset.view)}));</script></body></html>

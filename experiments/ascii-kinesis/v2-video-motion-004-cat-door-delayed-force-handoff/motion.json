@@ -1,0 +1,613 @@
+{
+  "compatibility": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_motion_spa_compatible_read_path": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence_boundary": {
+    "inferred": [
+      "Exact paw-to-handle contact, rear-vs-front support ownership, handle angle, door hinge angle, and individual joint poses are abstractly authored rather than claimed as pixel-resolved anatomy.",
+      "The transferable animation principle is a two-clock force handoff: body support/load and lever actuation happen first; large door motion follows after a readable lag rather than moving in lockstep with the body.",
+      "Compile cadence uses PoseLab STREET_FIGHTER/CAPCOM timing because the source observations establish presentation timestamps and change topology, not an authored animation exposure scheme.",
+      "Connective geometry is permitted only within unchanged semantic groups; contact/support/force-owner boundaries snap to authored keys and never emerge from interpolation."
+    ],
+    "observed": [
+      "Commons identifies the real action as a cat opening a human-designed door handle.",
+      "The downloaded source exactly matched Commons SHA-1 1b8803c209b5e01d20c0df6b11758660108240dd and decoded as VP9 1080x1920 at 30 fps, 22.204 s.",
+      "The selected 14.0\u201321.5 s segment was inspected in order before key authoring.",
+      "The strongest early body-region change is measured at 16.0 s (MAD 15.42) and remains high at 16.5 s (13.56), followed by lower change from 17.0\u201320.0 s.",
+      "A second large environment-scale change rises at 20.5 s (8.14), 21.0 s (11.00), and 21.5 s (12.04), creating a clear delayed-response phase after the earlier body burst.",
+      "The temporal masks show the early burst concentrated around the animal/lever region, while late motion expands across the tall door-plane region."
+    ],
+    "unknown": [
+      "Exact source frame of first paw-to-handle contact",
+      "Exact source frame of handle release",
+      "Exact paw support side/weight split during reach",
+      "Exact physical handle and door angles",
+      "Whether the late 21.0\u201321.5 s high-change interval includes camera motion in addition to door motion"
+    ]
+  },
+  "experiment_id": "v2-video-motion-004-cat-door-delayed-force-handoff",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "FOUR_POINT_READY",
+      "compile_frame": 0,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Generic quadruped is authored grounded near the door; exact source paw support distribution is unresolved.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "GROUND_SUPPORT",
+      "joints": {
+        "front_paw": [
+          35,
+          19
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          37,
+          11
+        ],
+        "rear_paw": [
+          25,
+          19
+        ],
+        "root": [
+          29,
+          14
+        ],
+        "shoulder": [
+          34,
+          13
+        ],
+        "tail_tip": [
+          21,
+          12
+        ]
+      },
+      "key_id": "K0",
+      "root_arc_note": "Root low and quiet; door is static; no environment response yet.",
+      "semantic_group": "ground_ready",
+      "source_time_s": 14.0,
+      "support_state": "GROUND_SUPPORT_MULTI_POINT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "REAR_LOAD_AND_RISE_PREP",
+      "compile_frame": 8,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Front body lifts toward lever while rear support is authored dominant; this support split is INFERRED, not source-frame-resolved.",
+      "contact_state": "HANDLE_APPROACH_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "BODY_SUPPORT_CHAIN",
+      "joints": {
+        "front_paw": [
+          39,
+          10
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          39,
+          8
+        ],
+        "rear_paw": [
+          26,
+          19
+        ],
+        "root": [
+          30,
+          15
+        ],
+        "shoulder": [
+          35,
+          11
+        ],
+        "tail_tip": [
+          21,
+          14
+        ]
+      },
+      "key_id": "K1",
+      "root_arc_note": "Root compresses then shifts upward toward the handle; anticipation is body-local.",
+      "semantic_group": "ground_ready",
+      "source_time_s": 15.5,
+      "support_state": "REAR_DOMINANT_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "BODY_BURST_TO_LEVER",
+      "compile_frame": 14,
+      "compile_hold_frames": 1,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Handle contact is authored as the causal bridge because Commons identifies the action as door-handle opening; exact real contact frame remains UNKNOWN.",
+      "contact_state": "PAW_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -3,
+        "handle_y": 8,
+        "hinge_x": 45
+      },
+      "force_owner": "BODY_TO_LEVER",
+      "joints": {
+        "front_paw": [
+          42,
+          8
+        ],
+        "handle_tip": [
+          42,
+          8
+        ],
+        "head": [
+          40,
+          6
+        ],
+        "rear_paw": [
+          27,
+          19
+        ],
+        "root": [
+          31,
+          13
+        ],
+        "shoulder": [
+          36,
+          9
+        ],
+        "tail_tip": [
+          22,
+          11
+        ]
+      },
+      "key_id": "K2",
+      "root_arc_note": "Root rises sharply; observed source change reaches the first measured peak at 16.0 s.",
+      "semantic_group": "lever_contact",
+      "source_time_s": 16.0,
+      "support_state": "REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "LEVER_ACTUATION",
+      "compile_frame": 17,
+      "compile_hold_frames": 2,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Lever is authored depressed while paw contact persists; exact handle angle is INFERRED.",
+      "contact_state": "PAW_HANDLE_LOAD_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "LEVER_LATCH",
+      "joints": {
+        "front_paw": [
+          43,
+          9
+        ],
+        "handle_tip": [
+          43,
+          9
+        ],
+        "head": [
+          40,
+          7
+        ],
+        "rear_paw": [
+          27,
+          19
+        ],
+        "root": [
+          31,
+          13
+        ],
+        "shoulder": [
+          36,
+          10
+        ],
+        "tail_tip": [
+          22,
+          12
+        ]
+      },
+      "key_id": "K3",
+      "root_arc_note": "Body remains high while force transfers out of the body into the latch mechanism; observed change remains high at 16.5 s.",
+      "semantic_group": "lever_contact",
+      "source_time_s": 16.5,
+      "support_state": "REAR_SUPPORT_PLUS_FORE_CONTACT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "BODY_RELEASE_AND_DROP",
+      "compile_frame": 22,
+      "compile_hold_frames": 2,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Paw/handle separation and return toward ground are authored; exact real release frame is UNKNOWN.",
+      "contact_state": "HANDLE_RELEASE_AUTHORED",
+      "door": {
+        "edge_x": 45,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "LATCH_RELEASED_DOOR_NOT_YET_MOVING",
+      "joints": {
+        "front_paw": [
+          36,
+          18
+        ],
+        "handle_tip": [
+          43,
+          9
+        ],
+        "head": [
+          38,
+          10
+        ],
+        "rear_paw": [
+          26,
+          19
+        ],
+        "root": [
+          30,
+          15
+        ],
+        "shoulder": [
+          34,
+          12
+        ],
+        "tail_tip": [
+          21,
+          13
+        ]
+      },
+      "key_id": "K4",
+      "root_arc_note": "Root descends while door remains nearly static; this preserves a readable lag between actuation and environment response.",
+      "semantic_group": "release",
+      "source_time_s": 17.5,
+      "support_state": "GROUND_REACQUISITION_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": true,
+      "causal_role": "DELAYED_RESPONSE_HOLD",
+      "compile_frame": 28,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Actor is authored back on ground; no new contact is created during the lag hold.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 44,
+        "handle_dx": -2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_INERTIA_PRE_SWING",
+      "joints": {
+        "front_paw": [
+          34,
+          19
+        ],
+        "handle_tip": [
+          42,
+          9
+        ],
+        "head": [
+          36,
+          12
+        ],
+        "rear_paw": [
+          25,
+          19
+        ],
+        "root": [
+          29,
+          15
+        ],
+        "shoulder": [
+          33,
+          14
+        ],
+        "tail_tip": [
+          20,
+          13
+        ]
+      },
+      "key_id": "K5",
+      "root_arc_note": "Root settles before the large environment-scale motion burst; observed MAD is relatively low at 20.0 s (2.11).",
+      "semantic_group": "door_lag",
+      "source_time_s": 20.0,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "DOOR_SWING_RESPONSE",
+      "compile_frame": 36,
+      "compile_hold_frames": 1,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "No actor-door contact is added; door movement is treated as consequence of the prior authored latch event.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 50,
+        "handle_dx": 2,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_ROTATION",
+      "joints": {
+        "front_paw": [
+          33,
+          19
+        ],
+        "handle_tip": [
+          47,
+          9
+        ],
+        "head": [
+          35,
+          12
+        ],
+        "rear_paw": [
+          24,
+          19
+        ],
+        "root": [
+          28,
+          15
+        ],
+        "shoulder": [
+          32,
+          14
+        ],
+        "tail_tip": [
+          19,
+          12
+        ]
+      },
+      "key_id": "K6",
+      "root_arc_note": "Actor root stays comparatively low while door-edge displacement becomes the dominant motion channel; observed MAD rises to 11.00 at 21.0 s.",
+      "semantic_group": "door_swing",
+      "source_time_s": 21.0,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "causal_boundary_to_next": false,
+      "causal_role": "OPEN_STATE_SETTLE",
+      "compile_frame": 40,
+      "compile_hold_frames": 4,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "contact_note": "Output settles with the door clearly displaced and the actor grounded; no passage-through-door claim is made.",
+      "contact_state": "NO_HANDLE_CONTACT_AUTHORED",
+      "door": {
+        "edge_x": 54,
+        "handle_dx": 5,
+        "handle_y": 9,
+        "hinge_x": 45
+      },
+      "force_owner": "DOOR_ROTATION_DECAY",
+      "joints": {
+        "front_paw": [
+          32,
+          19
+        ],
+        "handle_tip": [
+          50,
+          9
+        ],
+        "head": [
+          34,
+          12
+        ],
+        "rear_paw": [
+          23,
+          19
+        ],
+        "root": [
+          27,
+          15
+        ],
+        "shoulder": [
+          31,
+          14
+        ],
+        "tail_tip": [
+          18,
+          13
+        ]
+      },
+      "key_id": "K7",
+      "root_arc_note": "Door carries the final large motion; observed MAD peaks late at 12.04 while body motion is authored secondary.",
+      "semantic_group": "door_swing",
+      "source_time_s": 21.5,
+      "support_state": "GROUND_SUPPORT_AUTHORED",
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED"
+    }
+  ],
+  "lane": "video-motion",
+  "media": {
+    "bytes": 11571,
+    "codec": "H.264",
+    "duration_s": 1.833333,
+    "embedded_in_spa": true,
+    "fps": 24,
+    "frame_count": 44,
+    "height": 220,
+    "path": "motion.mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "fab50a7e670bbb7e2b71de46dad32060bc52f2ebda37e06a146a7ad7c6452981",
+    "source": "abstract_ascii_rig_only",
+    "width": 448
+  },
+  "motion_dungeon": {
+    "connective_rule": "Interpolate abstract geometry only when adjacent keys share semantic_group. Across support/contact/force-owner boundaries, hold the prior key until the next authored key and snap semantic state. Unsupported states fail closed.",
+    "pipeline": [
+      "authored ASCII keys",
+      "explicit holds/timing",
+      "deterministic connective geometry",
+      "ASCII-only frame render",
+      "H.264 MP4",
+      "self-contained SPA"
+    ],
+    "source_audio_in_output": false,
+    "source_pixels_in_output": false
+  },
+  "rig": {
+    "coordinate_space": "56x22 character grid",
+    "glyph_semantics": {
+      "+": "paw/contact point",
+      "-": "horizontal segment/lever",
+      "/\\": "diagonal segment",
+      "@": "root/pelvis proxy",
+      "D": "door free edge",
+      "H": "handle pivot",
+      "O": "head",
+      "_": "ground plane",
+      "|": "door/limb/torso segment",
+      "~": "tail segment"
+    },
+    "joints": [
+      "head",
+      "shoulder",
+      "root_proxy",
+      "front_paw",
+      "rear_paw",
+      "tail_tip",
+      "handle_tip",
+      "door_edge"
+    ],
+    "source_art_dependency": false,
+    "type": "abstract_ascii_quadruped_plus_door_lever"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "analysis_derivatives": {
+      "selected_action_change_metric": {
+        "observed_change_values": {
+          "15.0": 1.83,
+          "15.5": 3.54,
+          "16.0": 15.42,
+          "16.5": 13.56,
+          "17.0": 5.91,
+          "17.5": 6.37,
+          "18.0": 5.73,
+          "18.5": 3.33,
+          "19.0": 4.75,
+          "19.5": 3.45,
+          "20.0": 2.11,
+          "20.5": 8.14,
+          "21.0": 11.0,
+          "21.5": 12.04
+        },
+        "persisted": false,
+        "sampling": "2 fps ordered luma mean-absolute-difference, 48x86, through 21.5 s"
+      },
+      "selected_action_motion_masks": {
+        "persisted": false,
+        "sampling": "1 fps ordered temporal difference masks, 32x56, 15.0\u201321.0 s"
+      },
+      "whole_clip_luma_sheet": {
+        "persisted": false,
+        "sampling": "0.5 fps ordered grayscale, 24x42 per sample",
+        "scope": "0.0\u201320.0 s plus source duration/metadata readback"
+      }
+    },
+    "author": "Astropulse",
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "media_url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Cat_opening_door.webm",
+    "origin": "Own work uploaded to Wikimedia Commons",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Cat_opening_door.webm",
+    "rights_note": "The source is creator-published CC BY-SA 4.0. Source video and analysis derivatives were used only as evidence. No source pixels, frames, audio, color, face, fur pattern, room layout, or camera composition are embedded in this experiment or its MP4.",
+    "rights_status": "CC_BY_SA_4_0",
+    "selected_action_segment_s": [
+      14.0,
+      21.5
+    ],
+    "source_bytes": 2253125,
+    "source_date": "2025-03-03",
+    "source_dimensions": [
+      1080,
+      1920
+    ],
+    "source_duration_s": 22.204,
+    "source_sha1": "1b8803c209b5e01d20c0df6b11758660108240dd",
+    "source_sha256": "1a1f420559b306574ba8a04aee0175c38c2e20815b1bd46a45aae86d17f3ad53",
+    "stream_fps": "30/1",
+    "title": "Cat opening door.webm",
+    "whole_action_inspection": "OBSERVED: the full 14.0\u201321.5 s selected action was decoded in order from the rights-verified source. A 1 fps luma sequence and 1 fps temporal motion masks were inspected across the segment; a 2 fps 48x86 luma stream supplied measured frame-to-frame change through 21.5 s. The larger source clip was also sampled end-to-end at 0.5 fps before this segment was selected."
+  },
+  "timing": {
+    "compile_fps": 24,
+    "compile_sequence": [
+      "FOURS ready",
+      "FOURS load",
+      "ONES body burst",
+      "ONES lever actuation",
+      "TWOS drop/release",
+      "FOURS delayed response hold",
+      "ONES door swing",
+      "FOURS settle"
+    ],
+    "key_timing_policy": "OBSERVED source presentation timestamps identify evidence samples. Compile exposure classes are separately INFERRED.",
+    "pose_lab_vocabulary_note": "Compile cadence uses FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM. User shorthand 1s/2s/4s means these classes, never seconds."
+  },
+  "title": "Cat door lever \u00b7 body burst \u2192 delayed environment response"
+}
