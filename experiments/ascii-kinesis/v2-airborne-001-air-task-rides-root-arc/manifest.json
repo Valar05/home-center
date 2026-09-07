@@ -1,0 +1,68 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "1ace5032a86f478d46beb3a087287f3e28227f58577a08d2730ea5b7b283a154",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-001-air-task-rides-root-arc",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "air-task-rides-root-arc.motion.html",
+    "air-task-rides-root-arc.mp4"
+  ],
+  "format_version": 2,
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 14250,
+  "media_sha256": "8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 3,
+    "semantic_frames_per_loop": 36,
+    "video_frames_total": 108
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 501,
+    "page_url": "https://www.spriters-resource.com/game_boy_gbc/mmxtreme2/asset/501/",
+    "raw_bytes": 63428,
+    "raw_dimensions": [
+      550,
+      405
+    ],
+    "raw_sha256": "2eaa11669c3b44c61b2dff1ff97fb81a358da45e16b194c9d92076a3569f4f22",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in air-task-rides-root-arc.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

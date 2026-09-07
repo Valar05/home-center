@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Airborne 001 — Air Task Rides the Root Arc</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1180px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:78ch;line-height:1.45}
+</style></head><body>
+<h1>Air Task Rides the Root Arc</h1>
+<p class="note">Copyright-safe generic ASCII rig. Source art is evidence only and is not embedded. The transferable principle: an airborne local task change rides one authored ballistic root arc instead of manufacturing a second vertical impulse.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[A001-K0] LOAD | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=LOAD | force=BODY_PRELOAD
+
+
+
+
+
+
+
+
+
+
+
+                              O &gt;
+                              o
+                            o/|\o
+                          //  |  \ /o
+                         o    |   o
+                       o/     |
+                         +    @
+                            // \\
+                           o     o
+                          /       \
+                         o         o
+_________________________=_________=____________________________
+
+
+[A001-K1] LAUNCH | ONES INFERRED | support=NONE | contact=NONE | phase=LAUNCH | force=BODY_IMPULSE
+
+
+
+
+
+                                     o
+                                    /
+                               O &gt; o
+                               o  /
+                             o/|\o
+                            /  |
+                            /  |
+                           o   |
+                          /    |
+                         o^    @
+                              / \
+                              /  \
+                             o    o
+                            /      \
+                           o        o
+
+
+________________________________________________________________
+
+
+[A001-K2] RISE | TWOS INFERRED | support=NONE | contact=NONE | phase=RISE | force=BALLISTIC
+
+
+
+
+                                O &gt;
+                                o
+                              o/|\o
+                             /  |  \ /o
+                            o   |   o
+                           /    |
+                           ^    @
+                              // \\
+                             o     o
+                            /       \
+                            o       o
+
+
+
+
+
+
+
+________________________________________________________________
+
+
+[A001-K3] APEX_READ | FOURS INFERRED | support=NONE | contact=NONE | phase=APEX | force=BALLISTIC
+
+
+                                 O &gt;
+                          o\     o
+                            o--o/|\o-
+                                 |   -o
+                                 |     \o
+                            ~    @
+                                / \\
+                               /    o
+                              o      \
+                             /        o
+                            o
+
+
+
+
+
+
+
+
+
+________________________________________________________________
+
+
+[A001-K4] AERIAL_TASK_CHANGE | TWOS INFERRED | support=NONE | contact=NONE | phase=DESCENT_BEGIN | force=BALLISTIC
+
+
+
+                                  O &gt;
+                                  o
+                                o/|\o---o---o
+                               /  |
+                              o   |
+                             v    @
+                             o  // \
+                               o    \
+                              /      o
+                             o        \
+                                      \
+                                       o
+
+
+
+
+
+
+
+________________________________________________________________
+
+
+[A001-K5] DESCENT_OPEN | TWOS INFERRED | support=NONE | contact=NONE | phase=DESCENT | force=BALLISTIC
+
+
+
+
+
+
+                                   O &gt;
+                                   o
+                                -o/|\o-
+                              o-   |   -o
+                            o/     |     \o
+                                   |
+                              v    @
+                                  / \
+                                 /   \
+                                o     o
+                               /       \
+                               /       \
+                              o         o
+
+
+
+________________________________________________________________
+
+
+[A001-K6] PRECONTACT | TWOS INFERRED | support=NONE | contact=NONE | phase=PRECONTACT | force=BALLISTIC
+
+
+
+
+
+
+
+
+                                    O &gt;
+                                    o
+                                  o/|\o
+                                 /  |  \
+                                o   |   o
+                               /    |    \
+                               v    @     o
+                                   / \
+                                  /   \
+                                 o     o
+                                /       \
+                                /       \
+                               o         o
+
+________________________________________________________________
+
+
+[A001-K7] CONTACT | ONES INFERRED | support=GROUND_BOTH | contact=GROUND | phase=CONTACT | force=GROUND_REACTION
+
+
+
+
+
+
+
+
+
+                                    O &gt;
+                                    o
+                                  o/|\o
+                                 /  |  \
+                                o   |   o
+                               /    |    \
+                               +    @     o
+                                   / \
+                                  /   \
+                                 o     o
+                                /       \
+                                /       \
+                               o         o
+_______________________________=_________=______________________
+
+
+[A001-K8] LAND_COMPRESSION | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=COMPRESSION | force=GROUND_REACTION
+
+
+
+
+
+
+
+
+
+
+
+
+                                    O &gt;
+                                    o
+                                 -o/|\o-
+                               o-   |   -o
+                             o/     |     \o
+                               +    @
+                                  // \\
+                                 o     o
+                                /       \
+                               o         o
+_______________________________=_________=______________________
+
+
+[A001-K9] REBOUND | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=REBOUND | force=GROUND_REACTION
+
+
+
+
+
+
+
+
+
+
+                                    O &gt;
+                                    o
+                                  o/|\o
+                                o/  |  \o
+                               o    |    \o
+                                    |
+                               +    @
+                                   / \
+                                  /   \
+                                 o     o
+                                /       \
+                               o         o
+_______________________________=_________=______________________
+
+
+[A001-K10] RETURN_STABLE | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=STABLE | force=GROUND_REACTION
+
+
+
+
+
+
+
+
+                                    O &gt;
+                                    o
+                                  o/|\o
+                                 /  |  \
+                                o   |   o
+                               /    |    \
+                               o    |     o
+                               +    @
+                                   / \
+                                  /   \
+                                 o     o
+                                /       \
+                                /       \
+                               o         o
+_______________________________=_________=______________________
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  &quot;ascii_sheet_sha256&quot;: &quot;1ace5032a86f478d46beb3a087287f3e28227f58577a08d2730ea5b7b283a154&quot;,
+  &quot;compatibility&quot;: {
+    &quot;ascii_kinesis_v2&quot;: true,
+    &quot;backward_compatible&quot;: true,
+    &quot;primary_tabs&quot;: [
+      &quot;ASCII&quot;,
+      &quot;JSON&quot;,
+      &quot;VIDEO&quot;
+    ],
+    &quot;uapl_v1_read_path_preserved&quot;: true
+  },
+  &quot;compile&quot;: {
+    &quot;connector_frames&quot;: 1,
+    &quot;connector_rule&quot;: &quot;One geometry-only midpoint is allowed only when adjacent keys keep identical support_contact and contact_state. Any support/contact causal join hard-cuts. The midpoint linearly interpolates authored joint coordinates and never creates a new root phase, support, contact, force owner, or facing state.&quot;,
+    &quot;fps&quot;: 24,
+    &quot;loop_repetitions&quot;: 3,
+    &quot;media_bytes&quot;: 14250,
+    &quot;media_sha256&quot;: &quot;8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554&quot;,
+    &quot;method&quot;: &quot;AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA&quot;,
+    &quot;renderer&quot;: &quot;Python/Pillow rendering generated ASCII text frames; ffmpeg libx264 yuv420p&quot;,
+    &quot;semantic_frames_per_loop&quot;: 36,
+    &quot;source_sprite_pixels_used&quot;: false,
+    &quot;video_frames_total&quot;: 108
+  },
+  &quot;correction_hooks&quot;: [
+    &quot;KEEP&quot;,
+    &quot;REJECT&quot;,
+    &quot;EXAGGERATE&quot;,
+    &quot;COMPRESS&quot;,
+    &quot;RETIME&quot;,
+    &quot;CHANGE SOURCE&quot;,
+    &quot;PROMOTE&quot;,
+    &quot;SPAWN VARIANT&quot;,
+    &quot;FIX BLOCKER&quot;,
+    &quot;RERUN&quot;
+  ],
+  &quot;evidence_split&quot;: {
+    &quot;INFERRED&quot;: [
+      &quot;A transferable jump can be authored as LOAD -&gt; LAUNCH -&gt; RISE -&gt; APEX -&gt; AERIAL_TASK_CHANGE -&gt; DESCENT -&gt; PRECONTACT -&gt; CONTACT -&gt; COMPRESSION -&gt; REBOUND -&gt; RETURN.&quot;,
+      &quot;The root arc should remain single-valued through the aerial task change: local limb organization may change without introducing another vertical launch event.&quot;,
+      &quot;Landing contact and landing compression are authored as separate keys so impact event and force absorption remain legible.&quot;,
+      &quot;PoseLab V1 STREET_FIGHTER/CAPCOM cadence is used because source exposure timing is unavailable.&quot;
+    ],
+    &quot;OBSERVED&quot;: [
+      &quot;The whole sheet contains both grounded/low-body poses and clearly airborne compact/extended pose families.&quot;,
+      &quot;Across airborne pose families, facing remains readable while arms and legs change local organization.&quot;,
+      &quot;The sheet includes airborne-compatible upper-body task/arm-cannon pose changes alongside non-task airborne organizations.&quot;,
+      &quot;The whole sheet contains grounded return/recovery families as well as airborne families, supporting a complete leave-ground-to-return abstraction.&quot;,
+      &quot;The source is a static sprite sheet; source-authentic exposure durations are not measurable from it.&quot;
+    ],
+    &quot;UNKNOWN&quot;: [
+      &quot;Exact in-game frame exposures and ordering of every source-sheet drawing.&quot;,
+      &quot;Whether every visually adjacent source drawing belongs to the same runtime animation clip.&quot;
+    ]
+  },
+  &quot;experiment_id&quot;: &quot;v2-airborne-001-air-task-rides-root-arc&quot;,
+  &quot;format_version&quot;: 2,
+  &quot;keys&quot;: [
+    {
+      &quot;causal_role&quot;: &quot;crouch/load before support break&quot;,
+      &quot;contact_state&quot;: &quot;GROUND&quot;,
+      &quot;force_owner&quot;: &quot;BODY_PRELOAD&quot;,
+      &quot;key_id&quot;: &quot;A001-K0&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root lowers while both feet remain grounded; facing stays right.&quot;,
+      &quot;name&quot;: &quot;LOAD&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          25,
+          15
+        ],
+        &quot;elbow_r&quot;: [
+          34,
+          15
+        ],
+        &quot;foot_l&quot;: [
+          25,
+          21
+        ],
+        &quot;foot_r&quot;: [
+          35,
+          21
+        ],
+        &quot;hand_l&quot;: [
+          23,
+          16
+        ],
+        &quot;hand_r&quot;: [
+          36,
+          14
+        ],
+        &quot;head&quot;: [
+          30,
+          11
+        ],
+        &quot;knee_l&quot;: [
+          27,
+          19
+        ],
+        &quot;knee_r&quot;: [
+          33,
+          19
+        ],
+        &quot;neck&quot;: [
+          30,
+          12
+        ],
+        &quot;pelvis&quot;: [
+          30,
+          17
+        ],
+        &quot;shoulder_l&quot;: [
+          28,
+          13
+        ],
+        &quot;shoulder_r&quot;: [
+          32,
+          13
+        ]
+      },
+      &quot;support_contact&quot;: &quot;GROUND_BOTH&quot;,
+      &quot;timing_class&quot;: &quot;FOURS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;LOAD&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;support break / initial vertical impulse&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BODY_IMPULSE&quot;,
+      &quot;key_id&quot;: &quot;A001-K1&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root begins upward travel immediately after authored support break; no second support is introduced.&quot;,
+      &quot;name&quot;: &quot;LAUNCH&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          27,
+          12
+        ],
+        &quot;elbow_r&quot;: [
+          35,
+          7
+        ],
+        &quot;foot_l&quot;: [
+          27,
+          19
+        ],
+        &quot;foot_r&quot;: [
+          36,
+          19
+        ],
+        &quot;hand_l&quot;: [
+          25,
+          14
+        ],
+        &quot;hand_r&quot;: [
+          37,
+          5
+        ],
+        &quot;head&quot;: [
+          31,
+          7
+        ],
+        &quot;knee_l&quot;: [
+          29,
+          17
+        ],
+        &quot;knee_r&quot;: [
+          34,
+          17
+        ],
+        &quot;neck&quot;: [
+          31,
+          8
+        ],
+        &quot;pelvis&quot;: [
+          31,
+          14
+        ],
+        &quot;shoulder_l&quot;: [
+          29,
+          9
+        ],
+        &quot;shoulder_r&quot;: [
+          33,
+          9
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;ONES&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;LAUNCH&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;clear upward root travel with counterbalance&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BALLISTIC&quot;,
+      &quot;key_id&quot;: &quot;A001-K2&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root continues upward; limbs compact and counterbalance without changing facing.&quot;,
+      &quot;name&quot;: &quot;RISE&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          28,
+          8
+        ],
+        &quot;elbow_r&quot;: [
+          36,
+          8
+        ],
+        &quot;foot_l&quot;: [
+          28,
+          14
+        ],
+        &quot;foot_r&quot;: [
+          36,
+          14
+        ],
+        &quot;hand_l&quot;: [
+          27,
+          10
+        ],
+        &quot;hand_r&quot;: [
+          38,
+          7
+        ],
+        &quot;head&quot;: [
+          32,
+          4
+        ],
+        &quot;knee_l&quot;: [
+          29,
+          12
+        ],
+        &quot;knee_r&quot;: [
+          35,
+          12
+        ],
+        &quot;neck&quot;: [
+          32,
+          5
+        ],
+        &quot;pelvis&quot;: [
+          32,
+          10
+        ],
+        &quot;shoulder_l&quot;: [
+          30,
+          6
+        ],
+        &quot;shoulder_r&quot;: [
+          34,
+          6
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;TWOS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;RISE&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;hang-time readability at velocity sign change&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BALLISTIC&quot;,
+      &quot;key_id&quot;: &quot;A001-K3&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root reaches the top of the single arc; extended counterbalance buys silhouette readability without freezing causality.&quot;,
+      &quot;name&quot;: &quot;APEX_READ&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          28,
+          4
+        ],
+        &quot;elbow_r&quot;: [
+          38,
+          5
+        ],
+        &quot;foot_l&quot;: [
+          28,
+          12
+        ],
+        &quot;foot_r&quot;: [
+          38,
+          11
+        ],
+        &quot;hand_l&quot;: [
+          26,
+          3
+        ],
+        &quot;hand_r&quot;: [
+          40,
+          6
+        ],
+        &quot;head&quot;: [
+          33,
+          2
+        ],
+        &quot;knee_l&quot;: [
+          30,
+          10
+        ],
+        &quot;knee_r&quot;: [
+          36,
+          9
+        ],
+        &quot;neck&quot;: [
+          33,
+          3
+        ],
+        &quot;pelvis&quot;: [
+          33,
+          7
+        ],
+        &quot;shoulder_l&quot;: [
+          31,
+          4
+        ],
+        &quot;shoulder_r&quot;: [
+          35,
+          4
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;FOURS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;APEX&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;local airborne pose/task change without a new launch&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BALLISTIC&quot;,
+      &quot;key_id&quot;: &quot;A001-K4&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root has already started descending while the forward arm task changes; local task rides the arc and does not inject a new vertical impulse.&quot;,
+      &quot;name&quot;: &quot;AERIAL_TASK_CHANGE&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          30,
+          7
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          5
+        ],
+        &quot;foot_l&quot;: [
+          29,
+          12
+        ],
+        &quot;foot_r&quot;: [
+          39,
+          14
+        ],
+        &quot;hand_l&quot;: [
+          29,
+          9
+        ],
+        &quot;hand_r&quot;: [
+          44,
+          5
+        ],
+        &quot;head&quot;: [
+          34,
+          3
+        ],
+        &quot;knee_l&quot;: [
+          31,
+          10
+        ],
+        &quot;knee_r&quot;: [
+          37,
+          11
+        ],
+        &quot;neck&quot;: [
+          34,
+          4
+        ],
+        &quot;pelvis&quot;: [
+          34,
+          8
+        ],
+        &quot;shoulder_l&quot;: [
+          32,
+          5
+        ],
+        &quot;shoulder_r&quot;: [
+          36,
+          5
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;TWOS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;DESCENT_BEGIN&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;clear downward root travel and landing preparation&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BALLISTIC&quot;,
+      &quot;key_id&quot;: &quot;A001-K5&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root continues downward; arms reopen and legs prepare for ground without changing facing.&quot;,
+      &quot;name&quot;: &quot;DESCENT_OPEN&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          30,
+          9
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          9
+        ],
+        &quot;foot_l&quot;: [
+          30,
+          18
+        ],
+        &quot;foot_r&quot;: [
+          40,
+          18
+        ],
+        &quot;hand_l&quot;: [
+          28,
+          10
+        ],
+        &quot;hand_r&quot;: [
+          42,
+          10
+        ],
+        &quot;head&quot;: [
+          35,
+          6
+        ],
+        &quot;knee_l&quot;: [
+          32,
+          15
+        ],
+        &quot;knee_r&quot;: [
+          38,
+          15
+        ],
+        &quot;neck&quot;: [
+          35,
+          7
+        ],
+        &quot;pelvis&quot;: [
+          35,
+          12
+        ],
+        &quot;shoulder_l&quot;: [
+          33,
+          8
+        ],
+        &quot;shoulder_r&quot;: [
+          37,
+          8
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;TWOS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;DESCENT&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;prepare impact without claiming contact early&quot;,
+      &quot;contact_state&quot;: &quot;NONE&quot;,
+      &quot;force_owner&quot;: &quot;BALLISTIC&quot;,
+      &quot;key_id&quot;: &quot;A001-K6&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Feet approach the ground but support/contact remain explicitly NONE until the next authored key.&quot;,
+      &quot;name&quot;: &quot;PRECONTACT&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          32,
+          12
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          12
+        ],
+        &quot;foot_l&quot;: [
+          31,
+          20
+        ],
+        &quot;foot_r&quot;: [
+          41,
+          20
+        ],
+        &quot;hand_l&quot;: [
+          31,
+          14
+        ],
+        &quot;hand_r&quot;: [
+          42,
+          14
+        ],
+        &quot;head&quot;: [
+          36,
+          8
+        ],
+        &quot;knee_l&quot;: [
+          33,
+          17
+        ],
+        &quot;knee_r&quot;: [
+          39,
+          17
+        ],
+        &quot;neck&quot;: [
+          36,
+          9
+        ],
+        &quot;pelvis&quot;: [
+          36,
+          14
+        ],
+        &quot;shoulder_l&quot;: [
+          34,
+          10
+        ],
+        &quot;shoulder_r&quot;: [
+          38,
+          10
+        ]
+      },
+      &quot;support_contact&quot;: &quot;NONE&quot;,
+      &quot;timing_class&quot;: &quot;TWOS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;PRECONTACT&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;first authored ground reacquisition event&quot;,
+      &quot;contact_state&quot;: &quot;GROUND&quot;,
+      &quot;force_owner&quot;: &quot;GROUND_REACTION&quot;,
+      &quot;key_id&quot;: &quot;A001-K7&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Ground support is reacquired here, not during connective motion; root has not yet fully compressed.&quot;,
+      &quot;name&quot;: &quot;CONTACT&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          32,
+          13
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          13
+        ],
+        &quot;foot_l&quot;: [
+          31,
+          21
+        ],
+        &quot;foot_r&quot;: [
+          41,
+          21
+        ],
+        &quot;hand_l&quot;: [
+          31,
+          15
+        ],
+        &quot;hand_r&quot;: [
+          42,
+          15
+        ],
+        &quot;head&quot;: [
+          36,
+          9
+        ],
+        &quot;knee_l&quot;: [
+          33,
+          18
+        ],
+        &quot;knee_r&quot;: [
+          39,
+          18
+        ],
+        &quot;neck&quot;: [
+          36,
+          10
+        ],
+        &quot;pelvis&quot;: [
+          36,
+          15
+        ],
+        &quot;shoulder_l&quot;: [
+          34,
+          11
+        ],
+        &quot;shoulder_r&quot;: [
+          38,
+          11
+        ]
+      },
+      &quot;support_contact&quot;: &quot;GROUND_BOTH&quot;,
+      &quot;timing_class&quot;: &quot;ONES&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;CONTACT&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;absorb vertical force after contact&quot;,
+      &quot;contact_state&quot;: &quot;GROUND&quot;,
+      &quot;force_owner&quot;: &quot;GROUND_REACTION&quot;,
+      &quot;key_id&quot;: &quot;A001-K8&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root lowers after contact while feet remain supported; event and consequence are separated for readability.&quot;,
+      &quot;name&quot;: &quot;LAND_COMPRESSION&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          31,
+          15
+        ],
+        &quot;elbow_r&quot;: [
+          41,
+          15
+        ],
+        &quot;foot_l&quot;: [
+          31,
+          21
+        ],
+        &quot;foot_r&quot;: [
+          41,
+          21
+        ],
+        &quot;hand_l&quot;: [
+          29,
+          16
+        ],
+        &quot;hand_r&quot;: [
+          43,
+          16
+        ],
+        &quot;head&quot;: [
+          36,
+          12
+        ],
+        &quot;knee_l&quot;: [
+          33,
+          19
+        ],
+        &quot;knee_r&quot;: [
+          39,
+          19
+        ],
+        &quot;neck&quot;: [
+          36,
+          13
+        ],
+        &quot;pelvis&quot;: [
+          36,
+          17
+        ],
+        &quot;shoulder_l&quot;: [
+          34,
+          14
+        ],
+        &quot;shoulder_r&quot;: [
+          38,
+          14
+        ]
+      },
+      &quot;support_contact&quot;: &quot;GROUND_BOTH&quot;,
+      &quot;timing_class&quot;: &quot;FOURS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;COMPRESSION&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;recover height without losing support&quot;,
+      &quot;contact_state&quot;: &quot;GROUND&quot;,
+      &quot;force_owner&quot;: &quot;GROUND_REACTION&quot;,
+      &quot;key_id&quot;: &quot;A001-K9&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root rebounds modestly while support remains continuous; rebound is not a relaunch.&quot;,
+      &quot;name&quot;: &quot;REBOUND&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          32,
+          13
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          13
+        ],
+        &quot;foot_l&quot;: [
+          31,
+          21
+        ],
+        &quot;foot_r&quot;: [
+          41,
+          21
+        ],
+        &quot;hand_l&quot;: [
+          31,
+          14
+        ],
+        &quot;hand_r&quot;: [
+          42,
+          14
+        ],
+        &quot;head&quot;: [
+          36,
+          10
+        ],
+        &quot;knee_l&quot;: [
+          33,
+          19
+        ],
+        &quot;knee_r&quot;: [
+          39,
+          19
+        ],
+        &quot;neck&quot;: [
+          36,
+          11
+        ],
+        &quot;pelvis&quot;: [
+          36,
+          16
+        ],
+        &quot;shoulder_l&quot;: [
+          34,
+          12
+        ],
+        &quot;shoulder_r&quot;: [
+          38,
+          12
+        ]
+      },
+      &quot;support_contact&quot;: &quot;GROUND_BOTH&quot;,
+      &quot;timing_class&quot;: &quot;TWOS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;REBOUND&quot;
+    },
+    {
+      &quot;causal_role&quot;: &quot;return to grounded readable state&quot;,
+      &quot;contact_state&quot;: &quot;GROUND&quot;,
+      &quot;force_owner&quot;: &quot;GROUND_REACTION&quot;,
+      &quot;key_id&quot;: &quot;A001-K10&quot;,
+      &quot;motion_arc_root_note&quot;: &quot;Root returns to stable supported height and preserves the same right-facing read.&quot;,
+      &quot;name&quot;: &quot;RETURN_STABLE&quot;,
+      &quot;pose_rig&quot;: {
+        &quot;elbow_l&quot;: [
+          32,
+          12
+        ],
+        &quot;elbow_r&quot;: [
+          40,
+          12
+        ],
+        &quot;foot_l&quot;: [
+          31,
+          21
+        ],
+        &quot;foot_r&quot;: [
+          41,
+          21
+        ],
+        &quot;hand_l&quot;: [
+          31,
+          14
+        ],
+        &quot;hand_r&quot;: [
+          42,
+          14
+        ],
+        &quot;head&quot;: [
+          36,
+          8
+        ],
+        &quot;knee_l&quot;: [
+          33,
+          18
+        ],
+        &quot;knee_r&quot;: [
+          39,
+          18
+        ],
+        &quot;neck&quot;: [
+          36,
+          9
+        ],
+        &quot;pelvis&quot;: [
+          36,
+          15
+        ],
+        &quot;shoulder_l&quot;: [
+          34,
+          10
+        ],
+        &quot;shoulder_r&quot;: [
+          38,
+          10
+        ]
+      },
+      &quot;support_contact&quot;: &quot;GROUND_BOTH&quot;,
+      &quot;timing_class&quot;: &quot;FOURS&quot;,
+      &quot;timing_provenance&quot;: &quot;INFERRED&quot;,
+      &quot;vertical_phase&quot;: &quot;STABLE&quot;
+    }
+  ],
+  &quot;lane&quot;: &quot;airborne&quot;,
+  &quot;manifest&quot;: {
+    &quot;builder_file&quot;: &quot;build.py&quot;,
+    &quot;manifest_file&quot;: &quot;manifest.json&quot;,
+    &quot;media_file&quot;: &quot;air-task-rides-root-arc.mp4&quot;,
+    &quot;receipt_file&quot;: &quot;receipt.md&quot;,
+    &quot;spa_file&quot;: &quot;air-task-rides-root-arc.motion.html&quot;
+  },
+  &quot;principle&quot;: &quot;An airborne local pose/task change must ride the already-authored root arc instead of creating a second vertical impulse.&quot;,
+  &quot;rig&quot;: {
+    &quot;canvas_chars&quot;: [
+      64,
+      24
+    ],
+    &quot;facing&quot;: &quot;RIGHT&quot;,
+    &quot;glyphs&quot;: {
+      &quot;facing&quot;: &quot;&gt;&quot;,
+      &quot;ground&quot;: &quot;_&quot;,
+      &quot;head&quot;: &quot;O&quot;,
+      &quot;joint&quot;: &quot;o&quot;,
+      &quot;pelvis&quot;: &quot;@&quot;,
+      &quot;root_vector_apex&quot;: &quot;~&quot;,
+      &quot;root_vector_down&quot;: &quot;v&quot;,
+      &quot;root_vector_up&quot;: &quot;^&quot;,
+      &quot;support&quot;: &quot;=&quot;
+    },
+    &quot;joints&quot;: [
+      &quot;head&quot;,
+      &quot;neck&quot;,
+      &quot;shoulder_l&quot;,
+      &quot;shoulder_r&quot;,
+      &quot;elbow_l&quot;,
+      &quot;elbow_r&quot;,
+      &quot;hand_l&quot;,
+      &quot;hand_r&quot;,
+      &quot;pelvis&quot;,
+      &quot;knee_l&quot;,
+      &quot;knee_r&quot;,
+      &quot;foot_l&quot;,
+      &quot;foot_r&quot;
+    ],
+    &quot;kind&quot;: &quot;copyright-safe generic ASCII humanoid rig&quot;
+  },
+  &quot;schema&quot;: &quot;ascii-kinesis.motion.v2&quot;,
+  &quot;source&quot;: {
+    &quot;asset_id&quot;: 501,
+    &quot;asset_name&quot;: &quot;X&quot;,
+    &quot;drew_work_used&quot;: false,
+    &quot;game&quot;: &quot;Mega Man Xtreme 2&quot;,
+    &quot;page_url&quot;: &quot;https://www.spriters-resource.com/game_boy_gbc/mmxtreme2/asset/501/&quot;,
+    &quot;platform&quot;: &quot;Game Boy / GBC&quot;,
+    &quot;raw_asset_url&quot;: &quot;https://www.spriters-resource.com/media/assets/1/501.png?updated=1755472402&quot;,
+    &quot;raw_bytes&quot;: 63428,
+    &quot;raw_dimensions&quot;: [
+      550,
+      405
+    ],
+    &quot;raw_format&quot;: &quot;PNG&quot;,
+    &quot;raw_sha256&quot;: &quot;2eaa11669c3b44c61b2dff1ff97fb81a358da45e16b194c9d92076a3569f4f22&quot;,
+    &quot;rights_note&quot;: &quot;Copyrighted commercial-game sprite art. Used only as private/ephemeral evidence for critical motion analysis. No source pixels, palette, contours, pose tracing, sheet layout, or copied sprite silhouettes are embedded or redistributed in this experiment.&quot;,
+    &quot;site&quot;: &quot;The Spriters Resource&quot;,
+    &quot;source_timing_available&quot;: false,
+    &quot;whole_sheet_boundary&quot;: &quot;Entire 550x405 sheet treated as a pose corpus. The sheet is static and non-chronological; no frame durations are established by the sheet itself.&quot;,
+    &quot;whole_sheet_inspected&quot;: true
+  },
+  &quot;timing_policy&quot;: {
+    &quot;FOURS&quot;: &quot;one authored sample held for four display frames&quot;,
+    &quot;ONES&quot;: &quot;one authored sample per display frame&quot;,
+    &quot;TWOS&quot;: &quot;one authored sample held for two display frames&quot;,
+    &quot;all_decisive_key_timing_provenance&quot;: &quot;INFERRED&quot;,
+    &quot;shorthand_normalization&quot;: &quot;1s/2s/4s means ONES/TWOS/FOURS, never seconds&quot;,
+    &quot;vocabulary&quot;: &quot;PoseLab V1 STREET_FIGHTER/CAPCOM&quot;
+  },
+  &quot;title&quot;: &quot;Air Task Rides the Root Arc&quot;
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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AAAAAAAAAAEAAAeGAAAAYnVkdGEAAABabWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAbWRpcmFwcGwAAAAAAAAAAAAAAAAtaWxzdAAAACWpdG9vAAAAHWRhdGEAAAABAAAAAExhdmY2Mi4xMi4xMDIAAAAIZnJlZQAAMCxtZGF0AAACowYF//+f3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjQgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0xIHJlZj0xNiBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgzOjB4MTMzIG1lPXVtaCBzdWJtZT0xMCBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTI0IGNocm9tYV9tZT0xIHRyZWxsaXM9MiA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEyIGxvb2thaGVhZF90aHJlYWRzPTIgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9OCBiX3B5cmFtaWQ9MiBiX2FkYXB0PTIgYl9iaWFzPTAgZGlyZWN0PTMgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNCBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTYwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MzUuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS40MCBhcT0xOjEuMDAAgAAABp5liIEAB3/+5UXmWR1nwhL0y71qP9cSPA0QFnAAAAMAAAMAAAMACUuvNT1wmf/AAmEOHqQq5ECqLh4WkjklprGyJsA9z6OzXfPiusDVnc2HbyZDqyFUieZfIYzO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" type="video/mp4"></video><p class="note">MP4 compiled solely from the abstract joint data, generated ASCII frames, explicit ONES/TWOS/FOURS holds, and topology-safe connective frames recorded in JSON.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script>
+</body></html>

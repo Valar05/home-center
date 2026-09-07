@@ -1,0 +1,861 @@
+{
+  "ascii_sheet_sha256": "1ace5032a86f478d46beb3a087287f3e28227f58577a08d2730ea5b7b283a154",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "One geometry-only midpoint is allowed only when adjacent keys keep identical support_contact and contact_state. Any support/contact causal join hard-cuts. The midpoint linearly interpolates authored joint coordinates and never creates a new root phase, support, contact, force owner, or facing state.",
+    "fps": 24,
+    "loop_repetitions": 3,
+    "media_bytes": 14250,
+    "media_sha256": "8101962c3feef935d48c43305accd32704fddf31c4cd3f618d7a383fc7a21554",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow rendering generated ASCII text frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 36,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 108
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence_split": {
+    "INFERRED": [
+      "A transferable jump can be authored as LOAD -> LAUNCH -> RISE -> APEX -> AERIAL_TASK_CHANGE -> DESCENT -> PRECONTACT -> CONTACT -> COMPRESSION -> REBOUND -> RETURN.",
+      "The root arc should remain single-valued through the aerial task change: local limb organization may change without introducing another vertical launch event.",
+      "Landing contact and landing compression are authored as separate keys so impact event and force absorption remain legible.",
+      "PoseLab V1 STREET_FIGHTER/CAPCOM cadence is used because source exposure timing is unavailable."
+    ],
+    "OBSERVED": [
+      "The whole sheet contains both grounded/low-body poses and clearly airborne compact/extended pose families.",
+      "Across airborne pose families, facing remains readable while arms and legs change local organization.",
+      "The sheet includes airborne-compatible upper-body task/arm-cannon pose changes alongside non-task airborne organizations.",
+      "The whole sheet contains grounded return/recovery families as well as airborne families, supporting a complete leave-ground-to-return abstraction.",
+      "The source is a static sprite sheet; source-authentic exposure durations are not measurable from it."
+    ],
+    "UNKNOWN": [
+      "Exact in-game frame exposures and ordering of every source-sheet drawing.",
+      "Whether every visually adjacent source drawing belongs to the same runtime animation clip."
+    ]
+  },
+  "experiment_id": "v2-airborne-001-air-task-rides-root-arc",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "crouch/load before support break",
+      "contact_state": "GROUND",
+      "force_owner": "BODY_PRELOAD",
+      "key_id": "A001-K0",
+      "motion_arc_root_note": "Root lowers while both feet remain grounded; facing stays right.",
+      "name": "LOAD",
+      "pose_rig": {
+        "elbow_l": [
+          25,
+          15
+        ],
+        "elbow_r": [
+          34,
+          15
+        ],
+        "foot_l": [
+          25,
+          21
+        ],
+        "foot_r": [
+          35,
+          21
+        ],
+        "hand_l": [
+          23,
+          16
+        ],
+        "hand_r": [
+          36,
+          14
+        ],
+        "head": [
+          30,
+          11
+        ],
+        "knee_l": [
+          27,
+          19
+        ],
+        "knee_r": [
+          33,
+          19
+        ],
+        "neck": [
+          30,
+          12
+        ],
+        "pelvis": [
+          30,
+          17
+        ],
+        "shoulder_l": [
+          28,
+          13
+        ],
+        "shoulder_r": [
+          32,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LOAD"
+    },
+    {
+      "causal_role": "support break / initial vertical impulse",
+      "contact_state": "NONE",
+      "force_owner": "BODY_IMPULSE",
+      "key_id": "A001-K1",
+      "motion_arc_root_note": "Root begins upward travel immediately after authored support break; no second support is introduced.",
+      "name": "LAUNCH",
+      "pose_rig": {
+        "elbow_l": [
+          27,
+          12
+        ],
+        "elbow_r": [
+          35,
+          7
+        ],
+        "foot_l": [
+          27,
+          19
+        ],
+        "foot_r": [
+          36,
+          19
+        ],
+        "hand_l": [
+          25,
+          14
+        ],
+        "hand_r": [
+          37,
+          5
+        ],
+        "head": [
+          31,
+          7
+        ],
+        "knee_l": [
+          29,
+          17
+        ],
+        "knee_r": [
+          34,
+          17
+        ],
+        "neck": [
+          31,
+          8
+        ],
+        "pelvis": [
+          31,
+          14
+        ],
+        "shoulder_l": [
+          29,
+          9
+        ],
+        "shoulder_r": [
+          33,
+          9
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAUNCH"
+    },
+    {
+      "causal_role": "clear upward root travel with counterbalance",
+      "contact_state": "NONE",
+      "force_owner": "BALLISTIC",
+      "key_id": "A001-K2",
+      "motion_arc_root_note": "Root continues upward; limbs compact and counterbalance without changing facing.",
+      "name": "RISE",
+      "pose_rig": {
+        "elbow_l": [
+          28,
+          8
+        ],
+        "elbow_r": [
+          36,
+          8
+        ],
+        "foot_l": [
+          28,
+          14
+        ],
+        "foot_r": [
+          36,
+          14
+        ],
+        "hand_l": [
+          27,
+          10
+        ],
+        "hand_r": [
+          38,
+          7
+        ],
+        "head": [
+          32,
+          4
+        ],
+        "knee_l": [
+          29,
+          12
+        ],
+        "knee_r": [
+          35,
+          12
+        ],
+        "neck": [
+          32,
+          5
+        ],
+        "pelvis": [
+          32,
+          10
+        ],
+        "shoulder_l": [
+          30,
+          6
+        ],
+        "shoulder_r": [
+          34,
+          6
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RISE"
+    },
+    {
+      "causal_role": "hang-time readability at velocity sign change",
+      "contact_state": "NONE",
+      "force_owner": "BALLISTIC",
+      "key_id": "A001-K3",
+      "motion_arc_root_note": "Root reaches the top of the single arc; extended counterbalance buys silhouette readability without freezing causality.",
+      "name": "APEX_READ",
+      "pose_rig": {
+        "elbow_l": [
+          28,
+          4
+        ],
+        "elbow_r": [
+          38,
+          5
+        ],
+        "foot_l": [
+          28,
+          12
+        ],
+        "foot_r": [
+          38,
+          11
+        ],
+        "hand_l": [
+          26,
+          3
+        ],
+        "hand_r": [
+          40,
+          6
+        ],
+        "head": [
+          33,
+          2
+        ],
+        "knee_l": [
+          30,
+          10
+        ],
+        "knee_r": [
+          36,
+          9
+        ],
+        "neck": [
+          33,
+          3
+        ],
+        "pelvis": [
+          33,
+          7
+        ],
+        "shoulder_l": [
+          31,
+          4
+        ],
+        "shoulder_r": [
+          35,
+          4
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "APEX"
+    },
+    {
+      "causal_role": "local airborne pose/task change without a new launch",
+      "contact_state": "NONE",
+      "force_owner": "BALLISTIC",
+      "key_id": "A001-K4",
+      "motion_arc_root_note": "Root has already started descending while the forward arm task changes; local task rides the arc and does not inject a new vertical impulse.",
+      "name": "AERIAL_TASK_CHANGE",
+      "pose_rig": {
+        "elbow_l": [
+          30,
+          7
+        ],
+        "elbow_r": [
+          40,
+          5
+        ],
+        "foot_l": [
+          29,
+          12
+        ],
+        "foot_r": [
+          39,
+          14
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          44,
+          5
+        ],
+        "head": [
+          34,
+          3
+        ],
+        "knee_l": [
+          31,
+          10
+        ],
+        "knee_r": [
+          37,
+          11
+        ],
+        "neck": [
+          34,
+          4
+        ],
+        "pelvis": [
+          34,
+          8
+        ],
+        "shoulder_l": [
+          32,
+          5
+        ],
+        "shoulder_r": [
+          36,
+          5
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT_BEGIN"
+    },
+    {
+      "causal_role": "clear downward root travel and landing preparation",
+      "contact_state": "NONE",
+      "force_owner": "BALLISTIC",
+      "key_id": "A001-K5",
+      "motion_arc_root_note": "Root continues downward; arms reopen and legs prepare for ground without changing facing.",
+      "name": "DESCENT_OPEN",
+      "pose_rig": {
+        "elbow_l": [
+          30,
+          9
+        ],
+        "elbow_r": [
+          40,
+          9
+        ],
+        "foot_l": [
+          30,
+          18
+        ],
+        "foot_r": [
+          40,
+          18
+        ],
+        "hand_l": [
+          28,
+          10
+        ],
+        "hand_r": [
+          42,
+          10
+        ],
+        "head": [
+          35,
+          6
+        ],
+        "knee_l": [
+          32,
+          15
+        ],
+        "knee_r": [
+          38,
+          15
+        ],
+        "neck": [
+          35,
+          7
+        ],
+        "pelvis": [
+          35,
+          12
+        ],
+        "shoulder_l": [
+          33,
+          8
+        ],
+        "shoulder_r": [
+          37,
+          8
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT"
+    },
+    {
+      "causal_role": "prepare impact without claiming contact early",
+      "contact_state": "NONE",
+      "force_owner": "BALLISTIC",
+      "key_id": "A001-K6",
+      "motion_arc_root_note": "Feet approach the ground but support/contact remain explicitly NONE until the next authored key.",
+      "name": "PRECONTACT",
+      "pose_rig": {
+        "elbow_l": [
+          32,
+          12
+        ],
+        "elbow_r": [
+          40,
+          12
+        ],
+        "foot_l": [
+          31,
+          20
+        ],
+        "foot_r": [
+          41,
+          20
+        ],
+        "hand_l": [
+          31,
+          14
+        ],
+        "hand_r": [
+          42,
+          14
+        ],
+        "head": [
+          36,
+          8
+        ],
+        "knee_l": [
+          33,
+          17
+        ],
+        "knee_r": [
+          39,
+          17
+        ],
+        "neck": [
+          36,
+          9
+        ],
+        "pelvis": [
+          36,
+          14
+        ],
+        "shoulder_l": [
+          34,
+          10
+        ],
+        "shoulder_r": [
+          38,
+          10
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "PRECONTACT"
+    },
+    {
+      "causal_role": "first authored ground reacquisition event",
+      "contact_state": "GROUND",
+      "force_owner": "GROUND_REACTION",
+      "key_id": "A001-K7",
+      "motion_arc_root_note": "Ground support is reacquired here, not during connective motion; root has not yet fully compressed.",
+      "name": "CONTACT",
+      "pose_rig": {
+        "elbow_l": [
+          32,
+          13
+        ],
+        "elbow_r": [
+          40,
+          13
+        ],
+        "foot_l": [
+          31,
+          21
+        ],
+        "foot_r": [
+          41,
+          21
+        ],
+        "hand_l": [
+          31,
+          15
+        ],
+        "hand_r": [
+          42,
+          15
+        ],
+        "head": [
+          36,
+          9
+        ],
+        "knee_l": [
+          33,
+          18
+        ],
+        "knee_r": [
+          39,
+          18
+        ],
+        "neck": [
+          36,
+          10
+        ],
+        "pelvis": [
+          36,
+          15
+        ],
+        "shoulder_l": [
+          34,
+          11
+        ],
+        "shoulder_r": [
+          38,
+          11
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "CONTACT"
+    },
+    {
+      "causal_role": "absorb vertical force after contact",
+      "contact_state": "GROUND",
+      "force_owner": "GROUND_REACTION",
+      "key_id": "A001-K8",
+      "motion_arc_root_note": "Root lowers after contact while feet remain supported; event and consequence are separated for readability.",
+      "name": "LAND_COMPRESSION",
+      "pose_rig": {
+        "elbow_l": [
+          31,
+          15
+        ],
+        "elbow_r": [
+          41,
+          15
+        ],
+        "foot_l": [
+          31,
+          21
+        ],
+        "foot_r": [
+          41,
+          21
+        ],
+        "hand_l": [
+          29,
+          16
+        ],
+        "hand_r": [
+          43,
+          16
+        ],
+        "head": [
+          36,
+          12
+        ],
+        "knee_l": [
+          33,
+          19
+        ],
+        "knee_r": [
+          39,
+          19
+        ],
+        "neck": [
+          36,
+          13
+        ],
+        "pelvis": [
+          36,
+          17
+        ],
+        "shoulder_l": [
+          34,
+          14
+        ],
+        "shoulder_r": [
+          38,
+          14
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "COMPRESSION"
+    },
+    {
+      "causal_role": "recover height without losing support",
+      "contact_state": "GROUND",
+      "force_owner": "GROUND_REACTION",
+      "key_id": "A001-K9",
+      "motion_arc_root_note": "Root rebounds modestly while support remains continuous; rebound is not a relaunch.",
+      "name": "REBOUND",
+      "pose_rig": {
+        "elbow_l": [
+          32,
+          13
+        ],
+        "elbow_r": [
+          40,
+          13
+        ],
+        "foot_l": [
+          31,
+          21
+        ],
+        "foot_r": [
+          41,
+          21
+        ],
+        "hand_l": [
+          31,
+          14
+        ],
+        "hand_r": [
+          42,
+          14
+        ],
+        "head": [
+          36,
+          10
+        ],
+        "knee_l": [
+          33,
+          19
+        ],
+        "knee_r": [
+          39,
+          19
+        ],
+        "neck": [
+          36,
+          11
+        ],
+        "pelvis": [
+          36,
+          16
+        ],
+        "shoulder_l": [
+          34,
+          12
+        ],
+        "shoulder_r": [
+          38,
+          12
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "REBOUND"
+    },
+    {
+      "causal_role": "return to grounded readable state",
+      "contact_state": "GROUND",
+      "force_owner": "GROUND_REACTION",
+      "key_id": "A001-K10",
+      "motion_arc_root_note": "Root returns to stable supported height and preserves the same right-facing read.",
+      "name": "RETURN_STABLE",
+      "pose_rig": {
+        "elbow_l": [
+          32,
+          12
+        ],
+        "elbow_r": [
+          40,
+          12
+        ],
+        "foot_l": [
+          31,
+          21
+        ],
+        "foot_r": [
+          41,
+          21
+        ],
+        "hand_l": [
+          31,
+          14
+        ],
+        "hand_r": [
+          42,
+          14
+        ],
+        "head": [
+          36,
+          8
+        ],
+        "knee_l": [
+          33,
+          18
+        ],
+        "knee_r": [
+          39,
+          18
+        ],
+        "neck": [
+          36,
+          9
+        ],
+        "pelvis": [
+          36,
+          15
+        ],
+        "shoulder_l": [
+          34,
+          10
+        ],
+        "shoulder_r": [
+          38,
+          10
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "STABLE"
+    }
+  ],
+  "lane": "airborne",
+  "manifest": {
+    "builder_file": "build.py",
+    "manifest_file": "manifest.json",
+    "media_file": "air-task-rides-root-arc.mp4",
+    "receipt_file": "receipt.md",
+    "spa_file": "air-task-rides-root-arc.motion.html"
+  },
+  "principle": "An airborne local pose/task change must ride the already-authored root arc instead of creating a second vertical impulse.",
+  "rig": {
+    "canvas_chars": [
+      64,
+      24
+    ],
+    "facing": "RIGHT",
+    "glyphs": {
+      "facing": ">",
+      "ground": "_",
+      "head": "O",
+      "joint": "o",
+      "pelvis": "@",
+      "root_vector_apex": "~",
+      "root_vector_down": "v",
+      "root_vector_up": "^",
+      "support": "="
+    },
+    "joints": [
+      "head",
+      "neck",
+      "shoulder_l",
+      "shoulder_r",
+      "elbow_l",
+      "elbow_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "kind": "copyright-safe generic ASCII humanoid rig"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 501,
+    "asset_name": "X",
+    "drew_work_used": false,
+    "game": "Mega Man Xtreme 2",
+    "page_url": "https://www.spriters-resource.com/game_boy_gbc/mmxtreme2/asset/501/",
+    "platform": "Game Boy / GBC",
+    "raw_asset_url": "https://www.spriters-resource.com/media/assets/1/501.png?updated=1755472402",
+    "raw_bytes": 63428,
+    "raw_dimensions": [
+      550,
+      405
+    ],
+    "raw_format": "PNG",
+    "raw_sha256": "2eaa11669c3b44c61b2dff1ff97fb81a358da45e16b194c9d92076a3569f4f22",
+    "rights_note": "Copyrighted commercial-game sprite art. Used only as private/ephemeral evidence for critical motion analysis. No source pixels, palette, contours, pose tracing, sheet layout, or copied sprite silhouettes are embedded or redistributed in this experiment.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_boundary": "Entire 550x405 sheet treated as a pose corpus. The sheet is static and non-chronological; no frame durations are established by the sheet itself.",
+    "whole_sheet_inspected": true
+  },
+  "timing_policy": {
+    "FOURS": "one authored sample held for four display frames",
+    "ONES": "one authored sample per display frame",
+    "TWOS": "one authored sample held for two display frames",
+    "all_decisive_key_timing_provenance": "INFERRED",
+    "shorthand_normalization": "1s/2s/4s means ONES/TWOS/FOURS, never seconds",
+    "vocabulary": "PoseLab V1 STREET_FIGHTER/CAPCOM"
+  },
+  "title": "Air Task Rides the Root Arc"
+}
