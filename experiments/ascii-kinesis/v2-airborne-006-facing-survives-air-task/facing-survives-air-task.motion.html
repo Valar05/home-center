@@ -1,0 +1,438 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 — Airborne 006 — Facing Survives Air Task</title><style>body{margin:0;background:#111;color:#eee;font-family:system-ui,sans-serif}nav{display:flex;gap:.5rem;padding:1rem;position:sticky;top:0;background:#111}button{font:inherit;padding:.55rem .9rem}.view{display:none;padding:1rem}.view.active{display:block}pre{white-space:pre;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;overflow:auto;line-height:1.08}video{max-width:100%;height:auto}</style></head><body><nav aria-label="Primary views"><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json" aria-selected="false">JSON</button><button data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" class="view active"><pre>ASCII KINESIS V2 — AIRBORNE 006 — FACING SURVIVES AIR TASK
+FACING SURVIVES AIR TASK: treat facing as a continuity channel. An aerial task may reorganize and cross-balance the limbs while one root arc continues; preserve at least one stable directional cue so the pose change reads as a task, not an unexplained turn or second launch.
+Independent abstract ASCII rig; no source sprite pixels or traced contours.
+ONES/TWOS/FOURS are exposure classes, never seconds.
+Every decisive timing in this specimen: INFERRED / STREET_FIGHTER-CAPCOM.
+
+================================================================
+A006-K0  READY  timing=FOURS  provenance=INFERRED
+role: stable grounded before-state
+root: Root stacked over a stable base; explicit right-facing read.
+READY | READY | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+                  O &gt;
+                  +
+                +-|-+
+               |  |  |
+               o  |  o
+              |   |   -*
+              *   @
+                 / \
+                 / \
+                o   o
+                |    \
+               |     \
+               _      _
+................................................................
+
+
+
+================================================================
+A006-K1  CROUCH_LOAD  timing=FOURS  provenance=INFERRED
+role: crouch/load before support break
+root: Root lowers while the facing cue remains coherent.
+CROUCH_LOAD | CROUCH_LOAD | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+
+
+                   O &gt;
+                   +
+                 +-|-+
+                /  |  \
+               o   |   o
+              |    |    *
+              *    @
+                 // \\
+                o     o
+               /       \
+              _         _
+................................................................
+
+
+
+================================================================
+A006-K2  LAUNCH  timing=ONES  provenance=INFERRED
+role: support break and upward impulse
+root: Root leaves support; no connector may retain ground contact.
+LAUNCH | LAUNCH | support=NONE | facing=RIGHT
+
+
+
+
+
+
+
+                 *-  O &gt;
+                   o +    -*
+                   +-|-+-o
+                     |
+                     |
+                     |
+                     @-
+                    |  -o
+                    o    \\
+                    |      _
+                   |
+                   _
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K3  RISE  timing=TWOS  provenance=INFERRED
+role: ascending root travel with limb counterbalance
+root: Root rises; asymmetric limbs counterbalance while facing remains right.
+RISE | RISE | support=NONE | facing=RIGHT
+
+
+
+
+                        O &gt;
+                  *-o-  +  o-
+                      +-|-+  -*
+                        |
+                        |
+                        |
+                        @
+                      o- \\
+                     /     o
+                    _       \\
+                              _
+
+
+
+
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K4  APEX_READ  timing=FOURS  provenance=INFERRED
+role: hang-time readability at the top of the arc
+root: Root spacing tightens at apex; open silhouette makes the sign change readable.
+APEX_READ | APEX_READ | support=NONE | facing=RIGHT
+
+
+                            O &gt;
+                            +
+                       o--+-|-+--o-
+                     *-     |      -*
+                            |
+                            |
+                           -@-
+                        -o-   -o-
+                      _-         --_
+
+
+
+
+
+
+
+
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K5  AIR_TASK_COIL  timing=TWOS  provenance=INFERRED
+role: local aerial task prepares without a new root impulse
+root: Limbs fold around the torso while root begins descent; head/shoulder axis keeps facing legible.
+AIR_TASK_COIL | AIR_TASK_COIL | support=NONE | facing=RIGHT
+
+
+
+                               O &gt;
+                               +
+                             +-|-+
+                            /  ||
+                           o   |o
+                         *-   *|
+                               @-
+                             //  --o-
+                           -o        -_
+                         _-
+
+
+
+
+
+
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K6  AIR_TASK_REACH  timing=ONES  provenance=INFERRED
+role: decisive aerial task/attack reach
+root: Lead limb extends right while rear arm/leg counterbalance left; root continues the existing descent.
+AIR_TASK_REACH | AIR_TASK_REACH | support=NONE | facing=RIGHT
+
+
+
+
+                                  O &gt;
+                                  +
+                                +-|-+----o---*
+                               /  |
+                              o   |
+                            --    |
+                          *-     -@
+                             -o--  \\
+                          _--        o
+                                      \\
+                                        _
+
+
+
+
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K7  AIR_TASK_RECOIL  timing=TWOS  provenance=INFERRED
+role: task recoil returns limbs toward landing organization
+root: Local recoil changes silhouette but does not reverse root direction or facing.
+AIR_TASK_RECOIL | AIR_TASK_RECOIL | support=NONE | facing=RIGHT
+
+
+
+
+
+                                    O &gt;
+                                *-  +
+                                  +-|-+
+                                    |  \
+                                    |   o
+                                    |    |
+                                    @-   *
+                                   /  --o
+                                  o      \\
+                                 /         _
+                                 /
+                                _
+
+
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K8  DESCENT_OPEN  timing=TWOS  provenance=INFERRED
+role: clear descent after task
+root: Root spacing opens downward; limbs widen to prepare for ground.
+DESCENT_OPEN | DESCENT_OPEN | support=NONE | facing=RIGHT
+
+
+
+
+
+
+
+                                      O &gt;
+                                      +
+                                    +-|-+
+                                   /  |  \
+                                   /  |  \
+                                  o   |   o
+                                 /    @    \
+                                *   // \\   *
+                                   o     o
+                                  /       \
+                                  /        \
+                                 _          _
+
+
+
+................................................................
+
+
+
+================================================================
+A006-K9  PRECONTACT_OPEN  timing=TWOS  provenance=INFERRED
+role: landing intention before support exists
+root: Feet lead toward ground while support/contact remain NONE.
+PRECONTACT_OPEN | PRECONTACT_OPEN | support=NONE | facing=RIGHT
+
+
+
+
+
+
+
+
+
+                                        O &gt;
+                                        +
+                                      +-|-+
+                                     /  |  \
+                                    /   |   \
+                                   o    |    o
+                                 *-     @     -*
+                                       / \
+                                      /   \
+                                     o     o
+                                    /       \
+                                    /       \
+                                   _         _
+................................................................
+
+
+
+================================================================
+A006-K10  CONTACT  timing=ONES  provenance=INFERRED
+role: first authored ground reacquisition event
+root: Feet acquire ground here; contact precedes deepest compression.
+CONTACT | CONTACT | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+
+
+                                         O &gt;
+                                         +
+                                       +-|-+
+                                      /  |  \
+                                      /  |  \
+                                     o   |   o
+                                   *-    @    -*
+                                        / \
+                                       /   \
+                                      o     o
+                                     /       \
+...................................._........._.................
+
+
+
+================================================================
+A006-K11  LAND_COMPRESSION  timing=FOURS  provenance=INFERRED
+role: landing force consequence
+root: Root continues downward after contact into authored compression.
+LAND_COMPRESSION | LAND_COMPRESSION | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                         O &gt;
+                                         +
+                                       +-|-+
+                                     //  |  \\
+                                    o    |    o
+                                  *-     |     -*
+                                         @
+                                       -- --
+                                     o-     -o
+..................................../.........\.................
+                                   _           _
+
+
+================================================================
+A006-K12  REBOUND  timing=TWOS  provenance=INFERRED
+role: release landing compression
+root: Root rises slightly while support remains grounded.
+REBOUND | REBOUND | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+
+                                         O &gt;
+                                         +
+                                       +-|-+
+                                    *-o  |  o-*
+                                         |
+                                         |
+                                         @
+                                        / \
+                                        / \
+                                       o   o
+                                       |    \
+                                      |     \
+......................................_......_..................
+
+
+
+================================================================
+A006-K13  RETURN_STABLE  timing=FOURS  provenance=INFERRED
+role: return to action-capable grounded state
+root: Root restacks; right-facing organization matches the before-state.
+RETURN_STABLE | RETURN_STABLE | support=GROUND_BOTH | facing=RIGHT
+
+
+
+
+
+
+
+
+
+                                         O &gt;
+                                         +
+                                       +-|-+
+                                      |  |  |
+                                      o  |  o
+                                     |   |   -*
+                                     *   @
+                                        / \
+                                        / \
+                                       o   o
+                                       |    \
+                                      |     \
+                                      _      _
+................................................................
+</pre></section><section id="json" class="view"><pre>{&quot;manifest&quot;:{&quot;ascii_literal_text&quot;:true,&quot;ascii_sheet_sha256&quot;:&quot;c957b076cb4231618478f2ff8da3a2cba3b198bfe9fa5e8562de8cc06f9ed7b6&quot;,&quot;ascii_surface&quot;:&quot;real preformatted DOM text&quot;,&quot;backward_compatible&quot;:true,&quot;compatibility&quot;:{&quot;ascii_kinesis_v2&quot;:true,&quot;backward_compatible&quot;:true,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;uapl_v1_read_path_preserved&quot;:true},&quot;compiled_media_tracked_separately&quot;:false,&quot;correction_hooks&quot;:[&quot;KEEP&quot;,&quot;REJECT&quot;,&quot;EXAGGERATE&quot;,&quot;COMPRESS&quot;,&quot;RETIME&quot;,&quot;CHANGE SOURCE&quot;,&quot;PROMOTE&quot;,&quot;SPAWN VARIANT&quot;,&quot;FIX BLOCKER&quot;,&quot;RERUN&quot;],&quot;experiment_id&quot;:&quot;v2-airborne-006-facing-survives-air-task&quot;,&quot;files&quot;:[&quot;build.py&quot;,&quot;manifest.json&quot;,&quot;motion.json&quot;,&quot;receipt.md&quot;,&quot;facing-survives-air-task.motion.html&quot;],&quot;format_version&quot;:2,&quot;global_test_boundary&quot;:&quot;Standard Chat has authenticated GitHub read/write but no authorized remote repository execution shell in this run. tools/test_ascii_kinesis_swarm_contract_v2.py will be read for presence; repository-wide execution is not callable through the authorized connector surface. Local construction checks are not used as completion proof.&quot;,&quot;lane&quot;:&quot;airborne&quot;,&quot;ligatures_disabled&quot;:true,&quot;media_bytes&quot;:8047,&quot;media_filename&quot;:&quot;facing-survives-air-task.mp4&quot;,&quot;media_sha256&quot;:&quot;aecc3363429a353749cbe0aa37cb63bf671410afbe37097a1a6a32076497cde4&quot;,&quot;motion_dungeon&quot;:{&quot;ascii_only_frame_render&quot;:true,&quot;authored_ascii_keys&quot;:14,&quot;connector_semantics_fail_closed&quot;:true,&quot;deterministic_connective_motion&quot;:true,&quot;explicit_holds&quot;:true,&quot;fps&quot;:24,&quot;loop_repetitions&quot;:2,&quot;semantic_frames_per_loop&quot;:46,&quot;video_dimensions&quot;:[480,270],&quot;video_frames_total&quot;:92},&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;reconstruction&quot;:&quot;python3 build.py&quot;,&quot;repo_path&quot;:&quot;experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/&quot;,&quot;schema&quot;:&quot;ascii-kinesis.swarm-manifest.v2&quot;,&quot;ship_commit&quot;:&quot;PENDING&quot;,&quot;source&quot;:{&quot;asset_id&quot;:10039,&quot;fresh_source_page_metadata_reverified&quot;:true,&quot;game&quot;:&quot;Sonic Battle&quot;,&quot;page_url&quot;:&quot;https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/&quot;,&quot;platform&quot;:&quot;Game Boy Advance&quot;,&quot;reported_dimensions&quot;:[1150,2660],&quot;reported_format&quot;:&quot;PNG&quot;,&quot;reported_size&quot;:&quot;268.03 KB&quot;,&quot;section&quot;:&quot;Fighters&quot;,&quot;site&quot;:&quot;The Spriters Resource&quot;,&quot;source_timing_available&quot;:false,&quot;title&quot;:&quot;Sonic the Hedgehog&quot;,&quot;uploaded_by&quot;:&quot;QuadFactor&quot;,&quot;whole_sheet_evidence_boundary&quot;:&quot;Historical V2 pass 002 is used only as evidence: its complete-sheet inspection recorded named Jumping/Falling/Landing families, multiple aerial task/attack families, facing continuity across airborne body changes, grounded before/after anchors, and no source-authentic timing. This run does not reuse that pass as a deliverable and does not reuse source pixels.&quot;,&quot;whole_sheet_evidence_mode&quot;:&quot;VERIFIED_HISTORICAL_EVIDENCE_REUSE&quot;,&quot;whole_sheet_evidence_origin&quot;:&quot;experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/{motion.json,manifest.json}&quot;,&quot;whole_sheet_inspected_in_campaign&quot;:true,&quot;whole_sheet_visual_url&quot;:&quot;https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454&quot;},&quot;source_art_embedded&quot;:false,&quot;source_rights&quot;:{&quot;boundary&quot;:&quot;No source pixels, palette, contours, exact silhouettes, costume/facial detail, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.&quot;,&quot;classification&quot;:&quot;copyright-restricted commercial-game sprite art used as analysis evidence only&quot;,&quot;source_art_embedded&quot;:false},&quot;status&quot;:&quot;READY_TO_PERSIST&quot;,&quot;video_packaging&quot;:&quot;exact compiled MP4 bytes embedded as a data URI in tracked SPA; build.py reconstructs facing-survives-air-task.mp4 from motion.json&quot;,&quot;video_required&quot;:true,&quot;video_source&quot;:&quot;abstract_ascii_rig_only&quot;,&quot;whitespace_preserved&quot;:true},&quot;motion&quot;:{&quot;ascii_sheet_sha256&quot;:&quot;c957b076cb4231618478f2ff8da3a2cba3b198bfe9fa5e8562de8cc06f9ed7b6&quot;,&quot;compatibility&quot;:{&quot;ascii_kinesis_v2&quot;:true,&quot;backward_compatible&quot;:true,&quot;primary_tabs&quot;:[&quot;ASCII&quot;,&quot;JSON&quot;,&quot;VIDEO&quot;],&quot;uapl_v1_read_path_preserved&quot;:true},&quot;compile&quot;:{&quot;ascii_only_frame_render&quot;:true,&quot;codec&quot;:&quot;H.264&quot;,&quot;connector_frames&quot;:1,&quot;connector_rule&quot;:&quot;Insert one geometric midpoint only when support_contact and contact_state are unchanged across adjacent authored keys. Otherwise hard-cut. Connectors interpolate existing joint coordinates only and inherit facing; they cannot create support/contact/root/causal state.&quot;,&quot;fps&quot;:24,&quot;hold_ticks&quot;:{&quot;FOURS&quot;:4,&quot;ONES&quot;:1,&quot;TWOS&quot;:2},&quot;loop_repetitions&quot;:2,&quot;media_bytes&quot;:8047,&quot;media_filename&quot;:&quot;facing-survives-air-task.mp4&quot;,&quot;media_sha256&quot;:&quot;aecc3363429a353749cbe0aa37cb63bf671410afbe37097a1a6a32076497cde4&quot;,&quot;method&quot;:&quot;Motion Dungeon&quot;,&quot;method_expansion&quot;:&quot;AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA&quot;,&quot;pixel_format&quot;:&quot;yuv420p&quot;,&quot;semantic_frames_per_loop&quot;:46,&quot;source_pixels_used&quot;:false,&quot;video_dimensions&quot;:[480,270],&quot;video_frames_total&quot;:92},&quot;correction_hooks&quot;:[&quot;KEEP&quot;,&quot;REJECT&quot;,&quot;EXAGGERATE&quot;,&quot;COMPRESS&quot;,&quot;RETIME&quot;,&quot;CHANGE SOURCE&quot;,&quot;PROMOTE&quot;,&quot;SPAWN VARIANT&quot;,&quot;FIX BLOCKER&quot;,&quot;RERUN&quot;],&quot;evidence_split&quot;:{&quot;INFERRED&quot;:[&quot;Facing can be modeled as a continuity channel separate from root vertical phase and local aerial task.&quot;,&quot;A stable head/shoulder/lead-limb directional cue plus asymmetric counterbalance can preserve facing through a large local task change.&quot;,&quot;The generic sequence READY -&gt; CROUCH_LOAD -&gt; LAUNCH -&gt; RISE -&gt; APEX_READ -&gt; AIR_TASK_COIL -&gt; AIR_TASK_REACH -&gt; AIR_TASK_RECOIL -&gt; DESCENT_OPEN -&gt; PRECONTACT_OPEN -&gt; CONTACT -&gt; LAND_COMPRESSION -&gt; REBOUND -&gt; RETURN_STABLE is an independent synthesis, not source choreography.&quot;,&quot;All decisive timing classes are authored using STREET_FIGHTER/CAPCOM because the source sheet does not provide playback timing.&quot;],&quot;OBSERVED&quot;:[&quot;The verified complete-sheet evidence records distinct Jumping, Falling, and Landing families on this asset.&quot;,&quot;The verified complete-sheet evidence records multiple named airborne task/attack families, including air attacks/powers/traps.&quot;,&quot;Across the airborne body families, the lead/facing direction remains broadly readable while limb organization changes.&quot;,&quot;The complete sheet includes grounded and consequence/recovery anchors that bound airborne states.&quot;,&quot;The static sheet does not establish reliable source-authentic decisive-key exposure durations.&quot;],&quot;UNKNOWN&quot;:[&quot;Exact source animation ordering inside each named family.&quot;,&quot;Source-authentic per-frame exposure, hit-stop, and runtime transition conditions.&quot;,&quot;World-space root coordinates and exact game physics values.&quot;]},&quot;experiment_id&quot;:&quot;v2-airborne-006-facing-survives-air-task&quot;,&quot;format_version&quot;:2,&quot;keys&quot;:[{&quot;causal_role&quot;:&quot;stable grounded before-state&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K0&quot;,&quot;motion_arc_root_note&quot;:&quot;Root stacked over a stable base; explicit right-facing read.&quot;,&quot;name&quot;:&quot;READY&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[15,13],&quot;elbow_r&quot;:[21,13],&quot;foot_l&quot;:[15,21],&quot;foot_r&quot;:[22,21],&quot;hand_l&quot;:[14,15],&quot;hand_r&quot;:[23,14],&quot;head&quot;:[18,9],&quot;knee_l&quot;:[16,18],&quot;knee_r&quot;:[20,18],&quot;neck&quot;:[18,10],&quot;pelvis&quot;:[18,15],&quot;shoulder_l&quot;:[16,11],&quot;shoulder_r&quot;:[20,11]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;READY&quot;},{&quot;causal_role&quot;:&quot;crouch/load before support break&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K1&quot;,&quot;motion_arc_root_note&quot;:&quot;Root lowers while the facing cue remains coherent.&quot;,&quot;name&quot;:&quot;CROUCH_LOAD&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[15,15],&quot;elbow_r&quot;:[23,15],&quot;foot_l&quot;:[14,21],&quot;foot_r&quot;:[24,21],&quot;hand_l&quot;:[14,17],&quot;hand_r&quot;:[24,16],&quot;head&quot;:[19,11],&quot;knee_l&quot;:[16,19],&quot;knee_r&quot;:[22,19],&quot;neck&quot;:[19,12],&quot;pelvis&quot;:[19,17],&quot;shoulder_l&quot;:[17,13],&quot;shoulder_r&quot;:[21,13]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;CROUCH_LOAD&quot;},{&quot;causal_role&quot;:&quot;support break and upward impulse&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K2&quot;,&quot;motion_arc_root_note&quot;:&quot;Root leaves support; no connector may retain ground contact.&quot;,&quot;name&quot;:&quot;LAUNCH&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[19,8],&quot;elbow_r&quot;:[25,9],&quot;foot_l&quot;:[19,18],&quot;foot_r&quot;:[27,16],&quot;hand_l&quot;:[17,7],&quot;hand_r&quot;:[27,8],&quot;head&quot;:[21,7],&quot;knee_l&quot;:[20,15],&quot;knee_r&quot;:[24,14],&quot;neck&quot;:[21,8],&quot;pelvis&quot;:[21,13],&quot;shoulder_l&quot;:[19,9],&quot;shoulder_r&quot;:[23,9]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;LAUNCH&quot;},{&quot;causal_role&quot;:&quot;ascending root travel with limb counterbalance&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K3&quot;,&quot;motion_arc_root_note&quot;:&quot;Root rises; asymmetric limbs counterbalance while facing remains right.&quot;,&quot;name&quot;:&quot;RISE&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[20,5],&quot;elbow_r&quot;:[27,5],&quot;foot_l&quot;:[20,13],&quot;foot_r&quot;:[30,14],&quot;hand_l&quot;:[18,5],&quot;hand_r&quot;:[30,6],&quot;head&quot;:[24,4],&quot;knee_l&quot;:[22,11],&quot;knee_r&quot;:[27,12],&quot;neck&quot;:[24,5],&quot;pelvis&quot;:[24,10],&quot;shoulder_l&quot;:[22,6],&quot;shoulder_r&quot;:[26,6]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;RISE&quot;},{&quot;causal_role&quot;:&quot;hang-time readability at the top of the arc&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K4&quot;,&quot;motion_arc_root_note&quot;:&quot;Root spacing tightens at apex; open silhouette makes the sign change readable.&quot;,&quot;name&quot;:&quot;APEX_READ&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[23,4],&quot;elbow_r&quot;:[33,4],&quot;foot_l&quot;:[22,10],&quot;foot_r&quot;:[35,10],&quot;hand_l&quot;:[21,5],&quot;hand_r&quot;:[36,5],&quot;head&quot;:[28,2],&quot;knee_l&quot;:[25,9],&quot;knee_r&quot;:[31,9],&quot;neck&quot;:[28,3],&quot;pelvis&quot;:[28,8],&quot;shoulder_l&quot;:[26,4],&quot;shoulder_r&quot;:[30,4]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;APEX_READ&quot;},{&quot;causal_role&quot;:&quot;local aerial task prepares without a new root impulse&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K5&quot;,&quot;motion_arc_root_note&quot;:&quot;Limbs fold around the torso while root begins descent; head/shoulder axis keeps facing legible.&quot;,&quot;name&quot;:&quot;AIR_TASK_COIL&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[27,7],&quot;elbow_r&quot;:[32,7],&quot;foot_l&quot;:[25,12],&quot;foot_r&quot;:[38,11],&quot;hand_l&quot;:[25,8],&quot;hand_r&quot;:[30,8],&quot;head&quot;:[31,3],&quot;knee_l&quot;:[28,11],&quot;knee_r&quot;:[35,10],&quot;neck&quot;:[31,4],&quot;pelvis&quot;:[31,9],&quot;shoulder_l&quot;:[29,5],&quot;shoulder_r&quot;:[33,5]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;AIR_TASK_COIL&quot;},{&quot;causal_role&quot;:&quot;decisive aerial task/attack reach&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K6&quot;,&quot;motion_arc_root_note&quot;:&quot;Lead limb extends right while rear arm/leg counterbalance left; root continues the existing descent.&quot;,&quot;name&quot;:&quot;AIR_TASK_REACH&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[30,8],&quot;elbow_r&quot;:[41,6],&quot;foot_l&quot;:[26,12],&quot;foot_r&quot;:[40,14],&quot;hand_l&quot;:[26,10],&quot;hand_r&quot;:[45,6],&quot;head&quot;:[34,4],&quot;knee_l&quot;:[30,11],&quot;knee_r&quot;:[37,12],&quot;neck&quot;:[34,5],&quot;pelvis&quot;:[34,10],&quot;shoulder_l&quot;:[32,6],&quot;shoulder_r&quot;:[36,6]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;AIR_TASK_REACH&quot;},{&quot;causal_role&quot;:&quot;task recoil returns limbs toward landing organization&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K7&quot;,&quot;motion_arc_root_note&quot;:&quot;Local recoil changes silhouette but does not reverse root direction or facing.&quot;,&quot;name&quot;:&quot;AIR_TASK_RECOIL&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[34,7],&quot;elbow_r&quot;:[40,9],&quot;foot_l&quot;:[32,16],&quot;foot_r&quot;:[43,14],&quot;hand_l&quot;:[32,6],&quot;hand_r&quot;:[41,11],&quot;head&quot;:[36,5],&quot;knee_l&quot;:[34,13],&quot;knee_r&quot;:[40,12],&quot;neck&quot;:[36,6],&quot;pelvis&quot;:[36,11],&quot;shoulder_l&quot;:[34,7],&quot;shoulder_r&quot;:[38,7]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;AIR_TASK_RECOIL&quot;},{&quot;causal_role&quot;:&quot;clear descent after task&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K8&quot;,&quot;motion_arc_root_note&quot;:&quot;Root spacing opens downward; limbs widen to prepare for ground.&quot;,&quot;name&quot;:&quot;DESCENT_OPEN&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[34,12],&quot;elbow_r&quot;:[42,12],&quot;foot_l&quot;:[33,18],&quot;foot_r&quot;:[44,18],&quot;hand_l&quot;:[32,14],&quot;hand_r&quot;:[44,14],&quot;head&quot;:[38,7],&quot;knee_l&quot;:[35,15],&quot;knee_r&quot;:[41,15],&quot;neck&quot;:[38,8],&quot;pelvis&quot;:[38,13],&quot;shoulder_l&quot;:[36,9],&quot;shoulder_r&quot;:[40,9]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;DESCENT_OPEN&quot;},{&quot;causal_role&quot;:&quot;landing intention before support exists&quot;,&quot;contact_state&quot;:&quot;NONE&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K9&quot;,&quot;motion_arc_root_note&quot;:&quot;Feet lead toward ground while support/contact remain NONE.&quot;,&quot;name&quot;:&quot;PRECONTACT_OPEN&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[35,14],&quot;elbow_r&quot;:[45,14],&quot;foot_l&quot;:[35,21],&quot;foot_r&quot;:[45,21],&quot;hand_l&quot;:[33,15],&quot;hand_r&quot;:[47,15],&quot;head&quot;:[40,9],&quot;knee_l&quot;:[37,18],&quot;knee_r&quot;:[43,18],&quot;neck&quot;:[40,10],&quot;pelvis&quot;:[40,15],&quot;shoulder_l&quot;:[38,11],&quot;shoulder_r&quot;:[42,11]},&quot;support_contact&quot;:&quot;NONE&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;PRECONTACT_OPEN&quot;},{&quot;causal_role&quot;:&quot;first authored ground reacquisition event&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K10&quot;,&quot;motion_arc_root_note&quot;:&quot;Feet acquire ground here; contact precedes deepest compression.&quot;,&quot;name&quot;:&quot;CONTACT&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[37,16],&quot;elbow_r&quot;:[45,16],&quot;foot_l&quot;:[36,22],&quot;foot_r&quot;:[46,22],&quot;hand_l&quot;:[35,17],&quot;hand_r&quot;:[47,17],&quot;head&quot;:[41,11],&quot;knee_l&quot;:[38,20],&quot;knee_r&quot;:[44,20],&quot;neck&quot;:[41,12],&quot;pelvis&quot;:[41,17],&quot;shoulder_l&quot;:[39,13],&quot;shoulder_r&quot;:[43,13]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;ONES&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;CONTACT&quot;},{&quot;causal_role&quot;:&quot;landing force consequence&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K11&quot;,&quot;motion_arc_root_note&quot;:&quot;Root continues downward after contact into authored compression.&quot;,&quot;name&quot;:&quot;LAND_COMPRESSION&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[36,17],&quot;elbow_r&quot;:[46,17],&quot;foot_l&quot;:[35,23],&quot;foot_r&quot;:[47,23],&quot;hand_l&quot;:[34,18],&quot;hand_r&quot;:[48,18],&quot;head&quot;:[41,13],&quot;knee_l&quot;:[37,21],&quot;knee_r&quot;:[45,21],&quot;neck&quot;:[41,14],&quot;pelvis&quot;:[41,19],&quot;shoulder_l&quot;:[39,15],&quot;shoulder_r&quot;:[43,15]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;LAND_COMPRESSION&quot;},{&quot;causal_role&quot;:&quot;release landing compression&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K12&quot;,&quot;motion_arc_root_note&quot;:&quot;Root rises slightly while support remains grounded.&quot;,&quot;name&quot;:&quot;REBOUND&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[38,13],&quot;elbow_r&quot;:[44,13],&quot;foot_l&quot;:[38,22],&quot;foot_r&quot;:[45,22],&quot;hand_l&quot;:[36,13],&quot;hand_r&quot;:[46,13],&quot;head&quot;:[41,10],&quot;knee_l&quot;:[39,19],&quot;knee_r&quot;:[43,19],&quot;neck&quot;:[41,11],&quot;pelvis&quot;:[41,16],&quot;shoulder_l&quot;:[39,12],&quot;shoulder_r&quot;:[43,12]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;TWOS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;REBOUND&quot;},{&quot;causal_role&quot;:&quot;return to action-capable grounded state&quot;,&quot;contact_state&quot;:&quot;GROUND&quot;,&quot;facing&quot;:&quot;RIGHT&quot;,&quot;key_id&quot;:&quot;A006-K13&quot;,&quot;motion_arc_root_note&quot;:&quot;Root restacks; right-facing organization matches the before-state.&quot;,&quot;name&quot;:&quot;RETURN_STABLE&quot;,&quot;pose_rig&quot;:{&quot;elbow_l&quot;:[38,13],&quot;elbow_r&quot;:[44,13],&quot;foot_l&quot;:[38,21],&quot;foot_r&quot;:[45,21],&quot;hand_l&quot;:[37,15],&quot;hand_r&quot;:[46,14],&quot;head&quot;:[41,9],&quot;knee_l&quot;:[39,18],&quot;knee_r&quot;:[43,18],&quot;neck&quot;:[41,10],&quot;pelvis&quot;:[41,15],&quot;shoulder_l&quot;:[39,11],&quot;shoulder_r&quot;:[43,11]},&quot;support_contact&quot;:&quot;GROUND_BOTH&quot;,&quot;timing_class&quot;:&quot;FOURS&quot;,&quot;timing_policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;timing_provenance&quot;:&quot;INFERRED&quot;,&quot;vertical_phase&quot;:&quot;RETURN_STABLE&quot;}],&quot;lane&quot;:&quot;airborne&quot;,&quot;principle&quot;:&quot;FACING SURVIVES AIR TASK: treat facing as a continuity channel. An aerial task may reorganize and cross-balance the limbs while one root arc continues; preserve at least one stable directional cue so the pose change reads as a task, not an unexplained turn or second launch.&quot;,&quot;rig&quot;:{&quot;channels&quot;:[&quot;ROOT&quot;,&quot;FACING&quot;,&quot;LOCAL_AIR_TASK&quot;,&quot;SUPPORT_CONTACT&quot;],&quot;copyright_firewall&quot;:&quot;independent generic joint topology; source contours/palette/layout absent&quot;,&quot;facing_channel&quot;:&quot;RIGHT across all decisive keys&quot;,&quot;joints&quot;:[&quot;head&quot;,&quot;neck&quot;,&quot;shoulder_l&quot;,&quot;shoulder_r&quot;,&quot;elbow_l&quot;,&quot;elbow_r&quot;,&quot;hand_l&quot;,&quot;hand_r&quot;,&quot;pelvis&quot;,&quot;knee_l&quot;,&quot;knee_r&quot;,&quot;foot_l&quot;,&quot;foot_r&quot;],&quot;type&quot;:&quot;copyright-safe ASCII Blender-style generic biped&quot;},&quot;schema&quot;:&quot;ascii-kinesis.motion.v2&quot;,&quot;source&quot;:{&quot;asset_id&quot;:10039,&quot;fresh_source_page_metadata_reverified&quot;:true,&quot;game&quot;:&quot;Sonic Battle&quot;,&quot;page_url&quot;:&quot;https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/&quot;,&quot;platform&quot;:&quot;Game Boy Advance&quot;,&quot;reported_dimensions&quot;:[1150,2660],&quot;reported_format&quot;:&quot;PNG&quot;,&quot;reported_size&quot;:&quot;268.03 KB&quot;,&quot;section&quot;:&quot;Fighters&quot;,&quot;site&quot;:&quot;The Spriters Resource&quot;,&quot;source_timing_available&quot;:false,&quot;title&quot;:&quot;Sonic the Hedgehog&quot;,&quot;uploaded_by&quot;:&quot;QuadFactor&quot;,&quot;whole_sheet_evidence_boundary&quot;:&quot;Historical V2 pass 002 is used only as evidence: its complete-sheet inspection recorded named Jumping/Falling/Landing families, multiple aerial task/attack families, facing continuity across airborne body changes, grounded before/after anchors, and no source-authentic timing. This run does not reuse that pass as a deliverable and does not reuse source pixels.&quot;,&quot;whole_sheet_evidence_mode&quot;:&quot;VERIFIED_HISTORICAL_EVIDENCE_REUSE&quot;,&quot;whole_sheet_evidence_origin&quot;:&quot;experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/{motion.json,manifest.json}&quot;,&quot;whole_sheet_inspected_in_campaign&quot;:true,&quot;whole_sheet_visual_url&quot;:&quot;https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454&quot;},&quot;source_rights&quot;:{&quot;boundary&quot;:&quot;No source pixels, palette, contours, exact silhouettes, costume/facial detail, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.&quot;,&quot;classification&quot;:&quot;copyright-restricted commercial-game sprite art used as analysis evidence only&quot;,&quot;source_art_embedded&quot;:false},&quot;timing_policy&quot;:{&quot;all_decisive_keys_provenance&quot;:&quot;INFERRED&quot;,&quot;inference_style&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;nominal_fps&quot;:24,&quot;observed_timing_keys&quot;:[],&quot;shorthand&quot;:&quot;1s/2s/4s means ONES/TWOS/FOURS, never seconds&quot;}}}</pre></section><section id="video" class="view"><video controls loop playsinline src="data:video/mp4;base64,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ADIAAAAeAAAAKQAAABoAAAAZAAAAEgAAABRzdGNvAAAAAAAAAAEAAAekAAAAYnVkdGEAAABabWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAbWRpcmFwcGwAAAAAAAAAAAAAAAAtaWxzdAAAACWpdG9vAAAAHWRhdGEAAAABAAAAAExhdmY2Mi4xMi4xMDIAAAAIZnJlZQAAF9NtZGF0AAACoAYF//+c3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjQgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0xIHJlZj01IGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDM6MHgxMTMgbWU9aGV4IHN1Ym1lPTggcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTIgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz04IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MyBiX3B5cmFtaWQ9MiBiX2FkYXB0PTEgYl9iaWFzPTAgZGlyZWN0PTMgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNCBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTUwIHJjPWNyZiBtYnRyZWU9MSBjcmY9NDUuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS40MCBhcT0xOjEuMDAAgAAAAytliIQAO//9B5zK+RxOHmsA9o7Z9JFujwHRxZvB+h+HP3L1Ro/P9ZRlBNNbnHMMuy+L4tgW7xyv4Sk998FsWbHW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"></video></section><script>const b=[...document.querySelectorAll("nav button")],v=[...document.querySelectorAll(".view")];for(const x of b)x.onclick=()=>{for(const y of b)y.setAttribute("aria-selected",String(x===y));for(const z of v)z.classList.toggle("active",z.id===x.dataset.view)}</script></body></html>

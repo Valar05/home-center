@@ -38,9 +38,9 @@
   "global_test_boundary": "Standard Chat has authenticated GitHub read/write but no authorized remote repository execution shell in this run. tools/test_ascii_kinesis_swarm_contract_v2.py will be read for presence; repository-wide execution is not callable through the authorized connector surface. Local construction checks are not used as completion proof.",
   "lane": "airborne",
   "ligatures_disabled": true,
-  "media_bytes": 8170,
+  "media_bytes": 8047,
   "media_filename": "facing-survives-air-task.mp4",
-  "media_sha256": "28ce2bdeb507a858a9da335f09b7158095a906d386b0e4fac4c3d8fce55dd12e",
+  "media_sha256": "aecc3363429a353749cbe0aa37cb63bf671410afbe37097a1a6a32076497cde4",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 14,
