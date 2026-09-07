@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 — Airborne 004 — Drag Capture Descent
 
-Status: REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY (pending repository readback at construction time)
+Status: REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY
 
 Source: The Spriters Resource — Green Army Man — Toy Story — Sega Genesis — asset 500827
 Source page: https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/
@@ -35,11 +35,11 @@ Decisive timing — all INFERRED / STREET_FIGHTER-CAPCOM:
 
 Motion Dungeon: authored ASCII keys -> explicit holds/timing -> semantics-preserving midpoint connectors only while support/contact/drag state are unchanged -> literal ASCII-only frame rendering -> H.264 MP4 -> self-contained three-tab SPA.
 
-Compiled embedded MP4: 13009 bytes, H.264 yuv420p 480×270, 24 fps, 90 frames, 3.75 s, SHA-256 `081250e1aabac7abccda1d7fa63b0c36264d345783f88ff31c06877270282979`.
+Compiled embedded MP4: 12534 bytes, H.264 yuv420p 480×270, 24 fps, 90 frames, 3.75 s, SHA-256 `69dff6beeb6ce0cbdefdc3cdd228b57a19f02380f0f7372b7fc782caf1f91acd`.
 ASCII authority SHA-256: `6c0fad394953a4f1cee1bc96385c95d2604134215576e3cf64f50b720d0f33d0`.
 Repository path: `experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/`
-Ship commit: PENDING
+Ship commit: `a41539b6fa171f0cfbe8e7c2c474cec73a7f56cc`
 
-Test boundary: `tools/test_ascii_kinesis_swarm_contract_v2.py` exists and was read. This Standard Chat runtime has no repository execution shell; a local GitHub clone attempt failed at DNS resolution. Current exact GitHub readback shows the deterministic global suite's pre-existing first blocker remains `v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`. This new specimen was checked against the same structural predicates and its MP4 decoded successfully with ffprobe.
+Test boundary: `tools/test_ascii_kinesis_swarm_contract_v2.py` executed on `primary-phone` against main clone HEAD `d1671e301a013ea0f1b0c0e178613127b2183604` after generating this SPA; exit 1 at pre-existing `v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA`. Airborne 004 sorts before defense and did not trigger a contract failure. Its embedded MP4 independently decoded with ffprobe as H.264 yuv420p 480×270, 24 fps, 90 frames, 3.75 s.
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN

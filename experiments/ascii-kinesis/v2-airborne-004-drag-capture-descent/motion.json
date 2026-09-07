@@ -1,1 +1,1075 @@
-{"ascii_sheet_sha256":"6c0fad394953a4f1cee1bc96385c95d2604134215576e3cf64f50b720d0f33d0","compatibility":{"ascii_kinesis_v2":true,"backward_compatible":true,"primary_tabs":["ASCII","JSON","VIDEO"],"uapl_v1_read_path_preserved":true},"compile":{"connector_frames":1,"connector_rule":"Insert one geometry-only midpoint only when adjacent authored keys have identical support_contact, contact_state, and drag_surface_state; otherwise hard cut. Connector inherits no new semantic state and cannot invent support/contact/root/drag state.","fps":24,"loop_repetitions":2,"media_bytes":13009,"media_filename":"drag-capture-descent.mp4","media_sha256":"081250e1aabac7abccda1d7fa63b0c36264d345783f88ff31c06877270282979","method":"AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA","renderer":"Python/Pillow renders literal ASCII rig frames; ffmpeg libx264 yuv420p","semantic_frames_per_loop":45,"source_sprite_pixels_used":false,"video_dimensions":[480,270],"video_frames_total":90},"correction_hooks":["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],"experiment_id":"v2-airborne-004-drag-capture-descent","format_version":2,"keys":[{"causal_role":"stable grounded anchor","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K0","motion_arc_root_note":"Root stacked over ground; facing right.","name":"READY","pose_rig":{"elbow_l":[13,15],"elbow_r":[19,15],"foot_l":[10,21],"foot_r":[22,21],"hand_l":[13,17],"hand_r":[19,17],"head":[16,11],"knee_l":[13,18],"knee_r":[19,18],"neck":[16,12],"pelvis":[16,17],"shoulder_l":[14,13],"shoulder_r":[18,13]},"support_contact":"GROUND_BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"READY"},{"causal_role":"crouch/load before support release","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K1","motion_arc_root_note":"Root lowers while support remains grounded.","name":"LOAD","pose_rig":{"elbow_l":[14,16],"elbow_r":[20,16],"foot_l":[11,21],"foot_r":[23,21],"hand_l":[12,17],"hand_r":[22,17],"head":[17,12],"knee_l":[14,19],"knee_r":[20,19],"neck":[17,13],"pelvis":[17,18],"shoulder_l":[15,14],"shoulder_r":[19,14]},"support_contact":"GROUND_BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"LOAD"},{"causal_role":"authored support break and upward impulse","contact_state":"NONE","drag_surface_state":"STOWED","key_id":"A004-K2","motion_arc_root_note":"Root leaves support; one upward arc begins.","name":"LAUNCH","pose_rig":{"elbow_l":[16,12],"elbow_r":[22,12],"foot_l":[18,17],"foot_r":[20,17],"hand_l":[16,14],"hand_r":[22,14],"head":[19,8],"knee_l":[16,16],"knee_r":[22,16],"neck":[19,9],"pelvis":[19,14],"shoulder_l":[17,10],"shoulder_r":[21,10]},"support_contact":"NONE","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"LAUNCH"},{"causal_role":"ascending travel and counterbalance","contact_state":"NONE","drag_surface_state":"STOWED","key_id":"A004-K3","motion_arc_root_note":"Root rises; limbs counterbalance without changing facing.","name":"RISE","pose_rig":{"elbow_l":[16,6],"elbow_r":[26,6],"foot_l":[20,13],"foot_r":[22,13],"hand_l":[13,6],"hand_r":[29,6],"head":[21,4],"knee_l":[18,12],"knee_r":[24,12],"neck":[21,5],"pelvis":[21,10],"shoulder_l":[19,6],"shoulder_r":[23,6]},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"RISE"},{"causal_role":"hang-time readability around vertical sign change","contact_state":"NONE","drag_surface_state":"STOWED","key_id":"A004-K4","motion_arc_root_note":"Root reaches the top of the single arc; support stays NONE.","name":"APEX_READ","pose_rig":{"elbow_l":[18,3],"elbow_r":[28,3],"foot_l":[17,11],"foot_r":[29,11],"hand_l":[15,3],"hand_r":[31,3],"head":[23,1],"knee_l":[20,9],"knee_r":[26,9],"neck":[23,2],"pelvis":[23,7],"shoulder_l":[21,3],"shoulder_r":[25,3]},"support_contact":"NONE","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"APEX"},{"causal_role":"early descent before drag surface deployment","contact_state":"NONE","drag_surface_state":"STOWED","key_id":"A004-K5","motion_arc_root_note":"Root begins descending; body opens to prepare the task change.","name":"FALL_OPEN","pose_rig":{"elbow_l":[21,3],"elbow_r":[29,3],"foot_l":[19,13],"foot_r":[31,13],"hand_l":[19,1],"hand_r":[31,1],"head":[25,3],"knee_l":[22,11],"knee_r":[28,11],"neck":[25,4],"pelvis":[25,9],"shoulder_l":[23,5],"shoulder_r":[27,5]},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCENT"},{"causal_role":"aerial pose/equipment change without relaunch","contact_state":"NONE","drag_surface_state":"DEPLOYING","key_id":"A004-K6","motion_arc_root_note":"Drag surface appears as a new authored local state while root continues downward.","name":"DRAG_DEPLOY","pose_rig":{"elbow_l":[23,5],"elbow_r":[29,5],"foot_l":[20,14],"foot_r":[32,14],"hand_l":[21,3],"hand_r":[31,3],"head":[26,4],"knee_l":[23,12],"knee_r":[29,12],"neck":[26,5],"pelvis":[26,10],"shoulder_l":[24,6],"shoulder_r":[28,6]},"support_contact":"NONE","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCENT"},{"causal_role":"readable coupling to deployed drag surface","contact_state":"NONE","drag_surface_state":"COUPLED","key_id":"A004-K7","motion_arc_root_note":"Root still descends; no support/contact is invented and no second launch occurs.","name":"DRAG_CAPTURE","pose_rig":{"elbow_l":[24,6],"elbow_r":[30,6],"foot_l":[21,15],"foot_r":[33,15],"hand_l":[22,4],"hand_r":[32,4],"head":[27,5],"knee_l":[24,13],"knee_r":[30,13],"neck":[27,6],"pelvis":[27,11],"shoulder_l":[25,7],"shoulder_r":[29,7]},"support_contact":"NONE","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCENT"},{"causal_role":"counterbalanced controlled descent","contact_state":"NONE","drag_surface_state":"COUPLED","key_id":"A004-K8","motion_arc_root_note":"Local limb organization changes under the same airborne support state.","name":"CONTROL_DESCENT","pose_rig":{"elbow_l":[26,8],"elbow_r":[32,8],"foot_l":[28,16],"foot_r":[30,16],"hand_l":[24,6],"hand_r":[34,6],"head":[29,7],"knee_l":[26,15],"knee_r":[32,15],"neck":[29,8],"pelvis":[29,13],"shoulder_l":[27,9],"shoulder_r":[31,9]},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCENT"},{"causal_role":"landing preparation before support exists","contact_state":"NONE","drag_surface_state":"RELEASING","key_id":"A004-K9","motion_arc_root_note":"Feet target a wider base while support/contact remain NONE.","name":"PRECONTACT_OPEN","pose_rig":{"elbow_l":[26,12],"elbow_r":[36,12],"foot_l":[25,20],"foot_r":[37,20],"hand_l":[23,12],"hand_r":[39,12],"head":[31,10],"knee_l":[28,18],"knee_r":[34,18],"neck":[31,11],"pelvis":[31,16],"shoulder_l":[29,12],"shoulder_r":[33,12]},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"PRECONTACT"},{"causal_role":"first authored ground reacquisition","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K10","motion_arc_root_note":"Ground contact starts here; connectors may not invent it earlier.","name":"CONTACT","pose_rig":{"elbow_l":[28,13],"elbow_r":[38,13],"foot_l":[27,21],"foot_r":[39,21],"hand_l":[25,13],"hand_r":[41,13],"head":[33,11],"knee_l":[30,18],"knee_r":[36,18],"neck":[33,12],"pelvis":[33,17],"shoulder_l":[31,13],"shoulder_r":[35,13]},"support_contact":"GROUND_BOTH","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"CONTACT"},{"causal_role":"landing force absorption after contact","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K11","motion_arc_root_note":"Root continues down into compression after support is reacquired.","name":"LAND_COMPRESSION","pose_rig":{"elbow_l":[31,17],"elbow_r":[37,17],"foot_l":[28,21],"foot_r":[40,21],"hand_l":[31,19],"hand_r":[37,19],"head":[34,13],"knee_l":[31,20],"knee_r":[37,20],"neck":[34,14],"pelvis":[34,19],"shoulder_l":[32,15],"shoulder_r":[36,15]},"support_contact":"GROUND_BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"COMPRESSION"},{"causal_role":"small recovery out of landing compression","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K12","motion_arc_root_note":"Root rises from compression while ground support persists.","name":"REBOUND","pose_rig":{"elbow_l":[32,16],"elbow_r":[38,16],"foot_l":[29,21],"foot_r":[41,21],"hand_l":[32,18],"hand_r":[38,18],"head":[35,12],"knee_l":[32,19],"knee_r":[38,19],"neck":[35,13],"pelvis":[35,18],"shoulder_l":[33,14],"shoulder_r":[37,14]},"support_contact":"GROUND_BOTH","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"REBOUND"},{"causal_role":"return-to-state completion","contact_state":"GROUND","drag_surface_state":"STOWED","key_id":"A004-K13","motion_arc_root_note":"Root restacks over the grounded base with facing preserved.","name":"RETURN_STABLE","pose_rig":{"elbow_l":[33,15],"elbow_r":[39,15],"foot_l":[30,21],"foot_r":[42,21],"hand_l":[33,17],"hand_r":[39,17],"head":[36,11],"knee_l":[33,18],"knee_r":[39,18],"neck":[36,12],"pelvis":[36,17],"shoulder_l":[34,13],"shoulder_r":[38,13]},"support_contact":"GROUND_BOTH","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"RETURN"}],"lane":"airborne","principle":"DRAG CAPTURE CHANGES DESCENT READABILITY WITHOUT RESETTING THE AIRBORNE ARC.","principle_matrix":{"aerial_pose_change":"OBSERVED source has distinct parachute/deployed-descent families; generic deployment task is independent","apex":"INFERRED root sign-change key","crouch_load":"INFERRED generic LOAD informed by grounded versus airborne family contrast","facing_preservation":"OBSERVED broad facing/read-direction coherence across long airborne bands","hang_time_readability":"INFERRED via held apex key and open silhouette","landing_compression":"INFERRED distinct post-contact force key","launch":"INFERRED support-break key; source order/timing not measured","limb_counterbalance":"OBSERVED varied suspended body organization; generic rig is independently authored","rebound":"INFERRED grounded recovery key","return_to_state":"INFERRED stable grounded restack","root_arc":"INFERRED one continuous rise/apex/descent arc"},"rig":{"drag_surface_states":["STOWED","DEPLOYING","COUPLED","RELEASING"],"facing_marker":">","grid":[64,24],"ground_row":21,"joints":["head","neck","shoulder_l","shoulder_r","elbow_l","elbow_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"kind":"copyright-safe abstract ASCII Blender-style humanoid + external drag-surface control rig"},"schema":"ascii-kinesis.motion.v2","source":{"asset_id":500827,"game":"Toy Story","page_url":"https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/","platform":"Sega Genesis","reported_dimensions":[576,720],"reported_format":"PNG","reported_size":"44.01 KB","rights_note":"Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, exact silhouette, sheet layout, traced contour, redistribution, or close imitation enter this specimen. Drew work was not used.","site":"The Spriters Resource","source_timing_available":false,"title":"Green Army Man","whole_sheet_inspected":true,"whole_sheet_visual_evidence":"Standard Chat image result exposed the complete sheet; source page reports Fall, Jump, Parachute, and Soldier descends by parachute families."},"timing_vocabulary":{"FOURS":"one key/drawing held four display frames","ONES":"new key/drawing sample every display frame","TWOS":"one key/drawing held two display frames","inferred_policy":"STREET_FIGHTER/CAPCOM","shorthand":"1s/2s/4s means ONES/TWOS/FOURS, never seconds"},"whole_sheet_evidence":{"INFERRED":["A generic jump can be authored as one rise/apex/descent root arc while a deployed drag surface changes the local airborne pose and descent readability without creating support or a second launch.","The generic contact/compression/rebound/return sequence is an independent landing abstraction; the source sheet does not provide reliable source-authentic landing timing.","Every decisive timing class uses PoseLab V1 STREET_FIGHTER/CAPCOM because source timing was not measured."],"OBSERVED":["The complete sheet was visually inspected as one corpus in Standard Chat.","The sheet visibly contains grounded/non-airborne soldier states, compact and extended airborne soldier silhouettes, and long bands with an external parachute/canopy above the figure.","The source page independently labels Fall, Jump, Parachute, and Soldier descends by parachute animation families.","Across long airborne/parachute bands, facing/read direction remains broadly coherent while local body configuration varies.","The static sheet does not establish source-authentic exposure duration, world-space root positions, or exact gameplay transition order."],"UNKNOWN":["Exact in-game chronology and exposure of every source cell/family.","Exact world-space root trajectory, drag magnitude, and physical force values.","Source-authentic landing contact timing, hit-stop, or rebound duration."]}}
+{
+  "ascii_sheet_sha256": "6c0fad394953a4f1cee1bc96385c95d2604134215576e3cf64f50b720d0f33d0",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Insert one geometry-only midpoint only when adjacent authored keys have identical support_contact, contact_state, and drag_surface_state; otherwise hard cut. Connector inherits no new semantic state and cannot invent support/contact/root/drag state.",
+    "fps": 24,
+    "loop_repetitions": 2,
+    "media_bytes": 12534,
+    "media_filename": "drag-capture-descent.mp4",
+    "media_sha256": "69dff6beeb6ce0cbdefdc3cdd228b57a19f02380f0f7372b7fc782caf1f91acd",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow renders literal ASCII rig frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 45,
+    "source_sprite_pixels_used": false,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 90
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-004-drag-capture-descent",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "stable grounded anchor",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K0",
+      "motion_arc_root_note": "Root stacked over ground; facing right.",
+      "name": "READY",
+      "pose_rig": {
+        "elbow_l": [
+          13,
+          15
+        ],
+        "elbow_r": [
+          19,
+          15
+        ],
+        "foot_l": [
+          10,
+          21
+        ],
+        "foot_r": [
+          22,
+          21
+        ],
+        "hand_l": [
+          13,
+          17
+        ],
+        "hand_r": [
+          19,
+          17
+        ],
+        "head": [
+          16,
+          11
+        ],
+        "knee_l": [
+          13,
+          18
+        ],
+        "knee_r": [
+          19,
+          18
+        ],
+        "neck": [
+          16,
+          12
+        ],
+        "pelvis": [
+          16,
+          17
+        ],
+        "shoulder_l": [
+          14,
+          13
+        ],
+        "shoulder_r": [
+          18,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "READY"
+    },
+    {
+      "causal_role": "crouch/load before support release",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K1",
+      "motion_arc_root_note": "Root lowers while support remains grounded.",
+      "name": "LOAD",
+      "pose_rig": {
+        "elbow_l": [
+          14,
+          16
+        ],
+        "elbow_r": [
+          20,
+          16
+        ],
+        "foot_l": [
+          11,
+          21
+        ],
+        "foot_r": [
+          23,
+          21
+        ],
+        "hand_l": [
+          12,
+          17
+        ],
+        "hand_r": [
+          22,
+          17
+        ],
+        "head": [
+          17,
+          12
+        ],
+        "knee_l": [
+          14,
+          19
+        ],
+        "knee_r": [
+          20,
+          19
+        ],
+        "neck": [
+          17,
+          13
+        ],
+        "pelvis": [
+          17,
+          18
+        ],
+        "shoulder_l": [
+          15,
+          14
+        ],
+        "shoulder_r": [
+          19,
+          14
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LOAD"
+    },
+    {
+      "causal_role": "authored support break and upward impulse",
+      "contact_state": "NONE",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K2",
+      "motion_arc_root_note": "Root leaves support; one upward arc begins.",
+      "name": "LAUNCH",
+      "pose_rig": {
+        "elbow_l": [
+          16,
+          12
+        ],
+        "elbow_r": [
+          22,
+          12
+        ],
+        "foot_l": [
+          18,
+          17
+        ],
+        "foot_r": [
+          20,
+          17
+        ],
+        "hand_l": [
+          16,
+          14
+        ],
+        "hand_r": [
+          22,
+          14
+        ],
+        "head": [
+          19,
+          8
+        ],
+        "knee_l": [
+          16,
+          16
+        ],
+        "knee_r": [
+          22,
+          16
+        ],
+        "neck": [
+          19,
+          9
+        ],
+        "pelvis": [
+          19,
+          14
+        ],
+        "shoulder_l": [
+          17,
+          10
+        ],
+        "shoulder_r": [
+          21,
+          10
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAUNCH"
+    },
+    {
+      "causal_role": "ascending travel and counterbalance",
+      "contact_state": "NONE",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K3",
+      "motion_arc_root_note": "Root rises; limbs counterbalance without changing facing.",
+      "name": "RISE",
+      "pose_rig": {
+        "elbow_l": [
+          16,
+          6
+        ],
+        "elbow_r": [
+          26,
+          6
+        ],
+        "foot_l": [
+          20,
+          13
+        ],
+        "foot_r": [
+          22,
+          13
+        ],
+        "hand_l": [
+          13,
+          6
+        ],
+        "hand_r": [
+          29,
+          6
+        ],
+        "head": [
+          21,
+          4
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          24,
+          12
+        ],
+        "neck": [
+          21,
+          5
+        ],
+        "pelvis": [
+          21,
+          10
+        ],
+        "shoulder_l": [
+          19,
+          6
+        ],
+        "shoulder_r": [
+          23,
+          6
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RISE"
+    },
+    {
+      "causal_role": "hang-time readability around vertical sign change",
+      "contact_state": "NONE",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K4",
+      "motion_arc_root_note": "Root reaches the top of the single arc; support stays NONE.",
+      "name": "APEX_READ",
+      "pose_rig": {
+        "elbow_l": [
+          18,
+          3
+        ],
+        "elbow_r": [
+          28,
+          3
+        ],
+        "foot_l": [
+          17,
+          11
+        ],
+        "foot_r": [
+          29,
+          11
+        ],
+        "hand_l": [
+          15,
+          3
+        ],
+        "hand_r": [
+          31,
+          3
+        ],
+        "head": [
+          23,
+          1
+        ],
+        "knee_l": [
+          20,
+          9
+        ],
+        "knee_r": [
+          26,
+          9
+        ],
+        "neck": [
+          23,
+          2
+        ],
+        "pelvis": [
+          23,
+          7
+        ],
+        "shoulder_l": [
+          21,
+          3
+        ],
+        "shoulder_r": [
+          25,
+          3
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "APEX"
+    },
+    {
+      "causal_role": "early descent before drag surface deployment",
+      "contact_state": "NONE",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K5",
+      "motion_arc_root_note": "Root begins descending; body opens to prepare the task change.",
+      "name": "FALL_OPEN",
+      "pose_rig": {
+        "elbow_l": [
+          21,
+          3
+        ],
+        "elbow_r": [
+          29,
+          3
+        ],
+        "foot_l": [
+          19,
+          13
+        ],
+        "foot_r": [
+          31,
+          13
+        ],
+        "hand_l": [
+          19,
+          1
+        ],
+        "hand_r": [
+          31,
+          1
+        ],
+        "head": [
+          25,
+          3
+        ],
+        "knee_l": [
+          22,
+          11
+        ],
+        "knee_r": [
+          28,
+          11
+        ],
+        "neck": [
+          25,
+          4
+        ],
+        "pelvis": [
+          25,
+          9
+        ],
+        "shoulder_l": [
+          23,
+          5
+        ],
+        "shoulder_r": [
+          27,
+          5
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT"
+    },
+    {
+      "causal_role": "aerial pose/equipment change without relaunch",
+      "contact_state": "NONE",
+      "drag_surface_state": "DEPLOYING",
+      "key_id": "A004-K6",
+      "motion_arc_root_note": "Drag surface appears as a new authored local state while root continues downward.",
+      "name": "DRAG_DEPLOY",
+      "pose_rig": {
+        "elbow_l": [
+          23,
+          5
+        ],
+        "elbow_r": [
+          29,
+          5
+        ],
+        "foot_l": [
+          20,
+          14
+        ],
+        "foot_r": [
+          32,
+          14
+        ],
+        "hand_l": [
+          21,
+          3
+        ],
+        "hand_r": [
+          31,
+          3
+        ],
+        "head": [
+          26,
+          4
+        ],
+        "knee_l": [
+          23,
+          12
+        ],
+        "knee_r": [
+          29,
+          12
+        ],
+        "neck": [
+          26,
+          5
+        ],
+        "pelvis": [
+          26,
+          10
+        ],
+        "shoulder_l": [
+          24,
+          6
+        ],
+        "shoulder_r": [
+          28,
+          6
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT"
+    },
+    {
+      "causal_role": "readable coupling to deployed drag surface",
+      "contact_state": "NONE",
+      "drag_surface_state": "COUPLED",
+      "key_id": "A004-K7",
+      "motion_arc_root_note": "Root still descends; no support/contact is invented and no second launch occurs.",
+      "name": "DRAG_CAPTURE",
+      "pose_rig": {
+        "elbow_l": [
+          24,
+          6
+        ],
+        "elbow_r": [
+          30,
+          6
+        ],
+        "foot_l": [
+          21,
+          15
+        ],
+        "foot_r": [
+          33,
+          15
+        ],
+        "hand_l": [
+          22,
+          4
+        ],
+        "hand_r": [
+          32,
+          4
+        ],
+        "head": [
+          27,
+          5
+        ],
+        "knee_l": [
+          24,
+          13
+        ],
+        "knee_r": [
+          30,
+          13
+        ],
+        "neck": [
+          27,
+          6
+        ],
+        "pelvis": [
+          27,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          29,
+          7
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT"
+    },
+    {
+      "causal_role": "counterbalanced controlled descent",
+      "contact_state": "NONE",
+      "drag_surface_state": "COUPLED",
+      "key_id": "A004-K8",
+      "motion_arc_root_note": "Local limb organization changes under the same airborne support state.",
+      "name": "CONTROL_DESCENT",
+      "pose_rig": {
+        "elbow_l": [
+          26,
+          8
+        ],
+        "elbow_r": [
+          32,
+          8
+        ],
+        "foot_l": [
+          28,
+          16
+        ],
+        "foot_r": [
+          30,
+          16
+        ],
+        "hand_l": [
+          24,
+          6
+        ],
+        "hand_r": [
+          34,
+          6
+        ],
+        "head": [
+          29,
+          7
+        ],
+        "knee_l": [
+          26,
+          15
+        ],
+        "knee_r": [
+          32,
+          15
+        ],
+        "neck": [
+          29,
+          8
+        ],
+        "pelvis": [
+          29,
+          13
+        ],
+        "shoulder_l": [
+          27,
+          9
+        ],
+        "shoulder_r": [
+          31,
+          9
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCENT"
+    },
+    {
+      "causal_role": "landing preparation before support exists",
+      "contact_state": "NONE",
+      "drag_surface_state": "RELEASING",
+      "key_id": "A004-K9",
+      "motion_arc_root_note": "Feet target a wider base while support/contact remain NONE.",
+      "name": "PRECONTACT_OPEN",
+      "pose_rig": {
+        "elbow_l": [
+          26,
+          12
+        ],
+        "elbow_r": [
+          36,
+          12
+        ],
+        "foot_l": [
+          25,
+          20
+        ],
+        "foot_r": [
+          37,
+          20
+        ],
+        "hand_l": [
+          23,
+          12
+        ],
+        "hand_r": [
+          39,
+          12
+        ],
+        "head": [
+          31,
+          10
+        ],
+        "knee_l": [
+          28,
+          18
+        ],
+        "knee_r": [
+          34,
+          18
+        ],
+        "neck": [
+          31,
+          11
+        ],
+        "pelvis": [
+          31,
+          16
+        ],
+        "shoulder_l": [
+          29,
+          12
+        ],
+        "shoulder_r": [
+          33,
+          12
+        ]
+      },
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "PRECONTACT"
+    },
+    {
+      "causal_role": "first authored ground reacquisition",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K10",
+      "motion_arc_root_note": "Ground contact starts here; connectors may not invent it earlier.",
+      "name": "CONTACT",
+      "pose_rig": {
+        "elbow_l": [
+          28,
+          13
+        ],
+        "elbow_r": [
+          38,
+          13
+        ],
+        "foot_l": [
+          27,
+          21
+        ],
+        "foot_r": [
+          39,
+          21
+        ],
+        "hand_l": [
+          25,
+          13
+        ],
+        "hand_r": [
+          41,
+          13
+        ],
+        "head": [
+          33,
+          11
+        ],
+        "knee_l": [
+          30,
+          18
+        ],
+        "knee_r": [
+          36,
+          18
+        ],
+        "neck": [
+          33,
+          12
+        ],
+        "pelvis": [
+          33,
+          17
+        ],
+        "shoulder_l": [
+          31,
+          13
+        ],
+        "shoulder_r": [
+          35,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "CONTACT"
+    },
+    {
+      "causal_role": "landing force absorption after contact",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K11",
+      "motion_arc_root_note": "Root continues down into compression after support is reacquired.",
+      "name": "LAND_COMPRESSION",
+      "pose_rig": {
+        "elbow_l": [
+          31,
+          17
+        ],
+        "elbow_r": [
+          37,
+          17
+        ],
+        "foot_l": [
+          28,
+          21
+        ],
+        "foot_r": [
+          40,
+          21
+        ],
+        "hand_l": [
+          31,
+          19
+        ],
+        "hand_r": [
+          37,
+          19
+        ],
+        "head": [
+          34,
+          13
+        ],
+        "knee_l": [
+          31,
+          20
+        ],
+        "knee_r": [
+          37,
+          20
+        ],
+        "neck": [
+          34,
+          14
+        ],
+        "pelvis": [
+          34,
+          19
+        ],
+        "shoulder_l": [
+          32,
+          15
+        ],
+        "shoulder_r": [
+          36,
+          15
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "COMPRESSION"
+    },
+    {
+      "causal_role": "small recovery out of landing compression",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K12",
+      "motion_arc_root_note": "Root rises from compression while ground support persists.",
+      "name": "REBOUND",
+      "pose_rig": {
+        "elbow_l": [
+          32,
+          16
+        ],
+        "elbow_r": [
+          38,
+          16
+        ],
+        "foot_l": [
+          29,
+          21
+        ],
+        "foot_r": [
+          41,
+          21
+        ],
+        "hand_l": [
+          32,
+          18
+        ],
+        "hand_r": [
+          38,
+          18
+        ],
+        "head": [
+          35,
+          12
+        ],
+        "knee_l": [
+          32,
+          19
+        ],
+        "knee_r": [
+          38,
+          19
+        ],
+        "neck": [
+          35,
+          13
+        ],
+        "pelvis": [
+          35,
+          18
+        ],
+        "shoulder_l": [
+          33,
+          14
+        ],
+        "shoulder_r": [
+          37,
+          14
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "REBOUND"
+    },
+    {
+      "causal_role": "return-to-state completion",
+      "contact_state": "GROUND",
+      "drag_surface_state": "STOWED",
+      "key_id": "A004-K13",
+      "motion_arc_root_note": "Root restacks over the grounded base with facing preserved.",
+      "name": "RETURN_STABLE",
+      "pose_rig": {
+        "elbow_l": [
+          33,
+          15
+        ],
+        "elbow_r": [
+          39,
+          15
+        ],
+        "foot_l": [
+          30,
+          21
+        ],
+        "foot_r": [
+          42,
+          21
+        ],
+        "hand_l": [
+          33,
+          17
+        ],
+        "hand_r": [
+          39,
+          17
+        ],
+        "head": [
+          36,
+          11
+        ],
+        "knee_l": [
+          33,
+          18
+        ],
+        "knee_r": [
+          39,
+          18
+        ],
+        "neck": [
+          36,
+          12
+        ],
+        "pelvis": [
+          36,
+          17
+        ],
+        "shoulder_l": [
+          34,
+          13
+        ],
+        "shoulder_r": [
+          38,
+          13
+        ]
+      },
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RETURN"
+    }
+  ],
+  "lane": "airborne",
+  "principle": "DRAG CAPTURE CHANGES DESCENT READABILITY WITHOUT RESETTING THE AIRBORNE ARC.",
+  "principle_matrix": {
+    "aerial_pose_change": "OBSERVED source has distinct parachute/deployed-descent families; generic deployment task is independent",
+    "apex": "INFERRED root sign-change key",
+    "crouch_load": "INFERRED generic LOAD informed by grounded versus airborne family contrast",
+    "facing_preservation": "OBSERVED broad facing/read-direction coherence across long airborne bands",
+    "hang_time_readability": "INFERRED via held apex key and open silhouette",
+    "landing_compression": "INFERRED distinct post-contact force key",
+    "launch": "INFERRED support-break key; source order/timing not measured",
+    "limb_counterbalance": "OBSERVED varied suspended body organization; generic rig is independently authored",
+    "rebound": "INFERRED grounded recovery key",
+    "return_to_state": "INFERRED stable grounded restack",
+    "root_arc": "INFERRED one continuous rise/apex/descent arc"
+  },
+  "rig": {
+    "drag_surface_states": [
+      "STOWED",
+      "DEPLOYING",
+      "COUPLED",
+      "RELEASING"
+    ],
+    "facing_marker": ">",
+    "grid": [
+      64,
+      24
+    ],
+    "ground_row": 21,
+    "joints": [
+      "head",
+      "neck",
+      "shoulder_l",
+      "shoulder_r",
+      "elbow_l",
+      "elbow_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "kind": "copyright-safe abstract ASCII Blender-style humanoid + external drag-surface control rig"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 500827,
+    "game": "Toy Story",
+    "page_url": "https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/",
+    "platform": "Sega Genesis",
+    "reported_dimensions": [
+      576,
+      720
+    ],
+    "reported_format": "PNG",
+    "reported_size": "44.01 KB",
+    "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, exact silhouette, sheet layout, traced contour, redistribution, or close imitation enter this specimen. Drew work was not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Green Army Man",
+    "whole_sheet_inspected": true,
+    "whole_sheet_visual_evidence": "Standard Chat image result exposed the complete sheet; source page reports Fall, Jump, Parachute, and Soldier descends by parachute families."
+  },
+  "timing_vocabulary": {
+    "FOURS": "one key/drawing held four display frames",
+    "ONES": "new key/drawing sample every display frame",
+    "TWOS": "one key/drawing held two display frames",
+    "inferred_policy": "STREET_FIGHTER/CAPCOM",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "whole_sheet_evidence": {
+    "INFERRED": [
+      "A generic jump can be authored as one rise/apex/descent root arc while a deployed drag surface changes the local airborne pose and descent readability without creating support or a second launch.",
+      "The generic contact/compression/rebound/return sequence is an independent landing abstraction; the source sheet does not provide reliable source-authentic landing timing.",
+      "Every decisive timing class uses PoseLab V1 STREET_FIGHTER/CAPCOM because source timing was not measured."
+    ],
+    "OBSERVED": [
+      "The complete sheet was visually inspected as one corpus in Standard Chat.",
+      "The sheet visibly contains grounded/non-airborne soldier states, compact and extended airborne soldier silhouettes, and long bands with an external parachute/canopy above the figure.",
+      "The source page independently labels Fall, Jump, Parachute, and Soldier descends by parachute animation families.",
+      "Across long airborne/parachute bands, facing/read direction remains broadly coherent while local body configuration varies.",
+      "The static sheet does not establish source-authentic exposure duration, world-space root positions, or exact gameplay transition order."
+    ],
+    "UNKNOWN": [
+      "Exact in-game chronology and exposure of every source cell/family.",
+      "Exact world-space root trajectory, drag magnitude, and physical force values.",
+      "Source-authentic landing contact timing, hit-stop, or rebound duration."
+    ]
+  }
+}

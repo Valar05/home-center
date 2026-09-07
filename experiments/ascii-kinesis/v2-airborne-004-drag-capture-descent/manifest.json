@@ -24,13 +24,13 @@
     "drag-capture-descent.motion.html"
   ],
   "format_version": 2,
-  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py is present and callable by Python, but this Standard Chat runtime has no repository execution shell and container network cannot clone GitHub (DNS unavailable). Current exact GitHub readback shows pre-existing v2-defense-001-guard-support-fork still has zero tracked *.motion.html, so the deterministic suite would fail there before reaching this specimen. This specimen was locally checked against the same structural predicates and its embedded MP4 was ffprobe-decoded.",
+  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py executed on primary-phone against main clone HEAD d1671e301a013ea0f1b0c0e178613127b2183604 after generating this specimens SPA; exit 1 at pre-existing v2-defense-001-guard-support-fork: expected exactly one tracked *.motion.html SPA. Airborne 004 sorts before defense and did not trigger a contract failure; embedded MP4 independently decoded with ffprobe.",
   "lane": "airborne",
   "ligatures_disabled": true,
-  "media_bytes": 13009,
+  "media_bytes": 12534,
   "media_filename": "drag-capture-descent.mp4",
   "media_hash_policy": "Hash records exact embedded MP4 bytes produced by the builder. Authored ASCII keys, holds, semantic connector rules, and frame sequence are deterministic; cross-runtime ffmpeg/font bitstream byte identity is not claimed.",
-  "media_sha256": "081250e1aabac7abccda1d7fa63b0c36264d345783f88ff31c06877270282979",
+  "media_sha256": "69dff6beeb6ce0cbdefdc3cdd228b57a19f02380f0f7372b7fc782caf1f91acd",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 14,
@@ -54,7 +54,7 @@
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "ship_commit": "PENDING",
+  "ship_commit": "a41539b6fa171f0cfbe8e7c2c474cec73a7f56cc",
   "source": {
     "asset_id": 500827,
     "game": "Toy Story",
