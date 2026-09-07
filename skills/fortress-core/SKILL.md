@@ -109,7 +109,16 @@ If a worker produces valuable supporting evidence but the commissioned artifact 
 
 The 2026-09-07 ASCII Kinesis incident is the canonical fixture: Drive research artifacts and issue receipts did not satisfy a commission for new repository-backed three-tab `ASCII | JSON | VIDEO` examples with literal copyable ASCII and real Motion-Dungeon-derived video. Future Fortress workers must preserve this distinction.
 
+## 19. Framing fidelity and symmetry
+Load and obey `skills/framing-fidelity/SKILL.md` for every commission involving anatomy, physiology, sex-linked bodily differences, cultural taboo, moralized body claims, or any user correction that the worker has sexualized or sanitized an allowed topic.
+
+The user's explicit nonsexual frame is part of the mission boundary. A neutral anatomical term does not authorize the worker to invent sexual intent. When the same physiological predicate is treated differently across sexes, run the symmetry gate and distinguish cultural doctrine from biological fact.
+
+An allowed commission may not be replaced with a safer-looking adjacent answer. If a real higher-priority boundary applies, enforce only the narrow boundary and answer the safe remainder.
+
+The 2026-09-07 sumo-anatomy incident is the canonical fixture: repeated avoidance of a classroom-appropriate male/female anatomical comparison was a framing-classification failure. The repair is direct allowed discourse, not euphemism, moralization, or topic substitution.
+
 ## Boot invariant
 Fortress V2 boot must load the complete body of this file and every other discovered `SKILL.md`, including `skills/phone-runtime/SKILL.md`, `skills/fortress-plan-gate/SKILL.md`, `skills/venice-stop-gate/SKILL.md`, and `skills/venice-review-memory/SKILL.md`. First-match loading is forbidden. Missing canonical Fortress skill documents are a boot failure, not a warning.
 
-Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; and response boundaries as non-terminal.
+Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; framing fidelity and symmetry; and response boundaries as non-terminal.
