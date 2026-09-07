@@ -1,0 +1,1170 @@
+{
+  "ascii_sheet_sha256": "f71c7aeaa981b8ae3fe14374c8890499babd1bfc61378573d57d3ad22b8e7f25",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, support_B, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 14688,
+    "media_sha256": "9c6c5b73b063459eeb08ab7aaf4bbac5a832701d99fb73697bf983a0cdd4807b",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "semantic_frames_per_loop": 24,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 96
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "causal ordering from approach through acquisition, support handoff, locked pivot, release and recovery",
+      "relationship anchors, shared center of force, leverage, partner lag and custody semantics",
+      "all decisive-key exposure classes and connective geometry"
+    ],
+    "observed": [
+      "entire 71-PNG asset archive inspected across 22 named families",
+      "contact-related files: Grab/00.png 35x51; Throw Grab/00.png 44x40; Throw Ready/00.png and /01.png 36x46; Throw/00.png 48x40",
+      "all five contact-related images are single connected opaque silhouettes at 4-neighbor alpha connectivity",
+      "whole asset also contains idle, walk, climb, ladder, talk and emotional families, providing non-contact baseline"
+    ],
+    "unknown": [
+      "source-authentic playback order and frame durations",
+      "identity/physics of the contacted partner or object beyond source family names",
+      "exact contact points, force magnitude, hit-stop and object/partner flight path"
+    ]
+  },
+  "experiment_id": "v2-contact-005-locked-pivot-before-release",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          16,
+          15
+        ],
+        "hand_l": [
+          9,
+          9
+        ],
+        "hand_r": [
+          17,
+          9
+        ],
+        "head": [
+          13,
+          5
+        ],
+        "knee_l": [
+          11,
+          13
+        ],
+        "knee_r": [
+          15,
+          13
+        ],
+        "pelvis": [
+          13,
+          11
+        ],
+        "shoulder_l": [
+          12,
+          7
+        ],
+        "shoulder_r": [
+          14,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          33,
+          15
+        ],
+        "foot_r": [
+          39,
+          15
+        ],
+        "hand_l": [
+          32,
+          9
+        ],
+        "hand_r": [
+          40,
+          9
+        ],
+        "head": [
+          36,
+          5
+        ],
+        "knee_l": [
+          34,
+          13
+        ],
+        "knee_r": [
+          38,
+          13
+        ],
+        "pelvis": [
+          36,
+          11
+        ],
+        "shoulder_l": [
+          35,
+          7
+        ],
+        "shoulder_r": [
+          37,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent support and readable approach gap",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K0",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "SEPARATE_READY",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          11,
+          9
+        ],
+        "hand_r": [
+          19,
+          9
+        ],
+        "head": [
+          15,
+          5
+        ],
+        "knee_l": [
+          13,
+          13
+        ],
+        "knee_r": [
+          17,
+          13
+        ],
+        "pelvis": [
+          15,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          7
+        ],
+        "shoulder_r": [
+          16,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          25,
+          9
+        ],
+        "hand_r": [
+          33,
+          9
+        ],
+        "head": [
+          29,
+          5
+        ],
+        "knee_l": [
+          27,
+          13
+        ],
+        "knee_r": [
+          31,
+          13
+        ],
+        "pelvis": [
+          29,
+          11
+        ],
+        "shoulder_l": [
+          28,
+          7
+        ],
+        "shoulder_r": [
+          30,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "close distance without granting ownership",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K1",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "APPROACH_PROBE",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          20,
+          9
+        ],
+        "head": [
+          16,
+          5
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          15,
+          7
+        ],
+        "shoulder_r": [
+          17,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          21,
+          15
+        ],
+        "foot_r": [
+          27,
+          15
+        ],
+        "hand_l": [
+          20,
+          9
+        ],
+        "hand_r": [
+          28,
+          9
+        ],
+        "head": [
+          24,
+          5
+        ],
+        "knee_l": [
+          22,
+          13
+        ],
+        "knee_r": [
+          26,
+          13
+        ],
+        "pelvis": [
+          24,
+          11
+        ],
+        "shoulder_l": [
+          23,
+          7
+        ],
+        "shoulder_r": [
+          25,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            20,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "first anchor acquires contact while both bodies still own ground support",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "NEGOTIATING",
+      "key_id": "C005-K2",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "CONTACT_ACQUIRE",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "ONE_ANCHOR",
+        "custody": "NEGOTIATING",
+        "shared_center": [
+          20,
+          10
+        ]
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": [
+        20,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          12,
+          10
+        ],
+        "hand_r": [
+          20,
+          10
+        ],
+        "head": [
+          16,
+          6
+        ],
+        "knee_l": [
+          13,
+          12
+        ],
+        "knee_r": [
+          19,
+          12
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          8
+        ],
+        "shoulder_r": [
+          18,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          19,
+          15
+        ],
+        "foot_r": [
+          27,
+          15
+        ],
+        "hand_l": [
+          19,
+          10
+        ],
+        "hand_r": [
+          27,
+          10
+        ],
+        "head": [
+          23,
+          6
+        ],
+        "knee_l": [
+          20,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          23,
+          11
+        ],
+        "shoulder_l": [
+          21,
+          8
+        ],
+        "shoulder_r": [
+          25,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            20,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            20,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "second anchor establishes leverage before support authority transfers",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED_PENDING",
+      "key_id": "C005-K3",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "DUAL_SUPPORT_OVERLAP",
+      "relationship_frame": {
+        "authority": "SHARED_PENDING",
+        "contact": "TWO_ANCHORS",
+        "custody": "SHARED_PENDING",
+        "shared_center": [
+          20,
+          10
+        ]
+      },
+      "root_owner": "SHARED_PENDING",
+      "shared_center": [
+        20,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          17,
+          5
+        ],
+        "knee_l": [
+          15,
+          13
+        ],
+        "knee_r": [
+          19,
+          13
+        ],
+        "pelvis": [
+          17,
+          11
+        ],
+        "shoulder_l": [
+          16,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          18,
+          8
+        ],
+        "foot_r": [
+          18,
+          10
+        ],
+        "hand_l": [
+          25,
+          7
+        ],
+        "hand_r": [
+          25,
+          11
+        ],
+        "head": [
+          30,
+          8
+        ],
+        "knee_l": [
+          21,
+          8
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          27,
+          8
+        ],
+        "shoulder_r": [
+          27,
+          10
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "partner ground support ends; relationship frame becomes partner root authority",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K4",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "PARTNER_ROOT_REPARENT",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          22,
+          10
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        22,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          21,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          19,
+          7
+        ],
+        "foot_r": [
+          19,
+          9
+        ],
+        "hand_l": [
+          26,
+          6
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          31,
+          7
+        ],
+        "knee_l": [
+          22,
+          7
+        ],
+        "knee_r": [
+          22,
+          9
+        ],
+        "pelvis": [
+          25,
+          8
+        ],
+        "shoulder_l": [
+          28,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          9
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            23,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "locked custody rotates around shared center; no release yet",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K5",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "LOCKED_PIVOT_A",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          23,
+          9
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          10
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          22,
+          6
+        ],
+        "foot_r": [
+          22,
+          8
+        ],
+        "hand_l": [
+          29,
+          5
+        ],
+        "hand_r": [
+          29,
+          9
+        ],
+        "head": [
+          34,
+          6
+        ],
+        "knee_l": [
+          25,
+          6
+        ],
+        "knee_r": [
+          25,
+          8
+        ],
+        "pelvis": [
+          28,
+          7
+        ],
+        "shoulder_l": [
+          31,
+          6
+        ],
+        "shoulder_r": [
+          31,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            24,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "second ready silhouette holds leverage and opposing arcs while custody remains locked",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K6",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "LOCKED_PIVOT_B",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          24,
+          9
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        24,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          22,
+          9
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          29,
+          6
+        ],
+        "foot_r": [
+          29,
+          8
+        ],
+        "hand_l": [
+          36,
+          5
+        ],
+        "hand_r": [
+          36,
+          9
+        ],
+        "head": [
+          41,
+          6
+        ],
+        "knee_l": [
+          32,
+          6
+        ],
+        "knee_r": [
+          32,
+          8
+        ],
+        "pelvis": [
+          35,
+          7
+        ],
+        "shoulder_l": [
+          38,
+          6
+        ],
+        "shoulder_r": [
+          38,
+          8
+        ]
+      },
+      "anchors": [],
+      "causal_role": "constraint destruction forks partner/object travel from carrier recoil",
+      "contact_state": "RELEASED",
+      "custody": "FREE_B",
+      "key_id": "C005-K7",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "RELEASE_FORK",
+      "relationship_frame": {
+        "authority": "INDEPENDENT_ROOTS",
+        "contact": "RELEASED",
+        "custody": "FREE_B",
+        "shared_center": null
+      },
+      "root_owner": "INDEPENDENT_ROOTS",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          21,
+          9
+        ],
+        "head": [
+          17,
+          5
+        ],
+        "knee_l": [
+          15,
+          13
+        ],
+        "knee_r": [
+          19,
+          13
+        ],
+        "pelvis": [
+          17,
+          11
+        ],
+        "shoulder_l": [
+          16,
+          7
+        ],
+        "shoulder_r": [
+          18,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          34,
+          15
+        ],
+        "foot_r": [
+          40,
+          15
+        ],
+        "hand_l": [
+          33,
+          9
+        ],
+        "hand_r": [
+          41,
+          9
+        ],
+        "head": [
+          37,
+          5
+        ],
+        "knee_l": [
+          35,
+          13
+        ],
+        "knee_r": [
+          39,
+          13
+        ],
+        "pelvis": [
+          37,
+          11
+        ],
+        "shoulder_l": [
+          36,
+          7
+        ],
+        "shoulder_r": [
+          38,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent support is reacquired and both bodies recover readability",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K8",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "SEPARATE_RECOVERY",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "manifest_receipt": {
+    "manifest_file": "manifest.json",
+    "receipt_file": "receipt.md",
+    "spa_file": "locked-pivot-before-release.motion.html",
+    "status_before_remote_readback": "REPO_CANDIDATE"
+  },
+  "principle": "THROW PREPARATION CAN ROTATE A LOCKED RELATIONSHIP FRAME WITHOUT RELEASING CUSTODY; RELEASE IS A SEPARATE CAUSAL EVENT.",
+  "rig_schema": {
+    "actors": [
+      "A carrier",
+      "B partner_or_object_proxy"
+    ],
+    "relationship_frame_fields": [
+      "contact_state",
+      "support_A",
+      "support_B",
+      "root_owner",
+      "custody",
+      "anchors",
+      "shared_center"
+    ]
+  },
+  "rights": "Copyright-restricted source used only as whole-asset evidence. No source pixels, palette, silhouettes, layout, tracing, redistribution, or close imitation are embedded; Drew work was not used.",
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 566049,
+    "family_count": 22,
+    "format": "ZIP",
+    "game": "Mina the Hollower",
+    "item_count": 71,
+    "name": "Pinky",
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566049/",
+    "platform": "PC / Computer",
+    "raw_bytes": 88774,
+    "raw_sha256": "fb1c69d5b2a31553e24d14191841090e08963e424b1686869ca03909f653244d",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  }
+}

@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Contact 005 — Locked Pivot Before Release</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:72ch;line-height:1.45}
+</style></head><body>
+<h1>Locked Pivot Before Release</h1>
+<p class="note">Copyright-safe abstract rig. Source art is evidence only and is not embedded. Transferable rule: throw preparation can rotate a locked relationship frame while custody remains intact; release is a separate authored causal event.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[C005-K0] SEPARATE_READY | FOURS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=SEPARATE | custody=NONE
+
+
+
+
+
+             A                      B
+            / \                    / \
+            o-o                    o-o
+          //| |\\                //| |\\
+         o   |   o              o   |   o
+             |                      |
+             @                      &amp;
+            / \                    / \
+           o   o                  o   o
+          /     \                /     \
+          o     o                o     o
+          =     =                =     =
+
+
+[C005-K1] APPROACH_PROBE | TWOS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=SEPARATE | custody=NONE
+
+
+
+
+
+               A             B
+              / \           / \
+              o-o           o-o
+            //| |\\       //| |\\
+           o   |   o     o   |   o
+               |             |
+               @             &amp;
+              / \           / \
+             o   o         o   o
+            /     \       /     \
+            o     o       o     o
+            =     =       =     =
+
+
+[C005-K2] CONTACT_ACQUIRE | ONES INFERRED | contact=ONE_ANCHOR | A_support=BOTH | B_support=BOTH | root=SEPARATE | custody=NEGOTIATING
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                A       B
+               / \     / \
+               o-o     o-o
+             //| |\\ //| |\\
+            o   |   *   |   o
+                |   X   |
+                @       &amp;
+               / \     / \
+              o   o   o   o
+             /     \ /     \
+             o     o o     o
+             =     = =     =
+
+
+[C005-K3] DUAL_SUPPORT_OVERLAP | TWOS INFERRED | contact=TWO_ANCHORS | A_support=BOTH | B_support=BOTH | root=SHARED_PENDING | custody=SHARED_PENDING
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+
+                A      B
+               / \    / \
+              o---o *o---o
+             / \ / \/ \ / \
+            o  \ / oX \ /  o
+               -@-    -&amp;-
+             o-   -oo-   -o
+             |     ||     |
+            |      ||      |
+            o      oo      o
+            =      ==      =
+
+
+[C005-K4] PARTNER_ROOT_REPARENT | ONES INFERRED | contact=LOCKED_CARRY | A_support=BOTH | B_support=NONE | root=A_RELATIONSHIP_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                 A
+                / \\
+                o---o-o  o\
+              //| o/-o*   -o--B
+             o   |/    -&amp;- |//
+                 |o--oX   -o
+                 @       o/
+                / \
+               o   o
+              /     \
+              o     o
+              =     =
+
+
+[C005-K5] LOCKED_PIVOT_A | TWOS INFERRED | contact=LOCKED_CARRY | A_support=BOTH | B_support=NONE | root=A_RELATIONSHIP_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                  A
+                 / \\     o\
+                 o-o-ooo   -o--B
+               //|  /  *-&amp;- |//
+              o   |o--oX   -o
+                  |/   *  o/
+                  @
+                 / \
+                o   o
+               /     \
+               o     o
+               =     =
+
+
+[C005-K6] LOCKED_PIVOT_B | FOURS INFERRED | contact=LOCKED_CARRY | A_support=BOTH | B_support=NONE | root=A_RELATIONSHIP_FRAME | custody=A_CARRIES_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                  A          o\
+                 / \  o--o-   -o--B
+                 o-o--     -&amp;- |//
+                /| |  o-*o-   -o
+               /  |     X    o/
+              o   |     *
+                  @
+                 / \
+                o   o
+               /     \
+               o     o
+               =     =
+
+
+[C005-K7] RELEASE_FORK | ONES INFERRED | contact=RELEASED | A_support=BOTH | B_support=NONE | root=INDEPENDENT_ROOTS | custody=FREE_B
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                  A                 o\
+                 / \         o--o-   -o--B
+                 o-o              -&amp;- |//
+               //| |\\       o--o-   -o
+              o   |   o             o/
+                  |
+                  @
+                 / \
+                o   o
+               /     \
+               o     o
+               =     =
+
+
+[C005-K8] SEPARATE_RECOVERY | FOURS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=SEPARATE | custody=NONE
+
+
+
+
+
+                 A                   B
+                / \                 / \
+                o-o                 o-o
+              //| |\\             //| |\\
+             o   |   o           o   |   o
+                 |                   |
+                 @                   &amp;
+                / \                 / \
+               o   o               o   o
+              /     \             /     \
+              o     o             o     o
+              =     =             =     =
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "f71c7aeaa981b8ae3fe14374c8890499babd1bfc61378573d57d3ad22b8e7f25",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, support_B, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 14688,
+    "media_sha256": "9c6c5b73b063459eeb08ab7aaf4bbac5a832701d99fb73697bf983a0cdd4807b",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA",
+    "semantic_frames_per_loop": 24,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 96
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "causal ordering from approach through acquisition, support handoff, locked pivot, release and recovery",
+      "relationship anchors, shared center of force, leverage, partner lag and custody semantics",
+      "all decisive-key exposure classes and connective geometry"
+    ],
+    "observed": [
+      "entire 71-PNG asset archive inspected across 22 named families",
+      "contact-related files: Grab/00.png 35x51; Throw Grab/00.png 44x40; Throw Ready/00.png and /01.png 36x46; Throw/00.png 48x40",
+      "all five contact-related images are single connected opaque silhouettes at 4-neighbor alpha connectivity",
+      "whole asset also contains idle, walk, climb, ladder, talk and emotional families, providing non-contact baseline"
+    ],
+    "unknown": [
+      "source-authentic playback order and frame durations",
+      "identity/physics of the contacted partner or object beyond source family names",
+      "exact contact points, force magnitude, hit-stop and object/partner flight path"
+    ]
+  },
+  "experiment_id": "v2-contact-005-locked-pivot-before-release",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          16,
+          15
+        ],
+        "hand_l": [
+          9,
+          9
+        ],
+        "hand_r": [
+          17,
+          9
+        ],
+        "head": [
+          13,
+          5
+        ],
+        "knee_l": [
+          11,
+          13
+        ],
+        "knee_r": [
+          15,
+          13
+        ],
+        "pelvis": [
+          13,
+          11
+        ],
+        "shoulder_l": [
+          12,
+          7
+        ],
+        "shoulder_r": [
+          14,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          33,
+          15
+        ],
+        "foot_r": [
+          39,
+          15
+        ],
+        "hand_l": [
+          32,
+          9
+        ],
+        "hand_r": [
+          40,
+          9
+        ],
+        "head": [
+          36,
+          5
+        ],
+        "knee_l": [
+          34,
+          13
+        ],
+        "knee_r": [
+          38,
+          13
+        ],
+        "pelvis": [
+          36,
+          11
+        ],
+        "shoulder_l": [
+          35,
+          7
+        ],
+        "shoulder_r": [
+          37,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent support and readable approach gap",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K0",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "SEPARATE_READY",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          11,
+          9
+        ],
+        "hand_r": [
+          19,
+          9
+        ],
+        "head": [
+          15,
+          5
+        ],
+        "knee_l": [
+          13,
+          13
+        ],
+        "knee_r": [
+          17,
+          13
+        ],
+        "pelvis": [
+          15,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          7
+        ],
+        "shoulder_r": [
+          16,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          25,
+          9
+        ],
+        "hand_r": [
+          33,
+          9
+        ],
+        "head": [
+          29,
+          5
+        ],
+        "knee_l": [
+          27,
+          13
+        ],
+        "knee_r": [
+          31,
+          13
+        ],
+        "pelvis": [
+          29,
+          11
+        ],
+        "shoulder_l": [
+          28,
+          7
+        ],
+        "shoulder_r": [
+          30,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "close distance without granting ownership",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K1",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "APPROACH_PROBE",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          20,
+          9
+        ],
+        "head": [
+          16,
+          5
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          15,
+          7
+        ],
+        "shoulder_r": [
+          17,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          21,
+          15
+        ],
+        "foot_r": [
+          27,
+          15
+        ],
+        "hand_l": [
+          20,
+          9
+        ],
+        "hand_r": [
+          28,
+          9
+        ],
+        "head": [
+          24,
+          5
+        ],
+        "knee_l": [
+          22,
+          13
+        ],
+        "knee_r": [
+          26,
+          13
+        ],
+        "pelvis": [
+          24,
+          11
+        ],
+        "shoulder_l": [
+          23,
+          7
+        ],
+        "shoulder_r": [
+          25,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            20,
+            9
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "first anchor acquires contact while both bodies still own ground support",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "NEGOTIATING",
+      "key_id": "C005-K2",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "CONTACT_ACQUIRE",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "ONE_ANCHOR",
+        "custody": "NEGOTIATING",
+        "shared_center": [
+          20,
+          10
+        ]
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": [
+        20,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          12,
+          10
+        ],
+        "hand_r": [
+          20,
+          10
+        ],
+        "head": [
+          16,
+          6
+        ],
+        "knee_l": [
+          13,
+          12
+        ],
+        "knee_r": [
+          19,
+          12
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          8
+        ],
+        "shoulder_r": [
+          18,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          19,
+          15
+        ],
+        "foot_r": [
+          27,
+          15
+        ],
+        "hand_l": [
+          19,
+          10
+        ],
+        "hand_r": [
+          27,
+          10
+        ],
+        "head": [
+          23,
+          6
+        ],
+        "knee_l": [
+          20,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          23,
+          11
+        ],
+        "shoulder_l": [
+          21,
+          8
+        ],
+        "shoulder_r": [
+          25,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            20,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            20,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "second anchor establishes leverage before support authority transfers",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED_PENDING",
+      "key_id": "C005-K3",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "DUAL_SUPPORT_OVERLAP",
+      "relationship_frame": {
+        "authority": "SHARED_PENDING",
+        "contact": "TWO_ANCHORS",
+        "custody": "SHARED_PENDING",
+        "shared_center": [
+          20,
+          10
+        ]
+      },
+      "root_owner": "SHARED_PENDING",
+      "shared_center": [
+        20,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          17,
+          5
+        ],
+        "knee_l": [
+          15,
+          13
+        ],
+        "knee_r": [
+          19,
+          13
+        ],
+        "pelvis": [
+          17,
+          11
+        ],
+        "shoulder_l": [
+          16,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          18,
+          8
+        ],
+        "foot_r": [
+          18,
+          10
+        ],
+        "hand_l": [
+          25,
+          7
+        ],
+        "hand_r": [
+          25,
+          11
+        ],
+        "head": [
+          30,
+          8
+        ],
+        "knee_l": [
+          21,
+          8
+        ],
+        "knee_r": [
+          21,
+          10
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          27,
+          8
+        ],
+        "shoulder_r": [
+          27,
+          10
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            22,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            22,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "partner ground support ends; relationship frame becomes partner root authority",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K4",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "PARTNER_ROOT_REPARENT",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          22,
+          10
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        22,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          21,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          19,
+          7
+        ],
+        "foot_r": [
+          19,
+          9
+        ],
+        "hand_l": [
+          26,
+          6
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          31,
+          7
+        ],
+        "knee_l": [
+          22,
+          7
+        ],
+        "knee_r": [
+          22,
+          9
+        ],
+        "pelvis": [
+          25,
+          8
+        ],
+        "shoulder_l": [
+          28,
+          7
+        ],
+        "shoulder_r": [
+          28,
+          9
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            23,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "locked custody rotates around shared center; no release yet",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K5",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "LOCKED_PIVOT_A",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          23,
+          9
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        23,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          10
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          22,
+          6
+        ],
+        "foot_r": [
+          22,
+          8
+        ],
+        "hand_l": [
+          29,
+          5
+        ],
+        "hand_r": [
+          29,
+          9
+        ],
+        "head": [
+          34,
+          6
+        ],
+        "knee_l": [
+          25,
+          6
+        ],
+        "knee_r": [
+          25,
+          8
+        ],
+        "pelvis": [
+          28,
+          7
+        ],
+        "shoulder_l": [
+          31,
+          6
+        ],
+        "shoulder_r": [
+          31,
+          8
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            24,
+            8
+          ],
+          "b": "B.shoulder_l",
+          "kind": "RELATIONSHIP"
+        },
+        {
+          "a": "A.shoulder_r",
+          "at": [
+            24,
+            10
+          ],
+          "b": "B.hand_l",
+          "kind": "RELATIONSHIP"
+        }
+      ],
+      "causal_role": "second ready silhouette holds leverage and opposing arcs while custody remains locked",
+      "contact_state": "LOCKED_CARRY",
+      "custody": "A_CARRIES_B",
+      "key_id": "C005-K6",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "LOCKED_PIVOT_B",
+      "relationship_frame": {
+        "authority": "A_RELATIONSHIP_FRAME",
+        "contact": "LOCKED_CARRY",
+        "custody": "A_CARRIES_B",
+        "shared_center": [
+          24,
+          9
+        ]
+      },
+      "root_owner": "A_RELATIONSHIP_FRAME",
+      "shared_center": [
+        24,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          22,
+          9
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          29,
+          6
+        ],
+        "foot_r": [
+          29,
+          8
+        ],
+        "hand_l": [
+          36,
+          5
+        ],
+        "hand_r": [
+          36,
+          9
+        ],
+        "head": [
+          41,
+          6
+        ],
+        "knee_l": [
+          32,
+          6
+        ],
+        "knee_r": [
+          32,
+          8
+        ],
+        "pelvis": [
+          35,
+          7
+        ],
+        "shoulder_l": [
+          38,
+          6
+        ],
+        "shoulder_r": [
+          38,
+          8
+        ]
+      },
+      "anchors": [],
+      "causal_role": "constraint destruction forks partner/object travel from carrier recoil",
+      "contact_state": "RELEASED",
+      "custody": "FREE_B",
+      "key_id": "C005-K7",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "RELEASE_FORK",
+      "relationship_frame": {
+        "authority": "INDEPENDENT_ROOTS",
+        "contact": "RELEASED",
+        "custody": "FREE_B",
+        "shared_center": null
+      },
+      "root_owner": "INDEPENDENT_ROOTS",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          21,
+          9
+        ],
+        "head": [
+          17,
+          5
+        ],
+        "knee_l": [
+          15,
+          13
+        ],
+        "knee_r": [
+          19,
+          13
+        ],
+        "pelvis": [
+          17,
+          11
+        ],
+        "shoulder_l": [
+          16,
+          7
+        ],
+        "shoulder_r": [
+          18,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          34,
+          15
+        ],
+        "foot_r": [
+          40,
+          15
+        ],
+        "hand_l": [
+          33,
+          9
+        ],
+        "hand_r": [
+          41,
+          9
+        ],
+        "head": [
+          37,
+          5
+        ],
+        "knee_l": [
+          35,
+          13
+        ],
+        "knee_r": [
+          39,
+          13
+        ],
+        "pelvis": [
+          37,
+          11
+        ],
+        "shoulder_l": [
+          36,
+          7
+        ],
+        "shoulder_r": [
+          38,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent support is reacquired and both bodies recover readability",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C005-K8",
+      "motion_arc_root_note": "Authored causal state only; geometry may interpolate solely while contact/support/root/custody topology is unchanged.",
+      "name": "SEPARATE_RECOVERY",
+      "relationship_frame": {
+        "authority": "SEPARATE",
+        "contact": "NONE",
+        "custody": "NONE",
+        "shared_center": null
+      },
+      "root_owner": "SEPARATE",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "manifest_receipt": {
+    "manifest_file": "manifest.json",
+    "receipt_file": "receipt.md",
+    "spa_file": "locked-pivot-before-release.motion.html",
+    "status_before_remote_readback": "REPO_CANDIDATE"
+  },
+  "principle": "THROW PREPARATION CAN ROTATE A LOCKED RELATIONSHIP FRAME WITHOUT RELEASING CUSTODY; RELEASE IS A SEPARATE CAUSAL EVENT.",
+  "rig_schema": {
+    "actors": [
+      "A carrier",
+      "B partner_or_object_proxy"
+    ],
+    "relationship_frame_fields": [
+      "contact_state",
+      "support_A",
+      "support_B",
+      "root_owner",
+      "custody",
+      "anchors",
+      "shared_center"
+    ]
+  },
+  "rights": "Copyright-restricted source used only as whole-asset evidence. No source pixels, palette, silhouettes, layout, tracing, redistribution, or close imitation are embedded; Drew work was not used.",
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 566049,
+    "family_count": 22,
+    "format": "ZIP",
+    "game": "Mina the Hollower",
+    "item_count": 71,
+    "name": "Pinky",
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566049/",
+    "platform": "PC / Computer",
+    "raw_bytes": 88774,
+    "raw_sha256": "fb1c69d5b2a31553e24d14191841090e08963e424b1686869ca03909f653244d",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  }
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled only from the abstract rig coordinates, generated ASCII frames, explicit holds, and topology-safe connectors recorded in JSON.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script>
+</body></html>

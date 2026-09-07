@@ -1,0 +1,65 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-005-locked-pivot-before-release",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "locked-pivot-before-release.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media_bytes": 14688,
+  "media_sha256": "9c6c5b73b063459eeb08ab7aaf4bbac5a832701d99fb73697bf983a0cdd4807b",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 9,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 24,
+    "video_frames_total": 96
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "PATH=\"$HOME/bin:$PATH\" python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 566049,
+    "family_count": 22,
+    "format": "ZIP",
+    "item_count": 71,
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566049/",
+    "raw_bytes": 88774,
+    "raw_sha256": "fb1c69d5b2a31553e24d14191841090e08963e424b1686869ca03909f653244d",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "authoritative embedded MP4 data URI in locked-pivot-before-release.motion.html; generated sidecar intentionally untracked",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
