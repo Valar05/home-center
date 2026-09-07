@@ -1,0 +1,196 @@
+[D001-K0] READY | FOURS INFERRED | support=BOTH | contact=NONE | root=OWNED
+
+
+
+
+                       O
+                      / \
+                      / \
+                     o---o
+                    / \ / \\
+                    / \ /   \o
+                   o   \
+                       @
+                      / \
+                     /   \
+                    o     o
+                   /       \
+                   /        \
+                  o          o
+                  =          =
+
+
+[D001-K1] BRACE | FOURS INFERRED | support=BOTH | contact=NONE | root=OWNED
+
+
+
+
+
+                      O
+                     / \
+                     / \
+                    o---o----o    <<<<<<<<<
+                    |\ /
+                    o\ /
+                      \
+                      @
+                     / \
+                    /   \
+                   o     o
+                  /       \\
+                 o          \o
+                 =           =
+
+
+[D001-K2] GUARD_CONTACT | ONES INFERRED | support=BOTH | contact=GUARD_CONTACT | root=OWNED
+
+
+
+
+
+                     O
+                    / \
+                    / \
+                   o---o-----!    <<<<<<<<<
+                   |\ /
+                    | /
+                    o\
+                     @
+                    / \
+                   /   \
+                  o     o
+                 /       \\
+                o          \o
+                =           =
+
+
+[D001-K3] COMPRESSION_HOLD | TWOS INFERRED | support=BOTH | contact=GUARD_CONTACT | root=OWNED
+
+
+
+
+
+
+                    O
+                   / \
+                   / \            <<<<<<<<<
+                  o---o-----!
+                  |\ /
+                   | /
+                   o\
+                    @
+                  // \\
+                 o     o
+                /       \\
+               o          \o
+               =           =
+
+
+[D001-K4] SUPPORT_BREAK | ONES INFERRED | support=REAR_ONLY | contact=RELEASED | root=YIELDING
+
+
+
+
+
+
+                  O
+                 / \
+                 / \
+                o---o--
+                |\ /   --o
+               | \ /
+               o  \
+                  @-
+                //  --o
+               o       \\
+              /          o
+              o
+              =
+
+
+[D001-K5] STAGGER_TRAVEL | TWOS INFERRED | support=NONE | contact=NONE | root=YIELDING
+
+
+
+
+
+                O
+               / \
+               / \
+              o---o
+            // \ / \
+           o   \ /  \\
+                \     o
+                @
+              // \\
+             o     \o
+            /        \\
+           o           o
+
+
+
+
+[D001-K6] RECOVERY_PLANT | ONES INFERRED | support=FRONT_ONLY | contact=NONE | root=REACQUIRING
+
+
+
+
+
+
+                 O
+                / \
+                / \
+               o---o-
+              / \ /  -o
+             o  \ /
+                 \
+                 @-
+               //  --o
+              o       \
+             /         \
+            o           o
+                        =
+
+
+[D001-K7] RESTACK | TWOS INFERRED | support=BOTH | contact=NONE | root=OWNED
+
+
+
+
+
+                   O
+                  / \
+                  / \
+                 o---o-
+                / \ /  --o
+               o  \ /
+                   \
+                   @
+                  / \
+                 /   \
+                o     o
+               /       \\
+              o          \o
+              =           =
+
+
+[D001-K8] READY_REENTRY | FOURS INFERRED | support=BOTH | contact=NONE | root=OWNED
+
+
+
+
+                    O
+                   / \
+                   / \
+                  o---o
+                 / \ / \\
+                 / \ /   \o
+                o   \
+                    @
+                   / \
+                  /   \
+                 o     o
+                /       \
+                /        \\
+               o           o
+               =           =
