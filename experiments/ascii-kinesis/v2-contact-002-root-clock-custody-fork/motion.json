@@ -1,0 +1,710 @@
+{
+  "ascii_sheet_sha256": "32ac796e36514af6da9a0b7e67f522651f6eed1dda42c0d4cfa552f4eced1bbe",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate actor/object coordinates only when contact_state, support_A, root_owner, custody, and object.state are unchanged across adjacent decisive keys; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 12851,
+    "media_sha256": "296107c3558a7bc9d9148fb767a7f2ab083138a0603dbe968adaca5f846f4e59",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow monochrome render of generated ASCII frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 26,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 104
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "INFERRED": [
+      "Generic hand-object anchor location and all abstract ASCII rig geometry.",
+      "Custody state machine NONE -> A_HAND -> FREE -> OUTSIDE.",
+      "Projectile arc magnitude and carrier recoil amount.",
+      "All ONES/TWOS/FOURS assignments under STREET_FIGHTER/CAPCOM timing policy.",
+      "Motion Dungeon connective frames between decisive keys when relationship topology is unchanged."
+    ],
+    "OBSERVED": [
+      "The complete 584x468 sheet contains Mario and Luigi in small/big movement families plus fireball-handling variants and separate fireball/effect frames.",
+      "The sheet includes locomotion/jump/swim context around the fireball handling, so the carrier root/support performance and object event coexist on the same whole-sheet evidence surface.",
+      "The sheet includes explanatory annotation about throwing during movement states, supporting the distinction between carrier locomotion state and localized throw/object relation.",
+      "The TSR asset page reports Animated GIFs (0), so source-authentic exposure durations are not established.",
+      "Exact source bytes were freshly fetched through Home Center primary-phone and every raster cell participated in a 12x12 occupancy scan before extraction."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame exposure, fireball velocity, hit-stop, force magnitude, exact hand-object distance, and gameplay collision timing."
+    ]
+  },
+  "experiment_id": "v2-contact-002-root-clock-custody-fork",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          8,
+          16
+        ],
+        "foot_r": [
+          16,
+          16
+        ],
+        "hand_l": [
+          8,
+          9
+        ],
+        "hand_r": [
+          16,
+          9
+        ],
+        "head": [
+          12,
+          4
+        ],
+        "knee_l": [
+          10,
+          13
+        ],
+        "knee_r": [
+          14,
+          13
+        ],
+        "pelvis": [
+          12,
+          10
+        ],
+        "shoulder_l": [
+          10,
+          6
+        ],
+        "shoulder_r": [
+          14,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "establish carrier root/support clock before object relation",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C002-K0",
+      "motion_arc_root_note": "Carrier root travels right on a locomotion clock; no object/contact authority exists.",
+      "name": "TRAVEL_BASE",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "NONE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          10,
+          16
+        ],
+        "foot_r": [
+          18,
+          16
+        ],
+        "hand_l": [
+          10,
+          9
+        ],
+        "hand_r": [
+          19,
+          8
+        ],
+        "head": [
+          14,
+          4
+        ],
+        "knee_l": [
+          12,
+          13
+        ],
+        "knee_r": [
+          16,
+          13
+        ],
+        "pelvis": [
+          14,
+          10
+        ],
+        "shoulder_l": [
+          12,
+          6
+        ],
+        "shoulder_r": [
+          16,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "prepare hand path without interrupting root/support travel",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C002-K1",
+      "motion_arc_root_note": "Root continues right; throwing side leads while foot exchange remains locomotor.",
+      "name": "UPPER_BODY_PREP",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "NONE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          16
+        ],
+        "foot_r": [
+          20,
+          16
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          16,
+          4
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          10
+        ],
+        "shoulder_l": [
+          14,
+          6
+        ],
+        "shoulder_r": [
+          18,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "OBJECT"
+        }
+      ],
+      "causal_role": "acquire a local hand-object constraint before release",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "key_id": "C002-K2",
+      "motion_arc_root_note": "Object authority is local to A.hand_r; root authority remains A_LOCAL.",
+      "name": "HAND_OBJECT_ANCHOR",
+      "object": {
+        "glyph": "*",
+        "position": [
+          22,
+          7
+        ],
+        "state": "ANCHORED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          16
+        ],
+        "foot_r": [
+          22,
+          16
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          18,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          10
+        ],
+        "shoulder_l": [
+          16,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "destroy hand constraint and transfer object to independent travel",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K3",
+      "motion_arc_root_note": "Custody changes A_HAND -> FREE at a hard causal join; carrier root does not pause.",
+      "name": "RELEASE_JOIN",
+      "object": {
+        "glyph": "*",
+        "position": [
+          25,
+          7
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          16
+        ],
+        "foot_r": [
+          24,
+          16
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          24,
+          9
+        ],
+        "head": [
+          20,
+          4
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          22,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "make independent object path readable while carrier root keeps advancing",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K4",
+      "motion_arc_root_note": "Object gains horizontal lead and slight rise; carrier root keeps its prior direction.",
+      "name": "FREE_SEPARATION",
+      "object": {
+        "glyph": "*",
+        "position": [
+          31,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          16
+        ],
+        "foot_r": [
+          26,
+          16
+        ],
+        "hand_l": [
+          17,
+          9
+        ],
+        "hand_r": [
+          24,
+          10
+        ],
+        "head": [
+          22,
+          4
+        ],
+        "knee_l": [
+          20,
+          13
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "pelvis": [
+          22,
+          10
+        ],
+        "shoulder_l": [
+          19,
+          6
+        ],
+        "shoulder_r": [
+          23,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "show upper-body recoil lag without surrendering root/support continuity",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K5",
+      "motion_arc_root_note": "Shoulders/throwing hand trail the root while free object advances on its own clock.",
+      "name": "CARRIER_RECOIL_LAG",
+      "object": {
+        "glyph": "*",
+        "position": [
+          37,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          21,
+          16
+        ],
+        "foot_r": [
+          29,
+          16
+        ],
+        "hand_l": [
+          21,
+          9
+        ],
+        "hand_r": [
+          29,
+          9
+        ],
+        "head": [
+          25,
+          4
+        ],
+        "knee_l": [
+          23,
+          13
+        ],
+        "knee_r": [
+          27,
+          13
+        ],
+        "pelvis": [
+          25,
+          10
+        ],
+        "shoulder_l": [
+          23,
+          6
+        ],
+        "shoulder_r": [
+          27,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "separate object travel from carrier recovery timing",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K6",
+      "motion_arc_root_note": "Free object leads; carrier root keeps moving and upper body restacks.",
+      "name": "OBJECT_LEADS_ROOT",
+      "object": {
+        "glyph": "*",
+        "position": [
+          43,
+          7
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          24,
+          16
+        ],
+        "foot_r": [
+          32,
+          16
+        ],
+        "hand_l": [
+          24,
+          9
+        ],
+        "hand_r": [
+          32,
+          9
+        ],
+        "head": [
+          28,
+          4
+        ],
+        "knee_l": [
+          26,
+          13
+        ],
+        "knee_r": [
+          30,
+          13
+        ],
+        "pelvis": [
+          28,
+          10
+        ],
+        "shoulder_l": [
+          26,
+          6
+        ],
+        "shoulder_r": [
+          30,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "remove object from local relationship while locomotion remains authored",
+      "contact_state": "NONE",
+      "custody": "OUTSIDE",
+      "key_id": "C002-K7",
+      "motion_arc_root_note": "Object exits local frame; root/support clock continues with no reverse custody.",
+      "name": "OBJECT_EXIT_RECOVERY",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "EXITED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          27,
+          16
+        ],
+        "foot_r": [
+          35,
+          16
+        ],
+        "hand_l": [
+          27,
+          9
+        ],
+        "hand_r": [
+          35,
+          9
+        ],
+        "head": [
+          31,
+          4
+        ],
+        "knee_l": [
+          29,
+          13
+        ],
+        "knee_r": [
+          33,
+          13
+        ],
+        "pelvis": [
+          31,
+          10
+        ],
+        "shoulder_l": [
+          29,
+          6
+        ],
+        "shoulder_r": [
+          33,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "return to ordinary travel after object relation ends",
+      "contact_state": "NONE",
+      "custody": "OUTSIDE",
+      "key_id": "C002-K8",
+      "motion_arc_root_note": "Carrier is fully back on locomotion clock; no contact/custody relationship remains.",
+      "name": "TRAVEL_RESTORED",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "EXITED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "minimal_maximal_principle": "OBJECT RELEASE IS ORTHOGONAL TO ROOT MOTION: custody can transfer from hand to free object while the carrier support/root clock continues.",
+  "principles": {
+    "anchors": "Hand anchor changes object custody; feet continue locomotor support independently.",
+    "approach": "Carrier root is already in readable travel before the object event.",
+    "causal_order": "TRAVEL -> PREP -> HAND_OBJECT_ANCHOR -> RELEASE -> FREE_SEPARATION -> RECOIL_LAG -> OBJECT_LEADS -> OBJECT_EXIT -> TRAVEL_RESTORED",
+    "contact_acquisition": "A short-lived hand-object anchor is authored as the local custody join.",
+    "lag": "After release, carrier recovery lags behind the faster free object clock.",
+    "leverage": "Not established; no external leverage claim is made.",
+    "opposing_arcs": "Carrier root stays mostly lateral while free object takes its own forward/rising arc.",
+    "recoil": "Upper body may recoil/lag while root/support continues.",
+    "recovery": "Carrier restacks into travel after the object relation exits.",
+    "release": "Release destroys the hand-object constraint without stealing root authority.",
+    "shared_center_force": "Not established by this source; shared_center remains null rather than invented.",
+    "transfer": "Custody transfers A_HAND -> FREE at one decisive causal join."
+  },
+  "rig_schema": {
+    "actor": "A generic biped with head, shoulders, hands, pelvis/root, knees, feet.",
+    "object": "Generic point marker * with state NONE|ANCHORED|FREE|EXITED.",
+    "relationship_frame": {
+      "contact_anchor": "A.hand_r <-> OBJECT only while contact_state=HAND_OBJECT",
+      "custody_authority": "NONE|A_HAND|FREE|OUTSIDE",
+      "root_authority": "A_LOCAL throughout",
+      "shared_center": "null; unsupported by evidence"
+    }
+  },
+  "rights": {
+    "drew_work_used": false,
+    "forbidden": [
+      "source pixels",
+      "palette",
+      "costume/facial detail",
+      "exact silhouettes",
+      "sheet layout",
+      "tracing",
+      "redistribution",
+      "close imitation"
+    ],
+    "source_art_embedded": false,
+    "source_status": "copyright-restricted commercial-game sprite sheet",
+    "use": "whole-sheet evidence only"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "animated_gifs_reported": 0,
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2 / The Lost Levels (JPN)",
+    "media_url_observed": "https://www.spriters-resource.com/media/assets/49/52578.png?updated=1755473034",
+    "name": "Mario & Luigi",
+    "page_url": "https://www.spriters-resource.com/nes/supermariobros2thelostlevelsjpn/asset/52578/",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "timing_policy": {
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds",
+    "source_authentic_timing_claimed": false,
+    "vocabulary": "PoseLab V1 / STREET_FIGHTER-CAPCOM"
+  },
+  "title": "Root Clock / Custody Fork"
+}

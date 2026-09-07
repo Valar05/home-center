@@ -1,0 +1,67 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-002-root-clock-custody-fork",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "root-clock-custody-fork.motion.html",
+    "root-clock-custody-fork.mp4"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media_bytes": 12851,
+  "media_sha256": "296107c3558a7bc9d9148fb767a7f2ab083138a0603dbe968adaca5f846f4e59",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 9,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 26,
+    "video_frames_total": 104
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 52578,
+    "page_url": "https://www.spriters-resource.com/nes/supermariobros2thelostlevelsjpn/asset/52578/",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in root-clock-custody-fork.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Contact 002 — Root Clock / Custody Fork</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}
+body{margin:0;padding:1rem;max-width:1100px}
+nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}
+button[data-view]{font:inherit;padding:.55rem .9rem}
+section[hidden]{display:none}
+pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}
+video{max-width:100%;height:auto;border:1px solid #555}
+.note{max-width:76ch;line-height:1.45}
+</style></head><body>
+<h1>Root Clock / Custody Fork</h1>
+<p class="note">Copyright-safe abstract carrier + object rig. Source art is evidence only and is not embedded. Transferable rule: an object custody change can occur without handing authority over the carrier root/support clock to the object event.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[C002-K0] TRAVEL_BASE | FOURS INFERRED | contact=NONE | custody=NONE | object=NONE | support=ALTERNATING:LEFT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+            A
+           / \
+          o---o
+         / \ / \
+         / \ / \
+        o   \   o
+            @
+           / \
+           / \
+          o   o
+         /     \
+         /     \
+        o       o
+        =
+
+
+[C002-K1] UPPER_BODY_PREP | TWOS INFERRED | contact=NONE | custody=NONE | object=NONE | support=ALTERNATING:RIGHT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+              A
+             / \
+            o---o
+           / \ / \\
+           / \ /   o
+          o   \
+              @
+             / \
+             / \
+            o   o
+           /     \
+           /     \
+          o       o
+                  =
+
+
+[C002-K2] HAND_OBJECT_ANCHOR | ONES INFERRED | contact=HAND_OBJECT | custody=A_HAND | object=ANCHORED | support=ALTERNATING:LEFT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                A
+               / \
+              o---o-
+             / \ /  --x
+             / \ /
+            o   \
+                @
+               / \
+               / \
+              o   o
+             /     \
+             /     \
+            o       o
+            =
+
+
+[C002-K3] RELEASE_JOIN | ONES INFERRED | contact=NONE | custody=FREE | object=FREE | support=ALTERNATING:RIGHT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                      ...
+
+                  A
+                 / \
+                o---o
+               / \ / \\  *
+               / \ /   \o
+              o   \
+                  @
+                 / \
+                 / \
+                o   o
+               /     \
+               /     \
+              o       o
+                      =
+
+
+[C002-K4] FREE_SEPARATION | ONES INFERRED | contact=NONE | custody=FREE | object=FREE | support=ALTERNATING:LEFT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                            ...
+
+                    A
+                   / \
+                  o---o        *
+                 / \ / \
+                 / \ / \
+                o   \   o
+                    @
+                   / \
+                   / \
+                  o   o
+                 /     \
+                 /     \
+                o       o
+                =
+
+
+[C002-K5] CARRIER_RECOIL_LAG | TWOS INFERRED | contact=NONE | custody=FREE | object=FREE | support=ALTERNATING:RIGHT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                                  ...
+
+                      A
+                    // \
+                   o---o             *
+                  / \  |
+                  /  \| |
+                 o   \| |
+                      @ o
+                     / \
+                     / \
+                    o   o
+                   /     \
+                   /     \
+                  o       o
+                          =
+
+
+[C002-K6] OBJECT_LEADS_ROOT | TWOS INFERRED | contact=NONE | custody=FREE | object=FREE | support=ALTERNATING:LEFT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+                                        ...
+
+                         A
+                        / \
+                       o---o
+                      / \ / \              *
+                      / \ / \
+                     o   \   o
+                         @
+                        / \
+                        / \
+                       o   o
+                      /     \
+                      /     \
+                     o       o
+                     =
+
+
+[C002-K7] OBJECT_EXIT_RECOVERY | FOURS INFERRED | contact=NONE | custody=OUTSIDE | object=EXITED | support=ALTERNATING:RIGHT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                            A
+                           / \
+                          o---o
+                         / \ / \
+                         / \ / \
+                        o   \   o
+                            @
+                           / \
+                           / \
+                          o   o
+                         /     \
+                         /     \
+                        o       o
+                                =
+
+
+[C002-K8] TRAVEL_RESTORED | FOURS INFERRED | contact=NONE | custody=OUTSIDE | object=EXITED | support=ALTERNATING:LEFT | root=A_LOCAL
+
+  &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                               A
+                              / \
+                             o---o
+                            / \ / \
+                            / \ / \
+                           o   \   o
+                               @
+                              / \
+                              / \
+                             o   o
+                            /     \
+                            /     \
+                           o       o
+                           =
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "32ac796e36514af6da9a0b7e67f522651f6eed1dda42c0d4cfa552f4eced1bbe",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate actor/object coordinates only when contact_state, support_A, root_owner, custody, and object.state are unchanged across adjacent decisive keys; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 12851,
+    "media_sha256": "296107c3558a7bc9d9148fb767a7f2ab083138a0603dbe968adaca5f846f4e59",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA",
+    "renderer": "Python/Pillow monochrome render of generated ASCII frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 26,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 104
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "INFERRED": [
+      "Generic hand-object anchor location and all abstract ASCII rig geometry.",
+      "Custody state machine NONE -&gt; A_HAND -&gt; FREE -&gt; OUTSIDE.",
+      "Projectile arc magnitude and carrier recoil amount.",
+      "All ONES/TWOS/FOURS assignments under STREET_FIGHTER/CAPCOM timing policy.",
+      "Motion Dungeon connective frames between decisive keys when relationship topology is unchanged."
+    ],
+    "OBSERVED": [
+      "The complete 584x468 sheet contains Mario and Luigi in small/big movement families plus fireball-handling variants and separate fireball/effect frames.",
+      "The sheet includes locomotion/jump/swim context around the fireball handling, so the carrier root/support performance and object event coexist on the same whole-sheet evidence surface.",
+      "The sheet includes explanatory annotation about throwing during movement states, supporting the distinction between carrier locomotion state and localized throw/object relation.",
+      "The TSR asset page reports Animated GIFs (0), so source-authentic exposure durations are not established.",
+      "Exact source bytes were freshly fetched through Home Center primary-phone and every raster cell participated in a 12x12 occupancy scan before extraction."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame exposure, fireball velocity, hit-stop, force magnitude, exact hand-object distance, and gameplay collision timing."
+    ]
+  },
+  "experiment_id": "v2-contact-002-root-clock-custody-fork",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          8,
+          16
+        ],
+        "foot_r": [
+          16,
+          16
+        ],
+        "hand_l": [
+          8,
+          9
+        ],
+        "hand_r": [
+          16,
+          9
+        ],
+        "head": [
+          12,
+          4
+        ],
+        "knee_l": [
+          10,
+          13
+        ],
+        "knee_r": [
+          14,
+          13
+        ],
+        "pelvis": [
+          12,
+          10
+        ],
+        "shoulder_l": [
+          10,
+          6
+        ],
+        "shoulder_r": [
+          14,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "establish carrier root/support clock before object relation",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C002-K0",
+      "motion_arc_root_note": "Carrier root travels right on a locomotion clock; no object/contact authority exists.",
+      "name": "TRAVEL_BASE",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "NONE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          10,
+          16
+        ],
+        "foot_r": [
+          18,
+          16
+        ],
+        "hand_l": [
+          10,
+          9
+        ],
+        "hand_r": [
+          19,
+          8
+        ],
+        "head": [
+          14,
+          4
+        ],
+        "knee_l": [
+          12,
+          13
+        ],
+        "knee_r": [
+          16,
+          13
+        ],
+        "pelvis": [
+          14,
+          10
+        ],
+        "shoulder_l": [
+          12,
+          6
+        ],
+        "shoulder_r": [
+          16,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "prepare hand path without interrupting root/support travel",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C002-K1",
+      "motion_arc_root_note": "Root continues right; throwing side leads while foot exchange remains locomotor.",
+      "name": "UPPER_BODY_PREP",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "NONE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          16
+        ],
+        "foot_r": [
+          20,
+          16
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          16,
+          4
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          10
+        ],
+        "shoulder_l": [
+          14,
+          6
+        ],
+        "shoulder_r": [
+          18,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            22,
+            7
+          ],
+          "b": "OBJECT"
+        }
+      ],
+      "causal_role": "acquire a local hand-object constraint before release",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "key_id": "C002-K2",
+      "motion_arc_root_note": "Object authority is local to A.hand_r; root authority remains A_LOCAL.",
+      "name": "HAND_OBJECT_ANCHOR",
+      "object": {
+        "glyph": "*",
+        "position": [
+          22,
+          7
+        ],
+        "state": "ANCHORED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          14,
+          16
+        ],
+        "foot_r": [
+          22,
+          16
+        ],
+        "hand_l": [
+          14,
+          9
+        ],
+        "hand_r": [
+          24,
+          8
+        ],
+        "head": [
+          18,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          10
+        ],
+        "shoulder_l": [
+          16,
+          6
+        ],
+        "shoulder_r": [
+          20,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "destroy hand constraint and transfer object to independent travel",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K3",
+      "motion_arc_root_note": "Custody changes A_HAND -&gt; FREE at a hard causal join; carrier root does not pause.",
+      "name": "RELEASE_JOIN",
+      "object": {
+        "glyph": "*",
+        "position": [
+          25,
+          7
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          16
+        ],
+        "foot_r": [
+          24,
+          16
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          24,
+          9
+        ],
+        "head": [
+          20,
+          4
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          22,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "make independent object path readable while carrier root keeps advancing",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K4",
+      "motion_arc_root_note": "Object gains horizontal lead and slight rise; carrier root keeps its prior direction.",
+      "name": "FREE_SEPARATION",
+      "object": {
+        "glyph": "*",
+        "position": [
+          31,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          16
+        ],
+        "foot_r": [
+          26,
+          16
+        ],
+        "hand_l": [
+          17,
+          9
+        ],
+        "hand_r": [
+          24,
+          10
+        ],
+        "head": [
+          22,
+          4
+        ],
+        "knee_l": [
+          20,
+          13
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "pelvis": [
+          22,
+          10
+        ],
+        "shoulder_l": [
+          19,
+          6
+        ],
+        "shoulder_r": [
+          23,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "show upper-body recoil lag without surrendering root/support continuity",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K5",
+      "motion_arc_root_note": "Shoulders/throwing hand trail the root while free object advances on its own clock.",
+      "name": "CARRIER_RECOIL_LAG",
+      "object": {
+        "glyph": "*",
+        "position": [
+          37,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          21,
+          16
+        ],
+        "foot_r": [
+          29,
+          16
+        ],
+        "hand_l": [
+          21,
+          9
+        ],
+        "hand_r": [
+          29,
+          9
+        ],
+        "head": [
+          25,
+          4
+        ],
+        "knee_l": [
+          23,
+          13
+        ],
+        "knee_r": [
+          27,
+          13
+        ],
+        "pelvis": [
+          25,
+          10
+        ],
+        "shoulder_l": [
+          23,
+          6
+        ],
+        "shoulder_r": [
+          27,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "separate object travel from carrier recovery timing",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C002-K6",
+      "motion_arc_root_note": "Free object leads; carrier root keeps moving and upper body restacks.",
+      "name": "OBJECT_LEADS_ROOT",
+      "object": {
+        "glyph": "*",
+        "position": [
+          43,
+          7
+        ],
+        "state": "FREE"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          24,
+          16
+        ],
+        "foot_r": [
+          32,
+          16
+        ],
+        "hand_l": [
+          24,
+          9
+        ],
+        "hand_r": [
+          32,
+          9
+        ],
+        "head": [
+          28,
+          4
+        ],
+        "knee_l": [
+          26,
+          13
+        ],
+        "knee_r": [
+          30,
+          13
+        ],
+        "pelvis": [
+          28,
+          10
+        ],
+        "shoulder_l": [
+          26,
+          6
+        ],
+        "shoulder_r": [
+          30,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "remove object from local relationship while locomotion remains authored",
+      "contact_state": "NONE",
+      "custody": "OUTSIDE",
+      "key_id": "C002-K7",
+      "motion_arc_root_note": "Object exits local frame; root/support clock continues with no reverse custody.",
+      "name": "OBJECT_EXIT_RECOVERY",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "EXITED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "RIGHT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          27,
+          16
+        ],
+        "foot_r": [
+          35,
+          16
+        ],
+        "hand_l": [
+          27,
+          9
+        ],
+        "hand_r": [
+          35,
+          9
+        ],
+        "head": [
+          31,
+          4
+        ],
+        "knee_l": [
+          29,
+          13
+        ],
+        "knee_r": [
+          33,
+          13
+        ],
+        "pelvis": [
+          31,
+          10
+        ],
+        "shoulder_l": [
+          29,
+          6
+        ],
+        "shoulder_r": [
+          33,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "return to ordinary travel after object relation ends",
+      "contact_state": "NONE",
+      "custody": "OUTSIDE",
+      "key_id": "C002-K8",
+      "motion_arc_root_note": "Carrier is fully back on locomotion clock; no contact/custody relationship remains.",
+      "name": "TRAVEL_RESTORED",
+      "object": {
+        "glyph": "*",
+        "position": null,
+        "state": "EXITED"
+      },
+      "root_owner": "A_LOCAL",
+      "shared_center": null,
+      "support_A": "ALTERNATING",
+      "support_foot": "LEFT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "minimal_maximal_principle": "OBJECT RELEASE IS ORTHOGONAL TO ROOT MOTION: custody can transfer from hand to free object while the carrier support/root clock continues.",
+  "principles": {
+    "anchors": "Hand anchor changes object custody; feet continue locomotor support independently.",
+    "approach": "Carrier root is already in readable travel before the object event.",
+    "causal_order": "TRAVEL -&gt; PREP -&gt; HAND_OBJECT_ANCHOR -&gt; RELEASE -&gt; FREE_SEPARATION -&gt; RECOIL_LAG -&gt; OBJECT_LEADS -&gt; OBJECT_EXIT -&gt; TRAVEL_RESTORED",
+    "contact_acquisition": "A short-lived hand-object anchor is authored as the local custody join.",
+    "lag": "After release, carrier recovery lags behind the faster free object clock.",
+    "leverage": "Not established; no external leverage claim is made.",
+    "opposing_arcs": "Carrier root stays mostly lateral while free object takes its own forward/rising arc.",
+    "recoil": "Upper body may recoil/lag while root/support continues.",
+    "recovery": "Carrier restacks into travel after the object relation exits.",
+    "release": "Release destroys the hand-object constraint without stealing root authority.",
+    "shared_center_force": "Not established by this source; shared_center remains null rather than invented.",
+    "transfer": "Custody transfers A_HAND -&gt; FREE at one decisive causal join."
+  },
+  "rig_schema": {
+    "actor": "A generic biped with head, shoulders, hands, pelvis/root, knees, feet.",
+    "object": "Generic point marker * with state NONE|ANCHORED|FREE|EXITED.",
+    "relationship_frame": {
+      "contact_anchor": "A.hand_r &lt;-&gt; OBJECT only while contact_state=HAND_OBJECT",
+      "custody_authority": "NONE|A_HAND|FREE|OUTSIDE",
+      "root_authority": "A_LOCAL throughout",
+      "shared_center": "null; unsupported by evidence"
+    }
+  },
+  "rights": {
+    "drew_work_used": false,
+    "forbidden": [
+      "source pixels",
+      "palette",
+      "costume/facial detail",
+      "exact silhouettes",
+      "sheet layout",
+      "tracing",
+      "redistribution",
+      "close imitation"
+    ],
+    "source_art_embedded": false,
+    "source_status": "copyright-restricted commercial-game sprite sheet",
+    "use": "whole-sheet evidence only"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "animated_gifs_reported": 0,
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2 / The Lost Levels (JPN)",
+    "media_url_observed": "https://www.spriters-resource.com/media/assets/49/52578.png?updated=1755473034",
+    "name": "Mario &amp; Luigi",
+    "page_url": "https://www.spriters-resource.com/nes/supermariobros2thelostlevelsjpn/asset/52578/",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "timing_policy": {
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds",
+    "source_authentic_timing_claimed": false,
+    "vocabulary": "PoseLab V1 / STREET_FIGHTER-CAPCOM"
+  },
+  "title": "Root Clock / Custody Fork"
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled only from abstract rig coordinates, generated ASCII frames, explicit holds, and topology-safe connectors recorded in JSON.</p></section>
+<script>
+const tabs=[...document.querySelectorAll('button[data-view]')];
+const panels=[...document.querySelectorAll('section[role=tabpanel]')];
+for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});
+</script></body></html>
