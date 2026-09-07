@@ -14,7 +14,7 @@ The commissioned delivery surface is an actual openable artifact, normally a sel
 
 A complete motion experiment includes:
 
-1. an openable self-contained `.motion.html`;
+1. an openable self-contained `.motion.html` delivered to the user;
 2. raw selectable ASCII contact sheet;
 3. raw structured JSON motion/experiment data;
 4. UAPL/UAT source when applicable;
@@ -23,6 +23,8 @@ A complete motion experiment includes:
 7. repository persistence under the ASCII Kinesis anthology.
 
 The SPA is what the human opens. The raw ASCII/JSON/UAPL are what future machines and humans can inspect. The media is compiled presentation.
+
+The repository does **not** have to track a second giant copy of an embedded-media HTML envelope when it already tracks the raw source, structured data, compiled media, manifest, and a deterministic builder that regenerates the exact delivery class. Repository reconstruction proof and user attachment delivery are separate acceptance surfaces.
 
 ## Anthology rule
 
@@ -44,6 +46,7 @@ ASCII Kinesis may evolve its envelope and structured data, but it is always back
 - Prefer additive fields/views/media support over destructive schema replacement.
 - Never require network access to open an already-complete self-contained experiment SPA.
 - Never rewrite an old entry merely to satisfy the newest format.
+- Previously delivered artifacts remain valid even when a newer repository version changes how equivalent envelopes are reconstructed.
 
 ## Source-before-presentation law
 
@@ -69,12 +72,12 @@ Do not stop after source generation or a pasted code sample.
 DONE for an ASCII Kinesis experiment requires:
 
 - the requested artifact exists as a user-openable attachment;
-- raw ASCII contact sheet exists;
+- raw ASCII contact sheet exists in the delivery artifact and/or reproducible derivative;
 - raw structured data exists;
 - assembled media exists;
-- the experiment exists in the persistent repository anthology;
+- the experiment reconstruction source and provenance exist in the persistent repository anthology;
 - the skill/format compatibility rules remain intact;
-- repository readback proves the exact entry/skill files exist;
+- repository readback proves the exact durable entry/skill files exist;
 - human acceptance remains distinct from machine completion.
 
 Local scratch is useful for construction only and is never completion proof.
