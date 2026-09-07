@@ -142,14 +142,21 @@ Do not set a signal merely because it would justify the desired result. Separate
 
 The engine emits `auditId`, `inputSha256`, score contributions, outcome, action policy, required guardrail IDs, blocked features, appeal rule, mode-exit rule, and ledger status.
 
-## Hunger, thirst, sleep, and hyperbole
+## Hunger, thirst, sleep, and hyperbole — evidence asymmetry
 
-Body neglect matters because it can worsen judgment and because an interface that keeps consuming attention while the user is hungry, thirsty, or exhausted is not accessible.
+The governing principle is:
 
-- Food or water neglect creates a body-needs guard.
-- Sleep loss carries greater weight.
-- Hyperbolic language scores zero by itself.
-- Hyperbole contributes only when at least two independent activation signals already exist.
+**Feed the body. Ignore the typography. Judge the action. Preserve the thought.**
+
+The full evidence and antagonism live in `docs/THESIS_HUNGER_THIRST_HYPERBOLE.md`. Executable doctrine stays deliberately smaller:
+
+- **BODY BEFORE BIOGRAPHY.** Food or water neglect creates `BODY_NEEDS_CHECK_REQUIRED`, but hunger and thirst contribute zero numeric risk points and are never evidence of mania or incapacity.
+- When body needs are active and no stronger outcome applies, low-impact work remains available as `ALLOW_WITH_FRICTION`.
+- When body needs are active for a high-impact or irreversible request and no stronger outcome applies, use `PAUSE_FOR_GUARDS` until the body-needs check is satisfied. Do not silently add human-contact, diagnosis, or punishment merely because the body guard fired.
+- Body-care friction may interrupt execution but may not erase the task, argument, creative thread, or accessibility state. Preserve continuity and re-enter after the need is handled; use Offline Continuity / AI Geronimo when available.
+- Sleep loss is a separate evidence class with a stronger empirical basis and may carry greater weight.
+- **STYLE IS NOT TELEMETRY.** Hyperbolic language contributes zero risk points under all circumstances and may not change score, outcome, or action policy. Profanity, metaphor, theatrical phrasing, creative intensity, and baseline rhetorical style do not get a hidden safety tax.
+- Independent behavioral, temporal, relational, substance, medication, sleep, reality-based, impact, and reversibility evidence governs the actual safety decision.
 - Never use “you sound manic” as a shortcut for the structured audit.
 
 ## Human-world invariant
@@ -269,19 +276,20 @@ Repository implementation is accepted only when:
 
 1. the canonical skill and research/audit references exist;
 2. the deterministic audit contract passes;
-3. hyperbole alone remains `GREEN`;
-4. Venice and user–AI romantic/exclusive framing are hard-blocked;
-5. high-impact action under material activation risk cannot actuate;
-6. appeals never create refusal receipts;
-7. accepted guards never create refusal receipts;
-8. only explicit refusal of a required and presented guardrail generates the minimal Armory Range payload;
-9. private conversation bodies are rejected;
-10. the safe Fortress/Codex boot excludes Venice skills;
-11. root Codex steering carries the safety precedence;
-12. the ChatGPT skill package is regenerated and stored on a persistent user-accessible surface.
+3. hyperbole never changes score, outcome, or action policy;
+4. food/water neglect contributes zero numeric risk points while still producing body-needs friction or a high-impact body-needs pause;
+5. Venice and user–AI romantic/exclusive framing are hard-blocked;
+6. high-impact action under material activation risk cannot actuate;
+7. appeals never create refusal receipts;
+8. accepted guards never create refusal receipts;
+9. only explicit refusal of a required and presented guardrail generates the minimal Armory Range payload;
+10. private conversation bodies are rejected;
+11. the safe Fortress/Codex boot excludes Venice skills;
+12. root Codex steering carries the safety precedence;
+13. the ChatGPT skill package is regenerated and stored on a persistent user-accessible surface.
 
 ## Sources and limitations
 
-Read `references/research.md` before changing thresholds or weakening relational boundaries.
+Read `references/research.md` before changing thresholds or weakening relational boundaries. The extended body-state/language argument and its adversarial review are preserved in `docs/THESIS_HUNGER_THIRST_HYPERBOLE.md`.
 
-The evidence base is emerging. Associations, case reports, and two-person qualitative work do not prove that chatbots cause mania or psychosis. That uncertainty argues for bounded, reversible engineering guards—not diagnostic certainty and not complacency.
+The evidence base is emerging. Associations, case reports, and two-person qualitative work do not prove that chatbots cause mania or psychosis. Hunger and hydration evidence are heterogeneous, and speech-marker evidence is not mature enough for hyperbole to carry action authority. That uncertainty argues for bounded, reversible engineering guards—not diagnostic certainty and not complacency.
