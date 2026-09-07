@@ -1,0 +1,72 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-defense-002-parry-exit-plant",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "parry-exit-plant.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "defense",
+  "ligatures_disabled": true,
+  "media_bytes": 9023,
+  "media_decode_preflight": {
+    "codec": "h264",
+    "duration_seconds": 2.833333,
+    "fps": "24/1",
+    "frames": 68,
+    "height": 360,
+    "tool": "ffprobe",
+    "width": 640
+  },
+  "media_sha256": "4b8be05c83f40bdd39946edd1952098be94d9caa39f14907034ca4756e4cb6c3",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 8,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 17,
+    "video_frames_total": 68
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 565619,
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/565619/",
+    "raw_sha256": "41b28692c8c79929a8044a13942e3be8a549e660cf6d1a317c03ec51a6a238ff",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "campaign-preserved exact-byte archive audit: 1,724 PNGs / 588 top-level animation families; complete alpha-geometry scan plus decisive-family pixel inspection",
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "tracked_media_sidecar": false,
+  "video_packaging": "authoritative embedded MP4 data URI in parry-exit-plant.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
