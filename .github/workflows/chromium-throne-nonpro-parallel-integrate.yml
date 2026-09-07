@@ -27,7 +27,7 @@ jobs:
           node-version: '22'
       - name: Apply bounded non-Pro swarm patch
         run: node tools/apply_chromium_throne_nonpro_parallel_patch.mjs
-      - name: Remove superseded manifest assertion tail
+      - name: Normalize generated assertions
         run: |
           node <<'NODE'
           const fs = require('node:fs');
@@ -36,6 +36,10 @@ jobs:
           const stale = `, () => {\n  assert.equal(manifest.version, '0.7.0');\n  assert.ok(manifest.permissions.includes('tabs'));\n  assert.match(manifest.description, /single persistent ChatGPT Pro/i);\n  assert.match(manifest.key, /^MIIB/);\n  assert.equal(manifest.background.type, 'module');\n});`;
           if (!t.includes(stale)) throw new Error('superseded manifest assertion tail not found');
           t = t.replace(stale, '');
+          const brittle = "  assert.match(core, /workerMode = independentRelay ? 'independent'/);";
+          const fixed = "  assert.match(core, /const workerMode = independentRelay/);";
+          if (!t.includes(brittle)) throw new Error('brittle workerMode assertion not found');
+          t = t.replace(brittle, fixed);
           fs.writeFileSync(p, t, 'utf8');
           NODE
       - name: Syntax
