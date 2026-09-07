@@ -32,7 +32,7 @@ Decisive timing — all **INFERRED / STREET_FIGHTER-CAPCOM** because source timi
 
 Motion Dungeon: authored ASCII keys -> explicit holds -> semantics-preserving midpoint connectors only while support/contact are unchanged -> literal ASCII-only frame rendering -> H.264 MP4 -> self-contained three-tab SPA. Source sprites never enter the render.
 
-Compiled embedded MP4: 8624 bytes, H.264 yuv420p, 480×270, 24 fps, 80 frames, 3.333333 s, SHA-256 `158d73990a420574bcc13b3f10667f1b822d7b8dd2508ba6724050a1c9fc264e`.  
+Compiled embedded MP4: 8405 bytes, H.264 yuv420p, 480×270, 24 fps, 80 frames, 3.333333 s, SHA-256 `7608f2eb299332426b41fb819f12575c82a3115eafee80a969399addc7fb556d`.  
 ASCII authority SHA-256: `b31a8ebe742ea7dbefd1d88e261b60701ddd6acb44dab1616856ddc472b2813d`.  
 Repository path: `experiments/ascii-kinesis/v2-airborne-003-apex-spacing-window/`  
 Ship commit: `b5073a3476c88657b9e5fcdf2be74bf31ffc8806`.
@@ -40,3 +40,5 @@ Ship commit: `b5073a3476c88657b9e5fcdf2be74bf31ffc8806`.
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
 
 Local construction checks: the specimen-only V2 structural validator passed; ffprobe decoded the compiled MP4 as H.264/yuv420p 480×270 at 24 fps with 80 frames. GitHub repository readback at the ship commit confirmed exactly the five required tracked files. Global contract test boundary: pre-existing `v2-defense-001-guard-support-fork` still lacks exactly one tracked `*.motion.html` SPA; this specimen itself passed its structural/media checks.
+
+Builder correction: the builder now records the exact MP4 hash generated in the executing runtime instead of falsely requiring cross-runtime ffmpeg/font bitstream identity. Authored ASCII keys, holds, connector semantics, and frame sequence remain deterministic.

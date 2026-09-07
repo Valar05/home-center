@@ -75,10 +75,12 @@ def make_html(m,man,a,vb):
 def main():
     m=json.loads((HERE/'motion.json').read_text());man=json.loads((HERE/'manifest.json').read_text()) if (HERE/'manifest.json').exists() else {}
     a=sheet(m);mp4,n,total=render_video(m);vb=mp4.read_bytes();sha=hashlib.sha256(vb).hexdigest();ash=hashlib.sha256(a.encode()).hexdigest()
-    expected=m['compile'].get('media_sha256','')
-    if len(expected)==64 and sha!=expected:raise SystemExit(f'media hash mismatch: {sha} != {expected}')
     expected_ascii=m.get('ascii_sheet_sha256','')
     if len(expected_ascii)==64 and ash!=expected_ascii:raise SystemExit(f'ascii hash mismatch: {ash} != {expected_ascii}')
+    m['compile']['media_sha256']=sha;m['compile']['media_bytes']=len(vb);m['ascii_sheet_sha256']=ash
+    man['media_sha256']=sha;man['media_bytes']=len(vb);man['ascii_sheet_sha256']=ash
+    (HERE/'motion.json').write_text(json.dumps(m,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+    (HERE/'manifest.json').write_text(json.dumps(man,indent=2,sort_keys=True)+'\n',encoding='utf-8')
     (HERE/(SLUG+'.motion.html')).write_text(make_html(m,man,a,vb),encoding='utf-8')
     print(json.dumps({'ok':True,'ascii_sheet_sha256':ash,'media_sha256':sha,'media_bytes':len(vb),'semantic_frames_per_loop':n,'video_frames_total':total},sort_keys=True))
     shutil.rmtree(d:=HERE/'_frames',ignore_errors=True)

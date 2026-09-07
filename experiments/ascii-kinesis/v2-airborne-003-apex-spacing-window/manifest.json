@@ -27,9 +27,10 @@
   "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py invoked; global failure is pre-existing v2-defense-001-guard-support-fork expected exactly one tracked *.motion.html SPA",
   "lane": "airborne",
   "ligatures_disabled": true,
-  "media_bytes": 8624,
+  "media_bytes": 8405,
   "media_filename": "apex-spacing-window.mp4",
-  "media_sha256": "158d73990a420574bcc13b3f10667f1b822d7b8dd2508ba6724050a1c9fc264e",
+  "media_hash_policy": "Hash records the exact embedded MP4 bytes produced by the builder. Authored ASCII keys, holds, semantic connectors, and frame sequence are deterministic; cross-runtime ffmpeg/font bitstreams are not claimed byte-identical.",
+  "media_sha256": "7608f2eb299332426b41fb819f12575c82a3115eafee80a969399addc7fb556d",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 13,
