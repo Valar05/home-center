@@ -1,0 +1,85 @@
+{
+  "ascii_sheet_sha256": "45c465619f34d84750d12514beff73365a4f8da174450a8d891996c92ff748b7",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "experiment_id": "v2-timing-005-variant-bank-zero-time",
+  "issue_343_receipt": null,
+  "key_timings": [
+    {"clock_channel":"BODY_CLOCK","key_id":"T50","name":"READY","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T51","name":"UNWEIGHT","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T52","name":"DRIVE","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T53","name":"CROSS","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T54","name":"CATCH","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T55","name":"SETTLE","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"clock_channel":"BODY_CLOCK","key_id":"T56","name":"READY_RETURN","timing_class":"FOURS","timing_provenance":"INFERRED"}
+  ],
+  "media_bytes": 2765,
+  "media_sha256": "8afebb0d4dfc74e6b62dff4428c2a89c762b17eba5e7152b2e22ed82324ab4ea",
+  "observation_inference_split": {
+    "INFERRED": [
+      "BODY_CLOCK decomposition and the seven-key synthetic transfer grammar.",
+      "All ONES/TWOS/FOURS assignments and the 16-display-frame compilation.",
+      "CFG_A/CFG_B/CFG_C/CFG_D labels and their timing-equivalence treatment in this specimen.",
+      "Causal roles, root notes, and support/load interpretations of the generic ASCII rig."
+    ],
+    "OBSERVED": [
+      "TSR identifies one 422x414 PNG sheet for Gemini Man in Mega Man Soccer, SNES, Playable Characters.",
+      "The complete sheet visibly contains many full-body pose/action families rather than one linear strip.",
+      "The lower portion visibly repeats comparable full-body organizations across multiple color/configuration presentations.",
+      "Separate head/reference sprites are present apart from the full-body families.",
+      "TSR reports Animated GIFs (0), so the sheet does not itself establish playback exposure."
+    ],
+    "UNKNOWN": [
+      "Source playback order for sheet cells.",
+      "Source per-cell exposure, cadence, cycle rate, hit-stop, and phase relationships.",
+      "Which source visual variants are runtime-selectable, palette-driven, precomposed, or merely reference material.",
+      "Any source-authentic synchronization between body, configuration, or auxiliary material."
+    ]
+  },
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/",
+  "repo_readback": "PENDING",
+  "repo_wide_contract_test_boundary": "PENDING",
+  "rights_note": "Copyrighted commercial-game sprites were inspected only as whole-sheet evidence. This repository specimen contains no source pixels, palette, costume, contours, exact silhouette, sheet layout, tracing, redistribution, close imitation, or source choreography; only abstract timing/equivalence principles and source identity are retained.",
+  "schema": "ascii-kinesis.v2-receipt",
+  "ship_commit": null,
+  "skill_mutation": {
+    "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
+    "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "performed": false,
+    "reason": "No new reusable rule earned. The specimen compiles existing v1.3 temporal-equivalence and v1.5 assembly/configuration separation under the V2 SPA delivery contract."
+  },
+  "source": {
+    "asset_id": "41182",
+    "identity": "Gemini Man — Mega Man Soccer — SNES — Playable Characters",
+    "inferred": [
+      "BODY_CLOCK decomposition and the seven-key synthetic transfer grammar.",
+      "All ONES/TWOS/FOURS assignments and the 16-display-frame compilation.",
+      "CFG_A/CFG_B/CFG_C/CFG_D labels and their timing-equivalence treatment in this specimen.",
+      "Causal roles, root notes, and support/load interpretations of the generic ASCII rig."
+    ],
+    "observed": [
+      "TSR identifies one 422x414 PNG sheet for Gemini Man in Mega Man Soccer, SNES, Playable Characters.",
+      "The complete sheet visibly contains many full-body pose/action families rather than one linear strip.",
+      "The lower portion visibly repeats comparable full-body organizations across multiple color/configuration presentations.",
+      "Separate head/reference sprites are present apart from the full-body families.",
+      "TSR reports Animated GIFs (0), so the sheet does not itself establish playback exposure."
+    ],
+    "page_animations_count": 0,
+    "page_url": "https://www.spriters-resource.com/snes/mmsoccer/asset/41182/",
+    "rights_note": "Copyrighted commercial-game sprites were inspected only as whole-sheet evidence. This repository specimen contains no source pixels, palette, costume, contours, exact silhouette, sheet layout, tracing, redistribution, close imitation, or source choreography; only abstract timing/equivalence principles and source identity are retained.",
+    "sheet_dimensions": "422x414",
+    "sheet_format": "PNG",
+    "site": "The Spriters Resource",
+    "unknown": [
+      "Source playback order for sheet cells.",
+      "Source per-cell exposure, cadence, cycle rate, hit-stop, and phase relationships.",
+      "Which source visual variants are runtime-selectable, palette-driven, precomposed, or merely reference material.",
+      "Any source-authentic synchronization between body, configuration, or auxiliary material."
+    ],
+    "whole_sheet_evidence_boundary": "The entire rendered 422x414 sheet was inspected as one evidence surface. The upper area contains many full-body pose/action families; the lower area contains conspicuous repeated full-body color/configuration rows plus separate head/reference sprites. Spatial adjacency is not chronology.",
+    "whole_sheet_inspected": true
+  },
+  "status": "RENDERED_AWAITING_REPO_VERIFICATION",
+  "target_contract_test": "PENDING",
+  "verification_commit": null
+}
