@@ -1,19 +1,39 @@
 {
-  "ascii_sheet_sha256": "9025f79ffa9f50db62faf921cf7b4f5d1fb0d4cbf60f18dd70a366a285e82970",
-  "contract_test": "PENDING_EXTERNAL_RUN",
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ],
+  "schema": "ascii-kinesis.v2-receipt",
   "experiment_id": "v2-timing-003-inertial-join-sparse-rekey",
+  "status": "REPO_VERIFIED_WITH_GLOBAL_TEST_EXECUTION_BOUNDARY",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-003-inertial-join-sparse-rekey/",
+  "ship_commit": "36b18959eea030203d707c66e54b1d56674972e1",
+  "repo_readback": "PASS: exact GitHub readback at ship commit 36b18959eea030203d707c66e54b1d56674972e1 lists exactly the five commissioned tracked files. Remote SPA blob 4da9501a146e1351df9ecbb2939a94a41d1727bd and size 15220 bytes match the locally constructed Git blob exactly; direct SPA readback confirms primary data-view order ASCII/JSON/VIDEO and literal preformatted ASCII. Direct manifest and motion readback confirm embedded-MP4 packaging, abstract_ascii_rig_only, seven decisive keys, source_art_embedded=false, and media SHA-256 10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613.",
+  "reconstruction_validation": "PASS: rerunning python3 build.py reproduced the same 15220-byte SPA SHA-256 44d6cd5f3d56167ac34d599388328ae233716373cee3d3a916c4efef365e8d3f, the same embedded 3025-byte MP4 SHA-256 10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613, and the same manifest SHA-256 05a0d395543e193dad2704bdff8d91054fcaa07e8ac54503a6db4a85e64e7543.",
+  "targeted_entry_validation": "PASS: V2 structural predicates applied to v2-timing-003-inertial-join-sparse-rekey; exact tab order ascii,json,video; literal pre surfaces; ligatures disabled; whitespace preserved; embedded data:video/mp4; 7/7 keys carry timing class and OBSERVED/INFERRED provenance, and all 7 also carry key id, pose/rig, support/contact, root/motion-arc note, and causal role.",
+  "contract_test": "GLOBAL_EXECUTION_BOUNDARY: tools/test_ascii_kinesis_swarm_contract_v2.py was fetched and the commissioned repo-wide run was attempted, but the execution container could not clone GitHub because DNS failed before checkout: fatal: Could not resolve host: github.com. No global green result is claimed. The target entry was then checked in isolation against the fetched script's structural predicates and passed.",
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 191044,
+    "name": "Dr Robuttnik (Elevator)",
+    "game": "Sunky's Schoolhouse",
+    "platform": "PC / Computer",
+    "page_url": "https://www.spriters-resource.com/pc_computer/sunkysschoolhouse/asset/191044/",
+    "sheet": {
+      "format": "PNG",
+      "width": 4480,
+      "height": 360,
+      "bytes": 32657,
+      "raw_sha256": "1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca",
+      "whole_sheet_inspected": true
+    },
+    "source_timing_observed": "NONE"
+  },
+  "rights_note": "Copyrighted sheet is analysis evidence only; no source pixels, palette, contours, layout, tracing, redistribution, or close imitation are stored or rendered. The shipped rig/video are independently authored abstract ASCII geometry.",
+  "observation_inference_split": {
+    "OBSERVED": [
+      "TSR identity and 4480x360 static PNG metadata",
+      "PoseLab v1.7 exact-custody record: full-sheet bytes/hash; seven equal 640px cells inspected; common lower boundary with changing local occupied extent"
+    ],
+    "INFERRED": "All abstract rig geometry, semantic compression, parent-motion/load profile, causal roles, and ONES/TWOS/FOURS assignments.",
+    "UNKNOWN": ["source playback order","per-cell exposure","source velocity/acceleration","support-force vector","root path","cadence/hit-stop"]
+  },
   "key_timings": [
     {"key_id":"T003-K0","name":"CRUISE_NEUTRAL","timing_class":"FOURS","timing_provenance":"INFERRED"},
     {"key_id":"T003-K1","name":"BRAKE_ONSET","timing_class":"TWOS","timing_provenance":"INFERRED"},
@@ -23,49 +43,15 @@
     {"key_id":"T003-K5","name":"RECOVER","timing_class":"TWOS","timing_provenance":"INFERRED"},
     {"key_id":"T003-K6","name":"CRUISE_RESTORED","timing_class":"FOURS","timing_provenance":"INFERRED"}
   ],
-  "media_bytes": 3025,
   "media_sha256": "10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613",
-  "observation_inference_split": {
-    "INFERRED": "All abstract rig geometry, semantic compression, parent-motion/load profile, causal roles, and ONES/TWOS/FOURS assignments.",
-    "OBSERVED": [
-      "TSR identity and 4480x360 static PNG metadata",
-      "PoseLab v1.7 exact-custody record: full-sheet bytes/hash; seven equal 640px cells inspected; common lower boundary with changing local occupied extent"
-    ],
-    "UNKNOWN": ["source playback order","per-cell exposure","source velocity/acceleration","support-force vector","root path","cadence/hit-stop"]
-  },
-  "reconstruction": "python3 build.py",
-  "repo_path": "experiments/ascii-kinesis/v2-timing-003-inertial-join-sparse-rekey/",
-  "repo_readback": "PENDING",
-  "rights_note": "Copyrighted sheet is analysis evidence only; no source pixels, palette, contours, layout, tracing, redistribution, or close imitation are stored/rendered.",
-  "schema": "ascii-kinesis.v2-receipt",
+  "media_bytes": 3025,
+  "media_decode": "PASS: H.264 320x180, 24 fps, 16 frames, 0.666667 s",
+  "ascii_sheet_sha256": "9025f79ffa9f50db62faf921cf7b4f5d1fb0d4cbf60f18dd70a366a285e82970",
   "skill_mutation": {
+    "performed": false,
     "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
     "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
-    "performed": false,
-    "reason": "No new reusable rule earned; specimen exercises existing v1.6 parent-transform separation and v1.7 inertial-join/support-load doctrine."
+    "reason": "No genuinely new reusable rule was earned. This specimen exercises existing v1.6 parent-transform separation and v1.7 support-topology/support-load inertial-join doctrine."
   },
-  "source": {
-    "asset_id": 191044,
-    "game": "Sunky's Schoolhouse",
-    "name": "Dr Robuttnik (Elevator)",
-    "observed": [
-      "TSR identity and 4480x360 static PNG metadata",
-      "PoseLab v1.7 exact-custody record: full-sheet bytes/hash; seven equal 640px cells inspected; common lower boundary with changing local occupied extent"
-    ],
-    "page_url": "https://www.spriters-resource.com/pc_computer/sunkysschoolhouse/asset/191044/",
-    "platform": "PC / Computer",
-    "rights_note": "Copyrighted sheet is analysis evidence only; no source pixels, palette, contours, layout, tracing, redistribution, or close imitation are stored/rendered.",
-    "sheet": {
-      "bytes": 32657,
-      "format": "PNG",
-      "height": 360,
-      "raw_sha256": "1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca",
-      "whole_sheet_inspected": true,
-      "width": 4480
-    },
-    "site": "The Spriters Resource",
-    "source_timing_observed": "NONE",
-    "unknown": ["source playback order","per-cell exposure","source velocity/acceleration","support-force vector","root path","cadence/hit-stop"]
-  },
-  "status": "RENDERED_AWAITING_REPO_VERIFICATION"
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
 }
