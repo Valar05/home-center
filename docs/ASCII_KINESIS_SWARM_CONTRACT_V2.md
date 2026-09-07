@@ -139,6 +139,21 @@ The minimal-maximal unit is no longer “one useful research insight.” It is:
 
 Keep the conceptual scope narrow enough to ship; make the delivered example complete enough to inspect, copy, reconstruct, and play.
 
+## Chat-surface delivery law
+
+Repository truth is not the whole user-facing contract.
+
+Every successful specimen report MUST also surface the **actual animation media in the visible chat**.
+
+- Prefer attaching/embedding the exact generated MP4/GIF bytes from the newly persisted specimen.
+- If direct extraction of the exact repo media bytes is unavailable, a deterministic chat render from the exact persisted `motion.json`/rig/timing is acceptable, but it MUST be labeled as a chat render and MUST NOT be described as byte-identical repo media.
+- A commit hash, SHA-256, repo path, Drive link, GitHub link, SPA link, screenshot, thumbnail, prose description, or statement that “the animation exists” is NOT delivery.
+- The reporting chat should also expose the copyable ASCII contact sheet directly when practical; the SPA still preserves the authoritative literal text.
+- If the repo specimen exists but the actual animation is absent from chat, the state is `PERSISTED_NOT_DELIVERED`, not VERIFIED.
+- Correction for `PERSISTED_NOT_DELIVERED` is to surface that SAME specimen immediately. Do not mine another source to hide the UX failure.
+
+The acceptance surface is literal: **if Drew cannot see the animation in the conversation, the run has not been delivered to him.**
+
 ## Completion state
 
 A V2 worker may report `VERIFIED` only after all of these are true:
@@ -152,7 +167,8 @@ A V2 worker may report `VERIFIED` only after all of these are true:
 - source/rights firewall is recorded;
 - builder/manifest/receipt are durable;
 - repository readback confirms the entry;
-- issue #343 receipt points at the exact repository entry/commit.
+- issue #343 receipt points at the exact repository entry/commit;
+- the actual new animation media is visibly surfaced in the reporting chat.
 
 Drive artifacts may mirror the run, but Drive-only completion is forbidden.
 
@@ -169,6 +185,8 @@ Drive artifacts may mirror the run, but Drive-only completion is forbidden.
 - `REPO_NOT_PERSISTED`
 - `READBACK_UNVERIFIED`
 - `BACKWARD_COMPATIBILITY_REGRESSION`
+- `PERSISTED_NOT_DELIVERED`
+- `CHAT_SURFACE_MEDIA_MISSING`
 
 Any of these blocks `VERIFIED`.
 
