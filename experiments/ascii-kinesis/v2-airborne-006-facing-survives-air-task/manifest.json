@@ -35,11 +35,12 @@
     "facing-survives-air-task.motion.html"
   ],
   "format_version": 2,
-  "global_test_boundary": "Standard Chat has authenticated GitHub read/write but no authorized remote repository execution shell in this run. tools/test_ascii_kinesis_swarm_contract_v2.py will be read for presence; repository-wide execution is not callable through the authorized connector surface. Local construction checks are not used as completion proof.",
+  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py executed on primary-phone after building this specimen from exact repository source; exit 1 at pre-existing v2-airborne-005-side-support-gates-second-impulse: expected exactly one tracked *.motion.html SPA. The suite stops at 005 before reaching 006, so it cannot certify 006 in this run. Exact GitHub readback at ship commit independently confirms 006 has exactly five tracked files including one *.motion.html.",
   "lane": "airborne",
   "ligatures_disabled": true,
   "media_bytes": 8047,
   "media_filename": "facing-survives-air-task.mp4",
+  "media_hash_policy": "The authoritative media identity is the exact MP4 embedded by the primary-phone build that was committed at ship_commit. Builder semantics are deterministic; cross-runtime ffmpeg/font bitstreams are not claimed byte-identical.",
   "media_sha256": "aecc3363429a353749cbe0aa37cb63bf671410afbe37097a1a6a32076497cde4",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
@@ -63,8 +64,16 @@
   ],
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
+  "repo_readback": {
+    "commit": "cb9dda4750969bd6b1d2e57c8dd53eb30e2e9e02",
+    "exact_tracked_files": 5,
+    "motion_html_count": 1,
+    "motion_html_git_blob": "96f78e1d3ae94d7a27de762e0e21c5d87b7254b0",
+    "motion_html_size": 49268,
+    "verified": true
+  },
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "ship_commit": "PENDING",
+  "ship_commit": "cb9dda4750969bd6b1d2e57c8dd53eb30e2e9e02",
   "source": {
     "asset_id": 10039,
     "fresh_source_page_metadata_reverified": true,
@@ -94,7 +103,13 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "READY_TO_PERSIST",
+  "status": "REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
+  "test_invocation": {
+    "exit_code": 1,
+    "failure": "v2-airborne-005-side-support-gates-second-impulse: expected exactly one tracked *.motion.html SPA",
+    "runner": "primary-phone",
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
   "video_packaging": "exact compiled MP4 bytes embedded as a data URI in tracked SPA; build.py reconstructs facing-survives-air-task.mp4 from motion.json",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
