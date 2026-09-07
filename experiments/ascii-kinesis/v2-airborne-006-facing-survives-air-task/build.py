@@ -62,20 +62,20 @@ def sheet(m):
 def render_video(m):
     seq=sequence(m);allf=seq*m['compile']['loop_repetitions'];d=HERE/'_frames';d.mkdir(exist_ok=True)
     for p in d.glob('*.png'):p.unlink()
-    f=ImageFont.truetype(FONT,9);fb=ImageFont.truetype(BOLD,12)
+    f=ImageFont.truetype(FONT,7);fb=ImageFont.truetype(BOLD,9)
     for i,(pose,label,support,phase,facing,kind) in enumerate(allf):
         text=pose_text(pose,label,support,phase,facing)
-        im=Image.new('RGB',(640,360),(18,18,18));dr=ImageDraw.Draw(im)
+        im=Image.new('RGB',(480,270),(18,18,18));dr=ImageDraw.Draw(im)
         dr.text((18,12),'ASCII KINESIS / AIRBORNE 006',font=fb,fill=(238,238,238))
         dr.text((18,34),f'{label}  [{kind}]  support={support}  facing={facing}',font=f,fill=(220,220,220))
         dr.multiline_text((18,58),text,font=f,fill=(238,238,238),spacing=1)
-        dr.text((18,344),f'frame {i+1}/{len(allf)} · ASCII rig only',font=f,fill=(180,180,180))
+        dr.text((18,258),f'frame {i+1}/{len(allf)} · ASCII rig only',font=f,fill=(180,180,180))
         im.save(d/f'{i:05d}.png')
     out=HERE/(SLUG+'.mp4')
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(m['compile']['fps']),'-i',str(d/'%05d.png'),'-c:v','libx264','-pix_fmt','yuv420p','-crf','34','-preset','medium','-movflags','+faststart',str(out)],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(m['compile']['fps']),'-i',str(d/'%05d.png'),'-c:v','libx264','-pix_fmt','yuv420p','-crf','45','-preset','slow','-movflags','+faststart',str(out)],check=True)
     return out,len(seq),len(allf)
 def make_html(m,man,a,vb):
-    payload=json.dumps({'motion':m,'manifest':man},sort_keys=True,indent=2);b64=base64.b64encode(vb).decode()
+    payload=json.dumps({'motion':m,'manifest':man},sort_keys=True,separators=(',',':'));b64=base64.b64encode(vb).decode()
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 — Airborne 006 — Facing Survives Air Task</title><style>body{margin:0;background:#111;color:#eee;font-family:system-ui,sans-serif}nav{display:flex;gap:.5rem;padding:1rem;position:sticky;top:0;background:#111}button{font:inherit;padding:.55rem .9rem}.view{display:none;padding:1rem}.view.active{display:block}pre{white-space:pre;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;overflow:auto;line-height:1.08}video{max-width:100%;height:auto}</style></head><body><nav aria-label="Primary views"><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json" aria-selected="false">JSON</button><button data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" class="view active"><pre>'+html.escape(a)+'</pre></section><section id="json" class="view"><pre>'+html.escape(payload)+'</pre></section><section id="video" class="view"><video controls loop playsinline src="data:video/mp4;base64,'+b64+'"></video></section><script>const b=[...document.querySelectorAll("nav button")],v=[...document.querySelectorAll(".view")];for(const x of b)x.onclick=()=>{for(const y of b)y.setAttribute("aria-selected",String(x===y));for(const z of v)z.classList.toggle("active",z.id===x.dataset.view)}</script></body></html>'
 def main():
     m=json.loads((HERE/'motion.json').read_text());man=json.loads((HERE/'manifest.json').read_text())
