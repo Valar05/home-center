@@ -19,18 +19,16 @@ test('worker boot locks operator-handoff and evidence doctrine', () => {
   assert.match(worker, /Never use ChatGPT-local scratch\/container execution as proof/);
 });
 
-test('one persistent Pro worker is the campaign reasoning body', () => {
-  assert.match(worker, /single persistent ChatGPT Pro-reasoning worker/i);
-  assert.match(worker, /same Pro conversation/i);
-  assert.match(worker, /Fresh-worker rotation is explicit recovery only/i);
-  assert.match(core, /MAX_PARALLEL_WORKERS = 1/);
-  assert.match(core, /singlePersistentProWorker: true/);
-  assert.doesNotMatch(worker, /disposable execution threads/i);
-  assert.doesNotMatch(worker, /one bounded bite/i);
-  assert.doesNotMatch(worker, /chat-mode Instant execution worker/);
+test('bounded high-inference non-Pro workers are the swarm reasoning body', () => {
+  assert.match(worker, /bounded visible ChatGPT worker/i);
+  assert.match(worker, /highest inference available on the current non-Pro ChatGPT surface/i);
+  assert.match(core, /MAX_PARALLEL_WORKERS = 4/);
+  assert.match(core, /creditBearingComputeAllowed: false/);
+  assert.match(core, /independentRelayJobs: true/);
+  assert.doesNotMatch(worker, /Use Pro reasoning/i);
 });
 
-test('phone remains sovereign and Pro cannot own unlock loop', () => {
+test('phone remains sovereign and workers cannot own unlock loop', () => {
   assert.match(worker, /The phone is sovereign/i);
   assert.match(worker, /do not own an unlock loop or continuously puppet the phone/i);
   assert.match(worker, /Home Center\/Termux\/tmux\/local authorized machinery performs phone work/i);
@@ -58,18 +56,19 @@ test('narrated continuation and empty operator responses are forbidden', () => {
   assert.match(core, /narratedContinuationForbidden: true/);
 });
 
-test('service worker persists one ChatGPT tab identity across continuation', () => {
-  assert.match(worker, /thronePersistentWorkerTabId/);
-  assert.match(worker, /resolvePersistentWorker/);
-  assert.match(worker, /persistentWorkerTabId: tab\.id/);
+test('service worker binds independent jobs to dedicated tabs and continuation to the owning tab', () => {
+  assert.match(worker, /resolveWorker/);
+  assert.match(worker, /workerMode === 'independent'/);
   assert.match(worker, /continuation\.job\.workerTabId = job\.workerTabId/);
+  assert.match(worker, /continuation\.job\.workerMode = current\.workerMode/);
   assert.match(worker, /venice\.job\.workerTabId = job\.workerTabId/);
-  assert.match(worker, /slicePolicy: 'persistent-pro-evolution-slice'/);
+  assert.match(worker, /venice\.job\.workerMode = current\.workerMode/);
+  assert.match(worker, /bounded-independent-high-inference/);
 });
 
-test('fresh worker creation is explicit recovery rather than queue default', () => {
-  assert.match(core, /const explicitRecovery = source === 'explicit-recovery'/);
-  assert.match(core, /newWorker: explicitRecovery && fresh === true/);
+test('relay queue creates independent workers while manual fresh means explicit recovery', () => {
+  assert.match(core, /const independentRelay = source === 'atom-relay'/);
+  assert.match(core, /const workerMode = independentRelay/);
   assert.match(worker, /message\.newWorker === true/);
   assert.match(worker, /newJob\(job\.commission, job\.context \|\| '', false, 'atom-relay'/);
   assert.doesNotMatch(html, /id="newWorker"[^>]*checked/i);
@@ -108,7 +107,7 @@ test('queued work snapshots context and interrupted dispatch recovers', () => {
   assert.match(worker, /recoverInterruptedDispatches/);
 });
 
-test('single worker scheduler still uses existing service-worker and relay architecture', () => {
+test('bounded parallel scheduler still uses existing service-worker and relay architecture', () => {
   assert.match(core, /export function parallelBatch/);
   assert.match(worker, /MAX_PARALLEL_WORKERS/);
   assert.match(worker, /Promise\.all\(wave\.map\(dispatchQueuedJob\)\)/);
@@ -140,12 +139,13 @@ test('Atom relay remains capability-gated and disabled in repository template', 
   assert.equal(manifest.background.type, 'module');
 });
 
-test('panel exposes evolution controls rather than disposable-worker swarm language', () => {
+test('panel exposes bounded non-Pro swarm state and existing evolution controls', () => {
   assert.match(html, /Advance campaign/);
   assert.match(html, /Run evolution loop/);
   assert.match(html, /She-Raw insults are load-bearing/i);
-  assert.match(panel, /single Pro campaign/);
-  assert.match(panel, /single-pro-evolution-loop/);
+  assert.match(html, /bounded to four concurrent tabs/i);
+  assert.match(panel, /high-inference non-Pro/);
+  assert.match(panel, /bounded-nonpro-swarm/);
 });
 
 test('ChatGPT worker cannot self-accept or bypass final release', () => {
@@ -155,10 +155,10 @@ test('ChatGPT worker cannot self-accept or bypass final release', () => {
   assert.match(worker, /accepted: false/);
 });
 
-test('manifest identifies the single-Pro evolution organ', () => {
-  assert.equal(manifest.version, '0.7.0');
+test('manifest identifies the bounded non-Pro swarm organ', () => {
+  assert.equal(manifest.version, '0.8.0');
   assert.ok(manifest.permissions.includes('tabs'));
-  assert.match(manifest.description, /single persistent ChatGPT Pro/i);
+  assert.match(manifest.description, /bounded high-inference non-Pro/i);
   assert.match(manifest.key, /^MIIB/);
   assert.equal(manifest.background.type, 'module');
 });

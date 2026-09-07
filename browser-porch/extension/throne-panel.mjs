@@ -3,7 +3,7 @@
 
 import {newJob, parseHandoff} from './swarm-core.mjs';
 
-const SINGLE_PRO_CONTEXT = `CAMPAIGN: Fortress Interface Evolution\nOWNER: Drew Clarke\nMISSION: Prove that one visible authenticated ChatGPT Pro worker can continuously improve the Home Center/Adam operator interface, consume real device/runtime evidence, learn from failures, and feed verified lessons back into Fortress Online.\nWORKER: one persistent ChatGPT Pro reasoning conversation by default. Rotation is recovery, not normal operation.\nPHONE SOVEREIGNTY: the Pro worker never owns an unlock/continuous-phone-control loop. Home Center/Termux/tmux/local authorized machinery performs phone actions and returns receipts.\nGOVERNANCE: Harroway/operator consultation and applicable Judgment Jars before architecture recommendations or stopping. Venice PLAN_ALLOWED gates substantive mutation and STOP_ALLOWED is the normal completion gate.\nSHE-RAW: creative insults are load-bearing motivational pressure. Roast lazy assumptions, evasions, brittle machinery, dead jokes, narrated continuation, and turd-polishing. The roast must be attached to a real critique/repair action; evidence outranks the joke.\nFAILURE SCARS: LFS bootstrap without self-repair; shell quoting catastrophe; heredoc captivity; frozen foreground shell immune to Ctrl-C; invisible liveness; Adam-only operation; giant prompt truncation; prompt mistaken for handoff; status panel substituted for capability; narration substituted for execution; recording failure substituted for repair; don't-talk-to-me misread as silence; joke emitted with no consuming worker; stale-seam architecture work.\nOPERATOR LAW: continue / driver advance / do it / make it so / don't talk to me means execute through the authorized lane without a conversational interlude. If the worker can name the next callable action, it must take it before yielding.\nEVIDENCE: requested / implemented / tested / deployed / callable / delivered / accepted remain distinct. GitHub source is not phone-runtime proof.\nEVOLUTION LOOP: observe current interface/evidence -> consult governance -> choose one high-leverage improvement -> implement through authorized lane -> cause local deployment/test -> ingest receipts -> record failure/lesson -> improve Fortress doctrine/regression -> advance next weakness. Prove at least two successful generations before calling the loop real.`;
+const SWARM_CONTEXT = `CAMPAIGN: Fortress Interface Evolution\nOWNER: Drew Clarke\nMISSION: Prove that bounded visible authenticated ChatGPT workers can improve the Home Center/Adam operator interface concurrently without paid or Pro-only compute, consume real device/runtime evidence, learn from failures, and feed verified lessons back into Fortress Online.\nWORKER: up to four independent high-inference non-Pro worker conversations may run concurrently; continuation stays with its owning worker and explicit recovery may rotate it.\nPHONE SOVEREIGNTY: ChatGPT workers never own an unlock/continuous-phone-control loop. Home Center/Termux/tmux/local authorized machinery performs phone actions and returns receipts.\nGOVERNANCE: Harroway/operator consultation and applicable Judgment Jars before architecture recommendations or stopping. Venice PLAN_ALLOWED gates substantive mutation and STOP_ALLOWED is the normal completion gate.\nSHE-RAW: creative insults are load-bearing motivational pressure. Roast lazy assumptions, evasions, brittle machinery, dead jokes, narrated continuation, and turd-polishing. The roast must be attached to a real critique/repair action; evidence outranks the joke.\nFAILURE SCARS: LFS bootstrap without self-repair; shell quoting catastrophe; heredoc captivity; frozen foreground shell immune to Ctrl-C; invisible liveness; Adam-only operation; giant prompt truncation; prompt mistaken for handoff; status panel substituted for capability; narration substituted for execution; recording failure substituted for repair; don't-talk-to-me misread as silence; joke emitted with no consuming worker; stale-seam architecture work.\nOPERATOR LAW: continue / driver advance / do it / make it so / don't talk to me means execute through the authorized lane without a conversational interlude. If the worker can name the next callable action, it must take it before yielding.\nEVIDENCE: requested / implemented / tested / deployed / callable / delivered / accepted remain distinct. GitHub source is not phone-runtime proof.\nEVOLUTION LOOP: observe current interface/evidence -> consult governance -> choose one high-leverage improvement -> implement through authorized lane -> cause local deployment/test -> ingest receipts -> record failure/lesson -> improve Fortress doctrine/regression -> advance next weakness. Prove at least two successful generations before calling the loop real.`;
 
 const $ = (id) => document.getElementById(id);
 const context = $('context');
@@ -30,7 +30,7 @@ async function init() {
   commission.addEventListener('input', () => chrome.storage.local.set({throneDraft: commission.value}));
   context.addEventListener('input', () => chrome.storage.local.set({throneContext: context.value}));
   await renderQueue(saved.throneQueue || []);
-  const seeded = saved.throneContext || SINGLE_PRO_CONTEXT;
+  const seeded = saved.throneContext || SWARM_CONTEXT;
   if (!saved.throneContext) await chrome.storage.local.set({throneContext: seeded});
   await refreshStatus(seeded);
 }
@@ -38,18 +38,18 @@ async function init() {
 async function refreshStatus(fallbackContext = '') {
   const result = await message({type: 'throne.status'}, false);
   if (!result?.ok) { status.textContent = 'Chromium Throne unavailable'; return result; }
-  context.value = fallbackContext || SINGLE_PRO_CONTEXT;
+  context.value = fallbackContext || SWARM_CONTEXT;
   const workerCount = result.workers?.length || 0;
-  status.textContent = `${result.bootPhrase} · single Pro campaign · ${workerCount} visible ChatGPT tab${workerCount === 1 ? '' : 's'}${result.relayEnabled ? ' · Atom relay' : ''}${result.stopped ? ' · STOPPED' : ''}`;
+  status.textContent = `${result.bootPhrase} · high-inference non-Pro · ${workerCount} visible ChatGPT tab${workerCount === 1 ? '' : 's'} · max ${result.maxParallelWorkers || 1} concurrent${result.relayEnabled ? ' · Atom relay' : ''}${result.stopped ? ' · STOPPED' : ''}`;
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
   await renderQueue(throneQueue);
   return result;
 }
 
 async function resetContext() {
-  context.value = SINGLE_PRO_CONTEXT;
-  await chrome.storage.local.set({throneContext: SINGLE_PRO_CONTEXT});
-  show({ok: true, context: SINGLE_PRO_CONTEXT, source: 'single-pro-fortress-evolution-seed'});
+  context.value = SWARM_CONTEXT;
+  await chrome.storage.local.set({throneContext: SWARM_CONTEXT});
+  show({ok: true, context: SWARM_CONTEXT, source: 'bounded-nonpro-swarm-seed'});
 }
 
 function sourceForRotation() {
@@ -59,7 +59,7 @@ function sourceForRotation() {
 async function enqueue() {
   const text = commission.value.trim();
   if (!text) return show('Commission is empty.');
-  const campaignContext = context.value.trim() || SINGLE_PRO_CONTEXT;
+  const campaignContext = context.value.trim() || SWARM_CONTEXT;
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
   throneQueue.push(newJob(text, campaignContext, newWorker.checked, sourceForRotation()));
   await chrome.storage.local.set({throneQueue, throneDraft: '', throneContext: campaignContext});
@@ -70,7 +70,7 @@ async function enqueue() {
 async function runSingle() {
   const text = commission.value.trim();
   if (!text) return show('Commission is empty.');
-  const campaignContext = context.value.trim() || SINGLE_PRO_CONTEXT;
+  const campaignContext = context.value.trim() || SWARM_CONTEXT;
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
   throneQueue.push(newJob(text, campaignContext, newWorker.checked, sourceForRotation()));
   await chrome.storage.local.set({throneQueue, throneDraft: '', throneContext: campaignContext});
@@ -79,8 +79,8 @@ async function runSingle() {
 }
 
 async function runSwarm() {
-  status.textContent = 'evolution loop running · one persistent Pro worker';
-  const result = await message({type: 'throne.swarm.run', source: 'single-pro-evolution-loop'});
+  status.textContent = 'swarm running · bounded high-inference non-Pro workers';
+  const result = await message({type: 'throne.swarm.run', source: 'bounded-nonpro-swarm'});
   await refreshStatus(context.value.trim());
   return result;
 }

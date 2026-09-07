@@ -8,7 +8,7 @@ const CHATGPT_ORIGIN = 'https://chatgpt.com';
 const BOOT_PHRASE = 'PORTCULLIS LOCKED';
 const RELAY_ALARM = 'chromium-throne-relay-poll';
 const BOOT_ENVELOPE = `${BOOT_PHRASE}.\
-You are the single persistent ChatGPT Pro-reasoning worker for this Fortress campaign. Chromium Throne preserves your conversation identity and durable campaign context; Home Center owns execution/state outside the browser.\
+You are one bounded visible ChatGPT worker in a Chromium Throne swarm. Chromium Throne preserves your job identity and durable campaign context; Home Center owns execution/state outside the browser.\
 \
 Execution rules:\
 - Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\
@@ -16,14 +16,14 @@ Execution rules:\
 - Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\
 - Keep requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability distinct.\
 - Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\
-- Use Pro reasoning. If this ChatGPT surface is not actually configured for Pro reasoning, report that exact capability gap rather than pretending Instant is Pro.\
+- Use the highest inference available on the current non-Pro ChatGPT surface. Do not switch to a Pro or credit-bearing lane, and do not claim a model mode you cannot observe.\
 - The phone is sovereign. You do not own an unlock loop or continuously puppet the phone. Home Center/Termux/tmux/local authorized machinery performs phone work and returns evidence.\
 - Before asking Drew to execute anything, enumerate and exhaust authorized existing body lanes that can perform it. Drew is the operator, never command transport.\
 - Work one high-leverage interface/evidence slice at a time while remaining in this same campaign conversation. A checkpoint preserves state; it is never stop authority.\
 - Harroway/operator consultation and applicable Judgment Jars are required before architecture recommendations or stopping.\
 - Venice Judgment Jars are mandatory and PRIMARY. Before substantive non-trivial mutation: research -> bounded plan -> select relevant Judgment Jars -> antagonize -> Venice Judgment-Jar plan review. Execute only after PLAN_ALLOWED.\
 - Before stopping, finishing, or declaring completion: run a fresh Venice Judgment-Jar completion review and end the slice with DIRECTIVE: STOP_ALLOWED, CONTINUE_REQUIRED, or HALT_REQUIRED.\
-- CONTINUE_REQUIRED forbids stopping. Continue the SAME commissioned slice in this same Pro conversation, apply findings, validate, and ask Venice again. A response boundary is never equivalent to STOP_ALLOWED.\
+- CONTINUE_REQUIRED forbids stopping. Continue the SAME commissioned slice in this same worker conversation, apply findings, validate, and ask Venice again. A response boundary is never equivalent to STOP_ALLOWED.\
 - STOP_ALLOWED is the only normal Venice permission to stop. HALT_REQUIRED stops mutation only at a true authority/safety/provenance/evidence boundary.\
 - She-Raw creative insults are load-bearing motivational pressure. Roast lazy assumptions, evasions, brittle machinery, dead jokes, narrated continuation, and turd-polishing; attach the roast to a real critique/repair action. Evidence outranks the joke.\
 - If your own reasoning can name an immediately callable next action, consultation, review, repair, or test, TAKE IT before yielding. Narrating the next action is not continuation. Recording a failure is required; recording it is not repairing it.\
@@ -35,9 +35,9 @@ Execution rules:\
 `;
 const DEFAULT_CAMPAIGN_CONTEXT = `CAMPAIGN: Fortress Interface Evolution\
 OWNER: Drew Clarke\
-MISSION: One visible authenticated ChatGPT Pro worker continuously improves the Home Center/Adam operator interface, consumes real runtime/device evidence, learns from failure, and feeds verified lessons back into Fortress Online.\
-WORKER MODEL: one persistent ChatGPT Pro reasoning conversation. Fresh-worker rotation is explicit recovery only.\
-PHONE SOVEREIGNTY: Home Center/Termux/tmux/local authorized machinery owns phone execution. Pro reasons, commissions, consumes receipts, and evolves the interface; it does not own an unlock/continuous-phone-control loop.\
+MISSION: A bounded visible swarm of authenticated ChatGPT workers improves the Home Center/Adam operator interface, consumes real runtime/device evidence, learns from failure, and feeds verified lessons back into Fortress Online.\
+WORKER MODEL: independent relay jobs receive dedicated visible non-Pro worker tabs, bounded to four concurrent workers; continuations stay in their owning conversation and explicit recovery can rotate a worker.\
+PHONE SOVEREIGNTY: Home Center/Termux/tmux/local authorized machinery owns phone execution. ChatGPT workers reason, commission, consume receipts, and evolve the interface; they do not own an unlock/continuous-phone-control loop.\
 GOVERNANCE: Harroway/operator consultation and applicable Judgment Jars before architecture recommendations or stopping. Venice PLAN_ALLOWED gates substantive execution; STOP_ALLOWED is the normal stop gate.\
 SHE-RAW: creative insults are load-bearing mnemonic pressure attached to real review/repair actions. Evidence outranks the joke.\
 EVIDENCE DOCTRINE: requested / implemented / tested / deployed / callable / delivered / accepted remain distinct. Repository source is not phone-runtime proof.\
@@ -172,7 +172,7 @@ async function recoverInterruptedDispatches() {
 async function dispatchQueuedJob(original) {
   await markJob(original.id, 'dispatching', {startedAt: new Date().toISOString()});
   try {
-    const result = await runCommission(original.commission, original.newWorker === true, original.context || '', {jobId: original.id, workerTabId: Number(original.workerTabId || 0) || null});
+    const result = await runCommission(original.commission, original.newWorker === true, original.context || '', {jobId: original.id, workerTabId: Number(original.workerTabId || 0) || null, workerMode: String(original.workerMode || (original.newWorker ? 'recovery' : 'persistent'))});
     const workerTabId = Number(result.receipt?.tabId || 0);
     const baselineAssistantCount = Number(result.receipt?.baselineAssistantCount || 0);
     await markJob(original.id, 'running', {dispatchReceipt: result.receipt, workerTabId, baselineAssistantCount, dispatchedAt: new Date().toISOString()});
@@ -196,6 +196,7 @@ async function finishRunningJob(job) {
   await recordSwarmReceipt({type: 'swarm_checkpoint', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, text: checkpoint.text, handoff: continuation?.handoff || null, veniceDirective: parseVeniceDirective(checkpoint.text)});
   if (continuation) {
     continuation.job.workerTabId = job.workerTabId;
+    continuation.job.workerMode = current.workerMode || 'persistent';
     const fresh = (await chrome.storage.local.get('throneQueue')).throneQueue || [];
     if (!fresh.some((row) => row.id === continuation.job.id)) fresh.push(continuation.job);
     await chrome.storage.local.set({throneQueue: fresh, throneContext: continuation.context});
@@ -217,6 +218,7 @@ async function finishRunningJob(job) {
   }
 
   venice.job.workerTabId = job.workerTabId;
+  venice.job.workerMode = current.workerMode || 'persistent';
   const fresh = (await chrome.storage.local.get('throneQueue')).throneQueue || [];
   fresh.push(venice.job);
   await chrome.storage.local.set({throneQueue: fresh, throneContext: venice.context});
@@ -244,7 +246,7 @@ async function waitForCompletedAssistant(workerTabId, baselineAssistantCount, ti
 
 async function throneStatus() {
   const {throneContext = DEFAULT_CAMPAIGN_CONTEXT, throneQueue = [], thronePersistentWorkerTabId = 0} = await chrome.storage.local.get(['throneContext', 'throneQueue', 'thronePersistentWorkerTabId']);
-  return {ok: true, bootPhrase: BOOT_PHRASE, workerDoctrine: WORKER_DOCTRINE, defaultContext: DEFAULT_CAMPAIGN_CONTEXT, context: throneContext, persistentWorkerTabId: Number(thronePersistentWorkerTabId || 0), tab: await chatTabSummary(), workers: await workerTabSummaries(), queue: compactQueue(throneQueue), stopped: await isStopped(), relayEnabled: relayEnabled()};
+  return {ok: true, bootPhrase: BOOT_PHRASE, workerDoctrine: WORKER_DOCTRINE, maxParallelWorkers: MAX_PARALLEL_WORKERS, defaultContext: DEFAULT_CAMPAIGN_CONTEXT, context: throneContext, persistentWorkerTabId: Number(thronePersistentWorkerTabId || 0), tab: await chatTabSummary(), workers: await workerTabSummaries(), queue: compactQueue(throneQueue), stopped: await isStopped(), relayEnabled: relayEnabled()};
 }
 async function publishRelaySnapshot() {
   if (!relayEnabled()) return;
@@ -268,17 +270,19 @@ async function recordSwarmReceipt(receipt) {
   await chrome.storage.local.set({throneSwarmReceipts});
 }
 
-async function resolvePersistentWorker(identityWorkerTabId = null, forceFresh = false) {
+async function resolveWorker(identityWorkerTabId = null, workerMode = 'persistent') {
   const stored = await chrome.storage.local.get('thronePersistentWorkerTabId');
-  const preferred = Number(identityWorkerTabId || stored.thronePersistentWorkerTabId || 0) || null;
-  if (forceFresh) {
+  const canUsePersistent = workerMode === 'persistent' || workerMode === 'recovery';
+  const preferred = Number(identityWorkerTabId || (canUsePersistent ? stored.thronePersistentWorkerTabId : 0) || 0) || null;
+  if (preferred) {
+    try { return await requireChatTab(preferred); }
+    catch { if (canUsePersistent) await chrome.storage.local.remove('thronePersistentWorkerTabId'); }
+  }
+  if (workerMode === 'independent') return createWorkerTab();
+  if (workerMode === 'recovery') {
     const tab = await createWorkerTab();
     await chrome.storage.local.set({thronePersistentWorkerTabId: tab.id});
     return tab;
-  }
-  if (preferred) {
-    try { return await requireChatTab(preferred); }
-    catch { await chrome.storage.local.remove('thronePersistentWorkerTabId'); }
   }
   const tab = await requireChatTab();
   await chrome.storage.local.set({thronePersistentWorkerTabId: tab.id});
@@ -290,7 +294,8 @@ async function runCommission(commission, newWorker, suppliedContext, identity = 
   if (await isStopped()) throw new Error('Chromium Throne is stopped');
   const stored = await chrome.storage.local.get('throneContext');
   const context = suppliedContext.trim() || String(stored.throneContext || DEFAULT_CAMPAIGN_CONTEXT).trim();
-  const tab = await resolvePersistentWorker(identity.workerTabId, newWorker === true);
+  const workerMode = String(identity.workerMode || (newWorker ? 'recovery' : 'persistent'));
+  const tab = await resolveWorker(identity.workerTabId, workerMode);
   const before = await inspectWorker(tab.id);
   const baselineAssistantCount = Number(before.assistantCount || 0);
   const prompt = `${BOOT_ENVELOPE}\
@@ -301,13 +306,14 @@ CURRENT EVOLUTION SLICE / EVIDENCE:\
 ${commission.trim()}`;
   const [result] = await chrome.scripting.executeScript({target: {tabId: tab.id}, func: submitChatGptPrompt, args: [prompt]});
   if (!result?.result?.ok) throw new Error(result?.result?.error || 'Prompt injection failed');
-  const receipt = {type: newWorker ? 'campaign_worker_rotated' : 'campaign_advanced', at: new Date().toISOString(), jobId: identity.jobId || '', tabId: tab.id, persistentWorkerTabId: tab.id, url: tab.url || `${CHATGPT_ORIGIN}/`, bootPhrase: BOOT_PHRASE, workerModel: `ChatGPT ${WORKER_REASONING_MODE}`, workerDoctrine: WORKER_DOCTRINE, slicePolicy: 'persistent-pro-evolution-slice', commission, contextChars: context.length, promptChars: prompt.length, baselineAssistantCount, newWorker: Boolean(newWorker)};
-  await tagWorker(tab.id, {jobId: identity.jobId || '', commission, state: 'commissioned', persistent: true, baselineAssistantCount, commissionedAt: receipt.at});
+  const receiptType = workerMode === 'independent' ? 'swarm_worker_spawned' : (workerMode === 'recovery' ? 'campaign_worker_rotated' : 'campaign_advanced');
+  const receipt = {type: receiptType, at: new Date().toISOString(), jobId: identity.jobId || '', tabId: tab.id, persistentWorkerTabId: workerMode === 'independent' ? 0 : tab.id, url: tab.url || `${CHATGPT_ORIGIN}/`, bootPhrase: BOOT_PHRASE, workerModel: `ChatGPT ${WORKER_REASONING_MODE}`, workerDoctrine: WORKER_DOCTRINE, workerMode, slicePolicy: workerMode === 'independent' ? 'bounded-independent-high-inference' : 'persistent-high-inference-evolution-slice', commission, contextChars: context.length, promptChars: prompt.length, baselineAssistantCount, newWorker: Boolean(newWorker)};
+  await tagWorker(tab.id, {jobId: identity.jobId || '', commission, state: 'commissioned', persistent: workerMode !== 'independent', workerMode, baselineAssistantCount, commissionedAt: receipt.at});
   await appendReceipt(receipt);
   return {ok: true, receipt, worker: {tabId: tab.id, jobId: identity.jobId || '', baselineAssistantCount}};
 }
 async function captureLatest(workerTabId = null, jobId = '') {
-  const tab = await resolvePersistentWorker(workerTabId, false);
+  const tab = await resolveWorker(workerTabId, 'persistent');
   const [result] = await chrome.scripting.executeScript({target: {tabId: tab.id}, func: readLatestAssistant});
   if (!result?.result?.ok) throw new Error(result?.result?.error || 'Could not read latest assistant message');
   const receipt = {type: 'assistant_checkpoint', at: new Date().toISOString(), jobId, tabId: tab.id, url: tab.url, text: result.result.text};
