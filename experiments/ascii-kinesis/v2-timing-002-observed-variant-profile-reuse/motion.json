@@ -1,0 +1,310 @@
+{
+  "ascii_sheet_sha256": "77de561172b8fedbbe8ba848d74fa538303362eb1d45b2f682c4828c9075853d",
+  "axis_separation": {
+    "action_family_axis": "Run and Arm rise are distinct semantic action families; the measured Arm rise schedule is not reused for Run",
+    "configuration_axis": "none promoted to a timing clock in this specimen",
+    "effect_axis": "unbound; static auxiliary/effect material, if any, is not allowed to spend gait timing bandwidth without synchronization evidence",
+    "temporal_axis": "semantic gait/support phase within an action family; the abstract specimen authors its own reduced key topology",
+    "variant_axis": "orientation/facing; left and right source previews are evidence-equivalent in measured TSR preview cadence but do not create extra abstract time keys"
+  },
+  "clock_channels": [
+    {
+      "authority": "decisive abstract support/root keys",
+      "clock_id": "GAIT_CLOCK",
+      "kind": "TEMPORAL",
+      "note": "Authored ONES/TWOS/FOURS compilation; does not claim the TSR 60 ms preview exposure as a 24 fps timing class.",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authority": "render transform only",
+      "clock_id": "ORIENTATION_VARIANT",
+      "kind": "VARIANT_CONFIGURATION",
+      "note": "Run-left and run-right TSR previews have the same measured 8x60 ms schedule. Orientation selects a variant pass; it does not duplicate decisive gait keys.",
+      "timing_provenance": "OBSERVED"
+    },
+    {
+      "authority": "measured TSR GIF frame delays",
+      "clock_id": "SOURCE_PREVIEW_EVIDENCE",
+      "kind": "OBSERVATION_ONLY",
+      "note": "Kept separate from authored 24 fps timing classes and original-game runtime claims.",
+      "timing_provenance": "OBSERVED"
+    }
+  ],
+  "compatibility": {
+    "backward_compatible": true,
+    "contract": "ASCII_KINESIS_SWARM_CONTRACT_V2",
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "source_art_embedded": false,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "compile": {
+    "authored_hold_frames_per_variant": 14,
+    "connective_frames_per_cycle": 0,
+    "connective_policy": "FAIL_CLOSED_NONE: no connective frame is emitted across support changes or across the non-temporal orientation-pass boundary",
+    "fps": 24,
+    "hold_frames_by_class": {
+      "FOURS": 4,
+      "ONES": 1,
+      "TWOS": 2
+    },
+    "loop_repetitions": 5,
+    "media_bytes": 22620,
+    "media_sha256": "ee54242b8b77bd1af48dcbd59bfc57fd47e27093a3cabd3f1ed982eb119f96e2",
+    "semantic_frames_per_two_variant_cycle": 28,
+    "variant_passes": [
+      "LEFT",
+      "RIGHT"
+    ],
+    "video_frames_total": 140
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-timing-002-observed-variant-profile-reuse",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "readiness / cadence boundary before locomotion",
+      "clock_state": {
+        "GAIT_CLOCK": "READY",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K20",
+      "motion_arc_root_note": "root centered; zero travel; orientation is a separate render/config axis",
+      "name": "READY",
+      "pose_rig": {
+        "joints": {
+          "head": [24,4],
+          "left_foot": [20,16],
+          "left_hand": [19,8],
+          "left_knee": [22,13],
+          "right_foot": [28,16],
+          "right_hand": [29,8],
+          "right_knee": [26,13],
+          "root": [24,10],
+          "spine": [24,7]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "BILATERAL_GROUND",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "support acquisition / readable contact",
+      "clock_state": {
+        "GAIT_CLOCK": "LEFT_CONTACT",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K21",
+      "motion_arc_root_note": "root advances one unit over left support; orientation may mirror without creating a new time sample",
+      "name": "LEFT_CONTACT",
+      "pose_rig": {
+        "joints": {
+          "head": [25,4],
+          "left_foot": [19,16],
+          "left_hand": [29,8],
+          "left_knee": [22,13],
+          "right_foot": [31,15],
+          "right_hand": [20,9],
+          "right_knee": [28,12],
+          "root": [25,10],
+          "spine": [25,7]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "LEFT_FOOT_GROUND",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "release / transit",
+      "clock_state": {
+        "GAIT_CLOCK": "AIR_A",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K22",
+      "motion_arc_root_note": "root rises and advances; no support contact; fast transit is intentionally compressed",
+      "name": "AIR_A",
+      "pose_rig": {
+        "joints": {
+          "head": [26,3],
+          "left_foot": [22,15],
+          "left_hand": [30,7],
+          "left_knee": [24,12],
+          "right_foot": [30,14],
+          "right_hand": [22,8],
+          "right_knee": [28,12],
+          "root": [26,9],
+          "spine": [26,6]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "AIRBORNE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "contralateral support acquisition / readable contact",
+      "clock_state": {
+        "GAIT_CLOCK": "RIGHT_CONTACT",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K23",
+      "motion_arc_root_note": "root advances over right support; same temporal key serves either orientation variant",
+      "name": "RIGHT_CONTACT",
+      "pose_rig": {
+        "joints": {
+          "head": [27,4],
+          "left_foot": [33,15],
+          "left_hand": [22,9],
+          "left_knee": [30,12],
+          "right_foot": [23,16],
+          "right_hand": [31,8],
+          "right_knee": [25,13],
+          "root": [27,10],
+          "spine": [27,7]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "RIGHT_FOOT_GROUND",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "release / transit toward cadence boundary",
+      "clock_state": {
+        "GAIT_CLOCK": "AIR_B",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K24",
+      "motion_arc_root_note": "second transit arc; heading configuration does not reset gait phase",
+      "name": "AIR_B",
+      "pose_rig": {
+        "joints": {
+          "head": [28,3],
+          "left_foot": [32,14],
+          "left_hand": [24,8],
+          "left_knee": [30,12],
+          "right_foot": [24,15],
+          "right_hand": [32,7],
+          "right_knee": [26,12],
+          "root": [28,9],
+          "spine": [28,6]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "AIRBORNE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "recovery / readable end state",
+      "clock_state": {
+        "GAIT_CLOCK": "SETTLE",
+        "ORIENTATION_VARIANT": "ANY"
+      },
+      "key_id": "K25",
+      "motion_arc_root_note": "root settles after one abstract stride; variant pass may switch only as presentation, not as an implied turn",
+      "name": "SETTLE",
+      "pose_rig": {
+        "joints": {
+          "head": [29,4],
+          "left_foot": [25,16],
+          "left_hand": [24,8],
+          "left_knee": [27,13],
+          "right_foot": [33,16],
+          "right_hand": [34,8],
+          "right_knee": [31,13],
+          "root": [29,10],
+          "spine": [29,7]
+        },
+        "rig_id": "abstract_biped_B4"
+      },
+      "support_contact": "BILATERAL_GROUND",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "timing",
+  "manifest": {
+    "format_version": 2,
+    "media_bytes": 22620,
+    "media_sha256": "ee54242b8b77bd1af48dcbd59bfc57fd47e27093a3cabd3f1ed982eb119f96e2",
+    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "status": "BUILT",
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "rig": {
+    "description": "generic Blender-style ASCII stick rig; no source-character silhouette",
+    "joints": ["root","spine","head","left_hand","right_hand","left_knee","right_knee","left_foot","right_foot"],
+    "rig_id": "abstract_biped_B4"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 100529,
+    "game": "Pac-Slot (JPN)",
+    "name": "Pac-Man",
+    "observed": [
+      "TSR identifies the asset as a 1456x599 PNG and exposes three named animated previews: Arm rise, Run (left), and Run (right).",
+      "Exact full-sheet PNG SHA-256 and dimensions were verified through the authorized phone lane before extraction.",
+      "The complete sheet was inspected as one source surface and presents a dense product space of repeated character-state cells rather than one self-evident linear timeline.",
+      "Run (left) and Run (right) TSR preview GIFs each contain 8 frames, each held 60 ms, for 480 ms total.",
+      "Arm rise TSR preview GIF contains 5 frames with measured durations 500/150/100/500/100 ms, demonstrating a different nonuniform preview schedule."
+    ],
+    "page_url": "https://www.spriters-resource.com/arcade/pacslotjpn/asset/100529/",
+    "platform": "Arcade",
+    "preview_timing_observations": [
+      {"dimensions":[96,96],"frame_count":5,"frame_durations_ms":[500,150,100,500,100],"name":"Arm rise","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"75046d5ef266b4423b8ea1b64ed342e524703decc6e8734d77f883431710741a","total_duration_ms":1350},
+      {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (left)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"1e4e4ca828e2afe170a11ae432228c4f57eefebbadbbb803a64db4391ddcbcec","total_duration_ms":480},
+      {"dimensions":[96,96],"frame_count":8,"frame_durations_ms":[60,60,60,60,60,60,60,60],"name":"Run (right)","provenance":"OBSERVED_TSR_PREVIEW","raw_sha256":"ddd6eae8557c54aefbd3b6856d4ea82c08fad4168740b018aab313706cfd2f60","total_duration_ms":480}
+    ],
+    "rights_note": "Copyrighted source sheet and preview GIFs were used only as analysis evidence. No source pixels, palette, contours, layout, animation frames, tracing, redistribution, or close imitation are stored in this specimen. The shipped rig and video are abstract ASCII geometry authored independently.",
+    "sheet": {
+      "format": "PNG",
+      "height": 599,
+      "inspection_note": "Exact full sheet bytes were fetched through the authorized Home Center -> primary-phone lane; a transient reduced whole-sheet visual canary was inspected only for analysis and is not tracked or embedded.",
+      "raw_sha256": "0ca9fb56f96862294fc1c62fcbb391a9a47d755e61cd5e8d7ab4c7ec64c265f6",
+      "whole_sheet_inspected": true,
+      "width": 1456
+    },
+    "site": "The Spriters Resource",
+    "timing_scope_note": "OBSERVED timing here means measured TSR preview GIF exposure, not a claim of original game-runtime authenticity.",
+    "unknown": [
+      "Whether TSR preview GIF delays reproduce original Pac-Slot runtime timing exactly.",
+      "Original game display refresh, hit-stop, game-state windows, cancel windows, or input cadence.",
+      "A one-to-one mapping from every static sheet cell to the three TSR preview frames.",
+      "Chronology of cells not established by a named preview."
+    ]
+  },
+  "thesis": "A measured timing profile may be evidence-equivalent across orientation variants without turning the orientation axis into extra time. Source-preview timing and authored ONES/TWOS/FOURS compilation remain separate claims.",
+  "timing_doctrine": {
+    "FOURS": "one drawing/key held four display frames",
+    "ONES": "new drawing/key sample every display frame",
+    "STREET_FIGHTER/CAPCOM": "nonuniform gameplay timing may mix anticipation holds, fast transitions, impact/hit-stop candidates, recoil/recovery holds, silhouette exaggeration, and selective sampling; inferred timing is never reported as source-authentic",
+    "TWOS": "one drawing/key held two display frames",
+    "nominal_24fps_samples_per_second": {"FOURS":6,"ONES":24,"TWOS":12},
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Observed Variant Profile Reuse",
+  "variant_profile_relation": {
+    "compiler_use": "Render the same decisive abstract temporal keys under LEFT and RIGHT orientation passes without duplicating the key list.",
+    "relation": "Run (left) and Run (right) TSR preview schedules are byte-distinct GIFs but timing-equivalent at 8 frames x 60 ms.",
+    "runtime_authenticity_claim": false,
+    "source_relation_provenance": "OBSERVED"
+  }
+}
