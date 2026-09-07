@@ -1,6 +1,6 @@
 {
   "ascii_literal_text": true,
-  "ascii_surface": "real preformatted DOM text",
+  "ascii_surface": "pre",
   "backward_compatible": true,
   "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
   "correction_hooks": [
@@ -26,18 +26,16 @@
   "format_version": 2,
   "lane": "timing",
   "ligatures_disabled": true,
-  "media_bytes": 4828,
-  "media_sha256": "2f514bc6ff6ac48aa7cd1aa789ef6752868eb9da53726fd897a6386e9eb0c0fe",
+  "media_bytes": 3025,
+  "media_sha256": "10bfae387751b060c97d89e767295c8d00a7c3fee30cbac47b6d0689c4b97613",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 7,
-    "authored_hold_frames_per_cycle": 16,
     "connective_frames_per_cycle": 0,
     "connector_semantics_fail_closed": true,
     "deterministic_connective_motion": true,
     "explicit_holds": true,
     "fps": 24,
-    "loop_repetitions": 1,
     "parent_transform_updates_are_not_child_keys": true,
     "video_frames_total": 16
   },
