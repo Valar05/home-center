@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-07",
+  "scope": "chromium-throne-worker-orchestration",
+  "unit": "bounded-independent-nonpro-relay-workers",
+  "sourceCommit": "95afd6f093053698a9701a4d9b1c3939cbf440ef",
+  "integrationRunId": 34109546698,
+  "capabilityStates": {
+    "requested": true,
+    "implemented": true,
+    "tested": true,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "implemented": [
+    "Reused the existing Chromium Throne service-worker queue and Atom/Vlad relay instead of creating a new scheduler, browser farm, or control plane.",
+    "Raised the bounded worker wave from one to four concurrent visible ChatGPT tabs.",
+    "Atom-relay jobs now receive independent worker tabs; manual campaign continuity remains persistent and explicit recovery remains a distinct rotation mode.",
+    "Continuation and Venice follow-up preserve the owning worker tab and worker mode.",
+    "Worker doctrine requests highest available inference on a non-Pro surface and explicitly forbids Pro or credit-bearing compute.",
+    "Operator status exposes the non-Pro worker mode and maximum parallelism; existing stop, resume, capture, queue, handoff, and receipt surfaces remain in use."
+  ],
+  "verification": {
+    "remoteGitHubActionsRun": 34109546698,
+    "syntax": "passed",
+    "swarmCoreTests": "12/12 passed",
+    "throneContextTests": "17/17 passed",
+    "contractAssertions": "passed",
+    "gitDiffCheck": "passed",
+    "oneUseIntegrationScaffoldingRemoved": true
+  },
+  "capabilityTruth": "Repository source and remote CI prove implemented and tested only. They do not prove installation, physical runtime callability, delivery, or operator acceptance.",
+  "nextRealBoundary": {
+    "kind": "canonical-installer-and-live-runtime",
+    "detail": "tools/install_chromium_throne.ps1 still pins the old single-Pro Chromium Throne 0.7.0 source commit 9c6936c9fea465ee60cce8d5a33d697b7e658be0, asserts MAX_PARALLEL_WORKERS=1 and Pro reasoning doctrine, and emits a single-Pro install receipt.",
+    "requiredNextEvidence": [
+      "Retarget and update the canonical installer and its contract to the landed 0.8.0 bounded non-Pro worker doctrine.",
+      "Install or reload Chromium Throne through the authorized physical deployment lane.",
+      "Capture live swarm.status and worker/relay receipts proving multiple independent visible workers are actually callable on the running Throne."
+    ]
+  },
+  "afterThat": "Once live bounded concurrency is proven, worker context-pressure health and automatic retirement/rotation become the next orchestration gap."
+}
