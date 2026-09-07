@@ -1,0 +1,83 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "experiment_id": "v2-video-motion-006-loaded-squat-reversal-cost",
+  "title": "Loaded squat · continuous support → compression → bottom reversal → paid recovery",
+  "lane": "video-motion",
+  "format_version": 2,
+  "source": {
+    "title": "Squat - exercise demonstration video.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
+    "direct_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm",
+    "origin": "Wikimedia Commons extract from FitnessScape's YouTube video Half Rack Workout",
+    "author": "FitnessScape",
+    "source_date": "2019-04-25",
+    "commons_extract_date": "2025-03-19",
+    "rights_status": "CC_BY_3_0",
+    "license_id": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "attribution": "FitnessScape",
+    "rights_note": "Source video was used only as analysis evidence. No source pixels, frames, audio, palette, contours, or expressive artwork are embedded in the repo product or its Motion Dungeon MP4. The output is an independently authored abstract ASCII rig preserving only general motion facts and provenance.",
+    "source_sha256": "2440985661c3533a4ce78472b0f4577dbdf023aff3f8f9a225bbb5ff8071b1e9",
+    "source_bytes": 564942,
+    "source_duration_s": 7.1,
+    "source_dimensions": [1280, 720],
+    "stream_codec": "vp9",
+    "stream_fps": "30/1",
+    "selected_action_segment_s": [4.0, 6.75],
+    "whole_action_inspection": "OBSERVED: the complete 7.100 s source was decoded in order on primary-phone and inspected as 28 ordered 4 fps grayscale ASCII representations before keys were chosen. The coherent second squat repetition 4.000–6.750 s was then inspected as a tighter ordered 2 fps crop, with 30 fps frame-difference measurements used only to locate change windows. Source pixels remained analysis-only and are absent from all outputs.",
+    "analysis_derivatives": {
+      "whole_clip": {"sampling": "4 fps ordered 28-frame 32x18 grayscale ASCII representation", "persistent_source_pixels": false},
+      "selected_action": {"sampling": "2 fps ordered crop 34x34 over 4.000–6.750 s", "persistent_source_pixels": false},
+      "numeric_motion_window": {"sampling": "30 fps 64x36 grayscale frame-difference metrics", "persistent_source_pixels": false}
+    }
+  },
+  "evidence_boundary": {
+    "observed": [
+      "The entire 7.100 s source was inspected in order before decisive keys were selected.",
+      "The selected second repetition stays ground-adjacent from 4.000–6.750 s; no airborne phase is visible at the inspected scale.",
+      "At 4.000 s the figure is near an upright loaded stack; by 4.500 s a clear downward compression is underway.",
+      "At 5.000 s the body/load system is visibly deeper; 5.500 s is the lowest sampled compression in the selected ordered inspection.",
+      "By 6.000 s the body/load system is visibly ascending, and by 6.500 s it has returned near the initial upright stack; 6.750 s is a settle sample.",
+      "The dominant root/load trajectory is down then up with comparatively little horizontal travel in the selected repetition.",
+      "No collision or external impact event is present; the bottom is a direction reversal under continuous support rather than an impact."
+    ],
+    "inferred": [
+      "Exact plantar pressure split, precise hip/knee/ankle angles, precise pelvis point, and exact bar-to-body contact geometry are not pixel-resolved and are not promoted as observed facts.",
+      "The abstract bar channel represents the visible loaded-bar relationship as a stable carried constraint; its exact shoulder contact locus is output-local abstraction.",
+      "Transferable principle: continuous ground support can carry a large load reversal without a contact-state change; the causal event is direction change under compression, then force transfer into re-extension.",
+      "Compile cadence is authored with PoseLab FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM classes; source timestamps are OBSERVED but exposure classes are INFERRED.",
+      "Connective motion may interpolate geometry only while support/contact/root semantic state is unchanged; it cannot invent a foot release, bar release, impact, or root teleport."
+    ],
+    "unknown": [
+      "Exact left/right foot weight distribution",
+      "Exact joint angles and anatomical landmark coordinates",
+      "Exact bar-to-shoulder contact points",
+      "Exact muscular effort or internal force magnitude"
+    ]
+  },
+  "principle": "A grounded load reversal is a direction-change event, not a contact-change event: support stays continuous while compression bottoms, force direction flips, and recovery must visibly pay the load cost before readiness returns.",
+  "rig": {
+    "type": "abstract_loaded_ascii_biped",
+    "coordinate_space": "48x18 character grid",
+    "source_art_dependency": false,
+    "joints": ["head","shoulder","root","left_hand","right_hand","left_knee","right_knee","left_foot","right_foot","bar_left","bar_right"],
+    "glyph_semantics": {"O":"head","@":"root/pelvis proxy","+":"knees / joint accents","x":"hands constrained to bar","o":"bar endpoints","=":"loaded bar","/\\|":"limb / torso segments","L,R":"fixed ground support markers","_":"ground plane"},
+    "constraint_channels": {"ground_support":"BILATERAL_VISIBLE_WEIGHT_SPLIT_UNKNOWN","bar_constraint":"CARRIED_LOAD_CONTINUOUS_ABSTRACT_CONTACT","root_policy":"VERTICAL_TRAVEL_NO_TELEPORT"}
+  },
+  "keys": [
+    {"key_id":"K0","source_time_s":4.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":0,"compile_timing_class":"FOURS","compile_timing_provenance":"INFERRED","compile_hold_frames":4,"causal_role":"LOCKOUT_READY","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"UPRIGHT_HIGH","force_note":"Loaded stack before descent; internal bracing magnitude UNKNOWN.","recovery_cost":"NONE_YET","causal_boundary_to_next":false,"joints":{"head":[24,2],"shoulder":[24,5],"root":[24,9],"left_hand":[18,5],"right_hand":[30,5],"left_knee":[19,12],"right_knee":[29,12],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[12,5],"bar_right":[36,5]}},
+    {"key_id":"K1","source_time_s":4.5,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":8,"compile_timing_class":"TWOS","compile_timing_provenance":"INFERRED","compile_hold_frames":2,"causal_role":"DESCENT_COMMIT","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"DESCENDING","force_note":"Load and root proxy descend together; support remains continuous.","recovery_cost":"ACCUMULATING_COMPRESSION","causal_boundary_to_next":false,"joints":{"head":[23,3],"shoulder":[23,6],"root":[24,10],"left_hand":[17,6],"right_hand":[29,6],"left_knee":[18,13],"right_knee":[30,13],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[11,6],"bar_right":[35,6]}},
+    {"key_id":"K2","source_time_s":5.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":14,"compile_timing_class":"TWOS","compile_timing_provenance":"INFERRED","compile_hold_frames":2,"causal_role":"LOAD_COMPRESSION","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"DEEP_DESCENT","force_note":"Root/load vertical travel continues downward while knees spread and flex in the abstract rig.","recovery_cost":"HIGH_COMPRESSION","causal_boundary_to_next":false,"joints":{"head":[22,4],"shoulder":[22,7],"root":[24,11],"left_hand":[16,7],"right_hand":[28,7],"left_knee":[17,14],"right_knee":[31,14],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[10,7],"bar_right":[34,7]}},
+    {"key_id":"K3","source_time_s":5.5,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":18,"compile_timing_class":"ONES","compile_timing_provenance":"INFERRED","compile_hold_frames":1,"causal_role":"BOTTOM_REVERSAL","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"LOWEST_SAMPLED_REVERSAL","force_note":"Direction changes under continuous support; no impact/contact event is authored.","recovery_cost":"MAX_COMPRESSION","causal_boundary_to_next":false,"joints":{"head":[21,5],"shoulder":[21,8],"root":[24,12],"left_hand":[15,8],"right_hand":[27,8],"left_knee":[16,14],"right_knee":[32,14],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[9,8],"bar_right":[33,8]}},
+    {"key_id":"K4","source_time_s":6.0,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":24,"compile_timing_class":"TWOS","compile_timing_provenance":"INFERRED","compile_hold_frames":2,"causal_role":"ASCENT_DRIVE","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"ASCENDING","force_note":"Abstract root/load trajectory rises; continuous support is retained as force-transfer channel.","recovery_cost":"PAYING_LOAD_COST","causal_boundary_to_next":false,"joints":{"head":[22,4],"shoulder":[22,7],"root":[24,11],"left_hand":[16,7],"right_hand":[28,7],"left_knee":[17,14],"right_knee":[31,14],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[10,7],"bar_right":[34,7]}},
+    {"key_id":"K5","source_time_s":6.5,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":32,"compile_timing_class":"FOURS","compile_timing_provenance":"INFERRED","compile_hold_frames":4,"causal_role":"RESTACK_WITH_RESIDUAL_FLEX","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"NEAR_UPRIGHT_RESIDUAL_FLEX","force_note":"Root has recovered most height, but torso/bar and knee stack still visibly lag full readiness.","recovery_cost":"RESIDUAL_FLEX_VISIBLE","causal_boundary_to_next":false,"joints":{"head":[23,3],"shoulder":[23,6],"root":[24,9],"left_hand":[17,6],"right_hand":[29,6],"left_knee":[18,13],"right_knee":[30,13],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[11,6],"bar_right":[35,6]}},
+    {"key_id":"K6","source_time_s":6.75,"timing_class":"OBSERVED_TIMESTAMP","timing_provenance":"OBSERVED","compile_frame":40,"compile_timing_class":"FOURS","compile_timing_provenance":"INFERRED","compile_hold_frames":4,"causal_role":"SETTLE_READY","support_state":"BILATERAL_GROUND_VISIBLE_WEIGHT_SPLIT_UNKNOWN","contact_state":"BAR_CARRIED_CONTINUOUS_ABSTRACT","root_state":"UPRIGHT_STABLE","force_note":"Final settle restores readiness without changing support/contact state.","recovery_cost":"COST_PAID_READY","causal_boundary_to_next":false,"joints":{"head":[24,2],"shoulder":[24,5],"root":[24,9],"left_hand":[18,5],"right_hand":[30,5],"left_knee":[19,12],"right_knee":[29,12],"left_foot":[17,16],"right_foot":[31,16],"bar_left":[12,5],"bar_right":[36,5]}}
+  ],
+  "motion_dungeon": {"compile_fps":24,"render_dimensions":[768,432],"method":"authored ASCII keys -> explicit holds/timing -> deterministic connective geometry -> ASCII-only frame render -> H.264 MP4 -> SPA","semantic_authority":"AUTHORED_KEYS","transition_policy":"Interpolate geometry only while support_state, contact_state and root semantic channel remain compatible. A causal_boundary_to_next forces authored bottom-reversal staging; no support release, contact change, impact, or root teleport may be invented.","source_pixels_used":false},
+  "quality_gates": {
+    "tango": {"status":"SATISFIED","criteria":["SILHOUETTE CLEAR","LOAD TRANSFER VISIBLE","CONTACT READABLE","FOLLOW THROUGH","RECOVERY","COST CARRIED"],"iterations":[{"iteration":1,"inspect":"Rendered decisive-key montage from MP4. Ground/bar constraints read, compression arc read, but RESTACK and SETTLE_READY were visually identical.","highest_value_visible_defect":"RECOVERY/COST NOT VISIBLE: the load cost disappeared at top because K5 duplicated K6.","correction":"Changed K5 to RESTACK_WITH_RESIDUAL_FLEX: torso/bar remain one row low and knees remain visibly flexed; removed bottom hold-snap so authored K3→K4 drive connects without teleport.","pre_correction_media_sha256":"5921d6639eb18db8c97c8a193fa33629da7073df96bcd36d6dabc8f139c9eb3b"},{"iteration":2,"inspect":"Re-rendered MP4 inspected as ordered output frames including K0,K1,K2,K3, K3→K4 connective frame, K4,K5,K6 and terminal hold.","visible_result":"PASS: silhouette compresses and re-extends; bar/hands remain constrained; L/R ground supports stay fixed; bottom reversal is authored; ascent continues visibly; K5 carries residual flex before K6 readiness. No transition invents support/contact release or root teleport.","material_defect_remaining":false}]},
+    "noodle_queen": {"status":"APPROVED","verdict":"PASS","inspect":"Final post-Tango rendered sequence inspected at decisive and connective frames.","consider":{"taste":"Specific loaded-squat silhouette, not a generic bob: the long bar, fixed bilateral feet, progressively widening/deepening knee geometry, and residual-flex restack all participate in one readable action.","function":"The animation teaches one useful causal distinction: bottom reversal changes force direction while contact/support remain continuous. Root/load travel, recovery and cost are legible without source pixels.","contempt":"Rejects the cheap version where the rig merely squashes and springs back. The residual-flex K5 and explicit bottom key prevent consequence-free tween sludge."},"reasons":["Specificity survives abstraction.","Support and carried-load contact remain readable through the reversal.","Recovery visibly pays residual flex before readiness.","The specimen is compact and worth attention because it isolates a non-contact causal event: force-direction reversal under unchanged support."]}
+  },
+  "compatibility": {"primary_tabs":["ASCII","JSON","VIDEO"],"ascii_literal":true,"offline_spa":true,"backward_compatible":true,"source_pixels_used_in_output":false},
+  "media": {"mime":"video/mp4","sha256":"6688b2347f1df645c2ac8d29d38c2760a758bd4136050432cb8b9e0c7efcf563","bytes":20213,"frame_count":48,"compile_fps":24,"render_dimensions":[768,432],"source":"abstract_ascii_rig_only","embedded_in_spa":true}
+}
