@@ -16,6 +16,7 @@ STARTUP_WAIT_SECONDS="${HC_PHONE_RELAY_STARTUP_WAIT_SECONDS:-120}"
 PYTHON="${HC_PHONE_PYTHON:-python}"
 RELAY="$ROOT/tools/android_phone_home_center_relay.py"
 RECOVERY_REASON="status_check"
+DESIRED_SOURCE_SHA256=""
 
 mkdir -p "$STATE_DIR"
 
@@ -30,12 +31,20 @@ relay_alive() {
   [ -n "$pids" ]
 }
 
+desired_source_sha256() {
+  "$PYTHON" - "$RELAY" <<'PY'
+import hashlib,sys
+print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())
+PY
+}
+
 heartbeat_ok() {
   wanted_pid="$1"
+  wanted_sha="$2"
   [ -f "$HEARTBEAT" ] || return 1
-  "$PYTHON" - "$HEARTBEAT" "$wanted_pid" "$MAX_HEARTBEAT_AGE" <<'PY' >/dev/null 2>&1
+  "$PYTHON" - "$HEARTBEAT" "$wanted_pid" "$MAX_HEARTBEAT_AGE" "$wanted_sha" <<'PY' >/dev/null 2>&1
 import json,sys,time
-path,pid,max_age=sys.argv[1],int(sys.argv[2]),int(sys.argv[3])
+path,pid,max_age,wanted_sha=sys.argv[1],int(sys.argv[2]),int(sys.argv[3]),sys.argv[4]
 try:
     data=json.load(open(path,encoding='utf-8'))
 except Exception:
@@ -51,16 +60,19 @@ if age < 0 or age > max_age:
     raise SystemExit(6)
 if data.get('state') not in {'poll_ok','command_completed','command_failed'}:
     raise SystemExit(7)
+if data.get('sourceSha256')!=wanted_sha:
+    raise SystemExit(8)
 PY
 }
 
 wait_for_heartbeat() {
   wanted_pid="$1"
   tries="${2:-$STARTUP_WAIT_SECONDS}"
+  wanted_sha="$3"
   i=0
   while [ "$i" -lt "$tries" ]; do
     kill -0 "$wanted_pid" 2>/dev/null || return 1
-    heartbeat_ok "$wanted_pid" && return 0
+    heartbeat_ok "$wanted_pid" "$wanted_sha" && return 0
     i=$((i+1))
     sleep 1
   done
@@ -70,9 +82,9 @@ wait_for_heartbeat() {
 print_receipt() {
   status="$1"
   pids="$(relay_pids | tr '\n' ' ' | sed 's/[[:space:]]*$//')"
-  "$PYTHON" - "$status" "$RECOVERY_REASON" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" <<'PY'
+  "$PYTHON" - "$status" "$RECOVERY_REASON" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" "$DESIRED_SOURCE_SHA256" <<'PY'
 import json,os,sys,time
-status,recovery_reason,root,relay,pids,heartbeat,log,receipts,latest=sys.argv[1:]
+status,recovery_reason,root,relay,pids,heartbeat,log,receipts,latest,desired_sha=sys.argv[1:]
 now=int(time.time())
 hb={'present':False}
 if os.path.isfile(heartbeat):
@@ -86,6 +98,7 @@ if os.path.isfile(heartbeat):
             'state':raw.get('state'),
             'lastSuccessAtEpoch':raw.get('lastSuccessAtEpoch'),
             'ageSeconds':max(0,now-int(raw.get('lastSuccessAtEpoch') or 0)),
+            'sourceSha256':raw.get('sourceSha256'),
         })
     except Exception as exc:
         hb['parseError']=type(exc).__name__
@@ -98,6 +111,7 @@ obj={
     'repo':root,
     'relay':relay,
     'pids':pids.split() if pids else [],
+    'desiredSourceSha256':desired_sha or None,
     'heartbeatPath':heartbeat,
     'heartbeat':hb,
     'log':log,
@@ -120,17 +134,19 @@ if [ ! -f "$RELAY" ]; then
   exit 2
 fi
 
+DESIRED_SOURCE_SHA256="$(desired_source_sha256)"
+
 if relay_alive; then
   existing_pid="$(relay_pids | head -n1)"
-  if heartbeat_ok "$existing_pid"; then
-    RECOVERY_REASON="fresh_home_center_heartbeat"
-    say "relay process has a fresh Home Center poll heartbeat"
+  if heartbeat_ok "$existing_pid" "$DESIRED_SOURCE_SHA256"; then
+    RECOVERY_REASON="fresh_home_center_heartbeat_current_source"
+    say "relay process has a fresh Home Center poll heartbeat from current source"
     printf '%s\n' "$existing_pid" > "$PIDFILE"
     print_receipt "healthy"
     exit 0
   fi
-  RECOVERY_REASON="stale_or_unproven_existing_relay"
-  say "relay process exists but Home Center liveness is not proven; attempting bounded recovery"
+  RECOVERY_REASON="stale_source_or_unproven_existing_relay"
+  say "relay process exists but current-source Home Center liveness is not proven; attempting bounded recovery"
   for pid in $(relay_pids); do kill "$pid" 2>/dev/null || true; done
   sleep 1
 else
@@ -144,20 +160,20 @@ nohup "$PYTHON" "$RELAY" >> "$LOG" 2>&1 < /dev/null &
 pid=$!
 printf '%s\n' "$pid" > "$PIDFILE"
 
-if wait_for_heartbeat "$pid" "$STARTUP_WAIT_SECONDS"; then
-  say "relay started and completed a fresh Home Center poll"
+if wait_for_heartbeat "$pid" "$STARTUP_WAIT_SECONDS" "$DESIRED_SOURCE_SHA256"; then
+  say "relay started and completed a fresh Home Center poll from current source"
   print_receipt "recovered"
   exit 0
 fi
 
 if kill -0 "$pid" 2>/dev/null; then
-  say "relay is alive but did not prove Home Center liveness"
+  say "relay is alive but did not prove current-source Home Center liveness"
   tail -n 30 "$LOG" || true
   print_receipt "running_unconfirmed"
   exit 1
 fi
 
-say "relay exited before proving Home Center liveness"
+say "relay exited before proving current-source Home Center liveness"
 tail -n 40 "$LOG" || true
 print_receipt "failed"
 exit 1
