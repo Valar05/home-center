@@ -1,0 +1,21 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "id": "v2-locomotion-004-support-height-handoff",
+  "lane": "locomotion",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "motion_json": "motion.json",
+  "builder": "build.py",
+  "spa": "support-height-handoff.motion.html",
+  "embedded_media_authoritative": true,
+  "media_sha256": "b510a2f108d79bfe450f207fddf35071487158364c8dfb62525363faa6c27710",
+  "media_bytes": 4208,
+  "source_asset_id": 81106
+}
