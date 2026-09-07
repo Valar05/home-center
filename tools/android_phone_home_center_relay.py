@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
-import json, os, secrets, subprocess, sys, time, urllib.request, urllib.error
+import hashlib, json, os, secrets, subprocess, sys, time, urllib.request, urllib.error
 from pathlib import Path
 CFG=Path(os.path.expanduser('~/.config/home-center')); PAIR=CFG/'codex-hub.json'; NODE=CFG/'phone-relay.json'
 BASE=os.getenv('HC_PHONE_RELAY_BASE','https://us-central1-home-center-dclar.cloudfunctions.net/phoneHandsRelay'); DEVICE_ID=os.getenv('HC_PHONE_DEVICE_ID','primary-phone'); POLL=float(os.getenv('HC_PHONE_RELAY_POLL_SECONDS','2.0')); OVERLAY_HEARTBEAT_SECONDS=float(os.getenv('HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS','10.0'))
 STATE_DIR=Path(os.getenv('HC_PHONE_STATE_DIR',os.path.expanduser('~/.local/state/home-center'))); HEARTBEAT=Path(os.getenv('HC_PHONE_RELAY_HEARTBEAT',str(STATE_DIR/'phone-relay-heartbeat.json')))
-ROOT=Path(__file__).resolve().parent.parent; sys.path.insert(0,str(ROOT/'tools'))
+ROOT=Path(__file__).resolve().parent.parent; RELAY_SOURCE_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(); sys.path.insert(0,str(ROOT/'tools'))
 from android_phone_hands_bridge import observe as hands_observe, act as hands_act
 from android_phone_local_executive import execute as local_execute
 from android_phone_factory_tools import execute as factory_execute
@@ -53,7 +53,7 @@ def ensure_device():
  token=secrets.token_urlsafe(48);reg=http('/register',{'deviceId':DEVICE_ID,'deviceToken':token,'label':'Drew Android Phone','capabilities':DEVICE_CAPABILITIES},access_token());data={'deviceId':DEVICE_ID,'deviceToken':token,'registeredAt':time.time(),'registration':reg};NODE.write_text(json.dumps(data,indent=2)+'\n');os.chmod(NODE,0o600);return data
 def write_heartbeat(device_id, state, command_id=''):
  HEARTBEAT.parent.mkdir(parents=True,exist_ok=True)
- obj={'schema':'home-center-phone-relay-heartbeat-v1','deviceId':device_id,'pid':os.getpid(),'state':state,'lastSuccessAtEpoch':int(time.time()),'commandId':str(command_id or '')[:180]}
+ obj={'schema':'home-center-phone-relay-heartbeat-v1','deviceId':device_id,'pid':os.getpid(),'state':state,'lastSuccessAtEpoch':int(time.time()),'commandId':str(command_id or '')[:180],'sourceSha256':RELAY_SOURCE_SHA256}
  tmp=HEARTBEAT.with_suffix(HEARTBEAT.suffix+'.tmp')
  tmp.write_text(json.dumps(obj,sort_keys=True)+'\n',encoding='utf-8');os.chmod(tmp,0o600);os.replace(tmp,HEARTBEAT)
 def dungeon_run(p):
