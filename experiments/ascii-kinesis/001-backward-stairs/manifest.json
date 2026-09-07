@@ -8,24 +8,24 @@
     "backward-stairs-ascii.mp4"
   ],
   "tracked_artifacts": [
-    "backward-stairs.motion.html",
     "motion.json",
     "motion.uapl",
     "motion.uat",
     "backward-stairs-ascii.mp4",
     "build.py"
   ],
-  "generated_artifacts": [
-    "contact-sheet.txt"
+  "generated_delivery_artifacts": [
+    "contact-sheet.txt",
+    "backward-stairs.motion.html"
   ],
-  "embedded_views": [
+  "embedded_delivery_views": [
     "animation",
     "raw ASCII contact sheet",
     "raw JSON",
     "UAPL/UAT source",
     "manifest"
   ],
-  "backward_compatibility": "Readers must accept all earlier anthology-entry versions; new fields/views are additive unless a future major version explicitly provides a lossless adapter.",
+  "backward_compatibility": "Readers must accept all earlier anthology-entry versions; new fields/views are additive unless a future major version explicitly provides a lossless adapter. Previously delivered self-contained HTML remains valid.",
   "format_version": 1,
   "generalized_learning_candidates": [
     "Backward ascent and descent are not symmetric reversed motions.",
