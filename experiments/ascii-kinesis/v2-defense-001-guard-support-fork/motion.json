@@ -1,0 +1,333 @@
+{
+  "ascii_sheet_sha256": "b2c17db8202e639c6b5b465910b8795afe3803658987ebf6760ee77da77b3d9e",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate only when support_contact, contact_state, and root_state are identical across adjacent decisive keys. Otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 11653,
+    "media_sha256": "8b0cde408e9b3597b875beb37d2d52a62704f4ec93b636b4d7e595bf57c2eef9",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow render of generated ASCII frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 24,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 96
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "Guard and hit reaction are modeled as a fork in support authority rather than as small-versus-large versions of the same recoil.",
+      "The recovery plant is treated as the first support state capable of servicing the next action; upright torso alone does not complete recovery.",
+      "Incoming contact direction is abstracted as right-to-left; exact source hitbox, support foot, chronology, and force magnitude are not claimed."
+    ],
+    "observed": [
+      "The complete sheet contains many neutral, travel, attack, defensive-looking compact states, hit/knockdown consequences, floor-level states, and return-to-standing anchors in one corpus.",
+      "Compact defensive silhouettes preserve facing/read direction while reducing exposed limb spread and keeping a readable grounded base.",
+      "Larger consequence silhouettes change torso axis, root height, support spread, and negative space more aggressively than compact defensive states.",
+      "Grounded re-entry silhouettes restore a support-readable base after floor-level or balance-loss states; readability survives exaggeration because torso axis, support footprint, and limb separation remain distinct."
+    ],
+    "unknown": [
+      "source-authentic frame exposure timing",
+      "exact gameplay chronology of sheet cells",
+      "hit-stop duration",
+      "exact contact point/hitbox",
+      "anatomical support-foot identity for each source pose"
+    ],
+    "whole_sheet_inspected": true
+  },
+  "experiment_id": "v2-defense-001-guard-support-fork",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "pre-impact readable state",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": false,
+      "key_id": "D001-K0",
+      "motion_arc_root_note": "Root centered over a broad two-foot base; facing and task readiness are clear.",
+      "name": "READY",
+      "pose_rig": {
+        "foot_l": [18, 17],
+        "foot_r": [29, 17],
+        "hand_l": [19, 10],
+        "hand_r": [29, 9],
+        "head": [23, 4],
+        "knee_l": [20, 14],
+        "knee_r": [26, 14],
+        "pelvis": [23, 11],
+        "shoulder_l": [21, 7],
+        "shoulder_r": [25, 7]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "pre-impact brace and silhouette compression",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": true,
+      "key_id": "D001-K1",
+      "motion_arc_root_note": "Root lowers one cell and shifts slightly away from the incoming line without giving up support.",
+      "name": "BRACE",
+      "pose_rig": {
+        "foot_l": [17, 17],
+        "foot_r": [29, 17],
+        "hand_l": [20, 10],
+        "hand_r": [29, 8],
+        "head": [22, 5],
+        "knee_l": [19, 15],
+        "knee_r": [25, 15],
+        "pelvis": [22, 12],
+        "shoulder_l": [20, 8],
+        "shoulder_r": [24, 8]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "authored causal contact while support remains intact",
+      "contact_marker": [29, 8],
+      "contact_state": "GUARD_CONTACT",
+      "incoming": true,
+      "key_id": "D001-K2",
+      "motion_arc_root_note": "Contact is absorbed by the defensive frame; root remains support-owned.",
+      "name": "GUARD_CONTACT",
+      "pose_rig": {
+        "foot_l": [16, 17],
+        "foot_r": [28, 17],
+        "hand_l": [20, 11],
+        "hand_r": [29, 8],
+        "head": [21, 5],
+        "knee_l": [18, 15],
+        "knee_r": [24, 15],
+        "pelvis": [21, 12],
+        "shoulder_l": [19, 8],
+        "shoulder_r": [23, 8]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "contact consequence without support failure",
+      "contact_marker": [28, 9],
+      "contact_state": "GUARD_CONTACT",
+      "incoming": true,
+      "key_id": "D001-K3",
+      "motion_arc_root_note": "Spine and guard compress farther than the root travels; both feet still own the root.",
+      "name": "COMPRESSION_HOLD",
+      "pose_rig": {
+        "foot_l": [15, 17],
+        "foot_r": [27, 17],
+        "hand_l": [19, 12],
+        "hand_r": [28, 9],
+        "head": [20, 6],
+        "knee_l": [17, 15],
+        "knee_r": [23, 15],
+        "pelvis": [20, 13],
+        "shoulder_l": [18, 9],
+        "shoulder_r": [22, 9]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "fork from successful guard into true hit reaction",
+      "contact_marker": null,
+      "contact_state": "RELEASED",
+      "incoming": false,
+      "key_id": "D001-K4",
+      "motion_arc_root_note": "Front support is revoked; root begins recoil because the base, not merely the torso, has failed.",
+      "name": "SUPPORT_BREAK",
+      "pose_rig": {
+        "foot_l": [14, 17],
+        "foot_r": [25, 16],
+        "hand_l": [15, 12],
+        "hand_r": [25, 10],
+        "head": [18, 6],
+        "knee_l": [15, 15],
+        "knee_r": [22, 14],
+        "pelvis": [18, 13],
+        "shoulder_l": [16, 9],
+        "shoulder_r": [20, 9]
+      },
+      "root_state": "YIELDING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "balance-loss travel and recoil arc",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": false,
+      "key_id": "D001-K5",
+      "motion_arc_root_note": "Root travels backward while torso counter-rotates; no false midair support is invented.",
+      "name": "STAGGER_TRAVEL",
+      "pose_rig": {
+        "foot_l": [11, 16],
+        "foot_r": [23, 16],
+        "hand_l": [11, 10],
+        "hand_r": [22, 11],
+        "head": [16, 5],
+        "knee_l": [13, 14],
+        "knee_r": [20, 14],
+        "pelvis": [16, 12],
+        "shoulder_l": [14, 8],
+        "shoulder_r": [18, 8]
+      },
+      "root_state": "YIELDING",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy support anchor after balance loss",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": false,
+      "key_id": "D001-K6",
+      "motion_arc_root_note": "One foot earns support before the torso is fully upright; recovery begins here.",
+      "name": "RECOVERY_PLANT",
+      "pose_rig": {
+        "foot_l": [12, 17],
+        "foot_r": [24, 17],
+        "hand_l": [13, 11],
+        "hand_r": [22, 10],
+        "head": [17, 6],
+        "knee_l": [14, 15],
+        "knee_r": [21, 14],
+        "pelvis": [17, 13],
+        "shoulder_l": [15, 9],
+        "shoulder_r": [19, 9]
+      },
+      "root_state": "REACQUIRING",
+      "support_contact": "FRONT_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "support and spine reorganize for action eligibility",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": false,
+      "key_id": "D001-K7",
+      "motion_arc_root_note": "Second support returns; root recenters while facing remains coherent.",
+      "name": "RESTACK",
+      "pose_rig": {
+        "foot_l": [14, 17],
+        "foot_r": [26, 17],
+        "hand_l": [15, 10],
+        "hand_r": [25, 9],
+        "head": [19, 5],
+        "knee_l": [16, 15],
+        "knee_r": [22, 15],
+        "pelvis": [19, 12],
+        "shoulder_l": [17, 8],
+        "shoulder_r": [21, 8]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry with restored support and readable facing",
+      "contact_marker": null,
+      "contact_state": "NONE",
+      "incoming": false,
+      "key_id": "D001-K8",
+      "motion_arc_root_note": "Support, root stack, guard reach, and facing are all action-capable again at a new address.",
+      "name": "READY_REENTRY",
+      "pose_rig": {
+        "foot_l": [15, 17],
+        "foot_r": [27, 17],
+        "hand_l": [16, 10],
+        "hand_r": [26, 9],
+        "head": [20, 4],
+        "knee_l": [17, 14],
+        "knee_r": [23, 14],
+        "pelvis": [20, 11],
+        "shoulder_l": [18, 7],
+        "shoulder_r": [22, 7]
+      },
+      "root_state": "OWNED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "defense",
+  "principle": "A guard can absorb contact while support still owns the root; a true hit reaction begins when support authority breaks, and recovery begins at the first trustworthy plant.",
+  "rig_schema": {
+    "facing": "RIGHT",
+    "glyphs": {
+      "contact": "!",
+      "head": "O",
+      "incoming": "<",
+      "joint": "o",
+      "root": "@",
+      "support": "="
+    },
+    "grid": [48, 20],
+    "incoming_contact_direction": "RIGHT_TO_LEFT",
+    "joints": ["head", "shoulder_l", "shoulder_r", "hand_l", "hand_r", "pelvis", "knee_l", "knee_r", "foot_l", "foot_r"],
+    "pelvis_is_root": true
+  },
+  "rights": {
+    "boundary": "Whole sheet inspected only to extract general motion principles. No source pixels, palette, costume, face, exact silhouette, sheet layout, tracing, redistribution, or close imitation enter the ASCII rig, video, or SPA.",
+    "classification": "copyright-restricted commercial-game sprite evidence",
+    "drew_work_used": false,
+    "source_art_embedded": false,
+    "source_pixels_used_in_output": false
+  },
+  "source": {
+    "asset_id": 5553,
+    "game": "Super Street Fighter II: The New Challengers",
+    "name": "Cammy",
+    "platform": "SNES",
+    "reported_dimensions": [1369, 1209],
+    "reported_format": "GIF",
+    "reported_size_kb": 184.88,
+    "site": "The Spriters Resource",
+    "uploader": "Lord Zymeth",
+    "url": "https://www.spriters-resource.com/snes/supersf2/asset/5553/"
+  },
+  "timing_policy": {
+    "FOURS": "one drawing/key held for four display frames",
+    "ONES": "new drawing/key sample every display frame",
+    "TWOS": "one drawing/key held for two display frames",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds",
+    "source_timing_measured": false,
+    "vocabulary": "PoseLab V1 STREET_FIGHTER/CAPCOM"
+  },
+  "title": "Guard / Support Authority Fork"
+}
