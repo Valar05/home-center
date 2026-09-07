@@ -1,51 +1,12 @@
 {
   "ascii_sheet_sha256": "c548bc67e92053438ac781cbb8e6bfb6ae1722c347226c8c5b5183d4ba6794c7",
-  "compatibility": {
-    "ascii_kinesis_v2": true,
-    "backward_compatible": true,
-    "primary_tabs": [
-      "ASCII",
-      "JSON",
-      "VIDEO"
-    ],
-    "uapl_v1_read_path_preserved": true
-  },
-  "compile": {
-    "connector_frames": 1,
-    "connector_rule": "Insert one geometry-only midpoint only when adjacent authored keys have identical support_contact and contact_state. If either changes, hard-cut. Midpoints interpolate existing joint coordinates only and cannot introduce support/contact/root-phase/force/facing state.",
-    "fps": 24,
-    "loop_repetitions": 2,
-    "media_bytes": 51385,
-    "media_filename": "precontact-landing-window.mp4",
-    "media_sha256": "887626486931864fa2e6ffb2ff3586b76c509e674173cfe42f6e0fe4c90d1989",
-    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
-    "renderer": "Python/Pillow renders literal ASCII frames; ffmpeg libx264 yuv420p",
-    "semantic_frames_per_loop": 36,
-    "source_sprite_pixels_used": false,
-    "video_dimensions": [640, 360],
-    "video_frames_total": 72
-  },
-  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"],
+  "compatibility": {"ascii_kinesis_v2":true,"backward_compatible":true,"primary_tabs":["ASCII","JSON","VIDEO"],"uapl_v1_read_path_preserved":true},
+  "compile": {"connector_frames":1,"connector_rule":"Insert one geometry-only midpoint only when adjacent authored keys have identical support_contact and contact_state. If either changes, hard-cut. Midpoints interpolate existing joint coordinates only and cannot introduce support/contact/root-phase/force/facing state.","fps":24,"loop_repetitions":2,"media_bytes":51386,"media_filename":"precontact-landing-window.mp4","media_sha256":"b59b6af02263ab1341e93ac0146d1f7b8b8e4000068ecb9ecdba02d56d0d9436","method":"AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA","renderer":"Python/Pillow renders literal ASCII frames; ffmpeg libx264 yuv420p","semantic_frames_per_loop":36,"source_sprite_pixels_used":false,"video_dimensions":[640,360],"video_frames_total":72},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
   "evidence_split": {
-    "INFERRED": [
-      "Generic vertical-force grammar: LOAD -> LAUNCH -> RISE -> APEX_READ -> AIR_TASK_ORIENT -> FALL -> PRECONTACT_OPEN -> CONTACT -> LAND_COMPRESSION -> REBOUND -> RETURN_STABLE.",
-      "A dedicated PRECONTACT_OPEN key can make landing intention readable before support is acquired; support stays NONE until CONTACT.",
-      "CONTACT and LAND_COMPRESSION are separate causal keys so ground reacquisition does not collapse into force absorption.",
-      "Aerial task changes and limb counterbalance ride the already-authored root arc; they do not create an additional vertical impulse.",
-      "All timing classes use the PoseLab V1 STREET_FIGHTER/CAPCOM inference vocabulary because source timing is unavailable."
-    ],
-    "OBSERVED": [
-      "The complete sheet visibly separates named Jumping, Falling, and Landing pose families.",
-      "The same whole sheet also contains multiple explicitly named airborne task/attack families, including Sonic Rocket (Air attack), Sonic Eagle (Air attack), Sonic Meteor (Air power), and Sonic Air Cracker (Air trap).",
-      "Across the upper airborne body families, the lead/facing direction remains broadly readable while limb organization changes.",
-      "The complete sheet also contains grounded guard/heal/attack anchors plus knocked-up, knocked-back, wall/ground-hit, getting-up, blocked, and wall-cling consequence/recovery families.",
-      "TSR reports Animations (0); the static sheet does not establish source-authentic decisive-key exposure durations."
-    ],
-    "UNKNOWN": [
-      "Exact source animation ordering inside every named family.",
-      "Exact in-game exposure duration, hit-stop, and runtime transition conditions.",
-      "Whether every adjacent sheet drawing belongs to one playback clip."
-    ]
+    "INFERRED": ["Generic vertical-force grammar: LOAD -> LAUNCH -> RISE -> APEX_READ -> AIR_TASK_ORIENT -> FALL -> PRECONTACT_OPEN -> CONTACT -> LAND_COMPRESSION -> REBOUND -> RETURN_STABLE.","A dedicated PRECONTACT_OPEN key can make landing intention readable before support is acquired; support stays NONE until CONTACT.","CONTACT and LAND_COMPRESSION are separate causal keys so ground reacquisition does not collapse into force absorption.","Aerial task changes and limb counterbalance ride the already-authored root arc; they do not create an additional vertical impulse.","All timing classes use the PoseLab V1 STREET_FIGHTER/CAPCOM inference vocabulary because source timing is unavailable."],
+    "OBSERVED": ["The complete sheet visibly separates named Jumping, Falling, and Landing pose families.","The same whole sheet also contains multiple explicitly named airborne task/attack families, including Sonic Rocket (Air attack), Sonic Eagle (Air attack), Sonic Meteor (Air power), and Sonic Air Cracker (Air trap).","Across the upper airborne body families, the lead/facing direction remains broadly readable while limb organization changes.","The complete sheet also contains grounded guard/heal/attack anchors plus knocked-up, knocked-back, wall/ground-hit, getting-up, blocked, and wall-cling consequence/recovery families.","TSR reports Animations (0); the static sheet does not establish source-authentic decisive-key exposure durations."],
+    "UNKNOWN": ["Exact source animation ordering inside every named family.","Exact in-game exposure duration, hit-stop, and runtime transition conditions.","Whether every adjacent sheet drawing belongs to one playback clip."]
   },
   "experiment_id": "v2-airborne-002-precontact-landing-window",
   "format_version": 2,
@@ -63,45 +24,12 @@
     {"causal_role":"return to stable action-capable grounded state","contact_state":"GROUND","key_id":"A002-K10","motion_arc_root_note":"Root restacks over the base; rightward facing and neutral limb availability are restored.","name":"RETURN_STABLE","pose_rig":{"elbow_l":[36,12],"elbow_r":[44,12],"foot_l":[36,21],"foot_r":[44,21],"hand_l":[35,14],"hand_r":[45,14],"head":[40,8],"knee_l":[37,18],"knee_r":[43,18],"neck":[40,9],"pelvis":[40,15],"shoulder_l":[38,10],"shoulder_r":[42,10]},"support_contact":"GROUND_BOTH","timing_class":"FOURS","timing_provenance":"INFERRED","vertical_phase":"RETURN"}
   ],
   "lane": "airborne",
-  "manifest": {
-    "repo_path": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/",
-    "schema": "ascii-kinesis.swarm-manifest.v2",
-    "ship_commit": "PENDING_FIRST_PERSISTENCE",
-    "status": "RENDERED",
-    "tracked_files": ["build.py","manifest.json","motion.json","receipt.md","precontact-landing-window.motion.html"],
-    "video_packaging": "embedded MP4 data URI in tracked SPA; builder deterministically reconstructs precontact-landing-window.mp4"
-  },
+  "manifest": {"repo_path":"experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/","schema":"ascii-kinesis.swarm-manifest.v2","ship_commit":"PENDING_FIRST_PERSISTENCE","status":"RENDERED_PHONE_CANONICAL","tracked_files":["build.py","manifest.json","motion.json","receipt.md","precontact-landing-window.motion.html"],"video_packaging":"embedded MP4 data URI in tracked SPA; builder deterministically reconstructs precontact-landing-window.mp4"},
   "minimal_maximal_unit": "LANDING BEGINS BEFORE CONTACT: a dedicated precontact organization window prepares the base while support is still NONE; CONTACT and COMPRESSION remain separate authored events.",
-  "rig": {
-    "facing": "RIGHT",
-    "ground_y": 21,
-    "joints": ["head","neck","shoulder_l","shoulder_r","elbow_l","elbow_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],
-    "semantic_channels": ["ROOT_VERTICAL_PHASE","SUPPORT_CONTACT","BODY_COUNTERBALANCE","FACING","AIR_TASK"],
-    "type": "copyright-safe ASCII Blender-style generic biped"
-  },
+  "rig": {"facing":"RIGHT","ground_y":21,"joints":["head","neck","shoulder_l","shoulder_r","elbow_l","elbow_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"semantic_channels":["ROOT_VERTICAL_PHASE","SUPPORT_CONTACT","BODY_COUNTERBALANCE","FACING","AIR_TASK"],"type":"copyright-safe ASCII Blender-style generic biped"},
   "schema": "ascii-kinesis.motion.v2",
-  "source": {
-    "animations_reported": 0,
-    "asset_id": 10039,
-    "game": "Sonic Battle",
-    "name": "Sonic the Hedgehog",
-    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
-    "platform": "Game Boy Advance",
-    "reported_dimensions": [1150,2660],
-    "reported_format": "PNG",
-    "reported_size": "268.03 KB",
-    "section": "Fighters",
-    "site": "The Spriters Resource",
-    "source_timing_available": false,
-    "uploader": "QuadFactor",
-    "whole_sheet_inspected": true,
-    "whole_sheet_visual_url": "https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454"
-  },
-  "source_rights": {
-    "boundary": "No source pixels, palette, contours, exact silhouettes, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.",
-    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
-    "source_art_embedded": false
-  },
+  "source": {"animations_reported":0,"asset_id":10039,"game":"Sonic Battle","name":"Sonic the Hedgehog","page_url":"https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/","platform":"Game Boy Advance","reported_dimensions":[1150,2660],"reported_format":"PNG","reported_size":"268.03 KB","section":"Fighters","site":"The Spriters Resource","source_timing_available":false,"uploader":"QuadFactor","whole_sheet_inspected":true,"whole_sheet_visual_url":"https://www.spriters-resource.com/media/assets/10/10039.png?updated=1755472454"},
+  "source_rights": {"boundary":"No source pixels, palette, contours, exact silhouettes, frame layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used. The ASCII rig is independently authored.","classification":"copyright-restricted commercial-game sprite art used as analysis evidence only","source_art_embedded":false},
   "timing_policy": {"inference_style":"STREET_FIGHTER/CAPCOM","nominal_fps":24,"shorthand":"1s/2s/4s means ONES/TWOS/FOURS, never seconds","vocabulary":"PoseLab V1"},
   "title": "Precontact Landing Window"
 }
