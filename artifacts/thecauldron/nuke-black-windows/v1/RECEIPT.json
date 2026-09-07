@@ -1,0 +1,47 @@
+{
+  "schema": "thecauldron.nuke-black-windows-artifact-receipt.v1",
+  "createdAt": "2026-09-07T18:19:00Z",
+  "targetMachine": "THECAULDRON",
+  "requestedState": "One-click application installed in the Windows Start menu, reusable whenever Drew wants to nuke Venice/black-window automation.",
+  "artifact": {
+    "name": "NUKE BLACK WINDOWS FOREVER.exe",
+    "platform": "Windows x86-64",
+    "subsystem": "GUI",
+    "byteCount": 27648,
+    "sha256": "a6faef7f0ff199b33eee18cff1396dd98416725c2802155749a074a7cdff5293",
+    "embeddedManifest": true,
+    "crtDependency": false,
+    "dotNetDependency": false,
+    "pythonDependency": false
+  },
+  "embeddedScrub": {
+    "sourceName": "STOP_BLACK_WINDOWS_AND_SCRUB_VENICE.ps1",
+    "byteCount": 15189,
+    "sha256": "14607b1569fbd8937b235abb4488a74ce4d035ccf0c4eda8881dada0bce2613b",
+    "binaryContainsExactSourceBytes": true,
+    "purgeQuarantine": true,
+    "documentsAndSourceRepositoriesScanned": false
+  },
+  "firstRun": {
+    "installDirectory": "%LOCALAPPDATA%\\Programs\\THECAULDRON\\NukeBlackWindows",
+    "startMenuShortcut": "%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\THECAULDRON\\NUKE BLACK WINDOWS FOREVER.lnk",
+    "payloadVerification": "byte-for-byte before shortcut creation or execution",
+    "immediateRunChoice": "Yes/No GUI prompt"
+  },
+  "subsequentRun": {
+    "surface": "Start > All apps > THECAULDRON > NUKE BLACK WINDOWS FOREVER",
+    "elevation": "Windows UAC runas",
+    "consoleWindow": false,
+    "cleanupReceipt": "Desktop THECAULDRON_VENICE_SCRUB_<timestamp>.json"
+  },
+  "verification": {
+    "peFormat": "PE32+ GUI x86-64",
+    "imports": ["KERNEL32.dll", "USER32.dll", "SHELL32.dll", "OLE32.dll"],
+    "embeddedScrubExactMatch": true
+  },
+  "deployment": {
+    "installedOnTHECAULDRON": false,
+    "reason": "No current authorized remote OS-write executor is online. Computer Hands and Browser Nerve report offline; legacy Command Center jobs are retired; Home Center Fortress work has no local executor adapter.",
+    "binaryDelivery": "Chat attachment handoff required for this run; no shell command is required from Drew."
+  }
+}
