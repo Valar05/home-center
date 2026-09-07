@@ -1,8 +1,10 @@
 # ASCII Kinesis V2 — Airborne 006 — Facing Survives Air Task
 
-Status: READY_TO_PERSIST
+Status: REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY
 Lane: JUMP / AIRBORNE / LANDING / VERTICAL FORCE
 Repo path: `experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/`
+Ship commit: `cb9dda4750969bd6b1d2e57c8dd53eb30e2e9e02`
+Verification metadata commit: `6474bc4d5a4e0060b4a9ab3cb258043a1b8acccf`
 
 ## Minimal-maximal unit
 
@@ -45,22 +47,25 @@ User shorthand `1s/2s/4s` means ONES/TWOS/FOURS, never seconds. No decisive timi
 ## Motion Dungeon / media
 
 Method: `AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA`
-Media: `facing-survives-air-task.mp4` embedded in the tracked SPA; source pixels used = false.
-Media SHA-256: `28ce2bdeb507a858a9da335f09b7158095a906d386b0e4fac4c3d8fce55dd12e`
-Media bytes: `8170`
+Authoritative media: `facing-survives-air-task.mp4`, embedded in the tracked SPA; source pixels used = false.
+Media SHA-256: `aecc3363429a353749cbe0aa37cb63bf671410afbe37097a1a6a32076497cde4`
+Media bytes: `8047`
 Video: 480x270 H.264 yuv420p, 24 fps, 92 frames.
 ASCII sheet SHA-256: `c957b076cb4231618478f2ff8da3a2cba3b198bfe9fa5e8562de8cc06f9ed7b6`
 
-## Contract / test boundary
+## Repo readback
+
+Exact GitHub readback at ship commit `cb9dda4750969bd6b1d2e57c8dd53eb30e2e9e02` confirmed exactly five tracked files in this specimen directory and exactly one `*.motion.html`: `facing-survives-air-task.motion.html`, Git blob `96f78e1d3ae94d7a27de762e0e21c5d87b7254b0`, 49,268 bytes. Manifest and motion readback pin the authoritative media hash above.
 
 SPA primary tabs are exactly `ASCII | JSON | VIDEO`; ASCII is literal `<pre>` text with whitespace preserved and ligatures disabled; JSON carries rig/keys/timing/provenance/rights/compatibility/manifest/media identity; VIDEO embeds the real MP4 generated from this abstract ASCII rig only.
 
-Repository-wide test boundary: Standard Chat has authenticated GitHub read/write but no authorized remote repository execution shell in this run. tools/test_ascii_kinesis_swarm_contract_v2.py will be read for presence; repository-wide execution is not callable through the authorized connector surface. Local construction checks are not used as completion proof.
+## Contract test boundary
+
+`tools/test_ascii_kinesis_swarm_contract_v2.py` was executed on `primary-phone` after building this specimen from exact repository source. Exit code: `1`. Exact first failure: `v2-airborne-005-side-support-gates-second-impulse: expected exactly one tracked *.motion.html SPA`. The suite stops at 005 before reaching 006, so this run does not claim a passing repository-wide test for 006. This is a pre-existing corpus blocker, not a failure introduced by specimen 006.
 
 ## Persistence fields
 
-Ship commit: PENDING
-Repository readback: PENDING
+Repository readback: VERIFIED
 Issue #343 receipt: PENDING
-Blocker: NONE at construction stage; persistence and readback still required.
+Blocker: NONE local to specimen 006; repository-wide contract suite is blocked upstream by v2-airborne-005.
 Correction hooks: KEEP, REJECT, EXAGGERATE, COMPRESS, RETIME, CHANGE SOURCE, PROMOTE, SPAWN VARIANT, FIX BLOCKER, RERUN
