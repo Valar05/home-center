@@ -1,0 +1,279 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "experiment_id": "v2-video-motion-005-throw-release-force-chain",
+  "title": "Throw · grounded force chain → overhead arc → forward reach → recovery",
+  "lane": "video-motion",
+  "format_version": 2,
+  "source": {
+    "title": "Throwing-slowmotion-man2013-stabilized.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Throwing-slowmotion-man2013-stabilized.webm",
+    "direct_url": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Throwing-slowmotion-man2013-stabilized.webm",
+    "origin": "Wikimedia Commons derivative of own work by Nesnad",
+    "author": "Nesnad",
+    "source_date": "2013-11-03",
+    "rights_status": "CC_BY_4_0",
+    "license_id": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "rights_note": "Source video and analysis frames were used only as evidence. No source pixels, copied frames, source audio, or expressive source artwork are embedded in the repo example or its MP4. Output is an independently authored abstract ASCII rig preserving only general motion facts and provenance.",
+    "source_sha256": "bcb20541112226cccd9f4e123ba7af69dcdb2333b4d5ac8b018f6cc4639e639c",
+    "source_bytes": 20835098,
+    "source_duration_s": 13.746,
+    "source_dimensions": [
+      420,
+      340
+    ],
+    "stream_fps": "30/1",
+    "presentation_cadence_note": "The source is explicitly slow motion. OBSERVED timestamps below are source presentation timestamps, not claims about real-world athletic duration or authored exposure cadence.",
+    "selected_action_segment_s": [
+      6.0,
+      12.0
+    ],
+    "whole_action_inspection": "OBSERVED: the entire 13.746 s source was decoded and inspected in order as a 1 fps 14-frame whole-clip sheet before keys were chosen. The coherent throw segment 6.000–12.000 s was then inspected at ordered 2 fps, and the release/forward-arc window 8.000–10.000 s at ordered 4 fps. Source pixels remained analysis-only.",
+    "analysis_derivatives": {
+      "whole_clip_preview": {
+        "sampling": "1 fps ordered 14-frame 56 px analysis sheet",
+        "sha256": "6de4643f52a0ab662a61ada78eea2700b2d632c787cfa61377a17336ab1b425e"
+      },
+      "selected_action_preview": {
+        "sampling": "2 fps ordered 14-frame analysis sheet from 6.000 s",
+        "sha256": "9b8ccc281b1464084a4b9c61ff1e948003eca339ee4ea9c0ecb704589d794477"
+      },
+      "release_window_preview": {
+        "sampling": "4 fps ordered 9-frame analysis sheet from 8.000 s",
+        "sha256": "3c7a266c202316848193910f9c588f3d60c1fa2d767ab8bc45d1561faa518364"
+      }
+    }
+  },
+  "evidence_boundary": {
+    "observed": [
+      "The entire 13.746 s source was inspected in order before decisive keys were chosen.",
+      "Across 6.000–8.500 s the actor rises and organizes while the visually dominant throwing-limb path travels upward into a clear overhead/high-cock configuration.",
+      "Across 8.500–9.000 s the distal limb sweeps rapidly from overhead through a forward diagonal into near-horizontal forward reach.",
+      "At 9.000–10.500 s the forward reach persists into a long follow-through/deceleration tail while the torso/root proxy changes less than the distal hand arc.",
+      "By 12.000 s the arm has dropped and the actor has re-centered toward a neutral grounded stack.",
+      "Ground-adjacent foot support remains visible at the inspected scale throughout the selected segment; no airborne phase is promoted.",
+      "No impact event is present in the selected throw segment. Exact hand-ball separation is not visually reliable at the inspected scale and is left UNKNOWN."
+    ],
+    "inferred": [
+      "The abstract rig's right_hand channel represents the visually dominant throwing-limb path and is an output-local label, not a claim about anatomical laterality.",
+      "Exact foot weight split, pelvis rotation, torso twist, shoulder/elbow angles, and ball-release frame are not pixel-resolved and are not promoted as observed facts.",
+      "Transferable principle: a comparatively quiet grounded root/support chain organizes force into a much larger distal overhead-to-forward hand arc, followed by a long deceleration/recovery tail.",
+      "Compile cadence is authored with PoseLab FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM vocabulary because source presentation is slow motion and source-authentic animation exposure classes do not exist.",
+      "Connective interpolation changes only joint geometry within an unchanged support/contact semantic state; it never creates a ball, release event, impact, support transfer, or new root decision."
+    ],
+    "unknown": [
+      "Exact source frame of hand-ball separation/release",
+      "Exact anatomical side identity of the throwing limb",
+      "Exact foot weight split or step ownership",
+      "Exact pelvis/torso/shoulder/elbow angles",
+      "Real-world duration represented by the slow-motion presentation"
+    ]
+  },
+  "rig": {
+    "type": "abstract_single_actor_ascii_biped",
+    "coordinate_space": "48x18 character grid",
+    "joints": [
+      "head",
+      "root_proxy",
+      "left_hand",
+      "right_hand",
+      "left_foot",
+      "right_foot"
+    ],
+    "source_art_dependency": false,
+    "glyph_semantics": {
+      "O": "head",
+      "@": "root/pelvis proxy",
+      "/\\\\-|": "limb/torso segments",
+      "_": "ground plane",
+      "?": "support/contact side unresolved",
+      "X": "line overlap only"
+    },
+    "channel_note": "right_hand is the output-local throwing-limb channel; anatomical laterality remains UNKNOWN."
+  },
+  "keys": [
+    {
+      "key_id": "K0",
+      "source_time_s": 6.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 0,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 4,
+      "causal_role": "PRELOAD_AND_GROUND_STACK",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Root proxy low and grounded; distal throwing channel quiet before lift.",
+      "joints": {
+        "head": [36,6], "root": [34,11], "left_hand": [31,12], "right_hand": [36,13], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K1",
+      "source_time_s": 7.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 8,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 4,
+      "causal_role": "RISE_AND_ORGANIZE",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Root rises modestly while torso/limb organization begins; support remains ground-adjacent.",
+      "joints": {
+        "head": [35,5], "root": [34,10], "left_hand": [31,11], "right_hand": [35,10], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K2",
+      "source_time_s": 8.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 16,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "THROW_ARM_LIFT",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Distal throwing channel climbs rapidly while root remains comparatively stable.",
+      "joints": {
+        "head": [35,5], "root": [34,10], "left_hand": [30,12], "right_hand": [34,7], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K3",
+      "source_time_s": 8.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 22,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "HIGH_COCK_APEX",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Throwing-hand proxy reaches the clearest overhead/high-cock sample; root travel remains small.",
+      "joints": {
+        "head": [35,5], "root": [34,10], "left_hand": [30,12], "right_hand": [33,2], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K4",
+      "source_time_s": 8.75,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 26,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "FORWARD_ACCELERATION_ARC",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Distal hand begins the steep overhead-to-forward arc; exact ball release remains unresolved.",
+      "joints": {
+        "head": [35,5], "root": [33,10], "left_hand": [30,12], "right_hand": [27,5], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K5",
+      "source_time_s": 9.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 29,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "MAX_FORWARD_REACH_WINDOW",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Distal hand reaches near-horizontal forward extension; source object relation remains UNKNOWN.",
+      "joints": {
+        "head": [34,5], "root": [33,10], "left_hand": [30,12], "right_hand": [22,8], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K6",
+      "source_time_s": 9.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 33,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "FOLLOW_THROUGH_EXTENSION",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Root/torso fold modestly as the long distal reach continues into deceleration.",
+      "joints": {
+        "head": [34,6], "root": [32,11], "left_hand": [30,12], "right_hand": [20,9], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": true
+    },
+    {
+      "key_id": "K7",
+      "source_time_s": 10.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 39,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "ARM_DROP_AND_DECELERATION",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Distal throwing channel drops while root begins to re-center; no new contact state appears.",
+      "joints": {
+        "head": [33,6], "root": [32,11], "left_hand": [30,12], "right_hand": [28,14], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K8",
+      "source_time_s": 12.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 47,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 4,
+      "causal_role": "RECOVER_TO_NEUTRAL",
+      "support_state": "GROUND_CONTACT_VISIBLE_WEIGHT_SPLIT_UNKNOWN",
+      "contact_note": "Hand-ball relation remains UNKNOWN; no object/contact event is authored in the abstract rig.",
+      "root_arc_note": "Root returns toward neutral grounded stack; arm settles down after the follow-through.",
+      "joints": {
+        "head": [34,6], "root": [33,11], "left_hand": [31,13], "right_hand": [34,14], "left_foot": [30,15], "right_foot": [38,15]
+      },
+      "causal_boundary_to_next": false
+    }
+  ],
+  "timing": {
+    "key_timing_policy": "OBSERVED source presentation timestamps for decisive evidence keys; not claims about real-time athletic cadence.",
+    "pose_lab_vocabulary_note": "Compile cadence is INFERRED with FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM. User shorthand 1s/2s/4s means these classes, never seconds.",
+    "compile_fps": 24,
+    "compile_frame_policy": "Explicit authored compile-frame targets compress the slow-motion reference into a readable animation study without pretending to reproduce real-time performance cadence.",
+    "compile_sequence": ["FOURS preload","FOURS organize","TWOS arm lift","TWOS high cock","ONES forward acceleration","ONES max reach","TWOS follow-through","TWOS arm drop","FOURS recovery"]
+  },
+  "motion_dungeon": {
+    "pipeline": ["authored_ascii_joint_keys","explicit_compile_frames_and_holds","deterministic_geometry_only_connective_motion","ascii_only_frame_render","mp4_h264","embedded_offline_spa"],
+    "transition_rule": "Only authored joint geometry interpolates. support_state/contact_note/root_arc_note remain owned by the prior key until the next key. causal_boundary_to_next=true forbids interpolation across unresolved causal/contact/support transitions and holds the prior key until a discrete authored state.",
+    "source_pixels_used_in_output": false,
+    "render_grid": [48,18],
+    "cell_pixels": [6,8],
+    "scale": 2,
+    "ground_y": 15,
+    "final_hold_frames": 12
+  },
+  "compatibility": {"backward_compatible":true,"primary_tabs":["ASCII","JSON","VIDEO"],"offline_spa":true,"v1_artifacts_untouched":true},
+  "media": {"mime":"video/mp4","encoding":"H.264 yuv420p","embedded":"data_uri","tracked_mp4":"motion.mp4","sha256":"","bytes":0,"frame_count":0,"compile_fps":24},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "status": "AUTHORED_PENDING_RENDER"
+}
