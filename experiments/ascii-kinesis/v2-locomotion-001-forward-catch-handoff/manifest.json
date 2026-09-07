@@ -1,0 +1,25 @@
+{
+  "format_version": 2,
+  "id": "v2-locomotion-001-forward-catch-handoff",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "motion_file": "motion.json",
+  "video_file": "motion.mp4",
+  "spa_file": "v2-locomotion-001-forward-catch-handoff.motion.html",
+  "builder_file": "build.py",
+  "author_file": "author.py",
+  "receipt_file": "receipt.json",
+  "motion_sha256": "5d1f74c96d17077535f9fab6fa1f354963ecc011ae9ad300f814528960870887",
+  "video_sha256": "14cf487e307a40aec8e10e797463a301472824eea957dff705eb484738793a74",
+  "spa_sha256": "e455fc2b168afeee243aa0855a7bf890dfb6028a866434509e7c0aa74b131f7f",
+  "source_asset_sha256": "e9928f049a519d676521ec0849930752d71efac59006b046e597c7cb0fc6ec74"
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "ascii-kinesis.v2-build-receipt",
+  "id": "v2-locomotion-001-forward-catch-handoff",
+  "status": "TESTED",
+  "product": "one new backward-compatible repository specimen",
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 32,
+    "url": "https://www.spriters-resource.com/snes/aladdin/asset/32/",
+    "sha256": "e9928f049a519d676521ec0849930752d71efac59006b046e597c7cb0fc6ec74",
+    "rights_note": "Copyright-restricted source used only as whole-sheet evidence. No source pixels, palette, exact contours, frame layout, traced pose, costume, or character-specific drawing is embedded, redistributed, or closely imitated. The delivered rig is independently authored generic ASCII."
+  },
+  "timing": [
+    {
+      "key_id": "K0",
+      "name": "LOAD",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K1",
+      "name": "PUSH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K2",
+      "name": "CROSS",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K3",
+      "name": "PROBE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K4",
+      "name": "CATCH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K5",
+      "name": "PASS",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K6",
+      "name": "TRANSFER",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K7",
+      "name": "NEXT_LOAD",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "motion_dungeon": {
+    "semantic_authority": "authored ASCII keys",
+    "connective_motion": "fail-closed/no invented causal states",
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "media": {
+    "path": "motion.mp4",
+    "sha256": "14cf487e307a40aec8e10e797463a301472824eea957dff705eb484738793a74",
+    "bytes": 38765,
+    "frames": 68,
+    "fps": 24,
+    "duration_seconds": 2.833333
+  },
+  "hashes": {
+    "motion.json": "5d1f74c96d17077535f9fab6fa1f354963ecc011ae9ad300f814528960870887",
+    "v2-locomotion-001-forward-catch-handoff.motion.html": "e455fc2b168afeee243aa0855a7bf890dfb6028a866434509e7c0aa74b131f7f",
+    "manifest.json": "e815d216d1fd7c287445815f6b4f795d7f2cfdb3ded555957a55f41c9bf95102",
+    "build.py": "f9bcad3cd377f35e043b00a6a4fb1c8077412b99e6197f5de9e1accda2f91411",
+    "author.py": "5fe728da7b05c1929444ec08c7b03f6a965aec8ed3ec6345c64aa0bb674b63e8"
+  },
+  "contract_test": {
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "status": "PASS",
+    "observed_output": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
+      "entry_present": "v2-locomotion-001-forward-catch-handoff",
+      "ok": true
+    },
+    "execution_lane": "Home Center -> Phone Hands -> primary-phone -> phone_shell"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
