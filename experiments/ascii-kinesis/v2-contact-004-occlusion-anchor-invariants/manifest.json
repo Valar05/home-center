@@ -1,0 +1,67 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-004-occlusion-anchor-invariants",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "occlusion-anchor-invariants.motion.html",
+    "occlusion-anchor-invariants.mp4"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media_bytes": 16970,
+  "media_sha256": "0472e5811dc6afc1755aac351ec92d70bb8e567c296bd4e8e0f7427b17346ed6",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 9,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 22,
+    "video_frames_total": 88
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 13547,
+    "page_url": "https://www.spriters-resource.com/nes/rivercityransomstreetgangs/asset/13547/",
+    "raw_bytes": 9599,
+    "raw_dimensions": [
+      234,
+      496
+    ],
+    "raw_sha256": "4b84fd6669afd73c3f5e6df98d1c299a9c17f5f4f5266426ddd8636f909da5b7",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in occlusion-anchor-invariants.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}

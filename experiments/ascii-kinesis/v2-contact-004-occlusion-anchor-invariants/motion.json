@@ -1,0 +1,844 @@
+{
+  "ascii_sheet_sha256": "1c47549f7614e1a027ae3f6ae0c0600bf23d498ea704609fbdadaad27ad66777",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, object_support, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 16970,
+    "media_sha256": "0472e5811dc6afc1755aac351ec92d70bb8e567c296bd4e8e0f7427b17346ed6",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "semantic_frames_per_loop": 22,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 88
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "generic opaque payload geometry",
+      "one-anchor acquisition followed by two-anchor custody lock",
+      "shared-center path and leverage direction",
+      "support transfer during carry",
+      "release, free-object lag and actor recoil/recovery",
+      "all decisive timing and connective geometry under STREET_FIGHTER/CAPCOM"
+    ],
+    "observed": [
+      "complete current TSR Alex sheet is one static 234x496 paletted PNG",
+      "whole-sheet visual review shows multiple neutral, locomotor, attack, knockdown and held/interaction-related body families rather than one isolated pose",
+      "TSR source-page discussion explicitly notes that grabbing an object or enemy can cover the character, making occlusion a source-evidenced contact problem",
+      "sheet is static; no source-authentic exposure sequence was established"
+    ],
+    "unknown": [
+      "source-authentic key order and exposure duration",
+      "exact object/opponent identity for every held pose",
+      "exact grip pressure, force magnitude and center of mass",
+      "hit-stop, gameplay collision boxes and release velocity"
+    ]
+  },
+  "experiment_id": "v2-contact-004-occlusion-anchor-invariants",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          10,
+          8
+        ],
+        "hand_r": [
+          18,
+          8
+        ],
+        "head": [
+          14,
+          3
+        ],
+        "knee_l": [
+          12,
+          12
+        ],
+        "knee_r": [
+          16,
+          12
+        ],
+        "pelvis": [
+          14,
+          9
+        ],
+        "shoulder_l": [
+          12,
+          5
+        ],
+        "shoulder_r": [
+          16,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "establish independent actor and world-supported object before contact",
+      "contact_state": "NONE",
+      "custody": "WORLD",
+      "key_id": "C004-K0",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "APPROACH_FREE_OBJECT",
+      "object": {
+        "center": [
+          35,
+          11
+        ],
+        "rect": [
+          32,
+          9,
+          39,
+          13
+        ]
+      },
+      "object_support": "WORLD",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          32,
+          10
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          17,
+          5
+        ],
+        "shoulder_r": [
+          21,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            32,
+            10
+          ],
+          "b": "OBJECT.edge_l",
+          "kind": "CONTACT"
+        }
+      ],
+      "causal_role": "first touch becomes readable without granting custody yet",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "WORLD_TOUCH_PENDING",
+      "key_id": "C004-K1",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CONTACT_ACQUISITION",
+      "object": {
+        "center": [
+          35,
+          11
+        ],
+        "rect": [
+          32,
+          9,
+          39,
+          13
+        ]
+      },
+      "object_support": "WORLD",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        28,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          29,
+          12
+        ],
+        "head": [
+          21,
+          3
+        ],
+        "knee_l": [
+          19,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          21,
+          9
+        ],
+        "shoulder_l": [
+          19,
+          5
+        ],
+        "shoulder_r": [
+          23,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            29,
+            9
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            29,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "two authored hand anchors and support release transfer custody to actor",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K2",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CUSTODY_LOCK",
+      "object": {
+        "center": [
+          33,
+          10
+        ],
+        "rect": [
+          29,
+          8,
+          36,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        27,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          24,
+          8
+        ],
+        "hand_r": [
+          25,
+          12
+        ],
+        "head": [
+          21,
+          3
+        ],
+        "knee_l": [
+          19,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          21,
+          9
+        ],
+        "shoulder_l": [
+          19,
+          5
+        ],
+        "shoulder_r": [
+          23,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            23,
+            8
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "opaque payload crosses actor torso while anchor graph preserves the relationship",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K3",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "OCCLUDED_LOAD",
+      "object": {
+        "center": [
+          26,
+          10
+        ],
+        "rect": [
+          22,
+          7,
+          30,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        24,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          27,
+          8
+        ],
+        "hand_r": [
+          28,
+          12
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            8
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            26,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "carrier changes ground support while object custody remains unchanged",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K4",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CARRY_SUPPORT_TRANSFER",
+      "object": {
+        "center": [
+          29,
+          10
+        ],
+        "rect": [
+          25,
+          7,
+          33,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        27,
+        10
+      ],
+      "support_A": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          31,
+          7
+        ],
+        "hand_r": [
+          31,
+          10
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            30,
+            7
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            30,
+            10
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "shared center moves ahead of pelvis before release without changing custody",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K5",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "LEVER_PRELOAD",
+      "object": {
+        "center": [
+          34,
+          7
+        ],
+        "rect": [
+          30,
+          5,
+          38,
+          10
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        30,
+        9
+      ],
+      "support_A": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          29,
+          7
+        ],
+        "hand_r": [
+          31,
+          9
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "authored destruction of custody anchors forks actor and object clocks",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K6",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "RELEASE_EVENT",
+      "object": {
+        "center": [
+          39,
+          6
+        ],
+        "rect": [
+          35,
+          4,
+          43,
+          9
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          16
+        ],
+        "foot_r": [
+          26,
+          16
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          22,
+          4
+        ],
+        "knee_l": [
+          20,
+          13
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "pelvis": [
+          22,
+          10
+        ],
+        "shoulder_l": [
+          20,
+          6
+        ],
+        "shoulder_r": [
+          24,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "object continues independently while actor recoils toward stable support",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K7",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "OBJECT_LAG_ACTOR_RECOIL",
+      "object": {
+        "center": [
+          46,
+          5
+        ],
+        "rect": [
+          42,
+          3,
+          50,
+          8
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          15
+        ],
+        "foot_r": [
+          26,
+          15
+        ],
+        "hand_l": [
+          18,
+          8
+        ],
+        "hand_r": [
+          26,
+          8
+        ],
+        "head": [
+          22,
+          3
+        ],
+        "knee_l": [
+          20,
+          12
+        ],
+        "knee_r": [
+          24,
+          12
+        ],
+        "pelvis": [
+          22,
+          9
+        ],
+        "shoulder_l": [
+          20,
+          5
+        ],
+        "shoulder_r": [
+          24,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "actor re-stacks after release; free object remains causally separate",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K8",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "RECOVERY_READ",
+      "object": {
+        "center": [
+          51,
+          6
+        ],
+        "rect": [
+          48,
+          4,
+          55,
+          9
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "manifest_receipt": {
+    "builder_file": "build.py",
+    "manifest_file": "manifest.json",
+    "media_file": "occlusion-anchor-invariants.mp4",
+    "receipt_file": "receipt.md",
+    "spa_file": "occlusion-anchor-invariants.motion.html",
+    "verification_state": "BUILT"
+  },
+  "principle": "OCCLUSION DOES NOT CANCEL CONTACT; OWNERSHIP LIVES IN ANCHORS, NOT OUTLINE.",
+  "rig": {
+    "actor_joint_schema": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "actors": [
+      "A_CARRIER",
+      "OBJECT_PAYLOAD"
+    ],
+    "relationship_frame": {
+      "contact_markers": "*",
+      "occlusion_rule": "payload is rendered after actor links so it may hide silhouette while explicit anchors remain visible",
+      "ownership_rule": "custody changes only at decisive keys; visual overlap is never ownership evidence",
+      "shared_center": "X"
+    },
+    "support_frame": {
+      "object_world_support": "separate field; never inferred from proximity",
+      "owner": "A_CARRIER_TO_GROUND"
+    }
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 13547,
+    "game": "River City Ransom",
+    "name": "Alex",
+    "page_url": "https://www.spriters-resource.com/nes/rivercityransomstreetgangs/asset/13547/",
+    "raw_bytes": 9599,
+    "raw_dimensions": [
+      234,
+      496
+    ],
+    "raw_pixel_format": "pal8",
+    "raw_sha256": "4b84fd6669afd73c3f5e6df98d1c299a9c17f5f4f5266426ddd8636f909da5b7",
+    "raw_url": "https://www.spriters-resource.com/media/assets/13/13547.png?updated=1755472475",
+    "rights_note": "Copyright-restricted game sprite sheet used only as whole-sheet motion evidence. No source pixels, palette, exact silhouette, layout, tracing, redistribution, or close imitation enter this specimen. Drew work not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "system": "NES",
+    "whole_sheet_inspected": true
+  }
+}

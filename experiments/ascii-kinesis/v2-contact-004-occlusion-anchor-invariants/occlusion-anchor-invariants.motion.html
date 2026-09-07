@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Contact 004 - Occlusion Anchor Invariants</title>
+<style>:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:76ch;line-height:1.45}</style></head><body>
+<h1>Occlusion Anchor Invariants</h1><p class="note">Copyright-safe abstract relationship rig. Source art is evidence only and is not embedded. Payload overlap may hide the carrier silhouette, but contact ownership remains legible because custody is encoded by explicit anchors, support, root ownership, and a shared center rather than by outline overlap.</p>
+<nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav>
+<section id="ascii" role="tabpanel"><pre>[C004-K0] APPROACH_FREE_OBJECT | FOURS INFERRED | contact=NONE | support=BOTH | object_support=WORLD | root=A_SUPPORT_FRAME | custody=WORLD
+
+
+
+              A
+             / \
+            o---o
+           / \ / \
+           / \ / \
+          o   \   o
+              @                 ########
+             / \                #......#
+             / \                #..O...#
+            o   o               #......#
+           /     \              ########
+           /     \
+          o       o
+          =       =
+
+
+
+
+[C004-K1] CONTACT_ACQUISITION | TWOS INFERRED | contact=ONE_ANCHOR | support=BOTH | object_support=WORLD | root=A_SUPPORT_FRAME | custody=WORLD_TOUCH_PENDING
+
+ CONTACT
+
+                   A
+                  / \
+                 o---o-
+                / \ /  --
+                / \ /    --
+               o   \       --
+                   @         -- ########
+                  / \       X  -*......#
+                  / \           #..O...#
+                 o   o          #......#
+                /     \         ########
+                /     \
+               o       o
+               =       =
+
+
+
+
+[C004-K2] CUSTODY_LOCK | ONES INFERRED | contact=TWO_ANCHORS_LOCKED | support=BOTH | object_support=NONE | root=A_SUPPORT_FRAME | custody=A
+
+ CONTACT
+ A&gt;CUSTODY
+                     A
+                    / \
+                   o---o
+                    \-- \
+                    \ /---
+                     \    -- ########
+                     @    \ -*......#
+                    / \    X #...O..#
+                    / \     \#......#
+                   o   o     *......#
+                  /     \    ########
+                  /     \
+                 o       o
+                 =       =
+
+
+
+
+[C004-K3] OCCLUDED_LOAD | TWOS INFERRED | contact=TWO_ANCHORS_LOCKED | support=BOTH | object_support=NONE | root=A_SUPPORT_FRAME | custody=A
+
+ CONTACT
+ A&gt;CUSTODY
+                     A
+                    / \
+                   o---o
+                    \\/|
+                    \ #########
+                     \#*......#
+                     @#.......#
+                    / #.X.O...#
+                    / #.......#
+                   o  #*......#
+                  /   #########
+                  /     \
+                 o       o
+                 =       =
+
+
+
+
+[C004-K4] CARRY_SUPPORT_TRANSFER | TWOS INFERRED | contact=TWO_ANCHORS_LOCKED | support=RIGHT | object_support=NONE | root=A_SUPPORT_FRAME | custody=A
+
+ CONTACT
+ A&gt;CUSTODY
+                        A
+                       / \
+                      o---o
+                       \\/|
+                       \ #########
+                        \#*......#
+                        @#.......#
+                       / #.X.O...#
+                       / #.......#
+                     -o  #*......#
+                 ----    #########
+               o-          \
+                            o
+                            =
+
+
+
+
+[C004-K5] LEVER_PRELOAD | ONES INFERRED | contact=TWO_ANCHORS_LOCKED | support=RIGHT | object_support=NONE | root=A_SUPPORT_FRAME | custody=A
+
+ CONTACT
+ A&gt;CUSTODY
+                        A
+                       / \
+                      o---o   #########
+                       \ ---- #.......#
+                       \ /  \-*...O...#
+                        \    \#.......#
+                        @     X.......#
+                       / \    *########
+                       / \
+                     -o   o
+                 ----      \
+               o-          \
+                            o
+                            =
+
+
+
+
+[C004-K6] RELEASE_EVENT | ONES INFERRED | contact=NONE | support=RIGHT | object_support=NONE | root=A_SUPPORT_FRAME | custody=FREE
+
+
+ FREE
+                        A
+                       / \         #########
+                      o---o        #.......#
+                       \----       #...O...#
+                       \ /  -o     #.......#
+                        \     \    #.......#
+                        @      o   #########
+                       / \
+                       / \
+                     -o   o
+                 ----      \
+               o-          \
+                            o
+                            =
+
+
+
+
+[C004-K7] OBJECT_LAG_ACTOR_RECOIL | TWOS INFERRED | contact=NONE | support=BOTH | object_support=NONE | root=A_SUPPORT_FRAME | custody=FREE
+
+
+ FREE
+                                          #########
+                      A                   #.......#
+                     / \                  #...O...#
+                   -o---o                 #.......#
+                 --  \ o                  #.......#
+               o-    \ /                  #########
+                      \
+                      @
+                     / \
+                     / \
+                    o   o
+                   /     \
+                   /     \
+                  o       o
+                  =       =
+
+
+
+[C004-K8] RECOVERY_READ | FOURS INFERRED | contact=NONE | support=BOTH | object_support=NONE | root=A_SUPPORT_FRAME | custody=FREE
+
+
+ FREE
+                      A
+                     / \                        ########
+                    o---o                       #......#
+                   / \ / \                      #..O...#
+                   / \ / \                      #......#
+                  o   \   o                     #......#
+                      @                         ########
+                     / \
+                     / \
+                    o   o
+                   /     \
+                   /     \
+                  o       o
+                  =       =
+
+
+</pre></section><section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "1c47549f7614e1a027ae3f6ae0c0600bf23d498ea704609fbdadaad27ad66777",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate geometry only when contact_state, support_A, object_support, root_owner and custody are unchanged; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 16970,
+    "media_sha256": "0472e5811dc6afc1755aac351ec92d70bb8e567c296bd4e8e0f7427b17346ed6",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA",
+    "semantic_frames_per_loop": 22,
+    "source_sprite_pixels_used": false,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "video_frames_total": 88
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "inferred": [
+      "generic opaque payload geometry",
+      "one-anchor acquisition followed by two-anchor custody lock",
+      "shared-center path and leverage direction",
+      "support transfer during carry",
+      "release, free-object lag and actor recoil/recovery",
+      "all decisive timing and connective geometry under STREET_FIGHTER/CAPCOM"
+    ],
+    "observed": [
+      "complete current TSR Alex sheet is one static 234x496 paletted PNG",
+      "whole-sheet visual review shows multiple neutral, locomotor, attack, knockdown and held/interaction-related body families rather than one isolated pose",
+      "TSR source-page discussion explicitly notes that grabbing an object or enemy can cover the character, making occlusion a source-evidenced contact problem",
+      "sheet is static; no source-authentic exposure sequence was established"
+    ],
+    "unknown": [
+      "source-authentic key order and exposure duration",
+      "exact object/opponent identity for every held pose",
+      "exact grip pressure, force magnitude and center of mass",
+      "hit-stop, gameplay collision boxes and release velocity"
+    ]
+  },
+  "experiment_id": "v2-contact-004-occlusion-anchor-invariants",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          10,
+          8
+        ],
+        "hand_r": [
+          18,
+          8
+        ],
+        "head": [
+          14,
+          3
+        ],
+        "knee_l": [
+          12,
+          12
+        ],
+        "knee_r": [
+          16,
+          12
+        ],
+        "pelvis": [
+          14,
+          9
+        ],
+        "shoulder_l": [
+          12,
+          5
+        ],
+        "shoulder_r": [
+          16,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "establish independent actor and world-supported object before contact",
+      "contact_state": "NONE",
+      "custody": "WORLD",
+      "key_id": "C004-K0",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "APPROACH_FREE_OBJECT",
+      "object": {
+        "center": [
+          35,
+          11
+        ],
+        "rect": [
+          32,
+          9,
+          39,
+          13
+        ]
+      },
+      "object_support": "WORLD",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          32,
+          10
+        ],
+        "head": [
+          19,
+          3
+        ],
+        "knee_l": [
+          17,
+          12
+        ],
+        "knee_r": [
+          21,
+          12
+        ],
+        "pelvis": [
+          19,
+          9
+        ],
+        "shoulder_l": [
+          17,
+          5
+        ],
+        "shoulder_r": [
+          21,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            32,
+            10
+          ],
+          "b": "OBJECT.edge_l",
+          "kind": "CONTACT"
+        }
+      ],
+      "causal_role": "first touch becomes readable without granting custody yet",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "WORLD_TOUCH_PENDING",
+      "key_id": "C004-K1",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CONTACT_ACQUISITION",
+      "object": {
+        "center": [
+          35,
+          11
+        ],
+        "rect": [
+          32,
+          9,
+          39,
+          13
+        ]
+      },
+      "object_support": "WORLD",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        28,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          29,
+          12
+        ],
+        "head": [
+          21,
+          3
+        ],
+        "knee_l": [
+          19,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          21,
+          9
+        ],
+        "shoulder_l": [
+          19,
+          5
+        ],
+        "shoulder_r": [
+          23,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            29,
+            9
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            29,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "two authored hand anchors and support release transfer custody to actor",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K2",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CUSTODY_LOCK",
+      "object": {
+        "center": [
+          33,
+          10
+        ],
+        "rect": [
+          29,
+          8,
+          36,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        27,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          25,
+          15
+        ],
+        "hand_l": [
+          24,
+          8
+        ],
+        "hand_r": [
+          25,
+          12
+        ],
+        "head": [
+          21,
+          3
+        ],
+        "knee_l": [
+          19,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          21,
+          9
+        ],
+        "shoulder_l": [
+          19,
+          5
+        ],
+        "shoulder_r": [
+          23,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            23,
+            8
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            23,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "opaque payload crosses actor torso while anchor graph preserves the relationship",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K3",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "OCCLUDED_LOAD",
+      "object": {
+        "center": [
+          26,
+          10
+        ],
+        "rect": [
+          22,
+          7,
+          30,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        24,
+        10
+      ],
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          27,
+          8
+        ],
+        "hand_r": [
+          28,
+          12
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            8
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            26,
+            12
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "carrier changes ground support while object custody remains unchanged",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K4",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "CARRY_SUPPORT_TRANSFER",
+      "object": {
+        "center": [
+          29,
+          10
+        ],
+        "rect": [
+          25,
+          7,
+          33,
+          13
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        27,
+        10
+      ],
+      "support_A": "RIGHT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          31,
+          7
+        ],
+        "hand_r": [
+          31,
+          10
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_l",
+          "at": [
+            30,
+            7
+          ],
+          "b": "OBJECT.edge_l_upper",
+          "kind": "CUSTODY"
+        },
+        {
+          "a": "A.hand_r",
+          "at": [
+            30,
+            10
+          ],
+          "b": "OBJECT.edge_l_lower",
+          "kind": "CUSTODY"
+        }
+      ],
+      "causal_role": "shared center moves ahead of pelvis before release without changing custody",
+      "contact_state": "TWO_ANCHORS_LOCKED",
+      "custody": "A",
+      "key_id": "C004-K5",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "LEVER_PRELOAD",
+      "object": {
+        "center": [
+          34,
+          7
+        ],
+        "rect": [
+          30,
+          5,
+          38,
+          10
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": [
+        30,
+        9
+      ],
+      "support_A": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          14
+        ],
+        "foot_r": [
+          28,
+          15
+        ],
+        "hand_l": [
+          29,
+          7
+        ],
+        "hand_r": [
+          31,
+          9
+        ],
+        "head": [
+          24,
+          3
+        ],
+        "knee_l": [
+          22,
+          12
+        ],
+        "knee_r": [
+          26,
+          12
+        ],
+        "pelvis": [
+          24,
+          9
+        ],
+        "shoulder_l": [
+          22,
+          5
+        ],
+        "shoulder_r": [
+          26,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "authored destruction of custody anchors forks actor and object clocks",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K6",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "RELEASE_EVENT",
+      "object": {
+        "center": [
+          39,
+          6
+        ],
+        "rect": [
+          35,
+          4,
+          43,
+          9
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "RIGHT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          16
+        ],
+        "foot_r": [
+          26,
+          16
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          23,
+          7
+        ],
+        "head": [
+          22,
+          4
+        ],
+        "knee_l": [
+          20,
+          13
+        ],
+        "knee_r": [
+          24,
+          13
+        ],
+        "pelvis": [
+          22,
+          10
+        ],
+        "shoulder_l": [
+          20,
+          6
+        ],
+        "shoulder_r": [
+          24,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "object continues independently while actor recoils toward stable support",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K7",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "OBJECT_LAG_ACTOR_RECOIL",
+      "object": {
+        "center": [
+          46,
+          5
+        ],
+        "rect": [
+          42,
+          3,
+          50,
+          8
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          18,
+          15
+        ],
+        "foot_r": [
+          26,
+          15
+        ],
+        "hand_l": [
+          18,
+          8
+        ],
+        "hand_r": [
+          26,
+          8
+        ],
+        "head": [
+          22,
+          3
+        ],
+        "knee_l": [
+          20,
+          12
+        ],
+        "knee_r": [
+          24,
+          12
+        ],
+        "pelvis": [
+          22,
+          9
+        ],
+        "shoulder_l": [
+          20,
+          5
+        ],
+        "shoulder_r": [
+          24,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "actor re-stacks after release; free object remains causally separate",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "key_id": "C004-K8",
+      "motion_arc_root_note": "Opaque object mass may hide actor links, but custody is authored by explicit hand-object anchors, support state, root owner and shared center; silhouette overlap alone never changes ownership.",
+      "name": "RECOVERY_READ",
+      "object": {
+        "center": [
+          51,
+          6
+        ],
+        "rect": [
+          48,
+          4,
+          55,
+          9
+        ]
+      },
+      "object_support": "NONE",
+      "root_owner": "A_SUPPORT_FRAME",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "manifest_receipt": {
+    "builder_file": "build.py",
+    "manifest_file": "manifest.json",
+    "media_file": "occlusion-anchor-invariants.mp4",
+    "receipt_file": "receipt.md",
+    "spa_file": "occlusion-anchor-invariants.motion.html",
+    "verification_state": "BUILT"
+  },
+  "principle": "OCCLUSION DOES NOT CANCEL CONTACT; OWNERSHIP LIVES IN ANCHORS, NOT OUTLINE.",
+  "rig": {
+    "actor_joint_schema": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "actors": [
+      "A_CARRIER",
+      "OBJECT_PAYLOAD"
+    ],
+    "relationship_frame": {
+      "contact_markers": "*",
+      "occlusion_rule": "payload is rendered after actor links so it may hide silhouette while explicit anchors remain visible",
+      "ownership_rule": "custody changes only at decisive keys; visual overlap is never ownership evidence",
+      "shared_center": "X"
+    },
+    "support_frame": {
+      "object_world_support": "separate field; never inferred from proximity",
+      "owner": "A_CARRIER_TO_GROUND"
+    }
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 13547,
+    "game": "River City Ransom",
+    "name": "Alex",
+    "page_url": "https://www.spriters-resource.com/nes/rivercityransomstreetgangs/asset/13547/",
+    "raw_bytes": 9599,
+    "raw_dimensions": [
+      234,
+      496
+    ],
+    "raw_pixel_format": "pal8",
+    "raw_sha256": "4b84fd6669afd73c3f5e6df98d1c299a9c17f5f4f5266426ddd8636f909da5b7",
+    "raw_url": "https://www.spriters-resource.com/media/assets/13/13547.png?updated=1755472475",
+    "rights_note": "Copyright-restricted game sprite sheet used only as whole-sheet motion evidence. No source pixels, palette, exact silhouette, layout, tracing, redistribution, or close imitation enter this specimen. Drew work not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "system": "NES",
+    "whole_sheet_inspected": true
+  }
+}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled solely from authored abstract ASCII rig keys, explicit holds, and topology-safe connective geometry. No source sprite pixels are present.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script></body></html>
