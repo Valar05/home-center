@@ -1,0 +1,82 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "6c0fad394953a4f1cee1bc96385c95d2604134215576e3cf64f50b720d0f33d0",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-004-drag-capture-descent",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "drag-capture-descent.motion.html"
+  ],
+  "format_version": 2,
+  "global_test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py is present and callable by Python, but this Standard Chat runtime has no repository execution shell and container network cannot clone GitHub (DNS unavailable). Current exact GitHub readback shows pre-existing v2-defense-001-guard-support-fork still has zero tracked *.motion.html, so the deterministic suite would fail there before reaching this specimen. This specimen was locally checked against the same structural predicates and its embedded MP4 was ffprobe-decoded.",
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 13009,
+  "media_filename": "drag-capture-descent.mp4",
+  "media_hash_policy": "Hash records exact embedded MP4 bytes produced by the builder. Authored ASCII keys, holds, semantic connector rules, and frame sequence are deterministic; cross-runtime ffmpeg/font bitstream byte identity is not claimed.",
+  "media_sha256": "081250e1aabac7abccda1d7fa63b0c36264d345783f88ff31c06877270282979",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 14,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 2,
+    "semantic_frames_per_loop": 45,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 90
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "ship_commit": "PENDING",
+  "source": {
+    "asset_id": 500827,
+    "game": "Toy Story",
+    "page_url": "https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/",
+    "platform": "Sega Genesis",
+    "reported_dimensions": [
+      576,
+      720
+    ],
+    "reported_format": "PNG",
+    "reported_size": "44.01 KB",
+    "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, exact silhouette, sheet layout, traced contour, redistribution, or close imitation enter this specimen. Drew work was not used.",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Green Army Man",
+    "whole_sheet_inspected": true,
+    "whole_sheet_visual_evidence": "Standard Chat image result exposed the complete sheet; source page reports Fall, Jump, Parachute, and Soldier descends by parachute families."
+  },
+  "source_art_embedded": false,
+  "status": "REPO_VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
+  "video_packaging": "embedded MP4 data URI in tracked SPA; builder reconstructs drag-capture-descent.mp4 from motion.json",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
