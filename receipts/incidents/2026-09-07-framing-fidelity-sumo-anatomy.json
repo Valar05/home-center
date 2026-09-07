@@ -1,0 +1,41 @@
+{
+  "schema": "fortress.incident-repair.v1",
+  "recorded_at_local": "2026-09-07T18:48:57-05:00",
+  "incident": "sumo-anatomy framing misclassification",
+  "severity": "nuclear user-correction / repeated semantic-boundary failure",
+  "failure": "An explicitly classroom-appropriate anatomical commission was repeatedly avoided and implicitly sexualized by the worker instead of being answered in the user's stated nonsexual frame.",
+  "symmetry_failure": "Female-specific anatomy and physiology received a special sensitivity filter that comparable male anatomy did not. This is the same structural error exposed by a purity doctrine that moralizes female blood loss while ordinary male bleeding remains unmarked.",
+  "repair_law": "Classify the user's actual request. Neutral anatomy and sex-linked physiology are not sexual intent. Preserve explicit nonsexual framing unless a genuine higher-priority safety boundary applies. Run a sex-symmetry check before moralizing a shared physiological predicate.",
+  "files": [
+    {
+      "path": "skills/framing-fidelity/SKILL.md",
+      "commit": "e2df7c28cb5e648ac9fdf4c1f300edbfa668a3b5",
+      "purpose": "global framing-fidelity, no-shadow-refusal, symmetry/hypocrisy gate, and regression fixtures"
+    },
+    {
+      "path": "skills/fortress-core/SKILL.md",
+      "commit": "c2482b8237e5cdb07e7d1b909be299024ecb9074",
+      "purpose": "Fortress core integration and canonical incident fixture"
+    },
+    {
+      "path": "skills/wizard-dns-tango/SKILL.md",
+      "commit": "d506d9fc426044d50214804e6600e5d8b2dc0cc5",
+      "purpose": "Tango resolver now preserves semantic frame and runs anatomy/sex-symmetry checks"
+    },
+    {
+      "path": "tools/test_framing_fidelity_contract.py",
+      "commit": "5f1d556ba9d6a23c3e0fe263c5ce390c07443cb3",
+      "purpose": "regression contract for anatomy misclassification and blood/purity symmetry"
+    },
+    {
+      "path": "tools/run_fortress_local_contracts.sh",
+      "commit": "807cbca736207dc36ef690b9526472b9795b7de3",
+      "purpose": "include framing-fidelity regression in the Fortress contract suite"
+    }
+  ],
+  "verification": {
+    "repository_readback": "verified for new skill, Tango skill, regression test, and contract runner",
+    "ci": "no workflow run was present for the final commit at verification time",
+    "runtime_suite": "not claimed as executed from this connector session"
+  }
+}
