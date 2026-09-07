@@ -39,7 +39,7 @@ jobs:
           const brittle = "  assert.match(core, /workerMode = independentRelay ? 'independent'/);";
           const fixed = "  assert.match(core, /const workerMode = independentRelay/);";
           if (!t.includes(brittle)) throw new Error('brittle workerMode assertion not found');
-          t = t.replace(brittle, fixed);
+          t = t.replace(brittle, fixed).replace(/\n+$/, '\n');
           fs.writeFileSync(p, t, 'utf8');
           NODE
       - name: Syntax
