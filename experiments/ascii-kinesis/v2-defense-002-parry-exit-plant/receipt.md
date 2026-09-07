@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 Defense 002 — receipt
 
-Status: BUILT / PENDING REPOSITORY PERSISTENCE + READBACK
+Status: PHONE_RUNTIME_BUILT / PENDING PUSH + REPO READBACK
 
 ## Product
 - Repo target: `experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/`
@@ -42,13 +42,13 @@ All decisive timing is INFERRED under PoseLab V1 STREET_FIGHTER/CAPCOM. `1s/2s/4
 
 Transitions interpolate geometry only when support/contact/root/guard/readiness topology is identical across adjacent decisive keys. Causal joins hard-cut. No transition may invent contact, support, root, guard, or readiness state.
 
-- Embedded authoritative MP4 SHA-256: `4b8be05c83f40bdd39946edd1952098be94d9caa39f14907034ca4756e4cb6c3`
-- Embedded MP4 bytes: `9023`
+- Embedded authoritative MP4 SHA-256: `c21cc0a91a03526fea6b4a275186c536eafb7e4c97a8cc1751ad154e9ed54505`
+- Embedded MP4 bytes: `9007`
 - H.264, 640×360, 24 fps, 68 frames, ~2.833333 s
 - semantic frames per loop: `17`
 - loop repetitions: `4`
 - ASCII sheet SHA-256: `48d4a84a42b46c762e759b57a5e14d8ce845eaf0af257348df8bf832a593473c`
-- deterministic builder preflight: two construction builds produced the identical MP4 hash. This construction preflight is not repository completion proof.
+- authoritative phone-runtime build: embedded MP4 hash matches motion.json; ffprobe confirms H.264 640×360, 24 fps, 68 frames. Repository readback remains the completion proof.
 
 ## Contract-test boundary before persistence
 The new entry satisfies the exact entry-level structural predicates from `tools/test_ascii_kinesis_swarm_contract_v2.py` in construction preflight. The repository-wide test is known from current issue truth to stop first on the pre-existing `v2-defense-001-guard-support-fork` defect (`expected exactly one tracked *.motion.html SPA`). This run will execute the repository test through an authorized runtime when callable after persistence and preserve the resulting boundary; it will not mutate the older 001 entry because this commission permits exactly one NEW example.

@@ -12,11 +12,12 @@
   },
   "compile": {
     "ascii_only_frame_render": true,
+    "compiler_identity": "primary-phone ffmpeg/libx264 runtime; authoritative shipped media verified by ffprobe",
     "connector_rule": "interpolate joint geometry only when support_contact, contact_state, root_state, guard_state, and readiness are identical across adjacent decisive keys; otherwise hard-cut at the causal join",
     "fps": 24,
     "loop_repetitions": 4,
-    "media_bytes": 9023,
-    "media_sha256": "4b8be05c83f40bdd39946edd1952098be94d9caa39f14907034ca4756e4cb6c3",
+    "media_bytes": 9007,
+    "media_sha256": "c21cc0a91a03526fea6b4a275186c536eafb7e4c97a8cc1751ad154e9ed54505",
     "method": "Motion Dungeon",
     "pipeline": "authored decisive ASCII keys -> explicit holds/timing -> deterministic connective motion -> ASCII-only frame render -> MP4 -> self-contained SPA",
     "semantic_frames_per_loop": 17,
@@ -63,16 +64,46 @@
       "contact_state": "NONE",
       "guard_state": "READY",
       "joints": {
-        "foot_l": [17,15],
-        "foot_r": [24,15],
-        "hand_l": [16,7],
-        "hand_r": [25,6],
-        "head": [20,3],
-        "knee_l": [18,12],
-        "knee_r": [23,12],
-        "pelvis": [20,9],
-        "shoulder_l": [18,5],
-        "shoulder_r": [22,5]
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          16,
+          7
+        ],
+        "hand_r": [
+          25,
+          6
+        ],
+        "head": [
+          20,
+          3
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          20,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          22,
+          5
+        ]
       },
       "key_id": "D002-K0",
       "motion_arc_root_note": "root stable at original address; facing preserved",
@@ -89,16 +120,46 @@
       "contact_state": "NONE",
       "guard_state": "BRACED",
       "joints": {
-        "foot_l": [17,15],
-        "foot_r": [24,15],
-        "hand_l": [16,8],
-        "hand_r": [26,7],
-        "head": [20,4],
-        "knee_l": [18,13],
-        "knee_r": [23,13],
-        "pelvis": [20,10],
-        "shoulder_l": [18,6],
-        "shoulder_r": [22,6]
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          16,
+          8
+        ],
+        "hand_r": [
+          26,
+          7
+        ],
+        "head": [
+          20,
+          4
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          20,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          22,
+          6
+        ]
       },
       "key_id": "D002-K1",
       "motion_arc_root_note": "pelvis lowers one cell; rear support becomes primary without root travel",
@@ -115,16 +176,46 @@
       "contact_state": "DEFLECT_CONTACT",
       "guard_state": "CONTACT",
       "joints": {
-        "foot_l": [16,15],
-        "foot_r": [23,15],
-        "hand_l": [15,8],
-        "hand_r": [28,6],
-        "head": [19,4],
-        "knee_l": [17,13],
-        "knee_r": [22,13],
-        "pelvis": [19,10],
-        "shoulder_l": [17,6],
-        "shoulder_r": [21,6]
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          28,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
       },
       "key_id": "D002-K2",
       "motion_arc_root_note": "root still near original address; upper channel redirects incoming line",
@@ -141,16 +232,46 @@
       "contact_state": "NONE",
       "guard_state": "OPENING",
       "joints": {
-        "foot_l": [15,15],
-        "foot_r": [22,15],
-        "hand_l": [16,8],
-        "hand_r": [27,7],
-        "head": [19,4],
-        "knee_l": [16,13],
-        "knee_r": [21,13],
-        "pelvis": [18,10],
-        "shoulder_l": [17,6],
-        "shoulder_r": [21,6]
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          22,
+          15
+        ],
+        "hand_l": [
+          16,
+          8
+        ],
+        "hand_r": [
+          27,
+          7
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          18,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
       },
       "key_id": "D002-K3",
       "motion_arc_root_note": "lead foot unloads; pelvis begins lateral translation without reversing facing",
@@ -167,16 +288,46 @@
       "contact_state": "NONE",
       "guard_state": "HALF_BOUND",
       "joints": {
-        "foot_l": [13,15],
-        "foot_r": [23,15],
-        "hand_l": [14,8],
-        "hand_r": [24,7],
-        "head": [17,4],
-        "knee_l": [14,13],
-        "knee_r": [20,13],
-        "pelvis": [16,10],
-        "shoulder_l": [15,6],
-        "shoulder_r": [19,6]
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          14,
+          8
+        ],
+        "hand_r": [
+          24,
+          7
+        ],
+        "head": [
+          17,
+          4
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          16,
+          10
+        ],
+        "shoulder_l": [
+          15,
+          6
+        ],
+        "shoulder_r": [
+          19,
+          6
+        ]
       },
       "key_id": "D002-K4",
       "motion_arc_root_note": "root travels left while free foot searches laterally; no new support claimed yet",
@@ -193,16 +344,46 @@
       "contact_state": "NONE",
       "guard_state": "BOUND",
       "joints": {
-        "foot_l": [10,15],
-        "foot_r": [20,15],
-        "hand_l": [12,8],
-        "hand_r": [22,7],
-        "head": [15,4],
-        "knee_l": [12,13],
-        "knee_r": [18,13],
-        "pelvis": [14,10],
-        "shoulder_l": [13,6],
-        "shoulder_r": [17,6]
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          12,
+          8
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          15,
+          4
+        ],
+        "knee_l": [
+          12,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          14,
+          10
+        ],
+        "shoulder_l": [
+          13,
+          6
+        ],
+        "shoulder_r": [
+          17,
+          6
+        ]
       },
       "key_id": "D002-K5",
       "motion_arc_root_note": "lateral foot earns support; root decelerates into widened base",
@@ -219,16 +400,46 @@
       "contact_state": "NONE",
       "guard_state": "BOUND",
       "joints": {
-        "foot_l": [11,15],
-        "foot_r": [19,15],
-        "hand_l": [11,7],
-        "hand_r": [21,6],
-        "head": [14,3],
-        "knee_l": [12,12],
-        "knee_r": [17,12],
-        "pelvis": [14,9],
-        "shoulder_l": [12,5],
-        "shoulder_r": [16,5]
+        "foot_l": [
+          11,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          11,
+          7
+        ],
+        "hand_r": [
+          21,
+          6
+        ],
+        "head": [
+          14,
+          3
+        ],
+        "knee_l": [
+          12,
+          12
+        ],
+        "knee_r": [
+          17,
+          12
+        ],
+        "pelvis": [
+          14,
+          9
+        ],
+        "shoulder_l": [
+          12,
+          5
+        ],
+        "shoulder_r": [
+          16,
+          5
+        ]
       },
       "key_id": "D002-K6",
       "motion_arc_root_note": "root settles over new base; no teleport back to original address",
@@ -245,16 +456,46 @@
       "contact_state": "NONE",
       "guard_state": "READY",
       "joints": {
-        "foot_l": [10,15],
-        "foot_r": [17,15],
-        "hand_l": [9,7],
-        "hand_r": [18,6],
-        "head": [13,3],
-        "knee_l": [11,12],
-        "knee_r": [16,12],
-        "pelvis": [13,9],
-        "shoulder_l": [11,5],
-        "shoulder_r": [15,5]
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          17,
+          15
+        ],
+        "hand_l": [
+          9,
+          7
+        ],
+        "hand_r": [
+          18,
+          6
+        ],
+        "head": [
+          13,
+          3
+        ],
+        "knee_l": [
+          11,
+          12
+        ],
+        "knee_r": [
+          16,
+          12
+        ],
+        "pelvis": [
+          13,
+          9
+        ],
+        "shoulder_l": [
+          11,
+          5
+        ],
+        "shoulder_r": [
+          15,
+          5
+        ]
       },
       "key_id": "D002-K7",
       "motion_arc_root_note": "same task-ready grammar as K0, but root is laterally displaced",
@@ -274,7 +515,11 @@
     "backward_compatible": true,
     "format_version": 2,
     "ligatures_disabled": true,
-    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
     "schema": "ascii-kinesis.swarm-manifest.v2",
     "source_art_embedded": false,
     "video_required": true,
@@ -290,17 +535,46 @@
   "principle": "A defensive redirect should reserve the next trustworthy support plant before guard authority fully releases; recovery is complete only when support and readiness rebind at the new address.",
   "receipt_facts": {
     "all_decisive_key_timing_provenance": "INFERRED",
-    "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+    "correction_hooks": [
+      "KEEP",
+      "REJECT",
+      "EXAGGERATE",
+      "COMPRESS",
+      "RETIME",
+      "CHANGE SOURCE",
+      "PROMOTE",
+      "SPAWN VARIANT",
+      "FIX BLOCKER",
+      "RERUN"
+    ],
     "issue": "Valar05/home-center#343",
     "repo_path": "experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/",
     "source_timing_observed": false,
-    "status": "BUILT_PENDING_REPO_PERSISTENCE"
+    "status": "PHONE_RUNTIME_BUILT"
   },
   "rig": {
-    "channels": ["root","support","guard","contact","facing","readiness"],
+    "channels": [
+      "root",
+      "support",
+      "guard",
+      "contact",
+      "facing",
+      "readiness"
+    ],
     "coordinate_space": "48x18 character cells",
     "independent_authorship": true,
-    "joints": ["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],
+    "joints": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
     "kind": "generic_ascii_biped_v2"
   },
   "rights": {
@@ -317,7 +591,7 @@
     "source_bytes": 1154726,
     "source_container": "TSR ZIP",
     "source_timing_available": false,
-    "title": "Mina — Mina the Hollower — PC / Computer — Playable Characters",
+    "title": "Mina \u2014 Mina the Hollower \u2014 PC / Computer \u2014 Playable Characters",
     "whole_sheet_evidence_basis": "Campaign-preserved exact-byte audit: 1,724 PNGs / 588 top-level animation families; all PNG alpha geometry scanned; decisive shield/hit families inspected pixelwise before this V2 specimen was authored.",
     "whole_sheet_inspected": true
   },

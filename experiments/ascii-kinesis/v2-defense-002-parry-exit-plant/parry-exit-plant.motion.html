@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Defense 002 — Parry Exit-Plant</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:76ch;line-height:1.45}
+</style></head><body>
+<h1>Parry Exit-Plant / Guarded Re-entry</h1>
+<p class="note">Copyright-safe abstract defense rig. The source sheet is evidence only and is not embedded. Motion Dungeon compiles the authored ASCII keys and explicit timing; causal joins hard-cut instead of inventing support, contact, root, guard, or readiness state.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[D002-K0] TRACK_READY | FOURS INFERRED | support=BOTH | contact=NONE | root=STACKED | guard=READY | ready=BOUND
+role: pre-impact readable ready anchor
+root: root stable at original address; facing preserved
+
+
+
+                    O
+                   / \
+                  o---o-
+                 / \ /  -G
+                o  \ /
+                    \
+                    @
+                   / \
+                   /  \
+                  o    o
+                  |    |
+                 |      |
+                 o      o
+                 =      =
+
+
+[D002-K1] BRACE_PRELOAD | TWOS INFERRED | support=REAR_DOMINANT | contact=NONE | root=COILED | guard=BRACED | ready=BOUND
+role: pre-contact brace and support bias
+root: pelvis lowers one cell; rear support becomes primary without root travel
+
+
+
+
+                    O
+                   / \
+                  o---o-
+                 / \ /  --G
+                o  \ /
+                    \
+                    @
+                   / \
+                   /  \
+                  o    o
+                 /      \
+                 o      o
+                        =
+
+
+[D002-K2] REDIRECT_CONTACT | ONES INFERRED | support=REAR_DOMINANT | contact=DEFLECT_CONTACT | root=COILED | guard=CONTACT | ready=BOUND
+role: deflect contact without surrendering guard authority
+root: root still near original address; upper channel redirects incoming line
+
+
+
+
+                   O
+                  / \
+                 o---o------GX &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                / \ /
+               o  \ /
+                   \
+                   @
+                  / \
+                  /  \
+                 o    o
+                /      \
+                o      o
+                       =
+
+
+[D002-K3] RELEASE_TURN | ONES INFERRED | support=REAR_ONLY | contact=NONE | root=YAW_RELEASE | guard=OPENING | ready=PARTIAL
+role: release contact and open lateral root route
+root: lead foot unloads; pelvis begins lateral translation without reversing facing
+
+
+
+
+                   O
+                  / \
+                 o---o--
+                /|  /   ---o
+                o |/
+                  |/
+                  @
+                 / \
+                 /  \
+                o    o
+               /      \
+               o      o
+                      =
+
+
+[D002-K4] LATERAL_PROBE | ONES INFERRED | support=REAR_ONLY | contact=NONE | root=TRAVERSING | guard=HALF_BOUND | ready=PARTIAL
+role: probe next address before full commitment
+root: root travels left while free foot searches laterally; no new support claimed yet
+
+
+
+
+                 O
+                / \
+               o---o--
+              /|  /   --G
+              o |/
+                |/
+                @
+               / \
+               /  \\
+              o     o
+             /       \\
+             o         o
+                       =
+
+
+[D002-K5] EXIT_PLANT | TWOS INFERRED | support=BOTH_OFFSET | contact=NONE | root=CATCHING | guard=BOUND | ready=REBINDING
+role: first trustworthy support at new address
+root: lateral foot earns support; root decelerates into widened base
+
+
+
+
+               O
+              / \
+             o---o--
+            /|  /   --G
+            o |/
+              |/
+              @
+             / \
+             /  \\
+            o     o
+           /       \
+          o         o
+          =         =
+
+
+[D002-K6] GUARD_REBIND | TWOS INFERRED | support=BOTH | contact=NONE | root=RESTACKING | guard=BOUND | ready=BOUND
+role: re-center guard and support authority after catch
+root: root settles over new base; no teleport back to original address
+
+
+
+              O
+             / \
+            o---o--
+           / \ /   --G
+           o \ /
+              \
+              @
+             / \
+             /  \
+            o    o
+            |     \
+           |      \
+           o       o
+           =       =
+
+
+[D002-K7] READY_NEW_ADDRESS | FOURS INFERRED | support=BOTH | contact=NONE | root=STACKED | guard=READY | ready=BOUND
+role: state re-entry at displaced root address
+root: same task-ready grammar as K0, but root is laterally displaced
+
+
+
+             O
+            / \
+           o---o-
+          / \ /  -G
+         o  \ /
+             \
+             @
+            / \
+            /  \
+           o    o
+           |    |
+          |      |
+          o      o
+          =      =
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "48d4a84a42b46c762e759b57a5e14d8ce845eaf0af257348df8bf832a593473c",
+  "compatibility": {
+    "backward_compatible": true,
+    "offline_playback": true,
+    "v1_artifacts_untouched": true,
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "compile": {
+    "ascii_only_frame_render": true,
+    "compiler_identity": "primary-phone ffmpeg/libx264 runtime; authoritative shipped media verified by ffprobe",
+    "connector_rule": "interpolate joint geometry only when support_contact, contact_state, root_state, guard_state, and readiness are identical across adjacent decisive keys; otherwise hard-cut at the causal join",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 9007,
+    "media_sha256": "c21cc0a91a03526fea6b4a275186c536eafb7e4c97a8cc1751ad154e9ed54505",
+    "method": "Motion Dungeon",
+    "pipeline": "authored decisive ASCII keys -&gt; explicit holds/timing -&gt; deterministic connective motion -&gt; ASCII-only frame render -&gt; MP4 -&gt; self-contained SPA",
+    "semantic_frames_per_loop": 17,
+    "transitions_invent_semantics": false,
+    "video_frames_total": 68
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evidence": {
+    "INFERRED": [
+      "Synthetic parry-to-sidestep ordering and the incoming contact direction used by this abstract rig.",
+      "An overlap window in which guard authority remains bound while the original support becomes rear-dominant and the exit foot probes laterally.",
+      "Recovery begins at the first trustworthy lateral plant and finishes when task readiness is rebound at the new address.",
+      "All ONES/TWOS/FOURS timing classes use PoseLab V1 STREET_FIGHTER/CAPCOM compilation policy."
+    ],
+    "OBSERVED": [
+      "Exact TSR archive identity, byte count, SHA-256, 1,724 PNG count, and 588 top-level animation-family count are preserved in the campaign receipt.",
+      "The archive contains shield/defense and hit/consequence families alongside travel and recovery families.",
+      "Whole-archive alpha-geometry and decisive-family pixel inspections were completed in the preserved source audit.",
+      "No playback-duration metadata established source-authentic exposure timing."
+    ],
+    "UNKNOWN": [
+      "Source-authentic chronology and display exposure.",
+      "Anatomical support foot for every source drawing.",
+      "Exact source contact vector, hitbox, force magnitude, and hit-stop duration.",
+      "Source-authentic root path or authored cancel window."
+    ]
+  },
+  "experiment_id": "v2-defense-002-parry-exit-plant",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "pre-impact readable ready anchor",
+      "contact_state": "NONE",
+      "guard_state": "READY",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          16,
+          7
+        ],
+        "hand_r": [
+          25,
+          6
+        ],
+        "head": [
+          20,
+          3
+        ],
+        "knee_l": [
+          18,
+          12
+        ],
+        "knee_r": [
+          23,
+          12
+        ],
+        "pelvis": [
+          20,
+          9
+        ],
+        "shoulder_l": [
+          18,
+          5
+        ],
+        "shoulder_r": [
+          22,
+          5
+        ]
+      },
+      "key_id": "D002-K0",
+      "motion_arc_root_note": "root stable at original address; facing preserved",
+      "name": "TRACK_READY",
+      "pose_rig": "neutral staggered base with guard hand forward",
+      "readiness": "BOUND",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "pre-contact brace and support bias",
+      "contact_state": "NONE",
+      "guard_state": "BRACED",
+      "joints": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          16,
+          8
+        ],
+        "hand_r": [
+          26,
+          7
+        ],
+        "head": [
+          20,
+          4
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          20,
+          10
+        ],
+        "shoulder_l": [
+          18,
+          6
+        ],
+        "shoulder_r": [
+          22,
+          6
+        ]
+      },
+      "key_id": "D002-K1",
+      "motion_arc_root_note": "pelvis lowers one cell; rear support becomes primary without root travel",
+      "name": "BRACE_PRELOAD",
+      "pose_rig": "compressed guard with lead side free to redirect",
+      "readiness": "BOUND",
+      "root_state": "COILED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "deflect contact without surrendering guard authority",
+      "contact_state": "DEFLECT_CONTACT",
+      "guard_state": "CONTACT",
+      "joints": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          15,
+          8
+        ],
+        "hand_r": [
+          28,
+          6
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          19,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
+      },
+      "key_id": "D002-K2",
+      "motion_arc_root_note": "root still near original address; upper channel redirects incoming line",
+      "name": "REDIRECT_CONTACT",
+      "pose_rig": "guard arm meets inferred incoming vector while pelvis stays compressed",
+      "readiness": "BOUND",
+      "root_state": "COILED",
+      "support_contact": "REAR_DOMINANT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "release contact and open lateral root route",
+      "contact_state": "NONE",
+      "guard_state": "OPENING",
+      "joints": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          22,
+          15
+        ],
+        "hand_l": [
+          16,
+          8
+        ],
+        "hand_r": [
+          27,
+          7
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          18,
+          10
+        ],
+        "shoulder_l": [
+          17,
+          6
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
+      },
+      "key_id": "D002-K3",
+      "motion_arc_root_note": "lead foot unloads; pelvis begins lateral translation without reversing facing",
+      "name": "RELEASE_TURN",
+      "pose_rig": "rear-leg support with torso opening away from contact line",
+      "readiness": "PARTIAL",
+      "root_state": "YAW_RELEASE",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "probe next address before full commitment",
+      "contact_state": "NONE",
+      "guard_state": "HALF_BOUND",
+      "joints": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          14,
+          8
+        ],
+        "hand_r": [
+          24,
+          7
+        ],
+        "head": [
+          17,
+          4
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          16,
+          10
+        ],
+        "shoulder_l": [
+          15,
+          6
+        ],
+        "shoulder_r": [
+          19,
+          6
+        ]
+      },
+      "key_id": "D002-K4",
+      "motion_arc_root_note": "root travels left while free foot searches laterally; no new support claimed yet",
+      "name": "LATERAL_PROBE",
+      "pose_rig": "one-foot support, free foot extended toward exit",
+      "readiness": "PARTIAL",
+      "root_state": "TRAVERSING",
+      "support_contact": "REAR_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "first trustworthy support at new address",
+      "contact_state": "NONE",
+      "guard_state": "BOUND",
+      "joints": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          20,
+          15
+        ],
+        "hand_l": [
+          12,
+          8
+        ],
+        "hand_r": [
+          22,
+          7
+        ],
+        "head": [
+          15,
+          4
+        ],
+        "knee_l": [
+          12,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          14,
+          10
+        ],
+        "shoulder_l": [
+          13,
+          6
+        ],
+        "shoulder_r": [
+          17,
+          6
+        ]
+      },
+      "key_id": "D002-K5",
+      "motion_arc_root_note": "lateral foot earns support; root decelerates into widened base",
+      "name": "EXIT_PLANT",
+      "pose_rig": "new lead support catches while rear foot remains connected",
+      "readiness": "REBINDING",
+      "root_state": "CATCHING",
+      "support_contact": "BOTH_OFFSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "re-center guard and support authority after catch",
+      "contact_state": "NONE",
+      "guard_state": "BOUND",
+      "joints": {
+        "foot_l": [
+          11,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          11,
+          7
+        ],
+        "hand_r": [
+          21,
+          6
+        ],
+        "head": [
+          14,
+          3
+        ],
+        "knee_l": [
+          12,
+          12
+        ],
+        "knee_r": [
+          17,
+          12
+        ],
+        "pelvis": [
+          14,
+          9
+        ],
+        "shoulder_l": [
+          12,
+          5
+        ],
+        "shoulder_r": [
+          16,
+          5
+        ]
+      },
+      "key_id": "D002-K6",
+      "motion_arc_root_note": "root settles over new base; no teleport back to original address",
+      "name": "GUARD_REBIND",
+      "pose_rig": "torso restacks while guard remains action-capable",
+      "readiness": "BOUND",
+      "root_state": "RESTACKING",
+      "support_contact": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "state re-entry at displaced root address",
+      "contact_state": "NONE",
+      "guard_state": "READY",
+      "joints": {
+        "foot_l": [
+          10,
+          15
+        ],
+        "foot_r": [
+          17,
+          15
+        ],
+        "hand_l": [
+          9,
+          7
+        ],
+        "hand_r": [
+          18,
+          6
+        ],
+        "head": [
+          13,
+          3
+        ],
+        "knee_l": [
+          11,
+          12
+        ],
+        "knee_r": [
+          16,
+          12
+        ],
+        "pelvis": [
+          13,
+          9
+        ],
+        "shoulder_l": [
+          11,
+          5
+        ],
+        "shoulder_r": [
+          15,
+          5
+        ]
+      },
+      "key_id": "D002-K7",
+      "motion_arc_root_note": "same task-ready grammar as K0, but root is laterally displaced",
+      "name": "READY_NEW_ADDRESS",
+      "pose_rig": "ready base reconstructed at new address",
+      "readiness": "BOUND",
+      "root_state": "STACKED",
+      "support_contact": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "defense",
+  "manifest_facts": {
+    "ascii_literal_text": true,
+    "authoritative_media": "embedded MP4 data URI in parry-exit-plant.motion.html",
+    "backward_compatible": true,
+    "format_version": 2,
+    "ligatures_disabled": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "schema": "ascii-kinesis.swarm-manifest.v2",
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only",
+    "whitespace_preserved": true
+  },
+  "manifest_receipt": {
+    "manifest": "manifest.json",
+    "receipt": "receipt.md",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/",
+    "tracked_spa": "parry-exit-plant.motion.html"
+  },
+  "principle": "A defensive redirect should reserve the next trustworthy support plant before guard authority fully releases; recovery is complete only when support and readiness rebind at the new address.",
+  "receipt_facts": {
+    "all_decisive_key_timing_provenance": "INFERRED",
+    "correction_hooks": [
+      "KEEP",
+      "REJECT",
+      "EXAGGERATE",
+      "COMPRESS",
+      "RETIME",
+      "CHANGE SOURCE",
+      "PROMOTE",
+      "SPAWN VARIANT",
+      "FIX BLOCKER",
+      "RERUN"
+    ],
+    "issue": "Valar05/home-center#343",
+    "repo_path": "experiments/ascii-kinesis/v2-defense-002-parry-exit-plant/",
+    "source_timing_observed": false,
+    "status": "PHONE_RUNTIME_BUILT"
+  },
+  "rig": {
+    "channels": [
+      "root",
+      "support",
+      "guard",
+      "contact",
+      "facing",
+      "readiness"
+    ],
+    "coordinate_space": "48x18 character cells",
+    "independent_authorship": true,
+    "joints": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "kind": "generic_ascii_biped_v2"
+  },
+  "rights": {
+    "drew_work_used": false,
+    "note": "Copyright-restricted source art is evidence only. This specimen reproduces no source pixels, palette, costume, face, exact silhouette, layout, tracing, choreography, or close imitation. The shipped performance is an independently authored generic ASCII biped.",
+    "source_art_embedded": false
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 565619,
+    "page_url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/565619/",
+    "raw_sha256": "41b28692c8c79929a8044a13942e3be8a549e660cf6d1a317c03ec51a6a238ff",
+    "site": "The Spriters Resource",
+    "source_bytes": 1154726,
+    "source_container": "TSR ZIP",
+    "source_timing_available": false,
+    "title": "Mina \u2014 Mina the Hollower \u2014 PC / Computer \u2014 Playable Characters",
+    "whole_sheet_evidence_basis": "Campaign-preserved exact-byte audit: 1,724 PNGs / 588 top-level animation families; all PNG alpha geometry scanned; decisive shield/hit families inspected pixelwise before this V2 specimen was authored.",
+    "whole_sheet_inspected": true
+  },
+  "timing_vocabulary": {
+    "FOURS": "one authored sample held for four display frames",
+    "ONES": "new authored sample every display frame",
+    "TWOS": "one authored sample held for two display frames",
+    "policy": "STREET_FIGHTER/CAPCOM nonuniform authored gameplay timing; INFERRED here, never source-authentic",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Parry Exit-Plant / Guarded Re-entry"
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">Authoritative media identity is this embedded MP4. It is rendered only from the independently authored ASCII rig coordinates, literal ASCII frames, explicit holds, and topology-safe connectors in JSON.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script>
+</body></html>

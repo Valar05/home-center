@@ -25,17 +25,17 @@
   "format_version": 2,
   "lane": "defense",
   "ligatures_disabled": true,
-  "media_bytes": 9023,
+  "media_bytes": 9007,
   "media_decode_preflight": {
     "codec": "h264",
     "duration_seconds": 2.833333,
     "fps": "24/1",
     "frames": 68,
     "height": 360,
-    "tool": "ffprobe",
+    "tool": "ffprobe on primary-phone",
     "width": 640
   },
-  "media_sha256": "4b8be05c83f40bdd39946edd1952098be94d9caa39f14907034ca4756e4cb6c3",
+  "media_sha256": "c21cc0a91a03526fea6b4a275186c536eafb7e4c97a8cc1751ad154e9ed54505",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 8,
