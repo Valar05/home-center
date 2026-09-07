@@ -1,0 +1,742 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Timing 001 — Scoped Freeze / Release</title><style>:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:76ch;line-height:1.45}</style></head><body><h1>Scoped Freeze / Release Clock Grammar</h1><p class="note">Abstract generic ASCII rig. Source sprites are evidence only and are not embedded. A scoped freeze pauses SIGNAL_B while SIGNAL_A and BASE retain authority and phase.</p><nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" role="tabpanel"><pre>[T001-K0] FREE_RUN_ZERO | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=FOURS INFERRED
+root/motion-arc: BASE root/support held; local A/B phases differ; no causal join.
+causal role: establish independent local phases
+clocks: BASE=HOLD A=UP B=DOWN GATE=OPEN
+
+
+                        g
+
+
+             A          O
+              \\        |
+                \\      |
+                  \\    |
+                    o-- | --o
+                       -+-   \\
+                        |      \\
+                        |        \\
+                        |          B
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K1] A_PHASE_ADVANCE | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=TWOS INFERRED
+root/motion-arc: Left local arc descends; right local phase and root/support remain unchanged.
+causal role: advance A without spending a B or BASE key
+clocks: BASE=HOLD A=DOWN B=DOWN GATE=OPEN
+
+
+                        g
+
+
+                        O
+                        |
+                        |
+                        |
+                    o-- | --o
+                  //   -+-   \\
+                //      |      \\
+              //        |        \\
+             A          |          B
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K2] B_PHASE_ADVANCE | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=ONES INFERRED
+root/motion-arc: Right local arc rises; A and BASE retain authored state.
+causal role: advance B as a transient local information spike
+clocks: BASE=HOLD A=DOWN B=UP GATE=OPEN
+
+
+                        g
+
+
+                        O          B
+                        |        //
+                        |      //
+                        |    //
+                    o-- | --o
+                  //   -+-
+                //      |
+              //        |
+             A          |
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K3] FREEZE_B | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=ONES INFERRED
+root/motion-arc: External event freezes SIGNAL_B at UP; SIGNAL_A may advance; BASE stays planted.
+causal role: scoped freeze acquisition
+clocks: BASE=HOLD A=UP B=UP GATE=FREEZE_B
+
+
+                        F
+
+
+             A          O          B
+              \\        |        //
+                \\      |      //
+                  \\    |    //
+                    o-- | --o
+                       -+-
+                        |
+                        |
+                        |
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K4] A_CONTINUES_B_HELD | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=TWOS INFERRED
+root/motion-arc: Left local arc advances while right local arc is explicitly held; root/support unchanged.
+causal role: prove nonparticipant phase continuity during freeze
+clocks: BASE=HOLD A=DOWN B=UP GATE=FREEZE_B
+
+
+                        F
+
+
+                        O          B
+                        |        //
+                        |      //
+                        |    //
+                    o-- | --o
+                  //   -+-
+                //      |
+              //        |
+             A          |
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K5] RELEASE_B | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=ONES INFERRED
+root/motion-arc: SIGNAL_B is released without hidden in-between or BASE reset; it resumes from held phase.
+causal role: named release event
+clocks: BASE=HOLD A=DOWN B=UP GATE=RELEASE_B
+
+
+                        R
+
+
+                        O          B
+                        |        //
+                        |      //
+                        |    //
+                    o-- | --o
+                  //   -+-
+                //      |
+              //        |
+             A          |
+                        |
+                        @
+                 ===============
+
+
+
+[T001-K6] B_RESUMES | pose/rig=GENERIC_DUAL_SIGNAL_PEDESTAL | support/contact=ROOT_PLANTED_BASELINE | timing=FOURS INFERRED
+root/motion-arc: Right local arc advances only after release; BASE remains the same support key throughout.
+causal role: post-release readable recurrence
+clocks: BASE=HOLD A=UP B=DOWN GATE=OPEN
+
+
+                        g
+
+
+             A          O
+              \\        |
+                \\      |
+                  \\    |
+                    o-- | --o
+                       -+-   \\
+                        |      \\
+                        |        \\
+                        |          B
+                        |
+                        @
+                 ===============
+
+</pre></section><section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "2b842e27e1537c07fa811753cb16a9bbceb9c098bc9606c584c935446c650e5d",
+  "axis_partition": {
+    "effect_axis": "Local/effect-like presentation is treated as an independent channel unless causality explicitly joins it.",
+    "rule": "Separate axes before cadence. Sheet adjacency or visual multiplicity is not chronology.",
+    "temporal_axis": "Only authored abstract clock-state changes and causal sync events become decisive keys.",
+    "variant_configuration_axis": "The observed B-skin/repeated presentation families are collapsed as configuration/equivalence evidence and consume no time keys."
+  },
+  "clock_channels": [
+    {
+      "clock_id": "BASE",
+      "note": "Static support/root for entire specimen; never duplicated merely because local clocks change.",
+      "owner": "root/support",
+      "policy": "PRESERVE_PHASE"
+    },
+    {
+      "clock_id": "SIGNAL_A",
+      "note": "Continues during SIGNAL_B freeze.",
+      "owner": "left local arm",
+      "policy": "FREE_RUN"
+    },
+    {
+      "clock_id": "SIGNAL_B",
+      "note": "Freezes at its authored phase until release.",
+      "owner": "right local arm",
+      "policy": "FREE_RUN -&gt; FREEZE_UNTIL_RELEASE -&gt; FREE_RUN"
+    },
+    {
+      "clock_id": "GATE",
+      "note": "Never resets BASE or SIGNAL_A.",
+      "owner": "external sync event",
+      "policy": "SCOPED_EVENT",
+      "sync_scope": [
+        "SIGNAL_B"
+      ]
+    }
+  ],
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "authored_hold_frames_per_loop": 15,
+    "connective_frames_per_loop": 2,
+    "connector_frames": 1,
+    "connector_rule": "One midpoint connector is permitted only when gate_state is unchanged and no endpoint is a causal event; interpolate only local tip coordinates. Event boundaries hard-cut. Connectors cannot change support/root/clock authority.",
+    "fps": 24,
+    "loop_repetitions": 8,
+    "media_bytes": 10951,
+    "media_sha256": "21a1aa63e8300065da224eb75dfc555bbf4db9dadde3f786549a87e82fd76722",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SELF-CONTAINED SPA",
+    "renderer": "Python/Pillow renders literal generated ASCII frames; ffmpeg libx264 yuv420p.",
+    "semantic_frames_per_loop": 17,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 136
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-timing-001-scoped-freeze-release",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "establish independent local phases",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "OPEN",
+        "SIGNAL_A": "UP",
+        "SIGNAL_B": "DOWN"
+      },
+      "event": null,
+      "key_id": "T001-K0",
+      "motion_arc_root_note": "BASE root/support held; local A/B phases differ; no causal join.",
+      "name": "FREE_RUN_ZERO",
+      "pose_rig": {
+        "gate_state": "OPEN",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            5
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            13
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "UP",
+        "signal_B_phase": "DOWN"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [],
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "advance A without spending a B or BASE key",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "OPEN",
+        "SIGNAL_A": "DOWN",
+        "SIGNAL_B": "DOWN"
+      },
+      "event": null,
+      "key_id": "T001-K1",
+      "motion_arc_root_note": "Left local arc descends; right local phase and root/support remain unchanged.",
+      "name": "A_PHASE_ADVANCE",
+      "pose_rig": {
+        "gate_state": "OPEN",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            13
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            13
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "DOWN",
+        "signal_B_phase": "DOWN"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [],
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "advance B as a transient local information spike",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "OPEN",
+        "SIGNAL_A": "DOWN",
+        "SIGNAL_B": "UP"
+      },
+      "event": null,
+      "key_id": "T001-K2",
+      "motion_arc_root_note": "Right local arc rises; A and BASE retain authored state.",
+      "name": "B_PHASE_ADVANCE",
+      "pose_rig": {
+        "gate_state": "OPEN",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            13
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            5
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "DOWN",
+        "signal_B_phase": "UP"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [],
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "scoped freeze acquisition",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "FREEZE_B",
+        "SIGNAL_A": "UP",
+        "SIGNAL_B": "UP"
+      },
+      "event": "FREEZE_UNTIL_RELEASE",
+      "key_id": "T001-K3",
+      "motion_arc_root_note": "External event freezes SIGNAL_B at UP; SIGNAL_A may advance; BASE stays planted.",
+      "name": "FREEZE_B",
+      "pose_rig": {
+        "gate_state": "FREEZE_B",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            5
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            5
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "UP",
+        "signal_B_phase": "UP"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [
+        "SIGNAL_B"
+      ],
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "prove nonparticipant phase continuity during freeze",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "FREEZE_B",
+        "SIGNAL_A": "DOWN",
+        "SIGNAL_B": "UP"
+      },
+      "event": null,
+      "key_id": "T001-K4",
+      "motion_arc_root_note": "Left local arc advances while right local arc is explicitly held; root/support unchanged.",
+      "name": "A_CONTINUES_B_HELD",
+      "pose_rig": {
+        "gate_state": "FREEZE_B",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            13
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            5
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "DOWN",
+        "signal_B_phase": "UP"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [
+        "SIGNAL_B"
+      ],
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "named release event",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "RELEASE_B",
+        "SIGNAL_A": "DOWN",
+        "SIGNAL_B": "UP"
+      },
+      "event": "RELEASE",
+      "key_id": "T001-K5",
+      "motion_arc_root_note": "SIGNAL_B is released without hidden in-between or BASE reset; it resumes from held phase.",
+      "name": "RELEASE_B",
+      "pose_rig": {
+        "gate_state": "RELEASE_B",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            13
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            5
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "DOWN",
+        "signal_B_phase": "UP"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [
+        "SIGNAL_B"
+      ],
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "causal_role": "post-release readable recurrence",
+      "clock_state": {
+        "BASE": "HOLD",
+        "GATE": "OPEN",
+        "SIGNAL_A": "UP",
+        "SIGNAL_B": "DOWN"
+      },
+      "event": null,
+      "key_id": "T001-K6",
+      "motion_arc_root_note": "Right local arc advances only after release; BASE remains the same support key throughout.",
+      "name": "B_RESUMES",
+      "pose_rig": {
+        "gate_state": "OPEN",
+        "joints": {
+          "head": [
+            24,
+            5
+          ],
+          "left_pivot": [
+            20,
+            9
+          ],
+          "left_tip": [
+            13,
+            5
+          ],
+          "mast": [
+            24,
+            10
+          ],
+          "right_pivot": [
+            28,
+            9
+          ],
+          "right_tip": [
+            35,
+            13
+          ],
+          "root": [
+            24,
+            15
+          ]
+        },
+        "rig_id": "GENERIC_DUAL_SIGNAL_PEDESTAL",
+        "signal_A_phase": "UP",
+        "signal_B_phase": "DOWN"
+      },
+      "support_contact": "ROOT_PLANTED_BASELINE",
+      "sync_scope": [],
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "timing",
+  "manifest": {
+    "ascii_literal_text": true,
+    "required_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "principle": "A scoped FREEZE_UNTIL_RELEASE pauses only the named local clock; nonparticipants retain phase and unchanged support/root is not re-keyed.",
+  "rig_schema": {
+    "clock_markers": {
+      "GATE": "g/F/R above head",
+      "SIGNAL_A": "A at left_tip",
+      "SIGNAL_B": "B at right_tip"
+    },
+    "grid": [
+      49,
+      19
+    ],
+    "joints": [
+      "root",
+      "mast",
+      "head",
+      "left_pivot",
+      "left_tip",
+      "right_pivot",
+      "right_tip"
+    ],
+    "links": [
+      [
+        "root",
+        "mast"
+      ],
+      [
+        "mast",
+        "head"
+      ],
+      [
+        "mast",
+        "left_pivot"
+      ],
+      [
+        "left_pivot",
+        "left_tip"
+      ],
+      [
+        "mast",
+        "right_pivot"
+      ],
+      [
+        "right_pivot",
+        "right_tip"
+      ]
+    ],
+    "space": "integer ASCII grid",
+    "support_marker": "base line under root"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 97821,
+    "category": "PC / Computer",
+    "dimensions": [
+      445,
+      554
+    ],
+    "format": "PNG",
+    "game": "Nuclear Throne",
+    "name": "Robot",
+    "observed": [
+      "The source is one complete static 445x554 PNG sheet.",
+      "The whole sheet contains multiple action/state families, including long repeated-state strips and short transition/consequence families.",
+      "A second B-skin family repeats comparable idle/walk/hurt organization.",
+      "Large portions of body organization recur while local presentation changes."
+    ],
+    "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
+    "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
+    "rights_note": "Copyrighted source sprites are evidence only. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this specimen. Only abstract timing/channel principles are retained.",
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "unknown": [
+      "source playback order within every row",
+      "per-cell exposure",
+      "runtime subclock ownership",
+      "source reset/freeze/release policy",
+      "source synchronization event timing",
+      "hit-stop and source cadence"
+    ],
+    "whole_sheet_evidence_origin": "Current run re-read of campaign evidence from the prior full-sheet custody/inspection; historical timing pass is evidence only and is not the V2 product.",
+    "whole_sheet_inspected": true
+  },
+  "timing_policy": {
+    "classes": {
+      "FOURS": {
+        "hold_display_frames": 4,
+        "nominal_samples_per_second": 6
+      },
+      "ONES": {
+        "hold_display_frames": 1,
+        "nominal_samples_per_second": 24
+      },
+      "TWOS": {
+        "hold_display_frames": 2,
+        "nominal_samples_per_second": 12
+      }
+    },
+    "name": "STREET_FIGHTER/CAPCOM",
+    "nominal_fps": 24,
+    "note": "Nonuniform gameplay timing vocabulary may mix holds, fast transitions, impact/hit-stop, recoil/recovery holds, silhouette exaggeration, and selective sampling. Every timing assignment in this specimen is INFERRED, not source-authentic.",
+    "shorthand_normalization": {
+      "1s": "ONES",
+      "2s": "TWOS",
+      "4s": "FOURS"
+    }
+  },
+  "title": "Scoped Freeze / Release Clock Grammar"
+}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled only from the abstract rig, generated ASCII frames, explicit holds, and fail-closed local-tip connectors.</p></section><script>const t=[...document.querySelectorAll('button[data-view]')],p=[...document.querySelectorAll('section[role=tabpanel]')];for(const x of t)x.addEventListener('click',()=>{for(const b of t)b.setAttribute('aria-selected',b===x?'true':'false');for(const y of p)y.hidden=y.id!==x.dataset.view;});</script></body></html>
