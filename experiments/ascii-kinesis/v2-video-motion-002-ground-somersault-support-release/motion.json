@@ -1,0 +1,483 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "experiment_id": "v2-video-motion-002-ground-somersault-support-release",
+  "title": "Ground somersault · load → release → inversion → catch",
+  "lane": "video-motion",
+  "format_version": 2,
+  "source": {
+    "title": "Ground flip (1080p 120fps - take 02).webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "origin": "Own work uploaded by PoseidonSports to Wikimedia Commons",
+    "author": "PoseidonSports",
+    "source_date": "2023-01-22",
+    "rights_status": "CC_BY_SA_4_0",
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "rights_note": "Source frames were used only as analysis evidence. No source pixels, copied frames, or source audio are embedded in the repo example or its MP4; the output is an abstract ASCII rig encoding general motion facts with provenance and attribution retained.",
+    "source_sha256": "3e20e997e0aa0d95973ecd89caacc6c770cfa5ba23266026c2c3de6d2d2567a7",
+    "source_bytes": 15685775,
+    "source_duration_s": 6.008,
+    "source_dimensions": [
+      1920,
+      1080
+    ],
+    "stream_fps": "120/1",
+    "presentation_cadence_note": "The Commons source is categorized as slow motion. OBSERVED timestamps below are source presentation timestamps, not claims about real-world athletic duration or cadence.",
+    "selected_action_segment_s": [
+      0.5,
+      3.75
+    ],
+    "whole_action_inspection": "OBSERVED: the entire 6.008 s source was decoded and inspected as an ordered 2 fps whole-clip preview before keys were chosen; the coherent action core was then inspected at ordered 4 fps over 2.000–4.000 s. Source pixels remained analysis-only.",
+    "analysis_derivatives": {
+      "whole_clip_preview": {
+        "sampling": "2 fps ordered 12-frame grayscale sheet",
+        "sha256": "4f3f33178134375c600acd954413f0cc6eb5eafe98f70410791315daf53194f1"
+      },
+      "core_action_preview": {
+        "sampling": "4 fps ordered 8-frame grayscale sheet, 2.000–4.000 s",
+        "sha256": "2acb404df1cb7aa103a089c0de8dabc41757bda045b30e96826e2ae92e5f3dce"
+      }
+    }
+  },
+  "evidence_boundary": {
+    "observed": [
+      "The performer begins the selected action in a compressed stance, then extends through a long preparation before leaving grounded support.",
+      "At 2.500 s the performer is still upright near the ground plane; by 3.000 s the body is clearly airborne/rotating, so exact toe-off is bracketed rather than invented.",
+      "At 3.250 s the body is visibly inverted/tucked with the root/pelvis proxy above the head path.",
+      "At 3.500 s the body is descending/unfolding toward the ground plane.",
+      "By 3.750 s ground support has visibly returned and the torso is substantially upright; exact first foot-strike side/frame remains unresolved.",
+      "Horizontal root travel is small relative to the vertical/rotational excursion; the action reads primarily as an on-the-spot vertical arc plus rotation."
+    ],
+    "inferred": [
+      "The compiled animation cadence is authored with PoseLab FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM vocabulary because the source is slow-motion presentation and real-time performance cadence is not established.",
+      "Connective joint interpolation between decisive observed poses is deterministic geometry only and carries the prior key's semantic state until the next decisive key."
+    ],
+    "unknown": [
+      "Exact toe-off frame between 2.500 and 3.000 s at the inspected resolution",
+      "Exact first landing foot/strike frame between 3.500 and 3.750 s",
+      "Exact hand contact state during the rotation",
+      "Real-world performance duration represented by the slow-motion presentation"
+    ]
+  },
+  "rig": {
+    "type": "abstract_single_actor_ascii_biped",
+    "coordinate_space": "48x18 character grid",
+    "joints": [
+      "head",
+      "root_proxy",
+      "left_hand",
+      "right_hand",
+      "left_foot",
+      "right_foot"
+    ],
+    "source_art_dependency": false,
+    "glyph_semantics": {
+      "O": "head",
+      "@": "root/pelvis proxy",
+      "/\\-|": "limb/torso segments",
+      "_": "ground plane",
+      "?": "support/contact side unresolved",
+      "X": "line overlap only"
+    }
+  },
+  "keys": [
+    {
+      "key_id": "K0",
+      "source_time_s": 0.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 0,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 4,
+      "causal_role": "DEEP_LOAD",
+      "support_state": "GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED",
+      "contact_note": "Feet remain at ground plane; side/weight split unresolved.",
+      "root_arc_note": "Root low; knees/hips compressed; stored vertical impulse begins here.",
+      "joints": {
+        "head": [
+          34,
+          8
+        ],
+        "root": [
+          34,
+          11
+        ],
+        "left_hand": [
+          30,
+          11
+        ],
+        "right_hand": [
+          38,
+          10
+        ],
+        "left_foot": [
+          32,
+          15
+        ],
+        "right_foot": [
+          36,
+          15
+        ]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K1",
+      "source_time_s": 1.25,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 8,
+      "compile_timing_class": "FOURS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 4,
+      "causal_role": "EXTEND_AND_SWING",
+      "support_state": "GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED",
+      "contact_note": "Grounded preparation continues.",
+      "root_arc_note": "Root rises; upper limbs sweep upward/forward while body lengthens.",
+      "joints": {
+        "head": [
+          34,
+          5
+        ],
+        "root": [
+          34,
+          10
+        ],
+        "left_hand": [
+          30,
+          4
+        ],
+        "right_hand": [
+          38,
+          4
+        ],
+        "left_foot": [
+          33,
+          15
+        ],
+        "right_foot": [
+          35,
+          15
+        ]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K2",
+      "source_time_s": 2.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 16,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "FINAL_SET_BEFORE_RELEASE",
+      "support_state": "GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED",
+      "contact_note": "Body remains upright adjacent to ground plane; exact departure has not yet been promoted.",
+      "root_arc_note": "Root high and nearly over the takeoff footprint; horizontal drift remains small.",
+      "joints": {
+        "head": [
+          34,
+          4
+        ],
+        "root": [
+          34,
+          9
+        ],
+        "left_hand": [
+          28,
+          7
+        ],
+        "right_hand": [
+          40,
+          7
+        ],
+        "left_foot": [
+          33,
+          15
+        ],
+        "right_foot": [
+          35,
+          15
+        ]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K3",
+      "source_time_s": 2.75,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 19,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "RELEASE_TRANSITION_BRACKET",
+      "support_state": "SUPPORT_TRANSITION_UNRESOLVED",
+      "contact_note": "Release transition is visually underway, but exact toe-off is not resolved; semantic support is held closed until K4.",
+      "root_arc_note": "Root begins the airborne arc and torso tips into rotation.",
+      "joints": {
+        "head": [
+          31,
+          5
+        ],
+        "root": [
+          34,
+          8
+        ],
+        "left_hand": [
+          28,
+          8
+        ],
+        "right_hand": [
+          38,
+          6
+        ],
+        "left_foot": [
+          32,
+          14
+        ],
+        "right_foot": [
+          36,
+          14
+        ]
+      },
+      "causal_boundary_to_next": true
+    },
+    {
+      "key_id": "K4",
+      "source_time_s": 3.0,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 21,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "AIRBORNE_ROTATION",
+      "support_state": "AIRBORNE",
+      "contact_note": "No ground support visible; hand contact remains unresolved and is not encoded.",
+      "root_arc_note": "Root is above the ground plane; body axis is strongly rotated and compacting.",
+      "joints": {
+        "head": [
+          29,
+          8
+        ],
+        "root": [
+          34,
+          8
+        ],
+        "left_hand": [
+          31,
+          10
+        ],
+        "right_hand": [
+          35,
+          10
+        ],
+        "left_foot": [
+          37,
+          6
+        ],
+        "right_foot": [
+          39,
+          8
+        ]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K5",
+      "source_time_s": 3.25,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 23,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "INVERTED_APEX",
+      "support_state": "AIRBORNE",
+      "contact_note": "Ground support absent; no hand-ground contact claim is promoted.",
+      "root_arc_note": "Root/pelvis proxy sits above the head path; legs fold overhead in the clearest inversion sample.",
+      "joints": {
+        "head": [
+          34,
+          11
+        ],
+        "root": [
+          34,
+          7
+        ],
+        "left_hand": [
+          31,
+          9
+        ],
+        "right_hand": [
+          37,
+          9
+        ],
+        "left_foot": [
+          31,
+          3
+        ],
+        "right_foot": [
+          36,
+          3
+        ]
+      },
+      "causal_boundary_to_next": false
+    },
+    {
+      "key_id": "K6",
+      "source_time_s": 3.5,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 26,
+      "compile_timing_class": "ONES",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 1,
+      "causal_role": "DESCENT_AND_UNTUCK",
+      "support_state": "AIRBORNE_DESCENT",
+      "contact_note": "Feet approach the ground plane; first landing contact is not yet resolved.",
+      "root_arc_note": "Root descends while torso rotates back toward upright and limbs lengthen to prepare the catch.",
+      "joints": {
+        "head": [
+          37,
+          9
+        ],
+        "root": [
+          33,
+          9
+        ],
+        "left_hand": [
+          31,
+          8
+        ],
+        "right_hand": [
+          39,
+          8
+        ],
+        "left_foot": [
+          31,
+          13
+        ],
+        "right_foot": [
+          35,
+          14
+        ]
+      },
+      "causal_boundary_to_next": true
+    },
+    {
+      "key_id": "K7",
+      "source_time_s": 3.75,
+      "timing_class": "OBSERVED_TIMESTAMP",
+      "timing_provenance": "OBSERVED",
+      "compile_frame": 29,
+      "compile_timing_class": "TWOS",
+      "compile_timing_provenance": "INFERRED",
+      "compile_hold_frames": 2,
+      "causal_role": "LAND_AND_RECOVER",
+      "support_state": "GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED",
+      "contact_note": "Ground support has returned by this sample; exact first foot-strike side/frame is bracketed 3.500–3.750 s.",
+      "root_arc_note": "Root catches low enough to absorb and then returns toward an upright stack with little horizontal displacement.",
+      "joints": {
+        "head": [
+          33,
+          5
+        ],
+        "root": [
+          33,
+          10
+        ],
+        "left_hand": [
+          29,
+          8
+        ],
+        "right_hand": [
+          37,
+          8
+        ],
+        "left_foot": [
+          31,
+          15
+        ],
+        "right_foot": [
+          35,
+          15
+        ]
+      },
+      "causal_boundary_to_next": false
+    }
+  ],
+  "timing": {
+    "key_timing_policy": "OBSERVED source presentation timestamps for decisive evidence keys; they are not real-time athletic cadence claims.",
+    "pose_lab_vocabulary_note": "Compile cadence is INFERRED with FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM. User shorthand 1s/2s/4s means these classes, never seconds.",
+    "compile_fps": 24,
+    "compile_frame_policy": "Explicit authored compile_frame targets compress the slow-motion reference into a readable animation study without pretending to recover real-time source cadence.",
+    "compile_sequence": [
+      "FOURS anticipation",
+      "FOURS extension",
+      "TWOS final set",
+      "ONES release/rotation/inversion/descent",
+      "TWOS landing catch"
+    ]
+  },
+  "motion_dungeon": {
+    "pipeline": [
+      "authored_ascii_joint_keys",
+      "explicit_compile_frames_and_holds",
+      "deterministic_geometry_only_connective_motion",
+      "ascii_only_frame_render",
+      "mp4_h264",
+      "embedded_offline_spa"
+    ],
+    "transition_rule": "Only authored joint geometry interpolates. support_state/contact_note/root_arc_note remain owned by the prior key until the next key. causal_boundary_to_next=true forbids interpolation across unresolved support/contact transitions and holds the prior key until a discrete state change.",
+    "source_pixels_used_in_output": false,
+    "render_grid": [
+      48,
+      18
+    ],
+    "cell_pixels": [
+      6,
+      8
+    ],
+    "scale": 2,
+    "ground_y": 15,
+    "final_hold_frames": 12
+  },
+  "compatibility": {
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "offline_spa": true,
+    "v1_artifacts_untouched": true
+  },
+  "media": {
+    "mime": "video/mp4",
+    "encoding": "H.264 yuv420p",
+    "embedded": "data_uri",
+    "tracked_mp4": "motion.mp4",
+    "sha256": "fcf4c9ab4b598e565cc3f7584fc1b91f75d48dc1df1d06c53591d92c8272dffd",
+    "bytes": 10362,
+    "frame_count": 41,
+    "compile_fps": 24,
+    "ffmpeg_version": "ffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "status": "RENDERED_PENDING_REPO_READBACK"
+}

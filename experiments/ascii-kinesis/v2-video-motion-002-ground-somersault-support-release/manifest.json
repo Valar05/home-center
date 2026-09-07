@@ -1,0 +1,79 @@
+{
+  "schema": "ascii-kinesis.v2-manifest",
+  "format_version": 2,
+  "entry": "v2-video-motion-002-ground-somersault-support-release",
+  "lane": "video-motion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "offline_spa": true,
+  "source": {
+    "title": "Ground flip (1080p 120fps - take 02).webm",
+    "url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "author": "PoseidonSports",
+    "rights_status": "CC_BY_SA_4_0",
+    "license_id": "CC BY-SA 4.0",
+    "source_sha256": "3e20e997e0aa0d95973ecd89caacc6c770cfa5ba23266026c2c3de6d2d2567a7",
+    "selected_action_segment_s": [
+      0.5,
+      3.75
+    ],
+    "whole_action_inspection": "OBSERVED: the entire 6.008 s source was decoded and inspected as an ordered 2 fps whole-clip preview before keys were chosen; the coherent action core was then inspected at ordered 4 fps over 2.000–4.000 s. Source pixels remained analysis-only."
+  },
+  "media": {
+    "mime": "video/mp4",
+    "sha256": "fcf4c9ab4b598e565cc3f7584fc1b91f75d48dc1df1d06c53591d92c8272dffd",
+    "bytes": 10362,
+    "frame_count": 41,
+    "compile_fps": 24,
+    "embedded_in_spa": true,
+    "tracked_mp4": "motion.mp4",
+    "embedded_matches_tracked_mp4": true,
+    "source_pixels_used": false,
+    "render_dimensions": [
+      576,
+      288
+    ]
+  },
+  "builder": {
+    "path": "build_motion.py",
+    "method": "Motion Dungeon",
+    "input": "motion.json only; contact sheet, MP4, manifest, receipt, SPA are deterministic outputs",
+    "source_video_dependency": false,
+    "ffmpeg_version": "ffmpeg version 8.1.2 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "files": [
+    "contact_sheet.txt",
+    "motion.json",
+    "motion.mp4",
+    "build_motion.py",
+    "manifest.json",
+    "receipt.json",
+    "ground-somersault-support-release.motion.html"
+  ],
+  "compatibility": {
+    "v1_untouched": true,
+    "v2_three_tab_read_path": true,
+    "network_required": false
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "status": "RENDERED_PENDING_REPO_READBACK"
+}

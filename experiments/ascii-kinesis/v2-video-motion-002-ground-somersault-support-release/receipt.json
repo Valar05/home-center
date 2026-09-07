@@ -1,0 +1,99 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "entry": "v2-video-motion-002-ground-somersault-support-release",
+  "source": {
+    "title": "Ground flip (1080p 120fps - take 02).webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "origin": "Own work uploaded by PoseidonSports to Wikimedia Commons",
+    "author": "PoseidonSports",
+    "source_date": "2023-01-22",
+    "rights_status": "CC_BY_SA_4_0",
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "rights_note": "Source frames were used only as analysis evidence. No source pixels, copied frames, or source audio are embedded in the repo example or its MP4; the output is an abstract ASCII rig encoding general motion facts with provenance and attribution retained.",
+    "source_sha256": "3e20e997e0aa0d95973ecd89caacc6c770cfa5ba23266026c2c3de6d2d2567a7",
+    "source_bytes": 15685775,
+    "source_duration_s": 6.008,
+    "source_dimensions": [
+      1920,
+      1080
+    ],
+    "stream_fps": "120/1",
+    "presentation_cadence_note": "The Commons source is categorized as slow motion. OBSERVED timestamps below are source presentation timestamps, not claims about real-world athletic duration or cadence.",
+    "selected_action_segment_s": [
+      0.5,
+      3.75
+    ],
+    "whole_action_inspection": "OBSERVED: the entire 6.008 s source was decoded and inspected as an ordered 2 fps whole-clip preview before keys were chosen; the coherent action core was then inspected at ordered 4 fps over 2.000–4.000 s. Source pixels remained analysis-only.",
+    "analysis_derivatives": {
+      "whole_clip_preview": {
+        "sampling": "2 fps ordered 12-frame grayscale sheet",
+        "sha256": "4f3f33178134375c600acd954413f0cc6eb5eafe98f70410791315daf53194f1"
+      },
+      "core_action_preview": {
+        "sampling": "4 fps ordered 8-frame grayscale sheet, 2.000–4.000 s",
+        "sha256": "2acb404df1cb7aa103a089c0de8dabc41757bda045b30e96826e2ae92e5f3dce"
+      }
+    }
+  },
+  "rights_status": "CC_BY_SA_4_0",
+  "observed_key_times_s": {
+    "K0": 0.5,
+    "K1": 1.25,
+    "K2": 2.5,
+    "K3": 2.75,
+    "K4": 3.0,
+    "K5": 3.25,
+    "K6": 3.5,
+    "K7": 3.75
+  },
+  "observed_summary": [
+    "The performer begins the selected action in a compressed stance, then extends through a long preparation before leaving grounded support.",
+    "At 2.500 s the performer is still upright near the ground plane; by 3.000 s the body is clearly airborne/rotating, so exact toe-off is bracketed rather than invented.",
+    "At 3.250 s the body is visibly inverted/tucked with the root/pelvis proxy above the head path.",
+    "At 3.500 s the body is descending/unfolding toward the ground plane.",
+    "By 3.750 s ground support has visibly returned and the torso is substantially upright; exact first foot-strike side/frame remains unresolved.",
+    "Horizontal root travel is small relative to the vertical/rotational excursion; the action reads primarily as an on-the-spot vertical arc plus rotation."
+  ],
+  "inferred": [
+    "The compiled animation cadence is authored with PoseLab FOURS/TWOS/ONES/STREET_FIGHTER-CAPCOM vocabulary because the source is slow-motion presentation and real-time performance cadence is not established.",
+    "Connective joint interpolation between decisive observed poses is deterministic geometry only and carries the prior key's semantic state until the next decisive key."
+  ],
+  "unknown": [
+    "Exact toe-off frame between 2.500 and 3.000 s at the inspected resolution",
+    "Exact first landing foot/strike frame between 3.500 and 3.750 s",
+    "Exact hand contact state during the rotation",
+    "Real-world performance duration represented by the slow-motion presentation"
+  ],
+  "compile_timing_classes": {
+    "K0": "FOURS",
+    "K1": "FOURS",
+    "K2": "TWOS",
+    "K3": "ONES",
+    "K4": "ONES",
+    "K5": "ONES",
+    "K6": "ONES",
+    "K7": "TWOS"
+  },
+  "media_sha256": "fcf4c9ab4b598e565cc3f7584fc1b91f75d48dc1df1d06c53591d92c8272dffd",
+  "media_bytes": 10362,
+  "media_frame_count": 41,
+  "media_source": "abstract_ascii_rig_only",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
+  "repo_readback_verified": false,
+  "contract_test_exact_readback": false,
+  "status": "RENDERED_PENDING_REPO_READBACK",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "verification_assertion": "Do not promote VERIFIED until exact GitHub readback, contract/media validation, and issue #343 receipt complete."
+}

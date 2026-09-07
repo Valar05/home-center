@@ -1,0 +1,194 @@
+ASCII KINESIS V2 · VIDEO MOTION 002 · GROUND SOMERSAULT SUPPORT RELEASE
+Source: Ground flip (1080p 120fps - take 02).webm · selected action 0.500–3.750 s presentation time
+Rights: PoseidonSports · CC BY-SA 4.0 · analysis only; NO SOURCE PIXELS IN THIS OUTPUT
+Legend: O=head  @=root/pelvis proxy  /\-|=segments  _=ground  ?=support/contact side unresolved  X=line overlap
+Timing: source timestamps OBSERVED; compile cadence INFERRED FOURS/TWOS/ONES because source presentation is slow motion.
+
+K0 · 0.500 s source presentation · OBSERVED · DEEP_LOAD · compile FOURS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                  X             
+                                  X-            
+                               ---| ---         
+                              -   X             
+                                  X             
+                                 / \            
+                                /   \           
+________________________________/___\___________
+                                ?   ?           
+                                                
+support: GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED
+contact: Feet remain at ground plane; side/weight split unresolved.
+root/force: Root low; knees/hips compressed; stored vertical impulse begins here.
+
+K1 · 1.250 s source presentation · OBSERVED · EXTEND_AND_SWING · compile FOURS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                              \       /         
+                               \  X  /          
+                                \\|//           
+                                  X             
+                                  |             
+                                  |             
+                                  X             
+                                  X             
+                                  X             
+                                 / \            
+                                 / \            
+_________________________________/_\____________
+                                 ? ?            
+                                                
+support: GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED
+contact: Grounded preparation continues.
+root/force: Root rises; upper limbs sweep upward/forward while body lengthens.
+
+K2 · 2.500 s source presentation · OBSERVED · FINAL_SET_BEFORE_RELEASE · compile TWOS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                  X             
+                                  |             
+                               ---X---          
+                            ---   |   ---       
+                                  |             
+                                  X             
+                                  X             
+                                  X             
+                                  X             
+                                 / \            
+                                 / \            
+_________________________________/_\____________
+                                 ? ?            
+                                                
+support: GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED
+contact: Body remains upright adjacent to ground plane; exact departure has not yet been promoted.
+root/force: Root high and nearly over the takeoff footprint; horizontal drift remains small.
+
+K3 · 2.750 s source presentation · OBSERVED · RELEASE_TRANSITION_BRACKET · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                               X                
+                               -X------         
+                              -  \              
+                            --    X             
+                                  X             
+                                 / \            
+                                 / \            
+                                 / \            
+                                /   \           
+                                /   \           
+________________________________________________
+                                  ?             
+                                                
+support: SUPPORT_TRANSITION_UNRESOLVED
+contact: Release transition is visually underway, but exact toe-off is not resolved; semantic support is held closed until K4.
+root/force: Root begins the airborne arc and torso tips into rotation.
+
+K4 · 3.000 s source presentation · OBSERVED · AIRBORNE_ROTATION · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                     /          
+                                   //           
+                             X-X--X-----        
+                               | -              
+                               |  --            
+                                                
+                                                
+                                                
+                                                
+________________________________________________
+                                                
+                                                
+support: AIRBORNE
+contact: No ground support visible; hand contact remains unresolved and is not encoded.
+root/force: Root is above the ground plane; body axis is strongly rotated and compacting.
+
+K5 · 3.250 s source presentation · OBSERVED · INVERTED_APEX · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                               \    /           
+                                \   /           
+                                \  /            
+                                 \/             
+                                  X             
+                                  |             
+                               ---X---          
+                                  |             
+                                  X             
+                                                
+                                                
+                                                
+________________________________________________
+                                                
+                                                
+support: AIRBORNE
+contact: Ground support absent; no hand-ground contact claim is promoted.
+root/force: Root/pelvis proxy sits above the head path; legs fold overhead in the clearest inversion sample.
+
+K6 · 3.500 s source presentation · OBSERVED · DESCENT_AND_UNTUCK · compile ONES (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                               ---   ---        
+                                 X---X          
+                                /\              
+                                / \             
+                                / \             
+                               /   \            
+                                   \            
+________________________________________________
+                                                
+                                                
+support: AIRBORNE_DESCENT
+contact: Feet approach the ground plane; first landing contact is not yet resolved.
+root/force: Root descends while torso rotates back toward upright and limbs lengthen to prepare the catch.
+
+K7 · 3.750 s source presentation · OBSERVED · LAND_AND_RECOVER · compile TWOS (INFERRED)
+                                                
+                                                
+                                                
+                                                
+                                                
+                                 X              
+                                 |              
+                                -X-             
+                             --- | ---          
+                                 |              
+                                 X              
+                                 X              
+                                / \             
+                                / \             
+                               /   \            
+_______________________________/___\____________
+                               ?   ?            
+                                                
+support: GROUND_CONTACT_VISIBLE_SIDE_UNRESOLVED
+contact: Ground support has returned by this sample; exact first foot-strike side/frame is bracketed 3.500–3.750 s.
+root/force: Root catches low enough to absorb and then returns toward an upright stack with little horizontal displacement.
+
+CAUSAL BRACKETS
+toe-off: exact transition unresolved between grounded K2 (2.500) and clearly airborne K4 (3.000); K3 is a fail-closed transition key.
+landing: first strike unresolved between airborne-descending K6 (3.500) and returned ground support K7 (3.750); no landing side invented.
+real-time cadence: UNKNOWN; 120 fps transport/presentation is not promoted to athletic timing.
