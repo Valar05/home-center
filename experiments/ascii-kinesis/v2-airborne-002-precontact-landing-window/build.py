@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, subprocess
+import base64, hashlib, html, json, os, subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 HERE=Path(__file__).resolve().parent
 SLUG='precontact-landing-window'
 EDGES=[('head','neck'),('neck','shoulder_l'),('neck','shoulder_r'),('shoulder_l','elbow_l'),('elbow_l','hand_l'),('shoulder_r','elbow_r'),('elbow_r','hand_r'),('neck','pelvis'),('pelvis','knee_l'),('knee_l','foot_l'),('pelvis','knee_r'),('knee_r','foot_r')]
 MARK={'head':'O','neck':'+','shoulder_l':'+','shoulder_r':'+','elbow_l':'o','elbow_r':'o','hand_l':'*','hand_r':'*','pelvis':'@','knee_l':'o','knee_r':'o','foot_l':'_','foot_r':'_'}
-FONT='/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'; BOLD='/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf'
+PREFIX=os.environ.get('PREFIX','')
+FONT_CANDIDATES=[Path(PREFIX)/'share/fonts/TTF/DejaVuSansMono.ttf',Path('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf')]
+BOLD_CANDIDATES=[Path(PREFIX)/'share/fonts/TTF/DejaVuSansMono-Bold.ttf',Path('/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf')]
+def font_path(candidates):
+ for p in candidates:
+  if p.is_file(): return str(p)
+ raise SystemExit('missing DejaVu Sans Mono font')
+FONT=font_path(FONT_CANDIDATES); BOLD=font_path(BOLD_CANDIDATES)
 def line(a,b):
  x0,y0=a;x1,y1=b;dx=abs(x1-x0);dy=-abs(y1-y0);sx=1 if x0<x1 else -1;sy=1 if y0<y1 else -1;err=dx+dy;o=[]
  while True:
@@ -63,7 +70,8 @@ def make_html(m,man,a,vb):
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 — Airborne 002 — Precontact Landing Window</title><style>body{margin:0;background:#111;color:#eee;font-family:system-ui,sans-serif}nav{display:flex;gap:.5rem;padding:1rem}.view{display:none;padding:1rem}.view.active{display:block}pre{white-space:pre;font-family:monospace;font-variant-ligatures:none;overflow:auto}video{max-width:100%;height:auto}</style></head><body><nav><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json" aria-selected="false">JSON</button><button data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" class="view active"><pre>'+html.escape(a)+'</pre></section><section id="json" class="view"><pre>'+html.escape(payload)+'</pre></section><section id="video" class="view"><video controls loop playsinline src="data:video/mp4;base64,'+b64+'"></video></section><script>const b=[...document.querySelectorAll("nav button")],v=[...document.querySelectorAll(".view")];for(const x of b)x.onclick=()=>{for(const y of b)y.setAttribute("aria-selected",String(x===y));for(const z of v)z.classList.toggle("active",z.id===x.dataset.view)}</script></body></html>'
 def main():
  m=json.loads((HERE/'motion.json').read_text());man=json.loads((HERE/'manifest.json').read_text());a=sheet(m);mp4,n,total=render_video(m);vb=mp4.read_bytes();sha=hashlib.sha256(vb).hexdigest()
- if m['compile']['media_sha256'] and sha!=m['compile']['media_sha256']:raise SystemExit(f'media hash mismatch: {sha} != {m["compile"]["media_sha256"]}')
+ expected=m['compile'].get('media_sha256','')
+ if len(expected)==64 and all(c in '0123456789abcdef' for c in expected.lower()) and sha!=expected:raise SystemExit(f'media hash mismatch: {sha} != {expected}')
  (HERE/(SLUG+'.motion.html')).write_text(make_html(m,man,a,vb),encoding='utf-8')
  print(json.dumps({'ok':True,'media_sha256':sha,'media_bytes':len(vb),'semantic_frames_per_loop':n,'video_frames_total':total},sort_keys=True))
 if __name__=='__main__':main()
