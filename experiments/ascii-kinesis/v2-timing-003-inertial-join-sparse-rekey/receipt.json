@@ -1,0 +1,128 @@
+{
+  "ascii_sheet_sha256": "e1428e38fdd02f8d4b43c0107af068097e8fc05bdf0fa20cfa6b683a93772154",
+  "contract_test": "PENDING_EXTERNAL_RUN",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-timing-003-inertial-join-sparse-rekey",
+  "key_timings": [
+    {
+      "key_id": "T003-K0",
+      "name": "CRUISE_NEUTRAL",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K1",
+      "name": "BRAKE_ONSET",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K2",
+      "name": "BRAKE_PEAK",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K3",
+      "name": "BRAKE_HOLD",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K4",
+      "name": "BRAKE_RELEASE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K5",
+      "name": "RECOVER",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "T003-K6",
+      "name": "CRUISE_RESTORED",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "media_bytes": 4828,
+  "media_sha256": "2f514bc6ff6ac48aa7cd1aa789ef6752868eb9da53726fd897a6386e9eb0c0fe",
+  "observation_inference_split": {
+    "INFERRED": "All decisive ASCII rig geometry, semantic compression, parent-motion compile profile, support-load vector interpretation, ONES/TWOS/FOURS assignments, 24 fps holds, and causal roles.",
+    "OBSERVED": [
+      "TSR currently identifies the source as Dr Robuttnik (Elevator), Sunky's Schoolhouse, PC / Computer, a 4480x360 PNG.",
+      "The owning PoseLab v1.7 exact-custody record establishes the full source as a 32,657-byte RGBA PNG with SHA-256 1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca.",
+      "That full-sheet custody record inspected the whole 4480x360 sheet as seven equal 640-pixel cells.",
+      "Across the inspected cells, opaque material reaches a common lower sheet boundary while local occupied extent changes.",
+      "The source is a static sheet; spatial cell order is not treated as playback chronology."
+    ],
+    "UNKNOWN": [
+      "source playback order",
+      "per-cell exposure duration",
+      "source velocity or acceleration",
+      "support-force magnitude or direction",
+      "source root path",
+      "source cadence or hit-stop"
+    ]
+  },
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-003-inertial-join-sparse-rekey/",
+  "repo_readback": "PENDING",
+  "rights_note": "Copyrighted source sheet is analysis evidence only. No source pixels, palette, contours, layout, frame drawings, tracing, redistribution, or close imitation are stored or rendered. The specimen preserves only abstract timing/reference-frame/support-load principles in an independently authored ASCII rig.",
+  "schema": "ascii-kinesis.v2-receipt",
+  "skill_mutation": {
+    "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
+    "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "performed": false,
+    "reason": "No new reusable rule earned. The specimen exercises existing PoseLab v1.6 parent-transform separation and v1.7 support-topology/support-load inertial-join doctrine."
+  },
+  "source": {
+    "asset_id": 191044,
+    "game": "Sunky's Schoolhouse",
+    "name": "Dr Robuttnik (Elevator)",
+    "observed": [
+      "TSR currently identifies the source as Dr Robuttnik (Elevator), Sunky's Schoolhouse, PC / Computer, a 4480x360 PNG.",
+      "The owning PoseLab v1.7 exact-custody record establishes the full source as a 32,657-byte RGBA PNG with SHA-256 1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca.",
+      "That full-sheet custody record inspected the whole 4480x360 sheet as seven equal 640-pixel cells.",
+      "Across the inspected cells, opaque material reaches a common lower sheet boundary while local occupied extent changes.",
+      "The source is a static sheet; spatial cell order is not treated as playback chronology."
+    ],
+    "page_url": "https://www.spriters-resource.com/pc_computer/sunkysschoolhouse/asset/191044/",
+    "platform": "PC / Computer",
+    "rights_note": "Copyrighted source sheet is analysis evidence only. No source pixels, palette, contours, layout, frame drawings, tracing, redistribution, or close imitation are stored or rendered. The specimen preserves only abstract timing/reference-frame/support-load principles in an independently authored ASCII rig.",
+    "sheet": {
+      "bytes": 32657,
+      "format": "PNG",
+      "height": 360,
+      "inspection_note": "Current run re-read the owning PoseLab v1.7 exact whole-sheet custody/inspection record and refreshed the TSR source-page metadata. Historical pass is evidence only; this repo SPA is the V2 product.",
+      "raw_sha256": "1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca",
+      "whole_sheet_inspected": true,
+      "width": 4480
+    },
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "source_timing_observed": "NONE",
+    "unknown": [
+      "source playback order",
+      "per-cell exposure duration",
+      "source velocity or acceleration",
+      "support-force magnitude or direction",
+      "source root path",
+      "source cadence or hit-stop"
+    ]
+  },
+  "status": "RENDERED_AWAITING_REPO_VERIFICATION"
+}
