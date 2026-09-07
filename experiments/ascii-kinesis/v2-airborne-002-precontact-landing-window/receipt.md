@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 — Airborne 002 — Precontact Landing Window
 
-Status: RENDERED / PENDING_REPOSITORY_PERSISTENCE
+Status: RENDERED_PHONE_CANONICAL / PENDING_REPOSITORY_SPA_PERSISTENCE
 
 Source: The Spriters Resource — Sonic the Hedgehog — Sonic Battle — Game Boy Advance — asset 10039
 Source page: https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/
@@ -30,7 +30,7 @@ Decisive timing (all INFERRED / STREET_FIGHTER-CAPCOM):
 
 Motion Dungeon: authored ASCII keys -> explicit holds/timing -> semantics-preserving deterministic midpoint connectors only when support/contact are unchanged -> ASCII-only frame rendering -> H.264 MP4 -> self-contained three-tab SPA.
 
-Media: embedded MP4 (builder output name `precontact-landing-window.mp4`) — 51385 bytes — SHA-256 `887626486931864fa2e6ffb2ff3586b76c509e674173cfe42f6e0fe4c90d1989` — 72 frames @ 24 fps.
+Canonical Standard-Chat phone compile: embedded MP4 (builder output name `precontact-landing-window.mp4`) — 51386 bytes — SHA-256 `b59b6af02263ab1341e93ac0146d1f7b8b8e4000068ecb9ecdba02d56d0d9436` — 72 frames @ 24 fps.
 ASCII authority SHA-256: `c548bc67e92053438ac781cbb8e6bfb6ae1722c347226c8c5b5183d4ba6794c7`.
 Repository path: `experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/`
 Ship commit: PENDING_FIRST_PERSISTENCE
