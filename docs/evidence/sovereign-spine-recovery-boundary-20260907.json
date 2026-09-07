@@ -1,0 +1,122 @@
+{
+  "schema": "home-center.sovereign-spine-recovery-boundary.v1",
+  "recordedAt": "2026-09-07T10:00:00Z",
+  "authority": {
+    "commission": "21 MORNING SWARM — Independent Minimal-Maximal Workers — 2026-09-07",
+    "commissionDriveId": "1Gv6Qicoh2KZloQ1FqiozW_lAMYuud0A-zucB2UyWmp8",
+    "bible": "FORTRESS BIBLE — Sovereign Two-Keep System — 2026-08-12",
+    "bibleDriveId": "1UVl-_NYi9OSqjGmJfCL-WkIFiBBcdTY28RDd5n4-1E4",
+    "lane": "SOVEREIGN_SPINE",
+    "repository": "Valar05/home-center",
+    "sourceHeadObserved": "0bccfd47c1146e2d449fb60e59d9cda25a68d459"
+  },
+  "selectedMinimalMaximalUnit": {
+    "kind": "recovery_truth_boundary_and_fixture",
+    "objective": "Make the current resume boundary explicit and fail closed before any worker adds a blind replay path or a third mission owner.",
+    "whyThisUnit": "status and doctor already exist in the local bootstrap; Home Center already owns durable project/session/work truth. The missing prerequisite for deterministic resume is reconciliation between those two existing truth surfaces, not another scheduler, ledger, or Adam-specific recovery loop."
+  },
+  "observedTruth": {
+    "localFortressBootstrap": {
+      "path": "tools/fortress_bootstrap.py",
+      "blobSha256EquivalentGitBlob": "5e8c12b915ebfa4e69d0a72129f8b67d1965ecd6",
+      "implemented": [
+        "owner-local queue/running/done/failed job directories",
+        "append-only receipts.jsonl plus latest receipt",
+        "deterministic command queue execution without cloud tokens",
+        "status",
+        "doctor",
+        "startup persistence and daemon restart"
+      ],
+      "notImplemented": [
+        "fortress resume command",
+        "fortress advance command",
+        "mapping from local jobs to Home Center durable work-item receipts",
+        "capability ladder REQUESTED/INTENDED/IMPLEMENTED/TESTED/DEPLOYED/CALLABLE/DELIVERED/ACCEPTED"
+      ],
+      "crashWindow": "claim() atomically moves a job from queue to running before execute() launches arbitrary command or prompt work. The result and job.finished receipt are written only after execution returns. A process/device loss after an external side effect but before those writes leaves a running job whose side-effect state is unknown.",
+      "replayRule": "A stale running job MUST NOT be automatically moved back to queue. That would be blind replay of potentially non-idempotent external work."
+    },
+    "homeCenterDurableOwner": {
+      "path": "functions/home_center_fortress.js",
+      "blobSha256EquivalentGitBlob": "88de6e7ced20148f9bf2408760ce27447ed55d32",
+      "collections": [
+        "homeCenterProjects",
+        "homeCenterSessions",
+        "homeCenterWorkItems"
+      ],
+      "implemented": [
+        "durable project/session orientation",
+        "current objective and checkpoint",
+        "pending and recent completed work refs",
+        "work status history",
+        "durable work receipt refs",
+        "idempotent desired-state policy per work taskId"
+      ],
+      "executionBoundary": "defaultFortressWorkExecutor only executes fortress_session_probe. Other routes remain REQUESTED with an explicit no-executable-route result. There is no current adapter that binds a Home Center work item to a local fortress-bootstrap job and reconciles its receipt."
+    },
+    "sourceLevelRecoveryTest": {
+      "path": "functions/home_center_fortress.test.js",
+      "blobSha256EquivalentGitBlob": "16a567864e61c98b946427cc2c9535432005eede",
+      "proves": "In the fake-Firestore contract surface, a fresh Home Center server reconstructs the durable objective and work receipts from the existing Home Center owner.",
+      "doesNotProve": "live deployment, live connector callability, or reconciliation with tools/fortress_bootstrap.py"
+    },
+    "adjacentOwnerNotToDuplicate": {
+      "path": "tools/adam_prompt.py",
+      "fact": "Adam already has a separate tmux-backed --resume for Adam commissions. It is not the sovereign Home Center mission owner and must not be generalized by copy/paste into a third recovery system."
+    }
+  },
+  "deterministicRecoveryFixture": {
+    "given": {
+      "daemonAlive": false,
+      "queuedJobs": 0,
+      "runningJobs": 1,
+      "resultReceiptForRunningJob": false,
+      "homeCenterWorkReceiptBinding": false
+    },
+    "expectedStatus": "BLOCKED_RECONCILIATION_REQUIRED",
+    "resumeMust": [
+      "preserve the running job unchanged",
+      "report its durable job id and evidence paths",
+      "look for a bound Home Center work receipt and external effect evidence",
+      "resume only after the desired state is proven unsatisfied or the action is explicitly classified replay-safe"
+    ],
+    "resumeMustNot": [
+      "requeue the running job",
+      "rerun the command merely because the daemon is dead",
+      "invent a new mission ledger",
+      "treat Adam --resume as sovereign mission recovery"
+    ]
+  },
+  "exactBlocker": {
+    "code": "SOVEREIGN_SPINE_RECONCILIATION_BINDING_MISSING",
+    "statement": "The repository has two legitimate but unbound truth surfaces: Home Center work/session receipts and the local Fortress queue. Until a durable binding identifies which Home Center work item owns a local job and records replay safety/effect reconciliation, a deterministic generic resume cannot safely advance stale running work.",
+    "whyExecutionStopsHere": "Adding a resume that simply restarts the daemon is safe for queued work, but calling that sovereign resume would falsely claim mission recovery. Requeueing running work is worse: it can duplicate side effects. Building a third ledger would duplicate an existing owner. The smallest correct prerequisite is the binding/reconciliation contract."
+  },
+  "capabilityState": {
+    "requested": true,
+    "intended": true,
+    "implemented": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false,
+    "capability": "deterministic sovereign resume/advance across Home Center mission truth and local Fortress execution"
+  },
+  "artifactState": {
+    "artifact": "docs/evidence/sovereign-spine-recovery-boundary-20260907.json",
+    "implemented": true,
+    "verifiedByReadbackRequired": true,
+    "purpose": "durable exact blocker plus recovery fixture; this file is evidence, not the missing runtime capability"
+  },
+  "nextRealBoundary": {
+    "unit": "Add one narrow binding/reconciliation seam between an existing homeCenterWorkItems taskId/receipt and an existing fortress-job-v1 job id. It must classify replay safety and resolve stale running jobs from evidence before execution. Then expose resume through the existing owner rather than creating another ledger.",
+    "acceptance": [
+      "a fixture for daemon-dead + stale-running + unknown-side-effect fails closed without replay",
+      "a fixture for daemon-dead + queued replay-safe job starts existing execution and preserves the same ids",
+      "status/doctor expose the binding and exact next boundary",
+      "no new mission/job authority is introduced",
+      "runtime proof keeps REQUESTED/IMPLEMENTED/TESTED/DEPLOYED/CALLABLE/DELIVERED/ACCEPTED distinct"
+    ]
+  }
+}
