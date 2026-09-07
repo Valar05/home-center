@@ -1,0 +1,101 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "compatibility": {
+    "backward_compatible": true,
+    "offline_playback": true,
+    "v1_artifacts_untouched": true,
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-defense-005-floor-support-ladder",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "floor-support-ladder.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "defense",
+  "ligatures_disabled": true,
+  "media_bytes": 12559,
+  "media_decode_preflight": {
+    "codec": "h264",
+    "duration_seconds": 4.0,
+    "fps": "24/1",
+    "frames": 96,
+    "height": 360,
+    "tool": "ffprobe",
+    "width": 640
+  },
+  "media_sha256": "ae125332ec2af34a91fced82ec3c0e90cc15338e6b3ae8f95f5729c9092dec4a",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 10,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 24,
+    "video_frames_total": 96
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "principle": "HEIGHT RECOVERY IS DOWNSTREAM OF SUPPORT RECOVERY: after a knockdown, readable re-entry restores trustworthy support topology before it restores upright height or action readiness.",
+  "receipt_status": "RENDERED / STRUCTURALLY_TESTED / READY_FOR_REPO_READBACK",
+  "reconstruction": "python3 build.py",
+  "rights": {
+    "close_imitation": false,
+    "drew_work_used": false,
+    "preserved": "general support/contact/recovery/silhouette principles and source/provenance facts only",
+    "redistribution": false,
+    "source_art_role": "copyright-restricted evidence only",
+    "source_pixels_in_output": false,
+    "tracing": false
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": "36391",
+    "dimensions": [
+      991,
+      879
+    ],
+    "format": "PNG",
+    "game": "Street Fighter III (Bootleg)",
+    "name": "Chun-Li",
+    "page_url": "https://www.spriters-resource.com/nes/streetfighter3maristreetfighter3turbobootleg/asset/36391/",
+    "platform": "NES",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_basis": "The complete TSR-rendered sheet was inspected as one image in this run. Visible labeled families include standing/crouching actions and distinct Hit High, Hit Low, Crouch Hit, Falling, Down, and Get Up consequence/recovery groups. TSR page metadata identifies a 991x879 PNG. No source-authentic exposure timing is exposed.",
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "timing_provenance_required": true,
+  "tracked_media_sidecar": false,
+  "video_packaging": "authoritative embedded MP4 data URI in floor-support-ladder.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
