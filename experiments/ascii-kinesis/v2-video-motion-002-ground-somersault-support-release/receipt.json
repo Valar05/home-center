@@ -19,7 +19,7 @@
       1080
     ],
     "stream_fps": "120/1",
-    "presentation_cadence_note": "The Commons source is categorized as slow motion. OBSERVED timestamps below are source presentation timestamps, not claims about real-world athletic duration or cadence.",
+    "presentation_cadence_note": "The Commons source is categorized as slow motion. OBSERVED timestamps are source presentation timestamps, not claims about real-world athletic duration or cadence.",
     "selected_action_segment_s": [
       0.5,
       3.75
@@ -80,9 +80,37 @@
   "media_frame_count": 41,
   "media_source": "abstract_ascii_rig_only",
   "repo_path": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
-  "repo_readback_verified": false,
-  "contract_test_exact_readback": false,
-  "status": "RENDERED_PENDING_REPO_READBACK",
+  "repo_readback_verified": true,
+  "repo_readback_head": "8043eeacca9d147dde47033a7f4e1382e4bab31b",
+  "contract_test_exact_readback": true,
+  "contract_test": {
+    "global_invoked": true,
+    "global_ok": false,
+    "global_boundary": "Unrelated existing v2-defense-001-guard-support-fork fails global test: expected exactly one tracked *.motion.html SPA.",
+    "scoped_exact_script_ok": true,
+    "scoped_entry": "v2-video-motion-002-ground-somersault-support-release"
+  },
+  "deterministic_builder_replay": {
+    "ok": true,
+    "repo_blob_sha256": {
+      "contact_sheet.txt": "988927210d17019d4c3056e93ea0f28ea66b644030abf5417660709b234353f6",
+      "motion.json": "ac018fadcb0db73c5e15fad125e1aeb3c57e9d94b4b50a0f0776bc8c678579b5",
+      "motion.mp4": "fcf4c9ab4b598e565cc3f7584fc1b91f75d48dc1df1d06c53591d92c8272dffd",
+      "build_motion.py": "fcd6315923148b695e0782bd66f3c01018d62466b45e7845ad7765a04d71d5c1",
+      "ground-somersault-support-release.motion.html": "9b834b1111c539b88595e8af913e94699e98a9213b4375a3171840c2cd91f31d"
+    },
+    "all_generated_outputs_byte_identical": true
+  },
+  "media_probe": {
+    "codec": "h264",
+    "width": 576,
+    "height": 288,
+    "pix_fmt": "yuv420p",
+    "fps": "24/1",
+    "duration_s": 1.708333,
+    "bytes": 10362
+  },
+  "status": "VERIFIED",
   "correction_hooks": [
     "KEEP",
     "REJECT",
@@ -95,5 +123,5 @@
     "FIX BLOCKER",
     "RERUN"
   ],
-  "verification_assertion": "Do not promote VERIFIED until exact GitHub readback, contract/media validation, and issue #343 receipt complete."
+  "verification_assertion": "VERIFIED after exact GitHub readback, scoped exact V2 contract pass, deterministic byte-identical builder replay, media decode probe, and issue #343 receipt."
 }
