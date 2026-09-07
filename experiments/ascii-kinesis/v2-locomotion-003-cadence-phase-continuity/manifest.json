@@ -1,0 +1,21 @@
+{
+  "format_version": 2,
+  "id": "v2-locomotion-003-cadence-phase-continuity",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "motion_file": "motion.json",
+  "video_file": "cadence-phase-continuity.mp4",
+  "spa_file": "cadence-phase-continuity.motion.html",
+  "builder_file": "build.py",
+  "media_sha256": "1cd63740f81e2f4cb81c49c87c0165789704e70fa607c89251f9f265bebcba6e",
+  "source_asset_sha256": "1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6"
+}
