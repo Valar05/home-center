@@ -21,12 +21,15 @@ test('safety boot loads curated skills plus binding Home Center Drive routing', 
     capsule.loadedSkills.slice(0, REQUIRED_SAFE_SKILL_IDS.length).map((skill) => skill.id),
     REQUIRED_SAFE_SKILL_IDS,
   );
+  assert.ok(capsule.requiredSkillIds.includes('offline-continuity'));
   assert.equal(capsule.loadedSkills[REQUIRED_SAFE_SKILL_IDS.length].id, 'home-center-drive-source-routing');
   assert.equal(capsule.homeCenterDrivePrimary, true);
   assert.equal(capsule.judgmentJarRegistryFileId, '1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q');
   assert.match(capsule.bootPrompt, /Home Center Drive is a requested evidence lane/i);
   assert.match(capsule.bootPrompt, /START HERE — Judgment Jar Registry/);
   assert.match(capsule.bootPrompt, /ChatGPT Library.*not substitutes/is);
+  assert.match(capsule.bootPrompt, /# Offline Continuity/);
+  assert.match(capsule.bootPrompt, /What changed while AI was absent\?/);
   assert.ok(capsule.loadedSkills.every((skill) => !/^venice(?:-|$)/i.test(skill.id)));
   assert.doesNotMatch(capsule.bootPrompt, /--- SAFETY SKILL venice-/i);
   assert.doesNotMatch(capsule.bootPrompt, /Every ChatGPT worker must use Venice/i);
