@@ -1,0 +1,91 @@
+{
+  "ascii_sheet_sha256": "3e89c76035bcafdbb7af2b9cb93694ea385da671e1a03506bf92fae41a379d62",
+  "compatibility": {
+    "ascii_literal_text": true,
+    "v1_readers_preserved": true,
+    "v2_primary_tabs": ["ASCII", "JSON", "VIDEO"]
+  },
+  "compile": {
+    "ascii_only_frame_render": true,
+    "codec": "H.264",
+    "connector_rule": "Insert one geometric midpoint only when support_contact and contact_state are unchanged across adjacent authored keys; otherwise cut directly to the next authored key. Connectors never create support/contact/causal/root state.",
+    "fps": 24,
+    "hold_ticks": {"FOURS": 4, "ONES": 1, "TWOS": 2},
+    "loop_repetitions": 2,
+    "media_bytes": 20950,
+    "media_filename": "side-support-gates-second-impulse.mp4",
+    "media_sha256": "0ecbb0550b060b5cde374319f85c17fa69bc709a3b636671a640daf101da914f",
+    "method": "Motion Dungeon",
+    "pixel_format": "yuv420p",
+    "semantic_frames_per_loop": 53,
+    "source_pixels_used": false,
+    "video_dimensions": [480, 270],
+    "video_frames_total": 106
+  },
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"],
+  "evidence": {
+    "inferred": [
+      "The side-oriented/contact-like evidence is abstracted as an optional temporary SIDE support lease.",
+      "A second impulse is legal only after authored SIDE_CONTACT and SIDE_LOAD keys; approach alone cannot create relaunch.",
+      "The root arc therefore becomes two airborne arcs separated by a real support acquisition/load/release event.",
+      "All decisive cadence is authored with STREET_FIGHTER/CAPCOM ONES/TWOS/FOURS."
+    ],
+    "observed": [
+      "Grounded and airborne lower-body organizations differ across the sheet.",
+      "Upper-body tasking can vary while root/support state changes.",
+      "Compact and extended silhouettes cluster around high-energy airborne transitions.",
+      "Landing/recovery restores grounded support rather than simply replaying an earlier pose.",
+      "Distinct side-oriented/contact-like states are present; their exact gameplay label is not asserted from the static sheet."
+    ],
+    "unknown": [
+      "Source-authentic exposure durations and hit-stop are unknown.",
+      "Exact source gameplay chronology and whether every side-oriented state is a wall-support move are not claimed.",
+      "World-space root coordinates are not measured from the sheet."
+    ]
+  },
+  "experiment_id": "v2-airborne-005-side-support-gates-second-impulse",
+  "format_version": 2,
+  "keys": [
+    {"causal_role":"stable grounded read","contact_state":"GROUND_CONTACT","key_id":"A005-K0","motion_arc_root_note":"root stable","name":"GROUND_READY","pose_rig":{"cx":15,"cy":15,"mode":"neutral"},"support_contact":"GROUND","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"GROUNDED"},
+    {"causal_role":"compress before first impulse","contact_state":"GROUND_CONTACT","key_id":"A005-K1","motion_arc_root_note":"root lowers","name":"CROUCH_LOAD","pose_rig":{"cx":16,"cy":16,"mode":"load"},"support_contact":"GROUND","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"LOAD"},
+    {"causal_role":"first support break","contact_state":"NO_CONTACT","key_id":"A005-K2","motion_arc_root_note":"root departs ground","name":"LAUNCH","pose_rig":{"cx":18,"cy":13,"mode":"launch"},"support_contact":"NONE","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"LAUNCH"},
+    {"causal_role":"ascending travel","contact_state":"NO_CONTACT","key_id":"A005-K3","motion_arc_root_note":"root rises","name":"RISE","pose_rig":{"cx":22,"cy":10,"mode":"neutral"},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"ASCEND"},
+    {"causal_role":"hang-time silhouette","contact_state":"NO_CONTACT","key_id":"A005-K4","motion_arc_root_note":"root spacing tightens near apex","name":"APEX_TUCK","pose_rig":{"cx":27,"cy":8,"mode":"tuck"},"support_contact":"NONE","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"APEX"},
+    {"causal_role":"counterbalance toward side surface","contact_state":"NO_CONTACT","key_id":"A005-K5","motion_arc_root_note":"root descends toward side","name":"SIDE_APPROACH","pose_rig":{"cx":31,"cy":10,"mode":"side_approach"},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCEND"},
+    {"causal_role":"support acquisition event","contact_state":"SIDE_CONTACT","key_id":"A005-K6","motion_arc_root_note":"root reaches side support","name":"SIDE_CONTACT","pose_rig":{"cx":33,"cy":11,"mode":"side_contact"},"support_contact":"SIDE","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"SIDE_CONTACT"},
+    {"causal_role":"compress against acquired side support","contact_state":"SIDE_CONTACT","key_id":"A005-K7","motion_arc_root_note":"root held while local load accumulates","name":"SIDE_LOAD","pose_rig":{"cx":33,"cy":12,"mode":"side_load"},"support_contact":"SIDE","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"SIDE_LOAD"},
+    {"causal_role":"release from side support creates second impulse","contact_state":"NO_CONTACT","key_id":"A005-K8","motion_arc_root_note":"root leaves side after support-owned load","name":"SECOND_LAUNCH","pose_rig":{"cx":31,"cy":9,"mode":"side_release"},"support_contact":"NONE","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"RELAUNCH"},
+    {"causal_role":"post-release hang-time read","contact_state":"NO_CONTACT","key_id":"A005-K9","motion_arc_root_note":"root reaches second apex","name":"SECOND_APEX","pose_rig":{"cx":27,"cy":7,"mode":"tuck"},"support_contact":"NONE","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"APEX"},
+    {"causal_role":"open limbs for landing readability","contact_state":"NO_CONTACT","key_id":"A005-K10","motion_arc_root_note":"root descends","name":"DESCENT_OPEN","pose_rig":{"cx":23,"cy":10,"mode":"open"},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"DESCEND"},
+    {"causal_role":"feet lead before ground acquisition","contact_state":"NO_CONTACT","key_id":"A005-K11","motion_arc_root_note":"root approaches ground","name":"PRECONTACT","pose_rig":{"cx":20,"cy":13,"mode":"precontact"},"support_contact":"NONE","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"PRECONTACT"},
+    {"causal_role":"ground reacquisition event","contact_state":"GROUND_CONTACT","key_id":"A005-K12","motion_arc_root_note":"root reaches ground","name":"GROUND_CONTACT","pose_rig":{"cx":18,"cy":15,"mode":"precontact"},"support_contact":"GROUND","timing_class":"ONES","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"CONTACT"},
+    {"causal_role":"landing force consequence","contact_state":"GROUND_CONTACT","key_id":"A005-K13","motion_arc_root_note":"root compresses after contact","name":"LAND_COMPRESSION","pose_rig":{"cx":18,"cy":16,"mode":"compression"},"support_contact":"GROUND","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"COMPRESSION"},
+    {"causal_role":"release landing compression","contact_state":"GROUND_CONTACT","key_id":"A005-K14","motion_arc_root_note":"root rebounds","name":"REBOUND","pose_rig":{"cx":18,"cy":15,"mode":"rebound"},"support_contact":"GROUND","timing_class":"TWOS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"REBOUND"},
+    {"causal_role":"return to stable state","contact_state":"GROUND_CONTACT","key_id":"A005-K15","motion_arc_root_note":"root restacks","name":"RETURN_STABLE","pose_rig":{"cx":18,"cy":15,"mode":"neutral"},"support_contact":"GROUND","timing_class":"FOURS","timing_policy":"STREET_FIGHTER/CAPCOM","timing_provenance":"INFERRED","vertical_phase":"GROUNDED"}
+  ],
+  "lane": "airborne",
+  "principle": "SIDE SUPPORT GATES THE SECOND IMPULSE: a second launch is authored only after side support is acquired and loaded; side approach alone never resets the airborne arc.",
+  "rig": {"copyright_firewall":"independent generic joint topology; source contours/palette/layout absent","facing":"RIGHT","joints":["head","neck","shoulder_l","shoulder_r","elbow_l","elbow_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"type":"generic_ascii_biped_v1"},
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 491,
+    "current_media_path": "/media/assets/1/491.gif?updated=1755472402",
+    "full_sheet_url": "https://www.spriters-resource.com/fullview/491/",
+    "game": "Mega Man Xtreme",
+    "page_url": "https://www.spriters-resource.com/game_boy_gbc/mmxtreme/asset/491/",
+    "platform": "Game Boy / GBC",
+    "reported_dimensions": [500,569],
+    "reported_format": "GIF",
+    "reported_size": "34.52 KB",
+    "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, costume, face, exact silhouette, sheet layout, tracing, redistribution, or close imitation enter this specimen. Drew work was not used.",
+    "site": "The Spriters Resource",
+    "source_bytes": 35352,
+    "source_frames": 1,
+    "source_sha256": "e40f9bbc9105db9a1d0bba9f3d28e949ac0c1e43f479c9afd6b7cbf26c0773d3",
+    "source_timing_available": false,
+    "title": "X",
+    "uploaded_by": "Teeks",
+    "whole_sheet_evidence_boundary": "Current run re-acquired and hashed the exact entire 500x569 one-frame TSR GIF through Home Center Phone Hands. Whole-sheet visual observations are cross-checked against the campaign's prior verified full-sheet inspection of the same asset; no source pixels are stored in this specimen.",
+    "whole_sheet_inspected": true
+  }
+}
