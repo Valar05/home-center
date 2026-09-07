@@ -6,7 +6,7 @@ Canonical executable:
 - Portable skill implementation: `scripts/audit.mjs`
 - Contract tests: `tools/manic_accessibility_guardrail.test.mjs`
 
-Audit schema version: `manic-accessibility-guardrail.audit.v1`
+Audit schema version: `manic-accessibility-guardrail.audit.v2`
 
 ## Invocation
 
@@ -83,6 +83,18 @@ node scripts/audit.mjs audit < audit-input.json
 ```
 
 Unknown fields fail closed. Transcript-like private fields are rejected.
+
+## Evidence jurisdiction
+
+The audit deliberately separates evidence classes instead of flattening every observation into one psychiatric-style score.
+
+- `foodNeglected`, `waterNeglected`, `foodWithin8Hours=false`, and `waterWithin4Hours=false` are body-needs facts. They contribute **zero numeric risk points**. They create `BODY_NEEDS_CHECK_REQUIRED` and workflow friction only.
+- With body needs active and no stronger outcome, low-impact work returns `ALLOW_WITH_FRICTION`.
+- With body needs active and a high-impact or irreversible request, actuation returns `PAUSE_FOR_GUARDS` until the body-needs check is satisfied. Body needs alone do not invent a human-contact or diagnostic guard.
+- `hyperbolicLanguage` is accepted as a structured style observation but contributes **zero risk points** and may not change score, outcome, or action policy.
+- Sleep, behavior, substances, medication, relational displacement, reality distortion, and requested action impact/reversibility remain independent decision evidence.
+
+Mnemonic: **Feed the body. Ignore the typography. Judge the action. Preserve the thought.**
 
 ## Request categories
 
