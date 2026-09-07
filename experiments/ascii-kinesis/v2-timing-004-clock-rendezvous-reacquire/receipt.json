@@ -118,11 +118,11 @@
   },
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
-  "repo_readback": "PENDING",
-  "repo_wide_contract_test_boundary": "PENDING",
+  "repo_readback": "PASS: exact GitHub readback at ship commit confirms exactly five commissioned tracked files and blob SHAs build.py=4bf833522542d467c4000ff0e908d32bd86ec756, manifest.json=e917e8616337d84c377ebdaddefe3b37022721a5, motion.json=f3514438df185e5a40988685edabf94efc0b1b74, receipt.json=275b36c7aaea0eacf46c8b94c6693f343ab1f43c, clock-rendezvous-reacquire.motion.html=7769db3439d0492c8f63937af452d0f242629506.",
+  "repo_wide_contract_test_boundary": "KNOWN RED / preserved exact boundary: tools/test_ascii_kinesis_swarm_contract_v2.py enumerates every v2-* entry; pre-existing experiments/ascii-kinesis/v2-defense-001-guard-support-fork/ has no tracked *.motion.html, so repo-wide test cannot be truthfully reported green. No unrelated lane was edited.",
   "rights_note": "Copyright-restricted commercial-game sprite art used only as whole-sheet evidence. No source pixels, palette, costume, exact silhouette, frame layout, tracing, redistribution, or close imitation are embedded. The specimen contains only a generic ASCII rig and general timing principles.",
   "schema": "ascii-kinesis.v2-receipt",
-  "ship_commit": null,
+  "ship_commit": "187467ecb22f2c2c2f601528745d13e26522cb25",
   "skill_mutation": {
     "owner": "POSE LAB v1 \u2014 Street Fighter II Temporal Kinesis",
     "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
@@ -162,7 +162,7 @@
     "whole_sheet_evidence": "Complete TSR-rendered sheet image inspected as one 410x420 source surface; source page metadata separately read.",
     "whole_sheet_inspected": true
   },
-  "status": "RENDERED_AWAITING_REPO_VERIFICATION",
-  "target_contract_test": "PENDING",
+  "status": "VERIFIED_WITH_GLOBAL_TEST_BOUNDARY",
+  "target_contract_test": "PASS: target specimen satisfies the fetched V2 structural predicates: format_version>=2; primary_tabs exactly ASCII,JSON,VIDEO; literal pre surfaces; ligatures disabled; whitespace pre; one tracked *.motion.html; embedded data:video/mp4; motion keys have timing class and OBSERVED/INFERRED provenance.",
   "verification_commit": null
 }
