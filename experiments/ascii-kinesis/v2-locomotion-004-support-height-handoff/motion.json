@@ -1,0 +1,57 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "format_version": 2,
+  "id": "v2-locomotion-004-support-height-handoff",
+  "title": "ASCII Kinesis V2 Locomotion 004 — Support-Height Handoff",
+  "lane": "locomotion",
+  "principle": "A root-height change is earned by support acquisition: the pelvis descends only after the lower contact can carry the root.",
+  "source": {
+    "provider": "The Spriters Resource",
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — asset 81106",
+    "asset_id": 81106,
+    "url": "https://www.spriters-resource.com/nes/theadventuresofrockyandbullwinkleandfriends/asset/81106/",
+    "whole_sheet_evidence": "The complete 187x432 PNG asset and all four source-provided animation families on the asset page were treated as the evidence corpus: Charge, Idle, Using Stairs, Walking.",
+    "rights_boundary": "Copyright-restricted commercial-game sprite art used as evidence only. No source pixels, palette, contour, costume, sheet layout, frame arrangement, tracing, redistribution, or close imitation is embedded in this specimen. The rig, stairs, poses, and media are independently authored abstract ASCII.",
+    "source_art_embedded": false
+  },
+  "evidence": {
+    "OBSERVED": [
+      "TSR identifies the asset as Bullwinkle from the NES game, 187x432 PNG.",
+      "The asset page exposes four animation families: Charge, Idle, Using Stairs, Walking.",
+      "The selected sheet therefore contains both level travel and explicit stair locomotion/body travel.",
+      "No source-authentic decisive-key exposure timing was measured in this pass."
+    ],
+    "INFERRED": [
+      "The abstract support-height handoff principle and all pose geometry.",
+      "Root/pelvis descent sequencing, support ownership, contact confidence, weight-transfer interpretation, arcs, spacing, recovery, and acceleration/deceleration behavior.",
+      "Every ONES/TWOS/FOURS timing assignment under STREET_FIGHTER/CAPCOM policy."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame exposure, exact source root coordinates, exact support force distribution, exact chronology between sheet cells, and engine playback cadence."
+    ]
+  },
+  "rig": {
+    "space": "2D ASCII Blender-style schematic",
+    "canvas": [30, 13],
+    "joints": ["head", "chest", "pelvis", "l_shoulder", "l_elbow", "l_hand", "r_shoulder", "r_elbow", "r_hand", "l_knee", "l_foot", "r_knee", "r_foot"],
+    "bones": [["head", "chest"], ["chest", "pelvis"], ["chest", "l_shoulder"], ["l_shoulder", "l_elbow"], ["l_elbow", "l_hand"], ["chest", "r_shoulder"], ["r_shoulder", "r_elbow"], ["r_elbow", "r_hand"], ["pelvis", "l_knee"], ["l_knee", "l_foot"], ["pelvis", "r_knee"], ["r_knee", "r_foot"]],
+    "environment": {"high_step_y": 9, "low_step_y": 11, "step_edge_x": 15},
+    "legend": {"O": "head", "+": "pelvis/chest", "o": "joint", "!": "support foot", "?": "touch/probe foot", "_": "support surface"}
+  },
+  "timing_policy": "STREET_FIGHTER/CAPCOM",
+  "keys": [
+    {"key_id":"K0","name":"TOP_APPROACH","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"stable entry / read","support_contact":"BOTH_HIGH_SUPPORT","root_owner":"HIGH_STEP","motion_arc_root_note":"pelvis holds high-step height; root spacing is small before the edge","j":{"head":[10,2],"chest":[10,4],"pelvis":[10,6],"l_shoulder":[8,4],"l_elbow":[7,5],"l_hand":[7,7],"r_shoulder":[12,4],"r_elbow":[13,5],"r_hand":[13,7],"l_knee":[8,7],"l_foot":[7,9],"r_knee":[12,7],"r_foot":[13,9]},"contacts":{"l_foot":"!","r_foot":"!"}},
+    {"key_id":"K1","name":"EDGE_UNWEIGHT","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"anticipation / support reduction","support_contact":"LEFT_HIGH_SUPPORT_RIGHT_FREE","root_owner":"HIGH_STEP","motion_arc_root_note":"pelvis advances toward edge without dropping; trailing/high foot still owns root","j":{"head":[12,2],"chest":[12,4],"pelvis":[12,6],"l_shoulder":[10,4],"l_elbow":[9,5],"l_hand":[9,7],"r_shoulder":[14,4],"r_elbow":[15,5],"r_hand":[15,7],"l_knee":[10,7],"l_foot":[9,9],"r_knee":[14,7],"r_foot":[16,9]},"contacts":{"l_foot":"!","r_foot":" "}},
+    {"key_id":"K2","name":"LOWER_PROBE","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"anticipatory contact test","support_contact":"LEFT_HIGH_SUPPORT_RIGHT_LOW_TOUCH","root_owner":"HIGH_STEP","motion_arc_root_note":"pelvis still holds high while the leading foot reaches the lower plane; touch is not yet root ownership","j":{"head":[13,2],"chest":[13,4],"pelvis":[13,6],"l_shoulder":[11,4],"l_elbow":[10,5],"l_hand":[10,7],"r_shoulder":[15,4],"r_elbow":[16,5],"r_hand":[16,7],"l_knee":[11,7],"l_foot":[10,9],"r_knee":[15,8],"r_foot":[17,11]},"contacts":{"l_foot":"!","r_foot":"?"}},
+    {"key_id":"K3","name":"LOWER_ACCEPT","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"support acquisition / causal join","support_contact":"LEFT_HIGH_PLUS_RIGHT_LOW_SUPPORT","root_owner":"MIXED_HEIGHT_SUPPORT","motion_arc_root_note":"lower foot earns support before root descent; brief mixed-height dual support is explicit","j":{"head":[14,2],"chest":[14,4],"pelvis":[14,6],"l_shoulder":[12,4],"l_elbow":[11,5],"l_hand":[11,7],"r_shoulder":[16,4],"r_elbow":[17,5],"r_hand":[17,7],"l_knee":[12,7],"l_foot":[11,9],"r_knee":[16,8],"r_foot":[18,11]},"contacts":{"l_foot":"!","r_foot":"!"}},
+    {"key_id":"K4","name":"ROOT_DROP","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"weight transfer / root-height change","support_contact":"RIGHT_LOW_SUPPORT_LEFT_HIGH_TOUCH","root_owner":"LOW_STEP","motion_arc_root_note":"pelvis descends only after K3 support acquisition; acceleration is downward then arrested by low support","j":{"head":[16,4],"chest":[16,6],"pelvis":[16,8],"l_shoulder":[14,6],"l_elbow":[13,7],"l_hand":[13,9],"r_shoulder":[18,6],"r_elbow":[19,7],"r_hand":[19,9],"l_knee":[14,8],"l_foot":[12,9],"r_knee":[17,9],"r_foot":[18,11]},"contacts":{"l_foot":"?","r_foot":"!"}},
+    {"key_id":"K5","name":"TRAIL_RELEASE","timing_class":"ONES","timing_provenance":"INFERRED","causal_role":"release old support / recovery swing","support_contact":"RIGHT_LOW_SUPPORT_LEFT_FREE","root_owner":"LOW_STEP","motion_arc_root_note":"root remains low while the old high foot releases; no rebound to the old support height","j":{"head":[17,4],"chest":[17,6],"pelvis":[17,8],"l_shoulder":[15,6],"l_elbow":[14,7],"l_hand":[14,9],"r_shoulder":[19,6],"r_elbow":[20,7],"r_hand":[20,9],"l_knee":[16,9],"l_foot":[15,10],"r_knee":[18,9],"r_foot":[19,11]},"contacts":{"l_foot":" ","r_foot":"!"}},
+    {"key_id":"K6","name":"LOW_REACQUIRE","timing_class":"TWOS","timing_provenance":"INFERRED","causal_role":"second contact / deceleration","support_contact":"RIGHT_LOW_SUPPORT_LEFT_LOW_TOUCH","root_owner":"LOW_STEP","motion_arc_root_note":"trailing foot reaches the low plane while root travel decelerates into a stable base","j":{"head":[19,4],"chest":[19,6],"pelvis":[19,8],"l_shoulder":[17,6],"l_elbow":[16,7],"l_hand":[16,9],"r_shoulder":[21,6],"r_elbow":[22,7],"r_hand":[22,9],"l_knee":[18,9],"l_foot":[17,11],"r_knee":[20,9],"r_foot":[21,11]},"contacts":{"l_foot":"?","r_foot":"!"}},
+    {"key_id":"K7","name":"BOTTOM_RESTACK","timing_class":"FOURS","timing_provenance":"INFERRED","causal_role":"recovery / stable exit","support_contact":"BOTH_LOW_SUPPORT","root_owner":"LOW_STEP","motion_arc_root_note":"pelvis remains at low-step height; both feet support and root spacing settles","j":{"head":[21,4],"chest":[21,6],"pelvis":[21,8],"l_shoulder":[19,6],"l_elbow":[18,7],"l_hand":[18,9],"r_shoulder":[23,6],"r_elbow":[24,7],"r_hand":[24,9],"l_knee":[19,9],"l_foot":[18,11],"r_knee":[23,9],"r_foot":[24,11]},"contacts":{"l_foot":"!","r_foot":"!"}}
+  ],
+  "compile": {"method":"Motion Dungeon","fps":24,"loop_repetitions":3,"hold_frames":{"ONES":1,"TWOS":2,"FOURS":4},"connective_policy":"Deterministic midpoint interpolation is permitted only when support_contact and root_owner are unchanged; otherwise hard-cut key-to-key. No connective frame may invent support, contact, root ownership, or a causal event.","renderer":"ASCII-only frame rasterization from the abstract rig text; no source sprite pixels","codec":"H.264 yuv420p MP4","media_packaging":"embedded data:video/mp4 URI is authoritative; no tracked standalone MP4 is required","media_sha256":"b510a2f108d79bfe450f207fddf35071487158364c8dfb62525363faa6c27710","media_bytes":4208,"semantic_frames_per_loop":18,"video_frames_total":54},
+  "compatibility": {"backward_compatible":true,"v1_read_path_unchanged":true,"v2_primary_tabs":["ASCII","JSON","VIDEO"]},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "receipt": {"status":"RENDERED_AND_STRUCTURALLY_TESTED","repo_path":"experiments/ascii-kinesis/v2-locomotion-004-support-height-handoff/","repository":"Valar05/home-center","media_sha256":"b510a2f108d79bfe450f207fddf35071487158364c8dfb62525363faa6c27710","media_bytes":4208},
+  "ascii_sheet_sha256": "a42616c15a6be4e52e3864ab8ae07225f17bd145e092090de27520f0d9f446ce"
+}
