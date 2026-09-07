@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.swarm-receipt.v2",
   "experiment_id": "v2-locomotion-004-support-height-handoff",
-  "status": "RENDERED_AND_STRUCTURALLY_TESTED",
+  "status": "VERIFIED_BY_REPOSITORY_READBACK",
   "repo_path": "experiments/ascii-kinesis/v2-locomotion-004-support-height-handoff/",
   "source": {
     "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — asset 81106",
@@ -21,6 +21,16 @@
   ],
   "media_sha256": "b510a2f108d79bfe450f207fddf35071487158364c8dfb62525363faa6c27710",
   "media_bytes": 4208,
-  "test_boundary": "Local authorized structural contract test executed against the staged target; repository persistence/readback is a separate gate.",
+  "repository_readback": {
+    "first_complete_entry_commit": "2155e74feccf65b175fd18b196d0f72be80141b5",
+    "spa_blob_sha": "6d46c658223b4fb961ee5c0e90260d160d3c20a5",
+    "spa_blob_identity_matches_tested_payload": true,
+    "required_files_seen": ["build.py","manifest.json","motion.json","receipt.json","support-height-handoff.motion.html"],
+    "manifest_required_fields_read_back": true,
+    "spa_ascii_json_video_order_read_back": true,
+    "spa_literal_pre_read_back": true,
+    "spa_embedded_mp4_read_back": true
+  },
+  "test_boundary": "tools/test_ascii_kinesis_swarm_contract_v2.py was inspected from the repository and its exact structural logic was executed against the isolated staged target; the embedded MP4 decoded as H.264/yuv420p 256x144 at 24 fps. A full-repository runtime suite was not claimed: the Home Center phone_shell dispatch attempt was blocked by the platform before enqueue, so final VERIFIED status rests on exact GitHub persistence/readback plus blob identity of the tested SPA.",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
 }
