@@ -1,1 +1,45 @@
-{"schema":"ascii-kinesis.anthology-entry.v2","format_version":2,"id":"v2-strikes-001-axial-thrust-recovery","lane":"strikes","primary_tabs":["ASCII","JSON","VIDEO"],"ascii_literal_text":true,"video_required":true,"video_source":"abstract_ascii_rig_only","source_art_embedded":false,"backward_compatible":true,"timing_provenance_complete":true,"media":{"kind":"video/mp4","embedded_in_spa":true,"bytes":2402,"sha256":"0081fdc7e84321de92f605b78b9ac0ef4567f9ec166a9953b1301e303533d183","fps":24,"frames":28},"builder":"build.py","motion":"motion.json","spa":"axial-thrust-recovery.motion.html","status":"RENDERED","correction_hooks":["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]}
+{
+  "schema": "ascii-kinesis.anthology-entry.v2",
+  "format_version": 2,
+  "id": "v2-strikes-001-axial-thrust-recovery",
+  "lane": "strikes",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "timing_provenance_complete": true,
+  "media": {
+    "kind": "video/mp4",
+    "embedded_in_spa": true,
+    "bytes": 2402,
+    "sha256": "0081fdc7e84321de92f605b78b9ac0ef4567f9ec166a9953b1301e303533d183",
+    "fps": 24,
+    "frames": 28
+  },
+  "builder": "build.py",
+  "motion": "motion.json",
+  "spa": "axial-thrust-recovery.motion.html",
+  "verification": {
+    "status": "VERIFIED",
+    "method": "GitHub repository readback of tracked SPA plus structural inspection against ASCII Kinesis Swarm Contract V2",
+    "spa_blob_sha": "a76bfa902073c3f3771abab29e9b2919e15af7ad",
+    "spa_commit": "383939ca1fa5b64ee08341bdb45530b048ca94a1",
+    "verified_requirements": [
+      "exact primary tab order ASCII | JSON | VIDEO",
+      "literal selectable preformatted ASCII",
+      "font ligatures disabled",
+      "whitespace preserved",
+      "structured JSON embedded",
+      "video element present",
+      "MP4 embedded as data:video/mp4",
+      "video hash bound in SPA metadata",
+      "source art excluded",
+      "per-key timing provenance present"
+    ],
+    "execution_test": "STRUCTURAL_READBACK_VERIFIED; deterministic script execution not claimed by this receipt"
+  },
+  "status": "VERIFIED",
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
+}
