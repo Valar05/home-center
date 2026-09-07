@@ -1,1 +1,1272 @@
-{"ascii_sheet_sha256":"5ae3ab2414a025f2b493c58814c530120da0be834e6304a3995493aae41cb5bf","compatibility":{"ascii_kinesis_v2":true,"backward_compatible":true,"primary_tabs":["ASCII","JSON","VIDEO"],"uapl_v1_read_path_preserved":true},"compile":{"connector_frames":1,"connector_rule":"Interpolate joint coordinates only when contact_state, support_A, support_B, root_owner, and custody are unchanged across adjacent decisive keys; otherwise hard-cut at the causal join.","fps":24,"loop_repetitions":4,"media_bytes":15652,"media_sha256":"9b12ad677b3eaa0af0624fad979b54861176659e7ae053d5edb190269097b15e","method":"AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA","renderer":"Python/Pillow monochrome render of generated ASCII frames; ffmpeg libx264 yuv420p","semantic_frames_per_loop":24,"source_sprite_pixels_used":false,"video_frames_total":96},"correction_hooks":["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],"experiment_id":"v2-contact-001-scoped-sync-grapple","format_version":2,"keys":[{"A":{"foot_l":[8,15],"foot_r":[14,15],"hand_l":[8,9],"hand_r":[14,9],"head":[11,5],"knee_l":[9,13],"knee_r":[13,13],"pelvis":[11,11],"shoulder_l":[10,7],"shoulder_r":[12,7]},"B":{"foot_l":[33,15],"foot_r":[39,15],"hand_l":[33,9],"hand_r":[39,9],"head":[36,5],"knee_l":[34,13],"knee_r":[38,13],"pelvis":[36,11],"shoulder_l":[35,7],"shoulder_r":[37,7]},"anchors":[],"causal_role":"pre-contact readable separation","contact_state":"NONE","custody":"NONE","key_id":"C001-K0","motion_arc_root_note":"A advances toward B; both roots remain locally supported.","name":"SEPARATE_READY","root_owner":"LOCAL","shared_center":null,"support_A":"BOTH","support_B":"BOTH","timing_class":"FOURS","timing_provenance":"INFERRED"},{"A":{"foot_l":[13,15],"foot_r":[19,15],"hand_l":[13,9],"hand_r":[20,8],"head":[16,5],"knee_l":[14,13],"knee_r":[18,13],"pelvis":[16,11],"shoulder_l":[15,7],"shoulder_r":[17,7]},"B":{"foot_l":[29,15],"foot_r":[35,15],"hand_l":[29,9],"hand_r":[35,9],"head":[32,5],"knee_l":[30,13],"knee_r":[34,13],"pelvis":[32,11],"shoulder_l":[31,7],"shoulder_r":[33,7]},"anchors":[],"causal_role":"close distance without contact","contact_state":"NONE","custody":"NONE","key_id":"C001-K1","motion_arc_root_note":"A root closes; B root braces without granting contact ownership.","name":"APPROACH","root_owner":"LOCAL","shared_center":null,"support_A":"BOTH","support_B":"BOTH","timing_class":"TWOS","timing_provenance":"INFERRED"},{"A":{"foot_l":[16,15],"foot_r":[22,15],"hand_l":[16,9],"hand_r":[25,8],"head":[19,5],"knee_l":[17,13],"knee_r":[21,13],"pelvis":[19,11],"shoulder_l":[18,7],"shoulder_r":[20,7]},"B":{"foot_l":[27,15],"foot_r":[33,15],"hand_l":[27,10],"hand_r":[34,9],"head":[30,5],"knee_l":[28,13],"knee_r":[32,13],"pelvis":[30,11],"shoulder_l":[25,8],"shoulder_r":[31,7]},"anchors":[{"a":"A.hand_r","at":[25,8],"b":"B.shoulder_l"}],"causal_role":"first causal phase-lock","contact_state":"ONE_ANCHOR","custody":"RELATIONSHIP_PENDING","key_id":"C001-K2","motion_arc_root_note":"First anchor joins clocks but does not yet transfer root ownership.","name":"ACQUIRE_JOIN","root_owner":"LOCAL","shared_center":[25,9],"support_A":"BOTH","support_B":"BOTH","timing_class":"ONES","timing_provenance":"INFERRED"},{"A":{"foot_l":[17,15],"foot_r":[23,15],"hand_l":[26,10],"hand_r":[25,8],"head":[20,5],"knee_l":[18,13],"knee_r":[22,13],"pelvis":[20,11],"shoulder_l":[19,7],"shoulder_r":[21,7]},"B":{"foot_l":[26,15],"foot_r":[32,15],"hand_l":[28,10],"hand_r":[26,10],"head":[29,5],"knee_l":[27,13],"knee_r":[31,13],"pelvis":[29,11],"shoulder_l":[25,8],"shoulder_r":[30,7]},"anchors":[{"a":"A.hand_r","at":[25,8],"b":"B.shoulder_l"},{"a":"A.hand_l","at":[26,10],"b":"B.hand_r"}],"causal_role":"shared constraint established","contact_state":"TWO_ANCHORS","custody":"SHARED","key_id":"C001-K3","motion_arc_root_note":"Shared center becomes explicit; both local rigs may still change internally.","name":"RELATIONSHIP_LOCK","root_owner":"RELATIONSHIP_FRAME","shared_center":[25,10],"support_A":"BOTH","support_B":"BOTH","timing_class":"FOURS","timing_provenance":"INFERRED"},{"A":{"foot_l":[16,15],"foot_r":[23,15],"hand_l":[26,10],"hand_r":[25,8],"head":[19,6],"knee_l":[17,13],"knee_r":[22,13],"pelvis":[20,12],"shoulder_l":[18,8],"shoulder_r":[20,8]},"B":{"foot_l":[26,15],"foot_r":[32,15],"hand_l":[29,9],"hand_r":[26,10],"head":[29,4],"knee_l":[27,12],"knee_r":[31,12],"pelvis":[29,10],"shoulder_l":[25,8],"shoulder_r":[30,6]},"anchors":[{"a":"A.hand_r","at":[25,8],"b":"B.shoulder_l"},{"a":"A.hand_l","at":[26,10],"b":"B.hand_r"}],"causal_role":"opposing arcs load the shared center","contact_state":"TWO_ANCHORS","custody":"SHARED","key_id":"C001-K4","motion_arc_root_note":"A lowers under shared center while B lags high; leverage is visible before support transfer.","name":"LEVERAGE_PRELOAD","root_owner":"RELATIONSHIP_FRAME","shared_center":[24,10],"support_A":"BOTH","support_B":"BOTH","timing_class":"TWOS","timing_provenance":"INFERRED"},{"A":{"foot_l":[17,15],"foot_r":[24,15],"hand_l":[25,9],"hand_r":[25,7],"head":[20,6],"knee_l":[18,13],"knee_r":[23,13],"pelvis":[21,12],"shoulder_l":[19,8],"shoulder_r":[21,8]},"B":{"foot_l":[32,10],"foot_r":[33,11],"hand_l":[30,7],"hand_r":[25,9],"head":[28,3],"knee_l":[29,9],"knee_r":[31,10],"pelvis":[27,8],"shoulder_l":[25,7],"shoulder_r":[29,5]},"anchors":[{"a":"A.hand_r","at":[25,7],"b":"B.shoulder_l"},{"a":"A.hand_l","at":[25,9],"b":"B.hand_r"}],"causal_role":"support/root authority transfers through relationship frame","contact_state":"TWO_ANCHORS","custody":"SHARED","key_id":"C001-K5","motion_arc_root_note":"B support leaves ground only after A has captured the shared center over a stable base.","name":"ROOT_TRANSFER_JOIN","root_owner":"A_SUPPORT_VIA_RELATIONSHIP","shared_center":[24,9],"support_A":"BOTH","support_B":"NONE","timing_class":"ONES","timing_provenance":"INFERRED"},{"A":{"foot_l":[17,15],"foot_r":[24,15],"hand_l":[18,9],"hand_r":[25,8],"head":[20,6],"knee_l":[18,13],"knee_r":[23,13],"pelvis":[21,12],"shoulder_l":[19,8],"shoulder_r":[21,8]},"B":{"foot_l":[36,10],"foot_r":[37,11],"hand_l":[29,7],"hand_r":[34,6],"head":[31,3],"knee_l":[33,9],"knee_r":[35,10],"pelvis":[31,8],"shoulder_l":[30,5],"shoulder_r":[32,5]},"anchors":[],"causal_role":"relationship constraint is destroyed","contact_state":"NONE","custody":"NONE","key_id":"C001-K6","motion_arc_root_note":"At release the clocks fork; B travel and A recoil are no longer phase-locked.","name":"RELEASE_JOIN","root_owner":"LOCAL_SPLIT","shared_center":null,"support_A":"BOTH","support_B":"NONE","timing_class":"ONES","timing_provenance":"INFERRED"},{"A":{"foot_l":[15,15],"foot_r":[21,15],"hand_l":[15,9],"hand_r":[21,9],"head":[18,5],"knee_l":[16,13],"knee_r":[20,13],"pelvis":[18,11],"shoulder_l":[17,7],"shoulder_r":[19,7]},"B":{"foot_l":[42,11],"foot_r":[43,12],"hand_l":[34,7],"hand_r":[40,8],"head":[37,4],"knee_l":[39,10],"knee_r":[41,11],"pelvis":[37,9],"shoulder_l":[36,6],"shoulder_r":[38,6]},"anchors":[],"causal_role":"independent post-release clocks","contact_state":"NONE","custody":"NONE","key_id":"C001-K7","motion_arc_root_note":"B continues along its release arc while A recoils toward support; no mirrored timing is required.","name":"PARTNER_LAG_AND_RECOIL","root_owner":"LOCAL_SPLIT","shared_center":null,"support_A":"BOTH","support_B":"NONE","timing_class":"TWOS","timing_provenance":"INFERRED"},{"A":{"foot_l":[12,15],"foot_r":[18,15],"hand_l":[12,9],"hand_r":[18,9],"head":[15,5],"knee_l":[13,13],"knee_r":[17,13],"pelvis":[15,11],"shoulder_l":[14,7],"shoulder_r":[16,7]},"B":{"foot_l":[36,15],"foot_r":[42,15],"hand_l":[36,9],"hand_r":[42,9],"head":[39,5],"knee_l":[37,13],"knee_r":[41,13],"pelvis":[39,11],"shoulder_l":[38,7],"shoulder_r":[40,7]},"anchors":[],"causal_role":"local supports and readiness recover independently","contact_state":"NONE","custody":"NONE","key_id":"C001-K8","motion_arc_root_note":"Both bodies return to local support; readiness is re-established without resurrecting the relationship frame.","name":"RECOVERY_REBIND","root_owner":"LOCAL","shared_center":null,"support_A":"BOTH","support_B":"BOTH","timing_class":"FOURS","timing_provenance":"INFERRED"}],"lane":"contact","principle":"CONTACT IS A SCOPED SYNCHRONIZATION CONTRACT: two local body clocks remain independent except at causal joins that acquire, transfer, or release relationship constraints.","rig_schema":{"actor_A":{"glyph_head":"A","glyph_root":"@","root":"pelvis"},"actor_B":{"glyph_head":"B","glyph_root":"&","root":"pelvis"},"contact_states":["NONE","ONE_ANCHOR","TWO_ANCHORS"],"grid":{"height":18,"width":48},"joint_order":["head","shoulder_l","shoulder_r","hand_l","hand_r","pelvis","knee_l","knee_r","foot_l","foot_r"],"relationship_frame":{"anchor":"*","force_axis":">","shared_center":"X"},"support_states":["BOTH","NONE"]},"rights":{"drew_work_used":false,"firewall":"No source pixels, palette, costume, facial detail, exact silhouette, sheet layout, tracing, redistribution, or close imitation are embedded or reconstructed. Only general relationship/contact principles and provenance facts survive.","source_art_embedded":false,"status":"copyright-restricted commercial game art used only as evidence"},"schema":"ascii-kinesis.motion.v2","source":{"asset_id":30327,"game":"Double Dragon II: The Revenge","name":"Billy & Jimmy","page_url":"https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/","platform":"NES","raw_bytes":28986,"raw_height":786,"raw_sha256":"4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c","raw_url":"https://www.spriters-resource.com/media/assets/28/30327.png?updated=1755472642","raw_width":829,"section":"Playable Characters","site":"The Spriters Resource","source_timing_available":false},"timing_vocabulary":{"FOURS":"one authored key held for four display frames","ONES":"one authored key held for one display frame","TWOS":"one authored key held for two display frames","nominal_fps":24,"policy":"STREET_FIGHTER/CAPCOM","shorthand":"1s/2s/4s means ONES/TWOS/FOURS, never seconds"},"title":"Scoped Synchronization Grapple","whole_sheet_evidence":{"fresh_byte_custody":"Home Center primary-phone fetched and SHA-256 verified the complete 829x786 PNG; every raster cell was included in a 12x12 non-background occupancy scan before extraction.","inferred":["relationship events can phase-lock two otherwise independent local body clocks","shared-center and anchor constraints should exist only while the relationship frame owns them","partner lag after release should remain on the released body's local clock rather than forcing mirrored recoil"],"observed":["neutral/travel/hit/recovery families coexist across the complete sheet","attacker-side Hair Grab, Knee Elbow, Kick, and Shoulder Throw families","receiver-side Held then Punched, Grabbed, Kneed, and Throw states","held/swung/thrown flail, knife, and pipe families","static PNG provides no source-authentic playback exposure"],"occupancy_fingerprint_12x12_percent":[[37,27,29,31,25,17,29,7,0,0,0,0],[28,13,15,28,27,10,0,0,0,0,0,0],[15,9,20,4,4,2,3,0,0,0,0,0],[24,13,22,20,24,6,0,0,0,0,0,0],[14,5,16,11,10,12,0,0,0,0,0,0],[24,5,17,22,11,15,3,3,2,0,0,0],[28,12,34,9,36,14,29,13,0,0,0,0],[14,4,25,25,25,8,21,20,22,30,0,0],[11,7,14,7,9,17,5,6,2,0,0,0],[7,5,9,3,4,7,12,11,1,0,0,0],[12,12,13,8,0,0,0,0,0,0,0,0],[0,0,0,0,8,5,54,74,74,74,74,68]],"semantic_inventory_provenance":"OBSERVED in the prior durable whole-sheet inspection on issue #343 for the exact same TSR asset; re-used as evidence, not as V2 completion.","unknown":["source-authentic frame order inside each family","source-authentic exposure duration and hit-stop","exact anatomical grip points and force magnitudes","exact throw velocity, spin, and landing timing"]}}
+{
+  "ascii_sheet_sha256": "5ae3ab2414a025f2b493c58814c530120da0be834e6304a3995493aae41cb5bf",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate joint coordinates only when contact_state, support_A, support_B, root_owner, and custody are unchanged across adjacent decisive keys; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 15616,
+    "media_sha256": "4c01681ad38acdb401b6dcc79af2808bc1f61126b25c3d5b7f3ec8fd63da0dce",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "renderer": "Python/Pillow monochrome render of generated ASCII frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 24,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 96
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-001-scoped-sync-grapple",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          8,
+          15
+        ],
+        "foot_r": [
+          14,
+          15
+        ],
+        "hand_l": [
+          8,
+          9
+        ],
+        "hand_r": [
+          14,
+          9
+        ],
+        "head": [
+          11,
+          5
+        ],
+        "knee_l": [
+          9,
+          13
+        ],
+        "knee_r": [
+          13,
+          13
+        ],
+        "pelvis": [
+          11,
+          11
+        ],
+        "shoulder_l": [
+          10,
+          7
+        ],
+        "shoulder_r": [
+          12,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          33,
+          15
+        ],
+        "foot_r": [
+          39,
+          15
+        ],
+        "hand_l": [
+          33,
+          9
+        ],
+        "hand_r": [
+          39,
+          9
+        ],
+        "head": [
+          36,
+          5
+        ],
+        "knee_l": [
+          34,
+          13
+        ],
+        "knee_r": [
+          38,
+          13
+        ],
+        "pelvis": [
+          36,
+          11
+        ],
+        "shoulder_l": [
+          35,
+          7
+        ],
+        "shoulder_r": [
+          37,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "pre-contact readable separation",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K0",
+      "motion_arc_root_note": "A advances toward B; both roots remain locally supported.",
+      "name": "SEPARATE_READY",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          20,
+          8
+        ],
+        "head": [
+          16,
+          5
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          15,
+          7
+        ],
+        "shoulder_r": [
+          17,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          29,
+          15
+        ],
+        "foot_r": [
+          35,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          35,
+          9
+        ],
+        "head": [
+          32,
+          5
+        ],
+        "knee_l": [
+          30,
+          13
+        ],
+        "knee_r": [
+          34,
+          13
+        ],
+        "pelvis": [
+          32,
+          11
+        ],
+        "shoulder_l": [
+          31,
+          7
+        ],
+        "shoulder_r": [
+          33,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "close distance without contact",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K1",
+      "motion_arc_root_note": "A root closes; B root braces without granting contact ownership.",
+      "name": "APPROACH",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          22,
+          15
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          27,
+          15
+        ],
+        "foot_r": [
+          33,
+          15
+        ],
+        "hand_l": [
+          27,
+          10
+        ],
+        "hand_r": [
+          34,
+          9
+        ],
+        "head": [
+          30,
+          5
+        ],
+        "knee_l": [
+          28,
+          13
+        ],
+        "knee_r": [
+          32,
+          13
+        ],
+        "pelvis": [
+          30,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          31,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        }
+      ],
+      "causal_role": "first causal phase-lock",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "RELATIONSHIP_PENDING",
+      "key_id": "C001-K2",
+      "motion_arc_root_note": "First anchor joins clocks but does not yet transfer root ownership.",
+      "name": "ACQUIRE_JOIN",
+      "root_owner": "LOCAL",
+      "shared_center": [
+        25,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          26,
+          10
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          20,
+          5
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          11
+        ],
+        "shoulder_l": [
+          19,
+          7
+        ],
+        "shoulder_r": [
+          21,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          28,
+          10
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          29,
+          5
+        ],
+        "knee_l": [
+          27,
+          13
+        ],
+        "knee_r": [
+          31,
+          13
+        ],
+        "pelvis": [
+          29,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          30,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            10
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "shared constraint established",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K3",
+      "motion_arc_root_note": "Shared center becomes explicit; both local rigs may still change internally.",
+      "name": "RELATIONSHIP_LOCK",
+      "root_owner": "RELATIONSHIP_FRAME",
+      "shared_center": [
+        25,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          26,
+          10
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          19,
+          6
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          12
+        ],
+        "shoulder_l": [
+          18,
+          8
+        ],
+        "shoulder_r": [
+          20,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          29,
+          4
+        ],
+        "knee_l": [
+          27,
+          12
+        ],
+        "knee_r": [
+          31,
+          12
+        ],
+        "pelvis": [
+          29,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          30,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            10
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "opposing arcs load the shared center",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K4",
+      "motion_arc_root_note": "A lowers under shared center while B lags high; leverage is visible before support transfer.",
+      "name": "LEVERAGE_PRELOAD",
+      "root_owner": "RELATIONSHIP_FRAME",
+      "shared_center": [
+        24,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          25,
+          9
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          20,
+          6
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          21,
+          12
+        ],
+        "shoulder_l": [
+          19,
+          8
+        ],
+        "shoulder_r": [
+          21,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          32,
+          10
+        ],
+        "foot_r": [
+          33,
+          11
+        ],
+        "hand_l": [
+          30,
+          7
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          28,
+          3
+        ],
+        "knee_l": [
+          29,
+          9
+        ],
+        "knee_r": [
+          31,
+          10
+        ],
+        "pelvis": [
+          27,
+          8
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          29,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            7
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            25,
+            9
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "support/root authority transfers through relationship frame",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K5",
+      "motion_arc_root_note": "B support leaves ground only after A has captured the shared center over a stable base.",
+      "name": "ROOT_TRANSFER_JOIN",
+      "root_owner": "A_SUPPORT_VIA_RELATIONSHIP",
+      "shared_center": [
+        24,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          18,
+          9
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          20,
+          6
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          21,
+          12
+        ],
+        "shoulder_l": [
+          19,
+          8
+        ],
+        "shoulder_r": [
+          21,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          36,
+          10
+        ],
+        "foot_r": [
+          37,
+          11
+        ],
+        "hand_l": [
+          29,
+          7
+        ],
+        "hand_r": [
+          34,
+          6
+        ],
+        "head": [
+          31,
+          3
+        ],
+        "knee_l": [
+          33,
+          9
+        ],
+        "knee_r": [
+          35,
+          10
+        ],
+        "pelvis": [
+          31,
+          8
+        ],
+        "shoulder_l": [
+          30,
+          5
+        ],
+        "shoulder_r": [
+          32,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "relationship constraint is destroyed",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K6",
+      "motion_arc_root_note": "At release the clocks fork; B travel and A recoil are no longer phase-locked.",
+      "name": "RELEASE_JOIN",
+      "root_owner": "LOCAL_SPLIT",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          21,
+          9
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          42,
+          11
+        ],
+        "foot_r": [
+          43,
+          12
+        ],
+        "hand_l": [
+          34,
+          7
+        ],
+        "hand_r": [
+          40,
+          8
+        ],
+        "head": [
+          37,
+          4
+        ],
+        "knee_l": [
+          39,
+          10
+        ],
+        "knee_r": [
+          41,
+          11
+        ],
+        "pelvis": [
+          37,
+          9
+        ],
+        "shoulder_l": [
+          36,
+          6
+        ],
+        "shoulder_r": [
+          38,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent post-release clocks",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K7",
+      "motion_arc_root_note": "B continues along its release arc while A recoils toward support; no mirrored timing is required.",
+      "name": "PARTNER_LAG_AND_RECOIL",
+      "root_owner": "LOCAL_SPLIT",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          18,
+          9
+        ],
+        "head": [
+          15,
+          5
+        ],
+        "knee_l": [
+          13,
+          13
+        ],
+        "knee_r": [
+          17,
+          13
+        ],
+        "pelvis": [
+          15,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          7
+        ],
+        "shoulder_r": [
+          16,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          36,
+          15
+        ],
+        "foot_r": [
+          42,
+          15
+        ],
+        "hand_l": [
+          36,
+          9
+        ],
+        "hand_r": [
+          42,
+          9
+        ],
+        "head": [
+          39,
+          5
+        ],
+        "knee_l": [
+          37,
+          13
+        ],
+        "knee_r": [
+          41,
+          13
+        ],
+        "pelvis": [
+          39,
+          11
+        ],
+        "shoulder_l": [
+          38,
+          7
+        ],
+        "shoulder_r": [
+          40,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "local supports and readiness recover independently",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K8",
+      "motion_arc_root_note": "Both bodies return to local support; readiness is re-established without resurrecting the relationship frame.",
+      "name": "RECOVERY_REBIND",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "principle": "CONTACT IS A SCOPED SYNCHRONIZATION CONTRACT: two local body clocks remain independent except at causal joins that acquire, transfer, or release relationship constraints.",
+  "rig_schema": {
+    "actor_A": {
+      "glyph_head": "A",
+      "glyph_root": "@",
+      "root": "pelvis"
+    },
+    "actor_B": {
+      "glyph_head": "B",
+      "glyph_root": "&",
+      "root": "pelvis"
+    },
+    "contact_states": [
+      "NONE",
+      "ONE_ANCHOR",
+      "TWO_ANCHORS"
+    ],
+    "grid": {
+      "height": 18,
+      "width": 48
+    },
+    "joint_order": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "relationship_frame": {
+      "anchor": "*",
+      "force_axis": ">",
+      "shared_center": "X"
+    },
+    "support_states": [
+      "BOTH",
+      "NONE"
+    ]
+  },
+  "rights": {
+    "drew_work_used": false,
+    "firewall": "No source pixels, palette, costume, facial detail, exact silhouette, sheet layout, tracing, redistribution, or close imitation are embedded or reconstructed. Only general relationship/contact principles and provenance facts survive.",
+    "source_art_embedded": false,
+    "status": "copyright-restricted commercial game art used only as evidence"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 30327,
+    "game": "Double Dragon II: The Revenge",
+    "name": "Billy & Jimmy",
+    "page_url": "https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/",
+    "platform": "NES",
+    "raw_bytes": 28986,
+    "raw_height": 786,
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "raw_url": "https://www.spriters-resource.com/media/assets/28/30327.png?updated=1755472642",
+    "raw_width": 829,
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false
+  },
+  "timing_vocabulary": {
+    "FOURS": "one authored key held for four display frames",
+    "ONES": "one authored key held for one display frame",
+    "TWOS": "one authored key held for two display frames",
+    "nominal_fps": 24,
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Scoped Synchronization Grapple",
+  "whole_sheet_evidence": {
+    "fresh_byte_custody": "Home Center primary-phone fetched and SHA-256 verified the complete 829x786 PNG; every raster cell was included in a 12x12 non-background occupancy scan before extraction.",
+    "inferred": [
+      "relationship events can phase-lock two otherwise independent local body clocks",
+      "shared-center and anchor constraints should exist only while the relationship frame owns them",
+      "partner lag after release should remain on the released body's local clock rather than forcing mirrored recoil"
+    ],
+    "observed": [
+      "neutral/travel/hit/recovery families coexist across the complete sheet",
+      "attacker-side Hair Grab, Knee Elbow, Kick, and Shoulder Throw families",
+      "receiver-side Held then Punched, Grabbed, Kneed, and Throw states",
+      "held/swung/thrown flail, knife, and pipe families",
+      "static PNG provides no source-authentic playback exposure"
+    ],
+    "occupancy_fingerprint_12x12_percent": [
+      [
+        37,
+        27,
+        29,
+        31,
+        25,
+        17,
+        29,
+        7,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        13,
+        15,
+        28,
+        27,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        15,
+        9,
+        20,
+        4,
+        4,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        24,
+        13,
+        22,
+        20,
+        24,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        5,
+        16,
+        11,
+        10,
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        24,
+        5,
+        17,
+        22,
+        11,
+        15,
+        3,
+        3,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        12,
+        34,
+        9,
+        36,
+        14,
+        29,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        4,
+        25,
+        25,
+        25,
+        8,
+        21,
+        20,
+        22,
+        30,
+        0,
+        0
+      ],
+      [
+        11,
+        7,
+        14,
+        7,
+        9,
+        17,
+        5,
+        6,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        7,
+        5,
+        9,
+        3,
+        4,
+        7,
+        12,
+        11,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        12,
+        13,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        8,
+        5,
+        54,
+        74,
+        74,
+        74,
+        74,
+        68
+      ]
+    ],
+    "semantic_inventory_provenance": "OBSERVED in the prior durable whole-sheet inspection on issue #343 for the exact same TSR asset; re-used as evidence, not as V2 completion.",
+    "unknown": [
+      "source-authentic frame order inside each family",
+      "source-authentic exposure duration and hit-stop",
+      "exact anatomical grip points and force magnitudes",
+      "exact throw velocity, spin, and landing timing"
+    ]
+  }
+}

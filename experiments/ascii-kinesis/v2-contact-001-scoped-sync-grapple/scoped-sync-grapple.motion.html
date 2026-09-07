@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis V2 Contact 001 — Scoped Synchronization Grapple</title>
+<style>
+:root{color-scheme:dark;background:#101010;color:#eee;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:1100px}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#101010;padding:.5rem 0}button[data-view]{font:inherit;padding:.55rem .9rem}section[hidden]{display:none}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}.note{max-width:72ch;line-height:1.45}
+</style></head><body>
+<h1>Scoped Synchronization Grapple</h1>
+<p class="note">Copyright-safe abstract rig. Source art is evidence only and is not embedded. The performance principle is that contact phase-locks two local body clocks only at causal joins; it does not force continuous pose lockstep.</p>
+<nav role="tablist" aria-label="Primary views">
+<button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button>
+<button type="button" role="tab" data-view="json" aria-selected="false">JSON</button>
+<button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button>
+</nav>
+<section id="ascii" role="tabpanel"><pre>[C001-K0] SEPARATE_READY | FOURS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=LOCAL
+
+
+
+
+
+           A                        B
+          / \                      / \
+          o-o                      o-o
+         /| |\                    /| |\
+        o  |  o                  o  |  o
+           |                        |
+           @                        &amp;
+          / \                      / \
+         o   o                    o   o
+        /     \                  /     \
+        o     o                  o     o
+        =     =                  =     =
+
+
+[C001-K1] APPROACH | TWOS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=LOCAL
+
+
+
+
+
+                A               B
+               / \             / \
+               o-o-            o-o
+              /| | -o         /| |\
+             o  |            o  |  o
+                |               |
+                @               &amp;
+               / \             / \
+              o   o           o   o
+             /     \         /     \
+             o     o         o     o
+             =     =         =     =
+
+
+[C001-K2] ACQUIRE_JOIN | ONES INFERRED | contact=ONE_ANCHOR | A_support=BOTH | B_support=BOTH | root=LOCAL
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                   A          B
+                  / \       // \
+                  o-o--   //---o
+                 /| |  --*--   |\\
+                o  |     X\\  |   o
+                   |       o\\|
+                   @          &amp;
+                  / \        / \
+                 o   o      o   o
+                /     \    /     \
+                o     o    o     o
+                =     =    =     =
+
+
+[C001-K3] RELATIONSHIP_LOCK | FOURS INFERRED | contact=TWO_ANCHORS | A_support=BOTH | B_support=BOTH | root=RELATIONSHIP_FRAME
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+
+                    A        B
+                   / \      / \
+                   o-o-   //--o
+                   | ----*-- /|
+                    |  -- \\/|
+                    |    X*\o|
+                    @        &amp;
+                   / \      / \
+                  o   o    o   o
+                 /     \  /     \
+                 o     o  o     o
+                 =     =  =     =
+
+
+[C001-K4] LEVERAGE_PRELOAD | TWOS INFERRED | contact=TWO_ANCHORS | A_support=BOTH | B_support=BOTH | root=RELATIONSHIP_FRAME
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+
+                             B
+                            / \
+                   A       / -o
+                  / \     /--/|
+                  o-o----*- /|
+                   \----  \--o
+                   \|   X-* \&amp;
+                    \       / \
+                   -@      o   o
+                 o-  \o    |   |
+                /      \  |     |
+                o      o  o     o
+                =      =  =     =
+
+
+[C001-K5] ROOT_TRANSFER_JOIN | ONES INFERRED | contact=TWO_ANCHORS | A_support=BOTH | B_support=NONE | root=A_SUPPORT_VIA_RELATIONSHIP
+
+                     &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+                            B
+                           / \
+                          / /o
+                    A     ///
+                   / \ --*----o
+                   o-o-   /&amp;
+                    \|--X*  \o-
+                    \|        \oo
+                     \          \o
+                    -@
+                  o-  \o
+                 /      \
+                 o      o
+                 =      =
+
+
+[C001-K6] RELEASE_JOIN | ONES INFERRED | contact=NONE | A_support=BOTH | B_support=NONE | root=LOCAL_SPLIT
+
+
+
+                               B
+                              / \
+                              o-o
+                    A        /| |\o
+                   / \       o |
+                   o-o---o     &amp;
+                  o \|          \o-
+                    \|            \oo
+                     \              \o
+                    -@
+                  o-  \o
+                 /      \
+                 o      o
+                 =      =
+
+
+[C001-K7] PARTNER_LAG_AND_RECOIL | TWOS INFERRED | contact=NONE | A_support=BOTH | B_support=NONE | root=LOCAL_SPLIT
+
+
+
+
+                                     B
+                  A                 / \
+                 / \                o-o
+                 o-o              o/| |\
+                /| |\                |  o
+               o  |  o               &amp;
+                  |                   \o-
+                  @                     \oo
+                 / \                      \o
+                o   o
+               /     \
+               o     o
+               =     =
+
+
+[C001-K8] RECOVERY_REBIND | FOURS INFERRED | contact=NONE | A_support=BOTH | B_support=BOTH | root=LOCAL
+
+
+
+
+
+               A                       B
+              / \                     / \
+              o-o                     o-o
+             /| |\                   /| |\
+            o  |  o                 o  |  o
+               |                       |
+               @                       &amp;
+              / \                     / \
+             o   o                   o   o
+            /     \                 /     \
+            o     o                 o     o
+            =     =                 =     =
+</pre></section>
+<section id="json" role="tabpanel" hidden><pre>{
+  "ascii_sheet_sha256": "5ae3ab2414a025f2b493c58814c530120da0be834e6304a3995493aae41cb5bf",
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "connector_frames": 1,
+    "connector_rule": "Interpolate joint coordinates only when contact_state, support_A, support_B, root_owner, and custody are unchanged across adjacent decisive keys; otherwise hard-cut at the causal join.",
+    "fps": 24,
+    "loop_repetitions": 4,
+    "media_bytes": 15616,
+    "media_sha256": "4c01681ad38acdb401b6dcc79af2808bc1f61126b25c3d5b7f3ec8fd63da0dce",
+    "method": "AUTHORED ASCII KEYS -&gt; EXPLICIT HOLDS/TIMING -&gt; DETERMINISTIC CONNECTIVE MOTION -&gt; ASCII-ONLY FRAME RENDER -&gt; MP4 -&gt; SPA",
+    "renderer": "Python/Pillow monochrome render of generated ASCII frames; ffmpeg libx264 yuv420p",
+    "semantic_frames_per_loop": 24,
+    "source_sprite_pixels_used": false,
+    "video_frames_total": 96
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-001-scoped-sync-grapple",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "foot_l": [
+          8,
+          15
+        ],
+        "foot_r": [
+          14,
+          15
+        ],
+        "hand_l": [
+          8,
+          9
+        ],
+        "hand_r": [
+          14,
+          9
+        ],
+        "head": [
+          11,
+          5
+        ],
+        "knee_l": [
+          9,
+          13
+        ],
+        "knee_r": [
+          13,
+          13
+        ],
+        "pelvis": [
+          11,
+          11
+        ],
+        "shoulder_l": [
+          10,
+          7
+        ],
+        "shoulder_r": [
+          12,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          33,
+          15
+        ],
+        "foot_r": [
+          39,
+          15
+        ],
+        "hand_l": [
+          33,
+          9
+        ],
+        "hand_r": [
+          39,
+          9
+        ],
+        "head": [
+          36,
+          5
+        ],
+        "knee_l": [
+          34,
+          13
+        ],
+        "knee_r": [
+          38,
+          13
+        ],
+        "pelvis": [
+          36,
+          11
+        ],
+        "shoulder_l": [
+          35,
+          7
+        ],
+        "shoulder_r": [
+          37,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "pre-contact readable separation",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K0",
+      "motion_arc_root_note": "A advances toward B; both roots remain locally supported.",
+      "name": "SEPARATE_READY",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          13,
+          15
+        ],
+        "foot_r": [
+          19,
+          15
+        ],
+        "hand_l": [
+          13,
+          9
+        ],
+        "hand_r": [
+          20,
+          8
+        ],
+        "head": [
+          16,
+          5
+        ],
+        "knee_l": [
+          14,
+          13
+        ],
+        "knee_r": [
+          18,
+          13
+        ],
+        "pelvis": [
+          16,
+          11
+        ],
+        "shoulder_l": [
+          15,
+          7
+        ],
+        "shoulder_r": [
+          17,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          29,
+          15
+        ],
+        "foot_r": [
+          35,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          35,
+          9
+        ],
+        "head": [
+          32,
+          5
+        ],
+        "knee_l": [
+          30,
+          13
+        ],
+        "knee_r": [
+          34,
+          13
+        ],
+        "pelvis": [
+          32,
+          11
+        ],
+        "shoulder_l": [
+          31,
+          7
+        ],
+        "shoulder_r": [
+          33,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "close distance without contact",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K1",
+      "motion_arc_root_note": "A root closes; B root braces without granting contact ownership.",
+      "name": "APPROACH",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          22,
+          15
+        ],
+        "hand_l": [
+          16,
+          9
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          19,
+          5
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          21,
+          13
+        ],
+        "pelvis": [
+          19,
+          11
+        ],
+        "shoulder_l": [
+          18,
+          7
+        ],
+        "shoulder_r": [
+          20,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          27,
+          15
+        ],
+        "foot_r": [
+          33,
+          15
+        ],
+        "hand_l": [
+          27,
+          10
+        ],
+        "hand_r": [
+          34,
+          9
+        ],
+        "head": [
+          30,
+          5
+        ],
+        "knee_l": [
+          28,
+          13
+        ],
+        "knee_r": [
+          32,
+          13
+        ],
+        "pelvis": [
+          30,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          31,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        }
+      ],
+      "causal_role": "first causal phase-lock",
+      "contact_state": "ONE_ANCHOR",
+      "custody": "RELATIONSHIP_PENDING",
+      "key_id": "C001-K2",
+      "motion_arc_root_note": "First anchor joins clocks but does not yet transfer root ownership.",
+      "name": "ACQUIRE_JOIN",
+      "root_owner": "LOCAL",
+      "shared_center": [
+        25,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          26,
+          10
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          20,
+          5
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          11
+        ],
+        "shoulder_l": [
+          19,
+          7
+        ],
+        "shoulder_r": [
+          21,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          28,
+          10
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          29,
+          5
+        ],
+        "knee_l": [
+          27,
+          13
+        ],
+        "knee_r": [
+          31,
+          13
+        ],
+        "pelvis": [
+          29,
+          11
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          30,
+          7
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            10
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "shared constraint established",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K3",
+      "motion_arc_root_note": "Shared center becomes explicit; both local rigs may still change internally.",
+      "name": "RELATIONSHIP_LOCK",
+      "root_owner": "RELATIONSHIP_FRAME",
+      "shared_center": [
+        25,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          16,
+          15
+        ],
+        "foot_r": [
+          23,
+          15
+        ],
+        "hand_l": [
+          26,
+          10
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          19,
+          6
+        ],
+        "knee_l": [
+          17,
+          13
+        ],
+        "knee_r": [
+          22,
+          13
+        ],
+        "pelvis": [
+          20,
+          12
+        ],
+        "shoulder_l": [
+          18,
+          8
+        ],
+        "shoulder_r": [
+          20,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          26,
+          15
+        ],
+        "foot_r": [
+          32,
+          15
+        ],
+        "hand_l": [
+          29,
+          9
+        ],
+        "hand_r": [
+          26,
+          10
+        ],
+        "head": [
+          29,
+          4
+        ],
+        "knee_l": [
+          27,
+          12
+        ],
+        "knee_r": [
+          31,
+          12
+        ],
+        "pelvis": [
+          29,
+          10
+        ],
+        "shoulder_l": [
+          25,
+          8
+        ],
+        "shoulder_r": [
+          30,
+          6
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            8
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            26,
+            10
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "opposing arcs load the shared center",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K4",
+      "motion_arc_root_note": "A lowers under shared center while B lags high; leverage is visible before support transfer.",
+      "name": "LEVERAGE_PRELOAD",
+      "root_owner": "RELATIONSHIP_FRAME",
+      "shared_center": [
+        24,
+        10
+      ],
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          25,
+          9
+        ],
+        "hand_r": [
+          25,
+          7
+        ],
+        "head": [
+          20,
+          6
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          21,
+          12
+        ],
+        "shoulder_l": [
+          19,
+          8
+        ],
+        "shoulder_r": [
+          21,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          32,
+          10
+        ],
+        "foot_r": [
+          33,
+          11
+        ],
+        "hand_l": [
+          30,
+          7
+        ],
+        "hand_r": [
+          25,
+          9
+        ],
+        "head": [
+          28,
+          3
+        ],
+        "knee_l": [
+          29,
+          9
+        ],
+        "knee_r": [
+          31,
+          10
+        ],
+        "pelvis": [
+          27,
+          8
+        ],
+        "shoulder_l": [
+          25,
+          7
+        ],
+        "shoulder_r": [
+          29,
+          5
+        ]
+      },
+      "anchors": [
+        {
+          "a": "A.hand_r",
+          "at": [
+            25,
+            7
+          ],
+          "b": "B.shoulder_l"
+        },
+        {
+          "a": "A.hand_l",
+          "at": [
+            25,
+            9
+          ],
+          "b": "B.hand_r"
+        }
+      ],
+      "causal_role": "support/root authority transfers through relationship frame",
+      "contact_state": "TWO_ANCHORS",
+      "custody": "SHARED",
+      "key_id": "C001-K5",
+      "motion_arc_root_note": "B support leaves ground only after A has captured the shared center over a stable base.",
+      "name": "ROOT_TRANSFER_JOIN",
+      "root_owner": "A_SUPPORT_VIA_RELATIONSHIP",
+      "shared_center": [
+        24,
+        9
+      ],
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          17,
+          15
+        ],
+        "foot_r": [
+          24,
+          15
+        ],
+        "hand_l": [
+          18,
+          9
+        ],
+        "hand_r": [
+          25,
+          8
+        ],
+        "head": [
+          20,
+          6
+        ],
+        "knee_l": [
+          18,
+          13
+        ],
+        "knee_r": [
+          23,
+          13
+        ],
+        "pelvis": [
+          21,
+          12
+        ],
+        "shoulder_l": [
+          19,
+          8
+        ],
+        "shoulder_r": [
+          21,
+          8
+        ]
+      },
+      "B": {
+        "foot_l": [
+          36,
+          10
+        ],
+        "foot_r": [
+          37,
+          11
+        ],
+        "hand_l": [
+          29,
+          7
+        ],
+        "hand_r": [
+          34,
+          6
+        ],
+        "head": [
+          31,
+          3
+        ],
+        "knee_l": [
+          33,
+          9
+        ],
+        "knee_r": [
+          35,
+          10
+        ],
+        "pelvis": [
+          31,
+          8
+        ],
+        "shoulder_l": [
+          30,
+          5
+        ],
+        "shoulder_r": [
+          32,
+          5
+        ]
+      },
+      "anchors": [],
+      "causal_role": "relationship constraint is destroyed",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K6",
+      "motion_arc_root_note": "At release the clocks fork; B travel and A recoil are no longer phase-locked.",
+      "name": "RELEASE_JOIN",
+      "root_owner": "LOCAL_SPLIT",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          15,
+          15
+        ],
+        "foot_r": [
+          21,
+          15
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          21,
+          9
+        ],
+        "head": [
+          18,
+          5
+        ],
+        "knee_l": [
+          16,
+          13
+        ],
+        "knee_r": [
+          20,
+          13
+        ],
+        "pelvis": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          17,
+          7
+        ],
+        "shoulder_r": [
+          19,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          42,
+          11
+        ],
+        "foot_r": [
+          43,
+          12
+        ],
+        "hand_l": [
+          34,
+          7
+        ],
+        "hand_r": [
+          40,
+          8
+        ],
+        "head": [
+          37,
+          4
+        ],
+        "knee_l": [
+          39,
+          10
+        ],
+        "knee_r": [
+          41,
+          11
+        ],
+        "pelvis": [
+          37,
+          9
+        ],
+        "shoulder_l": [
+          36,
+          6
+        ],
+        "shoulder_r": [
+          38,
+          6
+        ]
+      },
+      "anchors": [],
+      "causal_role": "independent post-release clocks",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K7",
+      "motion_arc_root_note": "B continues along its release arc while A recoils toward support; no mirrored timing is required.",
+      "name": "PARTNER_LAG_AND_RECOIL",
+      "root_owner": "LOCAL_SPLIT",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "A": {
+        "foot_l": [
+          12,
+          15
+        ],
+        "foot_r": [
+          18,
+          15
+        ],
+        "hand_l": [
+          12,
+          9
+        ],
+        "hand_r": [
+          18,
+          9
+        ],
+        "head": [
+          15,
+          5
+        ],
+        "knee_l": [
+          13,
+          13
+        ],
+        "knee_r": [
+          17,
+          13
+        ],
+        "pelvis": [
+          15,
+          11
+        ],
+        "shoulder_l": [
+          14,
+          7
+        ],
+        "shoulder_r": [
+          16,
+          7
+        ]
+      },
+      "B": {
+        "foot_l": [
+          36,
+          15
+        ],
+        "foot_r": [
+          42,
+          15
+        ],
+        "hand_l": [
+          36,
+          9
+        ],
+        "hand_r": [
+          42,
+          9
+        ],
+        "head": [
+          39,
+          5
+        ],
+        "knee_l": [
+          37,
+          13
+        ],
+        "knee_r": [
+          41,
+          13
+        ],
+        "pelvis": [
+          39,
+          11
+        ],
+        "shoulder_l": [
+          38,
+          7
+        ],
+        "shoulder_r": [
+          40,
+          7
+        ]
+      },
+      "anchors": [],
+      "causal_role": "local supports and readiness recover independently",
+      "contact_state": "NONE",
+      "custody": "NONE",
+      "key_id": "C001-K8",
+      "motion_arc_root_note": "Both bodies return to local support; readiness is re-established without resurrecting the relationship frame.",
+      "name": "RECOVERY_REBIND",
+      "root_owner": "LOCAL",
+      "shared_center": null,
+      "support_A": "BOTH",
+      "support_B": "BOTH",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "contact",
+  "principle": "CONTACT IS A SCOPED SYNCHRONIZATION CONTRACT: two local body clocks remain independent except at causal joins that acquire, transfer, or release relationship constraints.",
+  "rig_schema": {
+    "actor_A": {
+      "glyph_head": "A",
+      "glyph_root": "@",
+      "root": "pelvis"
+    },
+    "actor_B": {
+      "glyph_head": "B",
+      "glyph_root": "&amp;",
+      "root": "pelvis"
+    },
+    "contact_states": [
+      "NONE",
+      "ONE_ANCHOR",
+      "TWO_ANCHORS"
+    ],
+    "grid": {
+      "height": 18,
+      "width": 48
+    },
+    "joint_order": [
+      "head",
+      "shoulder_l",
+      "shoulder_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r"
+    ],
+    "relationship_frame": {
+      "anchor": "*",
+      "force_axis": "&gt;",
+      "shared_center": "X"
+    },
+    "support_states": [
+      "BOTH",
+      "NONE"
+    ]
+  },
+  "rights": {
+    "drew_work_used": false,
+    "firewall": "No source pixels, palette, costume, facial detail, exact silhouette, sheet layout, tracing, redistribution, or close imitation are embedded or reconstructed. Only general relationship/contact principles and provenance facts survive.",
+    "source_art_embedded": false,
+    "status": "copyright-restricted commercial game art used only as evidence"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 30327,
+    "game": "Double Dragon II: The Revenge",
+    "name": "Billy &amp; Jimmy",
+    "page_url": "https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/",
+    "platform": "NES",
+    "raw_bytes": 28986,
+    "raw_height": 786,
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "raw_url": "https://www.spriters-resource.com/media/assets/28/30327.png?updated=1755472642",
+    "raw_width": 829,
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false
+  },
+  "timing_vocabulary": {
+    "FOURS": "one authored key held for four display frames",
+    "ONES": "one authored key held for one display frame",
+    "TWOS": "one authored key held for two display frames",
+    "nominal_fps": 24,
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "shorthand": "1s/2s/4s means ONES/TWOS/FOURS, never seconds"
+  },
+  "title": "Scoped Synchronization Grapple",
+  "whole_sheet_evidence": {
+    "fresh_byte_custody": "Home Center primary-phone fetched and SHA-256 verified the complete 829x786 PNG; every raster cell was included in a 12x12 non-background occupancy scan before extraction.",
+    "inferred": [
+      "relationship events can phase-lock two otherwise independent local body clocks",
+      "shared-center and anchor constraints should exist only while the relationship frame owns them",
+      "partner lag after release should remain on the released body's local clock rather than forcing mirrored recoil"
+    ],
+    "observed": [
+      "neutral/travel/hit/recovery families coexist across the complete sheet",
+      "attacker-side Hair Grab, Knee Elbow, Kick, and Shoulder Throw families",
+      "receiver-side Held then Punched, Grabbed, Kneed, and Throw states",
+      "held/swung/thrown flail, knife, and pipe families",
+      "static PNG provides no source-authentic playback exposure"
+    ],
+    "occupancy_fingerprint_12x12_percent": [
+      [
+        37,
+        27,
+        29,
+        31,
+        25,
+        17,
+        29,
+        7,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        13,
+        15,
+        28,
+        27,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        15,
+        9,
+        20,
+        4,
+        4,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        24,
+        13,
+        22,
+        20,
+        24,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        5,
+        16,
+        11,
+        10,
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        24,
+        5,
+        17,
+        22,
+        11,
+        15,
+        3,
+        3,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        12,
+        34,
+        9,
+        36,
+        14,
+        29,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        4,
+        25,
+        25,
+        25,
+        8,
+        21,
+        20,
+        22,
+        30,
+        0,
+        0
+      ],
+      [
+        11,
+        7,
+        14,
+        7,
+        9,
+        17,
+        5,
+        6,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        7,
+        5,
+        9,
+        3,
+        4,
+        7,
+        12,
+        11,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        12,
+        13,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        8,
+        5,
+        54,
+        74,
+        74,
+        74,
+        74,
+        68
+      ]
+    ],
+    "semantic_inventory_provenance": "OBSERVED in the prior durable whole-sheet inspection on issue #343 for the exact same TSR asset; re-used as evidence, not as V2 completion.",
+    "unknown": [
+      "source-authentic frame order inside each family",
+      "source-authentic exposure duration and hit-stop",
+      "exact anatomical grip points and force magnitudes",
+      "exact throw velocity, spin, and landing timing"
+    ]
+  }
+}</pre></section>
+<section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,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" type="video/mp4"></video><p class="note">MP4 compiled only from the abstract rig coordinates, generated ASCII frames, explicit holds, and topology-safe connectors recorded in JSON.</p></section>
+<script>const tabs=[...document.querySelectorAll('button[data-view]')];const panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;});</script>
+</body></html>

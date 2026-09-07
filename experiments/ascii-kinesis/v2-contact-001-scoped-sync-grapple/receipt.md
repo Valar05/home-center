@@ -27,7 +27,7 @@ OBSERVED source timing: none. UNKNOWN: source-authentic order/exposure/hit-stop,
 
 Motion Dungeon compile: authored abstract rig keys -> explicit holds -> one deterministic connector frame only where contact/support/root/custody topology is unchanged -> ASCII-only rendered frames -> H.264 MP4 -> embedded data URI in the three-tab SPA. Causal joins hard-cut rather than interpolate so connectors cannot invent contact ownership, support, root ownership, custody, or causal events.
 
-Media: 15,652-byte MP4, SHA-256 `9b12ad677b3eaa0af0624fad979b54861176659e7ae053d5edb190269097b15e`; 24 semantic frames/loop at 24 fps; four loops; 96 encoded frames total.
+Media: 15,616-byte MP4, SHA-256 `4c01681ad38acdb401b6dcc79af2808bc1f61126b25c3d5b7f3ec8fd63da0dce`; 24 semantic frames/loop at 24 fps; four loops; 96 encoded frames total.
 ASCII contact-sheet SHA-256: `5ae3ab2414a025f2b493c58814c530120da0be834e6304a3995493aae41cb5bf`.
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN.
