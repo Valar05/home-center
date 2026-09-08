@@ -109,7 +109,7 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "REPO_PERSISTED_VERIFIED_ISSUE_RECEIPT_PENDING_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY",
   "test_invocation": {
     "candidate_isolated_status": "PASS",
     "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
@@ -126,5 +126,33 @@
   "video_packaging": "exact compiled MP4 bytes embedded as a data URI in tracked SPA; no tracked MP4 sidecar",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
-  "whitespace_preserved": true
+  "whitespace_preserved": true,
+  "issue_receipt": {
+    "issue": "Valar05/home-center#343",
+    "comment_id": 5590983016,
+    "status": "RECORDED"
+  },
+  "chat_delivery": {
+    "status": "COMPLETE",
+    "order": [
+      "PART 1 — ASCII",
+      "PART 2 — JSON",
+      "PART 3 — VIDEO"
+    ],
+    "ascii_sha256": "f1477f31d69ac9783d4c41b9fba9f3f832a6aac92376b4ecaeeafc54aefe4843",
+    "json_object_source": "exact persisted motion.json; chat formatting is whitespace-only non-byte-identical serialization",
+    "video_sha256": "ec179ee8f9ae04348ad1be346cd8ab6a38f534ae3a34c725c995585be0771ec5",
+    "video_byte_identical_to_persisted_embedded_mp4": true
+  },
+  "health_basis": [
+    "current-worker Home Center campaign + GitHub preflight PASS",
+    "correct Airborne007 lineage/source family",
+    "self-contained SPA persisted and read back",
+    "official V2 candidate-isolated contract PASS",
+    "actual final MP4 render/decode PASS",
+    "Tango current-worker PASS",
+    "Noodle Queen current-worker PASS",
+    "GitHub issue #343 receipt recorded",
+    "same reporting chat delivered PART 1 ASCII + PART 2 JSON + PART 3 visible exact persisted MP4"
+  ]
 }
