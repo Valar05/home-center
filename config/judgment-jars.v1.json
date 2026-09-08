@@ -20,6 +20,7 @@
     "defaultPhoneJarIds": [
       "mission-boundary",
       "simulation-trap",
+      "embodied-kinesis-voices",
       "home-center-vlad-receipts",
       "repository-truth",
       "change-discipline",
@@ -56,7 +57,7 @@
       "no_change",
       "mixed"
     ],
-    "stateDirEnv": "HC_JUDGMENT_JAR_RECEIPT_STATE_DIR",
+    "stateDirEnv": "HC_JUDGMENT_JARS_RECEIPT_STATE_DIR",
     "stateDir": "~/.local/state/home-center/vlad-swarm/judgment-jar-receipts",
     "atomStateDirEnv": "HC_ATOM_STATE_DIR",
     "atomStateDir": "~/.local/state/atom",
