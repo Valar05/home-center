@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, math, subprocess, hashlib, base64
+import json, math, subprocess, hashlib, base64, gzip
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -143,29 +143,9 @@ def sha256(path):
 
 def build_spa(m, contact):
     b64=base64.b64encode(MP4.read_bytes()).decode("ascii")
-    payload=json.dumps(m,separators=(",",":"),ensure_ascii=False)
-    import html
-    return f"""<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ASCII Kinesis V2 Strikes 003 — Axial Thrust Recovery Repair</title>
-<style>
-:root{{color-scheme:dark;background:#090909;color:#eee;font-family:system-ui,sans-serif}}
-body{{margin:0}}nav{{position:sticky;top:0;display:flex;gap:.5rem;padding:.65rem;background:#111;border-bottom:1px solid #444}}
-button{{font:inherit;padding:.55rem .85rem;background:#181818;color:#eee;border:1px solid #555;border-radius:.4rem}}
-section{{display:none;padding:1rem}}section.active{{display:block}}
-pre{{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.12;font-size:12px}}
-video{{display:block;max-width:100%;height:auto;background:#000}}
-</style></head><body>
-<nav><button data-tab="ascii">ASCII</button><button data-tab="json">JSON</button><button data-tab="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
-<section id="json"><pre>{html.escape(payload)}</pre></section>
-<section id="video"><video controls loop playsinline src="data:video/mp4;base64,{b64}"></video></section>
-<script>
-const tabs=["ascii","json","video"];
-document.querySelectorAll("button[data-tab]").forEach(b=>b.onclick=()=>{{
- tabs.forEach(id=>document.getElementById(id).classList.toggle("active",id===b.dataset.tab));
-}});
-</script></body></html>"""
+    ascii_gz=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    json_gz=base64.b64encode(gzip.compress(json.dumps(m,separators=(",",":"),ensure_ascii=False).encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    return f"""<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Strikes 003 — Axial Thrust Recovery Repair</title><style>:root{{color-scheme:dark;background:#090909;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0}}nav{{position:sticky;top:0;display:flex;gap:.5rem;padding:.65rem;background:#111;border-bottom:1px solid #444}}button{{font:inherit;padding:.55rem .85rem;background:#181818;color:#eee;border:1px solid #555;border-radius:.4rem}}section{{display:none;padding:1rem}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.12;font-size:12px}}video{{display:block;max-width:100%;height:auto;background:#000}}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre id="asciiText">loading…</pre></section><section id="json"><pre id="jsonText">loading…</pre></section><section id="video"><video controls loop playsinline src="data:video/mp4;base64,{b64}"></video></section><script>const ASCII_GZ="{ascii_gz}";const JSON_GZ="{json_gz}";async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}}Promise.all([gunzip64(ASCII_GZ),gunzip64(JSON_GZ)]).then(([a,j])=>{{document.getElementById("asciiText").textContent=a;document.getElementById("jsonText").textContent=JSON.stringify(JSON.parse(j),null,2);}});const tabs=["ascii","json","video"];document.querySelectorAll("button[data-view]").forEach(b=>b.onclick=()=>tabs.forEach(id=>document.getElementById(id).classList.toggle("active",id===b.dataset.view)));</script></body></html>"""
 
 def main():
     m=json.loads(MOTION.read_text(encoding="utf-8"))
