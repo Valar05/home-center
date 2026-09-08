@@ -24,7 +24,7 @@ UNKNOWN: source chronology/exposure/hit-stop/hitbox/support-foot/root path/cance
 - D008-K11 SECONDARY_LAG_SETTLE — TWOS — INFERRED
 - D008-K12 READY_NEW_ADDRESS_WITH_DEBT — FOURS — INFERRED
 
-MP4 SHA-256 `5b4c123c7e8e0d027277b74dcb22fabcb1598eeb403e5ceaa56fa4acfd27b6a6`; 18058 bytes; H.264 640x360; 40 frames; 1.666667s.
+MP4 SHA-256 `e3df137344f94ae7906a0db29c0a7b17948f5ec99ef16c23c8765e1ebc26bee2`; 6966 bytes; H.264 480x270; 40 frames; 1.666667s.
 ASCII SHA-256 `8659f197d9a085d989774e3cddfe5089aebdb5df7441779471b922cfecbaafa6`.
 
 Tango: PASS (2 iterations recorded).
