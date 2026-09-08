@@ -136,10 +136,13 @@ def encode_mp4(m, frames):
 def chunks(s,n=1800):
  return [s[i:i+n] for i in range(0,len(s),n)]
 
+def js_chunks(s):
+ return "[\n"+",\n".join(json.dumps(c) for c in chunks(s))+"\n]"
+
 def build_spa(m,contact,video):
- video_chunks=json.dumps(chunks(base64.b64encode(video).decode('ascii')),separators=(',',':'))
- ascii_chunks=json.dumps(chunks(base64.b64encode(gzip.compress(contact.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')),separators=(',',':'))
- json_chunks=json.dumps(chunks(base64.b64encode(gzip.compress(json.dumps(m,separators=(',',':'),ensure_ascii=False).encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')),separators=(',',':'))
+ video_chunks=js_chunks(base64.b64encode(video).decode('ascii'))
+ ascii_chunks=js_chunks(base64.b64encode(gzip.compress(contact.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii'))
+ json_chunks=js_chunks(base64.b64encode(gzip.compress(json.dumps(m,separators=(',',':'),ensure_ascii=False).encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii'))
  return f'''<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Strikes 004 — Contact Pin / Disengage Causality Repair</title>
 <style>:root{{color-scheme:dark;background:#080808;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0}}main{{max-width:1120px;margin:auto;padding:10px}}nav{{position:sticky;top:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#080808;padding:8px 0}}button{{min-height:44px;font:inherit}}section{{display:none}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font:12px/1.08 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;user-select:text;background:#000;padding:10px}}video{{display:block;width:min(100%,720px);height:auto;background:#000}}</style></head><body><main>
