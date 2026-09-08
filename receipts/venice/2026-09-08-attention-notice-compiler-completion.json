@@ -1,0 +1,44 @@
+{
+  "schema": "home-center.venice-completion-review.v1",
+  "date": "2026-09-08",
+  "commission": "Create a deterministic function for alarming notification-first attention statements; critical action must survive without opening chat, resolved conditions must stop alarming, and useful attention targets include Gmail and Home Center operational truth.",
+  "repository": "Valar05/home-center",
+  "pullRequest": 352,
+  "reviewedImplementationHead": "736f78e5671d532310d472ef6270c0527633d4f9",
+  "regnetReceipt": "receipts/regnet/2026-09-08-attention-notice-compiler.json",
+  "regnetVerdict": "BLOCKED_UNKNOWN",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery"
+  ],
+  "missionReview": [
+    "The notification line is the primary artifact: actor, imperative action, verified fact, then optional theatrical sting.",
+    "The implementation does not silently install monitoring, polling, scheduling, or notification transport that Drew did not commission in this slice.",
+    "Resolved state returns null, directly correcting the stale-reminder failure observed when Angela had already replied but the old check-Gmail alarm kept repeating.",
+    "Deterministic pulse variation reduces exact-repeat habituation without random wording or fabricated facts.",
+    "Additional useful target classes are represented without pretending they are all currently active: repository/main failure and Phone Hands disconnect."
+  ],
+  "adversarialFindings": [
+    "The open PR is implementation evidence, not merge/deployment/runtime notification proof.",
+    "GitHub Actions produced zero executable steps on both the PR and a main baseline run; red checks cannot be interpreted as a compiler test failure or success.",
+    "Home Center accepted the phone-shell verification command, but the phone relay did not lease it; no execution receipt exists.",
+    "A semantic review cannot substitute for the missing deterministic execution required by Regnet QA."
+  ],
+  "directive": "HALT_REQUIRED",
+  "haltBoundary": "External deterministic validation is unavailable at this response boundary. Do not merge, deploy, or claim tested/completed until the exact implementation head is executed on an authorized external surface and Regnet QA can move from BLOCKED_UNKNOWN to PASS.",
+  "reviewerProvenance": "ChatGPT GPT-5.6 Sol, separate adversarial Judgment-Jar completion pass",
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "durableOnGitHub": true,
+    "pullRequestOpen": true,
+    "tested": false,
+    "merged": false,
+    "deployed": false,
+    "callableFromHomeCenterNotificationProducer": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
