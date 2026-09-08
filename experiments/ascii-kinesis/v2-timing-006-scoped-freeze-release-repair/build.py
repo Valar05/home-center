@@ -114,12 +114,12 @@ def contact_sheet(m):
     return "\n".join(lines).rstrip()+"\n"
 
 def frame_png(txt,path):
-    regular=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",20)
-    header=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",16)
-    im=Image.new("RGB",(800,500),"black")
+    regular=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",10)
+    header=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",9)
+    im=Image.new("RGB",(400,250),"black")
     dr=ImageDraw.Draw(im)
-    dr.text((20,12),"SCOPED FREEZE / RELEASE • ABSTRACT ASCII RIG",font=header,fill="white")
-    dr.multiline_text((20,42),txt,font=regular,fill="white",spacing=0)
+    dr.text((8,6),"SCOPED FREEZE / RELEASE • ABSTRACT ASCII RIG",font=header,fill="white")
+    dr.multiline_text((8,23),txt,font=regular,fill="white",spacing=0)
     im.save(path)
 
 def main():
@@ -139,7 +139,7 @@ def main():
         subprocess.run([
             "ffmpeg","-hide_banner","-loglevel","error","-y",
             "-framerate",str(m["compile"]["fps"]),"-i",str(td/"frame-%04d.png"),
-            "-c:v","libx264","-preset","veryslow","-crf","28","-pix_fmt","yuv420p",
+            "-c:v","libx264","-preset","veryslow","-crf","31","-pix_fmt","yuv420p",
             "-movflags","+faststart",str(MP4)
         ],check=True)
     media=MP4.read_bytes()
