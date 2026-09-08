@@ -5,7 +5,7 @@
   "authoritative_video": "embedded MP4 data URI in staggered-precontact-catch.motion.html",
   "backward_compatible": true,
   "contract_test": {
-    "boundary": "Executed against an isolated tree containing the candidate only; current chat has no repository command-execution surface for a fresh repo-global run.",
+    "boundary": "Exact official script executed against an isolated tree containing the final Airborne 011 candidate only. Repo-global execution is not claimed because this Standard Chat has GitHub contents persistence/readback but no full-repository shell checkout.",
     "candidate_scoped": "PASS",
     "official_test_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
@@ -62,7 +62,7 @@
   },
   "reconstruction": "python3 build.py",
   "revises": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/",
-  "revision_status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING",
+  "revision_status": "QUALITY_GATES_PASS_REPO_VERIFIED",
   "schema": "ascii-kinesis.swarm-manifest.v2",
   "source": {
     "asset_id": 10039,
