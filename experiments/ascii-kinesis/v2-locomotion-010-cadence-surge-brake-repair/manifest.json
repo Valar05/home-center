@@ -40,14 +40,14 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "843d80f1be423cd241084fc81b5bacd06e12aa296253ccd992183d676e9a23d5",
-    "bytes": 42644,
+    "sha256": "ffccf354f3223f76465ccbe2e12598f8b75084d74689c15cb37799d858780a03",
+    "bytes": 24202,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
       "pix_fmt": "yuv420p",
-      "width": 960,
-      "height": 480,
+      "width": 640,
+      "height": 320,
       "fps": "24/1",
       "frames": 56,
       "duration_seconds": 2.333333
