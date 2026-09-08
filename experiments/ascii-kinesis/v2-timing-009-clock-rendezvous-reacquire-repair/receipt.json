@@ -1,0 +1,64 @@
+{
+  "schema": "ascii-kinesis.swarm-receipt.v2",
+  "format_version": 2,
+  "experiment_id": "v2-timing-009-clock-rendezvous-reacquire-repair",
+  "lane": "timing",
+  "revises": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
+  "source_change": false,
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 3116,
+    "page_url": "https://www.spriters-resource.com/snes/mmx/asset/3116/",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "source_art_embedded": false
+  },
+  "current_worker": {
+    "connector_preflight": "PASS_HOME_CENTER_CAMPAIGN_AND_GITHUB",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "actual_render_inspected": true,
+    "media_decode": {
+      "codec": "h264",
+      "width": 800,
+      "height": 450,
+      "pixel_format": "yuv420p",
+      "fps": "24/1",
+      "frames": 64,
+      "duration_seconds": 2.666667
+    },
+    "tango": {
+      "verdict": "PASS",
+      "highest_value_visible_defect": "NONE",
+      "basis": "Independent current-run inspection of the exact byte-identical persisted render: asymmetric coil; one-frame release/touchdown/contact accents; nonuniform holds; visible BODY_CLOCK hold while OBJECT_CLOCK turns and returns; bilateral support earned before rendezvous; contact absorption, torso overshoot, secondary lag, recovery debt, and a new-address terminal ready prevent phase teleport, reverse interpolation, and idle reset."
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "basis": "Independent current-run final-render gate after Tango PASS: the release/diverge/brake/return/catch phrase has specific attitude, memorable silhouette changes, coherent scoped-clock causality, embodied catch consequence, and economical motion that does not read as placeholder interpolation."
+    }
+  },
+  "contract": {
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_scoped": "PASS",
+    "entries_checked": ["v2-timing-009-clock-rendezvous-reacquire-repair"],
+    "repo_global_claimed": false,
+    "repo_wide_boundary": "UNTESTED: current Standard Chat connectors do not expose an authorized full-repository checkout/shell execution surface"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "ab58c2dcee440ba889e5135ce4ddd5f1be4b0cd10cef4f877e35a4d9bcf9a134",
+    "bytes": 27935,
+    "ascii_sheet_sha256": "0f812c9a9676fd6f77f5a4635466556da61600d06c127f747dc401ce0f9fdcb0",
+    "motion_json_sha256": "fcdacaae2065681a24df9dcaade3493d4b41033b9a124e8ed020a5eaf861eebc",
+    "spa_html_sha256": "6f0eed2bb69e93736d618d056a82365e0fda85e0caacb691d3ad31678ed9e0cc"
+  },
+  "repo_readback": "PENDING_AFTER_RECEIPT_CREATE",
+  "issue_343_receipt": "PENDING_AFTER_REPO_READBACK",
+  "chat_delivery": {
+    "part_1_ascii": false,
+    "part_2_json": false,
+    "part_3_video": false
+  },
+  "status": "QUALITY_GATES_PASS / REPO_READBACK_PENDING / USER_SURFACE_PENDING"
+}
