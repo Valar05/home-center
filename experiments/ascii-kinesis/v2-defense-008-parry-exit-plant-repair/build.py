@@ -65,11 +65,8 @@ def qbez(a,b,t,off):
     e=t*t*(3-2*t); bulge=4*t*(1-t)
     return [round(a[0]+(b[0]-a[0])*e+off[0]*bulge),round(a[1]+(b[1]-a[1])*e+off[1]*bulge)]
 
-def interp(a,b,t,arc):
-    return {n:qbez(a['joints'][n],b['joints'][n],t,arc.get(n,[0,0])) for n in a['joints']}
-
-def semantic_signature(k):
-    return (k['support_contact'],k['contact_state'],k['root_state'],k['guard_authority'])
+def interp(a,b,t,arc): return {n:qbez(a['joints'][n],b['joints'][n],t,arc.get(n,[0,0])) for n in a['joints']}
+def semantic_signature(k): return (k['support_contact'],k['contact_state'],k['root_state'],k['guard_authority'])
 
 def frame_sequence(d):
     out=[]
@@ -95,15 +92,11 @@ def font(size):
 
 def render_frame(f,path):
     sem=f['semantic']; im=Image.new('RGB',(480,270),'black'); dr=ImageDraw.Draw(im); f12=font(9); f16=font(11)
-    dr.text((10,8),f"{f['label']}  {f['name']}",fill='white',font=f12)
-    dr.text((10,26),f"support={sem['support_contact']}  root={sem['root_state']}  guard={sem['guard_authority']}  debt={sem['recoil_debt']:.2f}",fill='white',font=f12)
-    dr.multiline_text((10,42),pose_text(sem,f['coords']),fill='white',font=f16,spacing=0)
-    dr.text((10,252),f"{sem['timing_class']} / {sem['timing_provenance']}",fill='white',font=f12); im.save(path)
+    dr.text((10,8),f"{f['label']}  {f['name']}",fill='white',font=f12); dr.text((10,26),f"support={sem['support_contact']}  root={sem['root_state']}  guard={sem['guard_authority']}  debt={sem['recoil_debt']:.2f}",fill='white',font=f12); dr.multiline_text((10,42),pose_text(sem,f['coords']),fill='white',font=f16,spacing=0); dr.text((10,252),f"{sem['timing_class']} / {sem['timing_provenance']}",fill='white',font=f12); im.save(path)
 
 def probe(mp4):
     raw=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name,width,height,r_frame_rate,nb_frames:format=duration','-of','json',str(mp4)],check=True,capture_output=True,text=True).stdout
-    q=json.loads(raw); s=q['streams'][0]
-    return {'tool':'ffprobe','codec':s['codec_name'],'width':int(s['width']),'height':int(s['height']),'fps':s['r_frame_rate'],'frames':int(s['nb_frames']),'duration_seconds':float(q['format']['duration'])}
+    q=json.loads(raw); s=q['streams'][0]; return {'tool':'ffprobe','codec':s['codec_name'],'width':int(s['width']),'height':int(s['height']),'fps':s['r_frame_rate'],'frames':int(s['nb_frames']),'duration_seconds':float(q['format']['duration'])}
 
 def compile_video(d):
     seq=frame_sequence(d)
@@ -117,7 +110,7 @@ def manifest(d,sheet,media,pr):
     return {'schema':'ascii-kinesis.swarm-manifest.v2','format_version':2,'experiment_id':d['experiment_id'],'lane':'defense','revision':d['revision'],'principle':d['principle'],'primary_tabs':['ASCII','JSON','VIDEO'],'ascii_literal_text':True,'ascii_surface':'real preformatted DOM text','ligatures_disabled':True,'whitespace_preserved':True,'video_required':True,'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'backward_compatible':True,'compatibility':d['compatibility'],'files':['build.py','manifest.json','motion.json','receipt.md','parry-exit-plant-repair.motion.html'],'reconstruction':'python3 build.py','video_packaging':'authoritative MP4 bytes embedded as data URI in SPA','tracked_media_sidecar':False,'media_sha256':hashlib.sha256(media).hexdigest(),'media_bytes':len(media),'media_decode_preflight':pr,'ascii_sheet_sha256':hashlib.sha256(sheet.encode()).hexdigest(),'motion_dungeon':{'authored_ascii_keys':len(d['keys']),'explicit_holds':True,'deterministic_connective_motion':True,'connector_semantics_fail_closed':True,'authored_non_linear_arcs':True,'ascii_only_frame_render':True,'fps':d['compile']['fps'],'video_frames_total':pr['frames'],'single_semantic_pass':True,'automatic_loop':False},'source':d['source'],'rights':d['rights'],'evidence':d['evidence'],'timing_provenance_required':True,'quality_gates':d['quality_gates'],'validation':d['validation'],'correction_hooks':d['correction_hooks'],'receipt_status':'QUALITY_GATES_PASS / REPO_READBACK_REQUIRED'}
 
 def spa(d,sheet,media,man):
-    payload={'schema':'ascii-kinesis.motion-spa-json.v2','experiment_id':d['experiment_id'],'revision':d['revision'],'principle':d['principle'],'source':d['source'],'rights':d['rights'],'compatibility':d['compatibility'],'rig':d['rig_schema'],'timing_policy':d['timing_policy'],'keys':[{'key_id':k['key_id'],'name':k['name'],'joints':[k['joints'][n] for n in d['rig_schema']['joints']],'support_contact':k['support_contact'],'root_state':k['root_state'],'contact_state':k['contact_state'],'guard_authority':k['guard_authority'],'recoil_debt':k['recoil_debt'],'timing_class':k['timing_class'],'timing_provenance':k['timing_provenance'],'causal_role':k['causal_role'],'motion_arc_root_note':k['motion_arc_root_note'],'readiness':k['readiness']} for k in d['keys']],'provenance':d['evidence'],'compile':{'method':d['compile']['motion_dungeon_method'],'fps':d['compile']['fps'],'connector_rule':d['compile']['connector_rule'],'transitions_invent_semantics':False,'media_sha256':man['media_sha256'],'media_bytes':man['media_bytes'],'media_decode_preflight':man['media_decode_preflight'],'ascii_sheet_sha256':man['ascii_sheet_sha256']},'manifest_receipt':{'schema':man['schema'],'files':man['files'],'primary_tabs':man['primary_tabs'],'receipt_status':man['receipt_status'],'quality_status':{'tango':d['quality_gates']['tango']['status'],'noodle_queen':d['quality_gates']['noodle_queen']['status']},'validation':d['validation']},'correction_hooks':d['correction_hooks']}
+    payload={'schema':'ascii-kinesis.motion-spa-json.v2','experiment_id':d['experiment_id'],'revision':d['revision'],'principle':d['principle'],'source':d['source'],'rights':d['rights'],'compatibility':d['compatibility'],'rig':d['rig_schema'],'timing_policy':d['timing_policy'],'keys':[{'id':k['key_id'],'name':k['name'],'j':[k['joints'][n] for n in d['rig_schema']['joints']],'support':k['support_contact'],'root':k['root_state'],'contact':k['contact_state'],'guard':k['guard_authority'],'debt':k['recoil_debt'],'timing':k['timing_class'],'provenance':k['timing_provenance']} for k in d['keys']],'provenance':{'observed':d['evidence']['OBSERVED'],'inferred':d['evidence']['INFERRED']},'compile':{'method':d['compile']['motion_dungeon_method'],'fps':d['compile']['fps'],'connector_rule':d['compile']['connector_rule'],'transitions_invent_semantics':False,'media_sha256':man['media_sha256'],'media_bytes':man['media_bytes'],'media_decode_preflight':man['media_decode_preflight'],'ascii_sheet_sha256':man['ascii_sheet_sha256']},'manifest_receipt':{'schema':man['schema'],'files':man['files'],'primary_tabs':man['primary_tabs'],'receipt_status':man['receipt_status'],'quality_status':{'tango':d['quality_gates']['tango']['status'],'noodle_queen':d['quality_gates']['noodle_queen']['status']},'validation':d['validation']},'correction_hooks':d['correction_hooks']}
     j=json.dumps(payload,indent=2,sort_keys=True); b64=base64.b64encode(media).decode(); a64=base64.b64encode(gzip.compress(sheet.encode(),compresslevel=9,mtime=0)).decode(); j64=base64.b64encode(gzip.compress(j.encode(),compresslevel=9,mtime=0)).decode()
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Defense 008 — Parry Exit Plant Repair</title><style>:root{{color-scheme:dark;background:#0d0e0f;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1200px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0e0f;padding:.5rem 0}}button{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;line-height:1}}video{{display:block;max-width:100%;height:auto}}</style></head><body><h1>Parry Exit Plant — Performance Repair</h1><nav role="tablist"><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre></pre></section><section id="json" hidden><pre></pre></section><section id="video" hidden><video controls playsinline preload="metadata"><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section><script>const B=[...document.querySelectorAll("[data-view]")],S=[...document.querySelectorAll("section")];B.forEach(b=>b.onclick=()=>S.forEach(s=>s.hidden=s.id!==b.dataset.view));async function U(x){{const a=Uint8Array.from(atob(x),c=>c.charCodeAt(0));return new Response(new Blob([a]).stream().pipeThrough(new DecompressionStream("gzip"))).text()}}Promise.all([U("{a64}"),U("{j64}")]).then(([a,j])=>{{document.querySelector("#ascii pre").textContent=a;document.querySelector("#json pre").textContent=j}});</script></body></html>'''
 
@@ -127,7 +120,6 @@ def receipt(d,man):
 
 def main():
     d=json.loads(M.read_text()); sheet=contact_sheet(d); seq=compile_video(d); media=MP4.read_bytes(); pr=probe(MP4); man=manifest(d,sheet,media,pr)
-    MANIFEST.write_text(json.dumps(man,indent=2,sort_keys=True)+'\n'); RECEIPT.write_text(receipt(d,man)); HTML.write_text(spa(d,sheet,media,man));
-    print(json.dumps({'frames':len(seq),'media_sha256':man['media_sha256'],'media_bytes':man['media_bytes'],'ascii_sha256':man['ascii_sheet_sha256'],'probe':pr},indent=2))
+    MANIFEST.write_text(json.dumps(man,indent=2,sort_keys=True)+'\n'); RECEIPT.write_text(receipt(d,man)); HTML.write_text(spa(d,sheet,media,man)); print(json.dumps({'frames':len(seq),'media_sha256':man['media_sha256'],'media_bytes':man['media_bytes'],'ascii_sha256':man['ascii_sheet_sha256'],'probe':pr},indent=2))
 
 if __name__=='__main__': main()
