@@ -18,15 +18,7 @@
     "connector_preflight": "PASS_HOME_CENTER_CAMPAIGN_AND_GITHUB",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "actual_render_inspected": true,
-    "media_decode": {
-      "codec": "h264",
-      "width": 800,
-      "height": 450,
-      "pixel_format": "yuv420p",
-      "fps": "24/1",
-      "frames": 64,
-      "duration_seconds": 2.666667
-    },
+    "media_decode": {"codec":"h264","width":800,"height":450,"pixel_format":"yuv420p","fps":"24/1","frames":64,"duration_seconds":2.666667},
     "tango": {
       "verdict": "PASS",
       "highest_value_visible_defect": "NONE",
@@ -53,12 +45,17 @@
     "motion_json_sha256": "fcdacaae2065681a24df9dcaade3493d4b41033b9a124e8ed020a5eaf861eebc",
     "spa_html_sha256": "6f0eed2bb69e93736d618d056a82365e0fda85e0caacb691d3ad31678ed9e0cc"
   },
-  "repo_readback": "PENDING_AFTER_RECEIPT_CREATE",
-  "issue_343_receipt": "PENDING_AFTER_REPO_READBACK",
-  "chat_delivery": {
-    "part_1_ascii": false,
-    "part_2_json": false,
-    "part_3_video": false
+  "repo_readback": {
+    "status": "PASS",
+    "tracked_files": 6,
+    "exactly_one_motion_html": true,
+    "build_blob_sha": "2c4bf1e23dabc0471c69c7ed6c53fc2e650ade97",
+    "contact_sheet_blob_sha": "28f490e82cf0ab172a897749a7bb48cb2322f75b",
+    "manifest_blob_sha": "8d71b3894ed425b0ca9fa5759df6edf217588191",
+    "motion_blob_sha": "6fd74b75af5b3e34ac28b3a700c612df2bc8b10c",
+    "spa_blob_sha": "0fa6b2e6e007f779be22bc240889b8843259d5b5"
   },
-  "status": "QUALITY_GATES_PASS / REPO_READBACK_PENDING / USER_SURFACE_PENDING"
+  "issue_343_receipt": 5590145152,
+  "chat_delivery": {"part_1_ascii":false,"part_2_json":false,"part_3_video":false},
+  "status": "REPO_VERIFIED / READY_FOR_USER_SURFACE"
 }
