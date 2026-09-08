@@ -1,0 +1,40 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "commission": "Promote VISIBLE REALITY STAYS REAL / FLESHPUNK NAMES THE HIDDEN FUNCTION into durable Home Center doctrine.",
+  "authority": "Drew explicit approval, 2026-09-07",
+  "taskClass": "durable doctrine mutation",
+  "corpus": [
+    {
+      "source": "Fortress Online Medieval Fleshpunk Art Bible",
+      "function": "biology inherits a job rather than a decorative surface; ordinary materials remain ordinary"
+    },
+    {
+      "source": "SELFIE TAKEN WITH MOTION — Drew Performing Zornhau",
+      "function": "camera observes pressure, transfer, mass, and consequence without inventing fantasy"
+    }
+  ],
+  "plan": [
+    "Create one focused Home Center skill for invisible/functional Fleshpunk metaphor applied to ordinary reality.",
+    "Make literal reality the hard anchor: metaphor may name function but may not fabricate anatomy, medicine, physics, implants, or visible evidence.",
+    "Integrate the doctrine into Wizard DNS Tango so future Fleshpunk real-world prompts retrieve the rule automatically.",
+    "Add a deterministic regression contract and wire it into the Fortress local contract runner.",
+    "Read back every changed artifact before claiming durability."
+  ],
+  "selectedJudgmentJars": [
+    "Simulation Corpus Gate",
+    "Framing Fidelity",
+    "Wizard DNS Tango",
+    "Venice completion/code review"
+  ],
+  "antagonism": [
+    "Do not turn metaphor into a claim of literal hidden anatomy or supernatural evidence.",
+    "Do not require visible biological decoration for Fleshpunk to count; function is the criterion.",
+    "Do not let a creative framework override direct medical, anatomical, physical, or photographic observation.",
+    "Do not create a parallel Fleshpunk canon; this is a portable interpretation rule."
+  ],
+  "venicePlanReview": {
+    "reviewerRole": "venice-judgment-jar",
+    "directive": "PLAN_ALLOWED",
+    "finding": "The generalization is corpus-supported and becomes safer and more useful when literal reality is made the non-negotiable ground layer. A focused skill plus Tango routing and regression coverage is the smallest durable implementation."
+  }
+}
