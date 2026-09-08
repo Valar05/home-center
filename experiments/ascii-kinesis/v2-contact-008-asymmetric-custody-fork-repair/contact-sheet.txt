@@ -1,0 +1,335 @@
+C008-K0 TRAVEL_SKEW | FOURS/INFERRED | LEFT_DOMINANT:LEFT | NONE
+
+
+        @
+        |
+        |
+      +---+
+     /|   |\
+     / | |   +
+    +  | |
+        |
+        A
+       / \
+      /   \
+      /    +
+     +      |
+    /       |
+    /        |
+   /         |
+   /          |
+  L           R
+_________________
+
+C008-K1 ASYM_COIL | FOURS/INFERRED | LEFT_DOMINANT:LEFT | NONE
+
+
+         @
+         |
+        |--+
+      +-- |
+     /|   |
+     / | |
+    +  | |
+        +
+        A
+       / \
+      /   \
+      /     +
+     +       \
+    /        \
+   /          \
+   /          \
+  L            R
+__________________
+
+C008-K2 CUSTODY_ACQUIRE | ONES/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
+
+
+         @
+         |
+        |--+
+      +-- ||
+     /|   ||
+     / | | |
+    +  | | x
+        |X
+        A
+       / \
+      /   \
+      /     +
+     +       \
+    /        \
+   /          \
+   /          \
+  L            R
+__________________
+
+C008-K3 CARRY_COMPRESSION | TWOS/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
+
+
+          @
+          |
+         |
+      +-----+
+    // \   /
+   +   \   x
+        \ /
+        \X/
+         A
+        / \
+       /   \
+      /     \
+     +       +
+    /         \
+   /           \
+   /            \
+  L              R
+____________________
+
+C008-K4 REAR_LOAD | FOURS/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
+
+
+          @
+         |
+         |
+      +--
+     / \x--+
+    +  \  |
+        \ |
+        \X
+         A
+        / \
+       /   \
+       /    \
+      /      +
+     +        \
+    /          \
+   /           \
+   /            \
+  L              R
+____________________
+
+C008-K5 LEAD_PLANT | TWOS/INFERRED | RIGHT_DOMINANT:RIGHT | A_HAND
+
+
+          @
+         |
+         |
+      +--
+     / \x--+
+    /  \  |
+   +    \ |
+        \X
+         A
+        / \
+       /   \
+       /     \
+      /       +
+     +         \
+    /          \
+   /            \
+   /            \
+  L              R
+____________________
+
+C008-K6 WRIST_SLING | ONES/INFERRED | RIGHT_DOMINANT:RIGHT | A_HAND
+
+
+          @
+         |
+         |
+      +--    -x
+     / \ --+-
+    /   \ /
+   /    \ X
+  +      A
+        / \
+       /   \
+       /   \
+      /     \
+     +       +
+    /         \
+    /         \
+   /           \
+   /           \
+  L             R
+___________________
+
+C008-K7 RELEASE_FORK | ONES/INFERRED | RIGHT_DOMINANT:RIGHT | FREE
+
+
+          @
+         |
+         |
+      +--         *
+     / \ --+----+
+    /   \ /
+   /    \ /
+  +      A
+        / \
+       /   \
+       /   \
+      /     \
+     +       +
+    /         \
+    /         \
+   /           \
+   /           \
+  L             R
+_____________________
+
+C008-K8 OBJECT_LEADS | ONES/INFERRED | RIGHT_DOMINANT:RIGHT | FREE
+
+
+           @
+          |               *
+         |
+      +----+
+     / \   |--
+   //   \ |   -+
+  +      \|
+          A
+         / \
+        /   \
+        /   \
+       /     +
+      +       \
+     /        \
+    /          \
+    /          \
+   L            R
+_____________________________
+
+C008-K9 SHOULDER_RECOIL_LAG | TWOS/INFERRED | LEFT_DOMINANT:LEFT | FREE
+
+
+          @
+         |
+        |                       *
+    -+--
+  +-  \ --+
+       \/|
+        /\|
+        / A
+       + / \
+        /  \
+        /   \
+       /    \
+      +      +
+     |        \
+     |         \
+    |          \
+    L           R
+___________________________________
+
+C008-K10 ROOT_OVERRUN | TWOS/INFERRED | LEFT_DOMINANT:LEFT | FREE
+
+
+         @
+        |
+       |
+  +-+--
+     \ --+                          *
+      \/|
+        \|
+       / A
+       // \
+      +/   \
+       /   \
+      /     +
+     +       \
+    |        \
+    |         \
+   |          \
+   L           R
+________________________________________
+
+C008-K11 BRAKE_CATCH | ONES/INFERRED | RIGHT_DOMINANT:RIGHT | FREE
+
+
+         @
+        |
+       |
+    +----+
+   / \   |
+  +   \||
+        \|                                *
+       | A
+       +/ \
+       /   \
+       /   \
+      /     \
+     +       +
+    |         \
+    |          \
+   |           \
+   L            R
+______________________________________________
+
+C008-K12 UPPER_OVERSHOOT | TWOS/INFERRED | RIGHT_DOMINANT:RIGHT | OUTSIDE
+
+
+          @
+         |
+         |
+    +-  |
+   / \---
+  +    \ -+
+        \|
+         |A
+        |/ \
+        |  \
+       |/   \
+       +     \
+      +      \
+      |       +
+     |         \
+     |          \
+    |           \
+    L            R
+____________________
+
+C008-K13 SETTLE_DEBT | TWOS/INFERRED | BOTH_STAGGERED:BOTH | OUTSIDE
+
+
+         @
+        |
+       |
+    +--
+   / \ --+
+  +   \||
+        \|
+       | A
+       +/ \
+       /   \
+       /   \
+      /     \
+     +       +
+    |         \
+    |          \
+   |           \
+   L            R
+___________________
+
+C008-K14 REENTER_TRAVEL_DEBT | FOURS/INFERRED | LEFT_DOMINANT:LEFT | OUTSIDE
+
+
+         @
+        |
+       |
+    +----+
+   / \   |\
+   /  \ | +
+  +     \|
+         A
+        / \
+       /   \
+       /   \
+      /     +
+     +       \
+    |        \
+    |         \
+   |          \
+   L           R
+__________________
