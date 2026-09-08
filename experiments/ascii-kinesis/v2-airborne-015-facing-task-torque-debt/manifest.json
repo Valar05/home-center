@@ -9,7 +9,7 @@
   },
   "backward_compatible": true,
   "contract_test": {
-    "boundary": "No full repository checkout in this standard-chat worker; exact official test logic was run candidate-isolated against the persisted candidate structure.",
+    "boundary": "No full repository checkout in this standard-chat worker; exact official test logic is runnable candidate-isolated against this persisted candidate, while repo-global invocation remains unavailable.",
     "official_test_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "scope": "candidate-isolated exact V2 contract logic",
     "status": "PASS",
@@ -49,12 +49,12 @@
     "VIDEO"
   ],
   "quality_gates": {
-    "noodle_queen": {
-      "inspection": "Current-run final render + full specimen: facing remains legible through a specific diagonal task; landing pays vertical and rotational debt with staggered catch, deep crush, crooked rebound, overshoot, secondary lag, displaced recovery.",
+    "tango": {
+      "inspection": "Current-worker exact 57-frame H.264 render was reconstructed byte-identically from persisted motion.json + build.py and antagonistically inspected frame-by-frame: asymmetric rear load, earned support break, banked moving apex, diagonal task torque, gravity-owned descent, staggered lead/trail catch, deep twist crush, crooked rebound, right-support overshoot, secondary-arm lag, and displaced recovery debt remain visibly distinct; no higher-value visible defect remains.",
       "status": "PASS"
     },
-    "tango": {
-      "inspection": "Current-run actual rendered 57-frame candidate inspected after authored B67 cocked-switch and B78 diagonal-torque bridge corrections; no remaining highest-value visible defect.",
+    "noodle_queen": {
+      "inspection": "Current-worker exact final render + full specimen judged after Tango PASS: facing stays readable while the task torques the body; silhouette progression is specific rather than symmetric; launch/task/descent/landing causality is legible; landing pays vertical and rotational debt; recovery does not rewind to idle; the specimen does not read as placeholder endpoint morphing.",
       "status": "PASS"
     }
   },
@@ -128,5 +128,14 @@
     "source": "abstract_ascii_rig_and_timing_only",
     "source_pixels_used": false,
     "video_required": true
-  }
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false
 }
