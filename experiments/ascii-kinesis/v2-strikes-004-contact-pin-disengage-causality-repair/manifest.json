@@ -1,0 +1,59 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "id": "v2-strikes-004-contact-pin-disengage-causality-repair",
+  "lane": "strikes",
+  "path": "experiments/ascii-kinesis/v2-strikes-004-contact-pin-disengage-causality-repair/",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "predecessor_preserved": true,
+    "source_change": false,
+    "binding_successor": true,
+    "successor_policy": "MUTATE_SAME_004_UNTIL_HEALTHY"
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 4064,
+    "name": "Stanley Decker (Chainsaw)",
+    "game": "Zombies Ate My Neighbors",
+    "platform": "SNES",
+    "url": "https://www.spriters-resource.com/snes/zombiesneighbours/asset/4064/",
+    "source_change": false
+  },
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "media": {
+    "authoritative": "embedded MP4 in contact-pin-disengage-causality-repair.motion.html",
+    "sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484",
+    "bytes": 10989,
+    "frame_count": 43,
+    "fps": 24,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "decode": {"ffprobe": "PASS", "ffmpeg_full_decode": "PASS"},
+    "source": "abstract_ascii_rig_only"
+  },
+  "artifacts": {
+    "build.py": {"git_blob_sha": "ab8b6f84efd5a23e292f2129fa9b1b215e6c3869"},
+    "contact_sheet.txt": {"git_blob_sha": "f7b535eed71d26c06f83e6882e13906838666c11"},
+    "motion.json": {"git_blob_sha": "6b04401e3d29bfd146b65efd46be88bb6bc24d31"},
+    "contact-pin-disengage-causality-repair.motion.html": {"git_blob_sha": "62c65c47dd9445a2e2d8622b7becdc0686ecdfdf"},
+    "embedded_media_mp4": {"sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484"}
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "taste_reset": "post-reset successor repairing pre-reset negative fixture"
+  },
+  "contract": {
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_validator_candidate_scope": "PASS",
+    "full_repo_boundary": "global full-repo execution not claimed by isolated candidate run"
+  },
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"]
+}
