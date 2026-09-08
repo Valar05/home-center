@@ -8,283 +8,287 @@ MOTION DUNGEON: AUTHORED ASCII KEYS -> EXPLICIT HOLDS -> DETERMINISTIC CONNECTIV
 K0 READY_DEBT | FOURS/INFERRED | BOTH_FEET_BRACED_REAR_BIASED | contact=CLEAR
 ROLE: guarded baseline already carrying forward work debt
 ROOT/ARC: pelvis sits behind chest; forward tool corridor is open; stance is intentionally unequal
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                    O                         :      
                    |                         :      
-                 \\|\\                       :      
-                 \\--\\                      :      
-              ----|   \\                     :      
-              --  |  o===========>           :      
-            [====o====                        :      
-                 +                            :      
-                / \\                           :      
-              //   \\   /                     :      
-             /      \\ /                      :      
-           _          _                        :      
+                   |--                       :      
+                 --|  \                      :      
+               //  |   \                     :      
+              /-   |  o    =====>            :      
+                -o=========                  :      
+            [==== +-                         :      
+                --  ----                     :      
+              --        --                   :      
+            //            --                        
+           _                -_                      
 ....................................................
                                                     
 
 K1 COIL_TWIST | FOURS/INFERRED | REAR_FOOT_LOAD_FRONT_FOOT_LIGHT | contact=CLEAR
 ROLE: asymmetric anticipation; rear hip and shoulder corkscrew away from the attack corridor
 ROOT/ARC: pelvis drops/back two cells while front shoulder remains higher; tool retracts and nose rises
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                  O                           :      
                  |                           :      
-                \\|\\                         :      
-                \\---\\                       :      
-            ---- |   \\                      :      
-            --   | o===========>             :      
-        [=======o                            :      
-                +                            :      
-              // \\        /                 :      
-            //    \\      /                  :      
-         _          _                        :      
+                  |--                        :      
+                --|/                         :      
+              --  |                          :      
+            --   | o      ===>               :      
+              --o| =======                   :      
+            ====+==--                        :      
+        [===  --     ------                  :      
+           ---             --                       
+         _-                  -_                     
 ....................................................
                                                     
 
 K2 DEEP_BRACE | TWOS/INFERRED | REAR_FOOT_DOMINANT_FRONT_TOE_GUIDE | contact=CLEAR
 ROLE: deep coil; pelvis gets lower and farther behind hands before release
 ROOT/ARC: rear foot bites left; pelvis reaches deepest load; front corridor is maximally empty
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                 O                            :      
                 |                            :      
-               \\|\\                          :      
-               \\---\\                        :      
-          ----- |   \\                       :      
-          --    | o=========>                :      
-     [=========o                             :      
-              +          /                   :      
-           /// \\        /                    :      
-        _      \\      _                     :      
+                 |--                         :      
+              ---//                          :      
+            --  //                           :      
+          --    / o     ===>                 :      
+            --o/========                     :      
+         =====+=-----------                  :      
+     [=== ---              --                       
+        _-                   -_                     
 ....................................................
                                                     
 
 K3 ROOT_DROP_BRIDGE | TWOS/INFERRED | REAR_FOOT_BRACE_FRONT_FOOT_PLANT | contact=CLEAR
 ROLE: authored bridge: pelvis commits forward/down before the tool is allowed to escape
 ROOT/ARC: pelvis advances two cells while tool nose only advances one; body commits before tool acceleration
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                   O                          :      
                   |                          :      
-                 \\|\\                        :      
-                 \\---\\                      :      
-            ----- |   \\                     :      
-            --    | o========>               :      
-       [=========o                           :      
-                +                            :      
-            //// \\       /                  :      
-        _        \\     _                   :      
+                   |--                       :      
+                ---//                        :      
+              --  //                         :      
+            --    / o    ===>                :      
+              --o/=======                    :      
+           =====+=---                        :      
+       [===----      --------                       
+        _--                  --_                    
 ....................................................
                                                     
 
 K4 ENTRY_DRIVE | ONES/INFERRED | REAR_FOOT_DRIVE_FRONT_FOOT_BRACE | contact=CLEAR
 ROLE: hips launch first; shoulders and powered tool chase the committed root
 ROOT/ARC: root advances four cells; rear leg lengthens; tool opens a fast diagonal corridor
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                       O                      :      
                       |                      :      
-                     \\|\\                    :      
-                     \\---\\                  :      
-                 ---- |   \\o========>       :      
-                 --   |   /                   :      
-            [========o===                    :      
-                    +       /                :      
-              ////// \\     /                 :      
-         _            \\  _                  :      
+                       |--                   :      
+                     --/  \                  :      
+                   -- /    \o     ===>       :      
+                 --   /     ======           :      
+                   --o======                 :      
+                ====+=--                     :      
+            [===---     -----                :      
+            ----             --                     
+         _--                   -_                   
 ....................................................
                                                     
 
 K5 PRECONTACT | ONES/INFERRED | REAR_FOOT_DRIVE_FRONT_FOOT_HARD_BRACE | contact=CLEAR
 ROLE: distinct pre-contact approach; tool owns the corridor but has not touched the plane
 ROOT/ARC: tool nose stops two cells short of target plane while pelvis remains clearly behind hands
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                          O                   :      
                          |                   :      
-                        \\|\\                 :      
-                        \\---\\o==========>  :      
-                    ---- |                   :      
-                    --   |                   :      
-               [========o                    :      
-                       +      /              :      
-                ////// \\    /               :      
-         _             \\ _                 :      
+                          |---               :      
+                        --/   --o       ===> :      
+                      -- /       =======     :      
+                    ----o/=======            :      
+                   =======                   :      
+               [===   -+---                  :      
+                  ----     ----              :      
+             -----             \\                   
+         _---                    _                  
 ....................................................
                                                     
 
 K6 CONTACT | ONES/INFERRED | REAR_FOOT_DRIVE_FRONT_FOOT_HARD_BRACE | contact=PINNED
 ROLE: explicit contact instant; tool reaches target plane while body is still driving behind it
 ROOT/ARC: tip hits abstract plane x=45; root advances only one cell from pre-contact; contact is authored, not farthest-reach interpolation
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                           O                  :      
                           |                  :      
-                         \\|\\                :      
-                         \\---\\o==========! :      
-                     ---- |                  :      
-                     --   |                  :      
-                 [=======o                   :      
-                        +      /             :      
-                /////// \\    /              :      
-         _              \\_                 :      
+                           |---              :      
+                         --/   ---o       ===!      
+                       -- /        =======   :      
+                     ----o/ =======          :      
+                     =======                 :      
+                 [===  -+---                 :      
+                   ----     ----             :      
+             ------             \                   
+         _---                    _                  
 ....................................................
                                                     
 
 K7 PIN_COMPRESS | FOURS/INFERRED | FRONT_FOOT_HARD_BRACE_REAR_FOOT_DRIVE | contact=PINNED
 ROLE: pinned contact / force transfer; body keeps spending force while tool endpoint stays fixed
 ROOT/ARC: tool tip remains exactly pinned at x=45 while pelvis moves forward/down and shoulders compress behind it
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                              O               :      
                              |               :      
-                            \\|\\              :      
-                            \\---\\o========! :      
-                        ---- |               :      
-                        --   |               :      
-                    [=======o               :      
-                           +    /            :      
-                  //////// \\  /             :      
-          _                \\_              :      
+                              |---         ==!      
+                            --/   --o =====  :      
+                          -- /   =====       :      
+                        ----o====            :      
+                       =====/                :      
+                    [==----+--               :      
+               --------       ---                   
+          _----                  -_                 
 ....................................................
                                                     
 
 K8 DISENGAGE_PEEL | ONES/INFERRED | FRONT_FOOT_CATCH_REAR_FOOT_TRAIL | contact=CLEAR
 ROLE: authored disengage; tool breaks contact before pelvis/root are allowed to recover
 ROOT/ARC: tip retracts four cells and drops one while pelvis stays at maximum compression; contact join ends first
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                               O              :      
                               |              :      
-                             \\|\\             :      
-                             \\---\\           :      
-                         ---- |  o=======>    :      
-                         --   |  /            :      
-                            ==o              :      
-                  [========+                 :      
-                  //////// \\ /              :      
-          _                \\_              :      
+                               |--           :      
+                               /  \    ==>   :      
+                            --/   o====      :      
+                         --- /=====          :      
+                         ===o=               :      
+                     ====--+--               :      
+               ---[==--       ---                   
+          _----                  -_                 
 ....................................................
                                                     
 
 K9 BODY_OVERSHOOT | TWOS/INFERRED | FRONT_FOOT_CATCH_REAR_FOOT_TRAIL | contact=CLEAR
 ROLE: body overtravel after release; secondary shoulder/arm lag makes recoil non-reversible
 ROOT/ARC: pelvis and chest continue forward after tool has peeled away; rear shoulder hangs lower and late
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                                 O            :      
                                 |            :      
-                              \\|\\            :      
-                              \\---\\          :      
-                         ----- |   \\         :      
-                         --   /| o=====>      :      
-                           // |              :      
-                  [========o=+               :      
-                    //////  \\ /             :      
-           _                \\_             :      
+                                 |--         :      
+                                -/  |        :      
+                             ---/   |        :      
+                           --  /  o-===>     :      
+                         --  =======         :      
+                      =====o=+-              :      
+                --[===---      ---                  
+           _----                  -_                
 ....................................................
                                                     
 
 K10 RECOIL_CROSS | TWOS/INFERRED | FRONT_FOOT_CATCH_REAR_FOOT_REGAINING | contact=CLEAR
 ROLE: tool-first recoil crosses under the hands; root pays debt only after clearance
 ROOT/ARC: tool shortens hard and drops across body while pelvis retreats only four cells; elbows fold asymmetrically
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                                              :      
                              O               :      
                              |               :      
-                           \\|\\              :      
-                           \\---\\            :      
-                       ---- |   |            :      
-                       --   |  o===>         :      
-                         ==o=+               :      
-             [=========== / \\      /        :      
-                 ///////  \\     _           :      
-           _              \\                 :      
+                             |--             :      
+                           --/ |             :      
+                         --//  |             :      
+                       -- /  o==>            :      
+                       ==o===                :      
+                 ======-   ----              :      
+             [===---           ---                  
+           _---                   -_                
 ....................................................
                                                     
 
 K11 SETTLE_DEBT | FOURS/INFERRED | BOTH_FEET_BRACED_FRONT_BIASED | contact=CLEAR
 ROLE: settle without reset; stance remains wider/forward and tool hangs low after the committed strike
 ROOT/ARC: root rises one cell but stays five cells forward of opening pelvis; front foot stays six cells farther forward; no idle mirror
-                                             :      
-                                             :      
-                                             :      
-                                             :      
+                                                    
+                                                    
+                                                    
+                                                    
                                              :      
                                              :      
                                              :      
                           O                  :      
                           |                  :      
-                        \\|\\                 :      
-                        \\---\\               :      
-                    ---- |   \\              :      
-                    --   |   o======>        :      
-                      ==o=+                  :      
-              [========= / \\      /         :      
-                  ////// \\      _            :      
-           _             \\                   :      
+                          |--                :      
+                          /  |               :      
+                        -/   |               :      
+                      -- /  o                :      
+                    --  /       ===>         :      
+                      -o-=======             :      
+                  ======= ----               :      
+              [===-           ----                  
+           _---                   -_                
 ....................................................
                                                     
