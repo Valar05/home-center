@@ -1,0 +1,31 @@
+{
+  "schema": "absurd-score.receipt.v1",
+  "receipt_id": "ASR-002692d82d54392a",
+  "scorer_version": "absurd-score-rng.v1",
+  "actor": "Drew",
+  "issued_at": "2026-09-08T03:27:02-05:00",
+  "subject": "Imogen Punch Level Design meme result",
+  "namespace": "imagegen",
+  "profile": "imagegen",
+  "edition": "1",
+  "score_origin": "user_assigned_legacy",
+  "score": {
+    "decimal": "567768",
+    "display": "567,768",
+    "digits": 6
+  },
+  "canonical_request_sha256": "b2482c14f39c44f33f275376ea6c27844daa5578554f71d835c38708aec0045c",
+  "rng_seed_sha256": "cfc11e023a656d7fd19183b3815088edccb1a4366847201d1a905efabf285df6",
+  "rng_algorithm": "sha256-counter-v1",
+  "score_entropy_excludes": [
+    "wall_clock_time",
+    "process_randomness",
+    "python_hash",
+    "machine_identity",
+    "network_state",
+    "model_choice"
+  ],
+  "ceremonial": true,
+  "quality_metric": false,
+  "meaning": "absurd ceremonial score; not objective quality evidence"
+}
