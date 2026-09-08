@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, subprocess, tempfile
+import base64, gzip, hashlib, html, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -163,10 +163,14 @@ def render_png(text,path):
     im.save(path)
 
 def spa(m,s,v):
-    vid=base64.b64encode(v).decode('ascii')
-    chunks='\n'.join(vid[i:i+76] for i in range(0,len(vid),76))
-    js=json.dumps(m,indent=2,ensure_ascii=False)
-    return f'''<!doctype html>
+    def b64lines(data:bytes)->str:
+        enc=base64.b64encode(data).decode('ascii')
+        return '\n'.join(enc[i:i+76] for i in range(0,len(enc),76))
+    ascii_gz=b64lines(gzip.compress(s.encode('utf-8'),compresslevel=9,mtime=0))
+    motion_raw=(json.dumps(m,separators=(',',':'),ensure_ascii=False)+'\n').encode('utf-8')
+    motion_gz=b64lines(gzip.compress(motion_raw,compresslevel=9,mtime=0))
+    vid=b64lines(v)
+    return rf'''<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -176,15 +180,31 @@ def spa(m,s,v):
 </head>
 <body>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii"><pre>{html.escape(s)}</pre></section>
-<section id="json" hidden><pre>{html.escape(js)}</pre></section>
+<section id="ascii"><pre id="ascii-text"></pre></section>
+<section id="json" hidden><pre id="json-text"></pre></section>
 <section id="video" hidden><video id="motion-video" controls autoplay muted loop playsinline></video></section>
+<script id="ascii-gzip" type="text/plain">
+{ascii_gz}
+</script>
+<script id="motion-gzip" type="text/plain">
+{motion_gz}
+</script>
 <script id="video-data" type="text/plain">
-{chunks}
+{vid}
 </script>
 <script>
+const compact=id=>document.querySelector(id).textContent.replace(/\s+/g,"");
+const bytes=b64=>Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+async function gunzipText(b64){{
+  const stream=new Blob([bytes(b64)]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new TextDecoder().decode(await new Response(stream).arrayBuffer());
+}}
+Promise.all([gunzipText(compact("#ascii-gzip")),gunzipText(compact("#motion-gzip"))]).then(([a,j])=>{{
+  document.querySelector("#ascii-text").textContent=a;
+  document.querySelector("#json-text").textContent=JSON.stringify(JSON.parse(j),null,2);
+}});
 const VIDEO_PREFIX="data:video/mp4;base64,";
-document.querySelector("#motion-video").src=VIDEO_PREFIX+document.querySelector("#video-data").textContent.replace(/\\s+/g,"");
+document.querySelector("#motion-video").src=VIDEO_PREFIX+compact("#video-data");
 const B=[...document.querySelectorAll("button[data-view]")],S=[...document.querySelectorAll("section")];
 B.forEach(b=>b.onclick=()=>S.forEach(s=>s.hidden=s.id!==b.dataset.view));
 </script>
