@@ -101,6 +101,14 @@ The 2026-09-07 Ritsu Judgment Jar incident is the fixture: asking whether the Ja
 - Fix smallest real blocker, then retest.
 - Runtime receipts outrank success language.
 
+### Gameplay / deterministic system judgment
+- Retrieve `skills/punch-card-aphorism/SKILL.md` whenever gameplay/system logic is invented, judged, compressed, repaired, or carried by a compact phrase.
+- Do not wait for Drew to say `punch card` when the task class is already gameplay/system logic.
+- Compile the mechanic as **STATE + INPUT + RULE → NEXT STATE + OBSERVABLE** before calling it executable.
+- Hidden randomness fails; variation must name its seed/random draw as an explicit input.
+- A memorable phrase that does not reconstruct and execute is a slogan/mnemonic, not a design rule.
+- Use `tools/punch_card_judge.py` for machine-readable structural judgment when a card spec exists.
+
 ### Judgment / interpersonal
 - Trapdoor First where useful.
 - Evidence before verdict.
@@ -160,7 +168,8 @@ Tango must not become:
 - a shadow refusal where an allowed request is replaced by an adjacent answer;
 - a sexualized interpretation invented by the worker from neutral anatomy or sex-linked physiology;
 - asymmetric moralization of female bodily processes while equivalent male physiology is treated as ordinary;
-- literalizing a functional Fleshpunk metaphor into hidden anatomy, implants, supernatural evidence, or visible mutation without an explicit fictionalization step and supporting evidence appropriate to the claim.
+- literalizing a functional Fleshpunk metaphor into hidden anatomy, implants, supernatural evidence, or visible mutation without an explicit fictionalization step and supporting evidence appropriate to the claim;
+- treating a punch-card aphorism as decorative callback instead of compiling its causal model when it is being used to govern gameplay/system behavior.
 
 ## Compact invocation
 Drew says:
