@@ -1,0 +1,64 @@
+{
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_READBACK",
+  "global_reset_comment": 5576901079,
+  "revises": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+  "predecessor_preserved": true,
+  "source_change": false,
+  "tango": {
+    "status": "PASS",
+    "iterations": [
+      {
+        "iteration": 1,
+        "verdict": "REVISE_REQUIRED",
+        "defect": "catch-to-overshoot snapped upward/forward without authored support-fixed rebound",
+        "correction": "inserted B7 CATCH_REBOUND_BRIDGE; right foot fixed x=49; pelvis leads rise"
+      },
+      {
+        "iteration": 2,
+        "verdict": "REVISE_REQUIRED",
+        "defect": "hip-sling-to-arm-counter changed torso direction too abruptly and read mechanical",
+        "correction": "inserted B9 TORSO_BRAKE_ARM_TRAIL so torso brakes before delayed arm countersweep"
+      },
+      {
+        "iteration": 3,
+        "verdict": "PASS",
+        "inspection": "complete final encoded frame timeline inspected; asymmetry, root spacing, fixed support, catch/rebound, overshoot and recovery debt read coherently"
+      }
+    ]
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "taste": "rear-loaded shoulder-dive coil; scissor flight; deep catch crumple; chest whip; delayed countersweep; knee-led debt exit",
+    "function": "support/root causality legible; trusted feet world-locked; no bridge invents contact",
+    "contempt": "does not read as mannequin posing, generic symmetry, straight-line tweening, reverse recoil, or idle reset"
+  },
+  "media": {
+    "sha256": "0907372f9058a43c50fa671afeb776f89ec4ea2adb8a806c99b5232e54a6d97f",
+    "bytes": 7349,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 320,
+    "height": 180,
+    "fps": 24,
+    "frame_count": 30,
+    "duration_seconds": 1.25,
+    "video_source": "abstract_ascii_rig_only",
+    "embedded_in_spa": true
+  },
+  "test_boundary": "candidate-scoped exact V2 structural contract PASS; full-repository runtime suite not claimed from connector-only repo lane",
+  "prior_orphan_repair_seen": "experiments/ascii-kinesis/v2-locomotion-007-forward-catch-handoff-repair/",
+  "prior_orphan_disposition": "not accepted as current-run repair because issue #343 readback found no durable locomotion-007 receipt after its repository timestamp",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX RECOVERY DEBT",
+    "RERUN"
+  ]
+}

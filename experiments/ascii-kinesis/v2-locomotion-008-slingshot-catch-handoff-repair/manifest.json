@@ -1,0 +1,39 @@
+{
+  "format_version": 2,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "experiment_id": "v2-locomotion-008-slingshot-catch-handoff-repair",
+  "lane": "locomotion",
+  "spa": "slingshot-catch-handoff-repair.motion.html",
+  "motion_json": "motion.json",
+  "builder": "build.py",
+  "receipt": "receipt.json",
+  "contact_sheet": "contact_sheet.txt",
+  "media": {
+    "sha256": "0907372f9058a43c50fa671afeb776f89ec4ea2adb8a806c99b5232e54a6d97f",
+    "bytes": 7349,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 320,
+    "height": 180,
+    "fps": 24,
+    "frame_count": 30,
+    "duration_seconds": 1.25,
+    "video_source": "abstract_ascii_rig_only",
+    "embedded_in_spa": true
+  },
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+    "predecessor_preserved": true,
+    "source_change": false
+  }
+}

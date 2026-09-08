@@ -1,0 +1,302 @@
+K0 REAR_DROP_COIL | DECISIVE | FOURS INFERRED | LEFT_FOOT_OWNS_ROOT | crop_origin=(4,4)
+                     
+     O         /*    
+     \       //      
+      \     o        
+      \   //         
+     o-#-o           
+   //   \            
+  o     \            
+  |      \           
+ |       \           
+ *        @-         
+         /  --o-     
+        o       --   
+       /          -* 
+......!..............
+
+K1 SHOULDER_DIVE_PRELOAD | DECISIVE | TWOS INFERRED | LEFT_FOREFOOT_OWNS_ROOT | crop_origin=(5,3)
+                      
+                *     
+              //      
+    O        /        
+    \       o         
+     \    //          
+     \   /            
+    o-#-o             
+  //   \              
+ o      \             
+ |      \             
+  |      \            
+  *       @----o-     
+        //       --   
+       o           -* 
+.....!................
+
+B1 COIL_UNWIND_BRIDGE | BRIDGE | ONES INFERRED | LEFT_FOREFOOT_OWNS_ROOT | crop_origin=(6,4)
+                       
+       O               
+       |               
+       |               
+        |   --o-       
+     -o-#-o-    --*    
+   o-   |              
+  /      |             
+ *       |             
+          |            
+          @----o-      
+         /       ---   
+        /           -* 
+      -o               
+....!..................
+
+K2 TOE_SPRING | DECISIVE | ONES INFERRED | LEFT_TOE_OWNS_ROOT | crop_origin=(9,3)
+                      
+           O          
+           |          
+ *-        |          
+   -o--   |           
+       -o-#-o         
+          |  \\       
+          |    \o     
+         |       \\   
+         |         \* 
+         @----o-      
+        /       ---   
+      //           -* 
+     o                
+   //                 
+.!....................
+
+K3 REAR_TOE_RELEASE | DECISIVE | ONES INFERRED | LEFT_TOE_LAST_SUPPORT | crop_origin=(10,1)
+                           
+                O          
+                |          
+                |          
+               |           
+            -o-#-o         
+         o--   /  \\       
+        /     /     \o     
+       /      /       \    
+      *      @--       \\  
+           //   --o-     * 
+          /         --     
+        //            --   
+       o                -* 
+     //                    
+   //                      
+ //                        
+!..........................
+
+K4 AIRBORNE_SCISSOR | DECISIVE | TWOS INFERRED | NO_FOOT_SUPPORT | crop_origin=(19,1)
+                         
+              O          
+       o\     |          
+     //  \\  |           
+   */      o-#-o         
+            /   \\       
+            /     \o     
+           @        \    
+         // \\       \\  
+       //     \\       * 
+      o         o        
+     /           \\      
+   //              \\    
+  /                  \\  
+ *                     * 
+                         
+
+B4 AIRBORNE_ARC_BRIDGE | BRIDGE | ONES INFERRED | NO_FOOT_SUPPORT | crop_origin=(23,1)
+                         
+           O             
+           |             
+     o--   |             
+   //   -o-#-o           
+ */        |  \          
+           |   \\        
+           @     o       
+          / \     \      
+        //   \\    \\    
+       /       \     *   
+      o         o        
+     /           \\      
+    /              \     
+   /                \    
+  *                  \\  
+                       * 
+.........................
+
+K5 LEAD_REACH_DESCENT | DECISIVE | ONES INFERRED | NO_FOOT_SUPPORT | crop_origin=(24,2)
+                           
+         O                 
+          \                
+    -o--  \                
+ *--    -o-#-o             
+            \ \\           
+            \   \o         
+             @    \        
+            / \    \       
+          //   \    \      
+         /      \\   *     
+        o         \        
+       /           o       
+     //             \\     
+    /                 \\   
+   *                    \* 
+...........................
+
+K6 PROBE_SKIM | DECISIVE | ONES INFERRED | RIGHT_FOOT_PROBE_CONTACT | crop_origin=(27,3)
+                       
+         O             
+          \            
+     o--  \            
+   //   -o-#-o         
+ */         \ \        
+            \  \\      
+             \   o     
+              @   \    
+            // \   \\  
+          //    \    * 
+         o       \     
+       //         o    
+     //            \   
+    *               \\ 
+......................?
+
+K7 CATCH_CRUMPLE | DECISIVE | FOURS INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(33,6)
+                     
+    O           ---* 
+    \        o--     
+     \     //        
+     \   //          
+    o-#-o            
+  //   \             
+ o      \\           
+  \       \          
+  \        @-        
+   *     //  -o      
+     --o/      \     
+..*.............!....
+
+B7 CATCH_REBOUND_BRIDGE | BRIDGE | ONES INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(38,5)
+                        
+         O              
+         |              
+         |     -o-----* 
+         |   --         
+       o-#-o-           
+     //  |              
+   o/    |              
+  /     |               
+  /     @               
+ *    // \              
+   -o/    o             
+ --        \            
+...........!............
+
+K8 CHEST_OVERSHOOT | DECISIVE | ONES INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(39,3)
+                             
+                   O         
+                  /          
+                 /           
+                /   --o--    
+             o-#-o--     --* 
+           // /              
+         o/ //               
+        /  /                 
+       /  /                  
+      /  @                   
+     * //|                   
+     o/   |                  
+   //     o                  
+ //       |                  
+*.........!..................
+
+K9 HIP_SLING_PAST | DECISIVE | TWOS INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(45,3)
+                      
+              O       
+             /        
+     o--    /         
+   //   -o-#-o        
+ */      //   \       
+        /      \      
+       @        o     
+       |\\       \    
+      |   \\     \    
+      |     \o-   \   
+      o        -- *   
+     /           --   
+     /             -* 
+    /                 
+....!.................
+
+B9 TORSO_BRAKE_ARM_TRAIL | BRIDGE | ONES INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(44,3)
+                        
+            O           
+            |           
+           |            
+     o---o-#-o          
+   //      |  \\        
+ */       |     o       
+          @      \      
+          |\\    \      
+         |   \\   *     
+         |     \o       
+        |        \\     
+        o          \\   
+       /             \* 
+      /                 
+.....!..................
+
+K10 ARM_LAG_COUNTERSWEEP | DECISIVE | ONES INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(41,3)
+                            
+         O          --*     
+          \     /o--        
+          \   //            
+         o-#-o              
+       //   \               
+     o/     \               
+    /        \              
+  //          @-            
+ *           /  ---         
+             /     -o       
+            /        \\     
+            o          \\   
+           /             \* 
+         //                 
+........!...................
+
+K11 NEXT_KNEE_COMMIT | DECISIVE | TWOS INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(45,4)
+                         
+        O         --*    
+         \     /o-       
+         \   //          
+        o-#-o            
+      //   \             
+    o/     \             
+   /        \            
+  /          @-          
+ *          /  ---       
+           /      -o     
+           /        \    
+         -o          \\  
+      ---              * 
+....!....................
+
+K12 DEBT_EXIT | DECISIVE | FOURS INFERRED | RIGHT_FOOT_OWNS_ROOT | crop_origin=(47,3)
+                       
+        O              
+         \     /o-     
+         \   //   --*  
+        o-#-o          
+      //   \           
+    o/     \           
+   /        \          
+  /         \          
+ *           @         
+            / \\       
+           /    \o     
+          /       \\   
+        -o          \\ 
+    ----              *
+..!....................
