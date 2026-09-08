@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, subprocess, tempfile
+import base64, gzip, hashlib, html, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -108,14 +108,33 @@ def make_video(d):
         subprocess.run([
             'ffmpeg','-hide_banner','-loglevel','error','-y',
             '-framerate',str(d['compile']['fps']),'-i',str(td/'f-%04d.png'),
-            '-c:v','libx264','-preset','veryslow','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)
+            '-c:v','libx264','-preset','veryslow','-crf','38','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)
         ],check=True)
     return seq
 
 def html_page(d,sheet,media):
-    pretty=json.dumps(d,sort_keys=True,separators=(',',':'))
-    b64=base64.b64encode(media).decode('ascii')
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Airborne 012 — Gravity-Earned Apex Turn</title><style>:root{{color-scheme:dark;background:#0d0d0d;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1200px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0d0d;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:86ch;line-height:1.45}}</style></head><body><h1>Gravity-Earned Apex Turn</h1><p class="note">Repair successor of v2-airborne-003-apex-spacing-window. Same Sonic Advance 2 whole-sheet evidence family; no source pixels embedded. The repair makes apex readability emerge from authored deceleration, a single velocity sign change, task/facing continuity, gravity-earned descent, and a landing that pays vertical debt through compression, rebound, secondary overshoot, and non-idle recovery.</p><nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" role="tabpanel"><pre>{html.escape(sheet)}</pre></section><section id="json" role="tabpanel" hidden><pre>{html.escape(pretty)}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section><script>const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;}});</script></body></html>'''
+    pretty=json.dumps(d,indent=2,sort_keys=True)
+    video_b64=base64.b64encode(media).decode('ascii')
+    ascii_gz=base64.b64encode(gzip.compress(sheet.encode(),compresslevel=9,mtime=0)).decode('ascii')
+    json_gz=base64.b64encode(gzip.compress(pretty.encode(),compresslevel=9,mtime=0)).decode('ascii')
+    def js_chunks(value,n=3800):
+        return '[\n'+',\n'.join(json.dumps(value[i:i+n]) for i in range(0,len(value),n))+'\n]'
+    V,A,J=map(js_chunks,(video_b64,ascii_gz,json_gz))
+    return f'''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Airborne 012 — Gravity-Earned Apex Turn</title>
+<style>:root{{color-scheme:dark;background:#0d0d0d;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1200px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0d0d;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:86ch;line-height:1.45}}</style></head>
+<body><h1>Gravity-Earned Apex Turn</h1><p class="note">Repair successor of v2-airborne-003-apex-spacing-window. Same Sonic Advance 2 whole-sheet evidence family; no source pixels embedded. Apex readability comes from authored deceleration, one velocity sign change, task/facing continuity, gravity-earned descent, and landing debt.</p>
+<nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav>
+<section id="ascii" role="tabpanel"><pre id="ascii-pre"></pre></section>
+<section id="json" role="tabpanel" hidden><pre id="json-pre"></pre></section>
+<section id="video" role="tabpanel" hidden><video id="motion-video" controls loop playsinline preload="metadata"></video></section>
+<script>
+const V={V},A={A},J={J};
+const video=document.getElementById("motion-video");video.src="data:video/mp4;base64,"+V.join("");
+async function gun(parts){{const b=parts.join("");const u=Uint8Array.from(atob(b),c=>c.charCodeAt(0));const r=new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip")));return r.text()}}
+Promise.all([gun(A),gun(J)]).then(([a,j])=>{{document.getElementById("ascii-pre").textContent=a;document.getElementById("json-pre").textContent=j}});
+const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;}});
+</script></body></html>'''
 
 def main():
     d=json.loads(MOTION.read_text())
