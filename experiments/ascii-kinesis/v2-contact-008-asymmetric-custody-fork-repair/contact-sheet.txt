@@ -48,7 +48,32 @@ C008-K1 ASYM_COIL | FOURS/INFERRED | LEFT_DOMINANT:LEFT | ENVIRONMENT
 ______L_______________R___________________________________
 
 
-C008-K2 CUSTODY_ACQUIRE | ONES/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
+C008-K2 CUSTODY_ACQUIRE_LOW | ONES/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
+
+
+
+
+
+
+                @
+                |
+               |
+               ---+
+            +--   |\
+           / |   |  \
+         //  |   |   \
+        +     | |     \
+              | |      \
+               |        \
+               A-        \
+              /  --       X
+            //     -+
+           +         \
+         --           \
+_______L_______________R__________________________________
+
+
+C008-K2B CUSTODY_LIFT | TWOS/INFERRED | LEFT_DOMINANT:LEFT | A_HAND
 
 
 
