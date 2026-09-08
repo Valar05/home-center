@@ -401,6 +401,7 @@ BOARD CLOCK: board continues right under stable ground support
 
 
 
+
                                +-
                                  o      O
                                   \    |
@@ -424,6 +425,7 @@ K15 SECONDARY_LAG_SETTLE | TWOS/INFERRED
 SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
 BODY CLOCK: torso begins restack while trailing arm/knee remain late
 BOARD CLOCK: board carries recovery rightward
+
 
 
 
