@@ -1,0 +1,61 @@
+{
+  "artifact_status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "contract_test": {
+    "boundary": "Exact fetched validator executed against this final candidate directory; full-main repository execution is unavailable without a checkout.",
+    "status": "PASS_FINAL_CANDIDATE_ONLY",
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "entry": "v2-strikes-003-axial-thrust-recovery-repair",
+  "issue_receipt": {
+    "binds_final_repo_commit": true,
+    "status": "POST_AFTER_REPO_READBACK",
+    "target": "Valar05/home-center#343"
+  },
+  "media": {
+    "fps": 24,
+    "frame_count": 47,
+    "sha256": "7da873ee06dda410c6b6e158f7d6440a38f9c0360e847ff12cacfa42729f1191",
+    "source": "abstract_ascii_rig_only"
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
+  "noodle_queen": "PASS",
+  "repo_path": "experiments/ascii-kinesis/v2-strikes-003-axial-thrust-recovery-repair/",
+  "revises": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
+  "schema": "ascii-kinesis.verification-receipt.v2",
+  "source": {
+    "asset_id": 5791,
+    "provider": "The Spriters Resource",
+    "rights_note": "Evidence only; no source pixels or character-specific art embedded.",
+    "url": "https://www.spriters-resource.com/sega_genesis/cvbl/asset/5791/"
+  },
+  "tango": "PASS",
+  "timing": {
+    "inferred_keys": ["K0","K1","K2","K3","K4","K5","K6","K7","K8","K9","K10"],
+    "observed_keys": [],
+    "per_key": [
+      {"key_id":"K0","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K1","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K2","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K3","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K4","timing_class":"ONES","timing_provenance":"INFERRED"},
+      {"key_id":"K5","timing_class":"ONES","timing_provenance":"INFERRED"},
+      {"key_id":"K6","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K7","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K8","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K9","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K10","timing_class":"FOURS","timing_provenance":"INFERRED"}
+    ]
+  }
+}
