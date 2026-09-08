@@ -19,7 +19,7 @@
   "source": {
     "provider": "The Spriters Resource",
     "asset_id": 128015,
-    "identity": "Bob \u2014 Bob the Builder: Fix It Fun! \u2014 Game Boy / GBC",
+    "identity": "Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC",
     "url": "https://www.spriters-resource.com/game_boy_gbc/bobthebuilderfixitfun/asset/128015/",
     "whole_sheet": {
       "width": 506,
@@ -27,19 +27,20 @@
       "bytes": 16443,
       "sha256": "1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6"
     },
-    "source_timing_available": false
+    "whole_sheet_inspected_in_inherited_evidence": true,
+    "timing_evidence": "source-authentic exposure timing unavailable",
+    "rights_note": "Copyright-restricted whole-sheet evidence only. Drew's work is not used. No source pixels, palette, layout, contours, tracing, choreography, redistribution, or close imitation enters this independently authored abstract ASCII repair."
   },
   "motion_file": "motion.json",
   "builder_file": "build.py",
-  "contact_sheet_file": "contact_sheet.txt",
   "spa_file": "cadence-surge-brake-repair.motion.html",
   "receipt_file": "receipt.md",
   "media": {
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "d2e95cd613c0d57fde8f7a42eddd09d286c7545b053461eb35da7bc02623a5a8",
-    "bytes": 45776,
+    "sha256": "e68431cf9d373a69a92888e7edc11c0dba9ea6114db908d6922a23ee1a7e7e39",
+    "bytes": 37449,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
@@ -47,20 +48,21 @@
       "width": 960,
       "height": 480,
       "fps": "24/1",
-      "frames": 58,
-      "duration_seconds": 2.4166666666666665
+      "frames": 56,
+      "duration_seconds": 2.333333
     }
   },
   "quality": {
     "tango": "PASS",
-    "tango_iterations": 2,
+    "tango_iterations": 3,
     "noodle_queen": "PASS",
-    "current_worker_actual_render_inspected": true
+    "current_worker_actual_render_inspected": true,
+    "decoded_frames_inspected": 56
   },
   "contract": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "scope": "candidate-isolated",
+    "scope": "candidate-isolated exact-script supporting execution",
     "status": "PASS",
     "repo_global_claimed": false,
     "exit_code": 0,
@@ -68,5 +70,5 @@
       "v2-locomotion-010-cadence-surge-brake-repair"
     ]
   },
-  "status": "CANDIDATE_QUALITY_CONTRACT_PASS_PERSISTENCE_PENDING"
+  "status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY"
 }
