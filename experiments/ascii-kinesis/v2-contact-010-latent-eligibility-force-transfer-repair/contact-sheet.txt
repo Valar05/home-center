@@ -1,5 +1,5 @@
 v2-contact-010-latent-eligibility-force-transfer-repair
-CONTACT ELIGIBILITY IS A LATENT STATE GATE: THE REACH MAY ENTER RANGE WITHOUT ACQUISITION; OWNED CONTACT BEGINS ONLY AFTER THE CENTER ARRIVES UNDER THE REACH, THEN THE LOCKED RELATIONSHIP FRAME OWNS SUPPORT TRANSFER UNTIL EXPLICIT RELEASE.
+LATENT ELIGIBILITY PRECEDES ACQUISITION: REACH CAN ENTER RANGE WITHOUT CONTACT; CENTER ARRIVAL CLOSES THE OWNED ANCHOR; LOCKED SUPPORT TRANSFER PERSISTS UNTIL EXPLICIT RELEASE.
 SOURCE EVIDENCE: TSR asset 197250 / whole static sheet inherited; timing unavailable.
 RIGHTS: evidence only; independent ASCII rig; no source pixels/palette/layout/contours/tracing/choreography.
 TIMING: ONES/TWOS/FOURS are display classes, never seconds; every key INFERRED / STREET_FIGHTER-CAPCOM.
@@ -8,8 +8,8 @@ CONTROL INVARIANT: E- never authorizes contact/custody even at identical visible
 C010-K00  LATENT_ELIGIBLE / SEPARATE  [FOURS/INFERRED]
 eligibility=B:E+ | contact=NONE | custody=NONE
 support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL
-role=establish latent eligibility before any approach
-arc=A neutral; B compressed; wide negative space
+role=establish E+
+arc=A neutral; B compact
 
 
 
@@ -35,8 +35,8 @@ _____________^___^_____________________^___^____________________________
 C010-K01  ASYMMETRIC_COIL  [FOURS/INFERRED]
 eligibility=B:E+ | contact=NONE | custody=NONE
 support=A:REAR_DOMINANT;B:BOTH | root=A:foot_b;B:DUAL
-role=store approach force in A before reach
-arc=A COM sinks down-right while B stays compact
+role=store approach
+arc=A COM down-right; B holds
 
 
 
@@ -62,8 +62,8 @@ ______________^____^___________________^___^____________________________
 C010-K02  LOW_APPROACH  [TWOS/INFERRED]
 eligibility=B:E+ | contact=NONE | custody=NONE
 support=A:REAR_TO_PROBE;B:BOTH | root=A:foot_b->foot_f;B:DUAL
-role=approach without premature contact
-arc=A travels right on a shallow low arc; B remains still
+role=approach no contact
+arc=A low-right approach; B holds
 
 
 
@@ -89,8 +89,8 @@ _________________^_____^_______________^___^____________________________
 C010-K03  FALSE_REACH / NO_CONTACT  [ONES/INFERRED]
 eligibility=B:E+ | contact=NONE | custody=NONE
 support=A:FRONT_PROBE;B:BOTH | root=A:foot_f;B:DUAL
-role=prove farthest reach is not acquisition
-arc=A hand reaches long while pelvis remains behind; gap remains
+role=prove reach != contact
+arc=A long hand; pelvis behind; gap
 
 
 
@@ -116,8 +116,8 @@ _____________________^_______^_________^___^____________________________
 C010-K04  CENTER_ARRIVES / ACQUIRE_ANCHOR  [TWOS/INFERRED]
 eligibility=B:E+->CONSUMED | contact=A.hand_f<->B.hand_f | custody=A_PRIMARY
 support=A:FRONT_TRUSTED;B:BOTH | root=A:foot_f;B:DUAL
-role=eligibility permits acquisition only after center catches reach
-arc=A pelvis advances under shortened arm; B yields only after anchor closes
+role=consume E+ / acquire
+arc=A pelvis under shortened arm; B yields after close
 
 
 
@@ -142,8 +142,8 @@ ___________________________^______^____^__^_____________________________
 C010-K05  RELATIONSHIP_FRAME_LOCK  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
 support=A:DUAL;B:REAR_DEGRADING | root=A:DUAL;B:foot_b
-role=convert point contact into an owned shared-force frame
-arc=shared center compresses between hips; A shortens both arms
+role=lock owned frame
+arc=shared center compresses; A arms short
 
 
 
@@ -168,8 +168,8 @@ ___________________________^_______^_^___^______________________________
 C010-K06  LOAD_OPPOSING_ARCS  [FOURS/INFERRED]
 eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
 support=A:REAR+FRONT_BRACE;B:LOSING_GROUND | root=A:foot_b@[27,17];B:PEEL
-role=store leverage in opposing arcs before support loss
-arc=A pelvis loads down-left while B pelvis peels up-left
+role=load opposing arcs
+arc=A load down-left; B peel up-left
 
 
 
@@ -195,8 +195,8 @@ ___________________________^______^_____________________________________
 C010-K07  HIP_LEVER_PIVOT  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
 support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
-role=make support loss purchase a cross-body lever
-arc=A rear anchor pins while B rotates diagonal across A hip
+role=lever on fixed root
+arc=A rear pin; B diagonal over hip
 
 
 
@@ -222,8 +222,8 @@ ___________________________^_______^____________________________________
 C010-K08  LOCKED_TRANSFER_SWEEP  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
 support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
-role=transfer relationship without leaking custody
-arc=B sweeps right/up across shared center while A root remains pinned
+role=transfer with custody
+arc=B sweep right/up; A root pinned
 
 
 
@@ -249,8 +249,8 @@ ___________________________^______^_____________________________________
 C010-K08B  LOCKED_OVERSHOOT / RELEASE_THRESHOLD  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
 support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
-role=hold custody through overshoot so release becomes its own event
-arc=A sinks against pinned rear foot while B reaches maximum locked right/up sweep
+role=hold locked threshold
+arc=A sink on pin; B max locked sweep
 
 
 
@@ -276,8 +276,8 @@ ___________________________^_____^______________________________________
 C010-K09  RELEASE_FORK  [ONES/INFERRED]
 eligibility=CONSUMED | contact=RELEASED | custody=NONE
 support=A:REAR_DOMINANT;B:NONE | root=A:foot_b@[27,17];B:NONE
-role=explicitly break custody after locked overshoot
-arc=A recoils left/down while B departs right/up on a separate clock
+role=explicit release
+arc=A recoil left/down; B free right/up
 
 
 
@@ -304,8 +304,8 @@ ___________________________^_____^______________________________________
 C010-K10  PARTNER_LAG / CARRIER_RECOIL  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=NONE | custody=NONE
 support=A:REAR_DOMINANT;B:NONE | root=A:foot_b@[27,17];B:NONE
-role=show opposing recoil and secondary lag after release
-arc=A upper body trails recoil; B continues forward with limb lag
+role=opposing recoil/lag
+arc=A upper lag; B free-flight lag
 
 
 
@@ -332,8 +332,8 @@ ___________________________^___^________________________________________
 C010-K11  DESCENT / REGAIN_PREP  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=NONE | custody=NONE
 support=A:DUAL_REGAIN;B:PRECONTACT | root=A:foot_b->DUAL;B:NONE
-role=begin settlement without reverse-interpolating the throw
-arc=A rebounds right into a new plant while B descends on a separate arc
+role=settle prep
+arc=A rebound/right plant; B descent
 
 
 
@@ -359,8 +359,8 @@ _________________________^______^_______________________________________
 C010-K12  PARTNER_CATCH / A_OVERSHOOT  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=NONE | custody=NONE
 support=A:FRONT_OVERSHOOT;B:FRONT_CATCH | root=A:foot_f;B:foot_f
-role=separate landing consequence from release and give both bodies debt
-arc=A passes its stack while B compresses hard into first landing support
+role=landing consequence/overshoot
+arc=A passes stack; B hard catch
 
 
 
@@ -386,8 +386,8 @@ _________________________^________^_________________________^___________
 C010-K13  RECOVERY_DEBT / SECONDARY_LAG  [TWOS/INFERRED]
 eligibility=CONSUMED | contact=NONE | custody=NONE
 support=A:DUAL;B:DUAL_REGAIN | root=A:DUAL;B:foot_f->DUAL
-role=pay recovery debt with different clocks rather than idle reset
-arc=A torso arrives late; B rebounds off catch while rear support returns
+role=pay secondary debt
+arc=A torso late; B rebound/replant
 
 
 
@@ -412,8 +412,8 @@ __________________________^________^___________________^_____^__________
 C010-K14  READY_NEW_ADDRESS  [FOURS/INFERRED]
 eligibility=SPENT | contact=NONE | custody=NONE
 support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL
-role=recover to new addresses, not the initial idle
-arc=both actors settle displaced to the right with residual asymmetry
+role=ready at new addresses
+arc=both settle displaced/right
 
 
 
