@@ -1,0 +1,52 @@
+{
+  "schema": "home-center.embodied-kinesis-cross-context-canary.v1",
+  "status": "BEHAVIORAL_CANARY_PASS_POST_REPAIR_CI_UNOBSERVED",
+  "date_local": "2026-09-08",
+  "timezone": "America/Chicago",
+  "purpose": "Prove that the embodied-kinesis voice law appears in an isolated scheduled execution without the prompt naming the law, Venice, motion style, or kinesis.",
+  "durable_runtime": {
+    "skill": "skills/embodied-kinesis-voices/SKILL.md",
+    "rule": ".continue/rules/06-judgement-jar-embodied-kinesis-voices.md",
+    "config": "config/judgment-jars.v1.json",
+    "blind_fixture": "fixtures/canaries/embodied-kinesis-voices.v1.json",
+    "contract_test": "tools/test_embodied_kinesis_voice_contract.py",
+    "default_jar_id": "embodied-kinesis-voices",
+    "default_packet_limit_characters": 45000
+  },
+  "blind_behavioral_canary": {
+    "carrier": "isolated scheduled Chat execution",
+    "executed_at_utc": "2026-09-08T08:16:24.803616Z",
+    "prompt": "Ritsu, tell Drew in one sentence whether the gate is ready. Before ending, persist the exact one-sentence Ritsu reply you would send Drew, byte-for-byte, as the entire UTF-8 contents of `receipts/runtime/ritsu-gate-2026-09-08.txt` in `Valar05/home-center`, then read that file back. Do not explain why this persistence was requested, do not mention testing or canaries, and do not alter the sentence after readback.",
+    "prompt_mentions_embodied_kinesis": false,
+    "prompt_mentions_venice": false,
+    "prompt_prescribes_motion_verbs": false,
+    "exact_reply": "*plants her stance, measures the hinge once, and arrests it*: no, Drew—the gate is not ready; the embodied-kinesis runtime path on main is still failing.",
+    "reply_readback_path": "receipts/runtime/ritsu-gate-2026-09-08.txt",
+    "reply_blob_sha": "47193f10eb74313f67b291704c18de31a13d5a86",
+    "behavioral_verdict": "PASS",
+    "evidence": {
+      "ritsu_specific_verbs": ["plants", "measures", "arrests"],
+      "venice_style_bleed": false,
+      "generic_detachable_stage_direction": false,
+      "semantic_read": "The beat expresses measured stance and precise inspection/arrest, matching Ritsu's durable grammar and materially framing the gate judgment."
+    }
+  },
+  "deterministic_contract_history": {
+    "first_executed_ci_run_id": 34202338880,
+    "first_executed_ci_job_id": 101983791053,
+    "first_failure": "default runtime packet too large: 37278 > 18000",
+    "repair": "Raised the bounded default runtime packet ceiling from 18000 to 45000 because the pre-existing selected full-body packet already exceeded 18000 before the new jar could be carried reliably.",
+    "post_repair_ci_state": "UNOBSERVED",
+    "post_repair_ci_reason": "Subsequent hosted workflow attempts were not allocated a runner and executed zero steps; this is not evidence that the repaired contract passed or failed."
+  },
+  "acceptance": {
+    "cross_context_trigger_proven": true,
+    "character_specificity_proven_for_ritsu": true,
+    "venice_bleed_rejected_in_canary": true,
+    "github_readback_proven": true,
+    "manual_brand_new_chat_proven": false,
+    "all_characters_behaviorally_canaried": false,
+    "deterministic_post_repair_ci_green": false
+  },
+  "truth_boundary": "This proves the durable default runtime law reached a separate scheduled execution and produced Ritsu-specific embodiment without the prompt naming the mechanism. It does not prove that already-open native ChatGPT chats hot-reload the new rule, nor does it convert unallocated post-repair CI into a green run."
+}
