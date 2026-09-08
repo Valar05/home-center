@@ -1,4 +1,6 @@
-L007-K0 COILED_REAR_LOAD [FOURS/INFERRED] SUPPORT=LEFT_FOOT_OWNS_ROOT
+L007-K0 COILED_REAR_LOAD  [FOURS / INFERRED]  SUPPORT=LEFT_FOOT_OWNS_ROOT
+ROOT: root=(10,13); near-zero x travel; pelvis sinks and chest/head lag rearward before commitment
+ROLE: compresses over trusted rear support while shoulders counter-wind
 
 
 
@@ -20,8 +22,9 @@ L007-K0 COILED_REAR_LOAD [FOURS/INFERRED] SUPPORT=LEFT_FOOT_OWNS_ROOT
 -------!----------------------------------------------------
 
 
-
-L007-K1 HEEL_RISE_COMMIT [TWOS/INFERRED] SUPPORT=LEFT_FOREFOOT_OWNS_ROOT
+L007-K1 HEEL_RISE_COMMIT  [TWOS / INFERRED]  SUPPORT=LEFT_FOREFOOT_OWNS_ROOT
+ROOT: root=(11,14); x barely advances while y compresses to deepest coil
+ROLE: deepens coil, narrows rear support, and sends lead knee forward before root launch
 
 
 
@@ -43,8 +46,9 @@ L007-K1 HEEL_RISE_COMMIT [TWOS/INFERRED] SUPPORT=LEFT_FOREFOOT_OWNS_ROOT
 -------!----------------------------------------------------
 
 
-
-L007-K2 PUSH_OFF_STRETCH [ONES/INFERRED] SUPPORT=LEFT_TOE_OWNS_ROOT
+L007-K2 PUSH_OFF_STRETCH  [ONES / INFERRED]  SUPPORT=LEFT_TOE_OWNS_ROOT
+ROOT: root=(14,12); acceleration begins; lead limb reaches while rear toe remains sole trustworthy contact
+ROLE: rear support spends stored compression; pelvis begins a rising forward arc and limbs open asymmetrically
 
 
 
@@ -66,8 +70,9 @@ L007-K2 PUSH_OFF_STRETCH [ONES/INFERRED] SUPPORT=LEFT_TOE_OWNS_ROOT
 -------!----------------------------------------------------
 
 
-
-L007-K3 TOE_RELEASE_LAUNCH [ONES/INFERRED] SUPPORT=LEFT_TOE_LAST_SUPPORT
+L007-K3 TOE_RELEASE_LAUNCH  [ONES / INFERRED]  SUPPORT=LEFT_TOE_LAST_SUPPORT
+ROOT: root=(18,9); upward-forward impulse peaks while left toe is the last support
+ROLE: last rear-toe support releases only after the root has clearly committed forward
 
 
                      O
@@ -89,8 +94,10 @@ L007-K3 TOE_RELEASE_LAUNCH [ONES/INFERRED] SUPPORT=LEFT_TOE_LAST_SUPPORT
 -------!----------------------------------------------------
 
 
+L007-K3A RELEASE_CLEAR  [ONES / INFERRED]  SUPPORT=NO_FOOT_SUPPORT
+ROOT: root=(20,8); support is already NONE; limbs continue the launch arc without a planted-foot connector
+ROLE: first airborne clearance key proves support loss before the split opens
 
-L007-K3A RELEASE_CLEAR [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
                        O
                        /
@@ -112,8 +119,10 @@ L007-K3A RELEASE_CLEAR [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 ------------------------------------------------------------
 
 
+L007-K4 FLIGHT_SPLIT  [TWOS / INFERRED]  SUPPORT=NO_FOOT_SUPPORT
+ROOT: root=(24,7); ballistic crest; limbs counter-swing around a forward-moving pelvis
+ROLE: opens a long asymmetric flight split with no fake planted support
 
-L007-K4 FLIGHT_SPLIT [TWOS/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
                          O
                          |
@@ -135,8 +144,10 @@ L007-K4 FLIGHT_SPLIT [TWOS/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 ------------------------------------------------------------
 
 
+L007-K4A DESCENT_GATHER  [ONES / INFERRED]  SUPPORT=NO_FOOT_SUPPORT
+ROOT: root=(28,7); forward velocity survives the crest; lead foot drops on a separate arc
+ROLE: gathers the split into descent and lowers the lead foot before contact
 
-L007-K4A DESCENT_GATHER [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
                            O
                            \
@@ -158,8 +169,9 @@ L007-K4A DESCENT_GATHER [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 ------------------------------------------------------------
 
 
-
-L007-K5 DESCENDING_PROBE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
+L007-K5 DESCENDING_PROBE  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_PROBE_CONTACT
+ROOT: root=(31,8); right foot probes x=41 while pelvis remains airborne-debt driven
+ROLE: lead foot reaches ground ahead of root while torso lags; touch is not yet ownership
 
 
                             O
@@ -181,8 +193,9 @@ L007-K5 DESCENDING_PROBE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
 -----------------------------------------?------------------
 
 
-
-L007-K5P PROBE_SHEAR [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
+L007-K5P PROBE_SHEAR  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_PROBE_CONTACT
+ROOT: root=(32,9); probe remains untrusted at x=41 while pelvis advances and descends
+ROLE: extends the probe through one shear beat so weight visibly arrives before ownership
 
 
 
@@ -204,8 +217,9 @@ L007-K5P PROBE_SHEAR [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
 -----------------------------------------?------------------
 
 
-
-L007-K5A OWNERSHIP_BITE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K5A OWNERSHIP_BITE  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(33,11); right foot owns root at x=41; ownership does not cancel forward debt
+ROLE: probe becomes trustworthy support while pelvis keeps traveling and begins compression
 
 
 
@@ -227,8 +241,9 @@ L007-K5A OWNERSHIP_BITE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K6 DEEP_CATCH_FOLD [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K6 DEEP_CATCH_FOLD  [TWOS / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(35,14); deepest compression after ownership; right support remains fixed
+ROLE: trusted support accepts vertical debt in the deepest fold while free side trails
 
 
 
@@ -250,8 +265,9 @@ L007-K6 DEEP_CATCH_FOLD [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K6P PELVIS_REBOUND [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K6P PELVIS_REBOUND  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(36,12); pelvis rises first; chest/head remain behind the hip
+ROLE: pelvis rebounds before chest so stored leg compression has an authored release phase
 
 
 
@@ -273,8 +289,9 @@ L007-K6P PELVIS_REBOUND [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K6A CHEST_SLING_SETTLE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K6A CHEST_SLING_SETTLE  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(37,12); pelvis leads; chest crosses later; arm asymmetry remains secondary
+ROLE: chest is slung forward after the pelvis rebound while support leg stays loaded
 
 
 
@@ -296,8 +313,9 @@ L007-K6A CHEST_SLING_SETTLE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K7 TORSO_OVERSHOOT [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K7 TORSO_OVERSHOOT  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(39,11); support remains fixed while upper mass overshoots forward
+ROLE: torso/head pass the pelvis and support line in forward overshoot, not reverse recoil
 
 
 
@@ -319,8 +337,9 @@ L007-K7 TORSO_OVERSHOOT [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K7A RECOVERY_TUCK [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K7A RECOVERY_TUCK  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(40,10); free knee leads and heel tucks high instead of straight-line tweening
+ROLE: recovery leg tucks under the passing pelvis to author the swing arc before extension
 
 
 
@@ -342,8 +361,9 @@ L007-K7A RECOVERY_TUCK [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K8 HIP_DRIVE_PASS [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
+L007-K8 HIP_DRIVE_PASS  [TWOS / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
+ROOT: root=(42,10); pelvis rises beyond support while free leg opens from the authored tuck
+ROLE: hips pass the planted foot and lift as the tucked recovery leg opens forward
 
 
 
@@ -365,8 +385,9 @@ L007-K8 HIP_DRIVE_PASS [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K9 FOREFOOT_ROLL_LAG [TWOS/INFERRED] SUPPORT=RIGHT_FOREFOOT_OWNS_ROOT
+L007-K9 FOREFOOT_ROLL_LAG  [TWOS / INFERRED]  SUPPORT=RIGHT_FOREFOOT_OWNS_ROOT
+ROOT: root=(45,11); pelvis dips into support roll while torso counter-rotates
+ROLE: support rolls to forefoot under a visible counter-twist; free knee stays committed
 
 
 
@@ -388,8 +409,9 @@ L007-K9 FOREFOOT_ROLL_LAG [TWOS/INFERRED] SUPPORT=RIGHT_FOREFOOT_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K10 TOE_DRIVE_RECOVERY [ONES/INFERRED] SUPPORT=RIGHT_TOE_OWNS_ROOT
+L007-K10 TOE_DRIVE_RECOVERY  [ONES / INFERRED]  SUPPORT=RIGHT_TOE_OWNS_ROOT
+ROOT: root=(48,9); root rises and accelerates slightly from forefoot roll into toe drive
+ROLE: toe support spends remaining catch debt while free leg opens and upper body trails hip drive
 
 
 
@@ -411,8 +433,9 @@ L007-K10 TOE_DRIVE_RECOVERY [ONES/INFERRED] SUPPORT=RIGHT_TOE_OWNS_ROOT
 -----------------------------------------!------------------
 
 
-
-L007-K11 DEBT_CARRY_EXIT [TWOS/INFERRED] SUPPORT=RIGHT_TOE_LAST_SUPPORT
+L007-K11 DEBT_CARRY_EXIT  [TWOS / INFERRED]  SUPPORT=RIGHT_TOE_LAST_SUPPORT
+ROOT: root=(51,8); root keeps moving forward/up; no idle reset and no loop-back teleport
+ROLE: exits on last toe support with unresolved free-leg and upper-body debt
 
 
                                                O
