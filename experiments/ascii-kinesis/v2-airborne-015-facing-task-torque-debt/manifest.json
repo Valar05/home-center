@@ -104,7 +104,7 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY",
   "timing": {
     "bridge_keys": 13,
     "decisive_keys": 20,
@@ -137,5 +137,18 @@
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
-  "source_art_embedded": false
+  "source_art_embedded": false,
+  "chat_delivery": {
+    "status": "PASS",
+    "issue_receipt_prechat": 5588667850,
+    "ordered_parts": [
+      "PART 1 ASCII",
+      "PART 2 JSON",
+      "PART 3 VIDEO"
+    ],
+    "ascii_sha256": "893e4b0e08d48b53cc722e81822359e2bd2859542609837392ba4250c25399e5",
+    "motion_json_sha256": "1558a062b9eb9400ddced30cf0f71b748a9d8a9bb340e0b2d1c30003a8074e9d",
+    "video_sha256": "a550fff592718b4d4b0f4c5b5e1c37ee914cd8671f0165ee222ad495804d7e93",
+    "video_byte_identical_to_persisted": true
+  }
 }
