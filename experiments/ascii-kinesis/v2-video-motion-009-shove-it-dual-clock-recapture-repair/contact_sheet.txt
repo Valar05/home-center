@@ -1,0 +1,476 @@
+Shove-it repair · asymmetric load → clock fork → recapture clamp → crooked landing debt
+v2-video-motion-009-shove-it-dual-clock-recapture-repair | abstract ASCII rig only | source pixels/audio absent
+Observed source presentation evidence is provenance only; every decisive compile timing and acting key below is INFERRED.
+
+K0 OFFSET_ROLL_READY | FOURS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: body banked slightly against travel
+BOARD CLOCK: board aligned with travel / grounded
+
+
+
+
+
+                   O
+                   |      -+
+                   o   -o/
+                /o-\-o/
+              o-   \
+            //      |
+           +        |
+                    |
+                    @
+                   / \
+                   / \
+                  o   o
+                 |     |
+                 +     +
+              A=====#=====B
+______________________________________________________
+
+ROOT/ARC: Root offset over rear-half; asymmetrical ready stores lateral option.
+
+K1 BACK_ARM_COUNTERSWEEP | FOURS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: upper body counter-sweeps behind root
+BOARD CLOCK: board steady / grounded
+
+
+
+
+
+
+          +-      O
+            \o     |
+              \\  /o
+                o- |-o
+                   |  \\
+                   |    -o\
+                   |       --+
+                   |
+                   @
+                  / \
+                 o   \
+                |     o
+                +      -+
+              A=====#=====B
+______________________________________________________
+
+ROOT/ARC: Root drops and trails while rear arm opens the counter-rotation.
+
+K2 DEEP_DIAGONAL_LOAD | FOURS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: deep diagonal coil / rear-biased load
+BOARD CLOCK: board steady / grounded
+
+
+
+
+
+
+
+         +--
+            \o   O
+              \\  \
+                o--o
+                   \-o
+                   \  \\
+                    |   -o
+                    |     \\
+                    |       -+
+                   /@\
+                 o-   -o\
+               +-        -+
+              A=====#=====B
+______________________________________________________
+
+ROOT/ARC: COM is visibly low and rear-biased; knees disagree to avoid mannequin symmetry.
+
+K3 SCOOP_AND_UNWIND | TWOS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: root drives up-through while arms unwind oppositely
+BOARD CLOCK: board stays aligned through final supported scoop; yaw begins only at release
+
+
+
+               +
+               |
+                o   O
+                 \  |
+                  o-o
+                    \-o
+                     \ \\
+                     \   -o
+                     \     \\
+                      |      -+
+                      @
+                     / \
+                    /   o
+                   o     \
+                  /      \
+                 +        +
+               A=====#=====B
+______________________________________________________
+
+ROOT/ARC: Scoop/unwind spends the coil; root passes through the support line before release.
+
+K4 AUTHORED_RELEASE_BOUNDARY | ONES/INFERRED
+SUPPORT: AUTHORED_SUPPORT_RELEASE
+BODY CLOCK: body leaves support as a single causal gate
+BOARD CLOCK: board yaw begins exactly at authored release boundary
+
+                 +
+                 |
+                  o   O
+                   \  |
+                    o-o-o\
+                      \   --o
+                       \     \\
+                       \       -+
+                        |
+                        @
+                       / \
+                      /   \
+                     o     o
+                    /       \
+                   +         +
+
+
+                 A=====#=====B
+
+______________________________________________________
+
+ROOT/ARC: Release is authored, not interpolated; exact real toe-off remains UNKNOWN.
+
+K5 BOARD_CLOCK_BREAKAWAY | ONES/INFERRED
+SUPPORT: AIRBORNE_NO_GROUND_SUPPORT
+BODY CLOCK: body rises with feet clear and shoulders still unwinding
+BOARD CLOCK: board yaw accelerates ahead of body clock
+
+                  +
+                   o    O
+                    \   |
+                     o--oo\
+                        \  --o
+                         \    \\
+                         \      -+
+                          |
+                          @
+                         / \\
+                       //    o
+                      o       \\
+                     /          +
+                    +
+
+
+                   A====#====B
+
+
+______________________________________________________
+
+ROOT/ARC: Board breaks away under a root still gaining height.
+
+K6 BODY_HANG_BOARD_RUNS | TWOS/INFERRED
+SUPPORT: AIRBORNE_NO_GROUND_SUPPORT
+BODY CLOCK: root hangs while limbs counterbalance
+BOARD CLOCK: board clock keeps running toward edge-on
+
+                          O
+                          |   -o---+
+                         /o-o/
+                       o- \
+                     //   \
+                    o      |
+                   /       |
+                  +        @
+                          / \\
+                         /    o
+                        o      \\
+                       /         +
+                      +
+
+
+                        A=#=B
+
+
+
+______________________________________________________
+
+ROOT/ARC: Body clock briefly hangs while object yaw continues materially.
+
+K7 MAX_CLOCK_SEPARATION | TWOS/INFERRED
+SUPPORT: AIRBORNE_NO_GROUND_SUPPORT
+BODY CLOCK: maximum leg/arm spread without new support
+BOARD CLOCK: board near edge-on / maximum visual clock separation
+
+                           O
+                           |       -+
+                          /o   --o/
+                       /o- \-o/
+                    /o-    \
+                  +-        |
+                            |
+                            @
+                          // \
+                        o-    \\
+                      //        o
+                     +           \\
+                                   +
+
+
+                           B#A
+
+
+
+______________________________________________________
+
+ROOT/ARC: Apex-ish root phase and near-edge-on board make the two clocks unmistakably separate.
+
+K8 COUNTERTWIST_PAYS_BACK | ONES/INFERRED
+SUPPORT: AIRBORNE_NO_GROUND_SUPPORT
+BODY CLOCK: torso/arms countertwist back toward board
+BOARD CLOCK: board yaw continues beyond edge-on
+
+
+                             O
+                             |
+                          o--oo\
+                             |-o--+
+                             |/
+                           o-|
+                         //  |
+                       +-    @
+                           // \\
+                          o     o
+                         /       \
+                         /        \
+                        +          +
+
+                         B===#===A
+
+
+
+______________________________________________________
+
+ROOT/ARC: Body pays rotational debt while root starts descent and board clock keeps leading.
+
+K9 RECAPTURE_AIM_BRIDGE | ONES/INFERRED
+SUPPORT: AIRBORNE_NO_GROUND_SUPPORT
+BODY CLOCK: one foot aims early while upper body opens for balance
+BOARD CLOCK: board approaches landing yaw
+
+
+
+                              O
+                              |
+                             /o
+                           o- |-o\
+                          /   |   -o\
+                         o    |      -+
+                        /     |
+                       +      @
+                             / \\
+                            /    o
+                           o      \
+                           /      \
+                          |        +
+                          +
+                         B====#====A
+
+
+______________________________________________________
+
+ROOT/ARC: Recapture aim is a distinct authored approach; no contact is declared yet.
+
+K10 CONTACT_ELIGIBILITY_GATE | ONES/INFERRED
+SUPPORT: AIRBORNE_CONTACT_ELIGIBLE_NOT_CLAMPED
+BODY CLOCK: feet enter eligibility corridor
+BOARD CLOCK: board nearly aligned but still separate
+
+
+
+
+                               O
+                               |
+                              /o
+                            o- |-o\
+                           /   |   -o\
+                          o    |      -+
+                        +-     |
+                               @
+                              / \\
+                             /    o
+                            o     \
+                            |      |
+                            |      |
+                            +      +
+                         B=====#=====A
+
+______________________________________________________
+
+ROOT/ARC: Feet hover just above the board; eligibility is not silently promoted to contact.
+
+K11 AUTHORED_RECAPTURE_CLAMP | ONES/INFERRED
+SUPPORT: FEET_RECAPTURED_BOARD_AIRBORNE
+BODY CLOCK: body clamps onto board with bent knees
+BOARD CLOCK: board clock and body clock rejoin at authored clamp
+
+
+
+
+                                O
+                                |
+                               /o
+                             o- |-o\
+                            /   |   -o\
+                           o    |      -+
+                          /     |
+                         +      |
+                                @
+                               / \
+                              /   \
+                             o     o
+                             /     \
+                            |       |
+                          B=+===#===+=A
+
+______________________________________________________
+
+ROOT/ARC: Recapture is one explicit synchronization event; exact source frame remains UNKNOWN.
+
+K12 AUTHORED_GROUND_CATCH | ONES/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_FIRST_GROUND_CATCH
+BODY CLOCK: root still falling after support returns
+BOARD CLOCK: board has ground support again
+
+
+
+
+
+                                 O
+                                 |
+                                /o
+                              o- \-o\
+                             /   \   --o\
+                            o    \       -+
+                           /      |
+                          +       |
+                                  |
+                                  @
+                                // \\
+                               o     o
+                              |       |
+                              +       +
+                           B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Ground catch is separate from recapture and precedes full compression.
+
+K13 DEEP_LANDING_SKEW | FOURS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: crooked deep landing / rightward load transfer
+BOARD CLOCK: board rides through while absorbing
+
+
+
+
+
+
+
+
+                                 O
+                                 /o\
+                             /o-- \ -o
+                          /o-     \   \\
+                        +-         |    -o
+                                   |      \\
+                                   |        +
+                                   @\
+                                 //  --o
+                             +-o-       -+
+                            B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Root sinks after catch; shoulder and knee asymmetry preserve landing direction.
+
+K14 ROLL_AWAY_OVERSHOOT | TWOS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: COM overshoots ahead of board center
+BOARD CLOCK: board continues right under stable ground support
+
+
+
+
+                               +-
+                                 o      O
+                                  \    |
+                                   o---o
+                                       /-o
+                                       /  \\
+                                      |     o
+                                      |      \\
+                                      @        +
+                                     / \
+                                    /   \
+                                   o     o
+                                  /     |
+                                 +      +
+                              B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Rebound spends landing compression into a forward overshoot instead of reverse recoil.
+
+K15 SECONDARY_LAG_SETTLE | TWOS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: torso begins restack while trailing arm/knee remain late
+BOARD CLOCK: board carries recovery rightward
+
+
+
+
+
+                                       O
+                                       |      -+
+                                      /o   -o/
+                                  /o-- /-o/
+                               /o-     /
+                             +-       |
+                                      |
+                                      |
+                                      @
+                                     / \\
+                                    /    o
+                                   o      |
+                                  +       +
+                               B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Secondary lag is visible in the rear arm and left knee after the root has already begun to settle.
+
+K16 RECOVERY_DEBT_EXIT | FOURS/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: exit is ride-ready but still right-biased and open
+BOARD CLOCK: board/body remain synchronized after recapture
+
+
+
+
+                                         O
+                                        |      -+
+                                       /o   -o/
+                                     o- /-o/
+                                   o-   /
+                                 +-    |
+                                       |
+                                       |
+                                       @
+                                      / \
+                                     /   \
+                                    o     o
+                                    /      \
+                                   |       \
+                                   +        +
+                                 B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Recovery debt exits into a displaced ready, not the original neutral pose.
