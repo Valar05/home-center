@@ -1,0 +1,62 @@
+{
+  "schema": "home-center.regnet-qa-review.v1",
+  "date": "2026-09-08",
+  "reviewer": "SYNTHETIC_REGNET",
+  "commission": "Create a deterministic notification-first attention statement compiler whose notification alone contains the complete action and whose resolved state emits no alarm.",
+  "reviewedHead": "736f78e5671d532310d472ef6270c0527633d4f9",
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "repositoryBranch": true,
+    "pullRequestOpen": true,
+    "deterministicallyTested": false,
+    "merged": false,
+    "deployed": false,
+    "deliveredToNotificationTransport": false,
+    "accepted": false
+  },
+  "acceptanceCriteria": [
+    "Identical event input returns identical notification text.",
+    "The imperative action precedes verified fact and theatrical sting.",
+    "Explicit pulse changes repeat wording deterministically without randomness.",
+    "Resolved state returns null and cannot emit the old alarm.",
+    "Overlong critical clauses fail rather than silently truncating the required action.",
+    "Gmail, Home Center main failure, and Phone Hands disconnect fixtures exercise distinct attention targets."
+  ],
+  "repositoryEvidence": {
+    "pullRequest": 352,
+    "changedFiles": [
+      "tools/attention_notice.mjs",
+      "tools/attention_notice_test.mjs",
+      "tools/run_regression_tests.sh",
+      "receipts/venice/2026-09-08-attention-notice-compiler-plan.json"
+    ],
+    "semanticInspection": "The current PR diff preserves the bounded pure-compiler contract. The compiler owns formatting only; caller-supplied state/fact own truth. Resolved suppression occurs before action/fact validation. Action is emitted before fact and sting."
+  },
+  "deterministicEvidence": [
+    {
+      "surface": "GitHub Actions / PR #352",
+      "result": "BLOCKED_UNEXECUTED",
+      "detail": "Home Center CI run 34285838764 and Build Android run 34285838769 completed failure before executing any job steps."
+    },
+    {
+      "surface": "GitHub Actions / main baseline",
+      "result": "BASELINE_BLOCKED_UNEXECUTED",
+      "detail": "Main Home Center CI run 34285526847 likewise failed with zero job steps, so PR red status is not evidence that the compiler tests failed."
+    },
+    {
+      "surface": "Home Center -> primary-phone -> phone_shell",
+      "result": "BLOCKED_QUEUED_UNLEASED",
+      "detail": "Command phc_attention_notice_736f78e5_verify_v1 was enqueued to the registered primary-phone but remained queued and unleased on two status reads; no stdout or exit receipt exists."
+    }
+  ],
+  "failurePathReview": [
+    "Resolved alarms are explicitly suppressed.",
+    "Unknown states throw instead of fabricating urgency.",
+    "Overlong action/fact data throws instead of silently losing critical text.",
+    "The compiler cannot establish whether a Gmail reply, CI failure, or disconnect is true; callers must supply verified state."
+  ],
+  "verdict": "BLOCKED_UNKNOWN",
+  "blockingUnknown": "No authorized external execution surface produced a deterministic test result for reviewed head 736f78e5671d532310d472ef6270c0527633d4f9.",
+  "regressionTarget": "When an external execution lane becomes available, run node --check on both new modules and node tools/attention_notice_test.mjs at the exact reviewed head before merge or completion claim."
+}
