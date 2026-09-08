@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 from pathlib import Path
-import base64, hashlib, html as htmlmod, json, math, subprocess, tempfile
+import base64, gzip, hashlib, json, math, subprocess, tempfile
 from PIL import Image, ImageDraw
 HERE=Path(__file__).resolve().parent
 MOTION=HERE/'motion.json'
@@ -108,8 +108,11 @@ def render(data,tmp):
     return mp4,seq
 
 def page(data,sheet,raw):
-    payload=json.dumps(data,sort_keys=True,separators=(',',':'),ensure_ascii=True);b64=base64.b64encode(raw).decode('ascii')
-    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{data['experiment_id']}</title><style>*{{box-sizing:border-box}}body{{margin:0;background:#080808;color:#eee;font-family:system-ui,sans-serif}}header{{padding:12px 16px;border-bottom:1px solid #444}}nav{{display:flex;gap:8px;padding:10px 16px;position:sticky;top:0;background:#080808}}button{{font:inherit;padding:8px 14px}}section{{display:none;padding:12px 16px}}section.active{{display:block}}pre{{margin:0;overflow:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;tab-size:2;line-height:1.1}}video{{display:block;width:min(100%,900px);height:auto;background:#000;border:1px solid #444}}</style></head><body><header><strong>ASCII Kinesis V2 · CONTACT 008 · Asymmetric Custody Fork Repair</strong></header><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre>{htmlmod.escape(sheet)}</pre></section><section id="json"><pre>{htmlmod.escape(payload)}</pre></section><section id="video"><video controls autoplay muted loop playsinline src="data:video/mp4;base64,{b64}"></video></section><script>const bs=[...document.querySelectorAll('button[data-view]')],ss=[...document.querySelectorAll('section')];for(const b of bs)b.onclick=()=>{{for(const s of ss)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
+    payload=json.dumps(data,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()
+    a=base64.b64encode(gzip.compress(sheet.encode(),compresslevel=9,mtime=0)).decode('ascii')
+    j=base64.b64encode(gzip.compress(payload,compresslevel=9,mtime=0)).decode('ascii')
+    v=base64.b64encode(raw).decode('ascii')
+    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{data['experiment_id']}</title><style>*{{box-sizing:border-box}}body{{margin:0;background:#080808;color:#eee;font-family:system-ui,sans-serif}}header{{padding:12px 16px;border-bottom:1px solid #444}}nav{{display:flex;gap:8px;padding:10px 16px;position:sticky;top:0;background:#080808}}button{{font:inherit;padding:8px 14px}}section{{display:none;padding:12px 16px}}section.active{{display:block}}pre{{margin:0;overflow:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;tab-size:2;line-height:1.1}}video{{display:block;width:min(100%,900px);height:auto;background:#000;border:1px solid #444}}</style></head><body><header><strong>ASCII Kinesis V2 · CONTACT 008 · Asymmetric Custody Fork Repair</strong></header><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section><section id="video"><video id="motion-video" controls autoplay muted loop playsinline></video></section><script>const A='{a}',J='{j}',V='{v}';const bs=[...document.querySelectorAll('button[data-view]')],ss=[...document.querySelectorAll('section')];for(const b of bs)b.onclick=()=>{{for(const s of ss)s.classList.toggle('active',s.id===b.dataset.view)}};async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const r=new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip')));return await r.text()}};(async()=>{{document.getElementById('ascii-pre').textContent=await gunzip64(A);document.getElementById('json-pre').textContent=await gunzip64(J);document.getElementById('motion-video').src='data:video/mp4;base64,'+V}})();</script></body></html>'''
 
 def main():
     data=json.loads(MOTION.read_text()); sheet=contact_sheet(data); (HERE/'contact-sheet.txt').write_text(sheet)
