@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
   "experiment_id": "v2-timing-011-effect-tail-outlives-body-repair",
-  "status": "READY_FOR_EXACT_POSTWRITE_READBACK_AND_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-011-effect-tail-outlives-body-repair/",
   "revision": {
     "revises": "experiments/ascii-kinesis/v2-timing-006-effect-tail-outlives-body/",
@@ -95,9 +95,11 @@
     "compact_render_commit": "1af4abe8337bc520f17e208dd409efb96e6a081e",
     "final_compact_motion_commit": "cb9ccadf3dd65aff93912a9ddd0f74c009ab491f",
     "contact_alignment_commit": "17b23de71d68548527cf2288bb906bf31e22cb5a",
-    "post_receipt_readback": "PENDING_THIS_WRITE"
+    "preclosure_receipt_commit": "36bf11664e2616c9ec5cd36eca363487c55600a8",
+    "post_receipt_readback": "PASS_PINNED_36bf11664e2616c9ec5cd36eca363487c55600a8"
   },
-  "issue_343_receipt": null,
-  "three_part_chat_delivery": false,
+  "issue_343_receipt": 5592980023,
+  "three_part_chat_delivery": true,
+  "user_surface": "PASS_THIS_REPORTING_CHAT",
   "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "FIX ARC", "FIX SUPPORT", "FIX SECONDARY LAG", "FIX EFFECT TAIL", "RERUN"]
 }
