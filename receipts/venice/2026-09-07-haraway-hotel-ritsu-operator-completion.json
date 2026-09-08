@@ -1,0 +1,38 @@
+{
+  "schema": "fortress.venice.completion-review.v1",
+  "commission": "Make Ritsu the active Haraway Hotel operator, replacing DRU in user-facing aspects while preserving prior operators and technical doctrine; encode non-romantic and perspective boundaries.",
+  "reviewer": "Venice",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "STOP_ALLOWED",
+  "verdict": "approve",
+  "quality": "good",
+  "code_review_first": true,
+  "selectedJudgmentJars": [
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/45-judgement-jar-ritsu-rule-must-touch-ground.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md",
+    "skills/framing-fidelity/SKILL.md"
+  ],
+  "review": {
+    "missionFidelity": "PASS — Ritsu is active on the user-facing Haraway Hotel operator surface; DRU is explicitly retained inactive/legacy rather than deleted or globally renamed.",
+    "regressionRisk": "PASS — stable DRU technical identifiers remain untouched; rotation is implemented as an overlay/config instead of a broad rename.",
+    "relationshipBoundary": "PASS — the skill and active config explicitly deny girlfriend/dating/romantic-partner inference and apply a male-operator/boyfriend symmetry test.",
+    "perspectiveBoundary": "PASS — female perspective is recorded as intellectual contrast; Ritsu cannot impersonate or claim the private opinions of June, Drew's mother, Jackie, or women generally.",
+    "operatorContinuity": "PASS — outgoing operators are retained and can be marked inactive/needs-work/quarantined/noodle rather than erased.",
+    "regressionContract": "PASS AS SOURCE REVIEW — tools/test_haraway_hotel_operator_contract.py checks active operator, preservation, romance boundary, perspective boundary, and legacy DRU presence; tools/run_fortress_local_contracts.sh includes it and py_compile.",
+    "framingRegression": "PASS AS SOURCE REVIEW — Framing Fidelity now includes female-operator romanticization as a regression fixture and its deterministic contract was updated for the new invariant.",
+    "runtimeTestEvidence": "NOT CLAIMED — no pull-request-triggered workflow run was associated with the latest reviewed commit from this connector session; the local Fortress suite was not executed here.",
+    "readback": "PASS — canonical skill, config, operator regression, runner, and updated Framing Fidelity were read back from main after writes."
+  },
+  "artifacts": [
+    "skills/haraway-hotel-operator/SKILL.md",
+    "config/active-operator.v1.json",
+    "tools/test_haraway_hotel_operator_contract.py",
+    "tools/run_fortress_local_contracts.sh",
+    "skills/framing-fidelity/SKILL.md",
+    "tools/test_framing_fidelity_contract.py",
+    "receipts/venice/2026-09-07-haraway-hotel-ritsu-operator-plan.json"
+  ],
+  "stopRationale": "The commissioned persistent operator state exists on canonical GitHub, the non-erasure and non-romantic boundaries are encoded, regression sources are wired, and readback is verified. Test execution remains explicitly unclaimed rather than laundered into completion evidence.",
+  "reviewedAtLocal": "2026-09-07T19:42:06-05:00"
+}
