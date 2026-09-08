@@ -1,1 +1,103 @@
-{"ascii_sheet_sha256":"6d7e51facf7fd728648d3e076058c1223d1b41c93476a15ef94eb12c00344608","correction_hooks":["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX SECONDARY LAG","FIX EFFECT TAIL","RERUN"],"experiment_id":"v2-timing-011-effect-tail-outlives-body-repair","issue_343_receipt":null,"media_bytes":13251,"media_sha256":"3db44d1ff7d736672b08a99b4a1121c7229a127458500881f77b495c7835780d","noodle_queen":{"contempt":"does not read as mannequin key swapping or a placeholder cadence; recovery debt and tail persistence are deliberate and economical","function":"the clocks fork at B4 and the visual proof survives without metadata: body settles at a new address while effect continues","render_sha256":"3db44d1ff7d736672b08a99b4a1121c7229a127458500881f77b495c7835780d","status":"PASS","taste":"specific sling/brake/recoil rhythm with a visibly independent comet-like tail; silhouettes change in readable phases","worker_scope":"CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO"},"repo_path":"experiments/ascii-kinesis/v2-timing-011-effect-tail-outlives-body-repair/","revision":{"closed_debt_before":["Timing001→006","Timing002→007","Timing003→008","Timing004→009","Timing005→010"],"negative_fixture":"experiments/ascii-kinesis/v2-timing-006-effect-tail-outlives-body/","repair_intent":"replace low-effort lockstep/short-tail timing with authored asymmetric release, brake, overshoot, displaced recovery, and independently lingering effect clock","revises":"experiments/ascii-kinesis/v2-timing-006-effect-tail-outlives-body/","source_change":false},"schema":"ascii-kinesis.v2-receipt","ship_commit":null,"source":{"asset_id":"205456","inferred":["generic BODY_CLOCK/EFFECT_CLOCK decomposition","release/recovery/effect-tail choreography in this repair","all ONES/TWOS/FOURS assignments","support owners and root arcs of the generic ASCII rig"],"observed":["nine rider/motorcycle composite cells occupy the upper portion of the complete sheet","seven separate consequence/effect cells plus a palette reference occupy the lower portion","composite and consequence/effect families are separable","sheet position does not establish chronology","source playback exposure timing is not encoded"],"page_url":"https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/","rights_note":"Commercial game sprite art is evidence only. No source pixels, palette, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen.","site":"The Spriters Resource","source_bytes":1985,"source_dimensions":"136x172 PNG","source_sha256":"a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633","source_timing_available":false,"title":"Rider — 3D Stunt Rider — Amstrad CPC","unknown":["source playback order","source exposure duration","source body/effect synchronization","source support forces","source root trajectories"],"whole_sheet_inspected":true},"status":"QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE","tango":{"findings":["anticipation is asymmetric and visibly deepens from OFFSET_READY through DEEP_COIL before the fast cross/sling sequence","spacing is deliberately nonuniform: four-frame readable holds collapse into TWOS/ONES through release, then expand through recoil/recovery debt","release has a causal right-support catch, body overshoot, shoulder lag, recoil fold, and an earned rear-foot recovery plant rather than reverse interpolation","READY_NEW_ADDRESS is displaced from the initial address and does not idle-reset","detached effect accelerates, crowns, hooks downward, bends back, then settles on its own clock for ten visible frames after body readiness first appears","effect path and body bridge geometry are curved/authored rather than endpoint straight tweening"],"highest_value_defect":"NONE_VISIBLE_AT_ACCEPTANCE_SCALE","inspection":"44-frame authoritative H.264 render + representative ordered frame montage","render_sha256":"3db44d1ff7d736672b08a99b4a1121c7229a127458500881f77b495c7835780d","status":"PASS","worker_scope":"CURRENT_WORKER_ACTUAL_RENDER"},"verification":{"contract_test":"PASS_CANDIDATE_ISOLATED_OFFICIAL_V2","media_decode":"PASS_H264_720x406_24FPS_44FRAMES","repo_readback":false,"three_part_chat_delivery":false},"verification_commit":null}
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "experiment_id": "v2-timing-011-effect-tail-outlives-body-repair",
+  "status": "READY_FOR_EXACT_POSTWRITE_READBACK_AND_USER_SURFACE",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-011-effect-tail-outlives-body-repair/",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-timing-006-effect-tail-outlives-body/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-timing-006-effect-tail-outlives-body/",
+    "source_change": false,
+    "repair_intent": "replace low-effort lockstep/short-tail timing with authored asymmetric release, brake, overshoot, displaced recovery, and independently lingering effect clock",
+    "closed_debt_before": ["Timing001→006", "Timing002→007", "Timing003→008", "Timing004→009", "Timing005→010"]
+  },
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": "205456",
+    "title": "Rider — 3D Stunt Rider — Amstrad CPC",
+    "page_url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
+    "source_bytes": 1985,
+    "source_dimensions": "136x172 PNG",
+    "source_sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "observed": [
+      "nine rider/motorcycle composite cells occupy the upper portion of the complete sheet",
+      "seven separate consequence/effect cells plus a palette reference occupy the lower portion",
+      "composite and consequence/effect families are separable",
+      "sheet position does not establish chronology",
+      "source playback exposure timing is not encoded"
+    ],
+    "inferred": [
+      "generic BODY_CLOCK/EFFECT_CLOCK decomposition",
+      "release/recovery/effect-tail choreography in this repair",
+      "all ONES/TWOS/FOURS assignments",
+      "support owners and root arcs of the generic ASCII rig"
+    ],
+    "unknown": [
+      "source playback order",
+      "source exposure duration",
+      "source body/effect synchronization",
+      "source support forces",
+      "source root trajectories"
+    ],
+    "rights_note": "Commercial game sprite art is evidence only. No source pixels, palette, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen."
+  },
+  "current_worker_liveness": {
+    "home_center_campaign": "PASS_EXACT_COMMISSIONED_ID_1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS",
+    "issue_343_reset_read": 5576901079,
+    "timing005_closure_read": 5591991553,
+    "latest_manager_correction_read": 5592633902,
+    "pose_lab_timing_doctrine_read": "PASS_CURRENT",
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd"
+  },
+  "media": {
+    "sha256": "dab92678d5fb8442fd40be5beac9012da6eb0da8d9c037993a8ae3d99ea8275f",
+    "bytes": 6654,
+    "decode": "PASS_H264_480x272_24FPS_44FRAMES",
+    "effect_release_frame": 15,
+    "body_ready_first_frame": 33,
+    "effect_final_frame": 43,
+    "effect_outlives_body_ready": true,
+    "current_worker_reconstruction": "BYTE_IDENTICAL_TO_PERSISTED_COMPILE_SHA_FROM_EXACT_MOTION_AND_BUILD_LOGIC"
+  },
+  "ascii_sheet_sha256": "6d7e51facf7fd728648d3e076058c1223d1b41c93476a15ef94eb12c00344608",
+  "tango": {
+    "status": "PASS",
+    "worker_scope": "CURRENT_WORKER_ACTUAL_BYTE_IDENTICAL_RENDER",
+    "render_sha256": "dab92678d5fb8442fd40be5beac9012da6eb0da8d9c037993a8ae3d99ea8275f",
+    "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
+    "findings": [
+      "B0→B1 visibly loads left/rear and down before the compressed TWOS/ONES sling into B4; the anticipation is asymmetric rather than neutral padding",
+      "body cadence is deliberately nonuniform: readable FOURS holds collapse through TWOS/ONES at commitment/release, then expand through brake, lag, recoil, debt, and displaced readiness",
+      "support ownership changes causally from rear load through transfer/right catch to bilateral reacquisition; recovery is not reverse interpolation",
+      "the detached effect accelerates right/up, crowns, hooks down, bends back, then decays leftward on its own clock",
+      "B11 first appears at frame 33 while the effect remains active through frame 43; no extra body keys babysit the ten-frame post-readiness tail",
+      "curved authored bridge geometry and the release fork prevent endpoint straight tweening and phase teleport"
+    ]
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO",
+    "render_sha256": "dab92678d5fb8442fd40be5beac9012da6eb0da8d9c037993a8ae3d99ea8275f",
+    "taste": "The sling/brake/recoil body rhythm and crown→downhook→backbend→decay effect arc read as one authored attitude instead of a metronome exercise.",
+    "function": "The release fork is legible without metadata: the body earns a displaced stable address while the detached tail remains alive for ten more display frames.",
+    "contempt": "No idle reset, no body-key babysitting, no lockstep second clock, and no placeholder equal-spacing cadence remain visible at acceptance scale."
+  },
+  "contract": {
+    "candidate_isolated_official_v2": "PASS",
+    "current_worker_exact_remote_predicate_check": "PASS",
+    "boundary": "The official repository-wide Python test cannot be executed against a remote GitHub checkout from this standard-chat connector lane. The current worker freshly read the exact official script and checked its Timing011 manifest/motion/SPA predicates against GitHub-persisted readback; no remote CI worker was launched."
+  },
+  "persistence": {
+    "initial_motion_commit": "28d569250044751481fb6e992263f5b37448ab88",
+    "compact_render_commit": "1af4abe8337bc520f17e208dd409efb96e6a081e",
+    "final_compact_motion_commit": "cb9ccadf3dd65aff93912a9ddd0f74c009ab491f",
+    "contact_alignment_commit": "17b23de71d68548527cf2288bb906bf31e22cb5a",
+    "post_receipt_readback": "PENDING_THIS_WRITE"
+  },
+  "issue_343_receipt": null,
+  "three_part_chat_delivery": false,
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "FIX ARC", "FIX SUPPORT", "FIX SECONDARY LAG", "FIX EFFECT TAIL", "RERUN"]
+}
