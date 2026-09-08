@@ -211,13 +211,13 @@ causal_role=recoil with displaced balance
                           O
                           /
                          +
-                        /|\
-                       / |  \
+                        /|\\
+                       / |  \\
                       / |     r
                      l  @
                       o/ \o
                      /     \
-                     /      \
+                     /      \\
                     L         R
        [===============================]
 
@@ -234,7 +234,7 @@ causal_role=earn recovery with a real plant
                          O
                          /
                         +
-                       /|\
+                       /|\\
                      // |  \r
                     l   |
                         @
