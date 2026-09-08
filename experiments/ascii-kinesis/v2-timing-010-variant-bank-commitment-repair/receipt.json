@@ -88,14 +88,21 @@
     "files": {
       "build.py": "83929fb5d0f0dfaed935efec26f4a5c0c9d81c1b",
       "contact-sheet.txt": "78880631cef92ff75b5ad9459be71548a5d2cb79",
-      "manifest.json_pre_status_refresh": "4be02d4c0158e0b897c366f3f4ca97279ce7c8b5",
+      "manifest.json_before_final_health_refresh": "cfb48ddd276becfa8ec2650be24b5df9d5c98dfa",
       "motion.json": "7ffd15143b0e89d65c2c860d67d257b72693773e",
-      "receipt.json_pre_status_refresh": "f9994692d5e8ad328fff3601923fcf11144132f3",
+      "receipt.json_before_final_health_refresh": "308f49321187f7d41503249b0e0b7631971a31f7",
       "variant-bank-commitment-repair.motion.html": "c195fb9436ee77dafbdf8670a87e703d54b205bc"
     }
   },
-  "issue_343_receipt": "PENDING_READY_FOR_USER_SURFACE_COMMENT",
-  "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "issue_343_ready_for_user_surface_receipt": 5591976507,
+  "issue_343_healthy_user_surfaced_receipt": 5591991553,
+  "chat_delivery": {
+    "result": "PASS",
+    "order": ["PART 1 ASCII","PART 2 JSON","PART 3 VIDEO"],
+    "ascii": "complete selectable aligned deterministic chat rendering from exact persisted decisive-key data; non-byte-identical to tracked helper",
+    "json": "structured deterministic rendering from exact persisted successor data; projection/whitespace truthfully labeled non-byte-identical",
+    "video": "visibly embedded byte-identical authoritative H.264 render"
+  },
+  "status": "HEALTHY_USER_SURFACED",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
 }
