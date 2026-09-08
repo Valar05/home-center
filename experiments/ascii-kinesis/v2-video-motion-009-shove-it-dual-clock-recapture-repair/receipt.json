@@ -10,10 +10,7 @@
     "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
     "source_change": false,
     "binding_successor": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
-    "successor_inventory": {
-      "prior_legitimate_successors_revising_video_motion_003": 0,
-      "selected_storage_identity": "009"
-    }
+    "successor_inventory": {"prior_legitimate_successors_revising_video_motion_003": 0, "selected_storage_identity": "009"}
   },
   "source_identity": {
     "title": "Shove it.webm",
@@ -32,7 +29,7 @@
     "inferred": [
       "Every successor decisive body pose, body/board separation geometry, board angle, support-side assignment, authored recapture instant, authored ground-contact instant, COM/load transfer, limb sequencing, overshoot, secondary lag, recovery debt, and ONES/TWOS/FOURS compile cadence.",
       "Body clock and board clock are deliberately separated to make the documented shove-it action legible; exact source synchronization is not claimed.",
-      "Motion Dungeon travel arcs are authored compile geometry and not source-frame reconstruction."
+      "Motion Dungeon travel arcs and K14B recovery bridge are authored compile geometry and not source-frame reconstruction."
     ],
     "unknown": [
       "Exact source-frame toe-off / board-release instant",
@@ -46,8 +43,8 @@
   "media": {
     "authoritative": "embedded_mp4_in_spa",
     "tracked_mp4": false,
-    "sha256": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
-    "bytes": 27172,
+    "sha256": "d4ff3bf22c696fc52afdb534a6444f23621d3329f7b0e5d3011d4def7e041808",
+    "bytes": 11084,
     "codec": "H.264",
     "decode_verified": true,
     "duration_s": 2.2916666666666665,
@@ -56,55 +53,27 @@
     "width": 432,
     "height": 220,
     "pixel_format": "yuv420p",
-    "identity_reconciliation": {
-      "canonical_builder_motion_sha": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
-      "preexisting_motion_manifest_sha": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
-      "stale_intermediate_receipt_sha": "442c7fcbd561ee3aace354b916dbd13274934ec2a573232b1c58a6420961f064",
-      "verdict": "The stale intermediate receipt-only hash is superseded; current canonical builder + exact authored motion reproduces the pre-existing motion.json/manifest media identity and current worker decoded that exact render."
-    }
+    "source": "abstract_ascii_rig_only",
+    "encoding_note": "Motion Dungeon corrected ASCII frame stream encoded H.264 CRF 30 after exact geometry/timing render; geometry and frame count unchanged.",
+    "identity_note": "Current worker corrected K14→K15 recovery crossing with authored K14B, rendered 55 exact ASCII frames, encoded final H.264, decoded the result, and inspected the full sequence."
   },
-  "per_key_timing": [
-    {"key_id":"K0","causal_role":"OFFSET_ROLL_READY","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
-    {"key_id":"K1","causal_role":"BACK_ARM_COUNTERSWEEP","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
-    {"key_id":"K2","causal_role":"DEEP_DIAGONAL_LOAD","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":1},
-    {"key_id":"K3","causal_role":"SCOOP_AND_UNWIND","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
-    {"key_id":"K4","causal_role":"AUTHORED_RELEASE_BOUNDARY","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
-    {"key_id":"K5","causal_role":"BOARD_CLOCK_BREAKAWAY","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
-    {"key_id":"K6","causal_role":"BODY_HANG_BOARD_RUNS","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
-    {"key_id":"K7","causal_role":"MAX_CLOCK_SEPARATION","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
-    {"key_id":"K8","causal_role":"COUNTERTWIST_PAYS_BACK","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
-    {"key_id":"K9","causal_role":"RECAPTURE_AIM_BRIDGE","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
-    {"key_id":"K10","causal_role":"CONTACT_ELIGIBILITY_GATE","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
-    {"key_id":"K11","causal_role":"AUTHORED_RECAPTURE_CLAMP","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
-    {"key_id":"K12","causal_role":"AUTHORED_GROUND_CATCH","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
-    {"key_id":"K13","causal_role":"DEEP_LANDING_SKEW","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
-    {"key_id":"K14","causal_role":"ROLL_AWAY_OVERSHOOT","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":2},
-    {"key_id":"K15","causal_role":"SECONDARY_LAG_SETTLE","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":2},
-    {"key_id":"K16","causal_role":"RECOVERY_DEBT_EXIT","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":0}
-  ],
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
-      "rounds_total_lineage": 3,
-      "inspection_scope": "current worker decoded and inspected all 55 frames chronologically in five complete review sheets from the exact final Motion Dungeon render",
-      "verdict": "PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."
+      "rounds_total_lineage": 5,
+      "inspection_scope": "current worker rebuilt the persisted pre-correction render byte-identically, inspected all frames, rejected the K14→K15 generic bilateral T-pose crossing, inserted K14B plus a decisive snap boundary, rerendered, decoded and reinspected all 55 final frames",
+      "verdict": "PASS — asymmetric preparation/load, body-board clock separation, authored release, eligibility→recapture→ground-catch gates, crooked landing sink, directional overshoot, authored recovery arm debt, secondary lag and displaced exit are readable; the generic recovery crossing is gone."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
-      "rounds_total_lineage": 2,
-      "inspection_scope": "same exact final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
-      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."
+      "rounds_total_lineage": 3,
+      "inspection_scope": "same corrected final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: backward load, independent board clock, late rendezvous, crooked landing payment, one-arm recovery debt, overshoot, and displaced exit form one specific readable performance."
     }
   },
-  "quality_worklog": [
-    {"gate":"TANGO","round":1,"status":"REVISE_REQUIRED","highest_value_visible_defect":"The board clock reads as screen-plane pitch/cartwheel because a yaw angle was rendered as a long rotating diagonal. That weakens the central body/object clock idea and risks teaching the wrong motion.","correction":"Keep the authored yaw values but render them as horizontal foreshortening plus A/B endpoint-order inversion across 90 degrees; preserve all support/contact/root semantics."},
-    {"gate":"TANGO","round":2,"status":"PASS","historical_worker":true,"verdict":"After yaw-render correction, asymmetric countermove/load, clock separation, recapture and landing consequence were reported readable."},
-    {"gate":"TANGO","round":3,"status":"PASS","current_worker":true,"inspection_scope":"all 55 frames decoded from the exact canonical Motion Dungeon render and inspected chronologically in five complete review sheets","verdict":"PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."},
-    {"gate":"NOODLE_QUEEN","round":2,"status":"PASS","current_worker":true,"inspection_scope":"same exact final render plus complete specimen, only after current-worker Tango PASS","verdict":"PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."}
-  ],
   "contract_test": {
     "candidate_scoped_status": "PASS",
     "repo_global_status": "NOT_CLAIMED",
@@ -113,7 +82,7 @@
   },
   "repo_readback": "PENDING",
   "issue_receipt": null,
-  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
   "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX RECAPTURE","FIX LANDING","FIX SECONDARY LAG","FIX CHAT DELIVERY","RERUN"]
 }
