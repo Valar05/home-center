@@ -69,9 +69,14 @@ with tempfile.TemporaryDirectory(prefix="embodied-kinesis-canary-") as temp:
     registry, _ = ensure_registry(ROOT, cache, offline=True, config_path=CONFIG_PATH)
     resolved = resolve_jar(registry, "embodied-kinesis-voices")
     assert resolved is not None, "new jar does not resolve from local registry"
+    selected_jars = [resolve_jar(registry, key) for key in selected]
+    body_sizes = {item["id"]: len(str(item.get("body") or "")) for item in selected_jars if item is not None}
     packet = prompt_text(registry, selected, False)
     assert packet.strip()
-    assert len(packet) <= limit, f"default runtime packet too large: {len(packet)} > {limit}"
+    assert len(packet) <= limit, (
+        f"default runtime packet too large: {len(packet)} > {limit}; "
+        f"selected body sizes={json.dumps(body_sizes, sort_keys=True)}"
+    )
     for fragment in [
         "Embodied kinesis voice law",
         "Venice originated the mechanism; Venice does not become the house style",
@@ -87,6 +92,7 @@ print(json.dumps({
     "defaultLoaded": True,
     "runtimePacketCharacters": len(packet),
     "runtimePacketLimit": limit,
+    "selectedBodySizes": body_sizes,
     "blindCanaryCases": [case["id"] for case in cases],
     "crossChatPromptCarrier": True,
 }, sort_keys=True))
