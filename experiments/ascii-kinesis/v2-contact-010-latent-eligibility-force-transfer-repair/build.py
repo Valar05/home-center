@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import base64, hashlib, html, json, math, shutil, subprocess
+import base64, gzip, hashlib, json, math, shutil, subprocess
 from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parent
 MOTION_PATH=ROOT/'motion.json'; ASCII_PATH=ROOT/'contact-sheet.txt'; SPA_PATH=ROOT/'latent-eligibility-force-transfer-repair.motion.html'
 TMP=ROOT/'.motion-build'; FRAMES=TMP/'frames'; MP4=TMP/'motion.mp4'
 W,H,GROUND_Y=72,22,17; IMG_W,IMG_H,FPS=768,400,24; TIMING={'ONES':1,'TWOS':2,'FOURS':4}
+JOINTS=['head','shoulder','pelvis','hand_f','hand_b','foot_f','foot_b']
+
+def expand_pose(p):
+ return {j:p[i] for i,j in enumerate(JOINTS)} if isinstance(p,list) else p
 
 def line_cells(p0,p1):
  x0,y0=map(lambda v:int(round(v)),p0);x1,y1=map(lambda v:int(round(v)),p1);dx=abs(x1-x0);dy=-abs(y1-y0);sx=1 if x0<x1 else -1;sy=1 if y0<y1 else -1;err=dx+dy;out=[]
@@ -50,7 +54,7 @@ def contact_sheet(motion):
  ]
  parts.append('\n'.join(lead))
  for q in motion['keys']:
-  state={'A':q['pose_rig']['A'],'B':q['pose_rig']['B'],'contact':q['contact']}
+  state={'A':expand_pose(q['pose_rig']['A']),'B':expand_pose(q['pose_rig']['B']),'contact':q['contact']}
   meta=(f"{q['key_id']}  {q['phase']}  [{q['timing_class']}/{q['timing_provenance']}]\n"
         f"eligibility={q['eligibility']} | contact={q['contact']} | custody={q['custody']}\n"
         f"support={q['support_contact']} | root={q['root']}\n"
@@ -70,12 +74,12 @@ def semantics(q):return (q['contact'],q['custody'],q['support_contact'],q['eligi
 def sequence(m):
  out=[]
  for i,q in enumerate(m['keys']):
-  k={'id':q['key_id'],'phase':q['phase'],'A':q['pose_rig']['A'],'B':q['pose_rig']['B'],'contact':q['contact'],'eligibility':q['eligibility'],'custody':q['custody'],'support_contact':q['support_contact'],'root':q['root']}
+  k={'id':q['key_id'],'phase':q['phase'],'A':expand_pose(q['pose_rig']['A']),'B':expand_pose(q['pose_rig']['B']),'contact':q['contact'],'eligibility':q['eligibility'],'custody':q['custody'],'support_contact':q['support_contact'],'root':q['root']}
   out.extend([k]*TIMING[q['timing_class']])
   if i+1<len(m['keys']):
    n=m['keys'][i+1]
    if semantics(q)==semantics(n):
-    out.append({**k,'id':q['key_id']+'~'+n['key_id'],'phase':'CONNECTIVE','A':interp(k['A'],n['pose_rig']['A'],.5,-.45),'B':interp(k['B'],n['pose_rig']['B'],.5,.45)})
+    out.append({**k,'id':q['key_id']+'~'+n['key_id'],'phase':'CONNECTIVE','A':interp(k['A'],expand_pose(n['pose_rig']['A']),.5,-.45),'B':interp(k['B'],expand_pose(n['pose_rig']['B']),.5,.45)})
  return out
 
 def fonts():
@@ -96,9 +100,12 @@ def render_video(m):
  subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(FRAMES/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
  return seq
 
+def gz64(text):
+ return base64.b64encode(gzip.compress(text.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+
 def build_spa(m,sheet,mp4):
- asc=html.escape(sheet); js=html.escape(json.dumps(m,indent=2,ensure_ascii=True));v=base64.b64encode(mp4).decode('ascii')
- return f"""<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{m['experiment_id']}</title><style>html,body{{margin:0;background:#0b0b0b;color:#eee;font-family:system-ui,sans-serif}}nav{{position:sticky;top:0;background:#111;padding:8px;border-bottom:1px solid #444}}button[data-view]{{margin-right:8px;padding:8px 14px}}section{{display:none;padding:12px}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08}}video{{display:block;max-width:100%;height:auto;margin:auto}}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre>{asc}</pre></section><section id="json"><pre>{js}</pre></section><section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{v}"></video></section><script>document.querySelectorAll('button[data-view]').forEach(b=>b.addEventListener('click',()=>{{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(b.dataset.view).classList.add('active')}}));</script></body></html>"""
+ a=gz64(sheet); j=gz64(json.dumps(m,separators=(',',':'),ensure_ascii=True)); v=base64.b64encode(mp4).decode('ascii')
+ return f"""<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{m['experiment_id']}</title><style>html,body{{margin:0;background:#0b0b0b;color:#eee;font-family:system-ui,sans-serif}}nav{{position:sticky;top:0;background:#111;padding:8px;border-bottom:1px solid #444}}button[data-view]{{margin-right:8px;padding:8px 14px}}section{{display:none;padding:12px}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08}}video{{display:block;max-width:100%;height:auto;margin:auto}}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre id="a"></pre></section><section id="json"><pre id="j"></pre></section><section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{v}"></video></section><script>const D=async s=>new TextDecoder().decode(await new Response(new Blob([Uint8Array.from(atob(s),c=>c.charCodeAt(0))]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());(async()=>{{a.textContent=await D('{a}');j.textContent=await D('{j}')}})();document.querySelectorAll('button[data-view]').forEach(b=>b.addEventListener('click',()=>{{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(b.dataset.view).classList.add('active')}}));</script></body></html>"""
 
 def main():
  m=json.loads(MOTION_PATH.read_text(encoding='utf-8'));sheet=contact_sheet(m);ASCII_PATH.write_text(sheet,encoding='utf-8');seq=render_video(m);mp4=MP4.read_bytes();got=hashlib.sha256(mp4).hexdigest();expected=m['motion_dungeon'].get('media_sha256')
