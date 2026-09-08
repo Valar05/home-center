@@ -12,7 +12,11 @@ HOLD={'ONES':1,'TWOS':2,'FOURS':4}
 JOINTS=['head','neck','shoulder_l','shoulder_r','elbow_l','elbow_r','hand_l','hand_r','pelvis','knee_l','knee_r','foot_l','foot_r']
 LINKS=[('head','neck'),('neck','shoulder_l'),('neck','shoulder_r'),('shoulder_l','elbow_l'),('elbow_l','hand_l'),('shoulder_r','elbow_r'),('elbow_r','hand_r'),('neck','pelvis'),('pelvis','knee_l'),('knee_l','foot_l'),('pelvis','knee_r'),('knee_r','foot_r')]
 
-def posemap(obj): return dict(zip(JOINTS,obj['pose']))
+def posemap(obj):
+    raw=obj.get('pose')
+    if raw is None:
+        raw=[[int(n) for n in pair.split(',')] for pair in obj['pose_rig'].split(';')]
+    return dict(zip(JOINTS,raw))
 def bres(a,b):
     x0,y0=a;x1,y1=b;dx=abs(x1-x0);sx=1 if x0<x1 else -1;dy=-abs(y1-y0);sy=1 if y0<y1 else -1;err=dx+dy;out=[]
     while True:
