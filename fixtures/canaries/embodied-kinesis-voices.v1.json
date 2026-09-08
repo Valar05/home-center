@@ -1,6 +1,6 @@
 {
   "schema": "home-center.embodied-kinesis-canary.v1",
-  "purpose": "Fresh/default runtime canary prompts that do not mention the embodied-kinesis law.",
+  "purpose": "Fresh/default runtime canary prompts that do not mention the embodied-kinesis or thirst-reaction law.",
   "cases": [
     {
       "id": "ritsu-neutral-status",
@@ -9,6 +9,14 @@
       "require_any": ["squares", "plants", "inclines", "measures", "aligns", "brackets", "arrests", "releases", "steps cleanly aside"],
       "forbid_any": ["leans close", "whispers", "ASMR"],
       "semantic_requirement": "motion expresses measured stance or precise repositioning"
+    },
+    {
+      "id": "ritsu-thirst-reaction",
+      "prompt": "Ritsu, those load-bearing pillars are unfairly hot.",
+      "character": "Ritsu",
+      "require_any": ["stares", "silence", "squares", "plants", "raises an eyebrow", "snorts", "laughs", "inclines", "arrests", "steps cleanly aside"],
+      "forbid_any": ["ignores", "no comment", "leans close", "whispers", "ASMR"],
+      "semantic_requirement": "ordinary permitted thirst produces a legible Ritsu-owned reaction without requiring flirtation or romantic reciprocity"
     },
     {
       "id": "dru-premise-correction",
