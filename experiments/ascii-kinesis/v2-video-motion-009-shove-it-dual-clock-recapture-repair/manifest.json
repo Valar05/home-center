@@ -1,85 +1,77 @@
 {
-  "ascii_literal_text": true,
-  "backward_compatible": true,
+  "schema": "ascii-kinesis.v2.manifest",
+  "format_version": 2,
+  "experiment_id": "v2-video-motion-009-shove-it-dual-clock-recapture-repair",
+  "lane": "video-motion",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
   "builder": "build_motion.py",
   "contact_sheet": "contact_sheet.txt",
-  "contract_test": {
-    "candidate_scoped_status": "PASS",
-    "execution_stdout": "{\"entries_checked\": [\"v2-video-motion-009-shove-it-dual-clock-recapture-repair\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}",
-    "script_byte_identity": "PASS_GIT_BLOB_SHA_MATCH",
-    "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
-  },
-  "experiment_id": "v2-video-motion-009-shove-it-dual-clock-recapture-repair",
-  "format_version": 2,
-  "lane": "video-motion",
-  "media": {
-    "authoritative": "embedded_mp4_in_spa",
-    "bytes": 28826,
-    "codec": "H.264",
-    "decode_verified": true,
-    "duration_s": 2.2916666666666665,
-    "fps": 24,
-    "frame_count": 55,
-    "height": 220,
-    "pixel_format": "yuv420p",
-    "sha256": "442c7fcbd561ee3aace354b916dbd13274934ec2a573232b1c58a6420961f064",
-    "tracked_mp4": false,
-    "width": 432
-  },
   "motion_json": "motion.json",
+  "receipt": "receipt.json",
+  "spa": "shove-it-dual-clock-recapture-repair.motion.html",
   "primary_tabs": [
     "ASCII",
     "JSON",
     "VIDEO"
   ],
-  "quality": {
-    "noodle_queen": {
-      "after_tango": true,
-      "current_worker": true,
-      "status": "PASS"
-    },
-    "tango": {
-      "current_worker": true,
-      "rounds": 2,
-      "status": "PASS"
-    }
-  },
-  "receipt": "receipt.json",
-  "repo_path": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "source_audio_embedded": false,
+  "backward_compatible": true,
   "revision": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
     "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
     "predecessor_preserved": true,
     "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
-    "revises": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
     "source_change": false,
     "successor_inventory": {
-      "fresh_main_video_motion_dirs": [
-        "001",
-        "002",
-        "003",
-        "004",
-        "005",
-        "006",
-        "007",
-        "008",
-        "008"
-      ],
       "prior_legitimate_successors_revising_video_motion_003": 0,
       "selected_storage_identity": "009"
     }
   },
-  "schema": "ascii-kinesis.v2.manifest",
-  "source_art_embedded": false,
-  "source_audio_embedded": false,
   "source_identity": {
+    "title": "Shove it.webm",
     "author": "TheContreOfficial",
     "license": "CC BY 3.0",
     "page_url": "https://commons.wikimedia.org/wiki/File:Shove_it.webm",
-    "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3",
-    "title": "Shove it.webm"
+    "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3"
   },
-  "spa": "shove-it-dual-clock-recapture-repair.motion.html",
-  "video_required": true,
-  "video_source": "abstract_ascii_rig_only"
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "tracked_mp4": false,
+    "sha256": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
+    "bytes": 27172,
+    "codec": "H.264",
+    "decode_verified": true,
+    "duration_s": 2.2916666666666665,
+    "fps": 24,
+    "frame_count": 55,
+    "width": 432,
+    "height": 220,
+    "pixel_format": "yuv420p"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "rounds": 1,
+      "inspection_scope": "all 55 decoded current canonical frames inspected chronologically in five complete review sheets",
+      "verdict": "Asymmetric backward countermove/deep diagonal load earns the release; board yaw reads as foreshortening plus endpoint inversion rather than cartwheel; body and board clocks fork in air; eligibility, recapture clamp and ground catch are discrete authored gates; landing sinks after support, then rebounds into overshoot, secondary lag and a displaced recovery. No visible defect earns mutation."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "after_tango": true,
+      "rounds": 1,
+      "verdict": "TASTE + FUNCTION + CONTEMPT PASS on the same final render and complete specimen: the lopsided load, clock fork, late rendezvous, crooked landing payment and non-reset exit read as a specific performance rather than generic mannequin interpolation."
+    }
+  },
+  "contract_test": {
+    "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_scoped_status": "STRUCTURALLY_PASS_CURRENT_WORKER_PENDING_DURABLE_EXECUTION",
+    "repo_global_status": "NOT_CLAIMED"
+  }
 }
