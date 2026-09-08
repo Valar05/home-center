@@ -1,0 +1,419 @@
+ASCII KINESIS V2 TIMING 009 - CLOCK RENDEZVOUS / REACQUIRE REPAIR
+revises: experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/
+negative_fixture: experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/
+SOURCE ART: NONE | TSR ASSET 3116 EVIDENCE FAMILY INHERITED | SOURCE TIMING: NONE OBSERVED
+TIMING: STREET_FIGHTER/CAPCOM | ONES=1 display frame | TWOS=2 | FOURS=4 | 1s/2s/4s ARE CLASSES, NEVER SECONDS
+CLOCKS: BODY_CLOCK and OBJECT_CLOCK diverge after release; K08 is the only rendezvous/catch sync join.
+GLYPHS: O head, @ COM/root, L/R feet, a/b hands, * detached generic phase token, | abstract phase gate.
+VISIBLE PHRASE: OFFSET READY -> ASYM COIL -> RELEASE -> ACCELERATE -> BRAKE -> BODY HOLD/OBJECT TURN -> RENDEZVOUS COIL -> PRE-CATCH -> CONTACT -> ABSORB -> OVERSHOOT -> RECOVERY DEBT -> NEW READY
+
+[K00] OFFSET_READY
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet grounded; token docked to right hand | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root tall at x16; weight slightly left; no reset debt
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=establish asymmetric ready; token body-local
+clocks BODY=READY | OBJECT=DOCKED
+
+
+
+
+
+                                          |
+                O                         |
+                |                         |
+                |
+              o-+-o
+             /  |  o
+             o  |   \
+             |  |   b*
+             a o@o
+               | |
+              |   |
+              o   o
+             /     \
+             L      R
+    ____________________________________________
+
+
+[K01] ASYM_COIL
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet contact; left leg carries authored load; token still body-local | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root drops/back to x14; COM compresses before release
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=load left hip and wind torso against intended travel
+clocks BODY=COIL | OBJECT=PRELOAD
+
+
+
+
+
+                                          |
+                                          |
+               O                          |
+               |
+              |
+            o-+-o
+          o/  |  o
+         /    |   \
+         a    |   b*
+             o@o
+            /   \
+            o    o
+           /      \
+           L       R
+    ____________________________________________
+
+
+[K02] RELEASE_SPIKE
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Left foot load-bearing; right foot airborne; hand/token relationship releases | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root rises/advances; right foot unweights before leaving
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=release token and begin root acceleration from left support
+clocks BODY=RELEASE | OBJECT=RELEASED
+
+
+
+
+
+                                          |
+                  O                       |
+                  |      *                |
+                 |    /b
+              -o-+-o-o
+            o-   /
+          a/    /
+                /
+              o@o
+              |  \
+             |    o
+             o     \
+            /       R
+           L
+    ____________________________________________
+
+
+[K03] CROSSING_ACCEL
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Left foot remains last support; right leg reaches ahead; no token contact | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root arcs forward/up; no new contact; token rises on separate arc
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=keep body traveling while object clock outruns body
+clocks BODY=TRAVEL_ACCEL | OBJECT=OUTBOUND_FAST
+
+
+
+
+                               *
+                     O                    |
+                     |                    |
+                    |                     |
+                 -o-+-o
+              -o-   /  \o
+            a-     /     \
+                   /     b
+                 o@o
+                /   \
+               /     o
+              o       \
+             /         R
+            /
+           L
+    ____________________________________________
+
+
+[K04A] RIGHT_TOUCHDOWN_SPIKE
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Right foot acquires ground; left foot still trailing airborne; token remains free | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root lands one cell beyond crossing line; right foot contact is the brake trigger, not an idle reset
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=support-change contact spike that converts crossing velocity into the subsequent brake hold
+clocks BODY=RIGHT_TOUCHDOWN | OBJECT=OUTBOUND_FAST
+
+
+
+
+                                  *
+
+                                          |
+                      O                   |
+                      |                   |
+                     |
+                  -o-+-o
+               -o-   /  \o
+             a-     /     \b
+                    /
+                  o@o
+                 /   \
+                 /    \
+                o      o
+              L/        \
+                         R
+    ____________________________________________
+
+
+[K04] RIGHT_CATCH_BRAKE
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Right foot load-bearing; left foot clear; token independent and outbound | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root drops onto right support; body decelerates visibly
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=land into a low brake while token continues away
+clocks BODY=BRAKE_HOLD | OBJECT=OUTBOUND_SLOW
+
+
+
+
+                                     *
+                                          |
+                                          |
+                     O                    |
+                     |
+                     |
+                   o-+-o
+                  /  |  \
+                  o  |  o
+                  |   |  \
+                  a  o@o b
+                    /   \
+                   o     o
+                  L       \
+                          R
+    ____________________________________________
+
+
+[K05] OBJECT_TURN_BODY_HOLD
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=object
+support/contact=Right foot remains sole support; token independent; no new body contact | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=body pose/root held; token arcs through turn without body rekey
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=prove independent clocks: body state holds while token changes phase
+clocks BODY=BRAKE_HOLD | OBJECT=TURN
+
+
+
+
+
+                                          |
+                                          |
+                     O                  * |
+                     |
+                     |
+                   o-+-o
+                  /  |  \
+                  o  |  o
+                  |   |  \
+                  a  o@o b
+                    /   \
+                   o     o
+                  L       \
+                          R
+    ____________________________________________
+
+
+[K06] RENDEZVOUS_COIL
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet grounded; right remains primary load; token returning free | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root stays low; chest winds left while catch arm opens right
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=acquire second support and coil against returning token before catch
+clocks BODY=RENDEZVOUS_COIL | OBJECT=RETURN_ACCEL
+
+
+
+
+
+                                          |
+                                          |
+                     O                    |
+                     |
+                      |     /b      *
+                    o-+-o--o
+                  o/  |
+                 /    |
+                 a     |
+                      o@o
+                     /   \
+                     o    o
+                    /      \
+                    L       R
+    ____________________________________________
+
+
+[K07] PRE_CATCH_REACH
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet contact; load shifts forward; token still free | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root advances only one cell while chest opens; hand reaches under returning token; visible gap remains before contact
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=readable pre-catch reach: hand and free token remain visibly separated before the join
+clocks BODY=REACH_ACCEL | OBJECT=RETURN_FAST
+
+
+
+
+
+                                          |
+                          O               |
+                          |        *      |
+                         |  /o
+                       o-+-o  \b
+                      /  |
+                     o   |
+                    /   |
+                    a  o@o
+                       |  \
+                      |   \
+                      o    o
+                     /      \
+                     L       R
+    ____________________________________________
+
+
+[K08] RENDEZVOUS_CONTACT
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet contact; right hand acquires token at x33,y9 | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root/torso still committed forward at contact; no instant settle
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=single causal join: hand and token meet without global clock reset
+clocks BODY=CONTACT | OBJECT=RENDEZVOUS
+causal_join=RENDEZVOUS_CATCH | sync_scope=BODY_CLOCK,OBJECT_CLOCK | relation=FREE_TOKEN -> RIGHT_HAND_OWNED
+
+
+
+
+
+                                          |
+                            O             |
+                            |             |
+                           |  /o-*
+                        -o-+-o
+                      o-   /
+                     /    /
+                     a    /
+                        o@o
+                        |  \
+                       |   \
+                       o    o
+                      /      \
+                      L       R
+    ____________________________________________
+
+
+[K09] ABSORB_CONTACT
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=body
+support/contact=Both feet grounded; hand-token contact preserved; load broadens | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root continues past contact and drops; arm folds under load
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=hold consequence: flex arm and sink COM while retaining capture
+clocks BODY=ABSORB | OBJECT=CAPTURED
+
+
+
+
+
+                                          |
+                                          |
+                            O             |
+                            |
+                            |
+                          o-+-o*
+                        o/  |  o
+                       /    |
+                       a   |
+                          o@o
+                         /   \
+                         o    o
+                        /      \
+                       L        R
+    ____________________________________________
+
+
+[K10] TORSO_OVERSHOOT
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=body
+support/contact=Both feet grounded; token remains hand-owned; no reverse interpolation | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=chest passes root line while catch arm trails downward
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=body overshoots past caught token; captured task lags
+clocks BODY=OVERSHOOT | OBJECT=CAPTURED
+
+
+
+
+
+                                          |
+                                          |
+                               O          |
+                               |
+                              |
+                           -o-+-o
+                         o-   /  \
+                        /    /   o
+                        a    /  *
+                           o@o
+                          /   \
+                          o    o
+                         /      \
+                        L        R
+    ____________________________________________
+
+
+[K11] RECOVERY_DEBT
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet grounded; token body-local; stance remains asymmetrical | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root restacks only partly; token carried low across body
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=pay recovery debt before local task phase becomes ready again
+clocks BODY=RECOVERY_DEBT | OBJECT=REACQUIRE_LAG
+
+
+
+
+
+                                          |
+                             O            |
+                             |            |
+                             |
+                           o-+-o
+                          /  |/
+                          o  |o
+                          |  |
+                          a *@o
+                            |  \
+                           |   \
+                           o    o
+                          /      \
+                          L       R
+    ____________________________________________
+
+
+[K12] AFTER_DEBT_READY
+pose/rig=AK_GENERIC_HUMANOID_PLUS_PHASE_TOKEN_V2 | changed_channels=both
+support/contact=Both feet grounded; token body-local; stable final support | support_topology=BOTH | contact_topology=HAND_TOKEN
+root/motion-arc=root settles at x30; token low-ready; debt visibly paid
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=finish at a new address and a new asymmetric ready, not idle reset
+clocks BODY=AFTER_DEBT | OBJECT=REACQUIRED
+
+
+
+
+
+                                          |
+                              O           |
+                              |           |
+                              |
+                            o-+-o
+                           /  |  \
+                           o  |  o
+                           |  | /
+                           a o@o*
+                             | |
+                            |   |
+                            o   o
+                           /     \
+                           L      R
+    ____________________________________________
+
+
+RIGHTS FIREWALL: no source pixels, palette, contours, layout, tracing, choreography, redistribution, or close imitation.
+CONNECTIVE MOTION: deterministic authored arcs only; support/contact changes snap at decisive keys and cannot be invented by interpolation.
