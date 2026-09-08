@@ -21,23 +21,19 @@
   },
   "evidence_split": {
     "observed": [
-      "Wikimedia Commons identifies the action as a shove-it: the skateboard spins 180 degrees or more under the skateboarder's feet.",
-      "Inherited authorized predecessor custody matched Commons SHA-1 102cd768e940a7ccdf3349d26ebea479ae9e1a0b and source SHA-256 352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3; decode reported 1920x1080 VP8, 30 fps presentation stream, 6.570 s duration.",
-      "Inherited ordered whole-clip and 2.5–5.5 s motion-mask inspection established a concentrated action burst in that coherent segment, but not exact foot/board events.",
-      "Current rights identity remains TheContreOfficial / Wikimedia Commons / CC BY 3.0."
+      "source identity/rights/hash/decode metadata and inherited ordered inspection of the coherent 2.5–5.5 s action segment",
+      "presentation/decode evidence is not athletic cadence evidence"
     ],
     "inferred": [
-      "Every successor decisive body pose, body/board separation geometry, board angle, support-side assignment, authored recapture instant, authored ground-contact instant, COM/load transfer, limb sequencing, overshoot, secondary lag, recovery debt, and ONES/TWOS/FOURS compile cadence.",
-      "Body clock and board clock are deliberately separated to make the documented shove-it action legible; exact source synchronization is not claimed.",
-      "Motion Dungeon travel arcs and K14B recovery bridge are authored compile geometry and not source-frame reconstruction."
+      "all successor body/board pose semantics, support assignments, board angles, recapture and ground-catch instants, COM/load transfer, arcs, secondary lag, K14B recovery bridge, and ONES/TWOS/FOURS compile timing"
     ],
     "unknown": [
-      "Exact source-frame toe-off / board-release instant",
-      "Exact real left/right support ownership",
-      "Exact source-frame board angle at each body pose",
-      "Exact source-frame foot-to-board recapture instant",
-      "Exact source-frame first board-ground landing instant",
-      "Source-authentic athletic/gameplay cadence"
+      "exact source-frame toe-off",
+      "exact support side",
+      "exact source board angles",
+      "exact source-frame recapture instant",
+      "exact source-frame first board-ground instant",
+      "source-authentic cadence"
     ]
   },
   "media": {
@@ -54,24 +50,21 @@
     "height": 220,
     "pixel_format": "yuv420p",
     "source": "abstract_ascii_rig_only",
-    "encoding_note": "Motion Dungeon corrected ASCII frame stream encoded H.264 CRF 30 after exact geometry/timing render; geometry and frame count unchanged.",
-    "identity_note": "Current worker corrected K14→K15 recovery crossing with authored K14B, rendered 55 exact ASCII frames, encoded final H.264, decoded the result, and inspected the full sequence."
+    "encoding_note": "Motion Dungeon corrected ASCII frame stream encoded H.264 CRF 30 after exact geometry/timing render; geometry and frame count unchanged."
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
       "rounds_total_lineage": 5,
-      "inspection_scope": "current worker rebuilt the persisted pre-correction render byte-identically, inspected all frames, rejected the K14→K15 generic bilateral T-pose crossing, inserted K14B plus a decisive snap boundary, rerendered, decoded and reinspected all 55 final frames",
-      "verdict": "PASS — asymmetric preparation/load, body-board clock separation, authored release, eligibility→recapture→ground-catch gates, crooked landing sink, directional overshoot, authored recovery arm debt, secondary lag and displaced exit are readable; the generic recovery crossing is gone."
+      "verdict": "PASS after current-worker K14B recovery-bridge correction and full 55-frame decoded render inspection; generic K14→K15 bilateral crossing removed."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
       "rounds_total_lineage": 3,
-      "inspection_scope": "same corrected final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
-      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: backward load, independent board clock, late rendezvous, crooked landing payment, one-arm recovery debt, overshoot, and displaced exit form one specific readable performance."
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT on the corrected final render and complete specimen."
     }
   },
   "contract_test": {
@@ -80,9 +73,25 @@
     "script_byte_identity": "PASS_GIT_BLOB_SHA_MATCH",
     "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
   },
-  "repo_readback": "PENDING",
-  "issue_receipt": null,
+  "repo_readback": {
+    "status": "PASS",
+    "main_head_before_receipt_annotation": "a5134cf43ffa90598c8e02c9ff545284cc9da785",
+    "exact_file_count": 6,
+    "exact_spa_count": 1,
+    "blobs": {
+      "build_motion.py": "9acc908d4da3372e31247aee08276af883126437",
+      "contact_sheet.txt": "9f41e80c94e3fd52cd05e6416971714e177d806b",
+      "manifest.json": "3e1d2168c4b790f1335427a5afc59cbc5f6468d3",
+      "motion.json": "9efc7d1ffd32cdaf9330b709408dbf9abdf0db59",
+      "receipt.json_pre_annotation": "e054059e554b5dbbb74056895172d8c7608b51e4",
+      "shove-it-dual-clock-recapture-repair.motion.html": "f3090652352b1cca679223729872318752c3ba99"
+    },
+    "spa_blob_readback": "PASS_FULL_BLOB",
+    "motion_k14b_readback": "PASS",
+    "manifest_media_identity_readback": "PASS"
+  },
+  "issue_receipt": 5593350364,
   "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX RECAPTURE","FIX LANDING","FIX SECONDARY LAG","FIX CHAT DELIVERY","RERUN"]
 }
