@@ -19,7 +19,7 @@
   "source": {
     "provider": "The Spriters Resource",
     "asset_id": 128015,
-    "identity": "Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC",
+    "identity": "Bob \u2014 Bob the Builder: Fix It Fun! \u2014 Game Boy / GBC",
     "url": "https://www.spriters-resource.com/game_boy_gbc/bobthebuilderfixitfun/asset/128015/",
     "whole_sheet": {
       "width": 506,
@@ -38,8 +38,8 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "7f68309e3dab5801067f8ae6f7554c409a5133a50810ed1616db6261637320b1",
-    "bytes": 41534,
+    "sha256": "d2e95cd613c0d57fde8f7a42eddd09d286c7545b053461eb35da7bc02623a5a8",
+    "bytes": 45776,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
@@ -48,23 +48,25 @@
       "height": 480,
       "fps": "24/1",
       "frames": 58,
-      "duration_seconds": 2.416667
+      "duration_seconds": 2.4166666666666665
     }
   },
   "quality": {
     "tango": "PASS",
-    "noodle_queen": "PASS"
+    "tango_iterations": 2,
+    "noodle_queen": "PASS",
+    "current_worker_actual_render_inspected": true
   },
   "contract": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "scope": "candidate-isolated",
     "status": "PASS",
+    "repo_global_claimed": false,
     "exit_code": 0,
     "entries_checked": [
       "v2-locomotion-010-cadence-surge-brake-repair"
-    ],
-    "repo_global_claimed": false
+    ]
   },
-  "status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY"
+  "status": "CANDIDATE_QUALITY_CONTRACT_PASS_PERSISTENCE_PENDING"
 }
