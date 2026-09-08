@@ -1,0 +1,99 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "evaluation": {
+    "noodle_queen": {
+      "judgment": "TASTE+FUNCTION+CONTEMPT PASS: the deep split coil, compact two-anchor hinge, diagonal airborne partner, release fork, collapsed recoil, and forward overshoot are distinct silhouettes; force/contact ownership is embodied rather than caption-dependent; transfer and release are coherent; recovery carries visible debt; the animation is economical without looking like placeholder mannequins or tween sludge.",
+      "render_media_sha256": "6d07a4a756176cb03010e7059b613be310ab3bcee1b48a2bd31bdf06411ac9b5",
+      "status": "PASS"
+    },
+    "tango": {
+      "iterations": [
+        {
+          "correction": "Reduce the force visualization to a local >X< hinge around the shared center and compare anchor endpoint/owner identity rather than changing anchor coordinates, so K3->K4 and K5->K6 compile actual locked curved relationship motion without changing contact/support/custody events.",
+          "highest_value_visible_defect": "The contact core reads as a dense horizontal force-bar that obscures both bodies and the lock/load silhouette; the intended locked curved bridges also fail to compile because anchor coordinates were incorrectly treated as topology identity.",
+          "iteration": 1,
+          "render_media_sha256": "b312d62d59f18d2c424a0ea02f9fb09673389eff4519744f49dbfc578754384b",
+          "verdict": "REVISE_REQUIRED"
+        },
+        {
+          "correction": "On every LOCKED_POLAR bridge, snap both authored endpoint joints to the same interpolated anchor coordinate while preserving shared-center motion and planted-support geometry.",
+          "highest_value_visible_defect": "Locked bridge frames preserve relationship state in metadata but the rendered grip endpoints can drift away from the moving anchor marker, making ownership briefly float during leverage and throw.",
+          "iteration": 2,
+          "render_media_sha256": "7128cb863e8d4c2f70f494b1c021919750878501ca0972bb48b98d580330ad95",
+          "verdict": "REVISE_REQUIRED"
+        },
+        {
+          "iteration": 3,
+          "judgment": "Actual movie and decisive/bridge frame inspection show an asymmetric low approach, distinct first/second acquisition, readable >X< relationship hinge, opposing leverage arcs, support loss only after load, a curved locked throw, explicit release gap, divergent partner lag/carrier recoil, forward overshoot, authored ground consequence, and recovery debt. No material symmetry, equal-spacing, straight semantic tween, floating anchor, ownership ambiguity, reverse interpolation, or idle-reset defect remains.",
+          "render_media_sha256": "6d07a4a756176cb03010e7059b613be310ab3bcee1b48a2bd31bdf06411ac9b5",
+          "verdict": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "experiment_id": "v2-contact-007-scoped-sync-grapple-repair",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "scoped-sync-grapple-repair.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media_bytes": 57397,
+  "media_sha256": "6d07a4a756176cb03010e7059b613be310ab3bcee1b48a2bd31bdf06411ac9b5",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "curved_authored_bridges": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "preview_time_scale": 4,
+    "semantic_frames_per_loop": 160,
+    "video_frames_total": 160
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "revises": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 30327,
+    "evidence_reused_from_negative_fixture": true,
+    "page_url": "https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/",
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in scoped-sync-grapple-repair.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
