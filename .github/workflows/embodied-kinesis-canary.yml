@@ -1,0 +1,27 @@
+name: Embodied Kinesis Canary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.continue/rules/06-judgement-jar-embodied-kinesis-voices.md'
+      - 'skills/embodied-kinesis-voices/SKILL.md'
+      - 'config/judgment-jars.v1.json'
+      - 'fixtures/canaries/embodied-kinesis-voices.v1.json'
+      - 'tools/test_embodied_kinesis_voice_contract.py'
+      - '.github/workflows/embodied-kinesis-canary.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify fresh/default runtime carries embodied kinesis
+        run: python3 tools/test_embodied_kinesis_voice_contract.py
