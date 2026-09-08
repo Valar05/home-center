@@ -112,12 +112,12 @@ def font(size):
     return ImageFont.load_default()
 
 def render_frame(f,path):
-    sem=f['semantic']; im=Image.new('RGB',(640,360),'black'); dr=ImageDraw.Draw(im); f10=font(10); f13=font(12)
+    sem=f['semantic']; im=Image.new('RGB',(480,270),'black'); dr=ImageDraw.Draw(im); f10=font(8); f13=font(9)
     dr.text((10,8),f"{f['label']}  {f['name']}",fill='white',font=f10)
     dr.text((10,25),f"support={sem['support_contact']} root={sem['root_state']} constraint={sem['constraint_state']} debt={sem['recoil_debt']:.2f}",fill='white',font=f10)
     dr.text((10,40),f"contact={sem['contact_state']} force={sem['force_direction']} guard={sem['guard_authority']}",fill='white',font=f10)
-    dr.multiline_text((10,58),pose_text(sem,f['coords']),fill='white',font=f13,spacing=0)
-    dr.text((10,342),f"{sem['timing_class']} / {sem['timing_provenance']}",fill='white',font=f10); im.save(path)
+    dr.multiline_text((10,52),pose_text(sem,f['coords']),fill='white',font=f13,spacing=0)
+    dr.text((10,255),f"{sem['timing_class']} / {sem['timing_provenance']}",fill='white',font=f10); im.save(path)
 
 def probe(mp4):
     raw=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name,width,height,r_frame_rate,nb_frames:format=duration','-of','json',str(mp4)],check=True,capture_output=True,text=True).stdout
@@ -129,7 +129,7 @@ def compile_video(d, frame_dir=None):
     if frame_dir is None: td_obj=tempfile.TemporaryDirectory(); td=Path(td_obj.name)
     else: td=Path(frame_dir); td.mkdir(parents=True,exist_ok=True)
     for i,f in enumerate(seq): render_frame(f,td/f'f{i:04d}.png')
-    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'f%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','40','-pix_fmt','yuv420p','-threads','1','-fflags','+bitexact','-flags:v','+bitexact','-metadata','creation_time=1970-01-01T00:00:00Z','-movflags','+faststart',str(MP4)],check=True)
+    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'f%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','45','-pix_fmt','yuv420p','-threads','1','-fflags','+bitexact','-flags:v','+bitexact','-metadata','creation_time=1970-01-01T00:00:00Z','-movflags','+faststart',str(MP4)],check=True)
     if td_obj: td_obj.cleanup()
     return seq
 
