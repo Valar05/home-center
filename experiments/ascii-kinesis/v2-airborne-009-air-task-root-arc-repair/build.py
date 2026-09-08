@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, shutil, subprocess, tempfile
+import base64, copy, hashlib, html, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -17,6 +17,18 @@ CONNECTIONS = [
     ("pelvis","knee_l"), ("knee_l","foot_l"),
     ("pelvis","knee_r"), ("knee_r","foot_r"),
 ]
+
+
+def normalize_for_render(raw):
+    motion=copy.deepcopy(raw)
+    joints=motion["rig"]["joints"]
+    for key in motion["keys"]:
+        pose=key["pose_rig"]
+        if isinstance(pose,list):
+            if len(pose)!=len(joints):
+                raise SystemExit(f"pose_rig length mismatch for {key.get('key_id','<unknown>')}")
+            key["pose_rig"]={j:list(xy) for j,xy in zip(joints,pose)}
+    return motion
 
 def linechar(a,b):
     dx,dy=b[0]-a[0],b[1]-a[1]
@@ -142,20 +154,20 @@ def resolve_font():
 
 def render_mp4(motion,tmp):
     frames=semantic_frames(motion)
-    font=ImageFont.truetype(resolve_font(),18)
+    font=ImageFont.truetype(resolve_font(),9)
     frame_dir=tmp/"frames"; frame_dir.mkdir()
     for idx,(pose,support,contact,kid,timing,phase) in enumerate(frames):
         text=grid_text(pose,support,kid,timing,phase)
-        im=Image.new("RGB",(960,540),"black"); d=ImageDraw.Draw(im)
-        d.multiline_text((18,6),text,font=font,fill="white",spacing=0)
+        im=Image.new("RGB",(480,270),"black"); d=ImageDraw.Draw(im)
+        d.multiline_text((9,3),text,font=font,fill="white",spacing=0)
         im.save(frame_dir/f"f{idx:04d}.png")
     mp4=tmp/"motion.mp4"
     subprocess.run(["ffmpeg","-y","-hide_banner","-loglevel","error","-framerate",str(motion["compile"]["fps"]),
-                    "-i",str(frame_dir/"f%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart",str(mp4)],check=True)
+                    "-i",str(frame_dir/"f%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-crf","28","-preset","medium","-movflags","+faststart",str(mp4)],check=True)
     return mp4.read_bytes()
 
 def make_html(ascii_text,motion,video_bytes):
-    motion_text=json.dumps(motion,indent=2,ensure_ascii=False)
+    motion_text=json.dumps(motion,ensure_ascii=False,separators=(",",":"))
     video64=base64.b64encode(video_bytes).decode("ascii")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -184,17 +196,18 @@ buttons.forEach(b=>b.addEventListener("click",()=>show(b.dataset.view)));
 </script></body></html>"""
 
 def main():
-    motion=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
+    raw=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
+    motion=normalize_for_render(raw)
     ascii_text=contact_sheet(motion)
     actual_ascii=hashlib.sha256(ascii_text.encode()).hexdigest()
-    if actual_ascii!=motion["ascii_sheet_sha256"]:
+    if actual_ascii!=raw["ascii_sheet_sha256"]:
         raise SystemExit(f"ASCII hash mismatch: {actual_ascii}")
     with tempfile.TemporaryDirectory() as td:
         media=render_mp4(motion,Path(td))
     actual_media=hashlib.sha256(media).hexdigest()
-    if actual_media!=motion["compile"]["media_sha256"]:
+    if actual_media!=raw["compile"]["media_sha256"]:
         raise SystemExit(f"media hash mismatch: {actual_media}")
-    SPA_PATH.write_text(make_html(ascii_text,motion,media),encoding="utf-8")
+    SPA_PATH.write_text(make_html(ascii_text,raw,media),encoding="utf-8")
     print(json.dumps({"spa":SPA_PATH.name,"ascii_sha256":actual_ascii,"media_sha256":actual_media,
-                      "media_bytes":len(media),"video_frames_total":motion["compile"]["video_frames_total"]},sort_keys=True))
+                      "media_bytes":len(media),"video_frames_total":raw["compile"]["video_frames_total"]},sort_keys=True))
 if __name__=="__main__": main()
