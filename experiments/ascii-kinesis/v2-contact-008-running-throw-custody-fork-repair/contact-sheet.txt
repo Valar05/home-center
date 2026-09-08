@@ -1,38 +1,39 @@
 ================================================================================================
 C008-K0  RUN_READY_REAR_SUPPORT  | FOURS / INFERRED
-ROLE: establish asymmetric moving carrier before object relation
-STATE: contact=NONE relationship=UNBOUND custody=NONE support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: Left support owns the root; right leg is already spending the next stride while throwing side trails.
+ROLE: Establish asymmetrical forward-running carrier before object relation.
+STATE: contact=NONE relationship=NONE custody=NONE support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_FOOT_WORLD
+ARC: Pelvis travels right while left rear support owns root; throwing arm trails behind the chest.
 
 
 
 
 
 
-                @
-                |
-                ---+
-             +----|
-            --\   |------+
-          +-  \  |
-               \ |
-               \|
-                A
-               / \\
-              /    \\
-             /       +
-            +         \
-           |           \\
-           |             R
-          |
-          ^
+                        @
+                       / \
+                      /   \
+                     +-----+
+                 +--/--   /
+                   /  \   /
+                  +    \ /
+                       \ /
+                        A
+                       | \
+                       |  \\
+                      |     \
+                      +      +
+                     |        \
+                     |         \\
+                    |            \
+                    ^             .
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K1  CONTRALATERAL_COIL  | FOURS / INFERRED
-ROLE: pre-budget the future object fork with COM drop and opposite-arm reach
-STATE: contact=NONE relationship=UNBOUND custody=NONE support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: Pelvis drops behind the advancing stride; throwing hand coils rearward while the free arm reaches forward.
+ROLE: Budget throw torque before custody exists.
+STATE: contact=NONE relationship=PREP_NO_OBJECT custody=NONE support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_FOOT_WORLD
+ARC: Pelvis continues right but drops; throwing shoulder winds behind pelvis while opposite hand opens ahead.
 
 
 
@@ -40,29 +41,30 @@ ARC: Pelvis drops behind the advancing stride; throwing hand coils rearward whil
 
 
 
-
-                   @
-                   |
-                   |
-               +--------------+
-                \----+
-           +:----\   |
-             ::   \  |
-               :: \ |
-                 ::\|
-                   :A-
-                  //  ----
-                //        -+-
-               +             --
-             //                -R
-            ^
+                           @
+                          / --
+                        // ----+
+                       +------/
+                       ----   ------+
+                    ---  \   /
+                  +-     \  /
+                          \ /
+                           A
+                          / --
+                         /    --
+                         /      -+
+                        +         \
+                       /           \
+                       /            \
+                      ^              .
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K2  HAND_OBJECT_ACQUIRE  | ONES / INFERRED
-ROLE: acquire explicit local custody without freezing carrier root intent
-STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCK custody=A_HAND support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: The object appears only at the authored hand anchor; support and root remain left-owned.
+ROLE: Acquire hand-object custody without stopping the carrier.
+STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCKED custody=A_HAND support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_FOOT_WORLD
+ARC: The custody latch closes on the trailing side while left support still owns the moving root.
 
 
 
@@ -70,89 +72,32 @@ ARC: The object appears only at the authored hand anchor; support and root remai
 
 
 
-
-                    @
-                    |
-                    |
-                +--------------+
-            *----\----+
-             ::   \   |
-               ::X \  |
-                 ::\ |
-                   ::|
-                     A-
-                   //  ----
-                 //        -+-
-                +             --
-              //                -R
-             ^
+                            @
+                           / \
+                         //   \\
+                        +-------+
+                         \---- ------+
+                      ----\   /
+                   *--    \   /
+                   :       X /
+                    :       A
+                    :      / --
+                     :    /    --
+                     :    /      -+
+                      :  +         \
+                      : /           \
+                       :/            \
+                       ^              .
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K3  LOADED_RUNNING_COIL  | FOURS / INFERRED
-ROLE: store leverage while the root clock keeps a forward bias
-STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCK custody=A_HAND support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: Object and throwing hand sit far behind pelvis; opposite hand reaches ahead, making the force axis visibly diagonal.
+ROLE: Deepen stored force while the lead foot begins searching for the next support.
+STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCKED custody=A_HAND support=LEFT_TRUSTED_RIGHT_PROBE root=LEFT_FOOT_WORLD
+ARC: Root dips and advances; object stays behind pelvis, exaggerating the diagonal load line.
 
 
-
-
-
-
-
-
-                      @
-            *--      |
-             ::------|    --------+
-               : +-----+--
-                : \    |
-                 :X\   |
-                   :\  |
-                    :\ |
-                     ::|
-                       A---
-                     --    ----+-
-                   --            --
-                 +-                -R
-               //
-              ^
-________________________________________________________________________________________________
-
-================================================================================================
-C008-K4  LEAD_FOOT_PROBE_WITH_LOAD  | TWOS / INFERRED
-ROLE: let the next support arrive before custody release
-STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCK custody=A_HAND support=LEFT_TRUSTED_RIGHT_PROBE root=LEFT_SUPPORT
-ARC: Lead/right foot reaches the floor as a probe while the object remains behind the opening torso.
-
-
-
-
-
-
-
-                          @
-                   *--   |
-                    : ----
-                     +-----+
-                      : ---|-
-                       X:  | -----
-                        \:  |     --+
-                          : |
-                           :|
-                            A-
-                          --  --
-                        --      ---
-                      +-           -+
-                    --               \\
-                  --                   \\
-                ^-                       R
-________________________________________________________________________________________________
-
-================================================================================================
-C008-K5  SUPPORT_TRANSFER_BEFORE_RELEASE  | ONES / INFERRED
-ROLE: transfer root ownership to the lead support while custody is still locked
-STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCK custody=A_HAND support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_SUPPORT
-ARC: The lead/right foot earns root ownership before the hand opens; rear foot is already releasing.
 
 
 
@@ -160,148 +105,208 @@ ARC: The lead/right foot earns root ownership before the hand opens; rear foot i
 
 
                                @
-                              *|
-                              |:\
-                          +----:-+
-                           \\   :|
-                            \\ X:|
-                              \  :|
-                               \\:|
-                                \+:
-                                 -A
-                               --  \
-                             --     \\
-                           +-         \
-                         //            +
-                       //               \
-                      L                  \\
-                      .                    ^
+                             // \\
+                           // ----+----+
+                          +------/
+                          ---    /
+                      ----  \   /
+                    *-      \  /
+                     :       X /
+                     :        A-
+                      :      /  ---
+                      :     /      -+
+                       :    /        \
+                        :  +          \\
+                        : /             R
+                         ^              ?
 ________________________________________________________________________________________________
+
+
+================================================================================================
+C008-K4  LEAD_FOOT_PROBE_WITH_LOAD  | TWOS / INFERRED
+ROLE: Put the future brake/throw foot on the floor before transferring root authority.
+STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCKED custody=A_HAND support=LEFT_TRUSTED_RIGHT_PROBE root=LEFT_FOOT_WORLD
+ARC: Lead right foot reaches and touches while object remains wound behind; probe is contact, not yet ownership.
+
+
+
+
+
+
+                                  @
+                                // \
+                              //    \
+                             +-------+
+                           -----------
+                       *---    \   /  --+
+                       :       \   /
+                        :       X /
+                        :        A
+                         :      / --
+                         :     /    --
+                         :    /       -+
+                          :  +          \
+                          : /            \\
+                           :/              \
+                           ^                ?
+________________________________________________________________________________________________
+
+
+================================================================================================
+C008-K5  SUPPORT_TRANSFER_BEFORE_RELEASE  | ONES / INFERRED
+ROLE: Transfer root ownership to the lead foot while custody remains locked.
+STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCKED custody=A_HAND support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_FOOT_WORLD
+ARC: Pelvis rises into the new right-foot brace; force line turns from ground through pelvis toward throwing hand.
+
+
+
+
+
+
+                                  @
+                                // \\
+                              //-----+
+                         *---+---   /
+                          ::  --   /
+                            :  \-- /
+                             :  \X-+
+                              :: A
+                                : \
+                               / : \
+                              /   ::\
+                             +      :+
+                            /        :\
+                           /          ::
+                           /            :
+                          .              ^
+________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K6  THROW_ARM_WHIP_UNDER_CUSTODY  | ONES / INFERRED
-ROLE: propagate stored force through shoulder and throwing arm while custody remains locked
-STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCK custody=A_HAND support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_SUPPORT
-ARC: The hand whips forward from the loaded diagonal only after right support owns the root; object remains welded to the hand.
+ROLE: Propagate the stored ground/pelvis turn into the throwing limb before release.
+STATE: contact=HAND_OBJECT relationship=HAND_OBJECT_LOCKED custody=A_HAND support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_FOOT_WORLD
+ARC: Throwing hand whips forward on a high arc while object remains owned; free hand and left leg counter-swing.
 
 
 
 
 
-
-                                 @    *
-                                 |   /:
-                                |   / :
-                            +------+ :
-                             \     |X:
-                             |\\   | :
-                              | \   |:
-                              |  \  :
-                               |  \\:
-                               +    A
-                                  -- \
-                                --    \
-                             -+-       \
-                           --           +
-                         L-              \
-                                          \\
-                         .                  ^
+                                       @
+                                      / --
+                                    // ----+------*
+                                   +---   /       :
+                                  / \    /       :
+                                //   \   /       :
+                               +      \X/        :
+                                       A        :
+                                      / \       :
+                                     /   \      :
+                                     /   \     :
+                                    /     +    :
+                                   +       \  :
+                                  /        \  :
+                                 /          \ :
+                                L           \:
+                                .            ^
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K7  RELEASE_FORK_BEFORE_MAX_REACH  | ONES / INFERRED
-ROLE: destroy the hand-object constraint at a separate causal event
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=RIGHT_TRUSTED root=RIGHT_SUPPORT
-ARC: The constraint breaks after an authored under-custody whip; object separates before the arm's later recoil/follow-through while pelvis still advances over right support.
+ROLE: Destroy the hand-object constraint before the arm reaches its extreme.
+STATE: contact=NONE relationship=OBJECT_FREE custody=FREE support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_FOOT_WORLD
+ARC: Custody forks A_HAND→FREE while the hand, chest and pelvis still have follow-through travel remaining.
 
 
 
 
 
-                                                *
-                                   @
-                                   |       -+
-                                  |    ----:
-                              +------+-    :
-                              |\\    |    :
-                               | \    |  :
-                               |  \\  |  :
-                               |    \ | :
-                                |    \\|:
-                                +     -A
-                                    --  |
-                                  --    |
-                               -+-       |
-                            L--          +
-                                          \
-                                           \
-                                            ^
+                                       @              *
+                                      / --      ----+
+                                    // ----+----
+                                  -+---   /
+                                --  \    /
+                              +-     \   /
+                                      \ /
+                                       A
+                                      / \
+                                     /   \
+                                     /   \
+                                    /     +
+                                   +      |
+                                  /       |
+                                 /         |
+                                L          |
+                                .          ^
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K8  OBJECT_LEADS_CHEST_RECOIL  | ONES / INFERRED
-ROLE: fork object clock from carrier body clock and expose opposite recoil
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=RIGHT_TRUSTED root=RIGHT_SUPPORT
-ARC: Object rises/advances while chest and throwing shoulder collapse back/down around the still-advancing pelvis.
-
-
-
-                                                         *
+ROLE: Separate object and body clocks immediately after release.
+STATE: contact=NONE relationship=OBJECT_FREE custody=FREE support=RIGHT_TRUSTED_LEFT_SWING root=RIGHT_FOOT_WORLD
+ARC: Object rises ahead while hand overshoots beyond release; chest recoils left of the still-advancing pelvis.
 
 
 
 
-                                     @
-                                     |
-                             +--     |
-                                -+--|     ---+
-                                  -----+--  :
-                                    --  \   :
-                                      -- \ :
-                                        -- :
-                                         -A
-                                       -- |
-                                     --   |
-                                  -+-     |
-                               L--        +
-                                           \
-                                            ^
+                                                                  *
+
+                                     +      @
+                                      \    / \
+                                       \ //   \      ------+
+                                        +------+-----
+                                         \    |
+                                          \\  |
+                                            \|
+                                             A
+                                            / |
+                                           /  |
+                                           /   |
+                                          +    +
+                                         /     |
+                                       //      |
+                                      L        |
+                                               ^
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K9  FORWARD_ROOT_OVERSHOOT_SECONDARY_LAG  | TWOS / INFERRED
-ROLE: spend inherited root velocity after object release
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=RIGHT_TRUSTED_LEFT_PROBE root=RIGHT_SUPPORT
-ARC: Pelvis passes the trusted right foot; throwing hand becomes the secondary lag while the opposite arm counter-swings forward.
+ROLE: Let carrier root outrun the recoiling upper body and pay throw momentum into the next step.
+STATE: contact=NONE relationship=OBJECT_FREE custody=FREE support=RIGHT_TRUSTED_LEFT_PROBE root=RIGHT_FOOT_WORLD
+ARC: Pelvis passes forward of chest; throwing arm falls behind while left foot probes for the second catch.
 
 
 
 
 
-                                                                    *
 
-
-                                          @
-                                          |       ---+
-                                         |--------
-                                      +---
-                                       -----+
-                                     +:----  \
-                                       ::::-- \
-                                           ::::\
-                                               :A
-                                              //|
-                                            // |
-                                           +---+---
-                                             //    -------L
-                                            ^
+                                                                            *
+                                        +      @
+                                         \\  -- \
+                                           +---  \\
+                                            -- ----+
+                                              --   |--
+                                                --|   --
+                                                  A     -+
+                                                 / \
+                                                /   \
+                                               /    \
+                                              +      +-
+                                             /         --
+                                           //            --
+                                          L                -R
+                                          ?                 ^
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K10  SECOND_CATCH_COMPRESSION  | ONES / INFERRED
-ROLE: pay root-motion debt with a new support catch after the throw
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_SUPPORT
-ARC: New left support catches the overshooting pelvis into compression; throwing arm remains behind the body.
+ROLE: Catch the continuing root with the opposite foot instead of snapping back to idle.
+STATE: contact=NONE relationship=OBJECT_FREE custody=FREE support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_FOOT_WORLD
+ARC: Left foot earns root ownership; pelvis compresses under it while throwing arm and object continue to lag/lead independently.
 
 
 
@@ -310,78 +315,80 @@ ARC: New left support catches the overshooting pelvis into compression; throwing
 
 
 
-
-
-                                                   @                         *
-                                                   |
-                                                  |
-                                               +------+---+
-                                               -\---  |
-                                            +:-  \   |
-                                              ::  \  |
-                                                :::\|
-                                                   :A
-                                                 --  --
-                                              -+-      -+
-                                           R--           \\
-                                           .               ^
+                                            +      @
+                                             \\  -- \                               *
+                                               +---  \\
+                                                \  ----+
+                                                 \    | \
+                                                  \\  |  \
+                                                    \|    \
+                                                     A     +
+                                                    / \
+                                                  //   \
+                                                 +      \
+                                                 |       +
+                                                |         --
+                                                ^           -.
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K11  SETTLE_WITH_ARM_LAG  | TWOS / INFERRED
-ROLE: restack support/root before the throwing limb fully catches up
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: Pelvis rises out of compression while the throwing hand still trails; object exits independently.
+ROLE: Damp the catch while preserving visible throwing-side debt.
+STATE: contact=NONE relationship=OBJECT_FREE custody=FREE support=LEFT_TRUSTED_RIGHT_RELEASING root=LEFT_FOOT_WORLD
+ARC: Chest rebounds upward, but throwing hand remains low/trailing; object descends toward exit on its own clock.
 
 
 
 
 
 
-                                                       @
-                                                       |
-                                                      |
-                                                   +-----------+
-                                                    \ ---+
-                                                    -\-- |
-                                                 +:-  \ |                           *
-                                                   ::::\|
-                                                       :A
-                                                      //|
-                                                    //   |
-                                                   +     |
-                                                 --      +
-                                               R-         \
-                                                          \
-                                                           ^
+                                                        @
+                                                       / --
+                                                     // ----+
+                                                   -+---   /|
+                                                +--  \    / |
+                                                      \   /|
+                                                       \ / |
+                                                        A  |
+                                                       / \ +                               *
+                                                      /   \\
+                                                      /     \
+                                                     +       +
+                                                    /         \
+                                                   /           \
+                                                  /             R
+                                                 ^              .
 ________________________________________________________________________________________________
+
 
 ================================================================================================
 C008-K12  EXIT_STRIDE_WITH_RECOVERY_DEBT  | FOURS / INFERRED
-ROLE: leave in a next-step-ready asymmetrical state rather than reset to idle
-STATE: contact=NONE relationship=CLOCKS_FORKED custody=FREE support=LEFT_TRUSTED root=LEFT_SUPPORT
-ARC: Carrier has regained stride authority but the throwing side is still one beat behind the free arm; K11 is not K0 replayed.
+ROLE: Exit in a new stride with asymmetrical residual arm debt rather than the opening pose.
+STATE: contact=NONE relationship=NONE custody=OUTSIDE support=RIGHT_TRUSTED_LEFT_RELEASING root=RIGHT_FOOT_WORLD
+ARC: Root continues forward into right support; non-throwing arm leads while throwing hand has not fully restacked.
 
 
 
 
 
-                                                               @
-                                                               |
-                                                              |
-                                                           +-----+
-                                                            \ ---|--
-                                                           --\  |   --+
-                                                         +-  \  |
-                                                              \|
-                                                               A
-                                                              / --                          *
-                                                             /    --
-                                                             /      -+
-                                                            +         \
-                                                           |           \\
-                                                           |             R
-                                                          |
-                                                          ^
+
+                                                              @
+                                                             / \
+                                                           //   \\----+
+                                                          +-------+
+                                                           \     /
+                                                            \  //
+                                                            \ /
+                                                             +
+                                                            / \
+                                                            /  \
+                                                           /    \
+                                                           /     \
+                                                          +       +
+                                                         |         \\
+                                                         |           \
+                                                        |             \\
+                                                        .               ^
 ________________________________________________________________________________________________
 
