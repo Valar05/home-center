@@ -9,7 +9,10 @@
       "PART 2 — JSON",
       "PART 3 — VIDEO"
     ],
-    "status": "PENDING_THIS_REPORTING_CHAT"
+    "status": "PASS_CURRENT_REPORTING_CHAT",
+    "part1": "complete deterministic ASCII render from exact persisted motion data; non-byte-identical presentation",
+    "part2": "exact byte-identical persisted motion.json",
+    "part3": "exact byte-identical persisted embedded MP4 visibly rendered"
   },
   "compatibility": {
     "ascii_kinesis_v2": true,
@@ -64,8 +67,9 @@
   },
   "issue_receipt": {
     "issue": "Valar05/home-center#343",
-    "status": "READY_RECEIPT_POSTED",
-    "comment_id": 5592510964
+    "status": "HEALTHY_RECEIPT_POSTED",
+    "ready_comment_id": 5592510964,
+    "healthy_comment_id": 5592526787
   },
   "lane": "airborne",
   "ligatures_disabled": true,
@@ -123,7 +127,6 @@
   "repo_path": "experiments/ascii-kinesis/v2-airborne-017-offaxis-tool-landing-debt/",
   "repo_readback": {
     "verified": true,
-    "main_commit": "f5e7c50c887d4c68a1d7271fe461bd5418dc3236",
     "files": {
       "build.py": {
         "blob": "2fc4764fe006182315783a769165e5d388a3fe08",
@@ -150,7 +153,8 @@
         "size": 29868
       }
     },
-    "embedded_media_readback": "PASS_EXACT_V1_V2_V3_V4_CONCATENATION"
+    "embedded_media_readback": "PASS_EXACT_V1_V2_V3_V4_CONCATENATION",
+    "verified_content_commit_before_health_metadata": "213d7d09589ee21261f5fecab36c62604f505871"
   },
   "revision": {
     "negative_fixture": null,
@@ -177,7 +181,7 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY",
   "test_invocation": {
     "candidate_isolated_status": "PASS",
     "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
