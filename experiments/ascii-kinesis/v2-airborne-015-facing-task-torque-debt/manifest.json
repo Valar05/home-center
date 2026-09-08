@@ -1,0 +1,97 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "50519060c50d45034b65223d816ef115c47e0b1a99eec8014dd037dce5580168",
+  "backward_compatible": true,
+  "contract_test": {
+    "entries_checked": [
+      "v2-airborne-015-facing-task-torque-debt"
+    ],
+    "exit_code": 0,
+    "repo_global_claimed": false,
+    "result": "PASS",
+    "scope": "isolated exact candidate directory",
+    "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "status": "PASS",
+    "stdout": "{\"entries_checked\": [\"v2-airborne-015-facing-task-torque-debt\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX LANDING",
+    "FIX SECONDARY LAG",
+    "FIX FACING/TASK",
+    "RERUN"
+  ],
+  "exactly_one_motion_html": true,
+  "experiment_id": "v2-airborne-015-facing-task-torque-debt",
+  "format_version": 2,
+  "lane": "airborne",
+  "media": {
+    "bytes": 13088,
+    "codec": "H.264",
+    "decode_verified": true,
+    "duration_seconds": 2.416667,
+    "file_role": "embedded_only_no_tracked_sidecar",
+    "fps": 24,
+    "frames": 58,
+    "height": 360,
+    "pixel_format": "yuv420p",
+    "sha256": "ed14b3a857ffa2ba97a5a4cd7c906008db22755b5b55c295ad574f98f2bd9a9d",
+    "width": 640
+  },
+  "motion_json_sha256": "7aa050ddb6dfdcbf60211e0113bd4a7b75a321f2bbfbca8617287274b32cb9c9",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality_gates": {
+    "actual_final_render_inspected": true,
+    "noodle_queen": "PASS",
+    "tango": "PASS"
+  },
+  "required_files": [
+    "build.py",
+    "motion.json",
+    "manifest.json",
+    "receipt.md",
+    "facing-task-torque-debt.motion.html"
+  ],
+  "revision": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
+    "predecessor_preserved": true,
+    "revises": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
+    "source_change": false
+  },
+  "rights": {
+    "close_imitation": false,
+    "commercial_source_evidence_only": true,
+    "redistribution": false,
+    "source_art_embedded": false,
+    "source_pixels_used": false,
+    "tracing": false
+  },
+  "source": {
+    "asset_id": 10039,
+    "game": "Sonic Battle",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
+    "platform": "Game Boy Advance",
+    "provider": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_evidence_inherited": true
+  },
+  "source_art_embedded": false,
+  "spa_self_contained": true,
+  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
+  "tracked_mp4_sidecar": false,
+  "uapl_v1_read_path_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
