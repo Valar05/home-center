@@ -1,0 +1,59 @@
+{
+  "schema": "fortress.venice.completion-review.v1",
+  "commission": "Require durable reproducible receipts for every absurd/ceremonial score, using deterministic RNG rather than improvised numbers.",
+  "reviewer": "Venice",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "STOP_ALLOWED",
+  "verdict": "approve",
+  "quality": "good",
+  "code_review_first": true,
+  "reviewedAtLocal": "2026-09-08T03:41:16-05:00",
+  "selectedJudgmentJars": [
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/05-judgement-jar-home-center-vlad-receipts.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md"
+  ],
+  "review": {
+    "missionFidelity": "PASS — assistant-origin absurd scoring is now deterministically generated and receipted; real metrics remain out of scope.",
+    "determinism": "PASS AS SOURCE REVIEW — score identity uses canonical request JSON, SHA-256 seed, and a SHA-256 counter stream. Wall-clock time, Python random/hash, machine identity, network state, and model choice are explicitly excluded from score entropy.",
+    "rerollDiscipline": "PASS — same canonical subject/namespace/profile/edition reproduces the same score/receipt identity; a new roll requires an explicit new edition.",
+    "profiles": "PASS — standard, six-digit imagegen, and 96–224 digit casino_nuclear profiles are explicit and auto-routing is deterministic.",
+    "provenance": "PASS — the historical 567,768 Imagegen score is preserved exactly as user_assigned_legacy rather than falsely relabeled as RNG output.",
+    "receiptDurability": "PASS — canonical repository path is receipts/absurd-scores/<receipt_id>.json; no duplicate daemon/watcher was introduced and no Home Center delivery is falsely claimed.",
+    "globalRouting": "PASS — Fortress Core routes all assistant absurd scoring through skills/absurd-score-receipts/SKILL.md; Ritsu has the same direct operator rule.",
+    "regression": "PASS AS SOURCE REVIEW — tools/test_absurd_score_receipt_contract.py checks time-independent determinism, stable receipt identity, explicit edition changes, imagegen digit shape, casino-nuclear digit range, manual legacy preservation, and routing; the authorized local runner invokes the test and py_compiles the scorer/test.",
+    "readback": "PASS — scoring skill, scorer, regression, Fortress Core, Ritsu routing, runner wiring, and grandfathered receipt were read back from canonical main after mutation.",
+    "runtimeTestEvidence": "NOT CLAIMED — the local Fortress contract suite was not executed from this GitHub connector session, and no GitHub Actions run was started because source/readback was sufficient for this bounded persistence slice and Actions minutes are scarce."
+  },
+  "artifacts": [
+    "skills/absurd-score-receipts/SKILL.md",
+    "tools/absurd_score_receipt.py",
+    "tools/test_absurd_score_receipt_contract.py",
+    "skills/fortress-core/SKILL.md",
+    "skills/haraway-hotel-operator/SKILL.md",
+    "tools/run_fortress_local_contracts.sh",
+    "receipts/absurd-scores/ASR-002692d82d54392a.json",
+    "receipts/venice/2026-09-08-absurd-score-receipts-plan.json"
+  ],
+  "commits": {
+    "plan": "c8a229ad78de6e9e1b8368e4f4e1d0cfa623c1a9",
+    "skill": "cd2328255a3ac5bfa5c9024fe62c4a97b9c04086",
+    "scorer": "13d0e079e8882ac80d660c798ca8e877affda7db",
+    "regression": "e245cd2f8bdb0d494c7bfe06f7e2f23081af5981",
+    "core": "a123badbfe3732845a5eb9f4531c73b8878a0cfa",
+    "ritsu": "41b3b9d2de908863d1f598f2d65103644009443d",
+    "runner": "c932cbad90cae73bfedf4b6341096a704f1d8e1b",
+    "legacyReceipt": "0fb0881fa33d62ef969bbecbb66fb53f5b94beb0"
+  },
+  "readbackShas": {
+    "skill": "e33b5156fc94bf1bb761fb00d7d3dfcbeaa1e044",
+    "scorer": "af5311a61ee21069479929383ae77a4e34474ce0",
+    "regression": "97e2bd100f3c2f042429575f2c75c62b760af4d0",
+    "core": "6b99beda3c5380fc0112043cd3e9f55b65c61d8c",
+    "ritsu": "941f2b2032a3e1d9882a1be0284bfece7f0e7c81",
+    "runner": "0093631e694c75eee68599dedd5269c6fd9e9bcd",
+    "legacyReceipt": "6ed4a909134768bc1109b577913bd5dbe6c2b844"
+  },
+  "stopRationale": "The commission now has a deterministic scorer, global automatic routing, explicit reroll law, durable receipt format, regression source, runner wiring, and a preserved historical score receipt. Repository readback is verified; runtime suite execution remains explicitly unclaimed."
+}
