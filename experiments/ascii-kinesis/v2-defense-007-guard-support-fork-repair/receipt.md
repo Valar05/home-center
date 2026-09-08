@@ -1,30 +1,39 @@
 # ASCII Kinesis V2 Defense 007 — repair receipt
 
-Status: QUALITY_GATES_PASS / REPO_READBACK_REQUIRED
+Status: HEALTHY / REPO_VERIFIED / ISSUE_RECEIPT_PENDING
 
-Revises `experiments/ascii-kinesis/v2-defense-001-guard-support-fork/`; negative fixture `experiments/ascii-kinesis/v2-defense-001-guard-support-fork/`; predecessor preserved; source change false.
+Revises `experiments/ascii-kinesis/v2-defense-001-guard-support-fork/`; negative fixture `experiments/ascii-kinesis/v2-defense-001-guard-support-fork/`; predecessor preserved unchanged; source change false.
 
-Source: TSR Cammy / Super Street Fighter II SNES asset 5553 — https://www.spriters-resource.com/snes/supersf2/asset/5553/ — same whole-sheet evidence family, no fresh concept/source. No Drew work or source pixels/palette/contours/layout/tracing/choreography/redistribution/close imitation.
+Source: The Spriters Resource — Cammy / Super Street Fighter II: The New Challengers / SNES — asset 5553 — https://www.spriters-resource.com/snes/supersf2/asset/5553/ . This successor reuses the predecessor whole-sheet evidence family; no fresh source or new concept was selected.
 
-OBSERVED: inherited predecessor whole-sheet evidence only; no source-authentic timing measured. INFERRED: all authored performance and timing. UNKNOWN: source chronology/exposure/hit-stop/hitbox/support-foot/root path.
+Rights boundary: copyright-restricted commercial sprite evidence. No Drew work and no source pixels, palette, costume, face, exact silhouette, sheet layout, tracing, redistribution, close imitation, or source choreography enter the successor or media.
 
-- D007-K0 READY_OFFSET_ORIGIN — FOURS — INFERRED
-- D007-K1 ASYM_BRACE — FOURS — INFERRED
-- D007-K2 DIRECTIONAL_CONTACT — ONES — INFERRED
-- D007-K3 DEEP_COMPRESSION — TWOS — INFERRED
-- D007-K4 SUPPORT_BREAK — ONES — INFERRED
-- D007-K5 RECOIL_ARC — TWOS — INFERRED
-- D007-K6 OVERSHOOT_ROTATION — TWOS — INFERRED
-- D007-K7 CONSEQUENCE_HOLD — FOURS — INFERRED
-- D007-K8 TRUSTWORTHY_REAR_PLANT — TWOS — INFERRED
-- D007-K9 SETTLE_COUNTERSWING — TWOS — INFERRED
-- D007-K10 SECONDARY_LAG_CATCHUP — TWOS — INFERRED
-- D007-K11 READY_REENTRY_OFFSET — FOURS — INFERRED
+OBSERVED: inherited predecessor whole-sheet evidence only: compact defensive silhouettes, broader consequence silhouettes, floor/balance-loss states, grounded re-entry anchors, and readability through torso-axis/support-footprint/root-height/limb-separation contrast. No source-authentic exposure timing was measured.
 
-MP4 SHA-256 `601f26c386e4723c52cc5aaa31e23e0646003c06818da788068f88b047340d88`; 8571 bytes; H.264 640x360; 39 frames; 1.625000s. ASCII SHA-256 `1ca5e17af29ee40b7fd82689e669a25ee43769e8c8bcfe97da50efe627ac6384`.
+INFERRED: all authored defensive performance, force direction, pelvis/root/support ownership, recoil/settle arcs, secondary lag, recovery debt, and every timing class, using PoseLab V1 STREET_FIGHTER/CAPCOM. `1s/2s/4s` means ONES/TWOS/FOURS, never seconds.
 
-Tango: PASS after 3 REVISE_REQUIRED cycles; final 640x360 39-frame render inspected. Noodle Queen after Tango: TASTE PASS / FUNCTION PASS / CONTEMPT PASS.
+Decisive keys / timing:
+- D007-K0 `READY_REAR_BIASED` — FOURS — INFERRED
+- D007-K1 `ASYM_BRACE_LOAD` — FOURS — INFERRED
+- D007-K2 `DIRECTIONAL_GUARD_CONTACT` — ONES — INFERRED
+- D007-K3 `DEEP_TORSION_COMPRESSION` — TWOS — INFERRED
+- D007-K4 `FRONT_SUPPORT_PEELS` — ONES — INFERRED
+- D007-K5 `RECOIL_ARC_LIFT` — TWOS — INFERRED
+- D007-K6 `TORSO_OVERSHOOT` — TWOS — INFERRED
+- D007-K7 `CONSEQUENCE_HANG` — FOURS — INFERRED
+- D007-K8 `TRUSTWORTHY_REAR_PLANT` — TWOS — INFERRED
+- D007-K9 `COUNTERSWING_FRONT_PROBE` — TWOS — INFERRED
+- D007-K10 `DUAL_SUPPORT_SETTLE` — TWOS — INFERRED
+- D007-K11 `READY_REENTRY_OFFSET` — FOURS — INFERRED
 
-Contract: successor isolated exact script PASS. Full repository regression UNTESTED_BOUNDARY: no authorized repository shell in this Standard Chat lane; no worker/control plane opened.
+Motion Dungeon: authored decisive ASCII keys -> explicit holds/timing -> authored-arc deterministic connective motion -> ASCII-only frame render -> MP4 -> SPA. Connective geometry may curve, but semantic support/contact/root/guard/readiness state remains fail-closed until the next decisive key.
 
-Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN
+Media: embedded H.264 MP4 only from abstract ASCII rig + timing; 480x270; 24 fps; 57 frames; 2.375 s; 10,866 bytes; SHA-256 `ee5cc78440f088800e8b6e5bf33b08fbcba701ee9f2fd0080d7ad07e0547fb32`. ASCII contact-sheet SHA-256 `2865aaf307a8422b75424b729a11646ff13daba2e3e887da47724287dbd28ff3`.
+
+Current-run render verification: reconstructed the persisted media byte-identically from the exact authored keys/timing, decoded all 57 frames, and inspected three full-sequence filmstrips plus all twelve decisive poses. Tango PASS: rear-biased anticipation, directional guard compression, front-support peel, unsupported pelvis-led recoil, torso/guard overshoot, held consequence, rear-only trustworthy plant, counterswing/front probe, second-support earn, and displaced guarded re-entry are all visibly distinct; no new correction was required. Noodle Queen PASS after Tango: TASTE PASS / FUNCTION PASS / CONTEMPT PASS.
+
+SPA readback: exact persisted blob SHA `537988fcff5b02e9997b5af0837df68f7402817e`; exactly `ASCII | JSON | VIDEO`; literal selectable `<pre>` ASCII/JSON with ligatures disabled and whitespace preserved; embedded `data:video/mp4;base64,...` media. The blob SHA matches the locally generated deterministic builder output byte-for-byte.
+
+Contract: exact tracked `tools/test_ascii_kinesis_swarm_contract_v2.py` (script SHA `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c`) executed against isolated candidate staging for this successor and PASSed. Repository-wide invocation remains `UNTESTED_BOUNDARY` because the Standard Chat GitHub connector has persistence/readback but no repository shell; no repository-wide pass is inferred.
+
+Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / PROMOTE / SPAWN VARIANT / FIX BLOCKER / RERUN.
