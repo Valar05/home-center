@@ -10,6 +10,10 @@ MP4=HERE/'coiled-air-task-recovery.mp4'; SPA=HERE/'coiled-air-task-recovery.moti
 W,H,GROUND_Y=72,26,23
 HOLD={'ONES':1,'TWOS':2,'FOURS':4}
 LINKS=[('head','neck'),('neck','shoulder_l'),('neck','shoulder_r'),('shoulder_l','elbow_l'),('elbow_l','hand_l'),('shoulder_r','elbow_r'),('elbow_r','hand_r'),('neck','pelvis'),('pelvis','knee_l'),('knee_l','foot_l'),('pelvis','knee_r'),('knee_r','foot_r')]
+JOINTS=['head','neck','shoulder_l','shoulder_r','elbow_l','elbow_r','hand_l','hand_r','pelvis','knee_l','knee_r','foot_l','foot_r']
+
+def pose(obj):
+ return dict(zip(JOINTS,obj['pose']))
 
 def bres(a,b):
  x0,y0=a;x1,y1=b;dx=abs(x1-x0);sx=1 if x0<x1 else -1;dy=-abs(y1-y0);sy=1 if y0<y1 else -1;err=dx+dy;out=[]
@@ -28,7 +32,7 @@ def glyph(a,b):
  return '\\' if dx*dy>0 else '/'
 
 def render_ascii(obj,label=True):
- p=obj['pose_rig'];g=[[' ']*W for _ in range(H)]
+ p=pose(obj);g=[[' ']*W for _ in range(H)]
  def put(x,y,c):
   if 0<=x<W and 0<=y<H:g[y][x]=c
  for a,b in LINKS:
@@ -50,9 +54,7 @@ def contact_sheet(d):
  chunks=[]
  for k in d['keys']:
   chunks.append(f"[{k['key_id']}] {k['name']} | {k['timing_class']} {k['timing_provenance']} | support={k['support_contact']} | contact={k['contact_state']} | phase={k['vertical_phase']} | force={k['force_owner']}\n"+render_ascii(k))
- chunks.append('--- EXPLICIT BRIDGE KEYS (geometry-only; semantic authority=false) ---')
- for b in d['bridge_keys']:
-  chunks.append(f"[{b['bridge_id']}] {b['from_key']}->{b['to_key']} | {b['timing_class']} {b['timing_provenance']} | support={b['support_contact']} | contact={b['contact_state']} | {b['note']}\n"+render_ascii(b,False))
+ chunks.append('--- CONNECTIVE MOTION ---\n10 explicit geometry-only bridge keys are fully encoded in JSON; decisive ASCII keys above are semantic authority.')
  return '\n\n'.join(chunks)
 
 def sequence(d):
@@ -71,14 +73,14 @@ def font(size):
  return ImageFont.load_default()
 
 def frame(text,path,label):
- im=Image.new('RGB',(720,406),'black');d=ImageDraw.Draw(im);d.text((14,10),'ASCII KINESIS V2 — COILED AIR TASK RECOVERY',font=font(13),fill='white');d.text((14,28),label,font=font(13),fill='white');d.multiline_text((14,50),text,font=font(16),fill='white',spacing=0);im.save(path)
+ im=Image.new('RGB',(480,270),'black');d=ImageDraw.Draw(im);d.text((14,10),'ASCII KINESIS V2 — COILED AIR TASK RECOVERY',font=font(9),fill='white');d.text((10,22),label,font=font(9),fill='white');d.multiline_text((10,36),text,font=font(11),fill='white',spacing=0);im.save(path)
 
 def make_video(d):
  one=sequence(d); seq=one*int(d['compile']['loop_repetitions'])
  with tempfile.TemporaryDirectory(prefix='air008-') as td:
   td=Path(td)
   for i,(lab,txt,kind) in enumerate(seq):frame(txt,td/f'f-{i:04d}.png',f'{lab} [{kind}]')
-  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'f-%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','29','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
+  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'f-%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','45','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
  return one,seq
 
 def html_page(d,sheet,media):
@@ -87,7 +89,7 @@ def html_page(d,sheet,media):
 
 def main():
  d=json.loads(MOTION.read_text()); one,seq=make_video(d); media=MP4.read_bytes(); sha=hashlib.sha256(media).hexdigest(); sheet=contact_sheet(d); sheet_sha=hashlib.sha256(sheet.encode()).hexdigest()
- d['compile'].update(media_sha256=sha,media_bytes=len(media),semantic_frames_per_loop=len(one),video_frames_total=len(seq),video_file=MP4.name);d['ascii_sheet_sha256']=sheet_sha;MOTION.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
- m=json.loads(MANIFEST.read_text());m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha);m['motion_dungeon'].update(semantic_frames_per_loop=len(one),video_frames_total=len(seq));MANIFEST.write_text(json.dumps(m,indent=2,sort_keys=True)+'\n')
+ d['compile'].update(media_sha256=sha,media_bytes=len(media),semantic_frames_per_loop=len(one),video_frames_total=len(seq),video_file=MP4.name);d['ascii_sheet_sha256']=sheet_sha;MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'))+'\n')
+ m=json.loads(MANIFEST.read_text());m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha);m['motion_dungeon'].update(semantic_frames_per_loop=len(one),video_frames_total=len(seq));MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'))+'\n')
  SPA.write_text(html_page(d,sheet,media));print(json.dumps({'media_sha256':sha,'media_bytes':len(media),'frames':len(seq),'ascii_sha256':sheet_sha},sort_keys=True))
 if __name__=='__main__':main()
