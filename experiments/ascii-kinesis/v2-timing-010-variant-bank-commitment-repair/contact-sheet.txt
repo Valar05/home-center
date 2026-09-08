@@ -211,6 +211,7 @@ clocks BODY=A_ABSORB | CONFIG=A_SELECTED
 
 
 
+
                             O
                             |
                              |
@@ -353,6 +354,7 @@ root/motion-arc=root lifts/advances left while head and leading arm arc above it
 timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
 causal_role=one-frame high whip after loaded commit
 clocks BODY=B_WHIP | CONFIG=B_SELECTED
+
 
 
 
