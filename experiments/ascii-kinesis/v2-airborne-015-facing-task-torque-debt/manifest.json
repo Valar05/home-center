@@ -1,6 +1,6 @@
 {
   "ascii_literal_text": true,
-  "ascii_sheet_sha256": "50519060c50d45034b65223d816ef115c47e0b1a99eec8014dd037dce5580168",
+  "ascii_sheet_sha256": "516d75c99c67ce7d7b6619ae707c79468bfff7870bccc14d444b95a1858a4499",
   "backward_compatible": true,
   "contract_test": {
     "entries_checked": [
@@ -46,7 +46,7 @@
     "sha256": "ed14b3a857ffa2ba97a5a4cd7c906008db22755b5b55c295ad574f98f2bd9a9d",
     "width": 640
   },
-  "motion_json_sha256": "7aa050ddb6dfdcbf60211e0113bd4a7b75a321f2bbfbca8617287274b32cb9c9",
+  "motion_json_sha256": "d6e471f214dabce794df2afc6e858b4f306a403b40f3dc68ce849c27f11d89d0",
   "primary_tabs": [
     "ASCII",
     "JSON",
