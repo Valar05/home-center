@@ -1,0 +1,70 @@
+{
+  "schema": "fortress.venice.plan-review.v1",
+  "commission": "Require durable reproducible receipts for every absurd/ceremonial score, using deterministic RNG rather than improvised numbers.",
+  "commission_id": "absurd-score-receipts-v1",
+  "reviewer": "venice-judgment-jar",
+  "directive": "PLAN_ALLOWED",
+  "reviewedAtLocal": "2026-09-08T03:28:25-05:00",
+  "evidence": [
+    "skills/fortress-core/SKILL.md",
+    "skills/punch-card-aphorism/SKILL.md",
+    "skills/haraway-hotel-operator/SKILL.md",
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/05-judgement-jar-home-center-vlad-receipts.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md",
+    "skills/fortress-plan-gate/SKILL.md",
+    "skills/venice-review-memory/SKILL.md"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "why": "Keep the commission to absurd-score generation/receipts; do not turn it into a general analytics or metrics system."
+    },
+    {
+      "path": ".continue/rules/05-judgement-jar-home-center-vlad-receipts.md",
+      "why": "Reuse existing typed-receipt discipline and do not invent a second receipt daemon or false delivery state."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "why": "Implement the smallest coherent scorer, router, regression, and receipt contract."
+    },
+    {
+      "path": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "why": "Require source review/readback before stopping."
+    }
+  ],
+  "punchCardCompilation": {
+    "state": "canonical subject/namespace/profile/edition plus scorer version",
+    "input": "request to issue an absurd ceremonial score",
+    "rule": "canonicalize -> SHA-256 seed -> deterministic counter-hash byte stream -> profile-specific exact score -> typed receipt",
+    "nextState": "score and stable receipt identity exist",
+    "observable": "same canonical request reproduces the same exact score and receipt fingerprint",
+    "correction": "user-supplied historical scores are preserved as external/manual receipts rather than silently rerolled"
+  },
+  "plan": [
+    "Add a boot-discoverable absurd-score receipt skill with automatic trigger rules.",
+    "Add a dependency-free deterministic SHA-256 counter-stream scorer; do not use Python random or current time in the seed.",
+    "Support standard, imagegen-style, and casino-nuclear profiles while clearly labeling scores as ceremonial rather than quality metrics.",
+    "Make hidden rerolls impossible: score changes require an explicit edition/profile/subject change preserved in the receipt.",
+    "Add deterministic regression tests for repeatability, profile bounds, huge-score shape, manual legacy preservation, and no-time-in-seed behavior.",
+    "Route Fortress Core and Ritsu through the score skill whenever an absurd score is assigned.",
+    "Wire the regression into the authorized local contract runner without claiming it executed here.",
+    "Create a grandfathered receipt for the user-assigned Imagegen score 567,768 without pretending RNG generated that historical number.",
+    "Read back every changed artifact, then run a Venice completion/source review."
+  ],
+  "antagonism": [
+    "Do not use wall-clock time, process randomness, Python hash(), or random.Random as score entropy; those undermine cross-run receipts.",
+    "Do not create a second Home Center receipt watcher; absurd-score receipts are repository artifacts, while existing receipt transport doctrine remains separate.",
+    "Do not launder ceremonial RNG into a real quality metric; the receipt must say it is absurd/ceremonial.",
+    "Do not reroll the same subject silently; an intentional new edition must be explicit and receipt-visible.",
+    "Do not overwrite the prior human-issued 567,768 score; preserve provenance as user-assigned legacy.",
+    "Do not require the user to say 'absurd score receipt' every time; task-class routing must fire when the assistant assigns an absurd score."
+  ],
+  "reviewerMemory": [
+    "Planning bypass: research and Venice plan receipt must precede substantive mutation.",
+    "Status-without-capability: doctrine alone is insufficient; provide deterministic executable tooling and regression.",
+    "Evidence laundering: source/readback proves source state only; local runtime test execution will remain explicitly unclaimed unless actually run."
+  ],
+  "doneCondition": "A canonical scoring skill, deterministic scorer, regression contract, global/Ritsu routing, runner wiring, grandfathered 567768 receipt, repository readback, and Venice STOP_ALLOWED completion receipt all exist on main."
+}
