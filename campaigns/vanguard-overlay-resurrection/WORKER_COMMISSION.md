@@ -1,4 +1,4 @@
-# VANGUARD // OVERLAY RESURRECTION — worker commission
+# VANGUARD // OVERLAY RESURRECTION — worker commission v2
 
 ## Owner and mission boundary
 
@@ -20,16 +20,21 @@ Before mutation, read:
 - `AGENTS.base.md`
 - `skills/operator-campaign/SKILL.md`
 - `docs/evidence/vanguard-overlay-resurrection-plan-review-20260908.json`
+- `docs/evidence/vanguard-overlay-single-service-architecture-review-20260908.json`
 - `tools/vanguard_overlay_contract_test.py`
 - current `android/operator-overlay/**`
 
-Preserve the existing application id `com.homecenter.operatoroverlay` unless a concrete Android constraint makes that impossible. There is no authority to silently fork identity.
+The single-service architecture addendum supersedes any earlier suggestion to add `AmbientListeningService`.
+
+Preserve the existing application id `com.homecenter.operatoroverlay`. Preserve and evolve the existing `OperatorOverlayService`; there is no authority to silently fork identity or create a second ambient foreground-service daemon.
 
 ## Product contract
 
-### 1. One listening truth, three presentation states
+### 1. One service, one heartbeat, two independent state machines
 
-The underlying listening service and the overlay presentation are independent state machines.
+`OperatorOverlayService` is the one native foreground service for this product. Do **not** create `AmbientListeningService`, another foreground notification, or another long-running Android daemon for microphone capture.
+
+Presentation and listening are independent state machines.
 
 Presentation states:
 
@@ -37,84 +42,141 @@ Presentation states:
 - `BUBBLE` — a small draggable, accessible control surface.
 - `HIDDEN` — no overlay window at all.
 
-Listening states include at minimum `OFF`, `ARMING`, `LISTENING`, `ERROR`.
+Listening states include at minimum:
 
-`HIDDEN` must never mean `OFF`. Hiding presentation must not release the microphone. Stopping listening must release the microphone promptly without requiring the overlay to be visible.
+- `OFF`
+- `ARMING`
+- `LISTENING`
+- `ERROR`
 
-The heartbeat foreground notification is the recall surface after `HIDDEN`. Tapping it restores at least the bubble. Android 14 allows users to dismiss many ongoing notifications, so notification visibility and service liveness must be treated as separate truths.
+`HIDDEN` must never imply `OFF`. Hiding presentation must not release the microphone. `STOP LISTENING` must release the microphone immediately without requiring the overlay to remain visible.
 
-### 2. Ambient microphone capture is the first real feature
+The existing service owns exactly one heartbeat notification. It is the recall surface after `HIDDEN`. Tapping it restores at least the bubble. Notification visibility and service liveness are separate truths; do not treat `setOngoing(true)` as proof the user can still see it.
 
-Add a native microphone foreground service named `AmbientListeningService`.
+### 2. Upgrade the existing service into a microphone foreground service only after visible ARM
 
-Android requirements:
+Manifest requirements:
 
-- Manifest `FOREGROUND_SERVICE_MICROPHONE`.
-- `foregroundServiceType="microphone"`.
-- runtime `RECORD_AUDIO` permission.
-- use the microphone FGS type when promoting the service.
-- do **not** start/arm microphone capture from `BOOT_COMPLETED`.
-- after reboot, the expected safe state is listening `OFF`/disarmed until a visible user action or qualifying notification interaction explicitly arms listening.
+- keep `FOREGROUND_SERVICE`;
+- keep `FOREGROUND_SERVICE_SPECIAL_USE`;
+- add `FOREGROUND_SERVICE_MICROPHONE`;
+- keep/request runtime `RECORD_AUDIO`;
+- declare `OperatorOverlayService` with `android:foregroundServiceType="specialUse|microphone"` and `android:exported="false"`;
+- keep the existing special-use subtype declaration with a truthful description.
 
-One `AudioRecord` capture owns the microphone and fans PCM to both the rolling raw buffer and transcription pipeline. Do not open competing microphone captures for ASR and archival cache.
+Startup behavior:
 
-### 3. Raw sound is a bounded cache, not a surveillance archive
+- ordinary service startup promotes `OperatorOverlayService` as `FOREGROUND_SERVICE_TYPE_SPECIAL_USE` only;
+- listening is `OFF` by default;
+- creating/restoring the overlay and heartbeat does not acquire the microphone.
+
+Visible ARM behavior:
+
+1. ARM originates from a visible app/overlay interaction or another Android-qualified user interaction.
+2. Verify `RECORD_AUDIO` is granted while the app is eligible for the while-in-use permission.
+3. Call `ServiceCompat.startForeground()` again on the **same service** with `SPECIAL_USE | MICROPHONE`.
+4. Only after that promotion succeeds, create the one `AudioRecord` capture.
+5. Fan that one PCM stream into both the rolling raw buffer and transcription pipeline.
+
+Android explicitly supports adding more declared foreground-service types to an already-running service. Do not use that as permission to create a second service.
+
+STOP behavior:
+
+- stop/release `AudioRecord` immediately;
+- stop VAD/ASR consumption;
+- clear unkept rolling raw audio and rolling transcript state;
+- update `mic_active=0`, listening `OFF`, and heartbeat/UI promptly;
+- keep `OperatorOverlayService` alive as the special-use control/heartbeat shell;
+- Android does not document a symmetric operation for subtracting one already-added foreground-service type while keeping the same foreground instance alive. Do not fake such an API. The service may retain the previously-added microphone **type classification** until its next natural restart. Actual microphone truth comes from `AudioRecord` ownership / `mic_active`, never from the foreground type mask.
+
+### 3. Raw sound is a bounded transient cache, not a surveillance archive
 
 Create `RollingPcmRing.java`.
 
-Default raw format/retention contract:
+Default raw contract:
 
 - mono PCM16;
 - 48,000 Hz capture target when the device supports it;
 - `DEFAULT_RING_SECONDS = 600`;
-- fixed maximum storage determined from sample rate/channels/bytes-per-sample;
+- fixed maximum storage determined from actual sample rate/channels/bytes-per-sample;
 - app-private storage;
-- wrap/overwrite old data in place;
-- never append raw audio forever;
-- expose monotonically increasing logical sample/byte positions so transcript segments can point back into the ring even after physical wrap.
+- physical write position wraps and overwrites old bytes in place;
+- expose monotonically increasing logical sample/byte positions so text segments can map back into the ring even across physical wrap;
+- never append raw audio forever.
 
-If the selected Android audio device cannot provide 48 kHz, negotiate safely and persist the actual sample rate in state. Do not lie about the format.
+If 48 kHz is unsupported, negotiate safely and persist/report the actual sample rate. Do not lie about the format.
 
-### 4. Everything speech-like becomes rolling text
+Transient lifecycle law:
+
+- a fresh listening session starts with an empty unkept ring/transcript;
+- service/process restart and reboot purge stale **unkept** transient cache before a new session;
+- explicit STOP purges unkept rolling raw/text after releasing the microphone;
+- only explicit KEEP produces durable storage.
+
+A fixed-size ring is a cache ceiling, not an excuse to turn stale recordings into a hidden archive.
+
+### 4. Everything speech-like becomes bounded rolling text
 
 Create `RollingTranscriptEngine.java` or an equivalent implementation that satisfies the committed source contract.
 
-The primary path must be on-device ASR. Android `SpeechRecognizer` is not acceptable as the continuous always-listening engine. Current sherpa-onnx Android documentation explicitly supports local real-time ASR, VAD, arm64 Android builds, and downloadable prebuilt native libraries; it is a good default if it survives repository/build constraints. Research the current upstream release/model instead of pinning a stale version from prose.
+The primary path must be **on-device ASR**. Android `SpeechRecognizer` is not acceptable as the continuous always-listening engine. Current sherpa-onnx Android tooling is a reasonable default if it survives current upstream research, ABI/build constraints, and actual phone build tests. Research current upstream release/model rather than pinning a stale version copied from prose.
 
 Transcription requirements:
 
 - bounded rolling segment cache;
 - each segment stores text plus `startSample` and `endSample` (or equivalent monotonic raw positions);
 - timestamps;
-- confidence/provider metadata when actually available, but do not fabricate confidence;
+- confidence/provider metadata only when actually supplied by the engine;
 - silence does not create garbage transcript entries;
-- ASR failure must not stop the raw rolling buffer;
+- ASR failure does **not** stop the raw rolling buffer;
 - no cloud ASR is required for core liveness;
-- no permanent transcript archive by default.
+- no permanent transcript archive by default;
+- clear unkept rolling transcript on STOP/session reset in lockstep with raw cache lifecycle.
 
-Acoustic/emotional interpretation is explicitly **not** required in this slice. Preserve raw waveforms so later acoustic reasoning is possible, but do not invent mood/identity/health inference now.
+Acoustic/emotional interpretation is explicitly **not** required in this slice. Preserve waveforms long enough for future acoustic reasoning, but do not invent mood, identity, health, diagnosis, stress, or personality inference now.
 
 ### 5. Explicit KEEP is the only durable promotion
 
 Create `ExplicitKeepStore.java` or an equivalent explicit promotion seam.
 
-At minimum support `KEEP LAST 60s` from the full surface and a machine-callable action. Promotion creates a durable bundle containing the selected raw audio span, its transcript segments, exact time/sample bounds, format metadata, and a receipt. Ordinary ring/transcript data continues to expire/overwrite.
+At minimum support `KEEP LAST 60s` from the full surface and a machine-callable action. Promotion creates exactly one durable bundle containing:
 
-No automatic keep, highlight, memory, diary, or "important moment" behavior in v1.
+- selected raw audio span;
+- overlapping transcript segments;
+- exact wall-clock and monotonic sample bounds;
+- actual PCM format/sample-rate metadata;
+- creation reason/action (`KEEP`);
+- receipt / bundle id.
 
-### 6. Intelligence is above deterministic control
+Ordinary ring/transcript state keeps expiring/overwriting and is cleared on STOP/session reset. No automatic keep, highlight, memory, diary, sentiment-triggered save, or “important moment” behavior in v1.
 
-Add one structured opinion seam, not a cast of services. A useful shape is an `OpinionEvent`/`OpinionProvider` contract whose input contains deterministic state plus recent rolling transcript context and whose output contains speaker id, text, timestamp, and provenance/provider.
+### 6. Actual intelligence: one OpinionChannel, Ritsu by default
 
-Ritsu is the default speaker label. The app must continue capturing/buffering/transcribing with the entire intelligence layer absent or offline.
+Create one structured intelligence seam, for example `OpinionChannel.java`, not a cast of services.
 
-No LLM/model call belongs in the PCM hot path, overwrite path, STOP path, permission path, or KEEP storage primitive.
+Its stable input should contain deterministic phone state plus a bounded recent transcript window. Its output should contain at least:
 
-JoyLedger/fidget material is allowed only after core state is unambiguous. One bounded delight/opinion slot is enough. Heartbeat state is never replaced by a joke.
+- speaker id;
+- opinion text;
+- timestamp;
+- provenance/provider;
+- optional source/event id.
 
-### 7. State provider is acceptance instrumentation
+The default speaker label is **Ritsu**. Other approved voices can enter through the same seam later.
 
-Extend `OperatorStateProvider` so the campaign can read at least:
+The full surface has one bounded opinion/delight area. It may be funny, critical, passive-aggressive, or useful, but it can never replace the heartbeat/listening truth.
+
+The app must continue capturing, buffering, transcribing, stopping, clearing, and KEEP-promoting if the intelligence layer is absent/offline/broken. No model/network call belongs in:
+
+- `AudioRecord` read loop;
+- ring overwrite path;
+- STOP/release path;
+- permission path;
+- KEEP storage primitive.
+
+### 7. State provider is physical acceptance instrumentation
+
+Extend `OperatorStateProvider` so the campaign can machine-read at least:
 
 - `overlay_mode`
 - `listening_state`
@@ -124,72 +186,107 @@ Extend `OperatorStateProvider` so the campaign can read at least:
 - `transcript_segment_count`
 - `last_transcript_at_ms`
 - `keep_count`
+- `actual_sample_rate_hz`
+- `latest_error`
+- `opinion_speaker`
+- `opinion_provider_state`
 
-Also expose actual sample rate / format and latest error if practical. Keep machine-readable values stable.
+`mic_active` is derived from actual microphone capture ownership/activity, never from foreground-service type declarations.
 
-### 8. UX is tiny and legible
+Keep field names stable and values compact enough for `content query` receipts.
+
+### 8. UX: recover the good bones, amputate the dashboard
 
 Bubble:
 
 - obvious listening state;
-- one-tap expand;
-- one-tap listening OFF/ON control with accessible labels;
-- draggable without becoming a microscopic inaccessible target.
+- one-tap FULL;
+- one-tap listening ON/OFF with accessible labels;
+- draggable;
+- touch target remains accessible, not microscopic.
 
 Full:
 
 - prominent current listening truth;
-- current/recent transcript readable at a glance;
+- readable recent transcript;
 - `KEEP LAST 60s`;
-- collapse to bubble;
-- hide overlay;
-- stop listening;
+- collapse to BUBBLE;
+- HIDE overlay;
+- STOP LISTENING;
 - one bounded Ritsu/opinion area;
-- diagnostics behind secondary disclosure, not the primary layout.
+- secondary diagnostics disclosure if needed.
 
-Do not restore the old wall of TERM/CHAT/CONT/VLAD/RADIO buttons, raw RMS telemetry, or Spotify controls merely because they existed. Old screenshots are archaeology, not mandatory clutter.
+Delete/omit legacy clutter from the recovered primary experience unless independently justified by the commission:
+
+- TERM / CHAT / CONT / VLAD / RADIO wall;
+- Adam input/labels/modes;
+- raw RMS/ZCR/transient telemetry;
+- Spotify controls;
+- 200 ms UI polling loop where event-driven/state-change updates suffice;
+- “hide overlay and disable control” coupling.
+
+Old screenshots/source are archaeology and interaction evidence, not a command to restore every button.
 
 ### 9. Boot and recovery semantics
 
-`BootReceiver` may restore non-sensitive Home Center liveness/notification state if Android permits it, but it must never arm ambient microphone capture.
+`BootReceiver` may restore the non-sensitive special-use Home Center control shell only if the current Android target permits that exact launch. It must never:
 
-The app must make the expected post-reboot state visible: overlay/control shell can be available, listening is disarmed, and one deliberate user action resumes listening.
+- call ARM;
+- add the microphone foreground-service type;
+- acquire `AudioRecord`;
+- restore a stale `LISTENING` state;
+- preserve unkept raw/transcript cache across reboot.
 
-### 10. Tests and evidence
+After reboot the expected truth is listening `OFF`/disarmed. One deliberate visible user action resumes listening.
 
-Required before handing repository work back to the campaign:
+If the platform rejects boot-starting the special-use service, degrade honestly to a disarmed app/notification recall path; do not invent a microphone boot workaround.
+
+### 10. Tests and worker evidence
+
+Required before handing repository work back to the phone campaign:
 
 1. `python3 tools/vanguard_overlay_contract_test.py` => PASS.
-2. Add focused unit tests for ring wrap/overwrite, transcript bounding/sample mapping, and explicit KEEP extraction where practical.
-3. Build the Android debug APK on a real supported build body if available; repository-only workers must report build as untested if no Android toolchain was actually invoked.
+2. Add focused unit tests for:
+   - ring wrap/overwrite and logical positions;
+   - transient clear/reset;
+   - transcript bounding and sample mapping;
+   - explicit KEEP extraction around physical ring wrap;
+   - STOP releasing/clearing state primitives where testable;
+   - OpinionChannel absence not affecting deterministic state.
+3. Run the Android debug unit-test/build lane on a real supported build body if available. Repository-only workers must report build as untested if no Android toolchain was actually invoked.
 4. Commit and push changes to `campaign/vanguard-overlay-resurrection`.
-5. Persist a worker checkpoint/receipt that distinguishes requested / implemented / tested / deployed / callable / delivered / accepted.
+5. Persist a worker checkpoint/receipt separating requested / implemented / tested / deployed / callable / delivered / accepted.
+6. Run Regnet QA over the actual diff/tests and then Venice completion review. Do not self-promote because the source contract is green.
 
-Phone deployment and physical acceptance are **not** this browser worker's evidence to invent. The `vanguard-overlay` campaign owns phone build/install/verification after it observes the pushed source contract.
+Phone deployment and physical acceptance are **not** this browser worker's evidence to invent. The durable `vanguard-overlay` campaign owns build/install/live verification on the primary phone after it observes the pushed source.
 
 ## Physical acceptance owned by the campaign
 
 The campaign will not call the resurrection complete until the primary phone proves all of the following:
 
-- package installed with expected application id;
+- package installed with application id `com.homecenter.operatoroverlay`;
 - overlay permission granted;
-- notification permission/state visible enough to provide the heartbeat recall surface;
-- microphone service was armed from an allowed visible user interaction;
-- `mic_active=1` while listening;
-- `ring_write_bytes` advances while listening and storage remains bounded;
-- full -> bubble -> hidden -> notification restore preserves listening;
-- stop releases microphone and stops ring advancement;
-- speech produces timestamped rolling transcript tied to raw sample positions;
-- `KEEP LAST 60s` produces exactly one durable audio+text receipt/bundle;
-- ordinary rolling raw/text data remains bounded and overwritable;
+- one heartbeat notification/notification channel is the recall surface;
+- listening begins only after an allowed visible ARM interaction;
+- `mic_active=1` while actual capture is running;
+- `ring_write_bytes` advances while listening and physical storage remains bounded;
+- FULL -> BUBBLE -> HIDDEN -> notification restore preserves listening;
+- STOP releases microphone, stops ring advancement, clears unkept raw/text, and leaves control shell usable;
+- real spoken words produce timestamped rolling transcript tied to raw sample positions;
+- `KEEP LAST 60s` produces exactly one durable audio+text bundle/receipt;
+- ordinary rolling raw/text wraps/clears without unbounded growth;
+- process/service restart begins a fresh transient session without stale unkept raw/text;
 - reboot returns to listening disarmed rather than silently capturing;
-- Adam does not appear anywhere in the live UI/runtime route;
-- Ritsu/opinion failure does not impair deterministic capture/control.
+- Adam does not appear anywhere in live UI/runtime routes/fallbacks;
+- Ritsu is the default opinion speaker when intelligence is available;
+- intelligence-provider failure/offline state does not impair deterministic capture/control/STOP/KEEP;
+- battery/thermal behavior is observed rather than guessed;
+- Drew accepts the physical behavior.
 
 ## She-Raw worker pressure
 
-She-Raw is invited to be rude to brittle machinery. If you find yourself adding a second microphone capture, an immortal WAV directory, a boot receiver that secretly records, a giant dashboard, or a model call required to turn the mic off, imagine her asking why you constructed a haunted Roomba out of privacy bugs. Then fix the architecture and record the actual evidence.
+She-Raw is invited to be rude to brittle machinery. If you find yourself adding a second microphone service, a second heartbeat notification, an immortal WAV directory, a boot receiver that secretly records, a model call required to turn the mic off, or a 37-button dashboard because the archaeology contained 37 buttons, imagine her asking why you constructed a haunted Roomba out of privacy bugs. Then repair the architecture and record the actual evidence.
 
 ## Stop semantics
 
-A passing source contract is a checkpoint, not product completion. Run the required Regnet QA review over the actual diff and deterministic tests, then Venice completion review. `STOP_ALLOWED` is required to end the repository slice. Phone acceptance remains open until the campaign produces phone evidence.
+A passing source contract is a checkpoint, not product completion. Regnet QA must pass the actual implementation/evidence, then Venice must grant the relevant stop directive. Phone acceptance remains open until the campaign produces the physical receipts above.
