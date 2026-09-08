@@ -17,7 +17,7 @@
   "whitespace_preserved": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
-  "video_packaging": "embedded MP4 base64 text in clock-rendezvous-reacquire-repair.motion.html, reconstructed offline into video src; no tracked MP4 sidecar required",
+  "video_packaging": "embedded MP4 base64 plus gzip-packed exact ASCII and motion payloads in self-contained Chromium-compatible SPA; no tracked MP4 sidecar required",
   "source_art_embedded": false,
   "backward_compatible": true,
   "files": [
@@ -92,10 +92,10 @@
   },
   "reconstruction": "python3 build.py",
   "hashes": {
-    "build_py_sha256": "0c3c38613e60beb2b236150edea52dac7cb96821eda4a0f246a76df0daeb2a3f",
+    "build_py_sha256": "17dbce6abbff7e67ad7c95b7c118fa411138680b2e1b11cdcf7947e0a5d4c580",
     "motion_json_sha256": "fcdacaae2065681a24df9dcaade3493d4b41033b9a124e8ed020a5eaf861eebc",
     "ascii_sheet_sha256": "0f812c9a9676fd6f77f5a4635466556da61600d06c127f747dc401ce0f9fdcb0",
-    "spa_html_sha256": "f3ce46cecb287b6cb59cb78026affb9408fafa403eba0013b179e3121195ea4a",
+    "spa_html_sha256": "6f0eed2bb69e93736d618d056a82365e0fda85e0caacb691d3ad31678ed9e0cc",
     "media_sha256": "ab58c2dcee440ba889e5135ce4ddd5f1be4b0cd10cef4f877e35a4d9bcf9a134"
   },
   "status": "READY_FOR_REPO_PERSISTENCE",
