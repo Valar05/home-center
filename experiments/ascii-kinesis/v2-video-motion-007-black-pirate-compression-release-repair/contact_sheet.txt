@@ -1,170 +1,196 @@
-ASCII KINESIS V2 · VIDEO MOTION 007 · REPAIR OF VIDEO MOTION 001
-Compression → spring release → counter-arc recovery debt
-Source: He'll walk the plank.webm · coherent segment 15.000–18.750 s
-Legend: O head · @ pelvis/root · + COM · * joint · ? support-side unresolved · X geometric overlap only
-No inter-actor/prop contact is authored. Exact impact/contact/support ownership remains UNKNOWN.
+ASCII KINESIS V2 · VIDEO MOTION 007 · BLACK PIRATE COMPRESSION / RELEASE REPAIR
+Source evidence family: He'll walk the plank.webm · coherent action 15.000–18.750 s
+Legend: O head · @ pelvis/root · + COM · * joint · ? ground contact, support side UNKNOWN · X silhouette overlap only
+No inter-actor / prop contact is asserted. Source timestamps are OBSERVED; compile cadence/arcs are INFERRED.
 
-K0 · 15.000s OBSERVED · FOURS INFERRED · SET_TENSION
+K0  t=15.000s OBSERVED  FOURS INFERRED  SET_TENSION
+                                                                      
+                                                                      
+                                                                      
+                  OA                                                  
+                  |                                          OB     -*
+                 -|--                                       /     *-  
+               -- |  \  -*                                --/-  //    
+              /   |   *-                                --  / --      
+              *  +|                                    /    /         
+             /    |                                   *     /         
+            *     @                                 //     /+         
+                 /\                                *       /          
+                 / \                                      -@          
+                *   \                                    -  \\        
+               /    *                                  *-     *       
+               /     \\                               /        \\     
+______________?________?_____________________________?___________?____
+support/contact: A root comparatively stable; both actors ground-touch; B support side UNKNOWN; no inter-actor contact claim
+root/arc: Wide separation. B low-right with torso canted right; one arm forward/down and one high/back, preloading an asymmetrical diagonal.
+
+K1  t=16.000s OBSERVED  FOURS INFERRED  ASYMMETRIC_CLOSE
+                                                                      
+                                                                      
+                                                                   -* 
+                  OA                                              -   
+                  |       *                               OB    *-    
+                  |---  //                                /   //      
+                //|   -*                                -/----        
+               /  |                                   --/             
+              /  +|                                 --  /             
+              *   |                                /    +             
+             /    @                              //    /              
+            *    / \                            *     /               
+                 /  \                        ---      @-              
+                *   \                       *        /  -             
+               /     *                             //    -*           
+               /      \\                         -*        \\         
+______________?_________?______________________?-____________?________
+support/contact: A root comparatively stable; B ground-touch with support side UNKNOWN; no inter-actor contact claim
+root/arc: B closes left while pelvis sinks; head/chest lag farther right, rear arm rises/back, and the opposite hand drops. The load changes shape before it changes speed.
+
+K2  t=17.000s OBSERVED  TWOS INFERRED  DEEPEN_LOAD
+                                                                      
+                                                                      
+                                                               -*     
+                  OA                                         --       
+                  |                                        *-         
+                  |----   -*                        OB    /           
+                 /|    -*-                          /   //            
+                / |                               -/----              
+               /  +                            ---/                   
+              *   |                          --  /                    
+             /    @                        //   /+                    
+            *    / \                      /     /                     
+                 /  \                   -*     /                      
+                *   \                  -      @--                     
+               /     *               *-    ---   --*                  
+               /      \\                 -*         \\                
+______________?_________?______________?-_____________?_______________
+support/contact: B ground-touch persists; exact support side UNKNOWN; A reaction remains inferred with stable root
+root/arc: B sinks into a deeper uneven base while the pelvis advances left. Head and high rear hand remain stubbornly right; the low lead hand stretches down/left, exposing a loaded diagonal rather than a translated mannequin.
+
+K3  t=17.750s OBSERVED  TWOS INFERRED  MAX_COMPRESSION_SPRING
+                                                                      
                                                                       
                                                                       
                    OA                                                 
-                   |                                                  
-                  -|--                                       OB       
-                -- |  \  -*                                  /   -*   
-               /   |   *-                                  -/   *     
-              -*  +|                                     -- /---      
-             *     |                                     /  /         
-                   @                                   -*  /+         
-                  /\                                  *    /          
-                  / \                                      @          
-                 *   \                                    / \\        
-                /    *                                   *    *       
-                /     \                                 /      \\     
-_______________?_______?_______________________________?_________?____
+                   |                                     -*           
+                   |-                                 ---             
+                 /// --                     OB     -*-                
+                /  /   \                    /    --                   
+               /  +     *                --/-----                     
+              *   /      \            --- /                           
+              /   @       *         //  +/                            
+             *   / \              //   /                              
+                /   \           -*    /                               
+               *    \          -     @--                              
+              /      *       *-   ---   --*                           
+              /       \\         *         \\                         
+_____________?__________?______?-____________?________________________
+support/contact: Ground-touch persists in abstract rig; support side UNKNOWN; no inter-actor contact claim
+root/arc: Near-max compression. B pelvis dives left/down while head/chest and rear hand remain right/high: a bent spring with unequal knees and a clear release direction.
 
-K1 · 16.000s OBSERVED · FOURS INFERRED · ASYMMETRIC_LOAD_CLOSE
+K4  t=17.917s OBSERVED  ONES INFERRED  RELEASE_CUT
+                                                                      
                                                                       
                                                                       
                    OA                                                 
-                   |                                     OB           
-                   |--                                   /      -*    
-                 //|  \  -*                            -/-   -*-      
-                /  |   *-                            -- / ---         
-               /  +|                                /  /              
-               *   |                               *   +              
-              /    @                             //   /               
-             *    /\                            *     @               
-                  / \                                / ---            
-                 *   \                              /     *           
-                /    *                             *       \          
-                /     \                           /         \         
-_______________?_______?_________________________?___________?________
+                   |          OB         ---*                         
+                  -|          /     --*--                             
+               --X-X\     --/------                                  
+              *    /-*X----   \                                       
+            *-    +    \\    +\                                       
+                  /      *    \                                       
+                  @       \    @-                                     
+                 / \       *  /  --                                   
+                /   \       //     -*                                 
+               *     *     *         \                                
+              /       \   /           \                               
+              /        \  /           \                               
+_____________?__________??_____________?______________________________
+support/contact: No new support or inter-actor contact state invented at burst; B support side remains UNKNOWN
+root/arc: Measured peak-change instant. B uncoils left into a long diagonal: pelvis/head/lead arm agree while rear arm remains high-right as a delayed whip.
 
-K2 · 17.000s OBSERVED · TWOS INFERRED · DEEPEN_COMPRESSION
+K5  t=18.083s OBSERVED  ONES INFERRED  HIGH_ENERGY_CROSSING
                                                                       
                                                                       
-                   OA                                                 
-                   |                               OB                 
-                   |---                            /      -*          
-                  /|   -*--*                    --/-  -*--            
-                 / |                          -- /  --                
-                /  +                        //  +                     
-               *   |                       *   /                      
-              /    @                    ---   @                       
-             *    / \                  *     / \                      
-                  /  \                      /   \\                    
-                 *   \                     *      *                   
-                /     *                   /        \                  
-                /      \                  /         \                 
-_______________?________?________________?___________?________________
+                                                                      
+                    OA OB                                             
+          *--       | /                                               
+             -*-   -|-/--                                             
+                ----X\\\ ------                                       
+               *   /   X\      --*-                                   
+             *-   +/    \          -----                               
+                  /     \@              -*                            
+                  @    //*\\                                          
+                 / \  /   \ \\                                        
+                /   \*     *  *                                       
+               *    /*         \                                      
+              /     / \         \                                     
+              /     /  \        \                                     
+_____________?_____?____?________?____________________________________
+support/contact: Silhouette proximity/overlap only; exact impact/contact UNKNOWN; B support side UNKNOWN
+root/arc: B root enters A space while head/lead hand pull left and rear hand stays right, maximizing split-direction stretch. A root holds while upper body yields asymmetrically.
 
-K3 · 17.750s OBSERVED · TWOS INFERRED · MAX_COMPRESSION_SPRING
+K6  t=18.250s OBSERVED  TWOS INFERRED  OVERLAP_COMMIT
                                                                       
                                                                       
-                    OA                                                
-                    |                                                 
-                    |                                                 
-                  ///---                    OB     --*                
-                 /  /   *                  /    -*-                   
-                /  +     -*              --/----                      
-               *   /                   --//                           
-               /   @                --- +                             
-              *   / \              *  //                              
-                 /   \          ---  @-                               
-                *    \         *   //  -                              
-               /      *           *     -*                            
-               /       \         /        \\                          
-______________?_________?_______?___________?_________________________
+                                                                      
+               OB    OA                                               
+   *--         |    /                                                 
+      -*-     -|-- -/                                                 
+         -----*-X---XXX-                                              
+            *   +  /   \---*-                                         
+                 \+/    \    ---                                      
+                  X     \       ---                                   
+                //@\\    *         -*                                 
+              // / \ \\   \                                           
+             *  /   \  *   *                                          
+            /  *     *  \                                             
+            / /       \ \                                             
+            / /        \ \                                            
+___________?_?__________?_?___________________________________________
+support/contact: Silhouette overlap OBSERVED; exact physical contact remains UNKNOWN; roots do not reverse
+root/arc: B has crossed to A's left. Head/pelvis continue left while rear arm still occupies right-side negative space. A bends away but keeps pelvis comparatively fixed.
 
-K4 · 17.917s OBSERVED · ONES INFERRED · RELEASE_CUT
-                                                                      
-                                                                      
-                    OA                                                
-                    |       OB                                        
-                   -|      /          --*                             
-                --- XX\   -/-------*--                                
-               *    / *X--  \                                         
-              /    +    \    +                                        
-             *     /     *    \                                       
-                   @      \    @-                                     
-                  / \      *  /  -                                    
-                 /   \       /    -*                                  
-                *     *     *       \                                 
-               /       \   /         \                                
-               /       \   /         \                                
-______________?_________?_?___________?_______________________________
+K7  t=18.500s OBSERVED  TWOS INFERRED  OVERSHOOT_COUNTER_ARC
+                        -----                                         
+                     *--                                              
+                   //                                                 
+        OB       // OA                                                
+        \      //   /                                                 
+        -\-----   -/-                                                 
+    ----  \    --- / --                                               
+  *-      +   *    /   \                                              
+ /        \   /   +     *                                             
+*          @ *    /      \                                            
+         // \     @       *                                           
+        /    \\  / \                                                  
+       *       \ /  \                                                 
+      /         *   \                                                 
+      /        / \   *                                                
+      /        /  \   \\                                              
+_____?________?____?____?_____________________________________________
+support/contact: Ground relation persists in abstract rig; exact support side UNKNOWN; no new contact authored
+root/arc: B overshoots left of A. Pelvis/head keep moving left while the rear arm whips high through clear negative space above A, paying momentum debt without reverse recoil or false contact.
 
-K5 · 18.083s OBSERVED · ONES INFERRED · HIGH_ENERGY_CROSSING
+K8  t=18.750s OBSERVED  FOURS INFERRED  RECOVERY_DEBT_SETTLE
                                                                       
-                                                                      
-                     OAOB                                             
-                     | /                                              
-             *-     -X/-                                              
-               -*----/\\-----                                         
-                *   /  \+    --*-                                     
-              *-   +/   \\       ----                                 
-                   /     *@          -*                               
-                   @     /\\\                                         
-                  / \   /  * \                                        
-                 /   \ *      *                                       
-                *     */       \                                      
-               /      /\       \                                      
-               /     / \        \                                     
-______________?______?__?________?____________________________________
+                        ---*                                          
+                  -*----                                              
+                 - OA                                                 
+    OB        ---  |                                                  
+     \       -    -|---                                               
+    --\------   -- /   \                                              
+  --  \        /   /    *                                             
+ /    +       *   +      -*                                           
+*      \      /   /                                                   
+/      @     *    @                                                   
+      / \        / \                                                  
+     /   \\      /  \                                                 
+    *      \    *   \                                                 
+   /        *  /     *                                                
+   /         \\/      \\                                              
+__?___________??________?_____________________________________________
+support/contact: Ground relation persists; B support side UNKNOWN; A returns only partially; no inter-actor contact state asserted
+root/arc: B root settles farther left without reversing. The rear arm remains visibly late and high above the overlap zone instead of dropping through A; torso stays pitched and stance uneven, leaving recovery debt rather than idle reset.
 
-K6 · 18.250s OBSERVED · TWOS INFERRED · OVERLAP_COMMIT
-                                                                      
-                                                                      
-               OB     OA                                              
-               |     /                                                
-      *-      -|-   -/                                                
-        -*-----*X----XX                                               
-             *  +\  /  X-*-                                           
-                 \ +/   \  -----                                      
-                  @/     *      -*                                    
-                // X\     \                                           
-               /  / \\     *                                          
-              *  /   \*                                               
-             /  *     *\                                              
-             / /       \\                                             
-             / /       \ \                                            
-____________?_?_________?_?___________________________________________
-
-K7 · 18.500s OBSERVED · TWOS INFERRED · OVERSHOOT_COUNTER_ARC
-                          --*                                         
-                      ----                                            
-                  -*-XA                                               
-       OB       --   /                                                
-       \      --   -/                                                 
-       -\-----  --- /--                                               
-     --  \     *    /  \                                              
-   *-    +     /   +    *                                             
-  /       \   *    /     \                                            
- *         @       @      *                                           
-          / \     / \                                                 
-         /   \\   /  \                                                
-        *      * *   \                                                
-       /        X\    *                                               
-       /        / \    \                                              
-______?________?___?____?_____________________________________________
-
-K8 · 18.750s OBSERVED · FOURS INFERRED · RECOVERY_DEBT_SETTLE
-                                                                      
-                                                                      
-                    OA--*                                             
-                  --X-                                                
-     OB       -*-- -|                                                 
-     |    ----   -- /--                                               
-     |----      /   /  \                                              
-   --\         *   +    *-                                            
-   / \+        /   /      *                                           
-  *   \       *    @                                                  
- /    @           /\                                                  
- *   / \\         / \                                                 
-     /   \       *   \                                                
-    *     *     /    *                                                
-   /       \\   /     \                                               
-___?_________?_?_______?______________________________________________
-
-TIMING: source timestamps OBSERVED; compile classes/holds/bridge arcs INFERRED. 1s/2s/4s = ONES/TWOS/FOURS, never seconds.
-UNRESOLVED: B support foot/side · hand/prop endpoints · driver/yielder · discrete physical impact.
+TIMING LAW: 1s/2s/4s = ONES/TWOS/FOURS, never seconds.
+UNRESOLVED: exact B support foot/side; exact hand/prop endpoints; driver/yielder; discrete physical impact.
