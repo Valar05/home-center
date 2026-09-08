@@ -1,0 +1,619 @@
+{
+  "ascii_sheet_sha256": "1f70a8df116edf1d62921759b688436edd853678763c3a9faeabb34b650e5ce5",
+  "bridge_keys": [
+    {
+      "bridge_id": "A017-B01",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "from_key": "A017-K00",
+      "pose_rig": "19,11;18,12;15,13;21,12;14,16;23,15;13,18;25,17;17,18;15,21;21,20;13,23;24,23;15,21",
+      "purpose": "drop rear hip and tool together before full coil",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K01",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B02",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K03",
+      "pose_rig": "26,6;25,7;22,8;28,8;20,9;30,10;18,11;32,12;25,12;22,15;29,16;19,18;32,19;22,16",
+      "purpose": "stretch launch while airborne semantics remain unchanged",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K04",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B03",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K04",
+      "pose_rig": "32,3;31,4;28,5;34,5;25,6;36,7;23,7;38,9;31,9;27,12;35,13;24,15;38,16;27,7",
+      "purpose": "let tool lag begin to wrap toward task cock",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K05",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B04",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K05",
+      "pose_rig": "36,2;35,3;31,6;38,4;29,7;40,5;28,8;42,6;35,9;31,12;39,11;29,15;42,14;29,3",
+      "purpose": "cross tool high while pelvis still travels right",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K06",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B05",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K06",
+      "pose_rig": "40,3;38,4;34,6;42,5;33,8;44,6;32,10;47,6;39,10;35,12;43,12;32,16;46,14;43,8",
+      "purpose": "let tool lead past apex while legs begin counter-scissor",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K07",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B06",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K07",
+      "pose_rig": "44,5;43,6;39,7;46,7;37,9;49,8;36,11;52,9;43,11;39,15;47,14;37,18;51,17;59,13",
+      "purpose": "convert task follow-through into gravity-owned counterweight",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K08",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B07",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "from_key": "A017-K08",
+      "pose_rig": "48,7;47,8;43,9;50,9;41,11;53,10;40,13;56,11;47,14;43,18;51,15;42,22;55,19;62,14",
+      "purpose": "lengthen lead probe without inventing contact",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K09",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B08",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "from_key": "A017-K10",
+      "pose_rig": "52,11;51,12;47,13;54,13;45,15;57,14;44,17;60,15;51,19;47,22;55,20;44,23;59,23;64,18",
+      "purpose": "continue pelvis drop on same lead support as trail leg folds",
+      "support_contact": "GROUND_LEFT",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K11",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B09",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "from_key": "A017-K13",
+      "pose_rig": "56,11;55,12;51,13;58,12;49,15;60,14;48,18;63,17;55,18;51,21;59,20;48,23;62,23;59,21",
+      "purpose": "body catches ahead of delayed tool overshoot",
+      "support_contact": "GROUND_RIGHT_DOMINANT",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K14",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B10",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "from_key": "A017-K15",
+      "pose_rig": "60,8;59,9;55,10;62,10;53,13;64,13;52,16;66,15;59,16;55,20;63,20;52,23;66,23;59,20",
+      "purpose": "settle lower body while shoulder/tool lag remain visible",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K16",
+      "vertical_phase": "BRIDGE"
+    },
+    {
+      "bridge_id": "A017-B11",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "from_key": "A017-K16",
+      "pose_rig": "61,8;60,9;56,10;63,10;54,13;65,13;53,16;67,15;60,16;56,20;64,20;53,23;67,23;61,20",
+      "purpose": "bring tool up after pelvis stabilization without erasing offset",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "to_key": "A017-K17",
+      "vertical_phase": "BRIDGE"
+    }
+  ],
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compile": {
+    "ascii_only_frame_render": true,
+    "bridge_keys_count": 11,
+    "bridge_rule": "Only explicit authored geometry-only bridge keys between adjacent decisive keys with unchanged support/contact semantics; semantic transitions hard-cut.",
+    "codec": "H.264",
+    "connector_rule": "No connector invents support/contact/root/task custody or causal state.",
+    "decisive_keys_count": 19,
+    "decode_command": "ffmpeg -v error -i <mp4> -f null -",
+    "decode_verified": true,
+    "duration_seconds": 2.2916666666666665,
+    "encoder_crf": 21,
+    "fps": 24,
+    "hold_ticks": {
+      "FOURS": 4,
+      "ONES": 1,
+      "TWOS": 2
+    },
+    "media_bytes": 15960,
+    "media_sha256": "133f18beeb637f2a5c48647c0997ac03f6d6f49a8642a9703c89bea006f5cd54",
+    "method": "Motion Dungeon",
+    "method_expansion": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "pixel_format": "yuv420p",
+    "source_pixels_used": false,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_file": "offaxis-tool-landing-debt.mp4",
+    "video_frames_total": 55
+  },
+  "concept": {
+    "kind": "fresh_concept_after_repair_debt_exhausted",
+    "performance": "rear-loaded launch -> rising task cock -> off-axis apex crosscut -> task follow-through -> counterweighted descent -> lead catch while COM continues down -> two-foot crush -> grounded runout -> delayed tool overshoot -> crooked rebound -> shoulder payback -> displaced task re-entry",
+    "principle": "AIRBORNE TASK TORQUE CREATES LANDING DEBT WITHOUT OWNING THE ROOT ARC."
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX TASK",
+    "FIX LANDING",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ],
+  "evidence_split": {
+    "INFERRED": [
+      "All successor pose geometry, task-tool path, center-of-mass arc, support/contact ownership, chronology, bridge keys, landing consequence, recovery debt, and every timing class are independently authored.",
+      "STREET_FIGHTER/CAPCOM is used only as inferred compilation timing.",
+      "The off-axis tool swing creates local rotational/task debt but does not create a second root impulse."
+    ],
+    "OBSERVED": [
+      "Commissioned campaign whole-sheet evidence records armed locomotion, airborne and recovery families on the complete Shaw (Sword) sheet.",
+      "Campaign evidence records that airborne armed poses can separate root path from weapon/tool path.",
+      "The source is a static commercial-game sheet; reliable source-authentic exposure timing was not measured."
+    ],
+    "UNKNOWN": [
+      "Source-authentic exposure durations and exact runtime chronology.",
+      "Exact game root coordinates, collision physics, hit-stop, and weapon synchronization."
+    ]
+  },
+  "experiment_id": "v2-airborne-017-offaxis-tool-landing-debt",
+  "format_version": 2,
+  "keys": [
+    {
+      "causal_role": "offset ready pose owns a low rear tool line before the vertical task",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K00",
+      "motion_arc_root_note": "Root is stable around x18 with weight already biased toward rear/left leg; tool lives behind the travel line.",
+      "name": "CANTED_READY",
+      "pose_rig": "20,9;19,10;16,11;22,11;15,14;24,13;14,16;26,15;19,16;16,20;23,19;14,23;26,23;17,20",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "READY"
+    },
+    {
+      "causal_role": "deep asymmetric coil loads rear hip while tool counterloads farther behind",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K01",
+      "motion_arc_root_note": "Pelvis drops left/down; rear hip and both supports carry the body while the tool's mass line moves opposite future travel.",
+      "name": "CROSSLOAD",
+      "pose_rig": "18,12;17,13;14,14;20,13;13,17;22,16;12,19;24,18;16,19;14,21;20,21;12,23;23,23;13,22",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LOAD"
+    },
+    {
+      "causal_role": "rear support drives upward-right while tool remains delayed",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K02",
+      "motion_arc_root_note": "Root rises/right from left-dominant support; lead/right foot is light and tool still points back/down.",
+      "name": "REAR_DRIVE",
+      "pose_rig": "21,10;20,11;17,12;23,11;16,15;25,14;15,17;27,16;20,17;17,20;24,19;15,23;28,22;17,21",
+      "support_contact": "GROUND_LEFT_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LOAD"
+    },
+    {
+      "causal_role": "support break commits root before the tool task begins",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K03",
+      "motion_arc_root_note": "Both supports leave only after rear-drive prep; root rises right while the tool still trails below the pelvis.",
+      "name": "SHEAR_RELEASE",
+      "pose_rig": "24,7;23,8;20,9;26,9;18,11;28,11;17,13;30,13;23,14;20,17;27,17;18,20;30,20;20,18",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAUNCH"
+    },
+    {
+      "causal_role": "fast rise stretches root-to-foot line while rear task mass lags",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K04",
+      "motion_arc_root_note": "Root climbs sharply right; legs lengthen on different diagonals and tool remains behind to expose launch acceleration.",
+      "name": "RISE_LONG",
+      "pose_rig": "29,4;28,5;25,6;31,6;22,7;33,8;20,8;35,10;28,10;24,13;32,14;21,16;35,18;24,14",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "ASCEND"
+    },
+    {
+      "causal_role": "body begins an off-axis task while root is still rising",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K05",
+      "motion_arc_root_note": "Root continues right/up; right shoulder opens and tool begins to swing around the torso without changing support or injecting a new root impulse.",
+      "name": "TASK_COCK",
+      "pose_rig": "34,3;33,4;30,5;36,5;27,6;38,6;25,7;40,8;33,9;29,12;37,12;27,15;40,15;30,2",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "ASCEND"
+    },
+    {
+      "causal_role": "tool crosses above and left of the body at apex while torso counter-rolls right",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K06",
+      "motion_arc_root_note": "Root keeps drifting right through apex; the task line sweeps across the upper body to the left while torso/hips counter-roll, creating local torque without a second root impulse.",
+      "name": "APEX_CROSSCUT",
+      "pose_rig": "37,2;36,3;32,7;40,4;31,7;42,4;30,9;44,4;37,9;33,12;41,10;31,15;44,13;29,4",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "APEX"
+    },
+    {
+      "causal_role": "task commits past the root line and stores rotational debt in shoulders/hips",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K07",
+      "motion_arc_root_note": "Root begins descending right; tool sweeps forward/down while pelvis and legs counter-scissor instead of following the tool.",
+      "name": "TASK_FOLLOWTHROUGH",
+      "pose_rig": "42,4;41,5;37,6;44,6;35,8;47,7;34,10;50,8;41,10;37,13;45,13;34,16;48,16;57,13",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "TASK"
+    },
+    {
+      "causal_role": "forward tool mass becomes counterweight while body prepares to catch",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K08",
+      "motion_arc_root_note": "Root descends more quickly; torso sits behind the tool line, lead leg lengthens down, rear leg folds and the tool remains forward.",
+      "name": "DESCENT_COUNTERWEIGHT",
+      "pose_rig": "46,6;45,7;41,8;48,8;39,10;51,9;38,12;54,10;45,12;41,16;49,14;40,20;53,17;60,13",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "DESCEND"
+    },
+    {
+      "causal_role": "lead foot probes while tool and rear limb remain airborne",
+      "contact_state": "NONE",
+      "facing": "RIGHT",
+      "key_id": "A017-K09",
+      "motion_arc_root_note": "Lead/left foot reaches groundward under the root; tool is still forward and cannot secretly become support.",
+      "name": "PRECONTACT_SPEAR",
+      "pose_rig": "49,8;48,9;44,10;51,10;42,12;54,11;41,14;57,12;48,15;44,19;52,16;43,23;56,20;63,15",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "PRECONTACT"
+    },
+    {
+      "causal_role": "first contact transfers support before downward COM is paid",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K10",
+      "motion_arc_root_note": "Left foot acquires ground while pelvis keeps moving down/right; tool is still ahead and begins to lag relative to the catching body.",
+      "name": "LEAD_CATCH",
+      "pose_rig": "51,10;50,11;46,12;53,12;44,14;56,13;43,16;59,14;50,18;46,21;54,19;44,23;58,22;65,17",
+      "support_contact": "GROUND_LEFT",
+      "timing_class": "ONES",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "CONTACT"
+    },
+    {
+      "causal_role": "lead leg yields while trail leg races under the falling center",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K11",
+      "motion_arc_root_note": "Root continues down/right over the left support; rear/right knee folds under and tool stops advancing, creating visible task lag.",
+      "name": "TRAIL_FOLD_UNDER",
+      "pose_rig": "52,12;51,13;47,14;54,14;45,16;57,15;44,18;60,16;51,20;47,22;55,21;44,23;59,23;64,18",
+      "support_contact": "GROUND_LEFT",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "CONTACT"
+    },
+    {
+      "causal_role": "both supports own a deep asymmetric crush that pays vertical and rotational debt",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K12",
+      "motion_arc_root_note": "Root bottoms after trail foot joins; torso counterleans left while tool crosses low/right, making landing consequence larger than contact.",
+      "name": "TWO_FOOT_CRUSH",
+      "pose_rig": "51,15;50,16;46,17;53,16;44,18;56,18;43,20;59,20;50,22;46,23;54,23;43,23;58,23;63,22",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "LAND_COMPRESSION"
+    },
+    {
+      "causal_role": "landing force becomes a grounded step-through instead of a reset",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K13",
+      "motion_arc_root_note": "Root rises slightly and travels right over new support; right leg takes ownership while left leg releases, tool is still late.",
+      "name": "RIGHT_RUNOUT",
+      "pose_rig": "54,12;53,13;49,14;56,13;47,16;59,15;46,18;62,17;53,19;49,21;57,21;46,23;60,23;65,20",
+      "support_contact": "GROUND_RIGHT_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "RUNOUT"
+    },
+    {
+      "causal_role": "body catches first; tool inertia overshoots behind and below the shoulder",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K14",
+      "motion_arc_root_note": "Root continues a short grounded rightward runout while tool reverses late behind the body; upper task debt is now visibly separate from root debt.",
+      "name": "TOOL_OVERSHOOT_BACK",
+      "pose_rig": "57,10;56,11;52,12;59,11;50,15;61,14;49,18;63,17;56,18;52,21;60,20;49,23;63,23;54,22",
+      "support_contact": "GROUND_RIGHT_DOMINANT",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "OVERSHOOT"
+    },
+    {
+      "causal_role": "grounded rebound restores height unevenly while the tool remains low and late",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K15",
+      "motion_arc_root_note": "Root rises without returning left; knees extend at different rates and right shoulder stays lower because tool debt is unresolved.",
+      "name": "CROOKED_REBOUND",
+      "pose_rig": "59,8;58,9;54,10;61,11;52,13;63,14;51,16;65,17;58,16;54,20;62,19;51,23;65,23;57,21",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "REBOUND"
+    },
+    {
+      "causal_role": "delayed shoulder and hand recover after lower body has already stabilized",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K16",
+      "motion_arc_root_note": "Pelvis is nearly settled at displaced address; right shoulder and tool climb later than left side, preserving secondary lag.",
+      "name": "SHOULDER_PAYBACK",
+      "pose_rig": "60,8;59,9;55,10;62,10;53,13;64,12;52,16;66,14;59,16;55,20;63,20;52,23;66,23;60,19",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "TWOS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "SETTLE"
+    },
+    {
+      "causal_role": "whole body restacks at a new root address with residual asymmetry",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K17",
+      "motion_arc_root_note": "Root stabilizes well right of launch; support is both feet but tool remains canted rather than returning to the original pose.",
+      "name": "OFFSET_RESTACK",
+      "pose_rig": "61,8;60,9;56,10;63,10;54,13;65,13;53,16;67,16;60,16;56,20;64,20;53,23;67,23;62,20",
+      "support_contact": "GROUND_BOTH",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "SETTLE"
+    },
+    {
+      "causal_role": "recovery exits into a forward task-ready step rather than idle reset",
+      "contact_state": "GROUND",
+      "facing": "RIGHT",
+      "key_id": "A017-K18",
+      "motion_arc_root_note": "Root advances one final increment; right support owns the next action while tool lifts to a new ready line, not the starting line.",
+      "name": "TASK_REENTRY_STEP",
+      "pose_rig": "64,7;63,8;59,9;66,9;57,12;68,11;56,15;70,13;63,15;59,19;67,18;56,22;70,23;73,17",
+      "support_contact": "GROUND_RIGHT_DOMINANT",
+      "timing_class": "FOURS",
+      "timing_policy": "STREET_FIGHTER/CAPCOM",
+      "timing_provenance": "INFERRED",
+      "vertical_phase": "REENTRY"
+    }
+  ],
+  "lane": "airborne",
+  "quality_gates": {
+    "noodle_queen": {
+      "status": "PASS_CURRENT_WORKER_FINAL_RENDER",
+      "taste_function_contempt": "PASS: the apex crosscut, lead-catch/deep-crush landing, and delayed tool overshoot form memorable silhouette phases; task/root causality remains readable; recovery is displaced and indebted rather than an idle reset; the specimen does not read as placeholder endpoint motion."
+    },
+    "tango": {
+      "final_read": "PASS: asymmetrical crossload -> earned release -> long rise -> visible cross-body apex tool sweep -> gravity-owned counterweighted descent -> unsupported lead probe -> first-contact-with-continuing-COM -> deep two-foot crush -> grounded right runout -> delayed tool overshoot back -> crooked rebound -> shoulder payback -> displaced task re-entry.",
+      "revision_1": {
+        "correction": "Re-authored A017-K05 TASK_COCK, A017-K06 APEX_CROSSCUT, A017-K07 TASK_FOLLOWTHROUGH and their authored geometry bridges so the generic tool line crosses above/left of the body at apex, torso counter-rolls, then the tool releases far forward/right while root continues the same arc.",
+        "defect": "The first apex task read as a right-side extension rather than an off-axis crosscut, so the advertised torque debt was not visibly earned.",
+        "verdict": "REVISE_REQUIRED"
+      },
+      "status": "PASS_CURRENT_WORKER_AFTER_ONE_VISIBLE_REVISION"
+    }
+  },
+  "revision": {
+    "negative_fixture": null,
+    "repair_debt_exhausted_basis": "Airborne001..007 durably closed by canonical 008,011,012,013,014-side-catch,015,016; issue #343 comment 5590983016 closes Airborne007.",
+    "revises": null,
+    "source_change": true
+  },
+  "rig": {
+    "facing": "RIGHT",
+    "joints": [
+      "head",
+      "neck",
+      "shoulder_l",
+      "shoulder_r",
+      "elbow_l",
+      "elbow_r",
+      "hand_l",
+      "hand_r",
+      "pelvis",
+      "knee_l",
+      "knee_r",
+      "foot_l",
+      "foot_r",
+      "tool_tip"
+    ],
+    "links": [
+      [
+        "head",
+        "neck"
+      ],
+      [
+        "neck",
+        "shoulder_l"
+      ],
+      [
+        "neck",
+        "shoulder_r"
+      ],
+      [
+        "shoulder_l",
+        "elbow_l"
+      ],
+      [
+        "elbow_l",
+        "hand_l"
+      ],
+      [
+        "shoulder_r",
+        "elbow_r"
+      ],
+      [
+        "elbow_r",
+        "hand_r"
+      ],
+      [
+        "neck",
+        "pelvis"
+      ],
+      [
+        "pelvis",
+        "knee_l"
+      ],
+      [
+        "knee_l",
+        "foot_l"
+      ],
+      [
+        "pelvis",
+        "knee_r"
+      ],
+      [
+        "knee_r",
+        "foot_r"
+      ],
+      [
+        "hand_r",
+        "tool_tip"
+      ]
+    ],
+    "schema": "generic_ascii_biped_with_task_line.v1",
+    "tool_semantics": "generic line-segment task tool; visual counterweight only, never support"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 216747,
+    "campaign_evidence_origin": "ASCII Kinesis Strikes pass 003, issue #343 comment 5570672329 / authoritative campaign",
+    "game": "Cutthroat Island",
+    "page_url": "https://www.spriters-resource.com/snes/cutthroatisland/asset/216747/",
+    "platform": "SNES",
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Shaw (Sword)",
+    "whole_sheet_evidence_boundary": "Whole commercial-game sheet was inspected in the commissioned campaign. OBSERVED at sheet level: armed locomotion/airborne/recovery coexist with multiple attack families; grounded attacks use materially different weapon envelopes; stronger extensions recruit torso/stance and consume negative space; airborne armed poses separate root path from weapon path. Static sheet did not establish chronology or source-authentic timing."
+  },
+  "source_rights": {
+    "boundary": "No source pixels, palette, costume, character contours, exact silhouettes, sheet layout, tracing, redistribution, close imitation, source choreography, named-move choreography, or Drew work. Output is an independently authored abstract ASCII biped plus generic line-segment task tool.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  }
+}
