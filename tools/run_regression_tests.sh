@@ -23,6 +23,9 @@ node --check tools/grounded_motion_oauth_contract_test.mjs
 node tools/grounded_motion_oauth_contract_test.mjs
 node --check tools/home_center_status_contract_test.mjs
 node tools/home_center_status_contract_test.mjs
+node --check tools/attention_notice.mjs
+node --check tools/attention_notice_test.mjs
+node tools/attention_notice_test.mjs
 node --check functions/sms_calendar_intake.js
 node --check tools/sms_calendar_contract_test.mjs
 node tools/sms_calendar_contract_test.mjs
