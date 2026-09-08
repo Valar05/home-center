@@ -17,7 +17,7 @@
   "whitespace_preserved": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
-  "video_packaging": "embedded MP4 data URI in clock-rendezvous-reacquire-repair.motion.html; no tracked MP4 sidecar required",
+  "video_packaging": "embedded MP4 base64 text in clock-rendezvous-reacquire-repair.motion.html, reconstructed offline into video src; no tracked MP4 sidecar required",
   "source_art_embedded": false,
   "backward_compatible": true,
   "files": [
@@ -44,7 +44,7 @@
       "TWOS",
       "FOURS"
     ],
-    "decisive_keys": 14,
+    "decisive_keys": 15,
     "provenance": "all decisive-key cadence INFERRED because source timing is unavailable",
     "key_sequence": [
       {"key_id":"K00","name":"OFFSET_READY","timing_class":"FOURS","timing_provenance":"INFERRED"},
@@ -53,7 +53,8 @@
       {"key_id":"K03","name":"CROSSING_ACCEL","timing_class":"TWOS","timing_provenance":"INFERRED"},
       {"key_id":"K04A","name":"RIGHT_TOUCHDOWN_SPIKE","timing_class":"ONES","timing_provenance":"INFERRED"},
       {"key_id":"K04","name":"RIGHT_CATCH_BRAKE","timing_class":"FOURS","timing_provenance":"INFERRED"},
-      {"key_id":"K05","name":"OBJECT_TURN_BODY_HOLD","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K05","name":"OBJECT_TURN_BODY_HOLD","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K05B","name":"OBJECT_RETURN_BODY_HOLD","timing_class":"TWOS","timing_provenance":"INFERRED"},
       {"key_id":"K06","name":"RENDEZVOUS_COIL","timing_class":"FOURS","timing_provenance":"INFERRED"},
       {"key_id":"K07","name":"PRE_CATCH_REACH","timing_class":"TWOS","timing_provenance":"INFERRED"},
       {"key_id":"K08","name":"RENDEZVOUS_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED"},
@@ -65,37 +66,38 @@
   },
   "motion_dungeon": {
     "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
-    "authored_ascii_keys": 14,
+    "authored_ascii_keys": 15,
     "explicit_holds": true,
     "deterministic_connective_motion": true,
     "connector_semantics_fail_closed": true,
     "ascii_only_frame_render": true,
     "fps": 24,
-    "video_frames_total": 58,
-    "media_sha256": "d7e71fc5570d30120c2903c82565cc91ea1a3b4a7940e9434e791a2ea2f06656",
-    "media_bytes": 28636,
-    "ascii_sheet_sha256": "df5de024846f8e6add5b18e1e58a3871b3848203ac53cbe96ab1fab2f3ba7ec8",
-    "decode": {"codec":"h264","width":800,"height":450,"pixel_format":"yuv420p","fps":"24/1","frames":58,"duration_seconds":2.416667}
+    "video_frames_total": 64,
+    "media_sha256": "ab58c2dcee440ba889e5135ce4ddd5f1be4b0cd10cef4f877e35a4d9bcf9a134",
+    "media_bytes": 27935,
+    "ascii_sheet_sha256": "0f812c9a9676fd6f77f5a4635466556da61600d06c127f747dc401ce0f9fdcb0",
+    "decode": {"codec":"h264","width":800,"height":450,"pixel_format":"yuv420p","fps":"24/1","frames":64,"duration_seconds":2.666667}
   },
   "quality": {
-    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER_AFTER_RECURSIVE_CORRECTION",
     "noodle_queen": "PASS_CURRENT_WORKER_ACTUAL_RENDER_AFTER_TANGO",
-    "skill_mutation": false
+    "skill_mutation": false,
+    "correction": "authored object-return body-hold key + readable release origin + captured-token connective pinning"
   },
   "contract_test": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "source_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped": "PASS: fetched exact current-main test blob executed against isolated exact candidate tree; entries_checked=[v2-timing-009-clock-rendezvous-reacquire-repair], ok=true",
-    "repo_wide_runtime": "UNTESTED_BOUNDARY: authorized Standard Chat connectors expose GitHub persistence/readback but no repository checkout/shell execution surface in this run",
-    "candidate_equivalent_predicates": "PASS"
+    "candidate_scoped": "PASS: exact current-main validator blob executed against isolated exact candidate tree; entries_checked=[v2-timing-009-clock-rendezvous-reacquire-repair], ok=true",
+    "repo_wide_runtime": "UNTESTED_BOUNDARY: authorized Standard Chat connectors expose GitHub persistence/readback but no full repository checkout/shell execution surface in this run"
   },
   "reconstruction": "python3 build.py",
   "hashes": {
-    "build_py_sha256": "26d1ed8168228b1b2a2b40654fe1ff42939b62d07faff34ddd4bba5128e406b0",
-    "motion_json_sha256": "be281f01a547034cb4e7bd1361eb7e3542b785e73aba63baa00893e3e63e86f9",
-    "ascii_sheet_sha256": "df5de024846f8e6add5b18e1e58a3871b3848203ac53cbe96ab1fab2f3ba7ec8",
-    "spa_html_sha256": "2223f8c0ecc4f6e5e26eeea548e6089f0f8c8691de4397aa79c46a3810ba6aa4",
-    "media_sha256": "d7e71fc5570d30120c2903c82565cc91ea1a3b4a7940e9434e791a2ea2f06656"
+    "build_py_sha256": "0c3c38613e60beb2b236150edea52dac7cb96821eda4a0f246a76df0daeb2a3f",
+    "motion_json_sha256": "fcdacaae2065681a24df9dcaade3493d4b41033b9a124e8ed020a5eaf861eebc",
+    "ascii_sheet_sha256": "0f812c9a9676fd6f77f5a4635466556da61600d06c127f747dc401ce0f9fdcb0",
+    "spa_html_sha256": "f3ce46cecb287b6cb59cb78026affb9408fafa403eba0013b179e3121195ea4a",
+    "media_sha256": "ab58c2dcee440ba889e5135ce4ddd5f1be4b0cd10cef4f877e35a4d9bcf9a134"
   },
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX SECONDARY LAG","FIX PARENT CLOCK","FIX CHAT DELIVERY","RERUN"]
+  "status": "READY_FOR_REPO_PERSISTENCE",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX SECONDARY LAG","FIX PARENT CLOCK","FIX_CHAT_DELIVERY","RERUN"]
 }
