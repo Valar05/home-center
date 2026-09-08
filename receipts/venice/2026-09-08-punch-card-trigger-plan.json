@@ -1,0 +1,27 @@
+{
+  "schema": "fortress.venice.plan-review.v1",
+  "commission": "Repair Punch-Card Aphorism so it deterministically triggers for gameplay/system logic judgment instead of remaining inert theory.",
+  "reviewer": "Venice",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "PLAN_ALLOWED",
+  "selectedJudgmentJars": [
+    ".continue/rules/00-judgement-jar-mission-boundary.md",
+    ".continue/rules/30-judgement-jar-change-discipline.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md",
+    "skills/fortress-core/SKILL.md"
+  ],
+  "plan": [
+    "Create a canonical Punch-Card Aphorism skill in the boot-discovered skills tree.",
+    "Define deterministic trigger classes for gameplay mechanics, system rules, and explicit punch-card requests.",
+    "Add a deterministic JSON judge implementing STATE + INPUT + RULE -> NEXT_STATE + OBSERVABLE with explicit randomness input/seed handling.",
+    "Wire Fortress Core, Ritsu, Tango, and Improper Fuck Lexicon to route applicable commissions through the skill.",
+    "Add a regression contract and wire it into the authorized local contract runner.",
+    "Read back every changed artifact; do not claim local runtime execution from the GitHub connector session."
+  ],
+  "antagonism": {
+    "primaryFailure": "A theory document in Library cannot trigger Fortress boot or gameplay judgment by itself.",
+    "secondaryFailure": "A prose-only skill could still be ignored; routing invariants and a deterministic judge are required.",
+    "overreachGuard": "Do not force punch-card language onto ordinary prose; trigger only when a compact phrase/rule is expected to reconstruct or execute a system, especially gameplay logic."
+  },
+  "reviewedAtLocal": "2026-09-08T02:59:36-05:00"
+}
