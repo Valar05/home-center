@@ -63,9 +63,9 @@
     "manager_reconciliation_comment": 5592019592
   },
   "issue_receipt": {
-    "comment_id": null,
     "issue": "Valar05/home-center#343",
-    "status": "PENDING"
+    "status": "READY_RECEIPT_POSTED",
+    "comment_id": 5592510964
   },
   "lane": "airborne",
   "ligatures_disabled": true,
@@ -122,7 +122,35 @@
   },
   "repo_path": "experiments/ascii-kinesis/v2-airborne-017-offaxis-tool-landing-debt/",
   "repo_readback": {
-    "verified": false
+    "verified": true,
+    "main_commit": "f5e7c50c887d4c68a1d7271fe461bd5418dc3236",
+    "files": {
+      "build.py": {
+        "blob": "2fc4764fe006182315783a769165e5d388a3fe08",
+        "size": 7705
+      },
+      "contact-sheet.txt": {
+        "blob": "b8820ea9cc9519fb6d0846edb00284677d9d9ec9",
+        "size": 31137
+      },
+      "manifest.json": {
+        "blob": "d654d17da66cbdbb93ca3ded7fdf0dad305fc4f2",
+        "size": 7190
+      },
+      "motion.json": {
+        "blob": "2d0ca91cdc321f986dc9f7827de1a753189465c3",
+        "size": 26163
+      },
+      "receipt.md": {
+        "blob": "505f3aabe4a3cbf6e27d82b08fd63c2d017c2bac",
+        "size": 2335
+      },
+      "offaxis-tool-landing-debt.motion.html": {
+        "blob": "b5d5d7409de05239cb283f9fed5723aaea88b1a8",
+        "size": 29868
+      }
+    },
+    "embedded_media_readback": "PASS_EXACT_V1_V2_V3_V4_CONCATENATION"
   },
   "revision": {
     "negative_fixture": null,
@@ -149,7 +177,7 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
   "test_invocation": {
     "candidate_isolated_status": "PASS",
     "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
