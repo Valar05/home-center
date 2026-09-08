@@ -21,86 +21,81 @@
   "authority_read": {
     "issue_reset_comment": 5576901079,
     "timing004_closure_comment": 5590170177,
-    "latest_manager_correction_comment": 5590440216,
+    "latest_manager_correction_comment": 5591210452,
     "ascii_kinesis_skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
     "swarm_contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd",
+    "validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "poselab_owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
     "poselab_contract_through": "v1.10"
   },
   "motion_dungeon": {
-    "media_sha256": "d9c3a0e12d1353b5245402d5ed7e2b93587cb56d56fd5712a95a823d07fd917e",
-    "media_bytes": 40141,
+    "authoritative_media_sha256": "d9c3a0e12d1353b5245402d5ed7e2b93587cb56d56fd5712a95a823d07fd917e",
+    "authoritative_media_bytes": 40141,
     "frames": 83,
     "fps": 24,
-    "decode": {
-      "result": "PASS",
-      "codec": "h264",
-      "width": 720,
-      "height": 400,
-      "frame_count": 83,
-      "duration_seconds": 3.458333
-    },
-    "reconstruction": "python3 build.py",
-    "determinism": "candidate rebuild repeated byte-identically under current builder/runtime"
+    "decode": {"result":"PASS","codec":"h264","width":720,"height":400,"frame_count":83,"duration_seconds":3.458333},
+    "determinism": "current worker reconstructed byte-identically from persisted abstract ASCII rig + timing"
+  },
+  "spa": {
+    "path": "experiments/ascii-kinesis/v2-timing-010-variant-bank-commitment-repair/variant-bank-commitment-repair.motion.html",
+    "repo_blob_sha": "c195fb9436ee77dafbdf8670a87e703d54b205bc",
+    "bytes": 18997,
+    "content_sha256": "c53cc0e7471f4a627931e6ab7b47aa40f8e270251cd1086169adaa24910e461a",
+    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "ascii_literal_selectable": true,
+    "json_structured": true,
+    "embedded_video": {
+      "source": "abstract_ascii_rig_only",
+      "role": "deterministic presentation transcode from exact authoritative render",
+      "width": 180,
+      "height": 100,
+      "frames": 83,
+      "sha256": "48ac3938ffb859640f71de59d3769f313a73ce6f469249f12547a77922df4cfa",
+      "byte_identical_to_authoritative": false
+    }
   },
   "ascii_sheet_sha256": "d252edafd5bbe2e2c093a916f06710dd432d494fb160ee37665f96df1bbd3d19",
   "quality_gates": {
     "actual_render_inspection": {
-      "method": "Exact authoritative 83-frame H.264 candidate decoded and inspected as a complete frame sheet plus decisive-key sheet.",
+      "method": "Current worker inspected the exact authoritative 83-frame H.264 render reconstructed byte-identically from persisted 010 motion data.",
       "media_sha256": "d9c3a0e12d1353b5245402d5ed7e2b93587cb56d56fd5712a95a823d07fd917e",
       "frames": 83
     },
     "tango": {
       "verdict": "PASS",
-      "basis": "Shared offset-ready/query/deep-coil establishes asymmetrical anticipation. Variant A commits from LEFT support into low-right acceleration, a one-frame right catch, four-frame deep absorb, torso overshoot, one-frame support reacquire, and a new x29 right-biased ready. Variant B commits from RIGHT support with a slower loaded release into one-frame high-left whip, one-frame opposite catch, four-frame torsion hold, one-frame secondary-lag snapback, four-frame broad-support recovery debt, and a distinct x19 back-weighted ready. Branch timing and silhouettes are visibly nonuniform; support changes occur only at decisive keys; connective arcs do not cross support topology; neither branch reverse-interpolates or returns to the shared idle address.",
+      "basis": "Shared offset-ready/query/deep-coil establishes asymmetrical anticipation. A commits from LEFT support into low-right acceleration, right catch, deep absorb, torso overshoot, reacquire, and x29 right-biased recovery. B commits from RIGHT support into high-left whip, opposite catch, torsion hold, secondary arm lag, broad recovery debt, and x19 back-weighted recovery. Holds and silhouettes are visibly nonuniform; support changes occur only at decisive keys; no equalized cadence, straight/reverse interpolation, phase teleport, or idle reset was accepted.",
       "revision_required": false
     },
     "noodle_queen": {
       "verdict": "PASS",
-      "taste": "The branch split has authored attitude rather than palette-bank bookkeeping: A is low/crossing/braking; B is high/whipping/torsional.",
-      "function": "The zero-time selection rule remains structurally true while the first body consequence after selection visibly commits different support owners, cadence, silhouettes, lag, and recovery.",
-      "contempt": "Not placeholder motion: the same precommit state yields two performances with different force stories and different final debt addresses."
+      "taste": "A is low/crossing/braking while B is high/whipping/torsional; the branch split has authored attitude rather than bank metadata.",
+      "function": "Zero-time CONFIG_AXIS selection stays structurally true while the first body consequence visibly commits different support owners, cadence, silhouette, lag, overshoot and recovery.",
+      "contempt": "The two performances carry distinct force stories and final debt addresses rather than placeholder motion."
     }
   },
-  "timing_keys": [
-    {"key_id":"K00","branch":"SHARED","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"K01","branch":"SHARED","timing_class":"TWOS","timing_provenance":"INFERRED"},
-    {"key_id":"K02","branch":"SHARED","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"A03","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"A04","branch":"A","timing_class":"TWOS","timing_provenance":"INFERRED"},
-    {"key_id":"A05","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"A06","branch":"A","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"A07","branch":"A","timing_class":"TWOS","timing_provenance":"INFERRED"},
-    {"key_id":"A08","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"A09","branch":"A","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"B03","branch":"B","timing_class":"TWOS","timing_provenance":"INFERRED"},
-    {"key_id":"B04","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"B05","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"B06","branch":"B","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"B07","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
-    {"key_id":"B08","branch":"B","timing_class":"FOURS","timing_provenance":"INFERRED"},
-    {"key_id":"B09","branch":"B","timing_class":"TWOS","timing_provenance":"INFERRED"}
-  ],
-  "zero_time_selection": {
-    "event_id": "BANK_SELECT",
-    "scope": ["CONFIG_AXIS"],
-    "body_tick_cost": 0,
-    "body_clock_policy": "PRESERVE_PHASE",
-    "visible_consequence": "A/B branches share K00-K02 then visibly diverge in support owner, cadence, silhouette, overshoot/lag, and recovery address."
-  },
+  "timing_policy": "STREET_FIGHTER/CAPCOM",
+  "timing_provenance": "All decisive keys INFERRED because source timing is unavailable.",
+  "zero_time_selection": {"event_id":"BANK_SELECT","scope":["CONFIG_AXIS"],"body_tick_cost":0,"body_clock_policy":"PRESERVE_PHASE"},
   "contract": {
     "validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_isolated": "PASS",
-    "repo_wide": "NOT_CLAIMED_IN_STANDARD_CHAT",
-    "candidate_isolated_output": {
-      "entries_checked": ["v2-timing-010-variant-bank-commitment-repair"],
-      "ok": true,
-      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    "candidate_isolated_prewrite": "PASS",
+    "postwrite_persisted_structural_readback": "PASS",
+    "postwrite_clause_basis": "exactly one *.motion.html; primary data-view order ascii,json,video; pre surfaces present; ligatures disabled; white-space:pre; video element present; embedded data:video/mp4 present; unchanged manifest/motion retain required V2 fields and timing provenance",
+    "repo_wide_execution": "NOT_CALLABLE_IN_STANDARD_CHAT_REMOTE_GITHUB_LANE"
+  },
+  "repo_readback": {
+    "result": "PASS",
+    "files": {
+      "build.py": "83929fb5d0f0dfaed935efec26f4a5c0c9d81c1b",
+      "contact-sheet.txt": "78880631cef92ff75b5ad9459be71548a5d2cb79",
+      "manifest.json_pre_status_refresh": "4be02d4c0158e0b897c366f3f4ca97279ce7c8b5",
+      "motion.json": "7ffd15143b0e89d65c2c860d67d257b72693773e",
+      "receipt.json_pre_status_refresh": "f9994692d5e8ad328fff3601923fcf11144132f3",
+      "variant-bank-commitment-repair.motion.html": "c195fb9436ee77dafbdf8670a87e703d54b205bc"
     }
   },
-  "repo_readback": "PENDING_POSTWRITE",
-  "issue_343_receipt": "POST_AFTER_EXACT_REPO_READBACK",
+  "issue_343_receipt": "PENDING_READY_FOR_USER_SURFACE_COMMENT",
   "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
 }
