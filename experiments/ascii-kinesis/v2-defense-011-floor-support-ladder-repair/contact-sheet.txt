@@ -97,6 +97,7 @@ D011-K03  SUPPORT_PEEL  [ONES | INFERRED]
 
 
 
+
                                O
                                +
                             +--|--+
@@ -117,6 +118,7 @@ arc=pelvis outruns chest; lead foot skids free; the last trusted support is visi
 ----------------------------------------------------------------
 
 D011-K04  KNEE_CATCH_FAIL  [ONES | INFERRED]
+
 
 
 
@@ -158,7 +160,7 @@ D011-K05  FOREARM_HIP_FLOOR_TAKEOVER  [TWOS | INFERRED]
                       O
                         +
                      +---\-+
-                    /     \\\
+                    /     \\\\
                    +       /@\+\
                  o-   =--+-    --o+-----=
     ________________________________________________________
@@ -238,7 +240,7 @@ D011-K08  ELBOW_POST_FIND  [TWOS | INFERRED]
                      O
 
                       +
-                    +--\-+
+                    +--\\-+
                    /     \\\
                   +       /@\+\
                   o  =--+-    --o+-----=
@@ -313,6 +315,7 @@ D011-K11  PUSH_ARC_SHOULDER_LEADS  [TWOS | INFERRED]
 
 
 
+
                            O
 
                             +
@@ -333,6 +336,7 @@ arc=push travels diagonally over the tripod; pelvis remains low enough that supp
 ----------------------------------------------------------------
 
 D011-K12  FIRST_TRUSTWORTHY_FOOT_PLANT  [TWOS | INFERRED]
+
 
 
 
