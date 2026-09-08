@@ -97,7 +97,7 @@ def render_video(m):
   d.text((8,34),f"SUPPORT {k['support_contact']}  ROOT {k['root']}",font=smallf,fill=(170,170,170))
   d.multiline_text((8,52),render_ascii(k),font=mainf,fill=(248,248,248),spacing=-2)
   im.save(FRAMES/f'f-{i:04d}.png')
- subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(FRAMES/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','32','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(FRAMES/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','44','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
  return seq
 
 def gz64(text):
