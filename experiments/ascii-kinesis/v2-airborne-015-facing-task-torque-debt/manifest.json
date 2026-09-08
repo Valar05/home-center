@@ -1,19 +1,25 @@
 {
-  "ascii_literal_text": true,
-  "ascii_sheet_sha256": "516d75c99c67ce7d7b6619ae707c79468bfff7870bccc14d444b95a1858a4499",
+  "ascii_view": {
+    "aligned_pre": true,
+    "copyable": true,
+    "literal_text": true,
+    "raster_only": false,
+    "selectable": true,
+    "sheet_sha256": "893e4b0e08d48b53cc722e81822359e2bd2859542609837392ba4250c25399e5"
+  },
   "backward_compatible": true,
   "contract_test": {
-    "entries_checked": [
-      "v2-airborne-015-facing-task-torque-debt"
-    ],
-    "exit_code": 0,
-    "repo_global_claimed": false,
-    "result": "PASS",
-    "scope": "isolated exact candidate directory",
-    "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "boundary": "No full repository checkout in this standard-chat worker; exact official test logic was run candidate-isolated against the persisted candidate structure.",
+    "official_test_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "scope": "candidate-isolated exact V2 contract logic",
     "status": "PASS",
-    "stdout": "{\"entries_checked\": [\"v2-airborne-015-facing-task-torque-debt\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}"
+    "stdout": {
+      "entries_checked": [
+        "v2-airborne-015-facing-task-torque-debt"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    }
   },
   "correction_hooks": [
     "KEEP",
@@ -29,69 +35,98 @@
     "FIX FACING/TASK",
     "RERUN"
   ],
-  "exactly_one_motion_html": true,
   "experiment_id": "v2-airborne-015-facing-task-torque-debt",
   "format_version": 2,
   "lane": "airborne",
-  "media": {
-    "bytes": 13088,
-    "codec": "H.264",
-    "decode_verified": true,
-    "duration_seconds": 2.416667,
-    "file_role": "embedded_only_no_tracked_sidecar",
-    "fps": 24,
-    "frames": 58,
-    "height": 360,
-    "pixel_format": "yuv420p",
-    "sha256": "ed14b3a857ffa2ba97a5a4cd7c906008db22755b5b55c295ad574f98f2bd9a9d",
-    "width": 640
+  "preflight": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "current_worker_github_persistence_readback": "PASS",
+    "current_worker_home_center_campaign_read": "PASS"
   },
-  "motion_json_sha256": "d6e471f214dabce794df2afc6e858b4f306a403b40f3dc68ce849c27f11d89d0",
-  "primary_tabs": [
+  "primary_views": [
     "ASCII",
     "JSON",
     "VIDEO"
   ],
   "quality_gates": {
-    "actual_final_render_inspected": true,
-    "noodle_queen": "PASS",
-    "tango": "PASS"
+    "noodle_queen": {
+      "inspection": "Current-run final render + full specimen: facing remains legible through a specific diagonal task; landing pays vertical and rotational debt with staggered catch, deep crush, crooked rebound, overshoot, secondary lag, displaced recovery.",
+      "status": "PASS"
+    },
+    "tango": {
+      "inspection": "Current-run actual rendered 57-frame candidate inspected after authored B67 cocked-switch and B78 diagonal-torque bridge corrections; no remaining highest-value visible defect.",
+      "status": "PASS"
+    }
   },
-  "required_files": [
-    "build.py",
-    "motion.json",
-    "manifest.json",
-    "receipt.md",
-    "facing-task-torque-debt.motion.html"
-  ],
+  "repo": {
+    "build_py_blob_sha": "a9b91aa9afa92cdc98406e5c0a122fd6902697b3",
+    "exactly_one_motion_html": true,
+    "motion_html_blob_sha": "299fc8c68c0ebc7fbe097a3a1d467df1c498a156",
+    "motion_html_sha256": "7d2008920f3b4b2aaeb64acd3d83953ad5c5831b5661d129d30e92f8712f709e",
+    "motion_json_blob_sha": "e2717032d3500d9f641b6cebd69d5eb4a974ac3d",
+    "motion_json_sha256": "1558a062b9eb9400ddced30cf0f71b748a9d8a9bb340e0b2d1c30003a8074e9d",
+    "path": "experiments/ascii-kinesis/v2-airborne-015-facing-task-torque-debt/",
+    "repo_readback": true,
+    "required_files": [
+      "build.py",
+      "manifest.json",
+      "motion.json",
+      "receipt.md",
+      "facing-task-torque-debt.motion.html"
+    ]
+  },
   "revision": {
     "negative_fixture": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
     "predecessor_preserved": true,
     "revises": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/",
     "source_change": false
   },
-  "rights": {
-    "close_imitation": false,
-    "commercial_source_evidence_only": true,
-    "redistribution": false,
-    "source_art_embedded": false,
-    "source_pixels_used": false,
-    "tracing": false
-  },
   "source": {
     "asset_id": 10039,
     "game": "Sonic Battle",
     "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
     "platform": "Game Boy Advance",
-    "provider": "The Spriters Resource",
+    "reported_dimensions": [
+      1150,
+      2660
+    ],
+    "reported_format": "PNG",
+    "reported_size": "268.03 KB",
+    "section": "Fighters",
+    "site": "The Spriters Resource",
     "source_timing_available": false,
-    "whole_sheet_evidence_inherited": true
+    "title": "Sonic the Hedgehog",
+    "whole_sheet_evidence_inherited": true,
+    "whole_sheet_evidence_origin": "experiments/ascii-kinesis/v2-airborne-006-facing-survives-air-task/{motion.json,manifest.json}"
   },
-  "source_art_embedded": false,
-  "spa_self_contained": true,
-  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
-  "tracked_mp4_sidecar": false,
-  "uapl_v1_read_path_preserved": true,
-  "video_required": true,
-  "video_source": "abstract_ascii_rig_only"
+  "source_rights": {
+    "boundary": "No source pixels, palette, costume, contours, layout, tracing, redistribution, close imitation, or copied source choreography. No Drew work. Abstract ASCII rig independently authored.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  },
+  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
+  "timing": {
+    "bridge_keys": 13,
+    "decisive_keys": 20,
+    "decisive_provenance": "INFERRED",
+    "inference_style": "STREET_FIGHTER/CAPCOM",
+    "ones_twos_fours_are_exposure_classes_not_seconds": true
+  },
+  "video": {
+    "codec": "H.264",
+    "dimensions": [
+      640,
+      360
+    ],
+    "duration_seconds": 2.375,
+    "embedded_in_html": true,
+    "fps": 24,
+    "frames": 57,
+    "media_bytes": 19683,
+    "media_required": true,
+    "media_sha256": "a550fff592718b4d4b0f4c5b5e1c37ee914cd8671f0165ee222ad495804d7e93",
+    "source": "abstract_ascii_rig_and_timing_only",
+    "source_pixels_used": false,
+    "video_required": true
+  }
 }
