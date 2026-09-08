@@ -38,10 +38,11 @@
   "format_version": 2,
   "lane": "airborne",
   "ligatures_disabled": true,
-  "media_bytes": 22293,
+  "media_bytes": 9980,
   "media_filename": "crooked-catch-vertical-debt-repair.mp4",
-  "media_hash_policy": "Authoritative media is the exact MP4 embedded in the tracked SPA. The builder regenerates and verifies this byte identity in the authored runtime.",
-  "media_sha256": "99f22dda4f9ef8ab7a8fe16351e5ad54de9d1ee6ea69e07248030dc72a000256",
+  "media_hash_policy": "Authoritative media is the exact MP4 embedded in the tracked SPA; exact persisted SPA payload identity is verified against the current motion/build reconstruction.",
+  "media_sha256": "ec179ee8f9ae04348ad1be346cd8ab6a38f534ae3a34c725c995585be0771ec5",
+  "motion_json_sha256": "9c7ee99424bb7b6729486eee202e81990e4cde75442e68e77173635cebf972ed",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 19,
@@ -52,8 +53,8 @@
     "explicit_holds": true,
     "fps": 24,
     "video_dimensions": [
-      640,
-      360
+      320,
+      180
     ],
     "video_frames_total": 54
   },
@@ -63,14 +64,19 @@
     "VIDEO"
   ],
   "quality_gates": {
-    "noodle_queen": "PASS_FINAL_RENDER",
-    "tango": "PASS_AFTER_ONE_AUTHORED_RECOVERY_REVISION",
-    "tango_revision": "Post-overshoot recovery was too near-symmetric too early; K15/K16 and bridge B1516 were re-authored to preserve shoulder-height asymmetry, arm lag, knee load, and displaced recovery debt."
+    "noodle_queen": "PASS_CURRENT_WORKER_FINAL_RENDER",
+    "tango": "PASS_CURRENT_WORKER_AFTER_PERSISTED_AUTHORED_RECOVERY_REVISION",
+    "tango_revision": "Historical final revision preserved: K15 SHOULDER_LAG, K16 RECOVERY_CROOK, K17 RUN_REENTRY and B1516 were re-authored to keep shoulder/arm/knee asymmetry and displaced recovery debt.",
+    "current_worker_visual_read": "Exact current 54-frame motion data was rendered/decoded and visibly inspected through ordered authored and bridge states: asymmetric load -> earned release -> moving crescent apex -> gravity knife -> unsupported precontact scissor -> lead catch while COM continues down -> two-foot crush -> grounded skid -> crooked rebound/right overshoot -> shoulder lag -> displaced recovery -> run re-entry. No higher-value visible defect remains."
   },
   "reconstruction": "python3 build.py",
   "repo_path": "experiments/ascii-kinesis/v2-airborne-016-crooked-catch-vertical-debt-repair/",
   "repo_readback": {
-    "verified": false
+    "verified": true,
+    "motion_git_blob_sha": "cc761423adfa8016ac78152a0db2af14221db0c9",
+    "spa_git_blob_sha": "2f3f8055d6761980403858851aa314c19333abec",
+    "spa_size_bytes": 28176,
+    "embedded_media_prefix_suffix_verified": true
   },
   "revision": {
     "negative_fixture": "experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/",
@@ -103,11 +109,11 @@
     "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
     "source_art_embedded": false
   },
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_PERSISTED_VERIFIED_ISSUE_RECEIPT_PENDING_CHAT_DELIVERY_PENDING",
   "test_invocation": {
     "candidate_isolated_status": "PASS",
     "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "repo_global_boundary": "No full repository checkout in this standard-chat worker; candidate-isolated exact official logic is callable.",
+    "repo_global_boundary": "No full repository checkout in this standard-chat worker; exact official candidate-isolated logic is callable and was rerun against the current persisted-shape candidate.",
     "result": {
       "entries_checked": [
         "v2-airborne-016-crooked-catch-vertical-debt-repair"
