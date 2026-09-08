@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Deterministic Motion Dungeon builder for V2 CONTACT 007 repair.
 Reads motion.json; source sprite pixels are never read or rendered.
+The video glyph raster is procedural and does not depend on host fonts.
 """
 from __future__ import annotations
-import base64, hashlib, json, math, os, shutil, subprocess, tempfile
+import base64, hashlib, json, math, os, subprocess, tempfile
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 HERE=Path(__file__).resolve().parent
 MOTION=HERE/'motion.json'
@@ -112,19 +113,49 @@ def sequence(data):
                 st=bridge_state(k,keys[i+1],j/(n+1)); st['key_id']=k['key_id']+'~'+keys[i+1]['key_id']; st['name']='CONNECTIVE_'+k.get('bridge_to_next',{}).get('mode','ARC'); frames.append(st)
     return frames
 
-def choose_font():
-    for p in ['/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf','/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf']:
-        if os.path.exists(p): return ImageFont.truetype(p,14)
-    return ImageFont.load_default()
-
 def raster(text,path):
-    im=Image.new('RGB',(960,360),'black'); d=ImageDraw.Draw(im); d.multiline_text((14,12),text,font=choose_font(),fill='white',spacing=1); im.save(path)
+    """Render only the authored ASCII rig glyphs with procedural strokes.
+
+    Metadata labels stay authoritative in the ASCII/JSON tabs; the movie is
+    intentionally rig-first. This removes host-font fallback from media identity.
+    """
+    im=Image.new('RGB',(960,360),'black'); d=ImageDraw.Draw(im)
+    cw,ch=12,14; ox,oy=12,12; sx,sy=9,11
+    for row,line in enumerate(text.splitlines()[1:24]):
+        y=oy+row*ch
+        for col,c in enumerate(line[:W]):
+            x=ox+col*cw; x0,y0=x+1,y+1; x1,y1=x0+sx,y0+sy; xm=(x0+x1)//2; ym=(y0+y1)//2
+            if c==' ': continue
+            if c=='_': d.line((x0,y1,x1,y1),fill='white',width=2)
+            elif c=='-': d.line((x0,ym,x1,ym),fill='white',width=2)
+            elif c=='|': d.line((xm,y0,xm,y1),fill='white',width=2)
+            elif c=='/': d.line((x0,y1,x1,y0),fill='white',width=2)
+            elif c=='\\': d.line((x0,y0,x1,y1),fill='white',width=2)
+            elif c=='+':
+                d.line((x0,ym,x1,ym),fill='white',width=2); d.line((xm,y0,xm,y1),fill='white',width=2)
+            elif c in 'xX':
+                d.line((x0,y0,x1,y1),fill='white',width=2); d.line((x0,y1,x1,y0),fill='white',width=2)
+            elif c=='>':
+                d.line((x0,y0,x1,ym),fill='white',width=2); d.line((x1,ym,x0,y1),fill='white',width=2)
+            elif c=='<':
+                d.line((x1,y0,x0,ym),fill='white',width=2); d.line((x0,ym,x1,y1),fill='white',width=2)
+            elif c in '@o':
+                d.ellipse((x0,y0,x1,y1),outline='white',width=2); d.ellipse((xm-1,ym-1,xm+1,ym+1),fill='white')
+            elif c=='A':
+                d.line((x0,y1,xm,y0),fill='white',width=2); d.line((xm,y0,x1,y1),fill='white',width=2); d.line((x0+2,ym,x1-2,ym),fill='white',width=2)
+            elif c=='B':
+                d.line((x0,y0,x0,y1),fill='white',width=2); d.line((x0,y0,x1-2,y0),fill='white',width=2); d.line((x0,ym,x1,ym),fill='white',width=2); d.line((x0,y1,x1-2,y1),fill='white',width=2); d.line((x1,y0+2,x1,y1-2),fill='white',width=2)
+            elif c in 'Ll':
+                d.line((x0,y0,x0,y1),fill='white',width=2); d.line((x0,y1,x1,y1),fill='white',width=2)
+            elif c in 'Rr':
+                d.line((x0,y0,x0,y1),fill='white',width=2); d.line((x0,y0,x1,y0),fill='white',width=2); d.line((x0,ym,x1,ym),fill='white',width=2); d.line((x1,y0,x1,ym),fill='white',width=2); d.line((xm,ym,x1,y1),fill='white',width=2)
+    im.save(path)
 
 def render_mp4(data,tmp):
     frames=sequence(data); fd=tmp/'frames'; fd.mkdir()
     for i,st in enumerate(frames): raster(ascii_frame(st),fd/f'{i:04d}.png')
     mp4=tmp/'motion.mp4'
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(data['compile']['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-vf','scale=480:180:flags=neighbor','-crf','40','-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(data['compile']['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-vf','scale=480:180:flags=neighbor','-crf',str(data['compile'].get('crf',40)),'-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
     return mp4,len(frames)
 
 def html(data,sheet,video_bytes):
@@ -147,5 +178,5 @@ def main():
     if expected and sha!=expected: raise SystemExit(f'media hash mismatch: {sha} != {expected}')
     if n!=data['compile']['video_frames_total']: raise SystemExit(f'frame count mismatch: {n}')
     page=html(data,sheet,raw); (HERE/'scoped-sync-grapple-repair.motion.html').write_text(page)
-    print(json.dumps({'media_sha256':sha,'media_bytes':len(raw),'video_frames_total':n,'spa_bytes':len(page.encode())},sort_keys=True))
+    print(json.dumps({'media_sha256':sha,'media_bytes':len(raw),'video_frames_total':n,'spa_bytes':len(page.encode()),'spa_sha256':hashlib.sha256(page.encode()).hexdigest()},sort_keys=True))
 if __name__=='__main__': main()
