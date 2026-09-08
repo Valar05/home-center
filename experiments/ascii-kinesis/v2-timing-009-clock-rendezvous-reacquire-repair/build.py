@@ -178,7 +178,7 @@ def main():
                         '-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1',str(V)],check=True)
     v=V.read_bytes()
     m['compile'].update(video_frames_total=len(frames),media_sha256=sha(v),media_bytes=len(v),ascii_sheet_sha256=sha(s.encode()))
-    M.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    M.write_text(json.dumps(m,separators=(',',':'),ensure_ascii=False)+'\n',encoding='utf-8')
     H.write_text(spa(m,s,v),encoding='utf-8')
     print(json.dumps({'video_frames_total':len(frames),'media_sha256':sha(v),'media_bytes':len(v),
                       'ascii_sheet_sha256':sha(s.encode()),'html_sha256':sha(H.read_bytes())},sort_keys=True))
