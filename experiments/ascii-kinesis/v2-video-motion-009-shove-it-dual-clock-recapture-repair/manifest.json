@@ -9,7 +9,11 @@
   "motion_json": "motion.json",
   "receipt": "receipt.json",
   "spa": "shove-it-dual-clock-recapture-repair.motion.html",
-  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -38,8 +42,8 @@
   "media": {
     "authoritative": "embedded_mp4_in_spa",
     "tracked_mp4": false,
-    "sha256": "581e75e3dfd801ead1e106d2194f3ac99691480135f69ebd2d76dae0abd243b0",
-    "bytes": 12014,
+    "sha256": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
+    "bytes": 27172,
     "codec": "H.264",
     "decode_verified": true,
     "duration_s": 2.2916666666666665,
@@ -48,34 +52,29 @@
     "width": 432,
     "height": 220,
     "pixel_format": "yuv420p",
-    "encode": {"crf": 28, "preset": "veryslow", "profile": "baseline", "level": "3.0"},
-    "identity_note": "Current canonical builder + exact authored motion deterministically reproduces this authoritative embedded MP4 byte identity. Smaller deterministic H.264 packaging replaced the prior larger encode without changing authored keys, timing, support/contact semantics, or source family."
-  },
-  "spa_packaging": {
-    "self_contained": true,
-    "ascii_json_storage": "deterministic gzip(mtime=0)+base64 hydrated into literal pre elements",
-    "video_storage": "direct data:video/mp4;base64",
-    "source_pixels_or_audio": false
+    "identity_note": "Current canonical builder+motion reconstruction produced this exact byte identity; it matches the pre-existing motion.json/manifest media identity. A stale intermediate receipt-only media hash is superseded."
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
-      "inspection_scope": "final CRF28 authoritative MP4, all 55 decoded frames inspected chronologically across five complete review sheets",
-      "verdict": "PASS — asymmetric preparation/load, board/body clock split, authored release, eligibility, recapture, ground catch, landing sink, overshoot, secondary lag, and displaced recovery remain visibly distinct after final packaging."
+      "rounds_total_lineage": 3,
+      "inspection_scope": "current worker decoded and inspected all 55 frames chronologically in five complete review sheets from the exact final Motion Dungeon render",
+      "verdict": "PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
-      "inspection_scope": "same final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
-      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: specific backward load, independent board clock, late rendezvous, crooked landing debt and non-reset exit remain economical but not cheap."
+      "rounds_total_lineage": 2,
+      "inspection_scope": "same exact final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."
     }
   },
   "contract_test": {
     "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped_status": "PENDING_FINAL_RUN",
+    "candidate_scoped_status": "PASS",
     "repo_global_status": "NOT_CLAIMED"
   }
 }
