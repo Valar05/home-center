@@ -51,6 +51,17 @@ Compact engine:
 
 **MECHANISM → WRONG GRAMMAR → CLEAN SYNTAX → SECOND-LOOK TRUTH**
 
+## Punch-Card escalation
+A coined phrase is not automatically executable doctrine.
+
+When a phrase is expected to govern gameplay, software, workflow, policy, simulation, or other system behavior, immediately retrieve `skills/punch-card-aphorism/SKILL.md` and compile it into the causal machine it claims to carry.
+
+For gameplay/system logic the minimum form is:
+
+**STATE + INPUT + RULE → NEXT STATE + OBSERVABLE.**
+
+If it cannot compile, keep it as language. Do not promote a good line into fake logic.
+
 ## Why sparse profanity wins
 
 Do not put `fuck` into every clause.
