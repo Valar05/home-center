@@ -70,16 +70,19 @@ def interp(a,b,t,bias):
         out[n]=[round(u*u*p[0]+2*u*t*cx+t*t*q[0]),round(u*u*p[1]+2*u*t*cy+t*t*q[1])]
     return out
 
+def pose(m,k):
+    return {n:k['pose_rig']['coords'][i] for i,n in enumerate(m['rig_schema']['joint_order'])}
+
 def semantic_frames(m):
     out=[]; ks=m['keys']
     for i,k in enumerate(ks):
-        out += [art(k['pose_rig']['joints'],k['pose_rig']['gate_state'])]*HOLD[k['timing_class']]
+        out += [art(pose(m,k),k['pose_rig']['gate_state'])]*HOLD[k['timing_class']]
         n=ks[(i+1)%len(ks)]; s=k['bridge_to_next']; q=int(s.get('frames',0))
         event_boundary=bool(n.get('event')) or k['pose_rig']['gate_state']!=n['pose_rig']['gate_state']
         if q and not event_boundary:
             for z in range(1,q+1):
                 t=ease(z/(q+1),s['easing'])
-                j=interp(k['pose_rig']['joints'],n['pose_rig']['joints'],t,s['arc_bias'])
+                j=interp(pose(m,k),pose(m,n),t,s['arc_bias'])
                 out.append(art(j,k['pose_rig']['gate_state']))
     return out
 
@@ -100,7 +103,7 @@ def sheet(m):
           f"timing_class={k['timing_class']} | timing_provenance={k['timing_provenance']}",
           f"causal_role={k['causal_role']}",
           f"clocks BASE={k['clock_state']['BASE']} | A={k['clock_state']['SIGNAL_A']} | B={k['clock_state']['SIGNAL_B']} | GATE={k['clock_state']['GATE']}",
-          art(k['pose_rig']['joints'],k['pose_rig']['gate_state']),
+          art(pose(m,k),k['pose_rig']['gate_state']),
           ''
         ]
     return '\n'.join(o).rstrip()+'\n'
