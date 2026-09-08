@@ -1,31 +1,56 @@
-# ASCII Kinesis V2 Airborne 016 — Crooked-Catch Vertical Debt Repair
+# Airborne 016 — Crooked Catch Vertical Debt Repair
 
-Status: CANDIDATE_READY_FOR_REPO_PERSISTENCE
+STATUS: REPO_PERSISTED_VERIFIED_ISSUE_RECEIPT_PENDING_CHAT_DELIVERY_PENDING
 
 Canonical successor: `experiments/ascii-kinesis/v2-airborne-016-crooked-catch-vertical-debt-repair/`
-Revises / negative fixture: `experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/`
-Predecessor preserved: true
-Source change: false
 
-Source/evidence family: The Spriters Resource — Sonic Advance 2 — Game Boy Advance — Sonic — Playable Characters — asset 154243.
-Source timing available: false. Every decisive-key timing class is INFERRED / STREET_FIGHTER-CAPCOM.
-Rights: commercial source art is inherited evidence only; no source pixels, palette, costume, contours, layout, tracing, redistribution, close imitation, copied choreography, or Drew work enters the successor.
+Revision lineage:
+- revises: `experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/`
+- negative_fixture: `experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/`
+- predecessor_preserved: true
+- source_change: false
 
-Motion Dungeon: authored ASCII keys -> explicit holds/timing -> authored geometry-only bridge keys where support/contact semantics are unchanged -> ASCII-only frame render -> H.264 MP4 -> self-contained SPA.
-Decisive keys: 19. Authored bridges: 10.
-ASCII SHA-256: `f1477f31d69ac9783d4c41b9fba9f3f832a6aac92376b4ecaeeafc54aefe4843`
-motion.json SHA-256: `49a3f857e9bad37be328f320635237c4c4b0395cdb6864373b95494342f27c6f`
-MP4 SHA-256: `99f22dda4f9ef8ab7a8fe16351e5ad54de9d1ee6ea69e07248030dc72a000256`
-MP4: 22293 bytes; 640x360; H.264 yuv420p; 24 fps; 54 frames; 2.250000 s; decode PASS.
+Source/evidence family:
+- The Spriters Resource — Sonic Advance 2 — Game Boy Advance — Sonic — asset 154243
+- source timing available: false
+- every decisive timing class is INFERRED under STREET_FIGHTER/CAPCOM compilation policy
+- source art is analysis evidence only; no source pixels, palette, costume, contours, layout, tracing, redistribution, close imitation, or copied choreography enter the successor
 
-Tango recursion:
-1. REVISE_REQUIRED — highest-value visible defect: post-overshoot recovery resolved into a near-symmetric vertical stance too early, flattening secondary lag and recovery debt.
-   Correction applied to real authored states: K15 SHOULDER_LAG, K16 RECOVERY_CROOK, K17 RUN_REENTRY, and bridge B1516 were re-authored to preserve shoulder-height asymmetry, loaded-knee difference, late rear arm, displaced pelvis, and a more committed re-entry stride.
-2. PASS — actual revised render reads asymmetrical load -> earned release -> stretched rise -> moving crescent apex -> gravity curl -> descent knife -> unsupported precontact scissor -> lead catch while root keeps falling -> trail sweep -> two-foot crush -> grounded skid overrun -> crooked rebound -> right-side overshoot -> shoulder lag -> displaced recovery -> run re-entry. No higher-value visible defect remains.
+Current authoritative motion/render identity:
+- motion.json Git blob: `cc761423adfa8016ac78152a0db2af14221db0c9`
+- motion.json SHA-256: `9c7ee99424bb7b6729486eee202e81990e4cde75442e68e77173635cebf972ed`
+- ASCII contact sheet SHA-256: `f1477f31d69ac9783d4c41b9fba9f3f832a6aac92376b4ecaeeafc54aefe4843`
+- embedded MP4 SHA-256: `ec179ee8f9ae04348ad1be346cd8ab6a38f534ae3a34c725c995585be0771ec5`
+- embedded MP4 bytes: 9980
+- codec/pixel format: H.264 / yuv420p
+- dimensions: 320x180
+- fps: 24
+- frames: 54
+- duration: 2.25 s
+- decode: PASS
+- SPA Git blob after persistence: `2f3f8055d6761980403858851aa314c19333abec`
+- SPA bytes: 28176
+- primary tabs: exactly `ASCII | JSON | VIDEO`
+- source pixels used: false
 
-Noodle Queen: PASS on the actual revised render. The crescent/apex, knife descent, crush/skid/rebound chain, and crooked recovery provide specific authored attitude and memorable silhouette progression; contact does not cancel momentum; recovery does not rewind to idle; the sequence is not endpoint-only placeholder motion.
+Motion Dungeon:
+19 decisive ASCII keys + 10 authored bridge keys. Holds and bridge keys are explicit. Bridges never cross support/contact semantic boundaries. The visible sentence is asymmetric load -> earned release -> rising stretch -> moving crescent apex -> gravity curl/knife -> unsupported precontact scissor -> lead catch while COM continues down -> two-foot crush -> grounded skid -> crooked rebound -> right-side overshoot -> shoulder lag -> displaced recovery -> run re-entry.
 
-Contract: official blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c`; candidate-isolated exact official logic PASS: `{"entries_checked":["v2-airborne-016-crooked-catch-vertical-debt-repair"],"ok":true,"schema":"ascii-kinesis.swarm-contract-v2-test"}`. Exact boundary: no full repository checkout is available in this standard-chat worker, so no repo-global test claim is made.
+TANGO — CURRENT WORKER: PASS.
+Fresh inspection of the actual final 016 render found the support break earned, apex moving rather than hovering, landing contact distinct from deepest compression, COM continuing downward after first support acquisition, two-foot crush paying vertical debt, grounded skid/rebound/overshoot carrying consequence, and recovery staying displaced rather than reversing to idle. Historical recursive revision is preserved: K15/K16/K17 and B1516 were re-authored to keep shoulder/arm/knee asymmetry and recovery debt.
 
-Issue #343 receipt: PENDING.
-Chat delivery: PENDING — must be PART 1 complete ASCII -> PART 2 actual structured JSON -> PART 3 visible exact persisted MP4 in the same reporting chat before HEALTHY.
+NOODLE QUEEN — CURRENT WORKER: PASS.
+TASTE: crescent -> knife -> scissor -> crush -> skid -> crooked rebound -> lagged recovery is a specific silhouette progression.
+FUNCTION: launch, gravity, catch, compression, horizontal carry, rebound, secondary lag, and re-entry are causally readable.
+CONTEMPT: the final render does not read as endpoint morph, generic interpolation, or placeholder idle reset.
+
+Official V2 contract:
+- tool: `tools/test_ascii_kinesis_swarm_contract_v2.py`
+- official blob: `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c`
+- candidate-isolated exact logic: PASS
+- result: `{"entries_checked":["v2-airborne-016-crooked-catch-vertical-debt-repair"],"ok":true,"schema":"ascii-kinesis.swarm-contract-v2-test"}`
+- boundary: no full-repository checkout in this standard-chat worker; no repo-global structural claim is made beyond exact readback of this successor and exact candidate-isolated contract execution
+
+Repository readback: PASS for motion.json and the tracked self-contained SPA. GitHub issue #343 receipt remains the next acceptance leg. Reporting-chat PART 1 ASCII + PART 2 JSON + PART 3 visible persisted media remains the final acceptance leg after issue receipt.
+
+This receipt does not declare HEALTHY by itself.
