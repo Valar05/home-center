@@ -1,6 +1,6 @@
 {
   "ascii_literal_text": true,
-  "ascii_surface": "real selectable/copyable aligned preformatted DOM text",
+  "ascii_surface": "real selectable/copyable aligned preformatted DOM text populated from the complete literal contact sheet",
   "backward_compatible": true,
   "correction_hooks": [
     "KEEP",
@@ -28,16 +28,16 @@
   "format_version": 2,
   "lane": "contact",
   "ligatures_disabled": true,
-  "media_bytes": 21005,
+  "media_bytes": 17692,
   "media_decode": {
     "codec": "h264",
-    "duration_seconds": 4.25,
+    "duration_seconds": 1.791667,
     "fps": 24,
-    "frames": 102,
+    "frames": 43,
     "height": 400,
     "width": 768
   },
-  "media_sha256": "d553923c8366d3da3e8b5b6aba71873414c84ab5422b63d81b13357b9e31a9d3",
+  "media_sha256": "bf558e94da6d36da0d31fa1e444c706d47b454529f37d3e2f2b8f78953facb8b",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 15,
@@ -45,9 +45,9 @@
     "deterministic_connective_motion": true,
     "explicit_holds": true,
     "fps": 24,
-    "loop_repetitions": 2,
+    "loop_repetitions": 1,
     "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> TOPOLOGY-SAFE CURVED CONNECTIVE MOTION -> ASCII-ONLY PROCEDURAL GLYPH RENDER -> MP4 -> SELF-CONTAINED SPA",
-    "video_frames_total": 102
+    "video_frames_total": 43
   },
   "primary_tabs": [
     "ASCII",
@@ -64,7 +64,7 @@
     "successor_binding": "first legitimate Contact003 repair after Contact002 HEALTHY closure 5583909889"
   },
   "rights": {
-    "boundary": "restricted source is evidence only; no source pixels, palette, layout, contours, tracing, character-specific silhouettes, choreography, redistribution, or close imitation enter the successor",
+    "boundary": "restricted source is whole-sheet evidence only; no source pixels, palette, layout, contours, tracing, source silhouettes, source choreography, redistribution, or close imitation enter this repair",
     "drew_work_used": false
   },
   "schema": "ascii-kinesis.swarm-manifest.v2",
