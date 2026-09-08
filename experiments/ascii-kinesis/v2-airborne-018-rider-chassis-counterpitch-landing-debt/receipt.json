@@ -1,88 +1,109 @@
 {
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSISTED_CHAT_DELIVERY_PENDING",
+  "worker_liveness": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_exact_read": "PASS_CURRENT_RUN",
+    "github_persistence_readback_surface": "PASS_CURRENT_RUN"
+  },
+  "queue": {
+    "airborne017": "HEALTHY_DO_NOT_REDO",
+    "pre_reset_airborne_repair_debt": "EXHAUSTED",
+    "airborne018_binding": "SINGLETON_EXISTING_POST_017_CLOSURE",
+    "airborne019_allowed": false
+  },
+  "source": {
+    "site": "The Spriters Resource",
+    "title": "Rider — 3D Stunt Rider — Amstrad CPC",
+    "asset_id": "205456",
+    "page_url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
+    "source_dimensions": "136x172 PNG",
+    "source_bytes": 1985,
+    "source_sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "observed": [
+      "source identity, exact source hash/dimensions, whole-sheet product-space observations"
+    ],
+    "inferred": [
+      "all authored performance, chronology, root/support/contact states, counterpitch acting, timing classes, holds, bridge motion"
+    ],
+    "unknown": [
+      "source-authentic playback order/exposure, exact original rider contacts, physical forces, original gameplay timing"
+    ],
+    "rights_note": "Commercial game sprite art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen."
+  },
+  "timing_policy": "all decisive timing INFERRED / STREET_FIGHTER-CAPCOM; source-authentic timing unavailable",
+  "rights": {
+    "drew_work_used": false,
+    "output": "independent abstract ASCII rig",
+    "source_role": "commercial reference evidence only",
+    "source_pixels_embedded": false,
+    "source_palette_copied": false,
+    "source_contours_traced": false,
+    "source_layout_copied": false,
+    "source_choreography_copied": false
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+    "bytes": 13419,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 362,
+    "height": 262,
+    "fps": 24,
+    "frames": 75,
+    "duration_seconds": 3.125,
+    "decode": "PASS_FFPROBE_AND_FFMPEG_CURRENT_WORKER",
+    "source": "abstract_ascii_rig_and_structured_timing_only"
+  },
   "ascii_sha256": "14d7033e50c878ca1d1d59440ea45d290aaa126cdf67fcb5755e4bb1736f3943",
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+  "motion_json_sha256": "53f5a70bace135937e98f84250fd2410fa9320aca2642d3871cc3d35a149c36e",
+  "spa_sha256": "0ee02dfdf272bad3056aae1bc6bd61869aec48003b787695bac7fde78bf212a9",
+  "quality_gates": {
+    "tango": {
+      "status": "PASS",
+      "worker_scope": "CURRENT_WORKER_ACTUAL_RENDER",
+      "render_sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+      "inspection": "actual decoded 75-frame H.264 final render plus representative frame inspection",
+      "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
+      "findings": [
+        "rear-biased crooked load visibly earns support break and differs from displaced exit",
+        "chassis nose-high rotation and rider counterrotation create a specific two-body apex silhouette",
+        "apex is brief and root travel remains one continuous rise-apex-descent arc",
+        "precontact scissor precedes rear-first support; root continues descending into two-contact crush",
+        "grounded rebound opposes landing fold and free arm lags chassis response",
+        "recovery exits forward at a displaced address without reverse interpolation or idle reset"
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO",
+      "render_sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+      "taste": "specific rider/chassis counterpitch, staggered landing, crooked rebound, and displaced rollout create memorable silhouette phases",
+      "function": "support sequence and COM/root consequence remain legible without metadata; base/rider relationship is visibly causal",
+      "contempt": "economical ASCII performance reads authored rather than mannequin interpolation, source cosplay, or a slight Airborne017 permutation"
+    }
   },
   "contract": {
-    "official_v2_candidate_isolated": "PASS",
+    "official_v2_candidate_isolated": "PASS_CURRENT_WORKER",
+    "validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "result": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
       "entries_checked": [
         "v2-airborne-018-rider-chassis-counterpitch-landing-debt"
       ],
       "ok": true
-    },
-    "validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
-  },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ],
-  "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
-  "issue_343": {
-    "receipt_comment_id": null
-  },
-  "media": {
-    "authoritative": "embedded_mp4_in_spa",
-    "bytes": 24578,
-    "codec": "h264",
-    "decode": "PASS_FFPROBE_AND_FFMPEG_CURRENT_WORKER",
-    "duration_seconds": 3.125,
-    "fps": 24,
-    "frames": 75,
-    "height": 524,
-    "mime": "video/mp4",
-    "pixel_format": "yuv420p",
-    "sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-    "source": "abstract_ascii_rig_and_structured_timing_only",
-    "width": 724
-  },
-  "motion_json_sha256": "a01dda0d03c7fbc5816ce17017690c047463847ae6ea1cc1c6139d0630f31b17",
-  "quality_gates": {
-    "noodle_queen": {
-      "contempt": "economical ASCII performance reads authored rather than mannequin interpolation, source cosplay, or a slight Airborne017 permutation",
-      "function": "support sequence and COM/root consequence remain legible without metadata; the base/rider relationship is visibly causal",
-      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-      "status": "PASS",
-      "taste": "specific rider/chassis counterpitch, staggered landing, crooked rebound, and displaced rollout create memorable silhouette phases",
-      "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO"
-    },
-    "tango": {
-      "findings": [
-        "crooked rear-dominant load visibly earns the support break",
-        "chassis and rider counter-rotate into a distinct airborne silhouette without injecting a second root impulse",
-        "apex is brief and root travel remains one continuous rise→apex→descent arc",
-        "rear support is acquired before the root finishes descending; deepest crush follows both contacts",
-        "grounded rebound opposes the landing fold and free-arm lag trails the base response",
-        "recovery exits forward at a displaced address instead of reverse-playing into the opening pose"
-      ],
-      "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
-      "inspection": "actual decoded 75-frame H.264 render plus ordered representative montage",
-      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-      "status": "PASS",
-      "worker_scope": "CURRENT_WORKER_ACTUAL_RENDER_AFTER_ONE_SAME_BODY_REVISION"
     }
-  },
-  "queue": {
-    "airborne017": "HEALTHY_DO_NOT_REDO",
-    "airborne018_inventory_before_creation": "NONE_FOUND",
-    "airborne019_allowed": false,
-    "pre_reset_airborne_repair_debt": "EXHAUSTED"
   },
   "repo": {
     "path": "experiments/ascii-kinesis/v2-airborne-018-rider-chassis-counterpitch-landing-debt/",
-    "readback": "PENDING",
-    "ship_commit": null,
-    "tracked_files_expected": [
+    "spa_commit": "2ac0102be4109a545f1cd461f52e90aabed82d5f",
+    "manifest_commit": "f5afc7e40d98a3b0d2375f1ca09a87f76edbfc3a",
+    "readback": "PASS_EXACT_MAIN",
+    "tracked_files": [
       "build.py",
       "manifest.json",
       "motion.json",
@@ -90,43 +111,12 @@
       "rider-chassis-counterpitch-landing-debt.motion.html"
     ]
   },
-  "rights": {
-    "drew_work_used": false,
-    "output": "independent abstract ASCII rig",
-    "source_choreography_copied": false,
-    "source_contours_traced": false,
-    "source_layout_copied": false,
-    "source_palette_copied": false,
-    "source_pixels_embedded": false,
-    "source_role": "commercial reference evidence only"
+  "issue_343": {
+    "receipt_comment_id": null
   },
-  "schema": "ascii-kinesis.receipt.v2",
-  "source": {
-    "asset_id": "205456",
-    "inferred": [
-      "all authored performance, chronology, root/support/contact states, counterpitch acting, timing classes, holds, bridge motion"
-    ],
-    "observed": [
-      "source identity, exact source hash/dimensions, whole-sheet product-space observations listed above"
-    ],
-    "page_url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
-    "rights_note": "Commercial game sprite art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen.",
-    "site": "The Spriters Resource",
-    "source_bytes": 1985,
-    "source_dimensions": "136x172 PNG",
-    "source_sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
-    "source_timing_available": false,
-    "title": "Rider — 3D Stunt Rider — Amstrad CPC",
-    "unknown": [
-      "source-authentic playback order/exposure, exact original rider contacts, physical forces, original gameplay timing"
-    ],
-    "whole_sheet_inspected": true
-  },
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
-  "timing_policy": "all decisive timing INFERRED / STREET_FIGHTER-CAPCOM; source-authentic timing unavailable",
-  "worker_liveness": {
-    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
-    "github_persistence_readback_surface": "PASS",
-    "home_center_campaign_exact_read": "PASS"
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
   }
 }
