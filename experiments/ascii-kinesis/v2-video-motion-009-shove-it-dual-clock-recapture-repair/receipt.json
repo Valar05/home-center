@@ -90,8 +90,16 @@
     "motion_k14b_readback": "PASS",
     "manifest_media_identity_readback": "PASS"
   },
-  "issue_receipt": 5593350364,
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "issue_receipt_pre_chat_delivery": 5593350364,
+  "chat_delivery": {
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "order": ["PART 1 ASCII", "PART 2 JSON", "PART 3 VIDEO"],
+    "part2_note": "canonical structured motion data reserialized for chat; whitespace/key ordering not claimed byte-identical",
+    "part3_media_sha256": "d4ff3bf22c696fc52afdb534a6444f23621d3329f7b0e5d3011d4def7e041808",
+    "part3_byte_identity": "BYTE_IDENTICAL_TO_AUTHORITATIVE_EMBEDDED_MP4"
+  },
+  "status": "HEALTHY",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX RECAPTURE","FIX LANDING","FIX SECONDARY LAG","FIX CHAT DELIVERY","RERUN"]
 }
