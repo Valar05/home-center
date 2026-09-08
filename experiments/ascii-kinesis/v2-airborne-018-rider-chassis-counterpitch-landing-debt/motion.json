@@ -1,0 +1,432 @@
+{
+  "compatibility": {
+    "backward_compatible": true,
+    "format_version": 2,
+    "older_ascii_kinesis_entries_remain_readable": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "compile": {
+    "airborne_arc_connector": "segment-specific deterministic y bend; never changes support/contact semantics",
+    "bridge_frames": "2-3 authored-segment-dependent deterministic eased connector frames",
+    "connector": "deterministic eased geometry between authored decisive keys; support/contact semantics switch only at authored key boundaries",
+    "fps": 24,
+    "frame_count": 75,
+    "render_hold_frames": {
+      "FOURS": 8,
+      "ONES": 2,
+      "TWOS": 4
+    },
+    "render_hold_scale": 2,
+    "renderer": "monospace ASCII-only rasterization for MP4; no source pixels",
+    "timing_classes": {
+      "FOURS": 4,
+      "ONES": 1,
+      "TWOS": 2
+    },
+    "timing_policy": "STREET_FIGHTER/CAPCOM"
+  },
+  "concept_type": "fresh-concept",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
+  "format_version": 2,
+  "keys": [
+    {
+      "authoring": {
+        "arm_angle": -155,
+        "front_contact": false,
+        "front_knee_dx": 1,
+        "front_knee_dy": 0,
+        "hip_dx": -1.5,
+        "pitch": -8,
+        "rear_contact": false,
+        "rear_knee_dx": -1,
+        "rear_knee_dy": 0,
+        "torso": -25,
+        "x": 15,
+        "y": 17.2
+      },
+      "causal_role": "asymmetrical load; rear support stores launch",
+      "key_id": "A018-K0",
+      "label": "CROOKED_LOAD",
+      "motion_arc_root_note": "root drops left/rear before release",
+      "support_contact": "REAR_DOMINANT_GROUND",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -165,
+        "front_contact": false,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": -1,
+        "pitch": -2,
+        "rear_contact": false,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": -35,
+        "x": 18.5,
+        "y": 15.8
+      },
+      "causal_role": "earned support break",
+      "key_id": "A018-K1",
+      "label": "REAR_DRIVE_RELEASE",
+      "motion_arc_root_note": "root rises forward from rear drive",
+      "support_contact": "BREAKING_REAR_SUPPORT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -175,
+        "front_contact": false,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": -1.8,
+        "pitch": -20,
+        "rear_contact": false,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": -38,
+        "x": 23.5,
+        "y": 12.7
+      },
+      "causal_role": "airborne ascent; chassis pitches up",
+      "key_id": "A018-K2",
+      "label": "NOSE_HIGH_RISE",
+      "motion_arc_root_note": "root climbs on forward arc; no second impulse",
+      "support_contact": "NONE",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -75,
+        "front_contact": false,
+        "front_knee_dx": 2.5,
+        "front_knee_dy": 0,
+        "hip_dx": 1.6,
+        "pitch": -10,
+        "rear_contact": false,
+        "rear_knee_dx": -1.0,
+        "rear_knee_dy": 0,
+        "torso": 48,
+        "x": 29,
+        "y": 10.4
+      },
+      "causal_role": "non-hover apex; rider counter-rotates over chassis",
+      "key_id": "A018-K3",
+      "label": "COUNTERPITCH_APEX",
+      "motion_arc_root_note": "root reaches apex while local body pitch changes independently",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -105,
+        "front_contact": false,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": 0.5,
+        "pitch": -3,
+        "rear_contact": false,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": 8,
+        "x": 34,
+        "y": 11.2
+      },
+      "causal_role": "gravity-earned descent with rear end dropping",
+      "key_id": "A018-K4",
+      "label": "REAR_DROP_DESCENT",
+      "motion_arc_root_note": "root descends and advances; no hover",
+      "support_contact": "NONE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -45,
+        "front_contact": false,
+        "front_knee_dx": 3.0,
+        "front_knee_dy": 0,
+        "hip_dx": 1.0,
+        "pitch": 11,
+        "rear_contact": false,
+        "rear_knee_dx": -2.5,
+        "rear_knee_dy": 0,
+        "torso": -18,
+        "x": 38,
+        "y": 13.6
+      },
+      "causal_role": "precontact split prepares staggered landing",
+      "key_id": "A018-K5",
+      "label": "PRECONTACT_SCISSOR",
+      "motion_arc_root_note": "root continues down while limbs open asymmetrically",
+      "support_contact": "NONE_PRECONTACT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -25,
+        "front_contact": false,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": 0.5,
+        "pitch": 16,
+        "rear_contact": true,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": -30,
+        "x": 41,
+        "y": 15.6
+      },
+      "causal_role": "first contact; support acquired before velocity debt paid",
+      "key_id": "A018-K6",
+      "label": "REAR_CONTACT_CONTINUE",
+      "motion_arc_root_note": "root continues downward after rear contact",
+      "support_contact": "REAR_CONTACT_ONLY",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -5,
+        "front_contact": true,
+        "front_knee_dx": 0,
+        "front_knee_dy": 1.5,
+        "hip_dx": 1.5,
+        "pitch": 3,
+        "rear_contact": true,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 1.5,
+        "torso": -52,
+        "x": 43,
+        "y": 17.0
+      },
+      "causal_role": "front slap + deep compression pays vertical debt",
+      "key_id": "A018-K7",
+      "label": "FRONT_SLAP_CRUSH",
+      "motion_arc_root_note": "root reaches lowest point after both contacts",
+      "support_contact": "BOTH_CONTACT_COMPRESSION",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": 25,
+        "front_contact": true,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": 1.8,
+        "pitch": -8,
+        "rear_contact": true,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": 28,
+        "x": 46,
+        "y": 16.0
+      },
+      "causal_role": "grounded rebound with free-arm secondary lag",
+      "key_id": "A018-K8",
+      "label": "CROOKED_REBOUND_LAG",
+      "motion_arc_root_note": "root rises slightly while base carries forward",
+      "support_contact": "BOTH_ROLLING",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -5,
+        "front_contact": true,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": 0.8,
+        "pitch": 0,
+        "rear_contact": true,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": 12,
+        "x": 50,
+        "y": 16.3
+      },
+      "causal_role": "runout spends forward debt without idle reset",
+      "key_id": "A018-K9",
+      "label": "ROLL_OUT_DEBT",
+      "motion_arc_root_note": "root remains displaced and forward",
+      "support_contact": "BOTH_ROLLING",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "authoring": {
+        "arm_angle": -35,
+        "front_contact": true,
+        "front_knee_dx": 0,
+        "front_knee_dy": 0,
+        "hip_dx": 0.3,
+        "pitch": 0,
+        "rear_contact": true,
+        "rear_knee_dx": 0,
+        "rear_knee_dy": 0,
+        "torso": -2,
+        "x": 54,
+        "y": 16.1
+      },
+      "causal_role": "task readiness returns at new address with residual asymmetry",
+      "key_id": "A018-K10",
+      "label": "TASK_REENTRY_DISPLACED",
+      "motion_arc_root_note": "root stabilizes displaced; not original idle",
+      "support_contact": "BOTH_ROLLING_STABLE",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ],
+  "lane": "airborne",
+  "manifest_facts": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "source_art_embedded": false,
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "bytes": 24578,
+    "codec": "h264",
+    "decode": "PASS_FFPROBE_AND_FFMPEG_CURRENT_WORKER",
+    "duration_seconds": 3.125,
+    "fps": 24,
+    "frames": 75,
+    "height": 524,
+    "mime": "video/mp4",
+    "pixel_format": "yuv420p",
+    "sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
+    "source": "abstract_ascii_rig_and_structured_timing_only",
+    "width": 724
+  },
+  "negative_fixture": null,
+  "principle": "AIRBORNE COUNTERPITCH IS A TWO-BODY DEBT: THE BASE MAY ROTATE ONE WAY WHILE THE RIDER COUNTER-ROTATES, BUT LANDING SUPPORT MUST STILL PAY ROOT VELOCITY IN ORDER.",
+  "provenance": {
+    "inferred": [
+      "all authored performance, chronology, root/support/contact states, counterpitch acting, timing classes, holds, bridge motion"
+    ],
+    "observed": [
+      "source identity, exact source hash/dimensions, whole-sheet product-space observations listed above"
+    ],
+    "unknown": [
+      "source-authentic playback order/exposure, exact original rider contacts, physical forces, original gameplay timing"
+    ]
+  },
+  "quality_gates": {
+    "noodle_queen": {
+      "contempt": "economical ASCII performance reads authored rather than mannequin interpolation, source cosplay, or a slight Airborne017 permutation",
+      "function": "support sequence and COM/root consequence remain legible without metadata; the base/rider relationship is visibly causal",
+      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
+      "status": "PASS",
+      "taste": "specific rider/chassis counterpitch, staggered landing, crooked rebound, and displaced rollout create memorable silhouette phases",
+      "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO"
+    },
+    "tango": {
+      "findings": [
+        "crooked rear-dominant load visibly earns the support break",
+        "chassis and rider counter-rotate into a distinct airborne silhouette without injecting a second root impulse",
+        "apex is brief and root travel remains one continuous rise→apex→descent arc",
+        "rear support is acquired before the root finishes descending; deepest crush follows both contacts",
+        "grounded rebound opposes the landing fold and free-arm lag trails the base response",
+        "recovery exits forward at a displaced address instead of reverse-playing into the opening pose"
+      ],
+      "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
+      "inspection": "actual decoded 75-frame H.264 render plus ordered representative montage",
+      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
+      "status": "PASS",
+      "worker_scope": "CURRENT_WORKER_ACTUAL_RENDER_AFTER_ONE_SAME_BODY_REVISION"
+    }
+  },
+  "revises": null,
+  "revision": {
+    "correction": "SAME 018 mutated: strengthened chassis nose-up versus rider counterrotation, shortened apex hold, widened precontact scissor, deepened landing fold, and added opposite-direction rebound/arm lag.",
+    "noodle_queen": "PASS — TASTE/FUNCTION/CONTEMPT survive at acceptance scale: the rider/base counterpitch is the concept rather than decoration; staggered rear→front landing visibly pays vertical debt; crush/rebound/runout preserve consequence; silhouettes are economical but specific and do not read as a reskin of Airborne017 or placeholder endpoint tweening.",
+    "tango_round_1": "REVISE_REQUIRED — counterpitch silhouette was too centerline/upright at apex and landing consequence lacked enough torso-base opposition.",
+    "tango_round_2": "PASS — actual 75-frame H.264 render shows an earned rear-drive release, specific nose-high/counterpitch flight phase, non-hover apex, gravity descent, precontact scissor, rear-first contact with continued root drop, front-slap crush, opposite-direction grounded rebound, secondary arm lag, forward runout, and displaced task re-entry. No visible support teleport, reverse-interpolation recovery, equalized spacing, or idle reset survived."
+  },
+  "rig": {
+    "ascii_symbols": {
+      "chassis": "-=o",
+      "contact": "!",
+      "ground": "_",
+      "head": "O",
+      "joints": "@+x",
+      "limbs": "|/\\\\-~"
+    },
+    "channels": [
+      "ROOT",
+      "CHASSIS_PITCH",
+      "RIDER_LOCAL_TORSO",
+      "FREE_ARM_LAG",
+      "REAR_SUPPORT",
+      "FRONT_SUPPORT"
+    ],
+    "grid": {
+      "height": 24,
+      "width": 64
+    },
+    "reconstruction_note": "Each decisive ASCII pose is deterministically reconstructed from key.authoring controls by build.py; complete literal contact sheet is embedded in the SPA ASCII tab."
+  },
+  "rights": {
+    "drew_work_used": false,
+    "output": "independent abstract ASCII rig",
+    "source_choreography_copied": false,
+    "source_contours_traced": false,
+    "source_layout_copied": false,
+    "source_palette_copied": false,
+    "source_pixels_embedded": false,
+    "source_role": "commercial reference evidence only"
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": "205456",
+    "evidence_origin": "authoritative Home Center campaign Timing Skill Pass 006 whole-sheet inspection",
+    "game": "3D Stunt Rider",
+    "platform": "Amstrad CPC",
+    "provider": "The Spriters Resource",
+    "title": "Rider",
+    "url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
+    "whole_source_observed": {
+      "bytes": 1985,
+      "dimensions": "136x172",
+      "observations": [
+        "nine rider/motorcycle composite cells in upper portion",
+        "seven separate consequence/effect cells plus palette reference in lower portion",
+        "composite and consequence families separable",
+        "sheet position does not establish chronology"
+      ],
+      "sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
+      "source_authentic_timing": "UNKNOWN",
+      "source_timing_available": false
+    }
+  },
+  "source_change": false
+}
