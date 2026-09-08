@@ -1,0 +1,443 @@
+ASCII KINESIS V2 DEFENSE 013 — GUARD-BREAK / PIVOT REACQUIRE
+abstract rig only — TSR M. Bison asset 5555 is evidence only; no source pixels or choreography enter output
+performance law: impact crushes guard -> rear anchor buys a pivot -> cross-body exit foot acquires root -> overshoot/counter-rotation -> late guard reopen -> displaced ready debt
+force line: RIGHT impact -> DOWN/LEFT compression -> rear-anchor pivot -> LEFT cross-body exit -> exit-foot plant -> LEFT rotational overshoot -> RIGHT counter-rotation -> guard reopen
+support legend: R=rear-foot owner, E=exit-foot owner, f/t=secondary foot, floor=_
+
+D013-K00  OFFSET_READY  [FOURS | INFERRED]
+
+
+
+
+                                              O
+                                             |
+                                            /+--+
+                                          +- /   \\
+                                        //   /     +\
+                                       +    |        -o]
+                                       /    |
+                                      |     @
+                                      o    / \
+                                         //   \\
+                                        +       +
+                                       /         \
+                                       /          \
+                                      |           \
+                                      =            =
+  ________________________________________________________________
+                                      L            R
+
+
+support=BOTH_FEET root=GROUNDED contact=NONE guard=OWNED readiness=READY_DEBT facing=RIGHT
+role=before-state: asymmetrical guard already carries slight rear-side debt
+arc=pelvis trails threat-side guard; base is unequal before contact debt=0.16
+
+--------------------------------------------------------------------
+
+D013-K01  DIAGONAL_BRACE  [TWOS | INFERRED]
+
+
+
+
+
+                                            O
+                                            |
+                                           /+---+
+                                        +-- /    \
+                                       /   /     \
+                                      /    /      +\
+                                     +    |         -o]   <<<<<<<
+                                     /    @
+                                    |    / \\
+                                    o  //    \\
+                                      +        +
+                                     /          \
+                                     /           \\
+                                    =              =
+  ________________________________________________________________
+                                    R              f
+
+
+support=BOTH_FEET_REAR_BIASED root=GROUNDED contact=INCOMING_RIGHT guard=OWNED readiness=BRACED facing=RIGHT
+role=anticipation: root lowers behind rear support while guard meets threat early
+arc=down-left brace widens negative space behind forward guard debt=0.26
+
+--------------------------------------------------------------------
+
+D013-K02  GUARD_IMPACT  [ONES | INFERRED]
+
+
+
+
+
+
+                                          O
+                                          |
+                                         /+\
+                                      +-- / --+
+                                     /   /     \
+                                    /    /     \
+                                   +    |       +
+                                   /    @        -o]X  <<<<<<<<<<
+                                  |    / \\
+                                  o  //    \\
+                                    +        +\
+                                   /           \\
+                                  =              -=
+  ________________________________________________________________
+                                  R
+
+
+support=REAR_FOOT root=IMPACTED contact=IMPACT_RIGHT guard=OWNED readiness=INTERRUPTED facing=RIGHT
+role=contact: guard folds toward torso as front support loses authority
+arc=force drives root down-left before any exit; contact is not farthest reach debt=0.50
+
+--------------------------------------------------------------------
+
+D013-K03  CRUSH_HOLD  [FOURS | INFERRED]
+
+
+
+
+
+
+
+                                        O
+                                        |
+                                       /+\
+                                    +--/  --+
+                                   /   /     \
+                                  /   /      \
+                                 +    /       +
+                                 /   @\        -o]
+                                |   /  \\
+                                o  /     -+\
+                                  +         \\\\
+                                 =              -=
+  ________________________________________________________________
+                                 R
+
+
+support=REAR_FOOT root=COMPRESSED contact=POST_IMPACT guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+role=consequence hold: guard survives but torso/pelvis shear past it
+arc=rear foot is the only trustworthy anchor; pelvis continues down-left debt=0.72
+
+--------------------------------------------------------------------
+
+D013-K04  FRONT_FOOT_PEEL  [TWOS | INFERRED]
+
+
+
+
+
+                                      O
+                                      |
+                                     /+\
+                                  +--/  --+
+                                 /   /     \
+                                /   /      \
+                               +    /       +
+                               /   @         -o]
+                              |   / \\
+                              o   /   -+
+                                 +      \\
+                                 |        =
+                                 =
+  ________________________________________________________________
+                                 R
+
+
+support=REAR_FOOT root=YIELDING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+role=support break begins as threat-side/front foot peels while rear anchor stays planted
+arc=root rises slightly but remains behind guard; rotation is banked, not executed yet debt=0.66
+
+--------------------------------------------------------------------
+
+D013-K05  PIVOT_BANK  [TWOS | INFERRED]
+
+
+
+
+                                   O
+                                   |
+                                  /+\
+                               +--/  --+
+                              /   /     \
+                              /  /      \
+                            (+   /       +\
+                           < /  @          -o]
+                            |   |\
+                            o   | \
+                                +  +
+                                \   \
+                                 |   =
+                                 =
+  ________________________________________________________________
+                                 R
+
+
+support=REAR_FOOT root=PIVOTING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+role=rotation bank: pelvis moves around the pinned rear foot while free leg folds across
+arc=rear foot stays x=33; pelvis shifts left/up and shoulder line twists debt=0.60
+
+--------------------------------------------------------------------
+
+D013-K06  CROSS_BODY_EXIT  [ONES | INFERRED]
+
+
+
+
+                                   O
+                                |
+                               /+----+
+                             ///      \\
+                           +- /         +\
+                          /  /            --o]
+                       (  / /
+                      <  + @
+                       ( // \
+                        |/   \\
+                      /+o      +
+                   =--          \
+                                \
+                                 =
+  ________________________________________________________________
+                                 R
+
+
+support=REAR_FOOT root=PIVOTING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+role=directional exit: free leg crosses behind root while guard still faces the threat
+arc=pelvis crosses left of pinned rear foot while head/guard lag right; free leg sweeps behind in a high arc before reaching floor debt=0.56
+
+--------------------------------------------------------------------
+
+D013-K07  EXIT_FOOT_PREPLANT  [TWOS | INFERRED]
+
+
+
+
+
+                              O
+                             |
+                            /+----+
+                          ///      \\
+                        +- /         +\
+                       /  /            --o]
+                    (  / /
+                   <  + @
+                    ( // \\
+                     |/    \\
+                    +o       +
+                  //          \\
+                 =              -=
+  ________________________________________________________________
+                                 R
+
+
+support=REAR_FOOT root=PIVOTING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+role=preplant: exit foot reaches floor line while root still rotates/travels
+arc=free exit foot reaches floor line far left while head/guard still lag right of pelvis; rear anchor remains sole support debt=0.52
+
+--------------------------------------------------------------------
+
+D013-K08  EXIT_PLANT_ACQUIRE  [ONES | INFERRED]
+
+
+
+
+
+
+                         O
+                         |
+                         +---+
+                       //     \
+                     +- /      \
+                     / /        +\
+                    |  /          -o]
+                    + @\\
+                    //   --+\
+                   |+        -=
+                  /o
+                 =
+  ________________________________________________________________
+                 E
+
+
+support=EXIT_FOOT root=LANDING contact=NONE guard=CARRIED readiness=REBINDING facing=RIGHT
+role=first trustworthy exit plant: crossed foot takes root while old rear foot begins to release
+arc=exit foot at x=17 acquires floor; old rear foot visibly peels clear at y=16 while root is still moving left/down debt=0.48
+
+--------------------------------------------------------------------
+
+D013-K09  PIVOT_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+
+
+
+                      O
+                      |
+                      +---+
+                    //     \
+                  +-/       \
+                  / /        +\
+                 | /           -o]
+                 +@\\\      --=
+                | +   ----+/
+                o|
+                 =
+  ________________________________________________________________
+                 E
+
+
+support=EXIT_FOOT root=LANDING contact=NONE guard=CARRIED readiness=REBINDING facing=RIGHT
+role=overshoot: planted exit foot stays x=19 while pelvis passes left of it and old foot trails
+arc=exit foot stays planted x=17 while pelvis overshoots to x=18/low; trailing old foot is visibly airborne and folded behind debt=0.54
+
+--------------------------------------------------------------------
+
+D013-K10  COUNTER_ROTATION_CATCH  [TWOS | INFERRED]
+
+
+
+
+
+
+                        O
+                        |
+                        +---+
+                      //     \
+                    +- /      \
+                    / /        +\
+                   |  /          -o]
+                   + @\
+                   //  \\
+                  |+     -+\
+                  o         -=
+                 =
+  ________________________________________________________________
+                 E
+
+
+support=EXIT_FOOT root=ARRESTING contact=NONE guard=CARRIED readiness=REBINDING facing=RIGHT
+role=counter-rotation: pelvis rebounds right against planted exit foot before trailing foot lands
+arc=exit foot remains x=17 while pelvis counter-rotates right; trailing foot descends but does not touch until the next authored key debt=0.43
+
+--------------------------------------------------------------------
+
+D013-K11  TRAIL_FOOT_REACQUIRE  [ONES | INFERRED]
+
+
+
+
+
+                         O
+                         |
+                         +---+
+                       //     \
+                     +- /      \
+                     / /        +\
+                    |  /          -o]
+                    + @
+                    / /\
+                   | |  \
+                   o +   +
+                    /     \\
+                   =        =
+  ________________________________________________________________
+                   E        t
+
+
+support=BOTH_FEET_EXIT_BIASED root=RESTACKING contact=NONE guard=CARRIED readiness=REBINDING facing=RIGHT
+role=second support arrives only after exit foot has arrested the pivot
+arc=height recovery begins after dual support exists debt=0.34
+
+--------------------------------------------------------------------
+
+D013-K12  GUARD_REOPEN_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+                          O
+                          |
+                          +---+
+                        //     \\
+                      +- /       -+---o]
+                     /  /
+                     /  /
+                    +  @
+                    /  /\
+                   |  | \
+                   o  +  +
+                     /    \
+                    /      \
+                   =        =
+  ________________________________________________________________
+                   E        t
+
+
+support=BOTH_FEET_EXIT_BIASED root=RESTACKING contact=NONE guard=OWNED readiness=REBINDING facing=RIGHT
+role=guard authority reopens after support returns and overshoots threatward
+arc=upper body catches up on a later clock than pelvis/support debt=0.27
+
+--------------------------------------------------------------------
+
+D013-K13  SECONDARY_LAG_SETTLE  [TWOS | INFERRED]
+
+
+
+
+
+                         O
+                         |
+                         +---+
+                       //     \\
+                     +- /       -+\
+                     / /           -o]
+                    |  /
+                    + @
+                    / /\
+                   | |  \
+                   o +   +
+                    /     \\
+                   =        =
+  ________________________________________________________________
+                   E        t
+
+
+support=BOTH_FEET_EXIT_BIASED root=SETTLING contact=NONE guard=OWNED readiness=READY_DEBT facing=RIGHT
+role=secondary lag: head/guard/pelvis settle after the larger re-open
+arc=settle keeps displaced diagonal stance instead of returning to original pose debt=0.22
+
+--------------------------------------------------------------------
+
+D013-K14  DISPLACED_PIVOT_READY  [FOURS | INFERRED]
+
+
+
+
+                          O
+                          |
+                          +\
+                        //  --+
+                      +- /     \\
+                     /  /        -+\
+                     /  /           -o]
+                    +  @
+                    / / \
+                   |  / \
+                   o +   +
+                    /     \
+                    /      \
+                   |       \
+                   =        =
+  ________________________________________________________________
+                   E        t
+
+
+support=BOTH_FEET_EXIT_BIASED root=GROUNDED contact=NONE guard=OWNED readiness=READY_DEBT facing=RIGHT
+role=re-entry: guard returns at a new lateral address with stance rotated and residual debt
+arc=new root x=23 versus initial x=44; recovery preserves directional memory debt=0.18
