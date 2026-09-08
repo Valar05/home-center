@@ -27,20 +27,20 @@
   "lane": "contact",
   "ligatures_disabled": true,
   "media": {
-    "bytes": 20213,
+    "bytes": 29492,
     "codec": "H.264",
     "decode_verified": true,
     "deterministic_rebuild_verified": true,
     "fps": 24,
-    "frames": 152,
+    "frames": 141,
     "height": 240,
-    "sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
-    "width": 640
+    "sha256": "790ef2ce06a875c43ed0619597a6eabba9a2faec3f38df7d04274dc03f28eee0",
+    "width": 768
   },
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 13,
-    "bridge_frames_total": 40,
+    "bridge_frames_total": 29,
     "connector_semantics_fail_closed": true,
     "deterministic_connective_motion": true,
     "explicit_holds": true,
@@ -48,7 +48,7 @@
     "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> TOPOLOGY-SAFE CURVED CONNECTIVE MOTION -> ASCII-ONLY PROCEDURAL GLYPH RENDER -> MP4 -> SPA",
     "preview_time_scale": 4,
     "semantic_hold_frames_total": 112,
-    "video_frames_total": 152
+    "video_frames_total": 141
   },
   "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
   "primary_tabs": [
@@ -57,10 +57,17 @@
     "VIDEO"
   ],
   "quality": {
+    "current_worker_review": {
+      "actual_render_media_sha256": "790ef2ce06a875c43ed0619597a6eabba9a2faec3f38df7d04274dc03f28eee0",
+      "noodle_queen_judgment": "TASTE + FUNCTION + CONTEMPT PASS after Tango on the same render and three-part specimen. The low trailing-side acquisition, visible ground-to-hand force diagonal, braced under-custody whip, early release gap, opposite-direction free-arm countershape, chest-behind-pelvis recoil, second-step compression, and non-idle exit create a specific memorable running throw rather than decorative stick motion. Ownership and transfer stay legible while the rig remains economical.",
+      "noodle_queen_status": "PASS",
+      "receipt_status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSIST",
+      "tango_judgment": "PASS on current-worker inspection of the actual 141-frame render. The carrier enters with a rear-support asymmetry, sinks into a contralateral coil, acquires object custody behind the pelvis, probes then transfers support before release, whips the loaded hand under locked custody, releases before maximum arm reach, overshoots after release while object and body clocks split, catches the continuing root on the opposite foot, and exits with throwing-arm debt. Authored curved bridges retain source-key topology and world-lock the currently trusted foot; acquisition, support transfer, release, and second catch occur only on decisive keys. No material mannequin symmetry, equal spacing, straight semantic tween, farthest-reach release, floaty leverage, ambiguous custody, reverse recoil, idle reset, or missing overshoot/settle/secondary lag remains.",
+      "tango_status": "PASS"
+    },
     "noodle_queen": "PASS",
-    "render_media_sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
-    "tango": "PASS",
-    "tango_iterations": 2
+    "render_media_sha256": "790ef2ce06a875c43ed0619597a6eabba9a2faec3f38df7d04274dc03f28eee0",
+    "tango": "PASS"
   },
   "reconstruction": "python3 build.py",
   "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
