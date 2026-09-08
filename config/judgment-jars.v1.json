@@ -28,7 +28,7 @@
       "venice-review-gate",
       "daemon-backoff-persistence"
     ],
-    "maxPhonePromptCharacters": 18000,
+    "maxPhonePromptCharacters": 45000,
     "fullCabinetOnDemand": true,
     "selectionLaw": "Fast access is not preload-all. Load the bounded default packet, then retrieve additional Jars through Vlad by explicit id, alias, search, or native source route."
   },
