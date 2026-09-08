@@ -1,0 +1,42 @@
+{
+  "schema": "fortress.incident-repair.v1",
+  "recorded_at_local": "2026-09-08T14:10:01-05:00",
+  "incident": "Pocket TTS / Home Center capability amnesia",
+  "severity": "P0 repeated semantic-boundary failure",
+  "failure": "The worker treated absence of a Home Center / Phone Hands action surface in the current chat carrier as evidence that direct Pocket TTS physical phone narration was not a real Fortress capability. It then reasoned from generic ChatGPT voice/audio capability instead of first recovering Home Center embodied-communication truth.",
+  "forbidden_inference": "CURRENT_CARRIER_ACTION_NOT_EXPOSED => CAPABILITY_DOES_NOT_EXIST",
+  "correct_inference": "CURRENT_CARRIER_ACTION_NOT_EXPOSED => routing/exposure blocker for this carrier only; preserve known implemented capability and exact commissioned mechanism",
+  "mnemonic": "Hot Pocket = actual Pocket TTS audio physically played from the actual phone.",
+  "canonical_path": "Home Center -> Command Center -> Phone Hands -> primary-phone -> fortress-read -> pocket-tts-phone -> shizuku/rish -> com.dclar.homecenter/.PocketTtsPlaybackActivity",
+  "non_substitutes": [
+    "eSpeak",
+    "Android system TTS",
+    "browser speech",
+    "native ChatGPT Voice",
+    "cloud TTS",
+    "orphan WAV",
+    "generic media renderer",
+    "notification",
+    "scheduler",
+    "chat text"
+  ],
+  "repair": {
+    "skill": "skills/ritsu-pocket-voice/SKILL.md",
+    "skill_commit": "c41258471ba0a0ce02d7af5c0bcde94917d82e1a",
+    "regression_test": "tools/test_ritsu_pocket_voice_contract.py",
+    "test_commit": "ce5160ee0811f531574610237eedcd5682870787",
+    "required_failure_labels": [
+      "RITSU_VOICE_CAPABILITY_AMNESIA",
+      "RITSU_VOICE_CARRIER_CONFUSION",
+      "RITSU_VOICE_HOT_POCKET_SUBSTITUTION"
+    ]
+  },
+  "acceptance": [
+    "Durable doctrine explicitly states CAPABILITY != CURRENT CARRIER CALLABILITY.",
+    "Hot Pocket phrase retrieves exact physical Pocket phone playback semantics.",
+    "Current carrier blocker is named narrowly rather than generalized into system-wide incapability.",
+    "Wrong-engine audible output cannot satisfy an engine-locked Pocket commission.",
+    "Rendered audio cannot be called played without PocketTtsPlaybackActivity start/completion evidence.",
+    "Regression contract cross-checks doctrine, embodied state stages, and fortress-read receipt fields."
+  ]
+}
