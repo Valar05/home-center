@@ -62,7 +62,18 @@ def main() -> int:
     add("visible_activity_only_install", 'am start -n {PACKAGE}/.MainActivity' in body and "am start-foreground-service" not in body, "Shell install launches only visible MainActivity and never background-arms the microphone service.")
     add("user_arm_wait", "visible-user-arm" in body and "USER_ARM_SECONDS" in body and "mic_active" in body, "Campaign explicitly waits for Android's required visible microphone arm action.")
     add("resume_preserves_user_arm", "installed_apk_sha" in body and '"status": "already-current"' in body and "Matching deployed builds are not reinstalled on resume" in body, "A matching installed APK is hash-verified and not reinstalled, preserving a successful arm.")
-    add("canonical_rish_discovery", all(token in body for token in ("~/rish",)) is False and all(token in body for token in ("/storage/emulated/0/Documents/rish", "/storage/emulated/0/Download/rish", ".local\" / \"bin\" / \"rish")), "Campaign covers canonical exported Shizuku/rish locations in addition to PATH/env.")
+    add(
+        "canonical_rish_discovery",
+        all(token in body for token in (
+            'Path.home() / "rish"',
+            'Path.home() / "bin" / "rish"',
+            'Path.home() / ".local" / "bin" / "rish"',
+            "/storage/emulated/0/Android/data/moe.shizuku.privileged.api/files/rish",
+            "/storage/emulated/0/Documents/rish",
+            "/storage/emulated/0/Download/rish",
+        )),
+        "Campaign matches the repository's canonical Shizuku/rish discovery locations in addition to env/PATH.",
+    )
     add("canonical_body_probe", "home_center_shizuku_setup_probe.sh" in body and "--report-only" in body and "--no-network-install" in body, "Before body blockers are final, campaign can persist canonical Shizuku readiness diagnostics.")
     add("source_truth_boundary", "Source truth remains below phone truth" in body, "Source PASS is not rounded up to deployment.")
     add("build_truth_boundary", "Build/test success is build-body evidence, not phone deployment or acceptance" in body, "Build PASS is not rounded up to deployment.")
@@ -81,7 +92,7 @@ def main() -> int:
 
     failed = [row["check"] for row in checks if not row["ok"]]
     result = {
-        "schema": "vanguard-overlay-campaign-source-contract-v3",
+        "schema": "vanguard-overlay-campaign-source-contract-v4",
         "ok": not failed,
         "campaign": str(path),
         "checks": checks,
