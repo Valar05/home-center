@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, subprocess, tempfile
+import base64, gzip, hashlib, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -58,7 +58,7 @@ def render_ascii(obj,label=True):
 def contact_sheet(d):
     chunks=[]
     for k in d['keys']:
-        chunks.append(f"[{k['key_id']}] {k['name']} | {k['timing_class']} {k['timing_provenance']} | support={k['support_contact']} | contact={k['contact_state']} | phase={k['vertical_phase']} | force={k['force_owner']}\n"+render_ascii(k))
+        chunks.append(f"[{k['key_id']}] {k['name']} | {k['timing_class']} {k['timing_provenance']} | support={k['support_contact']} | contact={k['contact_state']} | phase={k['vertical_phase']}\n"+render_ascii(k))
     chunks.append(f"--- CONNECTIVE MOTION ---\n{len(d['bridge_keys'])} explicit authored geometry-only bridge keys are fully encoded in JSON. Decisive ASCII keys above remain semantic authority; support/contact transitions hard-cut only at decisive keys.")
     return '\n\n'.join(chunks)
 
@@ -93,18 +93,21 @@ def make_video(d):
     return seq
 
 def html_page(d,sheet,media):
-    pretty=json.dumps(d,sort_keys=True,separators=(',',':'));b64=base64.b64encode(media).decode('ascii')
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Airborne 012 — Gravity-Earned Apex Turn</title><style>:root{{color-scheme:dark;background:#0d0d0d;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1200px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0d0d;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:84ch;line-height:1.45}}</style></head><body><h1>Gravity-Earned Apex Turn</h1><p class="note">Repair successor of v2-airborne-003-apex-spacing-window. Same Sonic Advance 2 TSR evidence family, no source pixels embedded. The repair keeps the predecessor's apex-spacing idea but makes the sign change causal: asymmetric preload, support-dominant shear, one support break, steep launch, contracted ascent, a moving one-beat apex, task change on immediate descent, accelerating fall, staggered catch, fixed-foot compression, rebound, secondary lag, recovery debt, and settle.</p><nav role="tablist" aria-label="Primary views"><button type="button" role="tab" data-view="ascii" aria-selected="true">ASCII</button><button type="button" role="tab" data-view="json" aria-selected="false">JSON</button><button type="button" role="tab" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii" role="tabpanel"><pre>{html.escape(sheet)}</pre></section><section id="json" role="tabpanel" hidden><pre>{html.escape(pretty)}</pre></section><section id="video" role="tabpanel" hidden><video controls loop playsinline preload="metadata"><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section><script>const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section[role=tabpanel]')];for(const t of tabs)t.addEventListener('click',()=>{{for(const b of tabs)b.setAttribute('aria-selected',b===t?'true':'false');for(const p of panels)p.hidden=p.id!==t.dataset.view;}});</script></body></html>'''
+    pretty=json.dumps(d,sort_keys=True,separators=(',',':'),ensure_ascii=False)
+    def pack(text): return base64.b64encode(gzip.compress(text.encode(),9,mtime=0)).decode()
+    def parts(text,n=3600): return '[\n'+',\n'.join(json.dumps(text[i:i+n]) for i in range(0,len(text),n))+'\n]'
+    V=parts(base64.b64encode(media).decode());A=parts(pack(sheet));J=parts(pack(pretty))
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Airborne 012 — Gravity-Earned Apex Turn</title><style>:root{{color-scheme:dark;background:#0d0d0d;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1200px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0d0d;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:84ch;line-height:1.45}}</style></head><body><h1>Gravity-Earned Apex Turn</h1><p class="note">Repair successor of v2-airborne-003-apex-spacing-window. Same Sonic Advance 2 evidence family; no source pixels. Current-worker authored force: asymmetric preload, planted shear, one support break, moving apex sign-change, task-on-descent, staggered catch, fixed-foot compression, rebound, lag, debt, settle.</p><nav role="tablist"><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre id="ascii-pre"></pre></section><section id="json" hidden><pre id="json-pre"></pre></section><section id="video" hidden><video id="motion-video" controls loop playsinline></video></section><script>const V={V},A={A},J={J};const video=document.getElementById("motion-video");video.src="data:video/mp4;base64,"+V.join("");async function gun(parts){{{{const u=Uint8Array.from(atob(parts.join("")),c=>c.charCodeAt(0));return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text()}}}}Promise.all([gun(A),gun(J)]).then(([a,j])=>{{{{document.getElementById("ascii-pre").textContent=a;document.getElementById("json-pre").textContent=j}}}});const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section')];for(const t of tabs)t.onclick=()=>{{{{for(const p of panels)p.hidden=p.id!==t.dataset.view}}}};</script></body></html>'''
 
 def main():
     d=json.loads(MOTION.read_text());seq=make_video(d);media=MP4.read_bytes();sha=hashlib.sha256(media).hexdigest();sheet=contact_sheet(d);sheet_sha=hashlib.sha256(sheet.encode()).hexdigest()
     d['compile'].update(media_sha256=sha,media_bytes=len(media),semantic_frames_per_loop=len(seq),video_frames_total=len(seq),video_file=MP4.name,video_dimensions=[640,360],codec='H.264',pixel_format='yuv420p')
     d['ascii_sheet_sha256']=sheet_sha
-    MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'))+'\n')
+    MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
     m=json.loads(MANIFEST.read_text())
     m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha)
     m['motion_dungeon'].update(semantic_frames_per_loop=len(seq),video_frames_total=len(seq))
-    MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'))+'\n')
+    MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
     SPA.write_text(html_page(d,sheet,media))
     print(json.dumps({'media_sha256':sha,'media_bytes':len(media),'frames':len(seq),'ascii_sha256':sheet_sha},sort_keys=True))
 if __name__=='__main__':main()
