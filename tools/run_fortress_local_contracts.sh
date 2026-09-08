@@ -6,6 +6,7 @@ python3 tools/fortress_bootstrap.py self-test
 python3 tools/test_framing_fidelity_contract.py
 python3 tools/test_ritsu_tango_contract.py
 python3 tools/test_fleshpunk_hidden_function_contract.py
+python3 tools/test_punch_card_aphorism_contract.py
 python3 tools/test_haraway_hotel_operator_contract.py
 python3 tools/test_fortress_phone_resume_contract.py
 python3 tools/test_vlad_swarm_venice_directive.py
@@ -34,6 +35,7 @@ python3 -m py_compile \
   tools/vlad_swarm_daemon.py \
   tools/home_center_mcp_client.py \
   tools/android_chromium_control.py \
+  tools/punch_card_judge.py \
   tools/judgment_jar_common.py \
   tools/judgment_jar_cabinet.py \
   tools/judgment_jar_registry.py \
@@ -52,6 +54,7 @@ python3 -m py_compile \
   tools/test_framing_fidelity_contract.py \
   tools/test_ritsu_tango_contract.py \
   tools/test_fleshpunk_hidden_function_contract.py \
+  tools/test_punch_card_aphorism_contract.py \
   tools/test_haraway_hotel_operator_contract.py \
   tools/queue_venice_review_phone.py \
   tools/vlad_pixel_forge_probe.py \
