@@ -3,7 +3,11 @@
   "format_version": 2,
   "experiment_id": "v2-video-motion-008-ground-flip-support-release-repair",
   "lane": "video-motion",
-  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -13,7 +17,14 @@
   "revises": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
   "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
   "source_change": false,
-  "files": ["build_motion.py", "contact_sheet.txt", "manifest.json", "motion.json", "receipt.json", "ground-flip-support-release-repair.motion.html"],
+  "files": [
+    "build_motion.py",
+    "contact_sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "ground-flip-support-release-repair.motion.html"
+  ],
   "media_sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
   "media_embedded": true,
   "tracked_mp4": false,
@@ -21,6 +32,6 @@
   "contract_test": {
     "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "candidate_scoped": "PASS",
-    "repo_global": "NOT_RUN_STANDARD_CHAT_NO_FULL_TREE"
+    "repo_global": "NOT_CLAIMED"
   }
 }
