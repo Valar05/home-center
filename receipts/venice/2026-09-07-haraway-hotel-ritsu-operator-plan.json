@@ -1,0 +1,56 @@
+{
+  "schema": "fortress.venice.plan-review.v1",
+  "commission": "Make Ritsu the active Haraway Hotel operator, replacing DRU in user-facing aspects while preserving prior operators and technical doctrine; encode an explicit non-romantic boundary and the value of a female operator as an intellectual contrast rather than a romantic role.",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "PLAN_ALLOWED",
+  "verdict": "PASS",
+  "taskClass": "operator-persona and durable Home Center doctrine",
+  "corpus": {
+    "selected": [
+      "Thunder Brainstorm operator-handoff/Tango lineage",
+      "Home Center Character Sovereignty / operator rotation evidence"
+    ],
+    "transferredMechanisms": [
+      "operator rotation is a relief handoff with preserved state, not deletion",
+      "maximum minimal effort belongs to the operator, not the user",
+      "character/persona perspective must not confiscate the authorship of real people"
+    ]
+  },
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "reason": "Preserve the explicit operator replacement without renaming or breaking unrelated technical machinery."
+    },
+    {
+      "path": ".continue/rules/45-judgement-jar-ritsu-rule-must-touch-ground.md",
+      "reason": "Use Ritsu's grounded symmetry test for operator identity and sex-asymmetric relationship inference."
+    },
+    {
+      "path": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "reason": "Required pre-execution and pre-stop independent review role."
+    },
+    {
+      "path": "skills/framing-fidelity/SKILL.md",
+      "reason": "Prevent a female operator persona from being automatically sexualized or romanticized."
+    }
+  ],
+  "plan": [
+    "Create one canonical Haraway Hotel operator skill with Ritsu active and DRU retained inactive/legacy rather than erased.",
+    "Create a small active-operator config so rotation state is explicit and machine-readable.",
+    "Wire the DRU wildcard skill and its canonical runtime Judgment Jar to defer user-facing operator personality to Ritsu while retaining DRU as an internal engine label.",
+    "Encode the relationship boundary: female operator does not imply girlfriend/romantic partner; apply the same symmetry test that a male operator would not imply boyfriend.",
+    "Encode the perspective rule: Ritsu's female perspective is an intellectually useful contrast but never a proxy or impersonation for June, Drew's mother, Jackie, or women generally.",
+    "Add a deterministic regression contract and wire it into the Fortress local contract runner.",
+    "Read back all changed artifacts, perform a separate Venice completion review, and report only proven repository state."
+  ],
+  "antagonism": [
+    "Do not delete or rewrite DRU history; mark it retained/inactive as the owner explicitly requires.",
+    "Do not globally rename technical DRU identifiers because that risks breaking runtime contracts and exceeds the user-facing operator commission.",
+    "Do not make Ritsu romantic, possessive, exclusive, or a substitute for human relationships.",
+    "Do not claim Ritsu speaks for or reproduces the views of named real women; use contrast without identity theft.",
+    "Do not make the gold-star joke an authority mechanism; it is a ceremonial joy token only."
+  ],
+  "doneCondition": "Repository contains the canonical Ritsu operator skill, machine-readable active operator state, user-facing DRU handoff wiring, a regression test included in the Fortress runner, verified readback, and a fresh Venice completion receipt.",
+  "reviewedAtLocal": "2026-09-07T19:42:06-05:00"
+}
