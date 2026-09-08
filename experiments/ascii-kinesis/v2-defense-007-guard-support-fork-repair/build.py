@@ -67,10 +67,11 @@ def contact_sheet(d):
  return '\n'.join(out).rstrip()+"\n"
 
 def compact_json(d):
- keys=[]
+ order=d['rig_schema']['joints']; keys=[]
  for k in d['keys']:
-  keys.append({q:k[q] for q in ('key_id','name','joints','support_contact','contact_state','root_state','guard_authority','readiness','recoil_debt','secondary_lag','motion_arc_root_note','causal_role','timing_class','timing_provenance','connective_to_next')})
- return {'experiment_id':d['experiment_id'],'format_version':d['format_version'],'lane':d['lane'],'title':d['title'],'principle':d['principle'],'revision':d['revision'],'source':d['source'],'rights':d['rights'],'compatibility':d['compatibility'],'rig_schema':d['rig_schema'],'timing_policy':d['timing_policy'],'keys':keys,'compile':d['compile'],'evidence':d['evidence'],'quality_gates':d['quality_gates'],'validation':d['validation'],'correction_hooks':d['correction_hooks'],'ascii_sheet_sha256':d['ascii_sheet_sha256']}
+  keys.append({'id':k['key_id'],'name':k['name'],'joints':[k['joints'][n] for n in order],'support':k['support_contact'],'contact':k['contact_state'],'root':k['root_state'],'guard':k['guard_authority'],'ready':k['readiness'],'debt':k['recoil_debt'],'lag':k['secondary_lag'],'timing':k['timing_class'],'provenance':k['timing_provenance'],'role':k['causal_role'],'root_note':k['motion_arc_root_note'],'connective':k['connective_to_next']})
+ q=d['quality_gates']
+ return {'schema':'ascii-kinesis.motion-spa-json.v2','experiment_id':d['experiment_id'],'revision':d['revision'],'source':d['source'],'rights':d['rights'],'compatibility':d['compatibility'],'rig':d['rig_schema'],'timing_policy':d['timing_policy'],'keys':keys,'compile':d['compile'],'provenance':{'observed':d['evidence']['observed'],'inferred':d['evidence']['inferred'],'unknown':d['evidence']['unknown']},'quality':{'tango':q['tango']['status'],'noodle_queen':q['noodle_queen']['status'],'taste':q['noodle_queen']['taste']['status'],'function':q['noodle_queen']['function']['status'],'contempt':q['noodle_queen']['contempt']['status'],'tango_iterations':len(q['tango']['iterations'])},'manifest_receipt':{'files':['build.py','manifest.json','motion.json','receipt.md','guard-support-fork-repair.motion.html'],'media_sha256':d['compile']['media_sha256'],'media_bytes':d['compile']['media_bytes'],'ascii_sha256':d['ascii_sheet_sha256'],'contract':d['validation']},'correction_hooks':d['correction_hooks']}
 
 def font(size):
  for p in ['/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf','/usr/share/font/truetype/dejavu/DejaVuSansMono.ttf']:
