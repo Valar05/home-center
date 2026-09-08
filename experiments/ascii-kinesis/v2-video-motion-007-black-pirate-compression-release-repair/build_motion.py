@@ -99,22 +99,24 @@ def encode(m,frames):
     if p.returncode: raise SystemExit(p.stderr.decode())
     return MP4.read_bytes(),W,H
 def contact_sheet(m):
-    parts=[]
-    head='ASCII KINESIS V2 · VIDEO MOTION 007 · REPAIR OF VIDEO MOTION 001\nCompression → spring release → counter-arc recovery debt\nSource: He\'ll walk the plank.webm · selected coherent segment 15.000–18.750 s\nLegend: O head · @ pelvis/root · + COM proxy · * joint · ? ground contact, support side unresolved · X geometric overlap only\nNo inter-actor/prop contact line is authored; exact endpoints/impact are UNKNOWN.\n'
-    parts=[head]
+    # Fixed crop of the authoritative 80x24 authored-key grid: still literal/aligned,
+    # but removes dead whitespace so the contact sheet stays inspection-sized.
+    parts=['ASCII KINESIS V2 · VIDEO MOTION 007 · REPAIR OF VIDEO MOTION 001\nCompression → spring release → counter-arc recovery debt\nSource: He\'ll walk the plank.webm · coherent segment 15.000–18.750 s\nLegend: O head · @ pelvis/root · + COM · * joint · ? support-side unresolved · X geometric overlap only\nNo inter-actor/prop contact is authored. Exact impact/contact/support ownership remains UNKNOWN.\n']
     for k in m['keys']:
-        lines=render_pose(m,{'actor_a':k['actor_a'],'actor_b':k['actor_b']})
-        parts.append(f"\n{k['key_id']} · {k['source_time_s']:.3f} s OBSERVED source time · {k['timing_class']} {k['timing_provenance']} compile · {k['causal_role']}\n"+'\n'.join(lines)+f"\nSUPPORT/CONTACT: {k['support_contact']}\nROOT/ARC: {k['motion_arc_root_note']}\nFORCE: {k['force_transfer']}\n")
-    parts.append('\nTIMING LAW: source_time_s is OBSERVED evidence; ONES/TWOS/FOURS compile classes + hold/bridge allocation are INFERRED. 1s/2s/4s are classes, not seconds.\n')
-    parts.append('UNRESOLVED: exact B support foot/side · hand/prop endpoints/identity · driver/yielder ownership · discrete physical impact.\n')
+        full=render_pose(m,{'actor_a':k['actor_a'],'actor_b':k['actor_b']})
+        lines=[row[3:73] for row in full[5:21]]
+        parts.append(f"\n{k['key_id']} · {k['source_time_s']:.3f}s OBSERVED · {k['timing_class']} {k['timing_provenance']} · {k['causal_role']}\n"+'\n'.join(lines)+'\n')
+    parts.append('\nTIMING: source timestamps OBSERVED; compile classes/holds/bridge arcs INFERRED. 1s/2s/4s = ONES/TWOS/FOURS, never seconds.\n')
+    parts.append('UNRESOLVED: B support foot/side · hand/prop endpoints · driver/yielder · discrete physical impact.\n')
     return ''.join(parts)
 def esc(s): return s.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
 def build_html(m,manifest,contact,mp4):
-    audit=json.dumps({'motion':m,'manifest':manifest},indent=2,ensure_ascii=False); b64=base64.b64encode(mp4).decode('ascii')
+    audit=json.dumps({'motion':m,'manifest':manifest},separators=(',',':'),ensure_ascii=False); b64=base64.b64encode(mp4).decode('ascii')
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 · Video Motion 007</title><style>:root{{color-scheme:dark;background:#090909;color:#f3f3f3;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}}*{{box-sizing:border-box}}body{{margin:0}}header{{position:sticky;top:0;background:#111;border-bottom:1px solid #444;padding:.75rem;z-index:2}}nav{{display:flex;gap:.5rem}}button{{font:inherit;padding:.62rem .95rem;background:#181818;color:#eee;border:1px solid #555;border-radius:.35rem}}button[aria-selected="true"]{{background:#eee;color:#111}}main{{padding:1rem}}section[hidden]{{display:none}}pre{{font:inherit;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.12;margin:0;padding:1rem;border:1px solid #333;background:#0d0d0d}}video{{display:block;width:min(100%,1000px);height:auto;border:1px solid #333;background:#000}}</style></head><body><header><nav aria-label="Primary views"><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json" aria-selected="false">JSON</button><button data-view="video" aria-selected="false">VIDEO</button></nav></header><main><section id="ascii"><pre>{esc(contact)}</pre></section><section id="json" hidden><pre>{esc(audit)}</pre></section><section id="video" hidden><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,{b64}"></video></section></main><script>const bs=[...document.querySelectorAll('button[data-view]')];const ss={{ascii:document.getElementById('ascii'),json:document.getElementById('json'),video:document.getElementById('video')}};bs.forEach(b=>b.onclick=()=>{{bs.forEach(x=>x.setAttribute('aria-selected',String(x===b)));Object.entries(ss).forEach(([k,s])=>s.hidden=k!==b.dataset.view)}});</script></body></html>'''
 def main():
     m=json.loads(MOTION.read_text()); c=contact_sheet(m); CONTACT.write_text(c)
     frames,specs=compile_frames(m); mp4,W,H=encode(m,frames); sha=h(mp4)
+    # decode gate
     probe=subprocess.run(['ffprobe','-v','error','-show_entries','stream=codec_name,width,height,r_frame_rate,nb_frames','-of','json',str(MP4)],capture_output=True,text=True,check=True)
     dec=subprocess.run(['ffmpeg','-v','error','-i',str(MP4),'-f','null','-'],capture_output=True,text=True)
     if dec.returncode: raise SystemExit('decode failed: '+dec.stderr)
@@ -124,6 +126,7 @@ def main():
     manifest={'schema':'ascii-kinesis.v2-manifest','format_version':2,'entry':m['experiment_id'],'lane':'video-motion','repo_path':'experiments/ascii-kinesis/v2-video-motion-007-black-pirate-compression-release-repair/','revises':m['revision']['revises'],'negative_fixture':m['revision']['negative_fixture'],'primary_tabs':['ASCII','JSON','VIDEO'],'ascii_literal_text':True,'json_structured':True,'video_required':True,'video_embedded':True,'tracked_mp4':False,'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':sha,'media_bytes':len(mp4),'media_frame_count':len(frames),'media_decode_verified':True,'source_pixels_used_in_output':False,'offline_spa':True,'backward_compatible':True,'files':['contact_sheet.txt','motion.json','build_motion.py','manifest.json','receipt.json','black-pirate-compression-release-repair.motion.html']}
     MANIFEST.write_text(json.dumps(manifest,indent=2)+'\n')
     HTML.write_text(build_html(m,manifest,c,mp4))
+    # Critical repair gate: verify persisted-in-SPA bytes, not merely the local pre-embed MP4.
     import re
     page=HTML.read_text(encoding='utf-8')
     match=re.search(r'data:video/mp4;base64,([A-Za-z0-9+/=]+)',page)
