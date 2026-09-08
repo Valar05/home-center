@@ -133,7 +133,20 @@ def make_video(d):
     return seq
 
 def html_page(d,sheet,media):
-    spa=json.loads(json.dumps(d));spa['manifest']={'primary_tabs':['ASCII','JSON','VIDEO'],'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':d['compile']['media_sha256'],'repo_path':'experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/'};pretty=json.dumps(spa,indent=2,sort_keys=True,ensure_ascii=False)
+    key_fields=('key_id','name','timing_class','timing_policy','timing_provenance','support_contact','contact_state','drag_surface_state','vertical_phase')
+    keys=[]
+    for k in d['keys']:
+        item={f:k[f] for f in key_fields}
+        geo=d['geometry']['keys'][k['key_id']]
+        item['pose']=geo['pose']
+        if geo.get('drag_surface'): item['drag_surface']=geo['drag_surface']
+        keys.append(item)
+    bridge_fields=('bridge_id','from_key','to_key','name','timing_class','timing_provenance','support_contact','contact_state','drag_surface_state','vertical_phase')
+    spa={f:d[f] for f in ('schema','format_version','experiment_id','lane','principle','source','revision','compatibility','timing_vocabulary','rig','quality_gates','compile','ascii_sheet_sha256')}
+    spa['keys']=keys
+    spa['bridge_keys']=[{f:b[f] for f in bridge_fields} for b in d['bridge_keys']]
+    spa['manifest']={'primary_tabs':['ASCII','JSON','VIDEO'],'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':d['compile']['media_sha256'],'repo_path':'experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/'}
+    pretty=json.dumps(spa,indent=2,sort_keys=True,ensure_ascii=False)
     def pack(text): return base64.b64encode(gzip.compress(text.encode(),9,mtime=0)).decode()
     def parts(text,n=3600): return '[\n'+',\n'.join(json.dumps(text[i:i+n]) for i in range(0,len(text),n))+'\n]'
     V=parts(base64.b64encode(media).decode())
@@ -162,7 +175,7 @@ def main():
     m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha)
     m['motion_dungeon'].update(video_frames_total=len(seq),duration_seconds=round(duration,6))
     MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
-    SPA.write_text(html_page(raw,sheet,media))
+    SPA.write_text(html_page(d,sheet,media))
     print(json.dumps({'media_sha256':sha,'media_bytes':len(media),'frames':len(seq),
                       'duration_seconds':duration,'ascii_sha256':sheet_sha},sort_keys=True))
 if __name__=='__main__':main()
