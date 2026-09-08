@@ -1,0 +1,36 @@
+{
+  "schema": "ascii-kinesis.v2-manifest",
+  "format_version": 2,
+  "entry": "v2-video-motion-007-black-pirate-compression-release-repair",
+  "lane": "video-motion",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-007-black-pirate-compression-release-repair/",
+  "revises": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "json_structured": true,
+  "video_required": true,
+  "video_embedded": true,
+  "tracked_mp4": false,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "media_sha256": "070d18a9680448e30fa059f9f655747c9be6319bb9d69f2b85fce5f82ab595dd",
+  "media_bytes": 37784,
+  "media_frame_count": 108,
+  "media_decode_verified": true,
+  "source_pixels_used_in_output": false,
+  "offline_spa": true,
+  "backward_compatible": true,
+  "files": [
+    "contact_sheet.txt",
+    "motion.json",
+    "build_motion.py",
+    "manifest.json",
+    "receipt.json",
+    "black-pirate-compression-release-repair.motion.html"
+  ]
+}
