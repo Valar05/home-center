@@ -1,0 +1,49 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "id": "v2-locomotion-007-forward-catch-handoff-repair",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "revises": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-001-forward-catch-handoff/",
+  "negative_fixture_verdict": "REVISE_REQUIRED_LOW_EFFORT",
+  "predecessor_preserved": true,
+  "source_change": false,
+  "source_url": "https://www.spriters-resource.com/snes/aladdin/asset/32/",
+  "source_evidence_family": "inherited from negative fixture; no fresh source mined",
+  "timing_provenance": "INFERRED",
+  "motion_json": "motion.json",
+  "contact_sheet": "contact_sheet.txt",
+  "builder": "build.py",
+  "receipt": "receipt.md",
+  "spa": "forward-catch-handoff-repair.motion.html",
+  "media": {
+    "required": true,
+    "persistence": "exact MP4 bytes embedded as base64 data URI in self-contained SPA; standalone motion.mp4 is deterministic reconstruction output",
+    "sha256": "041ec1b17858734a9cb8a1e00e1ce3473dbfdb787b0d2581ea86f066cf28fcd4",
+    "bytes": 45898,
+    "frame_count": 38,
+    "fps": 24,
+    "codec": "H.264/yuv420p",
+    "decode_verified": true
+  },
+  "hashes": {
+    "ascii_sha256": "e7b6e46688c89884b054fa5b62d8d4c6c3a75cf1076526f012e6a59ccd51fa2f",
+    "motion_json_sha256": "96dbd674e7e9a3a1ea4f26e449d6961a432240cbcec154fb6f8efaf8e2dcbbaa",
+    "spa_sha256": "0d90f99d2143b890b010c974586bbbd18197a9fe9aa83ff42f2bbdfde2f8c217"
+  },
+  "quality_gate_status": "TANGO_PASS_NOODLE_QUEEN_PASS",
+  "contract_test": "PASS — exact repository tools/test_ascii_kinesis_swarm_contract_v2.py logic executed against isolated successor tree; full-repository regression not claimed in this Standard Chat lane",
+  "repo_readback_evidence": "external after persistence; recorded on issue #343 and verified against GitHub blob identities"
+}
