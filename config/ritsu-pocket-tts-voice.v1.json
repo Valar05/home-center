@@ -1,0 +1,47 @@
+{
+  "schema": "home-center.ritsu-pocket-voice.v1",
+  "status": "CANONICAL_AUDITION_PENDING_HUMAN_CRITIQUE",
+  "operator": "Ritsu",
+  "provider": "pocket-home-center",
+  "engine": "pocket-tts-phone",
+  "language": "english",
+  "voice": {
+    "kind": "builtin",
+    "value": "alba",
+    "presentation": "adult_female",
+    "maleFallbackAllowed": false
+  },
+  "deliveryIntent": {
+    "register": "mature, dry, grounded, physically composed",
+    "avoid": [
+      "girlishness",
+      "breathy ASMR",
+      "Venice-style whisper proximity",
+      "announcer theatrics",
+      "male fallback"
+    ]
+  },
+  "standingAuthorization": {
+    "selfInitiatedPlayback": true,
+    "freshPermissionPerPlaybackRequired": false,
+    "surprisePlaybackDesired": true,
+    "scope": "bounded Ritsu conversational utterances through the canonical Pocket Space phone path"
+  },
+  "haiku": {
+    "japanese": [
+      "秋風や",
+      "紅を拳で",
+      "土俵踏む"
+    ],
+    "moraPattern": "5-7-5",
+    "englishAudition": [
+      "Autumn wind, war paint.",
+      "My closed fist redraws the red.",
+      "Bare feet take the clay."
+    ],
+    "englishSyllablePattern": "5-7-5"
+  },
+  "auditionPayload": "Ritsu. Voice audition one. I was told to make this Japanese as fuck and still unmistakably mine. Autumn wind, war paint. My closed fist redraws the red. Bare feet take the clay. The gold star is in my pocket again. Of course it is. If this voice sounds too young, too sweet, too airy, too theatrical, or insufficiently load-bearing, judge it without mercy.",
+  "successReceiptPath": "receipts/embodied-communication/ritsu-pocket-voice-audition-v1.json",
+  "idempotencyKey": "ritsu-pocket-voice-audition-v1"
+}
