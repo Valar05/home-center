@@ -5,6 +5,7 @@ cd "$ROOT"
 python3 tools/fortress_bootstrap.py self-test
 python3 tools/test_framing_fidelity_contract.py
 python3 tools/test_ritsu_tango_contract.py
+python3 tools/test_haraway_hotel_operator_contract.py
 python3 tools/test_fortress_phone_resume_contract.py
 python3 tools/test_vlad_swarm_venice_directive.py
 python3 tools/test_vlad_pixel_mnn_contract.py
@@ -49,6 +50,7 @@ python3 -m py_compile \
   tools/test_judgment_jar_receipt_quarantine_truth.py \
   tools/test_framing_fidelity_contract.py \
   tools/test_ritsu_tango_contract.py \
+  tools/test_haraway_hotel_operator_contract.py \
   tools/queue_venice_review_phone.py \
   tools/vlad_pixel_forge_probe.py \
   tools/stage_vlad_pixel_model_phone.py \
