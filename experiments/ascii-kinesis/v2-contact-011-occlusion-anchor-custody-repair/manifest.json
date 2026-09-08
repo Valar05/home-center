@@ -76,7 +76,7 @@
   "media_sha256": "3bb39492e15f097e1de923cba14baaff6406959aaadf67d5d965870a3fa366fe",
   "media_bytes": 11462,
   "contact_sheet_sha256": "4a7279ceaf38a252dacc0e12cd34a336aff77951f8e3c1c194537dd839c5fb2d",
-  "spa_sha256": "2a2a3aeb1a45581bde62a92a60b73ba49049b91d92eabfdcdaeff740f0075808",
+  "spa_sha256": "8c3cde46f49f77e15c3cd499d616b848bc6039407f9878f4bfdb241f42df640e",
   "video_packaging": "embedded authoritative MP4 data URI in occlusion-anchor-custody-repair.motion.html",
   "reconstruction": "python3 build.py",
   "quality_gates": {
