@@ -1,6 +1,6 @@
 # Airborne 016 — Crooked Catch Vertical Debt Repair
 
-STATUS: REPO_PERSISTED_VERIFIED_ISSUE_RECEIPT_PENDING_CHAT_DELIVERY_PENDING
+STATUS: HEALTHY
 
 Canonical successor: `experiments/ascii-kinesis/v2-airborne-016-crooked-catch-vertical-debt-repair/`
 
@@ -51,6 +51,15 @@ Official V2 contract:
 - result: `{"entries_checked":["v2-airborne-016-crooked-catch-vertical-debt-repair"],"ok":true,"schema":"ascii-kinesis.swarm-contract-v2-test"}`
 - boundary: no full-repository checkout in this standard-chat worker; no repo-global structural claim is made beyond exact readback of this successor and exact candidate-isolated contract execution
 
-Repository readback: PASS for motion.json and the tracked self-contained SPA. GitHub issue #343 receipt remains the next acceptance leg. Reporting-chat PART 1 ASCII + PART 2 JSON + PART 3 visible persisted media remains the final acceptance leg after issue receipt.
+Repository readback: PASS for motion.json and the tracked self-contained SPA.
 
-This receipt does not declare HEALTHY by itself.
+Issue receipt: PASS — GitHub issue `Valar05/home-center#343`, comment `5590983016`.
+
+Reporting chat delivery: PASS in this same worker, exact order:
+1. PART 1 — complete copyable aligned ASCII contact sheet.
+2. PART 2 — actual persisted motion JSON object, displayed with deterministic whitespace-only non-byte-identical formatting.
+3. PART 3 — visible exact byte-identical persisted embedded MP4, SHA-256 `ec179ee8f9ae04348ad1be346cd8ab6a38f534ae3a34c725c995585be0771ec5`.
+
+HEALTHY basis: current-worker connector liveness + correct lineage/source + SPA persistence/readback + official candidate contract PASS + actual render/decode + Tango PASS + Noodle Queen PASS + issue receipt + complete three-part chat delivery.
+
+Airborne007 repair debt is durably closed by this canonical 016 successor. The lane may advance to the next-oldest remaining rejected Airborne fixture; no fresh-source mining while older rejection debt remains.
