@@ -1,0 +1,106 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "experiment_id": "v2-timing-010-variant-bank-commitment-repair",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-010-variant-bank-commitment-repair/",
+  "revises": "experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/",
+  "source_change": false,
+  "source": {
+    "asset_id": "41182",
+    "page_url": "https://www.spriters-resource.com/snes/mmsoccer/asset/41182/",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "rights_note": "Copyright-restricted commercial-game sprites are evidence only. No source pixels, palette, costume, contours, exact silhouette, sheet layout, tracing, choreography, redistribution, or close imitation enter this successor."
+  },
+  "current_worker_liveness": {
+    "home_center_campaign_read": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS",
+    "preflight_order": "before source selection or mutation"
+  },
+  "authority_read": {
+    "issue_reset_comment": 5576901079,
+    "timing004_closure_comment": 5590170177,
+    "latest_manager_correction_comment": 5590440216,
+    "ascii_kinesis_skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "swarm_contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd",
+    "poselab_owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "poselab_contract_through": "v1.10"
+  },
+  "motion_dungeon": {
+    "media_sha256": "d9c3a0e12d1353b5245402d5ed7e2b93587cb56d56fd5712a95a823d07fd917e",
+    "media_bytes": 40141,
+    "frames": 83,
+    "fps": 24,
+    "decode": {
+      "result": "PASS",
+      "codec": "h264",
+      "width": 720,
+      "height": 400,
+      "frame_count": 83,
+      "duration_seconds": 3.458333
+    },
+    "reconstruction": "python3 build.py",
+    "determinism": "candidate rebuild repeated byte-identically under current builder/runtime"
+  },
+  "ascii_sheet_sha256": "d252edafd5bbe2e2c093a916f06710dd432d494fb160ee37665f96df1bbd3d19",
+  "quality_gates": {
+    "actual_render_inspection": {
+      "method": "Exact authoritative 83-frame H.264 candidate decoded and inspected as a complete frame sheet plus decisive-key sheet.",
+      "media_sha256": "d9c3a0e12d1353b5245402d5ed7e2b93587cb56d56fd5712a95a823d07fd917e",
+      "frames": 83
+    },
+    "tango": {
+      "verdict": "PASS",
+      "basis": "Shared offset-ready/query/deep-coil establishes asymmetrical anticipation. Variant A commits from LEFT support into low-right acceleration, a one-frame right catch, four-frame deep absorb, torso overshoot, one-frame support reacquire, and a new x29 right-biased ready. Variant B commits from RIGHT support with a slower loaded release into one-frame high-left whip, one-frame opposite catch, four-frame torsion hold, one-frame secondary-lag snapback, four-frame broad-support recovery debt, and a distinct x19 back-weighted ready. Branch timing and silhouettes are visibly nonuniform; support changes occur only at decisive keys; connective arcs do not cross support topology; neither branch reverse-interpolates or returns to the shared idle address.",
+      "revision_required": false
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "taste": "The branch split has authored attitude rather than palette-bank bookkeeping: A is low/crossing/braking; B is high/whipping/torsional.",
+      "function": "The zero-time selection rule remains structurally true while the first body consequence after selection visibly commits different support owners, cadence, silhouettes, lag, and recovery.",
+      "contempt": "Not placeholder motion: the same precommit state yields two performances with different force stories and different final debt addresses."
+    }
+  },
+  "timing_keys": [
+    {"key_id":"K00","branch":"SHARED","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"K01","branch":"SHARED","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"K02","branch":"SHARED","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"A03","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"A04","branch":"A","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"A05","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"A06","branch":"A","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"A07","branch":"A","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"A08","branch":"A","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"A09","branch":"A","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"B03","branch":"B","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"B04","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"B05","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"B06","branch":"B","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"B07","branch":"B","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"B08","branch":"B","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"B09","branch":"B","timing_class":"TWOS","timing_provenance":"INFERRED"}
+  ],
+  "zero_time_selection": {
+    "event_id": "BANK_SELECT",
+    "scope": ["CONFIG_AXIS"],
+    "body_tick_cost": 0,
+    "body_clock_policy": "PRESERVE_PHASE",
+    "visible_consequence": "A/B branches share K00-K02 then visibly diverge in support owner, cadence, silhouette, overshoot/lag, and recovery address."
+  },
+  "contract": {
+    "validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS",
+    "repo_wide": "NOT_CLAIMED_IN_STANDARD_CHAT",
+    "candidate_isolated_output": {
+      "entries_checked": ["v2-timing-010-variant-bank-commitment-repair"],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    }
+  },
+  "repo_readback": "PENDING_POSTWRITE",
+  "issue_343_receipt": "POST_AFTER_EXACT_REPO_READBACK",
+  "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
+}
