@@ -158,13 +158,21 @@ for idx, txt in enumerate(frames):
     draw.multiline_text((10, 8), txt, font=font, fill=(238, 238, 238), spacing=0)
     img.save(frames_dir / f"{idx:04d}.png", compress_level=9)
 
+full_mp4 = ROOT / "._air018_full.mp4"
 mp4 = ROOT / "rider-chassis-counterpitch-landing-debt.mp4"
 subprocess.run([
     "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
     "-framerate", str(FPS), "-i", str(frames_dir / "%04d.png"),
     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "30",
+    "-threads", "1", "-movflags", "+faststart", str(full_mp4)
+], check=True)
+subprocess.run([
+    "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+    "-i", str(full_mp4), "-vf", "scale=362:262:flags=lanczos",
+    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "30",
     "-threads", "1", "-movflags", "+faststart", str(mp4)
 ], check=True)
+full_mp4.unlink()
 shutil.rmtree(frames_dir)
 
 sha = hashlib.sha256(mp4.read_bytes()).hexdigest()
