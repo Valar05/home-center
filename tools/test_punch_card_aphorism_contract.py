@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression contract for Punch-Card Aphorism deterministic triggering and gameplay judgment."""
+"""Regression contract for Punch-Card Aphorism deterministic triggering and punch delivery."""
 from pathlib import Path
 import sys
 
@@ -21,8 +21,25 @@ for needle in [
     "GAMEPLAY_LOGIC_INCOMPLETE",
     "NONDETERMINISTIC_RANDOMNESS",
     "THE PUN IS THE HANDLE. THE MODEL IS THE MACHINE.",
+    "Fast punch lane — conversational aphorism",
+    "Tourette's-type timing with legibility",
+    "The output MUST contain the exact word `fuck` unless Drew explicitly waives it.",
+    "LIVE MECHANISM → ABRUPT WRONG-GRAMMAR FUCK → SECOND-BEAT LEGIBILITY → STOP",
+    "answering `punch me` with explanation instead of one line",
 ]:
     assert needle in SKILL, f"Punch-Card skill missing invariant: {needle}"
+
+for needle in [
+    "`punch me` fast path",
+    "Tourette's-type timing with legibility",
+    "tic-shaped semantic event",
+    "ABRUPT FUCK → WRONG GRAMMAR → LEGIBLE MECHANISM → STOP",
+    "INTERRUPTION + SURPRISE + COMPRESSION + LEGIBILITY",
+    "`punch me` omits `fuck` without an explicit waiver",
+]:
+    assert needle in FUCK, f"Improper Fuck skill missing punch invariant: {needle}"
+
+assert "Never simulate a verbal tic by inserting profanity automatically" not in FUCK
 
 for text, label in [(CORE, "Fortress Core"), (RITSU, "Ritsu"), (TANGO, "Tango"), (FUCK, "Improper Fuck Lexicon")]:
     assert "skills/punch-card-aphorism/SKILL.md" in text, f"{label} does not route Punch-Card Aphorism"
