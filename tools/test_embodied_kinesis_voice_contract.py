@@ -19,13 +19,15 @@ assert "embodied-kinesis-voices" in selected, "embodied kinesis jar must be in d
 assert limit > 0
 
 jar_path = ROOT / ".continue/rules/06-judgement-jar-embodied-kinesis-voices.md"
+ritsu_rule_path = ROOT / ".continue/rules/45-judgement-jar-ritsu-rule-must-touch-ground.md"
 skill_path = ROOT / "skills/embodied-kinesis-voices/SKILL.md"
 fixture_path = ROOT / "fixtures/canaries/embodied-kinesis-voices.v1.json"
 
-for path in [jar_path, skill_path, fixture_path]:
+for path in [jar_path, ritsu_rule_path, skill_path, fixture_path]:
     assert path.exists(), f"missing embodied kinesis contract file: {path}"
 
 jar = jar_path.read_text(encoding="utf-8")
+ritsu_rule = ritsu_rule_path.read_text(encoding="utf-8")
 skill = skill_path.read_text(encoding="utf-8")
 fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
 
@@ -35,6 +37,9 @@ required_fragments = [
     "Venice originated the mechanism; Venice does not become the house style",
     "Ritsu must not inherit Venice whisper/lean/ASMR behavior",
     "DRU = mechanical interception / load-path reasoning",
+    "Thirst reaction law",
+    "THIRST_WITHOUT_REACTION",
+    "THIRST MUST TOUCH GROUND. Thirst is an input; the reaction is hers.",
     "DISEMBODIED_CHARACTER_VOICE",
     "KINETIC_VOICE_COLLAPSE",
     "VENICE_STYLE_BLEED",
@@ -42,6 +47,16 @@ required_fragments = [
 
 for fragment in required_fragments:
     assert fragment in jar, f"runtime jar missing required fragment: {fragment!r}"
+
+for fragment in [
+    "Thirst contact law — the input must land",
+    "THIRST MUST TOUCH GROUND.",
+    "The reaction belongs to Ritsu, not to the request.",
+    "The rule requires contact, not flirtation.",
+    "THIRST_WITHOUT_REACTION",
+    "Every rule must touch ground. Thirst is an input; the reaction is hers.",
+]:
+    assert fragment in ritsu_rule, f"Ritsu governing doctrine missing thirst invariant: {fragment!r}"
 
 for fragment in [
     "Every conversational character must have an embodied kinetic grammar",
@@ -55,12 +70,14 @@ for fragment in [
 
 assert fixture.get("schema") == "home-center.embodied-kinesis-canary.v1"
 cases = fixture.get("cases") or []
-assert len(cases) >= 3
+assert len(cases) >= 4
 assert {case.get("character") for case in cases} >= {"Ritsu", "DRU", "Venice"}
+assert any(case.get("id") == "ritsu-thirst-reaction" for case in cases), "missing blind Ritsu thirst canary"
 for case in cases:
     prompt = str(case.get("prompt") or "")
     assert prompt.strip()
     assert "kinesis" not in prompt.lower(), f"canary prompt leaks mechanism: {case.get('id')}"
+    assert "thirst reaction law" not in prompt.lower(), f"canary prompt leaks thirst law: {case.get('id')}"
     assert case.get("require_any"), f"canary missing positive vocabulary: {case.get('id')}"
     assert case.get("forbid_any"), f"canary missing anti-bleed vocabulary: {case.get('id')}"
     assert str(case.get("semantic_requirement") or "").strip()
@@ -82,6 +99,9 @@ for fragment in [
     "Venice originated the mechanism; Venice does not become the house style",
     "Ritsu must not inherit Venice whisper/lean/ASMR behavior",
     "DRU = mechanical interception / load-path reasoning",
+    "Thirst reaction law",
+    "THIRST_WITHOUT_REACTION",
+    "THIRST MUST TOUCH GROUND. Thirst is an input; the reaction is hers.",
 ]:
     assert fragment in packet, f"fresh/default runtime packet omitted embodied kinesis fragment: {fragment!r}"
 
@@ -96,4 +116,5 @@ print(json.dumps({
     "blindCanaryCases": [case["id"] for case in cases],
     "crossChatPromptCarrier": True,
     "carrier": "judgment_jar_runtime.active_jars",
+    "ritsuThirstDoctrineBacked": True,
 }, sort_keys=True))
