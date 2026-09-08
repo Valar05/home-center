@@ -9,11 +9,7 @@
   "motion_json": "motion.json",
   "receipt": "receipt.json",
   "spa": "shove-it-dual-clock-recapture-repair.motion.html",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -26,10 +22,7 @@
     "predecessor_preserved": true,
     "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
     "source_change": false,
-    "successor_inventory": {
-      "prior_legitimate_successors_revising_video_motion_003": 0,
-      "selected_storage_identity": "009"
-    },
+    "successor_inventory": {"prior_legitimate_successors_revising_video_motion_003": 0, "selected_storage_identity": "009"},
     "binding_successor": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/"
   },
   "source_identity": {
@@ -42,8 +35,8 @@
   "media": {
     "authoritative": "embedded_mp4_in_spa",
     "tracked_mp4": false,
-    "sha256": "da1304360562733595944e785bf4668efb566acfcbf2050e1972a06a3c2a7370",
-    "bytes": 26985,
+    "sha256": "d4ff3bf22c696fc52afdb534a6444f23621d3329f7b0e5d3011d4def7e041808",
+    "bytes": 11084,
     "codec": "H.264",
     "pixel_format": "yuv420p",
     "width": 432,
@@ -53,29 +46,30 @@
     "duration_s": 2.2916666666666665,
     "source": "abstract_ascii_rig_only",
     "decode_verified": true,
-    "identity_note": "Current worker rebuilt from the exact canonical abstract rig/timing after the Tango recovery-bridge correction; this SHA is the authoritative embedded MP4 identity."
+    "identity_note": "Current worker encoded the corrected K14B Motion Dungeon frame stream as the authoritative embedded MP4; 55-frame geometry/timing unchanged.",
+    "encoding_note": "Motion Dungeon corrected ASCII frame stream encoded H.264 CRF 30 after exact geometry/timing render; geometry and frame count unchanged."
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
       "rounds_total_lineage": 5,
-      "inspection_scope": "this worker decoded the exact canonical render, inspected every frame chronologically, rejected the recovery T-pose crossing, mutated K14→K14B→K15 timing/bridge, rerendered, then reinspected the corrected full sequence",
-      "verdict": "PASS — asymmetric preparation and load, distinct board/body clocks, authored release, eligibility→recapture→ground-catch separation, crooked landing sink, directional overshoot, staggered secondary lag, and displaced recovery are readable. The prior K14→K15 connective T-pose has been removed by an authored recovery bridge plus decisive snap boundary; no remaining visible defect earns mutation."
+      "inspection_scope": "current worker rebuilt the persisted pre-correction render byte-identically, rejected the K14→K15 generic bilateral recovery crossing, inserted authored K14B plus a decisive snap boundary, rerendered, decoded all 55 frames, and reinspected the corrected sequence",
+      "verdict": "PASS — asymmetric preparation/load, body-board clock separation, authored release, eligibility→recapture→ground-catch separation, crooked landing sink, directional overshoot, authored arm-debt bridge, secondary lag, and displaced exit are readable; no remaining visible defect earns mutation."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
       "rounds_total_lineage": 3,
-      "inspection_scope": "this worker judged the corrected exact final render plus complete ASCII/JSON/VIDEO specimen only after final Tango PASS",
-      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, recovery overshoot and intentionally staggered arm debt read as one authored performance rather than a pose pack."
+      "inspection_scope": "corrected exact final render plus complete ASCII/JSON/VIDEO specimen after final Tango PASS",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: backward load, independent board clock, late recapture rendezvous, crooked landing payment, one-arm recovery debt, overshoot, and displaced exit form one specific performance rather than a pose pack."
     }
   },
   "contract_test": {
     "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped_status": "PENDING_CURRENT_WORKER_POST_WRITE",
+    "candidate_scoped_status": "PASS",
     "repo_global_status": "NOT_CLAIMED"
   }
 }
