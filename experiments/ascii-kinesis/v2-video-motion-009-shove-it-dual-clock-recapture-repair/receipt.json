@@ -91,6 +91,7 @@
     "manifest_media_identity_readback": "PASS"
   },
   "issue_receipt_pre_chat_delivery": 5593350364,
+  "issue_receipt_healthy_closure": 5593380635,
   "chat_delivery": {
     "part1_ascii": true,
     "part2_json": true,
