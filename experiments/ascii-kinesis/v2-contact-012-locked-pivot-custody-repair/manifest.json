@@ -1,0 +1,134 @@
+{
+  "format_version": 2,
+  "schema": "ascii-kinesis.swarm-entry-v2",
+  "experiment_id": "v2-contact-012-locked-pivot-custody-repair",
+  "lane": "contact",
+  "title": "Locked Pivot Custody Repair",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "revises": "experiments/ascii-kinesis/v2-contact-005-locked-pivot-before-release/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-contact-005-locked-pivot-before-release/",
+  "source_change": false,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "566049",
+    "title": "Pinky",
+    "game": "Mina the Hollower",
+    "platform": "PC / Computer",
+    "url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566049/",
+    "archive_bytes": 88774,
+    "archive_sha256": "fb1c69d5b2a31553e24d14191841090e08963e424b1686869ca03909f653244d",
+    "archive_png_count": 71,
+    "named_family_count": 22,
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNAVAILABLE"
+  },
+  "rights": {
+    "source_art_role": "evidence_only",
+    "source_pixels_embedded": false,
+    "source_pixels_rendered": false,
+    "palette_copied": false,
+    "layout_copied": false,
+    "contours_traced": false,
+    "choreography_copied": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "drew_work_used": false,
+    "output": "independent abstract ASCII relationship rig"
+  },
+  "files": {
+    "builder": "build.py",
+    "ascii_delivery": "embedded literal ASCII in locked-pivot-custody-repair.motion.html; contact-sheet.txt is deterministic build output and is not separately tracked",
+    "json": "motion.json",
+    "spa": "locked-pivot-custody-repair.motion.html",
+    "receipt": "receipt.json"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "6acbf2f50287dad69da9b9e22ffeb5fbda456b71e6b1eacd78d863c223674770",
+    "bytes": 14266,
+    "codec": "H.264/libx264",
+    "width": 760,
+    "height": 440,
+    "pixel_format": "yuv420p",
+    "fps": 24,
+    "frames": 34,
+    "decode_verified": true
+  },
+  "motion_dungeon": {
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
+    "deterministic": true,
+    "source_sprite_pixels_used": false
+  },
+  "timing": {
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "ones": "new authored sample every display frame",
+    "twos": "hold authored sample for two display frames",
+    "fours": "hold authored sample for four display frames",
+    "nominal_fps": 24,
+    "source_timing": "UNAVAILABLE",
+    "all_key_timing_provenance": "INFERRED",
+    "shorthand_note": "1s/2s/4s means ONES/TWOS/FOURS classes, never seconds."
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "actual_render_inspected": true,
+      "render_sha256": "6acbf2f50287dad69da9b9e22ffeb5fbda456b71e6b1eacd78d863c223674770",
+      "history": [
+        {
+          "status": "REVISE_REQUIRED",
+          "visible_defect": "Final recovery read as an idle reset: both bodies returned to near-neutral upright mannequins, erasing the authored recovery debt.",
+          "correction": "Mutate C012-K12 itself: keep A rear-dominant and pitched into throw-side debt; keep B front-dominant with torso behind the first-catch line and rear limb lagging; mark root as SEPARATE_DISPLACED_DEBT_UNPAID; rerender."
+        },
+        {
+          "status": "PASS",
+          "visible_result": "Final render now ends with visibly displaced, mismatched support and residual opposing body angles; locked pivot remains rooted and custody-readable through K3-K7; release is isolated at K8; recoil, catch, overshoot and secondary lag are distinct."
+        }
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "actual_render_inspected": true,
+      "render_sha256": "6acbf2f50287dad69da9b9e22ffeb5fbda456b71e6b1eacd78d863c223674770",
+      "taste": "PASS: the pivot is a specific ugly-beautiful leverage event rather than polite touching; held horizontal partner silhouette gives the specimen an authored attitude.",
+      "function": "PASS: @ seam, # root pin, support peel, release fork and catch debt remain readable as causal state changes.",
+      "contempt": "PASS: final motion refuses neutral-reset convenience and keeps visible recovery debt instead of smoothing the relationship into generic tweening."
+    }
+  },
+  "contract": {
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS"
+  },
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
