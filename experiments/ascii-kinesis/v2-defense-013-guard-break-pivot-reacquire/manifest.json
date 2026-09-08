@@ -1,0 +1,149 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sha256": "8f4214e06ae02737220b4deae174c904bb15076ea94e76a6795f81af2e1f3ba9",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "compatibility": {
+    "backward_compatible": true,
+    "offline_playback": true,
+    "v1_artifacts_untouched": true,
+    "v2_primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "contract_test": {
+    "exit_code": 0,
+    "repo_global_claimed": false,
+    "scope": "candidate-isolated exact official script",
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "status": "PASS"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX GUARD ROOT RELATION",
+    "FIX RECOVERY",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ],
+  "experiment_id": "v2-defense-013-guard-break-pivot-reacquire",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "guard-break-pivot-reacquire.motion.html",
+    "manifest.json",
+    "motion.json",
+    "receipt.md"
+  ],
+  "format_version": 2,
+  "lane": "defense",
+  "ligatures_disabled": true,
+  "media_bytes": 15701,
+  "media_decode_preflight": {
+    "codec": "h264",
+    "duration_seconds": 1.375,
+    "fps": "24/1",
+    "frames": 33,
+    "height": 450,
+    "tool": "ffprobe",
+    "width": 800
+  },
+  "media_sha256": "f4d71f4804316e08be1225373ead9a1c0b62e4cf4f21836c58e5571a8ec3ac26",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 15,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "frames": 33
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "principle": "A guard break can preserve threat-facing authority by converting linear recoil into a support-owned pivot; the exit plant arrests rotation before the guard fully reopens.",
+  "quality_gates": {
+    "noodle_queen": {
+      "actual_render_inspected": true,
+      "contempt": "It does not read as mannequin symmetry, equalized spacing, planted-feet theater, straight tweening, reverse interpolation, floating guard, or an idle reset.",
+      "function": "Support ownership, root travel, guard authority, first plant, rotational overshoot, counter-travel, restack, and late guard recovery remain causally legible.",
+      "status": "PASS",
+      "taste": "The compression-to-pivot phrase has a specific hooked silhouette and threat-facing guard attitude rather than a generic backstep."
+    },
+    "tango": "PASS",
+    "tango_iteration_1": {
+      "correction": "Lift the old rear foot in D013-K08..K10 until D013-K11 reacquisition, and exaggerate D013-K06..K07 head/guard lag plus free-leg sweep so rear-anchor rotation is visibly distinct from a lateral slide.",
+      "highest_value_visible_defect": "During the first single-exit-foot support phase, the old rear foot still sat on the floor in the rendered ASCII, contradicting declared support ownership and making the pivot read as planted-feet theater.",
+      "status": "REVISE_REQUIRED"
+    },
+    "tango_iteration_2": {
+      "actual_render_inspected": true,
+      "judgment": "Final 33-frame render reads as asymmetrical brace -> guard crush -> rear-anchor pivot -> visible cross-body sweep -> honest single-foot exit plant -> rotational overshoot -> counter-rotation -> second-foot reacquisition -> late guard reopen -> secondary settle -> displaced ready debt. The corrected old rear foot is visibly clear of the floor during EXIT_FOOT ownership, and contact is not farthest reach.",
+      "status": "PASS"
+    }
+  },
+  "receipt_status": "QUALITY_GATES_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED",
+  "reconstruction": "python3 build.py",
+  "revision": {
+    "fresh_source_family": "TSR asset 5555 / M. Bison / SSFII SNES",
+    "kind": "NEW_CONCEPT_POST_RESET",
+    "negative_fixture": null,
+    "older_defense_rejection_debt_remaining": false,
+    "post_closure_receipt": "5591342224",
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "rights": {
+    "classification": "copyright-restricted commercial source art; evidence only",
+    "drew_work_used": false,
+    "forbidden": [
+      "source pixels",
+      "palette",
+      "exact contours",
+      "sheet layout",
+      "tracing",
+      "source choreography",
+      "redistribution",
+      "close imitation"
+    ],
+    "output": "independently authored generic ASCII biped and inferred motion grammar",
+    "source_pixels_in_output": false
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": "5555",
+    "character": "M. Bison",
+    "evidence_custody": "Authoritative Home Center campaign Defense Pass 009; exact source previously fetched through Home Center -> primary-phone and whole sheet inspected as evidence.",
+    "game": "Super Street Fighter II: The New Challengers",
+    "page_url": "https://www.spriters-resource.com/snes/supersf2/asset/5555/",
+    "platform": "SNES",
+    "provider": "The Spriters Resource",
+    "source_authentic_timing": "UNKNOWN",
+    "whole_source": {
+      "bytes": 175378,
+      "ffprobe_nb_frames": 1,
+      "height": 1309,
+      "kind": "static_png",
+      "sha256": "46b841549e8f18977c633d186a396b3074445fd6c2a1cc50fecd79f637585f66",
+      "width": 1175
+    }
+  },
+  "source_art_embedded": false,
+  "timing_provenance_required": true,
+  "tracked_media_sidecar": false,
+  "video_packaging": "authoritative embedded MP4 data URI in SPA",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
