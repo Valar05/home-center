@@ -1,0 +1,52 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-video-motion-008-ground-flip-support-release-repair",
+  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
+    "source_change": false,
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "preserve_predecessor": true
+  },
+  "source": {
+    "title": "Ground flip (1080p 120fps - take 02).webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "rights_status": "CC_BY_SA_4_0",
+    "license_id": "CC BY-SA 4.0"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "tracked_mp4": false,
+    "sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
+    "bytes": 29666,
+    "probe": {
+      "streams": [{"codec_name":"h264","width":572,"height":482,"pix_fmt":"yuv420p","r_frame_rate":"24/1","nb_frames":"55"}],
+      "format": {"duration":"2.291667","size":"29666"}
+    },
+    "decode_verified": true,
+    "derived_only_from_abstract_ascii_rig_and_timing": true
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "render_sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
+      "inspection": "All 55 decoded frames inspected as one timing sheet. Asymmetric counter-swing/deep coil earn release; support narrows to last toe before AIRBORNE; late opening aims lead-only catch; deepest compression follows contact; rebound overshoots into right-biased settle; final ready occupies a new stance address."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "render_sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
+      "inspection": "TASTE + FUNCTION + CONTEMPT PASS after Tango: specific lopsided silhouettes, readable stored force and support causality, consequence-bearing recovery, economical without placeholder tweening."
+    }
+  },
+  "contract": {
+    "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_scoped": "PASS",
+    "stdout": "{\"entries_checked\": [\"v2-video-motion-008-ground-flip-support-release-repair\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}",
+    "repo_global": "NOT_RUN_STANDARD_CHAT_NO_FULL_TREE"
+  },
+  "repository": {"path":"experiments/ascii-kinesis/v2-video-motion-008-ground-flip-support-release-repair/"},
+  "issue_receipt": null,
+  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX LANDING","FIX SECONDARY LAG","RERUN"]
+}
