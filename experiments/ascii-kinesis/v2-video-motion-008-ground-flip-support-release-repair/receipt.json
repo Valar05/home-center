@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-video-motion-008-ground-flip-support-release-repair",
-  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
   "revision": {
     "revises": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
     "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
@@ -12,40 +12,71 @@
   "source": {
     "title": "Ground flip (1080p 120fps - take 02).webm",
     "page_url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "author": "PoseidonSports",
+    "origin": "Own work uploaded by PoseidonSports to Wikimedia Commons",
+    "source_date": "2023-01-22",
     "rights_status": "CC_BY_SA_4_0",
-    "license_id": "CC BY-SA 4.0"
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_sha256": "3e20e997e0aa0d95973ecd89caacc6c770cfa5ba23266026c2c3de6d2d2567a7",
+    "source_bytes": 15685775,
+    "source_duration_s": 6.008,
+    "source_dimensions": [1920,1080],
+    "stream_fps": "120/1",
+    "selected_action_segment_s": [0.5,3.75],
+    "presentation_cadence_note": "OBSERVED source times are slow-motion presentation timestamps only; they are not source-authentic athletic cadence.",
+    "whole_action_inspection": "Inherited verified predecessor evidence: complete 6.008 s source decoded/inspected before the 0.500–3.750 s coherent action segment and denser 2.000–4.000 s core inspection. This repair performs no fresh source mining and preserves that evidence family.",
+    "rights_note": "Analysis-only evidence. No source pixels, copied frames, source audio, traced contours, or expressive source artwork enter the ASCII rig, MP4, or SPA."
   },
+  "evidence_boundary": {
+    "observed": [
+      "Inherited predecessor whole-source inspection and source identity/rights/hash/decode facts.",
+      "Presentation-time anchors: 0.500 s compressed start; 1.250 s grounded preparation; 2.500 s still-grounded final-set evidence; 2.750–3.000 s toe-off/release bracket; 3.250 s inverted/tucked apex evidence; 3.500 s descending/unfolding; support returned by 3.750 s.",
+      "Horizontal root travel is small relative to vertical/rotational excursion.",
+      "Source is categorized slow motion; its 120 fps stream and presentation timestamps are not athletic cadence."
+    ],
+    "inferred": [
+      "All successor acting geometry, asymmetry, support-side assignments, COM/load transfer, limb sequencing, landing-side choice, secondary lag, overshoot, recovery debt, bridge keys, chronology between evidence anchors, and every ONES/TWOS/FOURS compile timing.",
+      "Motion Dungeon connectors are deterministic geometry only; support/contact semantic changes occur only on authored decisive keys."
+    ],
+    "unknown": [
+      "Real-world athletic cadence/duration represented by the slow-motion presentation",
+      "Exact toe-off frame/foot",
+      "Exact first landing foot/strike frame and side",
+      "Exact hand-ground contact state during rotation"
+    ]
+  },
+  "per_key_timing": [
+    {"key_id":"K0","timing_class":"FOURS","timing_provenance":"INFERRED","source_anchor":{"time_s":0.5,"provenance":"OBSERVED","fact":"selected action begins in a compressed stance"}},
+    {"key_id":"K1","timing_class":"FOURS","timing_provenance":"INFERRED","source_anchor":{"time_s":1.25,"provenance":"OBSERVED","fact":"grounded preparation continues through a long extension/swing phase"}},
+    {"key_id":"K2","timing_class":"FOURS","timing_provenance":"INFERRED","source_anchor":{"time_s":2.5,"provenance":"OBSERVED","fact":"performer remains upright adjacent to the ground plane before release"}},
+    {"key_id":"K3","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":{"time_s":2.5,"provenance":"OBSERVED","fact":"exact toe-off has not yet been established at 2.500 s"}},
+    {"key_id":"K4","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":2.75,"provenance":"OBSERVED","fact":"release transition is underway but exact toe-off remains bracketed"}},
+    {"key_id":"K5","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":3.0,"provenance":"OBSERVED","fact":"body is clearly airborne/rotating by 3.000 s"}},
+    {"key_id":"K6","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":3.0,"provenance":"OBSERVED","fact":"airborne rotation is visible"}},
+    {"key_id":"K7","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":{"time_s":3.25,"provenance":"OBSERVED","fact":"body is visibly inverted/tucked around the apex region"}},
+    {"key_id":"K8","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":{"time_s":3.25,"provenance":"OBSERVED","fact":"root/pelvis proxy above the head path in the clearest inversion sample"}},
+    {"key_id":"K9","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":3.5,"provenance":"OBSERVED","fact":"body is descending/unfolding toward the ground plane"}},
+    {"key_id":"K10","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":{"time_s":3.5,"provenance":"OBSERVED","fact":"feet approach ground while first landing contact remains unresolved"}},
+    {"key_id":"K11","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":3.75,"provenance":"OBSERVED","fact":"ground support has visibly returned by 3.750 s; exact first-foot side/frame is unresolved"}},
+    {"key_id":"K12","timing_class":"ONES","timing_provenance":"INFERRED","source_anchor":{"time_s":3.75,"provenance":"OBSERVED","fact":"ground support is present by this observed presentation time"}},
+    {"key_id":"K13","timing_class":"FOURS","timing_provenance":"INFERRED","source_anchor":{"time_s":3.75,"provenance":"OBSERVED","fact":"torso is substantially upright with ground support returned"}},
+    {"key_id":"K14","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":null},
+    {"key_id":"K15","timing_class":"TWOS","timing_provenance":"INFERRED","source_anchor":null},
+    {"key_id":"K16","timing_class":"FOURS","timing_provenance":"INFERRED","source_anchor":null}
+  ],
   "media": {
-    "authoritative": "embedded_mp4_in_spa",
-    "tracked_mp4": false,
-    "sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
-    "bytes": 29666,
-    "probe": {
-      "streams": [{"codec_name":"h264","width":572,"height":482,"pix_fmt":"yuv420p","r_frame_rate":"24/1","nb_frames":"55"}],
-      "format": {"duration":"2.291667","size":"29666"}
-    },
-    "decode_verified": true,
-    "derived_only_from_abstract_ascii_rig_and_timing": true
+    "authoritative":"embedded_mp4_in_spa","tracked_mp4":false,"sha256":"8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e","bytes":29666,
+    "probe":{"programs":[],"stream_groups":[],"streams":[{"codec_name":"h264","width":572,"height":482,"pix_fmt":"yuv420p","r_frame_rate":"24/1","nb_frames":"55"}],"format":{"duration":"2.291667","size":"29666"}},
+    "decode_verified":true,"derived_only_from_abstract_ascii_rig_and_timing":true
   },
   "quality": {
-    "tango": {
-      "status": "PASS",
-      "render_sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
-      "inspection": "All 55 decoded frames inspected as one timing sheet. Asymmetric counter-swing/deep coil earn release; support narrows to last toe before AIRBORNE; late opening aims lead-only catch; deepest compression follows contact; rebound overshoots into right-biased settle; final ready occupies a new stance address."
-    },
-    "noodle_queen": {
-      "status": "PASS",
-      "render_sha256": "8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e",
-      "inspection": "TASTE + FUNCTION + CONTEMPT PASS after Tango: specific lopsided silhouettes, readable stored force and support causality, consequence-bearing recovery, economical without placeholder tweening."
-    }
+    "tango": {"status":"PASS","inspection_scope":"CURRENT_WORKER_ALL_55_DECODED_FRAMES_IN_CHRONOLOGICAL_FIVE_SHEET_REVIEW","render_sha256":"8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e","inspection":"PASS after current-worker inspection of all 55 rendered frames. The visible sentence reads asymmetric ready skew -> counter-sweep -> deep left-loaded coil -> drive through left support -> last-toe sling -> support release -> ascending C-shape -> asymmetric tuck/inverted apex -> late opening/descent aim -> lead-only first contact -> trailing support -> deepest landing compression -> rebound overshoot -> right-biased settle -> displaced ready. Preparation, COM/load transfer, support/contact gates, root arc, release, flight, landing consequence, overshoot, secondary lag and recovery debt are authored and readable; no mannequin symmetry, equal spacing, reverse recoil, idle reset, or source-analysis-only posing warrants a key mutation."},
+    "noodle_queen": {"status":"PASS","after_tango":true,"render_sha256":"8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e","inspection":"TASTE + FUNCTION + CONTEMPT PASS on the same actual render and three-part specimen: the lopsided coil/sling, compact inverted silhouette, lead-catch/deep-compression consequence and off-center recovery are specific enough to be worth attention; the motion is economical without reading as placeholder interpolation."}
   },
-  "contract": {
-    "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped": "PASS",
-    "stdout": "{\"entries_checked\": [\"v2-video-motion-008-ground-flip-support-release-repair\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}",
-    "repo_global": "NOT_RUN_STANDARD_CHAT_NO_FULL_TREE"
-  },
-  "repository": {"path":"experiments/ascii-kinesis/v2-video-motion-008-ground-flip-support-release-repair/"},
+  "contract": {"script_blob_sha":"09f0bcf233dbb770ce6b6df047fe18d94be8aa7c","candidate_scoped":"PASS","repo_global":"NOT_CLAIMED","stdout":"{\"entries_checked\": [\"v2-video-motion-008-ground-flip-support-release-repair\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}"},
+  "repository": {"path":"experiments/ascii-kinesis/v2-video-motion-008-ground-flip-support-release-repair/","readback":"PENDING","commit":null},
+  "embedded_media_identity": {"embedded_bytes":29666,"embedded_sha256":"8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e","generated_bytes":29666,"generated_sha256":"8243ae370bbc3eaf7f990b9764e079b54289b0c45cb56d2cbac69c44369b293e","byte_identical":true,"spa_bytes":90824},
   "issue_receipt": null,
   "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX LANDING","FIX SECONDARY LAG","RERUN"]
