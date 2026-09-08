@@ -1,0 +1,513 @@
+ASCII KINESIS V2 TIMING 007 - SHARED PROFILE STRIDE REPAIR
+revises: experiments/ascii-kinesis/v2-timing-002-observed-variant-profile-reuse/
+negative_fixture: experiments/ascii-kinesis/v2-timing-002-observed-variant-profile-reuse/
+SOURCE ART: NONE | SOURCE PREVIEW TIMING: OBSERVED EVIDENCE ONLY | AUTHORED DECISIVE-KEY TIMING: INFERRED
+POLICY: STREET_FIGHTER/CAPCOM | ONES=1 display frame | TWOS=2 | FOURS=4 | 1s/2s/4s are classes, never seconds
+VARIANT RULE: FACING_RIGHT + FACING_LEFT are simultaneous presentation transforms of ONE shared temporal key list.
+
+[T007-K0] REAR_LOAD
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=LEFT_FOOT_GROUND
+root/motion-arc=COM sits behind the planted rear/left foot line and drops; lead foot hovers one row above ground. Arms oppose the coming drive. Orientation mirror is presentation only.
+timing_class=FOURS | timing_provenance=INFERRED
+causal_role=asymmetrical anticipation / stored-energy boundary
+clocks GAIT=REAR_LOAD | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+
+                 O
+                 |
+                 |
+                |
+             -o-+-o-
+           o-   |   -o
+          /     |     \
+         a     |       b
+              o@o
+            //   \\
+           o       \o
+          /          \\
+         /             \R
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+
+                       O
+                       |
+                       |
+                        |
+                     -o-+-o-
+                   o-   |   -o
+                  /     |     \
+                 b       |     a
+                        o@o
+                      //   \\
+                    o/       o
+                  //          \
+                R/             \
+ =======================================
+
+
+[T007-K1] FORWARD_COIL
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=LEFT_FOOT_GROUND
+root/motion-arc=COM advances and sinks further while the same rear foot stays planted; lead knee/foot reaches forward without stealing support.
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=last readable compression before acceleration
+clocks GAIT=FORWARD_COIL | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+
+                   O
+                   |
+                   |
+                  |
+                o-+-o--o-
+              //  |      -b
+             o    |
+            /    |
+            a    |
+                o@o-
+              //    --o--
+            o/           --R
+          //
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+
+                     O
+                     |
+                     |
+                      |
+                -o--o-+-o
+              b-      |  \\
+                      |    o
+                       |    \
+                       |    a
+                     -o@o
+                --o--    \\
+             R--           \o
+                             \\
+ =======================================
+
+
+[T007-K2] DRIVE_SNAP
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=LEFT_FOOT_GROUND
+root/motion-arc=Rear/left foot is the final support as COM launches forward/up; long opposing arm/leg lines create a one-frame release spike.
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=force release / support break precursor
+clocks GAIT=DRIVE_SNAP | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+                      O
+                      |
+           a--        |
+              -o--   |
+                  -o-+-o
+                     |  \\
+                     |    \o
+                    |       \\
+                    |         \b
+                   o@o--
+                 //     --o--
+               //            --R
+              o
+            //
+          //
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+                  O
+                  |
+                  |        --a
+                   |   --o-
+                 o-+-o-
+               //  |
+             o/    |
+           //       |
+         b/         |
+                 --o@o
+            --o--     \\
+         R--            \\
+                          o
+                           \\
+                             \\
+ =======================================
+
+
+[T007-K3] FLIGHT_EXTENSION
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=AIRBORNE
+root/motion-arc=Support is explicitly NONE; COM continues forward/up after the drive. The long split silhouette is not interpolated across the support break.
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=fast airborne extension after release
+clocks GAIT=FLIGHT_EXTENSION | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+                         O
+                         |
+              a--        |
+                 -o--   |
+                     -o-+-o
+                        |  \\
+                       |     \o-
+                      o@o-      --
+                     /    --      -b
+                    /       -o
+                   o          \\
+                  /             \\
+                 L                \R
+
+
+
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+               O
+               |
+               |        --a
+                |   --o-
+              o-+-o-
+            //  |
+         -o/     |
+       --      -o@o
+     b-      --    \
+           o-       \
+         //          o
+       //             \
+     R/                L
+
+
+
+ =======================================
+
+
+[T007-K4] PRECONTACT_REACH
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=AIRBORNE
+root/motion-arc=COM begins to descend while chest lags behind the reaching lead/right foot; the foot remains one row above ground so contact is not invented early.
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=readable pre-contact brake / landing preparation
+clocks GAIT=PRECONTACT_REACH | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+                       O
+                       |
+                        |       --b
+                      o-+-o---o-
+                     /  |
+                    o    |
+                   /    o@o
+                  a   //   \
+                     o      \
+                    /        o
+                   L          \
+                               \
+                                \
+                                 R
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+                 O
+                 |
+      b--       |
+         -o---o-+-o
+                |  \
+               |    o
+              o@o    \
+             /   \\   a
+            /      o
+           o        \
+          /          L
+         /
+        /
+       R
+ =======================================
+
+
+[T007-K5] LEAD_CONTACT
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=RIGHT_FOOT_GROUND
+root/motion-arc=Lead/right foot acquires ground in a hard contact key while COM and torso are still traveling; contact is not smoothed through.
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=contact acquisition / force consequence begins
+clocks GAIT=LEAD_CONTACT | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+
+                        O
+                        |
+                         |
+                      -o-+-o-
+                    o-    \  -o
+                  a/      \    \\
+                          o@o    \b
+                        //   \
+                       o     \
+                     //       o
+                    L          \
+                                \
+                                \
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+
+                O
+                |
+               |
+            -o-+-o-
+          o-  /    -o
+        //    /      \a
+      b/    o@o
+           /   \\
+           /     o
+          o       \\
+         /          L
+        /
+        /
+ =======================================
+
+
+[T007-K6] CATCH_COMPRESSION
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=RIGHT_FOOT_GROUND
+root/motion-arc=Lead/right foot stays world-locked while pelvis drops past it; torso folds and rear limbs lag, paying the contact with a deep compression rather than teleporting to recovery.
+timing_class=FOURS | timing_provenance=INFERRED
+causal_role=impact catch / readable consequence hold
+clocks GAIT=CATCH_COMPRESSION | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+
+
+                         O
+                 a-      |
+                   -o--   |
+                       -o-+-o-
+                          \   --o
+                           \     \\
+                           \       \b
+                      -o---o@o
+                   L--        \
+                               o
+                                \
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+
+
+               O
+               |      -a
+              |   --o-
+           -o-+-o-
+        o--   /
+      //     /
+    b/       /
+           o@o---o-
+          /        --L
+         o
+        /
+ =======================================
+
+
+[T007-K7] REBOUND_PASS
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=RIGHT_FOOT_GROUND
+root/motion-arc=COM rebounds up and begins passing over the planted lead/right foot; chest leads while rear arm/leg remain delayed.
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=rebound / acceleration out of catch
+clocks GAIT=REBOUND_PASS | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+                                 O
+                                 |    -b
+                                |  /o-
+                              o-+-o
+                            //  |
+                          o/    |
+                         /     |
+                       //     o@o
+                      a     //  |
+                           o    |
+                         //     o
+                        L       |
+                                 |
+                                 |
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+       O
+ b-    |
+   -o\  |
+      o-+-o
+        |  \\
+        |    \o
+         |     \
+        o@o     \\
+        |  \\     a
+        |    o
+        o     \\
+        |       L
+       |
+       |
+ =======================================
+
+
+[T007-K8] SECONDARY_LAG
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=RIGHT_FOOT_GROUND
+root/motion-arc=Body passes the support while the trailing arm and recovering leg arrive late; the planted foot keeps support truthful during secondary lag.
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=secondary follow-through / phase debt
+clocks GAIT=SECONDARY_LAG | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+                                    O
+                                    |   b
+                                   |  /o
+                                 o-+-o
+                                /  |
+                              //   |
+                             o    |
+                            /    o@o
+                           /      \\
+                           /      | o
+                          a       |  \
+                                  o   \\
+                                  |     L
+                                 |
+                                 |
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+    O
+b   |
+ o\  |
+   o-+-o
+     |  \
+     |   \\
+      |    o
+     o@o    \
+     //      \
+    o |      \
+   /  |       a
+ //   o
+L     |
+       |
+       |
+ =======================================
+
+
+[T007-K9] EXIT_STRIDE_DEBT
+pose/rig=GENERIC_SPRINT_BIPED_V1 | support/contact=RIGHT_FOOT_GROUND
+root/motion-arc=COM and chest have traveled clearly past the planted right support while the opposite/left foot reaches forward one row above ground; the final silhouette is a falling next-step obligation, not a vertical neutral.
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=non-resetting forward debt / next-stride obligation
+clocks GAIT=EXIT_STRIDE_DEBT | ORIENTATION=BOTH_SIMULTANEOUS_PRESENTATION
+FACING_RIGHT (presentation only)
+
+ >
+
+
+
+                                      O
+                                      | b
+                                     |  o
+                                   o-+-o
+                                 //  |
+                               o/    |
+                              /     |
+                            //     o@o
+                           a        \\
+                                    / o
+                                   /   \
+                                   o   \
+                                  /     L
+                                  /
+ =======================================
+
+FACING_LEFT (same temporal key, mirrored presentation only)
+
+ <
+
+
+
+  O
+b |
+o  |
+ o-+-o
+   |  \\
+   |    \o
+    |     \
+   o@o     \\
+   //        a
+  o \
+ /   \
+ /   o
+L     \
+      \
+ =======================================
